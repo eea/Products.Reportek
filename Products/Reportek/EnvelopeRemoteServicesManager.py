@@ -111,7 +111,7 @@ class EnvelopeRemoteServicesManager:
             displayed in a temporary page
 
             Parameters in query string:
-                file_url1=script_id11,script_id12&...
+            |   file_url1=script_id11,script_id12&...
             This function assumes that all qa results have the same content type: 'text/html'
         """
         l_qa_app = getattr(self, QAREPOSITORY_ID).getQAApplication()

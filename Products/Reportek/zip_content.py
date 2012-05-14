@@ -165,19 +165,19 @@ def _get_user(ob):
 def get_history_content(ob):
     """ Return the history associated with this envelope.
         Example:
-            Log history for envelope Test Envelope
-            
-            1. Activity: Draft
-               Route: From Start To Draft
-               Status: complete
-               User:   johndoe
-               Eventlog: 
-                        2005/02/24 - creation
-                        2005/02/24 - assigned to johndoe
-                        2005/02/24 - active
-            ---
-            [other activities]
-        """
+        |   Log history for envelope Test Envelope
+        |   
+        |   1. Activity: Draft
+        |      Route: From Start To Draft
+        |      Status: complete
+        |      User:   johndoe
+        |      Eventlog: 
+        |               2005/02/24 - creation
+        |               2005/02/24 - assigned to johndoe
+        |               2005/02/24 - active
+        |   ---
+        |   [other activities]
+    """
 
     parsed_template = RepUtils.parse_template
     i = 1
@@ -270,7 +270,7 @@ def _get_feedback_files(ob):
 
 def get_metadata_content(ob):
     """ Return the metadata associated with this envelope.
-        Example:
+        Example::
             Description: some description
             Obligations: http://example.com/envelope
             Period: 1980 - Whole Year
@@ -278,9 +278,10 @@ def get_metadata_content(ob):
             Reported: 2006-06-19 11:09:56
             Status: running
             Files in this envelope: 
-                dummy.doc   uploaded on: 16 Jun 2006,    size: 99.7 KB
-                ----
-                [other files]
+            |   dummy.doc   uploaded on: 16 Jun 2006,    size: 99.7 KB
+            |   ----
+            |   [other files]
+
     """
     parsed_template = RepUtils.parse_template
 
@@ -325,21 +326,22 @@ def get_metadata_content(ob):
 
 def get_feedback_content(ob):
     """ Returns feedback items associated with this envelope.
-        Example: 
-          * (for automatic feedbacks)
-            Subject: Feedback item
-            Posted automatically on: 09 Sep 2008
-            Task: Automatic quality assessment
-            Referred file: file.xml
+        Example:
 
-            [ Feedback text ]
+	* (for automatic feedbacks)
+	  Subject: Feedback item
+	  Posted automatically on: 09 Sep 2008
+	  Task: Automatic quality assessment
+	  Referred file: file.xml
 
-          * (for manual feedbacks)
-            Subject: Feedback item
-            Envelope release: 11 Sep 2008
-            Attached files: file.doc
-            
-            [ Feedback text ]
+	  [ Feedback text ]
+
+	* (for manual feedbacks)
+	  Subject: Feedback item
+	  Envelope release: 11 Sep 2008
+	  Attached files: file.doc
+	  
+	  [ Feedback text ]
     """
     parsed_template = RepUtils.parse_template
     header = parsed_template(FEEDBACK_HEADER, 
@@ -374,7 +376,9 @@ def get_feedback_content(ob):
 
 def get_feedback_list(ob):
     """ Returns feedback items associated with this envelope.
+
         Example:
+
             Feedbacks for envelope Test Envelope
 
             1. Subject: Feedback item[link]
@@ -385,6 +389,7 @@ def get_feedback_list(ob):
             2. Subject: Feedback item[link]
                Envelope release: 11 Sep 2008
                Attached files: file.doc
+
             ...
     """
     feedbacks = []

@@ -139,7 +139,8 @@ class Converters(Folder):
 
     security.declarePublic('convertDocument')
     def convertDocument(self, file_url='', converter_id='', output_file_name='', REQUEST=None):
-        """ Convert a document. converter_id must start with 'default', 'loc_' or 'rem_' """
+        """ Convert a document. converter_id must start with 'default', 'loc\_' or 'rem\_'
+        """
         file_url = REQUEST.get('file', file_url)
         converter_id = REQUEST.get('conv', converter_id)
 

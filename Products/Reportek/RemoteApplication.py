@@ -48,11 +48,12 @@ class RemoteApplication(SimpleItem):
         It executes a set of operations on a remote server and generates a feedback object
         into the envelope as result of these.
         The instance data for the RemoteApplication is stored in the workitem
-        as an additional property - app_name - contaning a dictionary like:
-        {
+        as an additional property - app_name - contaning a dictionary like::
+
+          {
             'analyze':      {code, retries_left, last_error, next_run}, 
             'getResult':    {jobID: {code, retries_left, last_error, next_run, fileURL}}
-        }
+          }
 
         First, a call is made to the 'analyze' function from the remote service which retireves 
         the list of files that will be analyzed along with their jobIDs
@@ -60,15 +61,17 @@ class RemoteApplication(SimpleItem):
         Second, the 'getResult' remote service function is called for every job
 
         Possible codes for app_name['analyze']:
-            0 - started
-            2 - nothing to do
-            1 - done
-            -2 - failed
+
+        -   0 - started
+        -   2 - nothing to do
+        -   1 - done
+        -   -2 - failed
 
         Possible codes for app_name['getResult'][jobID]:
-            0 - processing
-            1 - result succefully brought
-            -2 - failed
+
+        -   0 - processing
+        -   1 - result succefully brought
+        -   -2 - failed
     """
 
     # Create a SecurityInfo for this class. We will use this
