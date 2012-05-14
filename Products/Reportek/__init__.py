@@ -24,6 +24,7 @@ __doc__ = """Reportek __init__ """
 __version__ = '$Rev$'[6:-2]
 
 # Zope imports
+import Globals
 from App.ImageFile import ImageFile
 from Products.ZCatalog.ZCatalog import ZCatalog
 
