@@ -13,6 +13,7 @@ Contents:
 
    collection
    envelope
+   document
    api
 
 
