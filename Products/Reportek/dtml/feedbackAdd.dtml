@@ -1,0 +1,101 @@
+<dtml-var standard_html_header>
+<div id="operations">
+	<ul>
+		<li><a href="&dtml-URL1;">Back to envelope</a></li>
+	</ul>
+</div>
+
+<h1>Add Feedback</h1>
+
+<div class="important-msg">
+	<strong>Important notice</strong>
+	<p>
+		If you want to be notified when other feedback is added to this envelope or comments are posted on feedback items,
+		you need to <a href="ReportekEngine/subscriptions_html">subscribe to receive notifications</a> 
+</div>
+
+<script type="text/javascript" src="/misc_/Reportek/tinymce/jscripts/tiny_mce/tiny_mce.js"></script>
+<script type="text/javascript">
+	function myFileBrowser (field_name, url, type, win) {
+		tinyMCE.activeEditor.windowManager.open({
+			file: files_page,
+			title: 'My File Browser',
+			width: 420,
+			height: 400,
+			resizable: "yes",
+			inline: "yes",  // This parameter only has an effect if you use the inlinepopups plugin!
+			close_previous: "no"
+		}, {
+			window: win,
+			input: field_name
+		});
+		return false;
+	}
+	tinyMCE.init({
+				language : "en",
+				mode : "textareas",
+				theme : "advanced",
+				plugins : "directionality, fullscreen, preview",
+				theme_advanced_buttons1: "bold, italic, underline, strikethrough, separator, justifyleft, justifycenter, justifyright, justifyfull, separator, bullist, numlist, separator, link, unlink, hr, removeformat, sub, sup, separator, preview, fullscreen, code",
+				theme_advanced_buttons2: "",
+				theme_advanced_buttons3 : "",
+				theme_advanced_toolbar_location : "top",
+				theme_advanced_toolbar_align : "left",
+				theme_advanced_path_location : "bottom",
+				plugin_insertdate_dateFormat : "%Y-%m-%d",
+				plugin_insertdate_timeFormat : "%H:%M:%S",
+				extended_valid_elements : "hr[class|width|size|noshade],font[face|size|color|style],span[class|align|style]",
+				theme_advanced_blockformats : "p,div,h2,h3,h4,h5,h6,blockquote",
+				theme_advanced_resize_horizontal : false,
+				theme_advanced_resizing : true
+				});
+</script>
+
+<dtml-if "not released">
+	<p>You can only add feedback in an envelope when it is released!</p>
+<dtml-elif "not canAddFeedback()">
+	<p>A manual feedback already exists for this envelope!</p>
+<dtml-else>
+<p class="form-help">Use the form to submit feedback to this delivery. You can attach one file to this feedback now and add othe files later by editing the feedback.</p>
+
+<form action="manage_addFeedback" method="post" enctype="multipart/form-data">
+	<input type="hidden" name="id" value="feedback<dtml-var "_.str(_.int(ZopeTime()))">" />
+	<table>
+		<tr>
+			<th style="width: 15%">Subject</th>
+			<td><input type="text" name="title:utf8:ustring" size="60" style="width:85%" /></td> 
+		</tr>
+		<tr>
+			<th style="width: 15%">Feedback content (plain text)</th>
+			<td><textarea cols="60" rows="20" name="feedbacktext:utf8:ustring" style="width:85%"></textarea>
+			</td>
+		</tr>
+		<tr>
+			<th style="width: 15%">Attach file</th>
+			<td><input type="file" name="file" size="25" value="" /></td>
+		</tr>
+		<tr>
+			<th align="left">Restricted from public view</th>
+			<td align="left"><input type="checkbox" name="restricted" /></td>
+		</tr>
+		<dtml-comment>
+		<tr>
+			<th>Referred file (if any)</th>
+			<td><select name="document_id">
+				<option></option>
+				<dtml-in "objectValues('Report Document')">
+				<option value="<dtml-var id>"><dtml-var title_or_id html_quote size=70></option>
+				</dtml-in>
+			</select>
+			</td>
+		</tr>
+		</dtml-comment>
+
+		<tr>
+			<td></td><td><input type="submit" value="Add feedback" /></td>
+		</tr>
+	</table>
+</form>
+</dtml-if>
+
+<dtml-var standard_html_footer>

@@ -1,0 +1,62 @@
+<span tal:replace="structure here/manage_page_header" />
+<h1 tal:define="manage_tabs_message request/manage_tabs_message|options/manage_tabs_message|nothing;
+      management_view string:Import/Export"
+      tal:replace="structure here/manage_tabs">
+    Tabs
+</h1>
+
+<h2>Import/Export in simple XML format</h2>
+
+<fieldset><legend>Import</legend>
+<form action="importFromXml" method="post" enctype="multipart/form-data">
+<table cellspacing="2" cellpadding="2" width="100%">
+	<tr>
+		<td class="form-label" width="20%">Upload XML file</td>
+		<td width="80%"><input type="file" name="file" /></td>
+	</tr>
+	<tr><td> </td><td><input type="submit" value="Import" /></td></tr>
+</table>
+</form>
+</fieldset>
+
+<fieldset><legend>Export</legend>
+<p>Export the applications, processes and their activities and transitions to an XML file.</p>
+<form action="exportToXml" method="post">
+	<label for="proc">Process</label>
+	<select name="proc" id="proc">
+		<option value="">all</option>
+		<tal:block repeat="proc python:here.objectValues('Process')">
+			<option tal:attributes="value proc/id" tal:content="proc/title_or_id" />
+		</tal:block>
+	</select>
+	<input type="submit" value="Export" />
+</form>
+</fieldset>
+
+<h2>Import/Export in XPDL format</h2>
+
+<fieldset><legend>Import</legend>
+<p>Add new processes, applications, activities and transitions by importing a XPDL file</p>
+<form action="importFromXPDL" method="post" enctype="multipart/form-data">
+<table>
+	<tr>
+		<th>File</th>
+		<td><input type="file" name="file" /></td>
+	</tr>
+
+	<tr>
+		<th></th>
+		<td><input type="submit" value=" Import " /></td>
+	</tr>
+</table>
+</form>
+</fieldset>
+
+<fieldset><legend>Export</legend>
+<p>Export the applications, processes and their activities and transitions to XPDL files.</p>
+<form action="exportToXPDL" method="post">
+	<input type="submit" value="Export" />
+</form>
+</fieldset>
+
+<span tal:replace="structure here/manage_page_footer" />

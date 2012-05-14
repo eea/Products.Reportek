@@ -1,0 +1,42 @@
+<dtml-var standard_html_header>
+
+<dtml-if "canViewContent()">
+
+<dtml-var "envelope_tabs(tab='envelope_previous')">
+<h1>Previous deliveries</h1>
+
+<p>If you want to copy the files from a previous delivery, choose the delivery and click <em>Go</em>:</p>
+
+<dtml-let self_url="absolute_url()">
+<dtml-in "getEngine().lookup_last_delivery(dataflow_uris=dataflow_uris, country=country, reporting_period=_.str(getStartDate()))" prefix=deliv>
+<dtml-if sequence-start>
+<table border="0">
+<tr>
+    <th>Title</th>
+    <th>Description</th>
+    <th>Period</th>
+    <th>Released</th>
+    <th>Copy files</th>
+</tr>
+</dtml-if>
+    <dtml-if "deliv_item.absolute_url() != self_url">
+<form method="post" action="manage_copyDelivery">
+<tr>
+    <td><a href="<dtml-var "deliv_item.absolute_url()">"><dtml-var "deliv_item.title_or_id()"></a></td>
+    <td><dtml-var descr></td>
+    <td><dtml-var year> - <dtml-var partofyear></td>
+    <td><dtml-if delivery_status>Yes<dtml-else>No</dtml-if></td>
+    <td><input type="hidden" name="previous_delivery" value="<dtml-var "deliv_item.absolute_url(1)">" /><input type="submit" class="fileop" value="Go" title="Copy files from this delivery" /></td>
+</tr>
+</form>
+    </dtml-if>
+<dtml-if sequence-end>
+</table>
+</dtml-if>
+<dtml-else>
+<p>No previous deliveries have been made.</p>
+</dtml-in>
+</dtml-let>
+</dtml-if>
+
+<dtml-var standard_html_footer>

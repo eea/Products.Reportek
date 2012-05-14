@@ -1,0 +1,14 @@
+Users and roles
+
+  Users of OpenFlow are mapped on normal Zope users. 
+  Any Zope user can be an OpenFlow user: in the Users and roles page you can assign to normal Zope
+  users one or more roles.
+
+  Roles are used to assign activities to Zope users.
+  When you create a role you will be propted to create a list of Zope users and a list of activities.
+  Each user you list will be assigned to each activity you list.
+
+  Users can be listed in multiple roles.
+  Activities can be listed in multiple roles.
+  
+  Beware: users must have "use OpenFlow" and/or "manage OpenFlow" permissions.

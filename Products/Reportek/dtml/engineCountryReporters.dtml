@@ -1,0 +1,87 @@
+<dtml-var standard_html_header>
+<dtml-let countries_list="getCountriesList()"
+		  p_country="REQUEST.get('country', 'all')">
+
+<div id="operations">
+	<ul>
+		<li><a href="/">Frontpage</a></li>
+	</ul>
+</div>
+<h1>Reporters by country</h1>
+
+<p>This page lists the users that have the local role of <em>'Reporter'</em> in each country.</p>
+
+<form action="./countryreporters" method="GET" name="frmCountryReporters">
+	<label for="country">Select country:</span>
+	<select name="country" id="country">
+		<option value="all"<dtml-if "p_country=='all'"> selected="selected"</dtml-if>>All</option>
+		<dtml-in countries_list prefix="c">
+		<option value="<dtml-var "c_item.title_or_id()">"<dtml-if "p_country==c_item.title_or_id()"> selected="selected"</dtml-if>><dtml-var "c_item.title_or_id()"></option>
+		</dtml-in>
+	</select>
+	<input type="submit" value="Sort" />
+</form>
+<br />
+
+	<dtml-if "p_country=='all'">
+		<dtml-in countries_list prefix="c">
+			<h2 style="background-color: #f0f0f0; padding: 0.1em"><dtml-var "c_item.title_or_id()"></h2>
+
+			<dtml-let reporters_list="getReportersByCountry(c_item.absolute_url(1), 'Reporter').keys()">
+				<dtml-if "len(reporters_list)>0">
+					<table class="sortable" width="100%">
+						<tr>
+							<th><span>ID</span></th>
+							<th><span>First Name</span></th>
+							<th><span>Last Name</span></th>
+							<th><span>Email</span></th>
+						</tr>
+					<dtml-in reporters_list prefix="rep" sort="">
+						<dtml-let user_dn="getLDAPUser(rep_item)">
+						<tr>
+							<td><dtml-var rep_item></td>
+							<td><dtml-var "getLDAPUserFirstName(user_dn)"></td>
+							<td><dtml-var "getLDAPUserLastName(user_dn)"></td>
+							<td><dtml-var "getLDAPUserEmail(user_dn)"></td>
+						</tr>
+						</dtml-let>
+					</dtml-in>
+					</table>
+				<dtml-else>
+					&nbsp;<span>N/A</span>
+				</dtml-if>
+			</dtml-let>
+		</dtml-in>
+	<dtml-else>
+		<dtml-let country="getCountryByTitle(p_country)">
+			<h2 style="background-color: #f0f0f0; padding: 0.1em"><dtml-var p_country></h2>
+
+			<dtml-let reporters_list="getReportersByCountry(country.absolute_url(1), 'Reporter').keys()">
+				<dtml-if "len(reporters_list)>0">
+					<table class="sortable" width="100%">
+						<tr>
+							<th><span>ID</span></th>
+							<th><span>First Name</span></th>
+							<th><span>Last Name</span></th>
+							<th><span>Email</span></th>
+						</tr>
+					<dtml-in reporters_list prefix="rep" sort="">
+						<dtml-let user_dn="getLDAPUser(rep_item)">
+						<tr>
+							<td><dtml-var rep_item></td>
+							<td><dtml-var "getLDAPUserFirstName(user_dn)"></td>
+							<td><dtml-var "getLDAPUserLastName(user_dn)"></td>
+							<td><dtml-var "getLDAPUserEmail(user_dn)"></td>
+						</tr>
+						</dtml-let>
+					</dtml-in>
+					</table>
+				<dtml-else>
+					&nbsp;<span>N/A</span>
+				</dtml-if>
+			</dtml-let>
+		</dtml-let>
+	</dtml-if>
+
+</dtml-let>
+<dtml-var standard_html_footer>

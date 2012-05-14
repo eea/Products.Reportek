@@ -1,0 +1,52 @@
+<dtml-if "_.SecurityCheckPermission('View management screens',this())">
+<dtml-var manage_page_header>
+<dtml-var "manage_form_title(this(), _,
+		form_title='Upload zipfile archive',
+		help_product='Reportek',
+		help_topic='Document_Add.stx'
+		)">
+<dtml-else>
+<dtml-var standard_html_header>
+	<h1>Upload zipfile archive</h1>
+</dtml-if>
+	<p>The zipfile upload makes it possible for you to add a large number of files
+	in one upload. The zipfile will be uploaded and unwrapped.</p>
+
+<dtml-let default_restricted="REQUEST.SESSION.get('default_restricted', '')"
+          force_restricted="REQUEST.SESSION.get('force_restricted', '')">
+
+	<form action="manage_addzipfile" method="post" enctype="multipart/form-data" name="form">
+	<table cellspacing="5" cellpadding="0">
+		<tr>
+			<th align="left" valign="top">Zip file</th>
+			<td align="left" valign="top"><input type="file" name="file" size="25" value="" /></td>
+		</tr>
+		<tr>
+			<td colspan="2">&nbsp;<br /></td>
+		</tr>
+		<dtml-unless force_restricted>
+		<tr>
+			<th align="left">Restrict all contained files from public view</th>
+			<td align="left">
+				<dtml-if default_restricted>
+					<input type="checkbox" name="restricted" checked="checked" />
+				<dtml-else>
+					<input type="checkbox" name="restricted" />
+				</dtml-if>
+			</td>
+		</tr>
+		</dtml-unless>
+		<tr>
+			<td><dtml-if force_restricted><input type="hidden" name="restricted" value="on"/></dtml-if></td>
+			<td><input type="submit" value="Add" /></td>
+		</tr>
+	</table>
+	</form>
+
+</dtml-let>
+
+<dtml-if "_.SecurityCheckPermission('View management screens',this())">
+<dtml-var manage_page_footer>
+<dtml-else>
+<dtml-var standard_html_footer>
+</dtml-if>

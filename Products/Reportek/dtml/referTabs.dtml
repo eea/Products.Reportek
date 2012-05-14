@@ -1,0 +1,18 @@
+<dtml-let current_actor="REQUEST.AUTHENTICATED_USER.getUserName()">
+
+<div id="tabbedmenu">
+    <ul>
+    <li<dtml-if "not tab or tab == 'index_html'"> id="currenttab"</dtml-if>><a href="index_html">Overview</a></li>
+<dtml-if "_.SecurityCheckPermission('Change Collections',this())">
+    <li<dtml-if "tab and tab == 'manage_prop'"> id="currenttab"</dtml-if>><a href="manage_prop">Edit properties</a></li>
+</dtml-if>
+  </ul>
+</div>
+<dtml-if manage_tabs_message>
+<div class="system-msg">
+<dtml-var manage_tabs_message newline_to_br>
+(<dtml-var ZopeTime fmt="%Y-%m-%d %H:%M">)
+</div>
+</dtml-if>
+
+</dtml-let>

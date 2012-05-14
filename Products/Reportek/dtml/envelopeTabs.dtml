@@ -1,0 +1,28 @@
+<dtml-let workflow_tabs="getWorkflowTabs(REQUEST)">
+<dtml-unless tab>
+    <dtml-call "REQUEST.set('tab', 'index_html')">
+</dtml-unless>
+
+<div id="tabbedmenu">
+    <ul>
+        <li<dtml-if "tab in ['overview', 'index_html']"> id="currenttab"</dtml-if>><a href="overview" title="Information about the envelope and change of status">Overview</a></li>
+<dtml-in workflow_tabs prefix=wtab>
+    <dtml-let workitem_id="wtab_item[0]"
+            app_url="wtab_item[1]"
+            app_title="wtab_item[2]">
+        <li<dtml-if "tab == workitem_id"> id="currenttab"</dtml-if>><a href="<dtml-var app_url>?workitem_id=&dtml-workitem_id;&amp;tab=&dtml-workitem_id;" title="<dtml-var app_title>"><dtml-var app_title></a></li>
+    </dtml-let>
+</dtml-in>
+    <dtml-if "canChangeEnvelope()">
+        <li<dtml-if "tab == 'manage_prop'"> id="currenttab"</dtml-if>><a href="manage_prop" title="Edit the properties on the envelope">Edit properties</a></li>
+    </dtml-if>
+<dtml-comment>
+    <dtml-if "canAddFiles()">
+        <li<dtml-if "tab == 'envelope_previous'"> id="currenttab"</dtml-if>><a href="envelope_previous" title="See the previous releases">Previous releases</a></li>
+    </dtml-if>
+</dtml-comment>
+        <li<dtml-if "tab == 'history_section'"> id="currenttab"</dtml-if>><a href="history_section" title="Workflow history and operations">History</a></li>
+    </ul>
+</div>
+
+</dtml-let>

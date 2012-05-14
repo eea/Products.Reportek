@@ -1,0 +1,85 @@
+<dtml-var standard_html_header>
+
+<div id="operations">
+    <ul>
+    <li><a href="<dtml-var "getParentNode().absolute_url()">" title="Go back to the envelope that contains this feedback">Back to envelope</a></li>
+    <dtml-if "checkPermissionAddComments() and not automatic"><li><a href="comment_add_html" title="Add comment">Add comment</a></li></dtml-if>
+    </ul>
+</div>
+
+<h1>Feedback: <dtml-var title_or_id html_quote></h1>
+
+<table class="datatable">
+<tr>
+    <th scope="row" class="scope-row">Subject: </th>
+    <td><dtml-var title html_quote></td>
+</tr>
+<tr>
+<dtml-if automatic>
+    <th scope="row" class="scope-row">Posted automatically on: </th>
+    <td><dtml-var postingdate fmt="%d %b %Y %H:%M"></td>
+<dtml-else>
+	<th scope="row" class="scope-row">Envelope release: </th>
+	<td><dtml-var releasedate fmt="%d %b %Y %H:%M"></td>
+</tr>
+<tr>
+	<th scope="row" class="scope-row">Posted on: </th>
+	<td><dtml-var postingdate fmt="%d %b %Y %H:%M"></td>
+</tr>
+<tr>
+	<th scope="row" class="scope-row">Author</th>
+	<td><dtml-var getOwner></td>
+</dtml-if>
+</tr>
+<dtml-if activity_id>
+<tr>
+    <th scope="row" class="scope-row">Task: </th>
+    <td><dtml-try><dtml-var "getActivityDetails('title')"><dtml-except><dtml-var activity_id></dtml-try></td>
+</tr>
+</dtml-if>
+
+<dtml-if "document_id and document_id != 'xml'">
+<tr>
+    <th scope="row" class="scope-row">Referred file:</th>
+    <dtml-let refered_doc="_.getattr(this(), document_id)">
+    <td><a href="<dtml-var "refered_doc.absolute_url()">/manage_document" title="View file details"><dtml-var document_id></a></td>
+    </dtml-let>
+</tr>
+</dtml-if>
+
+<dtml-let att_file="objectValues('File')">
+	<dtml-if "len(att_file)>0">
+	<tr>
+		<th scope="row" class="scope-row">Attached files: </th>
+		<td>
+			<dtml-in "att_file" prefix=file>
+				<span><dtml-var "file_item.id()"></span> <a style="font-size: 0.8em" href="<dtml-var "file_item.absolute_url()">" title="Download attached file">[download]</a><br />
+			</dtml-in>
+		</td>
+	</tr>
+	</dtml-if>
+</dtml-let>
+
+</table>
+
+
+<dtml-if "content_type.startswith('text/html') or feedbacktext[:1] == '<'">
+<dtml-var feedbacktext>
+<dtml-elif "content_type.startswith('text/plain')">
+<p><dtml-var feedbacktext html_quote newline_to_br></p>
+<dtml-else>
+<p><a href="compileFeedbacktext" target="_blank">Read this feedback</a> (this will open in another window).</p>
+</dtml-if>
+
+<dtml-unless automatic>
+	<div class="important-msg">
+		<strong>Important notice</strong>
+		<p>
+			If you want to be notified when other feedback is added to this envelope or comments are posted on feedback items,
+			you need to <a href="ReportekEngine/subscriptions_html">subscribe to receive notifications</a> 
+	</div>
+
+	<dtml-var comments_box>
+</dtml-unless>
+
+<dtml-var standard_html_footer>

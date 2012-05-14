@@ -1,0 +1,19 @@
+Openflow overview
+
+  An openflow objects contains different tabs:
+
+  * Users and roles: an application represents a link to an activity application. 
+
+  * Applications: an application represents a link to an activity application. 
+  The specified url will be invoked when the activity starts. 
+  The parameters passed to the application can be specified both in the application form
+  and on the activity that calls the application itself.
+
+  * Processes: a process describes a single work flow.
+  To design a process you should create activities and transitions linking them.
+
+  * Instances: an instance represents a single execution of a process.
+  Each instance is made of workitem flowing through the activities.
+  The instance keeps track of all the workitem evolutions.
+
+

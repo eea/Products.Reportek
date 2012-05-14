@@ -1,0 +1,57 @@
+<dtml-var manage_page_header>
+<dtml-var "manage_form_title(this(), _,
+        form_title='Add Transition',
+        help_product='Reportek',
+        help_topic=''
+        )">
+
+<form action="addTransition" method="post">
+<p class="form-help">
+Transitions define the appropiate sequence of activities for a workflow.
+</p>
+<table>
+<tr>
+	<td class="form-label" style="vertical-align:top">Id</td>
+	<td colspan="4"><input type="text" size="20" name="id" value="" /><br />
+		You can leave this field blank, it will be set to a default value
+	</td>
+</tr>
+<tr>
+	<td class="form-label" style="vertical-align:top">Condition</td>
+	<td colspan="4"><input type="text" size="60" name="condition" value="" /><br />
+		write the condition as a TAL expression like in:
+		<pre>python:instance.some_property=='value'</pre>
+	</td>
+</tr>
+<tr>
+	<td class="form-label" style="vertical-align:top">Description</td>
+	<td colspan="4"><input type="text" size="60" name="description" value="" /></td>
+</tr>
+<tr>
+	<td class="form-label" style="vertical-align:top">Transition</td>
+	<td style="vertical-align:top">From</td>
+	<td>
+		<select name="From">
+			<dtml-in expr="objectValues('Activity')" sort=id>
+				<option value="<dtml-var id>"><dtml-var id></option>
+			</dtml-in>
+		</select>
+	</td>
+	<td style="vertical-align:top">To</td>
+	<td>
+		<select name="To">
+			<dtml-in "objectValues('Activity')" sort=id>
+				<option value="<dtml-var id>"><dtml-var id></option>
+			</dtml-in>
+		</select>
+	</td>
+</tr>
+</tr>
+<tr>
+	<td></td>
+	<td colspan="4"><input type="submit" name="submit" value="Add Transition" /></td>
+</tr>
+</table>
+</form>
+
+<dtml-var manage_page_footer>

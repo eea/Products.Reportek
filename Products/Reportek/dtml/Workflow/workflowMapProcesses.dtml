@@ -1,0 +1,59 @@
+<dtml-var manage_page_header>
+<dtml-with "_(management_view='Map processes')">
+<dtml-var manage_tabs>
+</dtml-with>
+
+<style type="text/css">
+.menu { list-style: none; padding:0; margin:0 }
+</style>
+<p class="form-help">Applicability of processes for dataflows and countries.</p>
+
+<table border="1" style="width:100%; border-collapse:collapse">
+<thead>
+	<tr>
+		<th>Process</th>
+		<th>Dataflows</th>
+		<th>Countries</th>
+		<th>Action</th>
+	</tr>
+</thead>
+
+<tbody>
+<dtml-in "objectValues('Process')" prefix=proc>
+	<dtml-let l_mappings="getProcessMappings()"
+			l_dataflows="l_mappings[proc_item.id]['dataflows']"
+			l_countries="l_mappings[proc_item.id]['countries']">
+
+<tr>
+	<td><div class="list-item"><a href="<dtml-var absolute_url>"><dtml-var title_or_id></a></div</td>
+	<td><ul class="menu"><dtml-if "l_dataflows == ['*']">
+			<li>All</li>
+		<dtml-else>
+			<dtml-in l_dataflows prefix=df>
+				<li<dtml-if df_odd> class="row-hilite"</dtml-if>><dtml-var "ReportekEngine.getDataflowTitle(df_item)"> (<a href="<dtml-var df_item>" class="list-item" title="Obligation identifier"><dtml-var df_item></a>)</li>
+			<dtml-else><li>None</li>
+			</dtml-in>
+		</dtml-if>
+	</ul></td>
+	<td><ul class="menu"><dtml-if "l_countries == ['*']">
+			<li>All</li>
+		<dtml-else>
+			<dtml-in l_countries prefix=c>
+				<li<dtml-if c_odd> class="row-hilite"</dtml-if>><dtml-var "ReportekEngine.getCountryName(c_item)"></li>
+			<dtml-else><li>None</li>
+			</dtml-in>
+		</dtml-if>
+	</ul></td>
+	<td>
+		<form action="workflow_map_process" method="post">
+			<input type="hidden" name="p_process" id="p_process<dtml-var proc_index>" value="<dtml-var id>" />
+			<input type="submit" value="Edit mapping" />
+		</form>
+	</td>
+</tr>
+	</dtml-let>
+</dtml-in>
+</tbody>
+</table>
+
+<dtml-var manage_page_footer>

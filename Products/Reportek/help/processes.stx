@@ -1,0 +1,10 @@
+Process definitions
+
+  Each openflow will have one or more process definitions. 
+  Each process definition describes a workflow made of activities connected by transitions.
+
+  The process definition is a static entity.
+  Running a process will create an instance of that process: a process instance.
+  Work will be done on the instance following the workflow described in the process definition.
+
+

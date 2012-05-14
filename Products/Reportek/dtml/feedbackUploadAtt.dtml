@@ -1,0 +1,21 @@
+<dtml-var standard_html_header>
+
+<dtml-let file_id="REQUEST.get('file', '')">
+
+	<div id="operations">
+		<ul>
+			<li><a href="&dtml-absolute_url;">Back to feedback</a></li>
+		</ul>
+	</div>
+
+	<h1>Upload new file for <dtml-var file_id></h1>
+
+	<form method="POST" name="frmUploadAttFeedback" action="manage_uploadAttFeedback" enctype="multipart/form-data">
+		<input type="hidden" name="file_id" value="<dtml-var file_id>" />
+		<input type="file" name="file" size="25" value="" />
+		<input type="submit" name="upload" value="Upload" />
+	</form>
+
+</dtml-let>
+
+<dtml-var standard_html_footer>

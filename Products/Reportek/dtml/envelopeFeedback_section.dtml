@@ -1,0 +1,54 @@
+<fieldset><legend>Feedback for this envelope</legend>
+<table cellspacing="2" cellpadding="2" style="width: 100%">
+<tbody>
+	<dtml-let feedbacks="getFeedbackObjects()"
+			  total_number="len(feedbacks)">
+		<dtml-in "feedbacks" size=20 start=fs prefix="feedb">
+		<tr valign="baseline">
+			<td style="width:34px">
+				<img src="/misc_/Reportek/feedback_gif" alt="Feedback icon" />
+			</td>
+			<td>
+				<a title="View feedback" href="&dtml.url_quote-id;">&dtml-title_or_id;</a>
+				<dtml-if "_.SecurityCheckPermission('View',feedb_item)">
+					<dtml-if "not acquiredRolesAreUsedBy('View')">(Limited)</dtml-if>
+				<dtml-else>
+					<dtml-call "REQUEST.set('therearerestrictions',1)">
+					<img src="misc_/Reportek/lockicon_gif" alt="No access" style="width: 16px; height: 16px" />
+				</dtml-if>
+				<dtml-if automatic>
+				(Posted automatically on <dtml-var postingdate fmt="%d %b %Y">)
+				<dtml-else>
+				(Posted on <dtml-var postingdate fmt="%d %b %Y"> for the <dtml-var releasedate fmt="%d %b %Y"> release)
+				</dtml-if>
+				<dtml-if "canEditFeedback() and not automatic">
+					<a href="&dtml-absolute_url;/manage_editFeedbackForm" title="Edit feedback" class="test_button">Edit</a>
+					<a href="manage_deleteFeedbackForm?id=&dtml-id;" title="Delete feedback" class="test_button">Delete</a>
+				</dtml-if>
+			</td>
+		</tr>
+		<dtml-else>
+		<tr>
+			<td>No feedback posted in this envelope</td>
+		</tr>
+		</dtml-in>
+		<tr>
+			<td colspan="6">
+				<dtml-in "feedbacks" previous size=20 start=fs sort=id>
+					<a href="<dtml-var sequence-query>fs=<dtml-var previous-sequence-start-number>">
+					(Previous <dtml-var previous-sequence-size>)</a>
+				</dtml-in>
+
+				<dtml-in "feedbacks" next size=20 start=fs sort=id>
+					<a href="<dtml-var sequence-query>fs=<dtml-var next-sequence-start-number>">
+					(Next <dtml-var next-sequence-size>)</a>
+				</dtml-in>
+				<dtml-if "total_number>20">
+					of <dtml-var total_number> feedbacks
+				</dtml-if>
+			</td>
+		</tr>
+	</dtml-let>
+</tbody>
+</table>
+</fieldset>

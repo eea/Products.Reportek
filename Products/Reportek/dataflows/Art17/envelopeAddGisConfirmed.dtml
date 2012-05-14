@@ -1,0 +1,37 @@
+<dtml-var standard_html_header>
+<dtml-let file_id="REQUEST.get('file', '')">
+
+	<div id="operations">
+		<ul>
+			<li>
+				<a href="<dtml-var "getMySelf().absolute_url()">" title="Go back to envelope">
+					Back to envelope
+				</a>
+			</li>
+		</ul>
+	</div>
+
+	<h1>Add GIS file - step 3</h1>
+	<h2>Create empty GML file</h2>
+	<ul style="margin-left: 3em;">
+		<li><span style="font-size: 0.8em">GML file id: <dtml-var file_id></span></li>
+	</ul>
+
+	<dtml-if "REQUEST.SESSION.has_key('err')">
+	<div class="error-msg">Warning: <dtml-var "REQUEST.SESSION.get('err', '')"></div>
+	</dtml-if>
+
+	<div>
+		<form method="POST" name="frmAddGisStep3" action="create_empty_gml_file">
+			<input type="hidden" name="file_id" value="<dtml-var file_id>" />
+			<input type="submit" value="Add" name="go" />
+			<input type="submit" value="Back" name="go" />
+		</form>
+	</div>
+
+	<dtml-if "REQUEST.SESSION.has_key('err')">
+		<dtml-call "REQUEST.SESSION.delete('err')">
+	</dtml-if>
+
+</dtml-let>
+<dtml-var standard_html_footer>

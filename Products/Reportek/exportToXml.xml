@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="ISO-8859-1"?><workflow>
+<process rid="default" title="Default data flow for Reportek envelopes" description="" priority="0" begin="Draft" end="End">
+<activity rid='End' title='End'
+                split_mode='and' join_mode='and' self_assignable='1'
+                start_mode='1' finish_mode='0' complete_automatically='1'
+                subflow='' push_application='' application=''
+                parameters='' description='' kind='standard'
+                pushable_roles='' pullable_roles='Manager'/>
+<activity rid='Released' title='Released'
+                split_mode='xor' join_mode='xor' self_assignable='1'
+                start_mode='0' finish_mode='1' complete_automatically='0'
+                subflow='' push_application='' application='EnvelopeRetireRoute'
+                parameters='' description='' kind='standard'
+                pushable_roles='' pullable_roles='Manager'/>
+<activity rid='Draft' title='Draft'
+                split_mode='xor' join_mode='xor' self_assignable='1'
+                start_mode='0' finish_mode='1' complete_automatically='0'
+                subflow='' push_application='' application='EnvelopeDraft'
+                parameters='' description='' kind='standard'
+                pushable_roles='' pullable_roles='Reporter,Manager'/>
+<activity rid='Inspect' title='Inspect'
+                split_mode='xor' join_mode='xor' self_assignable='1'
+                start_mode='0' finish_mode='1' complete_automatically='0'
+                subflow='' push_application='' application='EnvelopeInspect'
+                parameters='' description='' kind='standard'
+                pushable_roles='' pullable_roles='Manager'/>
+<activity rid='RevokeRelease' title='RevokeRelease'
+                split_mode='xor' join_mode='xor' self_assignable='1'
+                start_mode='1' finish_mode='1' complete_automatically='1'
+                subflow='' push_application='' application='EnvelopeRevoke'
+                parameters='' description='' kind='standard'
+                pushable_roles='' pullable_roles='Manager'/>
+<activity rid='Release' title='Runs the release of envelope activity'
+                split_mode='and' join_mode='xor' self_assignable='1'
+                start_mode='1' finish_mode='1' complete_automatically='1'
+                subflow='' push_application='' application='EnvelopeRelease'
+                parameters='' description='' kind='standard'
+                pushable_roles='' pullable_roles='Manager'/>
+<activity rid='AutomaticFeedback' title='Add automatic feedback'
+                split_mode='xor' join_mode='xor' self_assignable='1'
+                start_mode='1' finish_mode='1' complete_automatically='1'
+                subflow='' push_application='' application='EnvelopeAddDummyFeedback'
+                parameters='' description='' kind='standard'
+                pushable_roles='' pullable_roles='Manager'/>
+<activity rid='AutomaticQA' title='Automatic QA'
+                split_mode='xor' join_mode='xor' self_assignable='1'
+                start_mode='1' finish_mode='1' complete_automatically='0'
+                subflow='' push_application='' application='EnvelopeQAApplication'
+                parameters='' description='' kind='standard'
+                pushable_roles='' pullable_roles='Reporter,Manager'/>
+<activity rid='HandleQAFailure' title='Handle QA failure'
+                split_mode='xor' join_mode='and' self_assignable='1'
+                start_mode='0' finish_mode='1' complete_automatically='0'
+                subflow='' push_application='' application='EnvelopeQAFailed'
+                parameters='' description='' kind='standard'
+                pushable_roles='' pullable_roles='Reporter,Manager'/>
+<activity rid='AutomaticQAFinished' title='Automatic QA Finished'
+                split_mode='xor' join_mode='xor' self_assignable='1'
+                start_mode='0' finish_mode='1' complete_automatically='0'
+                subflow='' push_application='' application='EnvelopeAutomaticQAFinished'
+                parameters='' description='' kind='standard'
+                pushable_roles='' pullable_roles='Reporter,Manager'/>
+<activity rid='AddFeedback' title='Add feedback'
+                split_mode='and' join_mode='and' self_assignable='1'
+                start_mode='0' finish_mode='0' complete_automatically='0'
+                subflow='' push_application='' application='EnvelopeAddFeedback'
+                parameters='' description='' kind='standard'
+                pushable_roles='' pullable_roles='Manager'/>
+<transition rid="Released_RevokeRelease" From="Released" To="RevokeRelease" condition="python:request.inspectresult==&apos;Back to Draft&apos;" description="Back to Draft"/>
+<transition rid="RevokeRelease_Draft" From="RevokeRelease" To="Draft" condition="None" description=""/>
+<transition rid="Released_End" From="Released" To="End" condition="python:request.inspectresult==&apos;Finish&apos; " description=""/>
+<transition rid="Release_AutomaticFeedback" From="Release" To="Released" condition="" description=""/>
+<transition rid="AutomaticFeedback_Released" From="AutomaticFeedback" To="Released" condition="python:len(here.objectIds(&apos;Report Document&apos;)) &gt; 0" description=""/>
+<transition rid="AutomaticFeedback_Draft" From="AutomaticFeedback" To="Draft" condition="python:len(here.objectIds(&apos;Report Document&apos;)) == 0" description=""/>
+<transition rid="HandleQAFailure_AutomaticQA" From="HandleQAFailure" To="AutomaticQA" condition="python:request.handle_result==&apos;Repeat QA&apos;" description=""/>
+<transition rid="Draft_AutomaticQA" From="Draft" To="AutomaticQA" condition="python:len(here.objectIds(&apos;Report Document&apos;)) &gt; 0" description=""/>
+<transition rid="AutomaticQA_HandleQAFailure" From="AutomaticQA" To="HandleQAFailure" condition="python:request.has_key(&apos;QAsucceded&apos;) and request.QAsucceded==0" description=""/>
+<transition rid="AutomaticQA_AutomaticQAFinished" From="AutomaticQA" To="AutomaticQAFinished" condition="python:request.has_key(&apos;QAsucceded&apos;) and request.QAsucceded==1" description=""/>
+<transition rid="Draft_AutomaticFeedback" From="Draft" To="AutomaticFeedback" condition="python:len(here.objectIds(&apos;Report Document&apos;)) == 0" description=""/>
+<transition rid="AutomaticQAFinished_Release" From="AutomaticQAFinished" To="Release" condition="python:request.handle_result==&apos;Release envelope&apos;" description=""/>
+<transition rid="AutomaticQAFinished_Draft" From="AutomaticQAFinished" To="Draft" condition="python:request.handle_result==&apos;Back to Draft&apos;" description=""/>
+<transition rid="HandleQAFailure_Release" From="HandleQAFailure" To="Release" condition="python:request.handle_result==&apos;Release envelope&apos;" description=""/>
+<transition rid="Release_AddFeedback" From="Release" To="AddFeedback" condition="" description=""/>
+<transition rid="AddFeedback_End" From="AddFeedback" To="End" condition="" description=""/>
+</process>
+<process rid="groundwaterbodies" title="Data flow for Groundwater (EWN-3)" description="" priority="0" begin="Draft" end="End">
+<activity rid='End' title='End'
+                split_mode='and' join_mode='and' self_assignable='1'
+                start_mode='1' finish_mode='0' complete_automatically='1'
+                subflow='' push_application='' application=''
+                parameters='' description='' kind='standard'
+                pushable_roles='' pullable_roles='Manager'/>
+<activity rid='Released' title='Released'
+                split_mode='xor' join_mode='xor' self_assignable='1'
+                start_mode='0' finish_mode='1' complete_automatically='0'
+                subflow='' push_application='' application='EnvelopeRetireRoute'
+                parameters='' description='' kind='standard'
+                pushable_roles='' pullable_roles='Reporter,Manager'/>
+<activity rid='Draft' title='Draft'
+                split_mode='xor' join_mode='xor' self_assignable='1'
+                start_mode='0' finish_mode='1' complete_automatically='0'
+                subflow='' push_application='' application='EnvelopeDraftGW'
+                parameters='' description='' kind='standard'
+                pushable_roles='' pullable_roles='Reporter,Manager,reporter'/>
+<activity rid='RevokeRelease' title='RevokeRelease'
+                split_mode='xor' join_mode='xor' self_assignable='1'
+                start_mode='1' finish_mode='1' complete_automatically='1'
+                subflow='' push_application='' application='EnvelopeRevoke'
+                parameters='' description='' kind='standard'
+                pushable_roles='' pullable_roles='Manager'/>
+<activity rid='Release' title='Runs the release of envelope activity'
+                split_mode='and' join_mode='xor' self_assignable='1'
+                start_mode='1' finish_mode='1' complete_automatically='1'
+                subflow='' push_application='' application='EnvelopeRelease'
+                parameters='' description='' kind='standard'
+                pushable_roles='' pullable_roles='Manager,reporter'/>
+<activity rid='AutomaticFeedback' title='Add automatic feedback'
+                split_mode='xor' join_mode='xor' self_assignable='1'
+                start_mode='1' finish_mode='1' complete_automatically='1'
+                subflow='' push_application='' application='EnvelopeAddAutomaticFeedback'
+                parameters='' description='' kind='standard'
+                pushable_roles='' pullable_roles='Manager,reporter'/>
+<activity rid='AutomaticQA' title='Automatic QA'
+                split_mode='xor' join_mode='xor' self_assignable='1'
+                start_mode='1' finish_mode='1' complete_automatically='0'
+                subflow='' push_application='' application='EnvelopeQAApplication'
+                parameters='' description='' kind='standard'
+                pushable_roles='' pullable_roles='Manager,reporter'/>
+<activity rid='HandleQAFailure' title='Handle QA failure'
+                split_mode='xor' join_mode='and' self_assignable='1'
+                start_mode='0' finish_mode='1' complete_automatically='0'
+                subflow='' push_application='' application='EnvelopeQAFailed'
+                parameters='' description='' kind='standard'
+                pushable_roles='' pullable_roles='Reporter,Manager,reporter'/>
+<activity rid='AutomaticQAFinished' title=''
+                split_mode='xor' join_mode='xor' self_assignable='1'
+                start_mode='0' finish_mode='1' complete_automatically='0'
+                subflow='' push_application='' application='EnvelopeAutomaticQAFinished'
+                parameters='' description='' kind='standard'
+                pushable_roles='' pullable_roles='Reporter,Manager,reporter'/>
+<transition rid="Released_RevokeRelease" From="Released" To="RevokeRelease" condition="python:request.inspectresult==&apos;Back to Draft&apos;" description="Back to Draft"/>
+<transition rid="RevokeRelease_Draft" From="RevokeRelease" To="Draft" condition="None" description=""/>
+<transition rid="Released_End" From="Released" To="End" condition="python:request.inspectresult==&apos;Finish&apos; " description=""/>
+<transition rid="AutomaticFeedback_Draft" From="AutomaticFeedback" To="Draft" condition="python:len(here.objectIds(&apos;Report Document&apos;)) == 0" description=""/>
+<transition rid="HandleQAFailure_AutomaticQA" From="HandleQAFailure" To="AutomaticQA" condition="python:request.handle_result==&apos;Repeat QA&apos;" description=""/>
+<transition rid="Draft_AutomaticQA" From="Draft" To="AutomaticQA" condition="python:len(here.objectIds(&apos;Report Document&apos;)) &gt; 0" description=""/>
+<transition rid="AutomaticQA_HandleQAFailure" From="AutomaticQA" To="HandleQAFailure" condition="python:request.has_key(&apos;QAsucceded&apos;) and request.QAsucceded==0" description=""/>
+<transition rid="AutomaticQA_AutomaticQAFinished" From="AutomaticQA" To="AutomaticQAFinished" condition="python:request.has_key(&apos;QAsucceded&apos;) and request.QAsucceded==1" description=""/>
+<transition rid="Draft_AutomaticFeedback" From="Draft" To="AutomaticFeedback" condition="python:len(here.objectIds(&apos;Report Document&apos;)) == 0" description=""/>
+<transition rid="AutomaticQAFinished_Release" From="AutomaticQAFinished" To="Release" condition="python:request.handle_result==&apos;Release envelope&apos;" description=""/>
+<transition rid="AutomaticQAFinished_Draft" From="AutomaticQAFinished" To="Draft" condition="python:request.handle_result==&apos;Back to Draft&apos;" description=""/>
+<transition rid="HandleQAFailure_Release" From="HandleQAFailure" To="Release" condition="python:request.handle_result==&apos;Release envelope&apos;" description=""/>
+<transition rid="Release_Released" From="Release" To="Released" condition="" description=""/>
+</process>
+<application rid="EnvelopeAddAutomaticFeedback" url="EnvelopeAddAutomaticFeedback"/>
+<application rid="EnvelopeRetireRoute" url="EnvelopeRetireRoute"/>
+<application rid="EnvelopeDraft" url="EnvelopeDraft"/>
+<application rid="EnvelopeRevoke" url="EnvelopeRevoke"/>
+<application rid="EnvelopeQAApplication" url="EnvelopeQAApplication"/>
+<application rid="EnvelopeRelease" url="EnvelopeRelease"/>
+<application rid="EnvelopeAutomaticQAFinished" url="EnvelopeAutomaticQAFinished"/>
+<application rid="EnvelopeQAFailed" url="EnvelopeQAFailed"/>
+<application rid="EnvelopeDraftGW" url="EnvelopeDraftGW"/>
+</workflow>

@@ -1,0 +1,30 @@
+<dtml-var standard_html_header>
+<dtml-let env="getEnvironment(id)">
+<h2><dtml-var activity_id null="<em>No activity</em>" html_quote>
+(<dtml-var "env[3].title" html_quote null="no title">)</h2>
+<p>
+<!-- engine, workitem, process, activity -->
+<strong>Instructions:</strong>
+<dtml-if "status == 'inactive'">
+    To tell your coworkers that you have taken the task to work on this
+    envelope you must activate the workitem.
+<dtml-else>
+    <dtml-var "env[3].description" html_quote null="None">
+</dtml-if>
+</dtml-let>
+</p>
+
+<dtml-var workitemDetails>
+
+</table>
+<dtml-if "status == 'complete' and not workitems_to and getDestinations(id)">
+<h3>Operations</h3>
+<table border="1">
+<tbody>
+<tr>
+    <td><a href="forwardWorkitem?workitem_id=&dtml-id;">Forward to <dtml-var "getDestinations(id)[0]['activity_to_id']"></a></td>
+</tr>
+</tbody>
+</table>
+</dtml-if>
+<dtml-var standard_html_footer>

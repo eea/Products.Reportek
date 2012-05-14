@@ -1,0 +1,20 @@
+Applications
+
+  In the Applications page you can define applications the activities in the process can use.
+  Each activity of a process will have one application for doing the activity job.
+  The application will be started when a user selects a workitem pending on the activity.
+
+  Usually an application consists of one or more forms the user has to fill-in and submit.
+  But anything referrable by an URL can be used as an application for the activities.
+  The URL will be invoked upon application start.
+
+  Parameters can be specified.
+  They will be passed in the URL call.
+
+  Obviously more then one application can refer the same URL. 
+  This might be helpful for similar applications, 
+  where you can customize the calls giving different parameters per application.
+
+  Additional parameters can be specified in the activity calling the application.
+  If parameters collide, parameters from activity take over to parameters from application. 
+

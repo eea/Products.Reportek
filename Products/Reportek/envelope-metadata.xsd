@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" targetNamespace="http://cdr.eionet.europa.eu/schemas/envelope-metadata" xmlns="http://cdr.eionet.europa.eu/schemas/envelope-metadata" version="1.0" elementFormDefault="qualified">
+    <xsd:element name="envelope">
+        <xsd:complexType>
+            <xsd:all>
+                <xsd:element name="title" type="xsd:string" nillable="true"/>
+                <xsd:element name="link" type="xsd:anyURI"/>
+                <xsd:element name="coverage" type="xsd:string" nillable="true"/>
+                <xsd:element name="description" nillable="true" type="xsd:string"/>
+                <xsd:element name="date" type="xsd:string"/>
+                <xsd:element name="beginyear" nillable="true" type="xsd:string"/>
+                <xsd:element name="endyear" nillable="true" type="xsd:string"/>
+                <xsd:element name="partofyear" nillable="true" type="xsd:string"/>
+                <xsd:element name="files" maxOccurs="1">
+                    <xsd:complexType>
+                        <xsd:sequence>
+                            <xsd:element name="file" nillable="true" maxOccurs="unbounded" minOccurs="0">
+                                <xsd:complexType>
+                                    <xsd:attribute name="name" use="optional" type="xsd:string"/>
+                                    <xsd:attribute name="type" type="xsd:string"/>
+                                    <xsd:attribute name="schema" type="xsd:anyURI"/>
+                                    <xsd:attribute name="title" type="xsd:string"/>
+                                    <xsd:attribute name="restricted" type="xsd:string"/>
+                                    <xsd:attribute name="link" type="xsd:anyURI"/>
+                                </xsd:complexType>
+                            </xsd:element>
+                        </xsd:sequence>
+                    </xsd:complexType>
+                </xsd:element>
+            </xsd:all>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>

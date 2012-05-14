@@ -1,0 +1,87 @@
+<dtml-call "REQUEST.set('therearerestrictions',0)">
+
+<div class="filessection">
+<fieldset><legend>Files in this envelope</legend>
+
+<dtml-let documents="getDocuments(REQUEST)">
+	<dtml-if "documents.object_list">
+
+		<dtml-var documents_pagination>
+
+		<table cellspacing="2" cellpadding="2">
+		<tbody>
+
+		<dtml-in "documents.object_list">
+
+			<dtml-if "meta_type=='Report Document'">
+			<tr valign="baseline">
+				<td><dtml-var "_['sequence-number']+(int(REQUEST.get('page', '1'))-1)*20"></td>
+				<td><img src="&dtml-id;/icon_gif" alt="File icon" /></td>
+				<td><a title="File operations:
+			[View file in different formats],
+			[File properties],
+			[View the feedback posted it (if any)]"
+					href="&dtml.url_quote-id;/manage_document">&dtml-id;</a>
+				</td>
+				<td style="white-space:nowrap">
+					<dtml-if "_.SecurityCheckPermission('View',_['sequence-item'])">
+						<dtml-if "not acquiredRolesAreUsedBy('View')">(Limited)</dtml-if>
+					<dtml-else>
+						<dtml-call "REQUEST.set('therearerestrictions',1)">
+						<img src="/misc_/Reportek/lockicon_gif" alt="No access" width="16" height="16" />
+					</dtml-if>
+					<dtml-if get_accept_time>
+						<img src="/misc_/Reportek/accepted" alt="Document accepted by the client" />
+					</dtml-if>
+				</td>
+				<td><em><dtml-var title html_quote></em></td>
+				<td><dtml-var upload_time fmt="%d %b %Y"></td>
+				<td style="width:6em"><dtml-if "_.hasattr(_['sequence-item'], 'size')"><dtml-var size></dtml-if></td>
+			</tr>
+			<dtml-else>
+			<tr valign="baseline">
+				<td><dtml-var "_['sequence-number']+(int(REQUEST.get('page', '1'))-1)*20"></td>
+				<td><img src="misc_/Reportek/hyperlink_gif" alt="Hyperlink icon" /></td>
+				<dtml-if "_.SecurityCheckPermission('View',_['sequence-item'])">
+				<td><a href="&dtml.url_quote-id;">&dtml-id;</a></td>
+				<td style="white-space:nowrap">
+				<dtml-if "not acquiredRolesAreUsedBy('View')">(Limited)</dtml-if>
+				<dtml-else>
+				<td>-Limited-</td>
+				<td style="white-space:nowrap">
+				<dtml-call "REQUEST.set('therearerestrictions',1)">
+				<img src="/misc_/Reportek/lockicon_gif" alt="No access" width="16" height="16" />
+				</dtml-if>
+				</td>
+				<td><em><dtml-var title html_quote></em></td>
+				<td><dtml-var upload_time fmt="%d %b %Y"></td>
+				<td style="width:6em"><dtml-if "_.hasattr(_['sequence-item'], 'size')"><dtml-var size></dtml-if></td>
+			</tr>
+			</dtml-if>
+		<dtml-else>
+			<span>
+				No files uploaded
+			</span>
+		</dtml-in>
+		</tbody>
+		</table>
+
+		<dtml-var documents_pagination>
+
+	</dtml-if>
+</dtml-let>
+
+<dtml-comment>
+	MESSAGES
+</dtml-comment>
+<dtml-if "therearerestrictions > 0">
+<p>
+	Access limitations may apply for files, which are not (yet) released for public view. Files marked with
+	<img src="/misc_/Reportek/lockicon_gif" alt="Padlock" width="16" height="16" /> are unavailable. 
+	You must log in to get access.
+</p>
+</dtml-if>
+
+</fieldset>
+
+</div>

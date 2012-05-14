@@ -1,0 +1,73 @@
+<dtml-var manage_page_header>
+<dtml-with "_(management_view='Map processes')">
+<dtml-var manage_tabs>
+</dtml-with>
+
+<dtml-let proc="getattr(this(), p_process)"
+			l_mappings="getProcessMappings()"
+			l_dataflows="l_mappings[p_process]['dataflows']"
+			l_countries="l_mappings[p_process]['countries']">
+
+<p class="form-help">Applicability of process <a href="<dtml-var "proc.absolute_url()">" style="font-weight: bold;"><dtml-var "proc.title_or_id()"></a> for dataflows and countries.</p>
+
+<table border="1" style="width:100%; border-collapse:collapse">
+<thead>
+	<tr>
+		<th>Dataflows</th>
+		<th>Countries</th>
+	</tr>
+</thead>
+
+<tbody>
+<form action="setProcessMappings" method="post">
+<tr>
+	<td><table border="0">
+		<tr>
+			<td colspan="2"><input type="radio" name="p_dataflows_all" value="1" <dtml-if "l_dataflows == ['*']">checked="checked"</dtml-if> />All</td>
+		</tr>
+		<tr>
+			<td><input type="radio" name="p_dataflows_all" value="0" <dtml-if "l_dataflows != ['*']">checked="checked"</dtml-if> />Pick</td>
+			<dtml-call "REQUEST.set('group',0)">
+			<td><select id="dataflows" size="20" multiple="multiple" name="p_dataflows" id="p_dataflows">
+			<dtml-in dataflow_table mapping sort=SOURCE_TITLE>
+				<dtml-if "group != SOURCE_TITLE">
+				<dtml-unless sequence-start></optgroup></dtml-unless>
+				<optgroup label="<dtml-var SOURCE_TITLE html_quote size=80>">
+				<dtml-call "REQUEST.set('group',SOURCE_TITLE)">
+				</dtml-if>
+				<option value="&dtml-uri;" <dtml-if "l_dataflows and uri in l_dataflows">selected="selected" </dtml-if>
+				label="<dtml-var TITLE html_quote size=70>">[<dtml-var "_.string.join(_.string.split(SOURCE_TITLE)[0:2])" html_quote>] <dtml-var TITLE html_quote size=70></option>
+			</dtml-in>
+			</optgroup>
+			</select>
+			</td>
+		</tr>
+		</table>
+	</td>
+	<td><table border="0">
+		<tr>
+			<td colspan="2"><input type="radio" name="p_countries_all" value="1" <dtml-if "l_countries == ['*']">checked="checked"</dtml-if> />All</td>
+		</tr>
+		<tr>
+			<td><input type="radio" name="p_countries_all" value="0" <dtml-if "l_countries != ['*']">checked="checked"</dtml-if> />Pick</td>
+			<td><select size="20" multiple="multiple" name="p_countries" id="p_countries">
+		<dtml-in getCountries>
+			<option value="<dtml-var "_['sequence-item']['uri']">"<dtml-if "l_countries and _['sequence-item']['uri'] in l_countries"> selected="selected"</dtml-if>><dtml-var "_['sequence-item']['name']"></option>
+		</dtml-in>
+		</select>
+			</td>
+		</tr>
+		</table>
+	</td>
+	</td>
+</tr>
+</tbody>
+</table>
+
+<input type="hidden" name="p_process" id="p_process" value="<dtml-var p_process>" />
+<p><input type="submit" value="Save changes" /></p>
+</form>
+
+</dtml-let>
+
+<dtml-var manage_page_footer>

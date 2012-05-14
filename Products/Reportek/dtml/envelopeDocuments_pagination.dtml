@@ -1,0 +1,48 @@
+<dtml-if "documents.paginator.count > 25">
+	<div class="paginator">
+		<dtml-if "documents.leading_range">
+		<dtml-in "documents.leading_range">
+				<a class="numberedpage" href="&dtml-URL;?page=&dtml-sequence-item;">
+					<dtml-if "_['sequence-item'] == REQUEST.get('page', '1')">
+					<span class="selected"><dtml-var sequence-item></span><dtml-else>
+					<dtml-var sequence-item></dtml-if></a>
+		</dtml-in>
+		...
+		</dtml-if>
+
+		<dtml-in "documents.main_range">
+				<a class="numberedpage" href="&dtml-URL;?page=&dtml-sequence-item;">
+					<dtml-if "str(_['sequence-item']) == REQUEST.get('page', '1')">
+					<span class="selected"><dtml-var sequence-item></span><dtml-else>
+					<dtml-var sequence-item></dtml-if></a>
+		</dtml-in>
+
+		<dtml-if "documents.trailing_range">
+		...
+		<dtml-in "documents.trailing_range">
+				<a class="numberedpage" href="&dtml-URL;?page=&dtml-sequence-item;">
+					<dtml-if "_['sequence-item'] == REQUEST.get('page', '1')">
+					<span class="selected"><dtml-var sequence-item></span><dtml-else>
+					<dtml-var sequence-item></dtml-if></a>
+		</dtml-in>
+		</dtml-if>
+
+		<span class="navigation">
+			<dtml-if "documents.has_previous()">
+				<a class="prevpage" href="&dtml-URL;?page=<dtml-var "documents.previous_page_number()">">&lt; previous</a>
+			<dtml-else>
+				<span class="prevpage">previous</span>
+			</dtml-if>
+			|
+			<dtml-if "documents.has_next()">
+				<a class="nextpage" href="&dtml-URL;?page=<dtml-var "documents.next_page_number()">">next &gt;</a>
+			<dtml-else>
+				<span class"nextpage">next</span>
+			</dtml-if>
+		</span>
+
+		<span class="matchescount">
+			<dtml-var "documents.start_index()">-<dtml-var "documents.end_index()"> of <dtml-var "documents.paginator.count"> items
+		</span>
+	</div>
+</dtml-if>

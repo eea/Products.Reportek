@@ -1,0 +1,45 @@
+<dtml-var standard_html_header>
+
+<h1>Upload XML data</h1>
+
+<p>
+	<strong>Make sure you have taken into account the following:</strong>
+</p>
+<ul>
+	<li>The upload file <em style="text-decoration: underline;">must</em> be the
+	<a href="http://dd.eionet.europa.eu/GetSchema?id=DST2499">schema</a> generated from the
+	<a href="http://dd.eionet.europa.eu/dataset.jsp?mode=view&amp;ds_id=2499">Data Dictionary</a>,
+	populated with your data.<br /><br /></li>
+
+	<li>Do not amend the schema name or structure, or the upload of data and validation will not take place.</li>
+</ul>
+
+<div class="note-msg">
+<strong>Note</strong>
+<p>
+	Any data previously uploaded in XML format will be overwritten.
+	If you wish to make additional deliveries of data rather than resupplies, create a new envelope in the CDR.
+</p>
+</div>
+
+<form method="post" action="&dtml-absolute_url;" enctype="multipart/form-data" name="form">
+	<input type="hidden" name="required_schema:list" value="http://dd.eionet.europa.eu/GetSchema?id=DST2499" />
+
+	<table cellspacing="5">
+	<tr>
+		<td><label for="file" class="question required">File</label></td>
+		<td><input type="file" name="file" id="file" size="25" value="" /></td>
+	</tr>
+	<tr>
+		<td class="question">Restrictions</td>
+		<td><input type="checkbox" name="restricted" id="restricted" /> <label for="restricted" class="answer">Restricted from public view</label></td>
+	</tr>
+	<tr>
+		<td></td>
+		<td><input type="submit" name="replace_dd_xml:method" value="Upload" />
+		<input type="submit" name="index_html:method" value="Cancel" /></td>
+	</tr>
+	</table>
+</form>
+
+<dtml-var standard_html_footer>

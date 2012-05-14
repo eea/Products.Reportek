@@ -1,0 +1,92 @@
+<dtml-if "_.SecurityCheckPermission('View management screens',this())">
+<dtml-var manage_page_header>
+<dtml-var "manage_form_title(this(), _,
+           form_title='Add Referral',
+           help_product='Reportek',
+           help_topic='Referral_Add.stx'
+	   )">
+
+<dtml-else>
+<dtml-var standard_html_header>
+<h1>Add Referral</h1>
+</dtml-if>
+
+<p class="form-help">
+If a certain delivery data is not stored on this system, specify another location for it.
+</p>
+
+<form action="manage_addReferral" method="post">
+
+<table>
+<tr><th>Title</th> 
+    <td><input type="text" name="title" size="50" /></td> 
+</tr> 
+<tr><th>Referral URL</th> 
+    <td><input type="text" name="referral_url" size="50" /></td> 
+</tr> 
+
+<tr><th>Description</th> 
+    <td><textarea cols="50" rows="6" name="descr"></textarea></td> 
+</tr> 
+
+<dtml-call "REQUEST.set('group',0)">
+<tr><th>Obligations</th>
+    <td><select id="dataflows" size="15" name="dataflow_uris:list" multiple="multiple">
+<dtml-in dataflow_table mapping sort=SOURCE_TITLE>
+<dtml-if "group != SOURCE_TITLE">
+<dtml-unless sequence-start></optgroup></dtml-unless>
+<optgroup label="<dtml-var SOURCE_TITLE html_quote size=80>">
+<dtml-call "REQUEST.set('group',SOURCE_TITLE)">
+</dtml-if>
+<option value="&dtml-uri;"
+<dtml-if "_.has_key('dataflow_uris') and uri in dataflow_uris"> selected="selected"</dtml-if>
+<dtml-if "_.has_key('terminated') and terminated == '1'"> class="terminated"</dtml-if>
+>[<dtml-var "_.string.join(_.string.split(SOURCE_TITLE)[0:2])" html_quote>] <dtml-var TITLE html_quote size=80>
+<dtml-if "_.has_key('terminated') and terminated == '1'"> (terminated)</dtml-if>
+</option>
+</dtml-in>
+</optgroup>
+    </select></td>
+</tr>
+
+<tr><th>Relating to which year</th> 
+    <td><input type="text" name="year" size="4" maxlength="4"
+     value="<dtml-var year missing>" />
+<select name="partofyear">
+<dtml-in "('', 'Whole Year',
+           'First Half', 'Second Half',
+           'First Quarter', 'Second Quarter',
+           'Third Quarter', 'Fourth Quarter',
+           'January','February','March','April', 'May','June',
+           'July','August','September','October','November','December'
+          )">
+<option<dtml-if "_.has_key('partofyear') and _['sequence-item'] == partofyear"> selected="selected"</dtml-if>><dtml-var sequence-item></option>
+</dtml-in>
+</select>
+    <span class="form-optional">to</span> <input type="text" name="endyear" size="4" maxlength="4" />
+</td>
+</tr> 
+<tr><th>Coverage</th>
+    <td><select name="country">
+<dtml-unless "_.has_key('country')">
+<dtml-call "REQUEST.set('country','')">
+</dtml-unless>
+<option value="">Unspecified</option>
+<dtml-in localities_table mapping>
+<option <dtml-if "uri == country">selected="selected"</dtml-if> value="&dtml-uri;">&dtml-name;</option>
+</dtml-in>
+</select></td> 
+</tr> 
+<tr><th>Coverage note</th>
+    <td><input type="text" name="locality" size="30"
+    value="<dtml-var locality html_quote missing>" /></td> 
+</tr> 
+
+<tr><td></td><td><input type="submit" value="Add" /></td></tr> 
+</table>
+</form>
+<dtml-if "_.SecurityCheckPermission('View management screens',this())">
+<dtml-var manage_page_footer>
+<dtml-else>
+<dtml-var standard_html_footer>
+</dtml-if>

@@ -1,0 +1,394 @@
+# The contents of this file are subject to the Mozilla Public
+# License Version 1.1 (the "License"); you may not use this file
+# except in compliance with the License. You may obtain a copy of
+# the License at http://www.mozilla.org/MPL/
+#
+# Software distributed under the License is distributed on an "AS
+# IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
+# implied. See the License for the specific language governing
+# rights and limitations under the License.
+#
+# The Original Code is Reportek version 1.0.
+#
+# The Initial Developer of the Original Code is European Environment
+# Agency (EEA).  Portions created by Finsiel and Eau de Web are
+# Copyright (C) European Environment Agency.  All
+# Rights Reserved.
+#
+# Contributor(s):
+# Miruna Badescu, Eau de Web
+
+## RemoteApplication
+##
+
+from Products.ZCatalog.CatalogAwareness import CatalogAware
+from OFS.SimpleItem import SimpleItem
+from Globals import DTMLFile, InitializeClass
+from AccessControl import getSecurityManager, ClassSecurityInfo
+from AccessControl.Permissions import view_management_screens
+from DateTime import DateTime
+import xmlrpclib
+import string
+from Products.PythonScripts.standard import html_quote
+
+manage_addRemoteApplicationForm = DTMLFile('dtml/RemoteApplicationAdd',globals())
+
+def manage_addRemoteApplication(self, id='', title='', RemoteServer='', RemoteService='', app_name='', REQUEST=None):
+    """ Generic application that calls a remote service 
+    """
+
+    ob = RemoteApplication(id, title, RemoteServer, RemoteService, app_name)
+    self._setObject(id, ob)
+
+    if REQUEST is not None:
+        return self.manage_main(self, REQUEST, update_menu=1)
+
+class RemoteApplication(SimpleItem):
+    """ A computerised application, executed by an activity.
+        It executes a set of operations on a remote server and generates a feedback object
+        into the envelope as result of these.
+        The instance data for the RemoteApplication is stored in the workitem
+        as an additional property - app_name - contaning a dictionary like:
+        {
+            'analyze':      {code, retries_left, last_error, next_run}, 
+            'getResult':    {jobID: {code, retries_left, last_error, next_run, fileURL}}
+        }
+
+        First, a call is made to the 'analyze' function from the remote service which retireves 
+        the list of files that will be analyzed along with their jobIDs
+
+        Second, the 'getResult' remote service function is called for every job
+
+        Possible codes for app_name['analyze']:
+            0 - started
+            2 - nothing to do
+            1 - done
+            -2 - failed
+
+        Possible codes for app_name['getResult'][jobID]:
+            0 - processing
+            1 - result succefully brought
+            -2 - failed
+    """
+
+    # Create a SecurityInfo for this class. We will use this
+    # in the rest of our class definition to make security
+    # assertions.
+    security = ClassSecurityInfo()
+    meta_type = 'Remote Application'
+
+    manage_options = ( ( {'label' : 'Settings', 'action' : 'manage_settings_html'}, )
+                + SimpleItem.manage_options
+                )
+
+    def __init__(self, id, title, RemoteServer, RemoteService, app_name, nRetries=5, retryFrequency=300, nTimeBetweenCalls=60):
+        """ Initialize a new instance of Document
+            If a document is created through FTP, self.absolute_url doesn't work.
+        """
+        self.id = id
+        self.title = title
+        self.RemoteServer = RemoteServer
+        self.RemoteService = RemoteService
+        self.app_name = app_name
+        self.nRetries = nRetries                    # integer
+        self.retryFrequency = retryFrequency        # integer - seconds
+        self.nTimeBetweenCalls = nTimeBetweenCalls  # integer - seconds
+
+    def manage_settings(self, title, RemoteServer, RemoteService, app_name, nRetries, retryFrequency, nTimeBetweenCalls):
+        """ Change properties of the QA Application """
+        self.title = title
+        self.RemoteServer = RemoteServer
+        self.RemoteService = RemoteService
+        self.nRetries = nRetries
+        self.app_name = app_name
+        self.retryFrequency = retryFrequency
+        self.nTimeBetweenCalls = nTimeBetweenCalls
+
+    security.declareProtected('Use OpenFlow', '__call__')
+    def __call__(self, workitem_id, REQUEST=None):
+        """ Runs the Remote Aplication for the first time """
+        # The workitem taken by aquisition
+        l_workitem = getattr(self, workitem_id)
+        # delete all automatic feedbacks previously posted by this application
+        l_envelope = l_workitem.getMySelf()
+        for l_item in l_envelope.objectValues('Report Feedback'):
+            if l_item.activity_id == self.app_name:
+                l_envelope.manage_delObjects(l_item.id)
+
+        # Initialize the workitem QA specific extra properties
+        self.__initializeWorkitem(workitem_id)
+
+        # dictionary of {xml_schema_location: [URL_file]}
+        l_dict = self.getDocumentsForRemoteService()
+
+        if not l_dict:
+            self.__manageAutomaticProperty(p_workitem_id=workitem_id, p_analyze={'code':2})
+            l_workitem.addEvent('Operation completed: no files to analyze')
+            if REQUEST is not None:
+                REQUEST.set('RemoteApplicationSucceded', 1)
+                REQUEST.set('actor', 'openflow_engine')
+            self.__finishApplication(workitem_id, REQUEST)
+        else:
+            l_ret = self.__analyzeDocuments(workitem_id, l_dict)
+            if not l_ret:
+                l_workitem.addEvent('Operation completed: no files to analyze')
+                if REQUEST is not None:
+                    REQUEST.set('RemoteApplicationSucceded', 1)
+                    REQUEST.set('actor', 'openflow_engine')
+                self.__finishApplication(workitem_id, REQUEST)
+            # see if it's any point to go on
+            elif eval('l_workitem.'  + self.app_name)['analyze']['code'] == -2:
+                l_workitem.addEvent('Operation failed: error calling the remote service')
+                if REQUEST is not None:
+                    REQUEST.set('RemoteApplicationSucceded', 0)
+                    REQUEST.set('actor', 'openflow_engine')
+                self.__finishApplication(workitem_id, REQUEST)
+        return 1
+
+    security.declareProtected('Use OpenFlow', 'callApplication')
+    def callApplication(self, workitem_id, REQUEST=None):
+        """ Called on regular basis """
+        l_workitem = getattr(self, workitem_id)
+        # dictionary of {xml_schema_location: [URL_file]}
+        l_dict = self.getDocumentsForRemoteService()
+        # get the property of the workitem which keeps all the instance data for this operation
+        l_wk_prop = eval('l_workitem.' + self.app_name)
+
+        # test if analyze should be called
+        if l_wk_prop['analyze']['code'] == 0:
+            self.__analyzeDocuments(workitem_id, l_dict)
+        # see if it's any point to go on
+        elif l_wk_prop['analyze']['code'] == -2:
+            if REQUEST is not None:
+                REQUEST.set('RemoteApplicationSucceded', 0)
+                REQUEST.set('actor', 'openflow_engine')
+            self.__finishApplication(workitem_id, REQUEST)
+            return 1
+
+        # test if getResult should be called
+        l_files_success = {}
+        l_files_failed = {}
+        for l_jobID, l_job_details in l_wk_prop['getResult'].items():
+            if l_job_details['code'] == 0 and l_job_details['next_run'].lessThanEqualTo(DateTime()):
+                l_ret_step2 = self.__getResult4XQueryServiceJob(workitem_id, l_jobID)
+                l_fn = l_job_details['fileURL'].split('/')[-1]
+                if l_ret_step2[l_jobID]['code'] == 1:
+                    if l_files_success.has_key(l_fn): l_files_success[l_fn] += ', #%s' % l_jobID
+                    else: l_files_success[l_fn] = '#%s' % l_jobID
+                else:
+                    if l_files_failed.has_key(l_fn): l_files_failed[l_fn] += ', #%s' % l_jobID
+                    else: l_files_failed[l_fn] = '#%s' % l_jobID
+        # write to log the list of file that succeded
+        if l_files_success:
+            l_filenames_jobs = ''
+            for x in l_files_success.keys():
+                l_filenames_jobs += '<li>%s for file %s</li>' % (l_files_success[x], x)
+            l_workitem.addEvent('%s job(s) completed: <ul>%s</ul>' % (self.app_name, l_filenames_jobs))
+        # Check if the application has done its job
+        l_complete = 1
+        l_failed = 0
+        for l_jobID, l_job_details in l_wk_prop['getResult'].items():
+            # result retrieved
+            if l_job_details['code'] == 1:
+                pass
+            # error of some kind
+            elif l_job_details['code'] == -2:
+                l_failed = 1
+            # needs to run again, do not complete
+            else:
+                l_complete = 0
+        if l_complete:
+            # write to log the list of file that failed
+            if l_files_failed:
+                l_filenames_jobs = ''
+                for x in l_files_failed.keys():
+                    l_filenames_jobs += '<li>%s for file %s</li>' % (l_files_failed[x], x)
+                l_workitem.addEvent('Giving up on %s job(s): <ul>%s</ul>' % (self.app_name, l_filenames_jobs))
+            if REQUEST is not None:
+                REQUEST.set('RemoteApplicationSucceded', 1 - l_failed)
+                REQUEST.set('actor', 'openflow_engine')
+            self.__finishApplication(workitem_id, REQUEST)
+        return 1
+
+    ##############################################
+    #   XQuery calls
+    ##############################################
+
+    def __analyzeDocuments(self, p_workitem_id, p_files_dict):
+        """ Makes an XML/RPC call to the 'analyzeXMLFiles' function from the XQuery service 
+        """
+        l_workitem = getattr(self, p_workitem_id)
+        # get the property of the workitem which keeps all the instance data for this operation
+        l_wk_prop = eval('l_workitem.' + self.app_name)
+
+        try:
+            l_server = xmlrpclib.ServerProxy(self.RemoteServer)
+            l_ret = eval('l_server.' + self.RemoteService + '.analyzeXMLFiles(p_files_dict)')
+            # if there were no files to assess, return 0 so the work can go on
+            if not l_ret:
+                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_analyze={'code':2})
+                return 0
+            # How much to wait before making next XML/RPC call in days
+            l_tmp = float(self.nTimeBetweenCalls) / (60 * 60 * 24)
+            # Operation succedded, the XQuery service got the call and it returned [(jobID, fileURL)]
+            l_getResult = {}
+            l_files = {}
+            for l_job, l_file in l_ret:
+                l_getResult[str(l_job)] = {'code':0, 'retries_left':self.nRetries, 'last_error':None, 'next_run':DateTime(), 'fileURL':l_file}
+                l_filename = l_file.split('/')[-1]
+                if l_files.has_key(l_filename):
+                    l_files[l_filename] += ', #' + str(l_job)
+                else:
+                    l_files[l_filename] = '#' + str(l_job)
+            self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_analyze={'code':1}, p_getResult=l_getResult)
+            # Write in the envelope's log which files were sent to be analyzed and their QA jobs
+            l_filenames_jobs = ''
+            for x in l_files.keys():
+                l_filenames_jobs += '<li>%s for file %s</li>' % (l_files[x], x)
+            l_workitem.addEvent('%s job(s) in progress: <ul>%s</ul>' % (self.app_name, l_filenames_jobs))
+
+        # An XML-RPC fault package - retry later
+        # The agreed errors from the XQuery service are embedded in this error type
+        except xmlrpclib.Fault, l_fault:
+            l_nRetries = int(l_wk_prop['analyze']['retries_left'])
+            if l_nRetries == 0:
+                l_workitem.addEvent('Error in sending files to %s: %s' % (self.app_name, str(l_fault.faultString)))
+                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, 
+                        p_analyze={'code':-2, 'last_error':'Code: ' + str(l_fault.faultCode) + '\nDescription: ' + str(l_fault.faultString)})
+            else:
+                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, 
+                        p_analyze={'code':0, 'last_error':'Code: ' + str(l_fault.faultCode) + '\nDescription: ' + str(l_fault.faultString), 'retries_left':l_nRetries - 1, 'next_run':l_wk_prop['analyze']['next_run'] + self.retryFrequency})
+        # An HTTP protocol error - retry later
+        except xmlrpclib.ProtocolError, l_protocol:
+            l_nRetries = int(l_wk_prop['analyze']['retries_left'])
+            if l_nRetries == 0:
+                l_workitem.addEvent('Error in sending files to %s: %s' % (self.app_name, str(l_protocol.errmsg)))
+                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, 
+                        p_analyze={'code':-2, 'last_error':'Code: ' + str(l_protocol.errcode) + '\nDescription: ' + str(l_protocol.errmsg)})
+            else:
+                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, 
+                        p_analyze={'code':0, 'last_error':'Code: ' + str(l_protocol.errcode) + '\nDescription: ' + str(l_protocol.errmsg), 'retries_left':l_nRetries - 1, 'next_run':l_wk_prop['analyze']['next_run'] + self.retryFrequency})
+        # A broken response package - critical, do not retry
+        except xmlrpclib.ResponseError, l_response:
+            l_workitem.addEvent('Error in sending files to %s: %s' % (self.app_name, str(l_response)))
+            self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, 
+                     p_analyze={'code':-2, 'last_error':'Response error\nDescription: ' + str(l_response)})
+        # Generic client error - critical, do not retry
+        except xmlrpclib.Error, err:
+            l_workitem.addEvent('Error in sending files to %s: %s' % (self.app_name, str(err)))
+            self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, 
+                     p_analyze={'code':-2, 'last_error':str(err)})
+        except Exception, err:
+            l_workitem.addEvent('Error in sending files to %s: %s' % (self.app_name, str(err)))
+            self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, 
+                     p_analyze={'code':-2, 'last_error':str(err)})
+        return 1
+
+    def __getResult4XQueryServiceJob(self, p_workitem_id, p_jobID):
+        """ Makes an XML/RPC call to the 'getResult' function from the remote service 
+            for an existing job
+        """
+        l_workitem = getattr(self, p_workitem_id)
+        # get the property of the workitem which keeps all the instance data for this operation
+        l_wk_prop = eval('l_workitem.' + self.app_name)
+        # find out what file this job was for
+        l_file_url = l_wk_prop['getResult'][p_jobID]['fileURL']
+        l_file_id = string.split(l_file_url, '/')[-1]
+
+        try:
+            l_server = xmlrpclib.ServerProxy(self.RemoteServer)
+            l_ret = eval('l_server.' + self.RemoteService + '.getResult(str(p_jobID))')
+
+            # job ready
+            if l_ret['CODE'] == '0':
+                if l_file_id == 'xml':
+                    l_filename = ' result for: '
+                else:
+                    l_filename = ' result for file %s: ' % l_file_id
+                self.aq_parent.manage_addFeedback(id=self.app_name + '_' + str(p_jobID) + '_' + str(int(DateTime())), 
+                        title= self.app_name + l_filename + l_ret['SCRIPT_TITLE'], 
+                        feedbacktext=l_ret['VALUE'], 
+                        activity_id=l_workitem.activity_id,
+                        automatic=1, 
+                        content_type=l_ret['METATYPE'],
+                        document_id=l_file_id)
+                l_getResultDict = {p_jobID: {'code':1, 'fileURL':l_file_url}}
+                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_getResult=l_getResultDict)
+            # not ready
+            elif l_ret['CODE'] == '1':
+                l_nRetries = int(l_wk_prop['getResult'][p_jobID]['retries_left'])
+                if l_nRetries > 0:
+                    l_getResultDict = {p_jobID: {'code':0, 'retries_left':l_nRetries - 1, 'last_error':l_ret['VALUE'], 'next_run':DateTime()}}
+                    self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_getResult=l_getResultDict)
+                else:
+                    l_workitem.addEvent('Error in the %s, job #%s for file %s: %s' % (self.app_name, p_jobID, l_file_id, l_ret['VALUE']))
+                    l_getResultDict = {p_jobID: {'code':-2, 'last_error':l_ret['VALUE']}}
+                    self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_getResult=l_getResultDict)
+            # error, do not retry
+            else:
+                l_workitem.addEvent('Error in the %s, job #%s for file %s: %s' % (self.app_name, p_jobID, l_file_id, l_ret['VALUE']))
+                l_getResultDict = {p_jobID: {'code':-2, 'last_error':l_ret['VALUE']}}
+                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_getResult=l_getResultDict)
+        # Fatal error - do not retry
+        except Exception, err:
+            l_workitem.addEvent('Error in the %s, job #%s for file %s: %s' % (self.app_name, p_jobID, l_file_id, str(err)))
+            l_getResultDict = {p_jobID: {'code':-2, 'last_error':str(err)}}
+            self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_getResult=l_getResultDict)
+        return l_getResultDict
+
+    ##############################################
+    #   Private functions
+    ##############################################
+
+    def __initializeWorkitem(self, p_workitem_id):
+        """ Adds QA-specific extra properties to the workitem """
+        l_workitem = getattr(self, p_workitem_id)
+        setattr(l_workitem, self.app_name, {})
+        eval('l_workitem.' + self.app_name)['analyze'] = {'code':0,
+                                    'retries_left':self.nRetries,
+                                    'last_error':None,
+                                    'next_run':DateTime()
+                                   }
+        eval('l_workitem.' + self.app_name)['getResult'] = {}
+
+    def __manageAutomaticProperty(self, p_workitem_id, p_analyze={}, p_getResult={}):
+        """ 
+        The instance data for the RemoteApplication is stored in the workitem
+        as an additional property - app_name - contaning a dictionary like:
+        {
+            'analyze':      {code, retries_left, last_error, next_run}, 
+            'getResult':    {jobID: {code, retries_left, last_error, next_run, fileURL}}
+        }
+        Possible codes for app_name['analyze']:
+            0 - started
+            1 - done
+            -2 - failed
+            2 - nothing found to assess
+
+        Possible codes for app_name['getResult'][jobID]:
+            0 - started
+            1 - result succefully brought
+            -2 - failed
+        """
+        l_workitem = getattr(self, p_workitem_id)
+        l_qa = eval('l_workitem.' + self.app_name)
+
+        for l_key in p_analyze.keys():
+            l_qa['analyze'][l_key] = p_analyze[l_key]
+
+        for l_job, l_value in p_getResult.items():
+            if not l_qa['getResult'].has_key(l_job): l_qa['getResult'][l_job] = {}
+            l_qa['getResult'][l_job].update(l_value)
+        # make sure it saves the object
+        l_workitem._p_changed = 1
+
+
+    def __finishApplication(self, p_workitem_id, REQUEST=None):
+        """ Completes the workitem and forwards it """
+        self.activateWorkitem(p_workitem_id, actor='openflow_engine')
+        self.completeWorkitem(p_workitem_id, actor='openflow_engine', REQUEST=REQUEST)
+
+    security.declareProtected(view_management_screens, 'manage_settings_html')
+    manage_settings_html = DTMLFile('dtml/RemoteApplicationSettings', globals())
+
+InitializeClass(RemoteApplication)

@@ -1,0 +1,46 @@
+<dtml-var standard_html_header>
+
+<dtml-call "REQUEST.set('xml_schemas', REQUEST.SESSION.get('required_schema', []))">
+
+<div id="operations">
+	<ul>
+		<li>
+			<a href="<dtml-var "getMySelf().absolute_url()">" title="Go back to envelope">Back to envelope</a>
+		</li>
+	</ul>
+</div>
+
+<h1>Upload file</h1>
+
+<p>
+	If you filled the file from the correct Data Dictionary template (.XLS or .ODS), the conversion facility will extract
+	the information from it and convert the delivery to XML format.
+	You can also directly upload the XML files following the Data Dictionary schema.
+</p>
+<div class="note-msg">
+	<strong>Note</strong>
+	<p>
+		In each of these cases above, the XML files already existing in this envelope
+		and the previous delivery in the original format (if any) will be first deleted.
+	</p>
+</div>
+<p>
+	Additionally, upload accompanying or explanatory information in any other format.
+</p>
+
+<form action="manage_addDDFile" method="post" enctype="multipart/form-data" name="form">
+	<dtml-in xml_schemas>
+		<input type="hidden" name="required_schema:list" value="<dtml-var sequence-item>" />
+	</dtml-in>
+	<label for="file">File</label>
+	<input type="file" name="file" id="file" size="25" value="" />
+	<br />
+	<label for="restricted">Restricted from public view</label>
+	<input type="checkbox" name="restricted" id="restricted" />
+	<br /><br />
+	<input type="submit" value="Add" />
+</form>
+
+<dtml-call "REQUEST.SESSION.delete('required_schema')">
+
+<dtml-var standard_html_footer>

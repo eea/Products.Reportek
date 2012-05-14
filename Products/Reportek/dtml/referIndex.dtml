@@ -1,0 +1,53 @@
+<dtml-if "get_first_accept() == 'application/rdf+xml'">
+    <dtml-call "RESPONSE.redirect(absolute_url() + '/rdf', status=303)">
+<dtml-else>
+<dtml-var standard_html_header>
+<dtml-var "referral_tabs(tab='index_html')">
+<h1><dtml-var title_or_id html_quote></h1>
+
+<p>
+The data you are looking for are not stored on this system.
+Please continue your search on
+<a href="&dtml-referral_url;"><dtml-var referral_url html_quote></a>.
+</p>
+<table>
+    <tr>
+	<th>Description</th>
+	<td><dtml-var descr null="(No description)" html_quote newline_to_br></td>
+    </tr>
+    <tr>
+        <th>Obligations</th>
+        <td><dtml-in dataflow_uris prefix=dfuri>
+        <dtml-let df="dataflow_lookup(dfuri_item)">
+        <a href="<dtml-var "df['details_url']" html_quote>"><dtml-var "df['TITLE']" html_quote></a>
+        <dtml-if "df.get('terminated','0') == '1'"><em>Terminated</em></dtml-if>
+        <br />
+        </dtml-let>
+        <dtml-else><span style="color:maroon;font-weight:bold"
+        title="The obligation tag makes it possible for
+the requesters to find the delivery">Notice: this referral has no obligation tag</span>
+        </dtml-in></td>
+    </tr>
+<dtml-if "year != ''">
+<tr>
+ <th>Period</th>
+<dtml-if "endyear == ''">
+ <td><dtml-var year> - <dtml-var partofyear></td>
+<dtml-else>
+ <td><dtml-var year> to <dtml-var endyear></td>
+</dtml-if>
+</tr>
+</dtml-if>
+<dtml-if "country != ''">
+<tr>
+ <th>Coverage</th>
+ <td><dtml-var getCountryName><dtml-if locality>: <dtml-var locality html_quote></dtml-if></td>
+</tr>
+</dtml-if>
+<tr>
+ <th>Referral</th>
+ <td><a href="&dtml-referral_url;"><dtml-var referral_url html_quote></a></td>
+</tr>
+</table>
+<dtml-var standard_html_footer>
+</dtml-if>

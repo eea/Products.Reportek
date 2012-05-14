@@ -1,0 +1,48 @@
+<dtml-var standard_html_header>
+
+<dtml-if "canViewContent()">
+
+<dtml-var "envelope_tabs(tab='history_section')">
+
+<h1>History of <dtml-var title_or_id html_quote></h1>
+
+<p>
+    This page displays all the history of tasks that have executed in this envelope.
+    If you want to see more details about a task, just expand the <img src="/misc_/Reportek/plus_gif" alt="Expand item for more information" border="0" /> icon next to it.
+</p>
+
+<table border="0" cellpadding="2" cellspacing="2">
+<dtml-let actives="[]">
+<dtml-in "objectValues('Workitem')" sort=lastActivityDate,id>
+<tr>
+	<dtml-if "REQUEST.has_key('w' + id) and REQUEST['w' + id] == '1'">
+		<td valign="top"><a rel="nofollow" href="&dtml-URL0;?<dtml-var "changeQueryString(REQUEST['QUERY_STRING'], 'w' + id, '0')">"><img src="/misc_/Reportek/minus_gif" alt="Collapse item" border="0" /></a></td>
+		<td><strong><dtml-var "getActivityDetails('title')"></strong> (&dtml-status; <dtml-var lastActivityDate fmt=Date><dtml-if "actor not in ['', 'Anonymous User', 'openflow_engine']"> by <dtml-var actor></dtml-if>)
+<dtml-var workitemDetails></td>
+	<dtml-else>
+		<td valign="top"><a rel="nofollow" href="&dtml-URL0;?<dtml-var "changeQueryString(REQUEST['QUERY_STRING'], 'w' + id, '1')">"><img src="/misc_/Reportek/plus_gif" alt="Expand item for more information" border="0" /></a></td>
+		<td><strong><dtml-var "getActivityDetails('title')"></strong> (&dtml-status; <dtml-var lastActivityDate fmt=Date><dtml-if "actor not in ['', 'Anonymous User', 'openflow_engine']"> by <dtml-var actor></dtml-if>)</td>
+	</dtml-if>
+	<dtml-if "status in ('active','inactive')">
+        <dtml-call "actives.append(activity_id)">
+        </dtml-if>
+</tr>
+</dtml-in>
+</table>
+
+<dtml-comment>
+<h2>Tasks for this envelope</h2>
+<dtml-in "getProcess().listActivitiesSorted()">
+<p
+<dtml-if "_['sequence-item'] in actives">
+style="border: 1px dashed black"
+</dtml-if> >
+<dtml-var sequence-item>
+</p>
+</dtml-in>
+</dtml-comment>
+
+</dtml-let>
+</dtml-if>
+
+<dtml-var standard_html_footer>

@@ -1,0 +1,19 @@
+Process instances
+
+  When you run a process definition you get a process instance.
+  If you think at process definitions as static entities, process instances are dynamic entities.
+
+  A process instance is made of workitems.
+  Each workitem describes the work undergone in each activity of the process definition the
+  process istance is running.
+
+  A process instance has a status and it is one of:
+
+  * *running*: it means the instance is not complete, 
+  it has not reached the ending activity of the process definition
+
+  * *active*: it means the instance has one or more workitems that are undergoing action 
+  in some activity
+
+  * *complete*: meaning the instance has completed the workflow and will not undergo any more action
+

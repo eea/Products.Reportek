@@ -1,0 +1,13 @@
+<dtml-var standard_html_header>
+
+	<h1>Complete task confirmation</h1>
+	<p>Are you sure you want to complete the Draft task? If yes pres the <em>Complete task</em> button which will result in automatic quality assessment checks being done by the system against this envelope and eventually completing the delivery without any possibility to return on this decision. If you want to keep drafting the delivery pres the <em>Go back to envelope</em> button.</p>
+
+	<form action="complete_task" method="post" name="frmCompleteTask">
+		<input type="hidden" name="workitem_id" value="&dtml-workitem_id;" />
+
+		<input type="submit" value="Complete task" name="action" />
+		<input type="submit" value="Go back to envelope" name="action" />
+	</form>
+
+<dtml-var standard_html_footer>

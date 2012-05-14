@@ -1,0 +1,51 @@
+<tal:block content="structure here/manage_page_header" />
+<tal:block content="structure python:here.manage_tabs(management_view='View')" />
+
+<h2>Functionality implemented</h2>
+
+<dl>
+	<dt><a href="/ReportekEngine/globalworklist">Global work list</a></dt>
+	<dd>The TODO list for all users of the website</dd>
+
+	<dt><a href="/ReportekEngine/countryreporters">Country reporters</a></dt>
+	<dd>Lists the users that have the local role of 'Reporter' in each country</dd>
+
+	<dt><a href="/ReportekEngine/manage_properties">manage_properties</a></dt>
+	<dd>ZMI page that sets various global properties, such as links to remote services</dd>
+
+	<dt><a href="/ReportekEngine/manage_properties">runAutomaticApplications</a></dt>
+	<dd>ZMI functionality available from the manage properties page that allows running automatic applications on the spot</dd>
+
+	<dt><a href="/ReportekEngine/envelopes_autocomplete">envelopes_autocomplete</a></dt>
+	<dd>Searches the envelopes that have been in a given status for more than a given number of days and which are tagged with a certain obligation and allows Managers to complete the selected ones.</dd>
+
+	<dt><a href="/ReportekEngine/sitemap">sitemap</a></dt>
+	<dd>The collapsible site structure</dd>
+</dl>
+
+<h2>Methods implemented</h2>
+
+<dl>
+	<dt>lookup_last_delivery</dt>
+	<dd>Finds the most recent deliveries made by the given country for the given obligations, prior to a certain date. Now not used anymore; it was written for the purpose of allowing reporters to start their deliveries by copying data from the last one.</dd>
+
+	<dt>zipEnvelopes</dt>
+	<dd>Used in the <a href="/resultsdataflow">dataflow search results form</a> to allow users select released envelopes and zip their content together with the metadata.</dd>
+
+	<dt>harvestXforms</dt>
+	<dd>Calls <code>getXforms</code> from the WebQ and updates the <code>DataflowMappingRecord</code> table for the <code>haswebform</code> attribute. To be called on regular basis by a cron job.</dd>
+
+	<dt>change_ownership</dt>
+	<dd>Method available to Managers that can be used in ZMI scripts to change the ownership of objects such as collections, envelopes and files</dd>
+
+	<dt>getPartsOfYear</dt>
+	<dd>Retuns the list of the parts of the year, apparently not used anywhere</dd>
+
+	<dt>getEnvelopesInfo</dt>
+	<dd>Used for the DMM integration</dd>
+
+	<dt>messageDialog</dt>
+	<dd>The page that displays the message resulted from an operation, such as uploading a file</dd>
+</dl>
+
+<tal:block content="structure here/manage_page_footer" />

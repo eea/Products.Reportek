@@ -1,0 +1,21 @@
+<dtml-var standard_html_header>
+<h2>Dataflows / XML types' correspondence</h2>
+
+<table border="1" cellspacing="0" cellpadding="0">
+<tr>
+    <th>Title</th>
+    <th>Dataflow</th>
+    <th>Schemas without webform</th>
+    <th>Schemas with webform</th>
+</tr>
+<dtml-in "objectValues('Reportek Dataflow Mapping Record')" sort="dataflow_uri,id">
+<tr>
+    <td>&nbsp;<a href="<dtml-var absolute_url>/manage_settings_html"><dtml-var title_or_id></a>&nbsp;</td>
+    <td><a href="<dtml-var "dataflow_uri.replace('eionet.eu.int','eionet.europa.eu')">"><dtml-var dataflow_uri></a></td>
+    <td><dtml-var "'\n'.join(allowedSchemas)" html_quote newline_to_br></td>
+    <td><dtml-var "'\n'.join(webformSchemas)" html_quote newline_to_br></td>
+</tr>
+</dtml-in>
+</table>
+
+<dtml-var standard_html_footer>

@@ -1,0 +1,48 @@
+<dtml-var standard_html_header>
+<dtml-let file_id="REQUEST.get('file', '')">
+
+<div id="operations">
+	<ul>
+		<li>
+			<a href="<dtml-var "getMySelf().absolute_url()">" title="Go back to envelope">
+				Back to envelope
+			</a>
+		</li>
+	</ul>
+</div>
+
+<h1>Add GIS file - step 3</h1>
+<h2>Upload GML file</h2>
+
+<p>
+	Upload a GML file created according to the schema <a href="http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd">http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd</a>.
+</p>
+<br />
+
+<form action="upload_gml_file" method="post" enctype="multipart/form-data" name="frmAddGisStep3">
+	<input type="hidden" name="file_id" value="<dtml-var file_id>" />
+
+	<span style="height: 2.5em; width: 7em; font-weight: 700; float: left;" >Upload file</span>
+	<input type="file" name="file" size="50" value="" />
+	<br clear="all" />
+
+	<dtml-if "testExistingFile(file_id)">
+		<div class="error-msg">Warning: the GML you chosen to create already exists! If you proceed, the current content will be overwritten!</div>
+	</dtml-if>
+	<dtml-if "REQUEST.SESSION.has_key('err')">
+		<dtml-in "REQUEST.SESSION.get('err', [])" prefix=err>
+			<div class="error-msg">Error: <dtml-var err_item></div>
+		</dtml-in>
+	</dtml-if>
+
+	<input type="submit" value="Add" name="go"/>
+	<input type="submit" value="Back" name="go"/>
+</form>
+
+
+<dtml-if "REQUEST.SESSION.has_key('err')">
+	<dtml-call "REQUEST.SESSION.delete('err')">
+</dtml-if>
+
+</dtml-let>
+<dtml-var standard_html_footer>

@@ -1,0 +1,48 @@
+<dtml-var manage_page_header>
+<dtml-with "_(management_view='View')">
+<dtml-var manage_tabs>
+</dtml-with>
+
+<p class="form-help">
+	This page presents the available QA scripts.
+</p>
+
+<dtml-let qas="getQAScriptsDescriptions()">
+
+<h2>Local QA scripts</h2>
+
+<table border="1" cellpadding="2" cellspacing="0">
+<tr>
+	<th>Name</th>
+	<th>XML schema</th>
+	<th>Output content type</th>
+</tr>
+<dtml-in "qas[0]" prefix=qa>
+<tr>
+	<td><dtml-var "qa_item.title_or_id()"></td>
+	<td><dtml-var "qa_item.xml_schema"></td>
+	<td><dtml-var "qa_item.content_type_out"></td>
+</tr>
+</dtml-in>
+</table>
+
+<h2>Remote QA scripts</h2>
+
+<table border="1" cellpadding="2" cellspacing="0">
+<tr>
+	<th>Name</th>
+	<th>XML schema</th>
+	<th>Output content type</th>
+</tr>
+<dtml-in "qas[1]" prefix=qa>
+<tr>
+	<td><dtml-var "qa_item['description']"></td>
+	<td><dtml-var "qa_item['xml_schema']"></td>
+	<td><dtml-var "qa_item['content_type_out']"></td>
+</tr>
+</dtml-in>
+</table>
+
+</dtml-let>
+
+<dtml-var manage_page_footer>

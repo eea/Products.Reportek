@@ -1,0 +1,21 @@
+<span tal:replace="structure here/standard_html_header" />
+
+<tal:block condition="here/checkPermissionEditComments" define="file_id python:request.get('file', '')">
+
+	<div id="operations">
+		<ul>
+			<li><a tal:attributes="href string:${here/absolute_url}/comment_edit">Back to comment</a></li>
+		</ul>
+	</div>
+
+	<h1>Upload new file for <span tal:replace="file_id" /></h1>
+
+	<form method="POST" name="editFileComment" action="editFileComment" enctype="multipart/form-data">
+		<input type="hidden" name="file_id" tal:attributes="value file_id" />
+		<input type="file" name="file" size="25" value="" />
+		<input type="submit" name="upload" value="Upload" />
+	</form>
+
+</tal:block>
+<p tal:condition="not:here/checkPermissionEditComments">You are not authorized to access this resource</p>
+<span tal:replace="structure here/standard_html_footer" />

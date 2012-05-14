@@ -1,0 +1,30 @@
+<dtml-var standard_html_header>
+
+<h1><img src="<dtml-var icon>" alt="<dtml-var meta_type>" /> <dtml-var id> details</h1>
+
+<p>
+	Transition details are presented in the following table. 
+	The condition is used when the tokens move from activity to activity (condition must be evaluated to true).
+	Activity details can be viewed by selecting the activity.
+</p>
+
+<table border="2">
+	<tr>
+		<th>Description</th>
+		<td><dtml-var description html_quote></td>
+	</tr>
+	<tr>
+		<th>Condition</th>
+		<td><dtml-var condition html_quote></td>
+	</tr>
+	<tr>
+		<th>From</th>
+		<td><a href="../<dtml-var From url_quote>"><dtml-var From html_quote></a></td>
+	</tr>
+	<tr>
+		<th>To</th>
+		<td><a href="../<dtml-var To url_quote>"><dtml-var To html_quote></a></td>
+	</tr>
+</table>
+
+<dtml-var standard_html_footer>

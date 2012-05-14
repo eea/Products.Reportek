@@ -1,0 +1,13 @@
+<dtml-var standard_html_header>
+
+<h1>Sitemap for the Central Data Repository </h1>
+
+<p>[<a href="<dtml-var URL0>?expand_all=1">Expand all</a>] [<a href="<dtml-var URL0>?collapse_all=1">Collapse all</a>]</p>
+
+<dtml-tree "PARENTS[-1]" branches_expr="objectValues(['Report Collection', 'Report Envelope', 'Repository Referral'])">
+     <img src="&dtml-icon;" alt="&dtml-meta_type;" /> <a href="&dtml-absolute_url;" title="<dtml-if description>&dtml-description;<dtml-else>&dtml-descr;</dtml-if>"><dtml-var title_or_id></a>
+</dtml-tree>
+
+<p>[<a href="<dtml-var URL0>?expand_all=1">Expand all</a>] [<a href="<dtml-var URL0>?collapse_all=1">Collapse all</a>]</p>
+
+<dtml-var standard_html_footer>

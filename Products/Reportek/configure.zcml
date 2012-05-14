@@ -1,0 +1,18 @@
+<configure xmlns='http://namespaces.zope.org/zope'>
+
+<subscriber for="Products.Reportek.interfaces.IDocument zope.app.container.interfaces.IObjectAddedEvent"
+      handler="Products.Reportek.Document.addedDocument" />
+
+<subscriber for="Products.Reportek.interfaces.IDocument zope.app.container.interfaces.IObjectMovedEvent"
+      handler="Products.Reportek.Document.movedDocument" />
+
+<!-- removedDocument is called in movedDocument -->
+<!--
+<subscriber for="Products.Reportek.interfaces.IDocument zope.app.container.interfaces.IObjectRemovedEvent"
+      handler="Products.Reportek.Document.removedDocument" />
+-->
+
+<subscriber for="Products.Reportek.interfaces.IEnvelope zope.app.container.interfaces.IObjectMovedEvent"
+      handler="Products.Reportek.Envelope.movedEnvelope" />
+
+</configure>

@@ -1,0 +1,51 @@
+<dtml-var standard_html_header>
+<div id="operations">
+	<ul>
+		<li>
+			<a href="<dtml-var "getMySelf().absolute_url()">" title="Go back to envelope">
+				Back to envelope
+			</a>
+		</li>
+	</ul>
+</div>
+
+<h1>Add other file</h1>
+
+<!-- For the moment we assume that all files are in UTF-8 -->
+<dtml-if "REQUEST.SESSION.has_key('msg')">
+	<dtml-let msg_list="REQUEST.SESSION.get('msg', [])">
+		<dtml-if "msg_list[-1]=='done'">
+			<div class="system-msg"><dtml-var "msg_list[0]"></div>
+		<dtml-else>
+			<div class="error-msg">Error: <dtml-var "msg_list[0]"><dtml-if "not msg_list[0][-1] in ['.', '!', '?']">!</dtml-if></div>
+		</dtml-if>
+	</dtml-let>
+</dtml-if>
+
+<p>If you have additional data that are not in the format specified by this dataflow, use this form to upload these files.</p>
+
+<form method="post" action="add_other_file" enctype="multipart/form-data" name="frmAddOtherFile">
+	<span style="height: 2em; width: 17em; font-weight: 700; float: left;">Title</span>
+	<input type="text" name="title" size="40" />
+	<br clear="all" />
+
+	<span style="height: 2em; width: 17em; font-weight: 700; float: left;">File</span>
+	<input type="file" name="file" size="25" value="" style="margin-top: 0.5em" />
+	<br clear="all" />
+
+	<span style="height: 2em; width: 17em; font-weight: 700; float: left;">Id</span>
+	<input type="text" name="id" size="40" style="margin-top: 0.5em" />
+	<span style="font-size: 0.8em">(optional)</span>
+	<br clear="all" />
+
+	<span style="height: 2em; width: 17em; font-weight: 700; float: left;">Restricted from public view</span>
+	<input type="checkbox" name="restricted" />
+	<br clear="all" />
+
+	<input type="submit" value="Add" />
+</form>
+
+<dtml-if "REQUEST.SESSION.has_key('msg')">
+	<dtml-call "REQUEST.SESSION.delete('msg')">
+</dtml-if>
+<dtml-var standard_html_footer>

@@ -1,0 +1,39 @@
+<dtml-var manage_page_header>
+<dtml-with "_(management_view='UNS settings')">
+<dtml-var manage_tabs>
+</dtml-with>
+
+<p class="form-help">
+Fill the properties on this page only if this system is linked to a <em>Unified Integration Service</em>. 
+</p>
+
+<form action="manage_editUNSInterface" method="post">
+
+<table> 
+<tr><th><label for="UNS_server">UNS server URL</label></th> 
+    <td><input type="text" size="50" id="UNS_server" name="UNS_server" value="&dtml-UNS_server;" /></td> 
+</tr> 
+<tr><th><label for="UNS_username">UNS username</label></th> 
+    <td><input type="text" size="20" id="UNS_username" name="UNS_username" value="&dtml-UNS_username;" /></td> 
+</tr> 
+<tr><th><label for="UNS_password">UNS password</label></th> 
+    <td><input type="password" size="20" id="UNS_password" name="UNS_password" value="&dtml-UNS_password;" /></td> 
+</tr> 
+<tr><th><label for="UNS_password_confirmation">UNS password confirmation</label></th> 
+    <td><input type="password" size="20" id="UNS_password_confirmation" name="UNS_password_confirmation" value="&dtml-UNS_password;" /></td> 
+</tr> 
+<tr><th><label for="UNS_channel_id">UNS channel ID</label></th>
+    <td><input type="text" size="30" id="UNS_channel_id" name="UNS_channel_id" value="&dtml-UNS_channel_id;" /></td> 
+</tr> 
+<tr><th><label for="UNS_notification_types">Notification types</label><br />(one on a row)</th> 
+    <td><textarea size="50" id="UNS_notification_types" name="UNS_notification_types:lines" rows="5" cols="30"><dtml-in UNS_notification_types><dtml-var sequence-item>
+</dtml-in></textarea></td> 
+</tr> 
+<tr><td></td> 
+    <td><input type="submit" value="Save changes" /></td> 
+</tr> 
+</table>
+
+</form>
+
+<dtml-var manage_page_footer>

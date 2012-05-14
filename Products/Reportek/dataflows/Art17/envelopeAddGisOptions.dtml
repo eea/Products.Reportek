@@ -1,0 +1,111 @@
+<dtml-let files_list="getDocumentsByType(add_target)"
+		  filetype="REQUEST.get('filetype', 'range')"
+		  identifier="REQUEST.get('identifier', '')">
+
+<div>
+	<form method="post" name="frmAddGisStep2"
+		action="<dtml-if "add_type == 'empty'">createEmptyGmlFile</dtml-if>
+				<dtml-if "add_type == 'esri'">uploadESRIFiles</dtml-if>
+				<dtml-if "add_type == 'gml'">uploadGMLFile</dtml-if>">
+
+		<!-- GML files type list -->
+		<fieldset>
+			<legend><label for="gml_type"><strong>Select map type</strong></label></legend>
+			<dtml-if "add_target=='hab'">
+				<input type="radio" name="filetype" value="range" id="ftrange" <dtml-if "filetype=='range'">checked="checked"</dtml-if>/>
+					<label for="ftrange">Map range for habitat type</label><br />
+				<input type="radio" name="filetype" value="favourable-range" id="ftfavourable" <dtml-if "filetype=='favourable-range'">checked="checked"</dtml-if>/>
+					<label for="ftfavourable">Map favourable reference range for habitat type (if available)</label><br />
+				<input type="radio" name="filetype" value="distribution" id="ftdistribution" <dtml-if "filetype=='distribution'">checked="checked"</dtml-if>/>
+					<label for="ftdistribution">Map distribution for habitat type</label><br />
+				<input type="radio" name="filetype" value="favourable-distribution" id="ftfavdist" <dtml-if "filetype=='favourable-distribution'">checked="checked"</dtml-if>>
+					<label for="ftfavdist">Map favourable reference area for habitat type (if available)</label><br />
+			</dtml-if>
+			<dtml-if "add_target=='spec'">
+				<input type="radio" name="filetype" value="range" id="ftrange" <dtml-if "filetype=='range'">checked="checked"</dtml-if>>
+					<label for="ftrange">Map range for species</label><br />
+				<input type="radio" name="filetype" value="distribution" id="ftdistribution" <dtml-if "filetype=='distribution'">checked="checked"</dtml-if>>
+					<label for="ftdistribution">Map distribution for species</label><br />
+				<input type="radio" name="filetype" value="favourable-range" id="ftfavrange" <dtml-if "filetype=='favourable-range'">checked="checked"</dtml-if>>
+					<label for="ftfavrange">Map favourable range for species (if available)</label><br />
+			</dtml-if>
+		</fieldset><br />
+
+		
+		<fieldset>
+			<legend>
+				<dtml-if "add_target=='hab'">
+					<label for="identifier"><strong>Related habitat factsheet</strong></label>
+				</dtml-if>
+				<dtml-if "add_target=='spec'">
+					<label for="identifier"><strong>Related species factsheet</strong></label>
+				</dtml-if>
+			</legend>
+
+			<!-- habitat files list -->
+			<dtml-if "add_target=='hab'">
+				<dtml-if "len(files_list)>0">
+					<dtml-in Art17habitattypes prefix=hab>
+						<dtml-if "hab_item[1] in files_list">
+							<input type="radio" name="identifier" value="<dtml-var "hab_item[1]">"
+												<dtml-if "identifier==hab_item[1]">checked="checked"</dtml-if>/>
+								<span><dtml-var "hab_item[2]" html_quote></span><br />
+								<ul style="margin-left: 3em;">
+								<li>
+									<span style="font-size: 0.8em">ID:&nbsp;habitattype-<dtml-var "hab_item[1]">.xml
+									&nbsp;<a href="habitattype-<dtml-var "hab_item[1]">.xml/manage_edit_document" title="view">view</a>
+									</span>
+								</li>
+								</ul>
+							<br />
+						</dtml-if>
+					</dtml-in>
+				<dtml-else>
+					<span>No habitat factsheet available</span>
+				</dtml-if>
+			</dtml-if>
+
+			<!-- species files list -->
+			<dtml-if "add_target=='spec'">
+				<dtml-if "len(files_list)>0">
+					<dtml-in "files_list" prefix=spec>
+						<input type="radio" name="identifier" value="<dtml-var "spec_item.lower()">"
+											<dtml-if "identifier==spec_item.lower()">checked="checked"</dtml-if>/>
+							<span>Species questionnaire for <dtml-var "spec_item.capitalize()" html_quote></span><br />
+							<ul style="margin-left: 3em;">
+							<li>
+								<span style="font-size: 0.8em">ID:&nbsp;species-<dtml-var "spec_item.lower().replace(' ','-')">.xml
+								&nbsp;<a href="species-<dtml-var "spec_item.lower().replace(' ','-')">.xml/manage_edit_document" title="view">view</a>
+								</span>
+							</li>
+							<li><span style="font-size: 0.8em">Description:&nbsp;
+								<dtml-var "spec_item">
+								<dtml-if "spec_key!=''">
+									(<dtml-var "spec_key">)
+								</dtml-if>
+							</span></li>
+							</ul>
+						<br />
+					</dtml-in>
+				<dtml-else>
+					<span>No species factsheets available</span>
+				</dtml-if>
+			</dtml-if>
+		</fieldset>
+
+		<dtml-if "REQUEST.SESSION.has_key('err')">
+		<div class="error-msg">Error: <dtml-var "REQUEST.SESSION.get('err', '')"></div>
+		</dtml-if>
+
+		<input type="hidden" name="add_target" value="<dtml-var add_target>" />
+		<input type="hidden" name="add_type" value="<dtml-var add_type>" />
+		<input type="submit" value="Continue" name="go" />
+		<input type="submit" value="Back" name="go" />
+	</form>
+</div>
+
+<dtml-if "REQUEST.SESSION.has_key('err')">
+	<dtml-call "REQUEST.SESSION.delete('err')">
+</dtml-if>
+
+</dtml-let>

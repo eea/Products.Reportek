@@ -1,0 +1,51 @@
+<dtml-var standard_html_header>
+
+<div id="operations">
+	<ul>
+		<li>
+			<a href="<dtml-var "getMySelf().absolute_url()">" title="Go back to envelope">
+				Back to envelope
+			</a>
+		</li>
+	</ul>
+</div>
+
+<h1>Upload XML file</h1>
+
+<p>
+	Upload an XML file generated from your local databases and (optionally) further edit it online with webforms. The XML file must respect one of the following schemas:
+</p>
+<ul>
+	<li><a href="http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd">General report</a></li>
+	<li><a href="http://biodiversity.eionet.europa.eu/schemas/dir9243eec/habitats.xsd">Habitat factsheet</a></li>
+
+	<li><a href="http://biodiversity.eionet.europa.eu/schemas/dir9243eec/species.xsd">Species factsheet</a>
+</ul>
+<p>For information on the format see the <a href="http://biodiversity.eionet.europa.eu/art17dataflow/XML%20Format%20description.pdf">XML Format description</a> document.</p>
+
+<dtml-if "REQUEST.SESSION.has_key('msg')">
+	<dtml-let msg_list="REQUEST.SESSION.get('msg', [])">
+		<dtml-if "msg_list[-1]=='done'">
+			<div class="system-msg"><dtml-var "msg_list[0]"></div>
+		<dtml-else>
+			<div class="error-msg">Error: <dtml-var "msg_list[0]">!</div>
+		</dtml-if>
+	</dtml-let>
+</dtml-if>
+
+<form action="add_xml_file" method="post" enctype="multipart/form-data" name="frmAddXmlFile">
+	<span style="height: 3.2em; width: 13em; font-weight: 700; float: left;" >Overwrite existing file</span>
+	<span style="font-size: 0.8em;"><input type="checkbox" name="overwrite" checked="checked" />(if you are trying to upload files that already exist in the envelope and this option is checked, the files will be simply overwitten; otherwise the process will not add any files and you will be notified about this)</span>
+	<br clear="all" />
+
+	<span style="height: 6em; width: 13em; font-weight: 700; float: left;" >Xml file</span>
+	<input type="file" name="file" size="25" value="" />
+
+	<br /><br />
+	<input type="submit" value="Upload" name="go"/>
+</form>
+
+<dtml-if "REQUEST.SESSION.has_key('msg')">
+	<dtml-call "REQUEST.SESSION.delete('msg')">
+</dtml-if>
+<dtml-var standard_html_footer>

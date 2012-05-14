@@ -1,0 +1,123 @@
+<dtml-var manage_page_header>
+<dtml-var manage_tabs>
+
+<div style="text-align: right">
+<form action="." method="post">
+<input type="submit" name="manage_addActivityForm:method" value="Add Activity" />
+<input type="submit" name="manage_addTransitionForm:method" value="Add Transition" />
+</form>
+</div>
+
+<h2>Activities</h2>
+
+<dtml-let unref_activities="listUnreferedActivities()">
+<dtml-in "objectValues('Activity')" sort=id>
+
+<dtml-if sequence-start>
+
+<form action="." method="post">
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr bgcolor="#CCCCCC">
+	<th>Activity</th>
+	<th>Kind</th>
+	<th>Join</th>
+	<th>Split</th>
+	<th>Application name</th>
+	<th>Push application</th>
+	<th>Start mode</th>
+	<th>Finish mode</th>
+	<th>Subflow process</th>
+</tr>
+
+</dtml-if>
+
+	<dtml-if sequence-even>
+<tr bgcolor="#FFFFFF">
+	<dtml-else>
+<tr bgcolor="#EEEEEE">
+	</dtml-if>
+	<td><input type="checkbox" name="ids:list" value="<dtml-var id>" />
+		<a href="<dtml-var id url_quote>/manage_workspace"><dtml-var id></a>
+		<dtml-if "id not in unref_activities"><span style="color: red" title="This activity has no incoming/outcoming transitions">[not used]</span></dtml-if>
+	</td>
+	<td align="center"><dtml-var kind></td>
+	<td align="center"><dtml-var join_mode></td>
+	<td align="center"><dtml-var split_mode></td>
+	<dtml-if "kind=='standard'">
+	<td><dtml-var application></td>
+	<td align="center"><dtml-var push_application></td>
+	<td align="center"><dtml-if start_mode>Automatic<dtml-else>Manual</dtml-if></td>
+	<td align="center"><dtml-if finish_mode>Automatic<dtml-else>Manual</dtml-if></td>
+	<dtml-else>
+	<td> </td>
+	<td> </td>
+	<td> </td>
+	<td> </td>
+	</dtml-if>
+	<dtml-if "kind=='subflow'">
+	<td align="center"><dtml-var subflow></td>
+	<dtml-else>
+	<td> </td>
+	<td> </td>
+	<td> </td>
+	</dtml-if>
+</tr>
+
+<dtml-if sequence-end>
+</table>
+
+<input type="submit" name="manage_delObjects:method" value="Delete activity" />
+</form>
+</dtml-if>
+
+<dtml-else>
+
+<p>There are no activities yet.</p>
+
+</dtml-in>
+</dtml-let>
+
+<h2>Transitions</h2>
+
+<dtml-in "objectValues('Transition')" sort=id>
+
+<dtml-if sequence-start>
+
+<form action="&dtml-absolute_url;" method="post">
+<table border="0" cellpadding="0" cellspacing="0" width="100%">
+<tr bgcolor="#CCCCCC">
+	<th align="left">Transition</th>
+	<th>Condition</th>
+	<th>From</th>
+	<th>To</th>
+</tr>
+
+</dtml-if>
+
+	<dtml-if sequence-even>
+<tr bgcolor="#FFFFFF">
+	<dtml-else>
+<tr bgcolor="#EEEEEE">
+	</dtml-if>
+	<td><input type="checkbox" name="ids:list" value="<dtml-var id>" />
+		<a href="<dtml-var id url_quote>/manage_workspace"><dtml-var id></a>
+	</td>
+	<td><dtml-var condition null="- nocondition -"></td>
+	<td><dtml-var From></td>
+	<td><dtml-var To></td>
+</tr>
+
+<dtml-if sequence-end>
+</table>
+<input type="submit" name="manage_delObjects:method" value="Delete transition" />
+</form>
+</dtml-if>
+
+<dtml-else>
+
+<p>There are no transitions yet.</p>
+
+</dtml-in>
+
+<dtml-var manage_page_footer>
+

@@ -1,0 +1,45 @@
+<dtml-var standard_html_header>
+
+<h1>Upload other data</h1>
+
+<p>
+	<strong>Make sure you have taken into account the following:</strong>
+</p>
+<ul>
+	<li>Use this option to upload accompanying or explanatory information in any format.<br /><br /></li>
+
+	<li>Zip files will be unzipped on upload.<br /><br /></li>
+
+	<li>No data uploaded will be validated.</li>
+</ul>
+
+<div class="note-msg">
+	<strong>Note</strong>
+	<p>
+	do not make your formal delivery of data using this option.
+	Please structure your data using the standard 
+	<a href="http://dd.eionet.europa.eu/GetXls?obj_type=dst&amp;obj_id=2499">Excel template</a> or <a href="http://dd.eionet.europa.eu/GetSchema?id=DST2499">XML schema</a> available
+	from the <a href="http://dd.eionet.europa.eu/dataset.jsp?mode=view&amp;ds_id=2499">Data Dictionary</a>
+	and upload using the <strong>Upload Excel data</strong> or <strong>Upload XML data</strong> options.
+	</p>
+</div>
+
+<form  method="post" action="&dtml-absolute_url;" enctype="multipart/form-data" name="form">
+	<table cellspacing="5">
+	<tr>
+		<td><label for="file" class="question required">File</label></td>
+		<td><input type="file" name="file" id="file" size="25" value="" /></td>
+	</tr>
+	<tr>
+		<td class="question">Restrictions</td>
+		<td><input type="checkbox" name="restricted" id="restricted" /> <label for="restricted" class="answer">Restricted from public view</label></td>
+	</tr>
+	<tr>
+		<td></td>
+		<td><input type="submit" name="manage_addDocOrZip:method" value="Upload" />
+		<input type="submit" name="index_html:method" value="Cancel" /></td>
+	</tr>
+	</table>
+</form>
+
+<dtml-var standard_html_footer>

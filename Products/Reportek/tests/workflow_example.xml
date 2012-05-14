@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="ISO-8859-1"?><workflow>
+<process rid="noise_dataflows" title="Noise Dataflows" description="Upload and convert EXCEL, QA" priority="0" begin="Draft" end="End">
+<activity rid='End' title='End'
+                split_mode='and' join_mode='and' self_assignable='1'
+                start_mode='1' finish_mode='0' complete_automatically='1'
+                subflow='' push_application='' application=''
+                parameters='' description='' kind='standard'
+                pushable_roles='' pullable_roles=''/>
+<activity rid='Draft' title='Draft'
+                split_mode='xor' join_mode='xor' self_assignable='1'
+                start_mode='0' finish_mode='1' complete_automatically='1'
+                subflow='' push_application='' application='EnvelopeDraftNoiseDirective'
+                parameters='' description='You have to activate this task first before you can upload your files.' kind='standard'
+                pushable_roles='' pullable_roles='Manager,Reporter'/>
+<activity rid='Released' title='Accept or redeliver'
+                split_mode='xor' join_mode='xor' self_assignable='1'
+                start_mode='0' finish_mode='1' complete_automatically='0'
+                subflow='' push_application='' application='EnvelopeRejectOrAccept'
+                parameters='' description='The envelope is released. The requester must now do the manual QA.' kind='standard'
+                pushable_roles='' pullable_roles='Manager,Client'/>
+<activity rid='RevokeRelease' title='Revoke released envelope'
+                split_mode='xor' join_mode='xor' self_assignable='1'
+                start_mode='1' finish_mode='1' complete_automatically='1'
+                subflow='' push_application='' application='EnvelopeRevoke'
+                parameters='' description='Revokes envelope release' kind='standard'
+                pushable_roles='' pullable_roles=''/>
+<activity rid='Release' title='Release envelope'
+                split_mode='xor' join_mode='xor' self_assignable='1'
+                start_mode='1' finish_mode='1' complete_automatically='1'
+                subflow='' push_application='' application='EnvelopeRelease'
+                parameters='' description='Release envelope' kind='standard'
+                pushable_roles='' pullable_roles=''/>
+<activity rid='AutomaticFeedback' title='Incomplete delivery'
+                split_mode='xor' join_mode='xor' self_assignable='1'
+                start_mode='1' finish_mode='1' complete_automatically='1'
+                subflow='' push_application='' application='EnvelopeAddAutomaticFeedback'
+                parameters='' description='Post automatic feedback' kind='standard'
+                pushable_roles='' pullable_roles=''/>
+<activity rid='DeleteAutomaticFeedback' title='Delete all automatic feedback'
+                split_mode='xor' join_mode='xor' self_assignable='1'
+                start_mode='1' finish_mode='1' complete_automatically='1'
+                subflow='' push_application='' application='EnvelopeDeleteAutomaticFeedback'
+                parameters='' description='Deletes all automatic feedback' kind='standard'
+                pushable_roles='' pullable_roles=''/>
+<activity rid='AutomaticQA' title='Automatic quality assessment'
+                split_mode='xor' join_mode='xor' self_assignable='1'
+                start_mode='1' finish_mode='1' complete_automatically='0'
+                subflow='' push_application='' application='EnvelopeQAApplication'
+                parameters='' description='Automatic quality assessment' kind='standard'
+                pushable_roles='' pullable_roles=''/>
+<activity rid='AcceptAllFiles' title='Accept all files'
+                split_mode='xor' join_mode='xor' self_assignable='1'
+                start_mode='1' finish_mode='1' complete_automatically='1'
+                subflow='' push_application='' application='EnvelopeAcceptAllFiles'
+                parameters='' description='' kind='standard'
+                pushable_roles='' pullable_roles=''/>
+<transition rid="Draft_AutomaticFeedback" From="Draft" To="AutomaticFeedback" condition="python:len(here.objectIds([&apos;Report Document&apos;,&apos;Report Hyperlink&apos;])) == 0" description=""/>
+<transition rid="AutomaticFeedback_Draft" From="AutomaticFeedback" To="Draft" condition="" description=""/>
+<transition rid="Released_End" From="Released" To="AcceptAllFiles" condition=" python:request.inspectresult==&apos;Accept delivery&apos;" description=""/>
+<transition rid="RevokeRelease_Draft" From="RevokeRelease" To="Draft" condition="" description=""/>
+<transition rid="Released_RevokeRelease" From="Released" To="RevokeRelease" condition="python:request.inspectresult==&apos;Back to drafting&apos;" description=""/>
+<transition rid="Draft_DeleteAutomaticFeedback" From="Draft" To="DeleteAutomaticFeedback" condition="python:len(here.objectIds([&apos;Report Document&apos;,&apos;Report Hyperlink&apos;])) &gt; 0" description=""/>
+<transition rid="DeleteAutomaticFeedback_Release" From="DeleteAutomaticFeedback" To="Release" condition="" description=""/>
+<transition rid="AutomaticQA_Released" From="AutomaticQA" To="Released" condition="" description=""/>
+<transition rid="Release_AutomaticQA" From="Release" To="AutomaticQA" condition="" description=""/>
+<transition rid="Released_AutomaticQA" From="Released" To="AutomaticQA" condition="python:request.inspectresult==&apos;Run automatic QA again&apos;" description=""/>
+<transition rid="AcceptAllFiles_End" From="AcceptAllFiles" To="End" condition="" description=""/>
+</process>
+<application rid="EnvelopeAutomaticQAFinished" url="EnvelopeAutomaticQAFinished"/>
+<application rid="EnvelopeDraftNoiseDirective" url="EnvelopeDraftNoiseDirective"/>
+<application rid="EnvelopeRelease" url="EnvelopeRelease"/>
+<application rid="EnvelopeLevelQA" url="EnvelopeLevelQA"/>
+<application rid="EnvelopeRevoke" url="EnvelopeRevoke"/>
+<application rid="EnvelopeDeleteAutomaticFeedback" url="EnvelopeDeleteAutomaticFeedback"/>
+<application rid="EnvelopeAddWasteInstancefiles" url="EnvelopeAddWasteInstancefiles"/>
+<application rid="EnvelopeDraftWater" url="EnvelopeDraftWater"/>
+<application rid="EnvelopeAdd_Art17_GR_Instancefile" url="EnvelopeAdd_Art17_GR_Instancefile"/>
+<application rid="EnvelopeAddFeedback" url="EnvelopeAddFeedback"/>
+<application rid="EnvelopeDraftNitratesDirective" url="EnvelopeDraftNitratesDirective"/>
+<application rid="EnvelopeDraftBarceona" url="EnvelopeDraftBarcelona"/>
+<application rid="EnvelopeRejectOrAccept" url="EnvelopeRejectOrAccept"/>
+<application rid="EnvelopeArt8CoverLetter" url="EnvelopeArt8CoverLetter"/>
+<application rid="EnvelopeAcceptAllFiles" url="EnvelopeAcceptAllFiles"/>
+<application rid="EnvelopeQAApplication" url="EnvelopeQAApplication"/>
+<application rid="EnvelopeDraft" url="EnvelopeDraft"/>
+<application rid="EnvelopeDraftCDDA" url="EnvelopeDraftCDDA"/>
+<application rid="EnvelopeAddReceiptConfirmation" url="EnvelopeAddReceiptConfirmation"/>
+<application rid="EnvelopeVOCCoverLetter" url="EnvelopeVOCCoverLetter"/>
+<application rid="EnvelopeRetireRoute" url="EnvelopeRetireRoute"/>
+<application rid="EnvelopeQAFailed" url="EnvelopeQAFailed"/>
+<application rid="EnvelopeDraftOME" url="EnvelopeDraftOME"/>
+<application rid="EnvelopeDraftWaste" url="EnvelopeDraftWaste"/>
+<application rid="EnvelopeDraftDWD" url="EnvelopeDraftDWD"/>
+<application rid="EnvelopeDraftSOE" url="EnvelopeDraftSOE"/>
+<application rid="EnvelopeDraftHabSpec" url="EnvelopeDraftHabSpec"/>
+<application rid="EnvelopeDraftGW" url="EnvelopeDraftGW"/>
+<application rid="EnvelopeNECCoverLetter" url="EnvelopeNECCoverLetter"/>
+<application rid="Draft Drinking Water Directive" url="EnvelopeDraftDWD"/>
+<application rid="EnvelopeManualQA" url="EnvelopeManualQA"/>
+<application rid="EnvelopeDraftRivers" url="EnvelopeDraftRivers"/>
+<application rid="EnvelopeAddELVInstancefile" url="EnvelopeAddELVInstancefile"/>
+<application rid="EnvelopeRequesterQA" url="EnvelopeRequesterQA"/>
+<application rid="EnvelopeRetireRouteRivers" url="EnvelopeRetireRouteRivers"/>
+<application rid="EnvelopeAddAutomaticFeedback" url="EnvelopeAddAutomaticFeedback"/>
+<application rid="EnvelopeUnrestrictAllFiles" url="EnvelopeUnrestrictAllFiles"/>
+<application rid="EnvelopeDraftELV" url="EnvelopeDraftELV"/>
+<application rid="EnvelopeInspect" url="EnvelopeInspect"/>
+</workflow>

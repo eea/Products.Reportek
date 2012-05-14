@@ -1,0 +1,22 @@
+<div tal:replace="structure here/standard_html_header" />
+
+<form tal:attributes="action options/action" method="get" name="frmMessage">
+<table border="0" width="100%" cellpadding="10">
+    <tr>
+        <td valign="top">
+            <center><strong><font size="+6" color="#77003b">!</font></strong></center>
+        </td>
+        <td valign="top">
+            <center tal:content="options/message" />
+        </td>
+    </tr>
+    <tr>
+        <td valign="top">&nbsp;</td>
+        <td valign="top">
+            <center><input type="submit" value="   ok   "></center>
+        </td>
+    </tr>
+</table>
+</form>
+
+<div tal:replace="structure here/standard_html_footer" />

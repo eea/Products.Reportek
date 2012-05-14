@@ -1,0 +1,61 @@
+<dtml-var manage_page_header>
+<dtml-with "_(management_view='Properties')">
+<dtml-var manage_tabs>
+</dtml-with>
+
+<p class="form-help">
+This page presents properties that are generic for Reportek. 
+</p>
+
+<form action="manage_editEngine" method="post">
+<table border="0"> 
+<tr><th>Title</th> 
+    <td><input type="text" size="50" name="title" value="&dtml-title;" /></td> 
+</tr> 
+</table>
+<br />
+<fieldset><legend>WebQuestionnaire</legend>
+
+<p class="form-help">
+    The properties below are relevant to the WebQuestionnaire.
+    If there is no such aplication available, leave the fields below empty.
+</p>
+
+<p class="form-help"><strong>WebQ XML-RPC server</strong>
+    <input type="text" size="50" name="webq_url" value="&dtml-webq_url;" />
+</p>
+
+<p class="form-help"><strong>Envelope menu URL</strong>
+    <input type="text" size="50" name="webq_envelope_menu" value="&dtml-webq_envelope_menu;" /><br />
+    The URL to the WebQ page which constructs a menu for a specified envelope,
+    that is a list of add-buttons, one for each legal XML schema in the envelope
+    and edit buttons for the existing XML files in the envelope.
+</p>
+
+<p class="form-help"><strong>WebQ before edit URL</strong>
+    <input type="text" size="50" name="webq_before_edit_page" value="&dtml-webq_before_edit_page;" /></br />
+    WebQ generates this webpage, before the user starts to use the edit form of a file, in order to
+    inquire about the capabilities of the webbrowser and the language the form should be in.
+</p>
+
+</fieldset>
+
+<br />
+<fieldset><legend>Quality assessment</legend>
+<p class="form-help"><strong>QA application relative URL</strong>
+    <input type="text" size="50" name="QA_application" value="&dtml-QA_application;" /></br />
+    Leave this field empty if there is no QA service to link to
+</p>
+
+</fieldset>
+
+<br /><input type="submit" value="Save changes" />
+</form>
+<form action="runAutomaticApplications" method="get">
+<fieldset><legend>Trigger Automatic Applications</legend>
+Name of activity to run:
+<input type="text" size="50" name="p_applications" /><br />
+<input type="submit" value="Trigger" />
+</fieldset>
+<form>
+<dtml-var manage_page_footer>

@@ -1,0 +1,83 @@
+<span tal:replace="structure here/standard_html_header" />
+<style type="text/css">
+	.field {
+		margin-bottom: 1em;
+	}
+
+	blockquote {
+		width:95% !important;
+		margin:0 0 1em 0;
+	}
+</style>
+
+<script type="text/javascript" src="/misc_/Reportek/tinymce/jscripts/tiny_mce/tiny_mce.js"></script>
+<script type="text/javascript">
+	function myFileBrowser (field_name, url, type, win) {
+		tinyMCE.activeEditor.windowManager.open({
+			file: files_page,
+			title: 'My File Browser',
+			width: 420,
+			height: 400,
+			resizable: "yes",
+			inline: "yes",  // This parameter only has an effect if you use the inlinepopups plugin!
+			close_previous: "no"
+		}, {
+			window: win,
+			input: field_name
+		});
+		return false;
+	}
+	tinyMCE.init({
+				language : "en",
+				mode : "textareas",
+				theme : "advanced",
+				plugins : "directionality, fullscreen, preview",
+				theme_advanced_buttons1: "bold, italic, underline, strikethrough, separator, justifyleft, justifycenter, justifyright, justifyfull, separator, bullist, numlist, separator, link, unlink, hr, removeformat, sub, sup, separator, preview, fullscreen, code",
+				theme_advanced_buttons2: "",
+				theme_advanced_buttons3 : "",
+				theme_advanced_toolbar_location : "top",
+				theme_advanced_toolbar_align : "left",
+				theme_advanced_path_location : "bottom",
+				plugin_insertdate_dateFormat : "%Y-%m-%d",
+				plugin_insertdate_timeFormat : "%H:%M:%S",
+				extended_valid_elements : "hr[class|width|size|noshade],font[face|size|color|style],span[class|align|style]",
+				theme_advanced_blockformats : "p,div,h2,h3,h4,h5,h6,blockquote",
+				theme_advanced_resize_horizontal : false,
+				theme_advanced_resizing : true
+				});
+</script>
+<h1>Add comment</h1>
+
+<p>
+	Fill the properties in the form below and click <strong>Submit</strong>.
+</p>
+
+<tal:block define="id python:request.get('id', ''); 
+					in_reply python:here.getComment(id);">
+
+<span tal:condition="in_reply">
+	<strong>Replying to <span tal:replace="in_reply/author" /></strong>
+	<blockquote tal:content="structure in_reply/body"></blockquote>
+</span>
+
+<form method="post" tal:attributes="action string:${here/absolute_url}/addComment" enctype="multipart/form-data">
+	<div class="field">
+		<label for="title">Subject</label>
+		<input type="text" name="title:utf8:ustring" id="title" size="50" />
+	</div>
+	<div class="field">
+		<label for="body">Comment</label>
+		<textarea id="body" name="body:utf8:ustring" rows="20" cols="72"></textarea>
+	</div>
+	<div class="field">
+		<label for="file">File</label>
+		<input type="file" name="file" />
+	</div>
+	<div class="field">
+		<input type="hidden" name="in_reply" tal:attributes="value id" />
+		<input type="submit" value="Submit" />
+	</div>
+</form>
+
+</tal:block>
+<span tal:replace="structure here/standard_html_footer" />
