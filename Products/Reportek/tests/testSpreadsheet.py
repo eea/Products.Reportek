@@ -9,7 +9,8 @@ from configurereportek import ConfigureReportek
 from fileuploadmock import FileUploadMock
 from mock import patch
 
-TEST_DATA_URL = 'https://svn.eionet.europa.eu/repositories/Zope/trunk/Reportek/tests/data/'
+TEST_DATA_URL = ('https://svn.eionet.europa.eu/repositories/Zope'
+                 '/trunk/Products.Reportek/Products/Reportek/tests/data/')
 TESTDIR = os.path.abspath(os.path.dirname(__file__))
 
 class FileUploadTest(file):
