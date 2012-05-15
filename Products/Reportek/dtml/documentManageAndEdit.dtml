@@ -47,7 +47,6 @@
 <fieldset><legend>Change file</legend>
 <ul>
 <dtml-if isGML>
-	<li><a href="<dtml-var id>/flash_document">Edit with GIS editor</a></li>
 	<dtml-if can_view_or_edit_with_webq>
 		<li><a href="<dtml-var beforeEditForm>?mode=edit&amp;language=En&amp;schema=<dtml-var xml_schema_location url_quote>&amp;instance=<dtml-var absolute_url url_quote>&amp;instance_title=<dtml-var title_or_id>">Edit metadata with Web form</a></li>
 	</dtml-if>

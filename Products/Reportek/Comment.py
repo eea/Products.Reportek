@@ -18,10 +18,14 @@
 # Contributor(s):
 # Cornel Nitu, Eau de Web
 
-__doc__ = """
-      Feedback Comment product module.
-      $Id$
 """
+Feedback Comment product module
+===============================
+
+"""
+
+# $Id$
+
 __version__='$Rev$'[6:-2]
 
 from DateTime import DateTime

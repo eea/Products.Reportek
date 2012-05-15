@@ -20,7 +20,9 @@
 # Miruna Badescu, Finsiel Romania
 
 
-""" activity class
+"""
+activity class
+==============
 
 This class is part of the workflow system
 
