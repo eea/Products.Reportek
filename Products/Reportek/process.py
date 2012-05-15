@@ -3,7 +3,7 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass, DTMLFile
 from OFS.Folder import Folder
 from DateTime import DateTime
-from Products.ZCatalog.CatalogPathAwareness import CatalogPathAware
+from Products.ZCatalog.CatalogPathAwareness import CatalogAware
 from Globals import package_home
 
 # Product imports
@@ -20,7 +20,7 @@ def manage_addProcess(self, id, title='', description='', BeginEnd=None, priorit
     self._setObject(id, p)
     if REQUEST: REQUEST.RESPONSE.redirect('manage_main')
 
-class process(CatalogPathAware, Folder):
+class process(CatalogAware, Folder):
     """ A process is a collection of activities and transitions.
     The process map is given by the linking of activities by transitions.
     Each process instance is described by a instance"""

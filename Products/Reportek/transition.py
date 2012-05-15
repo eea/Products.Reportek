@@ -30,10 +30,10 @@ This class is part of the workflow system
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass, DTMLFile
 from OFS.SimpleItem import SimpleItem
-from Products.ZCatalog.CatalogPathAwareness import CatalogPathAware
+from Products.ZCatalog.CatalogPathAwareness import CatalogAware
 
 
-class transition(CatalogPathAware, SimpleItem):
+class transition(CatalogAware, SimpleItem):
     """ Links two activities """
 
     manage_options = ( {'label' : 'Properties', 'action' : 'manage_editTransitionForm'},

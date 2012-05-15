@@ -4,9 +4,9 @@ from time import time
 from OFS.SimpleItem import SimpleItem 
 from OFS.PropertyManager import PropertyManager
 from Globals import DTMLFile,InitializeClass
-from Products.ZCatalog.CatalogPathAwareness import CatalogPathAware
+from Products.ZCatalog.CatalogPathAwareness import CatalogAware
 
-class workitem(CatalogPathAware, SimpleItem, PropertyManager):
+class workitem(CatalogAware, SimpleItem, PropertyManager):
     """ describes a single workitem of the history graph """
 
     meta_type = 'Workitem'

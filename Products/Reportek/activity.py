@@ -32,10 +32,10 @@ This class is part of the workflow system
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass, DTMLFile
 from OFS.SimpleItem import SimpleItem
-from Products.ZCatalog.CatalogPathAwareness import CatalogPathAware
+from Products.ZCatalog.CatalogPathAwareness import CatalogAware
 
 
-class activity(CatalogPathAware, SimpleItem):
+class activity(CatalogAware, SimpleItem):
     """ Each activity is responsible for doing something and then forwarding
     the instance """
 
