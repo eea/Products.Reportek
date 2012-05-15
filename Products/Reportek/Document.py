@@ -57,7 +57,10 @@ import urllib, os, types, string
 from os.path import join, isfile
 import stat
 from zope.interface import implements
-from zope.app.container.interfaces import IObjectRemovedEvent, IObjectAddedEvent
+try:
+    from zope.container.interfaces import IObjectRemovedEvent, IObjectAddedEvent
+except ImportError:
+    from zope.app.container.interfaces import IObjectRemovedEvent, IObjectAddedEvent
 from time import time
 try: from cStringIO import StringIO
 except: from StringIO import StringIO

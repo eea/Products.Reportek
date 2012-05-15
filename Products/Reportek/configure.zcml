@@ -1,18 +1,36 @@
-<configure xmlns='http://namespaces.zope.org/zope'>
+<configure xmlns="http://namespaces.zope.org/zope"
+           xmlns:zcml="http://namespaces.zope.org/zcml">
 
-<subscriber for="Products.Reportek.interfaces.IDocument zope.app.container.interfaces.IObjectAddedEvent"
-      handler="Products.Reportek.Document.addedDocument" />
+  <configure zcml:condition="installed zope.container">
 
-<subscriber for="Products.Reportek.interfaces.IDocument zope.app.container.interfaces.IObjectMovedEvent"
-      handler="Products.Reportek.Document.movedDocument" />
+    <subscriber for="Products.Reportek.interfaces.IDocument
+                     zope.container.interfaces.IObjectAddedEvent"
+                handler="Products.Reportek.Document.addedDocument" />
 
-<!-- removedDocument is called in movedDocument -->
-<!--
-<subscriber for="Products.Reportek.interfaces.IDocument zope.app.container.interfaces.IObjectRemovedEvent"
-      handler="Products.Reportek.Document.removedDocument" />
--->
+    <subscriber for="Products.Reportek.interfaces.IDocument
+                     zope.container.interfaces.IObjectMovedEvent"
+                handler="Products.Reportek.Document.movedDocument" />
 
-<subscriber for="Products.Reportek.interfaces.IEnvelope zope.app.container.interfaces.IObjectMovedEvent"
-      handler="Products.Reportek.Envelope.movedEnvelope" />
+    <subscriber for="Products.Reportek.interfaces.IEnvelope
+                     zope.container.interfaces.IObjectMovedEvent"
+                handler="Products.Reportek.Envelope.movedEnvelope" />
+
+  </configure>
+
+  <configure zcml:condition="not-installed zope.container">
+
+    <subscriber for="Products.Reportek.interfaces.IDocument
+                     zope.app.container.interfaces.IObjectAddedEvent"
+                handler="Products.Reportek.Document.addedDocument" />
+
+    <subscriber for="Products.Reportek.interfaces.IDocument
+                     zope.app.container.interfaces.IObjectMovedEvent"
+                handler="Products.Reportek.Document.movedDocument" />
+
+    <subscriber for="Products.Reportek.interfaces.IEnvelope
+                     zope.app.container.interfaces.IObjectMovedEvent"
+                handler="Products.Reportek.Envelope.movedEnvelope" />
+
+  </configure>
 
 </configure>
