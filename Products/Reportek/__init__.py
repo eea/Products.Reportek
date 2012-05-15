@@ -268,8 +268,11 @@ def create_reportek_objects(app):
 def initialize(context):
     """ Reportek initializer """
 
-    app = context._ProductContext__app
+    import Zope2
+    app = Zope2.app()
+
     create_reportek_objects(app)
+    import transaction; transaction.commit()
 
     context.registerClass(
        QAScript.QAScript,
