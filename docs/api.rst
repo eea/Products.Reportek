@@ -13,12 +13,6 @@ All other modules
 .. automodule:: Products.Reportek.constants
    :members:
 
-.. automodule:: Products.Reportek.Converter
-   :members:
-
-.. automodule:: Products.Reportek.Converters
-   :members:
-
 .. automodule:: Products.Reportek.CountriesManager
    :members:
 

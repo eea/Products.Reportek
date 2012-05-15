@@ -12,7 +12,10 @@ Contents:
    :maxdepth: 2
 
    introduction
+   classdiagram
    collection
+   converter
+   converters
    document
    envelope
    feedback
@@ -20,7 +23,8 @@ Contents:
    reportekengine
    api
 
-.. .. include:: introduction.rst
+.. .. include:: classdiagram.rst
+
 
 Indices and tables
 ==================
