@@ -30,7 +30,7 @@ This class is part of the workflow system
 from AccessControl import getSecurityManager, ClassSecurityInfo
 from Globals import InitializeClass, DTMLFile, MessageDialog
 from OFS.Folder import Folder
-from Products.ZCatalog.CatalogPathAwareness import CatalogPathAware
+from Products.ZCatalog.CatalogPathAwareness import CatalogAware
 from time import time
 from DateTime import DateTime
 import string
@@ -50,7 +50,7 @@ from constants import WORKFLOW_ENGINE_ID, WEBQ_XML_REPOSITORY, CONVERTERS_ID
 from workitem import workitem
 
 
-class EnvelopeInstance(CatalogPathAware, Folder):
+class EnvelopeInstance(CatalogAware, Folder):
     """ The Envelope class subclasses from EnvelopeInstance which implements the workflow operations
         Each envelope follows a certain workflow process established at creation time.
     """

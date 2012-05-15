@@ -166,6 +166,16 @@ def makelist(arg):
     raise ValueError('Argument must be list, tuple, or string')
 
 
+def create_fake_root():
+    from OFS.Folder import Folder
+    class FakeRootObject(Folder):
+        def getPhysicalPath(self):
+            return ('',)
+        def getPhysicalRoot(self):
+            return self
+    return FakeRootObject()
+
+
 __all__ = [
     'setupCoreSessions',
     'setupSiteErrorLog',
@@ -174,4 +184,3 @@ __all__ = [
     'importObjectFromFile',
     'appcall',
 ]
-
