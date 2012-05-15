@@ -31,12 +31,12 @@
 ##
 
 __doc__ = """
-      Document product module.
-      The Document-Product works like the Zope File-product, but stores
-      the uploaded file externally in a repository-direcory.
+      The Document-class works like the Zope File-class, but stores
+      the uploaded file externally in the file system.
 
-      $Id$
 """
+#     $Id$
+
 __version__='$Rev$'[6:-2]
 
 import Globals, IconShow
@@ -541,12 +541,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         return self._bytetostring(self.get_size())
 
     def PrincipiaSearchSource(self):
-        """ PrincipiaSearchSource is used by the ZCatalog, so we just
-            convert data to raw text (don't bother formatting)
-            Since ZCatalog can reindex everything, it will take time
-            to run all those conversions, therefore we cache it.
+        """ We no longer support full text search of documents. There are too many now.
         """
-
         if not self.file_uploaded:
             return ''
 
@@ -600,7 +596,10 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         return path
 
     def canHaveOnlineQA(self, upper_limit=None):
-        #determines whether a HTTP QA can be done during Draft, based on file size
+        """ Determines whether a HTTP QA can be done during Draft, based on file size
+            The reason is that some on-demand QAs can take more than a minute,
+            and that will time out.
+        """
         if not upper_limit:
             upper_limit = 4
         if self.get_size() > int(upper_limit) * 1000 * 1024: #bytes

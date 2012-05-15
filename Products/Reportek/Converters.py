@@ -19,12 +19,13 @@
 # Cornel Nitu, Finsiel Romania
 
 __doc__ = """
-      Converters product module.
-      The Converters is used to make different type of conversions
-      of the Report Documents.
+The Converters is used to make different type of conversions of the Report Documents.
 
-      $Id$
+There are two types of converters: Local and Remote. The remote only handles XML files
+and there must be an XML schema. To find out which remote convertersions are available,
+Reportek calls http://converters.eionet.europa.eu/RpcRouter via XML-RPC.
 """
+#     $Id$
 
 import os
 import xmlrpclib
@@ -105,12 +106,12 @@ class Converters(Folder):
             return []
 
     def getConvertersDescriptions(self):
-        """ Loops all local and remote converters for display """
+        """ Loops all local and remote converters for display. """
         return [self._get_local_converters(), self._get_remote_converters()]
 
     security.declarePublic('displayPossibleConversions')
     def displayPossibleConversions(self, contentType, doc_schema='', filename=''):
-        """ Finds the converters available for a type of document """
+        """ Finds the converters available for a type of document. """
         local_converters = []
         remote_converters = []
         filesuffix = filename[filename.find('.')+1:] # Drop everything up to period.
@@ -139,7 +140,7 @@ class Converters(Folder):
 
     security.declarePublic('convertDocument')
     def convertDocument(self, file_url='', converter_id='', output_file_name='', REQUEST=None):
-        """ Convert a document. converter_id must start with 'default', 'loc\_' or 'rem\_'
+        """ Convert a document. converter_id must start with 'default', 'loc\_' or 'rem\_'.
         """
         file_url = REQUEST.get('file', file_url)
         converter_id = REQUEST.get('conv', converter_id)
