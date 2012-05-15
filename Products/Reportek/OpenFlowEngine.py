@@ -31,7 +31,7 @@ from OFS.Folder import Folder
 from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 import Products
-from webdav.WriteLockInterface import WriteLockInterface
+#from webdav.WriteLockInterface import WriteLockInterface
 
 # product imports
 from expression import exprNamespace
@@ -55,7 +55,7 @@ def manage_addOpenFlowEngine(self, id, title, REQUEST=None):
 class OpenFlowEngine(Folder):
     """ A openflow contains all the processes of the openflow """
 
-    __implements__ = (WriteLockInterface,)
+    #__implements__ = (WriteLockInterface,)
     icon = 'misc_/Reportek/openflowEngine_gif'
     meta_type='Workflow Engine'
 

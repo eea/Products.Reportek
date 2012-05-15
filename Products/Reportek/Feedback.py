@@ -38,7 +38,7 @@ from OFS.Image import manage_addFile
 from OFS.PropertyManager import PropertyManager
 from Globals import DTMLFile, MessageDialog, InitializeClass
 from AccessControl import getSecurityManager, ClassSecurityInfo
-from webdav.WriteLockInterface import WriteLockInterface
+#from webdav.WriteLockInterface import WriteLockInterface
 from DateTime import DateTime
 
 # Product specific imports
@@ -94,7 +94,7 @@ def manage_addFeedback(self, id ='', title='', feedbacktext='', file='', activit
 class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, CommentsManager):
     """A Feedback allows indexing and conversions."""
 
-    __implements__ = (WriteLockInterface,)
+    #__implements__ = (WriteLockInterface,)
     meta_type='Report Feedback'
     icon = 'misc_/Reportek/feedback_gif'
 

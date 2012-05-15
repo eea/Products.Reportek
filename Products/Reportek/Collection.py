@@ -31,7 +31,6 @@ from Products.ZCatalog.CatalogAwareness import CatalogAware
 import Globals
 import AccessControl.Role, webdav.Collection
 from AccessControl.Permissions import manage_users
-from webdav.WriteLockInterface import WriteLockInterface
 from Globals import DTMLFile
 from AccessControl import getSecurityManager, ClassSecurityInfo
 from OFS.Folder import Folder
@@ -69,7 +68,7 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
     interface for object management. Collection objects also implement
     a management interface and can have arbitrary properties.
     """
-    __implements__ = (WriteLockInterface,)
+
     meta_type='Report Collection'
 
     security = ClassSecurityInfo()

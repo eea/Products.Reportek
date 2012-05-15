@@ -31,7 +31,6 @@ from OFS.SimpleItem import SimpleItem
 from OFS.PropertyManager import PropertyManager
 from Globals import DTMLFile, MessageDialog, InitializeClass
 from AccessControl import getSecurityManager, ClassSecurityInfo
-from webdav.WriteLockInterface import WriteLockInterface
 from DateTime import DateTime
 from App.ImageFile import ImageFile
 import RepUtils
@@ -69,7 +68,6 @@ class ReportHyperlink(CatalogAware,
         ):
     """A Hyperlink allows indexing and conversions."""
 
-    __implements__ = (WriteLockInterface,)
     meta_type='Report Hyperlink'
     icon = 'misc_/Reportek/hyperlink_gif'
 

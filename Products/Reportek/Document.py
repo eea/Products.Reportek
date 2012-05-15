@@ -50,7 +50,6 @@ try: from zope.contenttype import guess_content_type # Zope 2.10 and newer
 except: from zope.app.content_types import guess_content_type # Zope 2.9 and older
 from webdav.common import rfc1123_date
 from DateTime import DateTime
-from webdav.WriteLockInterface import WriteLockInterface
 from mimetools import choose_boundary
 from ZPublisher import HTTPRangeSupport
 import urllib, os, types, string
@@ -141,7 +140,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     "An External Document allows indexing and conversions."
 
     implements(IDocument)
-    __implements__ = (WriteLockInterface,)
     icon = 'misc_/Reportek/document_gif'
 
     # what management options are there?

@@ -33,7 +33,6 @@ import time, types, os, string
 import Products
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from OFS.SimpleItem import SimpleItem
-from webdav.WriteLockInterface import WriteLockInterface
 import Globals
 from Globals import DTMLFile
 from AccessControl import getSecurityManager, ClassSecurityInfo
@@ -79,8 +78,6 @@ class Referral(CatalogAware, SimpleItem, CountriesManager):
         a management interface and can have arbitrary properties.
     """
     meta_type='Repository Referral'
-
-    __implements__ = (WriteLockInterface,)
 
     # Create a SecurityInfo for this class. We will use this
     # in the rest of our class definition to make security

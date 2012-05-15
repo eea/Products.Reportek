@@ -36,7 +36,6 @@ from Products.ZCatalog.CatalogAwareness import CatalogAware
 import Globals, OFS.SimpleItem, OFS.ObjectManager
 from Globals import DTMLFile, MessageDialog
 import AccessControl.Role, webdav.Collection
-from webdav.WriteLockInterface import WriteLockInterface
 from AccessControl import getSecurityManager, ClassSecurityInfo, Unauthorized
 from zExceptions import Forbidden
 from DateTime import DateTime
@@ -106,7 +105,6 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         a management interface
     """
     implements(IEnvelope)
-    __implements__ = (WriteLockInterface,)
     meta_type='Report Envelope'
     icon = 'misc_/Reportek/envelope.gif'
 
