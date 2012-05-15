@@ -34,19 +34,10 @@ All other modules
 .. automodule:: Products.Reportek.expression
    :members:
 
-.. automodule:: Products.Reportek.Feedback
-   :members:
-
 .. automodule:: Products.Reportek.Hyperlink
    :members:
 
-.. automodule:: Products.Reportek.interfaces
-   :members:
-
 .. automodule:: Products.Reportek.openflow2xpdl
-   :members:
-
-.. automodule:: Products.Reportek.OpenFlowEngine
    :members:
 
 .. automodule:: Products.Reportek.process
@@ -62,9 +53,6 @@ All other modules
    :members:
 
 .. automodule:: Products.Reportek.RemoteApplication
-   :members:
-
-.. automodule:: Products.Reportek.ReportekEngine
    :members:
 
 .. automodule:: Products.Reportek.RepUtils
@@ -89,15 +77,6 @@ All other modules
    :members:
 
 .. automodule:: Products.Reportek.XMLMetadata
-   :members:
-
-.. automodule:: Products.Reportek.xpdl2openflow
-   :members:
-
-.. automodule:: Products.Reportek.xpdldefinitions
-   :members:
-
-.. automodule:: Products.Reportek.xpdlparser
    :members:
 
 .. automodule:: Products.Reportek.zip_content
