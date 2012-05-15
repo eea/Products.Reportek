@@ -46,9 +46,7 @@ from StaticServe import StaticServeFromZip
 from constants import CONVERTERS_ID, ENGINE_ID, WORKFLOW_ENGINE_ID, DATAFLOW_MAPPINGS, DEFAULT_CATALOG, QAREPOSITORY_ID
 
 
-def initialize(context):
-    """ Reportek initializer """
-    app = context._ProductContext__app
+def create_reportek_objects(app):
 
     ###########################################
     #   The Engine folder in Root         
@@ -83,15 +81,6 @@ def initialize(context):
         converters = getattr(app, CONVERTERS_ID)
     assert converters is not None
 
-    context.registerClass(
-       Converter.Converter,
-       permission='Add Converters',
-       constructors = (
-            Converter.manage_addConverterForm,
-            Converter.manage_addConverter),
-       icon = 'www/conv.gif'
-       )
-
     ###########################################
     #   The QARepository folder in Root         
     ###########################################
@@ -107,15 +96,6 @@ def initialize(context):
             pass
         qarepo = getattr(app, QAREPOSITORY_ID)
     assert qarepo is not None
-
-    context.registerClass(
-       QAScript.QAScript,
-       permission='Add QAScripts',
-       constructors = (
-            QAScript.manage_addQAScriptForm,
-            QAScript.manage_addQAScript),
-       icon = 'www/qascript.gif'
-       )
 
     ###########################################
     #   The dataflow mapping in Root
@@ -283,6 +263,31 @@ def initialize(context):
 #        catalog.addIndex('pull_roles', 'KeywordIndex')
 #    if not ('pull_roles' in available_metadata):
 #        catalog.addColumn('pull_roles')
+
+
+def initialize(context):
+    """ Reportek initializer """
+
+    app = context._ProductContext__app
+    create_reportek_objects(app)
+
+    context.registerClass(
+       QAScript.QAScript,
+       permission='Add QAScripts',
+       constructors = (
+            QAScript.manage_addQAScriptForm,
+            QAScript.manage_addQAScript),
+       icon = 'www/qascript.gif'
+       )
+
+    context.registerClass(
+       Converter.Converter,
+       permission='Add Converters',
+       constructors = (
+            Converter.manage_addConverterForm,
+            Converter.manage_addConverter),
+       icon = 'www/conv.gif'
+       )
 
     ###########################################
     #   Registration of other classes
