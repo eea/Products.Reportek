@@ -18,13 +18,16 @@
 # Contributor(s):
 # Miruna Badescu, Finsiel Romania
 
-__doc__ = """
-      Feedback product module.
-      The Feedback is kept as a File along with the Documents
-      .
-
-      $Id$
 """
+Feedback module
+===============
+
+Feedback objects are sub-objects of Report Envelopes.
+
+"""
+
+# $Id$
+
 __version__='$Rev$'[6:-2]
 import os
 from os.path import join, isfile
@@ -92,9 +95,15 @@ def manage_addFeedback(self, id ='', title='', feedbacktext='', file='', activit
         return self.messageDialog(message="The Feedback %s was successfully created!" % id)
 
 class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, CommentsManager):
-    """A Feedback allows indexing and conversions."""
+    """
+        Feedback objects are created in envelopes either manually (by Clients)
+        or automatically (by activities such as the Automatic QA or Confirmation Receipt).
 
-    #__implements__ = (WriteLockInterface,)
+        They can refer to the entire delivery, or to a single Document inside it.
+        Feedback items can contain files and have comments posted on them by people
+        discussing the content of the feedback.
+    """
+
     meta_type='Report Feedback'
     icon = 'misc_/Reportek/feedback_gif'
 
@@ -118,10 +127,6 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
     # in the rest of our class definition to make security
     # assertions.
     security = ClassSecurityInfo()
-
-    ################################
-    # Init method                  #
-    ################################
 
     def __init__(self, id, releasedate, title='', feedbacktext='', activity_id='', automatic=0,
             content_type='text/plain', document_id=None):
@@ -238,21 +243,6 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
             return self.messageDialog(
                             message='Document released to public.',
                             action=REQUEST['HTTP_REFERER'])
-
-    security.declareProtected(view_management_screens, 'update06092009')
-    def update06092009(self):
-        """ add comments """
-#        comments_list = getattr(self, '_Comment__comments', {})
-#        if comments_list:
-#            for comment in comments_list.values():
-#                self.addComment(id=comment.id, title=comment.title, body=comment.body, author=comment.author, date=comment.date, notif=False)
-#            delattr(self, '_Comment__comments')
-#            self._p_changed = 1
-        for comment in self.objectValues('Report Feedback Comment'):
-            comment.modified_by = None
-            comment.modification_date = None
-            comment._p_changed = 1
-        return 'done'
 
     security.declareProtected('View', 'index_html')
     index_html = DTMLFile('dtml/feedbackIndex', globals())
