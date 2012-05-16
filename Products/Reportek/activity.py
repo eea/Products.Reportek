@@ -21,7 +21,7 @@
 
 
 """
-activity class
+Activity class
 ==============
 
 This class is part of the workflow system

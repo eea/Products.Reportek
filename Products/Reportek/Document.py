@@ -222,7 +222,14 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         return DateTime(self._upload_time)
 
     def get_accept_time(self):
-        """ """
+        """ A document can have an accepted status. It is set by the client, and
+	    is used to force the file to be immutable even if the envelope is returned
+	    to draft state. It is used in second and third delivery round, to tell
+	    the reporter that some files have to be redelivered, but some file are
+	    accepted and are processed.
+
+	    It was used in Article 17 - 2007.
+	"""
         if self.accept_time:
             return DateTime(self.accept_time)
         return None
@@ -238,7 +245,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
     HEAD__roles__=None
     def HEAD(self, REQUEST, RESPONSE):
-        """ """
+        """ Support for HEAD requests from search engines etc. """
         filename = self.physicalpath()
         try:
             filesize =  os.path.getsize(filename)
@@ -264,7 +271,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
     security.declarePublic('getMyOwner')
     def getMyOwner(self):
-        """ """
+        """ Find the owner in the local roles. """
         for a, b in self.get_local_roles():
             if 'Owner' in b:
                 return a
@@ -272,11 +279,14 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
     security.declarePublic('getMyOwnerName')
     def getMyOwnerName(self):
-        """ """
+        """ Find the owner in the local roles.
+	    Then use LDAP to find the user's full name.
+	    TODO: Move LDAP dependency to ReportekEngine.
+	"""
         return self.getLDAPUserCanonicalName(self.getLDAPUser(self.getMyOwner()))
 
     def logUpload(self):
-        """ Log file upload and reupload in the envelope history
+        """ Log file upload and any reuploads into the envelope history.
             The workitems' event logs are used since these are displayed
             on the envelope's history tab
         """
@@ -284,8 +294,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             l_w.addEvent('file upload', 'File: %s' % self.id)
 
     def index_html(self, REQUEST, RESPONSE, icon=0):
-        """
-            Returns the contents of the file.  Also, sets the
+        """ Returns the contents of the file.  Also, sets the
             Content-Type HTTP header to the objects content type.
         """
         if icon:
@@ -304,13 +313,14 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
     security.declarePublic('isGML')
     def isGML(self):
-        """ Checks whether or not this is a GML file
+        """ Checks whether or not this is a GML file.
+	    The content type must be text/xml and it must end with .gml
         """
         return self.content_type == 'text/xml' and self.id[-4:] == '.gml'
 
     security.declareProtected('View', 'getQAScripts')
     def getQAScripts(self):
-        """ Returns a list of QA script labels
+        """ Returns a list of QA script labels.
             which can be manually run against the contained XML files
         """
         return getattr(self, QAREPOSITORY_ID).canRunQAOnFiles([self])
@@ -491,7 +501,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
     security.declarePublic('icon_gif')
     def icon_gif(self, REQUEST, RESPONSE):
-        """ return an icon for the file's MIME-Type """
+        """ Return an icon for the file's MIME-Type """
         filename = join(package_home(globals()),
               self.getIconPath())
         content_type = 'image/gif'
@@ -542,7 +552,11 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         return self._bytetostring(self.get_size())
 
     def PrincipiaSearchSource(self):
-        """ We no longer support full text search of documents. There are too many now.
+        """ In old versions of Zope, the PrincipiaSearchSource was indexed in the catalog
+	    as a text index. The method of the same name would be called on the objects
+	    and a plain text return was expected.
+
+	    We no longer support full text search of documents. There are too many of them.
         """
         if not self.file_uploaded:
             return ''
@@ -664,7 +678,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
                             action=REQUEST['HTTP_REFERER'])
 
     def _setFileSchema(self, p_content):
-        """ If it is an XML file, then extract structure information
+        """ If it is an XML file, then extract structure information.
+	    The structure is the XML schema or the DTD.
         """
         self.xml_schema_location = ''
         if self.content_type == 'text/xml':
@@ -997,7 +1012,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         return dirs
 
     def getXMLAttribute(self, p_element):
-        """ """
+        """ Don't know what this is for. """
         if self.content_type == 'text/xml':
             filename = self.physicalpath()
             l_handler = SearchElementParser().parse_and_search(open(filename).read(), p_element)

@@ -65,11 +65,11 @@ good_chars= '___________AAAAAA' \
 TRANSMAP = string.maketrans(bad_chars, good_chars)
 
 def copy_file(infile, outfile):
-    # Read binary data from infile and write it to outfile
-    # infile and outfile may be strings, in which case a file with that
-    # name is opened, or filehandles, in which case they are accessed
-    # directly.
-
+    """ Read binary data from infile and write it to outfile
+        infile and outfile may be strings, in which case a file with that
+        name is opened, or filehandles, in which case they are accessed
+        directly.
+    """
     if isinstance(infile, str):
         try:
             instream = open(infile, 'rb')
@@ -124,7 +124,7 @@ def generate_id(template):
     return template + string.translate(string.lower(id),TRANSMAP,"/=\n")
 
 def xmlEncode(p_string):
-    """Encode some special chars"""
+    """ Encode the XML reserved chars """
     if isinstance(p_string, unicode): l_tmp = p_string.encode('utf-8')
     else: l_tmp = str(p_string)
     l_tmp = l_tmp.replace('&', '&amp;')
@@ -180,7 +180,7 @@ def asciiEncode(p_value):
         return ''
 
 def utRead(file):
-    """ open file """
+    """ Open file on local or remote system. """
     if 'http' in file:
         opener = FancyURLopener()
         f = opener.open(file)
@@ -200,7 +200,7 @@ def to_utf8(s):
         return s
 
 def utConvertToList(something):
-    """Convert to list"""
+    """ Convert to list """
     ret = something
     if not something:
         return []
@@ -209,12 +209,12 @@ def utConvertToList(something):
     return ret
 
 def utConvertListToLines(values):
-    """Takes a list of values and returns a value for a textarea control"""
+    """ Takes a list of values and returns a value for a textarea control """
     if len(values) == 0: return ''
     else: return '\r\n'.join(values)
 
 def utConvertLinesToList(value):
-    """Takes a value from a textarea control and returns a list of values"""
+    """ Takes a value from a textarea control and returns a list of values """
     if type(value) == type([]): return value
     elif not value: return []
     else:
