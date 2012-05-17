@@ -77,6 +77,7 @@ class InfoStructureHandler(ContentHandler, LexicalHandler):
                 self.xsi_info = 1
                 u = value.strip().split()
                 if len(u) == 1:
+                    raise NotImplementedError
                     self.xsi_schema_location = value.strip()
                 else:
                     s = []
@@ -156,6 +157,12 @@ def detect_schema_lxml(content):
                                'noNamespaceSchemaLocation')
     if location is not None:
         return location
+
+    location = root.attrib.get('{http://www.w3.org/2001/XMLSchema-instance}'
+                               'schemaLocation')
+    if location is not None and ' ' not in location:
+        return location
+
     raise NotImplementedError
 
 

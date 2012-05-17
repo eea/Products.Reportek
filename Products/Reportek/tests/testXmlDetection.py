@@ -31,6 +31,15 @@ class XmlDetectionTest(unittest.TestCase):
         schema_location = detect_schema(content)
         self.assertEqual(schema_location, 'http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd')
 
+    def test_create_xml_document_single_schema(self):
+        """ Create a XML document with single xsi schema """
+        content = '''<?xml version="1.0" encoding="UTF-8"?>
+        <report xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://schema.eu/schema.xsd">
+         </report>'''
+        schema_location = detect_schema(content)
+        self.assertEqual(schema_location, 'http://schema.eu/schema.xsd')
+
     def test_create_xml_document_ns1(self):
         """ Create a XML document with namespaces but with an unusual XSI NS identifier,
             and then verify the schema got sniffed correctly
