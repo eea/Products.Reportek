@@ -2,8 +2,11 @@ import unittest
 
 
 def setUpModule():
-    global detect_schema
+    global detect_schema, detect_single_schema
     from Products.Reportek.XMLInfoParser import detect_schema
+    from Products.Reportek.EnvelopeCustomDataflows import EnvelopeCustomDataflows
+    func = EnvelopeCustomDataflows._extract_xml_schema.im_func
+    detect_single_schema = lambda content: func(None, content)
 
 
 class XmlDetectionTest(unittest.TestCase):
@@ -149,3 +152,28 @@ class XmlDetectionTest(unittest.TestCase):
     '''
         schema_location = detect_schema(content)
         self.assertEqual(schema_location, 'http://dd.eionet.europa.eu/GetSchema?id=TBL1927 http://dd.eionet.europa.eu/GetSchema?id=TBL2000')
+
+
+class XmlSingleSchemaDetectionTest(unittest.TestCase):
+
+    def test_single_schema_no_ns(self):
+        content = ('<r xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'
+                   'xsi:noNamespaceSchemaLocation="http://a.eu/schema1">\n'
+                   '</r>')
+        schema_location = detect_single_schema(content)
+        self.assertEqual(schema_location, 'http://a.eu/schema1')
+
+    def test_single_schema(self):
+        content = ('<r xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'
+                   'xsi:schemaLocation="http://a.eu/ns1 http://a.eu/schema1">\n'
+                   '</r>')
+        schema_location = detect_single_schema(content)
+        self.assertEqual(schema_location, 'http://a.eu/schema1')
+
+    def test_multiple_schemas(self):
+        content = ('<r xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'
+                   'xsi:schemaLocation="http://a.eu/ns1 http://a.eu/schema1\n'
+                   '                    http://a.eu/ns2 http://a.eu/schema2">\n'
+                   '</r>')
+        schema_location = detect_single_schema(content)
+        self.assertEqual(schema_location, 'http://a.eu/schema2')
