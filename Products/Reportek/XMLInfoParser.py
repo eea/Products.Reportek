@@ -30,6 +30,7 @@ from xml.sax.handler import ContentHandler, feature_namespaces
 from xml.sax.saxlib import LexicalHandler
 from xml.sax import handler, make_parser, InputSource
 from cStringIO import StringIO
+import lxml.etree
 
 class InfoStructureHandler(ContentHandler, LexicalHandler):
     """ """
@@ -66,6 +67,7 @@ class InfoStructureHandler(ContentHandler, LexicalHandler):
             # Check no-namespace schema attribute
             value = attributes.get((self.__XSI_NS, self.__NONAMESPACESCHEMALOCATION_TAG))
             if value is not None:
+                raise NotImplementedError
                 self.xsi_info = 1
                 self.xsi_schema_location = value.strip()
                 return
@@ -147,7 +149,21 @@ class SearchElementParser:
             return ''
 
 
+def detect_schema_lxml(content):
+    doc = lxml.etree.parse(StringIO(content))
+    root = doc.getroot()
+    location = root.attrib.get('{http://www.w3.org/2001/XMLSchema-instance}'
+                               'noNamespaceSchemaLocation')
+    if location is not None:
+        return location
+    raise NotImplementedError
+
+
 def detect_schema(content):
+    try:
+        return detect_schema_lxml(content)
+    except:
+        pass
     l_info_handler = XMLInfoParser().ParseXmlFile(content)
     if l_info_handler is not None:
         if l_info_handler.xsi_info:
