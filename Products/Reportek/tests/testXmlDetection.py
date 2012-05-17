@@ -159,6 +159,13 @@ class XmlDetectionTest(unittest.TestCase):
         schema_location = detect_schema(content)
         self.assertEqual(schema_location, 'http://dd.eionet.europa.eu/GetSchema?id=TBL1927 http://dd.eionet.europa.eu/GetSchema?id=TBL2000')
 
+    def test_dtd_public_id(self):
+        content = ('<!DOCTYPE zz PUBLIC "-//some//public//doctype" '
+                   '"http://example.com/my.dtd">\r\n'
+                   '<r></r>')
+        schema_location = detect_schema(content)
+        self.assertEqual(schema_location, 'http://example.com/my.dtd')
+
 
 class XmlSingleSchemaDetectionTest(unittest.TestCase):
 

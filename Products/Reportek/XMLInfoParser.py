@@ -168,6 +168,10 @@ def detect_schema_lxml(content):
         else:
             return location_list[0]
 
+    location = doc.docinfo.system_url
+    if location is not None:
+        return location
+
     raise NotImplementedError
 
 
