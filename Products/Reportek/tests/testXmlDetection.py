@@ -3,10 +3,7 @@ import unittest
 
 def setUpModule():
     global detect_schema, detect_single_schema
-    from Products.Reportek.XMLInfoParser import detect_schema
-    from Products.Reportek.EnvelopeCustomDataflows import EnvelopeCustomDataflows
-    func = EnvelopeCustomDataflows._extract_xml_schema.im_func
-    detect_single_schema = lambda content: func(None, content)
+    from Products.Reportek.XMLInfoParser import detect_schema, detect_single_schema
 
 
 class XmlDetectionTest(unittest.TestCase):

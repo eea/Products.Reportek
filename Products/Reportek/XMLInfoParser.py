@@ -161,3 +161,24 @@ def detect_schema(content):
             elif l_info_handler.xdi_system_id is not None:
                 return l_info_handler.xdi_system_id
     return ''
+
+
+import RepUtils
+def detect_single_schema(p_content):
+    """ """
+    xml_schema_location = ''
+    l_info_handler = XMLInfoParser().ParseXmlFile(p_content)
+    if l_info_handler is not None:
+        if l_info_handler.xsi_info:
+            if l_info_handler.xsi_schema_location:
+                schema = RepUtils.extractURLs(l_info_handler.xsi_schema_location)
+                if isinstance(schema, list):
+                    #only the second URL must be stored in the xml_schema_location
+                    xml_schema_location = schema[-1]
+        elif l_info_handler.xdi_info:
+            #DTD information
+            if l_info_handler.xdi_public_id is not None:
+                xml_schema_location = l_info_handler.xdi_public_id
+            elif l_info_handler.xdi_system_id is not None:
+                xml_schema_location = l_info_handler.xdi_system_id
+    return xml_schema_location

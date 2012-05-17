@@ -44,7 +44,7 @@ from xml.dom.minidom import parseString
 import RepUtils
 from constants import WEBQ_XML_REPOSITORY, CONVERTERS_ID
 from zip_content import ZZipFile
-from XMLInfoParser import XMLInfoParser
+from XMLInfoParser import detect_single_schema
 from constants import QAREPOSITORY_ID
 import zip_content
 from BasicAuthTransport import BasicAuthTransport
@@ -103,25 +103,6 @@ class EnvelopeCustomDataflows:
     def _get_xml_files_by_schema(self, schema):
         """ Returns the list of XML files with the given schema from that envelope """
         return [doc.id for doc in self.objectValues('Report Document') if doc.xml_schema_location == schema]
-
-    def _extract_xml_schema(self, p_content):
-        """ """
-        xml_schema_location = ''
-        l_info_handler = XMLInfoParser().ParseXmlFile(p_content)
-        if l_info_handler is not None:
-            if l_info_handler.xsi_info:
-                if l_info_handler.xsi_schema_location:
-                    schema = RepUtils.extractURLs(l_info_handler.xsi_schema_location)
-                    if isinstance(schema, list):
-                        #only the second URL must be stored in the xml_schema_location
-                        xml_schema_location = schema[-1]
-            elif l_info_handler.xdi_info:
-                #DTD information
-                if l_info_handler.xdi_public_id is not None:
-                    xml_schema_location = l_info_handler.xdi_public_id
-                elif l_info_handler.xdi_system_id is not None:
-                    xml_schema_location = l_info_handler.xdi_system_id
-        return xml_schema_location
 
     security.declareProtected('Change Envelopes', 'convert_excel_file')
     def convert_excel_file(self, file, restricted='', strict_check=0, conversion_function='', REQUEST=None):
@@ -424,7 +405,7 @@ class EnvelopeCustomDataflows:
         content_type, enc = guess_content_type(file.filename, content)
         if content_type == 'text/xml':
             #verify the XML schema
-            schema = self._extract_xml_schema(content)
+            schema = detect_single_schema(content)
             if (not required_schema and schema.startswith('http://dd.eionet.europa.eu/GetSchema?id=')) or schema in RepUtils.utConvertToList(required_schema):
                 #delete all the XML files from this envelope which containt this schema
                 xmls = self._get_xml_files_by_schema(schema)
