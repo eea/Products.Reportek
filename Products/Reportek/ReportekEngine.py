@@ -38,7 +38,7 @@ from AccessControl.Permissions import view_management_screens, view
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Globals import DTMLFile
 import Globals
-from Products import meta_types
+import Products
 import xmlrpclib
 from DateTime import DateTime
 from BasicAuthTransport import BasicAuthTransport
@@ -81,7 +81,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         types = ['Script (Python)', 'DTML Method', 'DTML Document', 'Page Template']
 
         l_result = []
-        for l_type in meta_types:
+        for l_type in Products.meta_types:
             if l_type['name'] in types:
                 l_result.append(l_type)
         return l_result
