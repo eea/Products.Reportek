@@ -152,8 +152,13 @@ class SearchElementParser:
 
 
 def detect_schema_lxml(content):
-    doc = lxml.etree.parse(StringIO(content))
+    try:
+        doc = lxml.etree.parse(StringIO(content))
+    except lxml.etree.XMLSyntaxError:
+        return ''
+
     root = doc.getroot()
+
     location = root.attrib.get('{http://www.w3.org/2001/XMLSchema-instance}'
                                'noNamespaceSchemaLocation')
     if location is not None:
