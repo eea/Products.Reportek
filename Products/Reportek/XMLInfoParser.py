@@ -80,6 +80,7 @@ class InfoStructureHandler(ContentHandler, LexicalHandler):
                     raise NotImplementedError
                     self.xsi_schema_location = value.strip()
                 else:
+                    raise NotImplementedError
                     s = []
                     for x in xrange(1,len(u),2):
                         s.append(u[x])
@@ -160,8 +161,12 @@ def detect_schema_lxml(content):
 
     location = root.attrib.get('{http://www.w3.org/2001/XMLSchema-instance}'
                                'schemaLocation')
-    if location is not None and ' ' not in location:
-        return location
+    if location is not None:
+        location_list = location.split()
+        if len(location_list) > 1:
+            return ' '.join(location_list[1::2]) # pick every 2nd item in list
+        else:
+            return location_list[0]
 
     raise NotImplementedError
 
