@@ -66,7 +66,7 @@ except: from StringIO import StringIO
 
 # Product imports
 import RepUtils
-from XMLInfoParser import detect_schema, SearchElementParser
+from XMLInfoParser import detect_schema
 from constants import CONVERTERS_ID, QAREPOSITORY_ID
 from interfaces import IDocument
 
@@ -1000,13 +1000,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         else: fileformat = string.replace(fileformat, "%c", '')
         dirs.append(fileformat)
         return dirs
-
-    def getXMLAttribute(self, p_element):
-        """ Don't know what this is for. """
-        if self.content_type == 'text/xml':
-            filename = self.physicalpath()
-            l_handler = SearchElementParser().parse_and_search(open(filename).read(), p_element)
-            return l_handler
 
 
 Globals.InitializeClass(Document)

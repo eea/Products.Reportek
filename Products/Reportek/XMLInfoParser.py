@@ -26,51 +26,8 @@ $Id$"""
 
 __version__='$Revision$'[11:-2]
 
-from xml.sax.handler import ContentHandler
-from xml.sax import handler, make_parser, InputSource
 from cStringIO import StringIO
 import lxml.etree
-
-
-class ElementHandler(ContentHandler):
-    """ """
-    def __init__(self, element):
-        self.inElement = 0
-        self.theElement = element
-        self.results = []
-
-    def startElement(self, name, attributes):
-        if name == self.theElement:
-            self.inElement = 1
-
-    def characters(self, data):
-        if self.inElement:
-            self.results.append(data)
-
-    def endElement(self, name):
-        if name == self.theElement:
-            self.inElement = 0
-
-class SearchElementParser:
-    """ Retrieves the list of values for a given element
-    """
-
-    def __init__(self):
-        """ """
-        pass
-
-    def parse_and_search(self, p_xml_string, p_element):
-        """ """
-        l_handler = ElementHandler(p_element)
-        l_parser = make_parser()
-        l_parser.setContentHandler(l_handler)
-        l_inpsrc = InputSource()
-        l_inpsrc.setByteStream(StringIO(p_xml_string))
-        try:
-            l_parser.parse(l_inpsrc)
-            return l_handler.results
-        except:
-            return ''
 
 
 def detect_schema(content):
