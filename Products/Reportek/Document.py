@@ -66,7 +66,7 @@ except: from StringIO import StringIO
 
 # Product imports
 import RepUtils
-from XMLInfoParser import XMLInfoParser, SearchElementParser
+from XMLInfoParser import detect_schema, SearchElementParser
 from constants import CONVERTERS_ID, QAREPOSITORY_ID
 from interfaces import IDocument
 
@@ -681,20 +681,10 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         """ If it is an XML file, then extract structure information.
 	    The structure is the XML schema or the DTD.
         """
-        self.xml_schema_location = ''
         if self.content_type == 'text/xml':
-            l_info_handler = XMLInfoParser().ParseXmlFile(p_content)
-            if l_info_handler is not None:
-                if l_info_handler.xsi_info:
-                    #XML Schema information
-                    if l_info_handler.xsi_schema_location:
-                        self.xml_schema_location = l_info_handler.xsi_schema_location
-                elif l_info_handler.xdi_info:
-                    #DTD information
-                    if l_info_handler.xdi_public_id is not None:
-                        self.xml_schema_location = l_info_handler.xdi_public_id
-                    elif l_info_handler.xdi_system_id is not None:
-                        self.xml_schema_location = l_info_handler.xdi_system_id
+            self.xml_schema_location = detect_schema(p_content)
+        else:
+            self.xml_schema_location = ''
 
     # File upload Interface
     manage_uploadForm = DTMLFile('dtml/docUpload', globals())

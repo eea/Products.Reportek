@@ -145,3 +145,19 @@ class SearchElementParser:
             return l_handler.results
         except:
             return ''
+
+
+def detect_schema(content):
+    l_info_handler = XMLInfoParser().ParseXmlFile(content)
+    if l_info_handler is not None:
+        if l_info_handler.xsi_info:
+            #XML Schema information
+            if l_info_handler.xsi_schema_location:
+                return l_info_handler.xsi_schema_location
+        elif l_info_handler.xdi_info:
+            #DTD information
+            if l_info_handler.xdi_public_id is not None:
+                return l_info_handler.xdi_public_id
+            elif l_info_handler.xdi_system_id is not None:
+                return l_info_handler.xdi_system_id
+    return ''
