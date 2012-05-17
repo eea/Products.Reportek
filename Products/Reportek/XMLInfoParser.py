@@ -151,7 +151,7 @@ class SearchElementParser:
             return ''
 
 
-def detect_schema_lxml(content):
+def detect_schema(content):
     try:
         doc = lxml.etree.parse(StringIO(content))
     except lxml.etree.XMLSyntaxError:
@@ -177,26 +177,6 @@ def detect_schema_lxml(content):
     if location is not None:
         return location
 
-    raise NotImplementedError
-
-
-def detect_schema(content):
-    try:
-        return detect_schema_lxml(content)
-    except:
-        pass
-    l_info_handler = XMLInfoParser().ParseXmlFile(content)
-    if l_info_handler is not None:
-        if l_info_handler.xsi_info:
-            #XML Schema information
-            if l_info_handler.xsi_schema_location:
-                return l_info_handler.xsi_schema_location
-        elif l_info_handler.xdi_info:
-            #DTD information
-            if l_info_handler.xdi_public_id is not None:
-                return l_info_handler.xdi_public_id
-            elif l_info_handler.xdi_system_id is not None:
-                return l_info_handler.xdi_system_id
     return ''
 
 
