@@ -624,4 +624,27 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             <rel_uri>/%s</rel_uri>
         </envelope>""" % file_obj.getMySelf().absolute_url(1)
 
+    security.declareProtected('View management screens', 'manage_raise_exception')
+    def manage_raise_exception(self):
+        """ Generate exception to check that it's handled properly """
+        raise ValueError('hello world')
+
 Globals.InitializeClass(ReportekEngine)
+
+
+def configure_error_emails():
+    import socket
+    import logging, logging.handlers
+    from App.config import getConfiguration
+
+    env = getattr(getConfiguration(), 'environment', {})
+    mail_handler_cfg = {
+        'fromaddr': '%s@%s' % (os.environ['LOGNAME'], socket.getfqdn()),
+        'toaddrs': env.get('REPORTEK_ERROR_MAIL_TO', '').split(),
+        'subject': "Error in Reportek",
+        'mailhost': env.get('REPORTEK_ERROR_SMTP_HOST', 'localhost'),
+    }
+
+    mail_handler = logging.handlers.SMTPHandler(**mail_handler_cfg)
+    site_error_log = logging.getLogger('Zope.SiteErrorLog')
+    site_error_log.addHandler(mail_handler)

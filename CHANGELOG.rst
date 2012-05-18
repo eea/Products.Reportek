@@ -5,6 +5,7 @@
 * Remove Article 17 reporting from 2007. [bulanmir]
 * Rewrite XML Schema sniffer, drop dependency on PyXML. [moregale]
 * Change imports (CatalogAware; OFS events) to work on Zope 2.13. [moregale]
+* Send email for errors caught by `error_log`. [moregale]
 
 2.2
 ---

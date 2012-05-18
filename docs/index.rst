@@ -21,6 +21,7 @@ Contents:
    feedback
    openflowengine
    reportekengine
+   configuration
    api
    changelog
 

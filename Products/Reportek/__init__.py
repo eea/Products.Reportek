@@ -274,6 +274,8 @@ def initialize(context):
     create_reportek_objects(app)
     import transaction; transaction.commit()
 
+    ReportekEngine.configure_error_emails()
+
     context.registerClass(
        QAScript.QAScript,
        permission='Add QAScripts',
