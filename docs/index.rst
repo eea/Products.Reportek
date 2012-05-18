@@ -22,6 +22,7 @@ Contents:
    openflowengine
    reportekengine
    api
+   changelog
 
 .. .. include:: classdiagram.rst
 
