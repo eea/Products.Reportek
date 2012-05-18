@@ -1,9 +1,8 @@
 
 ZopeTestCase is part of Zope since version 2.8.
 
-To be able to run the unittests you must install the products Reportek
-and Reportek_dependencies on a Zope system. Then goto the tests directory
-of Reportek and do
+To be able to run the unittests you must install the Reportek product 
+on a Zope system. Then goto the tests directory of Reportek and do
 
 ./runtest runalltests.py
 

@@ -13,7 +13,7 @@
 <h1>Upload ESRI shape files</h1>
 
 <p>
-	Upload your map in ESRI shapefile format. Make sure you have taken under consideration the following:
+	Upload your map in shapefile format. Make sure you have taken under consideration the following:
 </p>
 <ul>
 	<li>all the fields marked by <span style="color:red">*</span> are <em>mandatory</em></li>

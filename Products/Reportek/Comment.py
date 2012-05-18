@@ -19,8 +19,8 @@
 # Cornel Nitu, Eau de Web
 
 """
-Feedback Comment product module
-===============================
+Feedback Comment module
+=======================
 
 """
 
