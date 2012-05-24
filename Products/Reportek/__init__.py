@@ -163,8 +163,8 @@ def create_reportek_objects(app):
     if not ('meta_type' in available_metadata):
         catalog.addColumn('meta_type')
 
-    if not ('title' in available_indexes):
-        catalog.addIndex('title', 'TextIndex')
+    #if not ('title' in available_indexes):
+    #    catalog.addIndex('title', 'TextIndex')
     if not ('title' in available_metadata):
         catalog.addColumn('title')
 
