@@ -70,8 +70,8 @@ class FeedbackTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
 
     def test_AttFeedback(self):
         """ Test the manage_uploadAttFeedback method
-	    Replace the content of an existing file with manage_uploadAttFeedback
-	    Test the delete of an attachement
+            Replace the content of an existing file with manage_uploadAttFeedback
+            Test the delete of an attachement
         """
         self.create_feedback()
         # Create a file inside it
@@ -85,18 +85,18 @@ class FeedbackTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.assertTrue(hasattr(self.feedback, 'testfile.txt'))
         self.assertFalse(hasattr(self.feedback, 'anotherfile.txt'))
 
-	# Delete the attachment
-	self.app.REQUEST.set('go', "Delete")
+        # Delete the attachment
+        self.app.REQUEST.set('go', "Delete")
         self.feedback.manage_deleteAttFeedback('testfile.txt', self.app.REQUEST)
         self.assertFalse(hasattr(self.feedback, 'testfile.txt'))
 
     def test_restrictFeedback(self):
         self.create_feedback()
         self.feedback.manage_restrictFeedback()
-	assert self.feedback.acquiredRolesAreUsedBy('View') == ''
+        assert self.feedback.acquiredRolesAreUsedBy('View') == ''
 
         self.feedback.manage_unrestrictFeedback()
-	assert self.feedback.acquiredRolesAreUsedBy('View') == 'CHECKED'
+        assert self.feedback.acquiredRolesAreUsedBy('View') == 'CHECKED'
 
 def test_suite():
     import unittest
