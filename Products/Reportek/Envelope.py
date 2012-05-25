@@ -442,18 +442,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             self.reportingdate = DateTime()
             # update ZCatalog
             self.reindex_object()
-
-            #delete zip cache files
-            zipname = self.absolute_url(1).replace('/','_')
-            path = join(INSTANCE_HOME, *self._repository)
-
-            cachedfile = join(path, '%s.zip' % zipname)
-            if isfile(cachedfile):
-                os.unlink(cachedfile)
-
-            cachedfile = join(path, '%s-all.zip' % zipname) #contains restricted docs
-            if isfile(cachedfile):
-                os.unlink(cachedfile)
+            self._invalidate_zip_cache()
 
         if REQUEST is not None:
             return self.messageDialog(
@@ -854,6 +843,19 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         outzd.close()
         response_wrapper.close(cachedfile)
 
+    def _invalidate_zip_cache(self):
+        """ delete zip cache files """
+        zipname = self.absolute_url(1).replace('/','_')
+        path = join(INSTANCE_HOME, *self._repository)
+
+        cachedfile = join(path, '%s.zip' % zipname)
+        if isfile(cachedfile):
+            os.unlink(cachedfile)
+
+        cachedfile = join(path, '%s-all.zip' % zipname) #contains restricted docs
+        if isfile(cachedfile):
+            os.unlink(cachedfile)
+
     def _add_file_from_zip(self,zipfile,name, restricted=''):
         """ Generate id from filename and make sure,
             there are no spaces in the id.
@@ -902,8 +904,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         files = []
         if document.content_type in ['application/octet-stream', 'application/zip', 'application/x-compressed']:
             try:
-                zip_file = join(CLIENT_HOME, 'reposit', '/'.join(document.filename))
-                zf = ZZipFile(zip_file)
+                zf = ZZipFile(document.physicalpath())
                 for zipinfo in zf.infolist():
                     files.append(zipinfo.filename)
             except (BadZipfile, IOError):   # This version of Python reports IOError on empty files

@@ -80,15 +80,7 @@ def manage_addFeedback(self, id ='', title='', feedbacktext='', file='', activit
     engine = self.getEngine()
     envelope = self.getMySelf()
 
-    #delete zip cache file if exists
-    path = join(INSTANCE_HOME, *envelope._repository)
-    cachedfile = join(path, '%s.zip' % envelope.id)
-    if isfile(cachedfile):
-        os.unlink(cachedfile)
-
-    cachedfile = join(path, '%s-all.zip' % envelope.id) #contains restricted docs
-    if isfile(cachedfile):
-        os.unlink(cachedfile)
+    envelope._invalidate_zip_cache()
 
     #if REQUEST is None: REQUEST = self.REQUEST
 
