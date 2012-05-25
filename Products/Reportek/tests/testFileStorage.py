@@ -2,7 +2,7 @@ import unittest
 from StringIO import StringIO
 import zipfile
 from mock import Mock, patch
-from utils import create_fake_root, makerequest
+from utils import create_fake_root, makerequest, create_temp_reposit
 
 
 def create_mock_request():
@@ -26,6 +26,13 @@ def create_upload_file(data='', filename='testfile.txt'):
 def setUpModule():
     global Document, Envelope
     from Products.Reportek import Document, Envelope
+
+    global cleanup_temp_reposit
+    cleanup_temp_reposit = create_temp_reposit()
+
+
+def tearDownModule():
+    cleanup_temp_reposit()
 
 
 def create_envelope(parent, id='envelope'):

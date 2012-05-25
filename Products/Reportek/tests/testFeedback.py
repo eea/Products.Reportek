@@ -8,6 +8,17 @@ ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
 from configurereportek import ConfigureReportek
 from fileuploadmock import FileUploadMock
+from utils import create_temp_reposit
+
+
+def setUpModule():
+    global cleanup_temp_reposit
+    cleanup_temp_reposit = create_temp_reposit()
+
+
+def tearDownModule():
+    cleanup_temp_reposit()
+
 
 class MockResponse:
     def __init__(self):
@@ -16,6 +27,7 @@ class MockResponse:
         self.headers[name] = value
     def write(self, data):
         pass
+
 
 class FeedbackTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
 

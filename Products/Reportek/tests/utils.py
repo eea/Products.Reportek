@@ -22,7 +22,10 @@ import os
 import sys
 import time
 import random
+import tempfile
+import shutil
 import transaction
+from mock import patch
 
 
 def setupCoreSessions(app=None):
@@ -174,6 +177,18 @@ def create_fake_root():
         def getPhysicalRoot(self):
             return self
     return FakeRootObject()
+
+
+def create_temp_reposit():
+    tmp_dir = tempfile.mkdtemp()
+    instance_home_patch = patch.dict(__builtins__, {'INSTANCE_HOME': tmp_dir})
+    instance_home_patch.start()
+    os.makedirs(os.path.join(tmp_dir, 'var', 'reposit'))
+
+    def cleanup():
+        shutil.rmtree(tmp_dir)
+        instance_home_patch.stop()
+    return cleanup
 
 
 __all__ = [

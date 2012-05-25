@@ -8,10 +8,21 @@ ZopeTestCase.installProduct('PythonScripts')
 from configurereportek import ConfigureReportek
 from fileuploadmock import FileUploadMock
 from mock import patch
+from utils import create_temp_reposit
 
 TEST_DATA_URL = ('https://svn.eionet.europa.eu/repositories/Zope'
                  '/trunk/Products.Reportek/Products/Reportek/tests/data/')
 TESTDIR = os.path.abspath(os.path.dirname(__file__))
+
+
+def setUpModule():
+    global cleanup_temp_reposit
+    cleanup_temp_reposit = create_temp_reposit()
+
+
+def tearDownModule():
+    cleanup_temp_reposit()
+
 
 class FileUploadTest(file):
     __allow_access_to_unprotected_subobjects__=1
@@ -19,6 +30,7 @@ class FileUploadTest(file):
     def __init__(self, path, name):
         self.filename = name
         file.__init__(self, os.path.join(TESTDIR, path))
+
 
 class SpreadsheetTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
 
