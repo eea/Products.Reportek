@@ -1083,6 +1083,8 @@ def movedEnvelope(ob, event):
 from ZServer.HTTPResponse import ZServerHTTPResponse
 
 class ResponseFileWrapper(object):
+    cache_threshold = 100000000 # 100 MB
+
     def __init__(self, response, tmpfile):
         self.response = response
         self.pos = 0
@@ -1106,7 +1108,7 @@ class ResponseFileWrapper(object):
 
     def close(self, cachedfile):
         statinfo = os.stat(self.tmpfile.name)
-        if statinfo.st_size > 100000000:
+        if statinfo.st_size > self.cache_threshold:
             os.link(self.tmpfile.name, cachedfile)
         self.tmpfile.close()
         assert not os.path.exists(self.tmpfile.name)

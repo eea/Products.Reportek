@@ -86,6 +86,10 @@ def manage_addFeedback(self, id ='', title='', feedbacktext='', file='', activit
     if isfile(cachedfile):
         os.unlink(cachedfile)
 
+    cachedfile = join(path, '%s-all.zip' % envelope.id) #contains restricted docs
+    if isfile(cachedfile):
+        os.unlink(cachedfile)
+
     #if REQUEST is None: REQUEST = self.REQUEST
 
     if engine.UNS_server and not ob.automatic:

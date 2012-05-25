@@ -1,7 +1,8 @@
 import unittest
 from StringIO import StringIO
-from mock import Mock
-from utils import create_fake_root
+import zipfile
+from mock import Mock, patch
+from utils import create_fake_root, makerequest
 
 
 def create_mock_request():
@@ -23,8 +24,17 @@ def create_upload_file(data='', filename='testfile.txt'):
 
 
 def setUpModule():
-    global Document
-    from Products.Reportek import Document
+    global Document, Envelope
+    from Products.Reportek import Document, Envelope
+
+
+def create_envelope(parent, id='envelope'):
+    process = Mock()
+    e = Envelope.Envelope(process, '', '', '', '', '', '', '', '')
+    e.id = id
+    parent._setObject(id, e)
+    e.dataflow_uris = []
+    return parent[id]
 
 
 class FileStorageTest(unittest.TestCase):
@@ -55,3 +65,98 @@ class FileStorageTest(unittest.TestCase):
         request = create_mock_request()
         doc.index_html(request, request.RESPONSE)
         self.assertEqual(request.RESPONSE._data.getvalue(), data)
+
+    def test_get_zip_info(self):
+        root = create_fake_root()
+        root.REQUEST = create_mock_request()
+        envelope = create_envelope(root)
+
+        zip_data = StringIO()
+        mock_zip = zipfile.ZipFile(zip_data, 'w')
+        mock_zip.writestr('f1.txt', 'hello one')
+        mock_zip.writestr('f2.txt', 'hello two file')
+        mock_zip.close()
+
+        upload_file = create_upload_file(zip_data.getvalue(), 'f.zip')
+
+        doc_id = Document.manage_addDocument(envelope, file=upload_file)
+        doc = envelope[doc_id]
+
+        self.assertEqual(envelope.getZipInfo(doc), ['f1.txt', 'f2.txt'])
+
+
+class ZipDownloadTest(unittest.TestCase):
+
+    def setUp(self):
+        self._plain_root = self.root = create_fake_root()
+        self.root.getWorkitemsActiveForMe = Mock(return_value=[])
+        self.mock_request()
+        self.envelope = create_envelope(self.root)
+
+    def mock_request(self):
+        request = create_mock_request()
+        self.root = makerequest(self._plain_root, StringIO())
+        request = self.root.REQUEST
+        request.AUTHENTICATED_USER = Mock()
+        response = request.RESPONSE
+        response._data = StringIO()
+        response.write = response._data.write
+        return request
+
+    @patch('Products.Reportek.Envelope.getSecurityManager')
+    @patch('Products.Reportek.zip_content.getSecurityManager')
+    def download_zip(self, envelope, envelope_get_security, zip_get_security):
+        checkPermission = Mock(return_value=True)
+        envelope_get_security.return_value = Mock(return_value=checkPermission)
+        zip_get_security.return_value = Mock(return_value=checkPermission)
+        request = self.mock_request()
+        envelope.envelope_zip(request, request.RESPONSE)
+        data = request.RESPONSE._data
+        data.seek(0)
+        return zipfile.ZipFile(data)
+
+    def test_zip_download(self):
+        data = 'hello world, file for test!'
+        file_1 = create_upload_file(data)
+        doc_id = Document.manage_addDocument(self.envelope, file=file_1)
+        doc = self.envelope[doc_id]
+        self.envelope.release_envelope()
+
+        zip_download = self.download_zip(self.envelope)
+        self.assertEqual(zip_download.read('testfile.txt'), data)
+
+    @patch('Products.Reportek.Envelope.ResponseFileWrapper.cache_threshold', -1)
+    def test_zip_cache_invalidation_on_release(self):
+        # zip cache is invalidated when the envelope is released (in case the
+        # envelope had previously been released, unreleased and modified).
+
+        file_1 = create_upload_file('data one')
+        doc_id = Document.manage_addDocument(self.envelope, file=file_1)
+        doc = self.envelope[doc_id]
+        self.envelope.release_envelope()
+
+        zip_download = self.download_zip(self.envelope)
+        self.assertEqual(zip_download.read('testfile.txt'), 'data one')
+
+        self.envelope.unrelease_envelope()
+        doc.manage_file_upload(create_upload_file('data two'))
+        self.envelope.release_envelope()
+
+        zip_download = self.download_zip(self.envelope)
+        self.assertEqual(zip_download.read('testfile.txt'), 'data two')
+
+    @patch('Products.Reportek.Envelope.ResponseFileWrapper.cache_threshold', -1)
+    def test_zip_cache_invalidation_on_feedback(self):
+        self.root.getEngine = Mock()
+
+        file_1 = create_upload_file('data one')
+        doc_id = Document.manage_addDocument(self.envelope, file=file_1)
+        doc = self.envelope[doc_id]
+        self.envelope.release_envelope()
+
+        zip_download = self.download_zip(self.envelope)
+
+        self.envelope.manage_addFeedback(title="good work")
+
+        zip_download = self.download_zip(self.envelope)
+        self.assertTrue("good work" in zip_download.read('feedbacks.html'))
