@@ -1,3 +1,12 @@
+## Script (Python) "parseobligations"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=triples
+##title=Parse EIONET ROD files
+##
 oblmap = {
 'http://www.w3.org/2000/01/rdf-schema#label':'TITLE',
 'http://rod.eionet.eu.int/schema.rdf#instrument':'source_uri',

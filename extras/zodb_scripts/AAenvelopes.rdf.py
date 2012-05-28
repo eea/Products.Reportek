@@ -1,3 +1,12 @@
+## Script (Python) "AAenvelopes.rdf"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=
+##title=Extract all envelopes in RDF format for one year back
+##
 from Products.PythonScripts.standard import html_quote
 request = container.REQUEST
 RESPONSE =  request.RESPONSE

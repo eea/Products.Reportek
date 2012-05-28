@@ -1,3 +1,12 @@
+## Script (Python) "A_getlocalusers"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=
+##title=
+##
 # Example code:
 
 # Import a standard function, and get the HTML request and response objects.

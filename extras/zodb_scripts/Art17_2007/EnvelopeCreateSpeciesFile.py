@@ -1,3 +1,12 @@
+## Script (Python) "EnvelopeCreateSpeciesFile"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=language, author, specie, specie_from, region=[], species=None, confirm=False
+##title=Art 17: Creates a new instance file
+##
 # Map accented characters to ascii
 asciimap = {
     0x0020:0x2d,

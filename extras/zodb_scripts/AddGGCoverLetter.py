@@ -1,3 +1,12 @@
+## Script (Python) "AddGGCoverLetter"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=
+##title=Adds a cover letter to the envelopes for greenhouse gases that already completed the process
+##
 from DateTime import DateTime
 
 dfs = ''

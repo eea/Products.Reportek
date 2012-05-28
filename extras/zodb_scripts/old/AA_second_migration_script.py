@@ -1,3 +1,12 @@
+## Script (Python) "AA_second_migration_script"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=
+##title=
+##
 request = container.REQUEST
 
 for env_cat in container.Catalog(meta_type='Report Envelope'):

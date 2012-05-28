@@ -1,3 +1,12 @@
+## Script (Python) "sortable_table"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=headers, sort_on, sort_order=''
+##title=Display a table header that is sortable
+##
 from Products.PythonScripts.standard import html_quote
 request = container.REQUEST
 RESPONSE =  request.RESPONSE

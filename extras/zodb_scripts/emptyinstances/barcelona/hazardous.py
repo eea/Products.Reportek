@@ -1,3 +1,12 @@
+## Script (Python) "hazardous"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=language
+##title=
+##
 return """<?xml version="1.0" encoding="UTF-8"?>
 <hazardous 
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 

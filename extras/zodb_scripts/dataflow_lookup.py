@@ -1,3 +1,12 @@
+## Script (Python) "dataflow_lookup"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=uri
+##title=Lookup a dataflow on URI and return a dictionary of info
+##
 top = container.REQUEST.PARENTS[-1]
 try:
     return top.dataflow_dict()[uri]

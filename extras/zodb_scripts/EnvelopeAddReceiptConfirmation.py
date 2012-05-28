@@ -1,3 +1,12 @@
+## Script (Python) "EnvelopeAddReceiptConfirmation"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=workitem_id, REQUEST
+##title=Add a generic confirmation of receipt
+##
 from DateTime import DateTime
 
 list_of_obligations = []

@@ -1,3 +1,12 @@
+## Script (Python) "EnvelopeCreateHabitatFile"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=language, region=[], habitattype=None
+##title=Art17: Creates a new instance file
+##
 # Notice: Maintain the instancefile under /xmlexports, then cut-and-paste it to here
 # when changed
 request = context.REQUEST

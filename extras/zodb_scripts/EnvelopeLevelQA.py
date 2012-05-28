@@ -1,3 +1,12 @@
+## Script (Python) "EnvelopeLevelQA"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=workitem_id, REQUEST
+##title=Runs the automatic QA for the envelope
+##
 if 'feedback' + str(int(context.reportingdate)) in context.objectIds('Report Feedback'):
     context.manage_delObjects('feedback' + str(int(context.reportingdate)))
 

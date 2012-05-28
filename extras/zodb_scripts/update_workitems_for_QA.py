@@ -1,3 +1,12 @@
+## Script (Python) "update_workitems_for_QA"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=
+##title=Copies description of QA workitems into the workitem log
+##
 for c in container.objectValues('Report Collection'):
  for e in container.Catalog(meta_type='Report Envelope', path=c.absolute_url(1)):
   env = e.getObject()

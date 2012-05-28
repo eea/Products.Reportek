@@ -1,3 +1,12 @@
+## Script (Python) "xmlrpc_search_shapefile"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=country=None,RA_ID=None
+##title=Find shapefiles (used by Hermann for WFD reporting)
+##
 from Products.PythonScripts.standard import html_quote
 
 def print_as_elm(mydict):

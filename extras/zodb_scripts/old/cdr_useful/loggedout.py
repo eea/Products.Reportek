@@ -1,3 +1,12 @@
+## Script (Python) "loggedout"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=
+##title=Logs you out from the website
+##
 REQUEST = container.REQUEST
 RESPONSE =  REQUEST.RESPONSE
 print context.standard_html_header(context,context.REQUEST)

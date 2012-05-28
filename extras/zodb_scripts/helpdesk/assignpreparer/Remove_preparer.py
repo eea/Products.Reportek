@@ -1,3 +1,12 @@
+## Script (Python) "Remove_preparer"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=REQUEST=None, **kwargs
+##title=Remove 'Preparer' role
+##
 if REQUEST:
     kwargs.update(REQUEST.form)
 

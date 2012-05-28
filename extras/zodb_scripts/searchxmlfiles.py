@@ -1,3 +1,12 @@
+## Script (Python) "searchxmlfiles"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=schema, country=None
+##title=XML-RPC script to find XML files matching a specific schema/doctype
+##
 from Products.PythonScripts.standard import html_quote
 
 def print_as_elm(mydict):

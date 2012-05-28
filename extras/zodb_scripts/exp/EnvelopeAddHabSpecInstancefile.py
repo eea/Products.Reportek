@@ -1,3 +1,12 @@
+## Script (Python) "EnvelopeAddHabSpecInstancefile"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=workitem_id, REQUEST
+##title=Add an empty instance
+##
 # Notice: Maintain the instancefile under /xmlexports, then cut-and-paste it to here
 # when changed
 

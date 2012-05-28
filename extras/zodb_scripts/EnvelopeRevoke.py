@@ -1,3 +1,12 @@
+## Script (Python) "EnvelopeRevoke"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=workitem_id, REQUEST
+##title=Revoke the envelope
+##
 request = container.REQUEST
 
 #Notify UNS

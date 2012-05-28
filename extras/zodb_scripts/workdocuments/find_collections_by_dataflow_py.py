@@ -1,3 +1,12 @@
+## Script (Python) "find_collections_by_dataflow_py"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=
+##title=Creates envelopes for WFD-Art3
+##
 request = container.REQUEST
 RESPONSE =  request.RESPONSE
 

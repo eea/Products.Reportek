@@ -1,3 +1,15 @@
+## Script (Python) "EnvelopeCreateBarcelonaReportFile"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=language='en',schema
+##title=Barcelona: Creates a new instance file
+##
+## Errors:
+##  non-default argument follows default argument (<function parameters>, line 1)
+##
 edit_url = context.getWebQ_MenuEnvelope_URL() + '?language=En&envelope=' + context.getMySelf().absolute_url() + '&schema=' + schema
 
 transmap = string.maketrans(' ','-')

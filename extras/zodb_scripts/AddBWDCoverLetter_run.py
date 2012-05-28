@@ -1,3 +1,12 @@
+## Script (Python) "AddBWDCoverLetter_run"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=
+##title=
+##
 for x in container.Catalog(meta_type='Report Envelope', dataflow_uris=['http://rod.eionet.eu.int/obligations/531', 'http://rod.eionet.eu.int/obligations/532']):
   obj = x.getObject()
   if obj.year == 2011:

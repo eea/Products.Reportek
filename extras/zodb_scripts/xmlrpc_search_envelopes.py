@@ -1,3 +1,12 @@
+## Script (Python) "xmlrpc_search_envelopes"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=obligation='http://rod.eionet.eu.int/obligations/37', released=1
+##title=Find envelopes for merging (Used by SMR for Noise DF5)
+##
 reslist = []
 
 for item in container.Catalog({'meta_type':'Report Envelope',

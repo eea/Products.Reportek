@@ -1,3 +1,12 @@
+## Script (Python) "localities_iso_dict"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=
+##title=
+##
 res = container.localities_table()
 ldict = {}
 for item in res:

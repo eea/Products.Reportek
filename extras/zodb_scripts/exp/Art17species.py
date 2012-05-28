@@ -1,3 +1,12 @@
+## Script (Python) "Art17species"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=
+##title=Art 17: Return a list of species
+##
 #"MAIN_GROUP","MIDLE_GROUP","LOWER_GROUP","SPECNAME","SPECNUM","PRIOR","ANNEX_II","ANNEX_IV","ANNEXV"
 return [
 ("Invertebrates","Insecta","Coleoptera","Abacetus salzmanni","","",0,0,0),

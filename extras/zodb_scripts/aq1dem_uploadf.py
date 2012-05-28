@@ -1,3 +1,12 @@
+## Script (Python) "aq1dem_uploadf"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=country, title, year, file
+##title=Upload a regular file
+##
 request = container.REQUEST
 actor = request.AUTHENTICATED_USER.getUserName()
 # Look up the right URI for country iso-code

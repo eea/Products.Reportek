@@ -1,3 +1,12 @@
+## Script (Python) "parselocalities"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=triples
+##title=Parse ROD localities
+##
 def listsort(s1,s2):
     if s1['name'] > s2['name']:
         return 1

@@ -1,3 +1,12 @@
+## Script (Python) "buttons_py"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=
+##title=Grey leftside buttons for services
+##
 buttons = [
 ('/searchdataflow', 'Search', 'Search' ),
 ('/ReportekEngine/globalworklist', "The envelopes that haven't been released yet", 'Global worklist'),

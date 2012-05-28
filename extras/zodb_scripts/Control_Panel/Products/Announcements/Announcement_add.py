@@ -1,3 +1,12 @@
+## Script (Python) "Announcement_add"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=redirect=1
+##title=Announcement constructor
+##
 # Add a new instance of the ZClass
 request = context.REQUEST
 request.set('released', 1)

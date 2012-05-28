@@ -1,3 +1,12 @@
+## Script (Python) "EnvelopeAddWasteInstancefiles"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=workitem_id, REQUEST
+##title=Adds empty instance files for each obligation - currently not used
+##
 # Notice: Maintain the instancefile under /xmlexports
 
 for du in context.dataflow_uris:

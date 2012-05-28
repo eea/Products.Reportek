@@ -1,3 +1,15 @@
+## Script (Python) "EnvelopeCreateAQQReportFile"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=language='en',schema,filename=''
+##title=Air Quality: Creates a new instance file
+##
+## Errors:
+##  non-default argument follows default argument (<function parameters>, line 1)
+##
 # This script seems to cause a corruption of the reposit folder.
 raise "This script has been blocked by administrator"
 

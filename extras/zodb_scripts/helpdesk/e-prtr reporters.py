@@ -1,3 +1,12 @@
+## Script (Python) "e-prtr reporters"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=
+##title=e-prtr Reporters in EU
+##
 # Import a standard function, and get the HTML request and response objects.
 #from Products.PythonScripts.standard import string
 REQUEST = container.REQUEST

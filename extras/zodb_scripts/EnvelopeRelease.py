@@ -1,3 +1,12 @@
+## Script (Python) "EnvelopeRelease"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=workitem_id, REQUEST
+##title=Release the envelope
+##
 request = container.REQUEST
 
 #If the flag to upload files restricted by default has been set in the Draft activity, remove it now

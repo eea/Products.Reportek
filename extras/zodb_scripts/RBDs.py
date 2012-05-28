@@ -1,3 +1,12 @@
+## Script (Python) "RBDs"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=
+##title=List of River basin districts for creating envelopes in 2007
+##
 # -*- coding: utf-8 -*-
 
 return [('BE', 'National level', 'BE'), ('FR', 'National level', 'FR'), ('BG', 'National level', 'BG'), ('DK', 'National level', 'DK'), ('DE', 'National level', 'DE'), ('HU', 'National level', 'HU'), ('FI', 'National level', 'FI'), ('NL', 'National level', 'NL'), ('PT', 'National level', 'PT'), ('NO', 'National level', 'NO'), ('LV', 'National level', 'LV'), ('LT', 'National level', 'LT'), ('LU', 'National level', 'LU'), ('RO', 'National level', 'RO'), ('PL', 'National level', 'PL'), ('CH', 'National level', 'CH'), ('GR', 'National level', 'GR'), ('EE', 'National level', 'EE'), ('IT', 'National level', 'IT'), ('CZ', 'National level', 'CZ'), ('CY', 'National level', 'CY'), ('AT', 'National level', 'AT'), ('IE', 'National level', 'IE'), ('ES', 'National level', 'ES'), ('SK', 'National level', 'SK'), ('MT', 'National level', 'MT'), ('SI', 'National level', 'SI'), ('SE', 'National level', 'SE'), ('GB', 'National level', 'GB')]

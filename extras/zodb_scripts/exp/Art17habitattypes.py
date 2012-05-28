@@ -1,3 +1,12 @@
+## Script (Python) "Art17habitattypes"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=
+##title=Art 17: Return a list of habitat types
+##
 return [
     (0,'','11. Open sea and tidal areas'),
     (1,'1110','1110 Sandbanks which are slightly covered by sea water all the time'),

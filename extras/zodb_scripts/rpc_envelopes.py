@@ -1,3 +1,12 @@
+## Script (Python) "rpc_envelopes"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=dataflow
+##title=Query catalog for a dataflow return in XML-RPC
+##
 # Example code:
 
 # Import a standard function, and get the HTML request and response objects.

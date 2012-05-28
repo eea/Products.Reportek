@@ -1,3 +1,12 @@
+## Script (Python) "xmlrpc_search_xmlschema"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=schema, country=None
+##title=Find files with a certain shema (Used by WISE)
+##
 from Products.PythonScripts.standard import html_quote
 
 def print_as_elm(mydict):

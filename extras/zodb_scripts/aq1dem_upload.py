@@ -1,3 +1,12 @@
+## Script (Python) "aq1dem_upload"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=country, title, year, file
+##title=Upload from AQ1 DEM
+##
 request = container.REQUEST
 response = request.RESPONSE
 actor = request.AUTHENTICATED_USER.getUserName()

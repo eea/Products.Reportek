@@ -1,3 +1,12 @@
+## Script (Python) "EnvelopeCreateGeneralReportFile"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=language, region=[]
+##title=Art17: Creates a new instance file
+##
 #
 transmap = string.maketrans(' ','-')
 

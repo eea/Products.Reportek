@@ -1,3 +1,12 @@
+## Script (Python) "Remove_Auditor"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=REQUEST=None, **kwargs
+##title=Remove 'Auditor' role
+##
 if REQUEST:
     kwargs.update(REQUEST.form)
 

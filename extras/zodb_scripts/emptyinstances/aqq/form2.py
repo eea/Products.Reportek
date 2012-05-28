@@ -1,3 +1,12 @@
+## Script (Python) "form2"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=languages, country
+##title=
+##
 file_ob = getattr(context.zones, 'zones-%s.xml' % country.upper(), '')
 if file_ob:
   return str(file_ob.data) % languages

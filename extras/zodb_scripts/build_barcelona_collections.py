@@ -1,3 +1,12 @@
+## Script (Python) "build_barcelona_collections"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=
+##title=
+##
 for x in container.objectValues('Report Collection'):
   if not hasattr(x,'un'):
     print '>>%s' % x.absolute_url()

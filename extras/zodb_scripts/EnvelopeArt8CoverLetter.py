@@ -1,3 +1,12 @@
+## Script (Python) "EnvelopeArt8CoverLetter"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=workitem_id, REQUEST
+##title=Cover letter for WFD reporting (currently: Art. 13)
+##
 from DateTime import DateTime
 
 l_ret = """

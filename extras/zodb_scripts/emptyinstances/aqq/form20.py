@@ -1,3 +1,12 @@
+## Script (Python) "form20"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=languages
+##title=
+##
 return '''<?xml version="1.0" encoding="UTF-8"?>
 <form20
 	xsi:noNamespaceSchemaLocation="http://air-climate.eionet.europa.eu/schemas/AirQualityQuestionnaire/AirQualityQuestionnaire-form20.xsd"

@@ -1,3 +1,12 @@
+## Script (Python) "uncomplete_envelope"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=
+##title=To be run against a completed envelope to re-open it again
+##
 for w in context.objectValues('Workitem'):
     if w.activity_id == 'End':
         last = w.id

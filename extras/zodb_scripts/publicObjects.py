@@ -1,3 +1,12 @@
+## Script (Python) "publicObjects"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=
+##title=
+##
 """
 Returns sub-folders and DTML documents that have a
 true 'siteMap' property.

@@ -1,3 +1,12 @@
+## Script (Python) "Art17species_queries"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=query_number, query_text=''
+##title=Art 17: Return selections from the species list
+##
 species_list = container.Art17species()
 
 def execute_query(q_number, query_text):

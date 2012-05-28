@@ -1,3 +1,12 @@
+## Script (Python) "EnvelopeCreateSpeciesFile"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=language, author, specie, specie_from, region=[], species=None, confirm=False
+##title=Art 17: Creates a new instance file
+##
 # Notice: Maintain the instancefile under /xmlexports, then cut-and-paste it to here
 # when changed
 

@@ -1,3 +1,12 @@
+## Script (Python) "createenvelopes"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=dataflow_uris, title, year
+##title=Creates envelopes for WFD-Art3
+##
 request = container.REQUEST
 RESPONSE =  request.RESPONSE
 

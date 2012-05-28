@@ -1,3 +1,12 @@
+## Script (Python) "Art17countrybioregions"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=
+##title=Art 17: Return information about which regions each country has
+##
 return {
     'AT': { 'ALP': 1, 'CON': 1, },
     'BE': { 'ATL': 1, 'CON': 1, 'MATL': 1, },

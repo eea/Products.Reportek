@@ -1,3 +1,12 @@
+## Script (Python) "find_wrong_countries"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=
+##title=Collections and envelopes with a wrong country
+##
 print 'The collections and envelopes with a wrong country\n\n'
 
 #for a in container.Catalog(meta_type=['Report Collection', 'Report Envelope']):

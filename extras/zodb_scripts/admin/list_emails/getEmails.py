@@ -1,3 +1,12 @@
+## Script (Python) "getEmails"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=dataflow_uris, separator=0
+##title=
+##
 local_users = {}
 global_users = {}
 

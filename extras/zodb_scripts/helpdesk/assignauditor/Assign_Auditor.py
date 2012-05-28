@@ -1,3 +1,12 @@
+## Script (Python) "Assign_Auditor"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=REQUEST=None, **kwargs
+##title=
+##
 if REQUEST:
     kwargs.update(REQUEST.form)
 

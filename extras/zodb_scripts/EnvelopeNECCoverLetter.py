@@ -1,3 +1,12 @@
+## Script (Python) "EnvelopeNECCoverLetter"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=workitem_id, REQUEST
+##title=Cover letter for the NECdirective
+##
 from DateTime import DateTime
 
 for x in context.objectValues('Workitem'):

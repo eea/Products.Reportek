@@ -1,3 +1,12 @@
+## Script (Python) "EnvelopeAddN2000Confirmation"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=workitem_id, REQUEST
+##title=Add a Natura 2000 confirmation of receipt
+##
 from DateTime import DateTime
 
 for x in context.objectValues('Workitem'):

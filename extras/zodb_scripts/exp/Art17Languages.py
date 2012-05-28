@@ -1,3 +1,12 @@
+## Script (Python) "Art17Languages"
+##bind container=container
+##bind context=context
+##bind namespace=
+##bind script=script
+##bind subpath=traverse_subpath
+##parameters=
+##title=
+##
 # Official EU languages after 1 Jan 2007 relevant for Art 17
 # Take Romanian out before launch
 return [
