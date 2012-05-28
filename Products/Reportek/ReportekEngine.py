@@ -41,7 +41,6 @@ import Globals
 import Products
 import xmlrpclib
 from DateTime import DateTime
-from BasicAuthTransport import BasicAuthTransport
 from time import time, strftime
 from copy import copy
 
@@ -507,8 +506,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declarePrivate('get_uns_xmlrpc_server')
     def get_uns_xmlrpc_server(self):
         url = self.UNS_server + '/rpcrouter'
-        transport = BasicAuthTransport(self.UNS_username, self.UNS_password)
-        return xmlrpclib.Server(url, transport)
+        if self.UNS_username:
+            frag = '%s:%s@' % (self.UNS_username, self.UNS_password)
+            url = url.replace('http://', 'http://'+frag)
+            url = url.replace('https://', 'https://'+frag)
+        return xmlrpclib.Server(url)
 
     security.declareProtected('View', 'canUserSubscribeToUNS')
     def canUserSubscribeToUNS(self, user_id='', REQUEST=None):

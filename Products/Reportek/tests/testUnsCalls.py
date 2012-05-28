@@ -26,12 +26,10 @@ class UNSCallsTest(unittest.TestCase):
     def setUp(self):
         from Products.Reportek.ReportekEngine import ReportekEngine
         xmlrpc_patch = patch('Products.Reportek.ReportekEngine.xmlrpclib')
-        auth_patch = patch('Products.Reportek.ReportekEngine.BasicAuthTransport')
-        self._patches = [xmlrpc_patch, auth_patch]
+        self._patches = [xmlrpc_patch]
         self.xmlrpc_server = Mock()
         xmlrpc_patch.start().ServerProxy.return_value = self.xmlrpc_server
         xmlrpc_patch.start().Server.return_value = self.xmlrpc_server
-        auth_patch.start().return_value = None
         self.engine = ReportekEngine()
         self.engine.UNS_server = 'http://uns.example.com'
         self.engine.UNS_channel_id = '132547698'
