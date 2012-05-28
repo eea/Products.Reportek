@@ -593,6 +593,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         except:
             return 0
 
+    security.declarePrivate('uns_subscribe_actors')
+    def uns_subscribe_actors(self, actors, filters):
+        server = xmlrpclib.Server(self.UNS_server + '/rpcrouter', BasicAuthTransport(self.UNS_username, self.UNS_password),verbose=0)
+        for act in actors:
+            server.UNSService.makeSubscription(self.UNS_channel_id, act, filters)
+
     ################################################################################
     #
     # Utils

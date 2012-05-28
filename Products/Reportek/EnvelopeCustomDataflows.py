@@ -47,7 +47,6 @@ from zip_content import ZZipFile
 from XMLInfoParser import detect_single_schema
 from constants import QAREPOSITORY_ID
 import zip_content
-from BasicAuthTransport import BasicAuthTransport
 from DataflowsManager import DataflowsManager
 
 from os.path import join
@@ -487,9 +486,7 @@ class EnvelopeCustomDataflows:
                 else:
                     filters.append({'http://rod.eionet.europa.eu/schema.rdf#locality': country_name, 'http://rod.eionet.europa.eu/schema.rdf#obligation': engine.getDataflowTitle(df)})
 
-            server = xmlrpclib.Server(engine.UNS_server + '/rpcrouter', BasicAuthTransport(engine.UNS_username, engine.UNS_password),verbose=0)
-            for act in actors:
-                server.UNSService.makeSubscription(engine.UNS_channel_id, act, filters)
+            engine.uns_subscribe_actors(actors, filters)
 
     ##################################################
     #   Conversions - SHP to GML related
