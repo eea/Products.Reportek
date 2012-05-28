@@ -1,0 +1,37 @@
+<dtml-var standard_html_header>
+<dtml-call "REQUEST.set('meta_type','Report Envelope')">
+<form action="dataflowsearch"><input type=submit value="New search"></form>
+<dtml-call "REQUEST.set('ecounter',0)">
+<dtml-let locdict=localities_iso_dict>
+<dtml-in Catalog sort=bobobase_modification_time>
+   <dtml-if sequence-start>
+<table>      
+   <tr><th>Country</th><th>Title</th><th>Reported</th></tr>
+   </dtml-if sequence-start>
+   <dtml-with "getObject()">
+<dtml-try>
+<dtml-call "REQUEST.set('ecounter',ecounter+1)">
+<dtml-if country>
+<dtml-call "manage_changeEnvelope(country=locdict[country]['uri'],
+dataflow_uris=dataflow_uris)">
+</dtml-if>
+        <tr>
+          <td>&dtml-country;</td>
+          <td><dtml-if "title == ''">
+&dtml-id;<dtml-else>&dtml-title;</dtml-if></td>
+          <td><dtml-var bobobase_modification_time missing="1971-01-01" fmt=Date></td>
+        </tr>
+</dtml-try>
+   </dtml-with>
+   <dtml-if sequence-end>
+</table>
+   </dtml-if sequence-end>
+
+<dtml-else>
+
+  There was no data matching this <dtml-var title_or_id> query.
+
+</dtml-in>
+</dtml-let>
+<h2>Found <dtml-var ecounter> envelopes</h2>
+<dtml-var standard_html_footer>

@@ -1,0 +1,147 @@
+<dtml-var standard_html_header>
+<dtml-call "REQUEST.set('meta_type','Report Envelope')">
+
+<dtml-unless RA_ID>
+  <dtml-call "REQUEST.set('RA_ID','521')">
+</dtml-unless>
+
+<dtml-call "REQUEST.set('dataflow_uris','http://rod.eionet.eu.int/obligations/' + RA_ID)">
+
+<dtml-unless sort_on>
+  <dtml-call "REQUEST.set('sort_on','reportingdate')">
+  <dtml-call "REQUEST.set('sort_order','reverse')">
+</dtml-unless>
+
+<dtml-unless sort_order>
+  <dtml-call "REQUEST.set('sort_order','')">
+</dtml-unless>
+
+<dtml-if "REQUEST.has_key('country') and _.len(REQUEST['country']) == 2">
+  <dtml-call "REQUEST.set('cc',country)">
+  <dtml-call "REQUEST.set('country',localities_iso_dict(_.string.upper(cc))['uri'])">
+  <dtml-call "REQUEST.set('country_name',localities_iso_dict(_.string.upper(cc))['name'])">
+<dtml-else>
+  <dtml-call "REQUEST.set('country_name','all countries')">
+</dtml-if>
+
+<h2><dtml-var title_or_id> for <dtml-var "dataflow_lookup(dataflow_uris)['TITLE']">: <dtml-var country_name> 
+
+<dtml-in Catalog>
+   <dtml-if sequence-start>
+
+(<dtml-var sequence-length>&nbsp;envelope<dtml-if "_['sequence-length'] > 1">s</dtml-if>)</h2>
+<h4>Only uncompressed shapefiles and XML files with schema = 'http://water.eionet.europa.eu/schemas/dir200060ec/...' are listed</h4>
+
+<table class="sortable"> 
+<thead>
+   <tr>
+<dtml-var "sortable_table(( 
+{'id':'reportingdate','title':'Reported','sortable':1},
+{'id':'activity','title':'Activity','sortable':0},
+{'id':'status','title':'Status','sortable':1},
+{'id':'getCountryName','title':'Coverage','sortable':1},
+{'id':'title','title':'Title','sortable':0}
+), sort_on, sort_order)">
+   </tr>
+</thead>
+
+<tbody>
+   </dtml-if sequence-start>
+
+   <dtml-with "getObject()">
+
+    <dtml-call "REQUEST.set('envelope_url',absolute_url)">
+    <dtml-call "REQUEST.set('num_shp',0)">
+    <dtml-call "REQUEST.set('num_xml',0)">
+
+     <tr <dtml-if sequence-even>class="zebraeven"</dtml-if>>
+       <td><dtml-var reportingdate fmt="%Y-%m-%d %H:%M"></td>
+
+     <dtml-with "restrictedTraverse(getpath(data_record_id_))">
+
+       <dtml-in "objectValues('Workitem')" sort=lastActivityDate,id>
+         <dtml-if sequence-end>
+          <td>
+             <dtml-var "getActivityDetails('title')"> 
+             <dtml-if "AUTHENTICATED_USER.getUserName() == 'peifer'">
+               <dtml-if "getActivityDetails('title') == 'Redeliver or finish'">
+                 <a href="<dtml-var envelope_url>/activateWorkitem?workitem_id=<dtml-var id>&DestinationURL=<dtml-var envelope_url>">Complete</a></p>
+               <dtml-elif "getActivityDetails('title') == 'End'">
+                 <a href="<dtml-var envelope_url>/uncomplete_envelope">Uncomplete</a></p>
+                 <a href="<dtml-var envelope_url>/AA_batchrestrictfiles">Batch restrict files</a></p>
+               </dtml-if>
+           </dtml-if>
+          </td>
+          <td>
+             <dtml-var status><dtml-if "actor not in ['', 'Anonymous User', 'openflow_engine']"> by <a href="http://www.eionet.eu.int/sitedirsearch?name=&dtml-actor;"><dtml-var actor></a></dtml-if>
+          </td>
+         </dtml-if>
+       </dtml-in>
+
+     </dtml-with>
+
+         <td>
+          <dtml-var getCountryName>:
+          <dtml-if locality> 
+            <dtml-if "_.len(locality) == 2">
+              <dtml-let cty="_.string.replace(country,'eu.int','europa.eu')">
+              <a href="http://cr.eionet.europa.eu/factsheet.action?uri=&dtml-cty;"><dtml-var locality></a>
+              </dtml-let>
+            <dtml-else>
+              <a href="http://cr.eionet.europa.eu/factsheet.action?uri=http://rdfdata.eionet.europa.eu/wise/rbd/&dtml-locality;"><dtml-var locality></a>
+            </dtml-if>
+          <dtml-else>
+              No locality
+          </dtml-if>
+        </td>
+
+        <td>
+          <a href="<dtml-var "getpath(data_record_id_)">"><dtml-if "title == ''">&dtml-id;<dtml-else>&dtml-title;</dtml-if></a><br />
+          <dtml-comment> <a href="recent_jon.txt?path=<dtml-var "getpath(data_record_id_)">">Physical path of *.xml and *.dbf for this envelope</a></dtml-comment>
+
+            <br />
+            <dtml-in "objectValues('Report Document')" sort=id>
+              <dtml-if "_.string.upper(id[-3:]) == 'SHP'">
+              <dtml-call "REQUEST.set('num_shp',num_shp+1)">
+                <a href="&dtml-absolute_url;/manage_document"><dtml-var id></a>
+                <dtml-if "not _.SecurityCheckPermission('View',_['sequence-item'])">
+                  <img src="/misc_/Reportek/lockicon_gif" alt="No access" width="16" height="16" />
+                </dtml-if>
+                <br />
+              </dtml-if>
+            </dtml-in>
+            <dtml-if "num_shp == 0">
+              No shapefiles in this envelope <br />
+            </dtml-if>
+
+            <br />
+            <dtml-in "objectValues('Report Document')" sort=id>
+              <dtml-if "xml_schema_location[:50] == 'http://water.eionet.europa.eu/schemas/dir200060ec/'">
+                <dtml-call "REQUEST.set('num_xml',num_xml+1)">
+                <dtml-var id>
+                <dtml-if "not _.SecurityCheckPermission('View',_['sequence-item'])">
+                  <img src="/misc_/Reportek/lockicon_gif" alt="No access" width="16" height="16" />
+                </dtml-if>
+                <br />
+              </dtml-if>
+            </dtml-in>
+            <dtml-if "num_xml == 0">
+              No XML data in this envelope  <br />
+            </dtml-if>
+        </td>
+
+   </dtml-with>
+  </tr>
+
+   <dtml-if sequence-end>
+</tbody>
+</table>
+   </dtml-if sequence-end>
+
+<dtml-else>
+
+  </h2> There was no data matching this <dtml-var title_or_id> query.
+
+</dtml-in>
+
+<dtml-var standard_html_footer>

@@ -1,0 +1,105 @@
+<dtml-if "canViewContent() and canAddFiles() and not released and is_active_for_me(REQUEST)">
+	<dtml-var standard_html_header>
+	<dtml-var "envelope_tabs(tab=workitem_id)">
+
+	<h1>&dtml-document_title;</h1>
+
+	<dtml-let hasFiles="_.len(objectValues(['Report Document', 'Report Hyperlink'])) > 0">
+	
+	<div class="upload_data" style="margin-top:1.5em;">
+		<div class="advise-msg">
+			<dtml-if "not('Preparer' in getEnvelopeOwner().getRolesInContext(this()))">
+
+			<strong>You are not using envelope created for you by the EEA!</strong>
+			<p>
+				a) You created this envelope because you did not notice the official one.
+				In this case please go to the official envelope. It contains a set of files prepared by using the most recent data delivered for your country (prefilled database template, feedback reports, geographical data) which you should use in preparation of your delivery. It is recommended you delete this envelope.
+			</p>
+			<p>
+				b) You have already closed the official envelope and you created this envelope in order to redeliver your data or include additional information. In this case, please follow these steps:
+			</p>
+			<strong>Redelivery steps</strong>
+			<p>
+				1. Get the content prepared by EEA from the official envelope.
+			</p>
+			<p>
+				2. Verify/update/correct the files provided; generate new XML files from the Microsoft Access database (generation function is implemented in the database) and upload back to this envelope using "Upload delivery file" button.
+
+			</p>
+			<p>
+				ATTENTION<br />
+				Always use the latest data templates! Older templates can not be processed.
+			</p>
+			<p>
+				3. Your redelivery should contain all of the following parts:
+			</p>
+
+			<dtml-else>
+
+			<strong>Delivery steps</strong>
+			<p>
+				1. EEA has prepared a set of CDDA files using the most recent data delivered for your country (CDDA_2010_templates.zip file containing prefilled database template, feedback reports and geographic data) and uploaded it into this envelope. For database specifications please look at the <a href="http://dd.eionet.europa.eu/dataset.jsp?mode=view&amp;ds_id=2981">CDDA Data Dictionary</a>.
+			</p>
+
+			<p>
+				2. Verify/update/correct the files provided; generate new xml files from the Microsoft Access database (generation function is implemented in the database) and upload back to this envelope using <em>Upload delivery file</em> button. If there are no changes, you can deliver the same file back to EEA.</li>
+			</p>
+			<p>
+				ATTENTION<br />
+				Always use the latest data templates! Older templates can not be processed.
+			</p>
+			<p>
+				3. Your new delivery should comprise:
+			</p>
+			</dtml-if>
+			<ol>
+				<li><strong>1. Microsoft Access CDDA database file (required)</strong></li>
+				<li><strong>2. All XML files generated from the Microsoft Access database (required)</strong></li>
+				<li><strong>3. GIS files for boundary data (required)</strong></li>
+				<li><strong>4. Any additional files for accompanying or explanatory information (optional)</strong></li>
+			</ol>
+		</div>
+
+		<dtml-if canAddFiles>
+			<p style="margin: 0.5em 0 1em 0; padding: 0 0 1em 0;"><a href="upload_doc_or_zip" class="test_button" title="Upload single file or zip archive">Upload delivery file</a></p>
+		</dtml-if>
+		
+		<p style="clear: both; margin: 1em 0 0 0; padding: 1em 0 0 0;" ><a href="inactivateWorkitem?workitem_id=&dtml-workitem_id;" class="test_button"
+title="Deactivation keeps the work already
+done, and makes it possible for
+someone else to take over the task">Deactivate task</a></p>
+		<p>You can interrupt your work and continue at a later date without losing data by deactivating the task.</p>
+
+		<dtml-if "hasFiles">
+			<p><a class="test_button" href="completeWorkitem?workitem_id=&dtml-workitem_id;">Complete task</a></p>
+			<p>Once you are satisfied that your delivery is complete and correct, choose complete task and  the envelope with your delivery will be released to the public.
+			</p>
+
+			<div class="advise-msg"><strong>Automatic QA service</strong>
+				<p>The system can help you assess quality of the uploaded XML files. You have two options for running the automatic QA tests yourself on the data that you have just uploaded:</p>
+				<ol>
+					<li style="font-weight: bold">1. You can test all files at once using the "Run full QA" button.</li>
+					<li style="font-weight: bold">2. You can check files which are less than 4MB in size one by one using the "Run QA #1" button next to each of them and check relations between them using the "Run relation QA".</li>
+				</ol>
+				<p>If some of the tests detect errors, it is recommended that you try to correct them before releasing the envelope. After you release the envelope, the system will always automatically run the full QA procedures and the public results will be placed into the feedback area of the envelope.</p>
+			</div>
+
+			<p><a class="test_button" href="completeWorkitem?workitem_id=&dtml-workitem_id;&amp;dontrelease=0" title="Run the automatic Quality Assessment">Run full QA</a></p>
+			<p>You can run a quality assessment operation yourself on all files at once. It will interrupt the drafting activity for a few minutes (task is deactivated), after which you can return to Draft (by activating the task) and read the QA feedback.</p>
+
+			<dtml-in "QARepository.getQAScriptsForSchema('http://rod.eionet.eu.int/obligations/32')" prefix=script>
+				<p><a href="&dtml-absolute_url;/runQAScript?p_file_url=&dtml-absolute_url;/xml&amp;p_script_id=<dtml-var "script_item">" class="test_button" title="Run envelope level statistics">Run relation QA</a></p>
+			</dtml-in>
+			<p>Relational rules between the individual database tables can be tested using the “Run relation QA” button.</p>
+		</dtml-if>
+	</div>
+
+	</dtml-let>
+
+	<dtml-var documents_management_section>
+	<dtml-var feedback_section>
+
+	<dtml-var standard_html_footer>
+<dtml-else>
+	<dtml-call "RESPONSE.redirect('overview')">
+</dtml-if>

@@ -1,0 +1,35 @@
+<dtml-var standard_html_header>
+<table class="datatable">      
+<tr>
+<th>Path</th>
+<th>Last change</th>
+<th>Owners</th>
+</tr>
+<dtml-in "Catalog({'meta_type':'Report Collection'})" sort=getPath>
+<dtml-with getObject>
+<dtml-let reporters="users_with_local_role('Owner')">
+<dtml-if "reporters != []">
+        <tr>
+          <td><a href="&dtml-absolute_url;">/<dtml-var "absolute_url(1)"></a></td>
+          <td><dtml-var bobobase_modification_time fmt=Date></td>
+          <td><dtml-in reporters><a href="http://www.eionet.europa.eu/directory/user?uid=&dtml-sequence-item;">&dtml-sequence-item;</a> 
+</dtml-in></td>
+        </tr>
+</dtml-if>
+</dtml-let>
+</dtml-with>
+</dtml-in>
+
+<dtml-let reporters="restrictedTraverse(['',]).users_with_local_role('Owner')">
+<dtml-if "reporters != []">
+        <tr>
+          <td><a href="&dtml-absolute_url;">/<dtml-var "absolute_url(1)"></a></td>
+          <td><dtml-var bobobase_modification_time fmt=Date></td>
+          <td><dtml-in reporters><a href="http://www.eionet.europa.eu/directory/user?uid=&dtml-sequence-item;">&dtml-sequence-item;</a> 
+</dtml-in></td>
+        </tr>
+</dtml-if>
+</dtml-let>
+
+</table>
+<dtml-var standard_html_footer>

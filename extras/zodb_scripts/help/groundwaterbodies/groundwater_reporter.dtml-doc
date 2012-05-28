@@ -1,0 +1,51 @@
+<dtml-var standard_html_header>
+<h1><dtml-var title_or_id></h1>
+
+<p>In order to complete the reporting process for Groundwater on this website, Reporters must 
+create an <em>Envelope</em> and work following the steps described below. After releasing the envelope
+to the public, the 
+Requester will review the delivery and post feedback in this envelope, indicating if
+the reporting document(s) should be further modified or if the delivery is satisfactory.
+</p>
+
+<p>Remember that you can work on a task only after you activate it; see the 
+<a href="/help">previous section</a> for 
+further details on how to assign/unassign the work for yourself.</p>
+
+<h2>Delivery task: Draft delivery for Groundwater</h2>
+<p>By activating this task, you have started the delivery process of groundwater bodies.
+
+The first step is to fetch last year's delivery (or an empty delivery if there have been no
+prior reportings on this obligation). This produces a document in the envelope that 
+contains your delivery after it has been checked by the topic center. 
+
+You must then proceed to edit the document with a form. Once you are satisfied with the result, 
+just complete the task. The next that will happen is that the delivery will be quality assessed 
+by the system as described below. 
+</p>
+
+<p>If a reporter tries to complete the <em>Draft</em> task without actually uploading any documents,
+the system will put a Feedback object into the envelope informing them that it's impossible to go on
+with an empty delivery.<br /><br />
+<img src="imgs/aut_feedback.gif" style="border: 1px dashed black" alt="Automatic feedback" />
+</p>
+
+<h3>Automatic quality assessment</h3>
+<p>This action is entirely done by the system and it consists from quality checks of 
+the reporting document uploaded in the envelope
+(e.g. verifications of the existing stations, duplicates, values that exceed limits).
+</p>
+
+<p>After a few minutes since the task has started, the system will pass to another task
+called <em>Envelope released</em>.
+(you can refresh the page to see the result)
+</p>
+
+<h3>Envelope released: Decide to finish or to go back to drafting</h3>
+<p>At this stage the content of the envelope is already accessible to all end users.
+You choose here to either revoke the release (go back to drafting) or finish the
+workflow - meaning it won't be possible to revoke the release anymore.
+Reporters should wait for the feedback to be posted by Requesters before activating this task.
+</p>
+
+<dtml-var standard_html_footer>

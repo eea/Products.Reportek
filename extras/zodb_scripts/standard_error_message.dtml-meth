@@ -1,0 +1,34 @@
+<dtml-var standard_html_header>
+<h1>Error</h1>
+<p>The system has encountered an error while publishing this resource.</p>
+<dtml-if "error_type == 'NotFound'">
+<div class="error-msg">
+Page not found
+</div>
+<dtml-else>
+  
+<div class="error-msg">
+Error Type: <dtml-var error_type html_quote><br/>
+Error Value: <dtml-var error_value html_quote>
+</div>
+</dtml-if>
+ 
+
+  <h2>Troubleshooting Suggestions</h2>
+
+  <ul>
+  <dtml-if "error_type in ('KeyError','NameError')">
+  <li>This resource may be trying to reference a
+  nonexistent object or variable <strong><dtml-var error_value></strong>.</li>
+  </dtml-if>
+  <li>The URL may be incorrect.</li>
+  <li>The parameters passed to this resource may be incorrect.</li>
+  <li>A resource that this resource relies on may be encountering an error.</li>
+  </ul>
+
+  <p>If the error persists please contact the site maintainer.
+  Thank you for your patience.
+  </p>
+
+
+<dtml-var standard_html_footer>

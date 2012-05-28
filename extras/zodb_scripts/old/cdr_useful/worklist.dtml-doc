@@ -1,0 +1,44 @@
+<dtml-var standard_html_header>
+<dtml-unless sort_on>
+<dtml-call "REQUEST.set('sort_on', 'country')">
+</dtml-unless>
+<dtml-unless "REQUEST.has_key('sort_order')">
+<dtml-if "sort_on in ('reportingdate',)">
+<dtml-call "REQUEST.set('sort_order', 'reverse')">
+<dtml-else>
+<dtml-call "REQUEST.set('sort_order', '')">
+</dtml-if>
+</dtml-unless>
+
+<h1><dtml-var title_or_id></h1>
+<p>This is a list of envelopes where work is still going on.</p>
+
+<table class="sortable">
+<thead>
+<tr>
+<dtml-var "sortable_table(( {'id':'country','title':'Country','sortable':1},
+{'id':'title','title':'Envelope','sortable':0},
+{'id':'reportingdate','title':'Date','sortable':1}), sort_on, sort_order)">
+</tr>
+</thead>
+<tbody>
+<dtml-let ldict=localities_dict dummy="{'uri': '', 'name': 'Unknown', 'iso': 'XX'}">
+<dtml-in "Catalog(meta_type=['Report Envelope'],
+     released=0, sort_on=sort_on, sort_order=sort_order)">
+<dtml-try>
+<tr<dtml-if sequence-even> class="zebraeven"</dtml-if>>
+<dtml-with getObject>
+<td><dtml-var "ldict.get(country,dummy)['name']"></td>
+<td><a href="<dtml-var getPath url_quote>"
+  title="<dtml-var getPath>">
+<dtml-if "title == ''"><dtml-var id><dtml-else><dtml-var title></dtml-if></a></td>
+<td><dtml-var reportingdate fmt=Date null="(none)"></td>
+</dtml-with>
+</tr>
+<dtml-except>
+</dtml-try>
+</dtml-in>
+</dtml-let>
+</tbody>
+</table>
+<dtml-var standard_html_footer>

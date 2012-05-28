@@ -1,0 +1,26 @@
+<dtml-var standard_html_header>
+<h2><dtml-var title_or_id></h2>
+<p>
+CDR has the ability to limit access to data that might be confidential.
+</p><p>
+Let me provide an example: the new Regulation on Waste Management Statistics.
+Data on waste producers have to be delivered for NACE two-digits branches.
+In small countries some of these branches are confidential because covering
+only one or two enterprises. Those enterprises will not be happy to see
+their figures available to anybody on the repository tool.
+</p><p>
+The principle is to protect individual files - not the whole envelope.
+You can e.g. make the cover letter public and the rest restricted.
+You place restrictions on a file the same way you cut and paste.
+There are two blue buttons. "Limit access" and "Public access".
+You select some files, and then click on the relevant button.
+</p><p>
+What you will notice is that the file title has a <em>(limited)</em> text next to it.
+This shows you that the file is not available for anonymous visitors.
+The anonymous visitor will see a padlock sign.
+Zipping the envelope will also not deliver the file.
+</p><p>
+You still release the envelope. The purpose of release is to signal the dataflow
+requester that you have delivered.
+</p>
+<dtml-var standard_html_footer>

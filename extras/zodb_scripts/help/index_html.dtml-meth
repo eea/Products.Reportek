@@ -1,0 +1,46 @@
+<dtml-var standard_html_header>
+<h1><dtml-var title_or_id></h1>
+<p>
+The purpose of this website is to make it easy to for European countries to store the obligatory
+environmental reports. Several organisations receive these reports and for each organisation
+there are several
+reports covering subjects such as water and air quality.</p>
+<p>
+To deal with the many reports we let the user organise them in a 
+tree of collections of own choice. At the leaves of the
+tree are the envelopes. They contain all the files and necessary metadata.
+The collections also have metadata, but they only serve as default values
+for the envelopes.</p>
+<p>
+To prepare a report you first create an envelope. Then you upload the
+files and finally you <em>release</em> the envelope for the public.
+</p>
+<h2>More information</h2>
+<ul>
+<li><a href="uploadingreports">How to upload a report</a></li>
+<li><a href="usingenvelopes">Using envelopes in CDR</a></li>
+<li><a href="accesslimitations">Setting up access limitations to files</a></li>
+<li><a href="securityprinciples">Security principles</a></li>
+<li><a href="architecture">Reportnet architecture</a></li>
+</ul>
+<h2>Dataflow specific instructions</h2>
+<ul>
+<dtml-comment>
+<li><a href="groundwater_reporter">Groundwater bodies for Data providers</a></li>
+<li><a href="groundwater_requester">Groundwater bodies for Data requesters</a></li>
+</dtml-comment>
+
+<dtml-in "objectValues('File')" sort=title>
+  <dtml-unless "_.string.lower(title[-6:]) == 'hidden'">
+    <li><a href="&dtml-id;">&dtml-title;</a></li>
+  </dtml-unless>
+</dtml-in>
+
+<li><a href="ippc" class="link-folder">IPPC and WI Reporting Guidelines</a></li>
+<li><a href="WISE_SoE" class="link-folder">Folder with help material related to the WISE SoE data flows</a></li>
+</ul>
+<p>
+If you have problems with CDR please contact <a href="mailto:helpdesk@eionet.europa.eu">Eionet Helpdesk</a>
+</p>
+<script type="text/javascript" src="/styles/mark_special_links.js"></script>
+<dtml-var standard_html_footer>

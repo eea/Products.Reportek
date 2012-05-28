@@ -1,0 +1,56 @@
+<dtml-var standard_html_header>
+<div id="operations">
+<ul>
+<li><a href="search">New search</a></li>
+</ul>
+</div>
+<dtml-unless "REQUEST.has_key('PrincipiaSearchSource') and REQUEST['PrincipiaSearchSource']">
+<dtml-call "REQUEST.set('meta_type','Report Envelope')">
+</dtml-unless>
+<dtml-let ldict=localities_dict dummy="{'uri': '', 'name': 'Unknown', 'iso': 'XX'}">
+<h1>Search results</h1>
+<dtml-in Catalog size=50 start=query_start>
+   <dtml-if sequence-start>
+
+      <dtml-if previous-sequence>
+
+        <a href="<dtml-var URL><dtml-var sequence-query
+                 >query_start=<dtml-var
+                 previous-sequence-start-number>">
+        (Previous <dtml-var previous-sequence-size> results)
+        </a>
+
+      </dtml-if previous-sequence>
+
+<table>      
+   </dtml-if sequence-start>
+
+        <tr>
+          <td><dtml-var "ldict.get(country,dummy)['name']"></td>
+          <td><a href="<dtml-var "getpath(data_record_id_)">"><dtml-if "title == ''">
+&dtml-id;<dtml-else>&dtml-title;</dtml-if></a></td>
+          <td><dtml-var meta_type></td>
+          <td><dtml-var bobobase_modification_time fmt=Date></td>
+        </tr>
+
+   <dtml-if sequence-end>
+</table>
+      
+      <dtml-if next-sequence>
+
+         <a href="<dtml-var URL><dtml-var sequence-query
+            >query_start=<dtml-var
+            next-sequence-start-number>">
+         (Next <dtml-var next-sequence-size> results)
+         </a>
+
+      </dtml-if next-sequence>
+   </dtml-if sequence-end>
+
+<dtml-else>
+
+  There was no data matching this <dtml-var title_or_id> query.
+
+</dtml-in>
+</dtml-let>
+<dtml-var standard_html_footer>

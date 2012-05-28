@@ -1,0 +1,14 @@
+<dtml-var standard_html_header>
+<h1><dtml-var title_or_id></h1>
+
+<p>When an envelope is released to the public (the <em>Envelope released</em> task is waiting to be assigned),
+Requesters are supposed to manually review the reporting documents and add a feedback by clicking on the 
+corresponding blue button from the <em>Overview</em> tab. <em>They do not have to activate 
+any task for that.</em>
+</p>
+
+<p>Make sure the content of the feedback is clear and complete, since there is only possible
+to add one Feedback for a delivery. Based on this feedback, the Data reporters will decide to modify their
+delivery or complete the work in that envelope.</p>
+
+<dtml-var standard_html_footer>

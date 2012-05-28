@@ -1,0 +1,12 @@
+<h2><dtml-var title_or_id> <dtml-var document_title></h2>
+<dtml-if "REQUEST.has_key('countrybatch')">
+<dtml-call "REQUEST.set('listofcountries', [])">
+<dtml-in "range(1,10)">
+<dtml-call "listofcountries.append('http://rod.eionet.eu.int/spatial/%d' % _['sequence-item'])">
+</dtml-in>
+</dtml-if>
+
+<p>
+This is the <dtml-var listofcountries missing="XX">
+
+</p>

@@ -1,0 +1,43 @@
+<dtml-var standard_html_header>
+
+<h1>Upload GIS delivery</h1>
+
+<p>Select local dataset files to upload in the envelope: (fields market with <strong>*</strong> are mandatory):</p>
+
+<form action="uploadGISfiles" method="post" enctype="multipart/form-data">
+<table>
+<tr>
+    <td><label for="file_shp">'shp' file (*)</label></td>
+    <td><input type="file" id="file_shp" name="file_shp" /></td>
+</tr>
+<tr>
+    <td><label for="file_shx">'shx' file (*)</label></td>
+    <td><input type="file" id="file_shx" name="file_shx" /></td>
+</tr>
+<tr>
+    <td><label for="file_prj">'prj' file (*)</label></td>
+    <td><input type="file" id="file_prj" name="file_prj" /></td>
+</tr>
+<tr>
+    <td><label for="file_dbf">'dbf' file (*)</label></td>
+    <td><input type="file" id="file_dbf" name="file_dbf" /></td>
+</tr>
+<tr>
+    <td><label for="file_metainfo">metadata  'xml' file (e.g.: ISO 19115) (*)</label></td>
+    <td><input type="file" id="file_metainfo" name="file_metainfo" /></td>
+</tr>
+</table>
+<input type="submit" value="Upload" />
+</form>
+
+<hr />
+<p>or alternatively upload a complete zip file:</p>
+
+<form action="uploadGISZIPfiles" method="post" enctype="multipart/form-data">
+<label for="file_gis_zip">zip file (*)</label>
+<input type="file" id="file_gis_zip" name="file_gis_zip" /><br />
+<input type="submit" value="Upload" />
+</form>
+
+
+<dtml-var standard_html_footer>

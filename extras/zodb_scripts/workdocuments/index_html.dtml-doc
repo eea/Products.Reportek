@@ -1,0 +1,9 @@
+<dtml-var standard_html_header>
+<h2><dtml-var title_or_id></h2>
+<p>
+<a href="TODO.html">TODO</a>
+<dtml-in all_meta_types mapping>
+<dtml-var name html_quote><br>
+</dtml-in>
+</p>
+<dtml-var standard_html_footer>

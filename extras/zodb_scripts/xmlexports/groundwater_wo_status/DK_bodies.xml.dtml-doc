@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<dd8:GeneralCharacterisation xmlns:dd8="http://dd.eionet.eu.int/namespace.jsp?ns_id=8" xsi:noNamespaceSchemaLocation="http://dd.eionet.eu.int/GetSchema?id=TBL2551" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dd37="http://dd.eionet.eu.int/namespace.jsp?ns_id=37">
+	<dd8:Row>
+		<dd37:EWN-Code>DK001</dd37:EWN-Code>
+		<dd37:National_code>76.14</dd37:National_code>
+		<dd37:Name>Thisted limestone</dd37:Name>
+		<dd37:Reference_year/>
+		<dd37:Location/>
+		<dd37:Area>400</dd37:Area>
+		<dd37:Main_aquifer_type>fractured media</dd37:Main_aquifer_type>
+		<dd37:Horizon>1</dd37:Horizon>
+		<dd37:Maximum_length>20</dd37:Maximum_length>
+		<dd37:Maximum_width>20</dd37:Maximum_width>
+		<dd37:Annual_precipitation_min/>
+		<dd37:Annual_precipitation_mean>750</dd37:Annual_precipitation_mean>
+		<dd37:Annual_precipitation_max/>
+		<dd37:Stratigraphy/>
+		<dd37:Petrographic_descript/>
+		<dd37:Thickness_min/>
+		<dd37:Thickness_mean>100</dd37:Thickness_mean>
+		<dd37:Thickness_max/>
+		<dd37:Overlaying_strata>Clayey and sandy tills with minor sandbeds</dd37:Overlaying_strata>
+		<dd37:Depth_to_groundwater_min/>
+		<dd37:Depth_to_groundwater_mean/>
+		<dd37:Depth_to_groundwater_max>5</dd37:Depth_to_groundwater_max>
+		<dd37:Main_recharge_source>Precipitation</dd37:Main_recharge_source>
+		<dd37:Hydraulic_conductivity_min/>
+		<dd37:Hydraulic_conductivity_mean>1.00E-02</dd37:Hydraulic_conductivity_mean>
+		<dd37:Hydraulic_conductivity_max/>
+		<dd37:Annual_gw_level_amplitude_min/>
+		<dd37:Annual_gw_level_amplitude_mean>5</dd37:Annual_gw_level_amplitude_mean>
+		<dd37:Annual_gw_level_amplitude_max/>
+		<dd37:Land_use_arable_land/>
+		<dd37:Land_use_permanent_crops/>
+		<dd37:Land_use_permanent_pasture/>
+		<dd37:Land_use_forest_and_woodland>25</dd37:Land_use_forest_and_woodland>
+		<dd37:Land_use_urban_areas/>
+		<dd37:Land_use_other/>
+		<dd37:water_abstraction>yes</dd37:water_abstraction>
+		<dd37:water_abstraction_purpose>irrigation, livestock, house holds</dd37:water_abstraction_purpose>
+		<dd37:artificial_recharge/>
+		<dd37:artificial_recharge_purpose/>
+		<dd37:main_infrastructures/>
+		<dd37:main_infrastructures_which/>
+		<dd37:associated_aquatic_ecosystems/>
+		<dd37:associated_aquatic_ecosystems_which/>
+	</dd8:Row>
+	<dd8:Row>
+		<dd37:EWN-Code>DK002</dd37:EWN-Code>
+		<dd37:National_code>55.01</dd37:National_code>
+		<dd37:Name>Grindsted Sand</dd37:Name>
+		<dd37:Reference_year/>
+		<dd37:Location/>
+		<dd37:Area>380</dd37:Area>
+		<dd37:Main_aquifer_type>porous media</dd37:Main_aquifer_type>
+		<dd37:Horizon>2</dd37:Horizon>
+		<dd37:Maximum_length>20</dd37:Maximum_length>
+		<dd37:Maximum_width>19</dd37:Maximum_width>
+		<dd37:Annual_precipitation_min/>
+		<dd37:Annual_precipitation_mean>825</dd37:Annual_precipitation_mean>
+		<dd37:Annual_precipitation_max/>
+		<dd37:Stratigraphy/>
+		<dd37:Petrographic_descript/>
+		<dd37:Thickness_min>10</dd37:Thickness_min>
+		<dd37:Thickness_mean/>
+		<dd37:Thickness_max>20</dd37:Thickness_max>
+		<dd37:Overlaying_strata/>
+		<dd37:Depth_to_groundwater_min/>
+		<dd37:Depth_to_groundwater_mean/>
+		<dd37:Depth_to_groundwater_max>50</dd37:Depth_to_groundwater_max>
+		<dd37:Main_recharge_source>Precipitation</dd37:Main_recharge_source>
+		<dd37:Hydraulic_conductivity_min/>
+		<dd37:Hydraulic_conductivity_mean>1.00E-03</dd37:Hydraulic_conductivity_mean>
+		<dd37:Hydraulic_conductivity_max/>
+		<dd37:Annual_gw_level_amplitude_min/>
+		<dd37:Annual_gw_level_amplitude_mean>1</dd37:Annual_gw_level_amplitude_mean>
+		<dd37:Annual_gw_level_amplitude_max/>
+		<dd37:Land_use_arable_land/>
+		<dd37:Land_use_permanent_crops/>
+		<dd37:Land_use_permanent_pasture/>
+		<dd37:Land_use_forest_and_woodland>2</dd37:Land_use_forest_and_woodland>
+		<dd37:Land_use_urban_areas>3</dd37:Land_use_urban_areas>
+		<dd37:Land_use_other/>
+		<dd37:water_abstraction>yes</dd37:water_abstraction>
+		<dd37:water_abstraction_purpose>irrigation, livestock, house holds</dd37:water_abstraction_purpose>
+		<dd37:artificial_recharge/>
+		<dd37:artificial_recharge_purpose/>
+		<dd37:main_infrastructures/>
+		<dd37:main_infrastructures_which/>
+		<dd37:associated_aquatic_ecosystems/>
+		<dd37:associated_aquatic_ecosystems_which/>
+	</dd8:Row>
+	<dd8:Row>
+		<dd37:EWN-Code>DK003</dd37:EWN-Code>
+		<dd37:National_code>20.11</dd37:National_code>
+		<dd37:Name>Skuldelev Sand</dd37:Name>
+		<dd37:Reference_year/>
+		<dd37:Location/>
+		<dd37:Area>78</dd37:Area>
+		<dd37:Main_aquifer_type>fractured media</dd37:Main_aquifer_type>
+		<dd37:Horizon>2</dd37:Horizon>
+		<dd37:Maximum_length>16</dd37:Maximum_length>
+		<dd37:Maximum_width>5</dd37:Maximum_width>
+		<dd37:Annual_precipitation_min/>
+		<dd37:Annual_precipitation_mean>625</dd37:Annual_precipitation_mean>
+		<dd37:Annual_precipitation_max/>
+		<dd37:Stratigraphy/>
+		<dd37:Petrographic_descript/>
+		<dd37:Thickness_min/>
+		<dd37:Thickness_mean>100</dd37:Thickness_mean>
+		<dd37:Thickness_max/>
+		<dd37:Overlaying_strata>Quarternary deposits above main limestone aquifer</dd37:Overlaying_strata>
+		<dd37:Depth_to_groundwater_min>20</dd37:Depth_to_groundwater_min>
+		<dd37:Depth_to_groundwater_mean/>
+		<dd37:Depth_to_groundwater_max>30</dd37:Depth_to_groundwater_max>
+		<dd37:Main_recharge_source>Precipitation</dd37:Main_recharge_source>
+		<dd37:Hydraulic_conductivity_min/>
+		<dd37:Hydraulic_conductivity_mean/>
+		<dd37:Hydraulic_conductivity_max/>
+		<dd37:Annual_gw_level_amplitude_min/>
+		<dd37:Annual_gw_level_amplitude_mean>1</dd37:Annual_gw_level_amplitude_mean>
+		<dd37:Annual_gw_level_amplitude_max/>
+		<dd37:Land_use_arable_land/>
+		<dd37:Land_use_permanent_crops/>
+		<dd37:Land_use_permanent_pasture/>
+		<dd37:Land_use_forest_and_woodland/>
+		<dd37:Land_use_urban_areas>5</dd37:Land_use_urban_areas>
+		<dd37:Land_use_other/>
+		<dd37:water_abstraction>yes</dd37:water_abstraction>
+		<dd37:water_abstraction_purpose>irrigation, livestock, households</dd37:water_abstraction_purpose>
+		<dd37:artificial_recharge/>
+		<dd37:artificial_recharge_purpose/>
+		<dd37:main_infrastructures/>
+		<dd37:main_infrastructures_which/>
+		<dd37:associated_aquatic_ecosystems/>
+		<dd37:associated_aquatic_ecosystems_which/>
+	</dd8:Row>
+</dd8:GeneralCharacterisation>

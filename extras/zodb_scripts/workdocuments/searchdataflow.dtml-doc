@@ -1,0 +1,72 @@
+<dtml-var standard_html_header>
+<dtml-let layer_id="'xyear'"
+ layer_title="'Year'"
+ layer_content="'Finds reports, whose coverage is for that year. Format is YYYY'">
+<dtml-var layer>
+</dtml-let>
+<form action="resultsdataflow" method="get">
+<h2><dtml-var document_title></h2>
+<table>
+<tr>
+ <th width=150>Dataflow</th>
+ <td>
+  <select multiple size=6 name=dataflow>
+<dtml-let u="Catalog.uniqueValuesFor('dataflow')">
+<dtml-in dataflow_table mapping>
+<dtml-if "_.str(inx) in u">
+<option value="<dtml-var PK_RA_ID html_quote>"><dtml-var TITLE html_quote></option>
+</dtml-if>
+</dtml-in>
+</dtml-let>
+  </select></td>
+<td></td>
+</tr>
+
+<tr><th>Year</th>
+    <td><select name="year:int:ignore_empty">
+<option value="">Any year</option>
+<dtml-in "Catalog.uniqueValuesFor('years')">
+<option>&dtml-sequence-item;</option>
+</dtml-in>
+</select>
+</td>
+<td><img src="/images/info.gif"
+ onMouseOver="javascript:theBalloon3(this,xyear,'xyear','visible')"
+ onMouseOut="javascript:theBalloon3(this,xyear,'xyear','hidden')">
+</td>
+</tr>
+<tr><th width=150>Part of year</th>
+    <td>
+<select name="partofyear">
+<option value="">Any part of year</option>
+<dtml-in "('Whole Year',
+           'First Half', 'Second Half',
+           'First Quarter', 'Second Quarter',
+           'Third Quarter', 'Fourth Quarter',
+'January','February','March','April','May','June',
+'July','August','September','October','November','December'
+          )">
+<option value="<dtml-var sequence-item>"><dtml-var sequence-item></option>
+</dtml-in>
+</select></td>
+<td></td>
+</tr>
+<tr>
+ <th width=150>Country</th>
+ <td>
+  <select name=country>
+<dtml-in countries_table mapping>
+<option value="&dtml-iso;" <dtml-if "iso == ''">selected</dtml-if>>&dtml-countryname;</option>
+</dtml-in>
+  </select></td>
+<td></td>
+</tr>
+
+
+<tr><td colspan=3 align=center>
+<input type="SUBMIT" value="Submit Query">
+<input type="RESET" value="Reset fields">
+</td></tr>
+</table>
+</form>
+<dtml-var standard_html_footer>

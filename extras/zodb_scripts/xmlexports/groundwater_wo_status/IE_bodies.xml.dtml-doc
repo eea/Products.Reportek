@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<dd8:GeneralCharacterisation xmlns:dd8="http://dd.eionet.eu.int/namespace.jsp?ns_id=8" xsi:noNamespaceSchemaLocation="http://dd.eionet.eu.int/GetSchema?id=TBL2551" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dd37="http://dd.eionet.eu.int/namespace.jsp?ns_id=37">
+	<dd8:Row>
+		<dd37:EWN-Code>IE001</dd37:EWN-Code>
+		<dd37:National_code/>
+		<dd37:Name>Mid-Kildare Gravel Aquifer</dd37:Name>
+		<dd37:Reference_year/>
+		<dd37:Location/>
+		<dd37:Area>215</dd37:Area>
+		<dd37:Main_aquifer_type/>
+		<dd37:Horizon>1</dd37:Horizon>
+		<dd37:Maximum_length>21</dd37:Maximum_length>
+		<dd37:Maximum_width>13</dd37:Maximum_width>
+		<dd37:Annual_precipitation_min/>
+		<dd37:Annual_precipitation_mean>850</dd37:Annual_precipitation_mean>
+		<dd37:Annual_precipitation_max/>
+		<dd37:Stratigraphy>Quarternary</dd37:Stratigraphy>
+		<dd37:Petrographic_descript/>
+		<dd37:Thickness_min>5</dd37:Thickness_min>
+		<dd37:Thickness_mean>20</dd37:Thickness_mean>
+		<dd37:Thickness_max>70</dd37:Thickness_max>
+		<dd37:Overlaying_strata/>
+		<dd37:Depth_to_groundwater_min>0</dd37:Depth_to_groundwater_min>
+		<dd37:Depth_to_groundwater_mean>15</dd37:Depth_to_groundwater_mean>
+		<dd37:Depth_to_groundwater_max>25</dd37:Depth_to_groundwater_max>
+		<dd37:Main_recharge_source>Precipitation</dd37:Main_recharge_source>
+		<dd37:Hydraulic_conductivity_min/>
+		<dd37:Hydraulic_conductivity_mean/>
+		<dd37:Hydraulic_conductivity_max/>
+		<dd37:Annual_gw_level_amplitude_min/>
+		<dd37:Annual_gw_level_amplitude_mean/>
+		<dd37:Annual_gw_level_amplitude_max/>
+		<dd37:Land_use_arable_land>0</dd37:Land_use_arable_land>
+		<dd37:Land_use_permanent_crops>15</dd37:Land_use_permanent_crops>
+		<dd37:Land_use_permanent_pasture>79</dd37:Land_use_permanent_pasture>
+		<dd37:Land_use_forest_and_woodland>3</dd37:Land_use_forest_and_woodland>
+		<dd37:Land_use_urban_areas>1</dd37:Land_use_urban_areas>
+		<dd37:Land_use_other>2</dd37:Land_use_other>
+		<dd37:water_abstraction>yes</dd37:water_abstraction>
+		<dd37:water_abstraction_purpose>Drinking Water Supply</dd37:water_abstraction_purpose>
+		<dd37:artificial_recharge>no</dd37:artificial_recharge>
+		<dd37:artificial_recharge_purpose/>
+		<dd37:main_infrastructures/>
+		<dd37:main_infrastructures_which/>
+		<dd37:associated_aquatic_ecosystems>yes</dd37:associated_aquatic_ecosystems>
+		<dd37:associated_aquatic_ecosystems_which>Pollardstown Fen</dd37:associated_aquatic_ecosystems_which>
+	</dd8:Row>
+	<dd8:Row>
+		<dd37:EWN-Code>IE002</dd37:EWN-Code>
+		<dd37:National_code/>
+		<dd37:Name>Monaghan-Killeshandra Syncline</dd37:Name>
+		<dd37:Reference_year/>
+		<dd37:Location/>
+		<dd37:Area>419</dd37:Area>
+		<dd37:Main_aquifer_type/>
+		<dd37:Horizon>1</dd37:Horizon>
+		<dd37:Maximum_length>63</dd37:Maximum_length>
+		<dd37:Maximum_width>13</dd37:Maximum_width>
+		<dd37:Annual_precipitation_min/>
+		<dd37:Annual_precipitation_mean>1026</dd37:Annual_precipitation_mean>
+		<dd37:Annual_precipitation_max/>
+		<dd37:Stratigraphy>Carboniferous</dd37:Stratigraphy>
+		<dd37:Petrographic_descript/>
+		<dd37:Thickness_min/>
+		<dd37:Thickness_mean/>
+		<dd37:Thickness_max/>
+		<dd37:Overlaying_strata>Quaternary clays and gravels</dd37:Overlaying_strata>
+		<dd37:Depth_to_groundwater_min/>
+		<dd37:Depth_to_groundwater_mean/>
+		<dd37:Depth_to_groundwater_max/>
+		<dd37:Main_recharge_source>Precipitation</dd37:Main_recharge_source>
+		<dd37:Hydraulic_conductivity_min/>
+		<dd37:Hydraulic_conductivity_mean/>
+		<dd37:Hydraulic_conductivity_max/>
+		<dd37:Annual_gw_level_amplitude_min/>
+		<dd37:Annual_gw_level_amplitude_mean/>
+		<dd37:Annual_gw_level_amplitude_max/>
+		<dd37:Land_use_arable_land>1</dd37:Land_use_arable_land>
+		<dd37:Land_use_permanent_crops>2</dd37:Land_use_permanent_crops>
+		<dd37:Land_use_permanent_pasture>89</dd37:Land_use_permanent_pasture>
+		<dd37:Land_use_forest_and_woodland>3</dd37:Land_use_forest_and_woodland>
+		<dd37:Land_use_urban_areas>1</dd37:Land_use_urban_areas>
+		<dd37:Land_use_other>4</dd37:Land_use_other>
+		<dd37:water_abstraction>yes</dd37:water_abstraction>
+		<dd37:water_abstraction_purpose>Drinking Water Supply</dd37:water_abstraction_purpose>
+		<dd37:artificial_recharge>no</dd37:artificial_recharge>
+		<dd37:artificial_recharge_purpose/>
+		<dd37:main_infrastructures>no</dd37:main_infrastructures>
+		<dd37:main_infrastructures_which/>
+		<dd37:associated_aquatic_ecosystems>yes</dd37:associated_aquatic_ecosystems>
+		<dd37:associated_aquatic_ecosystems_which/>
+	</dd8:Row>
+	<dd8:Row>
+		<dd37:EWN-Code>IE003</dd37:EWN-Code>
+		<dd37:National_code/>
+		<dd37:Name>Burren Plateau Limestone</dd37:Name>
+		<dd37:Reference_year/>
+		<dd37:Location/>
+		<dd37:Area>721</dd37:Area>
+		<dd37:Main_aquifer_type>karstic media</dd37:Main_aquifer_type>
+		<dd37:Horizon>1</dd37:Horizon>
+		<dd37:Maximum_length>26</dd37:Maximum_length>
+		<dd37:Maximum_width>19</dd37:Maximum_width>
+		<dd37:Annual_precipitation_min/>
+		<dd37:Annual_precipitation_mean>1252</dd37:Annual_precipitation_mean>
+		<dd37:Annual_precipitation_max/>
+		<dd37:Stratigraphy>Quarternary</dd37:Stratigraphy>
+		<dd37:Petrographic_descript/>
+		<dd37:Thickness_min/>
+		<dd37:Thickness_mean/>
+		<dd37:Thickness_max/>
+		<dd37:Overlaying_strata/>
+		<dd37:Depth_to_groundwater_min/>
+		<dd37:Depth_to_groundwater_mean/>
+		<dd37:Depth_to_groundwater_max/>
+		<dd37:Main_recharge_source>No info</dd37:Main_recharge_source>
+		<dd37:Hydraulic_conductivity_min/>
+		<dd37:Hydraulic_conductivity_mean/>
+		<dd37:Hydraulic_conductivity_max/>
+		<dd37:Annual_gw_level_amplitude_min/>
+		<dd37:Annual_gw_level_amplitude_mean/>
+		<dd37:Annual_gw_level_amplitude_max/>
+		<dd37:Land_use_arable_land>0</dd37:Land_use_arable_land>
+		<dd37:Land_use_permanent_crops>1</dd37:Land_use_permanent_crops>
+		<dd37:Land_use_permanent_pasture>71</dd37:Land_use_permanent_pasture>
+		<dd37:Land_use_forest_and_woodland>9</dd37:Land_use_forest_and_woodland>
+		<dd37:Land_use_urban_areas>1</dd37:Land_use_urban_areas>
+		<dd37:Land_use_other>15</dd37:Land_use_other>
+		<dd37:water_abstraction>yes</dd37:water_abstraction>
+		<dd37:water_abstraction_purpose>Drinking Water Supply</dd37:water_abstraction_purpose>
+		<dd37:artificial_recharge>no</dd37:artificial_recharge>
+		<dd37:artificial_recharge_purpose/>
+		<dd37:main_infrastructures>no</dd37:main_infrastructures>
+		<dd37:main_infrastructures_which/>
+		<dd37:associated_aquatic_ecosystems>no</dd37:associated_aquatic_ecosystems>
+		<dd37:associated_aquatic_ecosystems_which/>
+	</dd8:Row>
+</dd8:GeneralCharacterisation>

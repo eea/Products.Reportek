@@ -1,0 +1,124 @@
+<dtml-var standard_html_header>
+<dtml-var "layer(_.None,_,layer_id='xfreetext', layer_title='Free text',
+ layer_content='This text field will search title, description and content of PDF and MS-Word files')">
+<dtml-var "layer(_.None,_,layer_id='xyear', layer_title='Year',
+ layer_content='Finds reports, whose coverage is for that year. Format is YYYY')">
+<dtml-var "layer(_.None,_,layer_id='multiple', layer_title='Multiple choice',
+ layer_content='Use &lt;ctrl&gt; key to select multiple. Documents must contain all of your selections')">
+
+<dtml-let usedvals="Catalog.uniqueValuesFor('keywords')">
+<form action="results.html" method="get">
+<h2><dtml-var document_title></h2>
+<table>
+
+<tr>
+ <th width=150>Main Issues</th>
+ <td>
+
+<dtml-in main_issues sort=theme>
+{ 'mid': &dtml-inx;, 'label': "<dtml-var theme html_quote>" }<br>
+</dtml-in>
+
+
+<select multiple size=6 name="env_issue">
+<option value="3:Acidification">Acidification</option>
+<option value="6:Air quality and Air Pollution">Air quality and Air Pollution</option>
+<option value="1:Climate change &amp; global warming">Climate change &amp; global warming</option>
+<option value="8:Degradation and use of natural resources">Degradation and use of natural resources</option>
+<option value="9:Eutrophication">Eutrophication</option>
+<option value="12:Introduction and spread of GMO and alien species">Introduction and spread of GMO and alien species</option>
+<option value="14:Nature Conservation and Biodiversity loss">Nature Conservation and Biodiversity loss</option>
+<option value="7:Noise and Noise Pollution">Noise and Noise Pollution</option>
+<option value="2:Ozone layer depletion (stratospheric ozone)">Ozone layer depletion (stratospheric ozone)</option>
+<option value="5:Photochemical oxidants, ground level (tropospheric) ozone">Photochemical oxidants, ground level (tropospheric) ozone</option>
+<option value="10:Pollution by metals">Pollution by metals</option>
+<option value="11:Pollution by toxic substances">Pollution by toxic substances</option>
+<option value="4:Soil degradation and Soil Pollution">Soil degradation and Soil Pollution</option>
+<option value="16:Urbanisation">Urbanisation</option>
+<option value="13:Waste and recycling">Waste and recycling</option>
+<option value="15:Water quality and Water Pollution">Water quality and Water Pollution</option>
+</select>
+
+</td>
+<td><dtml-var "infoicon(_.None,_,ident='multiple')"></td>
+</tr>
+
+<tr>
+ <th width=150>Pressures; sectors, waste, D+P</th>
+ <td>
+  <select multiple size=6 name=keywords>
+<dtml-in pressures>
+<dtml-if "theme in usedvals">
+<option><dtml-var theme html_quote></option>
+</dtml-if>
+</dtml-in>
+  </select></td>
+<td><dtml-var "infoicon(_.None,_,ident='multiple')"></td>
+</tr>
+
+<tr>
+ <th width=150>Measurements or<br>calculations of what, S</th>
+
+ <td>
+  <select multiple size=6 name="keywords:list">
+<dtml-in measurements_broad>
+<dtml-if "theme in usedvals">
+<option value="<dtml-var theme html_quote>"><dtml-var theme html_quote></option>
+</dtml-if>
+</dtml-in>
+<dtml-in measurements_narrow>
+<dtml-if "theme in usedvals">
+<option value="<dtml-var theme html_quote>"><dtml-var theme html_quote></option>
+</dtml-if>
+</dtml-in>
+  </select></td>
+<td><dtml-var "infoicon(_.None,_,ident='multiple')"></td>
+</tr>
+
+<tr>
+ <th width=150>Measurement where, the media</th>
+ <td>
+  <select multiple size=6 name=keywords>
+<dtml-in media>
+<dtml-if "theme in usedvals">
+<option><dtml-var theme html_quote></option>
+</dtml-if>
+</dtml-in>
+  </select></td>
+<td><dtml-var "infoicon(_.None,_,ident='multiple')"></td>
+</tr>
+
+<tr>
+ <th width=150>Which impact or effect did it have, I</th>
+ <td>
+  <select multiple size=6 name=keywords>
+<dtml-in impact>
+<dtml-if "impact in usedvals">
+<option><dtml-var impact html_quote></option>
+</dtml-if>
+</dtml-in>
+  </select></td>
+<td><dtml-var "infoicon(_.None,_,ident='multiple')"></td>
+</tr>
+
+<tr>
+ <th width=150>Which policy was the response, R</th>
+ <td>
+  <select multiple size=6 name=keywords>
+<dtml-in response>
+<dtml-if "response in usedvals">
+<option><dtml-var response html_quote></option>
+</dtml-if>
+</dtml-in>
+  </select></td>
+<td><dtml-var "infoicon(_.None,_,ident='multiple')"></td>
+</tr>
+
+<tr><td colspan=3 align=center>
+<input type="SUBMIT" name="SUBMIT" value="Submit Query">
+<input type="RESET" value="Reset all fields">
+</td></tr>
+</table>
+</form>
+</dtml-let>
+<dtml-var standard_html_footer>

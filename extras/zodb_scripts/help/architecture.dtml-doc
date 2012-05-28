@@ -1,0 +1,37 @@
+<dtml-var standard_html_header>
+<h1><dtml-var title_or_id></h1>
+<p>
+Uploading a report to CDR might look deceivingly like uploading to CIRCA library,
+but there are some important differences.
+</p>
+<p>
+First you will notice that the description (or metadata) is not placed on each
+file, but on an envelope, which can then contain many files. This is because a
+report is often comprised of several files, and there is no need to repeat the
+metadata for each file. This is very helpful, as <em>one only has to enter metadata once</em> per obligation.
+</p>
+<p>
+The second observation, is that files are expected to be unzipped in the repository.
+This makes it possible to inspect/download individual files and also harvest
+them for search engines.
+</p>
+<p>
+<em>What you may not realize,</em> is that the search and navigation to get
+to the reports has been decoupled from the hierarchial structure. In CIRCA
+you must set up and maintain a rigid hierarchial structure of folders
+to indicate to the clients where you have put a specific report.
+In CDR all this is done with the metadata. Then the metadata is harvested
+by the <a href="http://cr.eionet.eu.int/">Content Registry harvester</a> on a regular
+basis. A special dataflow search form lets you see what a country has
+reported or which countries have reported CLRTAP data <em>no matter
+what repository they have used.</em> The only reason for a hierarchial
+structure in CDR is to let metadata be inherited from the collections to the envelopes.
+</p>
+<p>
+If wanted, a MS can develop its own repository on other servers than this one. This is because the content registry 
+centralizes searches, and only requires that a country 
+supports the interface required by the content
+registry so it can harvest the metadata. There is no need for structure.
+The reports can lie helter-skelter on a webserver somewhere with meaningless
+filenames as long as the correct meta-data is reported to the content registry.
+<dtml-var standard_html_footer>

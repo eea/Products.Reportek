@@ -1,0 +1,79 @@
+<dtml-if "canViewContent and canAddFiles and is_active_for_me(REQUEST=REQUEST)">
+    <dtml-var standard_html_header>
+    <dtml-var "envelope_tabs(tab=workitem_id)">
+
+<dtml-in "DataflowMappings.objectValues('Reportek Dataflow Mapping Record')" prefix=dm>
+    <dtml-if "dm_item.dataflow_uri == 'http://rod.eionet.eu.int/obligations/269'">
+        <dtml-call "REQUEST.set(dm_item.id, dm_item.schema_url)">
+    </dtml-if>
+</dtml-in>
+<dtml-let menu_url="getWebQ_MenuEnvelope_URL() + '?language=En&amp;envelope=' + getMySelf().absolute_url() + '&amp;schema='">
+
+    <h1>&dtml-document_title;</h1>
+
+<div class="upload_data">
+<p><a href="&dtml-absolute_url;/runQAScript?p_file_url=&dtml-absolute_url;/xml&amp;p_script_id=60" class="test_button" title="Run envelope level statistics">Statistics</a>
+<a href="envelope_zip_draft" class="test_button" title="Save as Zip">Save as Zip</a>
+</p>
+<p>
+	<strong>To deliver data select one of the following options</strong>:
+</p>
+
+<ul>
+<li><p class="nr">1</p>
+Add an empty report and start filling it online with webforms.
+<span>
+<dtml-if "_.len([x for x in objectValues('Report Document') if x.xml_schema_location == 'http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd']) == 0">
+			<a href="EnvelopeCreateGeneralReportFileForm" class="flat_button lefted" title="Add general format report">General</a>
+			</dtml-if>
+			<a href="EnvelopeCreateHabitatFileForm" class="flat_button lefted" title="Add habitat report">Habitat</a>
+			<a href="EnvelopeCreateSpeciesFileForm" class="flat_button lefted" title="Add species report">Species</a>
+	</span>	
+	<div class="cleaner"></div>
+	</li>
+	
+	<li><p class="nr">2</p>
+	Upload XML files generated from your local databases and (optionally) further edit them online
+ with webforms. For information on the format see the <a href="http://biodiversity.eionet.europa.eu/art17dataflow/XML%20Format%20description.pdf">XML Format description</a> document.
+<span>
+	<a href="addZipFile" class="flat_button lefted" title="Add a zip archive of XML and ESRI files">Add Zip file</a>
+	<a href="addXmlFile" class="flat_button lefted" title="Add single XML file with one of the schemas listed below">Add XML file</a>
+	<a href="addGisFile" class="flat_button lefted" title="Add a GIS file">Add GIS file</a>
+</span>
+<div class="cleaner"></div>
+	</li>
+        <li><p class="nr">3</p>
+		 Upload additional files (optional).
+<span>
+	<a href="addOtherFile" class="flat_button lefted" title="Add single other files related to this envelope">Add other file</a>
+</span>
+<div class="cleaner"></div>
+	</li>
+</ul>
+<p><a href="inactivateWorkitem?workitem_id=&dtml-workitem_id;" class="test_button"
+title="Deactivation keeps the work already
+done, and makes it possible for
+someone else to take over the task">Deactivate task</a>
+	You can always interrupt your work and continue your contribution at a later
+	date without losing data as long as the webform is saved during and after editing.
+</p>
+
+<p><a href="completeTask?workitem_id=&dtml-workitem_id;" class="test_button">Complete task</a>
+	Once you are satisfied that the Article 17 reporting has been completed and meets your national quality
+	requirements, choose complete task and your delivery 
+	will be released to the public. After that, it will be quality assessed by the system.
+</p>
+
+
+</div>
+
+</dtml-let>
+
+	<dtml-var documents_management_section_habitats>
+
+    <dtml-var feedback_section>
+
+    <dtml-var standard_html_footer>
+<dtml-else>
+    <dtml-call "RESPONSE.redirect('index_html')">
+</dtml-if>

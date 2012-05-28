@@ -1,0 +1,6 @@
+<dtml-var standard_html_header>
+<h1><dtml-var title_or_id></h1>
+
+<dtml-var documents_management_section_habitats>
+
+<dtml-var standard_html_footer>

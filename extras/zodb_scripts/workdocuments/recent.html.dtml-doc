@@ -1,0 +1,43 @@
+<dtml-var standard_html_header>
+<h2>Recent uploads for all countries</h2>
+<dtml-in "Catalog(meta_type='Report Envelope',
+     sort_on='country')">
+   <dtml-if sequence-start>
+
+      <dtml-if previous-sequence>
+
+        <a href="<dtml-var URL><dtml-var sequence-query
+                 >query_start=<dtml-var
+                 previous-sequence-start-number>">
+        (Previous <dtml-var previous-sequence-size> results)
+        </a>
+
+      </dtml-if previous-sequence>
+<dl>
+   </dtml-if sequence-start>
+
+<dtml-with "Catalog.getobject(data_record_id_)">
+<dtml-unless released>
+<dt><a href="&dtml-absolute_url;"><dtml-var absolute_url html_quote></a></dt>
+<dd><dtml-var title_or_id html_quote><br />
+<em>Reporting date:</em> <dtml-var reportingdate fmt=Date><br />
+<em>Period:</em> <dtml-var year null="<b>No year</b>">
+<dtml-if "endyear != ''"> to <dtml-var endyear><dtml-else> <dtml-var partofyear></dtml-if>
+</dd>
+</dtml-unless>
+</dtml-with>
+   <dtml-if sequence-end>
+</dl>
+      
+      <dtml-if next-sequence>
+
+         <a href="<dtml-var URL><dtml-var sequence-query
+            >query_start=<dtml-var
+            next-sequence-start-number>">
+         (Next <dtml-var next-sequence-size> results)
+         </a>
+
+      </dtml-if next-sequence>
+   </dtml-if sequence-end>
+</dtml-in>
+<dtml-var standard_html_footer>

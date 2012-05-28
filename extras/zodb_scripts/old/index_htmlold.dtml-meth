@@ -1,0 +1,54 @@
+<dtml-var standard_html_header>
+<table border="0" width="100%"><tr><td valign="top">
+<p>The Central Data Repository is part of the ReportNet architechture.
+The Central Data Repository is like a bookshelf, with data reports on the environment
+as submitted to international clients.</p>
+
+<p>Each country either has a collection
+(<img src="http://cdr.eionet.eu.int/misc_/Reportek/rn2coll.gif" alt="collection icon" />)
+ for its deliveries or a referral
+(<img src="http://cdr.eionet.eu.int/misc_/Reportek/referral.gif" alt="referral icon" />) to
+a different preferred repository.
+The data reports within each country collection are arranged
+under the relevant reporting obligations or agreements.</p>
+
+<table width="100%">
+<tr><td valign="top">
+<dtml-let ccsfold="(_.len(objectValues('Report Collection'))+2)/3">
+<dtml-in "objectValues('Report Collection')" sort=title>
+<img src="&dtml-icon;" alt="" /> <a href="&dtml-id;"><dtml-var title_or_id html_quote></a><br />
+<dtml-if "(_['sequence-index'] + 1) % ccsfold == 0"></td><td valign="top"></dtml-if>
+</dtml-in>
+</dtml-let>
+</td></tr>
+</table>
+<p><b>New users:</b> To get upload access or to change the country-level collection to a referral,
+please make a request to
+EIONET NMC <a href="mailto:helpdesk@eionet.eu.int">helpdesk@eionet.eu.int</a>.</p>
+
+<p>Comments and questions? Mail to <a href="mailto:eionet-group-ug-cdr@roles.eea.eionet.eu.int">CDR User Group</a>
+or try online <a href="/help"><strong>Help</strong></a></p>
+
+</td>
+<td width="15"></td>
+<td width="102" valign="top">
+<p>
+<a href="search"><img src="/images/search.png" border="0" alt="Search deliveries" /></a></p>
+<p>
+<a href="searchdataflow"><img src="/images/search_obligation.png" border="0" alt="Search by obligation" /></a></p>
+<p>
+<a href="recent"><img src="/images/recent.png" border="0" alt="Recent uploads for all countries" /></a></p>
+<p>
+<dtml-in "Catalog(meta_type=['Report Envelope','Announcement'],
+     released=1,
+     sort_on='reportingdate',
+     sort_order='reverse')" size=8>
+<dtml-with getObject>
+<img src="&dtml-icon;" alt="" /> <a href="<dtml-var getPath url_quote>"
+  title="<dtml-var getPath>"><dtml-var "localities_dict()[country]['iso']">: <dtml-if "title == ''">
+<dtml-var id><dtml-else><dtml-var title></dtml-if></a><br />
+</dtml-with>
+</dtml-in>
+</p>
+</td></tr></table>
+<dtml-var standard_html_footer>

@@ -1,0 +1,15 @@
+<dtml-call expr="RESPONSE.setHeader('content-type', 'text/plain')">
+<dtml-call "REQUEST.set('meta_type','Report Document')">
+# <dtml-var title>:
+# <dtml-var xml_schema_location>
+# List created on: <dtml-var ZopeTime>
+#
+<dtml-in Catalog>
+<dtml-with "getObject()">
+<dtml-if released>
+<dtml-var sequence-number> <dtml-var reportingdate fmt=Date> <dtml-var getCountryCode> <dtml-var URL1><dtml-var "getpath(data_record_id_)">
+</dtml-if>
+</dtml-with>
+<dtml-else>
+There was no data matching this <dtml-var title_or_id> query.
+</dtml-in>

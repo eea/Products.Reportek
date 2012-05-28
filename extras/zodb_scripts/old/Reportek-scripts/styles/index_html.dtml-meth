@@ -1,0 +1,16 @@
+<dtml-var standard_html_header>
+<h2><dtml-var title_or_id></h2>
+
+<dtml-in "PARENTS[0].objectValues('Image')" sort=id>
+<dtml-if sequence-start>
+<ul>
+</dtml-if>
+<dtml-unless "_['id'] == 'index_html'">
+<li><a href="<dtml-var id>"><img src="<dtml-var id>"/></a> (<dtml-var title_or_id>)</li>
+</dtml-unless>
+<dtml-if sequence-end>
+</ul>
+</dtml-if>
+</dtml-in>
+
+<dtml-var standard_html_footer>

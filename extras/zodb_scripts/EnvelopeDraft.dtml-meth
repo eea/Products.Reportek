@@ -1,0 +1,70 @@
+<dtml-if "canViewContent() and canAddFiles() and not released and is_active_for_me(REQUEST)">
+<dtml-var standard_html_header>
+    <dtml-var "envelope_tabs(tab=workitem_id)">
+<dtml-let menu_url="getWebQ_MenuEnvelope_URL() + '?language=En&amp;envelope=' + getMySelf().absolute_url() + '&amp;schema='"
+	schemas="[x for x in DataflowMappings.objectValues('Reportek Dataflow Mapping Record') if x.has_webForm and x.dataflow_uri in getMySelf().dataflow_uris]">
+
+    <div id="operations">
+    <ul>
+        <dtml-if canAddFiles>
+            <li><a href="manage_addDocumentForm" title="Upload single file">Add file</a></li>
+            <li><a href="manage_addHyperlinkForm" title="Enter hyperlink reference">Add hyperlink</a></li>
+            <li><a href="manage_addzipfileform" title="Upload multiple files packed into a zip archive.
+The zip cannot contain a folder structure.">Upload zipfile</a></li>
+        </dtml-if>
+        <li><a href="completeWorkitem?workitem_id=&dtml-workitem_id;"
+title="When you have finished your uploads, you must
+state that you have completed the task">Release envelope</a></li>
+<dtml-comment>
+        <li><a href="completeWorkitem?workitem_id=&dtml-workitem_id;&amp;release_and_finish=1"
+title="When you have finished your uploads,
+you can release without the
+ability to revoke">Permanent release</a></li>
+</dtml-comment>
+        <li><a href="inactivateWorkitem?workitem_id=&dtml-workitem_id;"
+title="Deactivation keeps the work already
+done, and makes it possible for
+someone else to take over the task">Deactivate task</a></li>
+    </ul>
+    </div>
+    <h1>&dtml-document_title;</h1>
+    <dtml-if schemas>
+	<div class="upload_data">
+	<p>This dataflow can be delivered with webforms. Either follow the steps below and fill in the webform(s) or upload regular files using the right side buttons.</p>
+	<ul>
+		<dtml-in schemas prefix=dm>
+			<dtml-if "hasFilesForSchema(dm_item.schema_url)">
+				<li><em>Modify</em> the <a href="<dtml-var menu_url><dtml-var "dm_item.schema_url">"><dtml-var "dm_item.title_or_id()"></a> questionnaire</li>
+			<dtml-else>
+				<li><em>Add and edit</em> a <a href="<dtml-var menu_url><dtml-var "dm_item.schema_url">&amp;add=true&amp;file_id=questionnaire_<dtml-var "dm_item.id">.xml"><dtml-var "dm_item.title_or_id()"></a> questionnaire</li>
+			</dtml-if>
+		</dtml-in>
+	</ul>
+
+	</div>
+    </dtml-if>
+
+    <p>1) Your first step is to <a href="manage_addDocumentForm" title="Upload single file">upload</a> one or more files into this envelope. You can always interrupt
+    your work and continue your contribution at a later time without losing data.</p>
+
+    <p>2) Once you are satisfied with the contribution, you choose 
+    <a href="completeWorkitem?workitem_id=&dtml-workitem_id;">Release envelope</a> and your delivery will
+    be released to the public.
+<dtml-comment>
+You can still <em>revoke</em> the release, but eventually you must make the
+    release permanent.
+ <em>If you are sure you will never need to change your delivery</em> then you 
+    click on
+ <a href="completeWorkitem?workitem_id=&dtml-workitem_id;&amp;release_and_finish=1">Permanent release</a>.
+</dtml-comment>
+</p>
+
+	</dtml-let>
+
+    <dtml-var documents_management_section>
+    <dtml-var feedback_section>
+
+    <dtml-var standard_html_footer>
+<dtml-else>
+    <dtml-call "RESPONSE.redirect('overview')">
+</dtml-if>

@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" attributeFormDefault="unqualified" xmlns:xml="http://www.w3.org/XML/1998/namespace">
+	<xsd:import namespace="http://www.w3.org/XML/1998/namespace"  schemaLocation="http://www.w3.org/2001/xml.xsd" />	
+   <xsd:element name="questionnaire">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="q1-1" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-1-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-1-2" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-2" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-3" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-4" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-4-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-5" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-5-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-5-2" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-6" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-6-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-6-2" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-7" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-7-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-7-2" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-8" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-8-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-8-2" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-9" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-9-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-9-2" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-9-3" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-9-3-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-9-4" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-9-5" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-9-6" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-9-7" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-10" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-10-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-10-2" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-11" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-11-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-11-2" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-12" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-12-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-12-2" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-13" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-13-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-13-2" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-13-3" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-13-4" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-13-5" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-13-6" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-14" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-14-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-14-2" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-15" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-15-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-15-2" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-16" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-16-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-16-2" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-17" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-17-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-17-2" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-18" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-18-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-18-2" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-18-3" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-18-4" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-19" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-19-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-19-2" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-20" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-20-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-20-2" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-21" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-21-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-21-2" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-22" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q1-22-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q1-22-2" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q2-1" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q2-1-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q2-2" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element ref="q2-3" minOccurs="1" maxOccurs="1"/>
+				<xsd:element ref="q2-4" minOccurs="1" maxOccurs="1"/>
+				<xsd:element ref="q2-5" minOccurs="1" maxOccurs="1"/>
+				<xsd:element name="q2-6" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q2-7" minOccurs="1" maxOccurs="1" type="xsd:boolean"/>
+				<xsd:element name="q2-7-1" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element ref="q2-8" minOccurs="1" maxOccurs="1"/>
+				<xsd:element name="q2-9" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+				<xsd:element name="q2-10" minOccurs="1" maxOccurs="1" type="xsd:string"/>
+			</xsd:sequence>
+			<xsd:attribute ref="xml:lang" use="optional"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="q2-3">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="value" minOccurs="1" maxOccurs="unbounded"/>
+				<xsd:element ref="q2-3c" minOccurs="1" maxOccurs="1"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="q2-3c">
+		<xsd:complexType mixed="true">
+			<xsd:attribute name="label" type="xsd:string" use="optional"/>
+		</xsd:complexType>
+	</xsd:element>
+		<xsd:element name="q2-4">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="value" minOccurs="1" maxOccurs="unbounded"/>
+				<xsd:element ref="q2-4c" minOccurs="1" maxOccurs="1"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="q2-4c">
+		<xsd:complexType mixed="true">
+			<xsd:attribute name="label" type="xsd:string" use="optional"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="q2-5">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="value" minOccurs="1" maxOccurs="unbounded"/>
+				<xsd:element ref="q2-5c" minOccurs="1" maxOccurs="1"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="q2-5c">
+		<xsd:complexType mixed="true">
+			<xsd:attribute name="label" type="xsd:string" use="optional"/>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="q2-8">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="value" minOccurs="1" maxOccurs="unbounded"/>
+				<xsd:element ref="q2-8c" minOccurs="1" maxOccurs="1"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="q2-8c">
+		<xsd:complexType mixed="true">
+			<xsd:attribute name="label" type="xsd:string" use="optional"/>
+		</xsd:complexType>
+	</xsd:element>
+	
+	
+	<xsd:element name="collected">
+		<xsd:complexType mixed="true">
+					<xsd:attribute name="label" type="xsd:string" use="optional"/>
+		</xsd:complexType>
+	</xsd:element>
+
+	<xsd:element name="value">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="collected" minOccurs="1" maxOccurs="unbounded"/>
+			</xsd:sequence>
+			<xsd:attribute name="type" type="xsd:string" use="optional"/>
+			<xsd:attribute name="label" type="xsd:string" use="optional"/>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>

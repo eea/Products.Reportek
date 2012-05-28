@@ -1,0 +1,8 @@
+<br style="clear:both" />
+<hr /><small><i>Last modified
+<dtml-var bobobase_modification_time fmt=Date>.</i>
+ [<a href="http://validator.w3.org/check/referer">Validate HTML</a>]
+</small>
+</div> <!-- workarea -->
+</body>
+</html>

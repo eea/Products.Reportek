@@ -1,0 +1,10 @@
+<dtml-call "RESPONSE.setHeader('content-type', 'text/plain')">
+<dtml-in "Catalog(
+    meta_type='Report Document',
+    dataflow_uris='http://rod.eionet.eu.int/obligations/269')">
+<dtml-if "id[-4:] == '.gml'">
+<dtml-with getObject>
+<dtml-var "absolute_url(1)">  <dtml-var physicalpath>
+</dtml-with>
+</dtml-if>
+</dtml-in>

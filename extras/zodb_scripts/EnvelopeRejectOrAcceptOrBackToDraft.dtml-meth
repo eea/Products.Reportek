@@ -1,0 +1,56 @@
+<dtml-if "canViewContent and is_active_for_me(REQUEST=REQUEST)">
+    <dtml-var standard_html_header>
+    <dtml-var "envelope_tabs(tab=workitem_id)">
+    <div id="operations">
+    <ul>
+	<dtml-if "canAddFeedback()">
+		<li><a href="manage_addFeedbackForm" title="Post feedback for this release">Add feedback</a></li>
+	</dtml-if>
+    <dtml-if areRestrictions>
+        <li><a href="<dtml-var absolute_url>/manage_unrestrict?ids=<dtml-var "objectIds('Report Document')">">Public access for all files</a></li>
+    </dtml-if>
+        <li><a href="inactivateWorkitem?workitem_id=&dtml-workitem_id;"
+title="Deactivation keeps the work already
+done, and makes it possible for
+someone else to take over the task">Deactivate task</a></li>
+    </ul>
+    </div>
+
+<h1><dtml-var document_title></h1>
+    <p>
+       The envelope has been released and your task is to inspect the delivery. In case you found some issues: provide feedback to the reporter using the feedback button and email them with a link to the feedback.
+    <p>
+    If you are <strong>not satisfied</strong> with the delivery, then you have <strong>4 options:</strong>
+      <ul>
+        <li>
+          <strong>Back to drafting</strong>: Envelope set back to Draft. All contents will be wiped out as the delivery is not acceptable. The Reporter can use the existing envelope for delivering corrections.
+        </li>
+        <li>
+            <strong>Reject delivery [Rejected]</strong>: Envelope remains Released as is set to Complete. All content will be kept, for documentation purposes, and can't be changed. The Reporter will need to create a new envelope for delivering corrections.
+        </li>
+        <li>
+    <strong>Accept delivery [Accepted]: </strong>Envelope remains Released as is set to Complete. All content will be kept and can't be changed.
+        </li>
+          <li>
+                <strong> Run automatic QA again:</strong> No change to envelope or status. before taken any decision regarding the files, you can also re-run the automatic quality assessment operation which may take several minutes.
+        </li>
+     </ul>
+    </p>
+
+    <form action="EnvelopeRetire">
+	<input type="hidden" name="workitem_id" value="<dtml-var workitem_id>">
+	<input type="submit" name="inspectresult" value="Back to drafting">
+	<input type="submit" name="inspectresult" value="Reject delivery">
+	<input type="submit" name="inspectresult" value="Accept delivery" />
+	<input type="submit" name="inspectresult" value="Run automatic QA again" />
+    </form>
+<dtml-comment>
+	<dtml-var envelope_status>
+</dtml-comment>
+<dtml-var documents_section>
+<dtml-var feedback_section>
+
+<dtml-var standard_html_footer>
+<dtml-else>
+    <dtml-call "RESPONSE.redirect('overview')">
+</dtml-if>

@@ -1,0 +1,70 @@
+<dtml-var printable_html_header>
+<h2><dtml-var document_title></h2>
+<table border=1>
+
+<tr>
+ <th width=150>Main Issues</th>
+ <td>
+<dtml-in main_issues sort=theme>
+{ 'inx': "&dtml-sequence-number;", 'label':"&dtml-theme;" },<br>
+</dtml-in>
+</td>
+</tr>
+
+<tr>
+ <th width=150>Pressures; sectors, waste, D+P</th>
+ <td>
+<dtml-in pressures sort=inx>
+{ 'inx': &dtml-inx;, 'category':"&dtml-category;",'label':"&dtml-theme;" },<br>
+</dtml-in>
+</td>
+</tr>
+
+<tr>
+ <th width=150>Measurements or<br>calculations of what, S<br>Broad terms</th>
+ <td>
+<dtml-in measurements_broad sort=theme>
+{ 'inx': "&dtml-sequence-number;", 'label':"&dtml-theme;" },<br>
+</dtml-in>
+</td>
+</tr>
+<tr>
+ <th width=150>Measurements or<br>calculations of what, S<br>Narrow terms</th>
+
+ <td>
+<dtml-in measurements_narrow sort=theme>
+{ 'inx': "&dtml-sequence-number;", 'label':"&dtml-theme;" },<br>
+</dtml-in>
+</td>
+</tr>
+
+<tr>
+ <th width=150>Measurement where, the media</th>
+ <td>
+<dtml-in media sort=inx>
+{ 'inx': &dtml-inx;, 'category':"&dtml-category;",'label':"&dtml-theme;" },<br>
+</dtml-in>
+</td>
+</tr>
+
+<tr>
+ <th width=150>Which impact or effect did it have, I</th>
+ <td>
+<dtml-in impact sort=impact>
+{'inx': "&dtml-sequence-number;", 'label':"&dtml-impact;" }<br>
+</dtml-in>
+</td>
+</tr>
+
+<tr>
+ <th width=150>Which policy was the response, R</th>
+ <td>
+<dtml-in response>
+{'inx': "&dtml-sequence-number;", 'label':"&dtml-response;" }<br>
+</dtml-in>
+</td>
+</tr>
+
+</table>
+
+<dtml-var printable_html_footer>

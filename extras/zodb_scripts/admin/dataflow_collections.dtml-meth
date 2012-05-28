@@ -1,0 +1,10 @@
+<dtml-call "REQUEST.set('results',{})">
+<dtml-in "Catalog(meta_type='Report Collection', country='DK')">
+
+<dtml-with "Catalog.getobject(data_record_id_)">
+<dtml-if "dataflow_uris != ()">
+<dtml-call "results.update({ dataflow: [ title, absolute_url(0)]})">
+</dtml-if>
+</dtml-with>
+</dtml-in>
+<dtml-return results>

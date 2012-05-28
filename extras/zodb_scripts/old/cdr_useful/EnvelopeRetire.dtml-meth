@@ -1,0 +1,4 @@
+<dtml-if "is_active_for_me(REQUEST=REQUEST)">
+    <dtml-call "completeWorkitem(workitem_id)">
+</dtml-if>
+<dtml-call "RESPONSE.redirect('index_html')">

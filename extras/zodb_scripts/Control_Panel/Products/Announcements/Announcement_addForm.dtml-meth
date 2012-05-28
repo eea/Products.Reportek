@@ -1,0 +1,25 @@
+<HTML> 
+<HEAD><TITLE>Add Announcement</TITLE></HEAD> 
+<BODY BGCOLOR="#FFFFFF" LINK="#000099" VLINK="#555555"> 
+<H2>Add Announcement</H2> 
+<form action="Announcement_add"><table> 
+<tr><th>Id</th> 
+    <td><input type=text name=id></td> 
+</tr> 
+<tr><th>Title</th> 
+    <td><input type=text name=title size=60></td> 
+</tr> 
+<tr><th>Summary<br>No HTML</th> 
+    <td><textarea name=description cols=60 rows=5></textarea></td> 
+</tr> 
+<tr><th>Summary<br>HTML OK</th> 
+    <td><textarea name=details cols=60 rows=15></textarea></td> 
+</tr>
+<input type="hidden" name="reportingdate:date" value="<dtml-var ZopeTime fmt=ISO>">
+<tr><th>Expires</th> 
+    <td><input type=text name="expirydate:date" value="<dtml-var "ZopeTime() + 20" fmt=Date>"></td> 
+</tr>
+ 
+<tr><td></td><td><input type=submit value=" Add "></td></tr> 
+</table></form> 
+</body></html> 

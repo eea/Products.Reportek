@@ -1,0 +1,73 @@
+<dtml-var standard_html_header>
+<form action="resultsdataflow" method="get">
+<h1><dtml-var document_title></h1>
+<table>
+  <tr>
+    <th width="150">Obligation</th>
+    <td>
+  <select size="15" id="dataflows" name="dataflow_uris">
+<dtml-call "REQUEST.set('currentsource','')">
+<dtml-let u="Catalog.uniqueValuesFor('dataflow_uris')">
+<dtml-in dataflow_table mapping sort=SOURCE_TITLE,TITLE>
+<dtml-if "uri in u">
+<dtml-if "currentsource != SOURCE_TITLE">
+<dtml-if "currentsource != ''">
+</optgroup>
+</dtml-if>
+<dtml-call "REQUEST.set('currentsource',SOURCE_TITLE)">
+<optgroup label="<dtml-var currentsource html_quote size=60>">
+</dtml-if>
+<option value="<dtml-var uri html_quote>"
+ label="<dtml-var TITLE html_quote size=80>"
+>[<dtml-var "_.string.join(_.string.split(SOURCE_TITLE)[0:2])" html_quote>] <dtml-var TITLE html_quote size=80></option>
+</dtml-if>
+</dtml-in>
+</dtml-let>
+ </optgroup>
+  </select>
+    </td>
+  </tr>
+
+  <tr>
+    <th>Year</th>
+    <td><input type="text" name="years:int:ignore_empty" size="4" maxlength="4" value="" /></td>
+  </tr>
+  <tr>
+    <th width="150">Part of year</th>
+    <td>
+      <select name="partofyear">
+        <option value="">Any part of year</option>
+<dtml-in "('Whole Year',
+           'First Half', 'Second Half',
+           'First Quarter', 'Second Quarter',
+           'Third Quarter', 'Fourth Quarter',
+'January','February','March','April','May','June',
+'July','August','September','October','November','December'
+          )">
+<option value="<dtml-var sequence-item>"><dtml-var sequence-item></option>
+</dtml-in>
+      </select>
+    </td>
+  </tr>
+  <tr>
+    <th width="150">Country</th>
+    <td>
+  <select name="country">
+<option></option>
+<dtml-in localities_table mapping>
+<option value="&dtml-uri;" <dtml-if "uri == ''">selected="selected"</dtml-if>>&dtml-name;</option>
+</dtml-in>
+  </select>
+    </td>
+  </tr>
+
+
+  <tr>
+    <td colspan="2" align="center">
+<input type="submit" value="Submit Query" />
+<input type="reset" value="Reset fields" />
+    </td>
+  </tr>
+</table>
+</form>
+<dtml-var standard_html_footer>
