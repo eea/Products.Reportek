@@ -1,5 +1,16 @@
 <configure xmlns="http://namespaces.zope.org/zope"
-           xmlns:zcml="http://namespaces.zope.org/zcml">
+           xmlns:zcml="http://namespaces.zope.org/zcml"
+           xmlns:browser="http://namespaces.zope.org/browser">
+
+   <browser:view for="Products.ZCatalog.interfaces.IZCatalog"
+                   name="manage_maintenance"
+                   class=".catalog.MaintenanceView"
+                   permission="zope2.ViewManagementScreens" />
+
+   <browser:view for="Products.ZCatalog.interfaces.IZCatalog"
+                   name="manage_do_rebuild"
+                   class=".catalog.RebuildView"
+                   permission="zope2.ViewManagementScreens" />
 
   <configure zcml:condition="installed zope.container">
 
@@ -32,5 +43,6 @@
                 handler="Products.Reportek.Envelope.movedEnvelope" />
 
   </configure>
+
 
 </configure>

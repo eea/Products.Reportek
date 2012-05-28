@@ -46,10 +46,20 @@ from StaticServe import StaticServeFromZip
 from constants import CONVERTERS_ID, ENGINE_ID, WORKFLOW_ENGINE_ID, DATAFLOW_MAPPINGS, DEFAULT_CATALOG, QAREPOSITORY_ID
 
 
+maintenance_options = (
+    ZCatalog.manage_options[:1] +
+        ({
+            'label': "Maintenance",
+            'action': 'manage_maintenance'},
+        ) +
+    ZCatalog.manage_options[1:])
+
+ZCatalog.manage_options = maintenance_options
+
 def create_reportek_objects(app):
 
     ###########################################
-    #   The Engine folder in Root         
+    #   The Engine folder in Root
     ###########################################
     if hasattr(app, ENGINE_ID):
         repo_engine = getattr(app, ENGINE_ID)
@@ -66,7 +76,7 @@ def create_reportek_objects(app):
 
 
     ###########################################
-    #   The Converters folder in Root         
+    #   The Converters folder in Root
     ###########################################
     if hasattr(app, CONVERTERS_ID):
         converters = getattr(app, CONVERTERS_ID)
@@ -82,7 +92,7 @@ def create_reportek_objects(app):
     assert converters is not None
 
     ###########################################
-    #   The QARepository folder in Root         
+    #   The QARepository folder in Root
     ###########################################
     if hasattr(app, QAREPOSITORY_ID):
         qarepo = getattr(app, QAREPOSITORY_ID)
@@ -115,7 +125,7 @@ def create_reportek_objects(app):
 
 
     ###########################################
-    #   The OpenFlowEngine in Root       
+    #   The OpenFlowEngine in Root
     ###########################################
     if hasattr(app, WORKFLOW_ENGINE_ID):
         workflow_engine = getattr(app, WORKFLOW_ENGINE_ID)
@@ -131,11 +141,9 @@ def create_reportek_objects(app):
     assert workflow_engine is not None
 
     ###########################################
-    #   Default Catalog definition            
+    #   Default Catalog definition
     ###########################################
-    """ Verify if the Root Folder already contains a ZCatalog
-        Add one if it does not
-        Add a series of indexes in it if these are not there
+    """ Verify if the Root Folder already contains a ZCatalog. Add one if it does not.
     """
     if hasattr(app, DEFAULT_CATALOG):
         catalog = getattr(app, DEFAULT_CATALOG)
@@ -150,7 +158,9 @@ def create_reportek_objects(app):
         catalog = getattr(app, DEFAULT_CATALOG)
     assert catalog is not None
 
-    # zope 2.6.0 won't add these
+def create_reportek_indexes(catalog):
+    """ Add a series of indexes in it if these are not there """
+
     available_indexes = catalog.indexes()
     available_metadata = catalog.schema()
     if not ('id' in available_indexes):
@@ -163,107 +173,55 @@ def create_reportek_objects(app):
     if not ('meta_type' in available_metadata):
         catalog.addColumn('meta_type')
 
-    #if not ('title' in available_indexes):
-    #    catalog.addIndex('title', 'TextIndex')
-    if not ('title' in available_metadata):
-        catalog.addColumn('title')
-
-    if not ('path' in available_indexes):
-        catalog.addIndex('path', 'PathIndex')
-    if not ('path' in available_metadata):
-        catalog.addColumn('path')
-
-    try:
-        catalog.Vocabulary(id='Vocabulary', title='')
-    except:
-        pass
-
-    if not ('status' in available_indexes):
-        catalog.addIndex('status', 'FieldIndex')
-    if not ('status' in available_metadata):
-        catalog.addColumn('status')
+    if not ('bobobase_modification_time' in available_indexes):
+        catalog.addIndex('bobobase_modification_time', 'DateIndex')
+    if not ('bobobase_modification_time' in available_metadata):
+        catalog.addColumn('bobobase_modification_time')
 
     if not ('activity_id' in available_indexes):
         catalog.addIndex('activity_id', 'FieldIndex')
-    if not ('activity_id' in available_metadata):
-        catalog.addColumn('activity_id')
-
-    if not ('process_path' in available_indexes):
-        catalog.addIndex('process_path', 'FieldIndex')
-    if not ('process_path' in available_metadata):
-        catalog.addColumn('process_path')
-
-    if not ('instance_id' in available_indexes):
-        catalog.addIndex('instance_id', 'FieldIndex')
-    if not ('instance_id' in available_metadata):
-        catalog.addColumn('instance_id')
 
     if not ('actor' in available_indexes):
         catalog.addIndex('actor', 'FieldIndex')
-    if not ('actor' in available_metadata):
-        catalog.addColumn('actor')
+
+    if not ('content_type' in available_indexes):
+        catalog.addIndex('content_type', 'FieldIndex')
 
     if not ('country' in available_indexes):
         catalog.addIndex('country', 'FieldIndex')
-    if not ('country' in available_metadata):
-        catalog.addColumn('country')
 
     if not ('dataflow_uris' in available_indexes):
         catalog.addIndex('dataflow_uris', 'KeywordIndex')
-    if not ('dataflow_uris' in available_metadata):
-        catalog.addColumn('dataflow_uris')
 
-# xxx
-#    if not ('description' in available_indexes):
-#        catalog.addIndex('description', 'FieldIndex')
-#    if not ('description' in available_metadata):
-#        catalog.addColumn('description')
-#
-#    if not ('customer' in available_indexes):
-#        catalog.addIndex('customer', 'FieldIndex')
-#    if not ('customer' in available_metadata):
-#        catalog.addColumn('customer')
+    if not ('getCountryName' in available_indexes):
+        catalog.addIndex('getCountryName', 'FieldIndex')
 
-#    if not ('creation_time' in available_indexes):
-#        catalog.addIndex('creation_time', 'FieldIndex')
-#    if not ('creation_time' in available_metadata):
-#        catalog.addColumn('creation_time')
+    if not ('instance_id' in available_indexes):
+        catalog.addIndex('instance_id', 'FieldIndex')
 
-#    if not ('priority' in available_indexes):
-#        catalog.addIndex('priority', 'FieldIndex')
-#    if not ('priority' in available_metadata):
-#        catalog.addColumn('priority')
+    if not ('partofyear' in available_indexes):
+        catalog.addIndex('partofyear', 'FieldIndex')
 
-#    if not ('From' in available_indexes):
-#        catalog.addIndex('From', 'FieldIndex')
-#    if not ('From' in available_metadata):
-#        catalog.addColumn('From')
-#
-#    if not ('To' in available_indexes):
-#        catalog.addIndex('To', 'FieldIndex')
-#    if not ('To' in available_metadata):
-#        catalog.addColumn('To')
+    if not ('path' in available_indexes):
+        catalog.addIndex('path', 'PathIndex')
 
-#    if not ('workitems_from' in available_indexes):
-#        catalog.addIndex('workitems_from', 'KeywordIndex')
-#    if not ('workitems_from' in available_metadata):
-#        catalog.addColumn('workitems_from')
-#
-#    if not ('workitems_to' in available_indexes):
-#        catalog.addIndex('workitems_to', 'KeywordIndex')
-#    if not ('workitems_to' in available_metadata):
-#        catalog.addColumn('workitems_to')
+    if not ('process_path' in available_indexes):
+        catalog.addIndex('process_path', 'FieldIndex')
 
-#    if not ('push_roles' in available_indexes):
-#        catalog.addIndex('push_roles', 'KeywordIndex')
-#    if not ('push_roles' in available_metadata):
-#        catalog.addColumn('push_roles')
-#
-#    if not ('pull_roles' in available_indexes):
-#        catalog.addIndex('pull_roles', 'KeywordIndex')
-#    if not ('pull_roles' in available_metadata):
-#        catalog.addColumn('pull_roles')
+    if not ('released' in available_indexes):
+        catalog.addIndex('released', 'FieldIndex')
 
+    if not ('reportingdate' in available_indexes):
+        catalog.addIndex('reportingdate', 'FieldIndex')
+
+    if not ('status' in available_indexes):
+        catalog.addIndex('status', 'FieldIndex')
+
+    if not ('xml_schema_location' in available_indexes):
+        catalog.addIndex('xml_schema_location', 'FieldIndex')
+
+    if not ('years' in available_indexes):
+        catalog.addIndex('years', 'KeywordIndex')
 
 def initialize(context):
     """ Reportek initializer """
@@ -272,6 +230,7 @@ def initialize(context):
     app = Zope2.app()
 
     create_reportek_objects(app)
+    create_reportek_indexes(app.Catalog)
     import transaction; transaction.commit()
 
     ReportekEngine.configure_error_emails()

@@ -1,0 +1,17 @@
+<tal:block replace="structure context/manage_page_header" />
+<tal:block replace="structure context/manage_tabs" />
+
+<p>
+    <strong tal:content="python:len(context)"></strong> objects in catalog.
+</p>
+
+
+<form tal:attributes="action string:${context/absolute_url}/manage_do_rebuild"
+      method="post">
+<p>
+    Clear catalog and re-populate it by traversing the site:
+    <input type="submit" value="rebuild catalog" />
+</p>
+</form>
+
+<tal:block replace="structure context/manage_page_footer" />
