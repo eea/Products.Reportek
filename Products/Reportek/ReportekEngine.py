@@ -504,9 +504,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             REQUEST.RESPONSE.redirect('uns_settings?manage_tabs_message=Saved changes')
         return 1
 
-    def __makeCall(self, server, uid, pwd):
-        """ makes an XML/RPC authenticated call """
-        return xmlrpclib.Server(server, BasicAuthTransport(uid, pwd))
+    security.declarePrivate('get_uns_xmlrpc_server')
+    def get_uns_xmlrpc_server(self):
+        url = self.UNS_server + '/rpcrouter'
+        transport = BasicAuthTransport(self.UNS_username, self.UNS_password)
+        return xmlrpclib.Server(url, transport)
 
     security.declareProtected('View', 'canUserSubscribeToUNS')
     def canUserSubscribeToUNS(self, user_id='', REQUEST=None):
@@ -519,7 +521,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 return 0
         # TODO: cache results for a few minutes
         try:
-            l_server = self.__makeCall(self.UNS_server + '/rpcrouter', self.UNS_username, self.UNS_password)
+            l_server = self.get_uns_xmlrpc_server()
             l_ret = l_server.UNSService.canSubscribe(self.UNS_channel_id, user_id)
             return l_ret
         except Exception, err:
@@ -555,7 +557,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 l_filters_final.append({'http://rod.eionet.europa.eu/schema.rdf#event_type':l_filter_event_type})
 
         try:
-            l_server = self.__makeCall(self.UNS_server + '/rpcrouter', self.UNS_username, self.UNS_password)
+            l_server = self.get_uns_xmlrpc_server()
             #l_ret = l_server.UNSService.makeSubscription(self.UNS_channel_id, self.REQUEST['AUTHENTICATED_USER'].getUserName(), l_filters)
             l_ret = l_server.UNSService.makeSubscription(self.UNS_channel_id, self.REQUEST['AUTHENTICATED_USER'].getUserName(), l_filters_final)
             if REQUEST is not None:
@@ -570,7 +572,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     def sendNotificationToUNS(self, envelope, notification_type, notification_label, actor='system'):
         """ Sends events data to the specified UNS's push channel """
         try:
-            l_server = self.__makeCall(self.UNS_server + '/rpcrouter', self.UNS_username, self.UNS_password)
+            l_server = self.get_uns_xmlrpc_server()
             # create unique notification identifier
             # Envelope URL + time + notification_type
             l_time = str(time())
@@ -595,7 +597,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security.declarePrivate('uns_subscribe_actors')
     def uns_subscribe_actors(self, actors, filters):
-        server = xmlrpclib.Server(self.UNS_server + '/rpcrouter', BasicAuthTransport(self.UNS_username, self.UNS_password),verbose=0)
+        server = self.get_uns_xmlrpc_server()
         for act in actors:
             server.UNSService.makeSubscription(self.UNS_channel_id, act, filters)
 
