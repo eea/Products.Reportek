@@ -7,11 +7,6 @@ ext_map = {
     'DTML Method': '.dtml-meth',
     'Script (Python)': '.py',
 }
-src_attr = {
-    'DTML Document': 'raw',
-    'DTML Method': 'raw',
-    'Script (Python)': '_body',
-}
 
 
 repo = path(__file__).abspath().parent/'zodb_scripts'
@@ -21,8 +16,7 @@ def get_zodb_scripts(app):
     zodb_scripts = {}
     for ob_id, ob in app.ZopeFind(app, obj_metatypes=meta_types, search_sub=True):
         zodb_path = '/'.join(ob.getPhysicalPath()[1:])
-        src = getattr(ob, src_attr[ob.meta_type])
-        zodb_scripts[zodb_path] = (ob.meta_type, src)
+        zodb_scripts[zodb_path] = (ob.meta_type, ob.document_src())
     return zodb_scripts
 
 
