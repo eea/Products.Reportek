@@ -17,12 +17,13 @@ Glossary
         different for each reporting obligation
 
     Release
-        Status of an envelope - boolean. When released, the Data Reporters
-        are not working on their deliveries and the content of the envelope
-        is publicly available
+        Status of an envelope - boolean. When released, the Reporters are not
+        working on their deliveries and the contents of the envelope is publicly
+        available. When not released, the contents of an envelope are visible
+        only to users having the role of Reporter, Client or Auditor
 
     Delivery
-        A collection of files uploaded by Data Reporters in response to one
+        A collection of files uploaded by country Reporters in response to one
         or more :term:`reporting obligations <reporting obligation>`
 
     Reporting obligation
