@@ -23,6 +23,7 @@ Contents:
    reportekengine
    configuration
    api
+   glossary
    changelog
 
 .. .. include:: classdiagram.rst
