@@ -53,6 +53,14 @@ Glossary
         them; the process is assigned to an envelope at its creation time, based
         on the country and reporting obligation(s) of the envelope.
 
+    Document
+        File uploaded in an envelope, accompanied by metadata
+
+    Feedback
+        Item uploaded in an envelope, containing an evaluation of a single file or of
+        the entire delivery. Feedback items are uploaded either manually, by Clients,
+        or automatically, by the a service such as the :term:`Automatic QA`.
+
     Automatic QA
         An activity executed by the system - part of a typical envelope workflow. It
         sends all the XML files for which QA scripts are available to the QA service
@@ -71,4 +79,4 @@ Glossary
         as the `Eionet Conversion Service <http://converters.eionet.europa.eu>`_
 
     Dataflow
-        Sinonym to :term:`reporting obligation <reporting obligation>`
+        Synonym to :term:`reporting obligation <reporting obligation>`
