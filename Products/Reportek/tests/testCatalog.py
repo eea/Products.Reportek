@@ -146,6 +146,7 @@ class CatalogTest(unittest.TestCase):
         from Products.Reportek.catalog import catalog_rebuild
 
         process = Mock()
+        self.root._p_jar = Mock()
 
         collection = Collection(id='test_collection')
         self.root._setObject(collection.id, collection)
