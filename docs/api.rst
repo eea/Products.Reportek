@@ -4,9 +4,6 @@ All other modules
 .. automodule:: Products.Reportek.activity
    :members:
 
-.. automodule:: Products.Reportek.BasicAuthTransport
-   :members:
-
 .. automodule:: Products.Reportek.Comment
    :members:
 

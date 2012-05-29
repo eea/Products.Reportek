@@ -270,6 +270,7 @@ def _get_feedback_files(ob):
 
 def get_metadata_content(ob):
     """ Return the metadata associated with this envelope.
+
         Example::
             Description: some description
             Obligations: http://example.com/envelope
