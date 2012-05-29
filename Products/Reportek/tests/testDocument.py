@@ -1,4 +1,5 @@
 import os, sys
+import unittest
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
@@ -8,6 +9,7 @@ ZopeTestCase.installProduct('PythonScripts')
 from configurereportek import ConfigureReportek
 from fileuploadmock import FileUploadMock
 from utils import create_temp_reposit
+from mock import Mock
 
 
 def setUpModule():
@@ -156,6 +158,33 @@ xmlns:met="http://biodiversity.eionet.europa.eu/schemas/dir9243eec">
 
         self.document.manage_unrestrictDocument()
         assert self.document.acquiredRolesAreUsedBy('View') == 'CHECKED'
+
+
+from utils import publish_view
+
+
+class HeadRequestTest(unittest.TestCase):
+
+    file_data = 'hello world'
+
+    def setUp(self):
+        from Products.Reportek.Document import Document
+        self.doc = Document('testdoc', "Document for Test")
+        self.doc.getWorkitemsActiveForMe = Mock(return_value=[])
+        upload_file = FileUploadMock('file.txt', self.file_data)
+        self.doc.manage_file_upload(upload_file)
+
+    def test_headers(self):
+        from webdav.common import rfc1123_date
+        mtime = os.path.getmtime(self.doc.physicalpath())
+
+        resp = publish_view(self.doc, {'REQUEST_METHOD': 'HEAD'})
+
+        self.assertEqual(resp.getHeader('Content-Length'),
+                         str(len(self.file_data)))
+        self.assertEqual(resp.getHeader('Content-Type'), 'text/plain')
+        self.assertEqual(resp.getHeader('Last-Modified'), rfc1123_date(mtime))
+
 
 def test_suite():
     import unittest

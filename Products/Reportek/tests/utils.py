@@ -24,8 +24,9 @@ import time
 import random
 import tempfile
 import shutil
+from StringIO import StringIO
 import transaction
-from mock import patch
+from mock import Mock, patch
 
 
 def setupCoreSessions(app=None):
@@ -128,17 +129,18 @@ def startZServer(number_of_threads=1, log=None):
     return _Z2HOST, _Z2PORT
 
 
-def makerequest(app, stdout=sys.stdout):
+def makerequest(app, stdout=sys.stdout, environ={}):
     '''Wraps the app into a fresh REQUEST.'''
     from ZPublisher.BaseRequest import RequestContainer
     from ZPublisher.Request import Request
     from ZPublisher.Response import Response
     response = Response(stdout=stdout)
-    environ = {}
-    environ['SERVER_NAME'] = _Z2HOST or 'nohost'
-    environ['SERVER_PORT'] = '%d' % (_Z2PORT or 80)
-    environ['REQUEST_METHOD'] = 'GET'
-    request = Request(sys.stdin, environ, response)
+    new_environ = {}
+    new_environ['SERVER_NAME'] = _Z2HOST or 'nohost'
+    new_environ['SERVER_PORT'] = '%d' % (_Z2PORT or 80)
+    new_environ['REQUEST_METHOD'] = 'GET'
+    new_environ.update(environ)
+    request = Request(sys.stdin, new_environ, response)
     request._steps = ['noobject'] # Fake a published object
     request['ACTUAL_URL'] = request.get('URL') # Zope 2.7.4
     return app.__of__(RequestContainer(REQUEST=request))
@@ -189,6 +191,30 @@ def create_temp_reposit():
         shutil.rmtree(tmp_dir)
         instance_home_patch.stop()
     return cleanup
+
+
+def publish_view(view, environ={}):
+    from ZPublisher.Publish import publish
+    from AccessControl.SecurityManagement import noSecurityManager
+
+    name = view.__name__
+    new_environ = {
+        'PATH_INFO': '/' + name,
+    }
+    new_environ.update(environ)
+    stdout = StringIO()
+
+    root = create_fake_root()
+    request = makerequest(root, stdout, new_environ).REQUEST
+    root.__allow_groups__ = Mock()
+    view.__doc__ = 'non-empty documentation'
+    setattr(root, name, view)
+
+    try:
+        with patch('Zope2.bobo_application', root):
+            return publish(request, 'Zope2', [None])
+    finally:
+        noSecurityManager()
 
 
 __all__ = [
