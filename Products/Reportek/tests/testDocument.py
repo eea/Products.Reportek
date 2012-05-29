@@ -12,15 +12,6 @@ from utils import create_temp_reposit
 from mock import Mock
 
 
-def setUpModule():
-    global cleanup_temp_reposit
-    cleanup_temp_reposit = create_temp_reposit()
-
-
-def tearDownModule():
-    cleanup_temp_reposit()
-
-
 class DocumentTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
 
     # Currently the physical document is not renamed if the object in ZODB is moved
@@ -29,11 +20,17 @@ class DocumentTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
     physpath_must_track_zodb = False
 
     def afterSetUp(self):
+        global cleanup_temp_reposit
+        cleanup_temp_reposit = create_temp_reposit()
+
         self.createStandardDependencies()
         self.createStandardCollection()
         self.assertTrue(hasattr(self.app, 'collection'),'Collection did not get created')
         self.assertNotEqual(self.app.collection, None)
         self.envelope = self.createStandardEnvelope()
+
+    def beforeTearDown(self):
+        cleanup_temp_reposit()
 
     def create_text_document(self):
         """ Supporting method
@@ -169,10 +166,17 @@ class HeadRequestTest(unittest.TestCase):
 
     def setUp(self):
         from Products.Reportek.Document import Document
+
+        global cleanup_temp_reposit
+        cleanup_temp_reposit = create_temp_reposit()
+
         self.doc = Document('testdoc', "Document for Test")
         self.doc.getWorkitemsActiveForMe = Mock(return_value=[])
         upload_file = FileUploadMock('file.txt', self.file_data)
         self.doc.manage_file_upload(upload_file)
+
+    def tearDown(self):
+        cleanup_temp_reposit()
 
     def test_headers(self):
         from webdav.common import rfc1123_date
@@ -184,6 +188,14 @@ class HeadRequestTest(unittest.TestCase):
                          str(len(self.file_data)))
         self.assertEqual(resp.getHeader('Content-Type'), 'text/plain')
         self.assertEqual(resp.getHeader('Last-Modified'), rfc1123_date(mtime))
+
+    def test_missing_file(self):
+        from Products.Reportek.Document import StorageError
+        self.doc._deletefile(self.doc.physicalpath())
+
+        self.assertRaises(StorageError, publish_view,
+                            self.doc,
+                            {'REQUEST_METHOD': 'HEAD'})
 
 
 def test_suite():

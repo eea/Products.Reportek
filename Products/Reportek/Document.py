@@ -86,6 +86,9 @@ BACKUP_ON_DELETE = 0
 ALWAYS_BACKUP = 1
 UNDO_POLICY = BACKUP_ON_DELETE
 
+class StorageError(Exception):
+    pass
+
 manage_addDocumentForm = DTMLFile('dtml/documentAdd',globals())
 
 def manage_addDocument(self, id='', title='',
@@ -250,7 +253,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         try:
             filesize =  os.path.getsize(filename)
             filemtime = os.path.getmtime(filename)
-        except: raise cant_read_exc, ("%s (%s)" %(self.id, filename))
+        except: raise StorageError("Can't read file %s (%s)" % (self.id, filename))
 
         RESPONSE.setHeader('Last-Modified', rfc1123_date(filemtime))
         RESPONSE.setHeader('Content-Length', filesize)
