@@ -1,5 +1,6 @@
 2.3 (unreleased)
 ----------------
+* included update_auth package in extras, see docstring of init [simiamih]
 * Switch to distutils package structure. [moregale]
 * Documentation generated with Sphinx. [roug, moregale]
 * Remove Article 17 reporting from 2007. [bulanmir]
