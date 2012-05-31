@@ -7,6 +7,14 @@ Usage:
 >>> update_authentication(app)
 >>> import transaction; transaction.commit()
 
+
+To install simple PAS-based authentication, e.g. on a fresh database, for
+testing, you can call add_PAS directly:
+
+>>> import update_auth, transaction
+>>> update_auth.add_PAS(app, {'admin': {'pass': 'admin', 'role': 'Manager'}})
+>>> import transaction.commit()
+
 """
 
 LDAPMULTIPLUGIN_ID = 'ldapmultiplugin'
