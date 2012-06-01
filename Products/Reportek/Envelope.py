@@ -58,6 +58,10 @@ from zope.interface import implements
 from interfaces import IEnvelope
 from paginator import DiggPaginator, EmptyPage, InvalidPage
 
+
+ZIP_CACHE_THRESHOLD = 100000000 # 100 MB
+
+
 manage_addEnvelopeForm=DTMLFile('dtml/envelopeAdd', globals())
 
 def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
@@ -759,14 +763,9 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                                   zipname+'.zip', 'application/x-zip')
             return
 
-        RESPONSE.setHeader('Content-Type', 'application/x-zip')
-        RESPONSE.setHeader('Content-Disposition',
-                           'attachment; filename="%s.zip"' % zipname)
-
         tmpfile = tempfile.NamedTemporaryFile(suffix='.temp', dir=path)
-        response_wrapper = ResponseFileWrapper(RESPONSE, tmpfile)
 
-        outzd = ZipFile(response_wrapper, "w")
+        outzd = ZipFile(tmpfile, "w")
 
         for doc in public_docs:
             outzd.writestr(doc.getId(), file(doc.physicalpath()).read())
@@ -788,7 +787,16 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         outzd.writestr('history.txt', zip_content.get_history_content(self))
 
         outzd.close()
-        response_wrapper.close(cachedfile)
+
+        # only save cache file if greater than threshold
+        if os.stat(tmpfile.name).st_size > ZIP_CACHE_THRESHOLD:
+            os.link(tmpfile.name, cachedfile)
+
+        tmpfile.seek(0)
+        write_to_response(RESPONSE, tmpfile,
+                          zipname+'.zip', 'application/x-zip')
+
+        tmpfile.close()
 
     def _invalidate_zip_cache(self):
         """ delete zip cache files """
@@ -1029,40 +1037,6 @@ def movedEnvelope(ob, event):
         raise Forbidden, "Envelope is released"
 
 from ZServer.HTTPResponse import ZServerHTTPResponse
-
-class ResponseFileWrapper(object):
-    cache_threshold = 100000000 # 100 MB
-
-    def __init__(self, response, tmpfile):
-        self.response = response
-        self.pos = 0
-        self.tmpfile = tmpfile
-
-    def tell(self):
-        return self.pos
-
-    def write(self, s):
-        assert isinstance(s, str)
-        self.pos += len(s)
-        offset = 0
-        chunk_size = 2**16
-        while offset < len(s):
-            self.response.write(s[offset:offset+chunk_size])
-            offset += chunk_size
-        return self.tmpfile.write(s)
-
-    def seek(self, pos, mode=0):
-        pass
-
-    def close(self, cachedfile):
-        statinfo = os.stat(self.tmpfile.name)
-        if statinfo.st_size > self.cache_threshold:
-            os.link(self.tmpfile.name, cachedfile)
-        self.tmpfile.close()
-        assert not os.path.exists(self.tmpfile.name)
-
-    def flush(self):
-        pass
 
 
 def iter_ofs_file_data(ofs_file):

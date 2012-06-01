@@ -140,7 +140,7 @@ class ZipDownloadTest(unittest.TestCase):
         zip_download = self.download_zip(self.envelope)
         self.assertEqual(zip_download.read('testfile.txt'), data)
 
-    @patch('Products.Reportek.Envelope.ResponseFileWrapper.cache_threshold', -1)
+    @patch('Products.Reportek.Envelope.ZIP_CACHE_THRESHOLD', -1)
     @patch('Products.Reportek.Envelope.ZipFile')
     def test_cache_hit_on_2nd_download(self, mock_ZipFile):
         import zipfile
@@ -159,7 +159,7 @@ class ZipDownloadTest(unittest.TestCase):
         self.assertEqual(zip_download_2.read('testfile.txt'), 'data one')
         self.assertEqual(mock_ZipFile.call_count, 1)
 
-    @patch('Products.Reportek.Envelope.ResponseFileWrapper.cache_threshold', -1)
+    @patch('Products.Reportek.Envelope.ZIP_CACHE_THRESHOLD', -1)
     def test_cache_invalidation_on_release(self):
         # zip cache is invalidated when the envelope is released (in case the
         # envelope had previously been released, unreleased and modified).
@@ -179,7 +179,7 @@ class ZipDownloadTest(unittest.TestCase):
         zip_download = self.download_zip(self.envelope)
         self.assertEqual(zip_download.read('testfile.txt'), 'data two')
 
-    @patch('Products.Reportek.Envelope.ResponseFileWrapper.cache_threshold', -1)
+    @patch('Products.Reportek.Envelope.ZIP_CACHE_THRESHOLD', -1)
     def test_cache_invalidation_on_feedback(self):
         self.root.getEngine = Mock()
 
