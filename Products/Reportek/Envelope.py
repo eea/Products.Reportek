@@ -725,58 +725,6 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
     security.declareProtected('Add Envelopes', 'manage_addzipfileform')
     manage_addzipfileform = DTMLFile('dtml/zipfileAdd',globals())
 
-    def _copy(self, infile, outfile, maxblocks=16384, isString=0):
-        """ Read binary data from infile and write it to outfile
-            infile and outfile may be strings, in which case a file with that
-            name is opened, or filehandles, in which case they are accessed
-            directly.
-            A block is 131072 bytes. maxblocks prevents it from >2GB
-            !New!
-            The isString parameter is not 0, the file is not a handler, but string.
-            However, it is not the name of another object to copy, but the content
-            of the file itself.
-        """
-        if isString:
-            from cStringIO import StringIO
-            instream = StringIO(infile)
-            close_in = 0
-        elif type(infile) is types.StringType:
-            try:
-                instream = open(infile, 'rb')
-            except IOError:
-                self._undo()
-                try:
-                    instream = open(infile, 'rb')
-                except IOError:
-                    raise IOError, ("%s (%s)" %(self.id, infile))
-            close_in = 1
-        else:
-            instream = infile
-            close_in = 0
-
-        if type(outfile) is types.StringType:
-            try:
-                outstream = open(outfile, 'wb')
-            except IOError:
-                raise IOError, ("%s (%s)" %(self.id, outfile))
-            close_out = 1
-        else:
-            outstream = outfile
-            close_out = 0
-        try:
-            blocksize = 2<<16
-            block = instream.read(blocksize)
-            outstream.write(block)
-            maxblocks = maxblocks - 1
-            while len(block)==blocksize and maxblocks > 0:
-                maxblocks = maxblocks - 1
-                block = instream.read(blocksize)
-                outstream.write(block)
-        except IOError:
-            raise IOError, ("%s (%s)" %(self.id, filename))
-        if close_in: instream.close()
-        if close_out: outstream.close()
-
     security.declareProtected('View', 'envelope_zip')
     def envelope_zip(self, REQUEST, RESPONSE):
         """ Go through the envelope and find all the external documents
@@ -811,7 +759,8 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             RESPONSE.setHeader('Content-Disposition',
                                'attachment; filename="%s.zip"' % zipname)
             RESPONSE.setHeader('Content-Length', stat[6])
-            self._copy(cachedfile, RESPONSE)
+            with open(cachedfile, 'rb') as in_file:
+                copy_file_data(in_file, RESPONSE)
             return
 
         RESPONSE.setHeader('Content-Type', 'application/x-zip')
@@ -1132,12 +1081,25 @@ def iter_ofs_file_data(ofs_file):
             data = data.next
 
 
+def iter_file_data(in_file, chunk_size=131072):
+    while True:
+        chunk = in_file.read(chunk_size)
+        if not chunk:
+            break
+        yield chunk
+
+
 def ofs_file_content_tmp(ofs_file):
     tmp_data = tempfile.NamedTemporaryFile()
     for chunk in iter_ofs_file_data(ofs_file):
         tmp_data.write(chunk)
     tmp_data.seek(0)
     return tmp_data
+
+
+def copy_file_data(in_file, out_file):
+    for chunk in iter_file_data(in_file):
+        out_file.write(chunk)
 
 
 # vim: set expandtab sw=4 :
