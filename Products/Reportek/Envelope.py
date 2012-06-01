@@ -754,13 +754,9 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             cachedfile = join(path, '%s.zip' % zipname)
 
         if self.canViewContent() and isfile(cachedfile):
-            stat = os.stat(cachedfile)
-            RESPONSE.setHeader('Content-Type', 'application/x-zip')
-            RESPONSE.setHeader('Content-Disposition',
-                               'attachment; filename="%s.zip"' % zipname)
-            RESPONSE.setHeader('Content-Length', stat[6])
-            with open(cachedfile, 'rb') as in_file:
-                copy_file_data(in_file, RESPONSE)
+            with open(cachedfile, 'rb') as data_file:
+                write_to_response(RESPONSE, data_file,
+                                  zipname+'.zip', 'application/x-zip')
             return
 
         RESPONSE.setHeader('Content-Type', 'application/x-zip')
@@ -1100,6 +1096,15 @@ def ofs_file_content_tmp(ofs_file):
 def copy_file_data(in_file, out_file):
     for chunk in iter_file_data(in_file):
         out_file.write(chunk)
+
+
+def write_to_response(response, data_file, attach_name, content_type):
+    stat = os.fstat(data_file.fileno())
+    response.setHeader('Content-Type', content_type)
+    response.setHeader('Content-Disposition',
+                       'attachment; filename="%s"' % attach_name)
+    response.setHeader('Content-Length', stat[6])
+    copy_file_data(data_file, response)
 
 
 # vim: set expandtab sw=4 :
