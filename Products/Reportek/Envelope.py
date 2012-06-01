@@ -764,39 +764,46 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             return
 
         tmpfile = tempfile.NamedTemporaryFile(suffix='.temp', dir=path)
+        print tmpfile.name
 
-        outzd = ZipFile(tmpfile, "w")
+        try:
+            outzd = ZipFile(tmpfile, "w")
 
-        for doc in public_docs:
-            outzd.writestr(doc.getId(), file(doc.physicalpath()).read())
+            for doc in public_docs:
+                outzd.writestr(doc.getId(), file(doc.physicalpath()).read())
 
-        for fdbk in self.objectValues('Report Feedback'):
-            if getSecurityManager().checkPermission('View', fdbk):
-                outzd.writestr('%s.html' % fdbk.getId(),
-                            zip_content.get_feedback_content(fdbk))
+            for fdbk in self.objectValues('Report Feedback'):
+                if getSecurityManager().checkPermission('View', fdbk):
+                    outzd.writestr('%s.html' % fdbk.getId(),
+                                zip_content.get_feedback_content(fdbk))
 
-                for attachment in fdbk.objectValues('File'):
-                    tmp_data = ofs_file_content_tmp(attachment)
-                    outzd.write(tmp_data.name, attachment.getId())
-                    tmp_data.close()
+                    for attachment in fdbk.objectValues('File'):
+                        tmp_data = ofs_file_content_tmp(attachment)
+                        outzd.write(tmp_data.name, attachment.getId())
+                        tmp_data.close()
 
-        #write feedback, metadata, README and history
-        outzd.writestr('feedbacks.html', zip_content.get_feedback_list(self))
-        outzd.writestr('metadata.txt', zip_content.get_metadata_content(self))
-        outzd.writestr('README.txt', zip_content.get_readme_content(self))
-        outzd.writestr('history.txt', zip_content.get_history_content(self))
+            #write feedback, metadata, README and history
+            outzd.writestr('feedbacks.html', zip_content.get_feedback_list(self))
+            outzd.writestr('metadata.txt', zip_content.get_metadata_content(self))
+            outzd.writestr('README.txt', zip_content.get_readme_content(self))
+            outzd.writestr('history.txt', zip_content.get_history_content(self))
 
-        outzd.close()
+            outzd.close()
 
-        # only save cache file if greater than threshold
-        if os.stat(tmpfile.name).st_size > ZIP_CACHE_THRESHOLD:
-            os.link(tmpfile.name, cachedfile)
+        except:
+            raise ValueError("An error occurred while preparing the zip file.")
 
-        tmpfile.seek(0)
-        write_to_response(RESPONSE, tmpfile,
-                          zipname+'.zip', 'application/x-zip')
+        else:
+            # only save cache file if greater than threshold
+            if os.stat(tmpfile.name).st_size > ZIP_CACHE_THRESHOLD:
+                os.link(tmpfile.name, cachedfile)
 
-        tmpfile.close()
+            tmpfile.seek(0)
+            write_to_response(RESPONSE, tmpfile,
+                              zipname+'.zip', 'application/x-zip')
+
+        finally:
+            tmpfile.close()
 
     def _invalidate_zip_cache(self):
         """ delete zip cache files """

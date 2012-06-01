@@ -1,3 +1,4 @@
+import os
 import unittest
 from StringIO import StringIO
 import zipfile
@@ -220,3 +221,12 @@ class ZipDownloadTest(unittest.TestCase):
 
         zip_download = self.download_zip(self.envelope)
         self.assertEqual(zip_download.read('opinion.txt'), data)
+
+    def test_missing_document_datafile(self):
+        file_1 = create_upload_file('asdf')
+        doc_id = Document.manage_addDocument(self.envelope, file=file_1)
+        doc = self.envelope[doc_id]
+        self.envelope.release_envelope()
+        os.unlink(doc.physicalpath())
+
+        self.assertRaises(ValueError, download_envelope_zip, self.envelope)
