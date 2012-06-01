@@ -832,7 +832,9 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                             zip_content.get_feedback_content(fdbk))
 
                 for attachment in fdbk.objectValues('File'):
-                    outzd.writestr(attachment.getId(), attachment.data)
+                    tmp_data = ofs_file_content_tmp(attachment)
+                    outzd.write(tmp_data.name, attachment.getId())
+                    tmp_data.close()
 
         #write feedback, metadata, README and history
         outzd.writestr('feedbacks.html', zip_content.get_feedback_list(self))
@@ -1116,4 +1118,26 @@ class ResponseFileWrapper(object):
 
     def flush(self):
         pass
+
+
+def iter_ofs_file_data(ofs_file):
+    data = ofs_file.data
+
+    if isinstance(data, str):
+        yield data
+
+    else:
+        while data is not None:
+            yield data.data
+            data = data.next
+
+
+def ofs_file_content_tmp(ofs_file):
+    tmp_data = tempfile.NamedTemporaryFile()
+    for chunk in iter_ofs_file_data(ofs_file):
+        tmp_data.write(chunk)
+    tmp_data.seek(0)
+    return tmp_data
+
+
 # vim: set expandtab sw=4 :

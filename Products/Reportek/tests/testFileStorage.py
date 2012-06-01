@@ -167,3 +167,29 @@ class ZipDownloadTest(unittest.TestCase):
 
         zip_download = self.download_zip(self.envelope)
         self.assertTrue("good work" in zip_download.read('feedbacks.html'))
+
+    def test_zip_download_feedback_content(self):
+        self.root.getEngine = Mock()
+        self.envelope.manage_addFeedback('feedback', title="good work")
+        feedback = self.envelope['feedback']
+
+        data = 'asdfqwer'
+        feedback.manage_uploadFeedback(create_upload_file(data, 'opinion.txt'))
+
+        self.envelope.release_envelope()
+
+        zip_download = self.download_zip(self.envelope)
+        self.assertEqual(zip_download.read('opinion.txt'), data)
+
+    def test_zip_download_large_feedback_content(self):
+        self.root.getEngine = Mock()
+        self.envelope.manage_addFeedback('feedback', title="good work")
+        feedback = self.envelope['feedback']
+
+        data = ('asdfqwer1234567 ' * 64) * 1024 # 1MB
+        feedback.manage_uploadFeedback(create_upload_file(data, 'opinion.txt'))
+
+        self.envelope.release_envelope()
+
+        zip_download = self.download_zip(self.envelope)
+        self.assertEqual(zip_download.read('opinion.txt'), data)
