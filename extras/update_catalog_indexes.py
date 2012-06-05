@@ -39,11 +39,11 @@ def update_indexes(app):
 
     catalog = get_catalog(app)
 
-    catalog.manage_catalogClear()
-    log.info('Clear Catalog')
-
     available_indexes = catalog.indexes()
     catalog.manage_delIndex(available_indexes)
+
+    catalog.manage_catalogClear()
+    log.info('Clear Catalog')
 
     available_metadata = catalog.schema()
     catalog.manage_delColumn(available_metadata)
