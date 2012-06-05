@@ -113,7 +113,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
     icon = 'misc_/Reportek/envelope.gif'
 
     # location of the file-repository
-    _repository = ['var','reposit']
+    _repository = ['reposit']
 
     security = ClassSecurityInfo()
 
@@ -751,7 +751,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
 
         zipname = self.absolute_url(1).replace('/','_')
 
-        path = join(INSTANCE_HOME, *self._repository)
+        path = join(CLIENT_HOME, *self._repository)
         if not restricted_docs:
             cachedfile = join(path, '%s-all.zip' % zipname)
         else:
@@ -808,7 +808,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
     def _invalidate_zip_cache(self):
         """ delete zip cache files """
         zipname = self.absolute_url(1).replace('/','_')
-        path = join(INSTANCE_HOME, *self._repository)
+        path = join(CLIENT_HOME, *self._repository)
 
         cachedfile = join(path, '%s.zip' % zipname)
         if isfile(cachedfile):

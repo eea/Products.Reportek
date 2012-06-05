@@ -183,9 +183,9 @@ def create_fake_root():
 
 def create_temp_reposit():
     tmp_dir = tempfile.mkdtemp()
-    instance_home_patch = patch.dict(__builtins__, {'INSTANCE_HOME': tmp_dir})
+    instance_home_patch = patch.dict(__builtins__, {'CLIENT_HOME': tmp_dir})
     instance_home_patch.start()
-    os.makedirs(os.path.join(tmp_dir, 'var', 'reposit'))
+    os.makedirs(os.path.join(tmp_dir, 'reposit'))
 
     def cleanup():
         shutil.rmtree(tmp_dir)

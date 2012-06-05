@@ -290,7 +290,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         envelopes = RepUtils.utConvertToList(envelopes)
 
-        tempfile.tempdir = join(INSTANCE_HOME, 'var', 'reposit')
+        tempfile.tempdir = join(CLIENT_HOME, 'reposit')
         tmpfile = tempfile.mktemp(".temp")
 
         if len(envelopes) == 0:

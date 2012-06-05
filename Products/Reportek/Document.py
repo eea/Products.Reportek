@@ -190,7 +190,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     meta_type = 'Report Document'
 
     # location of the file-repository
-    _repository = ['var','reposit']
+    _repository = ['reposit']
 
     ################################
     # Init method                  #
@@ -603,7 +603,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             self._repository and self.filename
         """
         if filename == None: filename=self.filename
-        path = INSTANCE_HOME
+        path = CLIENT_HOME
         for item in self._repository:
             path = join(path,item)
         if type(filename)==types.ListType:
