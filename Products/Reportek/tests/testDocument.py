@@ -151,7 +151,7 @@ xmlns:met="http://biodiversity.eionet.europa.eu/schemas/dir9243eec">
     def test_restrict_document(self):
         self.create_text_document()
         self.document.manage_restrictDocument()
-	assert self.document.acquiredRolesAreUsedBy('View') == ''
+        assert self.document.acquiredRolesAreUsedBy('View') == ''
 
         self.document.manage_unrestrictDocument()
         assert self.document.acquiredRolesAreUsedBy('View') == 'CHECKED'
