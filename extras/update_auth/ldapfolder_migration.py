@@ -36,13 +36,13 @@ from Products.GenericSetup.utils import XMLAdapterBase
 from Products.LDAPUserFolder.LDAPUserFolder import LDAPUserFolder
 
 
-PROPERTIES = ( 'title', '_login_attr',# '_uid_attr',
+PROPERTIES = ( 'title', '_login_attr', '_uid_attr',
               'users_base'
              , 'users_scope', '_roles',  'groups_base', 'groups_scope'
-             , #'_binduid', '_bindpwd',
-             '_binduid_usage'#, '_rdnattr'
-             , '_user_objclasses', '_local_groups'#, '_implicit_mapping'
-             #, '_pwd_encryption', 'read_only', '_extra_user_filter'
+             , '_binduid', '_bindpwd',
+             '_binduid_usage', '_rdnattr'
+             , '_user_objclasses', '_local_groups', '_implicit_mapping'
+             , '_pwd_encryption', 'read_only', '_extra_user_filter'
              , '_anonymous_timeout', '_authenticated_timeout'
              )
 
