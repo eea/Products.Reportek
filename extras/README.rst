@@ -1,9 +1,8 @@
-Update procedures
-===================
+Update scripts for migrating to Zope 2.13 (June 2012)
+=====================================================
 
 Prerequisities
------------------
-
+~~~~~~~~~~~~~~
 Checkout Products.LDAPUserFolder = 2.23 in develop and copy SimpleLog
 module from `extras/update_auth` package into Products.LDAPUserFolder
 module::
@@ -19,17 +18,13 @@ Start Zope in debug from this path. Don't worry about an
 
     $ ../../../bin/zope-instance debug
 
+Authentication::
 
-Authentication
------------------
-
-    >>> from update_auth import update_authentication
-    >>> update_authentication(app)
+    >>> import update_auth
+    >>> update_auth.update_authentication(app)
     >>> import transaction; transaction.commit()
 
-
-Catalog
------------------
+Catalog::
 
     >>> import update_catalog_indexes
     >>> update_catalog_indexes.update_indexes(app)
