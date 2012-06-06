@@ -60,29 +60,38 @@ Update scripts for migrating to Zope 2.13 (June 2012)
 
 Prerequisities
 ~~~~~~~~~~~~~~
-Checkout Products.LDAPUserFolder = 2.23 in develop and copy SimpleLog
-module from `extras/update_auth` package into Products.LDAPUserFolder
-module::
+Checkout Products.LDAPUserFolder version 2.23; configure buildout to
+load it in development mode (by adding its path in the ``develop`` field
+of the ``buildout`` section in ``buildout.cfg``)::
 
-    $ cd /your/buildout/directory
-    $ cd src
-    $ curl http://pypi.python.org/packages/source/P/Products.LDAPUserFolder/Products.LDAPUserFolder-2.23.tar.gz | tar xzvf -
+    $ cd $BUILDOUT_DIR/src
+    $ curl http://pypi.python.org/packages/source/P/Products.LDAPUserFolder/Products.LDAPUserFolder-2.23.tar.gz | tar xzf -
+
+Copy ``SimpleLog.py`` module from ``extras/update_auth`` folder into
+``Products.LDAPUserFolder`` module::
+
     $ cd Products.Reportek/extras
     $ cp update_auth/SimpleLog.py ../../Products.LDAPUserFolder-2.23/Products/LDAPUserFolder/
 
-Start Zope in debug from this path. Don't worry about an
-``AttributeError: _hash`` message, the update script will fix that.
+Start Zope, in shell mode, from the ``extras`` folder. Don't worry
+about an ``AttributeError: _hash`` message, the update script will fix
+that::
 
     $ ../../../bin/zope-instance debug
 
-Authentication::
+Run update for authentication::
 
     >>> import update_auth
     >>> update_auth.update_authentication(app)
     >>> import transaction; transaction.commit()
 
-Catalog::
+Run update for catalog::
 
     >>> import update_catalog_indexes
     >>> update_catalog_indexes.update_indexes(app)
     >>> import transaction; transaction.commit()
+
+
+Finally, in ``buildout.cfg``, remove the ``develop`` declaration of
+``Products.LDAPUserFolder``, and re-run ``bin/buildout`` before starting
+the Zope server normally.
