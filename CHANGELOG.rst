@@ -1,5 +1,6 @@
 2.3 (unreleased)
 ----------------
+* included update_catalog_indexes script in extras [nitaucor]
 * included update_auth package in extras, see docstring of init [simiamih]
 * Switch to distutils package structure. [moregale]
 * Documentation generated with Sphinx. [roug, moregale]
