@@ -12,6 +12,11 @@
                    class=".catalog.RebuildView"
                    permission="zope2.ViewManagementScreens" />
 
+   <browser:view for="Products.Reportek.interfaces.IReportekEngine"
+                   name="records_pagination"
+                   class=".paginator.PaginationView"
+                   permission="zope2.View" />
+
   <configure zcml:condition="installed zope.container">
 
     <subscriber for="Products.Reportek.interfaces.IDocument

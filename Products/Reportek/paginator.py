@@ -410,3 +410,13 @@ class DiggPage(Page):
                             " ".join(map(str, self.leading_range)),
                             " ".join(map(str, self.main_range)),
                             " ".join(map(str, self.trailing_range))]))
+
+from Products.Five.browser import BrowserView
+from Globals import DTMLFile
+
+class PaginationView(BrowserView):
+
+    def __call__(self, **kwargs):
+        return pagination.__of__(self.aq_parent)(**kwargs)
+
+pagination = DTMLFile('dtml/envelopeDocuments_pagination', globals())

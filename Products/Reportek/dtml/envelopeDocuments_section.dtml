@@ -3,7 +3,7 @@
 <div class="filessection">
 <fieldset><legend>Files in this envelope</legend>
 
-<dtml-let documents="getDocuments(REQUEST)">
+<dtml-let documents="getDocuments(REQUEST)" page_url="REQUEST.URL + '?'">
 	<dtml-if "documents.object_list">
 
 		<dtml-var documents_pagination>

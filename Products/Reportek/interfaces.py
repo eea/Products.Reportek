@@ -22,3 +22,6 @@ class IEnvelope(Interface):
     year = Attribute('year')
     endyear = Attribute('endyear')
 
+class IReportekEngine(Interface):
+    """ Reportek Engine """
+    pass

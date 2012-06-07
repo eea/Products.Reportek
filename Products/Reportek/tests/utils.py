@@ -28,6 +28,25 @@ from StringIO import StringIO
 import transaction
 from mock import Mock, patch
 
+import lxml.html
+import lxml.cssselect
+
+
+class HtmlElementList(list):
+
+    def text(self):
+        return ' '.join(e.text_content() for e in self)
+
+
+class HtmlPage(object):
+
+    def __init__(self, html):
+        self._doc = lxml.html.fromstring(html)
+
+    def select(self, css_selector):
+        sel = lxml.cssselect.CSSSelector(css_selector)
+        return HtmlElementList(sel(self._doc))
+
 
 def setupCoreSessions(app=None):
     '''Sets up the session_data_manager e.a.'''

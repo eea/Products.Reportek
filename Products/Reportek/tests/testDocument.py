@@ -8,7 +8,7 @@ ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
 from configurereportek import ConfigureReportek
 from fileuploadmock import FileUploadMock
-from utils import create_temp_reposit
+from utils import create_temp_reposit, HtmlPage
 from mock import Mock
 
 
@@ -32,14 +32,13 @@ class DocumentTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
     def beforeTearDown(self):
         cleanup_temp_reposit()
 
-    def create_text_document(self):
+    def create_text_document(self, id='documentid'):
         """ Supporting method
             Create a text document in the envelope
             Verify the content_type is text/plain
         """
         myfile = FileUploadMock('C:\\TEMP\\testfile.txt','content here')
-        self.envelope.manage_addProduct['Reportek'].manage_addDocument('documentid',
-          'Title', myfile)
+        self.envelope.manage_addProduct['Reportek'].manage_addDocument(id, 'Title', myfile)
         self.document = self.envelope.documentid
         self.assertEquals('text/plain', self.document.content_type)
 
@@ -156,6 +155,19 @@ xmlns:met="http://biodiversity.eionet.europa.eu/schemas/dir9243eec">
         self.document.manage_unrestrictDocument()
         assert self.document.acquiredRolesAreUsedBy('View') == 'CHECKED'
 
+
+class DocumentWebViewsTest(DocumentTestCase):
+
+    file_data = 'hello world'
+
+    def test_documents_section(self):
+        self.create_text_document()
+
+        page = HtmlPage(self.document.documents_section())
+        self.assertEqual(page.select('.filessection legend').text(),
+                        'Files in this envelope')
+        self.assertEqual(page.select('.filessection table tr td a').text(),
+                        'documentid')
 
 from utils import publish_view
 

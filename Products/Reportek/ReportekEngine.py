@@ -51,10 +51,14 @@ import RepUtils
 from Toolz import Toolz
 from DataflowsManager import DataflowsManager
 from CountriesManager import CountriesManager
-
+from paginator import DiggPaginator, EmptyPage, InvalidPage
+from zope.interface import implements
+from interfaces import IReportekEngine
 
 class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     """ Stores generic attributes for Reportek """
+
+    implements(IReportekEngine)
     meta_type = 'Reportek Engine'
     icon = 'misc_/Reportek/Converters'
 
@@ -169,7 +173,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 obj.manage_setLocalRoles(wrapped_user.getId(),['Owner',])   #set local role to the new user
 
     security.declareProtected('View', 'globalworklist')
-    globalworklist = DTMLFile('dtml/engineGlobalWorklist', globals())
+    globalworklist = PageTemplateFile('zpt/engineGlobalWorklist', globals())
 
     security.declareProtected(view_management_screens, 'countryreporters')
     countryreporters = DTMLFile('dtml/engineCountryReporters', globals())
@@ -206,15 +210,41 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """ return '' if there's no WebQuestionnaire attached to this application """
         return self.webq_url
 
-    def getNotCompletedWorkitems(self, sortby, how):
+    def getNotCompletedWorkitems(self, sortby, how, REQUEST=None):
         """ Loops for all the workitems that are in the 'active','inactive','fallout' status
             and returns their list
         """
-        l_catalog = getattr(self, constants.DEFAULT_CATALOG)
-        l_params = {'meta_type':'Workitem', 'status':['active','inactive','fallout'], 'sort_on':sortby}
+        catalog = getattr(self, constants.DEFAULT_CATALOG)
+
+        query = {
+            'meta_type':'Workitem',
+            'status':['active','inactive','fallout'],
+            'sort_on':sortby
+            }
+
         if how == 'desc':
-            l_params['sort_order'] = 'reverse'
-        return self.__getObjects(l_catalog.searchResults(l_params))
+            query['sort_order'] = 'reverse'
+
+        workitems = catalog(**query)
+
+        if REQUEST is None:
+            return [ob.getObject() for ob in workitems]
+
+        else:
+            paginator = DiggPaginator(workitems, 20, body=5, padding=2, orphans=5)
+
+            try:
+                page = int(REQUEST.get('page', '1'))
+            except ValueError:
+                page = 1
+
+            try:
+                workitems = paginator.page(page)
+            except (EmptyPage, InvalidPage):
+                workitems = paginator.page(paginator.num_pages)
+
+            workitems.object_list = [ob.getObject() for ob in workitems.object_list]
+            return workitems
 
     security.declareProtected(view_management_screens, 'filterNotCompletedWorkitems')
     def filterNotCompletedWorkitems(self, REQUEST=None, **kwargs):
