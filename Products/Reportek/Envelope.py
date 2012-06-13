@@ -764,7 +764,6 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             return
 
         tmpfile = tempfile.NamedTemporaryFile(suffix='.temp', dir=path)
-        print tmpfile.name
 
         try:
             outzd = ZipFile(tmpfile, "w")
