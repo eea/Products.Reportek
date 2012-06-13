@@ -1,3 +1,6 @@
+3.0-dev (unrelesed)
+-------------------
+
 2.3 (2012-06-13)
 ----------------
 * included update_catalog_indexes script in extras [nitaucor]
