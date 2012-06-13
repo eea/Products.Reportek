@@ -685,6 +685,9 @@ def configure_error_emails():
         'mailhost': env.get('REPORTEK_ERROR_SMTP_HOST', 'localhost'),
     }
 
+    if not mail_handler_cfg['toaddrs']:
+        return
+
     mail_handler = logging.handlers.SMTPHandler(**mail_handler_cfg)
     site_error_log = logging.getLogger('Zope.SiteErrorLog')
     site_error_log.addHandler(mail_handler)
