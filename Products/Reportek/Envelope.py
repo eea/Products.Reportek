@@ -788,12 +788,12 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             outzd.writestr('README.txt', zip_content.get_readme_content(self))
             outzd.writestr('history.txt', zip_content.get_history_content(self))
 
-            outzd.close()
-
         except:
+            outzd.close()
             raise ValueError("An error occurred while preparing the zip file.")
 
         else:
+            outzd.close()
             # only save cache file if greater than threshold
             if os.stat(tmpfile.name).st_size > ZIP_CACHE_THRESHOLD:
                 os.link(tmpfile.name, cachedfile)
