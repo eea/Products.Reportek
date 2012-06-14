@@ -212,6 +212,12 @@ def create_temp_reposit():
     return cleanup
 
 
+def create_upload_file(data='', filename='testfile.txt'):
+    f = StringIO(data)
+    f.filename = filename
+    return f
+
+
 def publish_view(view, environ={}):
     from ZPublisher.Publish import publish
     from AccessControl.SecurityManagement import noSecurityManager

@@ -3,7 +3,8 @@ import unittest
 from StringIO import StringIO
 import zipfile
 from mock import Mock, patch
-from utils import create_fake_root, makerequest, create_temp_reposit
+from utils import (create_fake_root, makerequest, create_temp_reposit,
+                   create_upload_file)
 
 
 def create_mock_request():
@@ -16,12 +17,6 @@ def create_mock_request():
     request._headers = {}
     request.get_header = request._headers.get
     return request
-
-
-def create_upload_file(data='', filename='testfile.txt'):
-    f = StringIO(data)
-    f.filename = filename
-    return f
 
 
 def setUpModule():
