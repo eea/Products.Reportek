@@ -339,8 +339,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 env_name = env_ob.title
                 for doc in env_ob.objectValues('Report Document'):
                     if getSecurityManager().checkPermission(view, doc):
-                        outzd.write(doc.physicalpath(),
-                                    "%s/%s" % (env_name, str(doc.getId())))
+                        with doc.open_data_file() as doc_file:
+                            tmp_copy = RepUtils.temporary_named_copy(doc_file)
+
+                        with tmp_copy:
+                            outzd.write(tmp_copy.name,
+                                        "%s/%s" % (env_name, str(doc.getId())))
 
                 #write metadata.txt
                 metadata_file = RepUtils.TmpFile(
