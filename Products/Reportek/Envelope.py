@@ -769,7 +769,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             outzd = ZipFile(tmpfile, "w")
 
             for doc in public_docs:
-                outzd.writestr(doc.getId(), file(doc.physicalpath()).read())
+                outzd.writestr(doc.getId(), doc.open_data_file().read())
 
             for fdbk in self.objectValues('Report Feedback'):
                 if getSecurityManager().checkPermission('View', fdbk):
@@ -865,9 +865,12 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         files = []
         if document.content_type in ['application/octet-stream', 'application/zip', 'application/x-compressed']:
             try:
-                zf = ZZipFile(document.physicalpath())
+                data_file = document.open_data_file()
+                zf = ZZipFile(data_file)
                 for zipinfo in zf.infolist():
                     files.append(zipinfo.filename)
+                zf.close()
+                data_file.close()
             except (BadZipfile, IOError):   # This version of Python reports IOError on empty files
                 pass
         return files
