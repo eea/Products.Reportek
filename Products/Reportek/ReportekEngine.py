@@ -339,19 +339,26 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 env_name = env_ob.title
                 for doc in env_ob.objectValues('Report Document'):
                     if getSecurityManager().checkPermission(view, doc):
-                        outzd.write(doc.physicalpath(), "%s/%s" % (env_name, str(doc.getId())))
-    
+                        outzd.write(doc.physicalpath(),
+                                    "%s/%s" % (env_name, str(doc.getId())))
+
                 #write metadata.txt
-                metadata_file = RepUtils.TmpFile(zip_content.get_metadata_content(env_ob))
-                outzd.write(str(metadata_file), "%s/%s" % (env_name, 'metadata.txt'))
-    
+                metadata_file = RepUtils.TmpFile(
+                    zip_content.get_metadata_content(env_ob))
+                outzd.write(str(metadata_file),
+                            "%s/%s" % (env_name, 'metadata.txt'))
+
                 #write README.txt
-                readme_file = RepUtils.TmpFile(zip_content.get_readme_content(env_ob))
-                outzd.write(str(readme_file), "%s/%s" % (env_name, 'README.txt'))
-    
+                readme_file = RepUtils.TmpFile(
+                    zip_content.get_readme_content(env_ob))
+                outzd.write(str(readme_file),
+                            "%s/%s" % (env_name, 'README.txt'))
+
                 #write history.txt
-                history_file = RepUtils.TmpFile(zip_content.get_history_content(env_ob))
-                outzd.write(str(history_file), "%s/%s" % (env_name, 'history.txt'))
+                history_file = RepUtils.TmpFile(
+                    zip_content.get_history_content(env_ob))
+                outzd.write(str(history_file),
+                            "%s/%s" % (env_name, 'history.txt'))
 
         outzd.close()
         stat = os.stat(tmpfile)
