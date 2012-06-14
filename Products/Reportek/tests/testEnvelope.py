@@ -190,6 +190,20 @@ class EnvelopeMetadataTest(unittest.TestCase):
         self.assertEqual(xml_instance[0].attrib['title'], "bar")
 
 
+class EnvelopeCustomDataflowsXmlTest(unittest.TestCase):
+
+    def setUp(self):
+        self.root = create_fake_root()
+        self.envelope = create_envelope(self.root)
+
+    def test_custom_dataflows_xml(self):
+        upload_file = create_upload_file('<foo title="bar"/>', 'baz.xml')
+        add_document(self.envelope, upload_file)
+        dom = self.envelope.getFormContentAsXML('baz.xml')
+        self.assertEqual(dom.firstChild.nodeName, 'foo')
+        self.assertEqual(dom.firstChild.attributes['title'].value, 'bar')
+
+
 def test_suite():
     import unittest
     suite = unittest.makeSuite(EnvelopeTestCase)
