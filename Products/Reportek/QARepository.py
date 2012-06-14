@@ -33,6 +33,7 @@ import Globals
 
 import constants
 import QAScript
+import RepUtils
 
 class QARepository(Folder):
     """ """
@@ -187,14 +188,18 @@ class QARepository(Folder):
                 if l_script_obj.content_type_out:
                     l_res_ct = l_script_obj.content_type_out
 
-                    #generate extra-parameters
-                    #the file path is set default as first parameter
-                    params = [file_obj.physicalpath()]
-                    for k in l_script_obj.qa_extraparams:
-                        params.append(eval(k))
+                    with file_obj.open_data_file() as doc_file:
+                        tmp_copy = RepUtils.temporary_named_copy(doc_file)
 
-                    command = l_script_obj.script_url % tuple(params)
-                    l_res_data.data = os.popen(command).read()
+                    with tmp_copy:
+                        #generate extra-parameters
+                        #the file path is set default as first parameter
+                        params = [tmp_copy.name]
+                        for k in l_script_obj.qa_extraparams:
+                            params.append(eval(k))
+
+                        command = l_script_obj.script_url % tuple(params)
+                        l_res_data.data = os.popen(command).read()
 
                 else:
                     l_res_data.data =  'QA error'

@@ -333,3 +333,11 @@ class TmpFile:
 
     def __del__(self):
         os.unlink(self.fname)
+
+
+def temporary_named_copy(source_file):
+    tmp_file = tempfile.NamedTemporaryFile()
+    for chunk in iter_file_data(source_file):
+        tmp_file.write(chunk)
+    tmp_file.flush()
+    return tmp_file
