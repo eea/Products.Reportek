@@ -19,16 +19,14 @@ def create_mock_request():
     return request
 
 
-def setUpModule():
-    global Document, Envelope
-    from Products.Reportek import Document, Envelope
-
-    global cleanup_temp_reposit
-    cleanup_temp_reposit = create_temp_reposit()
+def setUpModule(self):
+    from Products.Reportek import Document; self.Document = Document
+    from Products.Reportek import Envelope; self.Envelope = Envelope
+    self._cleanup_temp_reposit = create_temp_reposit()
 
 
-def tearDownModule():
-    cleanup_temp_reposit()
+def tearDownModule(self):
+    self._cleanup_temp_reposit()
 
 
 def create_envelope(parent, id='envelope'):

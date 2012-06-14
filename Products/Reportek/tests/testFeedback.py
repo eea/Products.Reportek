@@ -11,13 +11,12 @@ from fileuploadmock import FileUploadMock
 from utils import create_temp_reposit
 
 
-def setUpModule():
-    global cleanup_temp_reposit
-    cleanup_temp_reposit = create_temp_reposit()
+def setUpModule(self):
+    self._cleanup_temp_reposit = create_temp_reposit()
 
 
-def tearDownModule():
-    cleanup_temp_reposit()
+def tearDownModule(self):
+    self._cleanup_temp_reposit()
 
 
 class MockResponse:

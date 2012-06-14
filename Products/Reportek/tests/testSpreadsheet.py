@@ -15,13 +15,12 @@ TEST_DATA_URL = ('https://svn.eionet.europa.eu/repositories/Zope'
 TESTDIR = os.path.abspath(os.path.dirname(__file__))
 
 
-def setUpModule():
-    global cleanup_temp_reposit
-    cleanup_temp_reposit = create_temp_reposit()
+def setUpModule(self):
+    self._cleanup_temp_reposit = create_temp_reposit()
 
 
-def tearDownModule():
-    cleanup_temp_reposit()
+def tearDownModule(self):
+    self._cleanup_temp_reposit()
 
 
 class FileUploadTest(file):

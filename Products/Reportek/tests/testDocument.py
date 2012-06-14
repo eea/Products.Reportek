@@ -20,8 +20,7 @@ class DocumentTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
     physpath_must_track_zodb = False
 
     def afterSetUp(self):
-        global cleanup_temp_reposit
-        cleanup_temp_reposit = create_temp_reposit()
+        self._cleanup_temp_reposit = create_temp_reposit()
 
         self.createStandardDependencies()
         self.createStandardCollection()
@@ -30,7 +29,7 @@ class DocumentTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.envelope = self.createStandardEnvelope()
 
     def beforeTearDown(self):
-        cleanup_temp_reposit()
+        self._cleanup_temp_reposit()
 
     def create_text_document(self, id='documentid'):
         """ Supporting method
@@ -179,8 +178,7 @@ class HeadRequestTest(unittest.TestCase):
     def setUp(self):
         from Products.Reportek.Document import Document
 
-        global cleanup_temp_reposit
-        cleanup_temp_reposit = create_temp_reposit()
+        self._cleanup_temp_reposit = create_temp_reposit()
 
         self.doc = Document('testdoc', "Document for Test")
         self.doc.getWorkitemsActiveForMe = Mock(return_value=[])
@@ -188,7 +186,7 @@ class HeadRequestTest(unittest.TestCase):
         self.doc.manage_file_upload(upload_file)
 
     def tearDown(self):
-        cleanup_temp_reposit()
+        self._cleanup_temp_reposit()
 
     def test_headers(self):
         from webdav.common import rfc1123_date
