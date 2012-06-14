@@ -102,6 +102,15 @@ def copy_file(infile, outfile):
     if close_in: instream.close()
     if close_out: outstream.close()
 
+
+def iter_file_data(in_file, chunk_size=131072):
+    while True:
+        chunk = in_file.read(chunk_size)
+        if not chunk:
+            break
+        yield chunk
+
+
 def cleanup_id(str):
     """ Cleanup an id
         Should be more thorough and e.g. remove trailing dots/spaces

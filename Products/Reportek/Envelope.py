@@ -1060,14 +1060,6 @@ def iter_ofs_file_data(ofs_file):
             data = data.next
 
 
-def iter_file_data(in_file, chunk_size=131072):
-    while True:
-        chunk = in_file.read(chunk_size)
-        if not chunk:
-            break
-        yield chunk
-
-
 def ofs_file_content_tmp(ofs_file):
     tmp_data = tempfile.NamedTemporaryFile()
     for chunk in iter_ofs_file_data(ofs_file):
@@ -1077,7 +1069,7 @@ def ofs_file_content_tmp(ofs_file):
 
 
 def copy_file_data(in_file, out_file):
-    for chunk in iter_file_data(in_file):
+    for chunk in RepUtils.iter_file_data(in_file):
         out_file.write(chunk)
 
 
