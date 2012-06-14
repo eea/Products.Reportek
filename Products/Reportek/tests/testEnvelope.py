@@ -2,11 +2,23 @@ import os, sys
 if __name__ == '__main__':
     execfile(os.path.join(sys.path[0], 'framework.py'))
 
+import unittest
+from StringIO import StringIO
 from Testing import ZopeTestCase
 from AccessControl import getSecurityManager
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
 from configurereportek import ConfigureReportek
+from utils import create_fake_root, create_temp_reposit, create_upload_file
+from mock import Mock, patch
+import lxml.etree
+
+
+def setUpModule(self):
+    self._cleanup_temp_reposit = create_temp_reposit()
+
+def tearDownModule(self):
+    self._cleanup_temp_reposit()
 
 
 class EnvelopeTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
@@ -115,6 +127,51 @@ class EnvelopeTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.assertEquals('Begin', wi.activity_id)
         self.envelope.completeWorkitem(wi.id, actor=user)
         self.assertEquals('complete', wi.status)
+
+
+def create_envelope(parent, id='envelope'):
+    from Products.Reportek.Envelope import Envelope
+    process = Mock()
+    e = Envelope(process, '', '', '', '', '', '', '', '')
+    e.id = id
+    parent._setObject(id, e)
+    e.dataflow_uris = []
+    return parent[id]
+
+
+def add_document(envelope, upload_file):
+    from Products.Reportek.Document import manage_addDocument
+    with patch.object(envelope, 'REQUEST', create=True):
+        doc_id = manage_addDocument(envelope, file=upload_file)
+    return envelope[doc_id]
+
+
+def get_xml_metadata(envelope, inline='false'):
+    from Products.Reportek.XMLMetadata import XMLMetadata
+    xml_data = XMLMetadata(envelope).envelopeMetadata(inline)
+    return lxml.etree.parse(StringIO(xml_data)).getroot()
+
+
+class EnvelopeMetadataTest(unittest.TestCase):
+
+    def setUp(self):
+        self.root = create_fake_root()
+        self.envelope = create_envelope(self.root)
+
+    def test_metadata_of_empty_envelope(self):
+        envelope_el = get_xml_metadata(self.envelope)
+        self.assertEqual(envelope_el.attrib['released'], 'false')
+        self.assertEqual(envelope_el.xpath('//file'), [])
+
+    def test_metadata_of_envelope_with_document(self):
+        add_document(self.envelope, create_upload_file("blah", 'blah.txt'))
+        envelope_el = get_xml_metadata(self.envelope)
+        xml_file_list = envelope_el.xpath('//file')
+        self.assertEqual(len(xml_file_list), 1)
+        [xml_file] = xml_file_list
+        self.assertEqual(xml_file.attrib['name'], 'blah.txt')
+        self.assertEqual(xml_file.attrib['type'], 'text/plain')
+
 
 def test_suite():
     import unittest
