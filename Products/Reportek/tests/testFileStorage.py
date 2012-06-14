@@ -92,6 +92,40 @@ class FileStorageTest(unittest.TestCase):
 
         self.assertEqual(envelope.getZipInfo(doc), ['f1.txt', 'f2.txt'])
 
+    def test_read_file_data(self):
+        data = 'hello world, file for test!'
+
+        doc = Document.Document('testdoc', "Document for Test")
+        doc.getWorkitemsActiveForMe = Mock(return_value=[])
+        doc.manage_file_upload(create_upload_file(data))
+
+        data_file = doc.open_data_file()
+        self.assertEqual(data_file.read(), data)
+
+        # rewind the file, see if we can still read data
+        data_file.seek(0)
+        self.assertEqual(data_file.read(), data)
+
+        # read in chunks
+        data_file.seek(0)
+        self.assertEqual(data_file.read(1), data[0])
+
+        data_file.close()
+
+    def test_read_file_data_as_context_manager(self):
+        data = 'hello world, file for test!'
+
+        doc = Document.Document('testdoc', "Document for Test")
+        doc.getWorkitemsActiveForMe = Mock(return_value=[])
+        doc.manage_file_upload(create_upload_file(data))
+
+        data_file = doc.open_data_file()
+        with data_file:
+            self.assertEqual(data_file.read(), data)
+
+        # I/O operation on closed file
+        self.assertRaises(ValueError, data_file.read)
+
 
 def download_envelope_zip(envelope):
     """ call Envelope.envelope_zip using patched security managers """

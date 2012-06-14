@@ -296,6 +296,10 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         for l_w in self.getWorkitemsActiveForMe(self.REQUEST):
             l_w.addEvent('file upload', 'File: %s' % self.id)
 
+    security.declarePrivate('open_data_file')
+    def open_data_file(self):
+        return open(self.physicalpath())
+
     def index_html(self, REQUEST, RESPONSE, icon=0):
         """ Returns the contents of the file.  Also, sets the
             Content-Type HTTP header to the objects content type.
