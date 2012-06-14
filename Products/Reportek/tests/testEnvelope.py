@@ -10,6 +10,7 @@ ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
 from configurereportek import ConfigureReportek
 from utils import create_fake_root, create_temp_reposit, create_upload_file
+from utils import create_envelope, add_document
 from mock import Mock, patch
 import lxml.etree
 
@@ -127,23 +128,6 @@ class EnvelopeTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.assertEquals('Begin', wi.activity_id)
         self.envelope.completeWorkitem(wi.id, actor=user)
         self.assertEquals('complete', wi.status)
-
-
-def create_envelope(parent, id='envelope'):
-    from Products.Reportek.Envelope import Envelope
-    process = Mock()
-    e = Envelope(process, '', '', '', '', '', '', '', '')
-    e.id = id
-    parent._setObject(id, e)
-    e.dataflow_uris = []
-    return parent[id]
-
-
-def add_document(envelope, upload_file):
-    from Products.Reportek.Document import manage_addDocument
-    with patch.object(envelope, 'REQUEST', create=True):
-        doc_id = manage_addDocument(envelope, file=upload_file)
-    return envelope[doc_id]
 
 
 def get_xml_metadata(envelope, inline='false'):

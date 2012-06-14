@@ -242,6 +242,23 @@ def publish_view(view, environ={}):
         noSecurityManager()
 
 
+def create_envelope(parent, id='envelope'):
+    from Products.Reportek.Envelope import Envelope
+    process = Mock()
+    e = Envelope(process, '', '', '', '', '', '', '', '')
+    e.id = id
+    parent._setObject(id, e)
+    e.dataflow_uris = []
+    return parent[id]
+
+
+def add_document(envelope, upload_file):
+    from Products.Reportek.Document import manage_addDocument
+    with patch.object(envelope, 'REQUEST', create=True):
+        doc_id = manage_addDocument(envelope, file=upload_file)
+    return envelope[doc_id]
+
+
 __all__ = [
     'setupCoreSessions',
     'setupSiteErrorLog',
