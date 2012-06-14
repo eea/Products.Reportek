@@ -172,6 +172,23 @@ class EnvelopeMetadataTest(unittest.TestCase):
         self.assertEqual(xml_file.attrib['name'], 'blah.txt')
         self.assertEqual(xml_file.attrib['type'], 'text/plain')
 
+    def test_inline_xml_document(self):
+        upload_file = create_upload_file('<foo title="bar"/>', 'baz.xml')
+        add_document(self.envelope, upload_file)
+
+        with patch.object(self.envelope, 'canViewContent'):
+            envelope_el = get_xml_metadata(self.envelope, inline='true')
+
+        xml_instance_list = envelope_el.xpath('//instance')
+        self.assertEqual(len(xml_instance_list), 1)
+
+        [xml_instance] = xml_instance_list
+        self.assertEqual(xml_instance.attrib['name'], "baz.xml")
+        self.assertEqual(xml_instance.attrib['type'], "text/xml")
+
+        self.assertEqual(xml_instance[0].tag, "foo")
+        self.assertEqual(xml_instance[0].attrib['title'], "bar")
+
 
 def test_suite():
     import unittest
