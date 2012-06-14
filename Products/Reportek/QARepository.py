@@ -182,26 +182,25 @@ class QARepository(Folder):
 
             if file_obj is None or l_script_obj is None:
                 l_res_data.data = 'QA error'
+
             else:
                 if l_script_obj.content_type_out:
                     l_res_ct = l_script_obj.content_type_out
 
-                    #generate 'filename'
-                    if l_script_obj.content_type_out in constants.CONTENT_TYPES.keys():
-                        output_fname = "%s%s" % (file_obj.id[:file_obj.id.rfind('.')], constants.CONTENT_TYPES[l_script_obj.content_type_out])
-                    else:
-                        output_fname = "QAResults"
-
                     #generate extra-parameters
-                    params = [file_obj.physicalpath()] #the file path is set default as first parameter
+                    #the file path is set default as first parameter
+                    params = [file_obj.physicalpath()]
                     for k in l_script_obj.qa_extraparams:
                         params.append(eval(k))
 
-                    #REQUEST.RESPONSE.setHeader('Content-Disposition', 'inline; filename=%s' % output_fname)
-                    l_res_data.data = os.popen(l_script_obj.script_url % tuple(params)).read()
+                    command = l_script_obj.script_url % tuple(params)
+                    l_res_data.data = os.popen(command).read()
+
                 else:
                     l_res_data.data =  'QA error'
+
             l_tmp = [l_res_ct, l_res_data]
+
         # remote script
         else:
             l_qa_app = self.getQAApplication()
