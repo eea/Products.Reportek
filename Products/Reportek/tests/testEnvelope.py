@@ -1,7 +1,4 @@
 import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
 import unittest
 from StringIO import StringIO
 from Testing import ZopeTestCase
@@ -186,13 +183,3 @@ class EnvelopeCustomDataflowsXmlTest(unittest.TestCase):
         dom = self.envelope.getFormContentAsXML('baz.xml')
         self.assertEqual(dom.firstChild.nodeName, 'foo')
         self.assertEqual(dom.firstChild.attributes['title'].value, 'bar')
-
-
-def test_suite():
-    import unittest
-    suite = unittest.makeSuite(EnvelopeTestCase)
-    return suite
-
-if __name__ == '__main__':
-    framework()
-

@@ -1,7 +1,4 @@
 import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 
@@ -33,11 +30,3 @@ class processDefinitionCreationTestCase(ZopeTestCase.ZopeTestCase):
         self.pd.addTransition(id='begin_act', From='Begin', To='Act')
         assert hasattr(self.pd, 'begin_act'), 'begin_act transition not created'
         self.pd.addTransition(id='act_end', From='Act', To='End')
-
-def test_suite():
-    import unittest
-    suite = unittest.makeSuite(processDefinitionCreationTestCase, 'test')
-    return suite
-    
-if __name__ == '__main__':
-    framework()

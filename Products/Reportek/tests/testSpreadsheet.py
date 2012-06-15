@@ -1,7 +1,4 @@
 import os, sys, transaction
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
@@ -124,13 +121,3 @@ class SpreadsheetTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         res = self.envelope.convert_excel_file(myfile)
         self.assertEquals(1, res)
         self.assertEquals(5, len(self.envelope.objectValues('Report Document')))
-
-
-def test_suite():
-    import unittest
-    suite = unittest.makeSuite(SpreadsheetTestCase)
-    return suite
-
-if __name__ == '__main__':
-    framework()
-

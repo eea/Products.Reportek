@@ -1,7 +1,4 @@
 import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
@@ -320,21 +317,3 @@ class zopeEnvCopySupport(ZopeTestCase.ZopeTestCase):
         p=Permission(name,value,self.of)
         roles = ['Authenticated']
         p.setRoles(roles)
-
-
-
-def getSuite():
-    suite = unittest.makeSuite(processInstancesContainerTestCase)
-    suite.addTest(unittest.makeSuite(catalogTestCase))
-    suite.addTest(unittest.makeSuite(rolesTestCase))
-    suite.addTest(unittest.makeSuite(zopeEnvCopySupport))
-#   suite.addTest(unittest.makeSuite(zopeEnvTestCase))
-#   suite.addTest(unittest.makeSuite(zopeSplitAnd))
-    return suite
-
-if __name__ == '__main__':
-    framework(descriptions=1, verbosity=1)
-else:
-    import unittest
-    test_suite = getSuite
-

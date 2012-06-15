@@ -1,8 +1,5 @@
 # -*- coding: utf-8 -*-
 import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
@@ -108,12 +105,3 @@ class FeedbackTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
 
         self.feedback.manage_unrestrictFeedback()
         assert self.feedback.acquiredRolesAreUsedBy('View') == 'CHECKED'
-
-def test_suite():
-    import unittest
-    suite = unittest.makeSuite(FeedbackTestCase)
-    return suite
-
-if __name__ == '__main__':
-    framework()
-

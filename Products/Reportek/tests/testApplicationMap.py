@@ -1,7 +1,4 @@
 import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
 from Testing import ZopeTestCase
 from configurereportek import ConfigureReportek
 
@@ -30,12 +27,3 @@ class ApplicationsTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.assertEquals([{'link': 'pyAuto', 'name': 'alpha_app'},
             {'link': 'beta', 'name': 'beta_app'},
             {'link': 'delta', 'name': 'delta_app'}] , self.wf.listApplications())
-
-def test_suite():
-    import unittest
-    suite = unittest.makeSuite(ApplicationsTestCase, 'test')
-    return suite
-
-if __name__ == '__main__':
-    framework()
-

@@ -1,7 +1,4 @@
 import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 
@@ -123,12 +120,3 @@ class DFMTestCase(ZopeTestCase.ZopeTestCase):
         # Must return empty list as there are no webforms for obl. 22
         self.assertEqual([],
               mappingsFolder.getXMLSchemasForDataflow('http://rod.eionet.eu.int/obligations/22'))
-
-def test_suite():
-    from unittest import TestSuite, makeSuite
-    suite = TestSuite()
-    suite.addTest(makeSuite(DFMTestCase))
-    return suite
-
-if __name__ == '__main__':
-    framework()

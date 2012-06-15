@@ -1,7 +1,4 @@
 import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 
@@ -430,21 +427,3 @@ class routingDummySubflowTestCase(ZopeTestCase.ZopeTestCase):
 
     def testComplete(self):
         assert self.pi.status == 'complete', self.pi.status
-
-
-def getSuite():
-    suite = unittest.makeSuite(routingSimpleTestCase)
-#   suite.addTest(unittest.makeSuite(routingAndSplitTestCase))
-#   suite.addTest(unittest.makeSuite(routingXOrSplitTestCase))
-#   suite.addTest(unittest.makeSuite(routingExceptionHandlingTestCase))
-#   suite.addTest(unittest.makeSuite(routingAutoAppTestCase))
-#   suite.addTest(unittest.makeSuite(routingSubflowTestCase))
-#   suite.addTest(unittest.makeSuite(routingDummySubflowTestCase))
-    return suite
-
-if __name__ == '__main__':
-    framework(descriptions=1, verbosity=1)
-else:
-    import unittest
-    test_suite = getSuite
-

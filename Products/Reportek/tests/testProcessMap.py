@@ -1,7 +1,4 @@
 import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
 from Testing import ZopeTestCase
 from configurereportek import ConfigureReportek
 
@@ -120,12 +117,3 @@ class OpenflowTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.wf.setProcessMappings('process1', '1', '1')
         self.assertEquals( (1, ('CannotPickProcess', 'More than one process associated with this envelope')) ,
            self.wf.findProcess(['http://rod.eionet.eu.int/obligations/8'],'http://rod.eionet.eu.int/spatial/2'))
-
-def test_suite():
-    import unittest
-    suite = unittest.makeSuite(OpenflowTestCase, 'test')
-    return suite
-
-if __name__ == '__main__':
-    framework()
-

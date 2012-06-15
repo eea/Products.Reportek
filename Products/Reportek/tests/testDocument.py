@@ -1,8 +1,5 @@
 import os, sys
 import unittest
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
@@ -206,13 +203,3 @@ class HeadRequestTest(unittest.TestCase):
         self.assertRaises(StorageError, publish_view,
                             self.doc,
                             {'REQUEST_METHOD': 'HEAD'})
-
-
-def test_suite():
-    import unittest
-    suite = unittest.makeSuite(DocumentTestCase,"test")
-    return suite
-
-if __name__ == '__main__':
-    framework()
-

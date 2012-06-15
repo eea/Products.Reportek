@@ -1,7 +1,4 @@
 import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
 from Testing import ZopeTestCase
 from AccessControl import getSecurityManager
 from configurereportek import ConfigureReportek
@@ -68,13 +65,3 @@ class exceptionsTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.pd.manage_delObjects(['Begin'])
         assert getattr(self.env, '0').activity_id == 'Begin'
         assert getattr(self.env, '0').status == 'fallout', getattr(self.env, '0').status
-
-def test_suite():
-    import unittest
-    suite = unittest.makeSuite(exceptionsTestCase, 'test')
-    return suite
-
-
-if __name__ == '__main__':
-    framework()
-

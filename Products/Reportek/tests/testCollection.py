@@ -1,7 +1,4 @@
 import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 
@@ -26,12 +23,3 @@ class CollectionTestCase(ZopeTestCase.ZopeTestCase):
             allow_collections=1, allow_envelopes=1, id='colle')
         self.assertTrue(hasattr(self.app, 'colle'),'Collection did not get created')
         self.assertNotEqual(self.app.colle, None)
-
-def test_suite():
-    from unittest import TestSuite, makeSuite
-    suite = TestSuite()
-    suite.addTest(makeSuite(CollectionTestCase))
-    return suite
-
-if __name__ == '__main__':
-    framework()

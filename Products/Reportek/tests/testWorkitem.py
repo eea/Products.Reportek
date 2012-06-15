@@ -1,7 +1,4 @@
 import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 from Products.Reportek.workitem import workitem
@@ -42,11 +39,3 @@ class WorkitemTestCase(ZopeTestCase.ZopeTestCase):
                            status = 'active',
                            actor = 'openflow_test',
                            graph_level = 0) == None, 'incorrect edit'
-
-def test_suite():
-    import unittest
-    suite = unittest.makeSuite(WorkitemTestCase, 'test')
-    return suite
-
-if __name__ == '__main__':
-    framework()

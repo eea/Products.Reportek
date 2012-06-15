@@ -1,7 +1,4 @@
 import os, sys
-if __name__ == '__main__':
-    execfile(os.path.join(sys.path[0], 'framework.py'))
-
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 
@@ -23,12 +20,3 @@ class InitialisationTestCase(ZopeTestCase.ZopeTestCase):
     def testWorkflowEngine(self):
         of = getattr(self.app, 'WorkflowEngine')
         self.assertEquals(of.meta_type, 'Workflow Engine')
-
-def test_suite():
-    import unittest
-    suite = unittest.makeSuite(InitialisationTestCase, 'test')
-    return suite
-
-if __name__ == '__main__':
-    framework()
-
