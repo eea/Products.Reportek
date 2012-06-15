@@ -132,7 +132,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     implements(IDocument)
     icon = 'misc_/Reportek/document_gif'
 
-    # what management options are there?
     manage_options = (
         {'label':'Edit',                'action': 'manage_main'       },
         {'label':'View/Download',       'action': ''                  },
@@ -140,17 +139,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         {'label':'Security',            'action': 'manage_access'     },
     )
 
-    # Create a SecurityInfo for this class. We will use this
-    # in the rest of our class definition to make security
-    # assertions.
     security = ClassSecurityInfo()
-
-#    security.declareProtected('Change Envelopes', 'manage_cutObjects')
-#    security.declareProtected('Change Envelopes', 'manage_copyObjects')
-#    security.declareProtected('Change Envelopes', 'manage_pasteObjects')
-#    security.declareProtected('Change Envelopes', 'manage_renameForm')
-#    security.declareProtected('Change Envelopes', 'manage_renameObject')
-#    security.declareProtected('Change Envelopes', 'manage_renameObjects')
 
     security.declareProtected('Change permissions', 'manage_access')
 
@@ -158,10 +147,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     security.declareProtected('Change Envelopes', 'manage_main')
     security.declareProtected('Change Envelopes', 'manage_uploadForm')
     security.declareProtected('Change Envelopes', 'manage_file_upload')
-
-    security.declareProtected('FTP access', 'manage_FTPstat')
-    security.declareProtected('FTP access', 'manage_FTPget')
-    security.declareProtected('FTP access', 'manage_FTPlist')
 
     security.declareProtected('View', 'index_html')
     security.declareProtected('View', 'link')
@@ -171,7 +156,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     security.declareProtected('View', 'physicalpath')
     security.declareProtected('View', '__str__')
 
-    # what do people think they're adding?
     meta_type = 'Report Document'
 
     # location of the file-repository
@@ -211,13 +195,13 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
     def get_accept_time(self):
         """ A document can have an accepted status. It is set by the client, and
-	    is used to force the file to be immutable even if the envelope is returned
-	    to draft state. It is used in second and third delivery round, to tell
-	    the reporter that some files have to be redelivered, but some file are
-	    accepted and are processed.
+            is used to force the file to be immutable even if the envelope is returned
+            to draft state. It is used in second and third delivery round, to tell
+            the reporter that some files have to be redelivered, but some file are
+            accepted and are processed.
 
-	    It was used in Article 17 - 2007.
-	"""
+            It was used in Article 17 - 2007.
+        """
         if self.accept_time:
             return DateTime(self.accept_time)
         return None
@@ -268,9 +252,9 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     security.declarePublic('getMyOwnerName')
     def getMyOwnerName(self):
         """ Find the owner in the local roles.
-	    Then use LDAP to find the user's full name.
-	    TODO: Move LDAP dependency to ReportekEngine.
-	"""
+            Then use LDAP to find the user's full name.
+            TODO: Move LDAP dependency to ReportekEngine.
+        """
         return self.getLDAPUserCanonicalName(self.getLDAPUser(self.getMyOwner()))
 
     def logUpload(self):
@@ -306,7 +290,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     security.declarePublic('isGML')
     def isGML(self):
         """ Checks whether or not this is a GML file.
-	    The content type must be text/xml and it must end with .gml
+            The content type must be text/xml and it must end with .gml
         """
         return self.content_type == 'text/xml' and self.id[-4:] == '.gml'
 
@@ -627,7 +611,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
     def _setFileSchema(self, p_content):
         """ If it is an XML file, then extract structure information.
-	    The structure is the XML schema or the DTD.
+            The structure is the XML schema or the DTD.
         """
         if self.content_type == 'text/xml':
             self.xml_schema_location = detect_schema(p_content)
