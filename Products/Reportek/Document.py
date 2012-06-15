@@ -171,7 +171,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     security.declareProtected('Change Envelopes', 'manage_main')
     security.declareProtected('Change Envelopes', 'manage_uploadForm')
     security.declareProtected('Change Envelopes', 'manage_file_upload')
-    security.declareProtected('Change Envelopes', 'PUT')
 
     security.declareProtected('FTP access', 'manage_FTPstat')
     security.declareProtected('FTP access', 'manage_FTPget')
@@ -727,34 +726,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
                             message="The file was uploaded successfully!",
                             action=REQUEST['HTTP_REFERER'])
 
-    manage_FTPget = index_html
-
-    def PUT(self, REQUEST, RESPONSE):
-        """ Handle HTTP/FTP PUT requests """
-        self.dav__init(REQUEST, RESPONSE)
-        self.dav__simpleifhandler(REQUEST, RESPONSE)
-        content_type = REQUEST.get_header('content-type', None)
-        instream = REQUEST['BODYFILE']
-        new_fn = self._get_ufn(self.filename)
-        self._copy(instream, self.physicalpath(new_fn))
-        try: instream.seek(0)
-        except: pass
-        self.file_uploaded = 1
-        self.logUpload()
-        try:
-            self.content_type = self._get_content_type(instream,
-                        instream.read(100),
-                        self.id, content_type or self.content_type)
-        except:
-            if UNDO_POLICY==ALWAYS_BACKUP:
-                os.remove(self.physicalpath(new_fn))
-                self.file_uploaded = 0
-        else:
-            self.filename = new_fn
-            self._upload_time = time()
-            self.accept_time = None
-        RESPONSE.setStatus(204)
-        return RESPONSE
 
     ################################
     # Private methods              #

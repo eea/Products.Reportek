@@ -230,10 +230,6 @@ class Referral(CatalogAware, SimpleItem, CountriesManager):
     security.declareProtected('Change Collections', 'manage_prop')
     manage_prop=DTMLFile('dtml/referProp',globals())
 
-    def get_size(self):
-        '''Make FTP happy'''
-        return 0
-
     security.declarePublic('years')
 
     def years(self):

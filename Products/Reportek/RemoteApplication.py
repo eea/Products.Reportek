@@ -85,9 +85,7 @@ class RemoteApplication(SimpleItem):
                 )
 
     def __init__(self, id, title, RemoteServer, RemoteService, app_name, nRetries=5, retryFrequency=300, nTimeBetweenCalls=60):
-        """ Initialize a new instance of Document
-            If a document is created through FTP, self.absolute_url doesn't work.
-        """
+        """ Initialize a new instance of Document """
         self.id = id
         self.title = title
         self.RemoteServer = RemoteServer
