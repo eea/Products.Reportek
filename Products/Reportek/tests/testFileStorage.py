@@ -47,16 +47,31 @@ def create_document_with_data(data):
 
 class FileStorageTest(unittest.TestCase):
 
-    def test_upload(self):
+    def test_manage_file_upload(self):
         data = 'hello world, file for test!'
-
         doc = Document.Document('testdoc', "Document for Test")
         doc.getWorkitemsActiveForMe = Mock(return_value=[])
         doc.manage_file_upload(create_upload_file(data))
+        with doc.data_file.open() as data_file_handle:
+            self.assertEqual(data_file_handle.read(), data)
 
-        request = create_mock_request()
-        doc.index_html(request, request.RESPONSE)
-        self.assertEqual(request.RESPONSE._data.getvalue(), data)
+    def test_manage_file_upload_as_string(self):
+        data = 'hello world, file for test!'
+        doc = Document.Document('testdoc', "Document for Test")
+        doc.getWorkitemsActiveForMe = Mock(return_value=[])
+        doc.manage_file_upload(data)
+        with doc.data_file.open() as data_file_handle:
+            self.assertEqual(data_file_handle.read(), data)
+
+    def test_upload_new_version(self):
+        data_1 = 'the data, version one'
+        data_2 = 'the data, version two'
+        doc = Document.Document('testdoc', "Document for Test")
+        doc.getWorkitemsActiveForMe = Mock(return_value=[])
+        doc.manage_file_upload(data_1)
+        doc.manage_file_upload(data_2)
+        with doc.data_file.open() as data_file_handle:
+            self.assertEqual(data_file_handle.read(), data_2)
 
     def test_upload_during_create(self):
         data = 'hello world, file for test!'
