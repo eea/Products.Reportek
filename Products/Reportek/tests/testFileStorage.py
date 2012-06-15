@@ -38,6 +38,13 @@ def create_envelope(parent, id='envelope'):
     return parent[id]
 
 
+def create_document_with_data(data):
+    doc = Document.Document('testdoc', "Document for Test")
+    doc.getWorkitemsActiveForMe = Mock(return_value=[])
+    doc.manage_file_upload(create_upload_file(data))
+    return doc
+
+
 class FileStorageTest(unittest.TestCase):
 
     def test_upload(self):
@@ -88,20 +95,13 @@ class FileStorageTest(unittest.TestCase):
     def test_read_file_data_error(self):
         from Products.Reportek.Document import StorageError
         data = 'hello world, file for test!'
-
-        doc = Document.Document('testdoc', "Document for Test")
-        doc.getWorkitemsActiveForMe = Mock(return_value=[])
-        doc.manage_file_upload(create_upload_file(data))
-
+        doc = create_document_with_data(data)
         os.unlink(doc.physicalpath())
         self.assertRaises(StorageError, doc.data_file.open)
 
     def test_read_file_data(self):
         data = 'hello world, file for test!'
-
-        doc = Document.Document('testdoc', "Document for Test")
-        doc.getWorkitemsActiveForMe = Mock(return_value=[])
-        doc.manage_file_upload(create_upload_file(data))
+        doc = create_document_with_data(data)
 
         data_file = doc.data_file.open()
         self.assertEqual(data_file.read(), data)
@@ -118,10 +118,7 @@ class FileStorageTest(unittest.TestCase):
 
     def test_read_file_data_as_context_manager(self):
         data = 'hello world, file for test!'
-
-        doc = Document.Document('testdoc', "Document for Test")
-        doc.getWorkitemsActiveForMe = Mock(return_value=[])
-        doc.manage_file_upload(create_upload_file(data))
+        doc = create_document_with_data(data)
 
         data_file = doc.data_file.open()
         with data_file:
