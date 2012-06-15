@@ -279,7 +279,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         else:
             filename = self.physicalpath()
             content_type = self.content_type
-            if not isfile(filename): self._undo()
             if not isfile(filename):
                 filename = join(package_home(globals()),
                     'icons', 'broken.gif')
@@ -492,9 +491,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         """ Check if external file exists and return true (1) or false (0) """
         fn = self.physicalpath()
         if not isfile(fn):
-            self._undo()
-            if not isfile(fn):
-                return 1
+            return 1
         return 0
 
     def get_size(self):
@@ -502,7 +499,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         if not self.file_uploaded:
             return 0
         fn = self.physicalpath()
-        if not isfile(fn): self._undo()
         if isfile(fn): size = os.stat(fn)[6]
         else: size = 0
         return size
@@ -716,11 +712,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             try:
                 instream = open(infile, 'rb')
             except IOError:
-                self._undo()
-                try:
-                    instream = open(infile, 'rb')
-                except IOError:
-                    raise IOError, ("%s (%s)" %(self.id, infile))
+                raise IOError, ("%s (%s)" %(self.id, infile))
             close_in = 1
         else:
             instream = infile
@@ -768,15 +760,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             strg = '%4.0f' % bytes
         strg = strg+ ' ' + typ
         return strg
-
-    def _undo (self):
-        """ restore filename after undo or copy-paste """
-        if self.filename == []:
-            return
-        fn = self.physicalpath()
-        if not isfile(fn) and isfile(fn+'.undo'):
-            self._restorefile(fn)
-            self.file_uploaded = 1
 
     def _deletefile(self, filename):
         """ Move the file to the undo file """
