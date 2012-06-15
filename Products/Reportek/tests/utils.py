@@ -225,12 +225,12 @@ def publish_view(view, environ={}):
     name = view.__name__
     new_environ = {
         'PATH_INFO': '/' + name,
+        '_stdout': StringIO(),
     }
     new_environ.update(environ)
-    stdout = StringIO()
 
     root = create_fake_root()
-    request = makerequest(root, stdout, new_environ).REQUEST
+    request = makerequest(root, new_environ['_stdout'], new_environ).REQUEST
     root.__allow_groups__ = Mock()
     view.__doc__ = 'non-empty documentation'
     setattr(root, name, view)

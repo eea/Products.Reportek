@@ -1,5 +1,6 @@
 import os, sys
 import unittest
+from StringIO import StringIO
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
@@ -220,3 +221,23 @@ class HttpRequestTest(unittest.TestCase):
         self.doc._deletefile(self.doc.physicalpath())
 
         self.assertRaises(StorageError, publish_view, self.doc)
+
+    def test_get_icon_from_specialized_view(self):
+        out = StringIO()
+        resp = publish_view(self.doc, {
+            'PATH_INFO': '/testdoc/icon_gif',
+            '_stdout': out,
+        })
+        body = out.getvalue().split('\r\n\r\n', 1)[1]
+        self.assertEqual(body[:6], 'GIF89a')
+        self.assertEqual(resp.getHeader('Content-Type'), 'image/gif')
+
+    def test_get_icon_from_index_view(self):
+        out = StringIO()
+        resp = publish_view(self.doc, {
+            'QUERY_STRING': 'icon=1',
+            '_stdout': out,
+        })
+        body = out.getvalue().split('\r\n\r\n', 1)[1]
+        self.assertEqual(body[:6], 'GIF89a')
+        self.assertEqual(resp.getHeader('Content-Type'), 'image/gif')
