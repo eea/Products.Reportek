@@ -264,9 +264,14 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         for l_w in self.getWorkitemsActiveForMe(self.REQUEST):
             l_w.addEvent('file upload', 'File: %s' % self.id)
 
+    security.declarePrivate('data_file')
+    @property
+    def data_file(self):
+        return FileWrapper(self)
+
     security.declarePrivate('open_data_file')
     def open_data_file(self):
-        return open(self.physicalpath())
+        return self.data_file.open()
 
     def index_html(self, REQUEST, RESPONSE, icon=0):
         """ Returns the contents of the file.  Also, sets the
@@ -762,8 +767,21 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         dirs.append(fileformat)
         return dirs
 
-
 Globals.InitializeClass(Document)
+
+
+class FileWrapper(object):
+    """ Wrapper around file storage on disk. """
+
+    def __init__(self, doc):
+        self._doc = doc
+
+    def open(self):
+        try:
+            return open(self._doc.physicalpath())
+        except IOError:
+            raise StorageError
+
 
 def addedDocument(ob, event):
     """ This event is triggered when a Reportek Document was added to a container.

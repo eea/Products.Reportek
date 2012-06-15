@@ -1,6 +1,7 @@
 3.0-dev (unrelesed)
 -------------------
 * Remove support for HTTP Range requests [moregale]
+* Clean API for accessing a document's file content [moregale]
 
 2.3 (2012-06-13)
 ----------------

@@ -85,6 +85,17 @@ class FileStorageTest(unittest.TestCase):
 
         self.assertEqual(envelope.getZipInfo(doc), ['f1.txt', 'f2.txt'])
 
+    def test_read_file_data_error(self):
+        from Products.Reportek.Document import StorageError
+        data = 'hello world, file for test!'
+
+        doc = Document.Document('testdoc', "Document for Test")
+        doc.getWorkitemsActiveForMe = Mock(return_value=[])
+        doc.manage_file_upload(create_upload_file(data))
+
+        os.unlink(doc.physicalpath())
+        self.assertRaises(StorageError, doc.data_file.open)
+
     def test_read_file_data(self):
         data = 'hello world, file for test!'
 
