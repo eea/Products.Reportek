@@ -273,11 +273,10 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             Content-Type HTTP header to the objects content type.
         """
         if icon:
-            filename = join(package_home(globals()), self.getIconPath())
-            content_type = 'image/gif'
-        else:
-            filename = self.physicalpath()
-            content_type = self.content_type
+            return self.icon_gif(REQUEST, RESPONSE)
+
+        filename = self.physicalpath()
+        content_type = self.content_type
 
         try:
             file_size =  os.path.getsize(filename)
