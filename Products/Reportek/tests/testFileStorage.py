@@ -114,6 +114,9 @@ class FileStorageTest(unittest.TestCase):
         self.assertEqual(doc.get_size(), len(data))
         self.assertEqual(doc.rawsize(), len(data))
 
+
+class DataFileApiTest(unittest.TestCase):
+
     def test_read_file_data_error(self):
         from Products.Reportek.Document import StorageError
         data = 'hello world, file for test!'
@@ -164,6 +167,18 @@ class FileStorageTest(unittest.TestCase):
         os.unlink(file_path)
         self.assertRaises(StorageError, lambda: doc.data_file.mtime)
         self.assertRaises(StorageError, lambda: doc.data_file.size)
+
+    def test_save_file_data(self):
+        doc = create_document_with_data('some data')
+        with doc.data_file.open('wb') as data_file_handle:
+            data_file_handle.write("the new ")
+            data_file_handle.write("file version")
+        with doc.data_file.open() as data_file_handle:
+            self.assertEqual(data_file_handle.read(), "the new file version")
+
+    def test_open_with_invalid_argument(self):
+        doc = create_document_with_data('some data')
+        self.assertRaises(ValueError, doc.data_file.open, 'x')
 
 
 def download_envelope_zip(envelope):

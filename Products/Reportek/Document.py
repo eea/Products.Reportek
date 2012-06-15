@@ -752,9 +752,13 @@ class FileWrapper(object):
     def __init__(self, doc):
         self._doc = doc
 
-    def open(self):
+    def open(self, mode='rb'):
+        ok_modes = ['rb', 'wb']
+        if mode not in ok_modes:
+            raise ValueError("Can't open file with mode %r, only %r allowed"
+                             % (mode, ok_modes))
         try:
-            return open(self._doc.physicalpath())
+            return open(self._doc.physicalpath(), mode)
         except IOError:
             raise StorageError
 
