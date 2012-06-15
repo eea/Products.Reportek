@@ -483,21 +483,23 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     def manage_file_upload(self, file='', content_type='', REQUEST=None):
         """ Upload file from local directory """
         new_fn = self._get_ufn(self.filename)
+        self.filename = new_fn
         if hasattr(file, 'filename'):
-            self._copy(file, self.physicalpath(new_fn))
+            with self.data_file.open('wb') as data_file_handle:
+                for chunk in RepUtils.iter_file_data(file):
+                    data_file_handle.write(chunk)
             try: file.seek(0)
             except: pass
             content = file.read()
             self.content_type = self._get_content_type(file, content[:100],
                                 self.id, content_type or self.content_type)
-            self.filename = new_fn
             self._setFileSchema(content)
         else:
-            self._copy(infile=file, outfile=self.physicalpath(new_fn), isString=1)
+            with self.data_file.open('wb') as data_file_handle:
+                data_file_handle.write(file)
             self.content_type = self._get_content_type(file, file[:100],
                                 self.id, content_type or self.content_type)
             #self.content_type = content_type
-            self.filename = new_fn
             self._setFileSchema(file)
         self.file_uploaded = 1
         self._upload_time = time()
