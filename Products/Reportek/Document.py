@@ -279,7 +279,14 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             filename = self.physicalpath()
             content_type = self.content_type
 
-        self._output_file(REQUEST, RESPONSE, filename, content_type)
+        try:
+            file_size =  os.path.getsize(filename)
+            file_mtime = os.path.getmtime(filename)
+        except: raise StorageError("Can't read file %s (%s)" % (self.id, filename))
+
+        with open(filename, 'rb') as data_file:
+            self._output_file(REQUEST, RESPONSE,
+                              data_file, content_type, file_size, file_mtime)
 
     security.declarePublic('isGML')
     def isGML(self):
@@ -295,16 +302,12 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         """
         return getattr(self, QAREPOSITORY_ID).canRunQAOnFiles([self])
 
-    def _output_file(self, REQUEST, RESPONSE, filename, content_type):
+    def _output_file(self, REQUEST, RESPONSE,
+                     data_file, content_type, file_size, file_mtime):
         """
             Write the necesary header information for
             (possibly) chunked output
         """
-        try:
-            filesize =  os.path.getsize(filename)
-            filemtime = os.path.getmtime(filename)
-        except: raise StorageError("Can't read file %s (%s)" % (self.id, filename))
-
         # HTTP If-Modified-Since header handling.
         header=REQUEST.get_header('If-Modified-Since', None)
         if header is not None:
@@ -320,21 +323,21 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             try:    mod_since=long(DateTime(header).timeTime())
             except: mod_since=None
             if mod_since is not None:
-                last_mod = long(filemtime)
+                last_mod = long(file_mtime)
                 if last_mod > 0 and last_mod <= mod_since:
                     # Set header values since apache caching will return Content-Length
                     # of 0 in response if size is not set here
-                    RESPONSE.setHeader('Last-Modified', rfc1123_date(filemtime))
+                    RESPONSE.setHeader('Last-Modified', rfc1123_date(file_mtime))
                     RESPONSE.setHeader('Content-Type', content_type)
-                    RESPONSE.setHeader('Content-Length', filesize)
+                    RESPONSE.setHeader('Content-Length', file_size)
                     RESPONSE.setStatus(304)
                     return ''
 
-        RESPONSE.setHeader('Last-Modified', rfc1123_date(filemtime))
+        RESPONSE.setHeader('Last-Modified', rfc1123_date(file_mtime))
         RESPONSE.setHeader('Content-Type', content_type)
-        RESPONSE.setHeader('Content-Length', filesize)
+        RESPONSE.setHeader('Content-Length', file_size)
 
-        self._copy(filename, RESPONSE)
+        self._copy(data_file, RESPONSE)
         return ''
 
     def view_image_or_file(self):
@@ -354,10 +357,13 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     security.declarePublic('icon_gif')
     def icon_gif(self, REQUEST, RESPONSE):
         """ Return an icon for the file's MIME-Type """
-        filename = join(package_home(globals()),
-              self.getIconPath())
+        filename = join(package_home(globals()), self.getIconPath())
         content_type = 'image/gif'
-        self._output_file(REQUEST, RESPONSE, filename, content_type)
+        file_size =  os.path.getsize(filename)
+        file_mtime = os.path.getmtime(filename)
+        with open(filename, 'rb') as data_file:
+            self._output_file(REQUEST, RESPONSE,
+                              data_file, content_type, file_size, file_mtime)
 
     security.declarePublic('icon_html')
     def icon_html(self):
