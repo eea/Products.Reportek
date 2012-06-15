@@ -778,6 +778,20 @@ class FileWrapper(object):
         except IOError:
             raise StorageError
 
+    @property
+    def mtime(self):
+        try:
+            return os.path.getmtime(self._doc.physicalpath())
+        except OSError:
+            raise StorageError
+
+    @property
+    def size(self):
+        try:
+            return os.path.getsize(self._doc.physicalpath())
+        except OSError:
+            raise StorageError
+
 
 def addedDocument(ob, event):
     """ This event is triggered when a Reportek Document was added to a container.

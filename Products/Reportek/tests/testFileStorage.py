@@ -127,6 +127,22 @@ class FileStorageTest(unittest.TestCase):
         # I/O operation on closed file
         self.assertRaises(ValueError, data_file.read)
 
+    def test_get_file_metadata(self):
+        data = 'hello world, file for test!'
+        doc = create_document_with_data(data)
+        file_path = doc.physicalpath()
+        self.assertEqual(doc.data_file.mtime, os.path.getmtime(file_path))
+        self.assertEqual(doc.data_file.size, len(data))
+
+    def test_get_file_metadata_error(self):
+        from Products.Reportek.Document import StorageError
+        data = 'hello world, file for test!'
+        doc = create_document_with_data(data)
+        file_path = doc.physicalpath()
+        os.unlink(file_path)
+        self.assertRaises(StorageError, lambda: doc.data_file.mtime)
+        self.assertRaises(StorageError, lambda: doc.data_file.size)
+
 
 def download_envelope_zip(envelope):
     """ call Envelope.envelope_zip using patched security managers """
