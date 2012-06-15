@@ -149,7 +149,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
     security.declareProtected('View', 'index_html')
     security.declareProtected('View', 'link')
-    security.declareProtected('View', 'is_broken')
     security.declareProtected('View', 'get_size')
     security.declareProtected('View', 'getContentType')
     security.declareProtected('View', 'physicalpath')
@@ -357,13 +356,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     def icon_html(self):
         """ The icon embedded in html with a link to the real file """
         return '<img src="%s/icon_gif" alt="" />' % self.absolute_url()
-
-    def is_broken(self):
-        """ Check if external file exists and return true (1) or false (0) """
-        fn = self.physicalpath()
-        if not isfile(fn):
-            return 1
-        return 0
 
     def get_size(self):
         """ Returns the size of the file or image """
