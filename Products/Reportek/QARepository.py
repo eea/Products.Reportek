@@ -188,7 +188,7 @@ class QARepository(Folder):
                 if l_script_obj.content_type_out:
                     l_res_ct = l_script_obj.content_type_out
 
-                    with file_obj.open_data_file() as doc_file:
+                    with file_obj.data_file.open() as doc_file:
                         tmp_copy = RepUtils.temporary_named_copy(doc_file)
 
                     with tmp_copy:

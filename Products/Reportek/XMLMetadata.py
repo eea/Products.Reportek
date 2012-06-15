@@ -128,7 +128,7 @@ class XMLMetadata:
         # In case it is more correct to use namespaces
         #parser.setFeature( "http://xml.org/sax/features/namespaces", 1 )
         parser.setContentHandler( handler )
-        parser.parse(document.open_data_file())
+        parser.parse(document.data_file.open())
         outf.seek(0)
         xml_a(outf.read())
         outf.close()

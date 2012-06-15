@@ -839,7 +839,7 @@ class EnvelopeCustomDataflows:
       ret = None
       for doc in self.objectValues('Report Document'):
             if doc.id == form_name:
-                f = doc.open_data_file()
+                f = doc.data_file.open()
                 ret = f.read()
                 f.close()
                 break

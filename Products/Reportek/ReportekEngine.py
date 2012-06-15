@@ -338,7 +338,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 env_name = env_ob.title
                 for doc in env_ob.objectValues('Report Document'):
                     if getSecurityManager().checkPermission(view, doc):
-                        with doc.open_data_file() as doc_file:
+                        with doc.data_file.open() as doc_file:
                             tmp_copy = RepUtils.temporary_named_copy(doc_file)
 
                         with tmp_copy:

@@ -269,10 +269,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     def data_file(self):
         return FileWrapper(self)
 
-    security.declarePrivate('open_data_file')
-    def open_data_file(self):
-        return self.data_file.open()
-
     def index_html(self, REQUEST, RESPONSE, icon=0):
         """ Returns the contents of the file.  Also, sets the
             Content-Type HTTP header to the objects content type.

@@ -753,7 +753,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             outzd = ZipFile(tmpfile, "w")
 
             for doc in public_docs:
-                outzd.writestr(doc.getId(), doc.open_data_file().read())
+                outzd.writestr(doc.getId(), doc.data_file.open().read())
 
             for fdbk in self.objectValues('Report Feedback'):
                 if getSecurityManager().checkPermission('View', fdbk):
@@ -849,7 +849,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         files = []
         if document.content_type in ['application/octet-stream', 'application/zip', 'application/x-compressed']:
             try:
-                data_file = document.open_data_file()
+                data_file = document.data_file.open()
                 zf = ZZipFile(data_file)
                 for zipinfo in zf.infolist():
                     files.append(zipinfo.filename)

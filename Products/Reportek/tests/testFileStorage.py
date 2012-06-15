@@ -103,7 +103,7 @@ class FileStorageTest(unittest.TestCase):
         doc.getWorkitemsActiveForMe = Mock(return_value=[])
         doc.manage_file_upload(create_upload_file(data))
 
-        data_file = doc.open_data_file()
+        data_file = doc.data_file.open()
         self.assertEqual(data_file.read(), data)
 
         # rewind the file, see if we can still read data
@@ -123,7 +123,7 @@ class FileStorageTest(unittest.TestCase):
         doc.getWorkitemsActiveForMe = Mock(return_value=[])
         doc.manage_file_upload(create_upload_file(data))
 
-        data_file = doc.open_data_file()
+        data_file = doc.data_file.open()
         with data_file:
             self.assertEqual(data_file.read(), data)
 
