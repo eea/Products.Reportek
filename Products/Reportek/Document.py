@@ -217,23 +217,16 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     HEAD__roles__=None
     def HEAD(self, REQUEST, RESPONSE):
         """ Support for HEAD requests from search engines etc. """
-        filename = self.physicalpath()
-        try:
-            filesize =  os.path.getsize(filename)
-            filemtime = os.path.getmtime(filename)
-        except: raise StorageError("Can't read file %s (%s)" % (self.id, filename))
-
-        RESPONSE.setHeader('Last-Modified', rfc1123_date(filemtime))
-        RESPONSE.setHeader('Content-Length', filesize)
+        RESPONSE.setHeader('Last-Modified', rfc1123_date(self.data_file.mtime))
+        RESPONSE.setHeader('Content-Length', self.data_file.size)
         RESPONSE.setHeader('Content-Type', self.content_type)
         return ''
 
     def __setstate__(self,state):
         Document.inheritedAttribute('__setstate__')(self, state)
         if not hasattr(self, '_upload_time'):
-            filename = self.physicalpath()
             try:
-                self._upload_time = os.path.getmtime(filename)
+                self._upload_time = self.data_file.mtime
             except: self._upload_time = 0
         if not hasattr(self, 'file_uploaded'):
             self.file_uploaded = 1
@@ -276,17 +269,12 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         if icon:
             return self.icon_gif(REQUEST, RESPONSE)
 
-        filename = self.physicalpath()
-        content_type = self.content_type
-
-        try:
-            file_size =  os.path.getsize(filename)
-            file_mtime = os.path.getmtime(filename)
-        except: raise StorageError("Can't read file %s (%s)" % (self.id, filename))
-
-        with open(filename, 'rb') as data_file:
+        with self.data_file.open() as data_file_handle:
             self._output_file(REQUEST, RESPONSE,
-                              data_file, content_type, file_size, file_mtime)
+                              data_file_handle,
+                              self.content_type,
+                              self.data_file.size,
+                              self.data_file.mtime)
 
     security.declarePublic('isGML')
     def isGML(self):
