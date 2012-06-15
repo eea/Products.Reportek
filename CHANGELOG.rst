@@ -1,5 +1,6 @@
 3.0-dev (unrelesed)
 -------------------
+* Remove support for HTTP Range requests [moregale]
 
 2.3 (2012-06-13)
 ----------------

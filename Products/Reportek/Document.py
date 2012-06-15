@@ -40,7 +40,6 @@ except: from zope.app.content_types import guess_content_type # Zope 2.9 and old
 from webdav.common import rfc1123_date
 from DateTime import DateTime
 from mimetools import choose_boundary
-from ZPublisher import HTTPRangeSupport
 import urllib, os, types, string
 from os.path import join, isfile
 import stat
@@ -333,129 +332,12 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
                     RESPONSE.setHeader('Last-Modified', rfc1123_date(filemtime))
                     RESPONSE.setHeader('Content-Type', content_type)
                     RESPONSE.setHeader('Content-Length', filesize)
-                    RESPONSE.setHeader('Accept-Ranges', 'bytes')
                     RESPONSE.setStatus(304)
-                    return ''
-
-        # HTTP Range header handling. Typical header line (folded):
-        # Range:bytes=265089-266112, 257921-265088, 119720-121023,
-        #             121024-151023, 151024-181023, 181024-211023,
-        #             211024-241023, 241024-257920
-        range = REQUEST.get_header('Range', None)
-        if_range = REQUEST.get_header('If-Range', None)
-        if range is not None:
-            ranges = HTTPRangeSupport.parseRange(range)
-
-            if if_range is not None:
-                # Only send ranges if the data isn't modified, otherwise send
-                # the whole object. Support both ETags and Last-Modified dates!
-                if len(if_range) > 1 and if_range[:2] == 'ts':
-                    # ETag:
-                    if if_range != self.http__etag():
-                        # Modified, so send a normal response. We delete
-                        # the ranges, which causes us to skip to the 200
-                        # response.
-                        ranges = None
-                else:
-                    # Date
-                    date = string.split(if_range, ';')[0]
-                    try: mod_since=long(DateTime(date).timeTime())
-                    except: mod_since=None
-                    if mod_since is not None:
-                        last_mod = long(filemtime)
-                        if last_mod > mod_since:
-                            # Modified, so send a normal response. We delete
-                            # the ranges, which causes us to skip to the 200
-                            # response.
-                            ranges = None
-
-            if ranges:
-                # Search for satisfiable ranges.
-                satisfiable = 0
-                for start, end in ranges:
-                    if start < filesize:
-                        satisfiable = 1
-                        break
-
-                if not satisfiable:
-                    RESPONSE.setHeader('Content-Range',
-                        'bytes */%d' % filesize)
-                    RESPONSE.setHeader('Accept-Ranges', 'bytes')
-                    RESPONSE.setHeader('Last-Modified',
-                        rfc1123_date(filemtime))
-                    RESPONSE.setHeader('Content-Type', content_type)
-                    RESPONSE.setHeader('Content-Length', filesize)
-                    RESPONSE.setStatus(416)
-                    return ''
-
-                # Can we optimize?
-                #ranges = HTTPRangeSupport.optimizeRanges(ranges, filesize)
-
-                if len(ranges) == 1:
-                    # Easy case, set extra header and return partial set.
-                    start, end = ranges[0]
-                    size = end - start
-
-                    RESPONSE.setHeader('Last-Modified',
-                        rfc1123_date(filemtime))
-                    RESPONSE.setHeader('Content-Type', content_type)
-                    RESPONSE.setHeader('Content-Length', size)
-                    RESPONSE.setHeader('Accept-Ranges', 'bytes')
-                    RESPONSE.setHeader('Content-Range',
-                        'bytes %d-%d/%d' % (start, end - 1, filesize))
-                    RESPONSE.setStatus(206) # Partial content
-
-                    fd = open(filename,'rb')
-                    self._writesegment(fd, RESPONSE,start,size)
-                    fd.close()
-                    return ''
-
-                else:
-                    # Ignore multi-part ranges for now, pretend we don't know
-                    # about ranges at all.
-                    # When we get here, ranges have been optimized, so they are
-                    # in order, non-overlapping, and start and end values are
-                    # positive integers.
-                    boundary = choose_boundary()
-
-                    # Calculate the content length
-                    size = (8 + len(boundary) + # End marker length
-                        len(ranges) * (         # Constant lenght per set
-                            49 + len(boundary) + len(content_type) +
-                            len('%d' % filesize)))
-                    for start, end in ranges:
-                        # Variable length per set
-                        size = (size + len('%d%d' % (start, end - 1)) +
-                            end - start)
-
-
-                    RESPONSE.setHeader('Content-Length', size)
-                    RESPONSE.setHeader('Accept-Ranges', 'bytes')
-                    RESPONSE.setHeader('Last-Modified', rfc1123_date(filemtime))
-                    RESPONSE.setHeader('Content-Type',
-                        'multipart/byteranges; boundary=%s' % boundary)
-                    RESPONSE.setStatus(206) # Partial content
-
-                    pos = 0
-
-                    fd = open(filename,'rb')
-                    for start, end in ranges:
-                        RESPONSE.write('\r\n--%s\r\n' % boundary)
-                        RESPONSE.write('Content-Type: %s\r\n' % content_type)
-                        RESPONSE.write(
-                            'Content-Range: bytes %d-%d/%d\r\n\r\n' % (
-                                start, end - 1, filesize))
-
-                        self._writesegment(fd, RESPONSE,start,end-start)
-
-                    RESPONSE.write('\r\n--%s--\r\n' % boundary)
-                    fd.close()
                     return ''
 
         RESPONSE.setHeader('Last-Modified', rfc1123_date(filemtime))
         RESPONSE.setHeader('Content-Type', content_type)
         RESPONSE.setHeader('Content-Length', filesize)
-        RESPONSE.setHeader('Accept-Ranges', 'bytes')
 
         self._copy(filename, RESPONSE)
         return ''
