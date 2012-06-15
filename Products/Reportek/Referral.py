@@ -254,14 +254,6 @@ class Referral(CatalogAware, SimpleItem, CountriesManager):
         else:
             return apply(self.index_html,(self,)+ args, kw)
 
-    security.declareProtected('View management screens', 'PrincipiaSearchSource')
-
-    def PrincipiaSearchSource(self):
-        """ Just return the description.
-            Could be enhanced to include all properties
-        """
-        return self.title + ' ' + self.descr
-
     security.declareProtected('View', 'rdf')
     def rdf(self, REQUEST):
         """ Returns the envelope metadata in RDF format

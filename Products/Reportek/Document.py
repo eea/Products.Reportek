@@ -18,17 +18,6 @@
 # Contributor(s):
 # Soren Roug, EEA
 
-## Document
-## Add in changes to PrincipiaSearchSource, quickview as needed.
-## This Python is meant to be modified.
-##
-## Here's a few potential candidates and the tools to convert:
-## extension: tool - URL : content_type
-## PDF: xPDF - www.foolabs.com/xpdf : application/pdf
-## Word: wvWare - www.wvware.com : application/msword
-## Word: Try also catdoc - forgot where I found it.
-## html2txt at http://pandora.inf.uni-jena.de/p/d/noo/html2txt.html
-##
 
 __doc__ = """
       The Document-class works like the Zope File-class, but stores
@@ -75,8 +64,6 @@ SYNC_ZODB = 1
 SLICED = 2
 REPOSITORY = SYNC_ZODB
 
-# The suffix for PrincipiaSearchSource cache files
-PSS = '+pss'
 
 # format for the files in the repository:
 # %u=user, %p=path, %n=file name, %e=file extension, %c=counter, %t=time
@@ -181,7 +168,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     security.declareProtected('View', 'is_broken')
     security.declareProtected('View', 'get_size')
     security.declareProtected('View', 'getContentType')
-    security.declareProtected('View', 'PrincipiaSearchSource')
     security.declareProtected('View', 'physicalpath')
     security.declareProtected('View', '__str__')
 
@@ -557,50 +543,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         """ Returns a formatted stringified version of the file size """
         return self._bytetostring(self.get_size())
 
-    def PrincipiaSearchSource(self):
-        """ In old versions of Zope, the PrincipiaSearchSource was indexed in the catalog
-	    as a text index. The method of the same name would be called on the objects
-	    and a plain text return was expected.
-
-	    We no longer support full text search of documents. There are too many of them.
-        """
-        if not self.file_uploaded:
-            return ''
-
-        filename = self.physicalpath()
-        pssname = filename + PSS
-        try:
-            datastat = os.stat(filename)
-        except:
-            return '' # If there's no datafile, there's no source.
-
-        mustregenerate = 1
-        try:
-            pssstat = os.stat(pssname)
-            if pssstat[stat.ST_MTIME] >= datastat[stat.ST_MTIME]:
-                mustregenerate = 0
-        except:
-            pass
-        conv_list = self.unrestrictedTraverse(CONVERTERS_ID, None).displayPossibleConversions(self.content_type, self.xml_schema_location, self.id)
-        if mustregenerate:
-            if self.content_type[0:5] == 'text/':
-                self._copy(filename, pssname,maxblocks=1)
-            elif self.content_type == '' or not conv_list:
-                pssfd = open(pssname,'wb')
-                pssfd.close()
-            else:
-                c = conv_list[0]    #if are more than one converters which accept this content_type take the first one!
-                if hasattr(c,'convert_url') and c.convert_url:
-                    self._copy(os.popen(c.convert_url % filename),pssname,maxblocks=1)
-                else:
-                    pssfd = open(pssname,'wb')
-                    pssfd.close()
-
-        f = open(pssname)
-        filedata = f.read()
-        f.close()
-        return filedata
-
     def physicalpath(self, filename=None):
         """ Generate the full filename, including directories from
             self._repository and self.filename
@@ -860,23 +802,15 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         if isfile(fn):
             try: os.rename(filename, filename + '.undo')
             except: pass
-            try: os.rename(filename + PSS, filename + PSS + '.undo')
-            except: pass
             self.file_uploaded = 0
 
     def _copyfile(self, old_fn, new_fn):
-        """ Copy a file in the repository
-            This actually involves copying two files """
+        """ Copy a file in the repository """
         self._copy(old_fn, new_fn)
-        if isfile(old_fn + PSS):
-            try: self._copy(old_fn + PSS, new_fn + PSS)
-            except: pass
 
     def _restorefile(self, filename):
         """ Recover the file from undo """
         try: os.rename(filename + '.undo', filename)
-        except: pass
-        try: os.rename(filename + '.undo' + PSS, filename + PSS)
         except: pass
 
 
@@ -999,8 +933,6 @@ def addedDocument(ob, event):
         else:
             if isfile(old_fn + '.undo'):
                 ob._copyfile(old_fn + '.undo', ob.physicalpath(new_fn))
-            if isfile(old_fn + PSS + '.undo'):
-                ob._copyfile(old_fn + PSS + '.undo', ob.physicalpath(new_fn) + PSS)
         ob.filename = new_fn
         ob.file_uploaded = 1
 

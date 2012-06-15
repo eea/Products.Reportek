@@ -292,13 +292,6 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
             l_dfdict[l_item['uri']] = l_item
         return l_dfdict
 
-    security.declareProtected('View management screens', 'PrincipiaSearchSource')
-    def PrincipiaSearchSource(self):
-        """ Just return the description.
-        Could be enhanced to include all properties
-        """
-        return self.title + ' ' + self.descr
-
     security.declareProtected('Change Collections', 'manage_editCollection')
     def manage_editCollection(self, title, descr,
             year, endyear, partofyear, locality, country='',

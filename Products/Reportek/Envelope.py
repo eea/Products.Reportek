@@ -170,26 +170,10 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                {'name': 'Report Feedback', 'action': 'manage_addFeedbackForm', 'permission': 'Add Feedback'}]
         return y
 
-    def PUT_factory( self, name, typ, body ):
-        """ If you upload with FTP, it will always create a Document
-        """
-        ob = Document.Document(name, name, typ, self.absolute_url(1))
-        return ob
-
     # This next lines are bogus but needed for Zope to register the permission
     security.declareProtected('Audit Envelopes', 'bogus_function')
     def bogus_function(self):
         return
-
-    #
-    # The ZCatalog calls this method when it catalogs the envelope
-    #
-    security.declareProtected('View management screens', 'PrincipiaSearchSource')
-    def PrincipiaSearchSource(self):
-        """ Just return the description.
-            Could be enhanced to include all properties
-        """
-        return self.title + ' ' + self.descr
 
     security.declarePublic('getMySelf')
     def getMySelf(self):
