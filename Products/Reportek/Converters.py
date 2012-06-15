@@ -172,14 +172,19 @@ class Converters(Folder):
                     else:
                         output_file_name = "convertDocument"
 
-                #generate extra-parameters
-                #the file path is set default as first parameter
-                params = [file_obj.physicalpath()]
-                for k in converter_obj.ct_extraparams:
-                    params.append(eval(k))
+                with file_obj.data_file.open() as doc_file:
+                    tmp_copy = RepUtils.temporary_named_copy(doc_file)
 
-                command = converter_obj.convert_url % tuple(params)
-                data = os.popen(command).read()
+                with tmp_copy:
+                    #generate extra-parameters
+                    #the file path is set default as first parameter
+                    params = [tmp_copy.name]
+                    for k in converter_obj.ct_extraparams:
+                        params.append(eval(k))
+
+                    command = converter_obj.convert_url % tuple(params)
+                    data = os.popen(command).read()
+
                 REQUEST.RESPONSE.setHeader('Content-Disposition',
                                     'inline; filename=%s' % output_file_name)
                 return data
