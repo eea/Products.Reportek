@@ -278,10 +278,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         else:
             filename = self.physicalpath()
             content_type = self.content_type
-            if not isfile(filename):
-                filename = join(package_home(globals()),
-                    'icons', 'broken.gif')
-                content_type = 'image/gif'
 
         self._output_file(REQUEST, RESPONSE, filename, content_type)
 
@@ -304,11 +300,10 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             Write the necesary header information for
             (possibly) chunked output
         """
-        cant_read_exc = "Can't read: "
         try:
             filesize =  os.path.getsize(filename)
             filemtime = os.path.getmtime(filename)
-        except: raise cant_read_exc, ("%s (%s)" %(self.id, filename))
+        except: raise StorageError("Can't read file %s (%s)" % (self.id, filename))
 
         # HTTP If-Modified-Since header handling.
         header=REQUEST.get_header('If-Modified-Since', None)

@@ -168,7 +168,7 @@ class DocumentWebViewsTest(DocumentTestCase):
 from utils import publish_view
 
 
-class HeadRequestTest(unittest.TestCase):
+class HttpRequestTest(unittest.TestCase):
 
     file_data = 'hello world'
 
@@ -185,7 +185,7 @@ class HeadRequestTest(unittest.TestCase):
     def tearDown(self):
         self._cleanup_temp_reposit()
 
-    def test_headers(self):
+    def test_head_headers(self):
         from webdav.common import rfc1123_date
         mtime = os.path.getmtime(self.doc.physicalpath())
 
@@ -196,10 +196,27 @@ class HeadRequestTest(unittest.TestCase):
         self.assertEqual(resp.getHeader('Content-Type'), 'text/plain')
         self.assertEqual(resp.getHeader('Last-Modified'), rfc1123_date(mtime))
 
-    def test_missing_file(self):
+    def test_head_missing_file(self):
         from Products.Reportek.Document import StorageError
         self.doc._deletefile(self.doc.physicalpath())
 
         self.assertRaises(StorageError, publish_view,
                             self.doc,
                             {'REQUEST_METHOD': 'HEAD'})
+
+    def test_get_headers(self):
+        from webdav.common import rfc1123_date
+        mtime = os.path.getmtime(self.doc.physicalpath())
+
+        resp = publish_view(self.doc)
+
+        self.assertEqual(resp.getHeader('Content-Length'),
+                         str(len(self.file_data)))
+        self.assertEqual(resp.getHeader('Content-Type'), 'text/plain')
+        self.assertEqual(resp.getHeader('Last-Modified'), rfc1123_date(mtime))
+
+    def test_get_missing_file(self):
+        from Products.Reportek.Document import StorageError
+        self.doc._deletefile(self.doc.physicalpath())
+
+        self.assertRaises(StorageError, publish_view, self.doc)
