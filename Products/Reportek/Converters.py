@@ -173,15 +173,21 @@ class Converters(Folder):
                         output_file_name = "convertDocument"
 
                 #generate extra-parameters
-                params = [file_obj.physicalpath()] #the file path is set default as first parameter
+                #the file path is set default as first parameter
+                params = [file_obj.physicalpath()]
                 for k in converter_obj.ct_extraparams:
                     params.append(eval(k))
 
-                REQUEST.RESPONSE.setHeader('Content-Disposition', 'inline; filename=%s' % output_file_name)
-                return os.popen(converter_obj.convert_url % tuple(params)).read()
+                command = converter_obj.convert_url % tuple(params)
+                data = os.popen(command).read()
+                REQUEST.RESPONSE.setHeader('Content-Disposition',
+                                    'inline; filename=%s' % output_file_name)
+                return data
+
             else:
                 REQUEST.RESPONSE.setHeader('Content-Type', 'text/plain')
                 return 'Converter error'
+
         elif converter_id[:4] == "rem_":
             try:
                 server = xmlrpclib.ServerProxy(self.remote_converter)
