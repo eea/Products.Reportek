@@ -369,10 +369,10 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         """ Returns the size of the file or image """
         if not self.file_uploaded:
             return 0
-        fn = self.physicalpath()
-        if isfile(fn): size = os.stat(fn)[6]
-        else: size = 0
-        return size
+        try:
+            return self.data_file.size
+        except StorageError:
+            return 0
 
     rawsize = get_size
 #   getSize = get_size

@@ -92,6 +92,13 @@ class FileStorageTest(unittest.TestCase):
 
         self.assertEqual(envelope.getZipInfo(doc), ['f1.txt', 'f2.txt'])
 
+    def test_get_size(self):
+        # rawsize and get_size are used in some old dtml
+        data = 'hello world, file for test!'
+        doc = create_document_with_data(data)
+        self.assertEqual(doc.get_size(), len(data))
+        self.assertEqual(doc.rawsize(), len(data))
+
     def test_read_file_data_error(self):
         from Products.Reportek.Document import StorageError
         data = 'hello world, file for test!'
