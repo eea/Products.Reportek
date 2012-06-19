@@ -207,8 +207,11 @@ def create_temp_reposit():
     instance_home_patch = patch.dict(__builtins__, {'CLIENT_HOME': tmp_dir})
     instance_home_patch.start()
     os.makedirs(os.path.join(tmp_dir, 'reposit'))
+    original_tempdir = tempfile.tempdir
+    tempfile.tempdir = tmp_dir
 
     def cleanup():
+        tempfile.tempdir = original_tempdir
         shutil.rmtree(tmp_dir)
         instance_home_patch.stop()
     return cleanup
