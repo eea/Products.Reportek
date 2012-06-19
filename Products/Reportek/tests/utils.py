@@ -247,6 +247,8 @@ def publish_view(view, environ={}):
 def create_envelope(parent, id='envelope'):
     from Products.Reportek.Envelope import Envelope
     process = Mock()
+    process.absolute_url.return_value = '/mock-process'
+    process.begin = 'mock-process-begin'
     e = Envelope(process, '', '', '', '', '', '', '', '')
     e.id = id
     parent._setObject(id, e)
@@ -256,7 +258,8 @@ def create_envelope(parent, id='envelope'):
 
 def add_document(envelope, upload_file):
     from Products.Reportek.Document import manage_addDocument
-    with patch.object(envelope, 'REQUEST', create=True):
+    with patch.object(envelope, 'REQUEST', create=True) as mock_request:
+        mock_request.physicalPathToVirtualPath = lambda x: x
         doc_id = manage_addDocument(envelope, file=upload_file)
     return envelope[doc_id]
 

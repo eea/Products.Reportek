@@ -3,8 +3,9 @@ import unittest
 from StringIO import StringIO
 import zipfile
 from mock import Mock, patch
+import transaction
 from utils import (create_fake_root, makerequest, create_temp_reposit,
-                   create_upload_file, create_envelope)
+                   create_upload_file, create_envelope, add_document)
 
 
 def create_mock_request():
@@ -171,6 +172,82 @@ class DataFileApiTest(unittest.TestCase):
     def test_open_with_invalid_argument(self):
         doc = create_document_with_data('some data')
         self.assertRaises(ValueError, doc.data_file.open, 'x')
+
+
+def ofs_copy_object(source_ob, dest_ob):
+    from Products.Reportek import Document
+    with patch.object(source_ob.__class__, 'cb_isCopyable'):
+        clip = source_ob.__parent__.manage_copyObjects([source_ob.getId()])
+        with patch.object(dest_ob.__class__, '_verifyObjectPaste'):
+            dest_ob.manage_pasteObjects(clip)
+    new_ob = dest_ob[source_ob.getId()]
+    if isinstance(new_ob, Document.Document):
+        # simulate OFS event handling
+        Document.cloneDocument(new_ob, None)
+    return new_ob
+
+
+def ofs_cut_paste_object(source_ob, dest_ob):
+    from Products.Reportek import Document
+    with patch.object(source_ob.__class__, 'cb_isMoveable'):
+        clip = source_ob.__parent__.manage_cutObjects([source_ob.getId()])
+        with patch.object(dest_ob.__class__, '_verifyObjectPaste'):
+            dest_ob.manage_pasteObjects(clip)
+    new_ob = dest_ob[source_ob.getId()]
+    if isinstance(new_ob, Document.Document):
+        # simulate OFS event handling
+        Document.addedDocument(new_ob, None)
+    return new_ob
+
+
+class OfsActionsTest(unittest.TestCase):
+
+    def setUp(self):
+        import ZODB, ZODB.MappingStorage
+        storage = ZODB.MappingStorage.MappingStorage()
+        self.db = ZODB.DB(storage)
+        self.root = create_fake_root()
+        conn = self.db.open()
+        conn.root()['root_ob'] = self.root
+        transaction.commit()
+
+    def tearDown(self):
+        transaction.abort()
+
+    def test_copy_preserves_content(self):
+        content = "the document content"
+        envelope1 = create_envelope(self.root, 'env1')
+        envelope2 = create_envelope(self.root, 'env2')
+        doc1 = add_document(envelope1, create_upload_file(content))
+
+        doc2 = ofs_copy_object(doc1, envelope2)
+
+        self.assertEqual(doc_data(doc2), content)
+
+    def test_modifying_copy_leaves_original_intact(self):
+        content_1 = "content one"
+        content_2 = "content two"
+        envelope1 = create_envelope(self.root, 'env1')
+        envelope2 = create_envelope(self.root, 'env2')
+        doc1 = add_document(envelope1, create_upload_file(content_1))
+
+        doc2 = ofs_copy_object(doc1, envelope2)
+
+        with doc2.data_file.open('wb') as data_file_handle:
+            data_file_handle.write(content_2)
+
+        self.assertEqual(doc_data(doc2), content_2)
+        self.assertEqual(doc_data(doc1), content_1)
+
+    def test_cut_paste_preserves_content(self):
+        content = "the document content"
+        envelope1 = create_envelope(self.root, 'env1')
+        envelope2 = create_envelope(self.root, 'env2')
+        doc1 = add_document(envelope1, create_upload_file(content))
+
+        doc2 = ofs_cut_paste_object(doc1, envelope2)
+
+        self.assertEqual(doc_data(doc2), content)
 
 
 def download_envelope_zip(envelope):
