@@ -18,12 +18,6 @@
 # Contributor(s):
 # Soren Roug, EEA
 
-
-__doc__ = """
-      The Document-class works like the Zope File-class, but stores
-      the uploaded file externally in the file system.
-
-"""
 #     $Id$
 
 __version__='$Rev$'[6:-2]
@@ -259,6 +253,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     security.declarePrivate('data_file')
     @property
     def data_file(self):
+        """ The document's binary content as :class:`.FileWrapper` object. """
         return FileWrapper(self)
 
     def index_html(self, REQUEST, RESPONSE, icon=0):
@@ -749,7 +744,18 @@ Globals.InitializeClass(Document)
 
 
 class FileWrapper(object):
-    """ Wrapper around file storage on disk. """
+    """ Wrapper around file storage on disk.
+
+    .. py:attribute:: mtime
+
+        modification time, similar to the value returned by
+        ``os.path.getmtime``
+
+    .. py:attribute:: size
+
+        file size in bytes
+
+    """
 
     def __init__(self, doc):
         self._doc = doc
