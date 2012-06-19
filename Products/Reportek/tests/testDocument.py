@@ -108,42 +108,6 @@ xmlns:met="http://biodiversity.eionet.europa.eu/schemas/dir9243eec">
 #       self.assertFalse(os.access(doc.physicalpath(), os.F_OK),
 #           'Document %s did not get deleted from file system' % doc.physicalpath())
 
-    def x_test_rename(self):
-        """ Test that the system can rename a document
-            For unknown reasons ZopeTestCase won't let you do a rename
-        """
-        from nose import SkipTest; raise SkipTest
-        #self.setRoles(['Manager'])
-        #self.setPermissions(['Add Envelopes','Copy or Move'],'Manager')
-        self.create_text_document()
-        self.assertTrue(hasattr(self.envelope, 'documentid'),'Document did not get created')
-        doc = self.envelope.documentid
-        if self.physpath_must_track_zodb:
-            self.assertEquals(doc.physicalpath()[-len(doc.absolute_url(1)):], doc.absolute_url(1))
-        docid = doc.id
-        self.envelope.manage_renameObject(docid, "newdocumentid")
-        self.assertTrue(doc.id, 'newdocumentid')
-        if self.physpath_must_track_zodb:
-            self.assertEquals(doc.physicalpath()[-len(doc.absolute_url(1)):], doc.absolute_url(1))
-
-    def x_test_clone(self):
-        """ Test that the system can clone a document
-            For unknown reasons ZopeTestCase won't let you do a clone
-        """
-        from nose import SkipTest; raise SkipTest
-        #self.setRoles(['Manager'])
-        #self.setPermissions(['Add Envelopes'],'Manager')
-        self.create_text_document()
-        self.assertTrue(hasattr(self.envelope, 'documentid'),'Document did not get created')
-        doc = self.envelope.documentid
-        if self.physpath_must_track_zodb:
-            self.assertEquals(doc.physicalpath()[-len(doc.absolute_url(1)):], doc.absolute_url(1))
-        self.envelope.manage_clone(doc, "newdocumentid")
-        self.assertTrue(doc.id, 'newdocumentid')
-        newdoc = self.envelope.newdocumentid
-        if self.physpath_must_track_zodb:
-            self.assertEquals(newdoc.physicalpath()[-len(newdoc.absolute_url(1)):], newdoc.absolute_url(1))
-
     def test_restrict_document(self):
         self.create_text_document()
         self.document.manage_restrictDocument()
@@ -151,11 +115,6 @@ xmlns:met="http://biodiversity.eionet.europa.eu/schemas/dir9243eec">
 
         self.document.manage_unrestrictDocument()
         assert self.document.acquiredRolesAreUsedBy('View') == 'CHECKED'
-
-
-class DocumentWebViewsTest(DocumentTestCase):
-
-    file_data = 'hello world'
 
     def test_documents_section(self):
         self.create_text_document()
