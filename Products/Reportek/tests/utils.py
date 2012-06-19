@@ -26,6 +26,7 @@ import tempfile
 import shutil
 from StringIO import StringIO
 import transaction
+import ZODB, ZODB.MappingStorage
 from OFS.Folder import Folder
 from mock import Mock, patch
 
@@ -265,6 +266,20 @@ def add_document(envelope, upload_file):
         mock_request.physicalPathToVirtualPath = lambda x: x
         doc_id = manage_addDocument(envelope, file=upload_file)
     return envelope[doc_id]
+
+
+class MockDatabase(object):
+
+    def __init__(self):
+        storage = ZODB.MappingStorage.MappingStorage()
+        self.db = ZODB.DB(storage)
+
+    @property
+    def root(self):
+        return self.db.open().root()
+
+    def cleanup(self):
+        transaction.abort()
 
 
 def break_document_data_file(doc):

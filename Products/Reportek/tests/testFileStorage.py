@@ -6,7 +6,7 @@ from mock import Mock, patch
 import transaction
 from utils import (create_fake_root, makerequest, create_temp_reposit,
                    create_upload_file, create_envelope, add_document,
-                   break_document_data_file)
+                   MockDatabase, break_document_data_file)
 
 
 def create_mock_request():
@@ -204,16 +204,13 @@ def ofs_cut_paste_object(source_ob, dest_ob):
 class OfsActionsTest(unittest.TestCase):
 
     def setUp(self):
-        import ZODB, ZODB.MappingStorage
-        storage = ZODB.MappingStorage.MappingStorage()
-        self.db = ZODB.DB(storage)
+        self.zodb = MockDatabase()
         self.root = create_fake_root()
-        conn = self.db.open()
-        conn.root()['root_ob'] = self.root
+        self.zodb.root['root_ob'] = self.root
         transaction.commit()
 
     def tearDown(self):
-        transaction.abort()
+        self.zodb.cleanup()
 
     def test_copy_preserves_content(self):
         content = "the document content"

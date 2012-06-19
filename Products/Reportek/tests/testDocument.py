@@ -6,8 +6,10 @@ ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
 from configurereportek import ConfigureReportek
 from fileuploadmock import FileUploadMock
-from utils import create_temp_reposit, HtmlPage, break_document_data_file
+from utils import (create_temp_reposit, HtmlPage, MockDatabase,
+                   break_document_data_file)
 from mock import Mock, patch
+import transaction
 
 
 class DocumentTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
@@ -137,13 +139,17 @@ class HttpRequestTest(unittest.TestCase):
 
         self._cleanup_temp_reposit = create_temp_reposit()
 
+        self.zodb = MockDatabase()
         self.doc = Document('testdoc', "Document for Test")
         upload_file = FileUploadMock('file.txt', self.file_data)
         with patch.object(self.doc, 'getWorkitemsActiveForMe',
                           Mock(return_value=[]), create=True):
             self.doc.manage_file_upload(upload_file)
+        self.zodb.root['root_ob'] = self.doc
+        transaction.commit()
 
     def tearDown(self):
+        self.zodb.cleanup()
         self._cleanup_temp_reposit()
 
     def test_head_headers(self):
