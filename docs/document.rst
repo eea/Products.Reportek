@@ -1,6 +1,8 @@
 :mod:`Products.Reportek.Document` --- Document module
 =====================================================
 
+.. module:: Products.Reportek.Document
+
 Documents are objects in the Zope OFS that encapsulate a file. Data is stored
 efficiently on the filesystem. Content can be uploaded, modified and downloaded
 through-the-web, or via the Python API.
@@ -17,15 +19,18 @@ To write a new version, open the data file as ``wb``::
     ...    f.write("some new content")
 
 
-:class:`Products.Reportek.Document` --- Document core class
------------------------------------------------------------
-
-.. automodule:: Products.Reportek.Document
+:class:`~Products.Reportek.Document.Document` --- Container for uploaded files
+------------------------------------------------------------------------------
+.. autoclass:: Products.Reportek.Document.Document
    :members:
 
-:class:`Products.Reportek.IconShow` --- Mixin class
----------------------------------------------------
+:class:`~Products.Reportek.Document.FileWrapper` --- Access to document content
+-------------------------------------------------------------------------------
+.. autoclass:: Products.Reportek.Document.FileWrapper
+   :members:
 
+:class:`~Products.Reportek.IconShow.IconShow` --- Mixin class
+-------------------------------------------------------------
 .. automodule:: Products.Reportek.IconShow
    :members:
 
