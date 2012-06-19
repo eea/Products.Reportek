@@ -32,8 +32,9 @@ def tearDownModule(self):
 
 def create_document_with_data(data):
     doc = Document.Document('testdoc', "Document for Test")
-    doc.getWorkitemsActiveForMe = Mock(return_value=[])
-    doc.manage_file_upload(create_upload_file(data))
+    with patch.object(doc, 'getWorkitemsActiveForMe',
+                      Mock(return_value=[]), create=True):
+        doc.manage_file_upload(create_upload_file(data))
     return doc
 
 
