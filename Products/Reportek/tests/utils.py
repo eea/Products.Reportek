@@ -26,6 +26,7 @@ import tempfile
 import shutil
 from StringIO import StringIO
 import transaction
+from OFS.Folder import Folder
 from mock import Mock, patch
 
 import lxml.html
@@ -190,13 +191,14 @@ def makelist(arg):
     raise ValueError('Argument must be list, tuple, or string')
 
 
+class FakeRootObject(Folder):
+    def getPhysicalPath(self):
+        return ('',)
+    def getPhysicalRoot(self):
+        return self
+
+
 def create_fake_root():
-    from OFS.Folder import Folder
-    class FakeRootObject(Folder):
-        def getPhysicalPath(self):
-            return ('',)
-        def getPhysicalRoot(self):
-            return self
     return FakeRootObject()
 
 

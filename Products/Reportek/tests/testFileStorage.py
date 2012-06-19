@@ -4,7 +4,7 @@ from StringIO import StringIO
 import zipfile
 from mock import Mock, patch
 from utils import (create_fake_root, makerequest, create_temp_reposit,
-                   create_upload_file)
+                   create_upload_file, create_envelope)
 
 
 def create_mock_request():
@@ -29,20 +29,16 @@ def tearDownModule(self):
     self._cleanup_temp_reposit()
 
 
-def create_envelope(parent, id='envelope'):
-    process = Mock()
-    e = Envelope.Envelope(process, '', '', '', '', '', '', '', '')
-    e.id = id
-    parent._setObject(id, e)
-    e.dataflow_uris = []
-    return parent[id]
-
-
 def create_document_with_data(data):
     doc = Document.Document('testdoc', "Document for Test")
     doc.getWorkitemsActiveForMe = Mock(return_value=[])
     doc.manage_file_upload(create_upload_file(data))
     return doc
+
+
+def doc_data(doc):
+    with doc.data_file.open() as data_file_handle:
+        return data_file_handle.read()
 
 
 class FileStorageTest(unittest.TestCase):
@@ -52,16 +48,14 @@ class FileStorageTest(unittest.TestCase):
         doc = Document.Document('testdoc', "Document for Test")
         doc.getWorkitemsActiveForMe = Mock(return_value=[])
         doc.manage_file_upload(create_upload_file(data))
-        with doc.data_file.open() as data_file_handle:
-            self.assertEqual(data_file_handle.read(), data)
+        self.assertEqual(doc_data(doc), data)
 
     def test_manage_file_upload_as_string(self):
         data = 'hello world, file for test!'
         doc = Document.Document('testdoc', "Document for Test")
         doc.getWorkitemsActiveForMe = Mock(return_value=[])
         doc.manage_file_upload(data)
-        with doc.data_file.open() as data_file_handle:
-            self.assertEqual(data_file_handle.read(), data)
+        self.assertEqual(doc_data(doc), data)
 
     def test_upload_new_version(self):
         data_1 = 'the data, version one'
@@ -70,8 +64,7 @@ class FileStorageTest(unittest.TestCase):
         doc.getWorkitemsActiveForMe = Mock(return_value=[])
         doc.manage_file_upload(data_1)
         doc.manage_file_upload(data_2)
-        with doc.data_file.open() as data_file_handle:
-            self.assertEqual(data_file_handle.read(), data_2)
+        self.assertEqual(doc_data(doc), data_2)
 
     def test_upload_during_create(self):
         data = 'hello world, file for test!'
@@ -173,8 +166,7 @@ class DataFileApiTest(unittest.TestCase):
         with doc.data_file.open('wb') as data_file_handle:
             data_file_handle.write("the new ")
             data_file_handle.write("file version")
-        with doc.data_file.open() as data_file_handle:
-            self.assertEqual(data_file_handle.read(), "the new file version")
+        self.assertEqual(doc_data(doc), "the new file version")
 
     def test_open_with_invalid_argument(self):
         doc = create_document_with_data('some data')
