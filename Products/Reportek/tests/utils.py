@@ -267,6 +267,10 @@ def add_document(envelope, upload_file):
     return envelope[doc_id]
 
 
+def break_document_data_file(doc):
+    doc._deletefile(doc.physicalpath())
+
+
 __all__ = [
     'setupCoreSessions',
     'setupSiteErrorLog',

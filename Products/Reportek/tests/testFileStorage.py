@@ -5,7 +5,8 @@ import zipfile
 from mock import Mock, patch
 import transaction
 from utils import (create_fake_root, makerequest, create_temp_reposit,
-                   create_upload_file, create_envelope, add_document)
+                   create_upload_file, create_envelope, add_document,
+                   break_document_data_file)
 
 
 def create_mock_request():
@@ -116,7 +117,7 @@ class DataFileApiTest(unittest.TestCase):
         from Products.Reportek.Document import StorageError
         data = 'hello world, file for test!'
         doc = create_document_with_data(data)
-        os.unlink(doc.physicalpath())
+        break_document_data_file(doc)
         self.assertRaises(StorageError, doc.data_file.open)
 
     def test_read_file_data(self):
@@ -158,8 +159,7 @@ class DataFileApiTest(unittest.TestCase):
         from Products.Reportek.Document import StorageError
         data = 'hello world, file for test!'
         doc = create_document_with_data(data)
-        file_path = doc.physicalpath()
-        os.unlink(file_path)
+        break_document_data_file(doc)
         self.assertRaises(StorageError, lambda: doc.data_file.mtime)
         self.assertRaises(StorageError, lambda: doc.data_file.size)
 
@@ -385,6 +385,6 @@ class ZipDownloadTest(unittest.TestCase):
         doc_id = Document.manage_addDocument(self.envelope, file=file_1)
         doc = self.envelope[doc_id]
         self.envelope.release_envelope()
-        os.unlink(doc.physicalpath())
+        break_document_data_file(doc)
 
         self.assertRaises(ValueError, download_envelope_zip, self.envelope)

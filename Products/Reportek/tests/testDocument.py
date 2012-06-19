@@ -6,7 +6,7 @@ ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
 from configurereportek import ConfigureReportek
 from fileuploadmock import FileUploadMock
-from utils import create_temp_reposit, HtmlPage
+from utils import create_temp_reposit, HtmlPage, break_document_data_file
 from mock import Mock, patch
 
 
@@ -178,7 +178,7 @@ class HttpRequestTest(unittest.TestCase):
 
     def test_get_missing_file(self):
         from Products.Reportek.Document import StorageError
-        self.doc._deletefile(self.doc.physicalpath())
+        break_document_data_file(self.doc)
 
         self.assertRaises(StorageError, publish_view, self.doc)
 
