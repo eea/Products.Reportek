@@ -26,7 +26,7 @@ import tempfile
 import shutil
 from StringIO import StringIO
 import transaction
-import ZODB, ZODB.MappingStorage
+import ZODB, ZODB.MappingStorage, ZODB.blob
 from OFS.Folder import Folder
 from mock import Mock, patch
 
@@ -272,6 +272,8 @@ class MockDatabase(object):
 
     def __init__(self):
         storage = ZODB.MappingStorage.MappingStorage()
+        self._blob_dir = tempfile.mkdtemp()
+        storage = ZODB.blob.BlobStorage(self._blob_dir, storage)
         self.db = ZODB.DB(storage)
 
     @property
@@ -280,10 +282,13 @@ class MockDatabase(object):
 
     def cleanup(self):
         transaction.abort()
+        shutil.rmtree(self._blob_dir)
 
 
 def break_document_data_file(doc):
-    doc._deletefile(doc.physicalpath())
+    b = doc.data_file._blob
+    b._p_activate()
+    os.unlink(b._p_blob_committed or b._p_blob_uncommitted)
 
 
 __all__ = [

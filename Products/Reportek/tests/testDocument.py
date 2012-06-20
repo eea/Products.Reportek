@@ -87,29 +87,6 @@ xmlns:met="http://biodiversity.eionet.europa.eu/schemas/dir9243eec">
         self.assertEquals('http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd',
             document.xml_schema_location)
 
-    def test_creation(self):
-        """ Test that the system can create a document """
-        self.create_text_document()
-        self.assertTrue(hasattr(self.envelope, 'documentid'),'Document did not get created')
-        doc = self.envelope.documentid
-        if self.physpath_must_track_zodb:
-            self.assertEquals(doc.physicalpath()[-len(doc.absolute_url(1)):], doc.absolute_url(1))
-
-    def test_delete(self):
-        """ Test that the system can delete a document """
-        self.create_text_document()
-        self.assertTrue(hasattr(self.envelope, 'documentid'),'Document did not get created')
-        doc = self.envelope.documentid
-        if self.physpath_must_track_zodb:
-            self.assertEquals(doc.physicalpath()[-len(doc.absolute_url(1)):], doc.absolute_url(1))
-        self.assertTrue(os.access(doc.physicalpath(), os.W_OK|os.R_OK),'No document in file system')
-        self.assertTrue(doc.id, 'documentid')
-        self.envelope.manage_delObjects([doc.id])
-        self.assertFalse(hasattr(self.envelope, 'documentid'),'Document did not get deleted from ZODB')
-        # ZopeTestCase doesn't call the event handlers that are registered in configure.zcml
-#       self.assertFalse(os.access(doc.physicalpath(), os.F_OK),
-#           'Document %s did not get deleted from file system' % doc.physicalpath())
-
     def test_restrict_document(self):
         self.create_text_document()
         self.document.manage_restrictDocument()
@@ -154,7 +131,7 @@ class HttpRequestTest(unittest.TestCase):
 
     def test_head_headers(self):
         from webdav.common import rfc1123_date
-        mtime = os.path.getmtime(self.doc.physicalpath())
+        mtime = self.doc.data_file.mtime
 
         resp = publish_view(self.doc, {'REQUEST_METHOD': 'HEAD'})
 
@@ -163,17 +140,9 @@ class HttpRequestTest(unittest.TestCase):
         self.assertEqual(resp.getHeader('Content-Type'), 'text/plain')
         self.assertEqual(resp.getHeader('Last-Modified'), rfc1123_date(mtime))
 
-    def test_head_missing_file(self):
-        from Products.Reportek.Document import StorageError
-        self.doc._deletefile(self.doc.physicalpath())
-
-        self.assertRaises(StorageError, publish_view,
-                            self.doc,
-                            {'REQUEST_METHOD': 'HEAD'})
-
     def test_get_headers(self):
         from webdav.common import rfc1123_date
-        mtime = os.path.getmtime(self.doc.physicalpath())
+        mtime = self.doc.data_file.mtime
 
         resp = publish_view(self.doc)
 

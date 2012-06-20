@@ -7,7 +7,7 @@ Documents are objects in the Zope OFS that encapsulate a file. Data is stored
 efficiently on the filesystem. Content can be uploaded, modified and downloaded
 through-the-web, or via the Python API.
 
-Content is accessed via :attr:`.Document.data_file`. See :class:`.FileWrapper`
+Content is accessed via :attr:`.Document.data_file`. See :class:`.FileContainer`
 for more information::
 
     >>> with doc.data_file.open() as f:
@@ -24,9 +24,9 @@ To write a new version, open the data file as ``wb``::
 .. autoclass:: Products.Reportek.Document.Document
    :members:
 
-:class:`~Products.Reportek.Document.FileWrapper` --- Access to document content
--------------------------------------------------------------------------------
-.. autoclass:: Products.Reportek.Document.FileWrapper
+:class:`~Products.Reportek.Document.FileContainer` --- Container for document content
+-------------------------------------------------------------------------------------
+.. autoclass:: Products.Reportek.Document.FileContainer
    :members:
 
 :class:`~Products.Reportek.IconShow.IconShow` --- Mixin class

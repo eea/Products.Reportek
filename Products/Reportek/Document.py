@@ -42,6 +42,9 @@ try:
     from zope.container.interfaces import IObjectRemovedEvent, IObjectAddedEvent
 except ImportError:
     from zope.app.container.interfaces import IObjectRemovedEvent, IObjectAddedEvent
+import transaction
+from persistent import Persistent
+from ZODB.blob import Blob, POSKeyError
 from time import time
 try: from cStringIO import StringIO
 except: from StringIO import StringIO
@@ -120,7 +123,12 @@ def manage_addDocument(self, id='', title='',
             return ''
 
 class Document(CatalogAware, SimpleItem, IconShow.IconShow):
-    "An External Document allows indexing and conversions."
+    """ An External Document allows indexing and conversions.
+
+    .. attribute:: data_file
+
+        The document's binary content as :class:`.FileContainer` object.
+    """
 
     implements(IDocument)
     icon = 'misc_/Reportek/document_gif'
@@ -145,32 +153,25 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     security.declareProtected('View', 'link')
     security.declareProtected('View', 'get_size')
     security.declareProtected('View', 'getContentType')
-    security.declareProtected('View', 'physicalpath')
     security.declareProtected('View', '__str__')
+    security.declarePrivate('data_file')
 
     meta_type = 'Report Document'
-
-    # location of the file-repository
-    _repository = ['reposit']
 
     ################################
     # Init method                  #
     ################################
 
-    def __init__(self, id, title='', content_type='', parent_path=None):
+    def __init__(self, id, title='', content_type=''):
         """ Initialize a new instance of Document
             If a document is created through FTP, self.absolute_url doesn't work.
         """
         self.id = id
         self.title = title
-        self.__version__ = __version__
-        self.filename = []
-        self.file_uploaded = 0
         self.content_type = content_type
-        self._v_parent_path = parent_path
         self.xml_schema_location = '' #needed for XML files
-        self._upload_time = time()
         self.accept_time = None
+        self.data_file = FileContainer()
 
     ################################
     # Public methods               #
@@ -183,7 +184,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     def upload_time(self):
         """ Return the upload time
         """
-        return DateTime(self._upload_time)
+        return DateTime(self.data_file.mtime)
 
     def get_accept_time(self):
         """ A document can have an accepted status. It is set by the client, and
@@ -215,17 +216,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         RESPONSE.setHeader('Content-Type', self.content_type)
         return ''
 
-    def __setstate__(self,state):
-        Document.inheritedAttribute('__setstate__')(self, state)
-        if not hasattr(self, '_upload_time'):
-            try:
-                self._upload_time = self.data_file.mtime
-            except: self._upload_time = 0
-        if not hasattr(self, 'file_uploaded'):
-            self.file_uploaded = 1
-        if not hasattr(self, 'accept_time'):
-            self.accept_time = None
-
     security.declarePublic('getMyOwner')
     def getMyOwner(self):
         """ Find the owner in the local roles. """
@@ -249,12 +239,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         """
         for l_w in self.getWorkitemsActiveForMe(self.REQUEST):
             l_w.addEvent('file upload', 'File: %s' % self.id)
-
-    security.declarePrivate('data_file')
-    @property
-    def data_file(self):
-        """ The document's binary content as :class:`.FileWrapper` object. """
-        return FileWrapper(self)
 
     def index_html(self, REQUEST, RESPONSE, icon=0):
         """ Returns the contents of the file.  Also, sets the
@@ -354,8 +338,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
     def get_size(self):
         """ Returns the size of the file or image """
-        if not self.file_uploaded:
-            return 0
         try:
             return self.data_file.size
         except StorageError:
@@ -380,21 +362,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     def size(self):
         """ Returns a formatted stringified version of the file size """
         return self._bytetostring(self.get_size())
-
-    def physicalpath(self, filename=None):
-        """ Generate the full filename, including directories from
-            self._repository and self.filename
-        """
-        if filename == None: filename=self.filename
-        path = CLIENT_HOME
-        for item in self._repository:
-            path = join(path,item)
-        if type(filename)==types.ListType:
-            for item in filename:
-                path = join(path,item)
-        elif filename!='':
-            path = join(path,filename)
-        return path
 
     def canHaveOnlineQA(self, upper_limit=None):
         """ Determines whether a HTTP QA can be done during Draft, based on file size
@@ -477,8 +444,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
     def manage_file_upload(self, file='', content_type='', REQUEST=None):
         """ Upload file from local directory """
-        new_fn = self._get_ufn(self.filename)
-        self.filename = new_fn
         if hasattr(file, 'filename'):
             with self.data_file.open('wb') as data_file_handle:
                 for chunk in RepUtils.iter_file_data(file):
@@ -496,8 +461,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
                                 self.id, content_type or self.content_type)
             #self.content_type = content_type
             self._setFileSchema(file)
-        self.file_uploaded = 1
-        self._upload_time = time()
         self.accept_time = None
         self.logUpload()
         # update ZCatalog
@@ -530,28 +493,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             content_type, enc = guess_content_type(getattr(file,'filename',id),
                                                    body, content_type)
         return content_type
-
-    def _writesegment(self, instream, outstream, start, length):
-        """ Write a segment of the file. The file is already open. """
-        instream.seek(start)
-        blocksize = 2<<16
-
-        if length < blocksize:
-            nextsize = length
-        else:
-            nextsize = blocksize
-
-        try:
-            while length > 0:
-                block = instream.read(nextsize)
-                outstream.write(block)
-                length = length - len(block)
-                if length < blocksize:
-                    nextsize = length
-                else:
-                    nextsize = blocksize
-        except IOError:
-            raise IOError, ("%s (%s)" %(self.id, filename))
 
     def _copy(self, infile, outfile, maxblocks=16384, isString=0):
         """ Read binary data from infile and write it to outfile
@@ -621,129 +562,10 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         strg = strg+ ' ' + typ
         return strg
 
-    def _deletefile(self, filename):
-        """ Move the file to the undo file """
-        if self.filename == []:
-            return
-        fn = self.physicalpath()
-        if isfile(fn):
-            try: os.rename(filename, filename + '.undo')
-            except: pass
-            self.file_uploaded = 0
-
-    def _copyfile(self, old_fn, new_fn):
-        """ Copy a file in the repository """
-        self._copy(old_fn, new_fn)
-
-    def _restorefile(self, filename):
-        """ Recover the file from undo """
-        try: os.rename(filename + '.undo', filename)
-        except: pass
-
-
-    def _get_ufn(self, filename):
-        """ If no unique filename has been generated, generate one
-            otherwise, return the existing one.
-        """
-        if UNDO_POLICY==ALWAYS_BACKUP or filename==[]:
-            new_fn = self._get_new_ufn()
-        else:
-            new_fn = filename[:]
-        if filename:
-            old_fn = self.physicalpath(filename)
-            if UNDO_POLICY==ALWAYS_BACKUP:
-                self._deletefile(old_fn)
-            else:
-                self._restorefile(old_fn)
-        return new_fn
-
-    def _get_new_ufn(self):
-        """ Create a new unique filename """
-        # We can get in the situation that the object is floating in memory
-        # when the upload is taking place. In that case we don't have a
-        # absolute_url, and must rely on _v_parent_path - set in __init__
-        if hasattr(self,'_v_parent_path') and self._v_parent_path:
-            rel_url_list = string.split(self._v_parent_path, '/')
-        else:
-            rel_url_list = string.split(self.absolute_url(1), '/')[:-1]
-        rel_url_list = filter(None, rel_url_list)
-        pos = string.rfind(self.id, '.')
-        if (pos+1):
-            id_name = self.id[:pos]
-            id_ext = self.id[pos:]
-        else:
-            id_name = self.id
-            id_ext = ''
-
-        # generate directory structure
-        dirs = []
-        if REPOSITORY==SYNC_ZODB:
-            dirs = rel_url_list
-        elif REPOSITORY==SLICED:
-            slice_depth = 2 # modify here, if you want a different slice depth
-            slice_width = 1 # modify here, if you want a different slice width
-            temp = id_name
-            for i in range(slice_depth):
-                if len(temp)<slice_width*(slice_depth-i):
-                    dirs.append(slice_width*'_')
-                else:
-                    dirs.append(temp[:slice_width])
-                    temp=temp[slice_width:]
-
-        # generate file format
-        # time/counter (%t)
-        fileformat = FILE_FORMAT
-        if string.find(fileformat, "%t")>=0:
-            fileformat = string.replace(fileformat, "%t", "%c")
-            counter = int(DateTime().strftime('%m%d%H%M%S'))
-        else:
-            counter = 0
-        invalid_format_exc = "Invalid file format: "
-        if string.find(fileformat, "%c")==-1:
-            raise invalid_format_exc, FILE_FORMAT
-        # user (%u)
-        if string.find(fileformat, "%u")>=0:
-            if (hasattr(self, "REQUEST") and
-               self.REQUEST.has_key('AUTHENTICATED_USER')):
-                user = self.REQUEST['AUTHENTICATED_USER'].name
-                fileformat = string.replace(fileformat, "%u", user)
-            else:
-                fileformat = string.replace(fileformat, "%u", "")
-        # path (%p)
-        if string.find(fileformat, "%p") >= 0:
-            temp = string.joinfields (rel_url_list, "_")
-            fileformat = string.replace(fileformat, "%p", temp)
-        # file and extension (%n and %e)
-        if string.find(fileformat,"%n") >= 0 or string.find(fileformat,"%e") >= 0:
-            fileformat = string.replace(fileformat, "%n", id_name)
-            fileformat = string.replace(fileformat, "%e", id_ext)
-
-        # make the directories
-        path = self.physicalpath(dirs)
-        if not os.path.isdir(path):
-            mkdir_exc = "Can't create directory: "
-            try:
-                os.makedirs(path)
-            except:
-                raise mkdir_exc, path
-
-        # search for unique filename
-        if counter:
-            fn = join(path, string.replace(fileformat, "%c", `counter`))
-        else:
-            fn = join(path, string.replace(fileformat, "%c", ''))
-        while (isfile(fn) or isfile(fn+'.undo')):
-            counter = counter+1
-            fn = join(path, string.replace(fileformat, "%c", `counter`))
-        if counter: fileformat = string.replace(fileformat, "%c", `counter`)
-        else: fileformat = string.replace(fileformat, "%c", '')
-        dirs.append(fileformat)
-        return dirs
-
 Globals.InitializeClass(Document)
 
 
-class FileWrapper(object):
+class FileContainer(Persistent):
     """ Wrapper around file storage on disk.
 
     .. py:attribute:: mtime
@@ -754,11 +576,12 @@ class FileWrapper(object):
     .. py:attribute:: size
 
         file size in bytes
-
     """
 
-    def __init__(self, doc):
-        self._doc = doc
+    def __init__(self):
+        self._blob = Blob()
+        self.mtime = time()
+        self.size = 0
 
     def open(self, mode='rb'):
         ok_modes = ['rb', 'wb']
@@ -766,74 +589,17 @@ class FileWrapper(object):
             raise ValueError("Can't open file with mode %r, only %r allowed"
                              % (mode, ok_modes))
         try:
-            return open(self._doc.physicalpath(), mode)
-        except IOError:
+            file_handle = self._blob.open(mode[0])
+            if mode[0] == 'w':
+                orig_close = file_handle.close
+                def close_and_update_metadata():
+                    orig_close()
+                    self._update_metadata(file_handle.name)
+                file_handle.close = close_and_update_metadata
+            return file_handle
+        except (IOError, POSKeyError):
             raise StorageError
 
-    @property
-    def mtime(self):
-        try:
-            return os.path.getmtime(self._doc.physicalpath())
-        except OSError:
-            raise StorageError
-
-    @property
-    def size(self):
-        try:
-            return os.path.getsize(self._doc.physicalpath())
-        except OSError:
-            raise StorageError
-
-
-def addedDocument(ob, event):
-    """ This event is triggered when a Reportek Document was added to a container.
-        This is the case after a normal add and if the object is a
-        result of cut-paste- or rename-operation. In the first case, the
-        external files doesn't exist yet, otherwise it was renamed to .undo
-        by manage_beforeDelete before and must be restored by _undo().
-
-        A copy of the external file is created and the property 'filename' is changed.
-    """
-    if ob.file_uploaded == 0 and ob.filename != []:
-        old_fn = ob.physicalpath()
-        new_fn = ob._get_new_ufn()
-        if isfile(old_fn):
-            ob._copyfile(old_fn, ob.physicalpath(new_fn))
-        else:
-            if isfile(old_fn + '.undo'):
-                ob._copyfile(old_fn + '.undo', ob.physicalpath(new_fn))
-        ob.filename = new_fn
-        ob.file_uploaded = 1
-
-def cloneDocument(ob, event):
-    """ A Reportek Document was copied. """
-    old_fn = ob.physicalpath()
-    new_fn = ob._get_new_ufn()
-    if isfile(old_fn):
-        ob._copyfile(old_fn, ob.physicalpath(new_fn))
-    ob.filename = new_fn
-    ob.file_uploaded = 1
-
-def removedDocument(ob, event):
-    """ A Reportek Document was removed.
-        If the attribute 'can_move_released' is found in a parent folder,
-        and is true, then it it legal to move the envelope
-    """
-    if getattr(ob, 'can_move_released', False) == True:
-        return
-    if event.oldParent:
-        if(hasattr(event.oldParent,'released') and event.oldParent.released):
-            raise Forbidden, "Envelope is released"
-        fn = ob.physicalpath()
-        ob._deletefile(fn) # Make room for a new file
-        ob.file_uploaded = 0
-
-def movedDocument(ob, event):
-    """A Reportek Document was moved."""
-    if not IObjectAddedEvent.providedBy(event):
-        removedDocument(ob, event)
-    if not IObjectRemovedEvent.providedBy(event):
-        if ob.file_uploaded == 0 and ob.filename != []:
-            addedDocument(ob, event)
-        elif ob.file_uploaded == 1 and ob.filename != []:
-            cloneDocument(ob, event)
+    def _update_metadata(self, fs_path):
+        self.mtime = os.path.getmtime(fs_path)
+        self.size = os.path.getsize(fs_path)

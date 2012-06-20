@@ -19,14 +19,6 @@
 
   <configure zcml:condition="installed zope.container">
 
-    <subscriber for="Products.Reportek.interfaces.IDocument
-                     zope.container.interfaces.IObjectAddedEvent"
-                handler="Products.Reportek.Document.addedDocument" />
-
-    <subscriber for="Products.Reportek.interfaces.IDocument
-                     zope.container.interfaces.IObjectMovedEvent"
-                handler="Products.Reportek.Document.movedDocument" />
-
     <subscriber for="Products.Reportek.interfaces.IEnvelope
                      zope.container.interfaces.IObjectMovedEvent"
                 handler="Products.Reportek.Envelope.movedEnvelope" />
@@ -34,14 +26,6 @@
   </configure>
 
   <configure zcml:condition="not-installed zope.container">
-
-    <subscriber for="Products.Reportek.interfaces.IDocument
-                     zope.app.container.interfaces.IObjectAddedEvent"
-                handler="Products.Reportek.Document.addedDocument" />
-
-    <subscriber for="Products.Reportek.interfaces.IDocument
-                     zope.app.container.interfaces.IObjectMovedEvent"
-                handler="Products.Reportek.Document.movedDocument" />
 
     <subscriber for="Products.Reportek.interfaces.IEnvelope
                      zope.app.container.interfaces.IObjectMovedEvent"

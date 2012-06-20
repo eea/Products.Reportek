@@ -1,4 +1,5 @@
 import os
+import time
 import unittest
 from StringIO import StringIO
 import zipfile
@@ -113,10 +114,29 @@ class FileStorageTest(unittest.TestCase):
 
 class DataFileApiTest(unittest.TestCase):
 
-    def test_read_file_data_error(self):
+    def tearDown(self):
+        transaction.abort()
+
+    def test_read_uncommitted_file_data_error(self):
         from Products.Reportek.Document import StorageError
         data = 'hello world, file for test!'
+
         doc = create_document_with_data(data)
+
+        break_document_data_file(doc)
+        self.assertRaises(StorageError, doc.data_file.open)
+
+    def test_read_committed_file_data_error(self):
+        from Products.Reportek.Document import StorageError
+        data = 'hello world, file for test!'
+
+        zodb = MockDatabase()
+        self.addCleanup(zodb.cleanup)
+
+        doc = create_document_with_data(data)
+        zodb.root['root_ob'] = doc
+        transaction.commit()
+
         break_document_data_file(doc)
         self.assertRaises(StorageError, doc.data_file.open)
 
@@ -148,20 +168,20 @@ class DataFileApiTest(unittest.TestCase):
         # I/O operation on closed file
         self.assertRaises(ValueError, data_file.read)
 
+    def test_default_file_metadata(self):
+        t0 = time.time()
+        doc = Document.Document('testdoc', "Document for Test")
+        t1 = time.time()
+        self.assertTrue(int(t0) <= int(doc.data_file.mtime) <= int(t1))
+        self.assertEqual(doc.data_file.size, 0)
+
     def test_get_file_metadata(self):
         data = 'hello world, file for test!'
+        t0 = time.time()
         doc = create_document_with_data(data)
-        file_path = doc.physicalpath()
-        self.assertEqual(doc.data_file.mtime, os.path.getmtime(file_path))
+        t1 = time.time()
+        self.assertTrue(int(t0) <= int(doc.data_file.mtime) <= int(t1))
         self.assertEqual(doc.data_file.size, len(data))
-
-    def test_get_file_metadata_error(self):
-        from Products.Reportek.Document import StorageError
-        data = 'hello world, file for test!'
-        doc = create_document_with_data(data)
-        break_document_data_file(doc)
-        self.assertRaises(StorageError, lambda: doc.data_file.mtime)
-        self.assertRaises(StorageError, lambda: doc.data_file.size)
 
     def test_save_file_data(self):
         doc = create_document_with_data('some data')
@@ -182,9 +202,6 @@ def ofs_copy_object(source_ob, dest_ob):
         with patch.object(dest_ob.__class__, '_verifyObjectPaste'):
             dest_ob.manage_pasteObjects(clip)
     new_ob = dest_ob[source_ob.getId()]
-    if isinstance(new_ob, Document.Document):
-        # simulate OFS event handling
-        Document.cloneDocument(new_ob, None)
     return new_ob
 
 
@@ -195,9 +212,6 @@ def ofs_cut_paste_object(source_ob, dest_ob):
         with patch.object(dest_ob.__class__, '_verifyObjectPaste'):
             dest_ob.manage_pasteObjects(clip)
     new_ob = dest_ob[source_ob.getId()]
-    if isinstance(new_ob, Document.Document):
-        # simulate OFS event handling
-        Document.addedDocument(new_ob, None)
     return new_ob
 
 

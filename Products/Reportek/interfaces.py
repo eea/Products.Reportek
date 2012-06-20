@@ -4,8 +4,6 @@ class IDocument(Interface):
     """ Reportek Document."""
     id = Attribute('id')
     title = Attribute('title')
-    filename = Attribute('filename')
-    file_uploaded = Attribute('file_uploaded')
     content_type = Attribute('content_type')
     xml_schema_location = Attribute('needed for XML files')
 
