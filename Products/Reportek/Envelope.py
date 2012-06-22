@@ -746,13 +746,15 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
 
         if not restricted_docs:
             cachedfile = zip_cache/('%s-all.zip' % zipname)
+            response_zip_name = self.getId() + '-all.zip'
         else:
             cachedfile = zip_cache/('%s.zip' % zipname)
+            response_zip_name = self.getId() + '.zip'
 
         if cachedfile.isfile():
             with open(cachedfile, 'rb') as data_file:
                 write_to_response(RESPONSE, data_file,
-                                  zipname+'.zip', 'application/x-zip')
+                                  response_zip_name, 'application/x-zip')
             return
 
         tmpfile = tempfile.NamedTemporaryFile(suffix='.temp', dir=zip_cache)
@@ -791,7 +793,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
 
             tmpfile.seek(0)
             write_to_response(RESPONSE, tmpfile,
-                              zipname+'.zip', 'application/x-zip')
+                              response_zip_name, 'application/x-zip')
 
         finally:
             tmpfile.close()
