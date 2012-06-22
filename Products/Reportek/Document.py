@@ -298,7 +298,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         RESPONSE.setHeader('Content-Type', content_type)
         RESPONSE.setHeader('Content-Length', file_size)
 
-        self._copy(data_file, RESPONSE)
+        for chunk in RepUtils.iter_file_data(data_file):
+            RESPONSE.write(chunk)
         return ''
 
     def view_image_or_file(self):
@@ -488,54 +489,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             content_type, enc = guess_content_type(getattr(file,'filename',id),
                                                    body, content_type)
         return content_type
-
-    def _copy(self, infile, outfile, maxblocks=16384, isString=0):
-        """ Read binary data from infile and write it to outfile
-            infile and outfile may be strings, in which case a file with that
-            name is opened, or filehandles, in which case they are accessed
-            directly.
-            A block is 131072 bytes. maxblocks prevents it from >2GB
-            !New!
-            The isString parameter is not 0, the file is not a handler, but string.
-            However, it is not the name of another object to copy, but the content 
-            of the file itself.
-        """
-        if isString:
-            from cStringIO import StringIO
-            instream = StringIO(infile)
-            close_in = 0
-        elif type(infile) is types.StringType:
-            try:
-                instream = open(infile, 'rb')
-            except IOError:
-                raise IOError, ("%s (%s)" %(self.id, infile))
-            close_in = 1
-        else:
-            instream = infile
-            close_in = 0
-
-        if type(outfile) is types.StringType:
-            try:
-                outstream = open(outfile, 'wb')
-            except IOError:
-                raise IOError, ("%s (%s)" %(self.id, outfile))
-            close_out = 1
-        else:
-            outstream = outfile
-            close_out = 0
-        try:
-            blocksize = 2<<16
-            block = instream.read(blocksize)
-            outstream.write(block)
-            maxblocks = maxblocks - 1
-            while len(block)==blocksize and maxblocks > 0:
-                maxblocks = maxblocks - 1
-                block = instream.read(blocksize)
-                outstream.write(block)
-        except IOError:
-            raise IOError, ("%s (%s)" %(self.id, filename))
-        if close_in: instream.close()
-        if close_out: outstream.close()
 
     def _bytetostring (self, value):
         """ Convert an int-value (file-size in bytes) to an String
