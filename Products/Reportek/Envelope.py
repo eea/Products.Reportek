@@ -742,17 +742,18 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                 restricted_docs.append(doc)
 
         zip_cache = self._get_zip_cache()
-        zipname = self.absolute_url(1).replace('/','_')
-
-        if not restricted_docs:
-            cachedfile = zip_cache/('%s-all.zip' % zipname)
+        envelope_path = '/'.join(self.getPhysicalPath())
+        if restricted_docs:
+            flag = 'all'
             response_zip_name = self.getId() + '-all.zip'
         else:
-            cachedfile = zip_cache/('%s.zip' % zipname)
+            flag = 'public'
             response_zip_name = self.getId() + '.zip'
+        cache_key = zip_content.encode_zip_name(envelope_path, flag)
+        cached_zip_path = zip_cache/cache_key
 
-        if cachedfile.isfile():
-            with open(cachedfile, 'rb') as data_file:
+        if cached_zip_path.isfile():
+            with cached_zip_path.open('rb') as data_file:
                 write_to_response(RESPONSE, data_file,
                                   response_zip_name, 'application/x-zip')
             return
@@ -789,7 +790,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             outzd.close()
             # only save cache file if greater than threshold
             if os.stat(tmpfile.name).st_size > ZIP_CACHE_THRESHOLD:
-                os.link(tmpfile.name, cachedfile)
+                os.link(tmpfile.name, cached_zip_path)
 
             tmpfile.seek(0)
             write_to_response(RESPONSE, tmpfile,
@@ -801,15 +802,12 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
     def _invalidate_zip_cache(self):
         """ delete zip cache files """
         zip_cache = self._get_zip_cache()
-        zipname = self.absolute_url(1).replace('/','_')
-
-        cachedfile = zip_cache/('%s.zip' % zipname)
-        if cachedfile.isfile():
-            os.unlink(cachedfile)
-
-        cachedfile = zip_cache/('%s-all.zip' % zipname) #contains restricted docs
-        if cachedfile.isfile():
-            os.unlink(cachedfile)
+        envelope_path = '/'.join(self.getPhysicalPath())
+        for flag in ['public', 'all']:
+            cache_key = zip_content.encode_zip_name(envelope_path, flag)
+            cached_zip_path = zip_cache/cache_key
+            if cached_zip_path.isfile():
+                cached_zip_path.unlink()
 
     def _add_file_from_zip(self,zipfile,name, restricted=''):
         """ Generate id from filename and make sure,
