@@ -429,3 +429,14 @@ class OfsBlobFileTest(unittest.TestCase):
         self.assertEqual(list(folder), ['myfile'])
         self.assertEqual(folder.values(), [myfile])
         self.assertEqual(myfile.meta_type, "File (Blob)")
+
+    def test_save_and_read_content(self):
+        from Products.Reportek.blob import OfsBlobFile
+        content = 'hello blobby world!\n'
+        myfile = OfsBlobFile()
+
+        with myfile.data_file.open('wb') as f:
+            f.write(content)
+
+        with myfile.data_file.open() as f:
+            self.assertEqual(f.read(), content)

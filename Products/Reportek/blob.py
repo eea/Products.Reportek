@@ -53,3 +53,6 @@ class OfsBlobFile(_SimpleItem.SimpleItem, _SimpleItem.Item_w__name__):
     """ OFS object, similar to Image, that stores its data as a Blob. """
 
     meta_type = "File (Blob)"
+
+    def __init__(self):
+        self.data_file = FileContainer()
