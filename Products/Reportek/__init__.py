@@ -226,6 +226,9 @@ def create_reportek_indexes(catalog):
 def initialize(context):
     """ Reportek initializer """
 
+    from AccessControl.Permissions import view_management_screens
+    import blob
+
     import Zope2
     app = Zope2.app()
 
@@ -251,6 +254,15 @@ def initialize(context):
             Converter.manage_addConverterForm,
             Converter.manage_addConverter),
        icon = 'www/conv.gif'
+       )
+
+    context.registerClass(
+       blob.OfsBlobFile,
+       permission=view_management_screens,
+       constructors = (
+            blob.manage_addOfsBlobFile_html,
+            blob.manage_addOfsBlobFile),
+       icon = 'www/blobfile.png'
        )
 
     ###########################################

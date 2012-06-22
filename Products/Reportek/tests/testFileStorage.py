@@ -444,6 +444,17 @@ class OfsBlobFileTest(unittest.TestCase):
         with myfile.data_file.open() as f:
             self.assertEqual(f.read(), content)
 
+    def test_save_content_at_creation(self):
+        from OFS.Folder import Folder
+        from Products.Reportek.blob import add_OfsBlobFile
+        content = 'hello blobby world!\n'
+
+        folder = Folder()
+        myfile = add_OfsBlobFile(folder, 'myfile', StringIO(content))
+
+        with myfile.data_file.open() as f:
+            self.assertEqual(f.read(), content)
+
     def test_download_content(self):
         from utils import publish_view
         from Products.Reportek.blob import OfsBlobFile

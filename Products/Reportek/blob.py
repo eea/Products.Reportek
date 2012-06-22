@@ -1,11 +1,12 @@
 import os.path
-from time import time
+from time import time, strftime, localtime
 from ZODB.blob import Blob, POSKeyError
 from persistent import Persistent
 import Globals
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view
 import OFS.SimpleItem as _SimpleItem
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 import RepUtils
 
 
@@ -60,9 +61,16 @@ class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
     content_type = 'application/octet-stream'
     security = ClassSecurityInfo()
 
+    manage_options = (
+        {'label': 'Content', 'action': 'manage_main'},
+    ) + _SimpleItem.SimpleItem.manage_options
+
     def __init__(self, name=''):
         self.__name__ = name
         self.data_file = FileContainer()
+
+    def data_file_mtime(self):
+        return strftime("%d %B %Y, %H:%M", localtime(self.data_file.mtime))
 
     security.declareProtected(view, 'index_html')
     def index_html(self, REQUEST, RESPONSE):
@@ -71,6 +79,8 @@ class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
             RepUtils.http_response_with_file(
                 REQUEST, RESPONSE, data_file_handle,
                 self.content_type, self.data_file.size, self.data_file.mtime)
+
+    manage_main = PageTemplateFile('zpt/blob_main.zpt', globals())
 
     def manage_edit(self, REQUEST, RESPONSE):
         """ change properties and file content """
@@ -84,7 +94,21 @@ class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
 Globals.InitializeClass(OfsBlobFile)
 
 
-def add_OfsBlobFile(parent, name):
+def add_OfsBlobFile(parent, name, data_file=None):
     ob = OfsBlobFile(name)
     parent[name] = ob
+    if data_file is not None:
+        with ob.data_file.open('wb') as f:
+            for chunk in RepUtils.iter_file_data(data_file):
+                f.write(chunk)
     return parent[name]
+
+
+manage_addOfsBlobFile_html = PageTemplateFile('zpt/blob_add.zpt', globals())
+
+def manage_addOfsBlobFile(ctx, REQUEST, RESPONSE):
+    """ add a new OfsBlobFile object to `parent` """
+    parent = ctx.Destination()
+    data_file = REQUEST.form.get('file') or None
+    ob = add_OfsBlobFile(parent, REQUEST.form['name'], data_file)
+    RESPONSE.redirect(ob.absolute_url() + '/manage_workspace')
