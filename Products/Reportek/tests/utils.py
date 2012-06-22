@@ -225,7 +225,7 @@ def create_upload_file(data='', filename='testfile.txt'):
 
 
 def publish_view(view, environ={}):
-    from ZPublisher.Publish import publish
+    from ZPublisher.WSGIPublisher import publish
     from AccessControl.SecurityManagement import noSecurityManager
 
     name = view.__name__
@@ -241,9 +241,17 @@ def publish_view(view, environ={}):
     view.__doc__ = 'non-empty documentation'
     setattr(root, name, view)
 
+    module_info = (Mock(), # before
+                   None, #after
+                   root, #object
+                   'TESTING', #realm
+                   True, #debug_mode
+                   Mock(), #err_hook
+                   None, #validated_hook
+                   Mock()) #tm
+
     try:
-        with patch('Zope2.bobo_application', root):
-            return publish(request, 'Zope2', [None])
+        return publish(request, 'Zope2', Mock(return_value=module_info))
     finally:
         noSecurityManager()
 
