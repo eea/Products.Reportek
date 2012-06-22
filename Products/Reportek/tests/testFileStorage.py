@@ -400,6 +400,12 @@ class ZipDownloadTest(unittest.TestCase):
 
         self.assertRaises(ValueError, download_envelope_zip, self.envelope)
 
+    def test_unauthorized(self):
+        from AccessControl import Unauthorized
+        self.envelope.release_envelope()
+        self.envelope.canViewContent = Mock(return_value=False)
+        self.assertRaises(Unauthorized, download_envelope_zip, self.envelope)
+
     def test_zip_name_encoding(self):
         from Products.Reportek.zip_content import encode_zip_name
         data = [('a', 'x', 'a-x'),

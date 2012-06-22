@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import os, sys
+from mock import Mock
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
@@ -50,6 +51,7 @@ class FeedbackTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.create_feedback()
         self.app.REQUEST.PARENTS = [self.envelope, self.app.collection]
         MOCKRESPONSE = MockResponse()
+        self.envelope.canViewContent = Mock(return_value=True)
         self.envelope.envelope_zip(self.app.REQUEST, MOCKRESPONSE)
         self.assertTrue(MOCKRESPONSE.headers['Content-Type'].startswith(
             'application/x-zip'))
@@ -63,6 +65,7 @@ class FeedbackTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.testNationalChars()
         self.app.REQUEST.PARENTS = [self.envelope, self.app.collection]
         MOCKRESPONSE = MockResponse()
+        self.envelope.canViewContent = Mock(return_value=True)
         self.envelope.envelope_zip(self.app.REQUEST, MOCKRESPONSE)
         self.assertTrue(MOCKRESPONSE.headers['Content-Type'].startswith(
             'application/x-zip'))

@@ -723,6 +723,9 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             requests that can be made with HTTP
         """
 
+        if not self.canViewContent():
+            raise Unauthorized, "Envelope is not available"
+
         public_docs = []
         restricted_docs = []
 
@@ -740,7 +743,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         else:
             cachedfile = join(path, '%s.zip' % zipname)
 
-        if self.canViewContent() and isfile(cachedfile):
+        if isfile(cachedfile):
             with open(cachedfile, 'rb') as data_file:
                 write_to_response(RESPONSE, data_file,
                                   zipname+'.zip', 'application/x-zip')
