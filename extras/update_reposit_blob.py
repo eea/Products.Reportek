@@ -43,11 +43,15 @@ def iter_documents(parent):
                 yield sub_ob
 
 
+def get_reposit_root():
+    return os.path.join(CLIENT_HOME, 'reposit')
+
+
 def physicalpath(doc):
     filename = doc.filename
     if not isinstance(filename, list):
         raise ValueError("what filename is this? %r" % (filename,))
-    return os.path.join(CLIENT_HOME, 'reposit', *filename)
+    return os.path.join(get_reposit_root(), *filename)
 
 
 _attrib_to_remove = ['filename', 'file_uploaded', '_upload_time', '__version__']
