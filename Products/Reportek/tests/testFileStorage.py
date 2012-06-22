@@ -421,11 +421,14 @@ class OfsBlobFileTest(unittest.TestCase):
 
     def test_create_file(self):
         from OFS.Folder import Folder
-        from Products.Reportek.blob import OfsBlobFile
+        from Products.Reportek.blob import add_OfsBlobFile
 
         folder = Folder()
-        myfile = OfsBlobFile()
-        folder['myfile'] = myfile
+        myfile = add_OfsBlobFile(folder, 'myfile')
+
+        self.assertEqual(myfile.getId(), 'myfile')
+        self.assertEqual(myfile.__name__, 'myfile')
+
         self.assertEqual(list(folder), ['myfile'])
         self.assertEqual(folder.values(), [myfile])
         self.assertEqual(myfile.meta_type, "File (Blob)")

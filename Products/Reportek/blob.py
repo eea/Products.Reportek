@@ -49,10 +49,17 @@ class FileContainer(Persistent):
         self.size = os.path.getsize(fs_path)
 
 
-class OfsBlobFile(_SimpleItem.SimpleItem, _SimpleItem.Item_w__name__):
+class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
     """ OFS object, similar to Image, that stores its data as a Blob. """
 
     meta_type = "File (Blob)"
 
-    def __init__(self):
+    def __init__(self, name=''):
+        self.__name__ = name
         self.data_file = FileContainer()
+
+
+def add_OfsBlobFile(parent, name):
+    ob = OfsBlobFile(name)
+    parent[name] = ob
+    return parent[name]
