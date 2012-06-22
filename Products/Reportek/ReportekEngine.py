@@ -24,7 +24,7 @@ __doc__ = """
       Added in the Root folder by product's __init__
 """
 
-from os.path import join
+from path import path
 import tempfile
 import os
 from zipfile import *
@@ -320,7 +320,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         envelopes = RepUtils.utConvertToList(envelopes)
 
-        tmpfile = tempfile.mktemp(".temp", dir=join(CLIENT_HOME, 'reposit'))
+        temp_dir = path(CLIENT_HOME)/'zip_cache'
+        if not temp_dir.isdir():
+            temp_dir.mkdir()
+        tmpfile = tempfile.mktemp(".temp", dir=str(temp_dir))
 
         if len(envelopes) == 0:
             return
