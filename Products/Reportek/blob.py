@@ -2,7 +2,11 @@ import os.path
 from time import time
 from ZODB.blob import Blob, POSKeyError
 from persistent import Persistent
+import Globals
+from AccessControl import ClassSecurityInfo
+from AccessControl.Permissions import view
 import OFS.SimpleItem as _SimpleItem
+import RepUtils
 
 
 class StorageError(Exception):
@@ -53,10 +57,22 @@ class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
     """ OFS object, similar to Image, that stores its data as a Blob. """
 
     meta_type = "File (Blob)"
+    content_type = 'application/octet-stream'
+    security = ClassSecurityInfo()
 
     def __init__(self, name=''):
         self.__name__ = name
         self.data_file = FileContainer()
+
+    security.declareProtected(view, 'index_html')
+    def index_html(self, REQUEST, RESPONSE):
+        """ download file content """
+        with self.data_file.open() as data_file_handle:
+            RepUtils.http_response_with_file(
+                REQUEST, RESPONSE, data_file_handle,
+                self.content_type, self.data_file.size, self.data_file.mtime)
+
+Globals.InitializeClass(OfsBlobFile)
 
 
 def add_OfsBlobFile(parent, name):

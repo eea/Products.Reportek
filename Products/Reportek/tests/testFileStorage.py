@@ -443,3 +443,18 @@ class OfsBlobFileTest(unittest.TestCase):
 
         with myfile.data_file.open() as f:
             self.assertEqual(f.read(), content)
+
+    def test_download_content(self):
+        from utils import publish_view
+        from Products.Reportek.blob import OfsBlobFile
+
+        content = 'hello blobby world!\n'
+        myfile = OfsBlobFile('myfile')
+
+        with myfile.data_file.open('wb') as f:
+            f.write(content)
+
+        out = StringIO()
+        resp = publish_view(myfile, {'_stdout': out})
+        body = out.getvalue().split('\r\n\r\n', 1)[1]
+        self.assertEqual(body, content)
