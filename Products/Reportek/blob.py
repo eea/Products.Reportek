@@ -2,6 +2,7 @@ import os.path
 from time import time
 from ZODB.blob import Blob, POSKeyError
 from persistent import Persistent
+import OFS.SimpleItem as _SimpleItem
 
 
 class StorageError(Exception):
@@ -46,3 +47,9 @@ class FileContainer(Persistent):
     def _update_metadata(self, fs_path):
         self.mtime = os.path.getmtime(fs_path)
         self.size = os.path.getsize(fs_path)
+
+
+class OfsBlobFile(_SimpleItem.SimpleItem, _SimpleItem.Item_w__name__):
+    """ OFS object, similar to Image, that stores its data as a Blob. """
+
+    meta_type = "File (Blob)"

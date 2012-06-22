@@ -415,3 +415,17 @@ class ZipDownloadTest(unittest.TestCase):
 
         for orig_path, flags, expected in data:
             self.assertEqual(encode_zip_name(orig_path, flags), expected)
+
+
+class OfsBlobFileTest(unittest.TestCase):
+
+    def test_create_file(self):
+        from OFS.Folder import Folder
+        from Products.Reportek.blob import OfsBlobFile
+
+        folder = Folder()
+        myfile = OfsBlobFile()
+        folder['myfile'] = myfile
+        self.assertEqual(list(folder), ['myfile'])
+        self.assertEqual(folder.values(), [myfile])
+        self.assertEqual(myfile.meta_type, "File (Blob)")
