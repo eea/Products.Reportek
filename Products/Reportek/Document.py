@@ -42,9 +42,6 @@ try:
     from zope.container.interfaces import IObjectRemovedEvent, IObjectAddedEvent
 except ImportError:
     from zope.app.container.interfaces import IObjectRemovedEvent, IObjectAddedEvent
-import transaction
-from persistent import Persistent
-from ZODB.blob import Blob, POSKeyError
 from time import time
 try: from cStringIO import StringIO
 except: from StringIO import StringIO
@@ -54,6 +51,7 @@ import RepUtils
 from XMLInfoParser import detect_schema
 from constants import CONVERTERS_ID, QAREPOSITORY_ID
 from interfaces import IDocument
+from blob import FileContainer, StorageError
 
 FLAT = 0
 SYNC_ZODB = 1
@@ -68,9 +66,6 @@ FILE_FORMAT = "%n%c%e"
 BACKUP_ON_DELETE = 0
 ALWAYS_BACKUP = 1
 UNDO_POLICY = BACKUP_ON_DELETE
-
-class StorageError(Exception):
-    pass
 
 manage_addDocumentForm = DTMLFile('dtml/documentAdd',globals())
 
@@ -563,43 +558,3 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         return strg
 
 Globals.InitializeClass(Document)
-
-
-class FileContainer(Persistent):
-    """ Wrapper around file storage on disk.
-
-    .. py:attribute:: mtime
-
-        modification time, similar to the value returned by
-        ``os.path.getmtime``
-
-    .. py:attribute:: size
-
-        file size in bytes
-    """
-
-    def __init__(self):
-        self._blob = Blob()
-        self.mtime = time()
-        self.size = 0
-
-    def open(self, mode='rb'):
-        ok_modes = ['rb', 'wb']
-        if mode not in ok_modes:
-            raise ValueError("Can't open file with mode %r, only %r allowed"
-                             % (mode, ok_modes))
-        try:
-            file_handle = self._blob.open(mode[0])
-            if mode[0] == 'w':
-                orig_close = file_handle.close
-                def close_and_update_metadata():
-                    orig_close()
-                    self._update_metadata(file_handle.name)
-                file_handle.close = close_and_update_metadata
-            return file_handle
-        except (IOError, POSKeyError):
-            raise StorageError
-
-    def _update_metadata(self, fs_path):
-        self.mtime = os.path.getmtime(fs_path)
-        self.size = os.path.getsize(fs_path)
