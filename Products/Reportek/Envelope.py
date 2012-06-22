@@ -29,7 +29,7 @@ __version__='$Revision$'[11:-2]
 
 
 import time, os, types, tempfile, string
-from os.path import join, isfile
+from path import path
 from zipfile import *
 import Products
 from Products.ZCatalog.CatalogAwareness import CatalogAware
@@ -713,6 +713,12 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
     security.declareProtected('Add Envelopes', 'manage_addzipfileform')
     manage_addzipfileform = DTMLFile('dtml/zipfileAdd',globals())
 
+    def _get_zip_cache(self):
+        zip_cache = path(CLIENT_HOME)/'zip_cache'
+        if not zip_cache.isdir():
+            zip_cache.mkdir()
+        return zip_cache
+
     security.declareProtected('View', 'envelope_zip')
     def envelope_zip(self, REQUEST, RESPONSE):
         """ Go through the envelope and find all the external documents
@@ -735,21 +741,21 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             else:
                 restricted_docs.append(doc)
 
+        zip_cache = self._get_zip_cache()
         zipname = self.absolute_url(1).replace('/','_')
 
-        path = join(CLIENT_HOME, *self._repository)
         if not restricted_docs:
-            cachedfile = join(path, '%s-all.zip' % zipname)
+            cachedfile = zip_cache/('%s-all.zip' % zipname)
         else:
-            cachedfile = join(path, '%s.zip' % zipname)
+            cachedfile = zip_cache/('%s.zip' % zipname)
 
-        if isfile(cachedfile):
+        if cachedfile.isfile():
             with open(cachedfile, 'rb') as data_file:
                 write_to_response(RESPONSE, data_file,
                                   zipname+'.zip', 'application/x-zip')
             return
 
-        tmpfile = tempfile.NamedTemporaryFile(suffix='.temp', dir=path)
+        tmpfile = tempfile.NamedTemporaryFile(suffix='.temp', dir=zip_cache)
 
         try:
             outzd = ZipFile(tmpfile, "w")
@@ -792,15 +798,15 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
 
     def _invalidate_zip_cache(self):
         """ delete zip cache files """
+        zip_cache = self._get_zip_cache()
         zipname = self.absolute_url(1).replace('/','_')
-        path = join(CLIENT_HOME, *self._repository)
 
-        cachedfile = join(path, '%s.zip' % zipname)
-        if isfile(cachedfile):
+        cachedfile = zip_cache/('%s.zip' % zipname)
+        if cachedfile.isfile():
             os.unlink(cachedfile)
 
-        cachedfile = join(path, '%s-all.zip' % zipname) #contains restricted docs
-        if isfile(cachedfile):
+        cachedfile = zip_cache/('%s-all.zip' % zipname) #contains restricted docs
+        if cachedfile.isfile():
             os.unlink(cachedfile)
 
     def _add_file_from_zip(self,zipfile,name, restricted=''):
