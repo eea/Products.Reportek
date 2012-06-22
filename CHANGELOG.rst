@@ -2,6 +2,10 @@
 -------------------
 * Remove support for HTTP Range requests [moregale]
 * Clean API for accessing a document's file content [moregale]
+* For local scripts that need access to documents we create temporary
+  files instead of providing paths to the original data store [moregale]
+* Document storage reimplemented using ZODB BLOBs [moregale]
+* Zip cache moved to ``${CLIENT_HOME}/zip_cache`` [moregale]
 
 2.3 (2012-06-13)
 ----------------
