@@ -21,6 +21,7 @@
 
 from datetime import datetime
 import operator
+import urllib
 
 from AccessControl import getSecurityManager
 from AccessControl.Permissions import view
@@ -464,3 +465,6 @@ class ZZipFile(ZipFile):
         self.hasbeenread = 0
         self.filename=filename
 
+
+def encode_zip_name(name, key):
+    return urllib.quote('%s-%s' % (name, key), '')

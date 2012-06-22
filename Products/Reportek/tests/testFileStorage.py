@@ -399,3 +399,13 @@ class ZipDownloadTest(unittest.TestCase):
         break_document_data_file(doc)
 
         self.assertRaises(ValueError, download_envelope_zip, self.envelope)
+
+    def test_zip_name_encoding(self):
+        from Products.Reportek.zip_content import encode_zip_name
+        data = [('a', 'x', 'a-x'),
+                ('a/b/ccc.dd', 'x', 'a%2Fb%2Fccc.dd-x'),
+                ('ab%cd', 'x', 'ab%25cd-x'),
+                ('a', 'yz', 'a-yz')]
+
+        for orig_path, flags, expected in data:
+            self.assertEqual(encode_zip_name(orig_path, flags), expected)
