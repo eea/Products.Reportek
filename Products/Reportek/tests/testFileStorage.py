@@ -458,3 +458,14 @@ class OfsBlobFileTest(unittest.TestCase):
         resp = publish_view(myfile, {'_stdout': out})
         body = out.getvalue().split('\r\n\r\n', 1)[1]
         self.assertEqual(body, content)
+
+    def test_update_content(self):
+        from Products.Reportek.blob import OfsBlobFile
+
+        content = 'hello blobby world!\n'
+        myfile = OfsBlobFile('myfile')
+
+        myfile.manage_edit(Mock(form={'file': StringIO(content)}), Mock())
+
+        with myfile.data_file.open() as f:
+            self.assertEqual(f.read(), content)

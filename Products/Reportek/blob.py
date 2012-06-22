@@ -72,6 +72,15 @@ class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
                 REQUEST, RESPONSE, data_file_handle,
                 self.content_type, self.data_file.size, self.data_file.mtime)
 
+    def manage_edit(self, REQUEST, RESPONSE):
+        """ change properties and file content """
+        upload = REQUEST.form.get('file')
+        if upload:
+            with self.data_file.open('wb') as stored:
+                for chunk in RepUtils.iter_file_data(upload):
+                    stored.write(chunk)
+        RESPONSE.redirect(self.absolute_url() + '/manage_workspace')
+
 Globals.InitializeClass(OfsBlobFile)
 
 
