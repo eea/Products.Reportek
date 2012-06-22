@@ -53,7 +53,7 @@ from CountriesManager import CountriesManager
 from EnvelopeInstance import EnvelopeInstance
 from EnvelopeRemoteServicesManager import EnvelopeRemoteServicesManager
 from EnvelopeCustomDataflows import EnvelopeCustomDataflows
-from zip_content import ZZipFile
+import zip_content
 from zope.interface import implements
 from interfaces import IEnvelope
 from paginator import DiggPaginator, EmptyPage, InvalidPage
@@ -722,7 +722,6 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             zipfile, as in index_html of Document.py due to the partial
             requests that can be made with HTTP
         """
-        import zip_content
 
         public_docs = []
         restricted_docs = []
@@ -821,7 +820,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
 
         if type(file) is not type('') and hasattr(file,'filename'):
             # According to the zipfile.py ZipFile just needs a file-like object
-            zf = ZZipFile(file)
+            zf = zip_content.ZZipFile(file)
             for name in zf.namelist():
                 # test that the archive is not hierarhical
                 if name[-1] == '/' or name[-1] == '\\':
@@ -850,7 +849,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         if document.content_type in ['application/octet-stream', 'application/zip', 'application/x-compressed']:
             try:
                 data_file = document.data_file.open()
-                zf = ZZipFile(data_file)
+                zf = zip_content.ZZipFile(data_file)
                 for zipinfo in zf.infolist():
                     files.append(zipinfo.filename)
                 zf.close()
