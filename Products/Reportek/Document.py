@@ -243,11 +243,9 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             return self.icon_gif(REQUEST, RESPONSE)
 
         with self.data_file.open() as data_file_handle:
-            self._output_file(REQUEST, RESPONSE,
-                              data_file_handle,
-                              self.content_type,
-                              self.data_file.size,
-                              self.data_file.mtime)
+            RepUtils.http_response_with_file(
+                REQUEST, RESPONSE, data_file_handle,
+                self.content_type, self.data_file.size, self.data_file.mtime)
 
     security.declarePublic('isGML')
     def isGML(self):
@@ -262,45 +260,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             which can be manually run against the contained XML files
         """
         return getattr(self, QAREPOSITORY_ID).canRunQAOnFiles([self])
-
-    def _output_file(self, REQUEST, RESPONSE,
-                     data_file, content_type, file_size, file_mtime):
-        """
-            Write the necesary header information for
-            (possibly) chunked output
-        """
-        # HTTP If-Modified-Since header handling.
-        header=REQUEST.get_header('If-Modified-Since', None)
-        if header is not None:
-            header=string.split(header, ';')[0]
-            # Some proxies seem to send invalid date strings for this
-            # header. If the date string is not valid, we ignore it
-            # rather than raise an error to be generally consistent
-            # with common servers such as Apache (which can usually
-            # understand the screwy date string as a lucky side effect
-            # of the way they parse it).
-            # This happens to be what RFC2616 tells us to do in the face of an
-            # invalid date.
-            try:    mod_since=long(DateTime(header).timeTime())
-            except: mod_since=None
-            if mod_since is not None:
-                last_mod = long(file_mtime)
-                if last_mod > 0 and last_mod <= mod_since:
-                    # Set header values since apache caching will return Content-Length
-                    # of 0 in response if size is not set here
-                    RESPONSE.setHeader('Last-Modified', rfc1123_date(file_mtime))
-                    RESPONSE.setHeader('Content-Type', content_type)
-                    RESPONSE.setHeader('Content-Length', file_size)
-                    RESPONSE.setStatus(304)
-                    return ''
-
-        RESPONSE.setHeader('Last-Modified', rfc1123_date(file_mtime))
-        RESPONSE.setHeader('Content-Type', content_type)
-        RESPONSE.setHeader('Content-Length', file_size)
-
-        for chunk in RepUtils.iter_file_data(data_file):
-            RESPONSE.write(chunk)
-        return ''
 
     def view_image_or_file(self):
         """ The default view of the contents of the File or Image. """
@@ -324,8 +283,9 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         file_size =  os.path.getsize(filename)
         file_mtime = os.path.getmtime(filename)
         with open(filename, 'rb') as data_file:
-            self._output_file(REQUEST, RESPONSE,
-                              data_file, content_type, file_size, file_mtime)
+            RepUtils.http_response_with_file(
+                REQUEST, RESPONSE, data_file,
+                content_type, file_size, file_mtime)
 
     security.declarePublic('icon_html')
     def icon_html(self):

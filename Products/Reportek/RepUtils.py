@@ -30,6 +30,7 @@ import string,base64,time
 import operator
 from types import FunctionType
 from urllib import FancyURLopener
+from webdav.common import rfc1123_date
 
 def formatException(self, error):
      """
@@ -341,3 +342,38 @@ def temporary_named_copy(source_file):
         tmp_file.write(chunk)
     tmp_file.flush()
     return tmp_file
+
+
+def http_response_with_file(request, response, data_file, content_type,
+                            file_size, file_mtime):
+    # HTTP If-Modified-Since header handling.
+    header=request.get_header('If-Modified-Since', None)
+    if header is not None:
+        header=string.split(header, ';')[0]
+        # Some proxies seem to send invalid date strings for this
+        # header. If the date string is not valid, we ignore it
+        # rather than raise an error to be generally consistent
+        # with common servers such as Apache (which can usually
+        # understand the screwy date string as a lucky side effect
+        # of the way they parse it).
+        # This happens to be what RFC2616 tells us to do in the face of an
+        # invalid date.
+        try:    mod_since=long(DateTime(header).timeTime())
+        except: mod_since=None
+        if mod_since is not None:
+            last_mod = long(file_mtime)
+            if last_mod > 0 and last_mod <= mod_since:
+                # Set header values since apache caching will return Content-Length
+                # of 0 in response if size is not set here
+                response.setHeader('Last-Modified', rfc1123_date(file_mtime))
+                response.setHeader('Content-Type', content_type)
+                response.setHeader('Content-Length', file_size)
+                response.setStatus(304)
+                return
+
+    response.setHeader('Last-Modified', rfc1123_date(file_mtime))
+    response.setHeader('Content-Type', content_type)
+    response.setHeader('Content-Length', file_size)
+
+    for chunk in iter_file_data(data_file):
+        response.write(chunk)
