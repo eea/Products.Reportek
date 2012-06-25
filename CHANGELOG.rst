@@ -6,6 +6,8 @@
   files instead of providing paths to the original data store [moregale]
 * Document storage reimplemented using ZODB BLOBs [moregale]
 * Zip cache moved to ``${CLIENT_HOME}/zip_cache`` [moregale]
+* New object type `File (Blob)` similar to OFS.Image.File [moregale]
+* Feedback files stored as `File (Blob)` objects [moregale]
 
 2.3 (2012-06-13)
 ----------------

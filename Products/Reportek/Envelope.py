@@ -1054,8 +1054,15 @@ def iter_ofs_file_data(ofs_file):
 
 def ofs_file_content_tmp(ofs_file):
     tmp_data = tempfile.NamedTemporaryFile()
-    for chunk in iter_ofs_file_data(ofs_file):
-        tmp_data.write(chunk)
+    if ofs_file.meta_type == "File (Blob)":
+        with ofs_file.data_file.open() as f:
+            for chunk in RepUtils.iter_file_data(f):
+                tmp_data.write(chunk)
+    elif ofs_file.meta_type == "File":
+        for chunk in iter_ofs_file_data(ofs_file):
+            tmp_data.write(chunk)
+    else:
+        raise ValueError("Unknown meta_type %r" % ofs_file.meta_type)
     tmp_data.seek(0)
     return tmp_data
 

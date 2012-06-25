@@ -37,7 +37,7 @@ from Products.ZCatalog.CatalogAwareness import CatalogAware
 from AccessControl.Permissions import view_management_screens
 from OFS.SimpleItem import SimpleItem
 from OFS.ObjectManager import ObjectManager
-from OFS.Image import manage_addFile
+from blob import add_OfsBlobFile
 from OFS.PropertyManager import PropertyManager
 from Globals import DTMLFile, MessageDialog, InitializeClass
 from AccessControl import getSecurityManager, ClassSecurityInfo
@@ -62,7 +62,7 @@ def manage_addFeedback(self, id ='', title='', feedbacktext='', file='', activit
     ob = ReportFeedback(id, releasedate, title, feedbacktext, activity_id, automatic, content_type, document_id)
     if file:
         filename = RepUtils.getFilename(file.filename)
-        manage_addFile(ob, filename, file)
+        add_OfsBlobFile(ob, filename, file)
     self._setObject(id, ob)
     obj = self._getOb(id)
 
@@ -183,7 +183,7 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
             FIXME: Misnamed method name
         """
         filename = RepUtils.getFilename(file.filename)
-        manage_addFile(self, filename, file)
+        add_OfsBlobFile(self, filename, file)
         if REQUEST:
             REQUEST.RESPONSE.redirect('%s/manage_editFeedbackForm' % self.absolute_url())
 
@@ -192,7 +192,9 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
         """ Replace the content of an existing attachment
         """
         file_ob = self._getOb(file_id)
-        file_ob.manage_upload(file=file)
+        with file_ob.data_file.open('wb') as f:
+            for chunk in RepUtils.iter_file_data(file):
+                f.write(chunk)
         if REQUEST:
             REQUEST.RESPONSE.redirect('%s/manage_editFeedbackForm' % self.absolute_url())
 
