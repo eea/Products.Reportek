@@ -30,6 +30,7 @@ REPORTEK_META_TYPES = [
         'DTML Document',
         'DTML Method',
         'File',
+        'File (Blob)',
         'Folder',
         'Image',
         'Page Template',

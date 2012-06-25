@@ -771,7 +771,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                     outzd.writestr('%s.html' % fdbk.getId(),
                                 zip_content.get_feedback_content(fdbk))
 
-                    for attachment in fdbk.objectValues('File'):
+                    for attachment in fdbk.objectValues(['File', 'File (Blob)']):
                         tmp_data = ofs_file_content_tmp(attachment)
                         outzd.write(tmp_data.name, attachment.getId())
                         tmp_data.close()
@@ -962,10 +962,10 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             if feedback.document_id not in [None, 'xml']:
                 res_a('<cr:feedbackFor rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(self.absolute_url()),
                          RepUtils.xmlEncode(feedback.document_id)))
-            for attachment in feedback.objectValues('File'):
+            for attachment in feedback.objectValues(['File', 'File (Blob)']):
                 res_a('<cr:hasAttachment rdf:resource="%s"/>' % attachment.absolute_url())
             res_a('</cr:Feedback>')
-            for attachment in feedback.objectValues('File'):
+            for attachment in feedback.objectValues(['File', 'File (Blob)']):
                 res_a('<cr:FeedbackAttachment rdf:about="%s">' % attachment.absolute_url())
                 res_a('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(attachment.title_or_id()))
                 res_a('<cr:mediaType>%s</cr:mediaType>' % attachment.content_type)

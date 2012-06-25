@@ -266,9 +266,6 @@ def _get_documents(ob):
 def _get_feedbacks(ob):
     return [feedback for feedback in ob.objectValues('Report Feedback')]
 
-def _get_feedback_files(ob):
-    return [file for file in ob.objectValues('File')]
-
 def get_metadata_content(ob):
     """ Return the metadata associated with this envelope.
 
@@ -367,7 +364,7 @@ def get_feedback_content(ob):
                                  'file': refered_file,
                                  'content': ob.feedbacktext})
     else:
-        files = ['<a href="%s" title="%s">%s</a>' % (file.getId(), 'Open %s' % file.getId(), file.getId()) for file in ob.objectValues('File')]
+        files = ['<a href="%s" title="%s">%s</a>' % (file.getId(), 'Open %s' % file.getId(), file.getId()) for file in ob.objectValues(['File', 'File (Blob)'])]
         content = parsed_template(MANUAL_FEEDBACK_CONTENT,
                                 {'subject': ob.title,
                                  'posted': ob.releasedate,
@@ -400,7 +397,7 @@ def get_feedback_list(ob):
     footer = parsed_template(FEEDBACK_FOOTER, {})
     for feedback in _get_feedbacks(ob):
         if getSecurityManager().checkPermission(view, feedback):
-            files = ['<a href="%s" title="%s">%s</a>' % (file.getId(), 'Open %s' % file.getId(), file.getId()) for file in feedback.objectValues('File')]
+            files = ['<a href="%s" title="%s">%s</a>' % (file.getId(), 'Open %s' % file.getId(), file.getId()) for file in feedback.objectValues(['File', 'File (Blob)'])]
             if feedback.automatic:
                 try:
                     task_name = feedback.getActivityDetails('title')

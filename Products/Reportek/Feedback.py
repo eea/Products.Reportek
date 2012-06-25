@@ -157,7 +157,14 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
     def all_meta_types( self, interfaces=None ):
         """ Called by Zope to determine what kind of object the envelope can contain
         """
-        y = [{'name': 'File', 'action': 'manage_addProduct/OFSP/fileAdd', 'permission': 'Add Envelopes'}]
+        y = [
+            {'name': 'File',
+             'action': 'manage_addProduct/OFSP/fileAdd',
+             'permission': 'Add Envelopes'},
+            {'name': 'File (Blob)',
+             'action': 'manage_addProduct/Reportek/blob_add',
+             'permission': 'Add Envelopes'},
+        ]
         return y
 
     security.declareProtected('Change Feedback', 'manage_editFeedback')
