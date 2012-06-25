@@ -772,7 +772,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                                 zip_content.get_feedback_content(fdbk))
 
                     for attachment in fdbk.objectValues(['File', 'File (Blob)']):
-                        tmp_data = ofs_file_content_tmp(attachment)
+                        tmp_data = RepUtils.ofs_file_content_tmp(attachment)
                         outzd.write(tmp_data.name, attachment.getId())
                         tmp_data.close()
 
@@ -1037,35 +1037,6 @@ def movedEnvelope(ob, event):
     if ob.released:
         raise Forbidden, "Envelope is released"
 
-from ZServer.HTTPResponse import ZServerHTTPResponse
-
-
-def iter_ofs_file_data(ofs_file):
-    data = ofs_file.data
-
-    if isinstance(data, str):
-        yield data
-
-    else:
-        while data is not None:
-            yield data.data
-            data = data.next
-
-
-def ofs_file_content_tmp(ofs_file):
-    tmp_data = tempfile.NamedTemporaryFile()
-    if ofs_file.meta_type == "File (Blob)":
-        with ofs_file.data_file.open() as f:
-            for chunk in RepUtils.iter_file_data(f):
-                tmp_data.write(chunk)
-    elif ofs_file.meta_type == "File":
-        for chunk in iter_ofs_file_data(ofs_file):
-            tmp_data.write(chunk)
-    else:
-        raise ValueError("Unknown meta_type %r" % ofs_file.meta_type)
-    tmp_data.seek(0)
-    return tmp_data
-
 
 def copy_file_data(in_file, out_file):
     for chunk in RepUtils.iter_file_data(in_file):
@@ -1079,6 +1050,3 @@ def write_to_response(response, data_file, attach_name, content_type):
                        'attachment; filename="%s"' % attach_name)
     response.setHeader('Content-Length', stat[6])
     copy_file_data(data_file, response)
-
-
-# vim: set expandtab sw=4 :

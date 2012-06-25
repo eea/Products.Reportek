@@ -377,3 +377,30 @@ def http_response_with_file(request, response, data_file, content_type,
 
     for chunk in iter_file_data(data_file):
         response.write(chunk)
+
+
+def iter_ofs_file_data(ofs_file):
+    data = ofs_file.data
+
+    if isinstance(data, str):
+        yield data
+
+    else:
+        while data is not None:
+            yield data.data
+            data = data.next
+
+
+def ofs_file_content_tmp(ofs_file):
+    tmp_data = tempfile.NamedTemporaryFile()
+    if ofs_file.meta_type == "File (Blob)":
+        with ofs_file.data_file.open() as f:
+            for chunk in iter_file_data(f):
+                tmp_data.write(chunk)
+    elif ofs_file.meta_type == "File":
+        for chunk in iter_ofs_file_data(ofs_file):
+            tmp_data.write(chunk)
+    else:
+        raise ValueError("Unknown meta_type %r" % ofs_file.meta_type)
+    tmp_data.seek(0)
+    return tmp_data

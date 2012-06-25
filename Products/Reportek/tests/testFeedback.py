@@ -75,18 +75,16 @@ class FeedbackTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
     def test_uploadFeedback(self):
         """ Test the manage_uploadFeedback method
         """
-        from Products.Reportek.Envelope import ofs_file_content_tmp
         self.create_feedback()
         # Create a file inside it
         file = FileUploadMock('C:\\TEMP\\testfile.txt','content here')
         self.feedback.manage_uploadFeedback(file)
         self.assertTrue(hasattr(self.feedback, 'testfile.txt'),
                         'File did not get created')
-        with ofs_file_content_tmp(self.feedback['testfile.txt']) as f:
+        with self.feedback['testfile.txt'].data_file.open() as f:
             self.assertEqual(f.read(), 'content here')
 
     def test_add_feedback_with_attached_file(self):
-        from Products.Reportek.Envelope import ofs_file_content_tmp
         upload_file = FileUploadMock('testfile.txt','content here')
         adder = self.envelope.manage_addProduct['Reportek']
         adder.manage_addFeedback('feedbackid', 'Title',
@@ -94,7 +92,7 @@ class FeedbackTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         feedback = self.envelope.feedbackid
         self.assertTrue(hasattr(feedback, 'testfile.txt'),
                         'File did not get created')
-        with ofs_file_content_tmp(feedback['testfile.txt']) as f:
+        with feedback['testfile.txt'].data_file.open() as f:
             self.assertEqual(f.read(), 'content here')
 
     def test_AttFeedback(self):
