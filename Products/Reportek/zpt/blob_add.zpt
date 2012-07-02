@@ -3,9 +3,8 @@
 <form action="manage_addOfsBlobFile" method="post" enctype="multipart/form-data">
   <fieldset>
     <legend>Create blob file</legend>
-    <strong>ID:</strong> <input name="name" /><br />
-    <strong>file:</strong> (optional) <input type="file" name="file" />
-    <br />
+    <strong>id:</strong> <input name="name" /><br />
+    <strong>file:</strong> <input type="file" name="file" /><br />
 
     <input type="submit" value="save" />
   </fieldset>

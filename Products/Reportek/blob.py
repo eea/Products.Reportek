@@ -31,6 +31,7 @@ class FileContainer(Persistent):
         self._blob = Blob()
         self.mtime = time()
         self.size = 0
+        self.content_type = 'application/octet-stream'
 
     def open(self, mode='rb'):
         ok_modes = ['rb', 'wb']
@@ -58,7 +59,6 @@ class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
     """ OFS object, similar to Image, that stores its data as a Blob. """
 
     meta_type = "File (Blob)"
-    content_type = 'application/octet-stream'
     security = ClassSecurityInfo()
 
     manage_options = (
@@ -78,29 +78,36 @@ class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
         with self.data_file.open() as data_file_handle:
             RepUtils.http_response_with_file(
                 REQUEST, RESPONSE, data_file_handle,
-                self.content_type, self.data_file.size, self.data_file.mtime)
+                self.data_file.content_type,
+                self.data_file.size, self.data_file.mtime)
 
     manage_main = PageTemplateFile('zpt/blob_main.zpt', globals())
 
     def manage_edit(self, REQUEST, RESPONSE):
         """ change properties and file content """
-        upload = REQUEST.form.get('file')
+        form = REQUEST.form
+        upload = form.get('file')
         if upload:
             with self.data_file.open('wb') as stored:
                 for chunk in RepUtils.iter_file_data(upload):
                     stored.write(chunk)
+            self.data_file.content_type = upload.headers['Content-Type']
+        if form.get('content_type'):
+            self.data_file.content_type = form['content_type']
         RESPONSE.redirect(self.absolute_url() + '/manage_workspace')
 
 Globals.InitializeClass(OfsBlobFile)
 
 
-def add_OfsBlobFile(parent, name, data_file=None):
+def add_OfsBlobFile(parent, name, data_file=None, content_type=None):
     ob = OfsBlobFile(name)
     parent[name] = ob
     if data_file is not None:
         with ob.data_file.open('wb') as f:
             for chunk in RepUtils.iter_file_data(data_file):
                 f.write(chunk)
+    if content_type is not None:
+        ob.data_file.content_type = content_type
     return parent[name]
 
 
@@ -110,5 +117,8 @@ def manage_addOfsBlobFile(ctx, REQUEST, RESPONSE):
     """ add a new OfsBlobFile object to `parent` """
     parent = ctx.Destination()
     data_file = REQUEST.form.get('file') or None
-    ob = add_OfsBlobFile(parent, REQUEST.form['name'], data_file)
+    data_args = ()
+    if data_file is not None:
+        data_args = (data_file, data_file.headers['Content-Type'])
+    ob = add_OfsBlobFile(parent, REQUEST.form['name'], *data_args)
     RESPONSE.redirect(ob.absolute_url() + '/manage_workspace')

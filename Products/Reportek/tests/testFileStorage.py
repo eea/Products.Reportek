@@ -25,6 +25,7 @@ def create_mock_request():
 def setUpModule(self):
     from Products.Reportek import Document; self.Document = Document
     from Products.Reportek import Envelope; self.Envelope = Envelope
+    from Products.Reportek import blob; self.blob = blob
     self._cleanup_temp_reposit = create_temp_reposit()
 
 
@@ -417,6 +418,22 @@ class ZipDownloadTest(unittest.TestCase):
             self.assertEqual(encode_zip_name(orig_path, flags), expected)
 
 
+class FileContainerTest(unittest.TestCase):
+
+    def test_default_attributes(self):
+        t0 = int(time.time())
+        ob = blob.FileContainer()
+        t1 = int(time.time())
+        self.assertEqual(ob.size, 0)
+        self.assertEqual(ob.content_type, 'application/octet-stream')
+        self.assertTrue(t0 <= int(ob.mtime) <= t1)
+
+    def test_default_content(self):
+        ob = blob.FileContainer()
+        with ob.open() as f:
+            self.assertEqual(f.read(), '')
+
+
 class OfsBlobFileTest(unittest.TestCase):
 
     def test_create_file(self):
@@ -464,11 +481,17 @@ class OfsBlobFileTest(unittest.TestCase):
 
         with myfile.data_file.open('wb') as f:
             f.write(content)
+        myfile.data_file.content_type = 'image/jpeg'
 
         out = StringIO()
         resp = publish_view(myfile, {'_stdout': out})
-        body = out.getvalue().split('\r\n\r\n', 1)[1]
+        (headers_str, body) = out.getvalue().split('\r\n\r\n', 1)
+        headers = {}
+        for line in headers_str.splitlines():
+            k, v = line.split(':', 1)
+            headers[k.strip()] = v.strip()
         self.assertEqual(body, content)
+        self.assertEqual(headers['Content-Type'], 'image/jpeg')
 
     def test_update_content(self):
         from Products.Reportek.blob import OfsBlobFile
@@ -476,7 +499,22 @@ class OfsBlobFileTest(unittest.TestCase):
         content = 'hello blobby world!\n'
         myfile = OfsBlobFile('myfile')
 
-        myfile.manage_edit(Mock(form={'file': StringIO(content)}), Mock())
+        upload_file = StringIO(content)
+        upload_file.headers = {'Content-Type': 'text/plain'}
+        myfile.manage_edit(Mock(form={'file': upload_file}), Mock())
 
         with myfile.data_file.open() as f:
             self.assertEqual(f.read(), content)
+        self.assertEqual(myfile.data_file.content_type, 'text/plain')
+
+    def test_update_content_type(self):
+        from Products.Reportek.blob import OfsBlobFile
+
+        content = 'hello blobby world!\n'
+        myfile = OfsBlobFile('myfile')
+
+        myfile.manage_edit(Mock(form={'content_type': 'image/png'}), Mock())
+
+        self.assertEqual(myfile.data_file.content_type, 'image/png')
+
+    # TODO test download content type header
