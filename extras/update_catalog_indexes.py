@@ -55,3 +55,9 @@ def update_indexes(app):
 
     catalog_rebuild(app)
     log.info('Catalog records are reindexed')
+
+
+    _catalog = catalog._catalog
+    if hasattr(_catalog, '_length') and '__len__' in _catalog.__dict__:
+        del _catalog.__dict__['__len__']
+        _catalog._p_changed = True
