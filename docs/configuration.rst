@@ -19,3 +19,11 @@ in ``error_log``, then no alert is sent.
     environment-vars =
         REPORTEK_ERROR_MAIL_TO admin@example.com
         REPORTEK_ERROR_SMTP_HOST smtp.example.com
+
+
+Cron jobs
+---------
+A cron job must be set up to check for automatic QA results. It should
+perform a GET request on the URL
+``/ReportekEngine/runAutomaticApplications?p_applications=AutomaticQA``
+once every few minutes.
