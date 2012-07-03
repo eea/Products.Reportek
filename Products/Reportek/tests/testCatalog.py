@@ -1,6 +1,14 @@
 import unittest
-from utils import create_fake_root, makerequest
+from utils import create_fake_root, makerequest, create_temp_reposit
 from mock import patch
+
+
+def setUpModule(self):
+    self._cleanup_temp_reposit = create_temp_reposit()
+
+
+def tearDownModule(self):
+    self._cleanup_temp_reposit()
 
 
 class CatalogTest(unittest.TestCase):
