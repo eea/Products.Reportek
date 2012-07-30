@@ -34,6 +34,7 @@ import string
 from OFS.Folder import Folder
 from AccessControl import getSecurityManager, ClassSecurityInfo, Unauthorized
 from AccessControl.Permissions import view_management_screens, view
+from zExceptions import Redirect
 import Globals
 
 import Converter
@@ -148,9 +149,8 @@ class Converters(Folder):
         file_obj = self.unrestrictedTraverse(file_url, None)
         if not getSecurityManager().checkPermission(view, file_obj):
             raise Unauthorized, ('You are not authorized to view this document')
-
         if converter_id == 'default':
-            raise 'Redirect', file_obj.absolute_url()
+            raise Redirect, file_obj.absolute_url()
 
         if converter_id[:4] == "loc_":
             converter_obj = getattr(self, converter_id.replace("loc_", ""), None)

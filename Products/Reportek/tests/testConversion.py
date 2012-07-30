@@ -3,6 +3,7 @@ from Testing import ZopeTestCase
 from configurereportek import ConfigureReportek
 from fileuploadmock import FileUploadMock
 from utils import create_temp_reposit
+from zExceptions import Redirect
 
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
@@ -166,3 +167,11 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         local_converters, remote_converters = converters.displayPossibleConversions('text/xml',
            "http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd","map-dist.gml")
         self.assertEquals(2, len(local_converters))
+
+    def testDefaultIdException(self):
+        converters = getattr(self.app, CONVERTERS_ID)
+        self.create_text_document()
+        with self.assertRaises(Redirect) as raised:
+            converters.convertDocument(self.document.absolute_url(1),
+                                       converter_id='default',
+                                       REQUEST=self.app.REQUEST)
