@@ -208,6 +208,6 @@ class Converters(Folder):
                 REQUEST.SESSION.set('redirect_to', REQUEST['HTTP_REFERER'])
                 return file_obj.note()
         else:
-            raise 'Redirect', file_obj.absolute_url()
+            raise Redirect, file_obj.absolute_url()
 
 Globals.InitializeClass(Converters)
