@@ -1,5 +1,6 @@
 import os, sys
 import unittest
+from zExceptions import Redirect
 from StringIO import StringIO
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
@@ -103,6 +104,11 @@ xmlns:met="http://biodiversity.eionet.europa.eu/schemas/dir9243eec">
                         'Files in this envelope')
         self.assertEqual(page.select('.filessection table tr td a').text(),
                         'documentid')
+
+    def test_view_image_or_file_exception(self):
+        self.create_text_document()
+        with self.assertRaises(Redirect) as raised:
+            self.document.view_image_or_file()
 
 from utils import publish_view
 

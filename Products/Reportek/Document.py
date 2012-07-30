@@ -27,7 +27,7 @@ from __main__ import *
 from AccessControl import getSecurityManager, ClassSecurityInfo
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from OFS.SimpleItem import SimpleItem
-from zExceptions import Forbidden
+from zExceptions import Forbidden, Redirect
 from Globals import DTMLFile, MessageDialog, package_home
 try: from zope.contenttype import guess_content_type # Zope 2.10 and newer
 except: from zope.app.content_types import guess_content_type # Zope 2.9 and older
@@ -263,7 +263,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
     def view_image_or_file(self):
         """ The default view of the contents of the File or Image. """
-        raise 'Redirect', self.absolute_url()
+        raise Redirect, self.absolute_url()
 
     def link(self, text='', **args):
         """ return a HTML link tag to the file """
