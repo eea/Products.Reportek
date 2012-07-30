@@ -159,7 +159,7 @@ class Converters(Folder):
                 REQUEST.RESPONSE.setHeader('Content-Type', 'text/plain')
                 return 'Converter error'
             if file_obj.content_type[0:6] == 'image/':
-                raise 'Redirect', file_obj.absolute_url()
+                raise Redirect, file_obj.absolute_url()
             if converter_obj.ct_output == "flash":
                 REQUEST.RESPONSE.redirect("%s/%s" % (file_obj.absolute_url(), converter_obj.convert_url))
             if converter_obj.ct_output and not converter_obj.ct_output == "flash":

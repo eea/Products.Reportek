@@ -175,3 +175,15 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
             converters.convertDocument(self.document.absolute_url(1),
                                        converter_id='default',
                                        REQUEST=self.app.REQUEST)
+
+    def testImageException(self):
+        converters = getattr(self.app, CONVERTERS_ID)
+        self.create_text_document()
+        converters.manage_addConverter('reversetxt', title='Reverse',
+               convert_url='pdf2txt %s', ct_input='image/jpg',
+               ct_output='text/plain', suffix="pdf")
+        self.document.content_type = 'image/'
+        with self.assertRaises(Redirect) as raised:
+            converters.convertDocument(self.document.absolute_url(1),
+                                       converter_id='loc_reversetxt',
+                                       REQUEST=self.app.REQUEST)
