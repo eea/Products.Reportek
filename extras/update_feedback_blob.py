@@ -82,40 +82,56 @@ def write_string_to_file(string, f):
 
 def convert_feedbacktext(feedback):
     log.debug("Converting feedbacktext %r ...", feedback)
-    blob_file_ob = blob.add_OfsBlobFile(feedback, feedback.getId() + '.html')
+    blob_file_ob = blob.add_OfsBlobFile(feedback, 'qa-output')
     with blob_file_ob.data_file.open('wb') as f:
         write_string_to_file(feedback.feedbacktext, f)
-    blob_file_ob.data_file.content_type = 'text/html'
-    feedback.feedbacktext = "<em>see attachment</em>"
+    blob_file_ob.data_file.content_type = feedback.content_type
+    feedback.feedbacktext = '<a href="qa-output">Automatic QA output</a>'
+    feedback.content_type = 'text/html'
     log.info("Converted feedbacktext for %r, %d bytes",
              ofs_path(feedback), blob_file_ob.data_file.size)
     return blob_file_ob
 
 
+def is_automatic_qa(feedback):
+    return bool(feedback.getId().startswith('AutomaticQA_'))
+
+
 def convert_all(parent, limit=None, skip=0, report=True, warnings=True):
-    out = {'objects': 0, 'bytes': 0}
+    out = {'objects': 0, 'bytes': 0, 'skip_objects': 0, 'skip_bytes': 0}
     for i, feedback in enumerate(iter_feedbacks(parent)):
         if i < skip:
             continue
         if limit is not None and i >= skip + limit:
             break
         sp = transaction.savepoint()
-        n_objects = n_bytes = 0
+        n_objects = n_bytes = n_skip_objects = n_skip_bytes = 0
         try:
             for file_ob in feedback.objectValues(['File']):
                 blob_file_ob = convert_attachment(feedback, file_ob)
                 n_bytes += blob_file_ob.data_file.size
                 n_objects += 1
-            if len(feedback.feedbacktext) > FEEDBACKTEXT_LIMIT:
+            if is_automatic_qa(feedback):
                 blob_file_ob = convert_feedbacktext(feedback)
                 n_bytes += blob_file_ob.data_file.size
                 n_objects += 1
+            else:
+                n_skip_objects += 1
+                n_skip_bytes += len(feedback.feedbacktext)
+                log.info("Skipping %r, %d bytes, it's not automatic QA",
+                         ofs_path(feedback), len(feedback.feedbacktext))
         except Exception, e:
             sp.rollback()
             if warnings:
-                log.warn("Error converting %r (%s)", feedback, e)
+                log.warn("Error converting %r (%s)", ofs_path(feedback), e)
         else:
             out['objects'] += n_objects
             out['bytes'] += n_bytes
+            out['skip_objects'] += n_skip_objects
+            out['skip_bytes'] += n_skip_bytes
+    msg = ("{path} Migrate automatic QA feedback to blob "
+           "({objects} items, {bytes} bytes)").format(
+                path=ofs_path(parent), **out)
+    transaction.get().note(msg)
     if report:
         return out
