@@ -21,6 +21,7 @@
 ## RemoteApplication
 ##
 
+from StringIO import StringIO
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from OFS.SimpleItem import SimpleItem
 from Globals import DTMLFile, InitializeClass
@@ -306,13 +307,21 @@ class RemoteApplication(SimpleItem):
                     l_filename = ' result for: '
                 else:
                     l_filename = ' result for file %s: ' % l_file_id
-                self.aq_parent.manage_addFeedback(id=self.app_name + '_' + str(p_jobID) + '_' + str(int(DateTime())), 
+                envelope = self.aq_parent
+                feedback_id = self.app_name + '_' + str(p_jobID) + '_' + str(int(DateTime()))
+                envelope.manage_addFeedback(id=feedback_id, 
                         title= self.app_name + l_filename + l_ret['SCRIPT_TITLE'], 
-                        feedbacktext=l_ret['VALUE'], 
                         activity_id=l_workitem.activity_id,
                         automatic=1, 
-                        content_type=l_ret['METATYPE'],
+                        content_type='text/html',
                         document_id=l_file_id)
+                temp_file = StringIO(l_ret['VALUE'])
+                temp_file.filename = 'qa-output'
+                feedback_ob = envelope[feedback_id]
+                feedback_ob.manage_uploadFeedback(temp_file)
+                feedback_ob.feedbacktext = '<a href="qa-output">Automatic QA output</a>'
+                feedback_attach = feedback_ob.objectValues()[0]
+                feedback_attach.data_file.content_type = l_ret['METATYPE']
                 l_getResultDict = {p_jobID: {'code':1, 'fileURL':l_file_url}}
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_getResult=l_getResultDict)
             # not ready

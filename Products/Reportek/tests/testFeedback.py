@@ -164,5 +164,8 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
             'the_workitem', 'the_jobid')
 
         [feedback] = self.envelope.objectValues()
-        self.assertEqual(feedback.feedbacktext, text)
-        self.assertEqual(feedback.content_type, 'application/x-mock')
+        [attach] = feedback.objectValues()
+        with attach.data_file.open() as f:
+            self.assertEqual(f.read(), text)
+
+        self.assertEqual(attach.data_file.content_type, 'application/x-mock')
