@@ -3,12 +3,11 @@ from Testing import ZopeTestCase
 from AccessControl import getSecurityManager
 from configurereportek import ConfigureReportek
 from Products.Reportek.constants import CONVERTERS_ID
-from Products.Reportek.exceptions import CannotPickProcess
+from Products.Reportek.exceptions import CannotPickProcess, NoProcessAvailable
 
 class ExceptionsTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
 
     def afterSetUp(self):
-        self.createStandardDependencies()
         self.createStandardCollection()
         self.wf = self.app.WorkflowEngine
 
@@ -31,3 +30,13 @@ class ExceptionsTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         with self.assertRaisesRegexp(CannotPickProcess, message) as raised:
             col.manage_addProduct['Reportek'].manage_addEnvelope('', '', '2003', '2004', '',
              'http://rod.eionet.eu.int/localities/1', REQUEST=None, previous_delivery='')
+
+    def test_NoProcessAvailable_exception(self):
+        col = self.app.collection
+        self.login() # Login as test_user_1_
+        user = getSecurityManager().getUser()
+        self.app.REQUEST.AUTHENTICATED_USER = user
+        message = 'No process associated with this envelope'
+        with self.assertRaisesRegexp(NoProcessAvailable, message) as raised:
+            col.manage_addProduct['Reportek'].manage_addEnvelope('', '', '2003', '2004', '',
+                 'http://rod.eionet.eu.int/localities/1', REQUEST=None, previous_delivery='')

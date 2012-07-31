@@ -41,7 +41,8 @@ import process
 from openflow2xpdl import OpenFlow2Xpdl
 from xpdl2openflow import xpdlparser
 
-from exceptions import CannotPickProcess
+# custom exceptions imports
+from exceptions import CannotPickProcess, NoProcessAvailable
 
 manage_addOpenFlowEngineForm = DTMLFile('dtml/Workflow/workflowEngineAdd', globals())
 
@@ -700,7 +701,7 @@ class OpenFlowEngine(Folder):
         if len(l_keys) == 1:
             return (0, l_result.keys()[0])
         elif len(l_keys) == 0:
-            return (1, ('NoProcessAvailable', 'No process associated with this envelope'))
+            return (1, (NoProcessAvailable, 'No process associated with this envelope'))
         else:
             # further filter the processes by scores and return the one with the high score
             # or an error if there are more than one with the highest score
