@@ -23,7 +23,7 @@ class EnvelopeTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
 
     def afterSetUp(self):
         self.createStandardDependencies()
-	self.createStandardCollection()
+        self.createStandardCollection()
         self.assertTrue(hasattr(self.app, 'collection'),'Collection did not get created')
         self.assertNotEqual(self.app.collection, None)
 

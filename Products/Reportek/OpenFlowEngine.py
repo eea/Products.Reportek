@@ -41,6 +41,8 @@ import process
 from openflow2xpdl import OpenFlow2Xpdl
 from xpdl2openflow import xpdlparser
 
+from exceptions import CannotPickProcess
+
 manage_addOpenFlowEngineForm = DTMLFile('dtml/Workflow/workflowEngineAdd', globals())
 
 def manage_addOpenFlowEngine(self, id, title, REQUEST=None):
@@ -705,7 +707,7 @@ class OpenFlowEngine(Folder):
             l_highest_score = max(l_result.values())
             l_best_fits = [x[0] for x in l_result.items() if x[1] == l_highest_score]
             if len(l_best_fits) > 1:
-                return (1, ('CannotPickProcess', 'More than one process associated with this envelope'))
+                return (1, (CannotPickProcess, 'More than one process associated with this envelope'))
             else:
                 return (0, l_best_fits[0])
 

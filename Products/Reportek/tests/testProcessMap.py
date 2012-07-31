@@ -1,6 +1,7 @@
 import os, sys
 from Testing import ZopeTestCase
 from configurereportek import ConfigureReportek
+from Products.Reportek.exceptions import CannotPickProcess
 
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
@@ -95,7 +96,7 @@ class OpenflowTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
 
         # This envelope has two obligations, each maps to a different process
         # Should NOT return (0, 'WorkflowEngine/begin_end')
-        self.assertEquals( (1, ('CannotPickProcess', 'More than one process associated with this envelope')) ,
+        self.assertEquals( (1, (CannotPickProcess, 'More than one process associated with this envelope')) ,
            self.wf.findProcess(['http://rod.eionet.eu.int/obligations/8','http://rod.eionet.eu.int/obligations/9'],
            'http://rod.eionet.eu.int/spatial/2'))
 
@@ -115,5 +116,5 @@ class OpenflowTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         # The begin_end is not removed from the process map
         self.wf.manage_addProcess('process1', BeginEnd=1)
         self.wf.setProcessMappings('process1', '1', '1')
-        self.assertEquals( (1, ('CannotPickProcess', 'More than one process associated with this envelope')) ,
+        self.assertEquals( (1, (CannotPickProcess, 'More than one process associated with this envelope')) ,
            self.wf.findProcess(['http://rod.eionet.eu.int/obligations/8'],'http://rod.eionet.eu.int/spatial/2'))
