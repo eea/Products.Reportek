@@ -697,10 +697,28 @@ def configure_error_emails():
         'subject': "Error in Reportek",
         'mailhost': env.get('REPORTEK_ERROR_SMTP_HOST', 'localhost'),
     }
-
-    if not mail_handler_cfg['toaddrs']:
-        return
-
-    mail_handler = logging.handlers.SMTPHandler(**mail_handler_cfg)
     site_error_log = logging.getLogger('Zope.SiteErrorLog')
-    site_error_log.addHandler(mail_handler)
+
+    if mail_handler_cfg['toaddrs']:
+        mail_handler = logging.handlers.SMTPHandler(**mail_handler_cfg)
+        site_error_log.addHandler(mail_handler)
+
+    sentry_url = env.get('REPORTEK_ERROR_SENTRY_URL')
+    if sentry_url:
+        from raven.handlers.logging import SentryHandler
+        from copy import deepcopy
+
+        class ErrorLogAdapter(logging.Handler):
+
+            def __init__(self, sentry_handler, *args, **kwargs):
+                super(ErrorLogAdapter, self).__init__(*args, **kwargs)
+                self.sentry_handler = sentry_handler
+
+            def emit(self, record):
+                adapted_record = deepcopy(record)
+                msgid, msg = adapted_record.msg.split(' ', 1)
+                adapted_record.msg = msg
+                self.sentry_handler.handle(adapted_record)
+
+        sentry_handler = SentryHandler(sentry_url)
+        site_error_log.addHandler(ErrorLogAdapter(sentry_handler))
