@@ -210,7 +210,8 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
         global_users = {}
         catalog = getattr(self, constants.DEFAULT_CATALOG)
         # retrieve the global accounts
-        for user_dn, roles in self.acl_users.getLocalUsers():
+        ldap_user_folder = self.acl_users['ldapmultiplugin']['acl_users']
+        for user_dn, roles in ldap_user_folder.getLocalUsers():
             user = explode_dn(user_dn,notypes=1)[0]
             for role in roles:
                 if role_param and role_param in ['Reporter', 'Client']:
