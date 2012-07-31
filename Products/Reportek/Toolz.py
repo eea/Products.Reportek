@@ -61,7 +61,8 @@ class Toolz:
 
     #LDAP users info
     def getLDAPUser(self, uid):
-        res = self.getParentNode().acl_users.findUser(search_param='uid', search_term=uid)
+        ldap_user_folder = self.getParentNode().acl_users['ldapmultiplugin']['acl_users']
+        res = ldap_user_folder.findUser(search_param='uid', search_term=uid)
         if len(res)>0:
             return res[0]
         return {}
