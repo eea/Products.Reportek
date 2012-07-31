@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 import os, sys
-from mock import Mock
+import unittest
+from mock import Mock, patch
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
 from configurereportek import ConfigureReportek
 from fileuploadmock import FileUploadMock
-from utils import create_temp_reposit
+from utils import create_temp_reposit, create_fake_root, create_envelope
 
 
 def setUpModule(self):
@@ -125,3 +126,43 @@ class FeedbackTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
 
         self.feedback.manage_unrestrictFeedback()
         assert self.feedback.acquiredRolesAreUsedBy('View') == 'CHECKED'
+
+
+class RemoteApplicationFeedbackTest(unittest.TestCase):
+
+    @patch('Products.Reportek.RemoteApplication.xmlrpclib')
+    def test_fetch_feedback(self, mock_xmlrpclib):
+        from Products.Reportek.RemoteApplication import RemoteApplication
+
+        text = 'the automatic feedback'
+
+        self.root = create_fake_root()
+        self.root.getWorkitemsActiveForMe = Mock(return_value=[])
+        self.envelope = create_envelope(self.root)
+        self.envelope.getEngine = Mock()
+        self.envelope.REQUEST = Mock()
+
+        remoteapp = RemoteApplication('remoteapp', '', '',
+            'the_service', 'the_app').__of__(self.envelope)
+        remoteapp.the_workitem = Mock(the_app={
+            'getResult': {
+                'the_jobid': {
+                    'fileURL': 'http://example.com/results_file',
+                },
+            }
+        })
+
+        mock_server = mock_xmlrpclib.ServerProxy.return_value
+        getResult = mock_server.the_service.getResult
+        getResult.return_value = {
+            'CODE': '0',
+            'VALUE': text,
+            'SCRIPT_TITLE': "mock script",
+            'METATYPE': 'application/x-mock',
+        }
+        remoteapp._RemoteApplication__getResult4XQueryServiceJob(
+            'the_workitem', 'the_jobid')
+
+        [feedback] = self.envelope.objectValues()
+        self.assertEqual(feedback.feedbacktext, text)
+        self.assertEqual(feedback.content_type, 'application/x-mock')
