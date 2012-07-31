@@ -85,15 +85,15 @@
 
 <fieldset><legend>Attached files</legend>
 	<table cellspacing="5" cellpadding="0" border="0">
-	<dtml-let att_file="objectValues('File')">
+	<dtml-let att_file="objectValues(['File', 'File (Blob)'])">
 		<dtml-if "len(att_file)>0">
 		<tr>
 			<th style="vertical-align: top">Attached files: </th>
 			<td>
 				<dtml-in "att_file" prefix=file>
-					<a href="<dtml-var "file_item.absolute_url()">" title="Download file"><dtml-var "file_item.id()"></a>
-					<a style="font-size: 0.8em" href="manage_uploadAttFeedbackForm?file=<dtml-var "file_item.id()">" title="Edit attached file">[edit]</a>
-					<a style="font-size: 0.8em" href="manage_deleteAttFeedbackForm?file=<dtml-var "file_item.id()">" title="Delete attached file">[delete]</a><br />
+					<a href="<dtml-var "file_item.absolute_url()">" title="Download file"><dtml-var "file_item.getId()"></a>
+					<a style="font-size: 0.8em" href="manage_uploadAttFeedbackForm?file=<dtml-var "file_item.getId()">" title="Edit attached file">[edit]</a>
+					<a style="font-size: 0.8em" href="manage_deleteAttFeedbackForm?file=<dtml-var "file_item.getId()">" title="Delete attached file">[delete]</a><br />
 				</dtml-in>
 			</td>
 		</tr>

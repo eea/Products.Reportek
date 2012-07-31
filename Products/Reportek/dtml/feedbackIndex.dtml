@@ -47,13 +47,13 @@
 </tr>
 </dtml-if>
 
-<dtml-let att_file="objectValues('File')">
+<dtml-let att_file="objectValues(['File', 'File (Blob)'])">
 	<dtml-if "len(att_file)>0">
 	<tr>
 		<th scope="row" class="scope-row">Attached files: </th>
 		<td>
 			<dtml-in "att_file" prefix=file>
-				<span><dtml-var "file_item.id()"></span> <a style="font-size: 0.8em" href="<dtml-var "file_item.absolute_url()">" title="Download attached file">[download]</a><br />
+				<span><dtml-var "file_item.getId()"></span> <a style="font-size: 0.8em" href="<dtml-var "file_item.absolute_url()">" title="Download attached file">[download]</a><br />
 			</dtml-in>
 		</td>
 	</tr>
