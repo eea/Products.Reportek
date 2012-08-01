@@ -33,5 +33,7 @@
 
   </configure>
 
+  <subscriber for="ZPublisher.interfaces.IPubFailure"
+              handler=".monitoring.log_pub_failure" />
 
 </configure>

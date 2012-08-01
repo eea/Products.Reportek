@@ -236,7 +236,8 @@ def initialize(context):
     create_reportek_indexes(app.Catalog)
     import transaction; transaction.commit()
 
-    ReportekEngine.configure_error_emails()
+    import monitoring
+    monitoring.initialize()
 
     context.registerClass(
        QAScript.QAScript,
