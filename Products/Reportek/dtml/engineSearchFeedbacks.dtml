@@ -1,5 +1,5 @@
 <dtml-var standard_html_header>
-<form action="ReportekEngine/resultsfeedbacks" method="get">
+<form action="resultsfeedbacks" method="get">
 <h1>Search for manual feedbacks</h1>
 <table class="formtable">
   <col style="width:15%; white-space:nowrap"/>
