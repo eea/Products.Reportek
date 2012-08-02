@@ -2,6 +2,15 @@ import os
 import socket
 import logging
 import logging.handlers
+import zExceptions
+
+
+ignored_types = [
+    zExceptions.Redirect,
+    zExceptions.Unauthorized,
+    zExceptions.NotFound,
+    zExceptions.MethodNotAllowed,
+]
 
 
 publish_error_log = logging.getLogger(__name__)
@@ -13,10 +22,11 @@ def log_pub_failure(event):
         return
 
     if publish_error_log.handlers:
-        publish_error_log.error('Exception on %s [%s]',
-                                event.request.URL,
-                                event.request.method,
-                                exc_info=event.exc_info)
+        if event.exc_info[0] not in ignored_types:
+            publish_error_log.error('Exception on %s [%s]',
+                                    event.request.URL,
+                                    event.request.method,
+                                    exc_info=event.exc_info)
 
 
 def initialize():
