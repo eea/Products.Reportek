@@ -687,34 +687,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security.declarePrivate('getCatalog')
     def getSearchResults(self, **kwargs):
-        #params = {}
         [kwargs.pop(el) for el in kwargs.keys() if not kwargs[el]]
-
-        #reportingdate=[self.REQUEST.get('startdate'), self.REQUEST.get('enddate')]
-        """
-        params.update({'reportingdate': [self.REQUEST.get('startdate'),
-                                         self.REQUEST.get('enddate')],
-                       'reportingdate_usage': 'range:min:max'})
-        """
-
-        #dataflow_uris=self.REQUEST.get('obligation','')
-        #if dataflow_uris:
-        #    params.update({'dataflow_uris': dataflow_uris})
-
-        #country=self.REQUEST.get('country','')
-        #if country:
-        #    params.update({'country': country})
-
-        #params.update({'sort_on': self.REQUEST.get('sort_on','reportingdate'),
-        #               'sort_order': self.REQUEST.get('sort_order','reverse'),
-        #})
-        """
-        params.update({
-                       'id': ['feedback0','feedback9'],
-                       'id_usage': 'range:min:max'
-        })
-        """
-
         catalog = self.Catalog(**kwargs)
         return catalog
 
