@@ -21,6 +21,20 @@ def create_reportek_engine(parent):
 
 class ReportekEngineTest(unittest.TestCase):
 
+    def test_searchfeedbacks_on_disk(self):
+        try:
+            dtml = ReportekEngine.searchfeedbacks
+            dtml.read()
+        except (AttributeError, IOError) as err:
+            self.fail(err)
+
+    def test_resultsfeedbacks_on_disk(self):
+        try:
+            dtml = ReportekEngine.resultsfeedbacks
+            dtml.read()
+        except (AttributeError, IOError) as err:
+            self.fail(err)
+
     def test_recent_uploads_on_disk(self):
         try:
             dtml = ReportekEngine.recent

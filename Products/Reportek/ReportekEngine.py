@@ -178,6 +178,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declareProtected(view_management_screens, 'countryreporters')
     countryreporters = DTMLFile('dtml/engineCountryReporters', globals())
 
+    security.declareProtected(view_management_screens, 'searchfeedbacks')
+    searchfeedbacks = DTMLFile('dtml/engineSearchFeedbacks', globals())
+
     security.declareProtected(view_management_screens, 'resultsfeedbacks')
     resultsfeedbacks = DTMLFile('dtml/engineResultsFeedbacks', globals())
 
