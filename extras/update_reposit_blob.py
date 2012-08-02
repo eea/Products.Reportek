@@ -2,7 +2,7 @@
 
   >>> import update_reposit_blob
   >>> update_reposit_blob.setup_log_handler()
-  >>> result = update_reposit_blob.convert_all(app)
+  >>> update_reposit_blob.convert_all(app)
   >>> import transaction
   >>> transaction.commit()
 
@@ -16,6 +16,7 @@ documents which have previously been converted.
 
 import os.path
 import logging
+import tempfile
 from collections import defaultdict
 import transaction
 from Products.Reportek.Document import Document, FileContainer
@@ -69,7 +70,7 @@ def is_updated(doc):
         return True
 
 
-def convert(doc):
+def convert(doc, allow_missing):
     log.debug("Converting document %r ...", doc)
     if hasattr(doc.aq_base, 'data_file'):
         raise ValueError("Document %r already has a `data_file`." % doc)
@@ -79,11 +80,15 @@ def convert(doc):
         alternate_fs_path = fs_path + '.undo'
         if os.path.exists(alternate_fs_path):
             fs_path = alternate_fs_path
+            log.debug("filesystem path is %r", fs_path)
+            old_f = open(fs_path, 'rb')
+        elif allow_missing:
+            fs_path = '<missing>'
+            old_f = tempfile.TemporaryFile()
         else:
             raise ValueError("No data file found on filesystem: %r (+'.undo')",
                              fs_path)
-    log.debug("filesystem path is %r", fs_path)
-    with open(fs_path, 'rb') as old_f:
+    with old_f:
         with doc.data_file.open('wb') as new_f:
             size = 0
             for block in RepUtils.iter_file_data(old_f):
@@ -99,7 +104,8 @@ def ofs_path(ob):
     return '/'.join(ob.getPhysicalPath())
 
 
-def convert_all(parent, limit=None, skip=0, warnings=True, report=True):
+def convert_all(parent, limit=None, skip=0,
+                allow_missing=False, warnings=True, report=True):
     out = defaultdict(list)
     for i, doc in enumerate(iter_documents(parent)):
         if i < skip:
@@ -111,7 +117,7 @@ def convert_all(parent, limit=None, skip=0, warnings=True, report=True):
             continue
         sp = transaction.savepoint()
         try:
-            fs_path = convert(doc)
+            fs_path = convert(doc, allow_missing=allow_missing)
         except Exception, e:
             sp.rollback()
             if warnings:
