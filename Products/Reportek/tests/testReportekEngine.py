@@ -20,6 +20,16 @@ def create_reportek_engine(parent):
     return parent[ob.id]
 
 
+class ReportekEngineTest(unittest.TestCase):
+
+    def test_recent_uploads_on_disk(self):
+        from Products.Reportek.ReportekEngine import ReportekEngine
+        try:
+            ReportekEngine.recent
+        except AttributeError:
+            self.fail("ReportekEngine object has no attribute 'recent'")
+
+
 class ReportekEngineZipTest(unittest.TestCase):
 
     def test_zip_download(self):

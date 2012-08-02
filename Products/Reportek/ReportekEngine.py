@@ -181,6 +181,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declareProtected(view_management_screens, 'resultsfeedbacks')
     resultsfeedbacks = DTMLFile('dtml/engineResultsFeedbacks', globals())
 
+    security.declareProtected(view_management_screens, 'recent')
+    recent = DTMLFile('dtml/engineRecentUploads', globals())
+
     security.declareProtected('View', 'getCountriesList')
     def getCountriesList(self):
         """ """
