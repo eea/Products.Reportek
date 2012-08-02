@@ -25,16 +25,26 @@ class ReportekEngineTest(unittest.TestCase):
     def test_recent_uploads_on_disk(self):
         from Products.Reportek.ReportekEngine import ReportekEngine
         try:
-            ReportekEngine.recent
-        except AttributeError:
-            self.fail("ReportekEngine object has no attribute 'recent'")
+            recent = ReportekEngine.recent
+            recent.read()
+        except (AttributeError, IOError) as err:
+            self.fail(err)
 
     def test_searchdataflow_on_disk(self):
         from Products.Reportek.ReportekEngine import ReportekEngine
         try:
-            ReportekEngine.searchdataflow
-        except AttributeError:
-            self.fail("ReportekEngine object has no attribute 'searchdataflow'")
+            searchdataflow = ReportekEngine.searchdataflow
+            searchdataflow.read()
+        except (AttributeError, IOError) as err:
+            self.fail(err)
+
+    def test_resultsdataflow_on_disk(self):
+        from Products.Reportek.ReportekEngine import ReportekEngine
+        try:
+            resultsdataflow = ReportekEngine.resultsdataflow
+            resultsdataflow.read()
+        except (AttributeError, IOError) as err:
+            self.fail(err)
 
 
 class ReportekEngineZipTest(unittest.TestCase):
