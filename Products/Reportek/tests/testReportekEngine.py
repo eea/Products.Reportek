@@ -4,7 +4,7 @@ import zipfile
 from mock import Mock, patch
 from utils import create_fake_root, create_temp_reposit, create_upload_file
 from utils import create_envelope, add_document
-
+from Products.Reportek.ReportekEngine import ReportekEngine
 
 def setUpModule(self):
     self._cleanup_temp_reposit = create_temp_reposit()
@@ -14,7 +14,6 @@ def tearDownModule(self):
 
 
 def create_reportek_engine(parent):
-    from Products.Reportek.ReportekEngine import ReportekEngine
     ob = ReportekEngine()
     parent._setObject(ob.id, ob)
     return parent[ob.id]
@@ -23,26 +22,30 @@ def create_reportek_engine(parent):
 class ReportekEngineTest(unittest.TestCase):
 
     def test_recent_uploads_on_disk(self):
-        from Products.Reportek.ReportekEngine import ReportekEngine
         try:
-            recent = ReportekEngine.recent
-            recent.read()
+            dtml = ReportekEngine.recent
+            dtml.read()
         except (AttributeError, IOError) as err:
             self.fail(err)
 
     def test_searchdataflow_on_disk(self):
-        from Products.Reportek.ReportekEngine import ReportekEngine
         try:
-            searchdataflow = ReportekEngine.searchdataflow
-            searchdataflow.read()
+            dtml = ReportekEngine.searchdataflow
+            dtml.read()
         except (AttributeError, IOError) as err:
             self.fail(err)
 
     def test_resultsdataflow_on_disk(self):
-        from Products.Reportek.ReportekEngine import ReportekEngine
         try:
-            resultsdataflow = ReportekEngine.resultsdataflow
-            resultsdataflow.read()
+            dtml = ReportekEngine.resultsdataflow
+            dtml.read()
+        except (AttributeError, IOError) as err:
+            self.fail(err)
+
+    def test_searchxml_on_disk(self):
+        try:
+            dtml = ReportekEngine.searchxml
+            dtml.read()
         except (AttributeError, IOError) as err:
             self.fail(err)
 

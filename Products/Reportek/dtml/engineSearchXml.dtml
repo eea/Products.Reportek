@@ -1,0 +1,63 @@
+<dtml-var standard_html_header>
+<form action="resultsxml" method="get">
+<h1>Search CDR for XML files</h1>
+<table class="formtable">
+  <col style="width:15%; white-space:nowrap"/>
+  <col style="width:85%"/>
+  <tr>
+    <td><label for="xml_schema_location" class="question required">Schema</label></td>
+    <td><select size="15" id="xml_schema_location" name="xml_schema_location">
+<dtml-let u="Catalog.uniqueValuesFor('xml_schema_location')">
+<dtml-in u>
+<option><dtml-var sequence-item html_quote></option>
+</dtml-in>
+</dtml-let>
+  </select>
+    </td>
+  </tr>
+
+  <tr>
+    <td><label for="years" class="question">Year</label></td>
+    <td><input type="text" id="years" name="years:int:ignore_empty" size="4" maxlength="4" value="" /></td>
+  </tr>
+  <tr>
+    <td><label for="partofyear" class="question">Part of year</label></td>
+    <td>
+      <select id="partofyear" name="partofyear">
+        <option value="">Any part of year</option>
+<dtml-in "('Whole Year',
+           'First Half', 'Second Half',
+           'First Quarter', 'Second Quarter',
+           'Third Quarter', 'Fourth Quarter',
+'January','February','March','April','May','June',
+'July','August','September','October','November','December'
+          )">
+<option value="<dtml-var sequence-item>"><dtml-var sequence-item></option>
+</dtml-in>
+      </select>
+    </td>
+  </tr>
+  <tr>
+    <td><label for="country" class="question">Country</label></td>
+    <td>
+  <select id="country" name="country">
+<option></option>
+<dtml-in localities_table mapping>
+<option value="&dtml-uri;" <dtml-if "uri == ''">selected="selected"</dtml-if>>&dtml-name;</option>
+</dtml-in>
+  </select>
+    </td>
+  </tr>
+
+
+  <tr>
+    <td colspan="2" align="center">
+<input type="hidden" name="sort_on" value="reportingdate"/>
+<input type="hidden" name="sort_order" value="reverse"/>
+<input type="submit" value="Submit Query" />
+<input type="reset" value="Reset fields" />
+    </td>
+  </tr>
+</table>
+</form>
+<dtml-var standard_html_footer>
