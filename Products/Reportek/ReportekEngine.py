@@ -193,6 +193,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declareProtected(view_management_screens, 'searchxml')
     searchxml = DTMLFile('dtml/engineSearchXml', globals())
 
+    security.declareProtected(view_management_screens, 'resultsxml')
+    resultsxml = DTMLFile('dtml/engineResultsXml', globals())
+
     security.declareProtected('View', 'getCountriesList')
     def getCountriesList(self):
         """ """

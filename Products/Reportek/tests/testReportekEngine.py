@@ -49,6 +49,13 @@ class ReportekEngineTest(unittest.TestCase):
         except (AttributeError, IOError) as err:
             self.fail(err)
 
+    def test_resultsxml_on_disk(self):
+        try:
+            dtml = ReportekEngine.resultsxml
+            dtml.read()
+        except (AttributeError, IOError) as err:
+            self.fail(err)
+
 
 class ReportekEngineZipTest(unittest.TestCase):
 
