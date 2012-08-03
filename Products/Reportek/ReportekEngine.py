@@ -703,7 +703,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """ Generate exception to check that it's handled properly """
         raise ValueError('hello world')
 
-    security.declarePrivate('getCatalog')
+    security.declarePrivate('getSearchResults')
     def getSearchResults(self, **kwargs):
         [kwargs.pop(el) for el in kwargs.keys() if not kwargs[el]]
         catalog = self.Catalog(**kwargs)
