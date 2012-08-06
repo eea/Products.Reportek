@@ -21,7 +21,7 @@
 ## RemoteApplication
 ##
 
-from StringIO import StringIO
+import tempfile
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from OFS.SimpleItem import SimpleItem
 from Globals import DTMLFile, InitializeClass
@@ -31,6 +31,10 @@ from DateTime import DateTime
 import xmlrpclib
 import string
 from Products.PythonScripts.standard import html_quote
+
+
+FEEDBACKTEXT_LIMIT = 1024 * 8 # 8KB
+
 
 manage_addRemoteApplicationForm = DTMLFile('dtml/RemoteApplicationAdd',globals())
 
@@ -313,15 +317,28 @@ class RemoteApplication(SimpleItem):
                         title= self.app_name + l_filename + l_ret['SCRIPT_TITLE'], 
                         activity_id=l_workitem.activity_id,
                         automatic=1, 
-                        content_type='text/html',
                         document_id=l_file_id)
-                temp_file = StringIO(l_ret['VALUE'])
-                temp_file.filename = 'qa-output'
                 feedback_ob = envelope[feedback_id]
-                feedback_ob.manage_uploadFeedback(temp_file)
-                feedback_ob.feedbacktext = '<a href="qa-output">Automatic QA output</a>'
-                feedback_attach = feedback_ob.objectValues()[0]
-                feedback_attach.data_file.content_type = l_ret['METATYPE']
+
+                content = l_ret['VALUE']
+                content_type = l_ret['METATYPE']
+
+                if len(content) > FEEDBACKTEXT_LIMIT:
+                    with tempfile.TemporaryFile() as tmp:
+                        tmp.write(content)
+                        tmp.seek(0)
+                        feedback_ob.manage_uploadFeedback(tmp, filename='qa-output')
+                    feedback_attach = feedback_ob.objectValues()[0]
+                    feedback_attach.data_file.content_type = content_type
+                    feedback_ob.feedbacktext = (
+                        'Feedback too large for inline display; '
+                        '<a href="qa-output/view">see attachment</a>.')
+                    feedback_ob.content_type = 'text/html'
+
+                else:
+                    feedback_ob.feedbacktext = content
+                    feedback_ob.content_type = content_type
+
                 l_getResultDict = {p_jobID: {'code':1, 'fileURL':l_file_url}}
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_getResult=l_getResultDict)
             # not ready

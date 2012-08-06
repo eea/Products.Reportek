@@ -185,11 +185,12 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
             REQUEST.RESPONSE.redirect('index_html')
 
     security.declareProtected('Change Feedback', 'manage_uploadFeedback')
-    def manage_uploadFeedback(self, file='', REQUEST=None):
+    def manage_uploadFeedback(self, file='', REQUEST=None, filename=None):
         """ Upload an attachment to a feedback.
             FIXME: Misnamed method name
         """
-        filename = RepUtils.getFilename(file.filename)
+        if filename is None:
+            filename = RepUtils.getFilename(file.filename)
         add_OfsBlobFile(self, filename, file)
         if REQUEST:
             REQUEST.RESPONSE.redirect('%s/manage_editFeedbackForm' % self.absolute_url())

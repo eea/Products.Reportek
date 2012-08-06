@@ -130,21 +130,17 @@ class FeedbackTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
 
 class RemoteApplicationFeedbackTest(unittest.TestCase):
 
-    @patch('Products.Reportek.RemoteApplication.xmlrpclib')
-    def test_fetch_feedback(self, mock_xmlrpclib):
+    def setUp(self):
         from Products.Reportek.RemoteApplication import RemoteApplication
-
-        text = 'the automatic feedback'
-
         self.root = create_fake_root()
         self.root.getWorkitemsActiveForMe = Mock(return_value=[])
         self.envelope = create_envelope(self.root)
         self.envelope.getEngine = Mock()
         self.envelope.REQUEST = Mock()
 
-        remoteapp = RemoteApplication('remoteapp', '', '',
+        self.remoteapp = RemoteApplication('remoteapp', '', '',
             'the_service', 'the_app').__of__(self.envelope)
-        remoteapp.the_workitem = Mock(the_app={
+        self.remoteapp.the_workitem = Mock(the_app={
             'getResult': {
                 'the_jobid': {
                     'fileURL': 'http://example.com/results_file',
@@ -152,6 +148,8 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
             }
         })
 
+    @patch('Products.Reportek.RemoteApplication.xmlrpclib')
+    def receive_feedback(self, text, mock_xmlrpclib):
         mock_server = mock_xmlrpclib.ServerProxy.return_value
         getResult = mock_server.the_service.getResult
         getResult.return_value = {
@@ -160,8 +158,21 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
             'SCRIPT_TITLE': "mock script",
             'METATYPE': 'application/x-mock',
         }
-        remoteapp._RemoteApplication__getResult4XQueryServiceJob(
+        self.remoteapp._RemoteApplication__getResult4XQueryServiceJob(
             'the_workitem', 'the_jobid')
+
+    def test_24bytes_feedback_is_saved_inline(self):
+        text = 'small automatic feedback'
+        self.receive_feedback(text)
+
+        [feedback] = self.envelope.objectValues()
+        self.assertEqual(feedback.objectValues(), [])
+        self.assertEqual(feedback.content_type, 'application/x-mock')
+        self.assertEqual(feedback.feedbacktext, text)
+
+    def test_100kb_feedback_creates_attachment_and_explanation(self):
+        text = 'large automatic feedback: ' + ('[10 bytes]' * 10240)
+        self.receive_feedback(text)
 
         [feedback] = self.envelope.objectValues()
         [attach] = feedback.objectValues()
@@ -169,3 +180,6 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
             self.assertEqual(f.read(), text)
 
         self.assertEqual(attach.data_file.content_type, 'application/x-mock')
+
+        self.assertIn('see attachment', feedback.feedbacktext)
+        self.assertEqual(feedback.content_type, 'text/html')
