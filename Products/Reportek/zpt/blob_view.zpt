@@ -1,0 +1,3 @@
+<tal:block replace="structure context/standard_html_header" />
+<tal:block content="structure options/content" />
+<tal:block replace="structure context/standard_html_footer" />

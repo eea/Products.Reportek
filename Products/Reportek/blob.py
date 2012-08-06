@@ -62,7 +62,8 @@ class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
     security = ClassSecurityInfo()
 
     manage_options = (
-        {'label': 'Content', 'action': 'manage_main'},
+        {'label': 'Edit', 'action': 'manage_main'},
+        {'label': 'View', 'action': 'view'},
     ) + _SimpleItem.SimpleItem.manage_options
 
     def __init__(self, name=''):
@@ -80,6 +81,27 @@ class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
                 REQUEST, RESPONSE, data_file_handle,
                 self.data_file.content_type,
                 self.data_file.size, self.data_file.mtime)
+
+    _view_tmpl = PageTemplateFile('zpt/blob_view.zpt', globals())
+
+    security.declareProtected(view, 'view')
+    def view(self, REQUEST, RESPONSE):
+        """ View the content in a web page """
+        if self.data_file.content_type.startswith('text/html'):
+            with self.data_file.open() as data_file_handle:
+                separator = 'HEADER-FOOTER-SPLIT'
+                html = self._view_tmpl(content=separator).encode('utf-8')
+                header, footer = html.split(separator)
+                RESPONSE.setHeader('Content-Type', 'text/html')
+                RESPONSE.write(header)
+                for chunk in RepUtils.iter_file_data(data_file_handle):
+                    RESPONSE.write(chunk)
+                RESPONSE.write(footer)
+
+        else:
+            link = '<a href="{url}">Download</a>'.format(
+                url=self.absolute_url())
+            return self._view_tmpl(content=link)
 
     manage_main = PageTemplateFile('zpt/blob_main.zpt', globals())
 
