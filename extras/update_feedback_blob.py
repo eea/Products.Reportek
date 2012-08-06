@@ -17,7 +17,7 @@ from Products.Reportek import blob
 log = logging.getLogger(__name__)
 
 
-FEEDBACKTEXT_LIMIT = 1024*32 # 32KB
+from Products.Reportek.RemoteApplication import FEEDBACKTEXT_LIMIT
 
 
 handler = None
@@ -86,7 +86,10 @@ def convert_feedbacktext(feedback):
     with blob_file_ob.data_file.open('wb') as f:
         write_string_to_file(feedback.feedbacktext, f)
     blob_file_ob.data_file.content_type = feedback.content_type
-    feedback.feedbacktext = '<a href="qa-output">Automatic QA output</a>'
+    feedback.feedbacktext = (
+        'Feedback too large for inline display; '
+        '<a href="qa-output/view">see attachment</a>.')
+
     feedback.content_type = 'text/html'
     log.info("Converted feedbacktext for %r, %d bytes",
              ofs_path(feedback), blob_file_ob.data_file.size)
@@ -112,9 +115,15 @@ def convert_all(parent, limit=None, skip=0, report=True, warnings=True):
                 n_bytes += blob_file_ob.data_file.size
                 n_objects += 1
             if is_automatic_qa(feedback):
-                blob_file_ob = convert_feedbacktext(feedback)
-                n_bytes += blob_file_ob.data_file.size
-                n_objects += 1
+                if len(feedback.feedbacktext) > FEEDBACKTEXT_LIMIT:
+                    blob_file_ob = convert_feedbacktext(feedback)
+                    n_bytes += blob_file_ob.data_file.size
+                    n_objects += 1
+                else:
+                    n_skip_objects += 1
+                    n_skip_bytes += len(feedback.feedbacktext)
+                    log.info("Skipping %r, %d bytes, it's less than 8KB",
+                             ofs_path(feedback), len(feedback.feedbacktext))
             else:
                 n_skip_objects += 1
                 n_skip_bytes += len(feedback.feedbacktext)
