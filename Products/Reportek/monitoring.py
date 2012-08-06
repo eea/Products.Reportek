@@ -8,6 +8,7 @@ import zExceptions
 ignored_types = [
     zExceptions.Redirect,
     zExceptions.Unauthorized,
+    zExceptions.Forbidden,
     zExceptions.NotFound,
     zExceptions.MethodNotAllowed,
 ]
