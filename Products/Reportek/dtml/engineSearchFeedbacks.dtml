@@ -11,7 +11,7 @@
     <td colspan="2">
   <select size="15" id="dataflows" name="obligation">
 <dtml-call "REQUEST.set('currentsource','')">
-<dtml-let u="Catalog.uniqueValuesFor('dataflow_uris')">
+<dtml-let u="getUniqueValuesFor('dataflow_uris')">
 <dtml-in dataflow_table mapping sort=SOURCE_TITLE,TITLE>
 <dtml-if "uri in u">
 <dtml-if "currentsource != SOURCE_TITLE">

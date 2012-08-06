@@ -7,7 +7,7 @@
   <tr>
     <td><label for="xml_schema_location" class="question required">Schema</label></td>
     <td><select size="15" id="xml_schema_location" name="xml_schema_location">
-<dtml-let u="Catalog.uniqueValuesFor('xml_schema_location')">
+<dtml-let u="getUniqueValuesFor('xml_schema_location')">
 <dtml-in u>
 <option><dtml-var sequence-item html_quote></option>
 </dtml-in>

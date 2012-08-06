@@ -709,4 +709,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         catalog = self.Catalog(**kwargs)
         return catalog
 
+    security.declarePrivate('getUniqueValuesFor')
+    def getUniqueValuesFor(self, value):
+        return self.Catalog.uniqueValuesFor(value)
+
 Globals.InitializeClass(ReportekEngine)
