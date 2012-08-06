@@ -4,6 +4,7 @@ from configurereportek import ConfigureReportek
 from fileuploadmock import FileUploadMock
 from utils import create_temp_reposit
 from zExceptions import Redirect
+from mock import patch
 
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
@@ -120,8 +121,12 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.assertEquals(1, len(local_converters))
         self.assertEquals(0, len(remote_converters))
 
-    def test_suffixXmlConverter(self):
+    @patch('Products.Reportek.Converters.xmlrpclib')
+    def test_suffixXmlConverter(self, mock_xmlrpclib):
         """ Add a local XML converter, check it is found on suffix """
+        server = mock_xmlrpclib.ServerProxy.return_value
+        server.ConversionService.listConversions.return_value = []
+
         converters = getattr(self.app, CONVERTERS_ID)
         converters.manage_addConverter('prettyxml', title='Pretty XML',
                 convert_url='xml2txt %s', ct_input='text/xml', ct_output='text/plain',
@@ -132,10 +137,30 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.assertEquals(0, len(local_converters))
         self.assertEquals(0, len(remote_converters))
         # Lookup on schema
+        server.ConversionService.listConversions.return_value = [{
+            'description': 'Quickview in HTML',
+            'content_type_out': 'text/html;charset=UTF-8',
+            'xml_schema': ('http://biodiversity.eionet.europa.eu/'
+                           'schemas/dir9243eec/generalreport.xsd'),
+            'result_type': 'HTML',
+            'xsl': 'art17-general.xsl',
+            'convert_id': '26',
+        },
+        {
+            'description': 'RDF output',
+            'content_type_out': 'application/rdf+xml;charset=UTF-8',
+            'xml_schema': ('http://biodiversity.eionet.europa.eu/'
+                           'schemas/dir9243eec/generalreport.xsd'),
+            'result_type': 'RDF',
+            'xsl': 'art17-general-rdf.xsl',
+            'convert_id': '179',
+        }]
         local_converters, remote_converters = converters.displayPossibleConversions('text/xml',
            "http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd")
         self.assertEquals(1, len(local_converters))
         self.assertTrue(len(remote_converters) > 0)
+
+        server.ConversionService.listConversions.return_value = []
         # Lookup on suffix or content-type, using a non-existing schema. Must not work
         local_converters, remote_converters = converters.displayPossibleConversions('text/xml',
            "http://localhost/schemas/dir5243eec/schema.xsd","generalreport.xml")
@@ -147,8 +172,21 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.assertEquals(0, len(local_converters))
         self.assertEquals(0, len(remote_converters))
 
-    def test_gmlConverter(self):
+    @patch('Products.Reportek.Converters.xmlrpclib')
+    def test_gmlConverter(self, mock_xmlrpclib):
         """ GML files ends by .gml """
+
+        server = mock_xmlrpclib.ServerProxy.return_value
+        server.ConversionService.listConversions.return_value = [{
+            'description': 'GML metadata factsheet',
+            'content_type_out': 'text/html;charset=UTF-8',
+            'xml_schema': ('http://biodiversity.eionet.europa.eu/'
+                           'schemas/dir9243eec/gml_art17.xsd'),
+            'result_type': 'HTML',
+            'xsl': 'art17-gml.xsl',
+            'convert_id': '42',
+        }]
+
         # Browsers might send application/octet-stream, text/xml or application/vnd.ogc.gml
         # when uploading a GML file. Therefore we sniff the suffix (currently hardwired)
         # We check in testDocument.py that the sniff works, so we can just assume it here
