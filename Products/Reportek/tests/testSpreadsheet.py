@@ -1,14 +1,13 @@
 import os, sys, transaction
+from StringIO import StringIO
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
 from configurereportek import ConfigureReportek
 from fileuploadmock import FileUploadMock
-from mock import patch
+from mock import patch, Mock
 from utils import create_temp_reposit
 
-TEST_DATA_URL = ('https://svn.eionet.europa.eu/repositories/Zope'
-                 '/trunk/Products.Reportek/Products/Reportek/tests/data/')
 TESTDIR = os.path.abspath(os.path.dirname(__file__))
 
 
@@ -18,14 +17,6 @@ def setUpModule(self):
 
 def tearDownModule(self):
     self._cleanup_temp_reposit()
-
-
-class FileUploadTest(file):
-    __allow_access_to_unprotected_subobjects__=1
-
-    def __init__(self, path, name):
-        self.filename = name
-        file.__init__(self, os.path.join(TESTDIR, path))
 
 
 class SpreadsheetTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
@@ -79,13 +70,14 @@ class SpreadsheetTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
 
     @patch('Products.Reportek.EnvelopeCustomDataflows.invoke_conversion_service')
     def test_upload_empty_excel(self, mock_invoke):
-        test_url = TEST_DATA_URL + 'Rivers_empty.xls'
-        def test_invoke(server_name, method_name, url):
-            # replace the URL with a public SVN URL
-            return self._orig_invoke(server_name, method_name, test_url)
-        mock_invoke.side_effect = test_invoke
-
-        myfile = FileUploadTest('data/Rivers_empty.xls','Rivers_empty.xls')
+        mock_invoke.return_value = {
+            'conversionLog': '-- conversion log --',
+            'convertedFiles': [],
+            'resultCode': '0',
+            'resultDescription': 'Conversion successful.',
+        }
+        myfile = StringIO('-- some reporting data --')
+        myfile.filename = 'Rivers_empty.xls'
         res = self.envelope.convert_excel_file(myfile)
         self.assertEquals(1, res)
         document = self.envelope['Rivers_empty.xls']
@@ -100,13 +92,22 @@ class SpreadsheetTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
             Verify the content_type is 'application/vnd.ms-excel'
             The expected result is 1
         """
-        test_url = TEST_DATA_URL + 'Rivers_2011.xls'
-        def test_invoke(server_name, method_name, url):
-            # replace the URL with a public SVN URL
-            return self._orig_invoke(server_name, method_name, test_url)
-        mock_invoke.side_effect = test_invoke
+        mock_invoke.return_value = {
+            'conversionLog': '-- conversion log --',
+            'convertedFiles': [{'content': Mock(data='-- some content --'),
+                                'fileName': 'StationsRivers.xml'},
+                               {'content': Mock(data='-- some content --'),
+                                'fileName': 'NutrientsRivers_Agg.xml'},
+                               {'content': Mock(data='-- some content --'),
+                                'fileName': 'HazSubstRivers_Agg.xml'},
+                               {'content': Mock(data='-- some content --'),
+                                'fileName': 'HazSubstRivers_Disagg.xml'}],
+            'resultCode': '0',
+            'resultDescription': 'Conversion successful.',
+        }
 
-        myfile = FileUploadTest('data/Rivers_2011.xls','Rivers_2011.xls')
+        myfile = StringIO('-- some reporting data --')
+        myfile.filename = 'Rivers_2011.xls'
         res = self.envelope.convert_excel_file(myfile)
         self.assertEquals(1, res)
         self.assertEquals(5, len(self.envelope.objectValues('Report Document')))
@@ -117,7 +118,8 @@ class SpreadsheetTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         feedback = self.envelope['conversion_log_Rivers_2011.xls']
         self.assertEquals(feedback.meta_type, 'Report Feedback')
         #Now try it again to make sure there's no error in deleting old files
-        myfile = FileUploadTest('data/Rivers_2011.xls','Rivers_2011.xls')
+        myfile = StringIO('-- some reporting data --')
+        myfile.filename = 'Rivers_2011.xls'
         res = self.envelope.convert_excel_file(myfile)
         self.assertEquals(1, res)
         self.assertEquals(5, len(self.envelope.objectValues('Report Document')))
