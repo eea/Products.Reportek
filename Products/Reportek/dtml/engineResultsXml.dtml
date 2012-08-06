@@ -6,7 +6,6 @@
 </div>
 <h1><dtml-var title></h1>
 
-<dtml-call "REQUEST.set('meta_type','Report Document')">
 <dtml-unless sort_on>
 <dtml-call "REQUEST.set('sort_on','xml_schema_location')">
 <dtml-call "REQUEST.set('sort_order','reverse')">
@@ -17,7 +16,14 @@
 <dtml-let ldict=localities_dict dummy="{'uri': '', 'name': 'Unknown', 'iso': 'XX'}">
 
 
-<dtml-in Catalog size=50 start=query_start>
+<dtml-in "getSearchResults(
+                    meta_type='Report Document',
+                    years=REQUEST.get('years'),
+                    partofyear=REQUEST.get('partofyear'),
+                    country=REQUEST.get('country',''),
+                    sort_on=REQUEST.get('sort_on'),
+                    sort_order=REQUEST.get('sort_order'))" size=50 start=query_start>
+
    <dtml-if sequence-start>
 
       <dtml-if previous-sequence>
