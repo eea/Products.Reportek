@@ -6,7 +6,6 @@
     <dtml-call "REQUEST.set('country',localities_iso_dict(REQUEST['country'].upper())['uri'])">
   </dtml-if>
 </dtml-if>
-<dtml-call "REQUEST.set('meta_type','Report Envelope')">
 <dtml-unless sort_on>
 <dtml-call "REQUEST.set('sort_on','reportingdate')">
 <dtml-call "REQUEST.set('sort_order','reverse')">
@@ -14,10 +13,17 @@
 <dtml-unless sort_order>
 <dtml-call "REQUEST.set('sort_order','')">
 </dtml-unless>
+
 <dtml-let ldict=localities_dict dummy="{'uri': '', 'name': 'Unknown', 'iso': 'XX'}">
 
+<dtml-in "getSearchResults(
+                    meta_type='Report Envelope',
+                    years=REQUEST.get('years'),
+                    partofyear=REQUEST.get('partofyear'),
+                    country=REQUEST.get('country',''),
+                    sort_on=REQUEST.get('sort_on'),
+                    sort_order=REQUEST.get('sort_order'))" size=50 start=query_start>
 
-<dtml-in Catalog size=50 start=query_start>
    <dtml-if sequence-start>
 
       <dtml-if previous-sequence>
