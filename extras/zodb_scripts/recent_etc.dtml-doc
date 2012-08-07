@@ -5,8 +5,8 @@
 <dtml-call "REQUEST.set('RA_ID','656')">
 </dtml-unless>
 
-<dtml-call "REQUEST.set('dataflow_uris','http://rod.eionet.eu.int/obligations/' + RA_ID)">
-<dtml-call "REQUEST.set('dataflow_url','http://rod.eionet.europa.eu/obligations/' + RA_ID)">
+<dtml-call "REQUEST.set('dataflow_uris', {'query': 'http://rod.eionet.eu.int/obligations/' + RA_ID})">
+<dtml-call "REQUEST.set('dataflow_url', 'http://rod.eionet.europa.eu/obligations/' + RA_ID)">
 
 <dtml-unless "REQUEST.has_key('mindate') and _.len(REQUEST['mindate']) == 10">
   <dtml-call "REQUEST.set('mindate','2012-01-01')">
@@ -16,8 +16,11 @@
   <dtml-call "REQUEST.set('maxdate','2100-01-01')">
 </dtml-unless>
 
-<dtml-call "REQUEST.set('reportingdate',[REQUEST.get('mindate'),REQUEST.get('maxdate')])">
-<dtml-call "REQUEST.set('reportingdate_usage','range:min:max')">
+<dtml-call "REQUEST.set('reportingdate',
+                            {'range': 'min:max',
+                             'query': [DateTime(REQUEST.get('mindate')),
+                             DateTime(REQUEST.get('maxdate'))]})"
+>
 
 <dtml-unless sort_on>
 <dtml-call "REQUEST.set('sort_on','reportingdate')">
@@ -36,7 +39,8 @@
   <dtml-call "REQUEST.set('country_name','all countries')">
 </dtml-if>
 
-<h2><dtml-var title_or_id> for obligation '<dtml-var "dataflow_lookup(dataflow_uris)['TITLE']">': <dtml-var country_name>, <dtml-if "REQUEST['maxdate'] != '2100-01-01'">between <dtml-var mindate> and <dtml-var maxdate><dtml-else>since <dtml-var mindate></dtml-if> 
+<h2><dtml-var title_or_id> for obligation '<dtml-var
+    "dataflow_lookup(dataflow_url)['TITLE']">': <dtml-var country_name>, <dtml-if "REQUEST['maxdate'] != '2100-01-01'">between <dtml-var mindate> and <dtml-var maxdate><dtml-else>since <dtml-var mindate></dtml-if> 
 
 <dtml-in Catalog>
    <dtml-if sequence-start>

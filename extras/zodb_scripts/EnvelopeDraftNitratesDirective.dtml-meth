@@ -4,7 +4,7 @@
 	<h1>&dtml-document_title;</h1>
 	<dtml-if canAddFiles>
 
-<dtml-call "REQUEST.SESSION.set('required_schema', ['http://dd.eionet.europa.eu/GetSchema?id=DST2592'])">
+<dtml-call "REQUEST.SESSION.set('required_schema', ['http://dd.eionet.europa.eu/GetSchema?id=DST3008'])">
 
 <div class="upload_data">
 <a href="upload_dd_file" title="Upload delivery" class="test_button">Upload delivery</a>
@@ -15,12 +15,12 @@
 <ol>
 	<li>
 		Excel file, based on the 
-		<a href="http://dd.eionet.europa.eu/dataset.jsp?mode=view&amp;ds_id=2592">Data Dictionary</a> <a href="http://dd.eionet.europa.eu/GetXls?obj_type=dst&amp;obj_id=2592" title="Download the Eionet-Water: Nitrates MS-Excel template here">template</a>.
+		<a href="http://dd.eionet.europa.eu/dataset.jsp?mode=view&amp;ds_id=3008">Data Dictionary</a> <a href="http://dd.eionet.europa.eu/GetXls?obj_type=dst&amp;obj_id=3008" title="Download the Eionet-Water: Nitrates MS-Excel template here">template</a>.
 		If the file structure was not changed or otherwise corrupted, the system will automatically convert it 
 		to a series of XML files - one file for each template table where you have entered some records.
 	</li>
 	<li>
-		XML files, following the <a href="http://dd.eionet.europa.eu/dataset.jsp?mode=view&amp;ds_id=2592">Data Dictionary</a> <a href="http://dd.eionet.europa.eu/GetSchema?id=DST2592">schema</a>.
+		XML files, following the <a href="http://dd.eionet.europa.eu/dataset.jsp?mode=view&amp;ds_id=3008">Data Dictionary</a> <a href="http://dd.eionet.europa.eu/GetSchema?id=DST3008">schema</a>.
 	</li>
 	<li>
 		Any other format (ZIP, Word, etc.), for accompanying or explanatory information. Please keep in mind that 
@@ -43,17 +43,25 @@ someone else to take over the task">Deactivate task</a>
 			will be released to the public.
 		</p>
 
-		<div class="tip-msg">
-			<strong>Quality assesment self-test</stron>
-			<p>
-			The system can then help you quality assess the XML files that follow the Data Dictionary
-			schema by adding a special “<em>Run QA #1</em>” button next to each of them. 
-			Please use these buttons to verify the quality of the data you have just uploaded.
-			If some of the tests detect errors, it is recommended that you try to correct them.
-			After you release the envelope, the QA procedures will be run automatically by the system and the results
-			will be placed into the feedback area of the envelope.
-			</p>
-		</div>
+	<div class="advise-msg"><strong>Automatic QA service</strong>
+		<p>
+		The system can help you assess quality of the XML files that follow the  Data Dictionary schema. You have two options for running the automatic QA  tests yourself on the data that you have just uploaded to the draft envelope:
+		</p>
+		<ol>
+		<li style="font-weight: bold">1. You can test all files at once using the "Run full QA" button</li>
+		<li style="font-weight: bold">2. You can check files which are not too large one by one using  the "Run QA #1" button next to each of them</li>
+		</ol>
+		<p>
+		If some of the tests detect errors, it is recommended that you try to  correct them before releasing the envelope. After you release the  envelope, the system will always automatically run the QA procedures and  the public results will be placed into the feedback area of the envelope.
+		</p>
+	</div>
+	<p>
+		<a class="test_button" href="completeWorkitem?workitem_id=&dtml-workitem_id;&amp;dontrelease=0"
+	title="Run the automatic Quality Assessment">Run full QA</a>
+		You can run a quality assessment operation yourself on all files at once.
+		It will interrupt the drafting activity for a few minutes (task is  deactivated),
+		after which you can return to Draft (by activating the task)  and read the QA feedback.
+	</p>
 	</dtml-if>
 
 </dtml-if>

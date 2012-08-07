@@ -144,7 +144,7 @@ in the following collections:
   <input type="text" name="search_term" id="search_term" size="30">
   <label for="search_param">matching criteria</label>
   <select name="search_param" id="search_param">
-    <dtml-in expr="acl_users.getLDAPSchema()">
+    <dtml-in expr="acl_users['ldapmultiplugin']['acl_users'].getLDAPSchema()">
       <dtml-let sk="_['sequence-key']"
                 si="_['sequence-item']">
         <option value="&dtml-sk;">
@@ -160,7 +160,7 @@ in the following collections:
 <!-- Search users results -->
 <dtml-if name="find_button_pressed">
 <form action="<dtml-var name="URL1">/Assign_client_form" method="post" name="objectItems">
-<dtml-let res="acl_users.findUser(search_param=search_param, search_term=search_term)">
+<dtml-let res="acl_users['ldapmultiplugin']['acl_users'].findUser(search_param=search_param, search_term=search_term)">
 
 <fieldset>
 <legend>Select user(s) to assign 'Client' role</legend>
@@ -224,7 +224,7 @@ in the following collections:
 <fieldset><legend>Role:</legend>
 <input type="radio" name="crole" id="clientrole" value="Client" checked="checked"/><label for="clientrole">Client</label>
 <input type="radio" name="crole" id="reporterrole" value="Reporter"/><label for="reporterrole">Reporter</label>
-<input type="radio" name="crole" id="auditorrole" value="Reporter"/><label for="auditorrole">Auditor</label>
+<input type="radio" name="crole" id="auditorrole" value="Auditor"/><label for="auditorrole">Auditor</label>
 </fieldset>
 
 <br/>

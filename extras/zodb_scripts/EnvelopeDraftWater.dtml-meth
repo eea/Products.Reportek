@@ -3,15 +3,17 @@
 	<dtml-var "envelope_tabs(tab=workitem_id)">
 	<h1>&dtml-document_title;</h1>
 	<dtml-if canAddFiles>
+<!-- Groundwater, Lakes, Marine, Rivers, Bathing Water 76/160/EEC, Bathing Water 2006/7/EC - Monitoring and classification,  Bathing Water 2006/7/EC - Identification of bathing areas, Water emission quality, Biological data -->
 <dtml-let dataset_ids="{
-   'http://rod.eionet.eu.int/obligations/30':'2916',
-   'http://rod.eionet.eu.int/obligations/29':'2909',
-   'http://rod.eionet.eu.int/obligations/14':'2871',
-   'http://rod.eionet.eu.int/obligations/28':'2908',
+   'http://rod.eionet.eu.int/obligations/30':'3052',
+   'http://rod.eionet.eu.int/obligations/29':'3049',
+   'http://rod.eionet.eu.int/obligations/14':'3050',
+   'http://rod.eionet.eu.int/obligations/28':'3048',
    'http://rod.eionet.eu.int/obligations/21':'2943',
    'http://rod.eionet.eu.int/obligations/531':'2944',
    'http://rod.eionet.eu.int/obligations/532':'2944',
-   'http://rod.eionet.eu.int/obligations/632':'2917'}"
+   'http://rod.eionet.eu.int/obligations/632':'3053',
+   'http://rod.eionet.eu.int/obligations/630':'3051'}"
           dataset_schemas="['http://dd.eionet.europa.eu/GetSchema?id=DST' + dataset_ids.get(df,'') for df in dataflow_uris]">
 <dtml-call "REQUEST.SESSION.set('required_schema', dataset_schemas + DataflowMappings.getXMLSchemasForDataflows(dataflow_uris))">
 
@@ -24,8 +26,16 @@
 </dtml-in>
 
 
+<dtml-if "dataflow_uris == ['http://rod.eionet.eu.int/obligations/630']">
+<div class="note-msg">
+	<strong>WARNING!</strong>
+	<p>Please use this enevelope only for delivery of data on <em>Biology in Transitional and Coastal Waters</em>. Biological data in rivers and lakes should be reported together with water quality data in their respective envelopes.</p>
+</div>
+
+</dtml-if>
 <div class="upload_data">
 <a href="upload_dd_file" title="Upload delivery" class="test_button" style="display:block">Upload delivery</a>
+
 <p>
 	Use the right-side <em>Upload delivery</em> button to upload data for this obligation
 	using one of the following formats:
@@ -51,7 +61,7 @@
 	</li>
 
 	<li>
-		Delivery of data in the newly introduced 
+		Delivery of data in 
 <dtml-in "dstemplates.keys()" prefix=dt>
 	<a href="http://dd.eionet.europa.eu/GetMSAccess?dstID=<dtml-var dt_item>">MS Access format</a>
 </dtml-in>

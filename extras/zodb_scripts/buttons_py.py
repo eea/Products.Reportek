@@ -8,10 +8,9 @@
 ##title=Grey leftside buttons for services
 ##
 buttons = [
-('/searchfreetext', 'Search', 'Search freetext' ),
 ('/searchdataflow', 'Search', 'Search by obligation' ),
 ('/searchxml', 'Search', 'Search XML files' ),
-('/searchfeedbacks', 'Search', 'Search for feedback'),
+('/ReportekEngine/searchfeedbacks', 'Search', 'Search for feedback'),
 ('/ReportekEngine/globalworklist', "The envelopes that haven't been released yet", 'Global worklist'),
 ('ReportekEngine/subscriptions_html', 'Subscribe to receive notifications', 'Notifications' ),
 ('/help', 'Introduction to Reportnet Repository', 'Help' ),

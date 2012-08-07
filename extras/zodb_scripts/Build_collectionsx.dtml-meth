@@ -22,6 +22,8 @@
 <dtml-let countryup="loccodes[country_item]">
 <dtml-with "_.getitem(country_item)">
 <dtml-with "_.getitem('eu')">
+<dtml-with "_.getitem('msfd8910')">
+
 http://rod.eionet.eu.int/spatial/&dtml-countryup;<br>
 
 <dtml-call "manage_addProduct['Reportek'].manage_addCollection(ctitle,
@@ -31,6 +33,7 @@ http://rod.eionet.eu.int/spatial/&dtml-countryup;<br>
 obllist,
 allow_collections=0,allow_envelopes=1,id=cid)">
 
+</dtml-with>
 </dtml-with>
 </dtml-with>
 </dtml-let>

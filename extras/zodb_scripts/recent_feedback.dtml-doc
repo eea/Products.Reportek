@@ -45,7 +45,9 @@
 <dtml-in Catalog size=limit>
    <dtml-if sequence-start>
 
-(Results from <dtml-var limit> / <dtml-var sequence-length>&nbsp;envelope<dtml-if "_['sequence-length'] > 1">s</dtml-if>)</h2>
+
+
+(Results from <dtml-if "_.int(_['sequence-length']) > _.int(limit)"><dtml-var limit><dtml-else><dtml-var sequence-length></dtml-if> / <dtml-var sequence-length>&nbsp;envelope<dtml-if "_['sequence-length'] > 1">s</dtml-if>)</h2>
 
 <p>
  <em>
