@@ -41,8 +41,15 @@
 <dtml-if "document_id and document_id != 'xml'">
 <tr>
     <th scope="row" class="scope-row">Referred file:</th>
-    <dtml-let refered_doc="_.getattr(this(), document_id)">
-    <td><a href="<dtml-var "refered_doc.absolute_url()">/manage_document" title="View file details"><dtml-var document_id></a></td>
+    <dtml-let refered_doc="_.getattr(this(), document_id, None)">
+    <td>
+        <dtml-if refered_doc>
+            <a href="<dtml-var "refered_doc.absolute_url()">/manage_document" title="View file details"><dtml-var document_id></a>
+        <dtml-else>
+            <dtml-var document_id>
+            <span> (File was deleted from the envelope)</span>
+        </dtml-if>
+    </td>
     </dtml-let>
 </tr>
 </dtml-if>
