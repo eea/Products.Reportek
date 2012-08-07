@@ -76,7 +76,9 @@ def convert(doc, allow_missing):
         raise ValueError("Document %r already has a `data_file`." % doc)
     doc.data_file = FileContainer()
     fs_path = physicalpath(doc)
-    if not os.path.exists(fs_path):
+    if os.path.exists(fs_path):
+        old_f = open(fs_path, 'rb')
+    else:
         alternate_fs_path = fs_path + '.undo'
         if os.path.exists(alternate_fs_path):
             fs_path = alternate_fs_path
@@ -88,12 +90,13 @@ def convert(doc, allow_missing):
         else:
             raise ValueError("No data file found on filesystem: %r (+'.undo')",
                              fs_path)
-    with old_f:
-        with doc.data_file.open('wb') as new_f:
-            size = 0
-            for block in RepUtils.iter_file_data(old_f):
-                new_f.write(block)
-                size += len(block)
+    if old_f is not None:
+        size = 0
+        with old_f:
+            with doc.data_file.open('wb') as new_f:
+                for block in RepUtils.iter_file_data(old_f):
+                    new_f.write(block)
+                    size += len(block)
     log.debug("%d bytes copied", size)
     cleanup(doc)
     log.info("Converted %r", doc)
