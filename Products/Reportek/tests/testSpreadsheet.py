@@ -40,11 +40,18 @@ class SpreadsheetTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.assertEquals(0, len(self.envelope.objectIds('Report Document')))
         self.assertEquals(-1, res)
 
-    def x_test_convert_text(self):
+    @patch('Products.Reportek.EnvelopeCustomDataflows.invoke_conversion_service')
+    def x_test_convert_text(self, mock_invoke):
         """ Create a text document in the envelope and try to convert to XML
             This doesn't work, but the original file is uploaded
             Verify the content_type is text/plain
         """
+        mock_invoke.return_value = {
+            'conversionLog': '-- the log --',
+            'convertedFiles': [],
+            'resultCode': '2',
+            'resultDescription': 'whatever error',
+        }
         myfile = FileUploadMock('C:\\TEMP\\testfile.txt','content here')
         res = self.envelope.convert_excel_file(myfile)
         self.assertEquals(0, res)
