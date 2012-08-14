@@ -18,6 +18,7 @@
 
 <dtml-in "getSearchResults(
                     meta_type='Report Envelope',
+                    dataflow_uris=REQUEST.get('dataflow_uris'),
                     years=REQUEST.get('years'),
                     partofyear=REQUEST.get('partofyear'),
                     country=REQUEST.get('country',''),

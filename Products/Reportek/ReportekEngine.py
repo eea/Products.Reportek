@@ -185,11 +185,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     resultsfeedbacks = DTMLFile('dtml/engineResultsFeedbacks', globals())
 
     security.declareProtected(view_management_screens, 'recent')
-    recent_dtml = DTMLFile('dtml/engineRecentUploads', globals())
+    #recent_dtml = DTMLFile('dtml/engineRecentUploads', globals())
     recent = PageTemplateFile('zpt/engineRecentUploads', globals())
 
     security.declareProtected(view_management_screens, 'searchdataflow')
-    searchdataflow = DTMLFile('dtml/engineSearchByObligation', globals())
+    #searchdataflow_dtml = DTMLFile('dtml/engineSearchByObligation', globals())
+    searchdataflow = PageTemplateFile('zpt/engineSearchByObligation', globals())
 
     security.declareProtected(view_management_screens, 'resultsdataflow')
     resultsdataflow = DTMLFile('dtml/engineSearchByObligationResults', globals())
@@ -710,7 +711,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         catalog = self.Catalog(**kwargs)
         return catalog
 
-    security.declarePrivate('getUniqueValuesFor')
+    security.declareProtected('View', 'getUniqueValuesFor')
     def getUniqueValuesFor(self, value):
         return self.Catalog.uniqueValuesFor(value)
 
