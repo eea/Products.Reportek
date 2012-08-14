@@ -60,6 +60,9 @@
       </metal:block>
 
     </metal:block>
+    <p>
+        <input type="submit" value="Zip envelopes" />
+    </p>
     </form>
   </tal:block>
   <tal:block condition="python:not results">
