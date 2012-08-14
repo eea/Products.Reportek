@@ -1,0 +1,76 @@
+<tal:block content="structure here/standard_html_header" />
+<h1>Results of dataflow search</h1>
+<div tal:define="query_start python:request.get('query_start') or 0;
+                 dataflow_uris python:request.get('dataflow_uris');
+                 sort_on python:request.get('sort_on','reportingdate');
+                 sort_order python:request.get('sort_order', 'reverse');
+                 meta_type python:request.get('meta_type', 'Report Envelope');
+                 results python:context.getSearchResults(meta_type='Report Envelope',
+                                                         sort_on=sort_on,
+                                                         sort_order=sort_order);
+                 Batch python:modules['ZTUtils'].Batch;
+                 global batch python:Batch(results, 50, int(query_start), orphan=1)"
+     tal:replace="nothing" />
+<form action="ReportekEngine/zipEnvelopes" method="post" id="frmZip">
+<a href="nextbatch" tal:define="p batch/previous"
+                    tal:condition="p"
+                    tal:attributes="href string:?query_start=${p/first}">
+    (Previous <span tal:replace="p/length">n</span> results)
+</a>
+<table class="sortable">
+  <thead>
+    <tr>
+      <th tal:define="sort_on python:request.get('sort_on','reportingdate');
+                        sort_order python:request.get('sort_order', 'reverse');
+                        meta_type python:request.get('meta_type', 'Report Envelope')"
+          tal:replace="structure python:context.sortable_table((
+                        {'id': 'zip', 'title': '', 'sortable':0},
+                        {'id':'getCountryName','title':'Country','sortable':1},
+                        {'id':'title','title':'Title','sortable':0},
+                        {'id':'years','title':'Years','sortable':1},
+                        {'id':'dataflow_uris','title':'Obligation','sortable':1},
+                        {'id':'reportingdate','title':'Reported','sortable':1}), sort_on, sort_order)">
+      </th>
+   </tr>
+  </thead>
+  <tbody>
+      <tal:block repeat="result batch">
+      <tr tal:attributes="class python:'zebraeven' if not repeat['result'].index%2 else ''">
+        <tal:block define="obj python:result.getObject()">
+        <td>
+            <input type="checkbox" name="envelopes"
+                   tal:condition="python:obj.released"
+                   tal:attributes="value python:obj.absolute_url_path()"/>
+        </td>
+        <td tal:content="python:obj.getCountryName()">country_name</td>
+        <td>
+            <a tal:attributes="href python:obj.absolute_url_path()"
+               tal:content="python:obj.title">
+                title_link
+            </a>
+        </td>
+        <td style="white-space:nowrap"
+            tal:content="python: '%s-%s' %(obj.year, obj.endyear) if obj.endyear else obj.year">
+            year-endyear
+        </td>
+        <td>
+            <tal:block repeat="uri python:obj.dataflow_uris">
+                <tal:block content="python:context.dataflow_lookup(uri)['TITLE']">
+                    obligation
+                </tal:block>
+                <br/>
+            </tal:block>
+        </td>
+        <td tal:content="python:obj.reportingdate.strftime('%Y/%m/%d')">reportingdate</td>
+        </tal:block>
+    </tr>
+    </tal:block>
+  </tbody>
+</table>
+<a href="nextbatch" tal:define="n batch/next"
+                    tal:condition="n"
+                    tal:attributes="href string:?query_start=${batch/end}">
+     (Next <span tal:replace="n/length">n</span> results)
+</a>
+</form>
+<tal:block content="structure here/standard_html_footer" />
