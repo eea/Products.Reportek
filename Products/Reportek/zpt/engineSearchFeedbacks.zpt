@@ -1,0 +1,43 @@
+<tal:block content="structure here/standard_html_header" />
+<form action="resultsfeedbacks" method="get">
+<h1>Search Central Data Repository</h1>
+  <table class="formtable">
+    <col style="width:15%; white-space:nowrap"/>
+    <col style="width:85%"/>
+    <tr>
+        <td colspan="2"><label for="dataflows" class="question">Obligation</label></td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <metal:block metal:use-macro="here/macros/obligationsSelect"/>
+      </td>
+    </tr>
+    <tr>
+      <td><label for="startdate" class="question">From date</label></td>
+
+      <td>
+        <input type="text" id="startdate"
+               name="startdate:date:ignore_empty" size="10" value="" />
+      </td>
+    </tr>
+    <tr>
+      <td><label for="enddate" class="question">End date</label></td>
+      <td>
+        <input type="text" id="enddate" name="enddate:date:ignore_empty"
+               size="10" value="" />
+      </td>
+    </tr>
+    <tr>
+      <td><label for="country" class="question">Country</label></td>
+      <td>
+        <metal:block metal:use-macro="here/macros/countrySelect"/>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" align="center">
+        <metal:block metal:use-macro="here/macros/formInputFields"/>
+      </td>
+    </tr>
+  </table>
+</form>
+<tal:block content="structure here/standard_html_footer" />

@@ -182,29 +182,32 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     countryreporters = DTMLFile('dtml/engineCountryReporters', globals())
 
     security.declareProtected('View', 'searchfeedbacks')
-    searchfeedbacks = DTMLFile('dtml/engineSearchFeedbacks', globals())
+    #searchfeedbacks_dtml = DTMLFile('dtml/engineSearchFeedbacks', globals())
+    searchfeedbacks = PageTemplateFile('zpt/engineSearchFeedbacks', globals())
 
     security.declareProtected('View', 'resultsfeedbacks')
-    resultsfeedbacks = DTMLFile('dtml/engineResultsFeedbacks', globals())
+    #resultsfeedbacks_dtml = DTMLFile('dtml/engineResultsFeedbacks', globals())
+    resultsfeedbacks = PageTemplateFile('zpt/engineResultsFeedbacks', globals())
 
-    security.declareProtected(view_management_screens, 'recent')
+    security.declareProtected('View', 'recent')
     #recent_dtml = DTMLFile('dtml/engineRecentUploads', globals())
     recent = PageTemplateFile('zpt/engineRecentUploads', globals())
 
-    security.declareProtected(view_management_screens, 'searchdataflow')
+    security.declareProtected('View', 'searchdataflow')
     #searchdataflow_dtml = DTMLFile('dtml/engineSearchByObligation', globals())
     searchdataflow = PageTemplateFile('zpt/engineSearchByObligation', globals())
 
-    security.declareProtected(view_management_screens, 'resultsdataflow')
+    security.declareProtected('View', 'resultsdataflow')
     #resultsdataflow_dtml = DTMLFile('dtml/engineSearchByObligationResults', globals())
     resultsdataflow = PageTemplateFile('zpt/engineSearchByObligationResults', globals())
 
-    security.declareProtected(view_management_screens, 'searchxml')
+    security.declareProtected('View', 'searchxml')
     #searchxml_dtml = DTMLFile('dtml/engineSearchXml', globals())
     searchxml = PageTemplateFile('zpt/engineSearchXml', globals())
 
-    security.declareProtected(view_management_screens, 'resultsxml')
-    resultsxml = DTMLFile('dtml/engineResultsXml', globals())
+    security.declareProtected('View', 'resultsxml')
+    #resultsxml_dtml = DTMLFile('dtml/engineResultsXml', globals())
+    resultsxml = PageTemplateFile('zpt/engineResultsXml', globals())
 
     security.declareProtected('View', 'getCountriesList')
     def getCountriesList(self):

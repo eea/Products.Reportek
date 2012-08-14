@@ -1,0 +1,73 @@
+<tal:block content="structure here/standard_html_header" />
+<div id="operations">
+<ul>
+<li><a href="searchxml">Search XML files</a></li>
+</ul>
+</div>
+<h1>Results of feedback search</h1>
+<tal:block
+    define="query_start python:request.get('query_start') or 0;
+                 reportingdate python:{'range': 'min:max',
+                                       'query': [DateTime(request.get('startdate')),
+                                                 DateTime(request.get('enddate'))]
+                                       } if request.get('startdate') and request.get('enddate') else '';
+                 results python:context.getSearchResults(meta_type=request.get('meta_type', 'Report Document'),
+                                                         dataflow_uris=request.get('dataflow_uris'),
+                                                         reportingdate=reportingdate,
+                                                         country=request.get('country'),
+                                                         sort_on=request.get('sort_on','reportingdate'),
+                                                         sort_order=request.get('sort_order', 'reverse'));
+                 Batch python:modules['ZTUtils'].Batch;
+                 global batch python:Batch(results, 50, int(query_start),
+                 orphan=1)">
+    <tal:block condition="results">
+    <form action="ReportekEngine/zipEnvelopes" method="post" id="frmZip">
+
+    <metal:block use-macro="here/macros/resultsTable">
+
+      <metal:block fill-slot="resultsTableHead">
+          <tal:block content="structure python:context.sortable_table((
+                                  {'id':'getCountryName','title':'Country','sortable':1},
+                                  {'id':'title','title':'Title','sortable':0},
+                                  {'id':'years','title':'Years','sortable':1},
+                                  {'id':'dataflow_uris','title':'Obligation','sortable':1},
+                                  {'id':'reportingdate','title':'Released','sortable':1},
+                                  {'id':'responses','title':'Replies','sortable':0}),
+                                  sort_on=request.get('sort_on','reportingdate'),
+                                  sort_order=request.get('sort_order', 'reverse'))"/>
+      </metal:block>
+
+      <metal:block fill-slot="resultsTableRowFormat">
+        <td tal:content="python:obj.getCountryName()">country_name</td>
+        <td>
+            <a tal:attributes="href python:obj.absolute_url_path()"
+               tal:content="python:obj.title or obj.id">
+                title_link
+            </a>
+        </td>
+        <td style="white-space:nowrap"
+            tal:content="python: '%s-%s' %(obj.year, obj.endyear) if obj.endyear else obj.year">
+            year-endyear
+        </td>
+        <td>
+            <tal:block repeat="uri python:obj.dataflow_uris">
+                <tal:block content="python:context.dataflow_lookup(uri)['TITLE']">
+                    obligation
+                </tal:block>
+                <br/>
+            </tal:block>
+        </td>
+        <td tal:content="python:obj.reportingdate.strftime('%Y/%m/%d')">reportingdate</td>
+        <td class="number" tal:content="python:len(obj.objectIds('Report Feedback Comment'))">
+        </td>
+      </metal:block>
+
+    </metal:block>
+
+    </form>
+    </tal:block>
+    <tal:block condition="python:not results">
+          There was no data matching this query.
+    </tal:block>
+</tal:block>
+<tal:block content="structure here/standard_html_footer" />

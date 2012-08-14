@@ -10,7 +10,7 @@
       <tal:block
           define="flip python:repeat['value'].start or
                   value['SOURCE_TITLE']!=values[repeat['value'].index-1]['SOURCE_TITLE'];
-                  source_title python:value['SOURCE_TITLE'][:75] + ' ...' if len(value['SOURCE_TITLE'])>75
+                  source_title python:value['SOURCE_TITLE'][:60] + ' ...' if len(value['SOURCE_TITLE'])>60
                                                                           else value['SOURCE_TITLE']">
           <tal:block condition="python:flip and not repeat['value'].start"
                      content="structure string:</optgroup>" />
@@ -74,4 +74,37 @@
   <input type="hidden" name="sort_order" value="reverse"/>
   <input type="submit" value="Submit Query" />
   <input type="reset" value="Reset fields" />
+</metal:block>
+
+
+<metal:block define-macro="resultsTable">
+
+<a href="nextbatch" tal:define="p batch/previous"
+                    tal:condition="p"
+                    tal:attributes="href string:?query_start=${p/first}">
+    (Previous <span tal:replace="p/length">n</span> results)
+</a>
+
+<table class="sortable">
+  <thead>
+    <tr>
+        <metal:block define-slot="resultsTableHead"/>
+    </tr>
+  </thead>
+  <tbody>
+      <tal:block repeat="result batch">
+      <tr tal:attributes="class python:'zebraeven' if not repeat['result'].index%2 else ''">
+        <tal:block define="obj python:result.getObject()">
+          <metal:block define-slot="resultsTableRowFormat"/>
+        </tal:block>
+      </tr>
+    </tal:block>
+  </tbody>
+</table>
+
+<a href="nextbatch" tal:define="n batch/next"
+                    tal:condition="n"
+                    tal:attributes="href string:?query_start=${batch/end}">
+     (Next <span tal:replace="n/length">n</span> results)
+</a>
 </metal:block>

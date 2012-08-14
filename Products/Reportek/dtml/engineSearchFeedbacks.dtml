@@ -13,19 +13,18 @@
 <dtml-call "REQUEST.set('currentsource','')">
 <dtml-let u="getUniqueValuesFor('dataflow_uris')">
 <dtml-in dataflow_table mapping sort=SOURCE_TITLE,TITLE>
-<dtml-if "uri in u">
-<dtml-if "currentsource != SOURCE_TITLE">
-<dtml-if "currentsource != ''">
-</optgroup>
-</dtml-if>
-<dtml-call "REQUEST.set('currentsource',SOURCE_TITLE)">
-<optgroup label="<dtml-var currentsource html_quote size=60>">
-</dtml-if>
-<option value="<dtml-var uri html_quote>"
- label="<dtml-var TITLE html_quote size=80>"
-<dtml-if "_.has_key('terminated') and terminated == '1'">class="terminated"</dtml-if>
->[<dtml-var "_.string.join(_.string.split(SOURCE_TITLE)[0:2])" html_quote>] <dtml-var TITLE html_quote size=80></option>
-</dtml-if>
+    <dtml-if "uri in u">
+        <dtml-if "currentsource != SOURCE_TITLE">
+            <dtml-if "currentsource != ''">
+                </optgroup>
+            </dtml-if>
+            <dtml-call "REQUEST.set('currentsource',SOURCE_TITLE)">
+            <optgroup label="<dtml-var currentsource html_quote size=60>">
+        </dtml-if>
+        <option value="<dtml-var uri html_quote>" label="<dtml-var TITLE html_quote size=80>"
+        <dtml-if "_.has_key('terminated') and terminated == '1'">class="terminated"</dtml-if>
+        >[<dtml-var "'haha'" html_quote>] <dtml-var TITLE html_quote size=80></option>
+    </dtml-if>
 </dtml-in>
 </dtml-let>
  </optgroup>
