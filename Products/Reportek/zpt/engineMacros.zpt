@@ -11,7 +11,8 @@
           define="flip python:repeat['value'].start or
                   value['SOURCE_TITLE']!=values[repeat['value'].index-1]['SOURCE_TITLE'];
                   source_title python:value['SOURCE_TITLE'][:60] + ' ...' if len(value['SOURCE_TITLE'])>60
-                                                                          else value['SOURCE_TITLE']">
+                  else value['SOURCE_TITLE']"
+          condition="python: value.get('uri') in u">
           <tal:block condition="python:flip and not repeat['value'].start"
                      content="structure string:</optgroup>" />
           <tal:block condition="flip"
