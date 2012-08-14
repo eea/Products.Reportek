@@ -1,0 +1,38 @@
+<tal:block content="structure here/standard_html_header" />
+<form action="resultsxml" method="get">
+  <h1>Search CDR for XML files</h1>
+  <table class="formtable">
+    <col style="width:15%; white-space:nowrap"/>
+    <col style="width:85%"/>
+    <tr>
+      <td><label for="xml_schema_location" class="question required">Schema</label></td>
+      <td>
+          <metal:block metal:use-macro="here/macros/xmlSchemaSelect"/>
+      </td>
+    </tr>
+    <tr>
+      <td><label for="years" class="question">Year</label></td>
+      <td>
+        <input type="text" id="years" name="years:int:ignore_empty" size="4" maxlength="4" value="" />
+      </td>
+    </tr>
+    <tr>
+      <td><label for="partofyear" class="question">Part of year</label></td>
+      <td>
+          <metal:block metal:use-macro="here/macros/partOfYearSelect"/>
+      </td>
+    </tr>
+    <tr>
+      <td><label for="country" class="question">Country</label></td>
+      <td>
+          <metal:block metal:use-macro="here/macros/countrySelect"/>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" align="center">
+          <metal:block metal:use-macro="here/macros/formInputFields"/>
+      </td>
+    </tr>
+  </table>
+</form>
+<tal:block content="structure here/standard_html_footer" />

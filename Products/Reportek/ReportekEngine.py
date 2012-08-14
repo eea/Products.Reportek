@@ -200,7 +200,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     resultsdataflow = PageTemplateFile('zpt/engineSearchByObligationResults', globals())
 
     security.declareProtected(view_management_screens, 'searchxml')
-    searchxml_dtml = DTMLFile('dtml/engineSearchXml', globals())
+    #searchxml_dtml = DTMLFile('dtml/engineSearchXml', globals())
     searchxml = PageTemplateFile('zpt/engineSearchXml', globals())
 
     security.declareProtected(view_management_screens, 'resultsxml')
