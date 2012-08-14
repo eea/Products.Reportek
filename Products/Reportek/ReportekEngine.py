@@ -185,7 +185,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     resultsfeedbacks = DTMLFile('dtml/engineResultsFeedbacks', globals())
 
     security.declareProtected(view_management_screens, 'recent')
-    recent = DTMLFile('dtml/engineRecentUploads', globals())
+    recent_dtml = DTMLFile('dtml/engineRecentUploads', globals())
+    recent = PageTemplateFile('zpt/engineRecentUploads', globals())
 
     security.declareProtected(view_management_screens, 'searchdataflow')
     searchdataflow = DTMLFile('dtml/engineSearchByObligation', globals())
@@ -703,7 +704,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """ Generate exception to check that it's handled properly """
         raise ValueError('hello world')
 
-    security.declarePrivate('getSearchResults')
+    security.declareProtected('View', 'getSearchResults')
     def getSearchResults(self, **kwargs):
         [kwargs.pop(el) for el in kwargs.keys() if not kwargs[el]]
         catalog = self.Catalog(**kwargs)
