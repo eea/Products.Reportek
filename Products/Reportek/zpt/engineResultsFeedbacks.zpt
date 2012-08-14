@@ -11,10 +11,12 @@
                                        'query': [DateTime(request.get('startdate')),
                                                  DateTime(request.get('enddate'))]
                                        } if request.get('startdate') and request.get('enddate') else '';
-                 results python:context.getSearchResults(meta_type=request.get('meta_type', 'Report Document'),
+                 results python:context.getSearchResults(meta_type=request.get('meta_type', 'Report Feedback'),
                                                          dataflow_uris=request.get('dataflow_uris'),
                                                          reportingdate=reportingdate,
                                                          country=request.get('country'),
+                                                         id={'range': 'min:max',
+                                                             'query': ['feedback0', 'feedback9']},
                                                          sort_on=request.get('sort_on','reportingdate'),
                                                          sort_order=request.get('sort_order', 'reverse'));
                  Batch python:modules['ZTUtils'].Batch;
@@ -40,7 +42,8 @@
           <metal:block fill-slot="resultsTableRowFormat">
             <td tal:content="python:obj.getCountryName()">country_name</td>
             <td>
-                <a tal:attributes="href python:obj.absolute_url_path()"
+                <a tal:attributes="href python:obj.absolute_url_path();
+                                   class python:'link-comment' if not obj.automatic else ''"
                    tal:content="python:obj.title or obj.id">
                     title_link
                 </a>
