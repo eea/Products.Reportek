@@ -5,7 +5,7 @@
 </ul>
 </div>
 <h1>Results from XML search</h1>
-<div tal:define="query_start python:request.get('query_start') or 0;
+<tal:block define="query_start python:request.get('query_start') or 0;
                  results python:context.getSearchResults(meta_type=request.get('meta_type', 'Report Document'),
                                                          xml_schema_location=request.get('xml_schema_location'),
                                                          years=request.get('years'),
@@ -14,44 +14,50 @@
                                                          sort_on=request.get('sort_on','reportingdate'),
                                                          sort_order=request.get('sort_order', 'reverse'));
                  Batch python:modules['ZTUtils'].Batch;
-                 global batch python:Batch(results, 50, int(query_start), orphan=1)"
-     tal:replace="nothing" />
-<form action="ReportekEngine/zipEnvelopes" method="post" id="frmZip">
+                 global batch python:Batch(results, 50, int(query_start), orphan=1)">
 
-<metal:block use-macro="here/macros/resultsTable">
+  <tal:block condition="results">
+    <form action="ReportekEngine/zipEnvelopes" method="post" id="frmZip">
 
-  <metal:block fill-slot="resultsTableHead">
-      <tal:block content="structure python:context.sortable_table((
-                              {'id':'getCountryName','title':'Country','sortable':1},
-                              {'id':'title','title':'Title','sortable':0},
-                              {'id':'years','title':'Years','sortable':1},
-                              {'id':'xml_schema_location','title':'Schema','sortable':1},
-                              {'id':'reportingdate','title':'Reported','sortable':1}),
-                              sort_on=request.get('sort_on','reportingdate'),
-                              sort_order=request.get('sort_order', 'reverse'))"/>
-  </metal:block>
+    <metal:block use-macro="here/macros/resultsTable">
 
-  <metal:block fill-slot="resultsTableRowFormat">
-    <td tal:content="python:obj.getCountryName()">country_name</td>
-    <td>
-        <a tal:attributes="href python:obj.absolute_url_path()"
-           tal:content="python:obj.title or obj.id">
-            title_link
-        </a>
-    </td>
-    <td style="white-space:nowrap"
-        tal:content="python: '%s-%s' %(obj.year, obj.endyear) if obj.endyear else obj.year">
-        year-endyear
-    </td>
-    <td>
-        <tal:block content="python:obj.xml_schema_location">
-            schema
-        </tal:block>
-    </td>
-    <td tal:content="python:obj.reportingdate.strftime('%Y/%m/%d')">reportingdate</td>
-  </metal:block>
+      <metal:block fill-slot="resultsTableHead">
+          <tal:block content="structure python:context.sortable_table((
+                                  {'id':'getCountryName','title':'Country','sortable':1},
+                                  {'id':'title','title':'Title','sortable':0},
+                                  {'id':'years','title':'Years','sortable':1},
+                                  {'id':'xml_schema_location','title':'Schema','sortable':1},
+                                  {'id':'reportingdate','title':'Reported','sortable':1}),
+                                  sort_on=request.get('sort_on','reportingdate'),
+                                  sort_order=request.get('sort_order', 'reverse'))"/>
+      </metal:block>
 
-</metal:block>
+      <metal:block fill-slot="resultsTableRowFormat">
+        <td tal:content="python:obj.getCountryName()">country_name</td>
+        <td>
+            <a tal:attributes="href python:obj.absolute_url_path()"
+               tal:content="python:obj.title or obj.id">
+                title_link
+            </a>
+        </td>
+        <td style="white-space:nowrap"
+            tal:content="python: '%s-%s' %(obj.year, obj.endyear) if obj.endyear else obj.year">
+            year-endyear
+        </td>
+        <td>
+            <tal:block content="python:obj.xml_schema_location">
+                schema
+            </tal:block>
+        </td>
+        <td tal:content="python:obj.reportingdate.strftime('%Y/%m/%d')">reportingdate</td>
+      </metal:block>
 
-</form>
+    </metal:block>
+
+    </form>
+  </tal:block>
+  <tal:block condition="python:not results">
+        There was no data matching this query.
+  </tal:block>
+</tal:block>
 <tal:block content="structure here/standard_html_footer" />
