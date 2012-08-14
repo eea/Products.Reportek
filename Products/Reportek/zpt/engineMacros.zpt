@@ -1,0 +1,77 @@
+<metal:block define-macro="obligationsSelect">
+  <select size="15" id="dataflows" name="dataflow_uris"
+          tal:define="u python:context.getUniqueValuesFor('dataflow_uris');
+                      sort_by python:(('SOURCE_TITLE', 'nocase', 'asc'),
+                                      ('TITLE', 'nocase', 'asc'));
+                      currentsource string:'';
+                      values python:context.dataflow_table();
+                      dummy python:values.sort(key=lambda k: (k['SOURCE_TITLE'], k['TITLE']));">
+    <tal:block repeat="value values">
+      <tal:block
+          define="flip python:repeat['value'].start or
+                  value['SOURCE_TITLE']!=values[repeat['value'].index-1]['SOURCE_TITLE'];
+                  source_title python:value['SOURCE_TITLE'][:75] + ' ...' if len(value['SOURCE_TITLE'])>75
+                                                                          else value['SOURCE_TITLE']">
+          <tal:block condition="python:flip and not repeat['value'].start"
+                     content="structure string:</optgroup>" />
+          <tal:block condition="flip"
+                     content='structure string:<optgroup label="${source_title}">'/>
+          <option tal:attributes="value value/uri;
+                                  label python:value['TITLE'][:75] + ' ...' if len(value['TITLE'])>75
+                                                                               else value['TITLE'];
+                                  class python: 'terminated' if value.get('terminated') else ''"/>
+          </tal:block>
+    </tal:block>
+    <tal:block content="structure string:</optgroup>" />
+  </select>
+</metal:block>
+
+
+<metal:block define-macro="xmlSchemaSelect">
+    <select
+      size="15" id="xml_schema_location" name="xml_schema_location"
+      tal:define="values python:context.getUniqueValuesFor('xml_schema_location');">
+      <tal:block repeat="value values">
+        <option tal:attributes="value value;" tal:content="value"/>
+      </tal:block>
+    </select>
+</metal:block>
+
+
+<metal:block define-macro="partOfYearSelect">
+  <select id="partofyear" name="partofyear">
+    <option value="">Any part of year</option>
+    <option tal:define="options python:('Whole Year', 'First Half',
+                                        'Second Half', 'First Quarter',
+                                        'Second Quarter', 'Third Quarter',
+                                        'Fourth Quarter', 'January',
+                                        'February', 'March', 'April', 'May', 'June',
+                                        'July','August','September','October','November','December')"
+            tal:repeat="value options"
+            tal:attributes="value value"
+            tal:content="value">
+        part_of_year
+    </option>
+  </select>
+</metal:block>
+
+
+<metal:block define-macro="countrySelect">
+  <select id="country" name="country">
+    <option></option>
+    <option tal:define="values python:context.localities_table"
+            tal:repeat="value values"
+            tal:attributes="value value/uri"
+            tal:content="value/name" >
+        country
+    </option>
+  </select>
+</metal:block>
+
+
+<metal:block define-macro="formInputFields">
+  <input type="hidden" name="sort_on" value="reportingdate"/>
+  <input type="hidden" name="sort_order" value="reverse"/>
+  <input type="submit" value="Submit Query" />
+  <input type="reset" value="Reset fields" />
+</metal:block>

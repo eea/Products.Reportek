@@ -172,6 +172,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 obj.manage_delLocalRoles(owners)    #delete the old owner
                 obj.manage_setLocalRoles(wrapped_user.getId(),['Owner',])   #set local role to the new user
 
+    security.declareProtected('View', 'search_template')
+    macros = PageTemplateFile('zpt/engineMacros', globals()).macros
+
     security.declareProtected('View', 'globalworklist')
     globalworklist = PageTemplateFile('zpt/engineGlobalWorklist', globals())
 
@@ -197,7 +200,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     resultsdataflow = PageTemplateFile('zpt/engineSearchByObligationResults', globals())
 
     security.declareProtected(view_management_screens, 'searchxml')
-    searchxml = DTMLFile('dtml/engineSearchXml', globals())
+    searchxml_dtml = DTMLFile('dtml/engineSearchXml', globals())
+    searchxml = PageTemplateFile('zpt/engineSearchXml', globals())
 
     security.declareProtected(view_management_screens, 'resultsxml')
     resultsxml = DTMLFile('dtml/engineResultsXml', globals())

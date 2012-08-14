@@ -6,6 +6,10 @@
                  sort_order python:request.get('sort_order', 'reverse');
                  meta_type python:request.get('meta_type', 'Report Envelope');
                  results python:context.getSearchResults(meta_type='Report Envelope',
+                                                         dataflow_uris=request.get('dataflow_uris'),
+                                                         years=request.get('years'),
+                                                         partofyear=request.get('partofyear'),
+                                                         country=request.get('country'),
                                                          sort_on=sort_on,
                                                          sort_order=sort_order);
                  Batch python:modules['ZTUtils'].Batch;
@@ -21,8 +25,8 @@
   <thead>
     <tr>
       <th tal:define="sort_on python:request.get('sort_on','reportingdate');
-                        sort_order python:request.get('sort_order', 'reverse');
-                        meta_type python:request.get('meta_type', 'Report Envelope')"
+                      sort_order python:request.get('sort_order', 'reverse');
+                      meta_type python:request.get('meta_type', 'Report Envelope')"
           tal:replace="structure python:context.sortable_table((
                         {'id': 'zip', 'title': '', 'sortable':0},
                         {'id':'getCountryName','title':'Country','sortable':1},

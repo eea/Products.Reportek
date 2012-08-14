@@ -1,86 +1,38 @@
 <tal:block content="structure here/standard_html_header" />
 <form action="resultsdataflow" method="get">
-<h1>Search the Central Data Repository</h1>
-<table class="formtable">
-  <col style="width:15%; white-space:nowrap"/>
-  <col style="width:85%"/>
-  <tr>
-    <td colspan="2"><label for="dataflows" class="question">Obligation</label></td>
-  </tr>
-  <tr>
-    <td colspan="2">
-          <select size="15" id="dataflows" name="dataflow_uris"
-                  tal:define="u python:context.getUniqueValuesFor('dataflow_uris');
-                                sort_by python:(('SOURCE_TITLE', 'nocase', 'asc'),
-                                                ('TITLE', 'nocase', 'asc'));
-                                currentsource string:'';
-                                values python:context.dataflow_table();
-                                dummy python:values.sort(key=lambda k: (k['SOURCE_TITLE'], k['TITLE']));">
-                  <tal:block repeat="value values">
-                      <tal:block
-                          define="flip python:repeat['value'].start or
-                                  value['SOURCE_TITLE']!=values[repeat['value'].index-1]['SOURCE_TITLE'];
-                                  source_title python:value['SOURCE_TITLE'][:75] + ' ...' if len(value['SOURCE_TITLE'])>75
-                                                                                          else value['SOURCE_TITLE']">
-                          <tal:block condition="python:flip and not repeat['value'].start"
-                                     content="structure string:</optgroup>" />
-                          <tal:block condition="flip"
-                                     content='structure string:<optgroup label="${source_title}">'/>
-                          <option tal:attributes="value value/uri;
-                                                  label python:value['TITLE'][:75] + ' ...' if len(value['TITLE'])>75
-                                                                                               else value['TITLE'];
-                                                  class python: 'terminated' if value.get('terminated') else ''"/>
-                      </tal:block>
-                  </tal:block>
-                  <tal:block content="structure string:</optgroup>" />
-          </select>
-    </td>
-  </tr>
-  <tr>
-    <td><label for="years" class="question">Year</label></td>
-    <td><input type="text" id="years" name="years:int:ignore_empty" size="4" maxlength="4" value="" /></td>
-  </tr>
-  <tr>
-    <td><label for="partofyear" class="question">Part of year</label></td>
-    <td>
-      <select id="partofyear" name="partofyear">
-        <option value="">Any part of year</option>
-        <option tal:define="options python:('Whole Year', 'First Half',
-                                            'Second Half', 'First Quarter',
-                                            'Second Quarter', 'Third Quarter',
-                                            'Fourth Quarter', 'January',
-                                            'February', 'March', 'April', 'May', 'June',
-                                            'July','August','September','October','November','December')"
-                tal:repeat="value options"
-                tal:attributes="value value"
-                tal:content="value">
-            part_of_year
-        </option>
-      </select>
-    </td>
-  </tr>
-  <tr>
-    <td><label for="country" class="question">Country</label></td>
-    <td>
-      <select id="country" name="country">
-        <option></option>
-        <option tal:define="values python:context.localities_table"
-                tal:repeat="value values"
-                tal:attributes="value value/uri"
-                tal:content="value/name" >
-            country
-        </option>
-      </select>
-    </td>
-  </tr>
-  <tr>
-    <td colspan="2" align="center">
-        <input type="hidden" name="sort_on" value="reportingdate"/>
-        <input type="hidden" name="sort_order" value="reverse"/>
-        <input type="submit" value="Submit Query" />
-        <input type="reset" value="Reset fields" />
-    </td>
-  </tr>
-</table>
+<h1>Search Central Data Repository</h1>
+  <table class="formtable">
+    <col style="width:15%; white-space:nowrap"/>
+    <col style="width:85%"/>
+    <tr>
+        <td colspan="2"><label for="dataflows" class="question">Obligation</label></td>
+    </tr>
+    <tr>
+      <td colspan="2">
+        <metal:block metal:use-macro="here/macros/obligationsSelect"/>
+      </td>
+    </tr>
+    <tr>
+      <td><label for="years" class="question">Year</label></td>
+      <td><input type="text" id="years" name="years:int:ignore_empty" size="4" maxlength="4" value="" /></td>
+    </tr>
+    <tr>
+      <td><label for="partofyear" class="question">Part of year</label></td>
+      <td>
+        <metal:block metal:use-macro="here/macros/partOfYearSelect"/>
+      </td>
+    </tr>
+    <tr>
+      <td><label for="country" class="question">Country</label></td>
+      <td>
+        <metal:block metal:use-macro="here/macros/countrySelect"/>
+      </td>
+    </tr>
+    <tr>
+      <td colspan="2" align="center">
+        <metal:block metal:use-macro="here/macros/formInputFields"/>
+      </td>
+    </tr>
+  </table>
 </form>
 <tal:block content="structure here/standard_html_footer" />
