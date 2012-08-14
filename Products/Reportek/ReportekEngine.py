@@ -172,7 +172,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 obj.manage_delLocalRoles(owners)    #delete the old owner
                 obj.manage_setLocalRoles(wrapped_user.getId(),['Owner',])   #set local role to the new user
 
-    security.declareProtected('View', 'search_template')
+    security.declareProtected('View', 'macros')
     macros = PageTemplateFile('zpt/engineMacros', globals()).macros
 
     security.declareProtected('View', 'globalworklist')
