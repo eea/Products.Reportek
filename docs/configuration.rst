@@ -1,24 +1,22 @@
 Configuration
 =============
 
-Error emails
-------------
-Reportek can send alert emails to administrators when an error occurs.
-It uses the Zope2 SiteErrorLog mechanism, so if an exception is ignored
-in ``error_log``, then no alert is sent.
-
-* Make sure `Copy exceptions to the event log` is enabled in the
-  top-level ``error_log`` object.
-
-* Set up an SMTP server and list of administrator emails, either in
-  `zope.conf` or, as shown below, in `buildout.cfg`::
+Error monitoring
+----------------
+Reportek can send error events to Sentry_. For this, a ``DSN`` needs to
+be configured in the environment::
 
     [zope-instance]
     recipe = plone.recipe.zope2instance
-    #....
+    # ...
+    eggs =
+        # ... required eggs ...
+        raven
     environment-vars =
-        REPORTEK_ERROR_MAIL_TO admin@example.com
-        REPORTEK_ERROR_SMTP_HOST smtp.example.com
+        # ... other environment vars ...
+        REPORTEK_ERROR_SENTRY_URL <THE_DSN>
+
+.. _sentry: http://sentry.readthedocs.org/
 
 
 Cron jobs
