@@ -126,7 +126,7 @@
                     <th><span>Last Name</span></th>
                     <th><span>Email</span></th>
                 </tr>
-            <tal:block repeat="reporter reporters_list">
+            <tal:block define="dummy python:reporters_list.sort()" repeat="reporter reporters_list">
                 <tal:block define="user_dn python:context.getLDAPUser(reporter)">
                 <tr>
                     <td tal:content="reporter">reporter</td>
