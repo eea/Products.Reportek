@@ -90,6 +90,13 @@ class ReportekEngineTest(_BaseTest):
         except (AttributeError, IOError) as err:
             self.fail(err)
 
+    def test_countryreporters_on_disk(self):
+        try:
+            dtml = ReportekEngine.countryreporters
+            dtml.read()
+        except (AttributeError, IOError) as err:
+            self.fail(err)
+
     def test_getUniqueValuesFor(self):
         from Products.Reportek.Envelope import Envelope
         engine = create_reportek_engine(self.root)

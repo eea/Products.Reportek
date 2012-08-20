@@ -1,0 +1,42 @@
+<tal:block content="structure here/standard_html_header" />
+
+<tal:block define="countries_list python:context.getCountriesList();
+                   p_country python:request.get('country', 'all')">
+  <div id="operations">
+    <ul>
+      <li><a href="/">Frontpage</a></li>
+    </ul>
+  </div>
+  <h1>Reporters by country</h1>
+
+  <p>This page lists the users that have the local role of <em>'Reporter'</em> in each country.</p>
+
+  <form action="./countryreporters" method="GET" name="frmCountryReporters">
+    <label for="country">Select country:</label>
+    <select name="country" id="country">
+        <option value="all"
+                tal:attributes="selected python:'selected' if p_country=='all' else ''">
+            All
+        </option>
+        <option tal:repeat="country countries_list"
+                tal:attributes="value python:country.title or country.id;
+                                selected python:'selected' if p_country==country.title or
+                                                              p_country==country.id
+                                                           else ''"
+                tal:content="python:country.title or country.id">
+        </option>
+    </select>
+    <input type="submit" value="Sort" />
+  </form>
+  <br />
+
+  <tal:block repeat="country countries_list" condition="python:p_country=='all'">
+        <metal:block metal:use-macro="here/macros/countryReporters"/>
+  </tal:block>
+  <tal:block condition="python:p_country!='all'"
+             define="country python:container.getCountryByTitle(p_country)">
+        <metal:block metal:use-macro="here/macros/countryReporters"/>
+  </tal:block>
+</tal:block>
+
+<tal:block content="structure here/standard_html_footer" />

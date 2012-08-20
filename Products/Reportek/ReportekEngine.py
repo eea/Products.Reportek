@@ -179,7 +179,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     globalworklist = PageTemplateFile('zpt/engineGlobalWorklist', globals())
 
     security.declareProtected(view_management_screens, 'countryreporters')
-    countryreporters = DTMLFile('dtml/engineCountryReporters', globals())
+    countryreporters = PageTemplateFile('zpt/engineCountryReporters', globals())
 
     security.declareProtected('View', 'searchfeedbacks')
     searchfeedbacks = PageTemplateFile('zpt/engineSearchFeedbacks', globals())
