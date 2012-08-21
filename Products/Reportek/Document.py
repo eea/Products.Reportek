@@ -369,10 +369,15 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     # Management Interface
     manage_main = DTMLFile('dtml/documentEdit', globals())
 
-    def manage_editDocument(self, title='', content_type='application/octet-stream', xml_schema_location='', applyRestriction='', restricted='', REQUEST=None):
+    def manage_editDocument(self, title='',
+                            content_type=None, xml_schema_location=None,
+                            applyRestriction='', restricted='',
+                            REQUEST=None):
         """ Manage the edited values """
-        self.content_type = content_type
-        self.xml_schema_location = xml_schema_location
+        if content_type is not None:
+            self.content_type = content_type
+        if xml_schema_location is not None:
+            self.xml_schema_location = xml_schema_location
         if self.title!=title:
             self.title = title
         if applyRestriction:
