@@ -58,7 +58,8 @@ def physicalpath(doc):
 _attrib_to_remove = ['filename', 'file_uploaded', '_upload_time', '__version__']
 def cleanup(doc):
     for name in _attrib_to_remove:
-        delattr(doc.aq_base, name)
+        if hasattr(doc.aq_base, name):
+            delattr(doc.aq_base, name)
 
 
 def is_updated(doc):
