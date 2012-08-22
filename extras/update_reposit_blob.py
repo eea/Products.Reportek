@@ -129,7 +129,7 @@ def convert_all(parent, limit=None, skip=0,
             out['broken_documents'].append(ofs_path(doc))
         else:
             out['copied_paths'].append(fs_path)
-            total_bytes += 1
+            total_bytes += size
     msg = ("{path} Migrate documents to blob "
            "({objects} items, {bytes} bytes)").format(
                 path=ofs_path(parent),
