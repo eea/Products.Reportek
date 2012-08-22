@@ -100,7 +100,7 @@ def convert(doc, allow_missing):
     log.debug("%d bytes copied", size)
     cleanup(doc)
     log.info("Converted %r", doc)
-    return fs_path
+    return fs_path, size
 
 
 def ofs_path(ob):
@@ -110,6 +110,7 @@ def ofs_path(ob):
 def convert_all(parent, limit=None, skip=0,
                 allow_missing=False, warnings=True, report=True):
     out = defaultdict(list)
+    total_bytes = 0
     for i, doc in enumerate(iter_documents(parent)):
         if i < skip:
             continue
@@ -120,7 +121,7 @@ def convert_all(parent, limit=None, skip=0,
             continue
         sp = transaction.savepoint()
         try:
-            fs_path = convert(doc, allow_missing=allow_missing)
+            fs_path, size = convert(doc, allow_missing=allow_missing)
         except Exception, e:
             sp.rollback()
             if warnings:
@@ -128,5 +129,12 @@ def convert_all(parent, limit=None, skip=0,
             out['broken_documents'].append(ofs_path(doc))
         else:
             out['copied_paths'].append(fs_path)
+            total_bytes += 1
+    msg = ("{path} Migrate documents to blob "
+           "({objects} items, {bytes} bytes)").format(
+                path=ofs_path(parent),
+                objects=len(out['copied_paths']),
+                bytes=total_bytes)
+    transaction.get().note(msg)
     if report:
-        return dict(out)
+        return dict(out, total_bytes=total_bytes)
