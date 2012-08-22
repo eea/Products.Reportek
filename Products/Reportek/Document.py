@@ -190,7 +190,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
             It was used in Article 17 - 2007.
         """
-        if self.accept_time:
+        if getattr(self, 'accept_time', None):
             return DateTime(self.accept_time)
         return None
 
