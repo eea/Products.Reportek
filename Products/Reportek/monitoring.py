@@ -14,6 +14,9 @@ ignored_types = [
 publish_error_log = logging.getLogger(__name__)
 publish_error_log.propagate = False
 
+remote_feedback_log = logging.getLogger('Products.Reportek'
+                                        '.RemoteApplication.feedback')
+
 
 def log_pub_failure(event):
     if event.retry:
@@ -37,3 +40,4 @@ def initialize():
         from raven.handlers.logging import SentryHandler
         sentry_handler = SentryHandler(sentry_url)
         publish_error_log.addHandler(sentry_handler)
+        remote_feedback_log.addHandler(sentry_handler)

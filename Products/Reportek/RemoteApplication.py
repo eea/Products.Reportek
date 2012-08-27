@@ -22,6 +22,7 @@
 ##
 
 import tempfile
+import logging
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from OFS.SimpleItem import SimpleItem
 from Globals import DTMLFile, InitializeClass
@@ -32,6 +33,8 @@ import xmlrpclib
 import string
 from Products.PythonScripts.standard import html_quote
 
+
+feedback_log = logging.getLogger(__name__ + '.feedback')
 
 FEEDBACKTEXT_LIMIT = 1024 * 8 # 8KB
 
@@ -358,6 +361,8 @@ class RemoteApplication(SimpleItem):
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_getResult=l_getResultDict)
         # Fatal error - do not retry
         except Exception, err:
+            feedback_log.exception("Error saving remote feedback, job #%s",
+                                   p_jobID)
             l_workitem.addEvent('Error in the %s, job #%s for file %s: %s' % (self.app_name, p_jobID, l_file_id, str(err)))
             l_getResultDict = {p_jobID: {'code':-2, 'last_error':str(err)}}
             self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_getResult=l_getResultDict)
