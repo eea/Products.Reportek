@@ -328,7 +328,7 @@ class RemoteApplication(SimpleItem):
 
                 if len(content) > FEEDBACKTEXT_LIMIT:
                     with tempfile.TemporaryFile() as tmp:
-                        tmp.write(content)
+                        tmp.write(content.encode('utf-8'))
                         tmp.seek(0)
                         feedback_ob.manage_uploadFeedback(tmp, filename='qa-output')
                     feedback_attach = feedback_ob.objectValues()[0]

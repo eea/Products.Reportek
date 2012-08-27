@@ -161,8 +161,8 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
         self.remoteapp._RemoteApplication__getResult4XQueryServiceJob(
             'the_workitem', 'the_jobid')
 
-    def test_24bytes_feedback_is_saved_inline(self):
-        text = 'small automatic feedback'
+    def test_24_char_feedback_is_saved_inline(self):
+        text = u"smałl aut°mătic feedback"
         self.receive_feedback(text)
 
         [feedback] = self.envelope.objectValues()
@@ -170,14 +170,14 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
         self.assertEqual(feedback.content_type, 'application/x-mock')
         self.assertEqual(feedback.feedbacktext, text)
 
-    def test_100kb_feedback_creates_attachment_and_explanation(self):
-        text = 'large automatic feedback: ' + ('[10 bytes]' * 10240)
+    def test_100k_char_feedback_creates_attachment_and_explanation(self):
+        text = "large automatic feedback: " + (u"[10 chąṛŝ]" * 10240)
         self.receive_feedback(text)
 
         [feedback] = self.envelope.objectValues()
         [attach] = feedback.objectValues()
         with attach.data_file.open() as f:
-            self.assertEqual(f.read(), text)
+            self.assertEqual(f.read().decode('utf-8'), text)
 
         self.assertEqual(attach.data_file.content_type, 'application/x-mock')
 
