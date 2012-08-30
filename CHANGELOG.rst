@@ -8,6 +8,7 @@
 * Zip cache moved to ``${CLIENT_HOME}/zip_cache`` [moregale]
 * New object type `File (Blob)` similar to OFS.Image.File [moregale]
 * Feedback files stored as `File (Blob)` objects [moregale]
+* Move search pages to disk [dincamih]
 
 2.3 (2012-06-13)
 ----------------
