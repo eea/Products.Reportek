@@ -10,7 +10,7 @@
     <dtml-let workitem_id="wtab_item[0]"
             app_url="wtab_item[1]"
             app_title="wtab_item[2]">
-        <li<dtml-if "tab == workitem_id"> id="currenttab"</dtml-if>><a href="<dtml-var app_url>?workitem_id=&dtml-workitem_id;&amp;tab=&dtml-workitem_id;" title="<dtml-var app_title>"><dtml-var app_title></a></li>
+        <li<dtml-if "tab == workitem_id"> id="currenttab"</dtml-if>><a href="<dtml-var expr="container.absolute_url()">?workitem_id=&dtml-workitem_id;&amp;tab=&dtml-workitem_id;" title="<dtml-var app_title>"><dtml-var app_title></a></li>
     </dtml-let>
 </dtml-in>
     <dtml-if "canChangeEnvelope()">
