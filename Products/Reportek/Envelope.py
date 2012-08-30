@@ -231,7 +231,12 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                     l_no_active_workitems += 1
                     l_default_tab = w.id
         if l_no_active_workitems == 1:
-            REQUEST.RESPONSE.redirect(self.absolute_url() + '/' + l_application_url + '?workitem_id=' + l_default_tab)
+            params = {'workitem_id': l_default_tab,
+                      'client': self,
+                      'REQUEST': REQUEST,
+                      'RESPONSE': REQUEST.RESPONSE
+            }
+            return self.getPhysicalRoot().restrictedTraverse(l_application_url)(**params)
         else:
             return self.overview(REQUEST)
 
