@@ -22,6 +22,7 @@ import os
 import sys
 import time
 import random
+import json
 import tempfile
 import shutil
 from StringIO import StringIO
@@ -118,6 +119,11 @@ def setupSiteErrorLog(app=None):
         else:
             app._setObject('error_log', SiteErrorLog())
             transaction.commit()
+
+
+def load_json(name):
+    with open(os.path.join(os.path.dirname(__file__), name), "rb") as f:
+        return json.load(f)
 
 
 def importObjectFromFile(container, filename, quiet=0):
@@ -224,7 +230,19 @@ def create_upload_file(data='', filename='testfile.txt'):
     return f
 
 
-def publish_view(view, environ={}):
+def chase_response(target, environ={}, user=None):
+    from utils import publish_view
+    response = publish_view(target, environ=environ, user=user)
+    while response.status == 302:
+        redirect_url = response.headers['location']
+        target_url = redirect_url.replace(
+                         target.absolute_url(), '').split('?')[0]
+        target = target.unrestrictedTraverse(target_url, None)
+        response = publish_view(target, environ=environ, user=user)
+    return response
+
+
+def publish_view(view, environ={}, user=None):
     from ZPublisher.WSGIPublisher import publish
     from AccessControl.SecurityManagement import noSecurityManager
 
@@ -236,8 +254,9 @@ def publish_view(view, environ={}):
     new_environ.update(environ)
 
     root = create_fake_root()
+    user = Mock() if not user else user
+    root.__allow_groups__ = Mock(validate=Mock(return_value=user))
     request = makerequest(root, new_environ['_stdout'], new_environ).REQUEST
-    root.__allow_groups__ = Mock()
     view.__doc__ = 'non-empty documentation'
     setattr(root, name, view)
 
@@ -249,7 +268,6 @@ def publish_view(view, environ={}):
                    Mock(), #err_hook
                    None, #validated_hook
                    Mock()) #tm
-
     try:
         return publish(request, 'Zope2', Mock(return_value=module_info))
     finally:

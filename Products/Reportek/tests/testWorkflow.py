@@ -64,6 +64,9 @@ class EnvelopeRenderingTestCase(unittest.TestCase):
         from utils import create_fake_root
         from Products.Reportek.OpenFlowEngine import OpenFlowEngine
         from Products.Reportek.Collection import Collection
+        from OFS.Folder import Folder
+        from Globals import DTMLFile
+        from mock import Mock
 
         ### mock ###
         self.app = create_fake_root()
@@ -91,24 +94,47 @@ class EnvelopeRenderingTestCase(unittest.TestCase):
                 'country': 'http://rod.eionet.eu.int/spatial/2',
                 'locality': '',
                 'descr': '',
-                'dataflow_uris': 'http://rod.eionet.eu.int/obligations/8',
+                'dataflow_uris': ['http://rod.eionet.eu.int/obligations/8'],
                 'allow_collections': True,
                 'allow_envelopes': True}
         col = Collection(**args)
         self.app._setObject('collection', col)
+        self.app._setObject('Templates', Folder('Templates'))
+        self.app.Templates.StartActivity = DTMLFile('dtml/testEnvelopeIndex',globals())
+        self.app.Templates.StartActivity.title_or_id = Mock(return_value='Start Activity Template')
         create_process(self, 'process')
+        self.wf.addApplication('StartActivity', 'Templates/StartActivity')
+        self.wf.process.addActivity('AutoBegin',
+                            split_mode='xor',
+                            join_mode='xor',
+                            start_mode=1,
+                            application='StartActivity')
+        self.wf.process.begin = 'AutoBegin'
         self.wf.setProcessMappings('process', '1', '1')
         envelope = create_envelope(self)
-        self.assertEqual('running', envelope.status)
         envelope.standard_html_header = ""
         envelope.standard_html_footer = ""
         self.envelope = envelope
         ####################
 
-    def test_overview_as_anon(self):
+    def test_overview_without_rights(self):
         from utils import publish_view
         self.assertIn('This envelope is not yet available for public view.\nWork is still in progress.',
                        publish_view(self.envelope).body)
+
+    def test_overview_with_rights(self):
+        from utils import chase_response, load_json
+        from mock import Mock
+        from AccessControl.User import User
+        self.envelope.canViewContent = Mock(return_value=1)
+        self.wf.canPullActivity = Mock(return_value=True)
+        localities_table = load_json('localities_table.json')
+        self.envelope.localities_table = Mock(return_value=localities_table)
+        w_item_0 = getattr(self.envelope,'0')
+        w_item_0.status = 'active'
+        w_item_0.actor = 'gigel'
+        user = User('gigel', 'gigel', ['manager'], '')
+        self.assertEqual('Envelope Test Template', chase_response(self.envelope, user=user).body.strip())
 
 
 class FindProcessTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
