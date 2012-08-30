@@ -57,6 +57,60 @@ def createStandardCollection(app):
         allow_collections=1, allow_envelopes=1, id='collection')
 
 
+class EnvelopeRenderingTestCase(unittest.TestCase):
+
+    def setUp(self):
+        from mock import Mock
+        from utils import create_fake_root
+        from Products.Reportek.OpenFlowEngine import OpenFlowEngine
+        from Products.Reportek.Collection import Collection
+
+        ### mock ###
+        self.app = create_fake_root()
+        from utils import makerequest
+        name = 'haha'
+        new_environ = {
+            'PATH_INFO': '/' + name,
+            '_stdout': StringIO(),
+        }
+        self.app.REQUEST = makerequest(self.app, new_environ['_stdout'], new_environ).REQUEST
+        #self.app.REQUEST = create_mock_request() #TODO move it to utils.py
+        self.app.REQUEST.AUTHENTICATED_USER = Mock()
+        self.app.REQUEST.AUTHENTICATED_USER.getUserName.return_value = 'gigel'
+        ############
+
+        ### dependencies ###
+        ofe = OpenFlowEngine('WorkflowEngine', 'title')
+        self.app._setObject('WorkflowEngine', ofe)
+        self.wf = self.app.WorkflowEngine
+        args = {'id': 'collection',
+                'title': 'mock_collection',
+                'year': '2011',
+                'endyear': '2012',
+                'partofyear': 'wholeyear',
+                'country': 'http://rod.eionet.eu.int/spatial/2',
+                'locality': '',
+                'descr': '',
+                'dataflow_uris': 'http://rod.eionet.eu.int/obligations/8',
+                'allow_collections': True,
+                'allow_envelopes': True}
+        col = Collection(**args)
+        self.app._setObject('collection', col)
+        create_process(self, 'process')
+        self.wf.setProcessMappings('process', '1', '1')
+        envelope = create_envelope(self)
+        self.assertEqual('running', envelope.status)
+        envelope.standard_html_header = ""
+        envelope.standard_html_footer = ""
+        self.envelope = envelope
+        ####################
+
+    def test_overview_as_anon(self):
+        from utils import publish_view
+        self.assertIn('This envelope is not yet available for public view.\nWork is still in progress.',
+                       publish_view(self.envelope).body)
+
+
 class FindProcessTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
 
     messages = {
