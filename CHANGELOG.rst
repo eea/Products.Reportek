@@ -1,3 +1,7 @@
+3.1-dev (unrelesed)
+-------------------
+* Move envelope applications from '/'
+
 3.0-dev (unrelesed)
 -------------------
 * Remove support for HTTP Range requests [moregale]
