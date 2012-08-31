@@ -1,9 +1,9 @@
-3.1-dev (unrelesed)
--------------------
+3.1 (unreleased)
+----------------
 * Move envelope applications from '/'
 
-3.0-dev (unrelesed)
--------------------
+3.0 (2012-08-31)
+----------------
 * Remove support for HTTP Range requests [moregale]
 * Clean API for accessing a document's file content [moregale]
 * For local scripts that need access to documents we create temporary
