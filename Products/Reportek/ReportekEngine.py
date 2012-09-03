@@ -37,6 +37,7 @@ from AccessControl import getSecurityManager, ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens, view
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Globals import DTMLFile
+from App.config import getConfiguration
 import Globals
 import Products
 import xmlrpclib
@@ -570,13 +571,20 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             REQUEST.RESPONSE.redirect('uns_settings?manage_tabs_message=Saved changes')
         return 1
 
+    def uns_notifications_enabled(self):
+        env = getattr(getConfiguration(), 'environment', {})
+        return bool(env.get('UNS_NOTIFICATIONS', 'off') == 'on')
+
     security.declarePrivate('get_uns_xmlrpc_server')
     def get_uns_xmlrpc_server(self):
-        url = self.UNS_server + '/rpcrouter'
-        if self.UNS_username:
-            frag = '%s:%s@' % (self.UNS_username, self.UNS_password)
-            url = url.replace('http://', 'http://'+frag)
-            url = url.replace('https://', 'https://'+frag)
+        if self.uns_notifications_enabled():
+            url = self.UNS_server + '/rpcrouter'
+            if self.UNS_username:
+                frag = '%s:%s@' % (self.UNS_username, self.UNS_password)
+                url = url.replace('http://', 'http://'+frag)
+                url = url.replace('https://', 'https://'+frag)
+        else:
+            url = ''
         return xmlrpclib.Server(url)
 
     security.declareProtected('View', 'canUserSubscribeToUNS')

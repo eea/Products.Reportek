@@ -7,6 +7,12 @@
 Fill the properties on this page only if this system is linked to a <em>Unified Integration Service</em>. 
 </p>
 
+<dtml-if expr="not uns_notifications_enabled()">
+  <p style="color: red">
+    UNS notifications are disabled for this server.
+  </p>
+</dtml-if>
+
 <form action="manage_editUNSInterface" method="post">
 
 <table> 
