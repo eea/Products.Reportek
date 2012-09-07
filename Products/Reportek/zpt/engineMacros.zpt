@@ -17,10 +17,12 @@
                      content="structure string:</optgroup>" />
           <tal:block condition="flip"
                      content='structure string:<optgroup label="${source_title}">'/>
-          <option tal:attributes="value value/uri;
-                                  label python:value['TITLE'][:75] + ' ...' if len(value['TITLE'])>75
-                                                                               else value['TITLE'];
-                                  class python: 'terminated' if value.get('terminated') else ''"/>
+              <tal:block define="text python:value['TITLE'][:75] + ' ...' if len(value['TITLE'])>75 else value['TITLE'];">
+              <option tal:attributes="value value/uri;
+                                      label text;
+                                      class python: 'terminated' if value.get('terminated') else ''"
+                      tal:content="text"/>
+              </tal:block>
           </tal:block>
     </tal:block>
     <tal:block content="structure string:</optgroup>" />
