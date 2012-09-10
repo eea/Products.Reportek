@@ -24,13 +24,21 @@ def create_process(obj, p_id, dataflows=None, countries=None):
     return obj.wf._getOb(p_id).absolute_url(1)
 
 
-def create_envelope(obj):
+def create_envelope(obj, **kwargs):
     col = obj.app.collection
     #obj.login() # Login as test_user_1_
     #user = getSecurityManager().getUser()
     #obj.app.REQUEST.AUTHENTICATED_USER = user
     #reportek = obj.app.manage_addProduct['Reportek']
-    result = obj.app.collection.manage_addEnvelope('', '', '2003', '2004', '',
+    if 'year' in kwargs.keys():
+        year = kwargs['year']
+    else:
+        year = '2003'
+    if 'endyear' in kwargs.keys():
+        endyear = kwargs['endyear']
+    else:
+        endyear = '2004'
+    result = obj.app.collection.manage_addEnvelope('', '', year, endyear, '',
          'http://rod.eionet.eu.int/localities/1', REQUEST=None, previous_delivery='')
     envelope = col.unrestrictedTraverse(result.split('/')[-1], None)
     return envelope
@@ -56,33 +64,25 @@ def createStandardCollection(app):
         '2003', '2004', '', 'http://rod.eionet.eu.int/spatial/2', '', ['http://rod.eionet.eu.int/obligations/8'],
         allow_collections=1, allow_envelopes=1, id='collection')
 
-
-class EnvelopeRenderingTestCase(unittest.TestCase):
+class _BaseTest(unittest.TestCase):
 
     def setUp(self):
         from mock import Mock
-        from utils import create_fake_root
-        from Products.Reportek.OpenFlowEngine import OpenFlowEngine
-        from Products.Reportek.Collection import Collection
+        from utils import create_fake_root, makerequest
         from OFS.Folder import Folder
         from Globals import DTMLFile
-        from mock import Mock
+        from Products.Reportek.Collection import Collection
+        from Products.Reportek.OpenFlowEngine import OpenFlowEngine
 
-        ### mock ###
         self.app = create_fake_root()
-        from utils import makerequest
-        name = 'haha'
+        name = 'mock'
         new_environ = {
             'PATH_INFO': '/' + name,
             '_stdout': StringIO(),
         }
         self.app.REQUEST = makerequest(self.app, new_environ['_stdout'], new_environ).REQUEST
-        #self.app.REQUEST = create_mock_request() #TODO move it to utils.py
         self.app.REQUEST.AUTHENTICATED_USER = Mock()
         self.app.REQUEST.AUTHENTICATED_USER.getUserName.return_value = 'gigel'
-        ############
-
-        ### dependencies ###
         ofe = OpenFlowEngine('WorkflowEngine', 'title')
         self.app._setObject('WorkflowEngine', ofe)
         self.wf = self.app.WorkflowEngine
@@ -111,11 +111,16 @@ class EnvelopeRenderingTestCase(unittest.TestCase):
                             application='StartActivity')
         self.wf.process.begin = 'AutoBegin'
         self.wf.setProcessMappings('process', '1', '1')
+
+
+class EnvelopeRenderingTestCase(_BaseTest):
+
+    def setUp(self):
+        super(EnvelopeRenderingTestCase, self).setUp()
         envelope = create_envelope(self)
         envelope.standard_html_header = ""
         envelope.standard_html_footer = ""
         self.envelope = envelope
-        ####################
 
     def test_overview_without_rights(self):
         from utils import publish_view
@@ -192,3 +197,23 @@ class FindProcessTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         create_process(self, 'p1')
         create_process(self, 'p2')
         self.assertCreateEnvelopeRaises(CannotPickProcess)
+
+
+class EnvelopePeriodValidationTestCase(_BaseTest):
+
+    def test_year_before_1000_redirection(self):
+        from DateTime.interfaces import SyntaxError
+        self.app.standard_html_header = ""
+        self.app.standard_html_footer = ""
+        self.assertRaises(SyntaxError,
+                          lambda : create_envelope(self, year='206', endyear='2008'))
+
+    def test_year_not_integer(self):
+        envelope = create_envelope(self, year='abc', endyear='2008')
+        self.assertEqual(envelope.year, 2008)
+        self.assertEqual(envelope.endyear, 2008)
+
+    def test_endyear_not_integer(self):
+        envelope = create_envelope(self, year='abc', endyear='abc')
+        self.assertEqual(envelope.year, '')
+        self.assertEqual(envelope.endyear, '')

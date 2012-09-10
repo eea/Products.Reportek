@@ -39,6 +39,7 @@ import AccessControl.Role, webdav.Collection
 from AccessControl import getSecurityManager, ClassSecurityInfo, Unauthorized
 from zExceptions import Forbidden
 from DateTime import DateTime
+from DateTime.interfaces import SyntaxError
 import urllib
 import xmlrpclib
 import operator
@@ -79,6 +80,18 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
         process = self.unrestrictedTraverse(l_result, None)
     else:
         raise l_result[0], l_result[1]
+
+    if valid_year(year):
+        year = int(year)
+    else:
+        year = ''
+    if valid_year(endyear):
+        endyear = int(endyear)
+    else:
+        endyear = ''
+    if not year and endyear:
+        year = endyear
+
     ob = Envelope(process, title, actor, year, endyear, partofyear, self.country, locality, descr)
     ob.id = id
     self._setObject(id, ob)
@@ -93,6 +106,18 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
         return self.manage_main(self, REQUEST)
     else:
         return ob.absolute_url()
+
+
+def valid_year(year_str):
+    try:
+        year = int(year_str) #Checks conversion
+        DateTime('%s/01/01' %year) #Raises SyntaxError below year 1000
+        return True
+    except ValueError as ex:
+        return False
+    except SyntaxError as ex:
+        raise ex
+
 
 def get_first_accept(req_dict):
     """ Figures out which type of content the webbrowser prefers
@@ -140,12 +165,8 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
     def __init__(self, process, title, authUser, year, endyear, partofyear, country, locality, descr):
         """ Envelope constructor
         """
-        try: self.year = int(year)
-        except: self.year = ''
-        try: self.endyear = int(endyear)
-        except: self.endyear = ''
-        if self.year == '' and self.endyear != '':
-            self.year = self.endyear
+        self.year = year
+        self.endyear = endyear
         self._check_year_range()
         self.title = title
         self.partofyear = partofyear
