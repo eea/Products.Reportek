@@ -50,6 +50,7 @@ import Document
 import Hyperlink
 import Feedback
 from constants import WORKFLOW_ENGINE_ID
+from exceptions import InvalidPartOfYear
 from CountriesManager import CountriesManager
 from EnvelopeInstance import EnvelopeInstance
 from EnvelopeRemoteServicesManager import EnvelopeRemoteServicesManager
@@ -91,6 +92,12 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
         endyear = ''
     if not year and endyear:
         year = endyear
+    year_parts = ['Whole Year', 'First Half', 'Second Half',
+                  'First Quarter', 'Second Quarter', 'Third Quarter',
+                  'Fourth Quarter']
+    months = ["January","February","March","April","May","June","July","August","September","October","November","December"]
+    if not partofyear in (year_parts + months):
+        raise InvalidPartOfYear
 
     ob = Envelope(process, title, actor, year, endyear, partofyear, self.country, locality, descr)
     ob.id = id

@@ -6,6 +6,7 @@ from AccessControl import getSecurityManager
 from configurereportek import ConfigureReportek
 from Products.Reportek.constants import CONVERTERS_ID
 from Products.Reportek.exceptions import CannotPickProcess, NoProcessAvailable
+from utils import simple_addEnvelope
 
 
 def create_process(obj, p_id, dataflows=None, countries=None):
@@ -38,7 +39,7 @@ def create_envelope(obj, **kwargs):
         endyear = kwargs['endyear']
     else:
         endyear = '2004'
-    result = obj.app.collection.manage_addEnvelope('', '', year, endyear, '',
+    result = simple_addEnvelope(obj.app.collection, '', '', year, endyear, '',
          'http://rod.eionet.eu.int/localities/1', REQUEST=None, previous_delivery='')
     envelope = col.unrestrictedTraverse(result.split('/')[-1], None)
     return envelope

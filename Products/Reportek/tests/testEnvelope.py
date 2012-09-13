@@ -7,7 +7,7 @@ ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
 from configurereportek import ConfigureReportek
 from utils import create_fake_root, create_temp_reposit, create_upload_file
-from utils import create_envelope, add_document
+from utils import create_envelope, add_document, simple_addEnvelope
 from mock import Mock, patch
 import lxml.etree
 
@@ -36,7 +36,7 @@ class EnvelopeTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.login() # Login as test_user_1_
         user = getSecurityManager().getUser()
         self.app.REQUEST.AUTHENTICATED_USER = user
-        col.manage_addProduct['Reportek'].manage_addEnvelope('', '', '2003', '2004', '',
+        simple_addEnvelope(col.manage_addProduct['Reportek'], '', '', '2003', '2004', '',
          'http://rod.eionet.eu.int/localities/1', REQUEST=None, previous_delivery='')
         self.envelope = None
         for env in col.objectValues('Report Envelope'):
@@ -62,7 +62,7 @@ class EnvelopeTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.assertNotEqual(self.envelope, None)
 
     def test_endDateMultipleYears(self):
-        self.helpCreateEnvelope('2003', '2004', '')
+        self.helpCreateEnvelope('2003', '2004', 'Whole Year')
         s = self.envelope.getStartDate()
         self.assertEqual(s.strftime('%Y-%m-%d'),'2003-01-01')
         r = self.envelope.getEndDate()
@@ -125,6 +125,16 @@ class EnvelopeTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.assertEquals('Begin', wi.activity_id)
         self.envelope.completeWorkitem(wi.id, actor=user)
         self.assertEquals('complete', wi.status)
+
+    def test_invalid_period(self):
+        col = self.app.collection
+        self.login() # Login as test_user_1_
+        user = getSecurityManager().getUser()
+        self.app.REQUEST.AUTHENTICATED_USER = user
+        from Products.Reportek import exceptions
+        with self.assertRaises(exceptions.InvalidPartOfYear) as ex:
+            col.manage_addProduct['Reportek'].manage_addEnvelope('', '', '2003', '2004', 'invalid',
+             'http://rod.eionet.eu.int/localities/1', REQUEST=None, previous_delivery='')
 
 
 def get_xml_metadata(envelope, inline='false'):

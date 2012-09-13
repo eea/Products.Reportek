@@ -3,3 +3,6 @@ class CannotPickProcess(Exception):
 
 class NoProcessAvailable(Exception):
     """ Used to replace deprecated raise 'NoProcessAvailable' """
+
+class InvalidPartOfYear(Exception):
+    """ Raised when the Envelope part of year is not in the valid values list """

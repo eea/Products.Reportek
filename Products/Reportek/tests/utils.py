@@ -286,6 +286,27 @@ def create_envelope(parent, id='envelope'):
     return parent[id]
 
 
+def simple_addEnvelope(parent, *args, **kwargs):
+    """
+    def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
+            REQUEST=None, previous_delivery=''):
+    """
+    from Products.Reportek.Envelope import manage_addEnvelope
+    params = [ parent,
+               kwargs.get('title', ''),
+               kwargs.get('descr', ''),
+               kwargs.get('year', '2011'),
+               kwargs.get('endyear', '2012'),
+               kwargs.get('partofyear', 'Whole Year'),
+               kwargs.get('locality'),
+               kwargs.get('REQUEST', None),
+               kwargs.get('previous_delivery','') ]
+    for i in xrange(len(args)):
+        if args[i]:
+            params[i+1] = args[i]
+    return manage_addEnvelope(*params)
+
+
 def add_document(envelope, upload_file):
     from Products.Reportek.Document import manage_addDocument
     with patch.object(envelope, 'REQUEST', create=True) as mock_request:

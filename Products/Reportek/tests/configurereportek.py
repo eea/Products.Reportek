@@ -82,8 +82,11 @@ class ConfigureReportek:
         self.login()
         user = getSecurityManager().getUser()
         self.app.REQUEST.AUTHENTICATED_USER = user
-        col.manage_addProduct['Reportek'].manage_addEnvelope('', '', '2003', '2004', '',
-         'http://rod.eionet.eu.int/spatial/2', REQUEST=None, previous_delivery='')
+        #col.manage_addProduct['Reportek'].manage_addEnvelope('', '', '2003', '2004', '',
+        # 'http://rod.eionet.eu.int/spatial/2', REQUEST=None, previous_delivery='')
+        from utils import simple_addEnvelope
+        simple_addEnvelope(col.manage_addProduct['Reportek'], '', '', '2003', '2004', '',
+                           locality='http://rod.eionet.eu.int/spatial/2', REQUEST=None, previous_delivery='')
         for e in col.objectValues():
             if e.id[:3] == "env":
                 return e
