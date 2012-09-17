@@ -77,7 +77,11 @@ class workitem(CatalogAware, SimpleItem, PropertyManager):
         app_id = getattr(self.getProcess(), activity_id).application
         from constants import WORKFLOW_ENGINE_ID
         url = getattr(self, WORKFLOW_ENGINE_ID)._applications[app_id]['url']
-        return {'id': app_id, 'url': '/%s/manage_main' %url}
+        app = self.getPhysicalRoot().restrictedTraverse(url)
+        manage_page = 'manage_main'
+        if getattr(app, 'manage_settings_html', None):
+            manage_page = 'manage_settings_html'
+        return {'id': app_id, 'url': '/%s/%s' %(url, manage_page)}
 
 
     def lastActivityDate(self):

@@ -422,6 +422,5 @@ class RemoteApplication(SimpleItem):
 
     security.declareProtected(view_management_screens, 'manage_settings_html')
     manage_settings_html = DTMLFile('dtml/RemoteApplicationSettings', globals())
-    manage_main = manage_settings_html #for the app link in workitem>Properties
 
 InitializeClass(RemoteApplication)
