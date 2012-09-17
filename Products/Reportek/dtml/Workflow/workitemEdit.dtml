@@ -11,6 +11,16 @@
         <td><dtml-var activity_id></td>
     </tr>
     <tr>
+        <th style="vertical-align: top">Application</th>
+        <td>
+            <a href=<dtml-var expr="context.activity_application(activity_id)['url']">>
+                <dtml-var expr="context.activity_application(activity_id)['id']">
+            </a>
+        </td>
+        <!--<td><dtml-var expr="getattr(context.getProcess(),
+            activity_id).application"></td>-->
+    </tr>
+    <tr>
         <th style="vertical-align: top">Previous Workitems</th>
         <td><dtml-in workitems_from><dtml-var sequence-item></dtml-in></td>
     </tr>

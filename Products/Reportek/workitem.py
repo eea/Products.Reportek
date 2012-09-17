@@ -73,6 +73,13 @@ class workitem(CatalogAware, SimpleItem, PropertyManager):
     def title(self):
         return self.activity_id + " by " + self.actor + ", status: " + self.status
 
+    def activity_application(self, activity_id):
+        app_id = getattr(self.getProcess(), activity_id).application
+        from constants import WORKFLOW_ENGINE_ID
+        url = getattr(self, WORKFLOW_ENGINE_ID)._applications[app_id]['url']
+        return {'id': app_id, 'url': '/%s/manage_main' %url}
+
+
     def lastActivityDate(self):
         """ Returns last activity date and time based on the workitem's event log """
         if len(self.event_log):
