@@ -39,14 +39,20 @@
         <th>Workitem</th>
         <th>Status</th>
         <th>Activity</th>
+        <th>Application</th>
         <th>Action</th>
     </tr>
-<dtml-in "objectValues('Workitem')" sort=bobobase_modification_time>
+<dtml-in"objectValues('Workitem')" prefix="loop" sort=bobobase_modification_time>
 
     <tr bgcolor="#FFFFFF">
         <td align="center"><dtml-var id html_quote></td>
         <td align="center"><dtml-var status></td>
         <td align="center"><dtml-var activity_id html_quote></td>
+        <td align="center">
+            <a href=<dtml-var expr="loop_item.activity_application(activity_id)['url']">>
+                <dtml-var expr="loop_item.activity_application(activity_id)['id']">
+            </a>
+        </td>
         <td align="center">&nbsp;
         <dtml-if "status=='blocked'">
             waiting <strong><dtml-var blocked html_quote></strong> arrival/s
