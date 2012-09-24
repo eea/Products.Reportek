@@ -173,8 +173,10 @@ class EnvelopeRemoteServicesManager:
     security.declareProtected('Use OpenFlow', 'triggerApplication')
     def triggerApplication(self, p_workitem_id, REQUEST=None):
         """ Triggers remote applications """
-        l_app = self.getApplicationUrl(p_workitem_id)
-        l_res = eval('self.' + l_app + '.callApplication(p_workitem_id, REQUEST)')
+        app_path = self.getApplicationUrl(p_workitem_id)
+        app_ob = self.restrictedTraverse(app_path)
+        l_res = app_ob.__of__(self).callApplication(p_workitem_id, REQUEST)
+
         # returns the result just to be able to see the result in a browser if something goes wrong
         return l_res
 

@@ -438,6 +438,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     l_list.append(workitem.absolute_url())
                     workitem.triggerApplication(workitem.id, REQUEST)
             except:
+                # TODO transaction savepoint restore
+                # TODO log the error (see r29924)
                 pass   # Bad zcatalog, but we ignore it
         return l_list
 
