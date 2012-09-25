@@ -9,5 +9,6 @@ setup(
     install_requires=[
         'lxml',
         'path.py',
+        'requests',
     ],
 )

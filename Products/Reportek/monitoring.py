@@ -1,5 +1,17 @@
+import os
+from datetime import datetime
 import logging
 import zExceptions
+from App.config import getConfiguration
+import requests
+
+try:
+    import simplejson as json
+except ImportError:
+    import json
+
+
+CUBE_TIMEOUT = 2  # two seconds
 
 
 ignored_types = (
@@ -12,8 +24,10 @@ ignored_types = (
 )
 
 
-publish_error_log = logging.getLogger(__name__)
+publish_error_log = logging.getLogger(__name__ + '.publish_errors')
 publish_error_log.propagate = False
+
+cube_log = logging.getLogger(__name__ + '.cube')
 
 remote_feedback_log = logging.getLogger('Products.Reportek'
                                         '.RemoteApplication.feedback')
@@ -31,14 +45,42 @@ def log_pub_failure(event):
                                     exc_info=event.exc_info)
 
 
-def initialize():
-    from App.config import getConfiguration
+def log_to_cube(event):
+    url = os.environ.get('CUBE_POST_URL')
+    if not url:
+        return
 
+    request = event.request
+    response = request.RESPONSE
+
+    message = {
+        "type": "request",
+        "time": datetime.utcnow().isoformat(),
+        "data": {
+            "method": request.method,
+            "path": request.PATH_INFO,
+            "status": response.status,
+        }
+    }
+
+    try:
+        response = requests.post(url, data=json.dumps([message]),
+                                      timeout=CUBE_TIMEOUT)
+        if response.status_code != 200:
+            cube_log.error("Error saving data: %r", response.json['error'])
+    except:
+        cube_log.exception("Error saving data")
+
+
+def initialize():
     env = getattr(getConfiguration(), 'environment', {})
     sentry_url = env.get('REPORTEK_ERROR_SENTRY_URL')
+
+    logging.getLogger('requests').setLevel(logging.WARN)
 
     if sentry_url:
         from raven.handlers.logging import SentryHandler
         sentry_handler = SentryHandler(sentry_url)
         publish_error_log.addHandler(sentry_handler)
         remote_feedback_log.addHandler(sentry_handler)
+        cube_log.addHandler(sentry_handler)
