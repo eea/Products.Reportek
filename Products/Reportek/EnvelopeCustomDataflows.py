@@ -401,6 +401,7 @@ class EnvelopeCustomDataflows:
                 return -1
         #guess content type
         content = file.read()
+        file.seek(0)
         content_type, enc = guess_content_type(file.filename, content)
         if content_type == 'text/xml':
             #verify the XML schema
