@@ -94,14 +94,6 @@ class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
                 header, footer = html.split(separator)
                 RESPONSE.setHeader('Content-Type', 'text/html')
                 RESPONSE.write(header)
-                #TODO find a better solution for inserting the button
-                #insert go back to the envelope button
-                button_html = (
-                    '<div id="operations"><ul><li>' +
-                    '<a title="Back to the containing envelope" href="%s">' +
-                    'Back to envelope</a>' +
-                    '</li></ul> </div>') % self.getMySelf().absolute_url()
-                RESPONSE.write(button_html)
                 for chunk in RepUtils.iter_file_data(data_file_handle):
                     RESPONSE.write(chunk)
                 RESPONSE.write(footer)
