@@ -2,7 +2,7 @@
 
 <div id="operations">
     <ul>
-    <li><a href="<dtml-var "getParentNode().absolute_url()">" title="Go back to the envelope that contains this feedback">Back to envelope</a></li>
+    <li><a href="<dtml-var "getMySelf().absolute_url()">" title="Go back to the envelope that contains this feedback">Back to envelope</a></li>
     <dtml-if "checkPermissionAddComments() and not automatic"><li><a href="comment_add_html" title="Add comment">Add comment</a></li></dtml-if>
     </ul>
 </div>
