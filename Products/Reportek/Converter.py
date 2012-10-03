@@ -35,7 +35,6 @@ import Globals
 import RepUtils
 import constants
 import os
-import re
 import requests
 
 manage_addConverterForm = Globals.DTMLFile('dtml/converterAdd', globals())
@@ -115,13 +114,13 @@ class Converter(SimpleItem):
         if not getSecurityManager().checkPermission(view, file_obj):
             raise Unauthorized, ('You are not authorized to view this document')
         if source=='local':
-            return self.local_conversion(file_obj, converter_id, source, output_file_name)
+            return self.local_conversion(file_obj, converter_id, output_file_name)
         elif source=='remote':
-            return self.remote_conversion(file_obj, converter_id, source, output_file_name)
+            return self.remote_conversion(file_obj, converter_id)
         else:
             raise Redirect, file_obj.absolute_url()
 
-    def local_conversion(self, file_obj, converter_id='', output_file_name='', REQUEST=None):
+    def local_conversion(self, file_obj, converter_id='', output_file_name=''):
         converter_obj = getattr(self, converter_id.replace("loc_", ""), None)
 
         if file_obj is None or converter_obj is None:
@@ -162,7 +161,7 @@ class Converter(SimpleItem):
             self.REQUEST.RESPONSE.setHeader('Content-Type', 'text/plain')
             return 'Converter error'
 
-    def remote_conversion(self, file_obj, converter_id='', output_file_name='', REQUEST=None):
+    def remote_conversion(self, file_obj, converter_id=''):
         try:
             server = xmlrpclib.ServerProxy(self.remote_converter)
             #acording to "Architectural and Detailed Design for GDEM under IDA/EINRC/SA6/AIT"
