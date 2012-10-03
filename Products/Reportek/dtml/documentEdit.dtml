@@ -2,9 +2,9 @@
 
 <script language="javascript" type="text/javascript">
 //<![CDATA[
-    function fConvert(doc_path, conv_value)
+    function fConvert(doc_path, conv_value, source)
     {
-        document.location.href='/Converters/convertDocument?file=' + doc_path + '&amp;conv=' + conv_value;
+        document.location.href='/Converters/run_conversion?file=' + doc_path + '&amp;conv=' + conv_value + '&amp;source=' + source;
     }
 // ]]>
 </script>
@@ -76,18 +76,26 @@
             <option value="">Local converters</option>
             </dtml-if>
             <dtml-in "converters[0]">
-                <option value="loc_<dtml-var "_['sequence-item']['xsl']">">&nbsp;&nbsp;&nbsp;<dtml-var "_['sequence-item']['description']" html_quote></option>
+              <option
+                src="local"
+                value="<dtml-var "_['sequence-item']['xsl']">">&nbsp;&nbsp;&nbsp;<dtml-var "_['sequence-item']['description']" html_quote>
+              </option>
             </dtml-in>
         <dtml-if "_.len(converters[1]) > 0">
         <option value="">Remote converters</option>
         </dtml-if>
             <dtml-in "converters[1]">
-                <option value="rem_<dtml-var "_['sequence-item']['convert_id']">">&nbsp;&nbsp;&nbsp;<dtml-var "_['sequence-item']['description']" html_quote></option>
+              <option
+                src="local"
+                value="<dtml-var "_['sequence-item']['convert_id']">">&nbsp;&nbsp;&nbsp;<dtml-var "_['sequence-item']['description']" html_quote>
+              </option>
             </dtml-in>
         </dtml-let>
         </select>&nbsp;
-        <input type="button" value="Go" onclick="javascript:fConvert('<dtml-var "absolute_url(1)" url_quote>', 
-    document.edit.conversion.options[document.edit.conversion.options.selectedIndex].value);" /></td>
+        <input type="button" value="Go"
+               onclick="javascript:fConvert('<dtml-var "absolute_url(1)" url_quote>', 
+                                            document.edit.conversion.options[document.edit.conversion.options.selectedIndex].value,
+                                            document.edit.conversion.options[document.edit.conversion.options.selectedIndex].getAttribute('src'));" /></td>
 </tr>
 </table>
 </form>
