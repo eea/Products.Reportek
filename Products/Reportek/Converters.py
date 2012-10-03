@@ -29,6 +29,7 @@ Reportek calls http://converters.eionet.europa.eu/RpcRouter via XML-RPC.
 
 import os
 import xmlrpclib
+import requests
 import string
 
 from OFS.Folder import Folder
@@ -90,9 +91,28 @@ class Converters(Folder):
             message="Content changed"
             return self.manage_converters_html(self,REQUEST,manage_tabs_message=message)
 
+
+    def _get_http_converters(self, local_converters):
+        #NOTE local_converters are needed until the service will be fully
+        #     operational
+        try:
+            url = 'http://localhost:5000/params'
+            resp = requests.get(url)
+            params_list = resp.json['list']
+            for attrs in params_list:
+                conv = Converter.Converter(*attrs)
+                if conv.id not in self.objectIds():
+                    local_converters.append(conv)
+        except requests.ConnectionError:
+            #NOTE http service connection problems ignored
+            #TODO manage this problem when http service will be fully operational
+            pass
+        return local_converters
+
+
     def _get_local_converters(self):
         """ """
-        return self.objectValues('Converter')
+        return self._get_http_converters(self.objectValues('Converter'))
 
     def _get_remote_converters(self, doc_schema=None):
         """ """
@@ -115,8 +135,10 @@ class Converters(Folder):
         """ Finds the converters available for a type of document. """
         local_converters = []
         remote_converters = []
+
         filesuffix = filename[filename.find('.')+1:] # Drop everything up to period.
         if filesuffix == '': filesuffix='totally-unlikely-suffix.'
+
         # Find in list of local converters
         for conv_obj in self._get_local_converters():
             if conv_obj.ct_input == contentType or conv_obj.suffix == filesuffix:
@@ -132,6 +154,7 @@ class Converters(Folder):
                            'description':conv_obj.title,
                            'content_type_out': conv_obj.ct_output,
                            'more_info': conv_obj.description})
+
         # Only look in remotes if schema is not empty
         if doc_schema:
             for c in self._get_remote_converters(doc_schema):
