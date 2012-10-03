@@ -101,7 +101,7 @@ class Converters(Folder):
             resp = requests.get(url)
             params_list = resp.json['list']
             for attrs in params_list:
-                conv = Converter.LocalHttpConverter(*attrs)
+                conv = Converter.LocalHttpConverter(*attrs).__of__(self)
                 if conv.id not in self.objectIds():
                     local_converters.append(conv)
         except requests.ConnectionError:
@@ -168,19 +168,17 @@ class Converters(Folder):
         """ """
         if REQUEST:
             file_url = REQUEST.get('file', file_url)
-        file_obj = self.unrestrictedTraverse(file_url, None)
-
         converter_id = REQUEST.get('conv', converter_id)
         if converter_id == 'default':
-            raise Redirect, file_obj.absolute_url()
+            raise Redirect, file_url
         m = re.search('(\w+?)_((http_)?\w+)', converter_id)
         prefix = m.group(1)
         name = m.group(2)
         if prefix not in ['loc', 'rem']:
-            raise Redirect, file_obj.absolute_url()
+            raise Redirect, file_url
         for conv in self._get_local_converters():
             if conv.id == name:
-                return conv.convertDocument(file_obj, converter_id, output_file_name)
+                return conv.convertDocument(file_url, converter_id, output_file_name)
 
 
 Globals.InitializeClass(Converters)

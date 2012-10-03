@@ -59,13 +59,14 @@ class ConversionServiceTest(unittest.TestCase):
         import zExceptions
         with self.assertRaises(zExceptions.Unauthorized):
             local_converters[0].convertDocument(
-                file_obj=self.app.testfile,
+                file_url=self.app.testfile.absolute_url(),
                 converter_id='loc_http_rar2list')
 
         #override normal behaviour and allow Anonymous to see this file
         self.app.testfile._View_Permission = ('Anonymous', )
 
         #no exception should be raised now
-        result = local_converters[0].convertDocument(file_obj=self.app.testfile,
-                                          converter_id='loc_http_rar2list')
+        result = local_converters[0].convertDocument(
+                    file_url=self.app.testfile.absolute_url(),
+                    converter_id='loc_http_rar2list')
         self.assertIn('fisier.txt', result)
