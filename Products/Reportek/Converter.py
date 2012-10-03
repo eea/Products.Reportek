@@ -110,7 +110,6 @@ class Converter(SimpleItem):
     security.declareProtected(view_management_screens, 'manage_settings_html')
     manage_settings_html = Globals.DTMLFile('dtml/converterEdit', globals())
 
-    security.declarePublic('__call__')
     def __call__(self, file_url, converter_id, source, output_file_name='', REQUEST=None):
         file_obj = self.getPhysicalRoot().restrictedTraverse(file_url, None)
         if not getSecurityManager().checkPermission(view, file_obj):
