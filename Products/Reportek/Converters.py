@@ -166,14 +166,12 @@ class Converters(Folder):
         return [conv.id for conv in self._get_local_converters()]
 
     def valid_converter(self, converter_id, source):
-        if converter_id == 'default':
+        if (converter_id == 'default' or
+            source not in ['local', 'remote'] or
+            (source == 'local' and converter_id not in self.valid_local_ids())):
             return False
-        if source not in ['local', 'remote']:
-            return False
-        if source == 'local':
-            if converter_id not in self.valid_local_ids():
-                return False
-        return True
+        else:
+            return True
 
 
     security.declarePublic('run_conversion')
