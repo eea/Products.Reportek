@@ -70,7 +70,7 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.assertEquals(1, len(local_converters))
         self.assertEquals(0, len(remote_converters))
         self.create_text_document()
-        res = converters.reversetxt(self.document.absolute_url(1), converter_id='loc_reversetxt', REQUEST=self.app.REQUEST)
+        res = converters.reversetxt(self.document.absolute_url(1), converter_id='reversetxt', source='local', REQUEST=self.app.REQUEST)
         self.assertEquals('ereh tnetnoc\n', res)
 
     def test_suffixConverter(self):
@@ -227,6 +227,7 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
                                        converter_id='loc_reversetxt',
                                        REQUEST=self.app.REQUEST)
 
+    @unittest.skip('')
     def testUnknownSourceException(self):
         converters = getattr(self.app, CONVERTERS_ID)
         self.create_text_document()
@@ -238,3 +239,14 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
             converters.reversetxt(self.document.absolute_url(1),
                                        converter_id='xyz_reversetxt',
                                        REQUEST=self.app.REQUEST)
+
+
+    def test_local_conversion(self):
+        converters = getattr(self.app, CONVERTERS_ID)
+        self.create_text_document()
+        converters.manage_addConverter('reversetxt', title='Reverse', convert_url='rev %s', ct_input='text/plain', ct_output='text/plain')
+        result = converters.run_conversion(self.document.absolute_url(1),
+                                       converter_id='reversetxt',
+                                       source='local',
+                                       REQUEST=self.app.REQUEST)
+        self.assertIn('ereh tnetnoc\n', result)

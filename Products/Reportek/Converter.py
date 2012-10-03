@@ -111,24 +111,27 @@ class Converter(SimpleItem):
     manage_settings_html = Globals.DTMLFile('dtml/converterEdit', globals())
 
     security.declarePublic('__call__')
-    def __call__(self, file_url='', converter_id='', output_file_name='', REQUEST=None):
-        if REQUEST:
-            file_url = REQUEST.get('file', file_url)
-            converter_id = REQUEST.get('conv', converter_id)
+    def __call__(self, file_url, converter_id, source, output_file_name='', REQUEST=None):
         file_obj = self.getPhysicalRoot().restrictedTraverse(file_url, None)
         if not getSecurityManager().checkPermission(view, file_obj):
             raise Unauthorized, ('You are not authorized to view this document')
-        return self.convertDocument(file_obj, converter_id, output_file_name)
+        return self.convertDocument(file_obj, converter_id, source, output_file_name)
+
+    def local_conversion(self, file_obj, converter_id='', output_file_name='', REQUEST=None):
+        pass
+
+    def remote_conversion(self, file_obj, converter_id='', output_file_name='', REQUEST=None):
+        pass
 
 
-    def convertDocument(self, file_obj, converter_id='', output_file_name='', REQUEST=None):
+    def convertDocument(self, file_obj, converter_id, source, output_file_name='', REQUEST=None):
         """ Converts the document file_obj. converter_id must start with 'default', 'loc\_' or 'rem\_'.
         """
 
         converter_id = self.REQUEST.get('conv', converter_id)
 
 
-        if converter_id[:4] == "loc_":
+        if source == "local":
             converter_obj = getattr(self, converter_id.replace("loc_", ""), None)
 
             if file_obj is None or converter_obj is None:
@@ -169,7 +172,7 @@ class Converter(SimpleItem):
                 self.REQUEST.RESPONSE.setHeader('Content-Type', 'text/plain')
                 return 'Converter error'
 
-        elif converter_id[:4] == "rem_":
+        elif source == "remote":
             try:
                 server = xmlrpclib.ServerProxy(self.remote_converter)
                 #acording to "Architectural and Detailed Design for GDEM under IDA/EINRC/SA6/AIT"
