@@ -1,4 +1,5 @@
 import os, sys
+import unittest
 from Testing import ZopeTestCase
 from configurereportek import ConfigureReportek
 from fileuploadmock import FileUploadMock
@@ -69,7 +70,7 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.assertEquals(1, len(local_converters))
         self.assertEquals(0, len(remote_converters))
         self.create_text_document()
-        res = converters.runConversion(self.document.absolute_url(1), converter_id='loc_reversetxt', REQUEST=self.app.REQUEST)
+        res = converters.reversetxt(self.document.absolute_url(1), converter_id='loc_reversetxt', REQUEST=self.app.REQUEST)
         self.assertEquals('ereh tnetnoc\n', res)
 
     def test_suffixConverter(self):
@@ -210,7 +211,7 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         converters = getattr(self.app, CONVERTERS_ID)
         self.create_text_document()
         with self.assertRaises(Redirect) as raised:
-            converters.runConversion(self.document.absolute_url(1),
+            converters.run_conversion(self.document.absolute_url(1),
                                        converter_id='default',
                                        REQUEST=self.app.REQUEST)
 
@@ -222,7 +223,7 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
                ct_output='text/plain', suffix="pdf")
         self.document.content_type = 'image/'
         with self.assertRaises(Redirect) as raised:
-            converters.runConversion(self.document.absolute_url(1),
+            converters.run_conversion(self.document.absolute_url(1),
                                        converter_id='loc_reversetxt',
                                        REQUEST=self.app.REQUEST)
 
@@ -234,6 +235,6 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
                ct_output='text/plain', suffix="pdf")
         self.document.content_type = 'image/'
         with self.assertRaises(Redirect) as raised:
-            converters.runConversion(self.document.absolute_url(1),
+            converters.reversetxt(self.document.absolute_url(1),
                                        converter_id='xyz_reversetxt',
                                        REQUEST=self.app.REQUEST)

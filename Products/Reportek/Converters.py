@@ -28,7 +28,6 @@ Reportek calls http://converters.eionet.europa.eu/RpcRouter via XML-RPC.
 #     $Id$
 
 import os
-import re
 import xmlrpclib
 import requests
 import string
@@ -163,22 +162,32 @@ class Converters(Folder):
                 remote_converters.append(c)
         return local_converters, remote_converters
 
-    security.declarePublic('runConversion')
-    def runConversion(self, file_url='', converter_id='', output_file_name='', REQUEST=None):
+    def valid_local_ids(self):
+        return [conv.id for conv in self._get_local_converters()]
+
+    def valid_converter(self, converter_id, source):
+        if converter_id == 'default':
+            return False
+        if source not in ['local', 'remote']:
+            return False
+        if source == 'local':
+            if converter_id not in self.valid_local_ids():
+                return False
+        return True
+
+
+    security.declarePublic('run_conversion')
+    def run_conversion(self, file_url='', converter_id='', source='', REQUEST=None):
         """ """
         if REQUEST:
             file_url = REQUEST.get('file', file_url)
-        converter_id = REQUEST.get('conv', converter_id)
-        if converter_id == 'default':
+            converter_id = REQUEST.get('conv', converter_id)
+        if not self.valid_converter(converter_id, source):
             raise Redirect, file_url
-        m = re.search('(\w+?)_((http_)?\w+)', converter_id)
-        prefix = m.group(1)
-        name = m.group(2)
-        if prefix not in ['loc', 'rem']:
-            raise Redirect, file_url
+
         for conv in self._get_local_converters():
-            if conv.id == name:
-                return conv.convertDocument(file_url, converter_id, output_file_name)
+            if conv.id == converter_id:
+                return conv(file_url, converter_id)
 
 
 Globals.InitializeClass(Converters)

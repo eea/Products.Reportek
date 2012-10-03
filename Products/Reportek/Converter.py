@@ -35,6 +35,7 @@ import Globals
 import RepUtils
 import constants
 import os
+import re
 import requests
 
 manage_addConverterForm = Globals.DTMLFile('dtml/converterAdd', globals())
@@ -109,16 +110,26 @@ class Converter(SimpleItem):
     security.declareProtected(view_management_screens, 'manage_settings_html')
     manage_settings_html = Globals.DTMLFile('dtml/converterEdit', globals())
 
-
-    security.declarePublic('convertDocument')
-    def convertDocument(self, file_url, converter_id='', output_file_name=''):
-        """ Converts the document file_obj. converter_id must start with 'default', 'loc\_' or 'rem\_'.
-        """
-        converter_id = self.REQUEST.get('conv', converter_id)
-
-        file_obj = self.restrictedTraverse(file_url, None)
+    security.declarePublic('__call__')
+    def __call__(self, file_url='', converter_id='', output_file_name='', REQUEST=None):
+        if REQUEST:
+            file_url = REQUEST.get('file', file_url)
+            converter_id = REQUEST.get('conv', converter_id)
+        m = re.search('(\w+?)_((http_)?\w+)', converter_id)
+        prefix = m.group(1)
+        name = m.group(2)
+        file_obj = self.getPhysicalRoot().restrictedTraverse(file_url, None)
         if not getSecurityManager().checkPermission(view, file_obj):
             raise Unauthorized, ('You are not authorized to view this document')
+        return self.convertDocument(file_obj, converter_id, output_file_name)
+
+
+    def convertDocument(self, file_obj, converter_id='', output_file_name='', REQUEST=None):
+        """ Converts the document file_obj. converter_id must start with 'default', 'loc\_' or 'rem\_'.
+        """
+
+        converter_id = self.REQUEST.get('conv', converter_id)
+
 
         if converter_id[:4] == "loc_":
             converter_obj = getattr(self, converter_id.replace("loc_", ""), None)
@@ -180,7 +191,7 @@ class Converter(SimpleItem):
 
 class LocalHttpConverter(Converter):
 
-    def convertDocument(self, file_url, converter_id='', output_file_name=''):
+    def __call__(self, file_url='', converter_id='', output_file_name=''):
         file_obj = self.getPhysicalRoot().restrictedTraverse(file_url, None)
         if not getSecurityManager().checkPermission(view, file_obj):
             raise Unauthorized, ('You are not authorized to view this document')

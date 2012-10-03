@@ -58,15 +58,36 @@ class ConversionServiceTest(unittest.TestCase):
         #assert Anonymous is unauthorized to see this file
         import zExceptions
         with self.assertRaises(zExceptions.Unauthorized):
-            local_converters[0].convertDocument(
+            local_converters[0](
                 file_url=self.app.testfile.absolute_url(),
                 converter_id='loc_http_rar2list')
 
-        #override normal behaviour and allow Anonymous to see this file
+        #override normal behaviour
+        #allow current user (Anonymous) to see this file
         self.app.testfile._View_Permission = ('Anonymous', )
 
         #no exception should be raised now
-        result = local_converters[0].convertDocument(
+        result = local_converters[0](
                     file_url=self.app.testfile.absolute_url(),
                     converter_id='loc_http_rar2list')
         self.assertIn('fisier.txt', result)
+
+    def test_run_conversion(self):
+        from fileuploadmock import FileUploadMock
+        from Products.Reportek.Document import Document
+        document = Document('testfile', '', content_type= "application/x-rar-compressed")
+        self.app._setObject( 'testfile', document)
+        with self.app.testfile.data_file.open('wb') as datafile:
+            datafile.write(open('tests/onefile.rar').read())
+
+        from zExceptions import Redirect
+        from Products.Reportek.constants import CONVERTERS_ID
+        converters = getattr(self.app, CONVERTERS_ID)
+
+        #override normal behaviour
+        #allow current user (Anonymous) to see this file
+        self.app.testfile._View_Permission = ('Anonymous', )
+
+        result = converters.run_conversion(self.app.testfile.absolute_url(),
+                                   converter_id='%srar2list' %self.prefix,
+                                   source = 'local')
