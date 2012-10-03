@@ -138,7 +138,6 @@ class Converters(Folder):
 
         filesuffix = filename[filename.find('.')+1:] # Drop everything up to period.
         if filesuffix == '': filesuffix='totally-unlikely-suffix.'
-
         # Find in list of local converters
         for conv_obj in self._get_local_converters():
             if conv_obj.ct_input == contentType or conv_obj.suffix == filesuffix:

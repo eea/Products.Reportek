@@ -179,11 +179,11 @@ class Converter(SimpleItem):
 
 class LocalHttpConverter(Converter):
 
-    def __call__(self, file_url='', converter_id='', output_file_name=''):
+    def __call__(self, file_url='', converter_id='', source=''):
         file_obj = self.getPhysicalRoot().restrictedTraverse(file_url, None)
         if not getSecurityManager().checkPermission(view, file_obj):
             raise Unauthorized, ('You are not authorized to view this document')
-        resp = requests.post('http://127.0.0.1:5000/convert/rar2list', data=file_obj.data_file.open())
+        resp = requests.post('http://127.0.0.1:5000/%s' %self.convert_url, data=file_obj.data_file.open())
         return resp.content
 
 Globals.InitializeClass(Converter)
