@@ -116,6 +116,9 @@ class Converter(SimpleItem):
         """
         converter_id = self.REQUEST.get('conv', converter_id)
 
+        if not getSecurityManager().checkPermission(view, file_obj):
+            raise Unauthorized, ('You are not authorized to view this document')
+
         if converter_id[:4] == "loc_":
             converter_obj = getattr(self, converter_id.replace("loc_", ""), None)
 
@@ -177,6 +180,8 @@ class Converter(SimpleItem):
 class LocalHttpConverter(Converter):
 
     def convertDocument(self, file_obj, converter_id='', output_file_name=''):
+        if not getSecurityManager().checkPermission(view, file_obj):
+            raise Unauthorized, ('You are not authorized to view this document')
         resp = requests.post('http://127.0.0.1:5000/convert/rar2list', data=file_obj.data_file.open())
         return resp.content
 
