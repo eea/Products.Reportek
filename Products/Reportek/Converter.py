@@ -35,6 +35,7 @@ import Globals
 import RepUtils
 import constants
 import os
+import requests
 
 manage_addConverterForm = Globals.DTMLFile('dtml/converterAdd', globals())
 
@@ -176,6 +177,7 @@ class Converter(SimpleItem):
 class LocalHttpConverter(Converter):
 
     def convertDocument(self, file_obj, converter_id='', output_file_name=''):
-        return 'localHttpConverter.convertDocument'
+        resp = requests.post('http://127.0.0.1:5000/convert/rar2list', data=file_obj.data_file.open())
+        return resp.content
 
 Globals.InitializeClass(Converter)

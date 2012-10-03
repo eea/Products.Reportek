@@ -101,7 +101,7 @@ class Converters(Folder):
             resp = requests.get(url)
             params_list = resp.json['list']
             for attrs in params_list:
-                conv = Converter.Converter(*attrs)
+                conv = Converter.LocalHttpConverter(*attrs)
                 if conv.id not in self.objectIds():
                     local_converters.append(conv)
         except requests.ConnectionError:
@@ -166,7 +166,8 @@ class Converters(Folder):
     security.declarePublic('runConversion')
     def runConversion(self, file_url='', converter_id='', output_file_name='', REQUEST=None):
         """ """
-        file_url = REQUEST.get('file', file_url)
+        if REQUEST:
+            file_url = REQUEST.get('file', file_url)
         file_obj = self.unrestrictedTraverse(file_url, None)
         if not getSecurityManager().checkPermission(view, file_obj):
             raise Unauthorized, ('You are not authorized to view this document')

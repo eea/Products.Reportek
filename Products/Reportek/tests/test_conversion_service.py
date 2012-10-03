@@ -47,5 +47,16 @@ class ConversionServiceTest(unittest.TestCase):
 
 
 
-    def test_conversion_with_http_converter(self):
-        pass
+    def test_http_converter(self):
+        from fileuploadmock import FileUploadMock
+        from Products.Reportek.Document import Document
+        myfile = FileUploadMock('C:\\TEMP\\testfile.rar','data compressed with rar')
+        document = Document('testfile', '', content_type= "application/x-rar-compressed")
+        self.app._setObject( 'testfile', document)
+        with self.app.testfile.data_file.open('wb') as datafile:
+            datafile.write(open('tests/onefile.rar').read())
+
+        local_converters = self.app.Converters._get_local_converters()
+        result = local_converters[0].convertDocument(file_obj=self.app.testfile,
+                                          converter_id='loc_http_rar2list')
+        self.assertIn('fisier.txt', result)
