@@ -100,8 +100,8 @@ class Converters(Folder):
             resp = requests.get(url)
             params_list = resp.json['list']
             for attrs in params_list:
-                conv = Converter.LocalHttpConverter(*attrs).__of__(self)
-                if conv.id not in self.objectIds():
+                if attrs[0] not in self.objectIds():
+                    conv = Converter.LocalHttpConverter(*attrs).__of__(self)
                     local_converters.append(conv)
         except requests.ConnectionError:
             #NOTE http service connection problems ignored
@@ -166,6 +166,7 @@ class Converters(Folder):
         return [conv.id for conv in self._get_local_converters()]
 
     def valid_converter(self, converter_id, source):
+        #NOTE no validation for remote source
         if (converter_id == 'default' or
             source not in ['local', 'remote'] or
             (source == 'local' and converter_id not in self.valid_local_ids())):
