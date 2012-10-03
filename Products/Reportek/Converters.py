@@ -169,21 +169,18 @@ class Converters(Folder):
         if REQUEST:
             file_url = REQUEST.get('file', file_url)
         file_obj = self.unrestrictedTraverse(file_url, None)
-        if not getSecurityManager().checkPermission(view, file_obj):
-            raise Unauthorized, ('You are not authorized to view this document')
 
         converter_id = REQUEST.get('conv', converter_id)
         if converter_id == 'default':
             raise Redirect, file_obj.absolute_url()
-        m = re.search('(\w+)_(\w+)', converter_id)
-        if m.group(1) == 'loc_http':
-            resp =  requests.post('http://127.0.0.1:5000/convert/%s' %m.group(2), data=file_obj.data_file.open())
-            return resp.text
-        elif m.group(1) in ['loc', 'rem']:
-            return getattr(self, converter_id.replace("loc_", ""))\
-                       .convertDocument(file_obj, converter_id, output_file_name)
-        else:
+        m = re.search('(\w+?)_((http_)?\w+)', converter_id)
+        prefix = m.group(1)
+        name = m.group(2)
+        if prefix not in ['loc', 'rem']:
             raise Redirect, file_obj.absolute_url()
+        for conv in self._get_local_converters():
+            if conv.id == name:
+                return conv.convertDocument(file_obj, converter_id, output_file_name)
 
 
 Globals.InitializeClass(Converters)
