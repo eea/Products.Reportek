@@ -173,4 +173,9 @@ class Converter(SimpleItem):
         else:
             raise Redirect, file_obj.absolute_url()
 
+class LocalHttpConverter(Converter):
+
+    def convertDocument(self, file_obj, converter_id='', output_file_name=''):
+        return 'localHttpConverter.convertDocument'
+
 Globals.InitializeClass(Converter)
