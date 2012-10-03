@@ -115,79 +115,69 @@ class Converter(SimpleItem):
         file_obj = self.getPhysicalRoot().restrictedTraverse(file_url, None)
         if not getSecurityManager().checkPermission(view, file_obj):
             raise Unauthorized, ('You are not authorized to view this document')
-        return self.convertDocument(file_obj, converter_id, source, output_file_name)
-
-    def local_conversion(self, file_obj, converter_id='', output_file_name='', REQUEST=None):
-        pass
-
-    def remote_conversion(self, file_obj, converter_id='', output_file_name='', REQUEST=None):
-        pass
-
-
-    def convertDocument(self, file_obj, converter_id, source, output_file_name='', REQUEST=None):
-        """ Converts the document file_obj. converter_id must start with 'default', 'loc\_' or 'rem\_'.
-        """
-
-        converter_id = self.REQUEST.get('conv', converter_id)
-
-
-        if source == "local":
-            converter_obj = getattr(self, converter_id.replace("loc_", ""), None)
-
-            if file_obj is None or converter_obj is None:
-                self.REQUEST.RESPONSE.setHeader('Content-Type', 'text/plain')
-                return 'Converter error'
-            if file_obj.content_type[0:6] == 'image/':
-                raise Redirect, file_obj.absolute_url()
-            if converter_obj.ct_output == "flash":
-                self.REQUEST.RESPONSE.redirect("%s/%s" % (file_obj.absolute_url(), converter_obj.convert_url))
-            if converter_obj.ct_output and not converter_obj.ct_output == "flash":
-                self.REQUEST.RESPONSE.setHeader('Content-Type', converter_obj.ct_output)
-
-                #generate 'filename'
-                if not output_file_name:
-                    if converter_obj.ct_output in constants.CONTENT_TYPES.keys():
-                        output_file_name = "%s%s" % (file_obj.id[:file_obj.id.rfind('.')], constants.CONTENT_TYPES[converter_obj.ct_output])
-                    else:
-                        output_file_name = "convertDocument"
-
-                with file_obj.data_file.open() as doc_file:
-                    tmp_copy = RepUtils.temporary_named_copy(doc_file)
-
-                with tmp_copy:
-                    #generate extra-parameters
-                    #the file path is set default as first parameter
-                    params = [tmp_copy.name]
-                    for k in converter_obj.ct_extraparams:
-                        params.append(eval(k))
-
-                    command = converter_obj.convert_url % tuple(params)
-                    data = os.popen(command).read()
-
-                self.REQUEST.RESPONSE.setHeader('Content-Disposition',
-                                    'inline; filename=%s' % output_file_name)
-                return data
-
-            else:
-                self.REQUEST.RESPONSE.setHeader('Content-Type', 'text/plain')
-                return 'Converter error'
-
-        elif source == "remote":
-            try:
-                server = xmlrpclib.ServerProxy(self.remote_converter)
-                #acording to "Architectural and Detailed Design for GDEM under IDA/EINRC/SA6/AIT"
-                result = server.ConversionService.convert(file_obj.absolute_url(0), converter_id.replace("rem_", ""))
-                self.REQUEST.RESPONSE.setHeader('Content-Type', result['content-type'])
-                self.REQUEST.RESPONSE.setHeader('Content-Disposition', 'inline;filename="%s"' % result['filename'])
-                return result['content'].data
-            except Exception, error:
-                self.REQUEST.SESSION.set('note_title', 'Error in conversion')
-                l_tmp = string.maketrans('<>', '  ')
-                self.REQUEST.SESSION.set('note_text', 'The operation could not be completed because of the following error:<br /><br />%s' %str(error).translate(l_tmp).replace(r'\n','<br />'))
-                self.REQUEST.SESSION.set('redirect_to', self.REQUEST['HTTP_REFERER'])
-                return file_obj.note()
+        if source=='local':
+            return self.local_conversion(file_obj, converter_id, source, output_file_name)
+        elif source=='remote':
+            return self.remote_conversion(file_obj, converter_id, source, output_file_name)
         else:
             raise Redirect, file_obj.absolute_url()
+
+    def local_conversion(self, file_obj, converter_id='', output_file_name='', REQUEST=None):
+        converter_obj = getattr(self, converter_id.replace("loc_", ""), None)
+
+        if file_obj is None or converter_obj is None:
+            self.REQUEST.RESPONSE.setHeader('Content-Type', 'text/plain')
+            return 'Converter error'
+        if file_obj.content_type[0:6] == 'image/':
+            raise Redirect, file_obj.absolute_url()
+        if converter_obj.ct_output == "flash":
+            self.REQUEST.RESPONSE.redirect("%s/%s" % (file_obj.absolute_url(), converter_obj.convert_url))
+        if converter_obj.ct_output and not converter_obj.ct_output == "flash":
+            self.REQUEST.RESPONSE.setHeader('Content-Type', converter_obj.ct_output)
+
+            #generate 'filename'
+            if not output_file_name:
+                if converter_obj.ct_output in constants.CONTENT_TYPES.keys():
+                    output_file_name = "%s%s" % (file_obj.id[:file_obj.id.rfind('.')], constants.CONTENT_TYPES[converter_obj.ct_output])
+                else:
+                    output_file_name = "convertDocument"
+
+            with file_obj.data_file.open() as doc_file:
+                tmp_copy = RepUtils.temporary_named_copy(doc_file)
+
+            with tmp_copy:
+                #generate extra-parameters
+                #the file path is set default as first parameter
+                params = [tmp_copy.name]
+                for k in converter_obj.ct_extraparams:
+                    params.append(eval(k))
+
+                command = converter_obj.convert_url % tuple(params)
+                data = os.popen(command).read()
+
+            self.REQUEST.RESPONSE.setHeader('Content-Disposition',
+                                'inline; filename=%s' % output_file_name)
+            return data
+
+        else:
+            self.REQUEST.RESPONSE.setHeader('Content-Type', 'text/plain')
+            return 'Converter error'
+
+    def remote_conversion(self, file_obj, converter_id='', output_file_name='', REQUEST=None):
+        try:
+            server = xmlrpclib.ServerProxy(self.remote_converter)
+            #acording to "Architectural and Detailed Design for GDEM under IDA/EINRC/SA6/AIT"
+            result = server.ConversionService.convert(file_obj.absolute_url(0), converter_id.replace("rem_", ""))
+            self.REQUEST.RESPONSE.setHeader('Content-Type', result['content-type'])
+            self.REQUEST.RESPONSE.setHeader('Content-Disposition', 'inline;filename="%s"' % result['filename'])
+            return result['content'].data
+        except Exception, error:
+            self.REQUEST.SESSION.set('note_title', 'Error in conversion')
+            l_tmp = string.maketrans('<>', '  ')
+            self.REQUEST.SESSION.set('note_text', 'The operation could not be completed because of the following error:<br /><br />%s' %str(error).translate(l_tmp).replace(r'\n','<br />'))
+            self.REQUEST.SESSION.set('redirect_to', self.REQUEST['HTTP_REFERER'])
+            return file_obj.note()
+
 
 class LocalHttpConverter(Converter):
 
