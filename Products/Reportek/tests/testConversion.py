@@ -227,7 +227,6 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
                                        converter_id='loc_reversetxt',
                                        REQUEST=self.app.REQUEST)
 
-    @unittest.skip('')
     def testUnknownSourceException(self):
         converters = getattr(self.app, CONVERTERS_ID)
         self.create_text_document()
@@ -237,7 +236,8 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.document.content_type = 'image/'
         with self.assertRaises(Redirect) as raised:
             converters.reversetxt(self.document.absolute_url(1),
-                                       converter_id='xyz_reversetxt',
+                                       converter_id='reversetxt',
+                                       source='xyz',
                                        REQUEST=self.app.REQUEST)
 
 
