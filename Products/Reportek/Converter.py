@@ -28,10 +28,13 @@ __doc__ = """
 __version__='$Rev$'[6:-2]
 
 from OFS.SimpleItem import SimpleItem
-from AccessControl import ClassSecurityInfo
-from AccessControl.Permissions import view_management_screens
+from AccessControl import ClassSecurityInfo, getSecurityManager, Unauthorized
+from AccessControl.Permissions import view_management_screens, view
+from zExceptions import Redirect
 import Globals
 import RepUtils
+import constants
+import os
 
 manage_addConverterForm = Globals.DTMLFile('dtml/converterAdd', globals())
 
@@ -104,5 +107,70 @@ class Converter(SimpleItem):
 
     security.declareProtected(view_management_screens, 'manage_settings_html')
     manage_settings_html = Globals.DTMLFile('dtml/converterEdit', globals())
+
+
+    security.declarePublic('convertDocument')
+    def convertDocument(self, file_obj, converter_id='', output_file_name=''):
+        """ Converts the document file_obj. converter_id must start with 'default', 'loc\_' or 'rem\_'.
+        """
+        converter_id = self.REQUEST.get('conv', converter_id)
+
+        if converter_id[:4] == "loc_":
+            converter_obj = getattr(self, converter_id.replace("loc_", ""), None)
+
+            if file_obj is None or converter_obj is None:
+                self.REQUEST.RESPONSE.setHeader('Content-Type', 'text/plain')
+                return 'Converter error'
+            if file_obj.content_type[0:6] == 'image/':
+                raise Redirect, file_obj.absolute_url()
+            if converter_obj.ct_output == "flash":
+                self.REQUEST.RESPONSE.redirect("%s/%s" % (file_obj.absolute_url(), converter_obj.convert_url))
+            if converter_obj.ct_output and not converter_obj.ct_output == "flash":
+                self.REQUEST.RESPONSE.setHeader('Content-Type', converter_obj.ct_output)
+
+                #generate 'filename'
+                if not output_file_name:
+                    if converter_obj.ct_output in constants.CONTENT_TYPES.keys():
+                        output_file_name = "%s%s" % (file_obj.id[:file_obj.id.rfind('.')], constants.CONTENT_TYPES[converter_obj.ct_output])
+                    else:
+                        output_file_name = "convertDocument"
+
+                with file_obj.data_file.open() as doc_file:
+                    tmp_copy = RepUtils.temporary_named_copy(doc_file)
+
+                with tmp_copy:
+                    #generate extra-parameters
+                    #the file path is set default as first parameter
+                    params = [tmp_copy.name]
+                    for k in converter_obj.ct_extraparams:
+                        params.append(eval(k))
+
+                    command = converter_obj.convert_url % tuple(params)
+                    data = os.popen(command).read()
+
+                self.REQUEST.RESPONSE.setHeader('Content-Disposition',
+                                    'inline; filename=%s' % output_file_name)
+                return data
+
+            else:
+                self.REQUEST.RESPONSE.setHeader('Content-Type', 'text/plain')
+                return 'Converter error'
+
+        elif converter_id[:4] == "rem_":
+            try:
+                server = xmlrpclib.ServerProxy(self.remote_converter)
+                #acording to "Architectural and Detailed Design for GDEM under IDA/EINRC/SA6/AIT"
+                result = server.ConversionService.convert(file_obj.absolute_url(0), converter_id.replace("rem_", ""))
+                self.REQUEST.RESPONSE.setHeader('Content-Type', result['content-type'])
+                self.REQUEST.RESPONSE.setHeader('Content-Disposition', 'inline;filename="%s"' % result['filename'])
+                return result['content'].data
+            except Exception, error:
+                self.REQUEST.SESSION.set('note_title', 'Error in conversion')
+                l_tmp = string.maketrans('<>', '  ')
+                self.REQUEST.SESSION.set('note_text', 'The operation could not be completed because of the following error:<br /><br />%s' %str(error).translate(l_tmp).replace(r'\n','<br />'))
+                self.REQUEST.SESSION.set('redirect_to', self.REQUEST['HTTP_REFERER'])
+                return file_obj.note()
+        else:
+            raise Redirect, file_obj.absolute_url()
 
 Globals.InitializeClass(Converter)

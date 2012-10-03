@@ -28,6 +28,7 @@ Reportek calls http://converters.eionet.europa.eu/RpcRouter via XML-RPC.
 #     $Id$
 
 import os
+import re
 import xmlrpclib
 import requests
 import string
@@ -162,75 +163,26 @@ class Converters(Folder):
                 remote_converters.append(c)
         return local_converters, remote_converters
 
-    security.declarePublic('convertDocument')
-    def convertDocument(self, file_url='', converter_id='', output_file_name='', REQUEST=None):
-        """ Converts the document at the file_url. converter_id must start with 'default', 'loc\_' or 'rem\_'.
-        """
+    security.declarePublic('runConversion')
+    def runConversion(self, file_url='', converter_id='', output_file_name='', REQUEST=None):
+        """ """
         file_url = REQUEST.get('file', file_url)
-        converter_id = REQUEST.get('conv', converter_id)
-
         file_obj = self.unrestrictedTraverse(file_url, None)
         if not getSecurityManager().checkPermission(view, file_obj):
             raise Unauthorized, ('You are not authorized to view this document')
+
+        converter_id = REQUEST.get('conv', converter_id)
         if converter_id == 'default':
             raise Redirect, file_obj.absolute_url()
-
-        if converter_id[:4] == "loc_":
-            converter_obj = getattr(self, converter_id.replace("loc_", ""), None)
-
-            if file_obj is None or converter_obj is None:
-                REQUEST.RESPONSE.setHeader('Content-Type', 'text/plain')
-                return 'Converter error'
-            if file_obj.content_type[0:6] == 'image/':
-                raise Redirect, file_obj.absolute_url()
-            if converter_obj.ct_output == "flash":
-                REQUEST.RESPONSE.redirect("%s/%s" % (file_obj.absolute_url(), converter_obj.convert_url))
-            if converter_obj.ct_output and not converter_obj.ct_output == "flash":
-                REQUEST.RESPONSE.setHeader('Content-Type', converter_obj.ct_output)
-
-                #generate 'filename'
-                if not output_file_name:
-                    if converter_obj.ct_output in constants.CONTENT_TYPES.keys():
-                        output_file_name = "%s%s" % (file_obj.id[:file_obj.id.rfind('.')], constants.CONTENT_TYPES[converter_obj.ct_output])
-                    else:
-                        output_file_name = "convertDocument"
-
-                with file_obj.data_file.open() as doc_file:
-                    tmp_copy = RepUtils.temporary_named_copy(doc_file)
-
-                with tmp_copy:
-                    #generate extra-parameters
-                    #the file path is set default as first parameter
-                    params = [tmp_copy.name]
-                    for k in converter_obj.ct_extraparams:
-                        params.append(eval(k))
-
-                    command = converter_obj.convert_url % tuple(params)
-                    data = os.popen(command).read()
-
-                REQUEST.RESPONSE.setHeader('Content-Disposition',
-                                    'inline; filename=%s' % output_file_name)
-                return data
-
-            else:
-                REQUEST.RESPONSE.setHeader('Content-Type', 'text/plain')
-                return 'Converter error'
-
-        elif converter_id[:4] == "rem_":
-            try:
-                server = xmlrpclib.ServerProxy(self.remote_converter)
-                #acording to "Architectural and Detailed Design for GDEM under IDA/EINRC/SA6/AIT"
-                result = server.ConversionService.convert(file_obj.absolute_url(0), converter_id.replace("rem_", ""))
-                REQUEST.RESPONSE.setHeader('Content-Type', result['content-type'])
-                REQUEST.RESPONSE.setHeader('Content-Disposition', 'inline;filename="%s"' % result['filename'])
-                return result['content'].data
-            except Exception, error:
-                REQUEST.SESSION.set('note_title', 'Error in conversion')
-                l_tmp = string.maketrans('<>', '  ')
-                REQUEST.SESSION.set('note_text', 'The operation could not be completed because of the following error:<br /><br />%s' %str(error).translate(l_tmp).replace(r'\n','<br />'))
-                REQUEST.SESSION.set('redirect_to', REQUEST['HTTP_REFERER'])
-                return file_obj.note()
+        m = re.search('(\w+)_(\w+)', converter_id)
+        if m.group(1) == 'loc_http':
+            resp =  requests.post('http://127.0.0.1:5000/convert/%s' %m.group(2), data=file_obj.data_file.open())
+            return resp.text
+        elif m.group(1) in ['loc', 'rem']:
+            return getattr(self, converter_id.replace("loc_", ""))\
+                       .convertDocument(file_obj, converter_id, output_file_name)
         else:
             raise Redirect, file_obj.absolute_url()
+
 
 Globals.InitializeClass(Converters)
