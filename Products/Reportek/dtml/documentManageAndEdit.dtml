@@ -25,13 +25,13 @@
 
     <dtml-let converters="Converters.displayPossibleConversions(content_type, xml_schema_location, id)">
     <dtml-in "converters[0]" prefix=conv>
-    <li><a href="/Converters/<dtml-var "conv_item['xsl']">?file=<dtml-var "absolute_url(1)">&conv=loc_<dtml-var "conv_item['xsl']">"
+    <li><a href="/Converters/run_conversion?file=<dtml-var "absolute_url(1)">&conv=<dtml-var "conv_item['xsl']">&source=local"
     type="<dtml-var "conv_item['content_type_out']">"
     ><dtml-var "conv_item['description']" html_quote></a> <dtml-if "conv_item['more_info']">(<dtml-var "conv_item['more_info']">)</dtml-if></li>
     </dtml-in>
 
     <dtml-in "converters[1]" prefix=conv>
-    <li><a href="/Converters/convertDocument?file=<dtml-var "absolute_url(1)">&conv=rem_<dtml-var "conv_item['convert_id']">"
+    <li><a href="/Converters/run_conversion?file=<dtml-var "absolute_url(1)">&conv=<dtml-var "conv_item['convert_id']">&source=remote"
     type="<dtml-var "conv_item['content_type_out']">"
     ><dtml-var "conv_item['description']" html_quote></a> <dtml-if "conv_item['more_info']">(<dtml-var "conv_item['more_info']">)</dtml-if></li>
     </dtml-in>

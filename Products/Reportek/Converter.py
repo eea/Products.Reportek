@@ -115,9 +115,6 @@ class Converter(SimpleItem):
         if REQUEST:
             file_url = REQUEST.get('file', file_url)
             converter_id = REQUEST.get('conv', converter_id)
-        m = re.search('(\w+?)_((http_)?\w+)', converter_id)
-        prefix = m.group(1)
-        name = m.group(2)
         file_obj = self.getPhysicalRoot().restrictedTraverse(file_url, None)
         if not getSecurityManager().checkPermission(view, file_obj):
             raise Unauthorized, ('You are not authorized to view this document')
