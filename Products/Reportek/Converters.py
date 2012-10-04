@@ -184,9 +184,29 @@ class Converters(Folder):
         if not self.valid_converter(converter_id, source):
             raise Redirect, file_url
 
-        for conv in self._get_local_converters():
-            if conv.id == converter_id:
-                return conv(file_url, converter_id, source)
+        if source == 'local':
+            for conv in self._get_local_converters():
+                if conv.id == converter_id:
+                    return conv(file_url, converter_id, source)
+        if source == 'remote':
+            #TOD refactoring (RemoteConverter class)
+            file_obj = self.getPhysicalRoot().restrictedTraverse(file_url, None)
+            if not getSecurityManager().checkPermission(view, file_obj):
+                raise Unauthorized, ('You are not authorized to view this document')
+            try:
+                server = xmlrpclib.ServerProxy(self.remote_converter)
+                #acording to "Architectural and Detailed Design for GDEM under IDA/EINRC/SA6/AIT"
+                result = server.ConversionService.convert(file_obj.absolute_url(0), converter_id.replace("rem_", ""))
+                self.REQUEST.RESPONSE.setHeader('Content-Type', result['content-type'])
+                self.REQUEST.RESPONSE.setHeader('Content-Disposition', 'inline;filename="%s"' % result['filename'])
+                return result['content'].data
+            except Exception, error:
+                self.REQUEST.SESSION.set('note_title', 'Error in conversion')
+                l_tmp = string.maketrans('<>', '  ')
+                self.REQUEST.SESSION.set('note_text', 'The operation could not be completed because of the following error:<br /><br />%s' %str(error).translate(l_tmp).replace(r'\n','<br />'))
+                self.REQUEST.SESSION.set('redirect_to', self.REQUEST['HTTP_REFERER'])
+                return file_obj.note()
+
 
 
 Globals.InitializeClass(Converters)
