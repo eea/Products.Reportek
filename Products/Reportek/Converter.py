@@ -36,6 +36,8 @@ import RepUtils
 import constants
 import os
 import requests
+import string
+import xmlrpclib
 
 manage_addConverterForm = Globals.DTMLFile('dtml/converterAdd', globals())
 
@@ -158,6 +160,34 @@ class Converter(SimpleItem):
         else:
             self.REQUEST.RESPONSE.setHeader('Content-Type', 'text/plain')
             return 'Converter error'
+
+
+class RemoteConverter(Converter):
+
+    def __init__(self, converter_id):
+        super(Converter, self).__init__(converter_id)
+        self.id = converter_id
+
+    def __call__(self, file_url):
+        file_obj = self.getPhysicalRoot().restrictedTraverse(file_url, None)
+        if not getSecurityManager().checkPermission(view, file_obj):
+            raise Unauthorized, ('You are not authorized to view this document')
+        return self.convert(file_obj)
+
+    def convert(self, file_obj):
+        try:
+            server = xmlrpclib.ServerProxy(self.remote_converter)
+            #acording to "Architectural and Detailed Design for GDEM under IDA/EINRC/SA6/AIT"
+            result = server.ConversionService.convert(file_obj.absolute_url(0), self.id)
+            self.REQUEST.RESPONSE.setHeader('Content-Type', result['content-type'])
+            self.REQUEST.RESPONSE.setHeader('Content-Disposition', 'inline;filename="%s"' % result['filename'])
+            return result['content'].data
+        except Exception, error:
+            self.REQUEST.SESSION.set('note_title', 'Error in conversion')
+            l_tmp = string.maketrans('<>', '  ')
+            self.REQUEST.SESSION.set('note_text', 'The operation could not be completed because of the following error:<br /><br />%s' %str(error).translate(l_tmp).replace(r'\n','<br />'))
+            self.REQUEST.SESSION.set('redirect_to', self.REQUEST['HTTP_REFERER'])
+            return file_obj.note()
 
 
 class LocalHttpConverter(Converter):
