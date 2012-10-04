@@ -111,7 +111,7 @@ class Converter(SimpleItem):
     security.declareProtected(view_management_screens, 'manage_settings_html')
     manage_settings_html = Globals.DTMLFile('dtml/converterEdit', globals())
 
-    def __call__(self, file_url, converter_id, source, output_file_name='', REQUEST=None):
+    def __call__(self, file_url, converter_id, output_file_name='', REQUEST=None):
         file_obj = self.getPhysicalRoot().restrictedTraverse(file_url, None)
         if not getSecurityManager().checkPermission(view, file_obj):
             raise Unauthorized, ('You are not authorized to view this document')
@@ -121,7 +121,7 @@ class Converter(SimpleItem):
         return self.convert(*args)
 
     def convert(self, file_obj, converter_id='', output_file_name=''):
-        converter_obj = getattr(self, converter_id.replace("loc_", ""), None)
+        converter_obj = getattr(self, converter_id, None)
 
         if file_obj is None or converter_obj is None:
             self.REQUEST.RESPONSE.setHeader('Content-Type', 'text/plain')
@@ -192,10 +192,7 @@ class RemoteConverter(Converter):
 
 class LocalHttpConverter(Converter):
 
-    def __call__(self, file_url='', converter_id='', source=''):
-        file_obj = self.getPhysicalRoot().restrictedTraverse(file_url, None)
-        if not getSecurityManager().checkPermission(view, file_obj):
-            raise Unauthorized, ('You are not authorized to view this document')
+    def convert(self, file_obj, converter_id):
         resp = requests.post('http://127.0.0.1:5000/%s' %self.convert_url, data=file_obj.data_file.open())
         return resp.content
 

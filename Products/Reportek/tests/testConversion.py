@@ -70,7 +70,7 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.assertEquals(1, len(local_converters))
         self.assertEquals(0, len(remote_converters))
         self.create_text_document()
-        res = converters.reversetxt(self.document.absolute_url(1), converter_id='reversetxt', source='local', REQUEST=self.app.REQUEST)
+        res = converters.reversetxt(self.document.absolute_url(1), converter_id='reversetxt', REQUEST=self.app.REQUEST)
         self.assertEquals('ereh tnetnoc\n', res)
 
     def test_suffixConverter(self):
@@ -235,7 +235,7 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
                ct_output='text/plain', suffix="pdf")
         self.document.content_type = 'image/'
         with self.assertRaises(Redirect) as raised:
-            converters.reversetxt(self.document.absolute_url(1),
+            converters.run_conversion(self.document.absolute_url(1),
                                        converter_id='reversetxt',
                                        source='xyz',
                                        REQUEST=self.app.REQUEST)

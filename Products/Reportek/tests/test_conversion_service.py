@@ -60,7 +60,7 @@ class ConversionServiceTest(unittest.TestCase):
         with self.assertRaises(zExceptions.Unauthorized):
             local_converters[0](
                 file_url=self.app.testfile.absolute_url(),
-                converter_id='loc_http_rar2list')
+                converter_id='http_rar2list')
 
         #override normal behaviour
         #allow current user (Anonymous) to see this file
@@ -69,7 +69,7 @@ class ConversionServiceTest(unittest.TestCase):
         #no exception should be raised now
         result = local_converters[0](
                     file_url=self.app.testfile.absolute_url(),
-                    converter_id='loc_http_rar2list')
+                    converter_id='http_rar2list')
         self.assertIn('fisier.txt', result)
 
     def test_run_conversion(self):

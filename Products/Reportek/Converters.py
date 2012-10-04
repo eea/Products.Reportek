@@ -187,7 +187,7 @@ class Converters(Folder):
         if source == 'local':
             for conv in self._get_local_converters():
                 if conv.id == converter_id:
-                    return conv(file_url, converter_id, source)
+                    return conv(file_url, converter_id)
         if source == 'remote':
             conv = Converter.RemoteConverter(converter_id).__of__(self)
             return conv(file_url)
