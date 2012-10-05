@@ -5,7 +5,7 @@
                                       ('TITLE', 'nocase', 'asc'));
                       currentsource string:'';
                       values python:context.dataflow_table();
-                      dummy python:values.sort(key=lambda k: (k['SOURCE_TITLE'], k['TITLE']));">
+                      dummy python:values.sort(key=lambda k: (k.get('uri') in u, k['SOURCE_TITLE'], k['TITLE']));">
     <tal:block repeat="value values">
       <tal:block
           define="flip python:repeat['value'].start or
