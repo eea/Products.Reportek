@@ -17,6 +17,10 @@
                    class=".paginator.PaginationView"
                    permission="zope2.View" />
 
+   <browser:resourceDirectory
+       name="static"
+       directory="www/static" />
+
   <configure zcml:condition="installed zope.container">
 
     <subscriber for="Products.Reportek.interfaces.IEnvelope

@@ -2,6 +2,14 @@
 <dtml-with "_(management_view='View')">
 <dtml-var manage_tabs>
 </dtml-with>
+<script src="++resource++static/datatables-1.9.4/js/jquery.js"></script>
+<script src="++resource++static/datatables-1.9.4/js/jquery.dataTables.js"></script>
+<script type="text/javascript" charset="utf-8">
+    $(document).ready(function() {
+            $('#local').dataTable();
+            $('#remote').dataTable();
+    });
+</script>
 
 <p class="form-help">
 	This page presents the available converters.
@@ -11,12 +19,15 @@
 
 <h2>Local converters</h2>
 
-<table border="1" cellpadding="2" cellspacing="0">
+<table border="1" cellpadding="2" cellspacing="0" id="local">
+<thead>
 <tr>
 	<th>Name</th>
 	<th>Input content type</th>
 	<th>Output content type</th>
 </tr>
+</thead>
+<tbody>
 <dtml-in "convs[0]" prefix=conv>
 <tr>
 	<td><dtml-var "conv_item.title_or_id()"></td>
@@ -24,16 +35,20 @@
 	<td><dtml-var "conv_item.ct_output"></td>
 </tr>
 </dtml-in>
+</tbody>
 </table>
 
 <h2>Remote converters</h2>
 
-<table border="1" cellpadding="2" cellspacing="0">
+<table border="1" cellpadding="2" cellspacing="0" id="remote">
+<thead>
 <tr>
 	<th>Name</th>
 	<th>XML schema</th>
 	<th>Result type</th>
 </tr>
+</thead>
+<tbody>
 <dtml-in "convs[1]" prefix=conv>
 <tr>
 	<td><dtml-var "conv_item['description']"></td>
@@ -41,6 +56,7 @@
 	<td><dtml-var "conv_item['result_type']"></td>
 </tr>
 </dtml-in>
+</tbody>
 </table>
 
 </dtml-let>
