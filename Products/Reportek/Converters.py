@@ -91,15 +91,16 @@ class Converters(Folder):
             message="Content changed"
             return self.manage_converters_html(self,REQUEST,manage_tabs_message=message)
 
+    def _http_params(self):
+        url = 'http://localhost:5000/params'
+        resp = requests.get(url)
+        return resp.json['list']
 
     def _get_http_converters(self, local_converters):
         #NOTE local_converters are needed until the service will be fully
         #     operational
         try:
-            url = 'http://localhost:5000/params'
-            resp = requests.get(url)
-            params_list = resp.json['list']
-            for attrs in params_list:
+            for attrs in self._http_params():
                 if attrs[0] not in self.objectIds():
                     conv = Converter.LocalHttpConverter(*attrs).__of__(self)
                     local_converters.append(conv)
