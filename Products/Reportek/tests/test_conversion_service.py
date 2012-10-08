@@ -1,6 +1,7 @@
 import unittest
 import requests
 from utils import create_fake_root
+from mock import patch
 from Products.Reportek.Converters import Converters
 from Products.Reportek.Converter import Converter
 
@@ -72,7 +73,7 @@ class ConversionServiceTest(unittest.TestCase):
                     converter_id='http_rar2list')
         self.assertIn('fisier.txt', result)
 
-    def test_run_conversion(self):
+    def test_run_conversion_http(self):
         from fileuploadmock import FileUploadMock
         from Products.Reportek.Document import Document
         document = Document('testfile', '', content_type= "application/x-rar-compressed")
@@ -91,3 +92,38 @@ class ConversionServiceTest(unittest.TestCase):
         result = converters.run_conversion(self.app.testfile.absolute_url(),
                                    converter_id='%srar2list' %self.prefix,
                                    source = 'local')
+
+    @patch('Products.Reportek.Converter.xmlrpclib')
+    def test_run_conversion_remote(self, mock_xmlrpclib):
+
+        from Products.Reportek.Document import Document
+        document = Document('testfile', '', content_type= "application/x-rar-compressed")
+        self.app.Converters._setObject( 'testfile', document)
+
+        with self.app.Converters.testfile.data_file.open('wb') as datafile:
+            datafile.write('test file')
+
+        from mock import Mock
+        server = mock_xmlrpclib.ServerProxy.return_value
+        expected = {}
+        expected['content'] = Mock(data='txtesrever')
+        expected['content-type'] = 'mock/content-type'
+        expected['filename'] = 'testfile'
+        server.ConversionService.convert.return_value = expected
+        self.app.REQUEST = Mock(SESSION='')
+
+        params = {'file_url': 'Converters/testfile',
+                  'converter_id': '',
+                  'source': 'remote',
+                  'REQUEST': {'source': 'remote', 'file_url': 'Converters/testfile', 'conv': ''}}
+        #assert Anonymous is unauthorized to see this file
+        import zExceptions
+        with self.assertRaises(zExceptions.Unauthorized):
+            self.app.Converters.run_conversion(**params)
+
+        #override normal behaviour
+        #allow current user (Anonymous) to see this file
+        self.app.Converters.testfile._View_Permission = ('Anonymous', )
+        self.app.Converters.note = Mock(return_value='')
+        result = self.app.Converters.run_conversion(**params)
+        self.assertEqual('txtesrever', result)
