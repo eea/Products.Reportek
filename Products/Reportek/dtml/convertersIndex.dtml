@@ -19,7 +19,7 @@
 </tr>
 <dtml-in "convs[0]" prefix=conv>
 <tr>
-	<td><dtml-var conv_item> <dtml-var "conv_item.title_or_id()"></td>
+	<td><dtml-var "conv_item.title_or_id()"></td>
 	<td><dtml-var "conv_item.ct_input"></td>
 	<td><dtml-var "conv_item.ct_output"></td>
 </tr>
