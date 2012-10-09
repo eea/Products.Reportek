@@ -127,8 +127,10 @@ class Converters(Folder):
         except:
             return []
 
-    def getConvertersDescriptions(self):
+    def getConvertersDescriptions(self, include_remote=True):
         """ Loops all local and remote converters for display. """
+        if not include_remote:
+            return [self._get_local_converters()]
         return [self._get_local_converters(), self._get_remote_converters()]
 
     security.declarePublic('displayPossibleConversions')

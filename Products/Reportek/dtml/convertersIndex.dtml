@@ -18,7 +18,8 @@
 	This page presents the available converters.
 </p>
 
-<dtml-let convs="getConvertersDescriptions()">
+<dtml-let include_remote="True if REQUEST.get('include_remote','').lower() in ['true', 'yes', '1'] else False"
+          convs="getConvertersDescriptions(include_remote=include_remote)">
 
 <h2>Local converters</h2>
 
@@ -40,9 +41,9 @@
 </dtml-in>
 </tbody>
 </table>
-
 <h2>Remote converters</h2>
 
+<dtml-if "include_remote==True">
 <table border="1" cellpadding="2" cellspacing="0" class="dataTable">
 <thead>
 <tr>
@@ -61,6 +62,11 @@
 </dtml-in>
 </tbody>
 </table>
+<dtml-else>
+<div id="spinner">
+    Click <a href="./?include_remote=True">here</a> to display remote converters
+</div>
+</dtml-if>
 
 </dtml-let>
 
