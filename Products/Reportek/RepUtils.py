@@ -31,6 +31,7 @@ import operator
 from types import FunctionType
 from urllib import FancyURLopener
 from webdav.common import rfc1123_date
+from DateTime import DateTime
 
 def formatException(self, error):
      """

@@ -157,6 +157,28 @@ class HttpRequestTest(unittest.TestCase):
         self.assertEqual(resp.getHeader('Content-Type'), 'text/plain')
         self.assertEqual(resp.getHeader('Last-Modified'), rfc1123_date(mtime))
 
+    def test_get_file_not_modified_returns_304(self):
+        from webdav.common import rfc1123_date
+        mtime = self.doc.data_file.mtime
+
+        resp = publish_view(self.doc, {
+            'HTTP_IF_MODIFIED_SINCE': rfc1123_date(mtime),
+        })
+
+        self.assertEqual(resp.status, 304)
+        self.assertEqual(resp.getHeader('Last-Modified'), rfc1123_date(mtime))
+
+    def test_get_file_modified_returns_200(self):
+        from webdav.common import rfc1123_date
+        mtime = self.doc.data_file.mtime
+
+        resp = publish_view(self.doc, {
+            'HTTP_IF_MODIFIED_SINCE': rfc1123_date(mtime - 50),
+        })
+
+        self.assertEqual(resp.status, 200)
+        self.assertEqual(resp.getHeader('Last-Modified'), rfc1123_date(mtime))
+
     def test_get_missing_file(self):
         from Products.Reportek.Document import StorageError
         break_document_data_file(self.doc)
