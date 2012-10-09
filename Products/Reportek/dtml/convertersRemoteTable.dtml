@@ -1,0 +1,19 @@
+<table border="1" cellpadding="2" cellspacing="0" class="dataTable"
+       id="remote_dataTable">
+<thead>
+<tr>
+	<th>Name</th>
+	<th>XML schema</th>
+	<th>Result type</th>
+</tr>
+</thead>
+<tbody>
+<dtml-in "convs" prefix=conv>
+<tr>
+	<td><dtml-var "conv_item['description']"></td>
+	<td><dtml-var "conv_item['xml_schema']"></td>
+	<td><dtml-var "conv_item['result_type']"></td>
+</tr>
+</dtml-in>
+</tbody>
+</table>

@@ -11,6 +11,20 @@
                 "bScrollCollapse": true,
                 "sScrollY": "200px"
             });
+            $('#ajax_conv').click(function(event) {
+                event.preventDefault();
+                $.get('./ajax_remote_converters',
+                    function(data){
+                        $('#remote').replaceWith(data);
+                        $('#remote_dataTable').dataTable({
+                            "bScrollInfinite": true,
+                            "bScrollCollapse": true,
+                            "sScrollY": "200px"
+                        });
+                    }
+                );
+            });
+
     });
 </script>
 
@@ -43,8 +57,10 @@
 </table>
 <h2>Remote converters</h2>
 
+<div id="remote">
 <dtml-if "include_remote==True">
-<table border="1" cellpadding="2" cellspacing="0" class="dataTable">
+<table border="1" cellpadding="2" cellspacing="0" class="dataTable"
+       id="remote_dataTable">
 <thead>
 <tr>
 	<th>Name</th>
@@ -62,9 +78,10 @@
 </dtml-in>
 </tbody>
 </table>
+</div>
 <dtml-else>
 <div id="spinner">
-    Click <a href="./?include_remote=True">here</a> to display remote converters
+    Click <a id="ajax_conv" href="./?include_remote=True">here</a> to view remote converters.
 </div>
 </dtml-if>
 

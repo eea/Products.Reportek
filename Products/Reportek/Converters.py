@@ -72,6 +72,9 @@ class Converters(Folder):
     security.declareProtected(view_management_screens, 'manage_converters_html')
     manage_converters_html = Globals.DTMLFile('dtml/convertersEdit', globals())
 
+    security.declareProtected(view_management_screens, 'remote_converters')
+    remote_converters = Globals.DTMLFile('dtml/convertersRemoteTable', globals())
+
     def __init__(self):
         """ """
         self.id = constants.CONVERTERS_ID
@@ -114,6 +117,11 @@ class Converters(Folder):
     def _get_local_converters(self):
         """ """
         return self._get_http_converters(self.objectValues('Converter'))
+
+    def ajax_remote_converters(self):
+        """ """
+        convs = self._get_remote_converters()
+        return self.remote_converters(convs=convs)
 
     def _get_remote_converters(self, doc_schema=None):
         """ """
