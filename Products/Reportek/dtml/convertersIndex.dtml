@@ -6,8 +6,11 @@
 <script src="++resource++static/datatables-1.9.4/js/jquery.dataTables.js"></script>
 <script type="text/javascript" charset="utf-8">
     $(document).ready(function() {
-            $('#local').dataTable();
-            $('#remote').dataTable();
+            $('.dataTable').dataTable({
+                "bScrollInfinite": true,
+                "bScrollCollapse": true,
+                "sScrollY": "200px"
+            });
     });
 </script>
 
@@ -19,7 +22,7 @@
 
 <h2>Local converters</h2>
 
-<table border="1" cellpadding="2" cellspacing="0" id="local">
+<table border="1" cellpadding="2" cellspacing="0" class="dataTable">
 <thead>
 <tr>
 	<th>Name</th>
@@ -40,7 +43,7 @@
 
 <h2>Remote converters</h2>
 
-<table border="1" cellpadding="2" cellspacing="0" id="remote">
+<table border="1" cellpadding="2" cellspacing="0" class="dataTable">
 <thead>
 <tr>
 	<th>Name</th>
