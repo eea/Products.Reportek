@@ -11,11 +11,14 @@ class DFMTestCase(unittest.TestCase):
         self.app = create_fake_root()
         dm = DataflowMappings.DataflowMappings()
         self.app._setObject(constants.DATAFLOW_MAPPINGS, dm)
+        self.mappings = self.app[constants.DATAFLOW_MAPPINGS]
 
-    def add_mapping(self, *args, **kwargs):
+    def add_mapping(self, id_, *args, **kwargs):
         func = DataflowMappingRecord.manage_addDataflowMappingRecord
         mappingsFolder = self.app[constants.DATAFLOW_MAPPINGS]
-        return func(mappingsFolder, *args, **kwargs)
+        func(mappingsFolder, id_, *args, **kwargs)
+        ob = mappingsFolder[id_]
+        ob._fix_attributes()
 
     def testAddOneDFM(self):
         """ Test that we can add a dataflow mapping """
@@ -131,3 +134,31 @@ class DFMTestCase(unittest.TestCase):
         # Must return empty list as there are no webforms for obl. 22
         self.assertEqual([],
               mappingsFolder.getXMLSchemasForDataflow('http://rod.eionet.eu.int/obligations/22'))
+
+    def test_api_returns_empty_result_for_empty_query(self):
+        self.assertEqual(self.mappings.get_schemas_for_dataflows([]), [])
+
+    def test_api_returns_item(self):
+        obli22_uri = 'http://rod.eionet.eu.int/obligations/22'
+        schema_title = "Obligation twenty-two"
+        schema_uri = 'http://schema.xx/schema1.xsd'
+        self.add_mapping('obli22', schema_title, obli22_uri, [schema_uri])
+
+        schemas = self.mappings.get_schemas_for_dataflows([obli22_uri])
+        self.assertEqual(len(schemas), 1)
+        [schema_info] = schemas
+        self.assertDictContainsSubset({
+            'title': schema_title,
+            'uri': schema_uri,
+            'webform_filename': 'obli22.xml',
+        }, schema_info)
+
+    def test_api_filters_out_non_matching_dataflows(self):
+        obli22_uri = 'http://rod.eionet.eu.int/obligations/22'
+        obli23_uri = 'http://rod.eionet.eu.int/obligations/23'
+        schema_title = "Obligation twenty-two"
+        schema_uri = 'http://schema.xx/schema1.xsd'
+        self.add_mapping('obli22', schema_title, obli22_uri, [schema_uri])
+
+        schemas = self.mappings.get_schemas_for_dataflows([obli23_uri])
+        self.assertEqual(len(schemas), 0)

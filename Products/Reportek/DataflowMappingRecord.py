@@ -60,6 +60,9 @@ class DataflowMappingRecord(SimpleItem):
 
     def __setstate__(self,state):
         DataflowMappingRecord.inheritedAttribute('__setstate__')(self, state)
+        self._fix_attributes()
+
+    def _fix_attributes(self):
         if not hasattr(self,'allowedSchemas'):
             if self.has_webForm:
                 self.allowedSchemas = []

@@ -34,6 +34,10 @@ import constants
 import RepUtils
 import DataflowMappingRecord
 
+
+MAPPING_RECORD_METATYPE = 'Reportek Dataflow Mapping Record'
+
+
 class DataflowMappings(Folder):
     """ Mappings between dataflows and types of XML files (XML schemas) """
 
@@ -49,7 +53,9 @@ class DataflowMappings(Folder):
             What can you put inside me? Checks if the legal products are
             actually installed in Zope
         """
-        y = [{'name': 'Reportek Dataflow Mapping Record', 'action': 'manage_addDataflowMappingRecordForm', 'permission': view_management_screens} ]
+        y = [{'name': MAPPING_RECORD_METATYPE,
+              'action': 'manage_addDataflowMappingRecordForm',
+              'permission': view_management_screens}]
 
         return y
 
@@ -61,6 +67,34 @@ class DataflowMappings(Folder):
 
     def getEngine(self):
         return getattr(self, constants.ENGINE_ID)
+
+    security.declarePublic('get_schemas_for_dataflows')
+    def get_schemas_for_dataflows(self, dataflows):
+        """
+        Get a list of XML schemas that apply to `dataflows`. The list
+        includes user-friendly title, the schema URI, and the default
+        filename for new webform-generated xml uploads:
+
+        >>> DataflowMappings.get_schemas_for_dataflows(
+        ...   ['http://rod.eionet.eu.int/obligations/32'])
+        [{'title': 'Nationally designated areas (CDDA-1) 2',
+          'uri': 'http://dd.eionet.europa.eu/GetSchema?id=TBL7602',
+          'webform_filename': 'cdda-2.xml'},
+         {'title': 'Nationally designated areas (CDDA-1) 3',
+          'uri': 'http://dd.eionet.europa.eu/GetSchema?id=TBL7599',
+          'webform_filename': 'cdda-3.xml'}]
+
+        """
+        out = []
+        for mapping_record in self.objectValues([MAPPING_RECORD_METATYPE]):
+            if mapping_record.dataflow_uri not in dataflows:
+                continue
+            out.append({
+                'title': mapping_record.title_or_id(),
+                'uri': mapping_record.schema_url,
+                'webform_filename': mapping_record.file_id,
+            })
+        return out
 
     def getWebformsForDataflows(self, p_dataflow_uris):
         """ returns all the schemas with webforms for given dataflows """
