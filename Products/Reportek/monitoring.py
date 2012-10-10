@@ -32,6 +32,9 @@ cube_log = logging.getLogger(__name__ + '.cube')
 remote_feedback_log = logging.getLogger('Products.Reportek'
                                         '.RemoteApplication.feedback')
 
+remote_conversion_log = logging.getLogger('Products.Reportek'
+                                          '.EnvelopeCustomDataflows.conversion')
+
 
 def log_pub_failure(event):
     if event.retry:
@@ -84,3 +87,4 @@ def initialize():
         publish_error_log.addHandler(sentry_handler)
         remote_feedback_log.addHandler(sentry_handler)
         cube_log.addHandler(sentry_handler)
+        remote_conversion_log.addHandler(sentry_handler)

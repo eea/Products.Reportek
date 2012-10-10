@@ -37,6 +37,7 @@ from AccessControl import ClassSecurityInfo
 from DateTime import DateTime
 import xmlrpclib
 import string
+import logging
 import transaction
 from xml.dom.minidom import parseString
 
@@ -53,6 +54,8 @@ from os.path import join
 import tempfile
 import os, traceback
 from zipfile import *
+
+conversion_log = logging.getLogger(__name__ + '.conversion')
 
 # Article 17 constants
 #GENERAL_SCHEMA = 'http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd'
@@ -214,6 +217,10 @@ class EnvelopeCustomDataflows:
                         document_id=l_id)
 
                 if REQUEST is not None:
+                    conversion_log.error(
+                            l_ret_list.get('resultDescription',
+                                           'Error in converting file at %s' %l_doc.absolute_url())
+                    )
                     return self.messageDialog(
                                     message='The file was successfully uploaded in the envelope, but not converted into an XML delivery. See the Feedback posted for this file for details.',
                                     action='index_html')
@@ -248,6 +255,10 @@ class EnvelopeCustomDataflows:
             # Change the original file title to show the error in conversion
             l_doc.manage_editDocument(title='%s, could not be converted into an XML delivery' % l_original_type, content_type=l_doc.content_type)
             if REQUEST is not None:
+                conversion_log.error(
+                        l_ret_list.get('resultDescription',
+                                       'Error in converting file at %s' %l_doc.absolute_url())
+                )
                 return self.messageDialog(
                                 message='The file was successfully uploaded in the envelope, but not converted into an XML delivery because of a system error: %s' % str(err),
                                 action='index_html')
