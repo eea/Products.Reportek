@@ -102,7 +102,9 @@ class ConversionServiceTest(unittest.TestCase):
         document = Document('testfile', '', content_type= "application/x-rar-compressed")
         self.app._setObject( 'testfile', document)
         with self.app.testfile.data_file.open('wb') as datafile:
-            datafile.write(open('tests/onefile.rar').read())
+            from path import path
+            tests = path(__file__).parent.abspath()
+            datafile.write((tests / 'onefile.rar').bytes())
 
         mock_local_converters.return_value = [LocalHttpConverter(**CONVERTER_PARAMS()) \
                                                   .__of__(self.app.Converters)]
@@ -136,7 +138,9 @@ class ConversionServiceTest(unittest.TestCase):
         document = Document('testfile', '', content_type= "application/x-rar-compressed")
         self.app._setObject( 'testfile', document)
         with self.app.testfile.data_file.open('wb') as datafile:
-            datafile.write(open('tests/onefile.rar').read())
+            from path import path
+            tests = path(__file__).parent.abspath()
+            datafile.write((tests / 'onefile.rar').bytes())
 
         from zExceptions import Redirect
         from Products.Reportek.constants import CONVERTERS_ID
