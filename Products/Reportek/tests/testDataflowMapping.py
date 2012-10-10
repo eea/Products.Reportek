@@ -1,16 +1,27 @@
-import os, sys
-from Testing import ZopeTestCase
-ZopeTestCase.installProduct('Reportek')
-
+import unittest
 from Products.Reportek import constants
+from Products.Reportek import DataflowMappings
+from Products.Reportek import DataflowMappingRecord
+from utils import create_fake_root
 
-class DFMTestCase(ZopeTestCase.ZopeTestCase):
+
+class DFMTestCase(unittest.TestCase):
+
+    def setUp(self):
+        self.app = create_fake_root()
+        dm = DataflowMappings.DataflowMappings()
+        self.app._setObject(constants.DATAFLOW_MAPPINGS, dm)
+
+    def add_mapping(self, *args, **kwargs):
+        func = DataflowMappingRecord.manage_addDataflowMappingRecord
+        mappingsFolder = self.app[constants.DATAFLOW_MAPPINGS]
+        return func(mappingsFolder, *args, **kwargs)
 
     def testAddOneDFM(self):
         """ Test that we can add a dataflow mapping """
         self.assertTrue(hasattr(self.app, constants.DATAFLOW_MAPPINGS),'Dataflow mappings folder is not created')
         mappingsFolder = getattr(self.app, constants.DATAFLOW_MAPPINGS)
-        mappingsFolder.manage_addProduct['Reportek'].manage_addDataflowMappingRecord('dm1','TestTitle',
+        self.add_mapping('dm1','TestTitle',
            'http://rod.eionet.eu.int/obligations/22',['http://schema.xx/schema.xsd'],[])
         self.assertTrue(hasattr(mappingsFolder, 'dm1'),'Record did not get created')
         dm1 = getattr(mappingsFolder, 'dm1')
@@ -22,9 +33,9 @@ class DFMTestCase(ZopeTestCase.ZopeTestCase):
     def testAddTwoDFM(self):
         """ Create two DFMs with the same obligation """
         mappingsFolder = getattr(self.app, constants.DATAFLOW_MAPPINGS)
-        mappingsFolder.manage_addProduct['Reportek'].manage_addDataflowMappingRecord('dm1','TestTitle',
+        self.add_mapping('dm1','TestTitle',
            'http://rod.eionet.eu.int/obligations/22',['http://schema.xx/schema1.xsd'],[])
-        mappingsFolder.manage_addProduct['Reportek'].manage_addDataflowMappingRecord('dm2','TestTitle',
+        self.add_mapping('dm2','TestTitle',
            'http://rod.eionet.eu.int/obligations/22',['http://schema.xx/schema2.xsd'],[])
         self.assertEqual(['http://schema.xx/schema1.xsd', 'http://schema.xx/schema2.xsd'],
               mappingsFolder.getXMLSchemasForDataflows(['http://rod.eionet.eu.int/obligations/22']))
@@ -35,9 +46,9 @@ class DFMTestCase(ZopeTestCase.ZopeTestCase):
     def testAddTwoDFMWithWebForm(self):
         """ Create two DFMs with the same obligation """
         mappingsFolder = getattr(self.app, constants.DATAFLOW_MAPPINGS)
-        mappingsFolder.manage_addProduct['Reportek'].manage_addDataflowMappingRecord('dm1','TestTitle',
+        self.add_mapping('dm1','TestTitle',
            'http://rod.eionet.eu.int/obligations/22',[],['http://schema.xx/schema1.xsd'])
-        mappingsFolder.manage_addProduct['Reportek'].manage_addDataflowMappingRecord('dm2','TestTitle',
+        self.add_mapping('dm2','TestTitle',
            'http://rod.eionet.eu.int/obligations/22',[],['http://schema.xx/schema2.xsd'])
         self.assertEqual(['http://schema.xx/schema1.xsd', 'http://schema.xx/schema2.xsd'],
               mappingsFolder.getXMLSchemasForDataflows(['http://rod.eionet.eu.int/obligations/22']))
@@ -48,9 +59,9 @@ class DFMTestCase(ZopeTestCase.ZopeTestCase):
     def testAddTwoDFMOneWithWebForm(self):
         """ Create two DFMs with the same obligation """
         mappingsFolder = getattr(self.app, constants.DATAFLOW_MAPPINGS)
-        mappingsFolder.manage_addProduct['Reportek'].manage_addDataflowMappingRecord('dm1','TestTitle',
+        self.add_mapping('dm1','TestTitle',
            'http://rod.eionet.eu.int/obligations/22',[],['http://schema.xx/schema1.xsd'])
-        mappingsFolder.manage_addProduct['Reportek'].manage_addDataflowMappingRecord('dm2','TestTitle',
+        self.add_mapping('dm2','TestTitle',
            'http://rod.eionet.eu.int/obligations/22',['http://schema.xx/schema2.xsd'],[])
         # Must return all - two
         self.assertEqual(['http://schema.xx/schema1.xsd', 'http://schema.xx/schema2.xsd'],
@@ -64,7 +75,7 @@ class DFMTestCase(ZopeTestCase.ZopeTestCase):
         """ Test that we can attach multiple schemas when creating a dataflow mapping"""
         self.assertTrue(hasattr(self.app, constants.DATAFLOW_MAPPINGS),'Dataflow mappings folder is not created')
         mappingsFolder = getattr(self.app, constants.DATAFLOW_MAPPINGS)
-        mappingsFolder.manage_addProduct['Reportek'].manage_addDataflowMappingRecord('dm1','TestTitle',
+        self.add_mapping('dm1','TestTitle',
            'http://rod.eionet.eu.int/obligations/22',['http://schema.xx/schema.xsd','http://schema.xx/schema.xsd'],[])
         self.assertTrue(hasattr(mappingsFolder, 'dm1'),'Record did not get created')
         dm1 = getattr(mappingsFolder, 'dm1')
@@ -73,9 +84,9 @@ class DFMTestCase(ZopeTestCase.ZopeTestCase):
     def testMultAddTwoDFM(self):
         """ Create two DFMs with the same obligation and multiple schemas """
         mappingsFolder = getattr(self.app, constants.DATAFLOW_MAPPINGS)
-        mappingsFolder.manage_addProduct['Reportek'].manage_addDataflowMappingRecord('dm1','TestTitle',
+        self.add_mapping('dm1','TestTitle',
            'http://rod.eionet.eu.int/obligations/22',['http://schema.xx/schema1.xsd','http://schema.xx/schema2.xsd'],[])
-        mappingsFolder.manage_addProduct['Reportek'].manage_addDataflowMappingRecord('dm2','TestTitle',
+        self.add_mapping('dm2','TestTitle',
            'http://rod.eionet.eu.int/obligations/24',[],['http://schema.xx/schema2.xsd'])
         self.assertEqual(['http://schema.xx/schema1.xsd', 'http://schema.xx/schema2.xsd'],
               mappingsFolder.getXMLSchemasForDataflows(['http://rod.eionet.eu.int/obligations/22']))
@@ -86,7 +97,7 @@ class DFMTestCase(ZopeTestCase.ZopeTestCase):
     def testMultAddTwoDFMWithWebForm(self):
         """ Create two DFMs with webform with the same obligation and multiple schemas with webforms """
         mappingsFolder = getattr(self.app, constants.DATAFLOW_MAPPINGS)
-        mappingsFolder.manage_addProduct['Reportek'].manage_addDataflowMappingRecord('dm1','TestTitle',
+        self.add_mapping('dm1','TestTitle',
            'http://rod.eionet.eu.int/obligations/22',[],['http://schema.xx/schema1.xsd','http://schema.xx/schema2.xsd'])
         self.assertEqual(['http://schema.xx/schema1.xsd', 'http://schema.xx/schema2.xsd'],
               mappingsFolder.getXMLSchemasForDataflows(['http://rod.eionet.eu.int/obligations/22']))
@@ -97,7 +108,7 @@ class DFMTestCase(ZopeTestCase.ZopeTestCase):
     def testMultAddTwoDFMOneWithWebForm(self):
         """ Create two DFMs with the same obligation """
         mappingsFolder = getattr(self.app, constants.DATAFLOW_MAPPINGS)
-        mappingsFolder.manage_addProduct['Reportek'].manage_addDataflowMappingRecord('dm2','TestTitle',
+        self.add_mapping('dm2','TestTitle',
            'http://rod.eionet.eu.int/obligations/22',['http://schema.xx/schema2.xsd'],['http://schema.xx/SCHEMAWITHFORM.xsd'])
         # Must return all - two
         self.assertEqual(['http://schema.xx/schema2.xsd', 'http://schema.xx/SCHEMAWITHFORM.xsd'],
@@ -111,9 +122,9 @@ class DFMTestCase(ZopeTestCase.ZopeTestCase):
             The object is expected to filter out empty schemas.
         """
         mappingsFolder = getattr(self.app, constants.DATAFLOW_MAPPINGS)
-        mappingsFolder.manage_addProduct['Reportek'].manage_addDataflowMappingRecord('dm1','TestTitle',
+        self.add_mapping('dm1','TestTitle',
            'http://rod.eionet.eu.int/obligations/22',['http://schema.xx/schema1.xsd','http://schema.xx/schema2.xsd',''],[])
-        mappingsFolder.manage_addProduct['Reportek'].manage_addDataflowMappingRecord('dm2','TestTitle',
+        self.add_mapping('dm2','TestTitle',
            'http://rod.eionet.eu.int/obligations/24',[],['http://schema.xx/schema2.xsd'])
         self.assertEqual(['http://schema.xx/schema1.xsd', 'http://schema.xx/schema2.xsd'],
               mappingsFolder.getXMLSchemasForDataflows(['http://rod.eionet.eu.int/obligations/22']))
