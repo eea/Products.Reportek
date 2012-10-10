@@ -1,5 +1,6 @@
 import unittest
 import requests
+from path import path
 from utils import create_fake_root
 from mock import patch, Mock
 from Products.Reportek.Converters import Converters
@@ -102,7 +103,6 @@ class ConversionServiceTest(unittest.TestCase):
         document = Document('testfile', '', content_type= "application/x-rar-compressed")
         self.app._setObject( 'testfile', document)
         with self.app.testfile.data_file.open('wb') as datafile:
-            from path import path
             tests = path(__file__).parent.abspath()
             datafile.write((tests / 'onefile.rar').bytes())
 
@@ -138,7 +138,6 @@ class ConversionServiceTest(unittest.TestCase):
         document = Document('testfile', '', content_type= "application/x-rar-compressed")
         self.app._setObject( 'testfile', document)
         with self.app.testfile.data_file.open('wb') as datafile:
-            from path import path
             tests = path(__file__).parent.abspath()
             datafile.write((tests / 'onefile.rar').bytes())
 
