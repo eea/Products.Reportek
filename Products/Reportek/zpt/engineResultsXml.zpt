@@ -11,6 +11,7 @@
                                                          years=request.get('years'),
                                                          partofyear=request.get('partofyear'),
                                                          country=request.get('country'),
+                                                         released=1,
                                                          sort_on=request.get('sort_on','reportingdate'),
                                                          sort_order=request.get('sort_order', 'reverse'));
                  Batch python:modules['ZTUtils'].Batch;
