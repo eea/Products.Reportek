@@ -2,6 +2,11 @@
 <p tal:replace="structure here/manage_tabs" omit-tag="">tabs</p>
 
 <link rel="stylesheet" href="++resource++static/datatables-1.9.4/css/jquery.dataTables.css">
+<style>
+	table.workflow-applications a:link {
+		font-family: auto;
+	}
+</style>
 
 
 <div style="text-align: right">
@@ -33,17 +38,22 @@
 				tal:attributes="href string:manage_editApplicationForm?name=${app/name}&link=${app/link}">Application Id</a>
 		</td>
 		<td tal:define="link app/link;
-		                app_ob python:here.restrictedTraverse(link, None)"
-		    tal:attributes="style python:'color: red' if app_ob is None else ''">
+		                app_ob python:here.restrictedTraverse(link, None)">
 			<tal:block content="link"/>
+			<span tal:condition="python:not app_ob" style="color: red">
+				(missing)
+			</span>
 		</td>
-		<td>
+		<td tal:define="activities python:activities_with_application.get(app['name'], [])">
 			<ul>
-				<li tal:repeat="activity python:activities_with_application.get(app['name'], [])">
+				<li tal:repeat="activity activities">
 					<a tal:attributes="href string:${activity/absolute_url}/manage_workspace"
 					   tal:content="string:${activity/aq_parent/getId}/${activity/getId}"></a>
 				</li>
 			</ul>
+			<em tal:condition="python:not activities">
+				(no activities)
+			</em>
 		</td>
 	</tr>
 
@@ -60,7 +70,8 @@
 <script src="++resource++static/datatables-1.9.4/js/jquery.dataTables.js"></script>
 <script>
 	$(document).ready(function() {
-		$('.workflow-applications').dataTable();
+		var wrapper = $('.workflow-applications').dataTable().parent();
+		wrapper.find('.dataTables_paginate').prependTo(wrapper);
 	});
 </script>
 
