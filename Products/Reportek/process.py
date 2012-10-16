@@ -36,8 +36,9 @@ class process(CatalogAware, Folder):
             {'id':'priority', 'type':'int', 'mode':'w'}
     )
 
-    manage_options = Folder.manage_options[0:1] + ({'label' : 'Map', 'action' : 'index_html'},
-                      ) + Folder.manage_options[2:]
+    manage_options = (
+            {'label' : 'Map', 'action' : 'index_html'},
+        ) + Folder.manage_options[0:1] + Folder.manage_options[2:]
 
     def __init__(self, id, title, description, BeginEnd, priority, begin, end):
         self.id = id
