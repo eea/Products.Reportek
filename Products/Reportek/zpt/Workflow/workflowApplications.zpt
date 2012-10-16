@@ -30,7 +30,11 @@
 				tal:content="app/name"
 				tal:attributes="href string:manage_editApplicationForm?name=${app/name}&link=${app/link}">Application Id</a>
 		</td>
-		<td tal:content="app/link">Application URL</td>
+		<td tal:define="link app/link;
+		                app_ob python:here.restrictedTraverse(link, None)"
+		    tal:attributes="style python:'color: red' if app_ob is None else ''">
+			<tal:block content="link"/>
+		</td>
 	</tr>
 
 	</tbody>
