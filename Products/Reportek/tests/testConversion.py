@@ -11,6 +11,7 @@ ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
 
 from Products.Reportek.constants import WEBQ_XML_REPOSITORY, CONVERTERS_ID
+from Products.Reportek.Converters import Converters
 
 
 def setUpModule(self):
@@ -73,8 +74,10 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         res = converters.reversetxt(self.document.absolute_url(1), converter_id='reversetxt', REQUEST=self.app.REQUEST)
         self.assertEquals('ereh tnetnoc\n', res)
 
-    def test_suffixConverter(self):
+    @patch.object(Converters, '_http_params')
+    def test_suffixConverter(self, mock_http_params):
         """ Add a local pdf converter, check it is found on suffix """
+        mock_http_params.return_value = []
         converters = getattr(self.app, CONVERTERS_ID)
         converters.manage_addConverter('reversetxt', title='Reverse',
                convert_url='pdf2txt %s', ct_input='application/pdf',
@@ -107,8 +110,10 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.assertEquals(0, len(local_converters))
         self.assertEquals(0, len(remote_converters))
 
-    def test_anonymousXml(self):
+    @patch.object(Converters, '_http_params')
+    def test_anonymousXml(self, mock_http_params):
         """ Test XML without schema """
+        mock_http_params.return_value = []
         converters = getattr(self.app, CONVERTERS_ID)
         converters.manage_addConverter('prettyxml', title='Pretty XML',
                 convert_url='xml2txt %s', ct_input='text/xml', ct_output='text/plain',
@@ -122,9 +127,11 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.assertEquals(1, len(local_converters))
         self.assertEquals(0, len(remote_converters))
 
+    @patch.object(Converters, '_http_params')
     @patch('Products.Reportek.Converters.xmlrpclib')
-    def test_suffixXmlConverter(self, mock_xmlrpclib):
+    def test_suffixXmlConverter(self, mock_xmlrpclib, mock_http_params):
         """ Add a local XML converter, check it is found on suffix """
+        mock_http_params.return_value = []
         server = mock_xmlrpclib.ServerProxy.return_value
         server.ConversionService.listConversions.return_value = []
 

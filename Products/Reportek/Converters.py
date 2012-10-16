@@ -151,7 +151,7 @@ class Converters(Folder):
         if filesuffix == '': filesuffix='totally-unlikely-suffix.'
         # Find in list of local converters
         for conv_obj in self._get_local_converters():
-            if conv_obj.ct_input == contentType or conv_obj.suffix == filesuffix:
+            if contentType in conv_obj.ct_input or conv_obj.suffix == filesuffix:
                 if doc_schema:
                     if conv_obj.ct_schema == doc_schema:
                         local_converters.append({'xsl':conv_obj.id,
