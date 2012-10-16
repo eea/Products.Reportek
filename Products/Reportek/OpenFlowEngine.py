@@ -22,6 +22,8 @@
 # Miruna Badescu, Finsiel Romania
 #
 
+from collections import defaultdict
+
 # Zope imports
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
@@ -730,6 +732,16 @@ class OpenFlowEngine(Folder):
 
     security.declareProtected('Manage OpenFlow', 'workflow_map_process')
     workflow_map_process =  DTMLFile('dtml/Workflow/workflowMapProcess', globals())
+
+
+    security.declarePublic('getApplicationToActivitiesMapping')
+    def getApplicationToActivitiesMapping(self):
+        out = defaultdict(list)
+        for process in self.objectValues(['Process']):
+            for activity in process.objectValues(['Activity']):
+                if activity.kind == 'standard':
+                    out[activity.application].append(activity)
+        return dict(out)
 
 
 InitializeClass(OpenFlowEngine)

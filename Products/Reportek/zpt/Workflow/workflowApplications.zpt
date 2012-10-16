@@ -15,12 +15,14 @@
 
 	<thead>
 	<tr>
-		<th scope="row" style="background-color: #f0f0f0;">Application name</th>
-		<th scope="row" style="background-color: #f0f0f0;">URL</th>
+		<th>Application name</th>
+		<th>URL</th>
+		<th>Activities</th>
 	</tr>
 	</thead>
 
-	<tbody tal:define="applications container/listApplications">
+	<tbody tal:define="applications container/listApplications;
+	                   activities_with_application here/getApplicationToActivitiesMapping">
 
 	<tr tal:repeat="app applications">
 		<td>
@@ -34,6 +36,14 @@
 		                app_ob python:here.restrictedTraverse(link, None)"
 		    tal:attributes="style python:'color: red' if app_ob is None else ''">
 			<tal:block content="link"/>
+		</td>
+		<td>
+			<ul>
+				<li tal:repeat="activity python:activities_with_application.get(app['name'], [])">
+					<a tal:attributes="href string:${activity/absolute_url}/manage_workspace"
+					   tal:content="string:${activity/aq_parent/getId}/${activity/getId}"></a>
+				</li>
+			</ul>
 		</td>
 	</tr>
 
