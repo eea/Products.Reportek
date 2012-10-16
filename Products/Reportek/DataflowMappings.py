@@ -69,9 +69,9 @@ class DataflowMappings(Folder):
         return getattr(self, constants.ENGINE_ID)
 
     security.declarePublic('get_schemas_for_dataflows')
-    def get_schemas_for_dataflows(self, dataflows):
+    def get_schemas_for_dataflows(self, dataflow_uris):
         """
-        Get a list of XML schemas that apply to `dataflows`. The list
+        Get a list of XML schemas that apply to `dataflow_uris`. The list
         includes user-friendly title, the schema URI, and the default
         filename for new webform-generated xml uploads:
 
@@ -87,7 +87,7 @@ class DataflowMappings(Folder):
         """
         out = []
         for mapping_record in self.objectValues([MAPPING_RECORD_METATYPE]):
-            if mapping_record.dataflow_uri not in dataflows:
+            if mapping_record.dataflow_uri not in dataflow_uris:
                 continue
             out.append({
                 'title': mapping_record.title_or_id(),
