@@ -1,6 +1,8 @@
 <p tal:replace="structure here/manage_page_header" omit-tag="">Header</p>
 <p tal:replace="structure here/manage_tabs" omit-tag="">tabs</p>
 
+<link rel="stylesheet" href="++resource++static/datatables-1.9.4/css/jquery.dataTables.css">
+
 
 <div style="text-align: right">
 	<form action="manage_addApplicationForm" method="post">
@@ -9,42 +11,44 @@
 </div>
 
 <form action="." method="post">
-<table style="border: 0; width: 100%" cellpadding="2" cellspacing="2">
+<table style="border: 0; width: 100%" class="workflow-applications">
+
+	<thead>
 	<tr>
 		<th scope="row" style="background-color: #f0f0f0;">Application name</th>
 		<th scope="row" style="background-color: #f0f0f0;">URL</th>
 	</tr>
+	</thead>
 
-	<tal:block define="applications  container/listApplications;
-					start python:request.get('start', 0);
-					batch python:modules['ZTUtils'].Batch(applications, size=20, start=start);
-					previous python:batch.previous;
-					next python:batch.next">
+	<tbody tal:define="applications container/listApplications">
 
-	<tr tal:repeat="applications batch">
+	<tr tal:repeat="app applications">
 		<td>
 			<input type="checkbox" name="app_ids:list" value="name"
-				tal:attributes="value applications/name"/>
+				tal:attributes="value app/name"/>
 			<a align="left"
-				tal:content="applications/name"
-				tal:attributes="href string:manage_editApplicationForm?name=${applications/name}&link=${applications/link}">Application Id</a>
+				tal:content="app/name"
+				tal:attributes="href string:manage_editApplicationForm?name=${app/name}&link=${app/link}">Application Id</a>
 		</td>
-		<td tal:content="applications/link">Application URL</td>
+		<td tal:content="app/link">Application URL</td>
 	</tr>
 
-	<tr>
-		<a tal:condition="previous"
-			tal:attributes="href string:${request/URL0}?start:int=${previous/first}"
-			href="previous_url">previous</a>
-		<a tal:condition="next"
-			tal:attributes="href string:${request/URL0}?start:int=${next/first}"
-			href="next_url">next</a>
-	</tr>
-
-	</tal:block>
+	</tbody>
 </table>
 
-<input type="submit" name="deleteApplication:method" value="Delete applications" />
+<p style="clear: left">
+	<input type="submit" name="deleteApplication:method" value="Delete applications" />
+</p>
+
 </form>
+
+<script src="++resource++static/datatables-1.9.4/js/jquery.js"></script>
+<script src="++resource++static/datatables-1.9.4/js/jquery.dataTables.js"></script>
+<script>
+	$(document).ready(function() {
+		$('.workflow-applications').dataTable();
+	});
+</script>
+
 
 <p tal:replace="structure here/manage_page_footer" omit-tag="">Footer</p>
