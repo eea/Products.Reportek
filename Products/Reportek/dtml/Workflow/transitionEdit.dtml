@@ -5,13 +5,13 @@
 <form action="edit" method="post">
 <table>
 	<tr>
-		<td class="form-label" style="vertical-align:top">Condition</td><td colspan="4"><input type="text" size="60" name="condition" value="<dtml-var condition>" size="60" /><br />
+		<td class="form-label" style="vertical-align:top">Condition</td><td colspan="4"><input type="text" size="100" name="condition" value="<dtml-var condition>" size="60" /><br />
 		Write the condition as a TAL expression like in:
 		<pre>python:instance.some_property=='value'</pre>
 		</td>
 	</tr>
 	<tr>
-		<td class="form-label" style="vertical-align:top">Description</td><td colspan="4"><input type="text" size="60" name="description" value="<dtml-var description>" /></td>
+		<td class="form-label" style="vertical-align:top">Description</td><td colspan="4"><input type="text" size="100" name="description" value="<dtml-var description>" /></td>
 	</tr>
 	<tr>
 		<td class="form-label" style="vertical-align:top">Transition</td>

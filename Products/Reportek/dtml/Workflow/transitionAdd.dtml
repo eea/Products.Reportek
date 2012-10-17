@@ -18,14 +18,14 @@ Transitions define the appropiate sequence of activities for a workflow.
 </tr>
 <tr>
 	<td class="form-label" style="vertical-align:top">Condition</td>
-	<td colspan="4"><input type="text" size="60" name="condition" value="" /><br />
+	<td colspan="4"><input type="text" size="100" name="condition" value="" /><br />
 		write the condition as a TAL expression like in:
 		<pre>python:instance.some_property=='value'</pre>
 	</td>
 </tr>
 <tr>
 	<td class="form-label" style="vertical-align:top">Description</td>
-	<td colspan="4"><input type="text" size="60" name="description" value="" /></td>
+	<td colspan="4"><input type="text" size="100" name="description" value="" /></td>
 </tr>
 <tr>
 	<td class="form-label" style="vertical-align:top">Transition</td>
