@@ -1,11 +1,36 @@
 <dtml-var manage_page_header>
 <dtml-var manage_tabs>
 
+<style>
+.workflow-graph {
+	overflow: hidden;
+}
+.workflow-graph img, .workflow-graph table {
+	float: left;
+	margin: 10px;
+}
+</style>
+
 <div style="text-align: right">
 <form action="." method="post">
 <input type="submit" name="manage_addActivityForm:method" value="Add Activity" />
 <input type="submit" name="manage_addTransitionForm:method" value="Add Transition" />
 </form>
+</div>
+
+<div class="workflow-graph">
+
+	<img src="<dtml-var absolute_url>/workflow_graph">
+
+	<table>
+	<dtml-in "workflow_graph_legend()" prefix="loop">
+		<tr>
+			<th><dtml-var expr="loop_item['short_name']"></th>
+			<td><dtml-var expr="loop_item['long_name']"></td>
+		</tr>
+	</dtml-in>
+	</table>
+
 </div>
 
 <h2>Activities</h2>

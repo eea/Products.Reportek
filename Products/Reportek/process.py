@@ -1,3 +1,9 @@
+import sys
+from StringIO import StringIO
+import subprocess
+import tempfile
+from path import path
+
 # Zope imports
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass, DTMLFile
@@ -224,5 +230,78 @@ class process(CatalogAware, Folder):
         Folder.manage_delObjects(self, ids)
         if REQUEST: REQUEST.RESPONSE.redirect(REQUEST.HTTP_REFERER)
 
+    security.declarePublic('workflow_graph_legend')
+    def workflow_graph_legend(self):
+        """ legend for the workflow graph """
+        shorts = process_to_dot(self)['shorts']
+        slist = [{'short_name': shorts[s], 'long_name': s} for s in shorts]
+        return sorted(slist, key=lambda i: i['short_name'])
+
+    security.declarePublic('workflow_graph')
+    def workflow_graph(self, REQUEST, RESPONSE):
+        """ graphical representation of the workflow state machine """
+        graph_data = process_to_dot(self)
+        with tempfile.NamedTemporaryFile() as dot, \
+             tempfile.NamedTemporaryFile() as out:
+            dot.write(graph_data['dot'])
+            dot.flush()
+            try:
+                dot_args = ['dot', '-Tpng', dot.name, '-o', out.name]
+                subprocess.check_output(dot_args)
+            except:
+                self.error_log.raising(sys.exc_info())
+                www = path(__file__).parent / 'www'
+                png = (www / 'graphviz-error.png').bytes()
+            else:
+                png = out.read()
+        RESPONSE.setHeader('Content-Type', 'image/png')
+        return png
+
 
 InitializeClass(process)
+
+
+def process_to_dot(process):
+    dot = StringIO()
+    dot.write('digraph finite_state_machine {\n')
+    dot.write('  rankdir=LR;\n')
+    dot.write('  size="8,5"\n')
+    dot.write('  node [shape = circle];\n')
+
+    def make_acronym(name):
+        return ''.join(ch for ch in name if ch.isupper())
+
+    shorts = {'-': 'cond'}
+    def namify(name, acronym=None):
+        if name not in shorts:
+            if acronym is None:
+                acronym = make_acronym(name)
+            sh0 = sh = acronym
+            n = 0
+            while sh in shorts.values():
+                n += 1
+                sh = '%s%d' % (sh0, n)
+            shorts[name] = sh
+        return shorts[name]
+
+    cond_prefix = 'python:'
+    for transition in process.objectValues('Transition'):
+        short_tr_from = namify(transition.From)
+        short_tr_to = namify(transition.To)
+        condition = transition.condition.strip()
+        if condition.startswith(cond_prefix):
+            condition = condition[len(cond_prefix):]
+        if condition:
+            condition = namify(condition, 'cond')
+        line = '{short_tr_from} -> {short_tr_to}'.format(**locals())
+        if condition:
+            line += ' [ label = "{condition}" ]'.format(**locals())
+        dot.write('  ' + line + ';\n')
+
+    dot.write('}\n')
+    del shorts['-']
+
+    return {
+        'dot': dot.getvalue(),
+        'shorts': shorts,
+    }
