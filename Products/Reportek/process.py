@@ -274,12 +274,6 @@ InitializeClass(process)
 
 
 def process_to_dot(process):
-    dot = StringIO()
-    dot.write('digraph finite_state_machine {\n')
-    dot.write('  rankdir=LR;\n')
-    dot.write('  size="8,5"\n')
-    dot.write('  node [shape = circle];\n')
-
     def make_acronym(name):
         return ''.join(ch for ch in name if ch.isupper())
 
@@ -287,6 +281,8 @@ def process_to_dot(process):
     def namify(name, acronym=None):
         if name not in shorts:
             if acronym is None:
+                if len(name) < 10:
+                    return name
                 acronym = make_acronym(name)
             sh0 = sh = acronym
             n = 0
@@ -297,6 +293,7 @@ def process_to_dot(process):
         return shorts[name]
 
     cond_prefix = 'python:'
+    link_lines = []
     for transition in process.objectValues('Transition'):
         short_tr_from = namify(transition.From)
         short_tr_to = namify(transition.To)
@@ -308,6 +305,17 @@ def process_to_dot(process):
         line = '{short_tr_from} -> {short_tr_to}'.format(**locals())
         if condition:
             line += ' [ label = "{condition}" ]'.format(**locals())
+        link_lines.append(line)
+
+    dot = StringIO()
+    dot.write('digraph finite_state_machine {\n')
+    dot.write('  rankdir=LR;\n')
+    dot.write('  size="8,5"\n')
+    dot.write('  node [shape = doublecircle]; %s;\n' %
+              ' '.join(namify(s) for s in [process.begin, process.end]))
+    dot.write('  node [shape = circle];\n')
+
+    for line in link_lines:
         dot.write('  ' + line + ';\n')
 
     dot.write('}\n')
