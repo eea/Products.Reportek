@@ -311,8 +311,8 @@ def process_to_dot(process):
     dot.write('digraph finite_state_machine {\n')
     dot.write('  rankdir=LR;\n')
     dot.write('  size="8,5"\n')
-    dot.write('  node [shape = doublecircle]; %s;\n' %
-              ' '.join(namify(s) for s in [process.begin, process.end]))
+    dot.write('  node [shape = doublecircle]; %s;\n' % namify(process.begin))
+    dot.write('  node [shape = doubleoctagon]; %s;\n' % namify(process.end))
     dot.write('  node [shape = circle];\n')
 
     for line in link_lines:
