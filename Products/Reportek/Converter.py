@@ -195,6 +195,7 @@ class LocalHttpConverter(Converter):
     def convert(self, file_obj, converter_id):
         url = '%s%s' % (self.get_local_http_converters_url(), self.convert_url)
         resp = requests.post(url, data=file_obj.data_file.open())
+        self.REQUEST.RESPONSE.setStatus(resp.status_code, resp.reason)
         self.REQUEST.RESPONSE.setHeader('Content-Type', self.ct_output)
         return resp.content
 
