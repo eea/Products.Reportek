@@ -116,6 +116,9 @@ class OpenFlowEngine(Folder):
     security.declareProtected('Manage OpenFlow', 'manage_editActivitiesPullableOnRole')
     manage_editActivitiesPullableOnRole = PageTemplateFile('zpt/Workflow/manage_editActivitiesPullableOnRole', globals())
 
+    security.declareProtected('Manage OpenFlow', 'manage_role_table')
+    manage_role_table = PageTemplateFile('zpt/Workflow/manage_role_table.zpt', globals())
+
     security.declareProtected('Manage OpenFlow', 'Roles')
     Roles = PageTemplateFile('zpt/Workflow/workflowRoles', globals())
 
