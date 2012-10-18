@@ -193,7 +193,8 @@ class RemoteConverter(Converter):
 class LocalHttpConverter(Converter):
 
     def convert(self, file_obj, converter_id):
-        resp = requests.post('http://127.0.0.1:5000/%s' %self.convert_url, data=file_obj.data_file.open())
+        url = '%s%s' % (self.get_local_http_converters_url(), self.convert_url)
+        resp = requests.post(url, data=file_obj.data_file.open())
         return resp.content
 
 Globals.InitializeClass(Converter)

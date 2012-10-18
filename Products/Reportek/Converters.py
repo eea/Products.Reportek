@@ -94,8 +94,11 @@ class Converters(Folder):
             message="Content changed"
             return self.manage_converters_html(self,REQUEST,manage_tabs_message=message)
 
+    def get_local_http_converters_url(self):
+        return 'http://localhost:5000/'  # TODO configure via os.environ
+
     def _http_params(self):
-        url = 'http://localhost:5000/params'
+        url = self.get_local_http_converters_url() + 'params'
         resp = requests.get(url)
         return resp.json['list']
 
