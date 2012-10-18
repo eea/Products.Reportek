@@ -2,6 +2,7 @@ import unittest
 import requests
 from path import path
 from utils import create_fake_root
+from common import create_mock_request
 from mock import patch, Mock
 from Products.Reportek.Converters import Converters
 from Products.Reportek.Converter import Converter, LocalHttpConverter
@@ -28,6 +29,8 @@ class ConversionServiceTest(unittest.TestCase):
         self.app = create_fake_root()
         self.app._setObject('Converters', Converters())
         self.prefix = 'http_'
+        from ZPublisher.BaseRequest import RequestContainer
+        self.app = self.app.__of__(RequestContainer(REQUEST=create_mock_request()))
 
     @patch.object(Converters, '_get_local_converters')
     def test_only_http_converters(self, mock_local_converters):
