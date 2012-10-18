@@ -1,5 +1,6 @@
 <tal:block content="structure here/manage_page_header" />
-<tal:block define="management_view string:Roles" content="structure here/manage_tabs" />
+<tal:block define="manage_tabs_message python:options.get('manage_tabs_message')"
+           content="structure here/manage_tabs" />
 
 <style>
 .roles-map {
@@ -25,25 +26,34 @@ This page sets what roles can do what.
 <tal:block define="global valid_roles python:here.valid_roles();
                    global role_map python:here.getActivitiesPullableOnRole()" />
 
+<form method="post" tal:attributes="action string:${here/absolute_url}/manage_role_table_submit">
+
 <table border="1" class="roles-map">
-<tr>
-  <th></th>
-  <th tal:repeat="role valid_roles" tal:content="role"></th>
-</tr>
-<tal:block define="process python:here[request.form.get('process', 'default')]">
-  <tr tal:repeat="activity python:process.objectValues('Activity')">
+
+  <tr>
+    <th></th>
+    <th tal:repeat="role valid_roles" tal:content="role"></th>
+  </tr>
+
+  <tr tal:repeat="activity python:here.objectValues('Activity')">
     <td tal:content="python:activity.getId()"></td>
     <td tal:repeat="role valid_roles" class="has-role">
       <tal:block define="processes python:role_map.get(role, {});
-                         aprocess python:processes.get(process.id, [])">
+                         aprocess python:processes.get(here.getId(), [])">
         <label>
-          <input type="checkbox" name="activities:list"
-                 tal:attributes="checked python:activity.id in aprocess">
+          <input type="checkbox"
+                 tal:attributes="name string:activities-${role}:list;
+                                 value python:activity.getId();
+                                 checked python:activity.id in aprocess">
         </label>
       </tal:block>
     </td>
   </tr>
-</tal:block>
+
 </table>
+
+<button type="submit">save</button>
+
+</form>
 
 <tal:block content="structure here/manage_page_footer" />

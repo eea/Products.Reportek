@@ -8,6 +8,7 @@ import requests
 # Zope imports
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass, DTMLFile
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from OFS.Folder import Folder
 from DateTime import DateTime
 from Products.ZCatalog.CatalogPathAwareness import CatalogAware
@@ -45,6 +46,7 @@ class process(CatalogAware, Folder):
 
     manage_options = (
             {'label' : 'Map', 'action' : 'index_html'},
+            {'label' : 'Roles', 'action' : 'manage_role_table'},
         ) + Folder.manage_options[0:1] + Folder.manage_options[2:]
 
     def __init__(self, id, title, description, BeginEnd, priority, begin, end):
@@ -79,6 +81,17 @@ class process(CatalogAware, Folder):
 
 #   security.declareProtected('Manage OpenFlow', 'Setting')
 #   Setting = DTMLFile('dtml/Workflow/processSetting', globals())
+
+    security.declareProtected('Manage OpenFlow', 'manage_role_table')
+    manage_role_table = PageTemplateFile('zpt/Workflow/manage_role_table.zpt', globals())
+
+    def manage_role_table_submit(self, REQUEST):
+        """ Modify roles for activities in this process """
+        for role in self.valid_roles():
+            activities = REQUEST.form.get('activities-' + role, [])
+            self.aq_parent.editActivitiesPullableOnRole(role, self.getId(),
+                                                        activities)
+        return self.manage_role_table(manage_tabs_message="Roles updated")
 
     def listActivities(self):
         return sorted(self.objectIds('Activity'))
