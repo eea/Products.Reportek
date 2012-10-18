@@ -3,6 +3,7 @@ from StringIO import StringIO
 import subprocess
 import tempfile
 from path import path
+import requests
 
 # Zope imports
 from AccessControl import ClassSecurityInfo
@@ -240,20 +241,18 @@ class process(CatalogAware, Folder):
     security.declarePublic('workflow_graph')
     def workflow_graph(self, REQUEST, RESPONSE):
         """ graphical representation of the workflow state machine """
+        converters_url = self.Converters.get_local_http_converters_url()
         graph_data = process_to_dot(self)
-        with tempfile.NamedTemporaryFile() as dot, \
-             tempfile.NamedTemporaryFile() as out:
-            dot.write(graph_data['dot'])
-            dot.flush()
-            try:
-                dot_args = ['dot', '-Tpng', dot.name, '-o', out.name]
-                subprocess.check_output(dot_args)
-            except:
-                self.error_log.raising(sys.exc_info())
-                www = path(__file__).parent / 'www'
-                png = (www / 'graphviz-error.png').bytes()
-            else:
-                png = out.read()
+        resp = requests.post(converters_url + 'convert/graphviz',
+                             files={'file': graph_data['dot']})
+
+        if resp.status_code == 200:
+            png = resp.content
+
+        else:
+            www = path(__file__).parent / 'www'
+            png = (www / 'graphviz-error.png').bytes()
+
         RESPONSE.setHeader('Content-Type', 'image/png')
         return png
 
