@@ -156,7 +156,8 @@ class Converters(Folder):
         filesuffix = filename[filename.find('.')+1:] # Drop everything up to period.
         if filesuffix == '': filesuffix='totally-unlikely-suffix.'
         # Find in list of local converters
-        for conv_obj in self._get_local_converters():
+        available_local_converters = self._get_local_converters()
+        for conv_obj in available_local_converters:
             if ((contentType and contentType in conv_obj.ct_input) or
                 ((not contentType or contentType == 'application/octet-stream') and
                   conv_obj.suffix == filesuffix
@@ -174,17 +175,24 @@ class Converters(Folder):
                            'description':conv_obj.title,
                            'content_type_out': conv_obj.ct_output,
                            'more_info': conv_obj.description})
-            elif contentType != 'application/octet-stream':
+            elif contentType and contentType != 'application/octet-stream':
                 # Getting here means:
                 # (contentType and no matching converter) and
                 # (jundging by the file extension there are converters available):
 
-                detection_log.warning(
-                    'No converter found based on this mime-type "%s",\n'
-                    'but there are converters able to handle this extension "%s".\n'
-                    'Perhaps you should consider adding this mime-type to '
-                    'one or more of these converters: \n'
-                    '* %s' %(contentType, filesuffix, 'test2sentry'))
+                possible_good_converters = ''
+                for conv_obj in available_local_converters:
+                    if filesuffix == conv_obj.suffix:
+                        possible_good_converters+=('%s\n' %conv_obj.id)
+
+                if possible_good_converters.strip():
+                    message = (
+                        'No converter found based on this mime-type "%s",\n'
+                        'but there are converters able to handle this extension "%s".\n'
+                        'Perhaps you should consider adding this mime-type to '
+                        'one or more of these converters: \n'
+                        '%s' %(contentType, filesuffix, possible_good_converters))
+                    detection_log.warning(message)
 
         # Only look in remotes if schema is not empty
         if doc_schema:
