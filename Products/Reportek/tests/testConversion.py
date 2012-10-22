@@ -101,6 +101,90 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.assertEquals(1, len(local_converters))
         self.assertEquals(0, len(remote_converters))
 
+    #Run this test individually only
+    #@unittest.skip('Skipped because nose is messing up with logging')
+    @patch.object(Converters, '_http_params')
+    def test_logging_with_unavailable_contentType(self, mock_http_params):
+        """
+         if ((contentType not in [None, 'application/octet-stream'])
+              and no matching convertor) and
+            (jundging by the file extension there are converters available):
+            do: log to sentry
+        """
+        mock_http_params.return_value = [
+            [
+              "http_test2sentry",
+              "Log to sentry",
+              "convert/test2sentry",
+              [
+                "test/sentry"
+              ],
+              "text/plain",
+              "",
+              [],
+              "",
+              "testextension"
+            ]
+        ]
+        import logging
+        detection_log = logging.getLogger('Products.Reportek'
+                                          '.Converters.detection')
+        from tempfile import NamedTemporaryFile
+        tmp = NamedTemporaryFile(mode='w+b', delete=False)
+        fh = logging.FileHandler(tmp.name)
+        fh.setLevel(logging.WARNING)
+        detection_log.addHandler(fh)
+        converters = getattr(self.app, CONVERTERS_ID)
+        loc, rem = converters.displayPossibleConversions(
+                       'wrong/mime',
+                       filename="file.testextension")
+        detection_log.removeHandler(fh)
+        with open(tmp.name, 'rb') as tmp:
+            self.assertEqual('No converter found based on this mime-type [%s],\n'
+                             'but there are converters able to handle this extension [%s].\n'
+                             'Perhaps you should consider adding this mime-type to '
+                             'one or more of these converters: \n'
+                             '* %s' %('wrong/mime', 'testextension', 'test2sentry\n'), tmp.read())
+        import os
+        os.remove(tmp.name)
+
+    #Run this test individually only
+    #@unittest.skip('Skipped because nose is messing up with logging')
+    @patch.object(Converters, '_http_params')
+    def test_logging_with_available_contentType(self, mock_http_params):
+        mock_http_params.return_value = [
+            [
+              "http_test2sentry",
+              "Log to sentry",
+              "convert/test2sentry",
+              [
+                "good/mime"
+              ],
+              "text/plain",
+              "",
+              [],
+              "",
+              "testextension"
+            ]
+        ]
+        import logging
+        detection_log = logging.getLogger('Products.Reportek'
+                                          '.Converters.detection')
+        from tempfile import NamedTemporaryFile
+        tmp = NamedTemporaryFile(mode='w+b', delete=False)
+        fh = logging.FileHandler(tmp.name)
+        fh.setLevel(logging.WARNING)
+        detection_log.addHandler(fh)
+        converters = getattr(self.app, CONVERTERS_ID)
+        loc, rem = converters.displayPossibleConversions(
+                       'good/mime',
+                       filename="file.testextension")
+        detection_log.removeHandler(fh)
+        tmp = open(tmp.name, 'rb')
+        self.assertEqual('', tmp.read())
+        import os
+        os.remove(tmp.name)
+
     def test_nullSuffixConverter(self):
         """ Add a local pdf converter, check it is *not* found on suffix, because filename ends with . """
         converters = getattr(self.app, CONVERTERS_ID)
