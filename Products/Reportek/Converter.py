@@ -39,6 +39,8 @@ import requests
 import string
 import xmlrpclib
 
+from RepUtils import extension
+
 manage_addConverterForm = Globals.DTMLFile('dtml/converterAdd', globals())
 
 def manage_addConverter(self, id, title='', convert_url='', ct_input='', ct_output='', ct_schema='', ct_extraparams='', description='', suffix='', REQUEST=None):
@@ -191,6 +193,10 @@ class RemoteConverter(Converter):
 
 
 class LocalHttpConverter(Converter):
+
+    def __init__(self, *args, **kwargs):
+        super(LocalHttpConverter, self).__init__(*args, **kwargs)
+        self.suffix = extension(self.ct_input)
 
     def convert(self, file_obj, converter_id):
         url = '%s%s' % (self.get_local_http_converters_url(), self.convert_url)

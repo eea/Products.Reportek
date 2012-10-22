@@ -1,0 +1,54 @@
+{
+
+   "7z": ["application/x-7z-compressed", "application/x-7zip"],
+
+   "doc": ["application/msword"],
+
+   "dbf": ["application/x-dbf"],
+
+   "gif": ["image/gif"],
+
+   "gml": ["text/xml"],
+
+   "htm": ["text/html"],
+
+   "html": ["text/html"],
+
+   "jpe": ["image/jpeg"],
+
+   "jpeg": ["image/jpeg"],
+
+   "jpg": ["image/jpeg"],
+
+   "mdb": [
+            "application/x-msaccess",
+            "application/vnd.ms-access"
+          ],
+
+   "ods": [
+            "application/vnd.oasis.opendocument.spreadsheet"
+          ],
+
+   "odt": [
+            "application/vnd.oasis.opendocument.text"
+          ],
+
+   "pdf": ["application/pdf"],
+
+   "pps": ["application/vnd.ms-powerpoint"],
+
+   "ppt": ["application/vnd.ms-powerpoint"],
+
+   "prj": ["application/x-prj"],
+
+   "rar": ["application/x-rar-compressed"],
+
+   "shp": ["application/x-shp"],
+
+   "swf": ["application/x-shockwave-flash"],
+
+   "txt": ["text/plain"],
+
+   "zip": ["application/zip"]
+
+}

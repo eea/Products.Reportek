@@ -28,6 +28,7 @@ import tempfile
 import traceback
 import string,base64,time
 import operator
+import json
 from types import FunctionType
 from urllib import FancyURLopener
 from webdav.common import rfc1123_date
@@ -405,3 +406,23 @@ def ofs_file_content_tmp(ofs_file):
         raise ValueError("Unknown meta_type %r" % ofs_file.meta_type)
     tmp_data.seek(0)
     return tmp_data
+
+
+def _mime_types():
+    mime_types = _load_json("mime_types.json")
+    return mime_types
+
+
+def extension(accepted_mime_types):
+    for ext, mimes in mime_types.iteritems():
+        for mime in mimes:
+            if mime in accepted_mime_types:
+                return ext
+
+
+def _load_json(name):
+    with open(os.path.join(os.path.dirname(__file__), name), "rb") as f:
+        return json.load(f)
+
+
+mime_types = _mime_types()

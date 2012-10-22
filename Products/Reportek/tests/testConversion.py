@@ -12,6 +12,7 @@ ZopeTestCase.installProduct('PythonScripts')
 
 from Products.Reportek.constants import WEBQ_XML_REPOSITORY, CONVERTERS_ID
 from Products.Reportek.Converters import Converters
+from Products.Reportek.Converter import Converter
 
 
 def setUpModule(self):
@@ -100,6 +101,31 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
                                                   filename="myfile.pdf")
         self.assertEquals(1, len(local_converters))
         self.assertEquals(0, len(remote_converters))
+
+    @patch('Products.Reportek.Converter.extension')
+    @patch.object(Converters, '_http_params')
+    def test_extension_detection_based_on_mimetype(self, mock_http_params, mock_extension):
+        mock_http_params.return_value = [
+            [
+              "http_test",
+              "Test converter",
+              "convert/test",
+              [
+                "test/mime"
+              ],
+              "text/plain",
+              "",
+              [],
+              "",
+              ""
+            ]
+        ]
+
+        mock_extension.return_value = 'tst'
+        converters = getattr(self.app, CONVERTERS_ID)
+        loc = converters._get_local_converters()
+        assert len(loc)==1
+        self.assertEqual(loc[0].suffix, 'tst')
 
     def test_nullSuffixConverter(self):
         """ Add a local pdf converter, check it is *not* found on suffix, because filename ends with . """
