@@ -35,6 +35,9 @@ remote_feedback_log = logging.getLogger('Products.Reportek'
 remote_conversion_log = logging.getLogger('Products.Reportek'
                                           '.EnvelopeCustomDataflows.conversion')
 
+converter_detection_log = logging.getLogger('Products.Reportek'
+                                            '.Converters.detection')
+
 
 def log_pub_failure(event):
     if event.retry:
@@ -88,3 +91,4 @@ def initialize():
         remote_feedback_log.addHandler(sentry_handler)
         cube_log.addHandler(sentry_handler)
         remote_conversion_log.addHandler(sentry_handler)
+        converter_detection_log.addHandler(sentry_handler)

@@ -86,12 +86,18 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         local_converters, remote_converters = converters.displayPossibleConversions('text/pdf')
         self.assertEquals(0, len(local_converters))
         self.assertEquals(0, len(remote_converters))
-        # Lookup on suffix
-        local_converters, remote_converters = converters.displayPossibleConversions('text/pdf',filename="myfile.pdf")
-        self.assertEquals(1, len(local_converters))
+        # Lookup on suffix should fail in this case (no local converters)
+        # because the mime type is not application/octet-stream and
+        # there's no convertor accepting this mime-type
+        local_converters, remote_converters = converters.displayPossibleConversions(
+                                                  'text/pdf',
+                                                  filename="myfile.pdf")
+        self.assertEquals(0, len(local_converters))
         self.assertEquals(0, len(remote_converters))
         # Check that the same converter is only listed once
-        local_converters, remote_converters = converters.displayPossibleConversions('application/pdf',filename="myfile.pdf")
+        local_converters, remote_converters = converters.displayPossibleConversions(
+                                                  'application/pdf',
+                                                  filename="myfile.pdf")
         self.assertEquals(1, len(local_converters))
         self.assertEquals(0, len(remote_converters))
 
