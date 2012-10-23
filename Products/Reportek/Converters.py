@@ -152,17 +152,13 @@ class Converters(Folder):
         """ Finds the converters available for a type of document. """
         local_converters = []
         remote_converters = []
-
         filesuffix = filename[filename.find('.')+1:] # Drop everything up to period.
         if filesuffix == '': filesuffix='totally-unlikely-suffix.'
         # Find in list of local converters
         available_local_converters = self._get_local_converters()
+        possible_good_converters = ''
         for conv_obj in available_local_converters:
-            if ((contentType and contentType in conv_obj.ct_input) or
-                ((not contentType or contentType == 'application/octet-stream') and
-                  conv_obj.suffix == filesuffix
-                )
-               ):
+            if contentType in conv_obj.ct_input or conv_obj.suffix == filesuffix:
                 if doc_schema:
                     if conv_obj.ct_schema == doc_schema:
                         local_converters.append({'xsl':conv_obj.id,
@@ -175,24 +171,23 @@ class Converters(Folder):
                            'description':conv_obj.title,
                            'content_type_out': conv_obj.ct_output,
                            'more_info': conv_obj.description})
-            elif contentType and contentType != 'application/octet-stream':
-                # Getting here means:
-                # (contentType and no matching converter) and
-                # (jundging by the file extension there are converters available):
+                if (contentType and
+                    (contentType != 'application/octet-stream') and
+                    contentType not in conv_obj.ct_input and
+                    filesuffix == conv_obj.suffix):
+                    # Getting here means:
+                    # (contentType and no matching converter) and
+                    # (jundging by the file extension there are converters available):
+                    possible_good_converters+=('%s\n' %conv_obj.id)
 
-                possible_good_converters = ''
-                for conv_obj in available_local_converters:
-                    if filesuffix == conv_obj.suffix:
-                        possible_good_converters+=('%s\n' %conv_obj.id)
-
-                if possible_good_converters.strip():
-                    message = (
-                        'No converter found based on this mime-type "%s",\n'
-                        'but there are converters able to handle this extension "%s".\n'
-                        'Perhaps you should consider adding this mime-type to '
-                        'one or more of these converters: \n'
-                        '%s' %(contentType, filesuffix, possible_good_converters))
-                    detection_log.warning(message)
+        if possible_good_converters.strip():
+            message = (
+                'No converter found based on this mime-type "%s",\n'
+                'but there are converters able to handle this extension "%s".\n'
+                'Perhaps you should consider adding this mime-type to '
+                'one or more of these converters: \n'
+                '%s' %(contentType, filesuffix, possible_good_converters))
+            detection_log.warning(message)
 
         # Only look in remotes if schema is not empty
         if doc_schema:
