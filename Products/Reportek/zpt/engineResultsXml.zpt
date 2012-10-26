@@ -36,7 +36,7 @@
       <metal:block fill-slot="resultsTableRowFormat">
         <td tal:content="python:obj.getCountryName()">country_name</td>
         <td>
-            <a tal:attributes="href python:obj.absolute_url_path()"
+            <a tal:attributes="href string:${obj/absolute_url_path}/manage_document"
                tal:content="python:obj.title or obj.id">
                 title_link
             </a>
