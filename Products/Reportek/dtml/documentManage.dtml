@@ -1,62 +1,6 @@
-<script src="++resource++static/datatables-1.9.4/js/jquery.js"></script>
-<script src="++resource++static/datatables-1.9.4/js/jquery.dataTables.js"></script>
+<script src="++resource++static/jquery-1.8.2.min.js"></script>
 <script src="++resource++static/spin.min.js"></script>
-<script type="text/javascript" charset="utf-8">
-    $(document).ready(function() {
-            $('.converter').click(function(event) {
-                String.prototype.format = function() {
-                  var args = arguments;
-                    return this.replace(/{(\d+)}/g, function(match, number) { 
-                            return typeof args[number] != 'undefined'
-                                  ? args[number]
-                                        : match
-                                            ;
-                                              });
-                    };
-                event.preventDefault();
-                conv_id = this.getAttribute('conv_id');
-                conv_source = this.getAttribute('conv_source');
-                conv_file = this.getAttribute('conv_file');
-                url_string = './ajax_convert?conv={0}&source={1}&file={2}'.format(
-                            conv_id, conv_source, conv_file)
-                $.ajax({
-                    url: url_string,
-                    beforeSend: function(){
-                        var opts = {
-                          lines: 13, // The number of lines to draw
-                          length: 10, // The length of each line
-                          width: 5, // The line thickness
-                          radius: 30, // The radius of the inner circle
-                          corners: 1, // Corner roundness (0..1)
-                          rotate: 0, // The rotation offset
-                          color: '#000', // #rgb or #rrggbb
-                          speed: 1, // Rounds per second
-                          trail: 60, // Afterglow percentage
-                          shadow: false, // Whether to render a shadow
-                          hwaccel: false, // Whether to use hardware acceleration
-                          className: 'spinner', // The CSS class to assign to the spinner
-                          zIndex: 2e9, // The z-index (defaults to 2000000000)
-                          top: 'auto', // Top position relative to parent in px
-                          left: 'auto' // Left position relative to parent in px
-                        };
-                        $('#content').html("<div id='spinner' style='min-height: 450px'></div>");
-                        var target = document.getElementById('spinner');
-                        var spinner = new Spinner(opts).spin(target);
-                    },
-                    success: function(data){
-                        $('#content').html(data);
-                        $('#content').css({'max-height': '430px', 'overflow': 'auto'});
-                    },
-                    statusCode:{
-                        500: function(data){
-                                $('#content').html('Convertsion error.');
-                             }
-                    }
-                });
-            });
-
-    });
-</script>
+<script src="++resource++static/doc_conversion.js"></script>
 <dtml-var standard_html_header>
 <dtml-if canViewContent>
 
