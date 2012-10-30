@@ -45,6 +45,26 @@ var _init = function init(event){
             else{
                 $('#result').append(data);
             }
+            /* make thead from the first row of the table */
+            var tables = $('table');
+            var first_rows = $('table tr:first-child').remove()
+            for(var i=0;i<$('table').length;i++){
+                $('table:eq({0})'.format(i)).prepend(
+                        $('<thead></thead>').append(first_rows[i])
+                );
+                 $('table > tbody > tr').removeClass('odd');
+                 $('table > tbody > tr').removeClass('xx');
+            }
+            var make_th = function (){
+                return '<th>{0}</th>'.format($(this).contents()[0].textContent);
+            }
+            $('table > thead > tr:first-child > td').replaceWith(make_th);
+            for(var i=0;i<$('table').length;i++){
+                try{
+                    $('table:eq({0})'.format(i)).dataTable();
+                } catch(e) {
+                };
+            }
 
         },
         statusCode:{

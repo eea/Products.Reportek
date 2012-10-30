@@ -1,6 +1,7 @@
 <script src="++resource++static/jquery-1.8.2.min.js"></script>
 <script src="++resource++static/spin.min.js"></script>
 <script src="++resource++static/doc_conversion.js"></script>
+<script src="++resource++static/datatables-1.9.4/js/jquery.dataTables.min.js"></script>
 <link rel="stylesheet" type="text/css" href="++resource++static/css/doc_conversion.css">
 <dtml-var standard_html_header>
 <dtml-if canViewContent>
