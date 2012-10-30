@@ -56,16 +56,20 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.document = self.envelope.documentid
         self.assertEquals('text/plain', self.document.content_type)
 
-    def test_hasConvertersObj(self):
+    @patch.object(Converters, '_http_params')
+    def test_hasConvertersObj(self, mock_http_params):
         """ Check that there are no converters in the beginning """
+        mock_http_params.return_value = []
         converters = getattr(self.app, CONVERTERS_ID)
         self.assertNotEqual(None, converters)
         local_converters, remote_converters = converters.displayPossibleConversions('text/plain')
         self.assertEquals(0, len(local_converters))
         self.assertEquals(0, len(remote_converters))
 
-    def test_addLocalConverter(self):
+    @patch.object(Converters, '_http_params')
+    def test_addLocalConverter(self, mock_http_params):
         """ Add a local converter, check it is found, run a simple conversion """
+        mock_http_params.return_value = []
         converters = getattr(self.app, CONVERTERS_ID)
         converters.manage_addConverter('reversetxt', title='Reverse', convert_url='rev %s', ct_input='text/plain', ct_output='text/plain')
         local_converters, remote_converters = converters.displayPossibleConversions('text/plain')
@@ -125,8 +129,10 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         assert len(loc)==1
         self.assertEqual(loc[0].suffix, 'tst')
 
-    def test_nullSuffixConverter(self):
+    @patch.object(Converters, '_http_params')
+    def test_nullSuffixConverter(self, mock_http_params):
         """ Add a local pdf converter, check it is *not* found on suffix, because filename ends with . """
+        mock_http_params.return_value = []
         converters = getattr(self.app, CONVERTERS_ID)
         converters.manage_addConverter('pdftext', title='Show as text',
                convert_url='pdf2txt %s', ct_input='application/pdf',
