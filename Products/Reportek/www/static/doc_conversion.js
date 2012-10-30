@@ -39,7 +39,7 @@ var _init = function init(event){
             $('#container').replaceWith("<div id='result'></div>");
             $('#result').append(operations_html);
             $('#operations a').text('Back to document');
-            if(data.getResponseHeader=='plain/text'){
+            if(typeof(data)=='string'){
                 $('#result').append("<pre>{0}</pre>".format(data));
             }
             else{
