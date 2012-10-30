@@ -475,4 +475,14 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         strg = strg+ ' ' + typ
         return strg
 
+    def ajax_convert(self, REQUEST):
+        """ """
+        conv_id = REQUEST.get('id')
+        conv_source = REQUEST.get('source')
+        conv_file = REQUEST.get('file')
+        response = self.Converters.run_conversion(REQUEST=REQUEST)
+        return response
+
+
+
 Globals.InitializeClass(Document)
