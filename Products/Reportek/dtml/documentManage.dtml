@@ -3,6 +3,7 @@
 <script src="++resource++static/doc_conversion.js"></script>
 <script src="++resource++static/datatables-1.9.4/js/jquery.dataTables.min.js"></script>
 <link rel="stylesheet" type="text/css" href="++resource++static/css/doc_conversion.css">
+<link rel="stylesheet" type="text/css" href="++resource++static/datatables-1.9.4/css/jquery.dataTables.css">
 <dtml-var standard_html_header>
 <dtml-if canViewContent>
 

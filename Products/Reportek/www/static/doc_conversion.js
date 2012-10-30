@@ -52,9 +52,9 @@ var _init = function init(event){
                 $('table:eq({0})'.format(i)).prepend(
                         $('<thead></thead>').append(first_rows[i])
                 );
-                 $('table > tbody > tr').removeClass('odd');
-                 $('table > tbody > tr').removeClass('xx');
             }
+            $('table > tbody > tr').removeClass('odd');
+            $('table > tbody > tr').removeClass('xx');
             var make_th = function (){
                 return '<th>{0}</th>'.format($(this).contents()[0].textContent);
             }
