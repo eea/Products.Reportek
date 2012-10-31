@@ -20,7 +20,7 @@
               <tal:block define="text python:value['TITLE'][:75] + ' ...' if len(value['TITLE'])>75 else value['TITLE'];">
               <option tal:attributes="value value/uri;
                                       label text;
-                                      class python: 'terminated' if value.get('terminated') else ''"
+                                      class python: 'terminated' if value.get('terminated')=='0' else ''"
                       tal:content="text"/>
               </tal:block>
           </tal:block>
