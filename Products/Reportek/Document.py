@@ -333,14 +333,20 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     # Below there are the two forms for the document operations
     # The second one contains links to the file editing (regular upload 
     # or editing with external editors e.g. XForms)
+    _manage_template = DTMLFile('dtml/documentManage', globals())
+
     security.declareProtected('View', 'manage_document')
-    manage_document = DTMLFile('dtml/documentManage', globals())
+    def manage_document(self, REQUEST=None):
+        """ """
+        return self._manage_template(manage_and_edit=False)
+
+    security.declareProtected('View', 'manage_edit_document')
+    def manage_edit_document(self, REQUEST=None):
+        """ """
+        return self._manage_template(manage_and_edit=True)
 
     security.declareProtected('View', 'flash_document')
     flash_document = DTMLFile('dtml/documentFlashView', globals())
-
-    security.declareProtected('View', 'manage_edit_document')
-    manage_edit_document = DTMLFile('dtml/documentManageAndEdit', globals())
 
     security.declareProtected('Change Envelopes', 'manage_restrictDocument')
     def manage_restrictDocument(self, REQUEST=None):

@@ -2,7 +2,6 @@
 <script src="++resource++static/spin.min.js"></script>
 <script src="++resource++static/doc_conversion.js"></script>
 <script src="++resource++static/datatables-1.9.4/js/jquery.dataTables.min.js"></script>
-<link rel="stylesheet" type="text/css" href="++resource++static/css/doc_conversion.css">
 <link rel="stylesheet" type="text/css" href="++resource++static/datatables-1.9.4/css/jquery.dataTables.css">
 <dtml-var standard_html_header>
 <dtml-if canViewContent>
@@ -58,6 +57,25 @@
 	<p><strong>Warning:</strong> this file is empty so viewing it in different formats might not work as expected!</p>
 </dtml-if>
 </fieldset>
+
+<dtml-if "not released and canChangeFile and manage_and_edit">
+<fieldset><legend>Change file</legend>
+<ul>
+<dtml-if isGML>
+	<dtml-if can_view_or_edit_with_webq>
+		<li><a href="<dtml-var beforeEditForm>?mode=edit&amp;language=En&amp;schema=<dtml-var xml_schema_location url_quote>&amp;instance=<dtml-var absolute_url url_quote>&amp;instance_title=<dtml-var title_or_id>">Edit metadata with Web form</a></li>
+	</dtml-if>
+	<li><a href="uploadESRI?file=<dtml-var id>">Upload ESRI</a></li>
+<dtml-elif can_view_or_edit_with_webq>
+	<li><a href="<dtml-var beforeEditForm>?mode=edit&amp;language=En&amp;schema=<dtml-var xml_schema_location url_quote>&amp;instance=<dtml-var absolute_url url_quote>&amp;instance_title=<dtml-var title_or_id>" title="Edit with formular">Edit file with Web form</a></li>
+<dtml-else>
+	<form action="<dtml-var absolute_url>/manage_file_upload" method="post" enctype="multipart/form-data">
+	<li>Local upload: <input type="file" name="file" size="25" value="" /> <input type="submit" value="Upload" /></li>
+	</form>
+</dtml-if>
+</ul>
+</fieldset>
+</dtml-if>
 
 <fieldset><legend>Edit file properties</legend>
 <form name="edit" id="edit" action="<dtml-var URL1>" method="post">

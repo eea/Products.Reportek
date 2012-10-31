@@ -2,7 +2,6 @@ var container_html = '';
 var operations_html = '';
 var _init = function init(event){
     event.preventDefault();
-    /*event.stopPropagation();*/
     trigger_obj = event.target;
     conv_id = trigger_obj.getAttribute('conv_id');
     conv_source = trigger_obj.getAttribute('conv_source');
@@ -65,6 +64,10 @@ var _init = function init(event){
                 } catch(e) {
                 };
             }
+            $('pre').css({
+                'background-color': 'white',
+                'overflow': 'visible'
+            });
 
         },
         statusCode:{
