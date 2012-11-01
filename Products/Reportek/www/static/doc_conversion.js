@@ -44,26 +44,20 @@ var _init = function init(event){
             else{
                 $('#result').append(data);
             }
+
             /* make thead from the first row of the table */
-            var tables = $('table');
-            var first_rows = $('table tr:first-child').remove()
-            for(var i=0;i<$('table').length;i++){
-                $('table:eq({0})'.format(i)).prepend(
-                        $('<thead></thead>').append(first_rows[i])
-                );
+            var headless_tables = $('table:not(table:has(thead))');
+            var first_rows = $('tr:first-child', headless_tables).remove()
+            $(headless_tables).prepend($('<thead></thead>'));
+            for(var i=0;i<$(headless_tables).length;i++){
+                var first_row = $(first_rows)[i];
+                var thead = $('thead', headless_tables)[i];
+                $('td > *', first_row).unwrap().wrap('<th>'); /*replace td with th*/
+                $(thead).append($(first_row));
             }
             $('table > tbody > tr').removeClass('odd');
             $('table > tbody > tr').removeClass('xx');
-            var make_th = function (){
-                return '<th>{0}</th>'.format($(this).contents()[0].textContent);
-            }
-            $('table > thead > tr:first-child > td').replaceWith(make_th);
-            for(var i=0;i<$('table').length;i++){
-                try{
-                    $('table:eq({0})'.format(i)).dataTable();
-                } catch(e) {
-                };
-            }
+            $(headless_tables).dataTable();
             $('pre').css({
                 'background-color': 'white',
                 'overflow': 'visible'
@@ -91,13 +85,10 @@ $(document).ready(function() {
     container_html = $('#container').html();
     operations_html = $('#operations');
     String.prototype.format = function() {
-      var args = arguments;
+        var args = arguments;
         return this.replace(/{(\d+)}/g, function(match, number) {
-                return typeof args[number] != 'undefined'
-                      ? args[number]
-                            : match
-                                ;
-                                  });
+            return typeof args[number] != 'undefined' ? args[number] : match ;
+        });
     };
     $('body').on('click', '#result #operations a', function(event){
         event.preventDefault();
