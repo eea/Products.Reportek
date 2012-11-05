@@ -37,6 +37,7 @@ def manage_addDataflowMappingRecord(self, id, title='', dataflow_uri='', allowed
     """ add a new converter object """
     ob = DataflowMappingRecord(id, title, dataflow_uri, allowedSchemas, webformSchemas, file_id)
     self._setObject(id, ob)
+    self[id]._fix_attributes()
     if REQUEST is not None:
         return self.manage_main(self, REQUEST, update_menu=1)
 
@@ -109,6 +110,7 @@ class DataflowMappingRecord(SimpleItem):
         else:
             self.schema_url = "We have no schema"
             self.has_webForm = 0
+        self._fix_attributes()
         self._p_changed = 1
         if REQUEST:
             message="Content changed"
@@ -128,6 +130,7 @@ class DataflowMappingRecord(SimpleItem):
                 self.allowedSchemas.append(schema_url)
                 self.webformSchemas.remove(schema_url)
                 self._p_changed = 1
+        self._fix_attributes()
 
 #   def setWebFormAttr(self, hasWF=1):
 #       """ """
