@@ -91,18 +91,44 @@ var _init = function init(event){
             var img = $("<img />").attr('src', '++resource++static/ajax-loader.gif');
             $('.placeholder', result).html(img);
             $('#container').replaceWith($(result));
+            info = $('<div>')
             function dT(i){
                 if(i>=tables.length){
                     return false;
                 }
                 table = $(tables[i]).wrap('<div/>');//.dataTable()
                 $('#result #ph{0}'.format(i)).replaceWith(table);
-                $(table).dataTable();
+                var p_info = $('<p>')
+                var p_warn = $('<p>')
+                try{
+                    $(info).append(
+                        $(p_info).text(
+                            'INFO: Formatting table {0}.'.format(i+1)
+                        )
+                    );
+                    $(table).dataTable();
+                    window.setTimeout(function(){
+                        $(p_info).append(' Done.');
+                    }, 0);
+                }catch(err){
+                    $(info).append(
+                        $(p_warn).text(
+                            'WARNING: Table {0} cannot be displayed as data table.'.format(i+1)
+                        )
+                    );
+                }
+                window.setTimeout(function(){
+                    $(p_info).fadeOut();
+                }, 3000);
+                window.setTimeout(function(){
+                    $(p_warn).fadeOut();
+                }, 6000);
                 i++;
-                window.setTimeout(function(){dT(i);}, 300);
+                window.setTimeout(function(){dT(i);}, 0);
             }
             var i=0;
             dT(i);
+            $(info).insertAfter($(operations));
         },
         statusCode:{
             500: function(data){
