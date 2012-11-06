@@ -95,9 +95,9 @@ var _init = function init(event){
                 if(i>=tables.length){
                     return false;
                 }
-                $('#result #ph{0}'.format(i)).replaceWith($(
-                    tables[i]).wrap('<div/>').dataTable()
-                );
+                table = $(tables[i]).wrap('<div/>');//.dataTable()
+                $('#result #ph{0}'.format(i)).replaceWith(table);
+                $(table).dataTable();
                 i++;
                 window.setTimeout(function(){dT(i);}, 300);
             }
