@@ -78,21 +78,31 @@ var _init = function init(event){
             $('table > tbody > tr', result).removeClass('odd');
             $('table > tbody > tr', result).removeClass('xx');
 
-            /* apply dataTable */
-            var errors = $('<div></div>');
-            $(errors)
-            for(var i=0;i<$('table', result).length;i++){
-                try{
-                    $($('table', result)[i]).dataTable();
-                }catch(e){
-                    $(errors).append('<div>'+'table '+ (i+1) +': '+e+'</div>');
-                };
-            }
-            $('div', errors).toggleClass('.warning-msg');
-            $(errors).insertAfter('#operations', result);
+            tables = $('table', result);
+            var i=0;
+            $('table', result).replaceWith(function(){
+                var placeholder = $('<div class="placeholder" id="ph{0}"></div>'.format(i));
+                i++;
+                return $(placeholder)
+            });
+            $(result).insertAfter('#operations', result);
 
             $('#pagefoot').hide();
-            $('#container').replaceWith(result);
+            var img = $("<img />").attr('src', '++resource++static/ajax-loader.gif');
+            $('.placeholder', result).html(img);
+            $('#container').replaceWith($(result));
+            function dT(i){
+                if(i>=tables.length){
+                    return false;
+                }
+                $('#result #ph{0}'.format(i)).replaceWith($(
+                    tables[i]).wrap('<div/>').dataTable()
+                );
+                i++;
+                window.setTimeout(function(){dT(i);}, 300);
+            }
+            var i=0;
+            dT(i);
         },
         statusCode:{
             500: function(data){

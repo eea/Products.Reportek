@@ -1,6 +1,5 @@
 <script src="++resource++static/jquery-1.8.2.min.js"></script>
 <script src="++resource++static/spin.min.js"></script>
-<script src="++resource++static/doc_conversion.js"></script>
 <script src="++resource++static/datatables-1.9.4/js/jquery.dataTables.min.js"></script>
 <link rel="stylesheet" type="text/css" href="++resource++static/datatables-1.9.4/css/jquery.dataTables.css">
 <dtml-var standard_html_header>
@@ -178,4 +177,5 @@
 Work is still in progress.</p>
 
 </dtml-if>
+<script src="++resource++static/doc_conversion.js"></script>
 <dtml-var standard_html_footer>
