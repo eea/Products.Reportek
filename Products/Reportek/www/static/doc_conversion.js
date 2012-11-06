@@ -34,35 +34,65 @@ var _init = function init(event){
             var spinner = new Spinner(opts).spin(target);
         },
         success: function(data){
-            $('#pagefoot').hide();
-            $('#container').replaceWith("<div id='result'></div>");
-            $('#result').append(operations_html);
-            $('#operations a').text('Back to document');
+            var result = $("<div id='result'></div>");
+            $(result).append(operations_html);
+            $('#operations a', result).text('Back to document');
             if(typeof(data)=='string'){
-                $('#result').append("<pre>{0}</pre>".format(data));
+                $(result).append("<pre>{0}</pre>".format(data));
             }
             else{
-                $('#result').append(data);
+                $(result).append(data);
             }
-
-            /* make thead from the first row of the table */
-            var headless_tables = $('table:not(table:has(thead))');
-            var first_rows = $('tr:first-child', headless_tables).remove()
-            $(headless_tables).prepend($('<thead></thead>'));
-            for(var i=0;i<$(headless_tables).length;i++){
-                var first_row = $(first_rows)[i];
-                var thead = $('thead', headless_tables)[i];
-                $('td > *', first_row).unwrap().wrap('<th>'); /*replace td with th*/
-                $(thead).append($(first_row));
-            }
-            $('table > tbody > tr').removeClass('odd');
-            $('table > tbody > tr').removeClass('xx');
-            $(headless_tables).dataTable();
-            $('pre').css({
+            $('pre', result).css({
                 'background-color': 'white',
                 'overflow': 'visible'
             });
 
+
+            var headless_tables = $('table:not(table:has(thead))', result);
+            var first_rows = $('tr:first-child', headless_tables).remove()
+
+            /* create a thead for tables without one */
+            $(headless_tables).prepend($('<thead></thead>'));
+            /* move first row to thead and replace td's with th's */
+            for(var i=0;i<$(headless_tables).length;i++){
+                var length_diff=0;
+                var first_row = $(first_rows[i]);
+                var second_row = $('tr:first-child', headless_tables[i]);
+                var thead = $('thead', headless_tables)[i];
+                try{
+                    length_diff = ($('td', first_row).length - $('td', second_row).length);
+                }catch(e){
+                    /* probably second_row was undefined */
+                    /* leave length_diff 0 */
+                }
+                if(length_diff>0){
+                    for(var j=0;j<length_diff;j++){
+                        $('tr', headless_tables[i]).append('<td></td>');
+                    }
+                }
+                $('td', first_row).wrapInner('<th>');
+                $('td th', first_row).unwrap();
+                $(thead).append($(first_row));
+            }
+            $('table > tbody > tr', result).removeClass('odd');
+            $('table > tbody > tr', result).removeClass('xx');
+
+            /* apply dataTable */
+            var errors = $('<div></div>');
+            $(errors)
+            for(var i=0;i<$('table', result).length;i++){
+                try{
+                    $($('table', result)[i]).dataTable();
+                }catch(e){
+                    $(errors).append('<div>'+'table '+ (i+1) +': '+e+'</div>');
+                };
+            }
+            $('div', errors).toggleClass('.warning-msg');
+            $(errors).insertAfter('#operations', result);
+
+            $('#pagefoot').hide();
+            $('#container').replaceWith(result);
         },
         statusCode:{
             500: function(data){
