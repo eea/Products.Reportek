@@ -206,6 +206,40 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declareProtected(view_management_screens, 'Assign_client_form')
     Assign_client_form = PageTemplateFile('zpt/engineAssignClientForm', globals())
 
+    security.declareProtected('View', 'Remove_client')
+    def Remove_client(self, REQUEST=None, **kwargs):
+        if REQUEST:
+            kwargs.update(REQUEST.form)
+
+        query = {
+          'dataflow_uris': kwargs.get('cobligation', ''),
+          'meta_type': 'Report Collection',
+        }
+
+        catalog = self.Catalog
+        brains = catalog(**query)
+
+        countries = kwargs.get('ccountries', [])
+        res = []
+        for brain in brains:
+            doc = brain.getObject()
+            try:
+                country = doc.getCountryCode()
+            except KeyError:
+                continue
+            if country.lower() not in countries:
+                continue
+            for user in kwargs.get('dns', []):
+                local_roles = [role for role in doc.get_local_roles_for_userid(user) if role != 'Client']
+                if local_roles:
+                    doc.manage_setLocalRoles(user, local_roles)
+                else:
+                    doc.manage_delLocalRoles(userids=[user,])
+            res.append(doc)
+        return res
+
+
+
     security.declareProtected('View', 'getCountriesList')
     def getCountriesList(self):
         """ """
