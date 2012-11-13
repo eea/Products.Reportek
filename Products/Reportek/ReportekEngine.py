@@ -231,10 +231,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 continue
             for user in kwargs.get('dns', []):
                 local_roles = [role for role in doc.get_local_roles_for_userid(user) if role != 'Client']
-                if local_roles:
-                    doc.manage_setLocalRoles(user, local_roles)
-                else:
-                    doc.manage_delLocalRoles(userids=[user,])
+                doc.manage_delLocalRoles(userids=[user,])
             res.append(doc)
         return res
 

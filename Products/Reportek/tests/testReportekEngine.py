@@ -117,6 +117,48 @@ class ReportekEngineTest(_BaseTest):
         results = engine.getUniqueValuesFor('dataflow_uris')
         self.assertEqual(results, ('http://example.com/dataflow/1',))
 
+    def test_assign_role_with_Assign_client(self):
+        from Products.Reportek.Collection import Collection
+        engine = create_reportek_engine(self.root)
+        self.root._setObject( 'col', Collection('col',
+            'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/3',
+            '', 'European Environment Agency',
+            ['http://rod.eionet.eu.int/obligations/8'], allow_collections=0,
+            allow_envelopes=1))
+        self.root.col.getCountryCode = Mock(return_value = 'AT')
+        kwargs = {
+            'ccountries': ['at'],
+            'crole': 'Reporter',
+            'cobligation': 'http://rod.eionet.eu.int/obligations/8',
+            'dns': ['testuser']
+        }
+        engine.Assign_client(**kwargs)
+        self.assertEqual(('Reporter',), self.root.col.get_local_roles_for_userid('testuser'))
+
+    def test_remove_role_with_Remove_client(self):
+        from Products.Reportek.Collection import Collection
+        engine = create_reportek_engine(self.root)
+        self.root._setObject('at', Collection('at',
+            'Austria',
+            '', '', '', 'http://rod.eionet.eu.int/spatial/2',
+            '', 'Desc', [], allow_collections=1, allow_envelopes=0))
+        self.root.at._setObject( 'eea', Collection('eea',
+            'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/3',
+            '', 'European Environment Agency',
+            ['http://rod.eionet.eu.int/obligations/8'], allow_collections=0,
+            allow_envelopes=1))
+        self.root.at.eea.getCountryCode = Mock(return_value = 'AT')
+        kwargs = {
+            'ccountries': ['at'],
+            'crole': 'Reporter',
+            'cobligation': 'http://rod.eionet.eu.int/obligations/8',
+            'dns': ['testuser']
+        }
+        engine.Assign_client(**kwargs)
+        engine.Remove_client(**kwargs)
+        self.assertEqual((), self.root.at.eea.get_local_roles_for_userid('testuser'))
+
+
 class SearchResultsTest(_BaseTest):
 
     def setUp(self):
