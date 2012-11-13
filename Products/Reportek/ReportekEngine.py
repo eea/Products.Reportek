@@ -219,6 +219,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         catalog = self.Catalog
         brains = catalog(**query)
 
+        crole = kwargs.get('crole')
         countries = kwargs.get('ccountries', [])
         res = []
         for brain in brains:
@@ -232,6 +233,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             for user in kwargs.get('dns', []):
                 local_roles = [role for role in doc.get_local_roles_for_userid(user) if role != 'Client']
                 doc.manage_delLocalRoles(userids=[user,])
+                local_roles.remove(crole)
+                if local_roles:
+                    doc.manage_setLocalRoles(user, local_roles)
             res.append(doc)
         return res
 
@@ -261,7 +265,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             if country.lower() not in countries:
                 continue
             for user in kwargs.get('dns', []):
-                doc.manage_setLocalRoles(user, [crole,])
+                local_roles = [role for role in doc.get_local_roles_for_userid(user) if role != 'Client']
+                local_roles.append(crole)
+                doc.manage_setLocalRoles(user, local_roles)
             res.append(doc)
         return res
 
