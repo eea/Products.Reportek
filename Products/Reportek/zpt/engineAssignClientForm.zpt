@@ -250,7 +250,6 @@ function toggleSelectUsers(){
 
 </form>
 </tal:block>
-<tal:block replace="structure context/REQUEST"/>
 <script type="text/javascript">
 // <![CDATA[
 if (document.forms[0]) {

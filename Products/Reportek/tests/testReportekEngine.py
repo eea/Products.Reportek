@@ -5,6 +5,8 @@ from mock import Mock, patch
 from utils import (create_fake_root, create_temp_reposit, create_upload_file,
                   create_envelope, add_document, makerequest)
 from Products.Reportek.ReportekEngine import ReportekEngine
+from Products.Reportek.Envelope import Envelope
+from Products.Reportek.Collection import Collection
 
 def setUpModule(self):
     self._cleanup_temp_reposit = create_temp_reposit()
@@ -40,6 +42,11 @@ class _BaseTest(unittest.TestCase):
 
 
 class ReportekEngineTest(_BaseTest):
+
+    def setUp(self):
+        super(ReportekEngineTest, self).setUp()
+        self.engine = create_reportek_engine(self.root)
+
 
     def test_searchfeedbacks_on_disk(self):
         try:
@@ -98,8 +105,6 @@ class ReportekEngineTest(_BaseTest):
             self.fail(err)
 
     def test_getUniqueValuesFor(self):
-        from Products.Reportek.Envelope import Envelope
-        engine = create_reportek_engine(self.root)
         process = Mock()
         process.absolute_url = Mock(return_value='/ProcessURL')
         first_envelope = Envelope(process=process,
@@ -114,95 +119,80 @@ class ReportekEngineTest(_BaseTest):
         first_envelope.id = 'first_envelope'
         self.root._setObject(first_envelope.id, first_envelope)
         self.root[first_envelope.id].manage_changeEnvelope(dataflow_uris='http://example.com/dataflow/1')
-        results = engine.getUniqueValuesFor('dataflow_uris')
+        results = self.engine.getUniqueValuesFor('dataflow_uris')
         self.assertEqual(results, ('http://example.com/dataflow/1',))
 
     def test_assign_role_with_Assign_client(self):
-        from Products.Reportek.Collection import Collection
-        engine = create_reportek_engine(self.root)
         self.root._setObject( 'col', Collection('col',
             'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/3',
             '', 'European Environment Agency',
-            ['http://rod.eionet.eu.int/obligations/8'], allow_collections=0,
+            ['http://example.com/dataflow/1'], allow_collections=0,
             allow_envelopes=1))
         self.root.col.getCountryCode = Mock(return_value = 'AT')
         kwargs = {
             'ccountries': ['at'],
             'crole': 'Reporter',
-            'cobligation': 'http://rod.eionet.eu.int/obligations/8',
+            'cobligation': 'http://example.com/dataflow/1',
             'dns': ['testuser']
         }
-        engine.Assign_client(**kwargs)
+        self.engine.Assign_client(**kwargs)
         self.assertEqual(('Reporter',), self.root.col.get_local_roles_for_userid('testuser'))
 
     def test_assign_multiple_roles_with_Assign_client(self):
-        from Products.Reportek.Collection import Collection
-        engine = create_reportek_engine(self.root)
         self.root._setObject( 'col', Collection('col',
             'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/3',
             '', 'European Environment Agency',
-            ['http://rod.eionet.eu.int/obligations/8'], allow_collections=0,
+            ['http://example.com/dataflow/1'], allow_collections=0,
             allow_envelopes=1))
         self.root.col.getCountryCode = Mock(return_value = 'AT')
         kwargs = {
             'ccountries': ['at'],
             'crole': 'Reporter',
-            'cobligation': 'http://rod.eionet.eu.int/obligations/8',
+            'cobligation': 'http://example.com/dataflow/1',
             'dns': ['testuser']
         }
-        engine.Assign_client(**kwargs)
+        self.engine.Assign_client(**kwargs)
         kwargs.update({'crole': 'Auditor'})
-        engine.Assign_client(**kwargs)
+        self.engine.Assign_client(**kwargs)
         self.assertEqual(('Reporter', 'Auditor'), self.root.col.get_local_roles_for_userid('testuser'))
 
     def test_remove_role_with_Remove_client(self):
-        from Products.Reportek.Collection import Collection
-        engine = create_reportek_engine(self.root)
-        self.root._setObject('at', Collection('at',
-            'Austria',
-            '', '', '', 'http://rod.eionet.eu.int/spatial/2',
-            '', 'Desc', [], allow_collections=1, allow_envelopes=0))
-        self.root.at._setObject( 'eea', Collection('eea',
+        self.root._setObject( 'col', Collection('col',
             'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/3',
             '', 'European Environment Agency',
-            ['http://rod.eionet.eu.int/obligations/8'], allow_collections=0,
+            ['http://example.com/dataflow/1'], allow_collections=0,
             allow_envelopes=1))
-        self.root.at.eea.getCountryCode = Mock(return_value = 'AT')
+        self.root.col.getCountryCode = Mock(return_value = 'AT')
         kwargs = {
             'ccountries': ['at'],
             'crole': 'Reporter',
-            'cobligation': 'http://rod.eionet.eu.int/obligations/8',
+            'cobligation': 'http://example.com/dataflow/1',
             'dns': ['testuser']
         }
-        engine.Assign_client(**kwargs)
-        engine.Remove_client(**kwargs)
-        self.assertEqual((), self.root.at.eea.get_local_roles_for_userid('testuser'))
+        self.engine.Assign_client(**kwargs)
+        self.engine.Remove_client(**kwargs)
+        self.assertEqual((), self.root.col.get_local_roles_for_userid('testuser'))
 
     def test_remove_specified_role_only_with_Remove_client(self):
-        from Products.Reportek.Collection import Collection
-        engine = create_reportek_engine(self.root)
-        self.root._setObject('at', Collection('at',
-            'Austria',
-            '', '', '', 'http://rod.eionet.eu.int/spatial/2',
-            '', 'Desc', [], allow_collections=1, allow_envelopes=0))
-        self.root.at._setObject( 'eea', Collection('eea',
+        self.root._setObject( 'col', Collection('col',
             'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/3',
             '', 'European Environment Agency',
-            ['http://rod.eionet.eu.int/obligations/8'], allow_collections=0,
+            ['http://example.com/dataflow/1'], allow_collections=0,
             allow_envelopes=1))
-        self.root.at.eea.getCountryCode = Mock(return_value = 'AT')
+        self.root.col.getCountryCode = Mock(return_value = 'AT')
         kwargs = {
             'ccountries': ['at'],
             'crole': 'Reporter',
-            'cobligation': 'http://rod.eionet.eu.int/obligations/8',
+            'cobligation': 'http://example.com/dataflow/1',
             'dns': ['testuser']
         }
-        engine.Assign_client(**kwargs)
+        self.engine.Assign_client(**kwargs)
         kwargs.update({'crole': 'Auditor'})
-        engine.Assign_client(**kwargs)
+        self.engine.Assign_client(**kwargs)
         kwargs.update({'crole': 'Reporter'})
-        engine.Remove_client(**kwargs)
-        self.assertEqual(('Auditor',), self.root.at.eea.get_local_roles_for_userid('testuser'))
+        self.engine.Remove_client(**kwargs)
+        self.assertEqual(('Auditor',), self.root.col.get_local_roles_for_userid('testuser'))
+
 
 
 class SearchResultsTest(_BaseTest):
