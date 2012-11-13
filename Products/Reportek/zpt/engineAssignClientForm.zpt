@@ -1,3 +1,4 @@
+<tal:block content="structure here/standard_html_header" />
 <style type="text/css">
 .admin_table th{
   background:#5F7F7E none repeat scroll 0%;
@@ -23,66 +24,25 @@
 </style>
 <script type="text/javascript">
 // <![CDATA[
-<dtml-var standard_html_header>
-<style type="text/css">
-.admin_table th{
-Â  background:#5F7F7E none repeat scroll 0%;
-Â  border:1px solid #FFFFFF;
-Â  color:#FFFFFF;
-Â  font-weight:normal;
-Â  line-height:1.8em;
-}
-
-
-
-
-.admin_table tr.even {
-Â  background:#FAFAFA none repeat scroll 0%;
-}
-
-
-
-
-.admin_table tr.odd {
-Â  background:#FFFFFF none repeat scroll 0%;
-}
-
-
-
-
-.admin_table td.norecord {
-Â  font-weight:bold;
-Â  text-align:center;
-}
-
-
-
-
-</style>
-<script type="text/javascript">
-// <![CDATA[
-
-
 
 
 // Simulating a 'set' with a dictionary
 eu25 = { at:1,be:1,cy:1,cz:1,
-Â de:1,dk:1,ee:1,es:1,fi:1,fr:1,gb:1,gr:1,
-Â hu:1,ie:1,it:1,lt:1,lu:1,lv:1,mt:1,nl:1,
-Â pl:1,pt:1,se:1,si:1,sk:1 }
+de:1,dk:1,ee:1,es:1,fi:1,fr:1,gb:1,gr:1,
+hu:1,ie:1,it:1,lt:1,lu:1,lv:1,mt:1,nl:1,
+pl:1,pt:1,se:1,si:1,sk:1 }
 
 
 
 
 eu27 = { at:1,be:1,bg:1,cy:1,cz:1,
-Â de:1,dk:1,ee:1,es:1,fi:1,fr:1,gb:1,gr:1,
-Â hu:1,ie:1,it:1,lt:1,lu:1,lv:1,mt:1,nl:1,
-Â pl:1,pt:1,ro:1,se:1,si:1,sk:1 }
+de:1,dk:1,ee:1,es:1,fi:1,fr:1,gb:1,gr:1,
+hu:1,ie:1,it:1,lt:1,lu:1,lv:1,mt:1,nl:1,
+pl:1,pt:1,ro:1,se:1,si:1,sk:1 }
 
 
 
 
-eea31 = { at:1,be:1,bg:1,cy:1,c
 // Simulating a 'set' with a dictionary
 eu25 = { at:1,be:1,cy:1,cz:1,
  de:1,dk:1,ee:1,es:1,fi:1,fr:1,gb:1,gr:1,
@@ -119,7 +79,7 @@ function toggleSelectCountries(group) {
       countries[i].checked = false ;
       isSelected = false;
       document.objectItems.selectAllCountries.value = "Select All";
-      return isSelected;       
+      return isSelected;
   }
 }
 
@@ -142,48 +102,60 @@ function toggleSelectUsers(){
 </script>
 
 <!-- Assign role -->
-<dtml-if name="assign_client_button">
-<div style="border: 1px solid #5F7F7E; color: #5F7F7E; padding: 1em;">
-<label>
-<strong>&dtml-crole;</strong> role was assigned for 
-user
-<dtml-if name="dns">
- <dtml-if expr="len(dns)>1">(s)</dtml-if>
-</dtml-if>:
-<dtml-var expr="', '.join(dns)"><br />
-in the following collections:
-</label>
-<ul>
-  <dtml-in expr="Assign_client(dns=dns, cobligation=cobligation, ccountries=ccountries,crole=crole)">
-     <dtml-let doc_path="_['sequence-item'].absolute_url() ">
-       <li>&dtml-doc_path;</li>
-     </dtml-let>
-  </dtml-in>
-</ul>
-</div>
-</dtml-if>
+<tal:block
+  condition="python:context.REQUEST.get('assign_client_button')"
+  define="cobligation python:context.REQUEST.get('dataflow_uris');
+          ccountries python:context.REQUEST.get('ccountries');
+          crole python:context.REQUEST.get('crole')">
+
+    <div style="border: 1px solid #5F7F7E; color: #5F7F7E; padding: 1em;"
+      tal:define="dns python:context.REQUEST.get('dns')">
+    <label>
+    <strong tal:content="context/REQUEST/crole">role</strong> role was assigned for user
+    <tal:block condition="python:context.id=='dns'">
+      <tal:block condition="python:len(dns)>1">(s)</tal:block>
+    </tal:block>:
+      <span tal:replace="python:', '.join(dns)">enumeration</span><br />
+    in the following collections:
+    </label>
+    <ul>
+      <li tal:repeat="item python:context.Assign_client(dns=dns, cobligation=cobligation, ccountries=ccountries,crole=crole)">
+        <tal:block define="doc_path python:item.absolute_url() "
+                 content="doc_path">
+            doc_path
+        </tal:block>
+      </li>
+    </ul>
+    </div>
+</tal:block>
 
 <!-- Remove role -->
-<dtml-if name="remove_client_button">
-<div style="border: 1px solid #5F7F7E; color: #5F7F7E; padding: 1em;">
-<label>
-<strong>&dtml-crole;</strong> role was removed for 
-user
-<dtml-if name="dns">
-  <dtml-if expr="dns and len(dns)>1">(s)</dtml-if>
-</dtml-if>:
-<dtml-var expr="', '.join(dns)"><br />
-in the following collections:
-</label>
-<ul>
-  <dtml-in expr="Remove_client(dns=dns, cobligation=cobligation, ccountries=ccountries,crole=crole)">
-     <dtml-let doc_path="_['sequence-item'].absolute_url() ">
-       <li>&dtml-doc_path;</li>
-     </dtml-let>
-  </dtml-in>
-</ul>
-</div>
-</dtml-if>
+<tal:block condition="python:context.REQUEST.get('remove_client_button')"
+     define="cobligation python:context.REQUEST.get('dataflow_uris');
+             ccountries python:context.REQUEST.get('ccountries');
+             crole python:context.REQUEST.get('crole')">
+  <div style="border: 1px solid #5F7F7E; color: #5F7F7E; padding: 1em;"
+       tal:define="dns python:context.REQUEST.get('dns')">
+  <label>
+  <strong tal:content="context/REQUEST/crole">crole</strong> role was removed for user
+  <tal:block condition="dns" >
+      <tal:block condition="python:dns and len(dns)>1">
+        (s)
+      </tal:block>
+  </tal:block>:
+  <span tal:replace="python:', '.join(dns)">enumeration</span><br />
+  in the following collections:
+  </label>
+    <ul>
+      <li tal:repeat="item python:context.Remove_client(dns=dns, cobligation=cobligation, ccountries=ccountries,crole=crole)" >
+      <tal:block define="doc_path python:item.absolute_url() "
+                 content="doc_path">
+            doc_path
+        </tal:block>
+      </li>
+    </ul>
+  </div>
+</tal:block>
 
 <!-- Template title -->
 <div id="operations">
@@ -194,31 +166,33 @@ in the following collections:
 </div>
 <h1>Assign role</h1>
 
-<!-- Serch users -->
+<!-- Search users -->
 <fieldset style="padding: 1em;">
 <legend>Find user(s)</legend>
-<form action="<dtml-var name="URL1">/Assign_client_form" method="post">
+<form action="/ReportekEngine/Assign_client_form" method="post">
   <label for="search_term">containing</label>
   <input type="text" name="search_term" id="search_term" size="30">
   <label for="search_param">matching criteria</label>
   <select name="search_param" id="search_param">
-    <dtml-in expr="acl_users['ldapmultiplugin']['acl_users'].getLDAPSchema()">
-      <dtml-let sk="_['sequence-key']"
-                si="_['sequence-item']">
-        <option value="&dtml-sk;">
-          &dtml-si; (&dtml-sk;)
+        <tal:block
+          tal:repeat="item python:context.acl_users['ldapmultiplugin']['acl_users'].getLDAPSchema()">
+        <option
+            tal:define="sk python:item[0]; si python:item[1]"
+            tal:attributes="value python:sk"
+            tal:content="python: '%s (%s)' %(si, sk)"
+        >
+            si (sk)
         </option>
-      </dtml-let>
-    </dtml-in>
+        </tal:block>
   </select>
   <input type="submit" name="find_button_pressed" value="Search">
 </form>
 </fieldset>
 
 <!-- Search users results -->
-<dtml-if name="find_button_pressed">
-<form action="<dtml-var name="URL1">/Assign_client_form" method="post" name="objectItems">
-<dtml-let res="acl_users['ldapmultiplugin']['acl_users'].findUser(search_param=search_param, search_term=search_term)">
+<tal:block condition="python:context.REQUEST.get('find_button_pressed')">
+<form action="/ReportekEngine/Assign_client_form" method="post" name="objectItems"
+      tal:define="res python:context.acl_users['ldapmultiplugin']['acl_users'].findUser(search_param=context.REQUEST['search_param'], search_term=context.REQUEST['search_term'])">
 
 <fieldset>
 <legend>Select user(s) to assign 'Client' role</legend>
@@ -229,54 +203,39 @@ in the following collections:
      <th>Canonical name</th>
      <th width="60%">Distinguished Name</th>
    </tr>
-  <dtml-in expr="res" mapping sort="sn">
-    <dtml-if sequence-odd>
-      <tr class="odd">
-    <dtml-else>
-      <tr class="even">
-    </dtml-if>
-      <td><input type="checkbox" name="dns:list" value="&dtml-uid;" /></td>
-      <td>&dtml-uid;</td>
-      <td>&dtml-cn;</td>
-      <td>&dtml-dn;</td>
+   <tal:block repeat="item res">
+   <tr tal:define="cls python: ['even', 'odd'][1]"
+       tal:attributes="class cls">
+      <td><input type="checkbox" name="dns:list" tal:attributes="value item/uid"/></td>
+      <td tal:content="item/uid">uid</td>
+      <td tal:content="item/cn">cn</td>
+      <td tal:content="item/dn">dn</td>
     </tr>
-  <dtml-else>
+  </tal:block>
+  <tal:block condition="python: not res">
     <tr><td colspan="4" class="norecord">No record match !</td>
-  </dtml-in>
+  </tal:block>
   </table>
-  <div id="select_users" style="text-align: right; padding-top: 1em"></div>  
+  <div id="select_users" style="text-align: right; padding-top: 1em"></div>
 </fieldset>
 
 <!-- Countries -->
-<dtml-if res>
+<tal:block condition="res">
 <fieldset><legend>Countries</legend>
-<dtml-in localities_table mapping>
-<div style="width:12em; float:left">
-<input type="checkbox" name="ccountries:list" id="cb&dtml.lower-iso;" value="&dtml.lower-iso;"><label for="cb&dtml.lower-iso;">&dtml-name;</label>
+<div style="width:12em; float:left" tal:repeat="item context/localities_table">
+<input type="checkbox"
+       name="ccountries:list"
+       tal:attributes="id python:'cb%s' %item['iso'].lower();
+                       value python:item['iso'].lower()"/>
+   <label tal:attributes="for item/iso" tal:content="item/name"></label>
 </div>
-</dtml-in>
 <div id="select_countries" style="clear: both; text-align: right; padding-top: 1em"></div>
 </fieldset>
+</tal:block>
 
 <!-- Obligation -->
 <fieldset><legend>Obligation:</legend>
-<select size="15" id="dataflows" name="cobligation">
-<dtml-call "REQUEST.set('currentsource','')">
-<dtml-in dataflow_table mapping sort=SOURCE_TITLE,TITLE>
-<dtml-if "currentsource != SOURCE_TITLE">
-<dtml-if "currentsource != ''">
-</optgroup>
-</dtml-if>
-<dtml-call "REQUEST.set('currentsource',SOURCE_TITLE)">
-<optgroup label="<dtml-var currentsource html_quote size=60>">
-</dtml-if>
-<option value="<dtml-var uri html_quote>"
- label="<dtml-var TITLE html_quote size=80>"
-<dtml-if "_.has_key('terminated') and terminated == '1'">class="terminated"</dtml-if>
->[<dtml-var "_.string.join(_.string.split(SOURCE_TITLE)[0:2])" html_quote>] <dtml-var TITLE html_quote size=80></option>
-</dtml-in>
- </optgroup>
-  </select>
+<metal:block metal:use-macro="here/macros/obligationsSelect"/>
 </fieldset>
 
 <fieldset><legend>Role:</legend>
@@ -289,7 +248,9 @@ in the following collections:
 <input type="submit" value="Assign role" name="assign_client_button"/>
 <input type="submit" value="Remove role" name="remove_client_button"/>
 
-
+</form>
+</tal:block>
+<tal:block replace="structure context/REQUEST"/>
 <script type="text/javascript">
 // <![CDATA[
 if (document.forms[0]) {
@@ -307,7 +268,4 @@ if (document.forms[0]) {
 // ]]>
 </script>
 
-</dtml-if>
-</dtml-let>
-</form>
-</dtml-if>
+<tal:block content="structure here/standard_html_footer"/>

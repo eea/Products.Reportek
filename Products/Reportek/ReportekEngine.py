@@ -203,8 +203,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declareProtected('View', 'resultsxml')
     resultsxml = PageTemplateFile('zpt/engineResultsXml', globals())
 
-    security.declareProtected(view_management_screens, 'assign_client_form')
-    assign_client_form = DTMLFile('dtml/engineAssignClientForm', globals())
+    security.declareProtected(view_management_screens, 'Assign_client_form')
+    Assign_client_form = PageTemplateFile('zpt/engineAssignClientForm', globals())
 
     security.declareProtected('View', 'getCountriesList')
     def getCountriesList(self):
