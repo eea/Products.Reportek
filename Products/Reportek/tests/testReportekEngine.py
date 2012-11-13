@@ -249,6 +249,23 @@ class ReportekEngineTest(_BaseTest):
         self.assertEqual((), self.root.col1.get_local_roles_for_userid('testuser'))
         self.assertEqual((), self.root.col2.get_local_roles_for_userid('testuser'))
 
+    def test_remove_not_existing_role(self):
+        self.root._setObject( 'col1', Collection('col1',
+            'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/3',
+            '', 'European Environment Agency',
+            ['http://example.com/dataflow/1'], allow_collections=0,
+            allow_envelopes=1))
+        kwargs = {
+            'ccountries': ['at'],
+            'crole': 'Reporter',
+            'cobligation': 'http://example.com/dataflow/1',
+            'dns': ['testuser']
+        }
+        self.root.col1.getCountryCode = Mock(return_value = 'AT')
+        self.engine.Remove_client(**kwargs)
+        self.assertEqual((), self.root.col1.get_local_roles_for_userid('testuser'))
+
+
 
 class SearchResultsTest(_BaseTest):
 
