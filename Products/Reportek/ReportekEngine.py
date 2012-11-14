@@ -208,6 +208,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security.declareProtected('View', 'Remove_client')
     def Remove_client(self, REQUEST=None, **kwargs):
+        #TODO refact to return messages like Assign_client
         if REQUEST:
             kwargs.update(REQUEST.form)
 
