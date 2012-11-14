@@ -46,6 +46,10 @@ class ReportekEngineTest(_BaseTest):
     def setUp(self):
         super(ReportekEngineTest, self).setUp()
         self.engine = create_reportek_engine(self.root)
+        self.engine.localities_dict=Mock(return_value={
+            'http://rod.eionet.eu.int/spatial/2': {'name': 'Albania'},
+            'http://rod.eionet.eu.int/spatial/3': {'name': 'Austria'}
+        })
 
 
     def test_searchfeedbacks_on_disk(self):
@@ -407,16 +411,17 @@ class ReportekEngineTest(_BaseTest):
             ['http://example.com/dataflow/2'], allow_collections=0,
             allow_envelopes=1))
         kwargs = {
-            'ccountries': ['http://rod.eionet.eu.int/spatial/3'],
+            'ccountries': [
+                'http://rod.eionet.eu.int/spatial/3',
+                'http://rod.eionet.eu.int/spatial/2'
+            ],
             'crole': 'Reporter',
-            'cobligation': 'http://example.com/dataflow/2',
+            'cobligation': 'http://example.com/dataflow/1',
             'dns': ['testuser']
         }
         result = self.engine.Assign_client(**kwargs)
-        self.assertEqual('fail', result[0]['status'])
-        self.assertEqual('success', result[1]['status'])
-
-
+        self.assertEqual('success', result[0]['status'])
+        self.assertEqual('fail', result[1]['status'])
 
 
 class SearchResultsTest(_BaseTest):

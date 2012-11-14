@@ -243,45 +243,46 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             kwargs.update(REQUEST.form)
 
         crole = kwargs.get('crole','Client')
-        query = {
-          'dataflow_uris': kwargs.get('cobligation', ''),
-          'meta_type': 'Report Collection',
-          'country': kwargs.get('ccountries')
-        }
+        for country in kwargs.get('ccountries'):
+            query = {
+              'dataflow_uris': kwargs.get('cobligation', ''),
+              'meta_type': 'Report Collection',
+              'country': country
+            }
 
-        catalog = self.Catalog
-        brains = catalog(**query)
-        users = kwargs.get('dns', [])
-        if not brains:
-            message = '<label>Unable to assign role %s to %s:</label>' \
-                      '<p>No matching collection based on selected options.</p>' %(
-                              crole,
-                              ' ,'.join(users))
+            catalog = self.Catalog
+            brains = catalog(**query)
+            users = kwargs.get('dns', [])
+            fail_pattern = 'Unable to assign role %s to %s for %s.<br/>' \
+                           'No matching collection based on selected options.'
+            success_pattern = '%s assigned to %s<br/>' \
+                              'for the following collections:<br/>' \
+                              '%s<br/>'
+            if not brains:
+                message = fail_pattern %(
+                            crole,
+                            ' ,'.join(users),
+                            self.localities_dict().get(country, {'name': 'Unknown'})['name']
+                )
+                messages.append({
+                    'status': 'fail',
+                    'message': message
+                })
+                break
+            res = []
+            collections = []
+            for brain in brains:
+                doc = brain.getObject()
+                for user in kwargs.get('dns', []):
+                    local_roles = [role for role in doc.get_local_roles_for_userid(user) if role != 'Client']
+                    local_roles.append(crole)
+                    doc.manage_setLocalRoles(user, local_roles)
+                collections.append('<li>%s</li>' %doc.absolute_url())
+            message = success_pattern %( crole, ', '.join(users), ''.join(collections))
             messages.append({
-                'status': 'fail',
+                'status': 'success',
                 'message': message
             })
-        countries = kwargs.get('ccountries', [])
-        res = []
-        collections = []
-        for brain in brains:
-            doc = brain.getObject()
-            for user in kwargs.get('dns', []):
-                local_roles = [role for role in doc.get_local_roles_for_userid(user) if role != 'Client']
-                local_roles.append(crole)
-                doc.manage_setLocalRoles(user, local_roles)
-            collections.append('<li>%s</li>' %doc.absolute_url())
-        message = '<label>%s role successfully assigned to:</label>' \
-                  '<ul>%s</ul>' \
-                  '<br/>for the following collections:<br/>' \
-                  '<ul>%s</ul>' %(
-                      crole,
-                      ''.join(['<li>%s</li>' %user for user in users]),
-                      ''.join(collections))
-        messages.append({
-            'status': 'success',
-            'message': message
-        })
         return messages
 
 

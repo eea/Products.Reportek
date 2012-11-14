@@ -111,8 +111,16 @@ function toggleSelectUsers(){
     <div tal:define="dns python:context.REQUEST.get('dns');
                      results python:context.Assign_client(dns=dns, cobligation=cobligation, ccountries=ccountries,crole=crole)"
          tal:repeat="result results"
-         tal:attributes="class python:'caution-msg' if result['status']=='fail' else 'note-msg'"
-         tal:content="structure python:result['message']"/>
+         tal:attributes="class python:'caution-msg' if result['status']=='fail'
+                                                    else 'note-msg'">
+        <label tal:content="python:'Successfully assigned' if result['status']=='success'
+                                                           else 'Unable to assign'">
+            Content
+        </label>
+        <p tal:content="structure python:result['message']">
+            Message
+        </p>
+    </div>
 </tal:block>
 
 <!-- Remove role -->
