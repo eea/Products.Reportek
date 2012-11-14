@@ -118,7 +118,9 @@ class ReportekEngineTest(_BaseTest):
                             descr='TestDescription')
         first_envelope.id = 'first_envelope'
         self.root._setObject(first_envelope.id, first_envelope)
-        self.root[first_envelope.id].manage_changeEnvelope(dataflow_uris='http://example.com/dataflow/1')
+        self.root[first_envelope.id].manage_changeEnvelope(
+                dataflow_uris='http://example.com/dataflow/1'
+        )
         results = self.engine.getUniqueValuesFor('dataflow_uris')
         self.assertEqual(results, ('http://example.com/dataflow/1',))
 
@@ -128,7 +130,6 @@ class ReportekEngineTest(_BaseTest):
             '', 'European Environment Agency',
             ['http://example.com/dataflow/1'], allow_collections=0,
             allow_envelopes=1))
-        self.root.col.getCountryCode = Mock(return_value = 'AT')
         kwargs = {
             'ccountries': ['http://rod.eionet.eu.int/spatial/3'],
             'crole': 'Reporter',
@@ -136,7 +137,10 @@ class ReportekEngineTest(_BaseTest):
             'dns': ['testuser']
         }
         self.engine.Assign_client(**kwargs)
-        self.assertEqual(('Reporter',), self.root.col.get_local_roles_for_userid('testuser'))
+        self.assertEqual(
+            ('Reporter',),
+            self.root.col.get_local_roles_for_userid('testuser')
+        )
 
     def test_assign_multiple_roles_with_Assign_client(self):
         self.root._setObject( 'col', Collection('col',
@@ -144,7 +148,6 @@ class ReportekEngineTest(_BaseTest):
             '', 'European Environment Agency',
             ['http://example.com/dataflow/1'], allow_collections=0,
             allow_envelopes=1))
-        self.root.col.getCountryCode = Mock(return_value = 'AT')
         kwargs = {
             'ccountries': ['http://rod.eionet.eu.int/spatial/3'],
             'crole': 'Reporter',
@@ -154,7 +157,10 @@ class ReportekEngineTest(_BaseTest):
         self.engine.Assign_client(**kwargs)
         kwargs.update({'crole': 'Auditor'})
         self.engine.Assign_client(**kwargs)
-        self.assertEqual(('Reporter', 'Auditor'), self.root.col.get_local_roles_for_userid('testuser'))
+        self.assertEqual(
+            ('Reporter', 'Auditor'),
+            self.root.col.get_local_roles_for_userid('testuser')
+        )
 
     def test_remove_role_with_Remove_client(self):
         self.root._setObject( 'col', Collection('col',
@@ -162,7 +168,6 @@ class ReportekEngineTest(_BaseTest):
             '', 'European Environment Agency',
             ['http://example.com/dataflow/1'], allow_collections=0,
             allow_envelopes=1))
-        self.root.col.getCountryCode = Mock(return_value = 'AT')
         kwargs = {
             'ccountries': ['http://rod.eionet.eu.int/spatial/3'],
             'crole': 'Reporter',
@@ -180,7 +185,6 @@ class ReportekEngineTest(_BaseTest):
             '', 'European Environment Agency',
             ['http://example.com/dataflow/1'], allow_collections=0,
             allow_envelopes=1))
-        self.root.col.getCountryCode = Mock(return_value = 'AT')
         kwargs = {
             'ccountries': ['http://rod.eionet.eu.int/spatial/3'],
             'crole': 'Reporter',
@@ -192,7 +196,10 @@ class ReportekEngineTest(_BaseTest):
         self.engine.Assign_client(**kwargs)
         kwargs.update({'crole': 'Reporter'})
         self.engine.Remove_client(**kwargs)
-        self.assertEqual(('Auditor',), self.root.col.get_local_roles_for_userid('testuser'))
+        self.assertEqual(
+            ('Auditor',),
+            self.root.col.get_local_roles_for_userid('testuser')
+        )
 
 
     def test_assign_role_to_multiple_collections(self):
@@ -201,14 +208,11 @@ class ReportekEngineTest(_BaseTest):
             '', 'European Environment Agency',
             ['http://example.com/dataflow/1'], allow_collections=0,
             allow_envelopes=1))
-        self.root.col1.getCountryCode = Mock(return_value = 'AT')
-
         self.root._setObject( 'col2', Collection('col2',
             'EU, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/2',
             '', 'European Environment Agency',
             ['http://example.com/dataflow/1'], allow_collections=0,
             allow_envelopes=1))
-        self.root.col2.getCountryCode = Mock(return_value = 'AL')
         self.assertEqual((), self.root.col1.get_local_roles_for_userid('testuser'))
         self.assertEqual((), self.root.col2.get_local_roles_for_userid('testuser'))
         kwargs = {
@@ -219,8 +223,14 @@ class ReportekEngineTest(_BaseTest):
             'dns': ['testuser']
         }
         self.engine.Assign_client(**kwargs)
-        self.assertEqual(('Reporter', ), self.root.col1.get_local_roles_for_userid('testuser'))
-        self.assertEqual(('Reporter', ), self.root.col2.get_local_roles_for_userid('testuser'))
+        self.assertEqual(
+            ('Reporter', ),
+            self.root.col1.get_local_roles_for_userid('testuser')
+        )
+        self.assertEqual(
+            ('Reporter', ),
+            self.root.col2.get_local_roles_for_userid('testuser')
+        )
 
 
     def test_remove_role_from_multiple_collections(self):
@@ -229,14 +239,11 @@ class ReportekEngineTest(_BaseTest):
             '', 'European Environment Agency',
             ['http://example.com/dataflow/1'], allow_collections=0,
             allow_envelopes=1))
-        self.root.col1.getCountryCode = Mock(return_value = 'AT')
-
         self.root._setObject( 'col2', Collection('col2',
             'EU, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/2',
             '', 'European Environment Agency',
             ['http://example.com/dataflow/1'], allow_collections=0,
             allow_envelopes=1))
-        self.root.col2.getCountryCode = Mock(return_value = 'AL')
         kwargs = {
             'ccountries': [
                 'http://rod.eionet.eu.int/spatial/2',
@@ -247,11 +254,23 @@ class ReportekEngineTest(_BaseTest):
             'dns': ['testuser']
         }
         self.engine.Assign_client(**kwargs)
-        self.assertEqual(('Reporter', ), self.root.col1.get_local_roles_for_userid('testuser'))
-        self.assertEqual(('Reporter', ), self.root.col2.get_local_roles_for_userid('testuser'))
+        self.assertEqual(
+            ('Reporter', ),
+            self.root.col1.get_local_roles_for_userid('testuser')
+        )
+        self.assertEqual(
+            ('Reporter', ),
+            self.root.col2.get_local_roles_for_userid('testuser')
+        )
         self.engine.Remove_client(**kwargs)
-        self.assertEqual((), self.root.col1.get_local_roles_for_userid('testuser'))
-        self.assertEqual((), self.root.col2.get_local_roles_for_userid('testuser'))
+        self.assertEqual(
+            (),
+            self.root.col1.get_local_roles_for_userid('testuser')
+        )
+        self.assertEqual(
+            (),
+            self.root.col2.get_local_roles_for_userid('testuser')
+        )
 
 
     def test_remove_not_existing_role(self):
@@ -266,9 +285,11 @@ class ReportekEngineTest(_BaseTest):
             'cobligation': 'http://example.com/dataflow/1',
             'dns': ['testuser']
         }
-        self.root.col1.getCountryCode = Mock(return_value = 'AT')
         self.engine.Remove_client(**kwargs)
-        self.assertEqual((), self.root.col1.get_local_roles_for_userid('testuser'))
+        self.assertEqual(
+            (),
+            self.root.col1.get_local_roles_for_userid('testuser')
+        )
 
 
     def test_assign_role_to_multiple_users(self):
@@ -277,7 +298,6 @@ class ReportekEngineTest(_BaseTest):
             '', 'European Environment Agency',
             ['http://example.com/dataflow/1'], allow_collections=0,
             allow_envelopes=1))
-        self.root.col1.getCountryCode = Mock(return_value = 'AT')
         kwargs = {
             'ccountries': ['http://rod.eionet.eu.int/spatial/3'],
             'crole': 'Reporter',
@@ -285,8 +305,14 @@ class ReportekEngineTest(_BaseTest):
             'dns': ['testuser', 'testuser1']
         }
         self.engine.Assign_client(**kwargs)
-        self.assertEqual(('Reporter', ), self.root.col1.get_local_roles_for_userid('testuser'))
-        self.assertEqual(('Reporter', ), self.root.col1.get_local_roles_for_userid('testuser1'))
+        self.assertEqual(
+            ('Reporter', ),
+            self.root.col1.get_local_roles_for_userid('testuser')
+        )
+        self.assertEqual(
+            ('Reporter', ),
+            self.root.col1.get_local_roles_for_userid('testuser1')
+        )
 
 
     def test_remove_role_for_specified_user_only(self):
@@ -295,7 +321,6 @@ class ReportekEngineTest(_BaseTest):
             '', 'European Environment Agency',
             ['http://example.com/dataflow/1'], allow_collections=0,
             allow_envelopes=1))
-        self.root.col1.getCountryCode = Mock(return_value = 'AT')
         kwargs = {
             'ccountries': ['http://rod.eionet.eu.int/spatial/3'],
             'crole': 'Reporter',
@@ -303,11 +328,17 @@ class ReportekEngineTest(_BaseTest):
             'dns': ['testuser', 'testuser1']
         }
         self.engine.Assign_client(**kwargs)
-        self.assertEqual(('Reporter', ), self.root.col1.get_local_roles_for_userid('testuser'))
+        self.assertEqual(
+            ('Reporter', ),
+            self.root.col1.get_local_roles_for_userid('testuser')
+        )
         kwargs.update({'dns': ['testuser']})
         self.engine.Remove_client(**kwargs)
         self.assertEqual((), self.root.col1.get_local_roles_for_userid('testuser'))
-        self.assertEqual(('Reporter',), self.root.col1.get_local_roles_for_userid('testuser1'))
+        self.assertEqual(
+            ('Reporter',),
+            self.root.col1.get_local_roles_for_userid('testuser1')
+        )
 
 
     def test_assign_role_to_specific_obligation_only(self):
@@ -316,13 +347,11 @@ class ReportekEngineTest(_BaseTest):
             '', 'European Environment Agency',
             ['http://example.com/dataflow/1'], allow_collections=0,
             allow_envelopes=1))
-        self.root.col1.getCountryCode = Mock(return_value = 'AT')
         self.root._setObject( 'col2', Collection('col2',
             'EU, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/2',
             '', 'European Environment Agency',
             ['http://example.com/dataflow/2'], allow_collections=0,
             allow_envelopes=1))
-        self.root.col2.getCountryCode = Mock(return_value = 'AT')
         kwargs = {
             'ccountries': ['http://rod.eionet.eu.int/spatial/2'],
             'crole': 'Reporter',
@@ -331,7 +360,63 @@ class ReportekEngineTest(_BaseTest):
         }
         self.engine.Assign_client(**kwargs)
         self.assertEqual((), self.root.col1.get_local_roles_for_userid('testuser'))
-        self.assertEqual(('Reporter',), self.root.col2.get_local_roles_for_userid('testuser1'))
+        self.assertEqual(
+            ('Reporter',),
+            self.root.col2.get_local_roles_for_userid('testuser1'))
+
+
+    def test_wrong_assign_return_fail_message(self):
+        self.root._setObject( 'col1', Collection('col1',
+            'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/3',
+            '', 'European Environment Agency',
+            ['http://example.com/dataflow/1'], allow_collections=0,
+            allow_envelopes=1))
+        kwargs = {
+            'ccountries': ['http://rod.eionet.eu.int/spatial/3'],
+            'crole': 'Reporter',
+            'cobligation': 'http://example.com/dataflow/2', #different obligation
+            'dns': ['testuser']
+        }
+        result = self.engine.Assign_client(**kwargs)
+        self.assertEqual('fail', result[0]['status'])
+
+    def test_assign_return_ok_message(self):
+        self.root._setObject( 'col1', Collection('col1',
+            'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/3',
+            '', 'European Environment Agency',
+            ['http://example.com/dataflow/1'], allow_collections=0,
+            allow_envelopes=1))
+        kwargs = {
+            'ccountries': ['http://rod.eionet.eu.int/spatial/3'],
+            'crole': 'Reporter',
+            'cobligation': 'http://example.com/dataflow/1',
+            'dns': ['testuser']
+        }
+        result = self.engine.Assign_client(**kwargs)
+        self.assertEqual('success', result[0]['status'])
+
+    def test_assign_return_both_ok_and_fail_messages(self):
+        self.root._setObject( 'col1', Collection('col1',
+            'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/3',
+            '', 'European Environment Agency',
+            ['http://example.com/dataflow/1'], allow_collections=0,
+            allow_envelopes=1))
+        self.root._setObject( 'col2', Collection('col2',
+            'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/2',
+            '', 'European Environment Agency',
+            ['http://example.com/dataflow/2'], allow_collections=0,
+            allow_envelopes=1))
+        kwargs = {
+            'ccountries': ['http://rod.eionet.eu.int/spatial/3'],
+            'crole': 'Reporter',
+            'cobligation': 'http://example.com/dataflow/2',
+            'dns': ['testuser']
+        }
+        result = self.engine.Assign_client(**kwargs)
+        self.assertEqual('fail', result[0]['status'])
+        self.assertEqual('success', result[1]['status'])
+
+
 
 
 class SearchResultsTest(_BaseTest):

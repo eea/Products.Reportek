@@ -108,25 +108,11 @@ function toggleSelectUsers(){
           ccountries python:context.REQUEST.get('ccountries');
           crole python:context.REQUEST.get('crole')">
 
-    <div style="border: 1px solid #5F7F7E; color: #5F7F7E; padding: 1em;"
-      tal:define="dns python:context.REQUEST.get('dns')">
-    <label>
-    <strong tal:content="context/REQUEST/crole">role</strong> role was assigned for user
-    <tal:block condition="python:context.id=='dns'">
-      <tal:block condition="python:len(dns)>1">(s)</tal:block>
-    </tal:block>:
-      <span tal:replace="python:', '.join(dns)">enumeration</span><br />
-    in the following collections:
-    </label>
-    <ul>
-      <li tal:repeat="item python:context.Assign_client(dns=dns, cobligation=cobligation, ccountries=ccountries,crole=crole)">
-        <tal:block define="doc_path python:item.absolute_url() "
-                 content="doc_path">
-            doc_path
-        </tal:block>
-      </li>
-    </ul>
-    </div>
+    <div tal:define="dns python:context.REQUEST.get('dns');
+                     results python:context.Assign_client(dns=dns, cobligation=cobligation, ccountries=ccountries,crole=crole)"
+         tal:repeat="result results"
+         tal:attributes="class python:'caution-msg' if result['status']=='fail' else 'note-msg'"
+         tal:content="structure python:result['message']"/>
 </tal:block>
 
 <!-- Remove role -->

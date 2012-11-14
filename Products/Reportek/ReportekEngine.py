@@ -238,6 +238,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security.declareProtected('View', 'Assign_client')
     def Assign_client(self, REQUEST=None, **kwargs):
+        messages = []
         if REQUEST:
             kwargs.update(REQUEST.form)
 
@@ -250,17 +251,38 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         catalog = self.Catalog
         brains = catalog(**query)
+        users = kwargs.get('dns', [])
+        if not brains:
+            message = '<label>Unable to assign role %s to %s:</label>' \
+                      '<p>No matching collection based on selected options.</p>' %(
+                              crole,
+                              ' ,'.join(users))
+            messages.append({
+                'status': 'fail',
+                'message': message
+            })
         countries = kwargs.get('ccountries', [])
         res = []
-        users = kwargs.get('dns', [])
+        collections = []
         for brain in brains:
             doc = brain.getObject()
             for user in kwargs.get('dns', []):
                 local_roles = [role for role in doc.get_local_roles_for_userid(user) if role != 'Client']
                 local_roles.append(crole)
                 doc.manage_setLocalRoles(user, local_roles)
-            res.append(doc)
-        return res
+            collections.append('<li>%s</li>' %doc.absolute_url())
+        message = '<label>%s role successfully assigned to:</label>' \
+                  '<ul>%s</ul>' \
+                  '<br/>for the following collections:<br/>' \
+                  '<ul>%s</ul>' %(
+                      crole,
+                      ''.join(['<li>%s</li>' %user for user in users]),
+                      ''.join(collections))
+        messages.append({
+            'status': 'success',
+            'message': message
+        })
+        return messages
 
 
     security.declareProtected('View', 'getCountriesList')
