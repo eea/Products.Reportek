@@ -214,6 +214,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         query = {
           'dataflow_uris': kwargs.get('cobligation', ''),
           'meta_type': 'Report Collection',
+          'country': kwargs.get('ccountries')
         }
 
         catalog = self.Catalog
@@ -224,12 +225,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         res = []
         for brain in brains:
             doc = brain.getObject()
-            try:
-                country = doc.getCountryCode()
-            except KeyError:
-                continue
-            if country.lower() not in countries:
-                continue
             for user in kwargs.get('dns', []):
                 local_roles = [role for role in doc.get_local_roles_for_userid(user) if role != 'Client']
                 doc.manage_delLocalRoles(userids=[user,])
@@ -250,21 +245,16 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         query = {
           'dataflow_uris': kwargs.get('cobligation', ''),
           'meta_type': 'Report Collection',
+          'country': kwargs.get('ccountries')
         }
 
         catalog = self.Catalog
         brains = catalog(**query)
-
         countries = kwargs.get('ccountries', [])
         res = []
+        users = kwargs.get('dns', [])
         for brain in brains:
             doc = brain.getObject()
-            try:
-                country = doc.getCountryCode()
-            except KeyError:
-                continue
-            if country.lower() not in countries:
-                continue
             for user in kwargs.get('dns', []):
                 local_roles = [role for role in doc.get_local_roles_for_userid(user) if role != 'Client']
                 local_roles.append(crole)

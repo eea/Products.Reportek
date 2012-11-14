@@ -130,7 +130,7 @@ class ReportekEngineTest(_BaseTest):
             allow_envelopes=1))
         self.root.col.getCountryCode = Mock(return_value = 'AT')
         kwargs = {
-            'ccountries': ['at'],
+            'ccountries': ['http://rod.eionet.eu.int/spatial/3'],
             'crole': 'Reporter',
             'cobligation': 'http://example.com/dataflow/1',
             'dns': ['testuser']
@@ -146,7 +146,7 @@ class ReportekEngineTest(_BaseTest):
             allow_envelopes=1))
         self.root.col.getCountryCode = Mock(return_value = 'AT')
         kwargs = {
-            'ccountries': ['at'],
+            'ccountries': ['http://rod.eionet.eu.int/spatial/3'],
             'crole': 'Reporter',
             'cobligation': 'http://example.com/dataflow/1',
             'dns': ['testuser']
@@ -164,7 +164,7 @@ class ReportekEngineTest(_BaseTest):
             allow_envelopes=1))
         self.root.col.getCountryCode = Mock(return_value = 'AT')
         kwargs = {
-            'ccountries': ['at'],
+            'ccountries': ['http://rod.eionet.eu.int/spatial/3'],
             'crole': 'Reporter',
             'cobligation': 'http://example.com/dataflow/1',
             'dns': ['testuser']
@@ -182,7 +182,7 @@ class ReportekEngineTest(_BaseTest):
             allow_envelopes=1))
         self.root.col.getCountryCode = Mock(return_value = 'AT')
         kwargs = {
-            'ccountries': ['at'],
+            'ccountries': ['http://rod.eionet.eu.int/spatial/3'],
             'crole': 'Reporter',
             'cobligation': 'http://example.com/dataflow/1',
             'dns': ['testuser']
@@ -212,7 +212,8 @@ class ReportekEngineTest(_BaseTest):
         self.assertEqual((), self.root.col1.get_local_roles_for_userid('testuser'))
         self.assertEqual((), self.root.col2.get_local_roles_for_userid('testuser'))
         kwargs = {
-            'ccountries': ['al', 'at'],
+            'ccountries': ['http://rod.eionet.eu.int/spatial/2',
+                           'http://rod.eionet.eu.int/spatial/3'],
             'crole': 'Reporter',
             'cobligation': 'http://example.com/dataflow/1',
             'dns': ['testuser']
@@ -237,7 +238,10 @@ class ReportekEngineTest(_BaseTest):
             allow_envelopes=1))
         self.root.col2.getCountryCode = Mock(return_value = 'AL')
         kwargs = {
-            'ccountries': ['al', 'at'],
+            'ccountries': [
+                'http://rod.eionet.eu.int/spatial/2',
+                'http://rod.eionet.eu.int/spatial/3'
+            ],
             'crole': 'Reporter',
             'cobligation': 'http://example.com/dataflow/1',
             'dns': ['testuser']
@@ -275,7 +279,7 @@ class ReportekEngineTest(_BaseTest):
             allow_envelopes=1))
         self.root.col1.getCountryCode = Mock(return_value = 'AT')
         kwargs = {
-            'ccountries': ['at'],
+            'ccountries': ['http://rod.eionet.eu.int/spatial/3'],
             'crole': 'Reporter',
             'cobligation': 'http://example.com/dataflow/1',
             'dns': ['testuser', 'testuser1']
@@ -293,7 +297,7 @@ class ReportekEngineTest(_BaseTest):
             allow_envelopes=1))
         self.root.col1.getCountryCode = Mock(return_value = 'AT')
         kwargs = {
-            'ccountries': ['at'],
+            'ccountries': ['http://rod.eionet.eu.int/spatial/3'],
             'crole': 'Reporter',
             'cobligation': 'http://example.com/dataflow/1',
             'dns': ['testuser', 'testuser1']
@@ -304,6 +308,7 @@ class ReportekEngineTest(_BaseTest):
         self.engine.Remove_client(**kwargs)
         self.assertEqual((), self.root.col1.get_local_roles_for_userid('testuser'))
         self.assertEqual(('Reporter',), self.root.col1.get_local_roles_for_userid('testuser1'))
+
 
     def test_assign_role_to_specific_obligation_only(self):
         self.root._setObject( 'col1', Collection('col1',
@@ -319,7 +324,7 @@ class ReportekEngineTest(_BaseTest):
             allow_envelopes=1))
         self.root.col2.getCountryCode = Mock(return_value = 'AT')
         kwargs = {
-            'ccountries': ['at'],
+            'ccountries': ['http://rod.eionet.eu.int/spatial/2'],
             'crole': 'Reporter',
             'cobligation': 'http://example.com/dataflow/2',
             'dns': ['testuser', 'testuser1']

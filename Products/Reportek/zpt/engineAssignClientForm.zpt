@@ -226,7 +226,7 @@ function toggleSelectUsers(){
 <input type="checkbox"
        name="ccountries:list"
        tal:attributes="id python:'cb%s' %item['iso'].lower();
-                       value python:item['iso'].lower()"/>
+                       value python:item['uri']"/>
    <label tal:attributes="for item/iso" tal:content="item/name"></label>
 </div>
 <div id="select_countries" style="clear: both; text-align: right; padding-top: 1em"></div>
