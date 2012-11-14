@@ -305,6 +305,28 @@ class ReportekEngineTest(_BaseTest):
         self.assertEqual((), self.root.col1.get_local_roles_for_userid('testuser'))
         self.assertEqual(('Reporter',), self.root.col1.get_local_roles_for_userid('testuser1'))
 
+    def test_assign_role_to_specific_obligation_only(self):
+        self.root._setObject( 'col1', Collection('col1',
+            'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/3',
+            '', 'European Environment Agency',
+            ['http://example.com/dataflow/1'], allow_collections=0,
+            allow_envelopes=1))
+        self.root.col1.getCountryCode = Mock(return_value = 'AT')
+        self.root._setObject( 'col2', Collection('col2',
+            'EU, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/2',
+            '', 'European Environment Agency',
+            ['http://example.com/dataflow/2'], allow_collections=0,
+            allow_envelopes=1))
+        self.root.col2.getCountryCode = Mock(return_value = 'AT')
+        kwargs = {
+            'ccountries': ['at'],
+            'crole': 'Reporter',
+            'cobligation': 'http://example.com/dataflow/2',
+            'dns': ['testuser', 'testuser1']
+        }
+        self.engine.Assign_client(**kwargs)
+        self.assertEqual((), self.root.col1.get_local_roles_for_userid('testuser'))
+        self.assertEqual(('Reporter',), self.root.col2.get_local_roles_for_userid('testuser1'))
 
 
 class SearchResultsTest(_BaseTest):
