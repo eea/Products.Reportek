@@ -239,26 +239,36 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security.declareProtected('View', 'Assign_client')
     def Assign_client(self, REQUEST=None, **kwargs):
-        messages = []
         if REQUEST:
             kwargs.update(REQUEST.form)
 
         crole = kwargs.get('crole','Client')
-        for country in kwargs.get('ccountries'):
+        ccountries = kwargs.get('ccountries')
+        dataflow_uris = kwargs.get('cobligation', '')
+        fail_pattern = 'Unable to assign role %s to %s for %s.<br/>' \
+                       'No matching collection based on selected options.'
+        success_pattern = '%s assigned to %s<br/>' \
+                          'for the following collections:<br/>' \
+                          '%s<br/>'
+        users = kwargs.get('dns', [])
+        messages = self.response_messages(crole, users, ccountries,
+                                          dataflow_uris, fail_pattern,
+                                          success_pattern)
+        return messages
+
+
+    def response_messages(self, crole, users, ccountries, dataflow_uris,
+                          fail_pattern, success_pattern):
+        messages = []
+        for country in ccountries:
             query = {
-              'dataflow_uris': kwargs.get('cobligation', ''),
+              'dataflow_uris': dataflow_uris,
               'meta_type': 'Report Collection',
               'country': country
             }
 
             catalog = self.Catalog
             brains = catalog(**query)
-            users = kwargs.get('dns', [])
-            fail_pattern = 'Unable to assign role %s to %s for %s.<br/>' \
-                           'No matching collection based on selected options.'
-            success_pattern = '%s assigned to %s<br/>' \
-                              'for the following collections:<br/>' \
-                              '%s<br/>'
             if not brains:
                 message = fail_pattern %(
                             crole,
@@ -274,7 +284,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             collections = []
             for brain in brains:
                 doc = brain.getObject()
-                for user in kwargs.get('dns', []):
+                for user in users:
                     local_roles = [role for role in doc.get_local_roles_for_userid(user) if role != 'Client']
                     local_roles.append(crole)
                     doc.manage_setLocalRoles(user, local_roles)
@@ -285,7 +295,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 'message': message
             })
         return messages
-
 
     security.declareProtected('View', 'getCountriesList')
     def getCountriesList(self):
