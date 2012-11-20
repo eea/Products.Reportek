@@ -134,27 +134,19 @@ function toggleSelectUsers(){
      define="cobligation python:context.REQUEST.get('dataflow_uris');
              ccountries python:context.REQUEST.get('ccountries');
              crole python:context.REQUEST.get('crole')">
-  <div style="border: 1px solid #5F7F7E; color: #5F7F7E; padding: 1em;"
-       tal:define="dns python:context.REQUEST.get('dns')">
-  <label>
-  <strong tal:content="context/REQUEST/crole">crole</strong> role was removed for user
-  <tal:block condition="dns" >
-      <tal:block condition="python:dns and len(dns)>1">
-        (s)
-      </tal:block>
-  </tal:block>:
-  <span tal:replace="python:', '.join(dns)">enumeration</span><br />
-  in the following collections:
-  </label>
-    <ul>
-      <li tal:repeat="item python:context.Remove_client(dns=dns, cobligation=cobligation, ccountries=ccountries,crole=crole)" >
-      <tal:block define="doc_path python:item.absolute_url() "
-                 content="doc_path">
-            doc_path
-        </tal:block>
-      </li>
-    </ul>
-  </div>
+    <div tal:define="dns python:context.REQUEST.get('dns');
+                     results python:context.Remove_client(dns=dns, cobligation=cobligation, ccountries=ccountries,crole=crole)"
+         tal:repeat="result results"
+         tal:attributes="class python:'caution-msg' if result['status']=='fail'
+                                                    else 'note-msg'">
+        <label tal:content="python:'Successfully removed' if result['status']=='success'
+                                                           else 'Unable to remove'">
+            Content
+        </label>
+        <p tal:content="structure python:result['message']">
+            Message
+        </p>
+    </div>
 </tal:block>
 
 <!-- Template title -->

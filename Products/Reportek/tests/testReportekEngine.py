@@ -369,7 +369,7 @@ class ReportekEngineTest(_BaseTest):
             self.root.col2.get_local_roles_for_userid('testuser1'))
 
 
-    def test_wrong_assign_return_fail_message(self):
+    def test_wrong_assign_returns_fail_message(self):
         self.root._setObject( 'col1', Collection('col1',
             'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/3',
             '', 'European Environment Agency',
@@ -384,7 +384,7 @@ class ReportekEngineTest(_BaseTest):
         result = self.engine.Assign_client(**kwargs)
         self.assertEqual('fail', result[0]['status'])
 
-    def test_assign_return_ok_message(self):
+    def test_assign_returns_ok_message(self):
         self.root._setObject( 'col1', Collection('col1',
             'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/3',
             '', 'European Environment Agency',
@@ -399,7 +399,7 @@ class ReportekEngineTest(_BaseTest):
         result = self.engine.Assign_client(**kwargs)
         self.assertEqual('success', result[0]['status'])
 
-    def test_assign_return_both_ok_and_fail_messages(self):
+    def test_assign_returns_both_ok_and_fail_messages(self):
         self.root._setObject( 'col1', Collection('col1',
             'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/3',
             '', 'European Environment Agency',
@@ -423,7 +423,7 @@ class ReportekEngineTest(_BaseTest):
         self.assertEqual('success', result[0]['status'])
         self.assertEqual('fail', result[1]['status'])
 
-    def test_remove_return_ok_message(self):
+    def test_remove_returns_ok_message(self):
         self.root._setObject( 'col1', Collection('col1',
             'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/3',
             '', 'European Environment Agency',
@@ -439,6 +439,47 @@ class ReportekEngineTest(_BaseTest):
         }
         result = self.engine.Remove_client(**kwargs)
         self.assertEqual('success', result[0]['status'])
+
+    def test_remove_returns_fail_message(self):
+        self.root._setObject( 'col1', Collection('col1',
+            'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/3',
+            '', 'European Environment Agency',
+            ['http://example.com/dataflow/1'], allow_collections=0,
+            allow_envelopes=1))
+        kwargs = {
+            'ccountries': [
+                'http://rod.eionet.eu.int/spatial/3',
+            ],
+            'crole': 'Reporter',
+            'cobligation': 'http://example.com/dataflow/2',
+            'dns': ['testuser']
+        }
+        result = self.engine.Remove_client(**kwargs)
+        self.assertEqual('fail', result[0]['status'])
+
+    def test_remove_returns_both_ok_and_fail_messages(self):
+        self.root._setObject( 'col1', Collection('col1',
+            'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/3',
+            '', 'European Environment Agency',
+            ['http://example.com/dataflow/1'], allow_collections=0,
+            allow_envelopes=1))
+        self.root._setObject( 'col2', Collection('col2',
+            'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/2',
+            '', 'European Environment Agency',
+            ['http://example.com/dataflow/2'], allow_collections=0,
+            allow_envelopes=1))
+        kwargs = {
+            'ccountries': [
+                'http://rod.eionet.eu.int/spatial/3',
+                'http://rod.eionet.eu.int/spatial/2'
+            ],
+            'crole': 'Reporter',
+            'cobligation': 'http://example.com/dataflow/1',
+            'dns': ['testuser']
+        }
+        result = self.engine.Remove_client(**kwargs)
+        self.assertEqual('success', result[0]['status'])
+        self.assertEqual('fail', result[1]['status'])
 
 
 class SearchResultsTest(_BaseTest):

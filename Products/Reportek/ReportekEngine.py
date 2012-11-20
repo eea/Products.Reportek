@@ -245,9 +245,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         crole = kwargs.get('crole','Client')
         ccountries = kwargs.get('ccountries')
         dataflow_uris = kwargs.get('cobligation', '')
-        fail_pattern = 'Unable to assign role %s to %s for %s.<br/>' \
+        fail_pattern = 'Unable to remove role %s to %s for %s.<br/>' \
                        'No matching collection based on selected options.'
-        success_pattern = '%s assigned to %s<br/>' \
+        success_pattern = '%s removed for %s<br/>' \
                           'for the following collections:<br/>' \
                           '%s<br/>'
         users = kwargs.get('dns', [])
