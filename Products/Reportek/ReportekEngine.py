@@ -256,7 +256,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                                           success_pattern, modifier=self.remove_roles)
         return messages
 
-
     def response_messages(self, crole, users, ccountries, dataflow_uris,
                           fail_pattern, success_pattern, modifier):
         messages = []

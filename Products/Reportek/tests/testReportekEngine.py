@@ -437,6 +437,7 @@ class ReportekEngineTest(_BaseTest):
             'cobligation': 'http://example.com/dataflow/1',
             'dns': ['testuser']
         }
+        self.engine.Assign_client(**kwargs)
         result = self.engine.Remove_client(**kwargs)
         self.assertEqual('success', result[0]['status'])
 
@@ -454,6 +455,7 @@ class ReportekEngineTest(_BaseTest):
             'cobligation': 'http://example.com/dataflow/2',
             'dns': ['testuser']
         }
+        self.engine.Assign_client(**kwargs)
         result = self.engine.Remove_client(**kwargs)
         self.assertEqual('fail', result[0]['status'])
 
@@ -477,6 +479,7 @@ class ReportekEngineTest(_BaseTest):
             'cobligation': 'http://example.com/dataflow/1',
             'dns': ['testuser']
         }
+        self.engine.Assign_client(**kwargs)
         result = self.engine.Remove_client(**kwargs)
         self.assertEqual('success', result[0]['status'])
         self.assertEqual('fail', result[1]['status'])
