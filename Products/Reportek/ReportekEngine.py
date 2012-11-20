@@ -206,26 +206,16 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declareProtected(view_management_screens, 'Assign_client_form')
     Assign_client_form = PageTemplateFile('zpt/engineAssignClientForm', globals())
 
-    security.declareProtected('View', 'Remove_client')
-    def Remove_client(self, REQUEST=None, **kwargs):
-        #TODO refact to return messages like Assign_client
-        if REQUEST:
-            kwargs.update(REQUEST.form)
+    def assign_roles(self, user, role, local_roles, doc):
+        local_roles.append(role)
+        doc.manage_setLocalRoles(user, local_roles)
 
-        crole = kwargs.get('crole','Client')
-        ccountries = kwargs.get('ccountries')
-        dataflow_uris = kwargs.get('cobligation', '')
-        fail_pattern = 'Unable to assign role %s to %s for %s.<br/>' \
-                       'No matching collection based on selected options.'
-        success_pattern = '%s assigned to %s<br/>' \
-                          'for the following collections:<br/>' \
-                          '%s<br/>'
-        users = kwargs.get('dns', [])
-        messages = self.response_messages(crole, users, ccountries,
-                                          dataflow_uris, fail_pattern,
-                                          success_pattern, operation='removal')
-        return messages
-
+    def remove_roles(self, user, role, local_roles, doc):
+        doc.manage_delLocalRoles(userids=[user,])
+        if role in local_roles:
+            local_roles.remove(role)
+        if local_roles:
+            doc.manage_setLocalRoles(user, local_roles)
 
     security.declareProtected('View', 'Assign_client')
     def Assign_client(self, REQUEST=None, **kwargs):
@@ -243,12 +233,33 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         users = kwargs.get('dns', [])
         messages = self.response_messages(crole, users, ccountries,
                                           dataflow_uris, fail_pattern,
-                                          success_pattern)
+                                          success_pattern,
+                                          modifier=self.assign_roles)
+        return messages
+
+    security.declareProtected('View', 'Remove_client')
+    def Remove_client(self, REQUEST=None, **kwargs):
+        #TODO refact to return messages like Assign_client
+        if REQUEST:
+            kwargs.update(REQUEST.form)
+
+        crole = kwargs.get('crole','Client')
+        ccountries = kwargs.get('ccountries')
+        dataflow_uris = kwargs.get('cobligation', '')
+        fail_pattern = 'Unable to assign role %s to %s for %s.<br/>' \
+                       'No matching collection based on selected options.'
+        success_pattern = '%s assigned to %s<br/>' \
+                          'for the following collections:<br/>' \
+                          '%s<br/>'
+        users = kwargs.get('dns', [])
+        messages = self.response_messages(crole, users, ccountries,
+                                          dataflow_uris, fail_pattern,
+                                          success_pattern, modifier=self.remove_roles)
         return messages
 
 
     def response_messages(self, crole, users, ccountries, dataflow_uris,
-                          fail_pattern, success_pattern, operation='assignment'):
+                          fail_pattern, success_pattern, modifier):
         messages = []
         for country in ccountries:
             query = {
@@ -276,15 +287,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 doc = brain.getObject()
                 for user in users:
                     local_roles = [role for role in doc.get_local_roles_for_userid(user) if role != 'Client']
-                    if operation == 'assignment':
-                        local_roles.append(crole)
-                        doc.manage_setLocalRoles(user, local_roles)
-                    elif operation == 'removal':
-                        doc.manage_delLocalRoles(userids=[user,])
-                        if crole in local_roles:
-                            local_roles.remove(crole)
-                        if local_roles:
-                            doc.manage_setLocalRoles(user, local_roles)
+                    modifier(user, crole, local_roles, doc)
                 collections.append('<li>%s</li>' %doc.absolute_url())
             message = success_pattern %( crole, ', '.join(users), ''.join(collections))
             messages.append({
