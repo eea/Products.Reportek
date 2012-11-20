@@ -212,29 +212,19 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if REQUEST:
             kwargs.update(REQUEST.form)
 
-        query = {
-          'dataflow_uris': kwargs.get('cobligation', ''),
-          'meta_type': 'Report Collection',
-          'country': kwargs.get('ccountries')
-        }
-
-        catalog = self.Catalog
-        brains = catalog(**query)
-
-        crole = kwargs.get('crole')
-        countries = kwargs.get('ccountries', [])
-        res = []
-        for brain in brains:
-            doc = brain.getObject()
-            for user in kwargs.get('dns', []):
-                local_roles = [role for role in doc.get_local_roles_for_userid(user) if role != 'Client']
-                doc.manage_delLocalRoles(userids=[user,])
-                if crole in local_roles:
-                    local_roles.remove(crole)
-                if local_roles:
-                    doc.manage_setLocalRoles(user, local_roles)
-            res.append(doc)
-        return res
+        crole = kwargs.get('crole','Client')
+        ccountries = kwargs.get('ccountries')
+        dataflow_uris = kwargs.get('cobligation', '')
+        fail_pattern = 'Unable to assign role %s to %s for %s.<br/>' \
+                       'No matching collection based on selected options.'
+        success_pattern = '%s assigned to %s<br/>' \
+                          'for the following collections:<br/>' \
+                          '%s<br/>'
+        users = kwargs.get('dns', [])
+        messages = self.response_messages(crole, users, ccountries,
+                                          dataflow_uris, fail_pattern,
+                                          success_pattern, operation='removal')
+        return messages
 
 
     security.declareProtected('View', 'Assign_client')
@@ -258,7 +248,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
 
     def response_messages(self, crole, users, ccountries, dataflow_uris,
-                          fail_pattern, success_pattern):
+                          fail_pattern, success_pattern, operation='assignment'):
         messages = []
         for country in ccountries:
             query = {
@@ -286,8 +276,15 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 doc = brain.getObject()
                 for user in users:
                     local_roles = [role for role in doc.get_local_roles_for_userid(user) if role != 'Client']
-                    local_roles.append(crole)
-                    doc.manage_setLocalRoles(user, local_roles)
+                    if operation == 'assignment':
+                        local_roles.append(crole)
+                        doc.manage_setLocalRoles(user, local_roles)
+                    elif operation == 'removal':
+                        doc.manage_delLocalRoles(userids=[user,])
+                        if crole in local_roles:
+                            local_roles.remove(crole)
+                        if local_roles:
+                            doc.manage_setLocalRoles(user, local_roles)
                 collections.append('<li>%s</li>' %doc.absolute_url())
             message = success_pattern %( crole, ', '.join(users), ''.join(collections))
             messages.append({

@@ -423,6 +423,23 @@ class ReportekEngineTest(_BaseTest):
         self.assertEqual('success', result[0]['status'])
         self.assertEqual('fail', result[1]['status'])
 
+    def test_remove_return_ok_message(self):
+        self.root._setObject( 'col1', Collection('col1',
+            'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/3',
+            '', 'European Environment Agency',
+            ['http://example.com/dataflow/1'], allow_collections=0,
+            allow_envelopes=1))
+        kwargs = {
+            'ccountries': [
+                'http://rod.eionet.eu.int/spatial/3',
+            ],
+            'crole': 'Reporter',
+            'cobligation': 'http://example.com/dataflow/1',
+            'dns': ['testuser']
+        }
+        result = self.engine.Remove_client(**kwargs)
+        self.assertEqual('success', result[0]['status'])
+
 
 class SearchResultsTest(_BaseTest):
 
