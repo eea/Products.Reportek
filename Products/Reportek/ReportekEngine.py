@@ -262,7 +262,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             if not brains:
                 message = fail_pattern %(
                             crole,
-                            ' ,'.join(users),
+                            ', '.join(users),
                             self.localities_dict().get(country, {'name': 'Unknown'})['name']
                 )
                 messages.append({

@@ -63,23 +63,29 @@ europe = {}
 
 isSelected = false;
 
+var countries = document.getElementsByName('ccountries:list');
+
+function deselectAll(){
+    for (i = 0; i < countries.length; i++){
+      countries[i].checked = false ;
+    }
+}
+
 function toggleSelectCountries(group) {
-  var countries = document.getElementsByName('ccountries:list');
+  deselectAll();
   if (isSelected == false || group != europe ) {
-    for (i = 0; i < countries.length; i++)
-     if (group == europe || countries[i].value in group) {
+    for (i = 0; i < countries.length; i++){
+     var iso = countries[i].attributes['iso'].value.toLowerCase()
+     if (group == europe || iso in group) {
       countries[i].checked = true ;
       }
-      isSelected = true;
-      document.objectItems.selectAllCountries.value = "Deselect All";
-      return isSelected;
+    }
+    isSelected = true;
+    document.objectItems.selectAllCountries.value = "Deselect All";
   }
-  else {
-    for (i = 0; i < countries.length; i++)
-      countries[i].checked = false ;
-      isSelected = false;
-      document.objectItems.selectAllCountries.value = "Select All";
-      return isSelected;
+  else{
+    isSelected = false;
+    document.objectItems.selectAllCountries.value = "Select All";
   }
 }
 
@@ -220,6 +226,7 @@ function toggleSelectUsers(){
 <input type="checkbox"
        name="ccountries:list"
        tal:attributes="id python:'cb%s' %item['iso'].lower();
+                       iso item/iso;
                        value python:item['uri']"/>
    <label tal:attributes="for item/iso" tal:content="item/name"></label>
 </div>
@@ -246,8 +253,8 @@ function toggleSelectUsers(){
 </tal:block>
 <script type="text/javascript">
 // <![CDATA[
-if (document.forms[0]) {
-  var select_div = document.getElementById('select_countries');
+var select_div = document.getElementById('select_countries');
+if (select_div) {
   var select_buttons = '<input class="form-element" type="button" name="selectAllCountries" value="Select All" onclick="toggleSelectCountries(europe); return false"/>';
   select_buttons += '<input class="form-element" type="button" name="selectEu25" value="Select EU25" onclick="toggleSelectCountries(eu25); return false"/>';
   select_buttons += '<input class="form-element" type="button" name="selectEu27" value="Select EU27" onclick="toggleSelectCountries(eu27); return false"/>';
