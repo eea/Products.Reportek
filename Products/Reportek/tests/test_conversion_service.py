@@ -47,56 +47,6 @@ class ConversionServiceTest(unittest.TestCase):
                          [conv.id for conv in local_converters]
         )
 
-    @patch.object(Converters, '_http_params')
-    def test_with_local_converters(self, mock_http_params):
-        converter = Converter('list_7zip', title='Reverse',
-                              convert_url='rev %s', ct_input='text/plain',
-                              ct_output='text/plain', ct_schema='',
-                              ct_extraparams=[], description='', suffix='')
-        self.app.Converters._setObject('list_7zip', converter)
-        mock_http_params.return_value = [
-            [
-                "http_rar2list",
-                "List of contents (http)",
-                "convert/rar2list",
-                "application/x-rar-compressed",
-                "text/plain;charset=\"utf-8\"",
-                "",
-                [],
-                "",
-                ""
-                ],
-            [
-                "http_list_7zip",
-                "List of contents (http)",
-                "convert/list_7zip",
-                "application/x-7z-compressed",
-                "text/plain;charset=\"utf-8\"",
-                "",
-                [],
-                "",
-                ""
-                ]
-        ]
-        local_converters = self.app.Converters._get_local_converters()
-        if not self.prefix:
-            self.assertEqual(['list_7zip', 'rar2list'],
-                             [conv.id for conv in local_converters]
-            )
-            #assert it's a local converter
-            self.assertEqual('Converters/list_7zip', local_converters[0].absolute_url())
-
-            #asert it's a http converter
-            self.assertEqual('/convert/rar2list', local_converters[1].convert_url)
-        else:
-            self.assertEqual([#one local converter
-                              'list_7zip',
-                              #two http converters with prefix
-                              '%srar2list' %self.prefix,
-                              '%slist_7zip' %self.prefix],
-                             [conv.id for conv in local_converters]
-            )
-
     @patch.object(Converters, '_get_local_converters')
     @patch('Products.Reportek.Converter.requests')
     def test_http_converter(self, mock_requests, mock_local_converters):

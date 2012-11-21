@@ -105,24 +105,18 @@ class Converters(Folder):
         resp = requests.get(url)
         return resp.json['list']
 
-    def _get_http_converters(self, local_converters):
-        #NOTE local_converters are needed until the service will be fully
-        #     operational
-        try:
-            for attrs in self._http_params():
-                if attrs[0] not in self.objectIds():
-                    conv = Converter.LocalHttpConverter(*attrs).__of__(self)
-                    local_converters.append(conv)
-        except requests.ConnectionError:
-            #NOTE http service connection problems ignored
-            #TODO manage this problem when http service will be fully operational
-            pass
+    def _get_local_converters(self):
+        local_converters = []
+        for attrs in self._http_params():
+            conv = Converter.LocalHttpConverter(*attrs).__of__(self)
+            local_converters.append(conv)
         return local_converters
 
-
+    """
     def _get_local_converters(self):
         """ """
-        return self._get_http_converters(self.objectValues('Converter'))
+        return self.objectIds()
+    """
 
     def ajax_remote_converters(self):
         """ """

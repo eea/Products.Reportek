@@ -69,24 +69,45 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
     @patch.object(Converters, '_http_params')
     def test_addLocalConverter(self, mock_http_params):
         """ Add a local converter, check it is found, run a simple conversion """
-        mock_http_params.return_value = []
+        mock_http_params.return_value = [
+            [
+              "prettyxml",
+              "Pretty XML",
+              "convert/xml2txt",
+              [
+                "text/plain"
+              ],
+              "text/plain",
+              "",
+              [],
+              "",
+              "xml"
+            ]
+        ]
         converters = getattr(self.app, CONVERTERS_ID)
-        converters.manage_addConverter('reversetxt', title='Reverse', convert_url='rev %s', ct_input='text/plain', ct_output='text/plain')
         local_converters, remote_converters = converters.displayPossibleConversions('text/plain')
         self.assertEquals(1, len(local_converters))
         self.assertEquals(0, len(remote_converters))
-        self.create_text_document()
-        res = converters.reversetxt(self.document.absolute_url(1), converter_id='reversetxt', REQUEST=self.app.REQUEST)
-        self.assertEquals('ereh tnetnoc\n', res)
 
     @patch.object(Converters, '_http_params')
     def test_suffixConverter(self, mock_http_params):
         """ Add a local pdf converter, check it is found on suffix """
-        mock_http_params.return_value = []
+        mock_http_params.return_value = [
+            [
+              "reversetxt",
+              "Reverse",
+              "convert/pdf2txt",
+              [
+                "application/pdf"
+              ],
+              "text/plain",
+              "",
+              [],
+              "",
+              "pdf"
+            ]
+        ]
         converters = getattr(self.app, CONVERTERS_ID)
-        converters.manage_addConverter('reversetxt', title='Reverse',
-               convert_url='pdf2txt %s', ct_input='application/pdf',
-               ct_output='text/plain', suffix="pdf")
         # Lookup on content-type alone
         local_converters, remote_converters = converters.displayPossibleConversions('text/pdf')
         self.assertEquals(0, len(local_converters))
@@ -149,11 +170,22 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
     @patch.object(Converters, '_http_params')
     def test_anonymousXml(self, mock_http_params):
         """ Test XML without schema """
-        mock_http_params.return_value = []
+        mock_http_params.return_value = [
+            [
+              "http_test",
+              "Test xml",
+              "convert/test",
+              [
+                "text/xml"
+              ],
+              "text/plain",
+              "",
+              [],
+              "",
+              "xml"
+            ]
+        ]
         converters = getattr(self.app, CONVERTERS_ID)
-        converters.manage_addConverter('prettyxml', title='Pretty XML',
-                convert_url='xml2txt %s', ct_input='text/xml', ct_output='text/plain',
-                ct_schema='', suffix="xml")
         # Lookup on content-type alone, must work, since converter was added with no schema
         local_converters, remote_converters = converters.displayPossibleConversions('text/xml')
         self.assertEquals(1, len(local_converters))
@@ -167,15 +199,26 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
     @patch('Products.Reportek.Converters.xmlrpclib')
     def test_suffixXmlConverter(self, mock_xmlrpclib, mock_http_params):
         """ Add a local XML converter, check it is found on suffix """
-        mock_http_params.return_value = []
+        mock_http_params.return_value = [
+            [
+              "prettyxml",
+              "Pretty XML",
+              "convert/xml2txt",
+              [
+                "text/xml"
+              ],
+              "text/plain",
+              'http://biodiversity.eionet.europa.eu/schemas/'
+              'dir9243eec/generalreport.xsd',
+              [],
+              "",
+              "xml"
+            ]
+        ]
         server = mock_xmlrpclib.ServerProxy.return_value
         server.ConversionService.listConversions.return_value = []
 
         converters = getattr(self.app, CONVERTERS_ID)
-        converters.manage_addConverter('prettyxml', title='Pretty XML',
-                convert_url='xml2txt %s', ct_input='text/xml', ct_output='text/plain',
-                ct_schema='http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd',
-                suffix="xml")
         # Lookup on content-type alone, not supposed to work as content-type must also match
         local_converters, remote_converters = converters.displayPossibleConversions('text/xml')
         self.assertEquals(0, len(local_converters))
@@ -216,9 +259,26 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.assertEquals(0, len(local_converters))
         self.assertEquals(0, len(remote_converters))
 
+    @patch.object(Converters, '_http_params')
     @patch('Products.Reportek.Converters.xmlrpclib')
-    def test_gmlConverter(self, mock_xmlrpclib):
+    def test_gmlConverter(self, mock_xmlrpclib, mock_http_params):
         """ GML files ends by .gml """
+        mock_http_params.return_value = [
+            [
+              "gmlaspng",
+              "GML as image",
+              "convert/gml2png",
+              [
+                "text/xml"
+              ],
+              "image/png",
+              'http://biodiversity.eionet.europa.eu/schemas/'
+              'dir9243eec/gml_art17.xsd',
+              [],
+              "",
+              "gml"
+            ]
+        ]
 
         server = mock_xmlrpclib.ServerProxy.return_value
         server.ConversionService.listConversions.return_value = [{
@@ -236,18 +296,49 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         # We check in testDocument.py that the sniff works, so we can just assume it here
         # http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd
         converters = getattr(self.app, CONVERTERS_ID)
-        converters.manage_addConverter('gmlaspng', title='GML as image',
-                convert_url='gml2png %s', ct_input='text/xml', ct_output='image/png',
-                ct_schema='http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd', suffix="gml")
-        local_converters, remote_converters = converters.displayPossibleConversions('text/xml',
-           "http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd","map-dist.gml")
+        (local_converters, remote_converters) = \
+                converters.displayPossibleConversions(
+                    'text/xml',
+                    "http://biodiversity.eionet.europa.eu/schemas/"
+                    "dir9243eec/gml_art17.xsd","map-dist.gml"
+                )
         self.assertEquals(1, len(local_converters))
+        mock_http_params.return_value = [
+            [
+              "gmlaspng",
+              "GML as image",
+              "convert/gml2png",
+              [
+                "text/xml"
+              ],
+              "image/png",
+              'http://biodiversity.eionet.europa.eu/schemas/'
+              'dir9243eec/gml_art17.xsd',
+              [],
+              "",
+              "gml"
+            ],
+            [
+              "gmlaswobgr",
+              "GML as image without background",
+              "convert/gml2png",
+              [
+                "text/xml"
+              ],
+              "image/png",
+              "http://biodiversity.eionet.europa.eu/schemas/"
+              "dir9243eec/gml_art17.xsd",
+              [],
+              "",
+              "gml"
+            ]
+        ]
         # Create a converter without suffix
-        converters.manage_addConverter('gmlaswobgr', title='GML as image without background',
-                convert_url='gml2png %s', ct_input='text/xml', ct_output='image/png',
-                ct_schema='http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd')
-        local_converters, remote_converters = converters.displayPossibleConversions('text/xml',
-           "http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd","map-dist.gml")
+        (local_converters, remote_converters) = \
+            converters.displayPossibleConversions(
+                'text/xml',
+                "http://biodiversity.eionet.europa.eu/schemas/"
+                "dir9243eec/gml_art17.xsd","map-dist.gml")
         self.assertEquals(2, len(local_converters))
 
     def testDefaultIdException(self):
@@ -282,13 +373,3 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
                                        converter_id='reversetxt',
                                        source='xyz',
                                        REQUEST=self.app.REQUEST)
-
-    def test_local_conversion(self):
-        converters = getattr(self.app, CONVERTERS_ID)
-        self.create_text_document()
-        converters.manage_addConverter('reversetxt', title='Reverse', convert_url='rev %s', ct_input='text/plain', ct_output='text/plain')
-        result = converters.run_conversion(self.document.absolute_url(1),
-                                       converter_id='reversetxt',
-                                       source='local',
-                                       REQUEST=self.app.REQUEST)
-        self.assertIn('ereh tnetnoc\n', result)

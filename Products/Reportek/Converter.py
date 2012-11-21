@@ -196,7 +196,8 @@ class LocalHttpConverter(Converter):
 
     def __init__(self, *args, **kwargs):
         super(LocalHttpConverter, self).__init__(*args, **kwargs)
-        self.suffix = extension(self.ct_input)
+        if not self.suffix:
+            self.suffix = extension(self.ct_input)
 
     def convert(self, file_obj, converter_id):
         url = '%s%s' % (self.get_local_http_converters_url(), self.convert_url)
