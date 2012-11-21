@@ -141,6 +141,13 @@ class Converters(Folder):
             return [self._get_local_converters()]
         return [self._get_local_converters(), self._get_remote_converters()]
 
+    def get_remote_converters_for_schema(self, doc_schema):
+        remote_converters = []
+        for c in self._get_remote_converters(doc_schema):
+            c['more_info'] = ''
+            remote_converters.append(c)
+        return remote_converters
+
     security.declarePublic('displayPossibleConversions')
     def displayPossibleConversions(self, contentType, doc_schema='', filename=''):
         """ Finds the converters available for a type of document. """
@@ -149,7 +156,13 @@ class Converters(Folder):
         filesuffix = filename[filename.find('.')+1:] # Drop everything up to period.
         if filesuffix == '': filesuffix='totally-unlikely-suffix.'
         # Find in list of local converters
-        available_local_converters = self._get_local_converters()
+        try:
+            available_local_converters = self._get_local_converters()
+        except requests.ConnectionError as ex:
+            if doc_schema:
+                remote_converters = self.get_remote_converters_for_schema(doc_schema)
+            ex.results=(local_converters, remote_converters)
+            raise ex
         possible_good_converters = ''
         for conv_obj in available_local_converters:
             if contentType in conv_obj.ct_input or conv_obj.suffix == filesuffix:
@@ -185,9 +198,7 @@ class Converters(Folder):
 
         # Only look in remotes if schema is not empty
         if doc_schema:
-            for c in self._get_remote_converters(doc_schema):
-                c['more_info'] = ''
-                remote_converters.append(c)
+            remote_converters = self.get_remote_converters_for_schema(doc_schema)
         return local_converters, remote_converters
 
     def valid_local_ids(self):

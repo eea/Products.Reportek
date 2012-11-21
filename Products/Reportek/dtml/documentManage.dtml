@@ -24,11 +24,16 @@
 </dtml-if>
 
 <div id="content">
+<dtml-if "warnings">
+  <div class="caution-msg">
+      <dtml-var "warnings">
+  </div>
+</dtml-if>
 <fieldset><legend>View file as</legend>
 <ul>
     <li><a href="&dtml-absolute_url;" type="&dtml-content_type;">Original</a></li>
 
-    <dtml-let converters="Converters.displayPossibleConversions(content_type, xml_schema_location, id)">
+    <dtml-let converters=converters>
     <dtml-in "converters[0]" prefix=conv>
     <li>
       <a

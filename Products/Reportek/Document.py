@@ -23,6 +23,9 @@
 __version__='$Rev$'[6:-2]
 
 import Globals, IconShow
+import requests
+import stat
+import urllib, os, types, string
 from __main__ import *
 from AccessControl import getSecurityManager, ClassSecurityInfo
 from Products.ZCatalog.CatalogAwareness import CatalogAware
@@ -34,9 +37,7 @@ except: from zope.app.content_types import guess_content_type # Zope 2.9 and old
 from webdav.common import rfc1123_date
 from DateTime import DateTime
 from mimetools import choose_boundary
-import urllib, os, types, string
 from os.path import join, isfile
-import stat
 from zope.interface import implements
 try:
     from zope.container.interfaces import IObjectRemovedEvent, IObjectAddedEvent
@@ -48,6 +49,7 @@ except: from StringIO import StringIO
 
 # Product imports
 import RepUtils
+from Converters import Converters
 from XMLInfoParser import detect_schema
 from constants import CONVERTERS_ID, QAREPOSITORY_ID
 from interfaces import IDocument
@@ -336,14 +338,31 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     _manage_template = DTMLFile('dtml/documentManage', globals())
 
     security.declareProtected('View', 'manage_document')
-    def manage_document(self, REQUEST=None):
+    def manage_document(self, REQUEST=None, manage_and_edit=False):
         """ """
-        return self._manage_template(manage_and_edit=False)
+        local_converters = []
+        remote_converters = []
+        warning_message = ''
+        try:
+            (local_converters, remote_converters) = \
+                    self.Converters.displayPossibleConversions(
+                        self.content_type,
+                        self.xml_schema_location,
+                        self.id
+                    )
+        except requests.ConnectionError as ex:
+           local_converters, remote_converters = ex.results
+           warning_message='Local conversion service unavailable.'
+        return self._manage_template(
+                   manage_and_edit=manage_and_edit,
+                   warnings=warning_message,
+                   converters=[local_converters, remote_converters]
+               )
 
     security.declareProtected('View', 'manage_edit_document')
     def manage_edit_document(self, REQUEST=None):
         """ """
-        return self._manage_template(manage_and_edit=True)
+        return self.manage_document(REQUEST=REQUEST, manage_and_edit=True)
 
     security.declareProtected('View', 'flash_document')
     flash_document = DTMLFile('dtml/documentFlashView', globals())
@@ -370,8 +389,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
     ################################
     # Protected management methods #
-    ################################
-
+    ################################ 
     # Management Interface
     manage_main = DTMLFile('dtml/documentEdit', globals())
 
