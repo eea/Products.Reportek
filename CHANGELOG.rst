@@ -1,6 +1,9 @@
-3.1 (unreleased)
+3.1 (2012-11-21)
 ----------------
-* Move envelope applications from '/'
+* Move envelope applications from '/' [dincamih]
+* Local conversion service [dincamih]
+* Convert using ApacheTika [dincamih]
+* Require buildout flag to send UNS notifications [moregale]
 
 3.0 (2012-08-31)
 ----------------
