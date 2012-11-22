@@ -96,7 +96,7 @@
         </dtml-if>
             <dtml-in "converters[1]">
               <option
-                src="local"
+                src="remote"
                 value="<dtml-var "_['sequence-item']['convert_id']">">&nbsp;&nbsp;&nbsp;<dtml-var "_['sequence-item']['description']" html_quote>
               </option>
             </dtml-in>
