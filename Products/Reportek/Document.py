@@ -391,7 +391,27 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     # Protected management methods #
     ################################ 
     # Management Interface
-    manage_main = DTMLFile('dtml/documentEdit', globals())
+    _manage_main_template = DTMLFile('dtml/documentEdit', globals())
+    def manage_main(self, REQUEST=None):
+        """ """
+        #TODO refactor manage_main and manage_document
+        local_converters = []
+        remote_converters = []
+        warning_message = ''
+        try:
+            (local_converters, remote_converters) = \
+                    self.Converters.displayPossibleConversions(
+                        self.content_type,
+                        self.xml_schema_location,
+                        self.id
+                    )
+        except requests.ConnectionError as ex:
+           local_converters, remote_converters = ex.results
+           warning_message='Local conversion service unavailable.'
+        return self._manage_main_template(
+                   warnings=warning_message,
+                   converters=[local_converters, remote_converters]
+               )
 
     def manage_editDocument(self, title='',
                             content_type=None, xml_schema_location=None,

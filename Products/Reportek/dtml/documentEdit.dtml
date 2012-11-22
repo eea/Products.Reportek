@@ -1,3 +1,6 @@
+ <link rel="stylesheet" type="text/css"
+          href="http://www.eionet.europa.eu/styles/eionet2007/screen.css"
+          media="screen" />
 <dtml-if "_.SecurityCheckPermission('View management screens',this())">
 
 <script language="javascript" type="text/javascript">
@@ -32,7 +35,15 @@
     </ul>
 </div>
 
+
 </dtml-if>
+
+<dtml-if "warnings">
+  <div class="caution-msg">
+      <dtml-var "warnings">
+  </div>
+</dtml-if>
+
 <h1>Edit file <dtml-var id html_quote></h1>
 
 <form name="edit" action="<dtml-var URL1>" method="post">
@@ -71,7 +82,6 @@
     <th>View file as</th>
     <td><select name="conversion" id="conversion">
         <option value="default">Original</option>
-        <dtml-let converters="Converters.displayPossibleConversions(content_type, xml_schema_location, id)">
             <dtml-if "_.len(converters[0]) > 0">
             <option value="">Local converters</option>
             </dtml-if>
@@ -90,7 +100,6 @@
                 value="<dtml-var "_['sequence-item']['convert_id']">">&nbsp;&nbsp;&nbsp;<dtml-var "_['sequence-item']['description']" html_quote>
               </option>
             </dtml-in>
-        </dtml-let>
         </select>&nbsp;
         <input type="button" value="Go"
                onclick="javascript:fConvert('<dtml-var "absolute_url(1)" url_quote>', 
