@@ -220,7 +220,51 @@ class DeploymentTest(unittest.TestCase):
         dummy = lambda: self.root.unrestrictedTraverse('%s/proc2' %(host_folder))
         self.assertRaises(KeyError, dummy)
 
+    def test_log(self):
+        import tempfile
+        import shutil
+        tmp = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmp)
 
+        from path import path  # pip install path.py
+        tmp = path(tempfile.mkdtemp())
+        self.addCleanup(tmp.rmtree)
+
+        from Products.Reportek.deploy_scripts import group_apps_by_process as gap
+        from Products.Reportek.deploy_scripts import move_apps, apps_list
+
+        with (tmp / 'log_file.txt').open('ab') as log_file:
+            grouped_apps = gap(self.root)
+            host_folder='Applications'
+            move_apps(self.root, grouped_apps=grouped_apps, host_folder=host_folder, log=log_file)
+
+        with (tmp / 'log_file.txt').open('rb') as log_file:
+            actual_log = log_file.readlines()
+            expected_log = ['Create Folder         | /Applications\n',
+                            'Create Folder         | /Applications/Common\n',
+                            'Create Folder         | /Applications/proc1\n',
+                            'Move   simple item    | /app1 -> /Applications/proc1/app1\n',
+                            'Update WorkflowEngine | app1\n',
+                            'Move   simple item    | /app2 -> /Applications/Common/app2\n',
+                            'Update WorkflowEngine | app2\n',
+                            'Create Folder         | /Applications/proc2\n',
+                            'Move   simple item    | /app3 -> /Applications/proc2/app3\n',
+                            'Update WorkflowEngine | app3\n']
+            self.assertEqual(len(expected_log), len(actual_log))
+            for expected, actual in zip(expected_log, actual_log):
+                self.assertEqual(expected, actual)
+
+    def test_wrong_app_name(self):
+        """Test with wrong application name"""
+        self.root.WorkflowEngine.manage_addProcess('proc3', BeginEnd=0)
+        self.root.WorkflowEngine.proc3.addActivity('act1', application='aps3')
+        self.root.WorkflowEngine.proc3.addActivity('act2', application='app4')
+        from Products.Reportek.deploy_scripts import move_apps
+        try:
+            move_apps(self.root)
+        except TypeError as ex:
+            if ex.message == "object of type 'NoneType' has no len()":
+                self.fail('Process should not be interrupted by exception.')
 
     def test_apps_list(self):
         from Products.Reportek.deploy_scripts import apps_list
