@@ -74,7 +74,13 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     _properties = ({'id':'title', 'type':'string', 'mode':'w', 'label':'Title'},
             {'id':'webq_url', 'type':'string', 'mode':'w'},
             {'id':'webq_envelope_menu', 'type':'string', 'mode':'w'},
-            {'id':'webq_before_edit_page', 'type':'string', 'mode':'w'}
+            {'id':'webq_before_edit_page', 'type':'string', 'mode':'w'},
+            {'id':'UNS_server', 'type':'string', 'mode':'w'},
+            {'id':'UNS_username', 'type':'string', 'mode':'w'},
+            {'id':'UNS_password', 'type':'string', 'mode':'w'},
+            {'id':'UNS_channel_id', 'type':'string', 'mode':'w'},
+            {'id':'UNS_notification_types', 'type':'string', 'mode':'w'},
+            {'id':'QA_application', 'type':'string', 'mode':'w'}
     )
 
     def all_meta_types( self, interfaces=None ):
@@ -110,30 +116,13 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.UNS_password = ''
         self.UNS_channel_id = ''
         self.UNS_notification_types = ['Envelope release', 'Envelope revoke']
-        #self.UNS_notification_types = ['Envelope complete', 'Envelope release', 'Manual feedback posted', 'Quality assessment finished']
+        #self.UNS_notification_types = ['Envelope complete', 'Envelope release', 'Envelope revoke', 'Manual feedback posted', 'Quality assessment finished']
         # The default QA application used for manual and automatic triggered QA operation
         # If this is empty, this Reportek instance does not have a QA system linked to it
         self.QA_application = ''
 
     security.declareProtected(view_management_screens, 'index_html')
     index_html = PageTemplateFile('zpt/engine_index', globals())
-
-    def __setstate__(self,state):
-        """ """
-        ReportekEngine.inheritedAttribute('__setstate__')(self, state)
-        if not hasattr(self, 'UNS_server'):
-            self.UNS_server = 'http://uns.eionet.europa.eu'
-        if not hasattr(self, 'UNS_username'):
-            self.UNS_username = 'cdr'
-        if not hasattr(self, 'UNS_password'):
-            self.UNS_password = 'reportnet'
-        if not hasattr(self, 'UNS_channel_id'):
-            self.UNS_channel_id = ''
-        if not hasattr(self, 'UNS_notification_types'):
-            #self.UNS_notification_types = ['Envelope complete', 'Envelope release', 'Envelope revoke', 'Manual feedback posted', 'Quality assessment finished']
-            self.UNS_notification_types = ['Envelope release', 'Envelope revoke']
-        if not hasattr(self, 'QA_application'):
-            self.QA_application = ''
 
     #security stuff
     security = ClassSecurityInfo()
