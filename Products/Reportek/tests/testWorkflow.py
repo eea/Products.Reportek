@@ -114,3 +114,118 @@ class EnvelopePeriodValidationTestCase(_BaseTest):
         envelope = create_envelope(self, year='abc', endyear='abc')
         self.assertEqual(envelope.year, '')
         self.assertEqual(envelope.endyear, '')
+
+
+class DeploymentTest(unittest.TestCase):
+
+    def create_app(self, _id):
+        from OFS.SimpleItem import SimpleItem
+        self.root._setObject(_id, SimpleItem(_id))
+        getattr(self.root, _id).id = _id
+        self.root.WorkflowEngine.addApplication(_id, getattr(self.root, _id).absolute_url())
+
+    def setUp(self):
+        super(DeploymentTest, self).setUp()
+        from utils import create_fake_root
+        from Products.Reportek.OpenFlowEngine import OpenFlowEngine
+        self.root = create_fake_root()
+        ob = OpenFlowEngine('WorkflowEngine', '')
+        self.root._setObject(ob.id, ob)
+
+        self.create_app('app1')
+        self.create_app('app2')
+        self.create_app('app3')
+
+        self.root.WorkflowEngine.manage_addProcess('proc1', BeginEnd=0)
+        self.root.WorkflowEngine.proc1.addActivity('act1', application='app1')
+        self.root.WorkflowEngine.proc1.addActivity('act2', application='app2')
+
+        self.root.WorkflowEngine.manage_addProcess('proc2', BeginEnd=0)
+        self.root.WorkflowEngine.proc2.addActivity('act1', application='app3')
+        self.root.WorkflowEngine.proc2.addActivity('act2', application='app2')
+
+    def test_grouped_apps_list(self):
+        from Products.Reportek.deploy_scripts import group_apps_by_process as gap
+        apps = gap(self.root)
+        self.assertEqual(apps,
+                         [('proc1', ['app1','app2']),
+                          ('proc2', ['app3', 'app2'])])
+
+    def test_apps_move(self):
+        from Products.Reportek.deploy_scripts import group_apps_by_process as gap
+        from Products.Reportek.deploy_scripts import move_apps, apps_list
+        grouped_apps = gap(self.root)
+
+        for proc, apps in grouped_apps:
+            for app in apps:
+                app_obj = getattr(self.root, app, None)
+                if not app_obj:
+                    self.fail('"%s" application was not found at "/%s"' %(app, app) )
+                self.assertEqual(app_obj.absolute_url(), '%s' %app)
+        host_folder='Applications'
+        move_apps(self.root, grouped_apps, host_folder=host_folder)
+
+        for proc, apps in grouped_apps:
+            host_folder_obj = getattr(self.root, host_folder)
+            if not getattr(host_folder_obj, proc, None):
+                self.fail('"%s" folder was not found in %s' %(proc, host_folder))
+            for app in apps:
+                path = 'Applications/%s/%s' %(proc, app)
+                if apps_list(self.root)[app] > 1:
+                    path = 'Applications/Common/%s' % app
+
+                proc_obj = getattr(self.root.Applications, proc, None)
+                app_obj = self.root.unrestrictedTraverse(path)
+                if not app_obj:
+                    self.fail('"%s" application was not found in "/Applications/%s"' %(app, proc) )
+
+                #Check actual location
+                self.assertEqual(app_obj.absolute_url(), path)
+
+                #Check link to app in WorkflowEngine
+                self.assertEqual(path, self.root.WorkflowEngine._applications[app]['url'])
+
+    def test_common_folder(self):
+        """Test number of files in ./Common"""
+
+        self.create_app('app4')
+        self.root.WorkflowEngine.manage_addProcess('proc3', BeginEnd=0)
+        self.root.WorkflowEngine.proc3.addActivity('act1', application='app3')
+        self.root.WorkflowEngine.proc3.addActivity('act2', application='app4')
+
+        from Products.Reportek.deploy_scripts import group_apps_by_process as gap
+        from Products.Reportek.deploy_scripts import move_apps, apps_list
+        grouped_apps = gap(self.root)
+        host_folder='Applications'
+        move_apps(self.root, grouped_apps, host_folder=host_folder)
+        common_apps = 0
+        apps = apps_list(self.root)
+        for value in apps.values():
+            if value > 1:
+                common_apps+=1
+        self.assertEqual(2, common_apps)
+
+    def test_proc_with_common_apps_has_no_folder(self):
+        self.create_app('app4')
+        self.root.WorkflowEngine.manage_addProcess('proc3', BeginEnd=0)
+        self.root.WorkflowEngine.proc3.addActivity('act1', application='app3')
+        self.root.WorkflowEngine.proc3.addActivity('act2', application='app4')
+
+        from Products.Reportek.deploy_scripts import group_apps_by_process as gap
+        from Products.Reportek.deploy_scripts import move_apps, apps_list
+        grouped_apps = gap(self.root)
+        host_folder='Applications'
+        move_apps(self.root, grouped_apps, host_folder=host_folder)
+        common_apps = 0
+        dummy = lambda: self.root.unrestrictedTraverse('%s/proc2' %(host_folder))
+        self.assertRaises(KeyError, dummy)
+
+
+
+    def test_apps_list(self):
+        from Products.Reportek.deploy_scripts import apps_list
+        apps = apps_list(self.root)
+        self.assertEqual([('app3', 1),
+                          ('app2', 2),
+                          ('app1', 1)],
+                          apps.items())
