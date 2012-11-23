@@ -80,11 +80,24 @@ def move_apps(root, grouped_apps=None,
                     wf.editApplication(app, path)
                     messages.write(update_workflow_message %app)
 
+    messages.write('\n')
+
+    if wrong_ids:
+        _ids = [_id for _id in wrong_ids if _id]
+        messages.write('Not found'.ljust(len_act+len_obj+1) + ' | %s\n' %', '.join(_ids))
+    used_apps = set(apps_list(root).keys())
+    defined_apps = set(ap['link'].split('/')[-1] for ap in wf.listApplications())
+    not_used_apps = defined_apps - used_apps
+    if not_used_apps:
+        _ids = [_id for _id in not_used_apps if _id]
+        messages.write('Not used'.ljust(len_act+len_obj+1) + ' | %s\n' %', '.join(_ids))
+
     import sys
     sys.stdout.write(messages.getvalue())
     if log:
         with log:
             log.write(messages.getvalue())
+
     if commit:
         import transaction
         transaction.commit()

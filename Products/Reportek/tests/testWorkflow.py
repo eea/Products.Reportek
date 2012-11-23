@@ -1,4 +1,12 @@
 import unittest
+import tempfile
+import shutil
+from path import path
+
+from utils import create_fake_root
+from Products.Reportek.deploy_scripts import group_apps_by_process as gap
+from Products.Reportek.deploy_scripts import move_apps, apps_list
+
 from StringIO import StringIO
 from Products.Reportek import RepUtils
 from Testing import ZopeTestCase
@@ -8,6 +16,8 @@ from Products.Reportek.constants import CONVERTERS_ID
 from Products.Reportek.exceptions import CannotPickProcess, NoProcessAvailable
 from common import (create_process, create_envelope, create_mock_request,
                     createStandardCollection, _BaseTest)
+from Products.Reportek.OpenFlowEngine import OpenFlowEngine
+from OFS.SimpleItem import SimpleItem
 
 
 class EnvelopeRenderingTestCase(_BaseTest):
@@ -119,18 +129,22 @@ class EnvelopePeriodValidationTestCase(_BaseTest):
 class DeploymentTest(unittest.TestCase):
 
     def create_app(self, _id):
-        from OFS.SimpleItem import SimpleItem
         self.root._setObject(_id, SimpleItem(_id))
         getattr(self.root, _id).id = _id
         self.root.WorkflowEngine.addApplication(_id, getattr(self.root, _id).absolute_url())
 
     def setUp(self):
-        super(DeploymentTest, self).setUp()
-        from utils import create_fake_root
-        from Products.Reportek.OpenFlowEngine import OpenFlowEngine
         self.root = create_fake_root()
         ob = OpenFlowEngine('WorkflowEngine', '')
         self.root._setObject(ob.id, ob)
+
+        tmp = tempfile.mkdtemp()
+        self.addCleanup(shutil.rmtree, tmp)
+
+        tmp = path(tempfile.mkdtemp())
+        self.addCleanup(tmp.rmtree)
+
+        self.log_file = (tmp / 'log_file.txt')
 
         self.create_app('app1')
         self.create_app('app2')
@@ -145,15 +159,12 @@ class DeploymentTest(unittest.TestCase):
         self.root.WorkflowEngine.proc2.addActivity('act2', application='app2')
 
     def test_grouped_apps_list(self):
-        from Products.Reportek.deploy_scripts import group_apps_by_process as gap
         apps = gap(self.root)
         self.assertEqual(apps,
                          [('proc1', ['app1','app2']),
                           ('proc2', ['app3', 'app2'])])
 
     def test_apps_move(self):
-        from Products.Reportek.deploy_scripts import group_apps_by_process as gap
-        from Products.Reportek.deploy_scripts import move_apps, apps_list
         grouped_apps = gap(self.root)
 
         for proc, apps in grouped_apps:
@@ -193,8 +204,6 @@ class DeploymentTest(unittest.TestCase):
         self.root.WorkflowEngine.proc3.addActivity('act1', application='app3')
         self.root.WorkflowEngine.proc3.addActivity('act2', application='app4')
 
-        from Products.Reportek.deploy_scripts import group_apps_by_process as gap
-        from Products.Reportek.deploy_scripts import move_apps, apps_list
         grouped_apps = gap(self.root)
         host_folder='Applications'
         move_apps(self.root, grouped_apps, host_folder=host_folder)
@@ -211,8 +220,6 @@ class DeploymentTest(unittest.TestCase):
         self.root.WorkflowEngine.proc3.addActivity('act1', application='app3')
         self.root.WorkflowEngine.proc3.addActivity('act2', application='app4')
 
-        from Products.Reportek.deploy_scripts import group_apps_by_process as gap
-        from Products.Reportek.deploy_scripts import move_apps, apps_list
         grouped_apps = gap(self.root)
         host_folder='Applications'
         move_apps(self.root, grouped_apps, host_folder=host_folder)
@@ -221,24 +228,12 @@ class DeploymentTest(unittest.TestCase):
         self.assertRaises(KeyError, dummy)
 
     def test_log(self):
-        import tempfile
-        import shutil
-        tmp = tempfile.mkdtemp()
-        self.addCleanup(shutil.rmtree, tmp)
-
-        from path import path  # pip install path.py
-        tmp = path(tempfile.mkdtemp())
-        self.addCleanup(tmp.rmtree)
-
-        from Products.Reportek.deploy_scripts import group_apps_by_process as gap
-        from Products.Reportek.deploy_scripts import move_apps, apps_list
-
-        with (tmp / 'log_file.txt').open('ab') as log_file:
+        with self.log_file.open('ab') as log_file:
             grouped_apps = gap(self.root)
             host_folder='Applications'
             move_apps(self.root, grouped_apps=grouped_apps, host_folder=host_folder, log=log_file)
 
-        with (tmp / 'log_file.txt').open('rb') as log_file:
+        with self.log_file.open('rb') as log_file:
             actual_log = log_file.readlines()
             expected_log = ['Create Folder         | /Applications\n',
                             'Create Folder         | /Applications/Common\n',
@@ -249,25 +244,37 @@ class DeploymentTest(unittest.TestCase):
                             'Update WorkflowEngine | app2\n',
                             'Create Folder         | /Applications/proc2\n',
                             'Move   simple item    | /app3 -> /Applications/proc2/app3\n',
-                            'Update WorkflowEngine | app3\n']
-            self.assertEqual(len(expected_log), len(actual_log))
+                            'Update WorkflowEngine | app3\n', ]
+            self.assertEqual(len(expected_log)+1, len(actual_log)) #one empty line
             for expected, actual in zip(expected_log, actual_log):
                 self.assertEqual(expected, actual)
 
     def test_wrong_app_name(self):
         """Test with wrong application name"""
         self.root.WorkflowEngine.manage_addProcess('proc3', BeginEnd=0)
-        self.root.WorkflowEngine.proc3.addActivity('act1', application='aps3')
-        self.root.WorkflowEngine.proc3.addActivity('act2', application='app4')
-        from Products.Reportek.deploy_scripts import move_apps
+        self.root.WorkflowEngine.proc3.addActivity('act1', application='worng')
+        self.root.WorkflowEngine.proc3.addActivity('act2', application='mitsake')
         try:
-            move_apps(self.root)
+            with self.log_file.open('ab') as log_file:
+                move_apps(self.root, log=log_file)
         except TypeError as ex:
             if ex.message == "object of type 'NoneType' has no len()":
                 self.fail('Process should not be interrupted by exception.')
+        expected_log_tail = 'Not found             | worng, mitsake'
+        with self.log_file.open('rb') as log_file:
+            actual_log_tail = log_file.readlines()[-1]
+            self.assertEqual(expected_log_tail, actual_log_tail.strip())
+
+    def test_defined_but_not_used(self):
+        self.create_app('app4')
+        with self.log_file.open('ab') as log_file:
+            move_apps(self.root, log=log_file)
+        expected_log_tail = 'Not used              | app4'
+        with self.log_file.open('rb') as log_file:
+            actual_log_tail = log_file.readlines()[-1]
+            self.assertEqual(expected_log_tail, actual_log_tail.strip())
 
     def test_apps_list(self):
-        from Products.Reportek.deploy_scripts import apps_list
         apps = apps_list(self.root)
         self.assertEqual([('app3', 1),
                           ('app2', 2),
