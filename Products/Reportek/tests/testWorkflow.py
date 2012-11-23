@@ -174,7 +174,7 @@ class DeploymentTest(unittest.TestCase):
                     self.fail('"%s" application was not found at "/%s"' %(app, app) )
                 self.assertEqual(app_obj.absolute_url(), '%s' %app)
         host_folder='Applications'
-        move_apps(self.root, grouped_apps, host_folder=host_folder)
+        move_apps(self.root, delete=True)
 
         for proc, apps in grouped_apps:
             host_folder_obj = getattr(self.root, host_folder)
@@ -195,6 +195,8 @@ class DeploymentTest(unittest.TestCase):
 
                 #Check link to app in WorkflowEngine
                 self.assertEqual(path, self.root.WorkflowEngine._applications[app]['url'])
+        for app in apps_list(self.root).keys():
+            self.assertNotIn(app, self.root.objectIds())
 
     def test_common_folder(self):
         """Test number of files in ./Common"""
@@ -227,27 +229,53 @@ class DeploymentTest(unittest.TestCase):
         dummy = lambda: self.root.unrestrictedTraverse('%s/proc2' %(host_folder))
         self.assertRaises(KeyError, dummy)
 
-    def test_log(self):
+    def test_log_no_delete(self):
         with self.log_file.open('ab') as log_file:
             grouped_apps = gap(self.root)
             host_folder='Applications'
-            move_apps(self.root, grouped_apps=grouped_apps, host_folder=host_folder, log=log_file)
+            move_apps(self.root, log=log_file)
 
         with self.log_file.open('rb') as log_file:
             actual_log = log_file.readlines()
-            expected_log = ['Create Folder         | /Applications\n',
-                            'Create Folder         | /Applications/Common\n',
-                            'Create Folder         | /Applications/proc1\n',
-                            'Move   simple item    | /app1 -> /Applications/proc1/app1\n',
-                            'Update WorkflowEngine | app1\n',
-                            'Move   simple item    | /app2 -> /Applications/Common/app2\n',
-                            'Update WorkflowEngine | app2\n',
-                            'Create Folder         | /Applications/proc2\n',
-                            'Move   simple item    | /app3 -> /Applications/proc2/app3\n',
-                            'Update WorkflowEngine | app3\n', ]
-            self.assertEqual(len(expected_log)+1, len(actual_log)) #one empty line
+            expected_log = ['Create Folder         | /Applications',
+                            'Create Folder         | /Applications/Common',
+                            'Create Folder         | /Applications/proc1',
+                            'Move   simple item    | /app1 -> /Applications/proc1/app1',
+                            'Update WorkflowEngine | app1',
+                            'Move   simple item    | /app2 -> /Applications/Common/app2',
+                            'Update WorkflowEngine | app2',
+                            'Create Folder         | /Applications/proc2',
+                            'Move   simple item    | /app3 -> /Applications/proc2/app3',
+                            'Update WorkflowEngine | app3',
+                            '\n',
+                            'Processed: 3, Deleted: 0',]
+            self.assertEqual(len(expected_log), len(actual_log))
             for expected, actual in zip(expected_log, actual_log):
-                self.assertEqual(expected, actual)
+                self.assertEqual(expected.strip(), actual.strip())
+
+    def test_log_delete(self):
+        with self.log_file.open('ab') as log_file:
+            grouped_apps = gap(self.root)
+            host_folder='Applications'
+            move_apps(self.root, log=log_file, delete=True)
+
+        with self.log_file.open('rb') as log_file:
+            actual_log = log_file.readlines()
+            expected_log = ['Create Folder         | /Applications',
+                            'Create Folder         | /Applications/Common',
+                            'Create Folder         | /Applications/proc1',
+                            'Move   simple item    | /app1 -> /Applications/proc1/app1',
+                            'Update WorkflowEngine | app1',
+                            'Move   simple item    | /app2 -> /Applications/Common/app2',
+                            'Update WorkflowEngine | app2',
+                            'Create Folder         | /Applications/proc2',
+                            'Move   simple item    | /app3 -> /Applications/proc2/app3',
+                            'Update WorkflowEngine | app3',
+                            '\n',
+                            'Processed: 3, Deleted: 3',]
+            self.assertEqual(len(expected_log), len(actual_log))
+            for expected, actual in zip(expected_log, actual_log):
+                self.assertEqual(expected.strip(), actual.strip())
 
     def test_wrong_app_name(self):
         """Test with wrong application name"""
@@ -262,8 +290,16 @@ class DeploymentTest(unittest.TestCase):
                 self.fail('Process should not be interrupted by exception.')
         expected_log_tail = 'Not found             | worng, mitsake'
         with self.log_file.open('rb') as log_file:
-            actual_log_tail = log_file.readlines()[-1]
+            actual_log_tail = log_file.readlines()[-2]
             self.assertEqual(expected_log_tail, actual_log_tail.strip())
+
+    def test_already_moved_app(self):
+        from zExceptions import BadRequest
+        try:
+            move_apps(self.root)
+            move_apps(self.root)
+        except BadRequest as ex:
+            self.fail("Exception shouldn't have been raised")
 
     def test_defined_but_not_used(self):
         self.create_app('app4')
@@ -271,7 +307,7 @@ class DeploymentTest(unittest.TestCase):
             move_apps(self.root, log=log_file)
         expected_log_tail = 'Not used              | app4'
         with self.log_file.open('rb') as log_file:
-            actual_log_tail = log_file.readlines()[-1]
+            actual_log_tail = log_file.readlines()[-2]
             self.assertEqual(expected_log_tail, actual_log_tail.strip())
 
     def test_apps_list(self):
