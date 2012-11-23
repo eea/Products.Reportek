@@ -79,7 +79,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             {'id':'UNS_username', 'type':'string', 'mode':'w'},
             {'id':'UNS_password', 'type':'string', 'mode':'w'},
             {'id':'UNS_channel_id', 'type':'string', 'mode':'w'},
-            {'id':'UNS_notification_types', 'type':'string', 'mode':'w'},
+            {'id':'UNS_notification_types', 'type':'lines', 'mode':'w'},
             {'id':'QA_application', 'type':'string', 'mode':'w'}
     )
 
