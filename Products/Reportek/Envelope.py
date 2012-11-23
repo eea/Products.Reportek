@@ -934,6 +934,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         res_a('<Delivery rdf:about="%s">' % RepUtils.xmlEncode(self.absolute_url()))
         res_a('<dc:title>%s</dc:title>' % RepUtils.xmlEncode(self.title_or_id()))
         res_a('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(self.title_or_id()))
+        res_a('<dct:creator>%s</dct:creator>' %RepUtils.xmlEncode(self.customer))
         if self.descr:
              res_a('<dct:description>%s</dct:description>' % RepUtils.xmlEncode(self.descr))
 
