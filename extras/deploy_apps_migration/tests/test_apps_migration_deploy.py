@@ -3,8 +3,8 @@ import tempfile
 import shutil
 from path import path
 from Products.Reportek.tests.utils import create_fake_root
-from extras.deploy_apps_migration.deploy_apps_migration_scripts import group_apps_by_process as gap
-from extras.deploy_apps_migration.deploy_apps_migration_scripts import move_apps, apps_list
+from ..apps_migrator import group_apps_by_process as gap
+from ..apps_migrator import move_apps, apps_list
 from OFS.SimpleItem import SimpleItem
 from Products.Reportek.OpenFlowEngine import OpenFlowEngine
 from Products.Reportek.ReportekEngine import ReportekEngine
