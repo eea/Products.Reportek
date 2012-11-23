@@ -7,6 +7,7 @@ from extras.deploy_apps_migration.deploy_apps_migration_scripts import group_app
 from extras.deploy_apps_migration.deploy_apps_migration_scripts import move_apps, apps_list
 from OFS.SimpleItem import SimpleItem
 from Products.Reportek.OpenFlowEngine import OpenFlowEngine
+from Products.Reportek.ReportekEngine import ReportekEngine
 
 
 class AppsMigrationDeploymentTest(unittest.TestCase):
@@ -19,6 +20,9 @@ class AppsMigrationDeploymentTest(unittest.TestCase):
     def setUp(self):
         self.root = create_fake_root()
         ob = OpenFlowEngine('WorkflowEngine', '')
+        self.root._setObject(ob.id, ob)
+
+        ob = ReportekEngine()
         self.root._setObject(ob.id, ob)
 
         tmp = tempfile.mkdtemp()
@@ -199,3 +203,20 @@ class AppsMigrationDeploymentTest(unittest.TestCase):
                           ('app2', 2),
                           ('app1', 1)],
                           apps.items())
+
+    def test_update_path_to_QA_application(self):
+        self.create_app('qa_application')
+        self.root.ReportekEngine.QA_application = 'qa_application'
+        self.root.WorkflowEngine.manage_addProcess('dummy_proc1', BeginEnd=0)
+        self.root.WorkflowEngine.dummy_proc1.addActivity(
+            'qa_application',
+            application='qa_application')
+        self.root.WorkflowEngine.manage_addProcess('dummy_proc2', BeginEnd=0)
+        self.root.WorkflowEngine.dummy_proc2.addActivity(
+            'qa_application',
+            application='qa_application')
+        move_apps(self.root)
+        self.assertEqual(
+            'Applications/Common/qa_application',
+            self.root.ReportekEngine.QA_application)
+

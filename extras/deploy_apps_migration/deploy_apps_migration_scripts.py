@@ -25,6 +25,7 @@ def move_apps(root, grouped_apps=None,
     total_processed = 0
     root_len_before = len(root.objectIds())
     host_folder_created = False
+    qa_application = root.ReportekEngine.QA_application
     for app in apps_list(root).keys():
         if app in root.objectIds():
             good_ids.append(getattr(root, app).meta_type)
@@ -87,6 +88,10 @@ def move_apps(root, grouped_apps=None,
                     messages.write(move_message %(app_obj.meta_type.ljust(len_obj),
                                                   '/%s' %app_obj.absolute_url(),
                                                   '/%s' %path))
+                    if (root.ReportekEngine.QA_application and
+                        app == root.ReportekEngine.QA_application):
+                        root.ReportekEngine.QA_application = path
+                        messages.write('Update ReportekEngine | QA_application\n')
                     wf.editApplication(app, path)
                     messages.write(update_workflow_message %app)
 
