@@ -8,6 +8,7 @@ from extras.deploy_apps_migration.deploy_apps_migration_scripts import move_apps
 from OFS.SimpleItem import SimpleItem
 from Products.Reportek.OpenFlowEngine import OpenFlowEngine
 from Products.Reportek.ReportekEngine import ReportekEngine
+from Products.Reportek.QARepository import QARepository
 
 
 class AppsMigrationDeploymentTest(unittest.TestCase):
@@ -23,6 +24,9 @@ class AppsMigrationDeploymentTest(unittest.TestCase):
         self.root._setObject(ob.id, ob)
 
         ob = ReportekEngine()
+        self.root._setObject(ob.id, ob)
+
+        ob = QARepository()
         self.root._setObject(ob.id, ob)
 
         tmp = tempfile.mkdtemp()
@@ -204,7 +208,7 @@ class AppsMigrationDeploymentTest(unittest.TestCase):
                           ('app1', 1)],
                           apps.items())
 
-    def test_update_path_to_QA_application(self):
+    def test_update_path_to_QA_application_in_ReportekEngine(self):
         self.create_app('qa_application')
         self.root.ReportekEngine.QA_application = 'qa_application'
         self.root.WorkflowEngine.manage_addProcess('dummy_proc1', BeginEnd=0)
@@ -219,4 +223,20 @@ class AppsMigrationDeploymentTest(unittest.TestCase):
         self.assertEqual(
             'Applications/Common/qa_application',
             self.root.ReportekEngine.QA_application)
+
+    def test_update_path_to_QA_application_in_QARepository(self):
+        self.create_app('EnvelopeQAApplication')
+        self.root.ReportekEngine.QA_application = 'EnvelopeQAApplication'
+        self.root.WorkflowEngine.manage_addProcess('dummy_proc1', BeginEnd=0)
+        self.root.WorkflowEngine.dummy_proc1.addActivity(
+            'EnvelopeQAApplication',
+            application='EnvelopeQAApplication')
+        self.root.WorkflowEngine.manage_addProcess('dummy_proc2', BeginEnd=0)
+        self.root.WorkflowEngine.dummy_proc2.addActivity(
+            'EnvelopeQAApplication',
+            application='EnvelopeQAApplication')
+        move_apps(self.root)
+        self.assertEqual(
+            'Applications/Common/EnvelopeQAApplication',
+            self.root.QARepository.QA_application)
 

@@ -92,6 +92,10 @@ def move_apps(root, grouped_apps=None,
                         app == root.ReportekEngine.QA_application):
                         root.ReportekEngine.QA_application = path
                         messages.write('Update ReportekEngine | QA_application\n')
+                    if (root.QARepository.QA_application and
+                        app == root.QARepository.QA_application):
+                        root.QARepository.QA_application = path
+                        messages.write('Update QARepository   | QA_application\n')
                     wf.editApplication(app, path)
                     messages.write(update_workflow_message %app)
 
