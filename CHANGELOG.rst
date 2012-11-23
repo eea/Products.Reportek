@@ -1,3 +1,9 @@
+3.1.1 (2012-11-23)
+------------------
+* Add apps migration deploy script [dincamih]
+* Add UNS settings to ReportekEngine._properties [dincamih]
+* Remove ReportekEngine.__setstate__
+
 3.1 (2012-11-21)
 ----------------
 * Move envelope applications from '/' [dincamih]
