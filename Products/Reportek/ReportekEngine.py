@@ -133,14 +133,18 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declareProtected(view_management_screens, 'manage_editEngine')
     def manage_editEngine(self, title='', webq_url='', webq_envelope_menu='', webq_before_edit_page='', QA_application='', REQUEST=None):
         """ Manage the edited values """
-        self.title = title
-        self.webq_url = webq_url
-        self.webq_envelope_menu = webq_envelope_menu
-        self.webq_before_edit_page = webq_before_edit_page
-        self.QA_application = QA_application
-        if REQUEST:
+        if ((not REQUEST) or
+            (REQUEST and REQUEST['REQUEST_METHOD']=='POST')):
+            self.title = title
+            self.webq_url = webq_url
+            self.webq_envelope_menu = webq_envelope_menu
+            self.webq_before_edit_page = webq_before_edit_page
+            self.QA_application = QA_application
+        if REQUEST and REQUEST['REQUEST_METHOD']=='POST':
             message="Properties changed"
             return self.manage_properties(self,REQUEST,manage_tabs_message=message)
+        if REQUEST and REQUEST['REQUEST_METHOD']=='GET':
+            return self.manage_properties(self,REQUEST)
 
     security.declarePublic('getPartsOfYear')
     def getPartsOfYear(self):

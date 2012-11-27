@@ -484,6 +484,45 @@ class ReportekEngineTest(_BaseTest):
         self.assertEqual('success', result[0]['status'])
         self.assertEqual('fail', result[1]['status'])
 
+    def test_manage_editEngine_GET(self):
+        """
+        This tests simulates a GET to ReportekEngine/manage_editEngine
+        and checks that engine's attributes are not changed
+        """
+        from DateTime import DateTime
+        from copy import copy
+        self.engine.ZopeTime = Mock(return_value=DateTime())
+        before_values = copy(self.engine.__dict__)
+        assert self.engine.manage_editEngine(REQUEST=self.root.REQUEST)
+        self.assertEqual(before_values, self.engine.__dict__)
+
+    def test_manage_editEngine_no_REQUEST(self):
+        """
+        This tests simulates a programmatic call to ReportekEngine.manage_editEngine
+        and checks that engine's attributes are changed accordingly
+        """
+        from DateTime import DateTime
+        from copy import copy
+        self.engine.ZopeTime = Mock(return_value=DateTime())
+        self.engine.title='Before Title'
+        self.engine.manage_editEngine(title='After Title', REQUEST=None)
+        self.assertEqual('After Title', self.engine.title)
+
+    def test_manage_editEngine_POST(self):
+        """
+        This tests simulates a POST to ReportekEngine.manage_editEngine
+        and checks that engine's attributes are changed accordingly
+        """
+        from DateTime import DateTime
+        from copy import copy
+        self.root.REQUEST['REQUEST_METHOD'] = 'POST'
+        self.engine.ZopeTime = Mock(return_value=DateTime())
+        self.engine.title='Before Title'
+        self.engine.manage_editEngine(title='After Title', REQUEST=self.root.REQUEST)
+        self.assertEqual('After Title', self.engine.title)
+
+
+
 
 class SearchResultsTest(_BaseTest):
 
