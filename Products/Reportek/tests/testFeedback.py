@@ -268,7 +268,7 @@ class BlockerFeedbackTest(unittest.TestCase):
 
     def test_envelope_blocked_by_feedback(self):
         text = 'blocker feedback'
-        self.assertEqual(True, getattr(self.envelope, 'releasable', None))
+        self.assertEqual(True, getattr(self.envelope, 'is_blocked', None))
         result = {
             'CODE': '0',
             'VALUE': text,
@@ -278,4 +278,4 @@ class BlockerFeedbackTest(unittest.TestCase):
             'FEEDBACK_MESSAGE': 'Non blocker error'
         }
         self.receive_feedback(text, result)
-        self.assertEqual(False, getattr(self.envelope, 'releasable', None))
+        self.assertEqual(False, getattr(self.envelope, 'is_blocked', None))

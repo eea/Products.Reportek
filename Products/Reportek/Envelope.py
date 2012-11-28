@@ -187,7 +187,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         EnvelopeInstance.__init__(self, process)
 
     @property
-    def releasable(self):
+    def is_blocked(self):
         for workitem_id in [self.getActiveWorkitems()]:
             workitem = getattr(self, '%s' %workitem_id)
             if getattr(workitem, 'blocker', False):
