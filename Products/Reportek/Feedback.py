@@ -116,7 +116,9 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
             {'id':'releasedate', 'type':'string', 'mode':'r'},
             {'id':'automatic', 'type':'boolean', 'mode':'r'},
             {'id':'content_type', 'type':'string', 'mode':'w'},
-            {'id':'document_id', 'type':'string', 'mode':'w'}
+            {'id':'document_id', 'type':'string', 'mode':'w'},
+            {'id':'blocker', 'type':'boolean', 'mode':'r'},
+            {'id':'message', 'type':'string', 'mode':'r'}
     )
 
     # Create a SecurityInfo for this class. We will use this
@@ -125,7 +127,7 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
     security = ClassSecurityInfo()
 
     def __init__(self, id, releasedate, title='', feedbacktext='', activity_id='', automatic=0,
-            content_type='text/plain', document_id=None):
+            content_type='text/plain', document_id=None, blocker=False, message=''):
         """ Initialize a new Feedback instance
         """
         self.id = id
@@ -137,6 +139,8 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
         self.activity_id = activity_id
         self.document_id = document_id
         self.postingdate = DateTime()
+        self.blocker=blocker
+        self.message=message
 
     def __setstate__(self,state):
         ReportFeedback.inheritedAttribute('__setstate__')(self, state)

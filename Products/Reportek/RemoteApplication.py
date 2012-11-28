@@ -342,6 +342,10 @@ class RemoteApplication(SimpleItem):
                     feedback_ob.feedbacktext = content
                     feedback_ob.content_type = content_type
 
+                if l_ret['FEEDBACK_STATUS'] == 'BLOCKER':
+                    feedback_ob.blocker=True
+                    feedback_ob.message=l_ret.get('FEEDBACK_MESSAGE', '')
+
                 l_getResultDict = {p_jobID: {'code':1, 'fileURL':l_file_url}}
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_getResult=l_getResultDict)
             # not ready
