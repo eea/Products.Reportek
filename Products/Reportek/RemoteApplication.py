@@ -343,6 +343,7 @@ class RemoteApplication(SimpleItem):
                     feedback_ob.content_type = content_type
 
                 if l_ret['FEEDBACK_STATUS'] == 'BLOCKER':
+                    l_workitem.blocker = True
                     feedback_ob.blocker=True
                     feedback_ob.message=l_ret.get('FEEDBACK_MESSAGE', '')
 

@@ -18,7 +18,7 @@ class workitem(CatalogAware, SimpleItem, PropertyManager):
 
     def __init__(self, id, instance_id, activity_id, blocked,
                  priority=0, workitems_from=[], workitems_to=[],
-                 push_roles=[], pull_roles=[]) :
+                 push_roles=[], pull_roles=[], blocker=False) :
         self.id = id
         self.activity_id = activity_id
         self.instance_id = instance_id
@@ -31,6 +31,8 @@ class workitem(CatalogAware, SimpleItem, PropertyManager):
         self.graph_level = 0
         self.priority = priority
         self.blocked = blocked
+        #blocker means the envelope can not be released due to errors in feedback
+        self.blocker = blocker
         self.push_roles = push_roles
         self.pull_roles = pull_roles
         #logging structure

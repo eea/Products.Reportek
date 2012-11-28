@@ -161,22 +161,6 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
         self.remoteapp._RemoteApplication__getResult4XQueryServiceJob(
             'the_workitem', 'the_jobid')
 
-    @patch('Products.Reportek.RemoteApplication.xmlrpclib')
-    def receive_blocker_feedback(self, text, mock_xmlrpclib):
-        mock_server = mock_xmlrpclib.ServerProxy.return_value
-        getResult = mock_server.the_service.getResult
-        getResult.return_value = {
-            'CODE': '0',
-            'VALUE': text,
-            'SCRIPT_TITLE': "mock script",
-            'METATYPE': 'application/x-mock',
-            'FEEDBACK_STATUS': 'BLOCKER',
-            'FEEDBACK_MESSAGE': 'Blocker error'
-        }
-        self.remoteapp._RemoteApplication__getResult4XQueryServiceJob(
-            'the_workitem', 'the_jobid')
-
-
     def test_24_char_feedback_is_saved_inline(self):
         text = u"smałl aut°mătic feedback"
         self.receive_feedback(text)
@@ -200,10 +184,56 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
         self.assertIn('see attachment', feedback.feedbacktext)
         self.assertEqual(feedback.content_type, 'text/html')
 
+class BlockerFeedbackTest(unittest.TestCase):
+
+    def setUp(self):
+        from Products.Reportek.RemoteApplication import RemoteApplication
+        self.root = create_fake_root()
+        self.root.getWorkitemsActiveForMe = Mock(return_value=[])
+        self.envelope = create_envelope(self.root)
+        self.envelope.getEngine = Mock()
+        self.envelope.REQUEST = Mock()
+        self.envelope.addWorkitem('the_activity', False)
+
+        self.remoteapp = RemoteApplication('remoteapp', '', '',
+            'the_service', 'the_app').__of__(self.envelope)
+        workitem = getattr(self.envelope, '0')
+        workitem.the_app = the_app={
+            'getResult': {
+                'the_jobid': {
+                    'fileURL': 'http://example.com/results_file',
+                },
+            }
+        }
+
+    @patch('Products.Reportek.RemoteApplication.xmlrpclib')
+    def receive_blocker_feedback(self, text, mock_xmlrpclib):
+        mock_server = mock_xmlrpclib.ServerProxy.return_value
+        getResult = mock_server.the_service.getResult
+        getResult.return_value = {
+            'CODE': '0',
+            'VALUE': text,
+            'SCRIPT_TITLE': "mock script",
+            'METATYPE': 'application/x-mock',
+            'FEEDBACK_STATUS': 'BLOCKER',
+            'FEEDBACK_MESSAGE': 'Blocker error'
+        }
+        self.remoteapp._RemoteApplication__getResult4XQueryServiceJob(
+            '0', 'the_jobid')
 
     def test_feedback_is_blocker(self):
         text = 'blocker feedback'
         self.receive_blocker_feedback(text)
-        [feedback] = self.envelope.objectValues()
-        self.assertEqual(True, getattr(feedback, 'blocker'))
-        self.assertEqual('Blocker error', getattr(feedback, 'message'))
+        [feedback] = self.envelope.objectValues('Report Feedback')
+        self.assertEqual(True, getattr(feedback, 'blocker', None))
+        self.assertEqual('Blocker error', getattr(feedback, 'message', ''))
+
+    def test_workitem_blocker_attr(self):
+        text = 'blocker feedback'
+        [workitem] = self.envelope.objectValues('Workitem')
+        #assert the workitem has the 'blocker' attribute
+        #and is False by default
+        self.assertEqual(False, getattr(workitem, 'blocker', None))
+        self.receive_blocker_feedback(text)
+        #assert 'blocker' is set to True due to errors in feedback
+        self.assertEqual(True, getattr(workitem, 'blocker', None))
