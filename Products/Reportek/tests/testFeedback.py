@@ -265,3 +265,17 @@ class BlockerFeedbackTest(unittest.TestCase):
         self.receive_feedback(text, result)
         #assert 'blocker' is set to True due to errors in feedback
         self.assertEqual(False, getattr(workitem, 'blocker', None))
+
+    def test_envelope_blocked_by_feedback(self):
+        text = 'blocker feedback'
+        self.assertEqual(True, getattr(self.envelope, 'releasable', None))
+        result = {
+            'CODE': '0',
+            'VALUE': text,
+            'SCRIPT_TITLE': "mock script",
+            'METATYPE': 'application/x-mock',
+            'FEEDBACK_STATUS': 'BLOCKER',
+            'FEEDBACK_MESSAGE': 'Non blocker error'
+        }
+        self.receive_feedback(text, result)
+        self.assertEqual(False, getattr(self.envelope, 'releasable', None))

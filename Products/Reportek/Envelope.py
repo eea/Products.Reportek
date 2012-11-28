@@ -186,6 +186,14 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         self.customer = authUser
         EnvelopeInstance.__init__(self, process)
 
+    @property
+    def releasable(self):
+        for workitem_id in [self.getActiveWorkitems()]:
+            workitem = getattr(self, '%s' %workitem_id)
+            if getattr(workitem, 'blocker', False):
+                return False
+        return True
+
     def __setstate__(self,state):
         """ """
         Envelope.inheritedAttribute('__setstate__')(self, state)
