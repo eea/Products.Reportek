@@ -117,8 +117,6 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
             {'id':'automatic', 'type':'boolean', 'mode':'r'},
             {'id':'content_type', 'type':'string', 'mode':'w'},
             {'id':'document_id', 'type':'string', 'mode':'w'},
-            {'id':'blocker', 'type':'boolean', 'mode':'r'},
-            {'id':'message', 'type':'string', 'mode':'r'}
     )
 
     # Create a SecurityInfo for this class. We will use this
