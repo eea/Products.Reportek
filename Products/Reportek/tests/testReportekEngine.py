@@ -51,6 +51,9 @@ class ReportekEngineTest(_BaseTest):
             'http://rod.eionet.eu.int/spatial/2': {'name': 'Albania'},
             'http://rod.eionet.eu.int/spatial/3': {'name': 'Austria'}
         })
+        self.engine.ZopeTime = Mock(return_value=DateTime())
+        self.root.standard_html_header = ''
+        self.root.standard_html_footer = ''
 
     def test_searchfeedbacks_on_disk(self):
         try:
@@ -510,9 +513,6 @@ class ReportekEngineTest(_BaseTest):
 
     def test_Build_collections_with_GET(self):
         self.root.REQUEST.method = 'GET'
-        self.engine.ZopeTime = Mock(return_value=DateTime())
-        self.root.standard_html_header = ''
-        self.root.standard_html_footer = ''
         localities = {
             'http://rod.eionet.eu.int/spatial/3': {
                 'iso': 'AT',
@@ -541,9 +541,6 @@ class ReportekEngineTest(_BaseTest):
 
     def test_Build_collections_with_POST(self):
         self.root.REQUEST.method = 'POST'
-        self.engine.ZopeTime = Mock(return_value=DateTime())
-        self.root.standard_html_header = ''
-        self.root.standard_html_footer = ''
         localities = {
             'http://rod.eionet.eu.int/spatial/3': {
                 'iso': 'AT',
@@ -569,6 +566,46 @@ class ReportekEngineTest(_BaseTest):
             REQUEST=self.root.REQUEST
         )
         self.assertEqual(1, len(self.root.at.objectIds()))
+
+    def test_Build_collections_multiple_countries(self):
+        self.root.REQUEST.method = 'POST'
+        localities = {
+            'http://spatial/1': {
+                'iso': 'iso1',
+                'name': 'name1',
+                'uri': 'http://spatial/1'
+            },
+            'http://spatial/2': {
+                'iso': 'iso2',
+                'name': 'name2',
+                'uri': 'http://spatial/2'
+            }
+        }
+        self.engine.localities_dict = Mock(return_value=localities)
+        self.root.localities_table = Mock(return_value=[])
+        self.root.dataflow_table = Mock(return_value=[])
+        self.root._setObject( 'iso1', Collection('iso1',
+            'name1', '', '', '',
+            'http://spatial/1',
+            '', '',
+            ['http://dataflow/1'],
+            allow_collections=0, allow_envelopes=1))
+        self.root._setObject( 'iso2', Collection('iso2',
+            'name2', '', '', '',
+            'http://spatial/2',
+            '', '',
+            ['http://dataflow/1'],
+            allow_collections=0, allow_envelopes=1))
+
+        self.engine.Build_collections(
+            ccountries = ['http://spatial/1', 'http://spatial/2'],
+            ctitle='Test collection',
+            cobligation= ['http://dataflow/1'],
+            cid='',
+            REQUEST=self.root.REQUEST
+        )
+        self.assertEqual(1, len(self.root.iso1.objectIds()))
+        self.assertEqual(1, len(self.root.iso2.objectIds()))
 
 class SearchResultsTest(_BaseTest):
 
