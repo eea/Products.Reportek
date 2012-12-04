@@ -1,6 +1,7 @@
 import unittest
 from StringIO import StringIO
 import zipfile
+from DateTime import DateTime
 from mock import Mock, patch
 from utils import (create_fake_root, create_temp_reposit, create_upload_file,
                   create_envelope, add_document, makerequest)
@@ -480,7 +481,6 @@ class ReportekEngineTest(_BaseTest):
         This tests simulates a GET to ReportekEngine/manage_editEngine
         and checks that engine's attributes are not changed
         """
-        from DateTime import DateTime
         from copy import copy
         self.engine.ZopeTime = Mock(return_value=DateTime())
         before_values = copy(self.engine.__dict__)
@@ -492,8 +492,6 @@ class ReportekEngineTest(_BaseTest):
         This tests simulates a programmatic call to ReportekEngine.manage_editEngine
         and checks that engine's attributes are changed accordingly
         """
-        from DateTime import DateTime
-        from copy import copy
         self.engine.ZopeTime = Mock(return_value=DateTime())
         self.engine.title='Before Title'
         self.engine.manage_editEngine(title='After Title', REQUEST=None)
@@ -504,8 +502,6 @@ class ReportekEngineTest(_BaseTest):
         This tests simulates a POST to ReportekEngine.manage_editEngine
         and checks that engine's attributes are changed accordingly
         """
-        from DateTime import DateTime
-        from copy import copy
         self.root.REQUEST['REQUEST_METHOD'] = 'POST'
         self.engine.ZopeTime = Mock(return_value=DateTime())
         self.engine.title='Before Title'
@@ -591,7 +587,6 @@ class SearchResultsTest(_BaseTest):
                                 self.root.first_envelope['feedback10']])
 
     def test_filter_by_reportingdate(self):
-        from DateTime import DateTime
         self.root['first_envelope'].manage_changeEnvelope(
                                 reportingdate=DateTime("2010/07/02 00:00:00 GMT+2"))
         results = self.engine.getSearchResults(
