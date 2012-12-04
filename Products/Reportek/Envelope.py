@@ -191,8 +191,8 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         for workitem_id in [self.getActiveWorkitems()]:
             workitem = getattr(self, '%s' %workitem_id)
             if getattr(workitem, 'blocker', False):
-                return False
-        return True
+                return True
+        return False
 
     def __setstate__(self,state):
         """ """
