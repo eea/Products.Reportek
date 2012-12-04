@@ -48,6 +48,7 @@ from copy import copy
 # product imports
 import constants
 from Products.Reportek.constants import DEFAULT_CATALOG
+from Products.Reportek.Collection import manage_addCollection
 import RepUtils
 from Toolz import Toolz
 from DataflowsManager import DataflowsManager
@@ -199,6 +200,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declareProtected(view_management_screens, 'Assign_client_form')
     Assign_client_form = PageTemplateFile('zpt/engineAssignClientForm', globals())
 
+    security.declareProtected(view_management_screens, 'Build_collections_form')
+    Build_collections_form = DTMLFile('dtml/engineBuildCollectionsForm', globals())
+
     def assign_roles(self, user, role, local_roles, doc):
         local_roles.append(role)
         doc.manage_setLocalRoles(user, local_roles)
@@ -248,6 +252,29 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                                           dataflow_uris, fail_pattern,
                                           success_pattern, modifier=self.remove_roles)
         return messages
+
+    security.declareProtected('View', 'Build_collections')
+    def Build_collections(self, REQUEST=None, **kwargs):
+        """ """
+        if REQUEST.method == 'GET':
+            return self.Build_collections_form(REQUEST)
+        countries = REQUEST.get('ccountries', None)
+        title = REQUEST.get('ctitle', '')
+        obligation = REQUEST.get('cobligation', [])
+        collection_id = REQUEST.get('cid', '')
+        for spatial_uri in countries:
+            country = self.localities_dict().get(spatial_uri)
+            if country:
+                iso =  country['iso'].lower()
+                target = self.getPhysicalRoot().unrestrictedTraverse(iso)
+                target.manage_addCollection(
+                    title, '', '', '', '', spatial_uri, '',
+                    obligation,
+                    allow_collections=0,
+                    allow_envelopes=1,
+                    id=collection_id
+                )
+        return self.Build_collections_form(REQUEST)
 
     def response_messages(self, crole, users, ccountries, dataflow_uris,
                           fail_pattern, success_pattern, modifier):
