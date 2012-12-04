@@ -508,6 +508,36 @@ class ReportekEngineTest(_BaseTest):
         self.engine.manage_editEngine(title='After Title', REQUEST=self.root.REQUEST)
         self.assertEqual('After Title', self.engine.title)
 
+    def test_Build_collections(self):
+        self.root.REQUEST.method = Mock(return_value='POST')
+        self.engine.ZopeTime = Mock(return_value=DateTime())
+        self.root.standard_html_header = ''
+        self.root.standard_html_footer = ''
+        localities = {
+            'http://rod.eionet.eu.int/spatial/3': {
+                'iso': 'AT',
+                'name': 'Austria',
+                'uri': 'http://rod.eionet.eu.int/spatial/3'
+            }
+        }
+        self.engine.localities_dict = Mock(return_value=localities)
+        self.root.localities_table = Mock(return_value=[])
+        self.root.dataflow_table = Mock(return_value=[])
+        self.root._setObject( 'at', Collection('at',
+            'Austria', '', '', '',
+            'http://rod.eionet.eu.int/spatial/3',
+            '', '',
+            ['http://example.com/dataflow/1'],
+            allow_collections=0, allow_envelopes=1))
+
+        self.engine.Build_collections(
+            ccountries = ['http://rod.eionet.eu.int/spatial/3'],
+            ctitle='Test collection',
+            cobligation= ['http://example.com/dataflow/1'],
+            cid='',
+            REQUEST=self.root.REQUEST
+        )
+        self.assertEqual(len(self.root.at.objectIds()), 1)
 
 class SearchResultsTest(_BaseTest):
 

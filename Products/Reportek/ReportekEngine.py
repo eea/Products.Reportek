@@ -258,10 +258,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """ """
         if REQUEST.method == 'GET':
             return self.Build_collections_form(REQUEST)
-        countries = REQUEST.get('ccountries', None)
-        title = REQUEST.get('ctitle', '')
-        obligation = REQUEST.get('cobligation', [])
-        collection_id = REQUEST.get('cid', '')
+        countries = kwargs.get('ccountries', REQUEST.get('ccountries', None))
+        title = kwargs.get('ctitle', REQUEST.get('ctitle', ''))
+        obligation = kwargs.get('cobligation', REQUEST.get('cobligation', []))
+        collection_id = kwargs.get('cid', REQUEST.get('cid', ''))
         for spatial_uri in countries:
             country = self.localities_dict().get(spatial_uri)
             if country:
