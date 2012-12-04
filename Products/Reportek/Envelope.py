@@ -188,11 +188,15 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
 
     @property
     def is_blocked(self):
-        for workitem_id in [self.getActiveWorkitems()]:
-            workitem = getattr(self, '%s' %workitem_id)
-            if getattr(workitem, 'blocker', False):
-                return True
-        return False
+        """ Returns True if the last AutomaticQA workitem of the envelope has a blocker feedback """
+        QA_workitems = [
+            wi for wi in self.getMySelf().getListOfWorkitems()
+               if wi.activity_id == 'AutomaticQA'
+        ]
+        if not QA_workitems:
+            return False
+        else:
+            return getattr(QA_workitems[-1], 'blocker', False)
 
     def __setstate__(self,state):
         """ """

@@ -193,7 +193,7 @@ class BlockerFeedbackTest(unittest.TestCase):
         self.envelope = create_envelope(self.root)
         self.envelope.getEngine = Mock()
         self.envelope.REQUEST = Mock()
-        self.envelope.addWorkitem('the_activity', False)
+        self.envelope.addWorkitem('AutomaticQA', False)
 
         self.remoteapp = RemoteApplication('remoteapp', '', '',
             'the_service', 'the_app').__of__(self.envelope)
