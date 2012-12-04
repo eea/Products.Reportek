@@ -514,10 +514,10 @@ class ReportekEngineTest(_BaseTest):
     def test_Build_collections_with_GET(self):
         self.root.REQUEST.method = 'GET'
         localities = {
-            'http://rod.eionet.eu.int/spatial/3': {
+            'http://spatial/3': {
                 'iso': 'AT',
                 'name': 'Austria',
-                'uri': 'http://rod.eionet.eu.int/spatial/3'
+                'uri': 'http://spatial/3'
             }
         }
         self.engine.localities_dict = Mock(return_value=localities)
@@ -525,15 +525,15 @@ class ReportekEngineTest(_BaseTest):
         self.root.dataflow_table = Mock(return_value=[])
         self.root._setObject( 'at', Collection('at',
             'Austria', '', '', '',
-            'http://rod.eionet.eu.int/spatial/3',
+            'http://spatial/3',
             '', '',
-            ['http://example.com/dataflow/1'],
+            [],
             allow_collections=0, allow_envelopes=1))
 
         self.engine.Build_collections(
-            ccountries = ['http://rod.eionet.eu.int/spatial/3'],
+            ccountries = ['http://spatial/3'],
             ctitle='Test collection',
-            cobligation= ['http://example.com/dataflow/1'],
+            cobligation= ['http://dataflow/1'],
             cid='',
             REQUEST=self.root.REQUEST
         )
@@ -542,10 +542,10 @@ class ReportekEngineTest(_BaseTest):
     def test_Build_collections_with_POST(self):
         self.root.REQUEST.method = 'POST'
         localities = {
-            'http://rod.eionet.eu.int/spatial/3': {
+            'http://spatial/3': {
                 'iso': 'AT',
                 'name': 'Austria',
-                'uri': 'http://rod.eionet.eu.int/spatial/3'
+                'uri': 'http://spatial/3'
             }
         }
         self.engine.localities_dict = Mock(return_value=localities)
@@ -553,15 +553,15 @@ class ReportekEngineTest(_BaseTest):
         self.root.dataflow_table = Mock(return_value=[])
         self.root._setObject( 'at', Collection('at',
             'Austria', '', '', '',
-            'http://rod.eionet.eu.int/spatial/3',
+            'http://spatial/3',
             '', '',
-            ['http://example.com/dataflow/1'],
+            ['http://dataflow/1'],
             allow_collections=0, allow_envelopes=1))
 
         self.engine.Build_collections(
-            ccountries = ['http://rod.eionet.eu.int/spatial/3'],
+            ccountries = ['http://spatial/3'],
             ctitle='Test collection',
-            cobligation= ['http://example.com/dataflow/1'],
+            cobligation= ['http://dataflow/1'],
             cid='',
             REQUEST=self.root.REQUEST
         )
@@ -588,19 +588,19 @@ class ReportekEngineTest(_BaseTest):
             'name1', '', '', '',
             'http://spatial/1',
             '', '',
-            ['http://dataflow/1'],
+            [],
             allow_collections=0, allow_envelopes=1))
         self.root._setObject( 'iso2', Collection('iso2',
             'name2', '', '', '',
             'http://spatial/2',
             '', '',
-            ['http://dataflow/1'],
+            [],
             allow_collections=0, allow_envelopes=1))
 
         self.engine.Build_collections(
             ccountries = ['http://spatial/1', 'http://spatial/2'],
             ctitle='Test collection',
-            cobligation= ['http://dataflow/1'],
+            cobligation= ['http://dataflow/2'],
             cid='',
             REQUEST=self.root.REQUEST
         )
@@ -628,13 +628,13 @@ class ReportekEngineTest(_BaseTest):
             'name1', '', '', '',
             'http://spatial/1',
             '', '',
-            ['http://dataflow/1'],
+            [],
             allow_collections=0, allow_envelopes=1))
         self.root._setObject( 'iso2', Collection('iso2',
             'name2', '', '', '',
             'http://spatial/2',
             '', '',
-            ['http://dataflow/1'],
+            [],
             allow_collections=0, allow_envelopes=1))
 
         self.engine.Build_collections(
