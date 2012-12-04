@@ -51,7 +51,6 @@ class ReportekEngineTest(_BaseTest):
             'http://rod.eionet.eu.int/spatial/3': {'name': 'Austria'}
         })
 
-
     def test_searchfeedbacks_on_disk(self):
         try:
             dtml = ReportekEngine.searchfeedbacks
@@ -182,7 +181,6 @@ class ReportekEngineTest(_BaseTest):
         self.engine.Remove_client(**kwargs)
         self.assertEqual((), self.root.col.get_local_roles_for_userid('testuser'))
 
-
     def test_remove_specified_role_only_with_Remove_client(self):
         self.root._setObject( 'col', Collection('col',
             'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/3',
@@ -204,7 +202,6 @@ class ReportekEngineTest(_BaseTest):
             ('Auditor',),
             self.root.col.get_local_roles_for_userid('testuser')
         )
-
 
     def test_assign_role_to_multiple_collections(self):
         self.root._setObject( 'col1', Collection('col1',
@@ -235,7 +232,6 @@ class ReportekEngineTest(_BaseTest):
             ('Reporter', ),
             self.root.col2.get_local_roles_for_userid('testuser')
         )
-
 
     def test_remove_role_from_multiple_collections(self):
         self.root._setObject( 'col1', Collection('col1',
@@ -276,7 +272,6 @@ class ReportekEngineTest(_BaseTest):
             self.root.col2.get_local_roles_for_userid('testuser')
         )
 
-
     def test_remove_not_existing_role(self):
         self.root._setObject( 'col1', Collection('col1',
             'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/3',
@@ -294,7 +289,6 @@ class ReportekEngineTest(_BaseTest):
             (),
             self.root.col1.get_local_roles_for_userid('testuser')
         )
-
 
     def test_assign_role_to_multiple_users(self):
         self.root._setObject( 'col1', Collection('col1',
@@ -317,7 +311,6 @@ class ReportekEngineTest(_BaseTest):
             ('Reporter', ),
             self.root.col1.get_local_roles_for_userid('testuser1')
         )
-
 
     def test_remove_role_for_specified_user_only(self):
         self.root._setObject( 'col1', Collection('col1',
@@ -344,7 +337,6 @@ class ReportekEngineTest(_BaseTest):
             self.root.col1.get_local_roles_for_userid('testuser1')
         )
 
-
     def test_assign_role_to_specific_obligation_only(self):
         self.root._setObject( 'col1', Collection('col1',
             'EEA, requests', '', '', '', 'http://rod.eionet.eu.int/spatial/3',
@@ -367,7 +359,6 @@ class ReportekEngineTest(_BaseTest):
         self.assertEqual(
             ('Reporter',),
             self.root.col2.get_local_roles_for_userid('testuser1'))
-
 
     def test_wrong_assign_returns_fail_message(self):
         self.root._setObject( 'col1', Collection('col1',
@@ -520,8 +511,6 @@ class ReportekEngineTest(_BaseTest):
         self.engine.title='Before Title'
         self.engine.manage_editEngine(title='After Title', REQUEST=self.root.REQUEST)
         self.assertEqual('After Title', self.engine.title)
-
-
 
 
 class SearchResultsTest(_BaseTest):
