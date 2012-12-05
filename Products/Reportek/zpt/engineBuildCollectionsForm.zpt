@@ -1,0 +1,107 @@
+<tal:block content="structure here/standard_html_header" />
+<h1 tal:content="here/title_or_id">Title</h1>
+<script type="text/javascript">
+// <![CDATA[
+
+// Simulating a 'set' with a dictionary
+eu25 = { at:1,be:1,cy:1,cz:1,
+ de:1,dk:1,ee:1,es:1,fi:1,fr:1,gb:1,gr:1,
+ hu:1,ie:1,it:1,lt:1,lu:1,lv:1,mt:1,nl:1,
+ pl:1,pt:1,se:1,si:1,sk:1 }
+
+eu27 = { at:1,be:1,bg:1,cy:1,cz:1,
+ de:1,dk:1,ee:1,es:1,fi:1,fr:1,gb:1,gr:1,
+ hu:1,ie:1,it:1,lt:1,lu:1,lv:1,mt:1,nl:1,
+ pl:1,pt:1,ro:1,se:1,si:1,sk:1 }
+
+eea32 = { at:1,be:1,bg:1,cy:1,cz:1,ch:1,
+ de:1,dk:1,ee:1,es:1,fi:1,fr:1,gb:1,gr:1,
+ hu:1,ie:1,is:1,it:1,li:1,lt:1,lu:1,lv:1,mt:1,no:1, nl:1,
+ pl:1,pt:1,ro:1,se:1,si:1,sk:1,tr:1 }
+
+europe = {}
+
+isSelected = false;
+
+var countries = document.getElementsByName('ccountries:list');
+
+function deselectAll(){
+    for (i = 0; i < countries.length; i++){
+      countries[i].checked = false ;
+    }
+}
+
+function toggleSelectCountries(group) {
+  deselectAll();
+  if (isSelected == false || group != europe ) {
+    for (i = 0; i < countries.length; i++){
+     var iso = countries[i].attributes['iso'].value.toLowerCase()
+     if (group == europe || iso in group) {
+      countries[i].checked = true ;
+      }
+    }
+    isSelected = true;
+    document.objectItems.selectAllCountries.value = "Deselect All";
+  }
+  else{
+    isSelected = false;
+    document.objectItems.selectAllCountries.value = "Select All";
+  }
+}
+
+// ]]>
+</script>
+
+<form action="/ReportekEngine/Build_collections" method="post"  name="objectItems">
+<fieldset><legend>Countries</legend>
+<div style="width:12em; float:left" tal:repeat="item context/localities_table">
+<input type="checkbox"
+       name="ccountries:list"
+       tal:attributes="id python:'cb%s' %item['iso'].lower();
+                       iso item/iso;
+                       value python:item['uri']"/>
+   <label tal:attributes="for item/iso" tal:content="item/name"></label>
+</div>
+<div id="select_countries" style="clear: both; text-align: right; padding-top: 1em"></div>
+</fieldset>
+
+<fieldset><legend>Collection details:</legend>
+<table>
+<tr><td><label class="question">Collection id</label></td><td><input type="text" name="cid" size="10"></td></tr>
+<tr><td><label class="question">Title</label></td><td><input type="text" name="ctitle" size="50"></td></tr>
+<tr><td><label class="question">Obligation</label></td>
+  <td>
+    <metal:block metal:use-macro="here/macros/obligationsSelect"/>
+  </td>
+</tr>
+<tr><td><label class="question">Subojects</label></td> <td>
+<input type="checkbox" value="1" name="allow_envelopes:int" id="allow_envelopes" checked="checked"/> <label for="allow_envelopes">Envelopes</label>
+<input type="checkbox" value="1" name="allow_collections:int" id="allow_collections"/> <label for="allow_collections">Collections</label>
+</td>
+</tr>
+</table>
+</fieldset>
+
+<br/>
+<input type="submit" value="Submit"/>
+
+<script type="text/javascript">
+
+<!-- 
+var select_div = document.getElementById('select_countries');
+if (select_div) {
+  var select_buttons = '<input class="form-element" type="button" name="selectAllCountries" value="Select All" onclick="toggleSelectCountries(europe); return false"/>';
+  select_buttons += '<input class="form-element" type="button" name="selectEu25" value="Select EU25" onclick="toggleSelectCountries(eu25); return false"/>';
+  select_buttons += '<input class="form-element" type="button" name="selectEu27" value="Select EU27" onclick="toggleSelectCountries(eu27); return false"/>';
+  select_buttons += '<input class="form-element" type="button" name="selectEea32" value="Select EEA32" onclick="toggleSelectCountries(eea32); return false"/>';
+  select_div.innerHTML = select_buttons;
+
+  var select_div = document.getElementById('select_users');
+  var select_buttons = '<input class="form-element" type="button" name="selectAllUsers" value="Select All" onclick="toggleSelectUsers(); return false"/>';
+  select_div.innerHTML = select_buttons;
+  }
+//-->
+</script>
+
+</form>
+<tal:block content="structure here/standard_html_footer"/>

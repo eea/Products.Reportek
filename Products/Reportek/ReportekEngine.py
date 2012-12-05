@@ -201,7 +201,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     Assign_client_form = PageTemplateFile('zpt/engineAssignClientForm', globals())
 
     security.declareProtected(view_management_screens, 'Build_collections_form')
-    Build_collections_form = DTMLFile('dtml/engineBuildCollectionsForm', globals())
+    Build_collections_form = PageTemplateFile('zpt/engineBuildCollectionsForm', globals())
 
     def assign_roles(self, user, role, local_roles, doc):
         local_roles.append(role)

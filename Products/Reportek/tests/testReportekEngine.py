@@ -52,6 +52,7 @@ class ReportekEngineTest(_BaseTest):
             'http://rod.eionet.eu.int/spatial/3': {'name': 'Austria'}
         })
         self.engine.ZopeTime = Mock(return_value=DateTime())
+        self.engine.Build_collections_form = Mock(return_value="form_template")
         self.root.standard_html_header = ''
         self.root.standard_html_footer = ''
 
