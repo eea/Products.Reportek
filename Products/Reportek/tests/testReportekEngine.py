@@ -648,6 +648,40 @@ class ReportekEngineTest(_BaseTest):
         self.assertEqual(1, len(self.root.iso1.objectIds()))
         self.assertEqual(0, len(self.root.iso2.objectIds()))
 
+    def test_Build_collections_with_simple_pattern(self):
+        self.root.REQUEST.method = 'POST'
+        localities = {
+            'http://spatial/1': {
+                'iso': 'iso1',
+                'name': 'name1',
+                'uri': 'http://spatial/1'
+            },
+        }
+        self.engine.localities_dict = Mock(return_value=localities)
+        self.root.localities_table = Mock(return_value=[])
+        self.root.dataflow_table = Mock(return_value=[])
+        self.root._setObject( 'iso1', Collection('iso1',
+            'name1', '', '', '',
+            'http://spatial/1',
+            '', '',
+            [],
+            allow_collections=0, allow_envelopes=1))
+        self.root.iso1._setObject( 'eu', Collection('eu',
+            'eu', '', '', '',
+            'http://spatial/1',
+            '', '',
+            [],
+            allow_collections=0, allow_envelopes=1))
+        self.engine.Build_collections(
+            pattern = 'eu',
+            ccountries = ['http://spatial/1'],
+            ctitle='Test collection',
+            cobligation= ['http://dataflow/1'],
+            cid='',
+            REQUEST=self.root.REQUEST
+        )
+        self.assertEqual(1, len(self.root.iso1.eu.objectIds()))
+
 
 class SearchResultsTest(_BaseTest):
 

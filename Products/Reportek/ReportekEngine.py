@@ -259,6 +259,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         messages = {'success': [], 'fail': []}
         if REQUEST.method == 'GET':
             return self.Build_collections_form(REQUEST, messages=messages)
+        pattern = kwargs.get('pattern', REQUEST.get('pattern', ''))
         countries = kwargs.get('ccountries', REQUEST.get('ccountries', None))
         title = kwargs.get('ctitle', REQUEST.get('ctitle', ''))
         obligation = kwargs.get('cobligation', REQUEST.get('cobligation', []))
@@ -269,6 +270,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 iso =  country['iso'].lower()
                 try:
                     target = self.getPhysicalRoot().unrestrictedTraverse(iso)
+                    if pattern and getattr(target, pattern, None):
+                        target = getattr(target, pattern)
                     col = target.manage_addCollection(
                         title, '', '', '', '', spatial_uri, '',
                         obligation,
