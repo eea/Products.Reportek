@@ -269,9 +269,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             if country:
                 iso =  country['iso'].lower()
                 try:
-                    target = self.getPhysicalRoot().unrestrictedTraverse(iso)
-                    if pattern and getattr(target, pattern, None):
-                        target = getattr(target, pattern)
+                    target = self.getPhysicalRoot().restrictedTraverse(iso)
+                    if pattern:
+                        target = self.getPhysicalRoot().restrictedTraverse('/'.join([iso, pattern]))
+                    if not target:
+                        messages['fail'].append(country['name'])
                     col = target.manage_addCollection(
                         title, '', '', '', '', spatial_uri, '',
                         obligation,

@@ -86,16 +86,32 @@ function toggleSelectCountries(group) {
 
 <fieldset><legend>Collection details:</legend>
 <table>
-<tr><td><label class="question">Collection id</label></td><td><input type="text" name="cid" size="10"></td></tr>
-<tr><td><label class="question">Title</label></td><td><input type="text" name="ctitle" size="50"></td></tr>
-<tr><td><label class="question">Obligation</label></td>
+<tr>
+  <td><label class="question">Collection id</label></td>
+  <td><input type="text" name="cid" size="10"></td>
+</tr>
+<tr>
+  <td><label class="question">Title</label></td>
+  <td><input type="text" name="ctitle" size="50"></td>
+</tr>
+<tr>
+  <td><label class="question">Target path</label></td>
+  <td><input type="text" name="pattern" size="10"></td>
+</tr>
+<tr>
+  <td><label class="question">Obligation</label></td>
   <td>
     <metal:block metal:use-macro="here/macros/obligationsSelect"/>
   </td>
 </tr>
-<tr><td><label class="question">Subojects</label></td> <td>
-<input type="checkbox" value="1" name="allow_envelopes:int" id="allow_envelopes" checked="checked"/> <label for="allow_envelopes">Envelopes</label>
-<input type="checkbox" value="1" name="allow_collections:int" id="allow_collections"/> <label for="allow_collections">Collections</label>
+<tr>
+  <td><label class="question">Subojects</label></td>
+  <td>
+    <input type="checkbox" value="1" name="allow_envelopes:int"
+           id="allow_envelopes" checked="checked"/>
+    <label for="allow_envelopes">Envelopes</label>
+    <input type="checkbox" value="1" name="allow_collections:int" id="allow_collections"/>
+    <label for="allow_collections">Collections</label>
 </td>
 </tr>
 </table>

@@ -648,7 +648,7 @@ class ReportekEngineTest(_BaseTest):
         self.assertEqual(1, len(self.root.iso1.objectIds()))
         self.assertEqual(0, len(self.root.iso2.objectIds()))
 
-    def test_Build_collections_with_simple_pattern(self):
+    def pattern_test(self, pattern=''):
         self.root.REQUEST.method = 'POST'
         localities = {
             'http://spatial/1': {
@@ -660,6 +660,16 @@ class ReportekEngineTest(_BaseTest):
         self.engine.localities_dict = Mock(return_value=localities)
         self.root.localities_table = Mock(return_value=[])
         self.root.dataflow_table = Mock(return_value=[])
+        self.engine.Build_collections(
+            pattern = pattern,
+            ccountries = ['http://spatial/1'],
+            ctitle='Test collection',
+            cobligation= ['http://dataflow/1'],
+            cid='',
+            REQUEST=self.root.REQUEST
+        )
+
+    def test_Build_collections_with_one_level_structure_pattern(self):
         self.root._setObject( 'iso1', Collection('iso1',
             'name1', '', '', '',
             'http://spatial/1',
@@ -672,15 +682,49 @@ class ReportekEngineTest(_BaseTest):
             '', '',
             [],
             allow_collections=0, allow_envelopes=1))
-        self.engine.Build_collections(
-            pattern = 'eu',
-            ccountries = ['http://spatial/1'],
-            ctitle='Test collection',
-            cobligation= ['http://dataflow/1'],
-            cid='',
-            REQUEST=self.root.REQUEST
-        )
+        self.pattern_test('eu')
         self.assertEqual(1, len(self.root.iso1.eu.objectIds()))
+
+    def test_Build_collections_with_multiple_levels_structure_pattern(self):
+        self.root._setObject( 'iso1', Collection('iso1',
+            'name1', '', '', '',
+            'http://spatial/1',
+            '', '',
+            [],
+            allow_collections=0, allow_envelopes=1))
+        self.root.iso1._setObject( 'lev1', Collection('lev1',
+            'eu', '', '', '',
+            'http://spatial/1',
+            '', '',
+            [],
+            allow_collections=0, allow_envelopes=1))
+        self.root.iso1.lev1._setObject( 'lev2', Collection('lev2',
+            'eu', '', '', '',
+            'http://spatial/1',
+            '', '',
+            [],
+            allow_collections=0, allow_envelopes=1))
+        self.pattern_test('lev1/lev2')
+        self.assertEqual(1, len(self.root.iso1.lev1.lev2.objectIds()))
+
+    def test_Build_collections_with_bad_structure_pattern(self):
+        self.root._setObject( 'iso1', Collection('iso1',
+            'name1', '', '', '',
+            'http://spatial/1',
+            '', '',
+            [],
+            allow_collections=0, allow_envelopes=1))
+        self.root.iso1._setObject( 'eu', Collection('eu',
+            'eu', '', '', '',
+            'http://spatial/1',
+            '', '',
+            [],
+            allow_collections=0, allow_envelopes=1))
+        self.pattern_test('bad')
+        self.assertEqual(0, len(self.root.iso1.eu.objectIds()))
+
+    def test_Build_collections_with_leading_slash_pattern(self):
+        pass
 
 
 class SearchResultsTest(_BaseTest):
