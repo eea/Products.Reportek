@@ -724,7 +724,36 @@ class ReportekEngineTest(_BaseTest):
         self.assertEqual(0, len(self.root.iso1.eu.objectIds()))
 
     def test_Build_collections_with_leading_slash_pattern(self):
-        pass
+        self.root._setObject( 'iso1', Collection('iso1',
+            'name1', '', '', '',
+            'http://spatial/1',
+            '', '',
+            [],
+            allow_collections=0, allow_envelopes=1))
+        self.root.iso1._setObject( 'eu', Collection('eu',
+            'eu', '', '', '',
+            'http://spatial/1',
+            '', '',
+            [],
+            allow_collections=0, allow_envelopes=1))
+        self.pattern_test('/eu')
+        self.assertEqual(1, len(self.root.iso1.eu.objectIds()))
+
+    def test_Build_collections_with_backslashes_pattern(self):
+        self.root._setObject( 'iso1', Collection('iso1',
+            'name1', '', '', '',
+            'http://spatial/1',
+            '', '',
+            [],
+            allow_collections=0, allow_envelopes=1))
+        self.root.iso1._setObject( 'eu', Collection('eu',
+            'eu', '', '', '',
+            'http://spatial/1',
+            '', '',
+            [],
+            allow_collections=0, allow_envelopes=1))
+        self.pattern_test('\eu')
+        self.assertEqual(1, len(self.root.iso1.eu.objectIds()))
 
 
 class SearchResultsTest(_BaseTest):

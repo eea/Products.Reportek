@@ -69,6 +69,9 @@ function toggleSelectCountries(group) {
     <p tal:content="python:', '.join(options['messages']['fail'])">
         fails
     </p>
+    <p>
+        *incompatible tree structure
+    </p>
 </div>
 
 <form action="/ReportekEngine/Build_collections" method="post"  name="objectItems">
@@ -96,7 +99,7 @@ function toggleSelectCountries(group) {
 </tr>
 <tr>
   <td><label class="question">Target path</label></td>
-  <td><input type="text" name="pattern" size="10"></td>
+  <td><input type="text" name="pattern" size="10"> <span>e.g.: eea/noise<span></td>
 </tr>
 <tr>
   <td><label class="question">Obligation</label></td>

@@ -253,6 +253,14 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                                           success_pattern, modifier=self.remove_roles)
         return messages
 
+    @staticmethod
+    def clean_pattern(pattern):
+        pattern = pattern.strip()
+        pattern = pattern.replace('\\', '/')
+        dirs = [item for item in pattern.split('/') if item]
+        pattern = '/'.join(dirs)
+        return pattern
+
     security.declareProtected('View', 'Build_collections')
     def Build_collections(self, REQUEST=None, **kwargs):
         """Bulk creation of collections"""
@@ -267,13 +275,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         for spatial_uri in countries:
             country = self.localities_dict().get(spatial_uri)
             if country:
-                iso =  country['iso'].lower()
+                target_path =  country['iso'].lower()
                 try:
-                    target = self.getPhysicalRoot().restrictedTraverse(iso)
                     if pattern:
-                        target = self.getPhysicalRoot().restrictedTraverse('/'.join([iso, pattern]))
-                    if not target:
-                        messages['fail'].append(country['name'])
+                        pattern = self.clean_pattern(pattern)
+                        target_path = '/'.join([country['iso'].lower(), pattern])
+                    target = self.getPhysicalRoot().restrictedTraverse(target_path)
                     col = target.manage_addCollection(
                         title, '', '', '', '', spatial_uri, '',
                         obligation,
@@ -283,7 +290,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     )
                     messages['success'].append(country['name'])
                 except KeyError as ex:
-                    messages['fail'].append(country['name'])
+                    messages['fail'].append('%s(%s*)' %(country['name'], target_path))
         return self.Build_collections_form(REQUEST, messages=messages)
 
     def response_messages(self, crole, users, ccountries, dataflow_uris,
