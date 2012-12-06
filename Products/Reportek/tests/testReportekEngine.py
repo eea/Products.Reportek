@@ -648,6 +648,7 @@ class ReportekEngineTest(_BaseTest):
         self.assertEqual(1, len(self.root.iso1.objectIds()))
         self.assertEqual(0, len(self.root.iso2.objectIds()))
 
+
 class SearchResultsTest(_BaseTest):
 
     def setUp(self):

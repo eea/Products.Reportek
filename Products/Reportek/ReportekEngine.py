@@ -255,9 +255,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security.declareProtected('View', 'Build_collections')
     def Build_collections(self, REQUEST=None, **kwargs):
-        """ """
+        """Bulk creation of collections"""
+        messages = {'success': [], 'fail': []}
         if REQUEST.method == 'GET':
-            return self.Build_collections_form(REQUEST)
+            return self.Build_collections_form(REQUEST, messages=messages)
         countries = kwargs.get('ccountries', REQUEST.get('ccountries', None))
         title = kwargs.get('ctitle', REQUEST.get('ctitle', ''))
         obligation = kwargs.get('cobligation', REQUEST.get('cobligation', []))
@@ -266,15 +267,19 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             country = self.localities_dict().get(spatial_uri)
             if country:
                 iso =  country['iso'].lower()
-                target = self.getPhysicalRoot().unrestrictedTraverse(iso)
-                target.manage_addCollection(
-                    title, '', '', '', '', spatial_uri, '',
-                    obligation,
-                    allow_collections=0,
-                    allow_envelopes=1,
-                    id=collection_id
-                )
-        return self.Build_collections_form(REQUEST)
+                try:
+                    target = self.getPhysicalRoot().unrestrictedTraverse(iso)
+                    col = target.manage_addCollection(
+                        title, '', '', '', '', spatial_uri, '',
+                        obligation,
+                        allow_collections=0,
+                        allow_envelopes=1,
+                        id=collection_id
+                    )
+                    messages['success'].append(country['name'])
+                except KeyError as ex:
+                    messages['fail'].append(country['name'])
+        return self.Build_collections_form(REQUEST, messages=messages)
 
     def response_messages(self, crole, users, ccountries, dataflow_uris,
                           fail_pattern, success_pattern, modifier):

@@ -52,6 +52,25 @@ function toggleSelectCountries(group) {
 // ]]>
 </script>
 
+<div tal:condition="python:options['messages']['success']"
+     tal:attributes="class python:'note-msg'">
+    <label tal:content="python:'Successfully created collection for'">
+        Content
+    </label>
+    <p tal:content="python:', '.join(options['messages']['success'])">
+        successes
+    </p>
+</div>
+<div tal:condition="python:options['messages']['fail']"
+     tal:attributes="class python:'caution-msg'">
+    <label tal:content="python:'Unable to create collection for'">
+        Content
+    </label>
+    <p tal:content="python:', '.join(options['messages']['fail'])">
+        fails
+    </p>
+</div>
+
 <form action="/ReportekEngine/Build_collections" method="post"  name="objectItems">
 <fieldset><legend>Countries</legend>
 <div style="width:12em; float:left" tal:repeat="item context/localities_table">
