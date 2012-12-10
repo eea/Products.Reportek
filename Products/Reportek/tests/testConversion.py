@@ -341,6 +341,64 @@ class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
                 "dir9243eec/gml_art17.xsd","map-dist.gml")
         self.assertEquals(2, len(local_converters))
 
+    @patch.object(Converters, '_http_params')
+    def test_xml_converters_without_schema_accepted(self, mock_http_params):
+        """Test that matching converters (based on mime/type or suffix) without a
+        schema are detected when trying to convert an xml type document that
+        has a schema"""
+        mock_http_params.return_value = [
+            [
+              "gmlaspng",
+              "GML as image",
+              "convert/gml2png",
+              [
+                "text/xml"
+              ],
+              "image/png",
+              '', #empty schema
+              [],
+              "",
+              "gml"
+            ]
+        ]
+        converters = getattr(self.app, CONVERTERS_ID)
+        (local_converters, remote_converters) = \
+                converters.displayPossibleConversions(
+                    'text/xml',
+                    "http://biodiversity.eionet.europa.eu/schemas/"
+                    "dir9243eec/gml_art17.xsd","map-dist.gml"
+                )
+        self.assertEquals(1, len(local_converters))
+
+    @patch.object(Converters, '_http_params')
+    def test_xml_converters_with_bad_schema_rejected(self, mock_http_params):
+        """Test that matching converters (based on mime/type or suffix) with a
+        schema are not detected if their schema is different than document's
+        schema"""
+        mock_http_params.return_value = [
+            [
+              "gmlaspng",
+              "GML as image",
+              "convert/gml2png",
+              [
+                "text/xml"
+              ],
+              "image/png",
+              'bad_schema',
+              [],
+              "",
+              "gml"
+            ]
+        ]
+        converters = getattr(self.app, CONVERTERS_ID)
+        (local_converters, remote_converters) = \
+                converters.displayPossibleConversions(
+                    'text/xml',
+                    "good_schema",
+                    "map-dist.gml"
+                )
+        self.assertEquals(0, len(local_converters))
+
     def testDefaultIdException(self):
         converters = getattr(self.app, CONVERTERS_ID)
         self.create_text_document()

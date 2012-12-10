@@ -167,7 +167,13 @@ class Converters(Folder):
         for conv_obj in available_local_converters:
             if contentType in conv_obj.ct_input or conv_obj.suffix == filesuffix:
                 if doc_schema:
-                    if conv_obj.ct_schema == doc_schema:
+                    if conv_obj.ct_schema:
+                        if conv_obj.ct_schema == doc_schema:
+                            local_converters.append({'xsl':conv_obj.id,
+                               'description':conv_obj.title,
+                               'content_type_out': conv_obj.ct_output,
+                               'more_info': conv_obj.description})
+                    else:
                         local_converters.append({'xsl':conv_obj.id,
                            'description':conv_obj.title,
                            'content_type_out': conv_obj.ct_output,
