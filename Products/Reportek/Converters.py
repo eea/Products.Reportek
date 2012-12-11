@@ -219,6 +219,18 @@ class Converters(Folder):
         else:
             return True
 
+    def convertDocument(self, REQUEST=None):
+        """Proxy to run_conversion for API compatibility."""
+        flag = REQUEST.get('conv')[:3]
+        _id = REQUEST.get('conv')[4:]
+        REQUEST.set('file_url', REQUEST.get('file', ''))
+        if flag == 'rem':
+            source = 'remote'
+        elif flag == 'loc':
+            source = 'local'
+        REQUEST.set('conv', _id)
+        REQUEST.set('source', source)
+        return self.run_conversion(REQUEST=REQUEST)
 
     security.declarePublic('run_conversion')
     def run_conversion(self, file_url='', converter_id='', source='', REQUEST=None):
