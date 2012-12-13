@@ -140,3 +140,23 @@ class ConversionServiceTest(unittest.TestCase):
         self.app.Converters.note = Mock(return_value='')
         result = self.app.Converters.run_conversion(**params)
         self.assertEqual('txtesrever', result)
+
+    @patch.object(Converters, '_http_params')
+    def test_converter_ct_extraparams_attribute(self, mock_http_params):
+        mock_http_params.return_value = [
+            [
+              "prettyxml",
+              "Pretty XML",
+              "convert/xml2txt",
+              [
+                "text/plain"
+              ],
+              "text/plain",
+              "",
+              ['country_code'],
+              "",
+              "xml"
+            ]
+        ]
+        [conv] = self.app.Converters._get_local_converters()
+        self.assertEqual(['country_code'], conv.ct_extraparams)
