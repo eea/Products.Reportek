@@ -6,6 +6,7 @@ from common import create_mock_request
 from mock import patch, Mock
 from Products.Reportek.Converters import Converters
 from Products.Reportek.Converter import Converter, LocalHttpConverter
+from Products.Reportek import conversion_registry
 
 
 def CONVERTER_PARAMS():
@@ -160,3 +161,56 @@ class ConversionServiceTest(unittest.TestCase):
         ]
         [conv] = self.app.Converters._get_local_converters()
         self.assertEqual(['country_code'], conv.ct_extraparams)
+
+    @patch.object(conversion_registry, 'get_country_code')
+    @patch.object(Converters, '_http_params')
+    def test_conversion_registry_with_good_key(self, mock_http_params,
+                                              mock_get_country_code):
+        mock_http_params.return_value = [
+            [
+              "prettyxml",
+              "Pretty XML",
+              "convert/xml2txt",
+              [
+                "text/plain"
+              ],
+              "text/plain",
+              "",
+              ['country_code'],
+              "",
+              "xml"
+            ]
+        ]
+
+        mock_get_country_code.return_value = 'AT'
+        [conv] = self.app.Converters._get_local_converters()
+        self.assertEqual(
+                ['AT'],
+                conversion_registry.requested_params(conv.ct_extraparams))
+
+    @patch.object(conversion_registry, 'get_country_code')
+    @patch.object(Converters, '_http_params')
+    def test_conversion_registry_with_non_existing_key(self, mock_http_params,
+                                              mock_get_country_code):
+        mock_http_params.return_value = [
+            [
+              "prettyxml",
+              "Pretty XML",
+              "convert/xml2txt",
+              [
+                "text/plain"
+              ],
+              "text/plain",
+              "",
+              ['bad_key'],
+              "",
+              "xml"
+            ]
+        ]
+
+        [conv] = self.app.Converters._get_local_converters()
+        self.assertRaises(
+            NotImplementedError,
+            conversion_registry.requested_params,
+            conv.ct_extraparams
+        )
