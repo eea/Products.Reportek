@@ -186,7 +186,7 @@ class ConversionServiceTest(unittest.TestCase):
         [conv] = self.app.Converters._get_local_converters()
         self.assertEqual(
                 ['AT'],
-                conversion_registry.requested_params(conv.ct_extraparams))
+                conversion_registry.request_params(conv.ct_extraparams))
 
     @patch.object(conversion_registry, 'get_country_code')
     @patch.object(Converters, '_http_params')
@@ -211,6 +211,45 @@ class ConversionServiceTest(unittest.TestCase):
         [conv] = self.app.Converters._get_local_converters()
         self.assertRaises(
             NotImplementedError,
-            conversion_registry.requested_params,
+            conversion_registry.request_params,
             conv.ct_extraparams
         )
+
+    @patch.object(conversion_registry, 'get_country_code')
+    @patch.object(Converters, '_http_params')
+    @patch('Products.Reportek.Converter.requests')
+    def test_conversion_output_with_extraparams( self,
+            mock_requests, mock_http_params, mock_get_country_code):
+        mock_http_params.return_value = [
+            [
+              "rar2list",
+              "Pretty XML",
+              "convert/xml2txt",
+              [
+                "text/plain"
+              ],
+              "text/plain",
+              "",
+              ['country_code'],
+              "",
+              "xml"
+            ]
+        ]
+
+        mock_get_country_code.return_value = 'AT'
+        [conv] = self.app.Converters._get_local_converters()
+        from Products.Reportek.Document import Document
+        document = Document('testfile', '', content_type= "application/x-rar-compressed")
+        self.app.Converters._setObject( 'testfile', document)
+
+        with self.app.Converters.testfile.data_file.open('wb') as datafile:
+            datafile.write('test file')
+
+        self.app.Converters.testfile._View_Permission = ('Anonymous', )
+        file_url = '/Converters/testfile'
+        converter_id = conv.id
+        conv(file_url, converter_id)
+        files = mock_requests.mock_calls[0][2]['files']
+        data = mock_requests.mock_calls[0][2]['data']
+        assert files['file']
+        self.assertEqual({'extraparams': ['AT']}, data)

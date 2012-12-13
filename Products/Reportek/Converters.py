@@ -239,6 +239,7 @@ class Converters(Folder):
             source = REQUEST.get('source', source)
             file_url = REQUEST.get('file', file_url)
             converter_id = REQUEST.get('conv', converter_id)
+
         if not self.valid_converter(converter_id, source):
             raise Redirect, file_url
 
@@ -246,6 +247,7 @@ class Converters(Folder):
             for conv in self._get_local_converters():
                 if conv.id == converter_id:
                     return conv(file_url, converter_id)
+
         if source == 'remote':
             conv = Converter.RemoteConverter(converter_id).__of__(self)
             return conv(file_url)

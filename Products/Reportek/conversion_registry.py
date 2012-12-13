@@ -5,7 +5,7 @@ getters_log = logging.getLogger(__name__ + '.extraparams')
 def get_country_code():
     pass
 
-def requested_params(keys):
+def request_params(keys):
     registry_getters = {
         'country_code': get_country_code,
     }
