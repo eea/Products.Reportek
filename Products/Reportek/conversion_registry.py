@@ -2,17 +2,20 @@ import logging
 
 getters_log = logging.getLogger(__name__ + '.extraparams')
 
-def get_country_code():
-    pass
+def get_country_code(envelope):
+    return envelope.getCountryCode()
 
-def request_params(keys):
+def request_params(keys, obj=None):
     registry_getters = {
         'country_code': get_country_code,
     }
     params = []
     for key in keys:
         try:
-            params.append(registry_getters[key]())
+            if obj:
+                params.append(registry_getters[key](obj))
+            else:
+                params.append(registry_getters[key]())
         except KeyError as err:
             getters_log.warning('Getter for {0} not implemented.'.format(key))
             raise NotImplementedError

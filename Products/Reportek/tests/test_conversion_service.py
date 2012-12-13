@@ -253,3 +253,37 @@ class ConversionServiceTest(unittest.TestCase):
         data = mock_requests.mock_calls[0][2]['data']
         assert files['file']
         self.assertEqual({'extraparams': ['AT']}, data)
+
+class ConversionRegistryTest(unittest.TestCase):
+
+    def setUp(self):
+        self.app = create_fake_root()
+        self.app._setObject('Converters', Converters())
+        #self.prefix = 'http_'
+        #from ZPublisher.BaseRequest import RequestContainer
+        #self.app = self.app.__of__(RequestContainer(REQUEST=create_mock_request()))
+
+    @patch.object(Converters, '_http_params')
+    def test_get_country_code(self, mock_http_params):
+        mock_http_params.return_value = [
+            [
+              "rar2list",
+              "Pretty XML",
+              "convert/xml2txt",
+              [
+                "text/plain"
+              ],
+              "text/plain",
+              "",
+              ['country_code'],
+              "",
+              "xml"
+            ]
+        ]
+        [conv] = self.app.Converters._get_local_converters()
+        envelope = Mock()
+        envelope.getCountryCode = Mock(return_value='AT')
+        self.assertEqual(
+                ['AT'],
+                conversion_registry.request_params(['country_code'], obj=envelope)
+        )
