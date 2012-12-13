@@ -2,8 +2,8 @@ import logging
 
 getters_log = logging.getLogger(__name__ + '.extraparams')
 
-def get_country_code(envelope):
-    return envelope.getCountryCode()
+def get_country_code(file_obj):
+    return file_obj.getParentNode().getCountryCode()
 
 def request_params(keys, obj=None):
     registry_getters = {

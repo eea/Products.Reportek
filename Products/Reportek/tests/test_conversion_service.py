@@ -281,9 +281,11 @@ class ConversionRegistryTest(unittest.TestCase):
             ]
         ]
         [conv] = self.app.Converters._get_local_converters()
+        file_obj = Mock()
         envelope = Mock()
         envelope.getCountryCode = Mock(return_value='AT')
+        file_obj.getParentNode = Mock(return_value=envelope)
         self.assertEqual(
                 ['AT'],
-                conversion_registry.request_params(['country_code'], obj=envelope)
+                conversion_registry.request_params(['country_code'], obj=file_obj)
         )

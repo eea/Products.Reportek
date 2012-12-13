@@ -202,7 +202,7 @@ class LocalHttpConverter(Converter):
     def convert(self, file_obj, converter_id):
         url = '%s%s' % (self.get_local_http_converters_url(), self.convert_url)
         from conversion_registry import request_params
-        extra_params = request_params(self.ct_extraparams)
+        extra_params = request_params(self.ct_extraparams, obj=file_obj)
         resp = requests.post(
                    url,
                    files={'file': file_obj.data_file.open()},
