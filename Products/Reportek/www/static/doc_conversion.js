@@ -6,7 +6,7 @@ var _init = function init(event){
     conv_id = trigger_obj.getAttribute('conv_id');
     conv_source = trigger_obj.getAttribute('conv_source');
     conv_file = trigger_obj.getAttribute('conv_file');
-    url_string = './ajax_convert?conv={0}&source={1}&file={2}'.format(
+    url_string = '/Converters/run_conversion?conv={0}&source={1}&file_url={2}&ajax_call=1'.format(
                 conv_id, conv_source, conv_file)
     $.ajax({
         url: url_string,
@@ -37,11 +37,18 @@ var _init = function init(event){
             var result = $("<div id='result'></div>");
             $(result).append(operations_html);
             $('#operations a', result).text('Back to document');
-            if(typeof(data)=='string'){
-                $(result).append("<pre>{0}</pre>".format(data));
+            if(data.mime_type=='text/plain'){
+                $(result).append("<pre>{0}</pre>".format(data.content));
             }
             else{
-                $(result).append(data);
+                if(data.mime_type == 'image/png'){
+                    $(result).append(
+                        "<img src='data:{0};base64,{1}'/>".format(data.mime_type, data.content)
+                    );
+                }
+                else{
+                    $(result).append(data.content);
+                }
             }
             $('pre', result).css({
                 'background-color': 'white',

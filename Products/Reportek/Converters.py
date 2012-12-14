@@ -32,6 +32,8 @@ import xmlrpclib
 import requests
 import string
 import logging
+import base64
+import json
 
 from OFS.Folder import Folder
 from AccessControl import getSecurityManager, ClassSecurityInfo, Unauthorized
@@ -233,7 +235,8 @@ class Converters(Folder):
         return self.run_conversion(REQUEST=REQUEST)
 
     security.declarePublic('run_conversion')
-    def run_conversion(self, file_url='', converter_id='', source='', REQUEST=None):
+    def run_conversion(self, file_url='', converter_id='', source='',
+                       ajax_call=None, REQUEST=None):
         """ """
         if REQUEST:
             source = REQUEST.get('source', source)
@@ -246,11 +249,20 @@ class Converters(Folder):
         if source == 'local':
             for conv in self._get_local_converters():
                 if conv.id == converter_id:
-                    return conv(file_url, converter_id)
+                    data = conv(file_url, converter_id)
+                    if ajax_call:
+                        if 'image' in conv.ct_output:
+                            data = base64.b64encode(conv(file_url, converter_id))
+                        json_data = {'mime_type': conv.ct_output,
+                                    'content': data}
+                        REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+                        return json.dumps(json_data)
+                    return data
 
         if source == 'remote':
             conv = Converter.RemoteConverter(converter_id).__of__(self)
             return conv(file_url)
+
 
 
 Globals.InitializeClass(Converters)

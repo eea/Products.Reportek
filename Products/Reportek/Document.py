@@ -519,11 +519,5 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         strg = strg+ ' ' + typ
         return strg
 
-    def ajax_convert(self, REQUEST):
-        """ """
-        response = self.Converters.run_conversion(REQUEST=REQUEST)
-        return response
-
-
 
 Globals.InitializeClass(Document)
