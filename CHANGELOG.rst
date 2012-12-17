@@ -1,8 +1,16 @@
+3.1.2 (2012-12-17)
+------------------
+* Add creator to the rdf response [dincamih]
+* Add Build_collections (bulk creation of collections) [dincamih]
+* Fix converters with extraparams [dincamih]
+* Fix gml without background converters [dincamih]
+* Bring back convertDocument for external calls compat. [dincamih]
+
 3.1.1 (2012-11-23)
 ------------------
 * Add apps migration deploy script [dincamih]
 * Add UNS settings to ReportekEngine._properties [dincamih]
-* Remove ReportekEngine.__setstate__
+* Remove ReportekEngine.__setstate__ [dincamih]
 
 3.1 (2012-11-21)
 ----------------
