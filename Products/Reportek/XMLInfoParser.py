@@ -60,4 +60,7 @@ def detect_schema(content):
 
 
 def detect_single_schema(content):
-    return detect_schema(content).split()[-1]
+    result = detect_schema(content)
+    if not result:
+        return ''
+    return result.split()[-1]
