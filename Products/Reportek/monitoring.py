@@ -92,3 +92,11 @@ def initialize():
         cube_log.addHandler(sentry_handler)
         remote_conversion_log.addHandler(sentry_handler)
         converter_detection_log.addHandler(sentry_handler)
+
+        from raven.contrib.zope import ZopeSentryHandler
+        zope_sentry_handler = ZopeSentryHandler(sentry_url)
+        publish_error_log.addHandler(zope_sentry_handler)
+        remote_feedback_log.addHandler(zope_sentry_handler)
+        cube_log.addHandler(zope_sentry_handler)
+        remote_conversion_log.addHandler(zope_sentry_handler)
+        converter_detection_log.addHandler(zope_sentry_handler)
