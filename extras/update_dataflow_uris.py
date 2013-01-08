@@ -13,6 +13,13 @@ def validate(obj, validators):
         return True
 
 def filter_objects(root, filter_level=0):
+    """
+    Get all child objects of root that pass validation.
+    filter_level=0 returns child objects with corresp. meta_type
+                   ('Report Collection' or 'Report Envelope')
+    filter_level=1 returns child objects with corresp. meta_type and
+                                              old dataflow_uris format
+    """
     nodes = root.ZopeFind(root, search_sub=0)
     if filter_level<1:
         validators = [validate_meta_type]
@@ -25,3 +32,16 @@ def filter_objects(root, filter_level=0):
             for sub_node in filter_objects(node):
                 if validate(sub_node, validators):
                     yield sub_node
+
+def update_dataflow_uris(root, commit=False):
+    candidates = filter_objects(root, filter_level=1)
+    for obj in candidates:
+        corrected_uris = []
+        for uri in obj.dataflow_uris:
+            corrected_uris.append(uri.replace('rod.eionet.eu.int', 'rod.eionet.europa.eu'))
+        assert(obj._p_changed==False)
+        obj.dataflow_uris = corrected_uris
+        assert(obj._p_changed)
+    if commit:
+        import transaction
+        transaction.commit()
