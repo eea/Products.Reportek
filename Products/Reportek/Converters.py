@@ -221,11 +221,11 @@ class Converters(Folder):
         else:
             return True
 
-    def convertDocument(self, REQUEST=None):
+    def convertDocument(self, file_url='', converter_id='', output_file_name='', REQUEST=None):
         """Proxy to run_conversion for API compatibility."""
-        flag = REQUEST.get('conv')[:3]
-        _id = REQUEST.get('conv')[4:]
-        REQUEST.set('file_url', REQUEST.get('file', ''))
+        flag = REQUEST.get('conv', converter_id)[:3]
+        _id = REQUEST.get('conv', converter_id)[4:]
+        REQUEST.set('file_url', REQUEST.get('file', file_url))
         if flag == 'rem':
             source = 'remote'
         elif flag == 'loc':
