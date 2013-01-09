@@ -278,9 +278,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         the country.
         If a pattern is provided it will be interpreted as a path to where the
         collection should be created.
-            e.g.: in the example above if at is the iso of the country
-                  the following collection will be created:
-                    <root>/at/eea/noise/test_id
+        e.g.: in the example above if **at** is the iso of the country
+        the following collection will be created **<root>/at/eea/noise/test_id**
         """
         messages = {'success': [], 'fail': []}
         if REQUEST.method == 'GET':
