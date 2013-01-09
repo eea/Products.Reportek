@@ -263,8 +263,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security.declareProtected('View', 'Build_collections')
     def Build_collections(self, REQUEST=None, **kwargs):
-        """Bulk creation of collections
-        e.g.: Build_collections(
+        """Bulk creation of collections, e.g.::
+
+            Build_collections(
                   pattern = 'eea/noise',
                   ccountries = ['http://spatial/1'],
                   ctitle='Test collection',
@@ -273,9 +274,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                   REQUEST=self.root.REQUEST
               )
 
-        If pattern is not provided it will create a collection in the root of
+        If a pattern is not provided it will create a collection in the root of
         the country.
-        If pattern is provided it will be interpreted as a path to where the
+        If a pattern is provided it will be interpreted as a path to where the
         collection should be created.
             e.g.: in the example above if at is the iso of the country
                   the following collection will be created:
