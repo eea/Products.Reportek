@@ -82,11 +82,28 @@
 
 <metal:block define-macro="resultsTable">
 
-<a href="nextbatch" tal:define="p batch/previous"
-                    tal:condition="p"
-                    tal:attributes="href string:?query_start=${p/first}">
+<metal:block define-slot="previous_link">
+
+<a href="previousbatch" tal:define="p batch/previous"
+                        tal:condition="p"
+                        tal:attributes="href python:'?query_start=%s&'
+                                                      'xml_schema_location=%s&'
+                                                      'years:int:ignore_empty=%s&'
+                                                      'partofyear=%s&'
+                                                      'country=%s&'
+                                                      'sort_on=%s&'
+                                                      'sort_order=%s' %(
+                                                          p.first,
+                                                          request.get('xml_schema_location'),
+                                                          request.get('years', ''),
+                                                          request.get('partofyear'),
+                                                          request.get('country'),
+                                                          request.get('sort_on'),
+                                                          request.get('sort_order'))">
     (Previous <span tal:replace="p/length">n</span> results)
 </a>
+</metal:block>
+
 
 <table class="sortable">
   <thead>
@@ -105,11 +122,27 @@
   </tbody>
 </table>
 
-<a href="nextbatch" tal:define="n batch/next"
-                    tal:condition="n"
-                    tal:attributes="href string:?query_start=${batch/end}">
-     (Next <span tal:replace="n/length">n</span> results)
-</a>
+<metal:block define-slot="next_link">
+    <a href="nextbatch" tal:define="n batch/next"
+                        tal:condition="n"
+                        tal:attributes="href python:'?query_start=%s&'
+                                                      'xml_schema_location=%s&'
+                                                      'years:int:ignore_empty=%s&'
+                                                      'partofyear=%s&'
+                                                      'country=%s&'
+                                                      'sort_on=%s&'
+                                                      'sort_order=%s' %(
+                                                          batch.end,
+                                                          request.get('xml_schema_location'),
+                                                          request.get('years', ''),
+                                                          request.get('partofyear'),
+                                                          request.get('country'),
+                                                          request.get('sort_on'),
+                                                          request.get('sort_order'))">
+         (Next <span tal:replace="n/length">n</span> results)
+    </a>
+</metal:block>
+
 </metal:block>
 
 
