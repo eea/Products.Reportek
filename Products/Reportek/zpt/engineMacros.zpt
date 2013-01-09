@@ -87,13 +87,15 @@
 <a href="previousbatch" tal:define="p batch/previous"
                         tal:condition="p"
                         tal:attributes="href python:'?query_start=%s&'
-                                                      'xml_schema_location=%s&'
-                                                      'years:int:ignore_empty=%s&'
-                                                      'partofyear=%s&'
-                                                      'country=%s&'
-                                                      'sort_on=%s&'
-                                                      'sort_order=%s' %(
+                                                    'dataflow_uris=%s&'
+                                                    'xml_schema_location=%s&'
+                                                    'years:int:ignore_empty=%s&'
+                                                    'partofyear=%s&'
+                                                    'country=%s&'
+                                                    'sort_on=%s&'
+                                                    'sort_order=%s' %(
                                                           p.first,
+                                                          request.get('dataflow_uris'),
                                                           request.get('xml_schema_location'),
                                                           request.get('years', ''),
                                                           request.get('partofyear'),
@@ -126,13 +128,15 @@
     <a href="nextbatch" tal:define="n batch/next"
                         tal:condition="n"
                         tal:attributes="href python:'?query_start=%s&'
-                                                      'xml_schema_location=%s&'
-                                                      'years:int:ignore_empty=%s&'
-                                                      'partofyear=%s&'
-                                                      'country=%s&'
-                                                      'sort_on=%s&'
-                                                      'sort_order=%s' %(
-                                                          batch.end,
+                                                    'dataflow_uris=%s&'
+                                                    'xml_schema_location=%s&'
+                                                    'years:int:ignore_empty=%s&'
+                                                    'partofyear=%s&'
+                                                    'country=%s&'
+                                                    'sort_on=%s&'
+                                                    'sort_order=%s' %(
+                                                          n.first,
+                                                          request.get('dataflow_uris'),
                                                           request.get('xml_schema_location'),
                                                           request.get('years', ''),
                                                           request.get('partofyear'),
