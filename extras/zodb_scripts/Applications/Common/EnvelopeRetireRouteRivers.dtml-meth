@@ -1,0 +1,50 @@
+<dtml-if "canViewContent and is_active_for_me(REQUEST=REQUEST)">
+    <dtml-var standard_html_header>
+    <dtml-var "envelope_tabs(tab=workitem_id)">
+    <div id="operations">
+    <ul>
+    <dtml-if areRestrictions>
+        <li><a href="<dtml-var absolute_url>/manage_unrestrict?ids=<dtml-var "objectIds('Report Document')">">Public access for all files</a></li>
+    </dtml-if>
+        <li><a href="inactivateWorkitem?workitem_id=&dtml-workitem_id;"
+title="Deactivation keeps the work already
+done, and makes it possible for
+someone else to take over the task">Deactivate task</a></li>
+    </ul>
+    </div>
+	<h1>Re-deliver or finish data upload</h1>
+
+	<p><strong>The envelope has now been released to the public and the task deactivated. You should now either:</strong></p>
+
+	<form action="EnvelopeRetire">
+	<ul>
+		<li>
+			<input class="test_button" type="submit" name="inspectresult" value="Re-deliver"  style="float:right; font-weight: notmal !important;" />
+			<strong>Revoke the release and re-deliver the data</strong><br /><br />
+			<ul>
+				<li>You may wish to re-deliver data taking into account issues identified
+				during validation, as detailed in the results in the Feedback section below.</li>
+				<li>The envelope will be revoked and the data will not be made available to the public.</li>
+				<li>The upload process will be re-started.</li>
+			</ul>
+			<br /><br />
+			
+		</li>
+		<li>
+			<input class="test_button" type="submit" name="inspectresult" value="Finish" style="float:right; font-weight: notmal;" />
+			<strong>Finish the data upload</strong><br /><br />
+			<ul>
+				<li>The envelope and task will be finalised and it will not be possible to revoke this status.</li>
+				<li>Any re-deliveries of data after this point will have to be made within a new envelope.</li>
+			</ul>
+		</li>
+	</ul>
+	<input type="hidden" name="workitem_id" value="<dtml-var workitem_id>"  />
+	</form>
+
+	<dtml-var feedback_section>
+
+	<dtml-var standard_html_footer>
+<dtml-else>
+	<dtml-call "RESPONSE.redirect('%s/overview' %getMySelf().absolute_url())">
+</dtml-if>

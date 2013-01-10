@@ -1,12 +1,13 @@
 <div id="rightcolumn">
 <div id="operations">
 <ul>
-<dtml-if "AUTHENTICATED_USER.has_role('Manager')"><li><a href="/ldap_reporters?country=Albania" title="Country reporters">Country reporters</a></li></dtml-if>
+<dtml-if "AUTHENTICATED_USER.has_role('Manager')"><li><a href="/ReportekEngine/countryreporters?country=Albania" title="Country reporters">Country reporters</a></li></dtml-if>
 <li><a href="/ReportekEngine/globalworklist" title="The envelopes that haven't been released yet">Global worklist</a></li>
 <!-- <li><a href="worklist" title="The envelopes that haven't been released yet">Global worklist</a></li>-->
-<li><a href="searchdataflow">Search by obligation</a></li>
-<li><a href="searchxml">Search XML files</a></li>
-<li><a href="recent" title="Recent uploads for all countries">Recent uploads</a></li>
+<li><a href="/ReportekEngine/searchdataflow">Search by obligation</a></li>
+<li><a href="/ReportekEngine/searchfeedbacks">Search for feedback</a></li>
+<li><a href="/ReportekEngine/searchxml">Search XML files</a></li>
+<li><a href="/ReportekEngine/recent" title="Recent uploads for all countries">Recent uploads</a></li>
 </ul>
 </div>
 <ul class="menu">

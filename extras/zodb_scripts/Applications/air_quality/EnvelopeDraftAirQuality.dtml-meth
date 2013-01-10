@@ -1,0 +1,66 @@
+<dtml-if "canViewContent() and canAddFiles() and not released and is_active_for_me(REQUEST)">
+	<dtml-var standard_html_header>
+	<dtml-var "envelope_tabs(tab=workitem_id)">
+
+<dtml-let menu_url="getWebQ_MenuEnvelope_URL() + '?language=En&amp;envelope=' + getMySelf().absolute_url() + '&amp;schema='"
+	forms="['01','02','07','03','04','05','06','08','09','10','12','11','13','14','15','16','17','18','20','19','22','21','23','24','25','27','26']"
+	schemas="[DataflowMappings['aqq_form' + x] for x in forms]"
+        copy_of_schema=schemas>
+
+	<div id="operations">
+	<ul>
+		<dtml-if canAddFiles>
+			<li><a href="upload_generic_excel_file" title="Upload Excel file for conversion">Add file</a></li>
+			<li><a href="manage_addzipfileform" title="Upload multiple files packed into a zip archive.
+	The zip cannot contain a folder structure.">Upload zipfile</a></li>
+			<li><a href="EnvelopeGISFileUpload" title="Upload shape files">GIS file upload</a></li>
+		</dtml-if>
+		<dtml-in "QARepository.getQAScriptsForSchema('http://rod.eionet.europa.eu/obligations/137')" prefix=script>
+			<li style="margin-top: 1em;"><a href="&dtml-absolute_url;/runQAScript?p_file_url=&dtml-absolute_url;/xml&amp;p_script_id=<dtml-var "script_item">" title="Run envelope level statistics">Run envelope QA</a></li>
+		</dtml-in>
+		<li style="margin-top: 1em;"><a href="inactivateWorkitem?workitem_id=&dtml-workitem_id;"
+title="Deactivation keeps the work already
+done, and makes it possible for
+someone else to take over the task">Deactivate task</a></li>
+		<dtml-if "_.len(objectValues(['Report Document', 'Report Hyperlink']))"><li><a href="completeWorkitem?workitem_id=&dtml-workitem_id;">Complete task</a></li></dtml-if>
+	</ul>
+	</div>
+	<h1>&dtml-title;</h1>
+
+	<div class="upload_data">
+	<p>This dataflow can be delivered with webforms or by uploading an Excel file filled in from the 
+<a href="http://cdr.eionet.europa.eu/emptyinstances/aqq/questionnaire.xls">template</a>. 
+Excel files filled in from this template will be converted into an XML delivery, which will make it easy to assess your delivery. 
+If you want to fill in the webforms, follow the steps below, otherwise upload files using the right side buttons.</p>
+
+		<dtml-if schemas>
+			<ul>
+			<dtml-in schemas prefix=dm>
+				<dtml-if "hasFilesForSchema(dm_item.schema_url)">
+					<li><em>Modify</em> the <a href="<dtml-var menu_url><dtml-var "dm_item.schema_url">&instance_id=form5"><dtml-var "dm_item.title_or_id()"></a> questionnaire</li>
+				<dtml-elif "(dm_index > 1 and hasFilesForSchema(copy_of_schema[dm_index-1].schema_url)) or dm_index <= 1">
+					<li><em>Add an empty report</em> <a href="EnvelopeCreateAQQReportFile?language=en&amp;schema=<dtml-var "dm_item.schema_url">"><dtml-var "dm_item.title_or_id()"></a> and start filling it online with webforms</li>
+				</dtml-if>
+			</dtml-in>
+			</ul>
+		</dtml-if>
+
+	</div>
+
+	<p>You can always interrupt your work and continue your contribution at a later
+	date without losing data as long as the WebForm is saved during and after editing.</p>
+
+	<dtml-if "_.len(objectValues(['Report Document', 'Report Hyperlink']))"><p>Once you are satisfied with the contribution, you choose
+	<a href="completeWorkitem?workitem_id=&dtml-workitem_id;">Complete task</a> and your delivery 
+	will be quality assessed by the system before the envelope is released to the public.
+	</p></dtml-if>
+
+	</dtml-let>
+
+	<dtml-var documents_management_section>
+	<dtml-var feedback_section>
+
+	<dtml-var standard_html_footer>
+<dtml-else>
+	<dtml-call "RESPONSE.redirect('%s/overview' %getMySelf().absolute_url())">
+</dtml-if>

@@ -6,6 +6,9 @@
 	<dtml-if "canAddFeedback()">
 		<li><a href="manage_addFeedbackForm" title="Post feedback for this release">Add feedback</a></li>
 	</dtml-if>
+    <dtml-if areRestrictions>
+        <li><a href="<dtml-var absolute_url>/manage_unrestrict?ids=<dtml-var "objectIds('Report Document')">">Public access for all files</a></li>
+    </dtml-if>
         <li><a href="inactivateWorkitem?workitem_id=&dtml-workitem_id;"
 title="Deactivation keeps the work already
 done, and makes it possible for
@@ -21,11 +24,17 @@ someone else to take over the task">Deactivate task</a></li>
     can't be changed in the future. Reporters will then have to create a new envelope if there are updates.
     </p>
 
+    <p>
+	<strong>Note:</strong> before taken any decision regarding the files, you can also decide to re-run the automatic 
+	quality assessment operation which may take several minutes and then put the envelope in this same activity. Do
+	this by clicking on <em>Run automatic QA again</em>.
+    </p>
+
     <form action="EnvelopeRetire">
 	<input type="hidden" name="workitem_id" value="<dtml-var workitem_id>">
 	<input type="submit" name="inspectresult" value="Back to drafting">
-	<input type="submit" name="inspectresult" value="Accept and complete delivery" />
-
+	<input type="submit" name="inspectresult" value="Accept delivery" />
+	<input type="submit" name="inspectresult" value="Run automatic QA again" />
     </form>
 <dtml-comment>
 	<dtml-var envelope_status>

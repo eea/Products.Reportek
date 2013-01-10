@@ -12,10 +12,12 @@
 </dtml-unless>
 <dtml-var standard_html_header>
 <h2><dtml-var title_or_id> for <dtml-var country_name>, since <dtml-var mindate>
-<dtml-in "Catalog(meta_type='Report Envelope',
+<dtml-in "ReportekEngine.getSearchResults(meta_type='Report Envelope',
           country=REQUEST['country_uri'],
           dataflow_uris=['http://rod.eionet.eu.int/obligations/538'],
-          reportingdate=DateTime(REQUEST['mindate']), reportingdate_usage='range:min')" sort=reportingdate reverse>
+          reportingdate={'query': DateTime(REQUEST['mindate']), 'range': 'min'},
+          sort_on='reportingdate',
+          sort_order='descending')">
    <dtml-if sequence-start>
 (<dtml-var sequence-length>&nbsp;envelope<dtml-if "_['sequence-length'] > 1">s</dtml-if>)</h2>
 <table class="sortable"> 
@@ -37,6 +39,7 @@
       <dtml-call "REQUEST.set('ready','NO')">
       <dtml-call "REQUEST.set('aflag','FAIL')">
       <dtml-call "REQUEST.set('imported','NO')">
+      <dtml-call "REQUEST.set('complete','NO')">
       <dtml-call "REQUEST.set('envid',id)">
           <td><dtml-var reportingdate fmt="%Y-%m-%d %H:%M:%S"></td>
           <td><dtml-var getCountryName></td>
@@ -44,12 +47,12 @@
               <a href="<dtml-var "getpath(data_record_id_)" >" title="Go to envelope"><dtml-if "title == ''">&dtml-id;<dtml-else><dtml-var "title[0:32]"><dtml-if "_.len(title)>32">..</dtml-if></dtml-if></a>
           </td>
           <dtml-with "restrictedTraverse(getpath(data_record_id_))">
-            <dtml-in "objectValues('Workitem')" sort=lastActivityDate,id>
-              <dtml-if "id == 'TechnicallyAccepted'"><dtml-call "REQUEST.set('aflag','PASS')"></dtml-if>
-              <dtml-if "id == 'TechnicallyRejected'"><dtml-call "REQUEST.set('aflag','FAIL')"></dtml-if>
+            <dtml-in "objectValues('Workitem')" sort=lastActivityDate,id prefix="loop">
+              <dtml-if "loop_item.activity_id == 'TechnicallyAccepted'"><dtml-call "REQUEST.set('aflag','PASS')"></dtml-if>
+              <dtml-if "loop_item.activity_id == 'TechnicallyRejected'"><dtml-call "REQUEST.set('aflag','FAIL')"></dtml-if>
            <dtml-if sequence-end>
            <td>
-             <dtml-var activity_id><dtml-if "activity_id == 'End' and aflag == 'PASS'"> (Technically accepted)</dtml-if>
+             <dtml-var activity_id>
              <dtml-call "REQUEST.set('aid',activity_id)">
           </td>
           <td>
@@ -57,10 +60,10 @@
           </td>
          </dtml-if>
        </dtml-in>
-       <dtml-in "objectValues('Report Feedback')" sort=title><dtml-if "title[0:7] == ' READY '"><dtml-call "REQUEST.set('ready','YES')"></dtml-if>
-                                                             <dtml-if "title[0:8] == ' IMPORT '"><dtml-call "REQUEST.set('imported','YES')"></dtml-if>
-                                                             <dtml-if "title == 'EPRTR import - pass'"><dtml-call "REQUEST.set('imported','YES')"></dtml-if>
-                                                             <dtml-if "title == 'EPRTR import - fail'"><dtml-call "REQUEST.set('imported','FAIL')"></dtml-if>
+       <dtml-in "objectValues('Report Feedback')" sort=title><dtml-if "title[0:7] == ' READY '"><dtml-call "REQUEST.set('ready','YES')">
+                                                             <dtml-elif "title[0:8] == ' IMPORT '"><dtml-call "REQUEST.set('complete','YES')">
+                                                             <dtml-elif "title == 'EPRTR import'"><dtml-call "REQUEST.set('imported','YES')">
+                                                             <dtml-elif "title == 'EPRTR import - fail'"><dtml-call "REQUEST.set('imported','FAIL')"></dtml-if>
       </dtml-in>
        </dtml-with>
           <td>
@@ -82,15 +85,19 @@
           <td>
             <dtml-if "aid == 'Draft'">
               Waiting for data release by reporter
+            <dtml-elif "aid == 'End' and aflag == 'PASS'">
+              Workflow completed. Data technically accepted
             <dtml-elif "imported == 'FAIL'">
               <strong>Database import failed</strong>
             <dtml-elif "aid == 'Released' and ready == 'NO'">
               Waiting for technical review by EEA 
             <dtml-elif "ready == 'YES' and imported == 'NO'">
               Waiting for database import
+            <dtml-elif "ready == 'YES' and complete == 'YES'">
+              Waiting to be completed by EEA
+            <dtml-elif "ready == 'YES' and imported == 'YES'">
+              Imported to database. Waiting for final review by EEA
             <dtml-elif "aid == 'End' and imported == 'YES'">
-              Workflow completed. Data technically accepted
-            <dtml-elif "aid == 'End' and aflag == 'PASS'">
               Workflow completed. Data technically accepted
             <dtml-elif "aid == 'End' and aflag == 'FAIL'">
               Workflow completed. Data technically rejected

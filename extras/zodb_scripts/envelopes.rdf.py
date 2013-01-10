@@ -7,7 +7,7 @@
 ##parameters=
 ##title=Extract all envelopes in RDF format
 ##
-from Products.PythonScripts.standard import html_quote
+from Products.PythonScripts.standard import html_quote,url_quote
 request = container.REQUEST
 RESPONSE =  request.RESPONSE
 
@@ -27,7 +27,7 @@ print """<rdf:Description rdf:about="">
 # reportingdate=context.ZopeTime() - 360 - dow, reportingdate_usage='range:min'
 for item in container.Catalog(meta_type='Report Envelope', released=1):
   try:
-    print """<rod:Delivery rdf:about="%s%s"/>""" % (s_url, html_quote(item.getPath()))
+    print """<rod:Delivery rdf:about="%s%s"/>""" % (s_url, html_quote(url_quote(item.getPath())))
   except:
     print """<!-- deleted envelope %s -->""" % item.id;
 

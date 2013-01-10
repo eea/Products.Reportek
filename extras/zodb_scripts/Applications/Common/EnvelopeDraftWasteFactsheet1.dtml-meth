@@ -30,7 +30,7 @@ someone else to take over the task">Deactivate task</a></li>
 				<dtml-if "hasFilesForSchema(dm_item.schema_url)">
 					<li><em>Modify</em> the <a href="<dtml-var menu_url><dtml-var "dm_item.schema_url">"><dtml-var "dm_item.title_or_id()"></a> questionnaire</li>
 				<dtml-else>
-					<li><em>Add an empty report</em> <a href="EnvelopeCreateBarcelonaReportFile?language=en&amp;schema=<dtml-var "dm_item.schema_url">"><dtml-var "dm_item.title_or_id()"></a> and start filling it online with webforms</li>
+					<li><em>Add and edit</em> a <a href="<dtml-var menu_url><dtml-var "dm_item.schema_url">&amp;add=true&amp;file_id=questionnaire_<dtml-var "dm_item.id">.xml"><dtml-var "dm_item.title_or_id()"></a> questionnaire</li>
 				</dtml-if>
 			</dtml-in>
 			</ul>
@@ -43,7 +43,7 @@ someone else to take over the task">Deactivate task</a></li>
 
 	<p>Once you are satisfied with the contribution, you choose
 	<a href="completeWorkitem?workitem_id=&dtml-workitem_id;">Complete task</a> and your delivery 
-	will be quality assessed by the system before the envelope is released to the public.
+	will be forwarded by the system to the next step in the process.
 	</p>
 
 	</dtml-let>

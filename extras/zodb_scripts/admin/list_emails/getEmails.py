@@ -31,13 +31,13 @@ for brain in context.Catalog(meta_type = ['Report Collection'], dataflow_uris='h
 
 ulocal = []
 for user in local_users:
-    user_ob = context.acl_users.getUserById(user)
+    user_ob = context.acl_users.ldapmultiplugin.acl_users.getUserById(user)
     if user_ob:
         ulocal.append('%s <%s>' % (unicode(user_ob.cn, 'latin-1'), user_ob.mail))
 
 uglobal = []
 for user in global_users:
-    user_ob = context.acl_users.getUserById(user)
+    user_ob = context.acl_users.ldapmultiplugin.acl_users.getUserById(user)
     if user_ob:
         uglobal.append('%s <%s>' % (unicode(user_ob.cn, 'latin-1'), user_ob.mail))
 

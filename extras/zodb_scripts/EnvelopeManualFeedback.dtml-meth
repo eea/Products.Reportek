@@ -42,5 +42,5 @@ someone else to take over the task">Deactivate task</a></li>
 
 <dtml-var standard_html_footer>
 <dtml-else>
-    <dtml-call "RESPONSE.redirect('overview')">
+    <dtml-call "RESPONSE.redirect('%s/overview' %getMySelf().absolute_url())">
 </dtml-if>

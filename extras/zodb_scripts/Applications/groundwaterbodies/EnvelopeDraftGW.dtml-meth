@@ -1,0 +1,89 @@
+<dtml-if "canViewContent() and canAddFiles() and not released">
+	<dtml-var standard_html_header>
+	<dtml-var "envelope_tabs(tab=workitem_id)">
+	<dtml-let hasGWFiles="hasSpecificFile('http://dd.eionet.europa.eu/GetSchema?id=TBL3400')"
+			hasSWFiles="hasSpecificFile('http://dd.eionet.europa.eu/GetSchema?id=TBL3405')">
+
+	<div id="operations">
+	<ul>
+		<li><a href="completeWorkitem?workitem_id=&dtml-workitem_id;">Complete task</a></li>
+		<li><a href="inactivateWorkitem?workitem_id=&dtml-workitem_id;"
+title="Deactivation keeps the work already
+done, and makes it possible for
+someone else to take over the task">Deactivate task</a></li>
+		</ul>
+	</div>
+
+<h1>&dtml-document_title;</h1>
+<h2>1. GW-body description</h2>
+<p>
+	<strong>a) Fetch last deliveries:</strong>
+	Continue last year's groundwater body description and Saltwater Intrusion information by
+	<dtml-if "hasGWFiles or hasSWFiles">
+	fetching last delivery.
+	<dtml-else>
+	the command <a href="<dtml-var absolute_url>/fetchXMLFileGW"
+	 title="fetch last year's delivery for update">Fetch last delivery</a>.
+	</dtml-if>
+	If your country delivered data before, two documents will produced that contain your
+	country's data as it is stored in Waterbase. If not, add these documents using the Web forms.
+</p>
+
+<p>
+	<strong>b) Edit GW-body description:</strong>
+	<dtml-if hasGWFiles>
+		edit the GW-body description document 
+		<a href="<dtml-var getWebQ_MenuEnvelope_URL>?language=En&amp;envelope=<dtml-var "getMySelf().absolute_url()">&amp;schema=http://dd.eionet.europa.eu/GetSchema?id=TBL3400">with Webform</a>.
+	<dtml-else>
+		add and edit the GW-body description document 
+		<a href="<dtml-var getWebQ_MenuEnvelope_URL>?language=En&amp;envelope=<dtml-var "getMySelf().absolute_url()">&amp;schema=http://dd.eionet.europa.eu/GetSchema?id=TBL3400&amp;add=true&amp;file_id=<dtml-var "getCountryCode().upper()">_bodies.xml">with Webform</a> (for first-time delivery only).
+	</dtml-if>
+	You can interrupt your work and continue your contribution without losing data as
+	the WebForm can be saved during and after editing.
+</p>
+
+<p>
+	<strong>c) GW-body GIS data:</strong>
+	Upload all GIS files relating to the GW-bodies: .shp, .shx, .prj, .dbf and a metainfo file .xml
+	using the <a href="<dtml-var absolute_url>/EnvelopeGISFileUpload">GIS file upload</a>.
+</p>
+
+<h2>2. Saltwater Intrusion</h2>
+<dl>
+<dt>a) Yes or No:</dt>
+<dd>Is Saltwater Intrusion evident in your country?</dd>
+<dt>b) If yes, edit Saltwater Intrusion:</dt>
+<dd>If yes,
+<dtml-let menu_url="getWebQ_MenuEnvelope_URL() + '?language=En&amp;envelope=' + getMySelf().absolute_url() + '&amp;schema='">
+	<dtml-if "hasSpecificFile('http://dd.eionet.europa.eu/GetSchema?id=TBL3405')">
+modify the <a href="<dtml-var menu_url>http://dd.eionet.europa.eu/GetSchema?id=TBL3405"><em>Saltwater Intrusion</em></a>
+	<dtml-else>
+add <a href="<dtml-var menu_url>http://dd.eionet.europa.eu/GetSchema?id=TBL3405&amp;add=true&amp;file_id=<dtml-var "getCountryCode().upper()">_saltwaterintrusion.xml"><em>Saltwater Intrusion</em></a>
+	</dtml-if>
+</dtml-let>
+ document with web-form.</dd>
+<dt>c) If yes, provide Saltwater Intrusion GIS data:</dt>
+<dd>Upload all GIS files relating to Saltwater Intrusion: .shp, .shx, .prj, .dbf and a metainfo file .xml using the <a href="<dtml-var absolute_url>/EnvelopeGISFileUpload">GIS file upload</a>.</dd>
+</dl>
+<h2>3. GW-quality data and other files upload</h2>
+<p>
+Upload the remaining Eionet-Water Groundwater quality data and other files using
+<a href="manage_addDocumentForm" title="Upload single file">file upload</a>.
+</p>
+
+<h2>4. Complete task</h2>
+<p>
+Once satisfied with the contribution,
+<a href="completeWorkitem?workitem_id=&dtml-workitem_id;">Complete task</a>.
+Your delivery will be released to the public and then automatically validated by the system.
+</p>
+    </dtml-let>
+
+
+    <dtml-var documents_management_section>
+    <dtml-var feedback_section>
+
+    <dtml-var standard_html_footer>
+<dtml-else>
+    <dtml-call "RESPONSE.redirect('%s/overview' %getMySelf().absolute_url())">
+</dtml-if>
