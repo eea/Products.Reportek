@@ -1,3 +1,7 @@
+unreleased
+----------
+* Session-based mechanism to set and display system messages [moregale]
+
 3.1.2 (2012-12-17)
 ------------------
 * Add creator to the rdf response [dincamih]

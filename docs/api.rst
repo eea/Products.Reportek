@@ -73,3 +73,5 @@ All other modules
 .. automodule:: Products.Reportek.zip_content
    :members:
 
+.. automodule:: Products.Reportek.messages
+   :members:
