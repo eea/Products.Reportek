@@ -17,6 +17,11 @@
                    class=".paginator.PaginationView"
                    permission="zope2.View" />
 
+   <browser:view for="zope.interface.Interface"
+                 name="reportek_messages"
+                 class=".messages.MessagesView"
+                 permission="zope2.View" />
+
    <browser:resourceDirectory
        name="static"
        directory="www/static" />
