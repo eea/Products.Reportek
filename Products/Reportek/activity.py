@@ -20,14 +20,6 @@
 # Miruna Badescu, Finsiel Romania
 
 
-"""
-Activity class
-==============
-
-This class is part of the workflow system
-
-"""
-
 #Zope imports
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass, DTMLFile

@@ -18,11 +18,6 @@
 # Contributor(s):
 # Cornel Nitu, Eau de Web
 
-"""
-Feedback Comment module
-=======================
-
-"""
 
 # $Id$
 
