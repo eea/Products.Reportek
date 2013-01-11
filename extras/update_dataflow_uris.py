@@ -1,5 +1,19 @@
 import transaction
+import logging
 from ZODB.PersistentList import PersistentList
+
+logging.basicConfig(level=logging.DEBUG,
+                    format='%(asctime)-15s '
+                           '%(message)s'
+                   )
+changes_log = logging.getLogger(__name__ + '.logger')
+changes_log.setLevel(logging.DEBUG)
+fh = logging.FileHandler('dataflow_uris_changes.log')
+fh.setLevel(logging.INFO)
+ch = logging.StreamHandler()
+ch.setLevel(logging.DEBUG)
+changes_log.addHandler(fh)
+changes_log.addHandler(ch)
 
 def bad_uri(obj):
     if validate_meta_type(obj):
@@ -40,16 +54,24 @@ def filter_objects(root, filter_level=0):
 def update_dataflow_uris(root, commit=False):
     candidates = filter_objects(root, filter_level=0)
     counter = 0
+    changes_log.info('DATAFLOW URIS UPDATES')
     for obj in candidates:
         corrected_uris = PersistentList()
         for uri in obj.dataflow_uris:
             corrected_uris.append(uri.replace('rod.eionet.eu.int', 'rod.eionet.europa.eu'))
         assert(obj._p_changed==False)
+        dataflow_uris = obj.dataflow_uris
         obj.dataflow_uris = corrected_uris
         assert(obj._p_changed)
         assert(type(obj.dataflow_uris) == type(PersistentList()))
+        changes_log.info('{type}: {url} changed. dataflow_uris: {dataflow_uris} -> {corrected_uris}'.format(
+                               **{'type': obj.meta_type,
+                                  'url': obj.absolute_url(),
+                                  'dataflow_uris': dataflow_uris,
+                                  'corrected_uris': corrected_uris}))
         counter+=1
         if counter % 1000 == 0:
             transaction.savepoint()
     if commit:
         transaction.commit()
+        changes_log.info('ALL CHANGES COMMITED TO ZODB!')
