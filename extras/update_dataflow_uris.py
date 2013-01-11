@@ -64,7 +64,9 @@ def update_dataflow_uris(root, commit=False):
         obj.dataflow_uris = corrected_uris
         assert(obj._p_changed)
         assert(type(obj.dataflow_uris) == type(PersistentList()))
-        changes_log.info('{type}: {url} changed. dataflow_uris: {dataflow_uris} -> {corrected_uris}'.format(
+        changes_log.info('{type:18}: {url}\n'
+                         'before     : {dataflow_uris}\n'
+                         'after      : {corrected_uris}\n'.format(
                                **{'type': obj.meta_type,
                                   'url': obj.absolute_url(),
                                   'dataflow_uris': dataflow_uris,
