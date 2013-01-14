@@ -10,6 +10,21 @@
 <script src="++resource++static/spin.min.js"></script>
 <script type="text/javascript" charset="utf-8">
     $(document).ready(function() {
+            $('.note-msg #collapse_button').bind('click',
+                function(){
+                    target=$('.note-msg #collapsible')
+                    if($(target).attr('collapsed')=='false'){
+                        $('.note-msg #collapsible').slideUp();
+                        $(target).attr('collapsed', 'true');
+                        $('.note-msg #collapse_button').html('show');
+                    }
+                    else{
+                        $('.note-msg #collapsible').slideDown();
+                        $(target).attr('collapsed', 'false');
+                        $('.note-msg #collapse_button').html('hide');
+                    }
+                }
+            );
             $('.dataTable').dataTable({
                 "bScrollInfinite": true,
                 "bScrollCollapse": true,
@@ -56,7 +71,9 @@
 </script>
 
 <div class='note-msg'>
-<strong>Converters available in this system.</strong>
+    <strong>Converters available in this system.</strong>
+    [<a href="#" style="font-weight: normal;" id="collapse_button">hide</a>]
+<span id='collapsible' collapsed="false">
     <p class="form-help">
         Converters can come from two sources, but their source is not apparent to the end users using them:
 
@@ -175,6 +192,7 @@ Data Repository receives and displays the response to the client
         </li>
         </ol>
     </p>
+</span>
 </div>
 
 <dtml-let include_remote="True if REQUEST.get('include_remote','').lower() in ['true', 'yes', '1'] else False"
