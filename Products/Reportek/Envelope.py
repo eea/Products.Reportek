@@ -806,7 +806,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         tmpfile = tempfile.NamedTemporaryFile(suffix='.temp', dir=zip_cache)
 
         try:
-            outzd = ZipFile(tmpfile, "w")
+            outzd = ZipFile(tmpfile, "w", allowZip64=True)
 
             for doc in public_docs:
                 outzd.writestr(doc.getId(), doc.data_file.open().read())
