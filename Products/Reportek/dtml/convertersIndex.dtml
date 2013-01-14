@@ -79,7 +79,8 @@
 <div class='note-msg'>
     <strong>Converters available in this system.</strong>
     [<a href="#" style="font-weight: normal;" id="collapse_button">hide</a>]
-<span id='collapsible' collapsed="false">
+<div id='collapsible' collapsed="false" style="overflow-y: scroll; height:
+    400px; margin-top: 10px;">
     <p class="form-help">
         Converters can come from two sources, but their source is not apparent to the end users using them:
 
@@ -198,7 +199,7 @@ Data Repository receives and displays the response to the client
         </li>
         </ol>
     </p>
-</span>
+</div>
 </div>
 
 <dtml-let include_remote="True if REQUEST.get('include_remote','').lower() in ['true', 'yes', '1'] else False"
