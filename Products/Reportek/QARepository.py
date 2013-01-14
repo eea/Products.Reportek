@@ -140,6 +140,7 @@ class QARepository(Folder):
             l_valid_schemas = self.getDataflowMappingsContainer().getXMLSchemasForDataflows(l_file.dataflow_uris)
             # go on only if it's an XML file with a non-empty valid schema or if no valid schemas
             # are defined for those dataflows
+            #NOTE due to updated dataflow_uris, l_valid_schemas is always None
             if l_file.xml_schema_location and (l_file.xml_schema_location in l_valid_schemas or not l_valid_schemas):
                 #local scripts
                 l_buff = [['loc_%s' % y.id, y.title, y.bobobase_modification_time()] for y in self._get_local_qa_scripts(l_file.xml_schema_location)]
