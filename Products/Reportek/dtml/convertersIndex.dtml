@@ -62,6 +62,8 @@
                     },
                     success: function(data){
                         $('#remote').replaceWith(data);
+                        $('#remote_dataTable').css('font-size', '14px');
+                        $('#remote_dataTable').css('margin', '0px');
                         $('#remote_dataTable').dataTable({
                             "bScrollInfinite": true,
                             "bScrollCollapse": true,
@@ -204,7 +206,8 @@ Data Repository receives and displays the response to the client
 
 <h2>Local converters</h2>
 
-<table border="1" cellpadding="2" cellspacing="0" class="dataTable" style="margin: 0px">
+<table border="1" cellpadding="2" cellspacing="0" class="dataTable"
+    style="margin: 0px; font-size: 14px;">
 <thead>
 <tr>
 	<th>Name</th>
@@ -226,7 +229,7 @@ Data Repository receives and displays the response to the client
 
 <div id="remote">
 <dtml-if "include_remote==True">
-<table border="1" cellpadding="2" cellspacing="0" class="dataTable" id="remote_dataTable" style="margin: 0px">
+<table border="1" cellpadding="2" cellspacing="0" class="dataTable" id="remote_dataTable">
 <thead>
 <tr>
 	<th>Name</th>
