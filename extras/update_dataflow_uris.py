@@ -17,12 +17,14 @@ changes_log.addHandler(ch)
 
 def bad_uri(obj):
     if validate_meta_type(obj):
-        for uri in obj.dataflow_uris:
-            if 'eu.int' in uri:
+        for uri in getattr(obj, 'dataflow_uris', []):
+            if '.eu.int' in uri:
                 return True
+        if '.eu.int' in getattr(obj, 'dataflow_uri', ''):
+            return True
 
 def validate_meta_type(obj):
-    if obj.meta_type in ['Report Collection', 'Report Envelope']:
+    if obj.meta_type in ['Report Collection', 'Report Envelope', 'Reportek Dataflow Mapping Record']:
         return True
 
 def validate(obj, validators):
@@ -33,20 +35,20 @@ def filter_objects(root, filter_level=0):
     """
     Get all child objects of root that pass validation.
     filter_level=0 returns child objects with corresp. meta_type
-                   ('Report Collection' or 'Report Envelope')
+                   ('Report Collection' or 'Report Envelope' or 'Reportek
+                   Dataflow Mapping Record')
     filter_level=1 returns child objects with corresp. meta_type and
                                               old dataflow_uris format
     """
-    nodes = root.ZopeFind(root, search_sub=0)
+    nodes = root.objectValues()
     if filter_level<1:
         validators = [validate_meta_type]
     else:
         validators = [validate_meta_type, bad_uri]
-    for node_id, node in nodes:
+    for node in nodes:
         if validate(node, validators):
             yield node
-        if (getattr(node, 'allow_collections', None) or
-            getattr(node, 'allow_envelopes', None)):
+        if node.meta_type in ['Report Collection', 'Reportek Dataflow Mappings']:
             for sub_node in filter_objects(node, filter_level):
                 if validate(sub_node, validators):
                     yield sub_node
