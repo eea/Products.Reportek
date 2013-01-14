@@ -10,18 +10,22 @@
 <script src="++resource++static/spin.min.js"></script>
 <script type="text/javascript" charset="utf-8">
     $(document).ready(function() {
-            $('.note-msg #collapse_button').bind('click',
+            var collapsed_text = 'show';
+            var expanded_text = 'hide';
+            var collapsible=$('.note-msg #collapsible')
+            var button=$('.note-msg #collapse_button')
+            $(button).html(expanded_text);
+            $(button).bind('click',
                 function(){
-                    target=$('.note-msg #collapsible')
-                    if($(target).attr('collapsed')=='false'){
-                        $('.note-msg #collapsible').slideUp();
-                        $(target).attr('collapsed', 'true');
-                        $('.note-msg #collapse_button').html('show');
+                    if($(collapsible).attr('collapsed')=='false'){
+                        $(collapsible).slideUp();
+                        $(collapsible).attr('collapsed', 'true');
+                        $(button).html(collapsed_text);
                     }
                     else{
-                        $('.note-msg #collapsible').slideDown();
-                        $(target).attr('collapsed', 'false');
-                        $('.note-msg #collapse_button').html('hide');
+                        $(collapsible).slideDown();
+                        $(collapsible).attr('collapsed', 'false');
+                        $(button).html(expanded_text);
                     }
                 }
             );
@@ -243,7 +247,7 @@ Data Repository receives and displays the response to the client
 </div>
 <dtml-else>
 <div id="spinner">
-    Click <a id="ajax_conv" href="./?include_remote=True">here</a> to view remote converters.
+    <a id="ajax_conv" href="./?include_remote=True">Show remote converters</a>
 </div>
 </dtml-if>
 
