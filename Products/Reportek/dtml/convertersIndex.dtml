@@ -216,7 +216,7 @@ Data Repository receives and displays the response to the client
 <dtml-in "convs[0]" prefix=conv>
 <tr>
 	<td><dtml-var "conv_item.title_or_id()"></td>
-	<td><dtml-var "conv_item.ct_input"></td>
+	<td><dtml-var "', '.join(conv_item.ct_input)"></td>
 	<td><dtml-var "conv_item.ct_output"></td>
 </tr>
 </dtml-in>
