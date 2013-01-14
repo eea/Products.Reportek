@@ -62,7 +62,7 @@ class Converter(SimpleItem):
         SimpleItem.manage_options
     )
 
-    def __init__(self, id, title, convert_url, ct_input, ct_output, ct_schema, ct_extraparams, description, suffix):
+    def __init__(self, id, title, convert_url, ct_input, ct_output, ct_schema, ct_extraparams, description, suffix=''):
         """ """
         self.id = id
         self.title = title
