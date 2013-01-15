@@ -26,13 +26,14 @@ $Id$"""
 
 __version__='$Revision$'[11:-2]
 
-from cStringIO import StringIO
 import lxml.etree
 
 
 def detect_schema(src):
     try:
-        doc = lxml.etree.parse(src)
+        iterparser = lxml.etree.iterparse(src)
+        event, element = next(iterparser)
+        doc = element.getroottree()
     except lxml.etree.XMLSyntaxError:
         return ''
 
