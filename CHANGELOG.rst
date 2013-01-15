@@ -1,6 +1,7 @@
 unreleased
 ----------
 * Session-based mechanism to set and display system messages [moregale]
+* Fix handling of large files (XML sniffing, zip download) [moregale]
 
 3.1.2 (2012-12-17)
 ------------------
