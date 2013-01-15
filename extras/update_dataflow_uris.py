@@ -8,7 +8,7 @@ logging.basicConfig(level=logging.DEBUG,
                    )
 changes_log = logging.getLogger(__name__ + '.logger')
 changes_log.setLevel(logging.DEBUG)
-fh = logging.FileHandler('dataflow_uris_changes.log')
+fh = logging.FileHandler('dataflow_uris_changes.log', mode='w')
 fh.setLevel(logging.INFO)
 ch = logging.StreamHandler()
 ch.setLevel(logging.DEBUG)
@@ -24,7 +24,10 @@ def bad_uri(obj):
             return True
 
 def validate_meta_type(obj):
-    if obj.meta_type in ['Report Collection', 'Report Envelope', 'Reportek Dataflow Mapping Record']:
+    if obj.meta_type in ['Report Collection',
+                         'Report Envelope',
+                         'Reportek Dataflow Mapping Record',
+                         'Repository Referral']:
         return True
 
 def validate(obj, validators):
@@ -58,21 +61,27 @@ def update_dataflow_uris(root, commit=False):
     counter = 0
     changes_log.info('DATAFLOW URIS UPDATES')
     for obj in candidates:
+        dataflow_uris = getattr(obj, 'dataflow_uris', None)
+        dataflow_uri = ''
         corrected_uris = PersistentList()
-        for uri in obj.dataflow_uris:
-            corrected_uris.append(uri.replace('rod.eionet.eu.int', 'rod.eionet.europa.eu'))
+        corrected_uri = ''
         assert(obj._p_changed==False)
-        dataflow_uris = obj.dataflow_uris
+        for uri in getattr(obj, 'dataflow_uris', []):
+            corrected_uris.append(uri.replace('rod.eionet.eu.int', 'rod.eionet.europa.eu'))
+        if getattr(obj, 'dataflow_uri', None):
+            dataflow_uri = obj.dataflow_uri
+            corrected_uri = dataflow_uri.replace('rod.eionet.eu.int', 'rod.eionet.europa.eu')
+            obj.dataflow_uri = corrected_uri
         obj.dataflow_uris = corrected_uris
         assert(obj._p_changed)
         assert(type(obj.dataflow_uris) == type(PersistentList()))
         changes_log.info('{type:18}: {url}\n'
-                         'before     : {dataflow_uris}\n'
-                         'after      : {corrected_uris}\n'.format(
+                         'before     : {before}\n'
+                         'after      : {after}\n'.format(
                                **{'type': obj.meta_type,
                                   'url': obj.absolute_url(),
-                                  'dataflow_uris': dataflow_uris,
-                                  'corrected_uris': corrected_uris}))
+                                  'before': dataflow_uris or dataflow_uri,
+                                  'after': corrected_uris or corrected_uri}))
         counter+=1
         if counter % 1000 == 0:
             transaction.savepoint()
