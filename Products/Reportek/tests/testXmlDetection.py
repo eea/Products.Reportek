@@ -1,4 +1,5 @@
 import unittest
+from StringIO import StringIO
 
 
 def setUpModule():
@@ -16,7 +17,7 @@ class XmlDetectionTest(unittest.TestCase):
         xml:lang="de"
         xsi:noNamespaceSchemaLocation="http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd">
          </report>'''
-        schema_location = detect_schema(content)
+        schema_location = detect_schema(StringIO(content))
         self.assertEqual(schema_location, 'http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd')
 
     def test_create_xml_document2(self):
@@ -28,7 +29,7 @@ class XmlDetectionTest(unittest.TestCase):
         xml:lang="de"
         NS0:noNamespaceSchemaLocation="http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd">
          </report>'''
-        schema_location = detect_schema(content)
+        schema_location = detect_schema(StringIO(content))
         self.assertEqual(schema_location, 'http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd')
 
     def test_create_xml_document_single_schema(self):
@@ -37,7 +38,7 @@ class XmlDetectionTest(unittest.TestCase):
         <report xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://schema.eu/schema.xsd">
          </report>'''
-        schema_location = detect_schema(content)
+        schema_location = detect_schema(StringIO(content))
         self.assertEqual(schema_location, 'http://schema.eu/schema.xsd')
 
     def test_create_xml_document_ns1(self):
@@ -48,7 +49,7 @@ class XmlDetectionTest(unittest.TestCase):
         <NS1:report xmlns:NS0="http://www.w3.org/2001/XMLSchema-instance" xmlns:NS1="http://ns.org/namespace1"
         NS0:schemaLocation="http://ns.org/namespace1 http://schema.eu/schema.xsd">
          </NS1:report>'''
-        schema_location = detect_schema(content)
+        schema_location = detect_schema(StringIO(content))
         self.assertEqual(schema_location, 'http://schema.eu/schema.xsd')
 
     def test_create_xml_document_ns2(self):
@@ -60,7 +61,7 @@ class XmlDetectionTest(unittest.TestCase):
         <NS1:report xmlns:NS0="http://www.w3.org/2001/WRONG-XMLSchema-instance" xmlns:NS1="http://ns.org/namespace1"
         NS0:schemaLocation="http://ns.org/namespace1 http://schema.eu/schema.xsd">
          </NS1:report>'''
-        schema_location = detect_schema(content)
+        schema_location = detect_schema(StringIO(content))
         self.assertEqual(schema_location, '')
 
     def test_create_xml_document_wrong_ns(self):
@@ -72,7 +73,7 @@ class XmlDetectionTest(unittest.TestCase):
         xml:lang="de"
         xsi:noNamespaceSchemaLocation="http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd">
          </report>'''
-        schema_location = detect_schema(content)
+        schema_location = detect_schema(StringIO(content))
         self.assertEqual(schema_location, '')
 
     def test_bad_xml_document(self):
@@ -82,7 +83,7 @@ class XmlDetectionTest(unittest.TestCase):
         content = '''<?xml version="1.0" encoding="UTF-8"?>
         <report attribute="unclosed
         </report>'''
-        schema_location = detect_schema(content)
+        schema_location = detect_schema(StringIO(content))
         self.assertEqual(schema_location, '')
 
     def test_gml_document(self):
@@ -97,7 +98,7 @@ class XmlDetectionTest(unittest.TestCase):
     xmlns:met="http://biodiversity.eionet.europa.eu/schemas/dir9243eec">
     </gml:FeatureCollection>'''
 
-        schema_location = detect_schema(content)
+        schema_location = detect_schema(StringIO(content))
         self.assertEqual(schema_location, 'http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd')
 
     def test_create_dd_document(self):
@@ -140,7 +141,7 @@ class XmlDetectionTest(unittest.TestCase):
     </dd207:Row>
     </dd207:Station>
     '''
-        schema_location = detect_schema(content)
+        schema_location = detect_schema(StringIO(content))
         self.assertEqual(schema_location, 'http://dd.eionet.europa.eu/GetSchema?id=TBL1927')
 
     def test_dual_schema_document(self):
@@ -156,14 +157,14 @@ class XmlDetectionTest(unittest.TestCase):
       http://dd.eionet.europa.eu/namespace.jsp?ns_id=208 http://dd.eionet.europa.eu/GetSchema?id=TBL2000">
     </dd207:Station>
     '''
-        schema_location = detect_schema(content)
+        schema_location = detect_schema(StringIO(content))
         self.assertEqual(schema_location, 'http://dd.eionet.europa.eu/GetSchema?id=TBL1927 http://dd.eionet.europa.eu/GetSchema?id=TBL2000')
 
     def test_dtd_public_id(self):
         content = ('<!DOCTYPE zz PUBLIC "-//some//public//doctype" '
                    '"http://example.com/my.dtd">\r\n'
                    '<r></r>')
-        schema_location = detect_schema(content)
+        schema_location = detect_schema(StringIO(content))
         self.assertEqual(schema_location, 'http://example.com/my.dtd')
 
 
@@ -173,14 +174,14 @@ class XmlSingleSchemaDetectionTest(unittest.TestCase):
         content = ('<r xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'
                    'xsi:noNamespaceSchemaLocation="http://a.eu/schema1">\n'
                    '</r>')
-        schema_location = detect_single_schema(content)
+        schema_location = detect_single_schema(StringIO(content))
         self.assertEqual(schema_location, 'http://a.eu/schema1')
 
     def test_single_schema(self):
         content = ('<r xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'
                    'xsi:schemaLocation="http://a.eu/ns1 http://a.eu/schema1">\n'
                    '</r>')
-        schema_location = detect_single_schema(content)
+        schema_location = detect_single_schema(StringIO(content))
         self.assertEqual(schema_location, 'http://a.eu/schema1')
 
     def test_multiple_schemas(self):
@@ -188,5 +189,5 @@ class XmlSingleSchemaDetectionTest(unittest.TestCase):
                    'xsi:schemaLocation="http://a.eu/ns1 http://a.eu/schema1\n'
                    '                    http://a.eu/ns2 http://a.eu/schema2">\n'
                    '</r>')
-        schema_location = detect_single_schema(content)
+        schema_location = detect_single_schema(StringIO(content))
         self.assertEqual(schema_location, 'http://a.eu/schema2')

@@ -30,9 +30,9 @@ from cStringIO import StringIO
 import lxml.etree
 
 
-def detect_schema(content):
+def detect_schema(src):
     try:
-        doc = lxml.etree.parse(StringIO(content))
+        doc = lxml.etree.parse(src)
     except lxml.etree.XMLSyntaxError:
         return ''
 
@@ -59,8 +59,8 @@ def detect_schema(content):
     return ''
 
 
-def detect_single_schema(content):
-    result = detect_schema(content)
+def detect_single_schema(src):
+    result = detect_schema(src)
     if not result:
         return ''
     return result.split()[-1]

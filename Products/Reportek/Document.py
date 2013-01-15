@@ -435,12 +435,12 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
                             message="The properties of %s have been changed!" % self.id,
                             action=REQUEST['HTTP_REFERER'])
 
-    def _setFileSchema(self, p_content):
+    def _setFileSchema(self, src):
         """ If it is an XML file, then extract structure information.
             The structure is the XML schema or the DTD.
         """
         if self.content_type == 'text/xml':
-            self.xml_schema_location = detect_schema(p_content)
+            self.xml_schema_location = detect_schema(src)
         else:
             self.xml_schema_location = ''
 
@@ -449,23 +449,23 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
     def manage_file_upload(self, file='', content_type='', REQUEST=None):
         """ Upload file from local directory """
+
         if hasattr(file, 'filename'):
             with self.data_file.open('wb') as data_file_handle:
                 for chunk in RepUtils.iter_file_data(file):
                     data_file_handle.write(chunk)
-            try: file.seek(0)
-            except: pass
-            content = file.read()
-            self.content_type = self._get_content_type(file, content[:100],
-                                self.id, content_type or self.content_type)
-            self._setFileSchema(content)
+
         else:
             with self.data_file.open('wb') as data_file_handle:
                 data_file_handle.write(file)
-            self.content_type = self._get_content_type(file, file[:100],
-                                self.id, content_type or self.content_type)
-            #self.content_type = content_type
-            self._setFileSchema(file)
+
+        with self.data_file.open('rb') as data_file_handle:
+            self.content_type = self._get_content_type(
+                    data_file_handle, data_file_handle.read(100),
+                    self.id, content_type or self.content_type)
+            data_file_handle.seek(0)
+            self._setFileSchema(data_file_handle)
+
         self.accept_time = None
         self.logUpload()
         # update ZCatalog

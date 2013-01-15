@@ -411,12 +411,13 @@ class EnvelopeCustomDataflows:
             else:
                 return -1
         #guess content type
-        content = file.read()
+        first_1k = file.read(1024)
         file.seek(0)
-        content_type, enc = guess_content_type(file.filename, content)
+        content_type, enc = guess_content_type(file.filename, first_1k)
         if content_type == 'text/xml':
             #verify the XML schema
-            schema = detect_single_schema(content)
+            schema = detect_single_schema(file)
+            file.seek(0)
             if (not required_schema and schema.startswith('http://dd.eionet.europa.eu/GetSchema?id=')) or schema in RepUtils.utConvertToList(required_schema):
                 #delete all the XML files from this envelope which containt this schema
                 xmls = self._get_xml_files_by_schema(schema)
