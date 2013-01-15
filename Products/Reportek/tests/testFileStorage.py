@@ -273,7 +273,7 @@ def download_envelope_zip(envelope):
             envelope_get_security.return_value = Mock(return_value=checkPermission)
             zip_get_security.return_value = Mock(return_value=checkPermission)
             REQUEST = envelope.REQUEST
-            envelope.envelope_zip(REQUEST, REQUEST.RESPONSE)
+            return envelope.envelope_zip(REQUEST, REQUEST.RESPONSE)
 
 
 class ZipDownloadTest(unittest.TestCase):
@@ -296,10 +296,8 @@ class ZipDownloadTest(unittest.TestCase):
 
     def download_zip(self, envelope):
         envelope.REQUEST = self.mock_request()
-        download_envelope_zip(envelope)
-        data = envelope.REQUEST.RESPONSE._data
-        data.seek(0)
-        return zipfile.ZipFile(data)
+        rv = download_envelope_zip(envelope)
+        return zipfile.ZipFile(rv)
 
     def test_one_document(self):
         data = 'hello world, file for test!'

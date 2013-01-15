@@ -40,6 +40,7 @@ from AccessControl import getSecurityManager, ClassSecurityInfo, Unauthorized
 from zExceptions import Forbidden
 from DateTime import DateTime
 from DateTime.interfaces import SyntaxError
+from ZPublisher.Iterators import filestream_iterator
 import urllib
 import xmlrpclib
 import operator
@@ -799,9 +800,8 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
 
         if cached_zip_path.isfile():
             with cached_zip_path.open('rb') as data_file:
-                write_to_response(RESPONSE, data_file,
-                                  response_zip_name, 'application/x-zip')
-            return
+                return stream_response(RESPONSE, data_file,
+                                       response_zip_name, 'application/x-zip')
 
         tmpfile = tempfile.NamedTemporaryFile(suffix='.temp', dir=zip_cache)
 
@@ -838,8 +838,8 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                 os.link(tmpfile.name, cached_zip_path)
 
             tmpfile.seek(0)
-            write_to_response(RESPONSE, tmpfile,
-                              response_zip_name, 'application/x-zip')
+            return stream_response(RESPONSE, tmpfile,
+                                   response_zip_name, 'application/x-zip')
 
         finally:
             tmpfile.close()
@@ -1089,10 +1089,10 @@ def copy_file_data(in_file, out_file):
         out_file.write(chunk)
 
 
-def write_to_response(response, data_file, attach_name, content_type):
+def stream_response(response, data_file, attach_name, content_type):
     stat = os.fstat(data_file.fileno())
     response.setHeader('Content-Type', content_type)
     response.setHeader('Content-Disposition',
                        'attachment; filename="%s"' % attach_name)
     response.setHeader('Content-Length', stat[6])
-    copy_file_data(data_file, response)
+    return filestream_iterator(data_file.name)
