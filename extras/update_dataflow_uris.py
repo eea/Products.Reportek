@@ -60,6 +60,7 @@ def update_dataflow_uris(root, commit=False):
     candidates = filter_objects(root, filter_level=0)
     counter = 0
     changes_log.info('DATAFLOW URIS UPDATES')
+    transaction.savepoint()
     for obj in candidates:
         dataflow_uris = getattr(obj, 'dataflow_uris', None)
         dataflow_uri = ''
