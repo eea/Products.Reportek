@@ -66,25 +66,27 @@ def update_dataflow_uris(root, commit=False):
         corrected_uris = PersistentList()
         corrected_uri = ''
         message = ''
-        assert(obj._p_changed==False)
-        message += ('{type:18}: {url}'.format(
-                        type=obj.meta_type,
+        message += ('{type:21}: {url}'.format(
+                        type=(obj.meta_type[:17]+'... ' if len(obj.meta_type)>20
+                                                        else obj.meta_type),
                         url=obj.absolute_url_path()))
         for uri in getattr(obj, 'dataflow_uris', []):
             corrected_uris.append(uri.replace('rod.eionet.eu.int', 'rod.eionet.europa.eu'))
-
-        obj.dataflow_uris = corrected_uris
-        if not dataflow_uris == corrected_uris:
-            message += '\ndataflow_uris: {before} -> {after}'.format(
-                            before=dataflow_uris,
-                            after=corrected_uris)
+        if getattr(obj, 'dataflow_uris', None):
+            obj.dataflow_uris = corrected_uris
+            if not dataflow_uris == corrected_uris:
+                message += '\n{attr:21}: {before} -> {after}'.format(
+                                attr='dataflow_uris',
+                                before=dataflow_uris,
+                                after=obj.dataflow_uris)
 
         if getattr(obj, 'dataflow_uri', None):
             dataflow_uri = obj.dataflow_uri
             corrected_uri = dataflow_uri.replace('rod.eionet.eu.int', 'rod.eionet.europa.eu')
             obj.dataflow_uri = corrected_uri
             if not dataflow_uri == corrected_uri:
-                message += '\ndataflow_uri: {before} -> {after}'.format(
+                message += '\n{attr:21}: {before} -> {after}'.format(
+                                attr='dataflow_uri',
                                 before=dataflow_uri,
                                 after=corrected_uri)
 
@@ -93,12 +95,13 @@ def update_dataflow_uris(root, commit=False):
             corrected_country = country_uri.replace('rod.eionet.eu.int', 'rod.eionet.europa.eu')
             obj.country = corrected_country
             if not country_uri == corrected_country:
-                message += '\ncountry           : {before} -> {after}'.format(
+                message += '\n{attr:21}: {before} -> {after}'.format(
+                                attr='country',
                                 before=country_uri,
                                 after=corrected_country)
-
-        assert(obj._p_changed)
-        assert(type(obj.dataflow_uris) == type(PersistentList()))
+        if not obj._p_changed:
+            message+="\nno changes made"
+        message+="\n"
         changes_log.info(message)
         counter+=1
         if counter % 1000 == 0:
