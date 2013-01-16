@@ -136,13 +136,13 @@
                                                     'sort_on=%s&'
                                                     'sort_order=%s' %(
                                                           n.first,
-                                                          request.get('dataflow_uris'),
-                                                          request.get('xml_schema_location'),
+                                                          request.get('dataflow_uris', ''),
+                                                          request.get('xml_schema_location', ''),
                                                           request.get('years', ''),
-                                                          request.get('partofyear'),
-                                                          request.get('country'),
-                                                          request.get('sort_on'),
-                                                          request.get('sort_order'))">
+                                                          request.get('partofyear', ''),
+                                                          request.get('country', ''),
+                                                          request.get('sort_on', ''),
+                                                          request.get('sort_order', ''))">
          (Next <span tal:replace="n/length">n</span> results)
     </a>
 </metal:block>
