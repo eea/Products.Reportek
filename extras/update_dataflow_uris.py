@@ -65,28 +65,41 @@ def update_dataflow_uris(root, commit=False):
         dataflow_uri = ''
         corrected_uris = PersistentList()
         corrected_uri = ''
+        message = ''
         assert(obj._p_changed==False)
+        message += ('{type:18}: {url}'.format(
+                        type=obj.meta_type,
+                        url=obj.absolute_url_path()))
         for uri in getattr(obj, 'dataflow_uris', []):
             corrected_uris.append(uri.replace('rod.eionet.eu.int', 'rod.eionet.europa.eu'))
+
+        obj.dataflow_uris = corrected_uris
+        if not dataflow_uris == corrected_uris:
+            message += '\ndataflow_uris: {before} -> {after}'.format(
+                            before=dataflow_uris,
+                            after=corrected_uris)
+
         if getattr(obj, 'dataflow_uri', None):
             dataflow_uri = obj.dataflow_uri
             corrected_uri = dataflow_uri.replace('rod.eionet.eu.int', 'rod.eionet.europa.eu')
             obj.dataflow_uri = corrected_uri
+            if not dataflow_uri == corrected_uri:
+                message += '\ndataflow_uri: {before} -> {after}'.format(
+                                before=dataflow_uri,
+                                after=corrected_uri)
+
         if getattr(obj, 'country', None):
             country_uri = obj.country
             corrected_country = country_uri.replace('rod.eionet.eu.int', 'rod.eionet.europa.eu')
             obj.country = corrected_country
+            if not country_uri == corrected_country:
+                message += '\ncountry           : {before} -> {after}'.format(
+                                before=country_uri,
+                                after=corrected_country)
 
-        obj.dataflow_uris = corrected_uris
         assert(obj._p_changed)
         assert(type(obj.dataflow_uris) == type(PersistentList()))
-        changes_log.info('{type:18}: {url}\n'
-                         'before     : {before}\n'
-                         'after      : {after}\n'.format(
-                               **{'type': obj.meta_type,
-                                  'url': obj.absolute_url(),
-                                  'before': dataflow_uris or dataflow_uri,
-                                  'after': corrected_uris or corrected_uri}))
+        changes_log.info(message)
         counter+=1
         if counter % 1000 == 0:
             transaction.savepoint()
