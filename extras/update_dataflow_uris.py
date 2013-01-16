@@ -72,6 +72,11 @@ def update_dataflow_uris(root, commit=False):
             dataflow_uri = obj.dataflow_uri
             corrected_uri = dataflow_uri.replace('rod.eionet.eu.int', 'rod.eionet.europa.eu')
             obj.dataflow_uri = corrected_uri
+        if getattr(obj, 'country', None):
+            country_uri = obj.country
+            corrected_country = country_uri.replace('rod.eionet.eu.int', 'rod.eionet.europa.eu')
+            obj.country = corrected_country
+
         obj.dataflow_uris = corrected_uris
         assert(obj._p_changed)
         assert(type(obj.dataflow_uris) == type(PersistentList()))
