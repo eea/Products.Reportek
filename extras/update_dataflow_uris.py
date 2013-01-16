@@ -72,7 +72,7 @@ def update_dataflow_uris(root, commit=False):
                         url=obj.absolute_url_path()))
         for uri in getattr(obj, 'dataflow_uris', []):
             corrected_uris.append(uri.replace('rod.eionet.eu.int', 'rod.eionet.europa.eu'))
-        if getattr(obj, 'dataflow_uris', None):
+        if not(getattr(obj, 'dataflow_uris', None) is None):
             obj.dataflow_uris = corrected_uris
             if not dataflow_uris == corrected_uris:
                 message += '\n{attr:21}: {before} -> {after}'.format(
