@@ -252,7 +252,7 @@ class Converters(Folder):
                     data = conv(file_url, converter_id)
                     if ajax_call:
                         if 'image' in conv.ct_output:
-                            data = base64.b64encode(conv(file_url, converter_id))
+                            data = base64.b64encode(data)
                         json_data = {'mime_type': conv.ct_output,
                                     'content': data}
                         REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
