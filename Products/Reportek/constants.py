@@ -47,3 +47,9 @@ COVERAGE_LOCATION_LABEL = 'Location'    # appears on the view forms
 CONTENT_TYPES = {'application/zip':'.zip',
                  'image/png':'.png',
                  'application/vnd.google-earth.kml+xml':'.kml'}
+
+#Mime-types ignored by sentry logger
+IGNORED_MIME_TYPES = [
+    'application/octet-stream',
+    'text/plain',
+]

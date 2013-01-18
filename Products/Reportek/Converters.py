@@ -195,7 +195,8 @@ class Converters(Folder):
                     # (jundging by the file extension there are converters available):
                     possible_good_converters+=('%s\n' %conv_obj.id)
 
-        if possible_good_converters.strip():
+        if (possible_good_converters.strip() and
+            contentType not in constants.IGNORED_MIME_TYPES):
             message = (
                 'No converter found based on this mime-type "%s",\n'
                 'but there are converters able to handle this extension "%s".\n'
