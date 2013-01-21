@@ -1,47 +1,14 @@
 <dtml-var standard_html_header>
+<script src="++resource++static/wysihtml5/advanced.js"></script>
+<script src="++resource++static/wysihtml5/wysihtml5-0.3.0.min.js"></script>
+<link rel="stylesheet" href="++resource++static/fontawesome/font-awesome.min.css">
+
 <div id="operations">
 	<ul>
 		<li><a href="&dtml-URL2;">Back to envelope</a></li>
 	</ul>
 </div>
 <h1>Edit Feedback <dtml-var id html_quote></h1>
-
-<script type="text/javascript" src="/misc_/Reportek/tinymce/jscripts/tiny_mce/tiny_mce.js"></script>
-<script type="text/javascript">
-	function myFileBrowser (field_name, url, type, win) {
-		tinyMCE.activeEditor.windowManager.open({
-			file: files_page,
-			title: 'My File Browser',
-			width: 420,
-			height: 400,
-			resizable: "yes",
-			inline: "yes",  // This parameter only has an effect if you use the inlinepopups plugin!
-			close_previous: "no"
-		}, {
-			window: win,
-			input: field_name
-		});
-		return false;
-	}
-	tinyMCE.init({
-				language : "en",
-				mode : "textareas",
-				theme : "advanced",
-				plugins : "directionality, fullscreen, preview",
-				theme_advanced_buttons1: "bold, italic, underline, strikethrough, separator, justifyleft, justifycenter, justifyright, justifyfull, separator, bullist, numlist, separator, link, unlink, hr, removeformat, sub, sup, separator, preview, fullscreen, code",
-				theme_advanced_buttons2: "",
-				theme_advanced_buttons3 : "",
-				theme_advanced_toolbar_location : "top",
-				theme_advanced_toolbar_align : "left",
-				theme_advanced_path_location : "bottom",
-				plugin_insertdate_dateFormat : "%Y-%m-%d",
-				plugin_insertdate_timeFormat : "%H:%M:%S",
-				extended_valid_elements : "hr[class|width|size|noshade],font[face|size|color|style],span[class|align|style]",
-				theme_advanced_blockformats : "p,div,h2,h3,h4,h5,h6,blockquote",
-				theme_advanced_resize_horizontal : false,
-				theme_advanced_resizing : true
-				});
-</script>
 
 <fieldset><legend>Edit properties</legend>
 <form id="edit" action="<dtml-var URL1>" method="post">
@@ -52,7 +19,47 @@
 </tr>
 <tr>
 	<th align="left">Feedback text</th>
-	<td align="left"><textarea name="feedbacktext:utf8:ustring" cols="60" rows="20"><dtml-var feedbacktext html_quote></textarea></td>
+    <td align="left">
+        <div id="wysihtml5-toolbar" style="display: none;">
+            <a data-wysihtml5-command="bold" title="CTRL+B">
+                <i class="icon-bold"></i></a>
+            <a data-wysihtml5-command="italic" title="CTRL+I">
+                <i class="icon-italic"></i></a>
+            <a data-wysihtml5-command="createLink">
+                <i class="icon-link"></i></a>
+            <a data-wysihtml5-command="insertImage">
+                <i class="icon-camera"></i></a>
+            <a data-wysihtml5-command="formatBlock" data-wysihtml5-command-value="h1">h1</a>
+            <a data-wysihtml5-command="formatBlock" data-wysihtml5-command-value="h2">h2</a>
+            <a data-wysihtml5-command="insertUnorderedList">
+                <i class="icon-list-ul"></i></a>
+            <a data-wysihtml5-command="insertOrderedList">
+                <i class="icon-list-ol"></i></a> |
+            <a data-wysihtml5-action="change_view">switch to html</a>
+            <div data-wysihtml5-dialog="createLink" style="display: none;">
+              <label>
+                Link:
+                <input data-wysihtml5-dialog-field="href" value="http://">
+              </label>
+              <a data-wysihtml5-dialog-action="save">OK</a>&nbsp;<a data-wysihtml5-dialog-action="cancel">Cancel</a>
+            </div>
+            <div data-wysihtml5-dialog="insertImage" style="display: none;">
+              <label>
+                Image:
+                <input data-wysihtml5-dialog-field="src" value="http://">
+              </label>
+              <label>
+                Align:
+                <select data-wysihtml5-dialog-field="className">
+                  <option value="">default</option>
+                  <option value="wysiwyg-float-left">left</option>
+                  <option value="wysiwyg-float-right">right</option>
+                </select>
+              </label>
+              <a data-wysihtml5-dialog-action="save">OK</a>&nbsp;<a data-wysihtml5-dialog-action="cancel">Cancel</a>
+            </div>
+        </div>
+        <textarea id="wysihtml5-textarea" name="feedbacktext:utf8:ustring" cols="60" rows="20"><dtml-var feedbacktext html_quote></textarea></td>
 </tr>
 <tr>
 	<th>Restricted from public view</th>
@@ -114,5 +121,12 @@
 		</table>
 	</form>
 </fieldset>
+<script>
+var editor = new wysihtml5.Editor("wysihtml5-textarea", { // id of textarea element
+  toolbar:      "wysihtml5-toolbar", // id of toolbar element
+  stylesheets: ["css/reset.css", "css/editor.css"],
+  parserRules:  wysihtml5ParserRules // defined in parser rules set
+});
+</script>
 
 <dtml-var standard_html_footer>
