@@ -110,7 +110,7 @@
 <script>
 var editor = new wysihtml5.Editor("wysihtml5-textarea", { // id of textarea element
   toolbar:      "wysihtml5-toolbar", // id of toolbar element
-  stylesheets: ["css/reset.css", "css/editor.css"],
+  stylesheets: ["++resource++static/wysihtml5/reset-min.css", "++resource++static/wysihtml5/editor.css", "styles/eionet2007.css"],
   parserRules:  wysihtml5ParserRules // defined in parser rules set
 });
 </script>
