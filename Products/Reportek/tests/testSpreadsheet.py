@@ -7,9 +7,10 @@ from configurereportek import ConfigureReportek
 from fileuploadmock import FileUploadMock
 from mock import patch, Mock
 from utils import create_temp_reposit
+from Products.Reportek import constants
+from Products.Reportek import Converters
 
 TESTDIR = os.path.abspath(os.path.dirname(__file__))
-
 
 def setUpModule(self):
     self._cleanup_temp_reposit = create_temp_reposit()
@@ -27,6 +28,7 @@ class SpreadsheetTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.assertTrue(hasattr(self.app, 'collection'),'Collection did not get created')
         self.assertNotEqual(self.app.collection, None)
         self.envelope = self.createStandardEnvelope()
+        self.envelope.manage_addFeedback = Mock(return_value='feedbacktext')
         from Products.Reportek import EnvelopeCustomDataflows
         self._orig_invoke = EnvelopeCustomDataflows.invoke_conversion_service
         transaction.begin()
@@ -112,7 +114,6 @@ class SpreadsheetTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
             'resultCode': '0',
             'resultDescription': 'Conversion successful.',
         }
-
         myfile = StringIO('-- some reporting data --')
         myfile.filename = 'Rivers_2011.xls'
         res = self.envelope.convert_excel_file(myfile)
@@ -122,8 +123,12 @@ class SpreadsheetTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.assertEquals('application/vnd.ms-excel', document.content_type)
         document = self.envelope['Rivers_2011_StationsRivers.xml']
         self.assertEquals('text/xml', document.content_type)
-        feedback = self.envelope['conversion_log_Rivers_2011.xls']
-        self.assertEquals(feedback.meta_type, 'Report Feedback')
+
+        # NOTE don't test feedback creation here
+        # feedback creation already tested in testFeedback.py
+        #feedback = self.envelope['conversion_log_Rivers_2011.xls']
+        #self.assertEquals(feedback.meta_type, 'Report Feedback')
+
         #Now try it again to make sure there's no error in deleting old files
         myfile = StringIO('-- some reporting data --')
         myfile.filename = 'Rivers_2011.xls'

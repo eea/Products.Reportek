@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 import os, sys
 import unittest
+import json
+from Products.Reportek import constants
 from mock import Mock, patch
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
@@ -8,6 +10,7 @@ ZopeTestCase.installProduct('PythonScripts')
 from configurereportek import ConfigureReportek
 from fileuploadmock import FileUploadMock
 from utils import create_temp_reposit, create_fake_root, create_envelope
+from Products.Reportek import Converters
 
 
 def setUpModule(self):
@@ -36,6 +39,13 @@ class FeedbackTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
                         'Collection did not get created')
         self.assertNotEqual(self.app.collection, None)
         self.envelope = self.createStandardEnvelope()
+        setattr(
+            self.envelope.getPhysicalRoot(),
+            constants.CONVERTERS_ID,
+            Converters.Converters())
+        safe_html = Mock(convert=Mock(return_value='feedbacktext'))
+        getattr(self.envelope.getPhysicalRoot(),
+                constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
 
     def create_feedback(self):
         """ Create an automatic feedback in the envelope
