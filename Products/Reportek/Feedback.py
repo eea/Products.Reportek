@@ -62,16 +62,15 @@ def manage_addFeedback(self, id ='', title='', feedbacktext='', file='', activit
     # generate id from the release date
     # Normally, there can only be one feedback for a release
     if not id: id = 'feedback' + str(int(releasedate))
-    with tempfile.TemporaryFile() as tmp:
-        tmp.write(feedbacktext)
-        tmp.flush()
-        convs = getattr(self.getPhysicalRoot(), constants.CONVERTERS_ID, None)
-        if convs:
-            # if Local Conversion Service is down
-            # the next line of code will raise an exception
-            # because we don't want to save unsecure html
-            sanitizer = convs['safe_html']
-            feedbacktext = sanitizer.convert(Document('tmp_doc', tmp), sanitizer.id)
+    import StringIO
+    tmp = StringIO.StringIO(feedbacktext)
+    convs = getattr(self.getPhysicalRoot(), constants.CONVERTERS_ID, None)
+    if convs:
+        # if Local Conversion Service is down
+        # the next line of code will raise an exception
+        # because we don't want to save unsecure html
+        sanitizer = convs['safe_html']
+        feedbacktext = sanitizer.convert(tmp, sanitizer.id)
 
     ob = ReportFeedback(
             id, releasedate, title, feedbacktext, activity_id,
