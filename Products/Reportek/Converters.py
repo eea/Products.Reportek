@@ -91,6 +91,19 @@ class Converters(Folder):
         if not hasattr(self, 'remote_converter'):
             self.remote_converter = "http://converters.eionet.europa.eu/RpcRouter"
 
+    def __getattr__(self, attr):
+        available_ids = requests.get(
+                            '{0}list'.format(
+                                self.get_local_http_converters_url()
+                            )
+                        ).json['list']
+        if attr in available_ids:
+            url = '%s%s' % (self.get_local_http_converters_url(), 'params/%s' %attr)
+            attrs = requests.get(url).json
+            return Converter.LocalHttpConverter(**attrs).__of__(self)
+        else:
+            raise AttributeError
+
     security.declareProtected(view_management_screens, 'manage_edit')
     def manage_edit(self, remote_converter, REQUEST=None):
         """ """
