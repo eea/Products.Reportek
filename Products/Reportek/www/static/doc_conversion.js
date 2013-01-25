@@ -139,9 +139,9 @@ var _init = function init(event){
         },
         statusCode:{
             500: function(data){
-                    var result_div = "<div id='result' style='min-height: 450px; text-align: left;'>{0}</div>"
-                    var content = "<div style='padding: 210 0 0 0; text-align: center;'>{0}</div>"
-                    var message = 'UNABLE TO CONVERT'
+                    var result_div = "<div id='result' style='min-height: 450px; text-align: left;'>{0}</div>";
+                    var content = "<div style='padding: 210 0 0 0; text-align: center;'>{0}</div>";
+                    var message = 'UNABLE TO CONVERT';
                     if(data.getResponseHeader('Content-Type')=='image/png'){
                       message = "<img src='data:image/png;base64,{0}'/>".format(data.responseText);
                     };
