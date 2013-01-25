@@ -17,6 +17,23 @@
 <script src="++resource++static/wysihtml5/advanced.js"></script>
 <script src="++resource++static/wysihtml5/wysihtml5-0.3.0.min.js"></script>
 <link rel="stylesheet" href="++resource++static/fontawesome/font-awesome.min.css">
+<style>
+    #wysihtml5-toolbar i {
+        margin: 0px;
+        padding: 0px;
+    }
+    #wysihtml5-toolbar a {
+        color: DimGrey;
+        text-decoration: none;
+        padding: 0px 5px 0px 5px;
+        margin: 2px 0px 2px 0px;
+    }
+    .wysihtml5-action-active, .wysihtml5-command-dialog-opened,
+    .wysihtml5-command-active {
+      box-shadow: inset 0 1px 6px rgba(0, 0, 0, 0.2);
+      background: #eee !important;
+    }
+</style>
 
 
 <dtml-if "not released">
@@ -107,12 +124,16 @@
 	</table>
 </form>
 </dtml-if>
+
 <script>
-var editor = new wysihtml5.Editor("wysihtml5-textarea", { // id of textarea element
-  toolbar:      "wysihtml5-toolbar", // id of toolbar element
-  stylesheets: ["++resource++static/wysihtml5/reset-min.css", "++resource++static/wysihtml5/editor.css", "styles/eionet2007.css"],
-  parserRules:  wysihtml5ParserRules // defined in parser rules set
-});
+
+    var editor = new wysihtml5.Editor("wysihtml5-textarea", { // id of textarea element
+      toolbar:      "wysihtml5-toolbar", // id of toolbar element
+      stylesheets: ["++resource++static/wysihtml5/reset-min.css",
+      "++resource++static/wysihtml5/editor.css", "styles/eionet2007.css"],
+      parserRules:  wysihtml5ParserRules // defined in parser rules set
+    });
+
 </script>
 
 <dtml-var standard_html_footer>
