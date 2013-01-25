@@ -30,6 +30,7 @@ Feedback objects are sub-objects of Report Envelopes.
 
 __version__='$Rev$'[6:-2]
 import os
+import tempfile
 from os.path import join, isfile
 
 # Zope imports
@@ -47,6 +48,7 @@ from DateTime import DateTime
 # Product specific imports
 from Comment import CommentsManager
 import RepUtils
+import constants
 
 manage_addFeedbackForm = DTMLFile('dtml/feedbackAdd',globals())
 
@@ -59,6 +61,11 @@ def manage_addFeedback(self, id ='', title='', feedbacktext='', file='', activit
     # generate id from the release date
     # Normally, there can only be one feedback for a release
     if not id: id = 'feedback' + str(int(releasedate))
+    with tempfile.TemporaryFile() as tmp:
+        Converters = getattr(self.getPhysicalRoot(), constants.CONVERTERS_ID)
+        sanitizer = Converters.safe_html
+        feedbacktext = sanitizer.convert(tmp, sanitizer.id)
+    import pdb; pdb.set_trace()
     ob = ReportFeedback(id, releasedate, title, feedbacktext, activity_id, automatic, content_type, document_id)
     if file:
         filename = RepUtils.getFilename(file.filename)
