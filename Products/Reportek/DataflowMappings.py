@@ -33,9 +33,11 @@ import Globals
 import constants
 import RepUtils
 import DataflowMappingRecord
+import DataflowMappingTable
 
 
 MAPPING_RECORD_METATYPE = 'Reportek Dataflow Mapping Record'
+MAPPING_TABLE_METATYPE = 'Reportek Dataflow Mapping Table'
 
 
 class DataflowMappings(Folder):
@@ -55,6 +57,9 @@ class DataflowMappings(Folder):
         """
         y = [{'name': MAPPING_RECORD_METATYPE,
               'action': 'manage_addDataflowMappingRecordForm',
+              'permission': view_management_screens},
+             {'name': MAPPING_TABLE_METATYPE,
+              'action': 'manage_addDataflowMappingTable_html',
               'permission': view_management_screens}]
 
         return y
@@ -144,6 +149,12 @@ class DataflowMappings(Folder):
 
     security.declareProtected(view_management_screens, 'manage_addDataflowMappingRecord')
     manage_addDataflowMappingRecord = DataflowMappingRecord.manage_addDataflowMappingRecord
+
+    security.declareProtected(view_management_screens, 'manage_addDataflowMappingTable_html')
+    manage_addDataflowMappingTable_html = DataflowMappingTable.manage_addDataflowMappingTable_html
+
+    security.declareProtected(view_management_screens, 'manage_addDataflowMappingTable')
+    manage_addDataflowMappingTable = DataflowMappingTable.manage_addDataflowMappingTable
 
     security.declarePublic('dataflows_select')
     dataflows_select = DTMLFile('dtml/dataflows_select', globals())

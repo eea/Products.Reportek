@@ -1,0 +1,19 @@
+<tal:block content="structure context/manage_page_header" />
+<tal:block content="structure context/manage_tabs" />
+
+<h2 tal:content="here/title" />
+
+<form tal:attributes="action string:${here/absolute_url}/update" method="post">
+
+  <label>Title: <input name="title" tal:attributes="value here/title"></label><br>
+
+  <label>Dataflow:
+    <tal:block content="structure python:here.dataflows_select(edit=1)" />
+  </label><br>
+
+  <button type="submit">Save</button>
+
+</form>
+
+
+<tal:block content="structure context/manage_page_footer" />

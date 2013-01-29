@@ -1,0 +1,20 @@
+<tal:block content="structure context/manage_page_header" />
+<tal:block content="structure context/manage_tabs" />
+
+<h2>Create a new dataflow mapping table</h2>
+
+<form tal:attributes="action string:${here/absolute_url}/manage_addDataflowMappingTable"
+      method="post">
+
+  <label>ID: <input name="id"></label><br>
+
+  <label>Title: <input name="title"></label><br>
+
+  <label>Dataflow:
+    <tal:block content="structure here/dataflows_select" /></label><br>
+
+  <button type="submit">Create</button>
+
+</form>
+
+<tal:block content="structure context/manage_page_footer" />
