@@ -99,6 +99,14 @@ class DataflowMappings(Folder):
                 'uri': mapping_record.schema_url,
                 'webform_filename': mapping_record.file_id,
             })
+        for mapping_table in self.objectValues([MAPPING_TABLE_METATYPE]):
+            if mapping_table.dataflow_uri not in dataflow_uris:
+                continue
+            for schema in mapping_table.mapping:
+                out.append({
+                    'title': schema['name'],
+                    'uri': schema['url'],
+                })
         return out
 
     def getWebformsForDataflows(self, p_dataflow_uris):

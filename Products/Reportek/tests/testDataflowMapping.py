@@ -2,6 +2,7 @@ import unittest
 from Products.Reportek import constants
 from Products.Reportek import DataflowMappings
 from Products.Reportek import DataflowMappingRecord
+from Products.Reportek import DataflowMappingTable
 from utils import create_fake_root
 
 
@@ -19,6 +20,13 @@ class DFMTestCase(unittest.TestCase):
         func(mappingsFolder, id_, *args, **kwargs)
         ob = mappingsFolder[id_]
         ob._fix_attributes()
+
+    def add_table(self, id_, dataflow_uri, mapping):
+        func = DataflowMappingTable.manage_addDataflowMappingTable
+        mappingsFolder = self.app[constants.DATAFLOW_MAPPINGS]
+        func(mappingsFolder, id_, id_, dataflow_uri)
+        ob = mappingsFolder[id_]
+        ob.mapping = mapping
 
     def testAddOneDFM(self):
         """ Test that we can add a dataflow mapping """
@@ -158,7 +166,23 @@ class DFMTestCase(unittest.TestCase):
         obli23_uri = 'http://rod.eionet.eu.int/obligations/23'
         schema_title = "Obligation twenty-two"
         schema_uri = 'http://schema.xx/schema1.xsd'
-        self.add_mapping('obli22', schema_title, obli22_uri, [schema_uri])
+        self.add_mapping('obli22_map', schema_title, obli22_uri, [schema_uri])
+        self.add_table('obli22_table', obli22_uri,
+            [{'url': schema_uri, 'name': schema_title, 'has_webform': False}])
 
         schemas = self.mappings.get_schemas_for_dataflows([obli23_uri])
         self.assertEqual(len(schemas), 0)
+
+    def test_api_returns_results_from_mapping_table(self):
+        obli22_uri = 'http://rod.eionet.eu.int/obligations/22'
+        schema_uri = 'http://schema.xx/schema1.xsd'
+        schema_title = "Obligation twenty-two"
+        self.add_table('obli22', obli22_uri,
+            [{'url': schema_uri, 'name': schema_title, 'has_webform': False}])
+        schemas = self.mappings.get_schemas_for_dataflows([obli22_uri])
+        self.assertEqual(len(schemas), 1)
+        [schema_info] = schemas
+        self.assertDictContainsSubset({
+            'title': schema_title,
+            'uri': schema_uri,
+        }, schema_info)
