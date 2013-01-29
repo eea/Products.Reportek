@@ -4,6 +4,7 @@ import json
 from collections import defaultdict
 from os import environ
 import logging
+import xmlrpclib
 import requests
 from OFS.SimpleItem import SimpleItem
 from Globals import DTMLFile, InitializeClass
@@ -64,11 +65,15 @@ class DataflowMappingTable(SimpleItem):
             'obligationId': self.dataflow_uri.replace('.eu.int', '.europa.eu'),
         })
         if resp.status_code == 200:
+            webq_url = self.ReportekEngine.webq_url
+            webq = xmlrpclib.ServerProxy(webq_url).WebQService
+            webq_resp = webq.getXForm([row['url'] for row in resp.json])
+
             self.mapping = {
                 'schemas': [{
                     'url': row['url'],
                     'name': row['name'],
-                    'has_webform': False,
+                    'has_webform': bool(webq_resp.get(row['url'])),
                 } for row in resp.json]
             }
             messages.add(REQUEST, "Mappings updated from Data Dictionary.")
