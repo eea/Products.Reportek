@@ -1,6 +1,7 @@
 """ Multiple dataflow mappings for a single obligation """
 
 import json
+from collections import defaultdict
 
 from OFS.SimpleItem import SimpleItem
 from Globals import DTMLFile, InitializeClass
@@ -38,7 +39,7 @@ class DataflowMappingTable(SimpleItem):
         self.id = id
         self.title = title
         self.dataflow_uri = dataflow_uri
-        self.mapping = {}
+        self.mapping = {'schemas': []}
 
     security.declarePrivate('mapping')
     @property
@@ -50,14 +51,26 @@ class DataflowMappingTable(SimpleItem):
         self.mapping_json = json.dumps(value)
 
     security.declareProtected(view_management_screens, 'update')
-    def update(self, title, dataflow_uri, REQUEST=None):
+    def update(self, title, dataflow_uri, REQUEST):
         """ """
         self.title = title
         self.dataflow_uri = dataflow_uri
-        self.mapping = {}
-        if REQUEST:
-            return self.manage_settings_html(self, REQUEST,
-                                             manage_tabs_message="Saved.")
+
+        mapping_groups = defaultdict(dict)
+        for field_name, value in REQUEST.form.items():
+            if field_name.startswith('schema_'):
+                _, n, subname = field_name.split('_', 2)
+                mapping_groups[int(n)][subname] = value.decode('utf-8')
+
+        self.mapping = {
+            'schemas': [{
+                    'url': group['url'],
+                    'name': group['name'],
+                    'has_webform': bool(group.get('has_webform')),
+                } for n, group in sorted(mapping_groups.items())]
+        }
+
+        REQUEST.RESPONSE.redirect(self.absolute_url() + '/manage_html')
 
     security.declareProtected(view_management_screens, 'manage_html')
     manage_html = PageTemplateFile('zpt/dataflow_mapping_table.zpt', globals())

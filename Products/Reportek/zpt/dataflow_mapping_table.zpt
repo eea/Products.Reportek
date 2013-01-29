@@ -3,6 +3,10 @@
 
 <style>
 
+  .mapping-json {
+    display: none;
+  }
+
   .dataflow-mapping-table {
     border-collapse: collapse;
     width: 100%;
@@ -50,6 +54,8 @@
     <tal:block content="structure python:here.dataflows_select(edit=1)" />
   </label><br>
 
+  <span class="mapping-json" tal:content="here/mapping_json" />
+
   <table class="dataflow-mapping-table">
 
     <thead>
@@ -60,9 +66,9 @@
     </thead>
 
     <tr class="new-schema-row">
-      <td><input name="url" /></td>
-      <td><input name="name" /></td>
-      <td><label><input name="has_webform" type="checkbox" /></label></td>
+      <td><input name="schema_ROWID_url" /></td>
+      <td><input name="schema_ROWID_name" /></td>
+      <td><label><input name="schema_ROWID_has_webform" type="checkbox" /></label></td>
       <td><button class="remove">remove</button></td>
     </tr>
 
@@ -80,21 +86,39 @@
 
 
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.4.2/underscore-min.js"></script>
 <script>
   (function() {
 
     var table = $('.dataflow-mapping-table');
-    var new_row = $('.new-schema-row').removeClass('new-schema-row').remove();
+    var new_row = $('.new-schema-row').remove().html();
+    var last_id = 0;
+
+    var rows = JSON.parse($('.mapping-json').text())['schemas'] || [];
+    _(rows).forEach(function(schema) {
+      var row = add_new_row();
+      row.find('[name$=_url]').val(schema['url']);
+      row.find('[name$=_name]').val(schema['name']);
+      row.find('[name$=_has_webform]').attr('checked',
+        schema['has_webform'] ? 'checked' : null);
+    });
 
     $('.add-schema').click(function(evt) {
       evt.preventDefault();
-      table.find('tr:last').before(new_row.clone());
+      add_new_row();
     });
 
     table.on('click', '.remove', function(evt) {
       evt.preventDefault();
       $(this).parents('tr').remove();
     });
+
+    function add_new_row() {
+      last_id += 1;
+      var row_id = last_id;
+      var row_html = new_row.replace(/ROWID/g, '' + row_id);
+      return $('<tr>').html(row_html).insertBefore(table.find('tr:last'));
+    }
 
   })();
 </script>
