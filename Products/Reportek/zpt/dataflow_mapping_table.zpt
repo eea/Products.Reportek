@@ -1,5 +1,6 @@
 <tal:block content="structure context/manage_page_header" />
 <tal:block content="structure context/manage_tabs" />
+<tal:block content="structure context/reportek_messages" />
 
 <style>
 
@@ -46,6 +47,7 @@
 
 <h2 tal:content="here/title" />
 
+
 <form tal:attributes="action string:${here/absolute_url}/update" method="post">
 
   <label>Title: <input name="title" tal:attributes="value here/title"></label><br>
@@ -81,6 +83,14 @@
   </table>
 
   <button type="submit">Save</button>
+
+</form>
+
+
+<form tal:attributes="action string:${here/absolute_url}/load_from_dd" method="post">
+
+  Load mappings from DataDictionary and WebQ:
+  <button type="submit">Load</button>
 
 </form>
 

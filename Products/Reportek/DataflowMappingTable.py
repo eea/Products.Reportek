@@ -2,12 +2,19 @@
 
 import json
 from collections import defaultdict
-
+from os import environ
+import logging
+import requests
 from OFS.SimpleItem import SimpleItem
 from Globals import DTMLFile, InitializeClass
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+
+import messages
+
+
+log = logging.getLogger(__name__)
 
 
 manage_addDataflowMappingTable_html = PageTemplateFile(
@@ -49,6 +56,36 @@ class DataflowMappingTable(SimpleItem):
     @mapping.setter
     def mapping(self, value):
         self.mapping_json = json.dumps(value)
+
+    security.declareProtected(view_management_screens, 'load_from_dd')
+    def load_from_dd(self, REQUEST):
+        """ """
+        resp = requests.get(environ['DATADICTIONARY_SCHEMAS_URL'], params={
+            'obligationId': self.dataflow_uri.replace('.eu.int', '.europa.eu'),
+        })
+        if resp.status_code == 200:
+            self.mapping = {
+                'schemas': [{
+                    'url': row['url'],
+                    'name': row['name'],
+                    'has_webform': False,
+                } for row in resp.json]
+            }
+            messages.add(REQUEST, "Mappings updated from Data Dictionary.")
+
+        elif resp.status_code == 404:
+            log.info("404 response from DD for %r (%s)",
+                     resp.url, self.dataflow_uri)
+            messages.add(REQUEST, "No mappings found in Data Dictionary.",
+                         'error')
+
+        else:
+            log.warn("Error fetching DD mappings for %r: %r, %r",
+                     self.dataflow_uri, resp, resp.text)
+            messages.add(REQUEST, "Error fetching from Data Dictionary",
+                         'error')
+
+        REQUEST.RESPONSE.redirect(self.absolute_url() + '/manage_html')
 
     security.declareProtected(view_management_screens, 'update')
     def update(self, title, dataflow_uri, REQUEST):
