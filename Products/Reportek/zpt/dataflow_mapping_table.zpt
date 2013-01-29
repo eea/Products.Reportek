@@ -1,6 +1,45 @@
 <tal:block content="structure context/manage_page_header" />
 <tal:block content="structure context/manage_tabs" />
 
+<style>
+
+  .dataflow-mapping-table {
+    border-collapse: collapse;
+    width: 100%;
+    margin: 20px 0;
+  }
+
+  .dataflow-mapping-table th,
+  .dataflow-mapping-table td {
+    border: 1px solid black;
+    border-collapse: collapse;
+  }
+
+  .dataflow-mapping-table td > input {
+    width: 100%;
+  }
+
+  .dataflow-mapping-table td > label {
+    display: block;
+    width: 100%;
+    height: 100%;
+    text-align: center;
+  }
+
+  .dataflow-mapping-table-uri {
+    width: 30%;
+  }
+
+  .dataflow-mapping-table-webform {
+    width: 120px;
+  }
+
+  .dataflow-mapping-table-remove {
+    width: 80px;
+  }
+
+</style>
+
 <h2 tal:content="here/title" />
 
 <form tal:attributes="action string:${here/absolute_url}/update" method="post">
@@ -11,9 +50,54 @@
     <tal:block content="structure python:here.dataflows_select(edit=1)" />
   </label><br>
 
+  <table class="dataflow-mapping-table">
+
+    <thead>
+      <th class="dataflow-mapping-table-uri">Schema</th>
+      <th>Name</th>
+      <th class="dataflow-mapping-table-webform">Has WebForm</th>
+      <th class="dataflow-mapping-table-remove"></th>
+    </thead>
+
+    <tr class="new-schema-row">
+      <td><input name="url" /></td>
+      <td><input name="name" /></td>
+      <td><label><input name="has_webform" type="checkbox" /></label></td>
+      <td><button class="remove">remove</button></td>
+    </tr>
+
+    <tr>
+      <td colspan="4">
+        <button class="add-schema">New row</button>
+      </td>
+    </tr>
+
+  </table>
+
   <button type="submit">Save</button>
 
 </form>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js"></script>
+<script>
+  (function() {
+
+    var table = $('.dataflow-mapping-table');
+    var new_row = $('.new-schema-row').removeClass('new-schema-row').remove();
+
+    $('.add-schema').click(function(evt) {
+      evt.preventDefault();
+      table.find('tr:last').before(new_row.clone());
+    });
+
+    table.on('click', '.remove', function(evt) {
+      evt.preventDefault();
+      $(this).parents('tr').remove();
+    });
+
+  })();
+</script>
 
 
 <tal:block content="structure context/manage_page_footer" />
