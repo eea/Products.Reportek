@@ -182,5 +182,4 @@
 Work is still in progress.</p>
 
 </dtml-if>
-<script src="++resource++static/doc_conversion.js"></script>
 <dtml-var standard_html_footer>
