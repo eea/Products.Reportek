@@ -18,7 +18,7 @@
 <tr>
 	<th align="left">Feedback text</th>
     <td align="left">
-        <textarea id="wysihtml5-textarea" name="feedbacktext:utf8:ustring" cols="60" rows="20"><dtml-var feedbacktext html_quote></textarea></td>
+        <textarea id="ckeditor-textarea" name="feedbacktext:utf8:ustring" cols="60" rows="20"><dtml-var feedbacktext html_quote></textarea></td>
 </tr>
 <tr>
 	<th>Restricted from public view</th>
@@ -81,7 +81,7 @@
 	</form>
 </fieldset>
 <script>
-    CKEDITOR.replace('wysihtml5-textarea');
+    CKEDITOR.replace('ckeditor-textarea');
 </script>
 
 <dtml-var standard_html_footer>
