@@ -1,24 +1,5 @@
 <dtml-var standard_html_header>
-<script src="++resource++static/wysihtml5/advanced.js"></script>
-<script src="++resource++static/wysihtml5/wysihtml5-0.3.0.min.js"></script>
-<link rel="stylesheet" href="++resource++static/fontawesome/font-awesome.min.css">
-<style>
-    #wysihtml5-toolbar i {
-        margin: 0px;
-        padding: 0px;
-    }
-    #wysihtml5-toolbar a {
-        color: DimGrey;
-        text-decoration: none;
-        padding: 0px 5px 0px 5px;
-        margin: 2px 0px 2px 0px;
-    }
-    .wysihtml5-action-active, .wysihtml5-command-dialog-opened,
-    .wysihtml5-command-active {
-      box-shadow: inset 0 1px 6px rgba(0, 0, 0, 0.2);
-      background: #eee !important;
-    }
-</style>
+<script src="++resource++static/ckeditor/ckeditor.js"></script>
 
 <div id="operations">
 	<ul>
@@ -37,45 +18,6 @@
 <tr>
 	<th align="left">Feedback text</th>
     <td align="left">
-        <div id="wysihtml5-toolbar" style="display: none;">
-            <a data-wysihtml5-command="bold" title="CTRL+B">
-                <i class="icon-bold"></i></a>
-            <a data-wysihtml5-command="italic" title="CTRL+I">
-                <i class="icon-italic"></i></a>
-            <a data-wysihtml5-command="createLink">
-                <i class="icon-link"></i></a>
-            <a data-wysihtml5-command="insertImage">
-                <i class="icon-camera"></i></a>
-            <a data-wysihtml5-command="formatBlock" data-wysihtml5-command-value="h1">h1</a>
-            <a data-wysihtml5-command="formatBlock" data-wysihtml5-command-value="h2">h2</a>
-            <a data-wysihtml5-command="insertUnorderedList">
-                <i class="icon-list-ul"></i></a>
-            <a data-wysihtml5-command="insertOrderedList">
-                <i class="icon-list-ol"></i></a> |
-            <a data-wysihtml5-action="change_view">switch to html</a>
-            <div data-wysihtml5-dialog="createLink" style="display: none;">
-              <label>
-                Link:
-                <input data-wysihtml5-dialog-field="href" value="http://">
-              </label>
-              <a data-wysihtml5-dialog-action="save">OK</a>&nbsp;<a data-wysihtml5-dialog-action="cancel">Cancel</a>
-            </div>
-            <div data-wysihtml5-dialog="insertImage" style="display: none;">
-              <label>
-                Image:
-                <input data-wysihtml5-dialog-field="src" value="http://">
-              </label>
-              <label>
-                Align:
-                <select data-wysihtml5-dialog-field="className">
-                  <option value="">default</option>
-                  <option value="wysiwyg-float-left">left</option>
-                  <option value="wysiwyg-float-right">right</option>
-                </select>
-              </label>
-              <a data-wysihtml5-dialog-action="save">OK</a>&nbsp;<a data-wysihtml5-dialog-action="cancel">Cancel</a>
-            </div>
-        </div>
         <textarea id="wysihtml5-textarea" name="feedbacktext:utf8:ustring" cols="60" rows="20"><dtml-var feedbacktext html_quote></textarea></td>
 </tr>
 <tr>
@@ -139,11 +81,7 @@
 	</form>
 </fieldset>
 <script>
-var editor = new wysihtml5.Editor("wysihtml5-textarea", { // id of textarea element
-  toolbar:      "wysihtml5-toolbar", // id of toolbar element
-  stylesheets: ["++resource++static/wysihtml5/reset-min.css", "++resource++static/wysihtml5/editor.css"],
-  parserRules:  wysihtml5ParserRules // defined in parser rules set
-});
+    CKEDITOR.replace('wysihtml5-textarea');
 </script>
 
 <dtml-var standard_html_footer>
