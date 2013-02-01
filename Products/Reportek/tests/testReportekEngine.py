@@ -8,6 +8,8 @@ from utils import (create_fake_root, create_temp_reposit, create_upload_file,
 from Products.Reportek.ReportekEngine import ReportekEngine
 from Products.Reportek.Envelope import Envelope
 from Products.Reportek.Collection import Collection
+from Products.Reportek import constants
+from Products.Reportek import Converters
 
 def setUpModule(self):
     self._cleanup_temp_reposit = create_temp_reposit()
@@ -777,6 +779,13 @@ class SearchResultsTest(_BaseTest):
         self.root._setObject(first_envelope.id, first_envelope)
         self.root[first_envelope.id].manage_changeEnvelope(dataflow_uris='http://example.com/dataflow/1')
         self.root['first_envelope'].getEngine = Mock()
+        setattr(
+            self.root.getPhysicalRoot(),
+            constants.CONVERTERS_ID,
+            Converters.Converters())
+        safe_html = Mock(convert=Mock(return_value='feedbacktext'))
+        getattr(self.root.getPhysicalRoot(),
+                constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
         self.root['first_envelope'] .manage_addFeedback('feedbackid', 'Title',
                                                        'Feedback text', '','WorkflowEngine/begin_end', 1)
         self.root['first_envelope'] .manage_addFeedback('feedback5', 'Title',

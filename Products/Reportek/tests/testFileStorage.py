@@ -8,6 +8,8 @@ import transaction
 from utils import (create_fake_root, makerequest, create_temp_reposit,
                    create_upload_file, create_envelope, add_document,
                    MockDatabase, break_document_data_file)
+from Products.Reportek import constants
+from Products.Reportek import Converters
 
 
 def create_mock_request():
@@ -283,6 +285,13 @@ class ZipDownloadTest(unittest.TestCase):
         self.root.getWorkitemsActiveForMe = Mock(return_value=[])
         self.mock_request()
         self.envelope = create_envelope(self.root)
+        setattr(
+            self.envelope.getPhysicalRoot(),
+            constants.CONVERTERS_ID,
+            Converters.Converters())
+        safe_html = Mock(convert=Mock(return_value='feedbacktext'))
+        getattr(self.envelope.getPhysicalRoot(),
+                constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
 
     def mock_request(self):
         request = create_mock_request()

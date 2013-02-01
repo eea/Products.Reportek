@@ -157,6 +157,13 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
                 },
             }
         })
+        setattr(
+            self.envelope.getPhysicalRoot(),
+            constants.CONVERTERS_ID,
+            Converters.Converters())
+        safe_html = Mock(convert=Mock(return_value='feedbacktext'))
+        getattr(self.envelope.getPhysicalRoot(),
+                constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
 
     @patch('Products.Reportek.RemoteApplication.xmlrpclib')
     def receive_feedback(self, text, mock_xmlrpclib):
@@ -215,6 +222,13 @@ class BlockerFeedbackTest(unittest.TestCase):
                 },
             }
         }
+        setattr(
+            self.envelope.getPhysicalRoot(),
+            constants.CONVERTERS_ID,
+            Converters.Converters())
+        safe_html = Mock(convert=Mock(return_value='feedbacktext'))
+        getattr(self.envelope.getPhysicalRoot(),
+                constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
 
     @patch('Products.Reportek.RemoteApplication.xmlrpclib')
     def receive_feedback(self, text, result, mock_xmlrpclib):

@@ -23,6 +23,8 @@
 
 __version__='$Rev$'[6:-2]
 
+import StringIO
+
 from DateTime import DateTime
 from Globals import InitializeClass
 from OFS.SimpleItem import SimpleItem
@@ -35,6 +37,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from OFS.Image import manage_addFile
 
 from RepUtils import cleanup_id, generate_id, getFilename
+from Products.Reportek import constants
 
 ADD_PERMISSION = 'Add Feedback Comments'
 EDIT_PERMISSION = 'Edit Feedback Comments'
@@ -118,6 +121,13 @@ class CommentItem(ObjectManager, SimpleItem, PropertyManager):
         if self.checkPermissionEditComments():
             author = self.REQUEST.AUTHENTICATED_USER.getUserName()
             date = DateTime()
+            tmp = StringIO.StringIO(body)
+            convs = getattr(self.getPhysicalRoot(), constants.CONVERTERS_ID, None)
+            # if Local Conversion Service is down
+            # the next line of code will raise an exception
+            # because we don't want to save unsecure html
+            sanitizer = convs['safe_html']
+            body = sanitizer.convert(tmp, sanitizer.id)
             self.edit(title, body, author, date)
             if notif:
                 # Send notification to UNS
@@ -183,6 +193,13 @@ class CommentsManager:
         if author is None: author = self.REQUEST.AUTHENTICATED_USER.getUserName()
         if date is None: date = DateTime()
         else: date = DateTime(date)
+        tmp = StringIO.StringIO(body)
+        convs = getattr(self.getPhysicalRoot(), constants.CONVERTERS_ID, None)
+        # if Local Conversion Service is down
+        # the next line of code will raise an exception
+        # because we don't want to save unsecure html
+        sanitizer = convs['safe_html']
+        body = sanitizer.convert(tmp, sanitizer.id)
         ob = CommentItem(id, title, body, author, date, in_reply)
         if file:
             filename = getFilename(file.filename)
