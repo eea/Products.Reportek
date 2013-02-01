@@ -41,7 +41,6 @@ import OpenFlowEngine
 import RemoteApplication
 import DataflowMappings
 import ReportekEngine
-from StaticServe import StaticServeFromZip
 
 from constants import CONVERTERS_ID, ENGINE_ID, WORKFLOW_ENGINE_ID, DATAFLOW_MAPPINGS, DEFAULT_CATALOG, QAREPOSITORY_ID
 
@@ -339,6 +338,5 @@ misc_ = {
     "Activity.gif":  ImageFile("www/Activity.gif", globals()),
     "Process.gif":  ImageFile("www/Process.gif", globals()),
     "Workitem.gif":  ImageFile("www/Workitem.gif", globals()),
-    'tinymce': StaticServeFromZip('', 'www/tinymce_3_2_4_1.zip', globals()), 
     "feedback_comment_png":  ImageFile("www/comment.png", globals()),
 }
