@@ -1,5 +1,5 @@
 3.2 (2013-02-01)
-----------
+----------------
 * Session-based mechanism to set and display system messages [moregale]
 * Fix handling of large files (XML sniffing, zip download) [moregale]
 * Fetch dataflow schema mappings from DD; edit and save the table in a single object [moregale]
