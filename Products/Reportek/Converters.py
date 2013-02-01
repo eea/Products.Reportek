@@ -28,6 +28,7 @@ Reportek calls http://converters.eionet.europa.eu/RpcRouter via XML-RPC.
 #     $Id$
 
 import os
+import re
 import xmlrpclib
 import requests
 import string
@@ -241,13 +242,18 @@ class Converters(Folder):
 
     def convertDocument(self, file_url='', converter_id='', output_file_name='', REQUEST=None):
         """Proxy to run_conversion for API compatibility."""
-        flag = REQUEST.get('conv', converter_id)[:3]
-        _id = REQUEST.get('conv', converter_id)[4:]
+        name = REQUEST.get('conv', converter_id)
+        regex_result = re.match('(loc|rem)_(\w+$)', name)
+        if regex_result:
+            flag, _id = regex_result.groups()
+            if flag == 'rem':
+                source = 'remote'
+            elif flag == 'loc':
+                source = 'local'
+        else:
+            _id = 'default'
+            source = None
         REQUEST.set('file_url', REQUEST.get('file', file_url))
-        if flag == 'rem':
-            source = 'remote'
-        elif flag == 'loc':
-            source = 'local'
         REQUEST.set('conv', _id)
         REQUEST.set('source', source)
         return self.run_conversion(REQUEST=REQUEST)
