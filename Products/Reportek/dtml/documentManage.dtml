@@ -19,8 +19,10 @@
 
 <h1>File: <dtml-var id html_quote></h1>
 
+<dtml-if "not context.ReportekEngine.globally_restricted_site">
 <dtml-if isLimited>
 <p>The access to this file is limited, meaning it is not (yet) released for public view.</p>
+</dtml-if>
 </dtml-if>
 
 <div id="content">
@@ -117,17 +119,19 @@
     <td class="question">Last uploaded</td>
     <td><dtml-var upload_time fmt="%d %b %Y %H:%M"></td>
 </tr>
-<tr>
-	<td class="question">Restricted from public view</td>
-	<dtml-if canChangeFile>
-	<td><input type="hidden" name="applyRestriction" value="1" />
-		<input type="checkbox" name="restricted" <dtml-if isLimited>checked="checked"</dtml-if> />
-	</td>
-	<dtml-else>
-	<td><dtml-if isLimited>Yes<dtml-else>No</dtml-if>
-	</td>
-	</dtml-if>
-</tr>
+<dtml-if "not context.ReportekEngine.globally_restricted_site">
+  <tr>
+  	<td class="question">Restricted from public view</td>
+  	<dtml-if canChangeFile>
+  	<td><input type="hidden" name="applyRestriction" value="1" />
+  		<input type="checkbox" name="restricted" <dtml-if isLimited>checked="checked"</dtml-if> />
+  	</td>
+  	<dtml-else>
+  	<td><dtml-if isLimited>Yes<dtml-else>No</dtml-if>
+  	</td>
+  	</dtml-if>
+  </tr>
+</dtml-if>
 <dtml-if get_accept_time>
 <tr>
 	<td class="question">Document accepted by the client</td>
