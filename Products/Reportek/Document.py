@@ -51,7 +51,7 @@ except: from StringIO import StringIO
 import RepUtils
 from Converters import Converters
 from XMLInfoParser import detect_schema
-from constants import CONVERTERS_ID, QAREPOSITORY_ID
+from constants import CONVERTERS_ID, QAREPOSITORY_ID, ENGINE_ID
 from interfaces import IDocument
 from blob import FileContainer, StorageError
 
@@ -97,7 +97,9 @@ def manage_addDocument(self, id='', title='',
         obj = self._getOb(id)
         obj.manage_file_upload(file, content_type)
         obj.reindex_object()
-        if restricted:
+        engine = getattr(self.getPhysicalRoot(), ENGINE_ID, None)
+        globally_restricted_site = getattr(engine, 'globally_restricted_site', False)
+        if restricted or globally_restricted_site:
             obj.manage_restrictDocument()
         if REQUEST is not None:
             security=getSecurityManager()
