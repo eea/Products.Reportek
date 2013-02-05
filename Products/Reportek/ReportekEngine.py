@@ -81,7 +81,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             {'id':'UNS_password', 'type':'string', 'mode':'w'},
             {'id':'UNS_channel_id', 'type':'string', 'mode':'w'},
             {'id':'UNS_notification_types', 'type':'lines', 'mode':'w'},
-            {'id':'QA_application', 'type':'string', 'mode':'w'}
+            {'id':'QA_application', 'type':'string', 'mode':'w'},
+            {'id':'globally_restricted_site', 'type':'tokens', 'mode':'w'}
     )
 
     def all_meta_types( self, interfaces=None ):
@@ -121,6 +122,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         # The default QA application used for manual and automatic triggered QA operation
         # If this is empty, this Reportek instance does not have a QA system linked to it
         self.QA_application = ''
+        self.globally_restricted_site = False
 
     security.declareProtected(view_management_screens, 'index_html')
     index_html = PageTemplateFile('zpt/engine_index', globals())
@@ -132,7 +134,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     manage_properties = DTMLFile('dtml/engineProp', globals())
 
     security.declareProtected(view_management_screens, 'manage_editEngine')
-    def manage_editEngine(self, title='', webq_url='', webq_envelope_menu='', webq_before_edit_page='', QA_application='', REQUEST=None):
+    def manage_editEngine(self, title='', webq_url='', webq_envelope_menu='', webq_before_edit_page='', QA_application='', globally_restricted_site=False, REQUEST=None):
         """ Manage the edited values """
         if ((not REQUEST) or
             (REQUEST and REQUEST['REQUEST_METHOD']=='POST')):
@@ -141,6 +143,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             self.webq_envelope_menu = webq_envelope_menu
             self.webq_before_edit_page = webq_before_edit_page
             self.QA_application = QA_application
+            if globally_restricted_site:
+                globally_restricted_site = True
+            self.globally_restricted_site = globally_restricted_site
         if REQUEST and REQUEST['REQUEST_METHOD']=='POST':
             message="Properties changed"
             return self.manage_properties(self,REQUEST,manage_tabs_message=message)

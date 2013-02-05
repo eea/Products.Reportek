@@ -49,6 +49,16 @@ This page presents properties that are generic for Reportek.
 
 </fieldset>
 
+<fieldset><legend>Globally restricted site</legend>
+<p class="form-help"><strong>Globally restricted site</strong>
+    <input type="checkbox" name="globally_restricted_site"
+        <dtml-if globally_restricted_site> checked </dtml-if>
+    /></br />
+    Check this box if this site is globally restricted (e.g. BDR).
+</p>
+
+</fieldset>
+
 <br /><input type="submit" value="Save changes" />
 </form>
 <form action="runAutomaticApplications" method="get">
