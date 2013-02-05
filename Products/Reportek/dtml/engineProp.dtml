@@ -54,7 +54,7 @@ This page presents properties that are generic for Reportek.
     <input type="checkbox" name="globally_restricted_site"
         <dtml-if globally_restricted_site> checked </dtml-if>
     /></br />
-    Check this box if this site is globally restricted (e.g. BDR).
+Check this box if the content from this site needs to be fully restricted from public view (e.g. BDR). By enabling this option, all Report Documents will be restricted, and users will not be able to change their status
 </p>
 
 </fieldset>
