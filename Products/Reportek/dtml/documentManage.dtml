@@ -19,7 +19,7 @@
 
 <h1>File: <dtml-var id html_quote></h1>
 
-<dtml-if "not context.ReportekEngine.globally_restricted_site">
+<dtml-if "not getattr(context.ReportekEngine, 'globally_restricted_site', False)">
 <dtml-if isLimited>
 <p>The access to this file is limited, meaning it is not (yet) released for public view.</p>
 </dtml-if>
@@ -119,7 +119,7 @@
     <td class="question">Last uploaded</td>
     <td><dtml-var upload_time fmt="%d %b %Y %H:%M"></td>
 </tr>
-<dtml-if "not context.ReportekEngine.globally_restricted_site">
+<dtml-if "not getattr(context.ReportekEngine, 'globally_restricted_site', False)">
   <tr>
   	<td class="question">Restricted from public view</td>
   	<dtml-if canChangeFile>
