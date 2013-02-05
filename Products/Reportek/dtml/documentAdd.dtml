@@ -32,7 +32,7 @@
 		<th align="left">Id</th>
 		<td align="left"><input type="text" name="id" size="40" /> (optional)</td>
 	</tr>
-	<dtml-unless force_restricted>
+	<dtml-unless "force_restricted or context.ReportekEngine.globally_restricted_site">
 	<tr>
 		<th align="left">Restricted from public view</th>
 		<td align="left">
