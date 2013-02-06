@@ -426,15 +426,16 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             self.xml_schema_location = xml_schema_location
         if self.title!=title:
             self.title = title
-        if applyRestriction:
-            if restricted:
-                self.manage_restrictDocument()
-            else:
-                self.manage_unrestrictDocument()
         engine = getattr(self.getPhysicalRoot(), ENGINE_ID, None)
         globally_restricted_site = getattr(engine, 'globally_restricted_site', False)
         if globally_restricted_site:
             self.manage_restrictDocument()
+        else:
+            if applyRestriction:
+                if restricted:
+                    self.manage_restrictDocument()
+                else:
+                    self.manage_unrestrictDocument()
         self.reindex_object()  # update ZCatalog
         if REQUEST is not None:
             return self.messageDialog(
