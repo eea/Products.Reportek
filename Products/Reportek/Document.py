@@ -96,11 +96,11 @@ def manage_addDocument(self, id='', title='',
         self._setObject(id, Document(id, title))
         obj = self._getOb(id)
         obj.manage_file_upload(file, content_type)
-        obj.reindex_object()
         engine = getattr(self.getPhysicalRoot(), ENGINE_ID, None)
         globally_restricted_site = getattr(engine, 'globally_restricted_site', False)
         if restricted or globally_restricted_site:
             obj.manage_restrictDocument()
+        obj.reindex_object()
         if REQUEST is not None:
             security=getSecurityManager()
             if security.checkPermission('View management screens',self):
@@ -431,6 +431,10 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
                 self.manage_restrictDocument()
             else:
                 self.manage_unrestrictDocument()
+        engine = getattr(self.getPhysicalRoot(), ENGINE_ID, None)
+        globally_restricted_site = getattr(engine, 'globally_restricted_site', False)
+        if globally_restricted_site:
+            self.manage_restrictDocument()
         self.reindex_object()  # update ZCatalog
         if REQUEST is not None:
             return self.messageDialog(
