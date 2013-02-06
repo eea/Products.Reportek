@@ -78,6 +78,8 @@ class workitem(CatalogAware, SimpleItem, PropertyManager):
     def activity_application(self, activity_id):
         app_id = getattr(self.getProcess(), activity_id).application
         from constants import WORKFLOW_ENGINE_ID
+        if app_id is '':
+            return {'id': "''", 'url': "''"}
         url = getattr(self, WORKFLOW_ENGINE_ID)._applications[app_id]['url']
         app = self.getPhysicalRoot().restrictedTraverse(url)
         manage_page = 'manage_main'
