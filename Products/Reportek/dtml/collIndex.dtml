@@ -36,7 +36,7 @@ and by the reporting obligations they respond to.">New collection</a></li>
 </dtml-if>
 <dtml-unless "dataflow_uris == []">
 <tr>
- <th>Obligations</th>
+ <th>Obligation(s)</th>
  <td><dtml-in dataflow_uris prefix=dfuri>
  <dtml-let df="dataflow_lookup(dfuri_item)">
  <a href="<dtml-var "df['details_url']" html_quote>"><dtml-var "df['TITLE']" html_quote></a>
