@@ -238,22 +238,6 @@ class BlockerFeedbackTest(unittest.TestCase):
         self.remoteapp._RemoteApplication__getResult4XQueryServiceJob(
             '0', 'the_jobid')
 
-    def test_feedback_is_blocker(self):
-        text = 'blocker feedback'
-        result = {
-            'CODE': '0',
-            'VALUE': text,
-            'SCRIPT_TITLE': "mock script",
-            'METATYPE': 'application/x-mock',
-            'FEEDBACK_STATUS': 'BLOCKER',
-            'FEEDBACK_MESSAGE': 'Blocker error'
-        }
-
-        self.receive_feedback(text, result)
-        [feedback] = self.envelope.objectValues('Report Feedback')
-        self.assertEqual(True, getattr(feedback, 'blocker', None))
-        self.assertEqual('Blocker error', getattr(feedback, 'message', ''))
-
     def test_workitem_blocker_attr_is_set_to_True(self):
         text = 'blocker feedback'
         [workitem] = self.envelope.objectValues('Workitem')
@@ -270,7 +254,7 @@ class BlockerFeedbackTest(unittest.TestCase):
         }
         self.receive_feedback(text, result)
         #assert 'blocker' is set to True due to errors in feedback
-        self.assertEqual(True, getattr(workitem, 'blocker', None))
+        self.assertEqual(True, workitem.blocker)
 
     def test_workitem_blocker_attr_remains_False(self):
         text = 'blocker feedback'
@@ -288,7 +272,7 @@ class BlockerFeedbackTest(unittest.TestCase):
         }
         self.receive_feedback(text, result)
         #assert 'blocker' is set to True due to errors in feedback
-        self.assertEqual(False, getattr(workitem, 'blocker', None))
+        self.assertEqual(False, workitem.blocker)
 
     def test_envelope_blocked_by_feedback(self):
         text = 'blocker feedback'
@@ -302,4 +286,21 @@ class BlockerFeedbackTest(unittest.TestCase):
             'FEEDBACK_MESSAGE': 'Non blocker error'
         }
         self.receive_feedback(text, result)
-        self.assertEqual(True, getattr(self.envelope, 'is_blocked', None))
+        self.assertEqual(True, self.envelope.is_blocked)
+
+    def test_envelope_is_blocked_by_feedback(self):
+        text = 'blocker feedback'
+        [workitem] = self.envelope.objectValues('Workitem')
+        #assert the workitem has the 'blocker' attribute
+        #and is False by default
+        self.assertEqual(False, getattr(workitem, 'blocker', None))
+        result = {
+            'CODE': '0',
+            'VALUE': text,
+            'SCRIPT_TITLE': "mock script",
+            'METATYPE': 'application/x-mock',
+            'FEEDBACK_STATUS': 'INFO',
+            'FEEDBACK_MESSAGE': 'Non blocker error'
+        }
+        self.receive_feedback(text, result)
+        self.assertEqual(False, self.envelope.is_blocked)

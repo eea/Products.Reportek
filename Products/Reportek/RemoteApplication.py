@@ -344,7 +344,6 @@ class RemoteApplication(SimpleItem):
 
                 if l_ret['FEEDBACK_STATUS'] == 'BLOCKER':
                     l_workitem.blocker = True
-                    feedback_ob.blocker=True
                     feedback_ob.message=l_ret.get('FEEDBACK_MESSAGE', '')
 
                 l_getResultDict = {p_jobID: {'code':1, 'fileURL':l_file_url}}

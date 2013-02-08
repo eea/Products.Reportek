@@ -139,7 +139,7 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
     security = ClassSecurityInfo()
 
     def __init__(self, id, releasedate, title='', feedbacktext='', activity_id='', automatic=0,
-            content_type='text/plain', document_id=None, blocker=False, message=''):
+            content_type='text/plain', document_id=None, message=''):
         """ Initialize a new Feedback instance
         """
         self.id = id
@@ -151,7 +151,6 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
         self.activity_id = activity_id
         self.document_id = document_id
         self.postingdate = DateTime()
-        self.blocker=blocker
         self.message=message
 
     def __setstate__(self,state):
