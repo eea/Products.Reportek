@@ -398,9 +398,12 @@ class ActivityFindsApplicationTestCase(_BaseTest):
         with self.assertRaises(exceptions.ApplicationNameException):
             OpenFlowEngine.handle_application_move_events(event)
 
-    def test_application_valid_move(self):
+    def test_application_valid_move_from_one_proc_to_another(self):
         self.create_cepaa_set(1)
         self.create_cepaa_set(2)
+        # a valid movement is when proc1 and proc2 have a common activity id
+        # so we add act1 to proc2 too
+        self.wf.proc2.addActivity('act1')
         app = SimpleItem('act1').__of__(self.app.Applications.proc1)
         app.id = 'act1'
         self.app.Applications.proc1._setOb('act1', app)
@@ -409,21 +412,22 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                     self.app.Applications.proc1,
                     'act1',
                     self.app.Applications.proc2,
-                    'act2'
+                    'act1'
                     )
         # simulate a ObjectMovedEvent catch
         try:
             OpenFlowEngine.handle_application_move_events(event)
-            self.assertEqual('Application act1 moved and is also valid '
-                             'in this context, but activity /Applications/proc1/act1 has no '
+            self.assertEqual('Application act1 mapped by path to activity /WorkflowEngine/proc2/act1. '
+                             'Activity /WorkflowEngine/proc1/act1 has no '
                              'application mapped by path now.',
                              self.app.REQUEST['manage_tabs_message'])
         except exceptions.ApplicationNameException:
             self.fail("This is a valid id. Exception should not be raised")
 
-    def test_application_invalid_move(self):
+    def test_application_invalid_move_from_one_process_to_another(self):
         self.create_cepaa_set(1)
         self.create_cepaa_set(2)
+        # this happens when proc1 and proc2 do not have a common activity id
         app = SimpleItem('act1').__of__(self.app.Applications.proc1)
         app.id = 'act1'
         self.app.Applications.proc1._setOb('act1', app)
@@ -438,18 +442,34 @@ class ActivityFindsApplicationTestCase(_BaseTest):
         with self.assertRaises(exceptions.ApplicationNameException):
             OpenFlowEngine.handle_application_move_events(event)
 
-    def test_application_move_somewhere_else(self):
+    def test_application_valid_move_from_exterior_to_process_folder(self):
         self.create_cepaa_set(1)
-        # app path must be the new path (see warning in handler)
-        app = SimpleItem('act1').__of__(self.app)
+        app = SimpleItem('act1').__of__(self.app.Applications.proc1)
         app.id = 'act1'
         self.app.Applications.proc1._setOb('act1', app)
+        event = ObjectMovedEvent(
+                    app,
+                    self.app,
+                    'act1',
+                    self.app.Applications.proc1,
+                    'act1'
+                    )
+        # simulate a ObjectMovedEvent catch
+        OpenFlowEngine.handle_application_move_events(event)
+        self.assertEqual('Application act1 mapped by path to activity /WorkflowEngine/proc1/act1. ',
+                         self.app.REQUEST['manage_tabs_message'])
+
+    def test_application_move_from_process_folder_to_exterior(self):
+        self.create_cepaa_set(1)
+        app = SimpleItem('act1').__of__(self.app)
+        app.id = 'act1'
+        self.app._setOb('act1', app)
         event = ObjectMovedEvent(
                     app,
                     self.app.Applications.proc1,
                     'act1',
                     self.app,
-                    'act1'
+                    'act1',
                     )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
