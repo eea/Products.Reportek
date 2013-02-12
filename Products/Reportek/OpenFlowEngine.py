@@ -765,16 +765,26 @@ def handle_application_move_events(obj):
     - A list with all the ids of activities for that process is pulled from WorkflowEngine
     - In order to be valid, the new name of the application must match one of the ids in the list
     """
-    expr = re.compile('^/(Applications)/(.*)/(.*)$')
+    expr = re.compile('^/(Applications)/(.*)(?:/(.*))$')
     try:
-        result = expr.match( obj.object.absolute_url_path())
+        # warning obj.object.absolute_url_path() is the new path
+        result = expr.match(obj.object.absolute_url_path())
     except TypeError as exp:
         result = None
     if result:
         (folder, proc_id, app_id) = result.groups()
         root = obj.object.getPhysicalRoot()
         wf = getattr(root, constants.WORKFLOW_ENGINE_ID)
-        proc = getattr(wf, proc_id, None)
+        proc = None
+        if getattr(obj.newParent, 'id', None) in wf.keys():
+            # this is the target process folder when creating, renaming or moving.
+            # valid ids are taken from the target folder in these cases
+            proc = wf.get(obj.newParent.id)
+        elif getattr(obj.oldParent, 'id', None) in wf.keys():
+            # we don't have a target process folder when deleting
+            # se we take valid ids from oldParent to show a warning when
+            # deleting an application with a valid id
+            proc = wf.get(obj.oldParent.id)
         if proc:
             valid_ids = proc.listActivities()
             if not obj.newName in valid_ids:
@@ -782,7 +792,7 @@ def handle_application_move_events(obj):
                     # VALID ID DELETION
                     # getting here means we are deleting a previously mapped
                     # application, leaving an activity unmapped
-                    # ok, but display a message
+                    # that's ok, but display a message
                     message = 'Application %s deleted! Activity %s' \
                               ' has no application mapped by path now.' %(
                                       obj.object.absolute_url_path(),
@@ -792,18 +802,63 @@ def handle_application_move_events(obj):
                     # INVALID ID DELETION
                     # getting here means we are deleting an application that's
                     # not mapped to any activity
-                    # ok, but display a message
+                    # that's ok, but display a message
                     message = 'Application %s deleted! '\
                               'It was not mapped by path to any activity' %(
                                 obj.object.absolute_url_path())
                     root.REQUEST['manage_tabs_message'] =  message
                 else:
-                    # getting here means were are either creating an
-                    # application with an invalid name or we are renaming an
-                    # application and the new name is invalid or we are moving
-                    # an application
-                    # TODO separate above cases
-                    message = 'Id <%s> does not match any activity name in process <%s>.\n' \
+                    # getting here means one of the following:
+
+                    # 1) we are creating an application with an invalid id
+
+                    # or
+
+                    # 2) we are moving from one process folder to another process folder
+                    # and the app id is not valid in the context of the new
+                    # process folder
+
+                    # or
+
+                    # 3) we are renaming an application but the new id does not
+                    # match an activity id
+
+                    message = 'Id %s does not match any activity name in process %s.\n' \
                               'Valid names: %s' %(app_id, proc.absolute_url_path(), ', '.join(valid_ids))
                     root.REQUEST['manage_tabs_message'] =  message
-                    raise exceptions.ApplicationRenameException(message)
+                    raise exceptions.ApplicationNameException(message)
+            elif obj.oldParent and obj.newParent and not (obj.oldParent == obj.newParent):
+                # getting here means we are moving an application from one
+                # process folder to another process folder and the app id
+                # matches an application id in the new process
+                message = 'Application %s moved and is also valid in this context, '\
+                          'but activity %s has no application mapped by path now.'%(
+                                app_id,
+                                  '/'.join([
+                                      obj.oldParent.absolute_url_path(),
+                                      obj.oldName]),
+
+                          )
+                root.REQUEST['manage_tabs_message'] =  message
+            elif not obj.oldParent:
+                message = 'Application %s mapped by path to activity %s.'%(
+                                app_id, proc.get(app_id).absolute_url_path())
+                root.REQUEST['manage_tabs_message'] =  message
+    elif obj.oldParent:
+        expr = re.compile('^/(Applications)/(.*)$')
+        result = expr.match(obj.oldParent.absolute_url_path())
+        if result:
+            (host_folder, proc_id) = result.groups()
+            root = obj.object.getPhysicalRoot()
+            wf = getattr(root, constants.WORKFLOW_ENGINE_ID)
+            proc = wf.get(proc_id)
+            if proc:
+                valid_ids = proc.listActivities()
+                if obj.oldName in valid_ids:
+                    message = 'Application %s moved! Activity %s' \
+                              ' has no application mapped by path now.' %(
+                                      '/'.join([
+                                          obj.oldParent.absolute_url_path(),
+                                          obj.oldName]),
+                                      proc.get(obj.oldName).absolute_url_path())
+                    root.REQUEST['manage_tabs_message'] =  message

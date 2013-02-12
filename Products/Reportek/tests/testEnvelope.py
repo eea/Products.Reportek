@@ -19,6 +19,7 @@ from Products.Reportek import OpenFlowEngine
 from Products.Reportek.Collection import Collection
 from Products.Reportek.Envelope import Envelope
 from Products.Reportek.process import process
+from Products.Reportek import exceptions
 from common import create_mock_request, create_process, _BaseTest
 
 
@@ -289,7 +290,7 @@ class ActivityFindsApplicationTestCase(_BaseTest):
         - In order to be valid, the new name of the application must match one of the ids in the list
         """
         self.create_cepaa_set(1)
-        app = SimpleItem('Renamed_Draft').__of__(self.app.Applications.proc1)
+        app = SimpleItem('bad_name').__of__(self.app.Applications.proc1)
         app.id = 'act1'
         self.app.Applications.proc1._setOb('act1', app)
         event = ObjectMovedEvent(
@@ -300,8 +301,10 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                     'act1'
                     )
         # simulate a ObjectMovedEvent catch
-        OpenFlowEngine.handle_application_move_events(event)
-        assert(True)
+        try:
+            OpenFlowEngine.handle_application_move_events(event)
+        except exceptions.ApplicationNameException:
+            self.fail("This is a valid id. Exception should not be raised")
 
 
     def test_application_invalid_rename(self):
@@ -316,9 +319,8 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                     self.app.Applications.proc1,
                     'still_bad_name'
                     )
-        from Products.Reportek import exceptions
         # simulate a ObjectMovedEvent catch
-        with self.assertRaises(exceptions.ApplicationRenameException):
+        with self.assertRaises(exceptions.ApplicationNameException):
             OpenFlowEngine.handle_application_move_events(event)
 
     def test_application_delete_good_name(self):
@@ -330,14 +332,14 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                     app,
                     self.app.Applications.proc1,
                     'act1',
-                    self.app.Applications.proc1,
-                    '' #empty newName means deletion
+                    None, #empty newParent & empty newName means deletion
+                    ''
                     )
         from Products.Reportek import exceptions
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        message = ('Application </Applications/proc1/act1> '
-                   'deleted! Activity </WorkflowEngine/proc1/act1> has no '
+        self.assertEqual('Application /Applications/proc1/act1 '
+                   'deleted! Activity /WorkflowEngine/proc1/act1 has no '
                    'application mapped by path now.',
                    self.app.REQUEST['manage_tabs_message'])
 
@@ -350,12 +352,108 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                     app,
                     self.app.Applications.proc1,
                     'bad_name',
-                    self.app.Applications.proc1,
-                    '' #empty newName means deletion
+                    None, #empty newParent & empty newName means deletion
+                    ''
                     )
-        from Products.Reportek import exceptions
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
         self.assertEqual('Application /Applications/proc1/bad_name deleted! '\
                          'It was not mapped by path to any activity',
                          self.app.REQUEST['manage_tabs_message'])
+
+    def test_application_valid_creation(self):
+        self.create_cepaa_set(1)
+        app = SimpleItem('Renamed_Draft').__of__(self.app.Applications.proc1)
+        app.id = 'act1'
+        self.app.Applications.proc1._setOb('act1', app)
+        event = ObjectMovedEvent(
+                    app,
+                    None,
+                    '',
+                    self.app.Applications.proc1,
+                    'act1'
+                    )
+        # simulate a ObjectMovedEvent catch
+        try:
+            OpenFlowEngine.handle_application_move_events(event)
+            self.assertEqual('Application act1 mapped by path '\
+                             'to activity /WorkflowEngine/proc1/act1.',
+                             self.app.REQUEST['manage_tabs_message'])
+        except exceptions.ApplicationNameException:
+            self.fail("This is a valid id. Exception should not be raised")
+
+    def test_application_invalid_creation(self):
+        self.create_cepaa_set(1)
+        app = SimpleItem('invalid_id').__of__(self.app.Applications.proc1)
+        app.id = 'invalid_id'
+        self.app.Applications.proc1._setOb('invalid_id', app)
+        event = ObjectMovedEvent(
+                    app,
+                    None,
+                    '',
+                    self.app.Applications.proc1,
+                    'invalid_id'
+                    )
+        # simulate a ObjectMovedEvent catch
+        with self.assertRaises(exceptions.ApplicationNameException):
+            OpenFlowEngine.handle_application_move_events(event)
+
+    def test_application_valid_move(self):
+        self.create_cepaa_set(1)
+        self.create_cepaa_set(2)
+        app = SimpleItem('act1').__of__(self.app.Applications.proc1)
+        app.id = 'act1'
+        self.app.Applications.proc1._setOb('act1', app)
+        event = ObjectMovedEvent(
+                    app,
+                    self.app.Applications.proc1,
+                    'act1',
+                    self.app.Applications.proc2,
+                    'act2'
+                    )
+        # simulate a ObjectMovedEvent catch
+        try:
+            OpenFlowEngine.handle_application_move_events(event)
+            self.assertEqual('Application act1 moved and is also valid '
+                             'in this context, but activity /Applications/proc1/act1 has no '
+                             'application mapped by path now.',
+                             self.app.REQUEST['manage_tabs_message'])
+        except exceptions.ApplicationNameException:
+            self.fail("This is a valid id. Exception should not be raised")
+
+    def test_application_invalid_move(self):
+        self.create_cepaa_set(1)
+        self.create_cepaa_set(2)
+        app = SimpleItem('act1').__of__(self.app.Applications.proc1)
+        app.id = 'act1'
+        self.app.Applications.proc1._setOb('act1', app)
+        event = ObjectMovedEvent(
+                    app,
+                    self.app.Applications.proc1,
+                    'act1',
+                    self.app.Applications.proc2,
+                    'act1'
+                    )
+        # simulate a ObjectMovedEvent catch
+        with self.assertRaises(exceptions.ApplicationNameException):
+            OpenFlowEngine.handle_application_move_events(event)
+
+    def test_application_move_somewhere_else(self):
+        self.create_cepaa_set(1)
+        # app path must be the new path (see warning in handler)
+        app = SimpleItem('act1').__of__(self.app)
+        app.id = 'act1'
+        self.app.Applications.proc1._setOb('act1', app)
+        event = ObjectMovedEvent(
+                    app,
+                    self.app.Applications.proc1,
+                    'act1',
+                    self.app,
+                    'act1'
+                    )
+        # simulate a ObjectMovedEvent catch
+        OpenFlowEngine.handle_application_move_events(event)
+        self.assertEqual('Application /Applications/proc1/act1 '
+                   'moved! Activity /WorkflowEngine/proc1/act1 has no '
+                   'application mapped by path now.',
+                   self.app.REQUEST['manage_tabs_message'])
