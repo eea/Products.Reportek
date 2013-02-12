@@ -48,4 +48,7 @@
   <subscriber for="ZPublisher.interfaces.IPubFailure"
               handler=".monitoring.log_pub_failure" />
 
+  <subscriber for="zope.lifecycleevent.interfaces.IObjectMovedEvent"
+              handler="Products.Reportek.OpenFlowEngine.handle_application_move_events" />
+
 </configure>
