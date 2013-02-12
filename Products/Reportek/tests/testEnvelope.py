@@ -1,5 +1,6 @@
 import os, sys
 import unittest
+import lxml.etree
 from StringIO import StringIO
 from Testing import ZopeTestCase
 from AccessControl import getSecurityManager
@@ -9,10 +10,11 @@ from configurereportek import ConfigureReportek
 from utils import create_fake_root, create_temp_reposit, create_upload_file
 from utils import create_envelope, add_document, simple_addEnvelope
 from mock import Mock, patch
-import lxml.etree
+from zope.lifecycleevent import ObjectMovedEvent
 
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
+from Products.Reportek import OpenFlowEngine
 
 from Products.Reportek.Collection import Collection
 from Products.Reportek.Envelope import Envelope
@@ -268,3 +270,53 @@ class ActivityFindsApplicationTestCase(_BaseTest):
         current_workitem = self.env1.objectValues('Workitem')[-1]
         current_application = self.env1.getApplicationUrl(current_workitem.id)
         self.assertEqual(current_application, '/Applications/proc1/act1')
+
+
+    def test_application_valid_rename(self):
+        """
+        Reportek has a folder to store all the applications for the activities.
+
+        An application path has this pattern:
+         ``/<apps_folder>/<proc_id>/<app_id>``
+
+        Let's say we have an application with this path:
+         ``/Applications/wise_soe/Draft``
+
+        In order to be able to map activities to applications, when renaming an application, the new name must pass a validation mechanism.
+
+        - First, the process id is identified by looking at the application path ``(wise_soe)``
+        - A list with all the ids of activities for that process is pulled from WorkflowEngine
+        - In order to be valid, the new name of the application must match one of the ids in the list
+        """
+        self.create_cepaa_set(1)
+        app = SimpleItem('Renamed_Draft').__of__(self.app.Applications.proc1)
+        app.id = 'act1'
+        self.app.Applications.proc1._setOb('act1', app)
+        event = ObjectMovedEvent(
+                    app,
+                    self.app.Applications.proc1,
+                    'bad_name',
+                    self.app.Applications.proc1,
+                    'act1'
+                    )
+        # simulate a ObjectMovedEvent catch
+        OpenFlowEngine.handle_application_move_events(event)
+        assert(True)
+
+
+    def test_application_invalid_rename(self):
+        self.create_cepaa_set(1)
+        app = SimpleItem('Renamed_Draft').__of__(self.app.Applications.proc1)
+        app.id = 'act1'
+        self.app.Applications.proc1._setOb('act1', app)
+        event = ObjectMovedEvent(
+                    app,
+                    self.app.Applications.proc1,
+                    'bad_name',
+                    self.app.Applications.proc1,
+                    'still_bad_name'
+                    )
+        from Products.Reportek import exceptions
+        # simulate a ObjectMovedEvent catch
+        with self.assertRaises(exceptions.ApplicationRenameException):
+            OpenFlowEngine.handle_application_move_events(event)

@@ -9,3 +9,12 @@ class InvalidPartOfYear(Exception):
 
 class LocalConversionException(Exception):
     """ Raised when Local Conversion Service is not responding """
+
+class ApplicationRenameException(Exception):
+    """
+    Raised when the new name of the application does not match an activity id
+    in the current process
+    """
+
+    def __init__(self, message=None):
+        super(ApplicationRenameException, self).__init__(message)

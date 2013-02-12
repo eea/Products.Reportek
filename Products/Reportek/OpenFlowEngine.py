@@ -22,6 +22,7 @@
 # Miruna Badescu, Finsiel Romania
 #
 
+import re
 from collections import defaultdict
 
 # Zope imports
@@ -30,8 +31,11 @@ from AccessControl.Permissions import view_management_screens
 from Globals import InitializeClass, DTMLFile
 from DateTime import DateTime
 from OFS.Folder import Folder
+from OFS.SimpleItem import SimpleItem
 from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek import constants
+from Products.Reportek import exceptions
 import Products
 #from webdav.WriteLockInterface import WriteLockInterface
 
@@ -743,5 +747,37 @@ class OpenFlowEngine(Folder):
                     out[activity.application].append(activity)
         return dict(out)
 
-
 InitializeClass(OpenFlowEngine)
+
+def handle_application_move_events(obj):
+    """
+    Reportek has a folder to store all the applications for the activities.
+
+    An application path has this pattern:
+     ``/<apps_folder>/<proc_id>/<app_id>``
+
+    Let's say we have an application with this path:
+     ``/Applications/wise_soe/Draft``
+
+    In order to be able to map activities to applications, when renaming an application, the new name must pass a validation mechanism.
+
+    - First, the process id is identified by looking at the application path ``(wise_soe)``
+    - A list with all the ids of activities for that process is pulled from WorkflowEngine
+    - In order to be valid, the new name of the application must match one of the ids in the list
+    """
+    expr = re.compile('^/(Applications)/(.*)/(.*)$')
+    try:
+        result = expr.match( obj.object.absolute_url_path())
+    except TypeError as exp:
+        result = None
+    if result:
+        (folder, proc_id, app_id) = result.groups()
+        root = obj.object.getPhysicalRoot()
+        wf = getattr(root, constants.WORKFLOW_ENGINE_ID)
+        proc = getattr(wf, proc_id, None)
+        if proc:
+            valid_ids = proc.listActivities()
+            if not obj.newName in valid_ids:
+                message = 'Id <%s> does not match any activity name in process <%s>.\n' \
+                          'Valid names: %s' %(app_id, proc.absolute_url_path(), ', '.join(valid_ids))
+                raise exceptions.ApplicationRenameException(message)
