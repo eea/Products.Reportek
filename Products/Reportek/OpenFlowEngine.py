@@ -778,6 +778,19 @@ def handle_application_move_events(obj):
         if proc:
             valid_ids = proc.listActivities()
             if not obj.newName in valid_ids:
-                message = 'Id <%s> does not match any activity name in process <%s>.\n' \
-                          'Valid names: %s' %(app_id, proc.absolute_url_path(), ', '.join(valid_ids))
-                raise exceptions.ApplicationRenameException(message)
+                if not obj.newName and proc.get(app_id, None):
+                    message = 'Application %s deleted! Activity %s' \
+                              ' has no application mapped by path now.' %(
+                                      obj.object.absolute_url_path(),
+                                      proc.get(app_id).absolute_url_path())
+                    root.REQUEST['manage_tabs_message'] =  message
+                elif not obj.newName:
+                    message = 'Application %s deleted! '\
+                              'It was not mapped by path to any activity' %(
+                                obj.object.absolute_url_path())
+                    root.REQUEST['manage_tabs_message'] =  message
+                else:
+                    message = 'Id <%s> does not match any activity name in process <%s>.\n' \
+                              'Valid names: %s' %(app_id, proc.absolute_url_path(), ', '.join(valid_ids))
+                    root.REQUEST['manage_tabs_message'] =  message
+                    raise exceptions.ApplicationRenameException(message)

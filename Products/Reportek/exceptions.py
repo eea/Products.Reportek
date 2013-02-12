@@ -18,3 +18,8 @@ class ApplicationRenameException(Exception):
 
     def __init__(self, message=None):
         super(ApplicationRenameException, self).__init__(message)
+
+class ApplicationDeletedException(ApplicationRenameException):
+    """
+    Raised when the application is deleted
+    """

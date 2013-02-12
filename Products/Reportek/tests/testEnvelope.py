@@ -320,3 +320,42 @@ class ActivityFindsApplicationTestCase(_BaseTest):
         # simulate a ObjectMovedEvent catch
         with self.assertRaises(exceptions.ApplicationRenameException):
             OpenFlowEngine.handle_application_move_events(event)
+
+    def test_application_delete_good_name(self):
+        self.create_cepaa_set(1)
+        app = SimpleItem('Renamed_Draft').__of__(self.app.Applications.proc1)
+        app.id = 'act1'
+        self.app.Applications.proc1._setOb('act1', app)
+        event = ObjectMovedEvent(
+                    app,
+                    self.app.Applications.proc1,
+                    'act1',
+                    self.app.Applications.proc1,
+                    '' #empty newName means deletion
+                    )
+        from Products.Reportek import exceptions
+        # simulate a ObjectMovedEvent catch
+        OpenFlowEngine.handle_application_move_events(event)
+        message = ('Application </Applications/proc1/act1> '
+                   'deleted! Activity </WorkflowEngine/proc1/act1> has no '
+                   'application mapped by path now.',
+                   self.app.REQUEST['manage_tabs_message'])
+
+    def test_application_delete_bad_name(self):
+        self.create_cepaa_set(1)
+        app = SimpleItem('Renamed_Draft').__of__(self.app.Applications.proc1)
+        app.id = 'bad_name'
+        self.app.Applications.proc1._setOb('bad_name', app)
+        event = ObjectMovedEvent(
+                    app,
+                    self.app.Applications.proc1,
+                    'bad_name',
+                    self.app.Applications.proc1,
+                    '' #empty newName means deletion
+                    )
+        from Products.Reportek import exceptions
+        # simulate a ObjectMovedEvent catch
+        OpenFlowEngine.handle_application_move_events(event)
+        self.assertEqual('Application /Applications/proc1/bad_name deleted! '\
+                         'It was not mapped by path to any activity',
+                         self.app.REQUEST['manage_tabs_message'])
