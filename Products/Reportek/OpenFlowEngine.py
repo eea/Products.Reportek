@@ -824,10 +824,10 @@ def handle_application_move_events(obj):
                     # 3) we are renaming an application but the new id does not
                     # match an activity id
 
-                    message = 'Id %s does not match any activity name in process %s.\n' \
-                              'Valid names: %s' %(app_id, proc_new.absolute_url_path(), ', '.join(valid_ids))
+                    message = 'Id %s does not match any activity name in process %s. ' \
+                              'Choose a valid name from this list: %s' %(app_id, proc_new.absolute_url_path(), ', '.join(valid_ids))
                     root.REQUEST['manage_tabs_message'] =  message
-                    raise exceptions.ApplicationNameException(message)
+
             elif obj.oldParent and obj.newParent and not (obj.oldParent == obj.newParent):
                 # getting here means we are moving an application from one
                 # folder to a process folder and the app id
@@ -853,7 +853,7 @@ def handle_application_move_events(obj):
                               )
                     root.REQUEST['manage_tabs_message'] =  message
 
-            elif not obj.oldParent:
+            else:
                 message = 'Application %s mapped by path to activity %s.'%(
                                 app_id, proc_new.get(app_id).absolute_url_path())
                 root.REQUEST['manage_tabs_message'] =  message

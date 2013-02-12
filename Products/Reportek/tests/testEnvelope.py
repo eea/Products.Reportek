@@ -301,10 +301,9 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                     'act1'
                     )
         # simulate a ObjectMovedEvent catch
-        try:
-            OpenFlowEngine.handle_application_move_events(event)
-        except exceptions.ApplicationNameException:
-            self.fail("This is a valid id. Exception should not be raised")
+        OpenFlowEngine.handle_application_move_events(event)
+        message = 'Application act1 mapped by path to activity /WorkflowEngine/proc1/act1.'
+        self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
 
 
     def test_application_invalid_rename(self):
@@ -320,8 +319,10 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                     'still_bad_name'
                     )
         # simulate a ObjectMovedEvent catch
-        with self.assertRaises(exceptions.ApplicationNameException):
-            OpenFlowEngine.handle_application_move_events(event)
+        OpenFlowEngine.handle_application_move_events(event)
+        message = 'Id act1 does not match any activity name in process /WorkflowEngine/proc1. ' \
+                  'Choose a valid name from this list: Begin, End, act1'
+        self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
 
     def test_application_delete_good_name(self):
         self.create_cepaa_set(1)
@@ -374,13 +375,10 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                     'act1'
                     )
         # simulate a ObjectMovedEvent catch
-        try:
-            OpenFlowEngine.handle_application_move_events(event)
-            self.assertEqual('Application act1 mapped by path '\
-                             'to activity /WorkflowEngine/proc1/act1.',
-                             self.app.REQUEST['manage_tabs_message'])
-        except exceptions.ApplicationNameException:
-            self.fail("This is a valid id. Exception should not be raised")
+        OpenFlowEngine.handle_application_move_events(event)
+        self.assertEqual('Application act1 mapped by path '\
+                         'to activity /WorkflowEngine/proc1/act1.',
+                         self.app.REQUEST['manage_tabs_message'])
 
     def test_application_invalid_creation(self):
         self.create_cepaa_set(1)
@@ -395,8 +393,10 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                     'invalid_id'
                     )
         # simulate a ObjectMovedEvent catch
-        with self.assertRaises(exceptions.ApplicationNameException):
-            OpenFlowEngine.handle_application_move_events(event)
+        OpenFlowEngine.handle_application_move_events(event)
+        message = 'Id invalid_id does not match any activity name in process /WorkflowEngine/proc1. ' \
+                  'Choose a valid name from this list: Begin, End, act1'
+        self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
 
     def test_application_valid_move_from_one_proc_to_another(self):
         self.create_cepaa_set(1)
@@ -415,14 +415,11 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                     'act1'
                     )
         # simulate a ObjectMovedEvent catch
-        try:
-            OpenFlowEngine.handle_application_move_events(event)
-            self.assertEqual('Application act1 mapped by path to activity /WorkflowEngine/proc2/act1. '
-                             'Activity /WorkflowEngine/proc1/act1 has no '
-                             'application mapped by path now.',
-                             self.app.REQUEST['manage_tabs_message'])
-        except exceptions.ApplicationNameException:
-            self.fail("This is a valid id. Exception should not be raised")
+        OpenFlowEngine.handle_application_move_events(event)
+        self.assertEqual('Application act1 mapped by path to activity /WorkflowEngine/proc2/act1. '
+                         'Activity /WorkflowEngine/proc1/act1 has no '
+                         'application mapped by path now.',
+                         self.app.REQUEST['manage_tabs_message'])
 
     def test_application_invalid_move_from_one_process_to_another(self):
         self.create_cepaa_set(1)
@@ -439,8 +436,10 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                     'act1'
                     )
         # simulate a ObjectMovedEvent catch
-        with self.assertRaises(exceptions.ApplicationNameException):
-            OpenFlowEngine.handle_application_move_events(event)
+        OpenFlowEngine.handle_application_move_events(event)
+        message = 'Id act1 does not match any activity name in process /WorkflowEngine/proc2. ' \
+                  'Choose a valid name from this list: Begin, End, act2'
+        self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
 
     def test_application_valid_move_from_exterior_to_process_folder(self):
         self.create_cepaa_set(1)
