@@ -765,7 +765,7 @@ def handle_application_move_events(obj):
     - A list with all the ids of activities for that process is pulled from WorkflowEngine
     - In order to be valid, the new name of the application must match one of the ids in the list
     """
-    expr = re.compile('^/(Applications)/(.*)(?:/(.*))$')
+    expr = re.compile('^/(%s)/(.*)(?:/(.*))$' %constants.APPLICATIONS_FOLDER_ID)
     try:
         # warning obj.object.absolute_url_path() is the new path
         result = expr.match(obj.object.absolute_url_path())
@@ -845,7 +845,7 @@ def handle_application_move_events(obj):
                                 app_id, proc.get(app_id).absolute_url_path())
                 root.REQUEST['manage_tabs_message'] =  message
     elif obj.oldParent:
-        expr = re.compile('^/(Applications)/(.*)$')
+        expr = re.compile('^/(%s)/(.*)$' %constants.APPLICATIONS_FOLDER_ID)
         result = expr.match(obj.oldParent.absolute_url_path())
         if result:
             (host_folder, proc_id) = result.groups()
