@@ -46,7 +46,7 @@ except:
     # here's a what you need:
     from expression import Expression
 import RepUtils
-from constants import WORKFLOW_ENGINE_ID, WEBQ_XML_REPOSITORY, CONVERTERS_ID
+from constants import WORKFLOW_ENGINE_ID, WEBQ_XML_REPOSITORY, CONVERTERS_ID, APPLICATIONS_FOLDER_ID
 from workitem import workitem
 
 
@@ -128,13 +128,21 @@ class EnvelopeInstance(CatalogAware, Folder):
     security.declareProtected('Use OpenFlow', 'getApplicationUrl')
     def getApplicationUrl(self, workitem_id):
         """ Return application definition URL relative to instance and workitem """
-        activity = self.getActivity(workitem_id)
-        application = activity.application
-        engine = self.getOpenFlowEngine()
-        if application in engine._applications.keys():
-            return engine._applications[application]['url']
-        else:
-            return ""
+        (root, engine, proc_id, activity) = (self.getPhysicalRoot(),
+                                             self.getOpenFlowEngine(),
+                                             self.getProcess().id,
+                                             self.getActivity(workitem_id))
+        app_path = '%s/%s/%s' %(APPLICATIONS_FOLDER_ID, proc_id, activity.id)
+        try:
+            application = root.unrestrictedTraverse(app_path)
+            if application:
+                return application.absolute_url_path()
+        except KeyError as err:
+            application = activity.application
+            if application in engine._applications.keys():
+                return engine._applications[application]['url']
+            else:
+                return ""
 
     def getEnvironment(self, workitem_id):
         """ Returns the engine, the workitem object, the current process and activity """

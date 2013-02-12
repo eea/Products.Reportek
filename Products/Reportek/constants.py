@@ -30,6 +30,7 @@ WORKFLOW_ENGINE_ID = 'WorkflowEngine'
 CONVERTERS_ID = 'Converters'
 QAREPOSITORY_ID = 'QARepository'
 DATAFLOW_MAPPINGS = 'DataflowMappings'
+APPLICATIONS_FOLDER_ID = 'Applications'
 
 # remote servers
 WEBQ_XML_REPOSITORY = 'http://cdr.eionet.europa.eu/xmlexports/groundwater/'
