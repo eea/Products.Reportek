@@ -778,18 +778,31 @@ def handle_application_move_events(obj):
         if proc:
             valid_ids = proc.listActivities()
             if not obj.newName in valid_ids:
-                if not obj.newName and proc.get(app_id, None):
+                if not obj.newName and app_id in valid_ids:
+                    # VALID ID DELETION
+                    # getting here means we are deleting a previously mapped
+                    # application, leaving an activity unmapped
+                    # ok, but display a message
                     message = 'Application %s deleted! Activity %s' \
                               ' has no application mapped by path now.' %(
                                       obj.object.absolute_url_path(),
                                       proc.get(app_id).absolute_url_path())
                     root.REQUEST['manage_tabs_message'] =  message
                 elif not obj.newName:
+                    # INVALID ID DELETION
+                    # getting here means we are deleting an application that's
+                    # not mapped to any activity
+                    # ok, but display a message
                     message = 'Application %s deleted! '\
                               'It was not mapped by path to any activity' %(
                                 obj.object.absolute_url_path())
                     root.REQUEST['manage_tabs_message'] =  message
                 else:
+                    # getting here means were are either creating an
+                    # application with an invalid name or we are renaming an
+                    # application and the new name is invalid or we are moving
+                    # an application
+                    # TODO separate above cases
                     message = 'Id <%s> does not match any activity name in process <%s>.\n' \
                               'Valid names: %s' %(app_id, proc.absolute_url_path(), ', '.join(valid_ids))
                     root.REQUEST['manage_tabs_message'] =  message
