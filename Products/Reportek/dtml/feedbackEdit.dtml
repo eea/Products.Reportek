@@ -83,7 +83,7 @@
 <script>
     CKEDITOR.replace('ckeditor-textarea',
         {
-            height: 400,
+            height: 400
         }
     );
 </script>
