@@ -81,7 +81,11 @@
 	</form>
 </fieldset>
 <script>
-    CKEDITOR.replace('ckeditor-textarea');
+    CKEDITOR.replace('ckeditor-textarea',
+        {
+            height: 400,
+        }
+    );
 </script>
 
 <dtml-var standard_html_footer>

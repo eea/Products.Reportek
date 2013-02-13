@@ -33,7 +33,7 @@
 		<tr>
 			<th style="width: 15%">Feedback content (plain text)</th>
             <td>
-                <textarea id="ckeditor-textarea" cols="60" rows="20" name="feedbacktext:utf8:ustring" style="width:85%"></textarea>
+                <textarea id="ckeditor-textarea" cols="60" rows="100" name="feedbacktext:utf8:ustring" style="width:85%"></textarea>
 			</td>
 		</tr>
 		<tr>
@@ -65,7 +65,11 @@
 </dtml-if>
 
 <script>
-    CKEDITOR.replace('ckeditor-textarea');
+    CKEDITOR.replace('ckeditor-textarea',
+        {
+            height: 400,
+        }
+    );
 </script>
 
 <dtml-var standard_html_footer>
