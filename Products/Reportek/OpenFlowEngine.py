@@ -897,7 +897,14 @@ def handle_application_move_events(obj):
         #MOVE
         if obj.oldName and obj.newName and not obj.oldParent == obj.newParent:
             if obj.oldName in valid_old_ids:
-                print "MOVE VALID INSIDE>OUTSIDE"
+                # MOVE VALID INSIDE>OUTSIDE
+                message = 'Application %s moved! Activity %s' \
+                          ' has no application mapped by path now.' %(
+                                  '/'.join([
+                                      obj.oldParent.absolute_url_path(),
+                                      obj.oldName]),
+                                  proc_old.get(obj.oldName).absolute_url_path())
+                root.REQUEST['manage_tabs_message'] =  message
             else:
                 print "MOVE INVALID INSIDE>OUTSIDE"
         #DELETE
@@ -994,13 +1001,7 @@ def handle_application_move_events(obj):
             if proc_new:
                 valid_ids = proc_new.listActivities()
                 if obj.oldName in valid_ids:
-                    message = 'Application %s moved! Activity %s' \
-                              ' has no application mapped by path now.' %(
-                                      '/'.join([
-                                          obj.oldParent.absolute_url_path(),
-                                          obj.oldName]),
-                                      proc_new.get(obj.oldName).absolute_url_path())
-                    root.REQUEST['manage_tabs_message'] =  message
+                    pass
                 else:
                     message = 'Application %s moved! It was not mapped by path to any activity.' %(
                                       '/'.join([
