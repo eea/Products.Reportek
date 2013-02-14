@@ -290,7 +290,7 @@ class ActivityFindsApplicationTestCase(_BaseTest):
         - In order to be valid, the new name of the application must match one of the ids in the list
         """
         self.create_cepaa_set(1)
-        app = SimpleItem('bad_name').__of__(self.app.Applications.proc1)
+        app = SimpleItem('act1').__of__(self.app.Applications.proc1)
         app.id = 'act1'
         self.app.Applications.proc1._setOb('act1', app)
         event = ObjectMovedEvent(
@@ -309,9 +309,9 @@ class ActivityFindsApplicationTestCase(_BaseTest):
 
     def test_application_invalid_to_invalid_rename(self):
         self.create_cepaa_set(1)
-        app = SimpleItem('Renamed_Draft').__of__(self.app.Applications.proc1)
-        app.id = 'act1'
-        self.app.Applications.proc1._setOb('act1', app)
+        app = SimpleItem('still_bad_name').__of__(self.app.Applications.proc1)
+        app.id = 'still_bad_name'
+        self.app.Applications.proc1._setOb('still_bad_name', app)
         event = ObjectMovedEvent(
                     app,
                     self.app.Applications.proc1,
@@ -324,6 +324,25 @@ class ActivityFindsApplicationTestCase(_BaseTest):
         message = 'Id bad_name was not mapped by path to any activity. ' \
                   'Id still_bad_name does not match any activity name in process /WorkflowEngine/proc1. ' \
                   'Choose a valid name from this list: Begin, End, act1'
+        self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
+
+    def test_application_valid_to_valid_rename(self):
+        self.create_cepaa_set(1)
+        self.wf.proc1.addActivity('act2')
+        app = SimpleItem('act2').__of__(self.app.Applications.proc1)
+        app.id = 'act2'
+        self.app.Applications.proc1._setOb('act2', app)
+        event = ObjectMovedEvent(
+                    app,
+                    self.app.Applications.proc1,
+                    'act1',
+                    self.app.Applications.proc1,
+                    'act2'
+                    )
+        # simulate a ObjectMovedEvent catch
+        OpenFlowEngine.handle_application_move_events(event)
+        message = 'Activity /WorkflowEngine/proc1/act1 has no application mapped by path now. '\
+                  'Application act2 mapped by path to activity /WorkflowEngine/proc1/act2.'
         self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
 
     def test_application_valid_delete(self):
