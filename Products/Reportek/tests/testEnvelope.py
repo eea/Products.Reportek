@@ -302,7 +302,8 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                     )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        message = 'Application act1 mapped by path to activity /WorkflowEngine/proc1/act1.'
+        message = 'Id bad_name was not mapped by path to any activity. ' \
+                  'Application act1 mapped by path to activity /WorkflowEngine/proc1/act1.'
         self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
 
 

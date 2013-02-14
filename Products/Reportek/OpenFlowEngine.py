@@ -816,12 +816,15 @@ def handle_application_move_events(obj):
         # and stays in apps context
         #RENAME
         if obj.oldName and obj.newName and obj.oldParent == obj.newParent:
+            #TODO test valid > valid
+            #TODO test valid > invalid
             if obj.newName in valid_new_ids:
-                #TODO test valid > valid
-                #TODO test valid > invalid
                 # RENAME INVALID > VALID
-                message = 'Application %s mapped by path to activity %s.'%(
-                                obj.newName, proc_new.get(obj.newName).absolute_url_path())
+                message = 'Id %s was not mapped by path to any activity. ' \
+                          'Application %s mapped by path to activity %s.'%(
+                                obj.oldName,
+                                obj.newName,
+                                proc_new.get(obj.newName).absolute_url_path())
                 root.REQUEST['manage_tabs_message'] =  message
             else:
                 # RENAME INVALID > INVALID
