@@ -812,47 +812,46 @@ def handle_application_move_events(obj):
         if proc_new:
             valid_new_ids = proc_new.listActivities()
 
-    if expr.match(new_path) or expr.match(old_path):
-        if obj.oldName and obj.newName and not obj.oldParent == obj.newParent and match_old:
+    if obj.oldName and obj.newName and not obj.oldParent == obj.newParent and match_old:
+        messages.append(
+            'Application %s moved!' %(
+                obj.oldName
+            )
+        )
+    if obj.oldName and not obj.newName:
+        messages.append(
+            'Application %s deleted!' %(
+                obj.oldName
+            )
+        )
+    if valid_old_ids:
+        if obj.oldName not in valid_old_ids:
             messages.append(
-                'Application %s moved!' %(
+                'Id %s was not mapped by path to any activity.'%(
                     obj.oldName
                 )
             )
-        if obj.oldName and not obj.newName:
+        else:
             messages.append(
-                'Application %s deleted!' %(
-                    obj.oldName
+                'Activity %s has no application mapped by path now.' %(
+                    proc_old.get(obj.oldName).absolute_url_path()
                 )
             )
-        if valid_old_ids:
-            if obj.oldName not in valid_old_ids:
-                messages.append(
-                    'Id %s was not mapped by path to any activity.'%(
-                        obj.oldName
-                    )
-                )
-            else:
-                messages.append(
-                    'Activity %s has no application mapped by path now.' %(
-                        proc_old.get(obj.oldName).absolute_url_path()
-                    )
-                )
-        if valid_new_ids:
-            if obj.newName in valid_new_ids:
-                messages.append(
-                    'Application %s mapped by path to activity %s.' %(
-                        obj.newName,
-                        proc_new.get(obj.newName).absolute_url_path())
-                )
-            else:
-                messages.append(
-                    'Id %s does not match any activity name in process %s.' %(
-                        obj.newName,
-                        proc_new.absolute_url_path())
-                )
-                messages.append(
-                    'Choose a valid name from this list: %s' %(
-                        ', '.join(valid_new_ids))
-                )
+    if valid_new_ids:
+        if obj.newName in valid_new_ids:
+            messages.append(
+                'Application %s mapped by path to activity %s.' %(
+                    obj.newName,
+                    proc_new.get(obj.newName).absolute_url_path())
+            )
+        else:
+            messages.append(
+                'Id %s does not match any activity name in process %s.' %(
+                    obj.newName,
+                    proc_new.absolute_url_path())
+            )
+            messages.append(
+                'Choose a valid name from this list: %s' %(
+                    ', '.join(valid_new_ids))
+            )
     root.REQUEST['manage_tabs_message'] =  ' '.join(messages)
