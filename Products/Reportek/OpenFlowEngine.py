@@ -857,7 +857,11 @@ def handle_application_move_events(obj):
         #DELETE
         elif obj.oldName and not obj.newName:
             if obj.oldName in valid_old_ids:
-                print "DELETE VALID"
+                message = 'Application %s deleted! Activity %s' \
+                          ' has no application mapped by path now.' %(
+                                  obj.object.absolute_url_path(),
+                                  proc_old.get(obj.oldName).absolute_url_path())
+                root.REQUEST['manage_tabs_message'] =  message
             else:
                 print "DELETE INVALID"
 
@@ -890,11 +894,7 @@ def handle_application_move_events(obj):
                     # getting here means we are deleting a previously mapped
                     # application, leaving an activity unmapped
                     # that's ok, but display a message
-                    message = 'Application %s deleted! Activity %s' \
-                              ' has no application mapped by path now.' %(
-                                      obj.object.absolute_url_path(),
-                                      proc_new.get(app_id).absolute_url_path())
-                    root.REQUEST['manage_tabs_message'] =  message
+                    pass
                 elif not obj.newName:
                     # INVALID ID DELETION
                     # getting here means we are deleting an application that's
