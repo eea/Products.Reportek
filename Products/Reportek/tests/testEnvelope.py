@@ -320,7 +320,7 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                     )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        message = 'Id act1 does not match any activity name in process /WorkflowEngine/proc1. ' \
+        message = 'Id still_bad_name does not match any activity name in process /WorkflowEngine/proc1. ' \
                   'Choose a valid name from this list: Begin, End, act1'
         self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
 

@@ -819,7 +819,13 @@ def handle_application_move_events(obj):
             if obj.newName in valid_new_ids:
                 print "RENAME VALID"
             else:
-                print "RENAME INVALID"
+                # "RENAME INVALID"
+                message = 'Id %s does not match any activity name in process %s. ' \
+                          'Choose a valid name from this list: %s' %(
+                              obj.newName,
+                              proc_new.absolute_url_path(),
+                              ', '.join(valid_new_ids))
+                root.REQUEST['manage_tabs_message'] =  message
         #MOVE
         elif obj.oldName and obj.newName and not obj.oldParent == obj.newParent:
             if obj.newName in valid_new_ids and obj.oldName in valid_old_ids:
@@ -827,9 +833,21 @@ def handle_application_move_events(obj):
             elif obj.newName in valid_new_ids and obj.oldName not in valid_old_ids:
                 print "MOVE INVALID INSIDE>VALID INSIDE"
             elif obj.newName not in valid_new_ids and obj.oldName in valid_old_ids:
-                print "MOVE VALID INSIDE>INVALID INSIDE"
+                # "MOVE VALID INSIDE>INVALID INSIDE"
+                message = 'Id %s does not match any activity name in process %s. ' \
+                          'Choose a valid name from this list: %s' %(
+                              obj.newName,
+                              proc_new.absolute_url_path(),
+                              ', '.join(valid_new_ids))
+                root.REQUEST['manage_tabs_message'] =  message
             elif obj.newName not in valid_new_ids and obj.oldName not in valid_new_ids:
-                print "MOVE INVALID INSIDE>INVALID INSIDE"
+                # "MOVE INVALID INSIDE>INVALID INSIDE"
+                message = 'Id %s does not match any activity name in process %s. ' \
+                          'Choose a valid name from this list: %s' %(
+                              obj.newName,
+                              proc_new.absolute_url_path(),
+                              ', '.join(valid_new_ids))
+                root.REQUEST['manage_tabs_message'] =  message
     elif expr.match(new_path):
         # app is comming from outside apps context
         # and goes in a process folder
@@ -844,7 +862,12 @@ def handle_application_move_events(obj):
             if obj.newName in valid_new_ids:
                 print "CREATE VALID"
             else:
-                print "CREATE INVALID"
+                message = 'Id %s does not match any activity name in process %s. ' \
+                          'Choose a valid name from this list: %s' %(
+                              obj.newName,
+                              proc_new.absolute_url_path(),
+                              ', '.join(valid_new_ids))
+                root.REQUEST['manage_tabs_message'] =  message
     elif expr.match(old_path):
         # app is leaving a process folder
         # and goes outside apps context
@@ -918,10 +941,8 @@ def handle_application_move_events(obj):
 
                     # 3) we are renaming an application but the new id does not
                     # match an activity id
+                    pass
 
-                    message = 'Id %s does not match any activity name in process %s. ' \
-                              'Choose a valid name from this list: %s' %(app_id, proc_new.absolute_url_path(), ', '.join(valid_ids))
-                    root.REQUEST['manage_tabs_message'] =  message
 
             elif obj.oldParent and obj.newParent and not (obj.oldParent == obj.newParent):
                 # getting here means we are moving an application from one
