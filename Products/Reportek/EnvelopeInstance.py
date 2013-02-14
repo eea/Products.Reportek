@@ -138,11 +138,17 @@ class EnvelopeInstance(CatalogAware, Folder):
             if application:
                 return application.absolute_url_path()
         except KeyError as err:
-            application = activity.application
-            if application in engine._applications.keys():
-                return engine._applications[application]['url']
-            else:
-                return ""
+            try:
+                app_path = '%s/%s/%s' %(APPLICATIONS_FOLDER_ID, 'Common', activity.id)
+                application = root.unrestrictedTraverse(app_path)
+                if application:
+                    return application.absolute_url_path()
+            except KeyError:
+                application = activity.application
+                if application in engine._applications.keys():
+                    return engine._applications[application]['url']
+                else:
+                    return ""
 
     def getEnvironment(self, workitem_id):
         """ Returns the engine, the workitem object, the current process and activity """

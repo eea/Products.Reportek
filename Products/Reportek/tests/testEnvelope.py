@@ -227,7 +227,7 @@ class ActivityFindsApplicationTestCase(_BaseTest):
         self.app.Templates.StartActivity = Mock(return_value='Test Application')
         self.app.Templates.StartActivity.title_or_id = Mock(return_value='Start Activity Template')
         create_process(self, proc_id)
-        self.wf.addApplication(app_id, 'Applications/%s' %app_id)
+        self.wf.addApplication(app_id, 'SomeFolder/%s' %app_id)
 
         self.app.Applications._setOb(proc_id, Folder(proc_id))
         proc = getattr(self.app.Applications, proc_id)
@@ -272,6 +272,36 @@ class ActivityFindsApplicationTestCase(_BaseTest):
         current_application = self.env1.getApplicationUrl(current_workitem.id)
         self.assertEqual(current_application, '/Applications/proc1/act1')
 
+    def test_getApplicationUrl_finds_in_Common_folder(self):
+        """
+        Test if EnvelopeInstance.getApplicationUrl checks next
+        in <root>/<Applications Folder>/Common/<activity_id> for an application
+        NOTE: The id of the application should be the same as the id of the
+        activity
+        """
+        self.create_cepaa_set(1)
+        self.app.Applications.proc1._delOb('act1')
+        app = SimpleItem('act1').__of__(self.app.Applications.proc1)
+        app.id = 'act1'
+        self.app.Applications._setOb('Common', Folder('Common'))
+        self.app.Applications.Common._setOb('act1', app)
+        current_workitem = self.env1.objectValues('Workitem')[-1]
+        current_application = self.env1.getApplicationUrl(current_workitem.id)
+        self.assertEqual(current_application, '/Applications/Common/act1')
+
+    def test_getApplicationUrl_finds_application_attribute(self):
+        """
+        Test if EnvelopeInstance.getApplicationUrl checks next
+        in <root>/<Applications Folder>/Common/<activity_id> for an application
+        NOTE: This is for backward compatibility
+        """
+        self.create_cepaa_set(1)
+        # no matching app in Applications or Applications/Common
+        self.app.Applications.proc1._delOb('act1')
+        current_workitem = self.env1.objectValues('Workitem')[-1]
+        self.wf.proc1.get('act1').application = 'act1'
+        current_application = self.env1.getApplicationUrl(current_workitem.id)
+        self.assertEqual(current_application, 'SomeFolder/act1')
 
     def test_application_invalid_to_valid_rename(self):
         """
