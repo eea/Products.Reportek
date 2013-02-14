@@ -863,7 +863,9 @@ def handle_application_move_events(obj):
                                   proc_old.get(obj.oldName).absolute_url_path())
                 root.REQUEST['manage_tabs_message'] =  message
             else:
-                print "DELETE INVALID"
+                message = 'Application %s deleted! '\
+                          'It was not mapped by path to any activity' %(old_path)
+                root.REQUEST['manage_tabs_message'] =  message
 
     try:
         # warning obj.object.absolute_url_path() is the new path
@@ -900,10 +902,7 @@ def handle_application_move_events(obj):
                     # getting here means we are deleting an application that's
                     # not mapped to any activity
                     # that's ok, but display a message
-                    message = 'Application %s deleted! '\
-                              'It was not mapped by path to any activity' %(
-                                obj.object.absolute_url_path())
-                    root.REQUEST['manage_tabs_message'] =  message
+                    pass
                 else:
                     # getting here means one of the following:
 
