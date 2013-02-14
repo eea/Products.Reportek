@@ -876,8 +876,13 @@ def handle_application_move_events(obj):
                           )
                 root.REQUEST['manage_tabs_message'] =  message
             else:
-                # TODO test and implement
-                print "MOVE OUTSIDE>INVALID INSIDE"
+                # MOVE OUTSIDE>INVALID INSIDE
+                message = 'Id %s does not match any activity name in process %s. ' \
+                          'Choose a valid name from this list: %s' %(
+                              obj.newName,
+                              proc_new.absolute_url_path(),
+                              ', '.join(valid_new_ids))
+                root.REQUEST['manage_tabs_message'] =  message
         #CREATE
         elif not obj.oldName and obj.newName:
             if obj.newName in valid_new_ids:

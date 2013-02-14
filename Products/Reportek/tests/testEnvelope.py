@@ -458,6 +458,24 @@ class ActivityFindsApplicationTestCase(_BaseTest):
         self.assertEqual('Application act1 mapped by path to activity /WorkflowEngine/proc1/act1. ',
                          self.app.REQUEST['manage_tabs_message'])
 
+    def test_application_invalid_move_from_exterior_to_process_folder(self):
+        self.create_cepaa_set(1)
+        app = SimpleItem('act2').__of__(self.app.Applications.proc1)
+        app.id = 'act2'
+        self.app.Applications.proc1._setOb('act2', app)
+        event = ObjectMovedEvent(
+                    app,
+                    self.app,
+                    'act2',
+                    self.app.Applications.proc1,
+                    'act2'
+                    )
+        # simulate a ObjectMovedEvent catch
+        OpenFlowEngine.handle_application_move_events(event)
+        message = 'Id act2 does not match any activity name in process /WorkflowEngine/proc1. ' \
+                  'Choose a valid name from this list: Begin, End, act1'
+        self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
+
     def test_application_valid_move_from_process_folder_to_exterior(self):
         self.create_cepaa_set(1)
         app = SimpleItem('act1').__of__(self.app)
