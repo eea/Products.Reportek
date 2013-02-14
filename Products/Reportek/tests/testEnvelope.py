@@ -273,7 +273,7 @@ class ActivityFindsApplicationTestCase(_BaseTest):
         self.assertEqual(current_application, '/Applications/proc1/act1')
 
 
-    def test_application_valid_rename(self):
+    def test_application_invalid_to_valid_rename(self):
         """
         Reportek has a folder to store all the applications for the activities.
 
@@ -306,7 +306,7 @@ class ActivityFindsApplicationTestCase(_BaseTest):
         self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
 
 
-    def test_application_invalid_rename(self):
+    def test_application_invalid_to_invalid_rename(self):
         self.create_cepaa_set(1)
         app = SimpleItem('Renamed_Draft').__of__(self.app.Applications.proc1)
         app.id = 'act1'
@@ -320,7 +320,8 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                     )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        message = 'Id still_bad_name does not match any activity name in process /WorkflowEngine/proc1. ' \
+        message = 'Id bad_name was not mapped by path to any activity. ' \
+                  'Id still_bad_name does not match any activity name in process /WorkflowEngine/proc1. ' \
                   'Choose a valid name from this list: Begin, End, act1'
         self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
 

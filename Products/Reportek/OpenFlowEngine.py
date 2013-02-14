@@ -819,16 +819,16 @@ def handle_application_move_events(obj):
             if obj.newName in valid_new_ids:
                 #TODO test valid > valid
                 #TODO test valid > invalid
-                #TODO test invalid > valid
-                #TODO test invalid > invalid
-                # RENAME VALID
+                # RENAME INVALID > VALID
                 message = 'Application %s mapped by path to activity %s.'%(
                                 obj.newName, proc_new.get(obj.newName).absolute_url_path())
                 root.REQUEST['manage_tabs_message'] =  message
             else:
-                # RENAME INVALID
-                message = 'Id %s does not match any activity name in process %s. ' \
+                # RENAME INVALID > INVALID
+                message = 'Id %s was not mapped by path to any activity. ' \
+                          'Id %s does not match any activity name in process %s. ' \
                           'Choose a valid name from this list: %s' %(
+                              obj.oldName,
                               obj.newName,
                               proc_new.absolute_url_path(),
                               ', '.join(valid_new_ids))
