@@ -875,3 +875,9 @@ def handle_application_move_events(obj):
                                           obj.oldName]),
                                       proc_new.get(obj.oldName).absolute_url_path())
                     root.REQUEST['manage_tabs_message'] =  message
+                else:
+                    message = 'Application %s moved! It was not mapped by path to any activity.' %(
+                                      '/'.join([
+                                          obj.oldParent.absolute_url_path(),
+                                          obj.oldName]))
+                    root.REQUEST['manage_tabs_message'] =  message

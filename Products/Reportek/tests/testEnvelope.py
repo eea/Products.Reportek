@@ -324,7 +324,7 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                   'Choose a valid name from this list: Begin, End, act1'
         self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
 
-    def test_application_delete_good_name(self):
+    def test_application_valid_delete(self):
         self.create_cepaa_set(1)
         app = SimpleItem('Renamed_Draft').__of__(self.app.Applications.proc1)
         app.id = 'act1'
@@ -344,7 +344,7 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                    'application mapped by path now.',
                    self.app.REQUEST['manage_tabs_message'])
 
-    def test_application_delete_bad_name(self):
+    def test_application_invalid_delete(self):
         self.create_cepaa_set(1)
         app = SimpleItem('Renamed_Draft').__of__(self.app.Applications.proc1)
         app.id = 'bad_name'
@@ -362,7 +362,7 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                          'It was not mapped by path to any activity',
                          self.app.REQUEST['manage_tabs_message'])
 
-    def test_application_valid_creation(self):
+    def test_application_valid_create(self):
         self.create_cepaa_set(1)
         app = SimpleItem('Renamed_Draft').__of__(self.app.Applications.proc1)
         app.id = 'act1'
@@ -380,7 +380,7 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                          'to activity /WorkflowEngine/proc1/act1.',
                          self.app.REQUEST['manage_tabs_message'])
 
-    def test_application_invalid_creation(self):
+    def test_application_invalid_create(self):
         self.create_cepaa_set(1)
         app = SimpleItem('invalid_id').__of__(self.app.Applications.proc1)
         app.id = 'invalid_id'
@@ -421,7 +421,7 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                          'application mapped by path now.',
                          self.app.REQUEST['manage_tabs_message'])
 
-    def test_application_invalid_move_from_one_process_to_another(self):
+    def test_application_invalid_move_from_one_proc_to_another(self):
         self.create_cepaa_set(1)
         self.create_cepaa_set(2)
         # this happens when proc1 and proc2 do not have a common activity id
@@ -458,7 +458,7 @@ class ActivityFindsApplicationTestCase(_BaseTest):
         self.assertEqual('Application act1 mapped by path to activity /WorkflowEngine/proc1/act1. ',
                          self.app.REQUEST['manage_tabs_message'])
 
-    def test_application_move_from_process_folder_to_exterior(self):
+    def test_application_valid_move_from_process_folder_to_exterior(self):
         self.create_cepaa_set(1)
         app = SimpleItem('act1').__of__(self.app)
         app.id = 'act1'
@@ -475,4 +475,22 @@ class ActivityFindsApplicationTestCase(_BaseTest):
         self.assertEqual('Application /Applications/proc1/act1 '
                    'moved! Activity /WorkflowEngine/proc1/act1 has no '
                    'application mapped by path now.',
+                   self.app.REQUEST['manage_tabs_message'])
+
+    def test_application_invalid_move_from_process_folder_to_exterior(self):
+        self.create_cepaa_set(1)
+        app = SimpleItem('act2').__of__(self.app)
+        app.id = 'act2'
+        self.app._setOb('act2', app)
+        event = ObjectMovedEvent(
+                    app,
+                    self.app.Applications.proc1,
+                    'act2',
+                    self.app,
+                    'act2',
+                    )
+        # simulate a ObjectMovedEvent catch
+        OpenFlowEngine.handle_application_move_events(event)
+        self.assertEqual('Application /Applications/proc1/act2 '
+                   'moved! It was not mapped by path to any activity.',
                    self.app.REQUEST['manage_tabs_message'])
