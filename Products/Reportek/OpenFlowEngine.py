@@ -766,11 +766,107 @@ def handle_application_move_events(obj):
     - In order to be valid, the new name of the application must match one of the ids in the list
     """
     expr = re.compile('^/(%s)/(.*)(?:/(.*))$' %constants.APPLICATIONS_FOLDER_ID)
+
+    old_path = ''
+    new_path = ''
+    proc = None
+
+    if obj.oldParent:
+        old_path = '/'.join([
+                        obj.oldParent.absolute_url_path(),
+                        obj.oldName
+                   ])
+
+    if obj.newParent:
+        try:
+            new_path = '/'.join([
+                            obj.newParent.absolute_url_path(),
+                            obj.newName
+                       ])
+        except TypeError:
+            new_path = ''
+
+
+    match_old = expr.match(old_path)
+    match_new = expr.match(new_path)
+    if not (match_old or match_new):
+        # return early if no match
+        return None
+
+    valid_old_ids = None
+    valid_new_ids = None
+
+    root = obj.object.getPhysicalRoot()
+    wf = getattr(root, constants.WORKFLOW_ENGINE_ID)
+    proc_old = None
+    proc_new = None
+
+    if obj.oldParent:
+        proc_old = wf.get(obj.oldParent.id)
+        if proc_old:
+            valid_old_ids = proc_old.listActivities()
+
+    if obj.newParent:
+        proc_new = wf.get(obj.newParent.id)
+        if proc_new:
+            valid_new_ids = proc_new.listActivities()
+
+    if expr.match(new_path) and expr.match(old_path):
+        # app is comming from a process folder
+        # and stays in apps context
+        #RENAME
+        if obj.oldName and obj.newName and obj.oldParent == obj.newParent:
+            if obj.newName in valid_new_ids:
+                print "RENAME VALID"
+            else:
+                print "RENAME INVALID"
+        #MOVE
+        elif obj.oldName and obj.newName and not obj.oldParent == obj.newParent:
+            if obj.newName in valid_new_ids and obj.oldName in valid_old_ids:
+                print "MOVE VALID INSIDE>VALID INSIDE"
+            elif obj.newName in valid_new_ids and obj.oldName not in valid_old_ids:
+                print "MOVE INVALID INSIDE>VALID INSIDE"
+            elif obj.newName not in valid_new_ids and obj.oldName in valid_old_ids:
+                print "MOVE VALID INSIDE>INVALID INSIDE"
+            elif obj.newName not in valid_new_ids and obj.oldName not in valid_new_ids:
+                print "MOVE INVALID INSIDE>INVALID INSIDE"
+    elif expr.match(new_path):
+        # app is comming from outside apps context
+        # and goes in a process folder
+        #MOVE
+        if obj.oldName and obj.newName and not obj.oldParent == obj.newParent:
+            if obj.newName in valid_new_ids:
+                print "MOVE OUTSIDE>VALID INSIDE"
+            else:
+                print "MOVE OUTSIDE>INVALID INSIDE"
+        #CREATE
+        elif not obj.oldName and obj.newName:
+            if obj.newName in valid_new_ids:
+                print "CREATE VALID"
+            else:
+                print "CREATE INVALID"
+    elif expr.match(old_path):
+        # app is leaving a process folder
+        # and goes outside apps context
+        #MOVE
+        if obj.oldName and obj.newName and not obj.oldParent == obj.newParent:
+            if obj.oldName in valid_old_ids:
+                print "MOVE VALID INSIDE>OUTSIDE"
+            else:
+                print "MOVE INVALID INSIDE>OUTSIDE"
+        #DELETE
+        elif obj.oldName and not obj.newName:
+            if obj.oldName in valid_old_ids:
+                print "DELETE VALID"
+            else:
+                print "DELETE INVALID"
+
     try:
         # warning obj.object.absolute_url_path() is the new path
         result = expr.match(obj.object.absolute_url_path())
     except TypeError as exp:
         result = None
+
     if result:
         (folder, proc_id, app_id) = result.groups()
         root = obj.object.getPhysicalRoot()
