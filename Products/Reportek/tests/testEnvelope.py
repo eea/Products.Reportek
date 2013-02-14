@@ -379,8 +379,8 @@ class ActivityFindsApplicationTestCase(_BaseTest):
         from Products.Reportek import exceptions
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        self.assertEqual('Application /Applications/proc1/act1 '
-                   'deleted! Activity /WorkflowEngine/proc1/act1 has no '
+        self.assertEqual('Application act1 deleted! '\
+                   'Activity /WorkflowEngine/proc1/act1 has no '
                    'application mapped by path now.',
                    self.app.REQUEST['manage_tabs_message'])
 
@@ -398,8 +398,8 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                     )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        self.assertEqual('Application /Applications/proc1/bad_name deleted! '\
-                         'It was not mapped by path to any activity',
+        self.assertEqual('Application bad_name deleted! '\
+                         'Id bad_name was not mapped by path to any activity.',
                          self.app.REQUEST['manage_tabs_message'])
 
     def test_application_valid_create(self):
@@ -456,10 +456,11 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                     )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        self.assertEqual('Application act1 mapped by path to activity /WorkflowEngine/proc2/act1. '
-                         'Activity /WorkflowEngine/proc1/act1 has no '
-                         'application mapped by path now.',
-                         self.app.REQUEST['manage_tabs_message'])
+        self.assertEqual(
+             'Application act1 moved! '\
+             'Activity /WorkflowEngine/proc1/act1 has no application mapped by path now. '\
+             'Application act1 mapped by path to activity /WorkflowEngine/proc2/act1.',
+             self.app.REQUEST['manage_tabs_message'])
 
     def test_application_invalid_move_from_one_proc_to_another(self):
         self.create_cepaa_set(1)
@@ -477,7 +478,9 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                     )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        message = 'Id act1 does not match any activity name in process /WorkflowEngine/proc2. ' \
+        message = 'Application act1 moved! '\
+                  'Activity /WorkflowEngine/proc1/act1 has no application mapped by path now. ' \
+                  'Id act1 does not match any activity name in process /WorkflowEngine/proc2. ' \
                   'Choose a valid name from this list: Begin, End, act2'
         self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
 
@@ -495,7 +498,7 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                     )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        self.assertEqual('Application act1 mapped by path to activity /WorkflowEngine/proc1/act1. ',
+        self.assertEqual('Application act1 mapped by path to activity /WorkflowEngine/proc1/act1.',
                          self.app.REQUEST['manage_tabs_message'])
 
     def test_application_invalid_move_from_exterior_to_process_folder(self):
@@ -530,8 +533,8 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                     )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        self.assertEqual('Application /Applications/proc1/act1 '
-                   'moved! Activity /WorkflowEngine/proc1/act1 has no '
+        self.assertEqual('Application act1 moved! '\
+                   'Activity /WorkflowEngine/proc1/act1 has no '
                    'application mapped by path now.',
                    self.app.REQUEST['manage_tabs_message'])
 
@@ -549,6 +552,7 @@ class ActivityFindsApplicationTestCase(_BaseTest):
                     )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        self.assertEqual('Application /Applications/proc1/act2 '
-                   'moved! It was not mapped by path to any activity.',
-                   self.app.REQUEST['manage_tabs_message'])
+        self.assertEqual(
+            'Application act2 moved! '\
+            'Id act2 was not mapped by path to any activity.',
+            self.app.REQUEST['manage_tabs_message'])

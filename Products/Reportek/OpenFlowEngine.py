@@ -800,6 +800,7 @@ def handle_application_move_events(obj):
     proc_old = None
     proc_new = None
     message = ''
+    messages = []
 
     if obj.oldParent:
         proc_old = wf.get(obj.oldParent.id)
@@ -811,130 +812,47 @@ def handle_application_move_events(obj):
         if proc_new:
             valid_new_ids = proc_new.listActivities()
 
-    if expr.match(new_path) and expr.match(old_path):
-        # app is comming from a process folder
-        # and stays in apps context
-        #RENAME
-        if obj.oldName and obj.newName and obj.oldParent == obj.newParent:
-            if obj.oldName in valid_old_ids and obj.newName in valid_new_ids:
-                # RENAME VALID > VALID
-                message = 'Activity %s has no application mapped by path now. '\
-                          'Application %s mapped by path to activity %s.' %(
-                                proc_old.get(obj.oldName).absolute_url_path(),
-                                obj.newName,
-                                proc_new.get(obj.newName).absolute_url_path())
-            elif obj.oldName in valid_old_ids and obj.newName not in valid_new_ids:
-                # RENAME VALID > INVALID
-                message = 'Activity %s has no application mapped by path now. '\
-                          'Id %s does not match any activity name in process %s. ' \
-                          'Choose a valid name from this list: %s' %(
-                                proc_old.get(obj.oldName).absolute_url_path(),
-                                obj.newName,
-                                proc_new.absolute_url_path(),
-                                ', '.join(valid_new_ids))
-            elif obj.newName in valid_new_ids:
-                # RENAME INVALID > VALID
-                message = 'Id %s was not mapped by path to any activity. ' \
-                          'Application %s mapped by path to activity %s.'%(
-                                obj.oldName,
-                                obj.newName,
-                                proc_new.get(obj.newName).absolute_url_path())
+    if expr.match(new_path) or expr.match(old_path):
+        if obj.oldName and obj.newName and not obj.oldParent == obj.newParent and match_old:
+            messages.append(
+                'Application %s moved!' %(
+                    obj.oldName
+                )
+            )
+        if obj.oldName and not obj.newName:
+            messages.append(
+                'Application %s deleted!' %(
+                    obj.oldName
+                )
+            )
+        if valid_old_ids:
+            if obj.oldName not in valid_old_ids:
+                messages.append(
+                    'Id %s was not mapped by path to any activity.'%(
+                        obj.oldName
+                    )
+                )
             else:
-                # RENAME INVALID > INVALID
-                message = 'Id %s was not mapped by path to any activity. ' \
-                          'Id %s does not match any activity name in process %s. ' \
-                          'Choose a valid name from this list: %s' %(
-                              obj.oldName,
-                              obj.newName,
-                              proc_new.absolute_url_path(),
-                              ', '.join(valid_new_ids))
-        #MOVE
-        elif obj.oldName and obj.newName and not obj.oldParent == obj.newParent:
-            if obj.newName in valid_new_ids and obj.oldName in valid_old_ids:
-                # MOVE VALID INSIDE>VALID INSIDE
-                message = 'Application %s mapped by path to activity %s. '\
-                          'Activity %s has no application mapped by path now.'%(
-                                obj.newName,
-                                proc_new.get(obj.newName).absolute_url_path(),
-                                proc_old.get(obj.oldName).absolute_url_path(),
-                          )
-            elif obj.newName in valid_new_ids and obj.oldName not in valid_old_ids:
-                print "MOVE INVALID INSIDE>VALID INSIDE"
-            elif obj.newName not in valid_new_ids and obj.oldName in valid_old_ids:
-                # MOVE VALID INSIDE>INVALID INSIDE
-                message = 'Id %s does not match any activity name in process %s. ' \
-                          'Choose a valid name from this list: %s' %(
-                              obj.newName,
-                              proc_new.absolute_url_path(),
-                              ', '.join(valid_new_ids))
-            elif obj.newName not in valid_new_ids and obj.oldName not in valid_new_ids:
-                # MOVE INVALID INSIDE>INVALID INSIDE
-                message = 'Id %s does not match any activity name in process %s. ' \
-                          'Choose a valid name from this list: %s' %(
-                              obj.newName,
-                              proc_new.absolute_url_path(),
-                              ', '.join(valid_new_ids))
-    elif expr.match(new_path):
-        # app is comming from outside apps context
-        # and goes in a process folder
-        #MOVE
-        if obj.oldName and obj.newName and not obj.oldParent == obj.newParent:
+                messages.append(
+                    'Activity %s has no application mapped by path now.' %(
+                        proc_old.get(obj.oldName).absolute_url_path()
+                    )
+                )
+        if valid_new_ids:
             if obj.newName in valid_new_ids:
-                # MOVE OUTSIDE>VALID INSIDE
-                message = 'Application %s mapped by path to activity %s. '\
-                          %(
-                                obj.newName,
-                                proc_new.get(obj.newName).absolute_url_path(),
-                          )
+                messages.append(
+                    'Application %s mapped by path to activity %s.' %(
+                        obj.newName,
+                        proc_new.get(obj.newName).absolute_url_path())
+                )
             else:
-                # MOVE OUTSIDE>INVALID INSIDE
-                message = 'Id %s does not match any activity name in process %s. ' \
-                          'Choose a valid name from this list: %s' %(
-                              obj.newName,
-                              proc_new.absolute_url_path(),
-                              ', '.join(valid_new_ids))
-        #CREATE
-        elif not obj.oldName and obj.newName:
-            if obj.newName in valid_new_ids:
-                # CREATE VALID
-                message = 'Application %s mapped by path to activity %s.'%(
-                                obj.newName, proc_new.get(obj.newName).absolute_url_path())
-            else:
-                # CREATE INVALID
-                message = 'Id %s does not match any activity name in process %s. ' \
-                          'Choose a valid name from this list: %s' %(
-                              obj.newName,
-                              proc_new.absolute_url_path(),
-                              ', '.join(valid_new_ids))
-    elif expr.match(old_path):
-        # app is leaving a process folder
-        # and goes outside apps context
-        #MOVE
-        if obj.oldName and obj.newName and not obj.oldParent == obj.newParent:
-            if obj.oldName in valid_old_ids:
-                # MOVE VALID INSIDE>OUTSIDE
-                message = 'Application %s moved! Activity %s' \
-                          ' has no application mapped by path now.' %(
-                                  '/'.join([
-                                      obj.oldParent.absolute_url_path(),
-                                      obj.oldName]),
-                                  proc_old.get(obj.oldName).absolute_url_path())
-            else:
-                # MOVE INVALID INSIDE>OUTSIDE
-                message = 'Application %s moved! It was not mapped by path to any activity.' %(
-                                  '/'.join([
-                                      obj.oldParent.absolute_url_path(),
-                                      obj.oldName]))
-        #DELETE
-        elif obj.oldName and not obj.newName:
-            #DELETE VALID
-            if obj.oldName in valid_old_ids:
-                message = 'Application %s deleted! Activity %s' \
-                          ' has no application mapped by path now.' %(
-                                  obj.object.absolute_url_path(),
-                                  proc_old.get(obj.oldName).absolute_url_path())
-            #DELETE INVALID
-            else:
-                message = 'Application %s deleted! '\
-                          'It was not mapped by path to any activity' %(old_path)
-    root.REQUEST['manage_tabs_message'] =  message
+                messages.append(
+                    'Id %s does not match any activity name in process %s.' %(
+                        obj.newName,
+                        proc_new.absolute_url_path())
+                )
+                messages.append(
+                    'Choose a valid name from this list: %s' %(
+                        ', '.join(valid_new_ids))
+                )
+    root.REQUEST['manage_tabs_message'] =  ' '.join(messages)
