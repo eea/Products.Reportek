@@ -861,7 +861,13 @@ def handle_application_move_events(obj):
         #MOVE
         if obj.oldName and obj.newName and not obj.oldParent == obj.newParent:
             if obj.newName in valid_new_ids:
-                print "MOVE OUTSIDE>VALID INSIDE"
+                # MOVE OUTSIDE>VALID INSIDE
+                message = 'Application %s mapped by path to activity %s. '\
+                          %(
+                                obj.newName,
+                                proc_new.get(obj.newName).absolute_url_path(),
+                          )
+                root.REQUEST['manage_tabs_message'] =  message
             else:
                 print "MOVE OUTSIDE>INVALID INSIDE"
         #CREATE
@@ -963,12 +969,7 @@ def handle_application_move_events(obj):
                     pass
                 else:
                     # comming from somewhere else
-                    message = 'Application %s mapped by path to activity %s. '\
-                              %(
-                                    obj.newName,
-                                    proc_new.get(obj.newName).absolute_url_path(),
-                              )
-                    root.REQUEST['manage_tabs_message'] =  message
+                    pass
 
             else:
                 message = 'Application %s mapped by path to activity %s.'%(
