@@ -817,7 +817,10 @@ def handle_application_move_events(obj):
         #RENAME
         if obj.oldName and obj.newName and obj.oldParent == obj.newParent:
             if obj.newName in valid_new_ids:
-                print "RENAME VALID"
+                # RENAME VALID
+                message = 'Application %s mapped by path to activity %s.'%(
+                                obj.newName, proc_new.get(obj.newName).absolute_url_path())
+                root.REQUEST['manage_tabs_message'] =  message
             else:
                 # "RENAME INVALID"
                 message = 'Id %s does not match any activity name in process %s. ' \
@@ -873,7 +876,10 @@ def handle_application_move_events(obj):
         #CREATE
         elif not obj.oldName and obj.newName:
             if obj.newName in valid_new_ids:
-                print "CREATE VALID"
+                # CREATE VALID
+                message = 'Application %s mapped by path to activity %s.'%(
+                                obj.newName, proc_new.get(obj.newName).absolute_url_path())
+                root.REQUEST['manage_tabs_message'] =  message
             else:
                 message = 'Id %s does not match any activity name in process %s. ' \
                           'Choose a valid name from this list: %s' %(
@@ -972,9 +978,7 @@ def handle_application_move_events(obj):
                     pass
 
             else:
-                message = 'Application %s mapped by path to activity %s.'%(
-                                app_id, proc_new.get(app_id).absolute_url_path())
-                root.REQUEST['manage_tabs_message'] =  message
+                pass
     elif obj.oldParent:
         expr = re.compile('^/(%s)/(.*)$' %constants.APPLICATIONS_FOLDER_ID)
         result = expr.match(obj.oldParent.absolute_url_path())
