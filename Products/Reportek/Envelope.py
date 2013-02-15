@@ -28,7 +28,7 @@ $Id$"""
 __version__='$Revision$'[11:-2]
 
 
-import time, os, types, tempfile, string, json
+import time, os, types, tempfile, string
 from path import path
 from zipfile import *
 import Products
