@@ -28,7 +28,7 @@ $Id$"""
 __version__='$Revision$'[11:-2]
 
 
-import time, os, types, tempfile, string
+import time, os, types, tempfile, string, json
 from path import path
 from zipfile import *
 import Products
@@ -198,6 +198,15 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             return False
         else:
             return getattr(QA_workitems[-1], 'blocker', False)
+
+    security.declarePublic('check_blocker_feedback')
+    def has_blocker_feedback(self, REQUEST=None):
+        """ REST version of is_blocked """
+        if REQUEST:
+            resp = json.dumps({'blocker': self.is_blocked})
+        else:
+            resp = {'blocker': self.is_blocked}
+        return resp
 
     def __setstate__(self,state):
         """ """
