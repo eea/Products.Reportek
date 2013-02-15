@@ -199,7 +199,6 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         else:
             return getattr(QA_workitems[-1], 'blocker', False)
 
-    security.declarePublic('check_blocker_feedback')
     def has_blocker_feedback(self, REQUEST=None):
         """ REST version of is_blocked """
         if REQUEST:
