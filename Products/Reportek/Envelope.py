@@ -200,12 +200,8 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             return getattr(QA_workitems[-1], 'blocker', False)
 
     def has_blocker_feedback(self, REQUEST=None):
-        """ REST version of is_blocked """
-        if REQUEST:
-            resp = json.dumps({'blocker': self.is_blocked})
-        else:
-            resp = {'blocker': self.is_blocked}
-        return resp
+        """ web callable version of is_blocked """
+        return self.is_blocked
 
     def __setstate__(self,state):
         """ """
