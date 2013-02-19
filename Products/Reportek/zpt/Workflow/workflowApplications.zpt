@@ -51,13 +51,20 @@
 			<ul>
 				<li tal:repeat="activity python:proc.objectValues('Activity')">
                     <tal:block define="result python:activity.mapped_application()">
-                        <a tal:condition="python:result"
-                           tal:attributes="href python:result['parent_url'] +
-                                  '/manage_workspace'"
-                           tal:content="python:result['path']">
-                            application name
-                        </a>
-                        <tal:block condition="python:result">
+                        <tal:block condition="python:result['path']">
+                            <span style="color: red;"
+                                tal:condition="python:result['missing']"
+                                tal:content="string:[MISSING] ${result/path}">
+                                  MISSING
+                            </span>
+                            <tal:block
+                                condition="python:result['parent_url']">
+                                <a tal:attributes="href python:result.get('parent_url', '') +
+                                          '/manage_workspace'"
+                                   tal:content="python:result['path']">
+                                    application name
+                                </a>
+                            </tal:block>
                             <tal:block
                                 condition="python:result['mapped_by_path']">
                                 <span tal:replace="string:(by path)"></span>
@@ -67,7 +74,7 @@
                                 <span tal:replace="string:(by assignment)"></span>
                             </tal:block>
                         </tal:block>
-                        <tal:block condition="python:not result">
+                        <tal:block condition="python:not result['path']">
                             -
                         </tal:block>
                     </tal:block>
