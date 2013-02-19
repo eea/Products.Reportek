@@ -25,6 +25,7 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass, DTMLFile
 from OFS.SimpleItem import SimpleItem
 from Products.ZCatalog.CatalogPathAwareness import CatalogAware
+from Products.Reportek import constants
 
 
 class activity(CatalogAware, SimpleItem):
@@ -145,6 +146,51 @@ class activity(CatalogAware, SimpleItem):
         return self.title
       else:
         return self.id
+
+    def mapped_application(self):
+        root = self.getPhysicalRoot()
+        engine = getattr(root, constants.WORKFLOW_ENGINE_ID)
+        proc = self.aq_parent
+
+        mapped_by_path = False
+
+        # check in Applications/proc_name/
+        try:
+            app_path = '%s/%s/%s' %(constants.APPLICATIONS_FOLDER_ID, proc.id, self.id)
+            application = root.unrestrictedTraverse(app_path)
+            if application:
+                mapped_by_path = True
+        except KeyError as err:
+            app_path = ''
+
+        # check in Applications/Common/
+        try:
+            app_path = '%s/%s/%s' %(constants.APPLICATIONS_FOLDER_ID, 'Common', self.id)
+            application = root.unrestrictedTraverse(app_path)
+            if application and not mapped_by_path:
+                mapped_by_path = True
+        except KeyError:
+            pass
+
+        if mapped_by_path:
+            return {'path': application.absolute_url_path(),
+                    'parent_url': application.aq_parent.absolute_url(),
+                    'mapped_by_path': mapped_by_path}
+        # check in activity.application
+        elif self.application:
+            if engine._applications.get(self.application):
+                app_path = engine._applications.get(self.application)['url']
+            try:
+                application = root.unrestrictedTraverse(app_path)
+            except KeyError:
+                return {'path': app_path,
+                        'parent_url': '',
+                        'missing': True,
+                        'mapped_by_path': mapped_by_path}
+            return {'path': application.absolute_url_path(),
+                    'parent_url': application.aq_parent.absolute_url(),
+                    'mapped_by_path': mapped_by_path}
+
 
     def getIncomingTransitionsNumber(self):
         """ returns all the process transition objects that go to the specified activity """

@@ -20,42 +20,63 @@
 
 	<thead>
 	<tr>
-		<th>Application name</th>
-		<th>URL</th>
+		<th>Process</th>
 		<th>Activities</th>
+		<th>Applications</th>
 	</tr>
 	</thead>
 
-	<tbody tal:define="applications container/listApplications;
+	<tbody tal:define="processes container/values;
 	                   activities_with_application here/getApplicationToActivitiesMapping">
 
-	<tr tal:repeat="app applications">
+	<tr tal:repeat="proc processes">
 		<td>
-			<input type="checkbox" name="app_ids:list" value="name"
-				tal:attributes="value app/name"/>
-			<a align="left"
-				tal:content="app/name"
-				tal:attributes="href string:manage_editApplicationForm?name=${app/name}&link=${app/link}">Application Id</a>
+			<input type="checkbox" name="proc_ids:list" value="name"
+				tal:attributes="value proc/id"/>
+            <a tal:content="proc/id"
+               tal:attributes="href python: proc.absolute_url()">proc.absolute_url</a>
 		</td>
-		<td tal:define="link app/link;
-		                abslink python:'/' + link.lstrip('/');
-		                app_ob python:here.restrictedTraverse(abslink, None)">
-			<tal:block content="link"/>
-			<span tal:condition="python:not app_ob" style="color: red">
-				(missing)
-			</span>
-		</td>
-		<td tal:define="activities python:activities_with_application.get(app['name'], [])">
+        <td>
 			<ul>
-				<li tal:repeat="activity activities">
+				<li tal:repeat="activity python:proc.objectValues('Activity')">
 					<a tal:attributes="href string:${activity/absolute_url}/manage_workspace"
-					   tal:content="string:${activity/aq_parent/getId}/${activity/getId}"></a>
+					   tal:content="string:${activity/getId}"></a>
 				</li>
 			</ul>
-			<em tal:condition="python:not activities">
+			<em tal:condition="python:not proc.objectValues('Activity')">
 				(no activities)
 			</em>
-		</td>
+        </td>
+        <td>
+			<ul>
+				<li tal:repeat="activity python:proc.objectValues('Activity')">
+                    <tal:block define="result python:activity.mapped_application()">
+                        <a tal:condition="python:result"
+                           tal:attributes="href python:result['parent_url'] +
+                                  '/manage_workspace'"
+                           tal:content="python:result['path']">
+                            application name
+                        </a>
+                        <tal:block condition="python:result">
+                            <tal:block
+                                condition="python:result['mapped_by_path']">
+                                <span tal:replace="string:(by path)"></span>
+                            </tal:block>
+                            <tal:block
+                                condition="python:not result['mapped_by_path']">
+                                <span tal:replace="string:(by assignment)"></span>
+                            </tal:block>
+                        </tal:block>
+                        <tal:block condition="python:not result">
+                            -
+                        </tal:block>
+                    </tal:block>
+				</li>
+			</ul>
+			<em tal:condition="python:not proc.objectValues('Activity')">
+				(n/a)
+			</em>
+        </td>
 	</tr>
 
 	</tbody>
