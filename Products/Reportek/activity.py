@@ -152,8 +152,8 @@ class activity(CatalogAware, SimpleItem):
         engine = getattr(root, constants.WORKFLOW_ENGINE_ID)
         proc = self.aq_parent
 
-        resp = {'path': None,
-                'parent_url': None,
+        resp = {'path': "",
+                'parent_url': "",
                 'missing': None,
                 'mapped_by_path': None}
 
@@ -165,7 +165,7 @@ class activity(CatalogAware, SimpleItem):
             application = root.unrestrictedTraverse(app_path)
             if application:
                 mapped_by_path = True
-        except KeyError as err:
+        except KeyError:
             app_path = None
 
         # check in Applications/Common/

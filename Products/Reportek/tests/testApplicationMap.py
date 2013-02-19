@@ -94,8 +94,8 @@ class ActivityApplicationMapping(_WorkflowTestCase):
         # remove app act1 from proc1 folder
         self.app.Applications.proc1._delOb('act1')
         result = activity.mapped_application()
-        self.assertEqual(None, result['path'])
-        self.assertEqual(None, result['parent_url'])
+        self.assertEqual("", result['path'])
+        self.assertEqual("", result['parent_url'])
         self.assertEqual(False, result['mapped_by_path'])
         self.assertEqual(None, result['missing'])
 
