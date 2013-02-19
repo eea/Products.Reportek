@@ -15,7 +15,6 @@
 	</form>
 </div>
 
-<form action="." method="post">
 <table style="border: 0; width: 100%" class="workflow-applications">
 
 	<thead>
@@ -31,8 +30,6 @@
 
 	<tr tal:repeat="proc processes">
 		<td>
-			<input type="checkbox" name="proc_ids:list" value="name"
-				tal:attributes="value proc/id"/>
             <a tal:content="proc/id"
                tal:attributes="href python: proc.absolute_url()">proc.absolute_url</a>
 		</td>
@@ -89,11 +86,6 @@
 	</tbody>
 </table>
 
-<p style="clear: left">
-	<input type="submit" name="deleteApplication:method" value="Delete applications" />
-</p>
-
-</form>
 
 <script src="++resource++static/datatables-1.9.4/js/jquery.js"></script>
 <script src="++resource++static/datatables-1.9.4/js/jquery.dataTables.js"></script>
