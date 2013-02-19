@@ -254,7 +254,7 @@ class ActivityFindsApplicationTestCase(_WorkflowTestCase):
         current_workitem = self.env1.objectValues('Workitem')[-1]
         self.wf.proc1.get('act1').application = 'act1'
         current_application = self.env1.getApplicationUrl(current_workitem.id)
-        self.assertEqual(current_application, 'SomeFolder/act1')
+        self.assertEqual(current_application, '/SomeFolder/act1')
 
     def test_application_invalid_to_valid_rename(self):
         """
