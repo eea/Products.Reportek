@@ -105,7 +105,10 @@ class _BaseTest(unittest.TestCase):
         col = Collection(**args)
         self.app._setObject('collection', col)
         self.app._setObject('Templates', Folder('Templates'))
-        self.app.Templates.StartActivity = DTMLFile('dtml/testEnvelopeIndex',globals())
+        template = SimpleItem()
+        template.id = 'StartActivity'
+        template.__call__ = Mock(return_value='Envelope Test Template')
+        self.app.Templates._setOb('StartActivity', template)
         self.app.Templates.StartActivity.title_or_id = Mock(return_value='Start Activity Template')
         create_process(self, 'process')
         self.wf.addApplication('StartActivity', 'Templates/StartActivity')
