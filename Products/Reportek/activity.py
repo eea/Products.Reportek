@@ -152,6 +152,11 @@ class activity(CatalogAware, SimpleItem):
         engine = getattr(root, constants.WORKFLOW_ENGINE_ID)
         proc = self.aq_parent
 
+        resp = {'path': None,
+                'parent_url': None,
+                'missing': None,
+                'mapped_by_path': None}
+
         mapped_by_path = False
 
         # check in Applications/proc_name/
@@ -161,7 +166,7 @@ class activity(CatalogAware, SimpleItem):
             if application:
                 mapped_by_path = True
         except KeyError as err:
-            app_path = ''
+            app_path = None
 
         # check in Applications/Common/
         try:
@@ -170,26 +175,44 @@ class activity(CatalogAware, SimpleItem):
             if application and not mapped_by_path:
                 mapped_by_path = True
         except KeyError:
-            pass
+            app_path = None
 
         if mapped_by_path:
-            return {'path': application.absolute_url_path(),
-                    'parent_url': application.aq_parent.absolute_url(),
-                    'mapped_by_path': mapped_by_path}
+            resp.update(
+                {'path': application.absolute_url_path(),
+                 'parent_url': application.aq_parent.absolute_url(),
+                 'missing': False,
+                 'mapped_by_path': mapped_by_path}
+            )
+            return resp
+
         # check in activity.application
         elif self.application:
             if engine._applications.get(self.application):
-                app_path = engine._applications.get(self.application)['url']
+                app_path = engine._applications[self.application]['url']
+                if not app_path[0] == '/':
+                    app_path = '/' + app_path
             try:
                 application = root.unrestrictedTraverse(app_path)
+                resp.update(
+                    {'path': application.absolute_url_path(),
+                     'parent_url': application.aq_parent.absolute_url(),
+                     'missing': False,
+                     'mapped_by_path': mapped_by_path}
+                )
             except KeyError:
-                return {'path': app_path,
-                        'parent_url': '',
-                        'missing': True,
-                        'mapped_by_path': mapped_by_path}
-            return {'path': application.absolute_url_path(),
-                    'parent_url': application.aq_parent.absolute_url(),
-                    'mapped_by_path': mapped_by_path}
+                application = None
+                resp.update(
+                    {'path': app_path,
+                     'parent_url': None,
+                     'missing': True,
+                     'mapped_by_path': mapped_by_path}
+                )
+            finally:
+                return resp
+        else:
+            resp['mapped_by_path'] = False
+            return resp
 
 
     def getIncomingTransitionsNumber(self):
