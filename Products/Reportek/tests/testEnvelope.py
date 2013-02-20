@@ -254,7 +254,15 @@ class ActivityFindsApplicationTestCase(_WorkflowTestCase):
         current_workitem = self.env1.objectValues('Workitem')[-1]
         self.wf.proc1.get('act1').application = 'act1'
         current_application = self.env1.getApplicationUrl(current_workitem.id)
-        self.assertEqual(current_application, '/SomeFolder/act1')
+        # WARNING:
+        # app path (from the attribute) doesn't have a leading '/' in this case
+        # and if we call the application from the envelope context
+        # it will start the traversing from the envelope and it
+        # will find the application by acquisition.
+        # e.g.:
+        # ../col/env/Applications/CDDA/EnvelopeDecideStartActivity.py
+        # and context.getMySelf() will work in this case
+        self.assertEqual('SomeFolder/act1', current_application)
 
     def test_application_invalid_to_valid_rename(self):
         """

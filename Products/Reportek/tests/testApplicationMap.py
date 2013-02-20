@@ -59,7 +59,15 @@ class ActivityApplicationMapping(_WorkflowTestCase):
         ob.id = 'act1'
         self.app.SomeFolder._setOb(ob.id, ob)
         result = activity.mapped_application()
-        self.assertEqual('/SomeFolder/act1', result['path'])
+        # WARNING:
+        # app path (from the attribute) doesn't have a leading '/' in this case
+        # and if we call the application from the envelope context
+        # it will start the traversing from the envelope and it
+        # will find the application by acquisition.
+        # e.g.:
+        # ../col/env/Applications/CDDA/EnvelopeDecideStartActivity.py
+        # and context.getMySelf() will work in this case
+        self.assertEqual('SomeFolder/act1', result['path'])
         self.assertEqual('http://nohost/SomeFolder', result['parent_url'])
         self.assertEqual(False, result['mapped_by_path'])
         self.assertEqual(False, result['missing'])
@@ -109,7 +117,15 @@ class ActivityApplicationMapping(_WorkflowTestCase):
         # app is not there
         #self.app.SomeFolder._setOb('act1', SimpleItem('act1'))
         result = activity.mapped_application()
-        self.assertEqual('/SomeFolder/act1', result['path'])
+        # WARNING:
+        # app path (from the attribute) doesn't have a leading '/' in this case
+        # and if we call the application from the envelope context
+        # it will start the traversing from the envelope and it
+        # will find the application by acquisition.
+        # e.g.:
+        # ../col/env/Applications/CDDA/EnvelopeDecideStartActivity.py
+        # and context.getMySelf() will work in this case
+        self.assertEqual('SomeFolder/act1', result['path'])
         self.assertEqual(None, result['parent_url'])
         self.assertEqual(False, result['mapped_by_path'])
         self.assertEqual(True, result['missing'])

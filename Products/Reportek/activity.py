@@ -190,12 +190,18 @@ class activity(CatalogAware, SimpleItem):
         elif self.application:
             if engine._applications.get(self.application):
                 app_path = engine._applications[self.application]['url']
-                if not app_path[0] == '/':
-                    app_path = '/' + app_path
             try:
                 application = root.unrestrictedTraverse(app_path)
                 resp.update(
-                    {'path': application.absolute_url_path(),
+                    # WARNING:
+                    # app_path doesn't have a leading '/' in this case
+                    # and if we call the application from the envelope context
+                    # it will start the traversing from the envelope and it
+                    # will find the application by acquisition.
+                    # e.g.:
+                    # ../col/env/Applications/CDDA/EnvelopeDecideStartActivity.py
+                    # and context.getMySelf() will work in this case
+                    {'path': app_path,
                      'parent_url': application.aq_parent.absolute_url(),
                      'missing': False,
                      'mapped_by_path': mapped_by_path}
