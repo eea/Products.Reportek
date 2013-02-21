@@ -20,7 +20,7 @@
 
 <div class="workflow-graph">
 
-	<img src="<dtml-var absolute_url>/workflow_graph">
+    <object id="process_graph" data="./workflow_graph?output=svg"></object>
 
 	<table>
 	<dtml-in "workflow_graph_legend()" prefix="loop">
@@ -143,6 +143,14 @@
 <p>There are no transitions yet.</p>
 
 </dtml-in>
+
+<script src="++resource++static/jquery-1.8.2.min.js"></script>
+<!--[if IE]>
+    <script>
+        var png = $('<img src="<dtml-var absolute_url>/workflow_graph">');
+        $('.workflow-graph #process_graph').replaceWith(png);
+    </script>
+<![endif]-->
 
 <dtml-var manage_page_footer>
 

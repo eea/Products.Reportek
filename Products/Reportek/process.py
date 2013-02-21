@@ -252,22 +252,27 @@ class process(CatalogAware, Folder):
         return sorted(slist, key=lambda i: i['short_name'])
 
     security.declarePublic('workflow_graph')
-    def workflow_graph(self, REQUEST, RESPONSE):
+    def workflow_graph(self, REQUEST, RESPONSE, output='png'):
         """ graphical representation of the workflow state machine """
         converters_url = self.Converters.get_local_http_converters_url()
         graph_data = process_to_dot(self)
-        resp = requests.post(converters_url + 'convert/graphviz',
+        converter_path = 'convert/graphviz'
+        if output=='svg':
+            converter_path = 'convert/graphviz_svg'
+        resp = requests.post(converters_url + converter_path,
                              files={'file': graph_data['dot']})
 
         if resp.status_code == 200:
-            png = resp.content
+            out = resp.content
 
-        else:
+        elif output=='png':
             www = path(__file__).parent / 'www'
-            png = (www / 'graphviz-error.png').bytes()
+            out = (www / 'graphviz-error.png').bytes()
 
         RESPONSE.setHeader('Content-Type', 'image/png')
-        return png
+        if output=='svg':
+            RESPONSE.setHeader('Content-Type', 'image/svg+xml')
+        return out
 
 
 InitializeClass(process)
