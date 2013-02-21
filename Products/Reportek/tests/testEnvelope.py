@@ -223,7 +223,7 @@ class ActivityFindsApplicationTestCase(_WorkflowTestCase):
         self.create_cepaa_set(1)
         current_workitem = self.env1.objectValues('Workitem')[-1]
         current_application = self.env1.getApplicationUrl(current_workitem.id)
-        self.assertEqual(current_application, '/Applications/proc1/act1')
+        self.assertEqual(current_application, 'Applications/proc1/act1')
 
     def test_getApplicationUrl_finds_in_Common_folder(self):
         """
@@ -240,7 +240,7 @@ class ActivityFindsApplicationTestCase(_WorkflowTestCase):
         self.app.Applications.Common._setOb('act1', app)
         current_workitem = self.env1.objectValues('Workitem')[-1]
         current_application = self.env1.getApplicationUrl(current_workitem.id)
-        self.assertEqual(current_application, '/Applications/Common/act1')
+        self.assertEqual(current_application, 'Applications/Common/act1')
 
     def test_getApplicationUrl_finds_application_attribute(self):
         """

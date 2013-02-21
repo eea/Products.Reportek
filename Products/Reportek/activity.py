@@ -179,7 +179,7 @@ class activity(CatalogAware, SimpleItem):
 
         if mapped_by_path:
             resp.update(
-                {'path': application.absolute_url_path(),
+                {'path': application.absolute_url(1),
                  'parent_url': application.aq_parent.absolute_url(),
                  'missing': False,
                  'mapped_by_path': mapped_by_path}
@@ -201,7 +201,7 @@ class activity(CatalogAware, SimpleItem):
                     # e.g.:
                     # ../col/env/Applications/CDDA/EnvelopeDecideStartActivity.py
                     # and context.getMySelf() will work in this case
-                    {'path': app_path,
+                    {'path': application.absolute_url(1),
                      'parent_url': application.aq_parent.absolute_url(),
                      'missing': False,
                      'mapped_by_path': mapped_by_path}
