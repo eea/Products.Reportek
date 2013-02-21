@@ -110,8 +110,8 @@
                         <tal:block condition="python:result['path']">
                             <span style="color: red;"
                                 tal:condition="python:result['missing']"
-                                tal:content="string:[MISSING] ${result/path}">
-                                  MISSING
+                                tal:content="string:${result/path}">
+                                  MISSING PATH
                             </span>
                             <tal:block
                                 condition="python:result['parent_url']">
@@ -123,11 +123,17 @@
                             </tal:block>
                             <tal:block
                                 condition="python:result['mapped_by_path']">
-                                <span tal:replace="string:(by path)"></span>
+                                <span style="color: green;"
+                                      tal:content="string:[AUTO]"></span>
                             </tal:block>
                             <tal:block
                                 condition="python:not result['mapped_by_path']">
-                                <span tal:replace="string:(by assignment)"></span>
+                                <span style="color: orange;"
+                                      tal:content="string:[MAN]"></span>
+                            </tal:block>
+                            <tal:block condition="python:result['missing']">
+                                <span style="color: red;"
+                                      tal:content="string:[MISSING]"></span>
                             </tal:block>
                         </tal:block>
                         <tal:block condition="python:not result['path']">
