@@ -58,7 +58,7 @@ class ActivityApplicationMapping(_WorkflowTestCase):
         ob = SimpleItem('act1')
         ob.id = 'act1'
         self.app.SomeFolder._setOb(ob.id, ob)
-        result = activity.mapped_application()
+        result = activity.mapped_application_details()
         # WARNING:
         # app path (from the attribute) doesn't have a leading '/' in this case
         # and if we call the application from the envelope context
@@ -75,7 +75,7 @@ class ActivityApplicationMapping(_WorkflowTestCase):
     def test_activity_finds_app_in_proc_folder(self):
         self.create_cepaa_set(1)
         activity = self.wf.proc1.act1
-        result = activity.mapped_application()
+        result = activity.mapped_application_details()
         self.assertEqual('Applications/proc1/act1', result['path'])
         self.assertEqual('http://nohost/Applications/proc1', result['parent_url'])
         self.assertEqual(True, result['mapped_by_path'])
@@ -90,7 +90,7 @@ class ActivityApplicationMapping(_WorkflowTestCase):
         ob = SimpleItem('act1')
         ob.id = 'act1'
         self.apps_folder.Common._setOb('act1', ob)
-        result = activity.mapped_application()
+        result = activity.mapped_application_details()
         self.assertEqual('Applications/Common/act1', result['path'])
         self.assertEqual('http://nohost/Applications/Common', result['parent_url'])
         self.assertEqual(True, result['mapped_by_path'])
@@ -101,7 +101,7 @@ class ActivityApplicationMapping(_WorkflowTestCase):
         activity = self.wf.proc1.act1
         # remove app act1 from proc1 folder
         self.app.Applications.proc1._delOb('act1')
-        result = activity.mapped_application()
+        result = activity.mapped_application_details()
         self.assertEqual("", result['path'])
         self.assertEqual("", result['parent_url'])
         self.assertEqual(False, result['mapped_by_path'])
@@ -116,7 +116,7 @@ class ActivityApplicationMapping(_WorkflowTestCase):
         self.app._setOb('SomeFolder', Folder('SomeFolder'))
         # app is not there
         #self.app.SomeFolder._setOb('act1', SimpleItem('act1'))
-        result = activity.mapped_application()
+        result = activity.mapped_application_details()
         # WARNING:
         # app path (from the attribute) doesn't have a leading '/' in this case
         # and if we call the application from the envelope context

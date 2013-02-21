@@ -116,7 +116,7 @@
         <td>
 			<ul>
               <tal:block repeat="activity python:proc.objectValues('Activity')">
-                <tal:block define="result python:activity.mapped_application()">
+                <tal:block define="result python:activity.mapped_application_details()">
                   <li
                     tal:define=
                       "hint python:lambda(arg): 'automatically' if arg else 'manually';

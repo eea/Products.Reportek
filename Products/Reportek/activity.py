@@ -147,7 +147,7 @@ class activity(CatalogAware, SimpleItem):
       else:
         return self.id
 
-    def mapped_application(self):
+    def mapped_application_details(self):
         root = self.getPhysicalRoot()
         engine = getattr(root, constants.WORKFLOW_ENGINE_ID)
         proc = self.aq_parent

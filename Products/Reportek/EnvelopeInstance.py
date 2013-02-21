@@ -129,7 +129,7 @@ class EnvelopeInstance(CatalogAware, Folder):
     def getApplicationUrl(self, workitem_id):
         """ Return application definition URL relative to instance and workitem """
         activity = self.getActivity(workitem_id)
-        return activity.mapped_application()['path']
+        return activity.mapped_application_details()['path']
 
     def getEnvironment(self, workitem_id):
         """ Returns the engine, the workitem object, the current process and activity """
