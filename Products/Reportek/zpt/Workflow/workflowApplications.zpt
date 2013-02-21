@@ -42,8 +42,14 @@
       Currently there are two possibilities to map an application to an
       activity:
       <ul>
-          <li>automatically - by path (new)</li>
-          <li>manually - by assigning an application instance to the
+          <li>automatically
+            <span style="color: green;"
+                  tal:content="string:[auto]"></span>
+          - by path (new)</li>
+          <li>manually
+            <span style="color: orange;"
+                  tal:content="string:[man]"></span>
+          - by assigning an application instance to the
           application attribute of the activity (deprecated)</li>
       </ul>
       <p>
@@ -67,6 +73,10 @@
   <hr/>
 </div>
 
+<div style="display: inline;">
+    <span> HINT: find all automatically assigned applications by using <span
+            style="color: green;" tal:content="string:[auto]"></span> when searching</span>
+<div>
 
 <div style="text-align: right">
 	<form action="manage_addApplicationForm" method="post">
@@ -105,42 +115,50 @@
         </td>
         <td>
 			<ul>
-				<li tal:repeat="activity python:proc.objectValues('Activity')">
-                    <tal:block define="result python:activity.mapped_application()">
-                        <tal:block condition="python:result['path']">
-                            <span style="color: red;"
-                                tal:condition="python:result['missing']"
-                                tal:content="string:${result/path}">
-                                  MISSING PATH
-                            </span>
-                            <tal:block
-                                condition="python:result['parent_url']">
-                                <a tal:attributes="href python:result.get('parent_url', '') +
-                                          '/manage_workspace'"
-                                   tal:content="python:result['path']">
-                                    application name
-                                </a>
-                            </tal:block>
-                            <tal:block
-                                condition="python:result['mapped_by_path']">
-                                <span style="color: green;"
-                                      tal:content="string:[AUTO]"></span>
-                            </tal:block>
-                            <tal:block
-                                condition="python:not result['mapped_by_path']">
-                                <span style="color: orange;"
-                                      tal:content="string:[MAN]"></span>
-                            </tal:block>
-                            <tal:block condition="python:result['missing']">
-                                <span style="color: red;"
-                                      tal:content="string:[MISSING]"></span>
-                            </tal:block>
+              <tal:block repeat="activity python:proc.objectValues('Activity')">
+                <tal:block define="result python:activity.mapped_application()">
+                  <li
+                    tal:define=
+                      "hint python:lambda(arg): 'automatically' if arg else 'manually';
+                        pattern python:
+                          'Application %s assigned to the script at this path'
+                      "
+                     tal:attributes="title python:pattern %hint(result['mapped_by_path'])">
+                  <tal:block condition="python:result['path']">
+                        <span style="color: red;"
+                            tal:condition="python:result['missing']"
+                            tal:content="string:${result/path}">
+                              MISSING PATH
+                        </span>
+                        <tal:block
+                            condition="python:result['parent_url']">
+                            <a tal:attributes="href python:result.get('parent_url', '') +
+                                      '/manage_workspace'"
+                               tal:content="python:result['path']">
+                                application name
+                            </a>
                         </tal:block>
-                        <tal:block condition="python:not result['path']">
-                            -
+                        <tal:block
+                            condition="python:result['mapped_by_path']">
+                            <span style="color: green;"
+                                  tal:content="string:[auto]"></span>
+                        </tal:block>
+                        <tal:block
+                            condition="python:not result['mapped_by_path']">
+                            <span style="color: orange;"
+                                  tal:content="string:[man]"></span>
+                        </tal:block>
+                        <tal:block condition="python:result['missing']">
+                            <span style="color: red;"
+                                  tal:content="string:[missing]"></span>
                         </tal:block>
                     </tal:block>
-				</li>
+                    <tal:block condition="python:not result['path']">
+                        -
+                    </tal:block>
+			      </li>
+                </tal:block>
+              </tal:block>
 			</ul>
 			<em tal:condition="python:not proc.objectValues('Activity')">
 				(n/a)
