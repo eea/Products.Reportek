@@ -2,11 +2,70 @@
 <p tal:replace="structure here/manage_tabs" omit-tag="">tabs</p>
 
 <link rel="stylesheet" href="++resource++static/datatables-1.9.4/css/jquery.dataTables.css">
+<script src="++resource++static/datatables-1.9.4/js/jquery.js"></script>
+<script type="text/javascript" charset="utf-8">
+    $(document).ready(function() {
+            var collapsed_text = 'show';
+            var expanded_text = 'hide';
+            var collapsible=$('.note-msg #collapsible');
+            var button=$('.note-msg #collapse_button');
+            $(button).html(expanded_text);
+            $(button).bind('click',
+                function(){
+                    if($(collapsible).attr('collapsed')=='false'){
+                        $(collapsible).slideUp();
+                        $(collapsible).attr('collapsed', 'true');
+                        $(button).html(collapsed_text);
+                    }
+                    else{
+                        $(collapsible).slideDown();
+                        $(collapsible).attr('collapsed', 'false');
+                        $(button).html(expanded_text);
+                    }
+                }
+            );
+    });
+</script>
 <style>
 	table.workflow-applications a:link {
 		font-family: auto;
 	}
 </style>
+
+<div class='note-msg'>
+  <h3>
+  <strong>Applications to activities mappings</strong>
+  [<a href="#" style="font-weight: normal;" id="collapse_button">hide</a>]
+  </h3>
+  <div id='collapsible' collapsed="false" style="margin-top: 10px;">
+      <hr/>
+      Currently there are two possibilities to map an application to an
+      activity:
+      <ul>
+          <li>automatically - by path (new)</li>
+          <li>manually - by assigning an application instance to the
+          application attribute of the activity (deprecated)</li>
+      </ul>
+      <p>
+      Reportek has a folder structure and mechanism to automatically map
+      applications to activities.
+      <p>
+      The root folder is <code>/Applications</code>. Each workflow must have a
+      folder named exactly like its id.<br/>
+      In order to be mapped automatically to an activity, an application must
+      be stored in one of these subfolders and must have a name that matches an activity
+      that's part of the corresponding workflow.
+      </p>
+      <p>
+          Example of an automatically mapped application:
+          <strong>/Applications/CDDA/Draft.</strong>
+          This application would be mapped to the <strong>Draft</strong>
+          activity in the <strong>CDDA</strong> workflow.
+      </p>
+      <p>
+  </div>
+  <hr/>
+</div>
 
 
 <div style="text-align: right">
