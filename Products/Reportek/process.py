@@ -303,25 +303,87 @@ def process_to_dot(process):
         short_tr_from = namify(transition.From)
         short_tr_to = namify(transition.To)
         condition = transition.condition.strip()
+        cond_desc = condition
+        tooltip = '{0} -> {1}'.format(transition.From, transition.To)
         if condition.startswith(cond_prefix):
             condition = condition[len(cond_prefix):]
         if condition:
             condition = namify(condition, 'cond')
         line = '{short_tr_from} -> {short_tr_to}'.format(**locals())
         if condition:
-            line += ' [ label = "{condition}" ]'.format(**locals())
+            line += ' [ label = "{condition}" ] '.format(**locals())
+            line += ' [ labeltooltip = "{cond_desc}"] '.format(**locals())
+            line += ' [ URL = "{0}/manage_workspace" target="_top"] '.format(
+                        transition.absolute_url(1))
+
         link_lines.append(line)
 
     dot = StringIO()
-    dot.write('digraph finite_state_machine {\n')
+    dot.write('digraph "%s workflow"{\n' % process.id)
     dot.write('  rankdir=LR;\n')
-    dot.write('  size="8,5"\n')
+    dot.write('  size="9,5"\n')
     dot.write('  node [shape = doublecircle]; %s;\n' % namify(process.begin))
     dot.write('  node [shape = doubleoctagon]; %s;\n' % namify(process.end))
     dot.write('  node [shape = circle];\n')
 
     for line in link_lines:
         dot.write('  ' + line + ';\n')
+
+    for activity in process.objectValues('Activity'):
+        app_details = activity.mapped_application_details()
+        color = 'white'
+        if app_details['mapped_by_path']:
+            color = 'green'
+        elif not app_details['mapped_by_path'] and app_details['path']:
+            color = 'orange'
+        if app_details['missing']:
+            color = 'red'
+
+        label_table = """
+            <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+                <TR>
+                    <TD CELLPADDING="0"
+                        BGCOLOR="{1}"
+                        HREF="/{2}/manage_workspace"
+                        TOOLTIP="{3} mapped to {4}">
+                    </TD>
+                </TR>
+                <TR>
+                    <TD BGCOLOR="{5}">{0}</TD>
+                </TR>
+            </TABLE>
+        """
+
+        activity_color = 'white'
+        if activity.id == process.begin:
+            activity_color = "lightblue"
+        if activity.id == process.end:
+            activity_color = "pink"
+
+        dot.write(
+            ' {0} [shape=none, margin=0, label = <{1}> ]; '.format(
+                namify(activity.id),
+                label_table.format(
+                    namify(activity.id),
+                    color,
+                    activity.mapped_application_details()['path'],
+                    ('Automatially' if activity.mapped_application_details()['mapped_by_path']
+                    else 'Manually'),
+                    activity.mapped_application_details()['path'],
+                    activity_color
+                    )
+            )
+        )
+
+        dot.write(
+            ' {0} [ tooltip = {1}, labelfontsize="12"] '.format(
+                namify(activity.id), activity.id, color
+            )
+        )
+        dot.write(
+            ' {0} [ URL = "{1}/manage_editForm" target="_top" ] '.format(
+                namify(activity.id), activity.id)
+        )
 
     dot.write('}\n')
     del shorts['-']
