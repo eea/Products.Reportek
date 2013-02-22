@@ -321,7 +321,7 @@ def process_to_dot(process):
     dot = StringIO()
     dot.write('digraph "%s workflow"{\n' % process.id)
     dot.write('  rankdir=LR;\n')
-    dot.write('  size="9,5"\n')
+    dot.write('  size="8,5"\n')
     dot.write('  node [shape = doublecircle]; %s;\n' % namify(process.begin))
     dot.write('  node [shape = doubleoctagon]; %s;\n' % namify(process.end))
     dot.write('  node [shape = circle];\n')
@@ -340,16 +340,17 @@ def process_to_dot(process):
             color = 'red'
 
         label_table = """
-            <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="4">
+            <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0">
                 <TR>
-                    <TD CELLPADDING="0"
-                        BGCOLOR="{1}"
+                    <TD BGCOLOR="{1}"
                         HREF="/{2}/manage_workspace"
                         TOOLTIP="{3} mapped to {4}">
                     </TD>
                 </TR>
                 <TR>
-                    <TD BGCOLOR="{5}">{0}</TD>
+                    <TD HEIGHT="40"
+                        BGCOLOR="{5}"
+                    ><FONT POINT-SIZE="24.0">{0}</FONT></TD>
                 </TR>
             </TABLE>
         """
