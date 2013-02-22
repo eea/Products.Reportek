@@ -344,16 +344,27 @@ def process_to_dot(process):
                 <TR>
                     <TD BGCOLOR="{1}"
                         HREF="/{2}/manage_workspace"
-                        TOOLTIP="{3} mapped to {4}">
+                        TOOLTIP="{3}">
                     </TD>
                 </TR>
                 <TR>
                     <TD HEIGHT="40"
-                        BGCOLOR="{5}"
+                        BGCOLOR="{4}"
                     ><FONT POINT-SIZE="24.0">{0}</FONT></TD>
                 </TR>
             </TABLE>
         """
+        mapping_tooltip = "Not mapped to any application"
+        if activity.mapped_application_details()['path']:
+            mapping_tooltip = "{0} mapped to {1} {2}".format(
+                ('Automatically'
+                 if activity.mapped_application_details()['mapped_by_path']
+                 else 'Manually'),
+                ('missing'
+                 if activity.mapped_application_details()['missing']
+                 else ''),
+                activity.mapped_application_details()['path'],
+            )
 
         activity_color = 'white'
         if activity.id == process.begin:
@@ -368,9 +379,7 @@ def process_to_dot(process):
                     namify(activity.id),
                     color,
                     activity.mapped_application_details()['path'],
-                    ('Automatially' if activity.mapped_application_details()['mapped_by_path']
-                    else 'Manually'),
-                    activity.mapped_application_details()['path'],
+                    mapping_tooltip,
                     activity_color
                     )
             )
