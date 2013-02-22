@@ -22,7 +22,7 @@
 
     <object id="process_graph" data="./workflow_graph?output=svg"></object>
 
-	<table>
+	<table id="legend" style="display: none;">
 	<dtml-in "workflow_graph_legend()" prefix="loop">
 		<tr>
 			<th><dtml-var expr="loop_item['short_name']"></th>
@@ -149,6 +149,7 @@
     <script>
         var png = $('<img src="<dtml-var absolute_url>/workflow_graph">');
         $('.workflow-graph #process_graph').replaceWith(png);
+        $('#legend').css({'display': 'inline'});
     </script>
 <![endif]-->
 
