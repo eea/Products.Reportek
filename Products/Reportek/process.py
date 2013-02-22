@@ -17,6 +17,7 @@ from Globals import package_home
 # Product imports
 from activity import activity
 from transition import transition
+from Products.Reportek import constants
 
 CycleError = 'CycleError' # For _topsort()
 
@@ -343,7 +344,7 @@ def process_to_dot(process):
             <TABLE BORDER="0" CELLBORDER="1" CELLSPACING="0" CELLPADDING="0">
                 <TR>
                     <TD BGCOLOR="{1}"
-                        HREF="/{2}/manage_workspace"
+                        HREF="{2}"
                         TOOLTIP="{3}">
                     </TD>
                 </TR>
@@ -366,6 +367,15 @@ def process_to_dot(process):
                 activity.mapped_application_details()['path'],
             )
 
+        application_url = '/%s/%s/manage_main' %(
+                            constants.APPLICATIONS_FOLDER_ID,
+                            process.id
+                            )
+        if activity.mapped_application_details()['path']:
+            application_url = ('/' +
+                              activity.mapped_application_details()['path'] +
+                              '/manage_workspace')
+
         activity_color = 'white'
         if activity.id == process.begin:
             activity_color = "lightblue"
@@ -378,7 +388,7 @@ def process_to_dot(process):
                 label_table.format(
                     namify(activity.id),
                     color,
-                    activity.mapped_application_details()['path'],
+                    application_url,
                     mapping_tooltip,
                     activity_color
                     )
