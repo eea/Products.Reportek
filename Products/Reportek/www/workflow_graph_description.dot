@@ -13,57 +13,45 @@ digraph structs {
   </TR>
 </TABLE>>];
 
+    tag_desc [label=<
+<TABLE CELLBORDER="0" BORDER="0">
+  <TR>
+    <TD PORT="desc" COLSPAN="2" ALIGN="left">
+        Application mapping:
+    </TD>
+  </TR>
+  <TR>
+    <TD BGCOLOR="#008000">AUTO</TD>
+    <TD ALIGN="LEFT" BALIGN="LEFT">- the application is automatically mapped by path to the activity
+    </TD>
+  </TR>
+  <TR>
+    <TD BGCOLOR="orange">MAN</TD>
+    <TD ALIGN="LEFT" BALIGN="LEFT">- the application is manually mapped to the activity by activity.application attribute (deprecated)</TD>
+  </TR>
+  <TR>
+    <TD BGCOLOR="red">MISS</TD>
+    <TD ALIGN="LEFT" BALIGN="LEFT">- the application is manually mapped to the activity but the application is missing</TD>
+  </TR>
+</TABLE>>];
+
     tag_actions_desc [label=<
 <TABLE CELLBORDER="0" BORDER="0">
   <TR>
     <TD PORT="desc">
         Mouse over this section<BR/>displays information about the mapping type<BR/>
-        and the path to the activity<BR/>
-        Click on this section to edit the application
+        and the path to the application.<BR/>
+        Click on this section to edit the application.
     </TD>
   </TR>
 </TABLE>>];
-
-    tag_desc [label=<
-<TABLE CELLBORDER="0" BORDER="0">
-  <TR>
-    <TD PORT="desc">
-        Mapping type section:
-    </TD>
-  </TR>
-</TABLE>>];
-
-  tags [label=<
-<TABLE CELLBORDER="0" BORDER="0">
-<TR>
-  <TD BGCOLOR="#008000" PORT="auto">AUTO</TD>
-  <TD ALIGN="LEFT" BALIGN="LEFT">
-    - the application is<BR/>
-    automatically mapped by path to the activity
-  </TD>
-</TR>
-<TR>
-  <TD BGCOLOR="orange" PORT="man">MAN</TD>
-  <TD ALIGN="LEFT" BALIGN="LEFT">
-    - the application is<BR/>
-    manually mapped to the activity<BR/>
-    by activity.application attribute (deprecated)</TD>
-</TR>
-<TR>
-  <TD BGCOLOR="red" PORT="miss">MISS</TD>
-  <TD ALIGN="LEFT" BALIGN="LEFT">
-    - the application is<BR/>
-    manually mapped to the activity<BR/>
-    but the application is missing</TD>
-</TR>
-</TABLE>>];
-
 
     levels = 3
     pad = 0.2
 
-    subgraph { rank=same tag_actions_desc tag_desc tags}
-    subgraph { sample_box }
+    subgraph { rank=same tag_desc tag_actions_desc }
+    cond [ label="cond1" ];
+    subgraph { rank=same sample_box cond }
 
     activity_actions_desc [label=<
 <TABLE CELLBORDER="0" BORDER="0">
@@ -89,25 +77,21 @@ digraph structs {
 </TABLE>>];
 
 
-    subgraph { rank=max activity_actions_desc activity_color_desc}
+    subgraph { rank=max activity_actions_desc activity_color_desc condition_actions_desc}
 
     condition_actions_desc [label=<
 <TABLE CELLBORDER="0" BORDER="0">
   <TR>
     <TD PORT="desc">
-        Mouse over a condition label displays the condition<BR/>
-        Click on a condition label to edit the condition
+        Mouse over a condition label displays the condition.<BR/>
+        Click on a condition label to edit the condition.
     </TD>
   </TR>
 </TABLE>>];
 
-    tag_desc:desc:w -> sample_box:app:e [style=dotted];
-    tag_actions_desc:desc:e -> sample_box:app:w [style=dotted];
-    tag_desc:desc:e -> tags:auto:w;
-    tag_desc:desc:e -> tags:man:w;
-    tag_desc:desc:e -> tags:miss:w;
-    activity_actions_desc:desc:e -> sample_box:activity:w [style=dotted];
-    cond [ label="cond1" ];
+    tag_desc:s -> sample_box:app:e [style=dotted];
+    tag_actions_desc:desc:s -> sample_box:app:w [style=dotted];
+    activity_actions_desc:desc:n -> sample_box:activity:w [style=dotted];
     condition_actions_desc -> cond [style=dotted];
-    activity_color_desc -> sample_box:activity [style=dotted];
+    activity_color_desc:n -> sample_box:activity [style=dotted];
 }
