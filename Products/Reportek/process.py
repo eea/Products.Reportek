@@ -312,7 +312,7 @@ def process_to_dot(process):
             condition = namify(condition, 'cond')
         line = '{short_tr_from} -> {short_tr_to}'.format(**locals())
         if condition:
-            line += ' [ label = "{condition}" ] '.format(**locals())
+            line += ' [ label = "{condition}" fontsize="40.0"] '.format(**locals())
             line += ' [ labeltooltip = "{cond_desc}"] '.format(**locals())
             line += ' [ URL = "{0}/manage_workspace" target="_top"] '.format(
                         transition.absolute_url(1))
@@ -322,7 +322,7 @@ def process_to_dot(process):
     dot = StringIO()
     dot.write('digraph "%s workflow"{\n' % process.id)
     dot.write('  rankdir=LR;\n')
-    dot.write('  size="8,5"\n')
+    dot.write('  size="10,5"\n')
     dot.write('  node [shape = doublecircle]; %s;\n' % namify(process.begin))
     dot.write('  node [shape = doubleoctagon]; %s;\n' % namify(process.end))
     dot.write('  node [shape = circle];\n')
@@ -345,13 +345,13 @@ def process_to_dot(process):
                 <TR>
                     <TD BGCOLOR="{1}"
                         HREF="{2}"
-                        TOOLTIP="{3}">
-                    </TD>
+                        HEIGHT="30"
+                        TOOLTIP="{3}"><FONT POINT-SIZE="20.0">{4}</FONT></TD>
                 </TR>
                 <TR>
-                    <TD HEIGHT="40"
-                        BGCOLOR="{4}"
-                    ><FONT POINT-SIZE="24.0">{0}</FONT></TD>
+                    <TD HEIGHT="60"
+                        BGCOLOR="{5}"
+                    ><FONT POINT-SIZE="50.0">{0}</FONT></TD>
                 </TR>
             </TABLE>
         """
@@ -390,8 +390,14 @@ def process_to_dot(process):
                     color,
                     application_url,
                     mapping_tooltip,
+                    ('AUTO'
+                        if activity.mapped_application_details()['mapped_by_path']
+                        else 'MISS' if
+                        activity.mapped_application_details()['missing']
+                        else 'MAN'
+                    ),
                     activity_color
-                    )
+                )
             )
         )
 
