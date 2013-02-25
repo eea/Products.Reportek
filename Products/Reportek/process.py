@@ -245,6 +245,22 @@ class process(CatalogAware, Folder):
         Folder.manage_delObjects(self, ids)
         if REQUEST: REQUEST.RESPONSE.redirect(REQUEST.HTTP_REFERER)
 
+    security.declarePublic('workflow_graph_help')
+    def workflow_graph_help(self, REQUEST, RESPONSE):
+        """ Workflow graph description """
+        converters_url = self.Converters.get_local_http_converters_url()
+        converter_path = 'convert/graphviz'
+        dot = path(__file__).parent / 'www' / 'workflow_graph_description.dot'
+        resp = requests.post(converters_url + converter_path,
+                             files={'file': dot.bytes()})
+        if resp.status_code == 200:
+            out = resp.content
+        else:
+            www = path(__file__).parent / 'www'
+            out = (www / 'graphviz-error.png').bytes()
+        RESPONSE.setHeader('Content-Type', 'image/png')
+        return out
+
     security.declarePublic('workflow_graph_legend')
     def workflow_graph_legend(self):
         """ legend for the workflow graph """

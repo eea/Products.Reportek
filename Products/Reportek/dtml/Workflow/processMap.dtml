@@ -46,7 +46,7 @@
   [<a href="#" style="font-weight: normal;" id="collapse_button">show
       description</a>]
   </h3>
-  <div id='collapsible' collapsed="false" style="margin-top: 10px;">
+  <div id='collapsible' collapsed="true" style="margin-top: 10px;">
       <hr/>
       <p>
       Currently there are two possibilities to map an application to an
@@ -80,8 +80,9 @@
           This application would be mapped to the <strong>Draft</strong>
           activity in the <strong>CDDA</strong> workflow.
       </p>
-      <h4>Graph features:</h4>
+      <h4>Graph features (not supported in IE):</h4>
       <p>
+        <img src="<dtml-var absolute_url>/workflow_graph_help">
       </p>
   </div>
   <hr/>
