@@ -36,7 +36,7 @@ digraph structs {
   tags [label=<
 <TABLE CELLBORDER="0" BORDER="0">
 <TR>
-  <TD BGCOLOR="green" PORT="auto">AUTO</TD>
+  <TD BGCOLOR="#008000" PORT="auto">AUTO</TD>
   <TD ALIGN="LEFT" BALIGN="LEFT">
     - the application is<BR/>
     automatically mapped by path to the activity
