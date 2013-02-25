@@ -410,7 +410,9 @@ def process_to_dot(process):
                         if activity.mapped_application_details()['mapped_by_path']
                         else 'MISS' if
                         activity.mapped_application_details()['missing']
-                        else 'MAN'
+                        else 'MAN' if
+                        activity.mapped_application_details()['path']
+                        else ' '
                     ),
                     activity_color
                 )
