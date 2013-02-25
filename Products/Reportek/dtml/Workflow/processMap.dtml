@@ -1,6 +1,35 @@
 <dtml-var manage_page_header>
 <dtml-var manage_tabs>
 
+<script src="++resource++static/jquery-1.8.2.min.js"></script>
+<script type="text/javascript" charset="utf-8">
+    function slide_toggle(){
+        var collapsed_text = 'show description';
+        var expanded_text = 'hide description';
+        if($(collapsible).attr('collapsed')=='false'){
+            $(collapsible).slideUp();
+            $(collapsible).attr('collapsed', 'true');
+            $(this).html(collapsed_text);
+        }
+        else{
+            $(collapsible).slideDown();
+            $(collapsible).attr('collapsed', 'false');
+            $(this).html(expanded_text);
+        }
+    }
+    $(document).ready(function() {
+            var start_hidden = true;
+            var collapsed_text = 'show description';
+            var expanded_text = 'hide description';
+            var collapsible=$('.note-msg #collapsible');
+            var button=$('.note-msg #collapse_button');
+            $(button).bind('click', slide_toggle);
+            $(collapsible).slideUp(0);
+            $(collapsible).attr('collapsed', 'true');
+            $(button).html(collapsed_text);
+    });
+</script>
+
 <style>
 .workflow-graph {
 	overflow: hidden;
@@ -10,6 +39,53 @@
 	margin: 10px;
 }
 </style>
+
+<div class='note-msg'>
+  <h3>
+  <strong>Applications to activities mappings</strong>
+  [<a href="#" style="font-weight: normal;" id="collapse_button">show
+      description</a>]
+  </h3>
+  <div id='collapsible' collapsed="false" style="margin-top: 10px;">
+      <hr/>
+      <p>
+      Currently there are two possibilities to map an application to an
+      activity:
+      <ul>
+          <li>automatically
+            <span style="color: green;"
+                  tal:content="string:[auto]"></span>
+          - by path (new)</li>
+          <li>manually
+            <span style="color: orange;"
+                  tal:content="string:[man]"></span>
+          - by assigning an application instance to the
+          application attribute of the activity (deprecated)</li>
+      </ul>
+      </p>
+      <p>
+      Reportek has a folder structure and mechanism to automatically map
+      applications to activities.
+      </p>
+      <p>
+      The root folder is <code>/Applications</code>. Each workflow must have a
+      folder named exactly like its id.<br/>
+      In order to be mapped automatically to an activity, an application must
+      be stored in one of these subfolders and must have a name that matches an activity
+      that's part of the corresponding workflow.
+      </p>
+      <p>
+          Example of an automatically mapped application:
+          <strong>/Applications/CDDA/Draft.</strong>
+          This application would be mapped to the <strong>Draft</strong>
+          activity in the <strong>CDDA</strong> workflow.
+      </p>
+      <h4>Graph features:</h4>
+      <p>
+      </p>
+  </div>
+  <hr/>
+</div>
 
 <div style="text-align: right">
 <form action="." method="post">
@@ -144,7 +220,6 @@
 
 </dtml-in>
 
-<script src="++resource++static/jquery-1.8.2.min.js"></script>
 <!--[if IE]>
     <script>
         var png = $('<img src="<dtml-var absolute_url>/workflow_graph">');
