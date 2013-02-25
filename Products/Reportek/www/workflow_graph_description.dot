@@ -19,7 +19,7 @@ digraph structs {
     <TD PORT="desc">
         Mouse over this section<BR/>displays information about the mapping type<BR/>
         and the path to the activity<BR/>
-        Click on this section to open the application's edit page
+        Click on this section to edit the application
     </TD>
   </TR>
 </TABLE>>];
@@ -63,24 +63,36 @@ digraph structs {
     pad = 0.2
 
     subgraph { rank=same tag_actions_desc tag_desc tags}
-    subgraph { sample_box}
+    subgraph { sample_box }
 
     activity_actions_desc [label=<
 <TABLE CELLBORDER="0" BORDER="0">
   <TR>
     <TD PORT="desc">
         Mouse over this section displays the full name of the activity<BR/>
-        Click on this section opens the activity's edit page
+        Click on this section to edit the activity
+    </TD>
+  </TR>
+</TABLE>>];
+
+    condition_actions_desc [label=<
+<TABLE CELLBORDER="0" BORDER="0">
+  <TR>
+    <TD PORT="desc">
+        Mouse over a condition label displays the condition<BR/>
+        Click on a condition label to edit the condition
     </TD>
   </TR>
 </TABLE>>];
 
     subgraph { rank=max activity_actions_desc }
 
-    tag_desc:desc:w -> sample_box:app:e;
-    tag_actions_desc:desc:e -> sample_box:app:w;
+    tag_desc:desc:w -> sample_box:app:e [style=dotted];
+    tag_actions_desc:desc:e -> sample_box:app:w [style=dotted];
     tag_desc:desc:e -> tags:auto:w;
     tag_desc:desc:e -> tags:man:w;
     tag_desc:desc:e -> tags:miss:w;
-    activity_actions_desc:desc:e -> sample_box:activity:w;
+    activity_actions_desc:desc:e -> sample_box:activity:w [style=dotted];
+    cond [ label="cond1" ];
+    condition_actions_desc -> cond [style=dotted];
 }
