@@ -941,14 +941,13 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
 
         res_a('<?xml version="1.0" encoding="utf-8"?>')
         res_a('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"')
-        # FIXME: Phase out dc: namespace. It is obsolete
-        res_a(' xmlns:dc="http://purl.org/dc/elements/1.1/"')
+        res_a(' xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"')
         res_a(' xmlns:dct="http://purl.org/dc/terms/"')
         res_a(' xmlns:cr="http://cr.eionet.europa.eu/ontologies/contreg.rdf#"')
         res_a(' xmlns="http://rod.eionet.europa.eu/schema.rdf#">')
 
         res_a('<Delivery rdf:about="%s">' % RepUtils.xmlEncode(self.absolute_url()))
-        res_a('<dc:title>%s</dc:title>' % RepUtils.xmlEncode(self.title_or_id()))
+        res_a('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(self.title_or_id()))
         res_a('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(self.title_or_id()))
         res_a('<dct:creator>%s</dct:creator>' %RepUtils.xmlEncode(self.customer))
         if self.descr:
@@ -986,9 +985,9 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         for fileobj in self.objectValues('Report Document'):
             try: # FIXME: If we get an exception after two lines, we have invalid XML. Make it transactional
                 res_a('<File rdf:about="%s">' % fileobj.absolute_url())
-                res_a('<dc:title>%s</dc:title>' % RepUtils.xmlEncode(fileobj.title_or_id()))
+                res_a('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(fileobj.title_or_id()))
                 res_a('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(fileobj.title_or_id()))
-                res_a('<dc:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dc:date>' % fileobj.upload_time().HTML4())
+                res_a('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % fileobj.upload_time().HTML4())
                 res_a('<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>' % fileobj.upload_time().HTML4())
                 res_a('<cr:mediaType>%s</cr:mediaType>' % fileobj.content_type)
                 if fileobj.content_type == "text/xml":
@@ -999,14 +998,18 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         for fileobj in self.objectValues('Report Hyperlink'):
             try: # FIXME: If we get an exception after two lines, we have invalid XML. Make it transactional
                 res_a('<File rdf:about="%s">' % fileobj.hyperlinkurl())
+                res_a('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(fileobj.title_or_id()))
                 res_a('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(fileobj.title_or_id()))
+                res_a('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % fileobj.upload_time().HTML4())
                 res_a('<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>' % fileobj.upload_time().HTML4())
                 res_a('</File>')
             except: pass
 
         for feedback in self.objectValues('Report Feedback'):
             res_a('<cr:Feedback rdf:about="%s">' % feedback.absolute_url())
+            res_a('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(feedback.title_or_id()))
             res_a('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(feedback.title_or_id()))
+            res_a('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % feedback.releasedate.HTML4())
             res_a('<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</released>' % feedback.releasedate.HTML4())
             res_a('<cr:mediaType>%s</cr:mediaType>' % feedback.content_type)
             if feedback.document_id not in [None, 'xml']:
@@ -1017,6 +1020,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             res_a('</cr:Feedback>')
             for attachment in feedback.objectValues(['File', 'File (Blob)']):
                 res_a('<cr:FeedbackAttachment rdf:about="%s">' % attachment.absolute_url())
+                res_a('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(attachment.title_or_id()))
                 res_a('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(attachment.title_or_id()))
                 res_a('<cr:mediaType>%s</cr:mediaType>' % attachment.content_type)
                 res_a('<cr:attachmentOf rdf:resource="%s"/>' % feedback.absolute_url())

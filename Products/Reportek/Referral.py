@@ -115,7 +115,7 @@ class Referral(CatalogAware, SimpleItem, CountriesManager):
         # The new URI-based obligation codes. Can now be multiple
         if not hasattr(self,'dataflow_uris'):
             if self.dataflow:
-                self.dataflow_uris = ( "http://rod.eionet.eu.int/obligations/" + self.dataflow, )
+                self.dataflow_uris = ( "http://rod.eionet.europa.eu/obligations/" + self.dataflow, )
             else:
                 self.dataflow_uris = ( )
 
@@ -265,14 +265,13 @@ class Referral(CatalogAware, SimpleItem, CountriesManager):
 
         res_a('<?xml version="1.0" encoding="utf-8"?>')
         res_a('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"')
-        # FIXME: Phase out dc: namespace. It is obsolete
-        res_a(' xmlns:dc="http://purl.org/dc/elements/1.1/"')
+        res_a(' xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"')
         res_a(' xmlns:dct="http://purl.org/dc/terms/"')
         res_a(' xmlns:cr="http://cr.eionet.europa.eu/ontologies/contreg.rdf#"')
         res_a(' xmlns="http://rod.eionet.europa.eu/schema.rdf#">')
 
         res_a('<Delivery rdf:about="%s">' % RepUtils.xmlEncode(self.absolute_url()))
-        res_a('<dc:title>%s</dc:title>' % RepUtils.xmlEncode(self.title_or_id()))
+        res_a('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(self.title_or_id()))
         res_a('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(self.title_or_id()))
         if self.descr:
             res_a('<dct:description>%s</dct:description>' % RepUtils.xmlEncode(self.descr))
