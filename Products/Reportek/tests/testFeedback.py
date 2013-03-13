@@ -201,6 +201,7 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
         self.assertIn('see attachment', feedback.feedbacktext)
         self.assertEqual(feedback.content_type, 'text/html')
 
+
 class BlockerFeedbackTest(unittest.TestCase):
 
     def setUp(self):
@@ -304,3 +305,36 @@ class BlockerFeedbackTest(unittest.TestCase):
         }
         self.receive_feedback(text, result)
         self.assertEqual(False, self.envelope.is_blocked)
+
+
+class GetAllFeedbackTest(BlockerFeedbackTest):
+
+    def test_feedback_objects(self):
+        result = {
+            'CODE': '0',
+            'VALUE': 'AQ feedback',
+            'SCRIPT_TITLE': "mock script",
+            'METATYPE': 'application/x-mock',
+            'FEEDBACK_STATUS': 'BLOCKER',
+            'FEEDBACK_MESSAGE': 'Blocker error'
+        }
+        self.receive_feedback('AQ feedback', result)
+        from DateTime import DateTime
+        self.maxDiff = None
+        feedback = self.envelope.getFeedbacks()[0]
+        self.assertEqual(
+            {'feedbacks':
+              [
+                {
+                  'title'         : feedback.title,
+                  'releasedate'   : feedback.releasedate,
+                  'isautomatic'   : feedback.automatic,
+                  'content_type'  : feedback.content_type,
+                  'reffered_file' : '%s/%s' %(self.envelope.absolute_url(), feedback.document_id),
+                  'qa_output_url' : "%s/qa-output" %feedback.absolute_url()
+                },
+              ]
+            },
+            self.envelope.feedback_objects_details()
+        )
+

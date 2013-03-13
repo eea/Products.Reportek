@@ -696,6 +696,24 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         """ return all the feedbacks """
         return self.objectValues('Report Feedback')
 
+    security.declareProtected('View', 'feedback_objects')
+    def feedback_objects_details(self):
+        """ xml-rpc interface to get feedbacks details """
+        result = {'feedbacks': []}
+        feedbacks = self.objectValues('Report Feedback')
+        for item in feedbacks:
+            result['feedbacks'].append(
+                {
+                  'title'         : item.title,
+                  'releasedate'   : item.releasedate,
+                  'isautomatic'   : item.automatic,
+                  'content_type'  : item.content_type,
+                  'reffered_file' : '%s/%s' %(self.absolute_url(), item.document_id),
+                  'qa_output_url' : '%s/qa-output' %item.absolute_url()
+                },
+            )
+        return result
+
     security.declareProtected('View', 'getFeedbackObjects')
     def getFeedbackObjects(self):
         """ return sorted feedbacks by their 'title' property, the manual feedback if always first """
