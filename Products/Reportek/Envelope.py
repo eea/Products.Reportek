@@ -706,7 +706,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                 referred_file = '%s/%s' %(self.absolute_url(), item.document_id)
             else:
                 referred_file = ''
-            if item.get('qa-output'):
+            if 'qa-output' in item.objectIds():
                 qa_output_url = '%s/qa-output' %item.absolute_url()
             else:
                 qa_output_url = '%s' %item.absolute_url()
