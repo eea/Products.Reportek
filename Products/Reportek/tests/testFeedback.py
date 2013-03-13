@@ -11,6 +11,7 @@ from configurereportek import ConfigureReportek
 from fileuploadmock import FileUploadMock
 from utils import create_temp_reposit, create_fake_root, create_envelope
 from Products.Reportek import Converters
+from OFS.SimpleItem import Item
 
 
 def setUpModule(self):
@@ -307,9 +308,9 @@ class BlockerFeedbackTest(unittest.TestCase):
         self.assertEqual(False, self.envelope.is_blocked)
 
 
-class GetAllFeedbackTest(BlockerFeedbackTest):
+class GetAllFeedbackTest(RemoteApplicationFeedbackTest):
 
-    def test_feedback_objects(self):
+    def test_feedback_objects_details_small_file(self):
         result = {
             'CODE': '0',
             'VALUE': 'AQ feedback',
@@ -318,10 +319,10 @@ class GetAllFeedbackTest(BlockerFeedbackTest):
             'FEEDBACK_STATUS': 'BLOCKER',
             'FEEDBACK_MESSAGE': 'Blocker error'
         }
-        self.receive_feedback('AQ feedback', result)
+        self.receive_feedback('AQ feedback')
         from DateTime import DateTime
         self.maxDiff = None
-        feedback = self.envelope.getFeedbacks()[0]
+        [feedback] = self.envelope.getFeedbacks()
         self.assertEqual(
             {'feedbacks':
               [
@@ -330,7 +331,30 @@ class GetAllFeedbackTest(BlockerFeedbackTest):
                   'releasedate'   : feedback.releasedate,
                   'isautomatic'   : feedback.automatic,
                   'content_type'  : feedback.content_type,
-                  'reffered_file' : '%s/%s' %(self.envelope.absolute_url(), feedback.document_id),
+                  'referred_file' : '%s/%s' %(self.envelope.absolute_url(), feedback.document_id),
+                  'qa_output_url' : "%s" %feedback.absolute_url()
+                },
+              ]
+            },
+            self.envelope.feedback_objects_details()
+        )
+
+    def test_feedback_objects_details_big_file(self):
+        self.maxDiff = None
+        from DateTime import DateTime
+        text = "large automatic feedback: " + (u"[10 chąṛŝ]" * 10240)
+        self.receive_feedback(text)
+        [feedback] = self.envelope.objectValues()
+        attach = feedback.get('qa-output')
+        self.assertEqual(
+            {'feedbacks':
+              [
+                {
+                  'title'         : feedback.title,
+                  'releasedate'   : feedback.releasedate,
+                  'isautomatic'   : feedback.automatic,
+                  'content_type'  : feedback.content_type,
+                  'referred_file' : '%s/%s' %(self.envelope.absolute_url(), feedback.document_id),
                   'qa_output_url' : "%s/qa-output" %feedback.absolute_url()
                 },
               ]
@@ -338,3 +362,25 @@ class GetAllFeedbackTest(BlockerFeedbackTest):
             self.envelope.feedback_objects_details()
         )
 
+    def test_feedback_objects_details_without_reffered_file(self):
+        self.maxDiff = None
+        from DateTime import DateTime
+        text = "short text"
+        self.receive_feedback(text)
+        [feedback] = self.envelope.objectValues()
+        del feedback.document_id
+        self.assertEqual(
+            {'feedbacks':
+              [
+                {
+                  'title'         : feedback.title,
+                  'releasedate'   : feedback.releasedate,
+                  'isautomatic'   : feedback.automatic,
+                  'content_type'  : feedback.content_type,
+                  'referred_file' : '',
+                  'qa_output_url' : "%s" %feedback.absolute_url()
+                },
+              ]
+            },
+            self.envelope.feedback_objects_details()
+        )
