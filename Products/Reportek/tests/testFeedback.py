@@ -368,7 +368,7 @@ class GetAllFeedbackTest(RemoteApplicationFeedbackTest):
         text = "short text"
         self.receive_feedback(text)
         [feedback] = self.envelope.objectValues()
-        del feedback.document_id
+        feedback.document_id = None
         self.assertEqual(
             {'feedbacks':
               [

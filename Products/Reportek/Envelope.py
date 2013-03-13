@@ -703,7 +703,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         feedbacks = self.objectValues('Report Feedback')
         for item in feedbacks:
             referred_file = ('%s/%s' %(self.absolute_url(), item.document_id)
-                             if getattr(item, 'document_id', None)
+                             if item.document_id
                              else '')
             if item.get('qa-output'):
                 qa_output_url = '%s/qa-output' %item.absolute_url()
