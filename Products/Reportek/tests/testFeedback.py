@@ -328,7 +328,7 @@ class GetAllFeedbackTest(RemoteApplicationFeedbackTest):
               [
                 {
                   'title'         : feedback.title,
-                  'releasedate'   : feedback.releasedate,
+                  'releasedate'   : feedback.releasedate.HTML4(),
                   'isautomatic'   : feedback.automatic,
                   'content_type'  : feedback.content_type,
                   'referred_file' : '%s/%s' %(self.envelope.absolute_url(), feedback.document_id),
@@ -351,7 +351,7 @@ class GetAllFeedbackTest(RemoteApplicationFeedbackTest):
               [
                 {
                   'title'         : feedback.title,
-                  'releasedate'   : feedback.releasedate,
+                  'releasedate'   : feedback.releasedate.HTML4(),
                   'isautomatic'   : feedback.automatic,
                   'content_type'  : feedback.content_type,
                   'referred_file' : '%s/%s' %(self.envelope.absolute_url(), feedback.document_id),
@@ -374,7 +374,7 @@ class GetAllFeedbackTest(RemoteApplicationFeedbackTest):
               [
                 {
                   'title'         : feedback.title,
-                  'releasedate'   : feedback.releasedate,
+                  'releasedate'   : feedback.releasedate.HTML4(),
                   'isautomatic'   : feedback.automatic,
                   'content_type'  : feedback.content_type,
                   'referred_file' : '',
