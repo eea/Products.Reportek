@@ -713,7 +713,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             result['feedbacks'].append(
                 {
                   'title'         : item.title,
-                  'releasedate'   : item.releasedate,
+                  'releasedate'   : item.releasedate.HTML4(),
                   'isautomatic'   : item.automatic,
                   'content_type'  : item.content_type,
                   'referred_file' : referred_file,
