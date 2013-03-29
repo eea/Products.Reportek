@@ -69,7 +69,7 @@ def manage_addFeedback(self, id ='', title='', feedbacktext='', file='', activit
     # the next line of code will raise an exception
     # because we don't want to save unsecure html
     sanitizer = convs['safe_html']
-    feedbacktext = sanitizer.convert(tmp, sanitizer.id)
+    feedbacktext = sanitizer.convert(tmp, sanitizer.id).text
 
     ob = ReportFeedback(
             id, releasedate, title, feedbacktext, activity_id,

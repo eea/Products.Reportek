@@ -44,7 +44,7 @@ class FeedbackTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
             self.envelope.getPhysicalRoot(),
             constants.CONVERTERS_ID,
             Converters.Converters())
-        safe_html = Mock(convert=Mock(return_value='feedbacktext'))
+        safe_html = Mock(convert=Mock(text='feedbacktext'))
         getattr(self.envelope.getPhysicalRoot(),
                 constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
 
@@ -162,7 +162,7 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
             self.envelope.getPhysicalRoot(),
             constants.CONVERTERS_ID,
             Converters.Converters())
-        safe_html = Mock(convert=Mock(return_value='feedbacktext'))
+        safe_html = Mock(convert=Mock(text='feedbacktext'))
         getattr(self.envelope.getPhysicalRoot(),
                 constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
 
@@ -228,7 +228,7 @@ class BlockerFeedbackTest(unittest.TestCase):
             self.envelope.getPhysicalRoot(),
             constants.CONVERTERS_ID,
             Converters.Converters())
-        safe_html = Mock(convert=Mock(return_value='feedbacktext'))
+        safe_html = Mock(convert=Mock(text='feedbacktext'))
         getattr(self.envelope.getPhysicalRoot(),
                 constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
 
