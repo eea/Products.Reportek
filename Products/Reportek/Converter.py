@@ -204,11 +204,12 @@ class ConversionResult(object):
         self.content_type = response.headers['content-type']
 
     @property
+    def text(self):
+        return self.original_response.text
+
+    @property
     def content(self):
-        if (re.match('text\/', self.original_response.headers['content-type'])):
-            return self.original_response.text
-        else:
-            return self.original_response.content
+        return self.original_response.content
 
 
 class LocalHttpConverter(Converter):

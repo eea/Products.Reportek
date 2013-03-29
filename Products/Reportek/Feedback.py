@@ -193,7 +193,7 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
         # because we don't want to save unsecure html
         sanitizer = convs['safe_html']
         result = sanitizer.convert(tmp, sanitizer.id)
-        self.feedbacktext = result.content
+        self.feedbacktext = result.text
         if content_type:
             self.content_type = content_type
         if document_id != 'None':
