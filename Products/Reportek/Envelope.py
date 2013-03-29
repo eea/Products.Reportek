@@ -696,7 +696,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         """ return all the feedbacks """
         return self.objectValues('Report Feedback')
 
-    security.declareProtected('View', 'feedback_objects')
+    security.declareProtected('View', 'feedback_objects_details')
     def feedback_objects_details(self):
         """ xml-rpc interface to get feedbacks details """
         result = {'feedbacks': []}
