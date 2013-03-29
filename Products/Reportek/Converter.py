@@ -35,6 +35,7 @@ import Globals
 import RepUtils
 import constants
 import os
+import re
 import requests
 import string
 import xmlrpclib
@@ -197,10 +198,17 @@ class RemoteConverter(Converter):
 class ConversionResult(object):
 
     def __init__(self, response):
+        self.original_response = response
         self.status_code = response.status_code
         self.reason = response.reason
         self.content_type = response.headers['content-type']
-        self.content = response.content
+
+    @property
+    def content(self):
+        if (re.match('text\/', self.original_response.headers['content-type'])):
+            return self.original_response.text
+        else:
+            return self.original_response.content
 
 
 class LocalHttpConverter(Converter):
