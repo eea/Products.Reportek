@@ -194,6 +194,15 @@ class RemoteConverter(Converter):
             return file_obj.note()
 
 
+class ConversionResult(object):
+
+    def __init__(self, response):
+        self.status_code = response.status_code
+        self.reason = response.reason
+        self.content_type = response.headers['content-type']
+        self.content = response.content
+
+
 class LocalHttpConverter(Converter):
 
     def __init__(self, *args, **kwargs):
