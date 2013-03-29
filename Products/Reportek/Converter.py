@@ -222,8 +222,9 @@ class LocalHttpConverter(Converter):
                    url,
                    files={'file': data},
                    data={'extraparams': extra_params})
-        self.REQUEST.RESPONSE.setStatus(resp.status_code, resp.reason)
-        self.REQUEST.RESPONSE.setHeader('Content-Type', self.ct_output)
-        return resp.content
+
+        response = ConversionResult(resp)
+        return response
+
 
 Globals.InitializeClass(Converter)

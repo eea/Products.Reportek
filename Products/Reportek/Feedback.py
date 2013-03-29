@@ -192,8 +192,8 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
         # the next line of code will raise an exception
         # because we don't want to save unsecure html
         sanitizer = convs['safe_html']
-        feedbacktext = sanitizer.convert(tmp, sanitizer.id)
-        self.feedbacktext = feedbacktext
+        result = sanitizer.convert(tmp, sanitizer.id)
+        self.feedbacktext = result.content
         if content_type:
             self.content_type = content_type
         if document_id != 'None':

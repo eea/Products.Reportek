@@ -273,15 +273,17 @@ class Converters(Folder):
         if source == 'local':
             for conv in self._get_local_converters():
                 if conv.id == converter_id:
-                    data = conv(file_url, converter_id)
+                    result = conv(file_url, converter_id)
                     if ajax_call:
-                        if 'image' in conv.ct_output:
-                            data = base64.b64encode(data)
-                        json_data = {'mime_type': conv.ct_output,
+                        if 'image' in result.content_type:
+                            data = base64.b64encode(result.content)
+                        json_data = {'mime_type': result.content_type,
                                     'content': data}
                         REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
                         return json.dumps(json_data)
-                    return data
+                    self.REQUEST.RESPONSE.setStatus(result.status_code, result.reason)
+                    self.REQUEST.RESPONSE.setHeader('Content-Type', result.content_type)
+                    return result.content
 
         if source == 'remote':
             conv = Converter.RemoteConverter(converter_id).__of__(self)

@@ -76,10 +76,10 @@ class ConversionServiceTest(unittest.TestCase):
         self.app.testfile._View_Permission = ('Anonymous', )
 
         #no exception should be raised now
-        mock_requests.post.return_value = Mock(content='fisier.txt')
+        mock_requests.post.return_value = Mock(content='fisier.txt', headers={'content-type': 'mock/type'})
         result = local_converters[0](
                     file_url=self.app.testfile.absolute_url(),
-                    converter_id='http_rar2list')
+                    converter_id='http_rar2list').content
         self.assertIn('fisier.txt', result)
 
     @patch.object(Converters, '_get_local_converters')
@@ -102,7 +102,7 @@ class ConversionServiceTest(unittest.TestCase):
         #override normal behaviour
         #allow current user (Anonymous) to see this file
         self.app.testfile._View_Permission = ('Anonymous', )
-        mock_requests.post.return_value = Mock(content='mock conversion')
+        mock_requests.post.return_value = Mock(content='mock conversion', headers={'content-type': 'mock/type'})
         result = converters.run_conversion(self.app.testfile.absolute_url(),
                                    converter_id='%srar2list' %self.prefix,
                                    source = 'local')
