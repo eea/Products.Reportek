@@ -127,7 +127,7 @@ class CommentItem(ObjectManager, SimpleItem, PropertyManager):
             # the next line of code will raise an exception
             # because we don't want to save unsecure html
             sanitizer = convs['safe_html']
-            body = sanitizer.convert(tmp, sanitizer.id)
+            body = sanitizer.convert(tmp, sanitizer.id).text
             self.edit(title, body, author, date)
             if notif:
                 # Send notification to UNS
@@ -199,7 +199,7 @@ class CommentsManager:
         # the next line of code will raise an exception
         # because we don't want to save unsecure html
         sanitizer = convs['safe_html']
-        body = sanitizer.convert(tmp, sanitizer.id)
+        body = sanitizer.convert(tmp, sanitizer.id).text
         ob = CommentItem(id, title, body, author, date, in_reply)
         if file:
             filename = getFilename(file.filename)
