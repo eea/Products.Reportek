@@ -226,14 +226,24 @@ class LocalHttpConverter(Converter):
         else:
             return file_obj
 
-
     def convert(self, file_obj, converter_id):
         url = '%s%s' % (self.get_local_http_converters_url(), self.convert_url)
         extra_params = request_params(self.ct_extraparams, obj=file_obj)
         data = self.get_file_data(file_obj)
+        files = {'file': data}
+        accepts_shp = any(map(lambda item: 'shp' in item, self.ct_input))
+        if (accepts_shp):
+            shp_container = file_obj.aq_parent
+            file_name = file_obj.id.split('.')[0]
+            shx_file = shp_container.unrestrictedTraverse(
+                                        '.'.join([file_name, 'shx']))
+            dbf_file = shp_container.unrestrictedTraverse(
+                                        '.'.join([file_name, 'dbf']))
+            files['shx'] = self.get_file_data(shx_file)
+            files['dbf'] = self.get_file_data(dbf_file)
         resp = requests.post(
                    url,
-                   files={'file': data},
+                   files=files,
                    data={'extraparams': extra_params})
 
         response = ConversionResult(resp)

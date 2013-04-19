@@ -254,6 +254,48 @@ class ConversionServiceTest(unittest.TestCase):
         assert files['file']
         self.assertEqual({'extraparams': ['AT']}, data)
 
+    @patch.object(Converters, '_http_params')
+    @patch('Products.Reportek.Converter.requests')
+    def test_shp_conversionr(self, mock_requests, mock_http_params):
+        mock_http_params.return_value = [
+            [
+              "shp2img",
+              "Show shapefile as image",
+              "convert/shp2img",
+              [
+                "application/x-shp"
+              ],
+              "image/jpeg",
+              "",
+              [],
+              ""
+            ]
+        ]
+
+        [shp_conv] = self.app.Converters._get_local_converters()
+        from Products.Reportek.Document import Document
+        document = Document('test.shp', '', content_type= "application/x-shp")
+        self.app.Converters._setObject('test.shp', document)
+
+        document = Document('test.shx', '', content_type= "application/x-shx")
+        self.app.Converters._setObject('test.shx', document)
+
+        document = Document('test.dbf', '', content_type= "application/dbf")
+        self.app.Converters._setObject('test.dbf', document)
+        for item in self.app.Converters.objectValues():
+            item._View_Permission = ('Anonymous', )
+            with item.data_file.open('wb') as datafile:
+                datafile.write('test file')
+
+        file_url = '/Converters/test.shp'
+        shp_conv(file_url, shp_conv.id)
+        files = mock_requests.mock_calls[0][2]['files']
+        data = mock_requests.mock_calls[0][2]['data']
+        for item in mock_requests.mock_calls[0][2]['files'].values():
+            self.assertEqual('test file', item.read())
+        self.assertEqual(set(['file', 'shx', 'dbf']), set(files.keys()))
+
+
 class ConversionRegistryTest(unittest.TestCase):
 
     def setUp(self):
