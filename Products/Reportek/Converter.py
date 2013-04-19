@@ -219,14 +219,18 @@ class LocalHttpConverter(Converter):
         if not self.suffix:
             self.suffix = extension(self.ct_input)
 
+    def get_file_data(self, file_obj):
+        data_file = getattr(file_obj, 'data_file', None)
+        if (data_file and isinstance(data_file, blob.FileContainer)):
+            return data_file.open()
+        else:
+            return file_obj
+
+
     def convert(self, file_obj, converter_id):
         url = '%s%s' % (self.get_local_http_converters_url(), self.convert_url)
         extra_params = request_params(self.ct_extraparams, obj=file_obj)
-        data_file = getattr(file_obj, 'data_file', None)
-        if (data_file and isinstance(data_file, blob.FileContainer)):
-            data = data_file.open()
-        else:
-            data = file_obj
+        data = self.get_file_data(file_obj)
         resp = requests.post(
                    url,
                    files={'file': data},
