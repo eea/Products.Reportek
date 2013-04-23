@@ -34,6 +34,7 @@ from AccessControl import getSecurityManager, ClassSecurityInfo
 # Product specific imports
 import RepUtils
 from constants import QAREPOSITORY_ID
+from Products.Reportek.exceptions import EnvelopeReleasedException
 
 class EnvelopeRemoteServicesManager:
     """ This class which Envelope subclasses from handles the integration

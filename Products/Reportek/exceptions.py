@@ -9,3 +9,6 @@ class InvalidPartOfYear(Exception):
 
 class LocalConversionException(Exception):
     """ Raised when Local Conversion Service is not responding """
+
+class EnvelopeReleasedException(Exception):
+    """ Raised by saveXML when the Envelope is released and the document cannot be saved. """

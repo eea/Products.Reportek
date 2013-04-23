@@ -147,6 +147,14 @@ class EnvelopeTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
             col.manage_addProduct['Reportek'].manage_addEnvelope('', '', '2003', '2004', 'invalid',
              'http://rod.eionet.eu.int/localities/1', REQUEST=None, previous_delivery='')
 
+    def test_saveXML_on_released_envelope(self):
+        from Products.Reportek import exceptions
+        from Products.Reportek import EnvelopeRemoteServicesManager
+        self.test_addEnvelope()
+        self.envelope.released = True
+        with self.assertRaises(exceptions.EnvelopeReleasedException) as ex:
+            self.envelope.saveXML('file_id', Mock(), '')
+
 
 def get_xml_metadata(envelope, inline='false'):
     from Products.Reportek.XMLMetadata import XMLMetadata
