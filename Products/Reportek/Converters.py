@@ -123,7 +123,7 @@ class Converters(Folder):
     def _http_params(self):
         url = self.get_local_http_converters_url() + 'params'
         resp = requests.get(url)
-        return resp.json['list']
+        return resp.json()['list']
 
     def _get_local_converters(self):
         local_converters = []
