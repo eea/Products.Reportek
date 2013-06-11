@@ -39,6 +39,7 @@ import re
 import requests
 import string
 import xmlrpclib
+from requests import Request, Session
 
 import blob
 from RepUtils import extension
@@ -171,6 +172,7 @@ class RemoteConverter(Converter):
 
     def __init__(self, converter_id):
         super(Converter, self).__init__(converter_id)
+        self.api_url = 'http://converterstest.eionet.europa.eu/api'
         self.id = converter_id
 
     def __call__(self, file_url):
@@ -181,12 +183,21 @@ class RemoteConverter(Converter):
 
     def convert(self, file_obj):
         try:
-            server = xmlrpclib.ServerProxy(self.remote_converter)
-            #acording to "Architectural and Detailed Design for GDEM under IDA/EINRC/SA6/AIT"
-            result = server.ConversionService.convert(file_obj.absolute_url(0), self.id)
-            self.REQUEST.RESPONSE.setHeader('Content-Type', result['content-type'])
-            self.REQUEST.RESPONSE.setHeader('Content-Disposition', 'inline;filename="%s"' % result['filename'])
-            return result['content'].data
+            url = '/'.join([self.api_url, 'convertPush'])
+            with file_obj.data_file.open() as f:
+                s = Session()
+                prepped = Request('POST', url,
+                           files={'convert_file': f},
+                           data={'convert_id': '287'}).prepare()
+                result = s.send(prepped, stream=True)
+            result.raise_for_status()
+
+            self.REQUEST.RESPONSE.setHeader('Content-Type', result.headers['content-type'])
+            self.REQUEST.RESPONSE.setHeader('Content-Disposition', result.headers['content-disposition'])
+            for line in result.iter_lines():
+                self.REQUEST.RESPONSE.write(line)
+            return self.REQUEST.RESPONSE
+
         except Exception, error:
             self.REQUEST.SESSION.set('note_title', 'Error in conversion')
             l_tmp = string.maketrans('<>', '  ')

@@ -3,7 +3,7 @@ import requests
 from path import path
 from utils import create_fake_root
 from common import create_mock_request
-from mock import patch, Mock
+from mock import patch, Mock, MagicMock, call
 from Products.Reportek.Converters import Converters
 from Products.Reportek.Converter import Converter, LocalHttpConverter
 from Products.Reportek import conversion_registry
@@ -108,8 +108,8 @@ class ConversionServiceTest(unittest.TestCase):
                                    source = 'local')
         self.assertEqual('mock conversion', result)
 
-    @patch('Products.Reportek.Converter.xmlrpclib')
-    def test_run_conversion_remote(self, mock_xmlrpclib):
+    @patch('Products.Reportek.Converter.Session')
+    def test_run_conversion_remote(self, mock_session):
 
         from Products.Reportek.Document import Document
         document = Document('testfile', '', content_type= "application/x-rar-compressed")
@@ -118,12 +118,11 @@ class ConversionServiceTest(unittest.TestCase):
         with self.app.Converters.testfile.data_file.open('wb') as datafile:
             datafile.write('test file')
 
-        server = mock_xmlrpclib.ServerProxy.return_value
-        expected = {}
-        expected['content'] = Mock(data='txtesrever')
-        expected['content-type'] = 'mock/content-type'
-        expected['filename'] = 'testfile'
-        server.ConversionService.convert.return_value = expected
+        mock_resp = MagicMock()
+        mock_resp.iter_lines = Mock(return_value=['txtesrever'])
+        mock_inst = Mock()
+        mock_inst.configure_mock(**{'send.return_value': mock_resp})
+        mock_session.configure_mock(**{'return_value': mock_inst})
         self.app.REQUEST = Mock(SESSION='')
 
         params = {'file_url': 'Converters/testfile',
@@ -140,7 +139,7 @@ class ConversionServiceTest(unittest.TestCase):
         self.app.Converters.testfile._View_Permission = ('Anonymous', )
         self.app.Converters.note = Mock(return_value='')
         result = self.app.Converters.run_conversion(**params)
-        self.assertEqual('txtesrever', result)
+        self.assertEqual(call('txtesrever'), self.app.REQUEST.RESPONSE.write.mock_calls[0])
 
     @patch.object(Converters, '_http_params')
     def test_converter_ct_extraparams_attribute(self, mock_http_params):
