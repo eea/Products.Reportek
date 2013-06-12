@@ -188,7 +188,7 @@ class RemoteConverter(Converter):
                 s = Session()
                 prepped = Request('POST', url,
                            files={'convert_file': f},
-                           data={'convert_id': '287'}).prepare()
+                           data={'convert_id': self.id}).prepare()
                 result = s.send(prepped, stream=True)
             result.raise_for_status()
 
