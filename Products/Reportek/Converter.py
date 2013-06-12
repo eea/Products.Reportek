@@ -190,10 +190,9 @@ class RemoteConverter(Converter):
                             data={'convert_id': self.id},
                             stream=True)
             result.raise_for_status()
-
             self.REQUEST.RESPONSE.headers.update(result.headers)
-            for line in result.iter_lines():
-                self.REQUEST.RESPONSE.write(line)
+            for chunk in result.iter_content(chunk_size=64*1024):
+                self.REQUEST.RESPONSE.write(chunk)
             return self.REQUEST.RESPONSE
 
         except Exception, error:

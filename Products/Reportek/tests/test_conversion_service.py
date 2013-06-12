@@ -119,7 +119,7 @@ class ConversionServiceTest(unittest.TestCase):
             datafile.write('test file')
 
         mock_resp = MagicMock()
-        mock_resp.iter_lines = Mock(return_value=['txtesrever'])
+        mock_resp.iter_content = Mock(return_value=['txtesrever'])
         mock_inst = Mock()
         mock_requests.configure_mock(**{'post.return_value': mock_resp})
         self.app.REQUEST = Mock(SESSION='')
