@@ -187,15 +187,14 @@ class RemoteConverter(Converter):
             with file_obj.data_file.open() as f:
                 s = Session()
                 prepped = Request('POST', url,
-                           files={'convert_file': f},
+                           files={'convert_file': (file_obj.id, f)},
                            data={'convert_id': self.id}).prepare()
                 result = s.send(prepped, stream=True)
             result.raise_for_status()
 
-            self.REQUEST.RESPONSE.setHeader('Content-Type', result.headers['content-type'])
-            self.REQUEST.RESPONSE.setHeader('Content-Disposition', result.headers['content-disposition'])
             for line in result.iter_lines():
                 self.REQUEST.RESPONSE.write(line)
+            self.REQUEST.RESPONSE.headers.update(result.headers)
             return self.REQUEST.RESPONSE
 
         except Exception, error:
