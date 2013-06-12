@@ -108,8 +108,8 @@ class ConversionServiceTest(unittest.TestCase):
                                    source = 'local')
         self.assertEqual('mock conversion', result)
 
-    @patch('Products.Reportek.Converter.Session')
-    def test_run_conversion_remote(self, mock_session):
+    @patch('Products.Reportek.Converter.requests')
+    def test_run_conversion_remote(self, mock_requests):
 
         from Products.Reportek.Document import Document
         document = Document('testfile', '', content_type= "application/x-rar-compressed")
@@ -121,8 +121,7 @@ class ConversionServiceTest(unittest.TestCase):
         mock_resp = MagicMock()
         mock_resp.iter_lines = Mock(return_value=['txtesrever'])
         mock_inst = Mock()
-        mock_inst.configure_mock(**{'send.return_value': mock_resp})
-        mock_session.configure_mock(**{'return_value': mock_inst})
+        mock_requests.configure_mock(**{'post.return_value': mock_resp})
         self.app.REQUEST = Mock(SESSION='')
 
         params = {'file_url': 'Converters/testfile',

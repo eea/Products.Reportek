@@ -39,7 +39,6 @@ import re
 import requests
 import string
 import xmlrpclib
-from requests import Request, Session
 
 import blob
 from RepUtils import extension
@@ -185,16 +184,16 @@ class RemoteConverter(Converter):
         try:
             url = '/'.join([self.api_url, 'convertPush'])
             with file_obj.data_file.open() as f:
-                s = Session()
-                prepped = Request('POST', url,
-                           files={'convert_file': (file_obj.id, f)},
-                           data={'convert_id': self.id}).prepare()
-                result = s.send(prepped, stream=True)
+                result = requests.post(
+                            url,
+                            files={'convert_file': (file_obj.id, f)},
+                            data={'convert_id': self.id},
+                            stream=True)
             result.raise_for_status()
 
+            self.REQUEST.RESPONSE.headers.update(result.headers)
             for line in result.iter_lines():
                 self.REQUEST.RESPONSE.write(line)
-            self.REQUEST.RESPONSE.headers.update(result.headers)
             return self.REQUEST.RESPONSE
 
         except Exception, error:
