@@ -99,10 +99,10 @@ class Converters(Folder):
                                 '{0}list'.format(
                                     self.get_local_http_converters_url()
                                 )
-                            ).json['list']
+                            ).json()['list']
             if attr in available_ids:
                 url = '%s%s' % (self.get_local_http_converters_url(), 'params/%s' %attr)
-                attrs = requests.get(url).json
+                attrs = requests.get(url).json()
                 return Converter.LocalHttpConverter(**attrs).__of__(self)
             else:
                 raise KeyError
