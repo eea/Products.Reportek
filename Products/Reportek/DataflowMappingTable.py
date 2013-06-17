@@ -67,14 +67,14 @@ class DataflowMappingTable(SimpleItem):
         if resp.status_code == 200:
             webq_url = self.ReportekEngine.webq_url
             webq = xmlrpclib.ServerProxy(webq_url).WebQService
-            webq_resp = webq.getXForm([row['url'] for row in resp.json])
+            webq_resp = webq.getXForm([row['url'] for row in resp.json()])
 
             self.mapping = {
                 'schemas': [{
                     'url': row['url'],
                     'name': row['name'],
                     'has_webform': bool(webq_resp.get(row['url'])),
-                } for row in resp.json]
+                } for row in resp.json()]
             }
             messages.add(REQUEST, "Mappings updated from Data Dictionary.")
 

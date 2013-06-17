@@ -73,7 +73,7 @@ def log_to_cube(event):
         response = requests.post(url, data=json.dumps([message]),
                                       timeout=CUBE_TIMEOUT)
         if response.status_code != 200:
-            cube_log.error("Error saving data: %r", response.json['error'])
+            cube_log.error("Error saving data: %r", response.json()['error'])
     except:
         cube_log.exception("Error saving data")
 
