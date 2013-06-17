@@ -251,6 +251,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 import json
             except ImportError:
                 return resp
+            REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
             return json.dumps(resp, indent=4)
         return None
 
