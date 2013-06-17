@@ -219,6 +219,41 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if local_roles:
             doc.manage_setLocalRoles(user, local_roles)
 
+    security.declareProtected(view_management_screens, 'show_local_roles')
+    def show_local_roles(self, userid=None, REQUEST=None):
+        """ REST API to get local roles for user id """
+
+        def filter_objects(root):
+            accepted_meta_types = ['Report Collection', 'Report Envelope']
+            for node in root.objectValues():
+                if node.meta_type in accepted_meta_types:
+                    yield node
+                    if node.meta_type == 'Report Collection':
+                        for subnode in filter_objects(node):
+                            if subnode.meta_type in accepted_meta_types:
+                                yield subnode
+
+        userid = userid or REQUEST.get('userid')
+        if userid:
+            from collections import defaultdict
+            resp = defaultdict(list)
+            for country in self.getCountriesList():
+                for obj in filter_objects(country):
+                    role = obj.get_local_roles_for_userid(userid)
+                    if role:
+                        resp[userid].append({
+                            'role': role[0],
+                            'ob_url': obj.absolute_url(),
+                            'ob_title': obj.title,
+                            'extra': {'country': country.title}
+                        })
+            try:
+                import json
+            except ImportError:
+                return resp
+            return json.dumps(resp, indent=4)
+        return None
+
     security.declareProtected('View', 'Assign_client')
     def Assign_client(self, REQUEST=None, **kwargs):
         if REQUEST:
