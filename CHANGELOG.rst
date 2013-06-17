@@ -1,3 +1,15 @@
+3.3 (2013-06-17)
+----------------
+* Add globally_restricted_site flag in ReportekEngine (for BDR) [dincamih]
+* Display mapping related messages when handling application files [dincamih]
+* Implement Envelope.has_blocker_feedback REST API [dincamih]
+* SVG workflow graph [dincamih]
+* Add interface to retrieve feedback details [dincamih]
+* Reimplement SHP converter [dincamih]
+* Use REST API for remote conversions [dincamih]
+* View for displaying local roles for user id [dincamih]
+* Other minor fixes [dincamih]
+
 3.2 (2013-02-01)
 ----------------
 * Session-based mechanism to set and display system messages [moregale]
