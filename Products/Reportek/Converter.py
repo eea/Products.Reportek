@@ -171,7 +171,7 @@ class RemoteConverter(Converter):
 
     def __init__(self, converter_id):
         super(Converter, self).__init__(converter_id)
-        self.api_url = 'http://converterstest.eionet.europa.eu/api'
+        self.api_url = 'http://converters.eionet.europa.eu/api'
         self.id = converter_id
 
     def __call__(self, file_url):
