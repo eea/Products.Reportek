@@ -86,12 +86,15 @@ class Converters(Folder):
         """ """
         self.id = constants.CONVERTERS_ID
         self.remote_converter = "http://converters.eionet.europa.eu/RpcRouter"
+        self.api_url = 'http://converters.eionet.europa.eu/api'
 
     def __setstate__(self, state):
         """ update """
         Converters.inheritedAttribute('__setstate__')(self, state)
         if not hasattr(self, 'remote_converter'):
             self.remote_converter = "http://converters.eionet.europa.eu/RpcRouter"
+        if not hasattr(self, 'api_url'):
+            self.api_url = 'http://converters.eionet.europa.eu/api'
 
     def __getitem__(self, attr):
         try:
@@ -110,9 +113,10 @@ class Converters(Folder):
             raise LocalConversionException(err.message)
 
     security.declareProtected(view_management_screens, 'manage_edit')
-    def manage_edit(self, remote_converter, REQUEST=None):
+    def manage_edit(self, remote_converter, api_url, REQUEST=None):
         """ """
         self.remote_converter = remote_converter
+        self.api_url = api_url
         if REQUEST:
             message="Content changed"
             return self.manage_converters_html(self,REQUEST,manage_tabs_message=message)

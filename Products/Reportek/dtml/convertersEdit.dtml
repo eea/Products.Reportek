@@ -15,6 +15,11 @@ To change property values, edit the values and click "Save Changes".
         (e.g. <em>http://converters.eionet.europa.eu/RpcRouter</em>)</td>
     </tr>
     <tr>
+        <th align="left">REST API URL</th>
+        <td><input type="text" name="api_url" value="<dtml-var api_url html_quote>" size="50" />
+        (e.g. <em>http://converters.eionet.europa.eu/api</em>)</td>
+    </tr>
+    <tr>
         <td></td>
         <td><input type="submit" value="Save Changes" /></td>
     </tr>
