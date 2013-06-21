@@ -257,7 +257,7 @@ class Converters(Folder):
         else:
             _id = 'default'
             source = None
-        REQUEST.set('file_url', REQUEST.get('file', file_url))
+        REQUEST.set('file', REQUEST.get('file', file_url))
         REQUEST.set('conv', _id)
         REQUEST.set('source', source)
         return self.run_conversion(REQUEST=REQUEST)
