@@ -242,7 +242,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     role = obj.get_local_roles_for_userid(userid)
                     if role:
                         resp[userid].append({
-                            'role': role[0],
+                            'roles': role,
                             'ob_url': obj.absolute_url(),
                             'ob_title': obj.title,
                             'extra': {'country': country.title}
