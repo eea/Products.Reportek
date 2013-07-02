@@ -186,7 +186,8 @@ class RemoteConverter(Converter):
                 result = requests.post(
                             url,
                             files={'convert_file': (file_obj.id, f)},
-                            data={'convert_id': self.id},
+                            data={'convert_id': self.id,
+                                  'url': file_obj.absolute_url(0)},
                             stream=True)
             result.raise_for_status()
             self.REQUEST.RESPONSE.headers.update(result.headers)
