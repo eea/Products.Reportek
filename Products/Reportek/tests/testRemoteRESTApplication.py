@@ -1,156 +1,65 @@
 import unittest
 from mock import Mock, patch
 from utils import create_fake_root
-from common import create_mock_request, _WorkflowTestCase
+from DateTime import DateTime
 
 from OFS.Folder import Folder
 
+from common import create_mock_request, _BaseTest, create_process
+from Products.Reportek.Collection import Collection
+from Products.Reportek.Envelope import Envelope
 from Products.Reportek import constants
 from Products.Reportek.RemoteRESTApplication import RemoteRESTApplication, manage_addRemoteRESTApplication
 
-class RemoteRESTApplicationClass(unittest.TestCase):
 
-    def test_init(self):
-        restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url',
-                                        'http://check.url', 'name')
-        self.assertEqual('restapp', restapp.id)
-        self.assertEqual('title', restapp.title)
-        self.assertEqual('name', restapp.app_name)
-        self.assertEqual('http://submit.url', restapp.ServiceSubmitURL)
-        self.assertEqual('http://check.url', restapp.ServiceCheckURL)
-        # asser defaults
-        self.assertEqual(5, restapp.nRetries)
-        self.assertEqual(300, restapp.retryFrequency)
-        self.assertEqual(60, restapp.nTimeBetweenCalls)
+class RemoteRESTApplicationProduct(_BaseTest):
 
-    @patch('Products.Reportek.RemoteRESTApplication.requests')
-    def test_request_for_new_job_success(self, mock_requests):
-        mock_requests.get.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
-        );
-        restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url',
-                                        'http://check.url', 'name')
-        restapp('http://envelope.url')
-        mock_requests.get.assert_called_once_with(
-            'http://submit.url',
-            params={'EnvelopeURL': 'http://envelope.url',
-                    'f': 'pjson'}
+    def create_cepaa_set(self, idx):
+        col_id = "col%s" %idx
+        env_id = "env%s" %idx
+        proc_id = "proc%s" %idx
+        act_id = "act%s" %idx
+        app_id = "act%s" %idx
+        country = 'http://spatial/%s' %idx
+        dataflow_uris = 'http://obligation/%idx' %idx
+        col = Collection(col_id, country=country, dataflow_uris=dataflow_uris)
+        self.app._setOb(col_id, col)
+
+        self.app.Templates.StartActivity = Mock(return_value='Test Application')
+        self.app.Templates.StartActivity.title_or_id = Mock(return_value='Start Activity Template')
+        create_process(self, proc_id)
+        self.wf.addApplication(app_id, 'SomeFolder/%s' %app_id)
+
+        self.app.Applications._setOb(proc_id, Folder(proc_id))
+        proc = getattr(self.app.Applications, proc_id)
+
+        manage_addRemoteRESTApplication(
+            proc,
+            app_id, 'title',
+            'http://submit.url', 'http://check.url',
+            'restapp'
         )
+        getattr(self.wf, proc_id).addActivity(act_id,
+                            split_mode='xor',
+                            join_mode='xor',
+                            start_mode=1)
+        getattr(self.wf, proc_id).begin = act_id
+        self.wf.setProcessMappings(proc_id, '1', '1')
 
-    @patch('Products.Reportek.RemoteRESTApplication.requests')
-    def test_request_for_new_job_invalid_status_code(self, mock_requests):
-        mock_requests.get.return_value = Mock(status_code=201);
-        restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url',
-                                        'http://check.url', 'name')
-        with self.assertRaisesRegexp(Exception, 'invalid status code'):
-            restapp('http://envelope.url')
-
-    @patch('Products.Reportek.RemoteRESTApplication.requests')
-    def test_request_for_new_job_response_is_not_json(self, mock_requests):
-        def bad_json():
-            raise ValueError
-        mock_requests.get.return_value = Mock(
-            status_code=200,
-            json=bad_json
-        );
-        restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url',
-                                        'http://check.url', 'name')
-        with self.assertRaisesRegexp(Exception, 'response is not json'):
-            restapp('http://envelope.url')
-
-    @patch('Products.Reportek.RemoteRESTApplication.requests')
-    def test_request_for_new_job_invalid_json_response(self, mock_requests):
-        mock_requests.get.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value={})
-        );
-        restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url',
-                                        'http://check.url', 'name')
-        with self.assertRaisesRegexp(Exception, 'invalid response'):
-            restapp('http://envelope.url')
-
-    @patch('Products.Reportek.RemoteRESTApplication.requests')
-    def test_request_job_output_params(self, mock_requests):
-        mock_requests.get.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSucceeded',
-                                    'messages': []})
-        );
-        restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url',
-                                        'http://check.url/', 'name')
-        restapp.callApplication('1')
-        mock_requests.get.assert_called_once_with(
-            'http://check.url/1',
-            params={'f': 'pjson'}
-        )
-
-    @patch('Products.Reportek.RemoteRESTApplication.requests')
-    def test_job_invalid_status_code(self, mock_requests):
-        mock_requests.get.return_value = Mock(status_code=201);
-        restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url',
-                                        'http://check.url/', 'name')
-        with self.assertRaisesRegexp(Exception, 'invalid status code'):
-            restapp.callApplication('1')
-
-    @patch('Products.Reportek.RemoteRESTApplication.requests')
-    def test_job_invalid_json(self, mock_requests):
-        def bad_json():
-            raise ValueError
-        mock_requests.get.return_value = Mock(
-            status_code=200,
-            json=bad_json
-        );
-        restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url',
-                                        'http://check.url/', 'name')
-        with self.assertRaisesRegexp(Exception, 'response is not json'):
-            restapp.callApplication('1')
-
-    @patch('Products.Reportek.RemoteRESTApplication.requests')
-    def test_job_succeeded(self, mock_requests):
-        mock_requests.get.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSucceeded',
-                                    'messages': 'result messages'})
-        );
-        restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url',
-                                        'http://check.url/', 'name')
-        self.assertEqual('result messages', restapp.callApplication('1'))
-
-    @patch('Products.Reportek.RemoteRESTApplication.requests')
-    def test_job_failed(self, mock_requests):
-        mock_requests.get.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobFailed'})
-        );
-        restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url',
-                                        'http://check.url/', 'name')
-        with self.assertRaisesRegexp(Exception, 'job failed'):
-            restapp.callApplication('1')
-
-    @patch('Products.Reportek.RemoteRESTApplication.requests')
-    def test_job_not_done(self, mock_requests):
-        mock_requests.get.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobExecuting'})
-        );
-        restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url',
-                                        'http://check.url/', 'name')
-        with self.assertRaisesRegexp(Exception, 'job not done'):
-            restapp.callApplication('1')
-
-    @patch('Products.Reportek.RemoteRESTApplication.requests')
-    def test_job_unknown_status(self, mock_requests):
-        mock_requests.get.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value={'jobId': 1, 'jobStatus': 'unknown status'})
-        );
-        restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url',
-                                        'http://check.url/', 'name')
-        with self.assertRaisesRegexp(Exception, 'unknown status'):
-            restapp.callApplication('1')
-
-class RemoteRESTApplicationProduct(_WorkflowTestCase):
+        env = Envelope(process=getattr(self.wf, proc_id),
+                       title='FirstEnvelope',
+                       authUser='TestUser',
+                       year=2012,
+                       endyear=2013,
+                       partofyear='January',
+                       country='http://spatial/1',
+                       locality='TestLocality',
+                       descr='TestDescription')
+        env.id = env_id
+        getattr(self.app, col_id)._setOb(env_id, env)
+        setattr(self, col_id, getattr(self.app, col_id))
+        setattr(self, env_id, getattr(getattr(self.app, col_id), env_id))
+        getattr(self, env_id).startInstance(self.app.REQUEST)
 
     def setUp(self):
         super(RemoteRESTApplicationProduct, self).setUp()
@@ -162,19 +71,179 @@ class RemoteRESTApplicationProduct(_WorkflowTestCase):
             'Common',
             Folder('Common'))
 
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_request_for_new_job_success(self, mock_requests):
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
+        );
+        restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url',
+                                        'http://check.url', 'name')
+        self.create_cepaa_set(1)
+        mock_requests.get.assert_called_once_with(
+            'http://submit.url',
+            params={'EnvelopeURL': 'http://nohost/col1/env1',
+                    'f': 'pjson'}
+        )
+
+
     def test_add_application_to_zope_object(self):
         manage_addRemoteRESTApplication(
             self.apps_folder,
             'restapp', 'title',
             'http://submit.url', 'http://check.url',
-            'name'
+            'restapp'
         )
         self.assertEqual('restapp', self.apps_folder.Common.restapp.id)
         self.assertEqual('title', self.apps_folder.Common.restapp.title)
-        self.assertEqual('name', self.apps_folder.Common.restapp.app_name)
+        self.assertEqual('restapp', self.apps_folder.Common.restapp.app_name)
         self.assertEqual('http://submit.url', self.apps_folder.Common.restapp.ServiceSubmitURL)
         self.assertEqual('http://check.url', self.apps_folder.Common.restapp.ServiceCheckURL)
         # asser defaults
         self.assertEqual(5, self.apps_folder.Common.restapp.nRetries)
         self.assertEqual(300, self.apps_folder.Common.restapp.retryFrequency)
         self.assertEqual(60, self.apps_folder.Common.restapp.nTimeBetweenCalls)
+
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_app_writes_success_in_event_log(self, mock_requests):
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
+        );
+        self.create_cepaa_set(1)
+        import re
+        exp = re.compile('\w+ job request for http:\/\/[\w+\/]+ successfully submited.$')
+        for item in self.app.col1.env1['0'].event_log:
+            if exp.match(item['event']):
+                break
+        else:
+            assert False, 'Success message not found in workitem.event_log'
+
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_request_for_new_job_invalid_status_code(self, mock_requests):
+        mock_requests.get.return_value = Mock(status_code=201);
+        with self.assertRaisesRegexp(Exception, 'invalid status code'):
+            self.create_cepaa_set(1)
+
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_request_for_new_job_response_is_not_json(self, mock_requests):
+        def bad_json():
+            raise ValueError
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=bad_json
+        );
+        with self.assertRaisesRegexp(Exception, 'response is not json'):
+            self.create_cepaa_set(1)
+
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_request_for_new_job_invalid_json_response(self, mock_requests):
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={})
+        );
+        with self.assertRaisesRegexp(Exception, 'invalid response'):
+            self.create_cepaa_set(1)
+
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_workitem_initialization(self, mock_requests):
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 999, 'jobStatus': 'esriJobSubmitted'})
+        );
+        self.create_cepaa_set(1)
+        prop = self.app.col1.env1['0'].restapp
+        assert prop['jobid'] == 999, 'wrong job id'
+        assert prop['last_error'] is None, 'error not expected'
+        assert type(prop['next_run']) == type(DateTime()), 'should be a date'
+
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_job_invalid_status_code(self, mock_requests):
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
+        );
+        self.create_cepaa_set(1)
+        with self.assertRaisesRegexp(Exception, 'invalid status code'):
+            mock_requests.get.return_value = Mock(status_code=201);
+            restapp = self.app.Applications.proc1.act1
+            restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_job_invalid_json(self, mock_requests):
+        def bad_json():
+            raise ValueError
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
+        );
+        self.create_cepaa_set(1)
+        with self.assertRaisesRegexp(Exception, 'response is not json'):
+            mock_requests.get.return_value = Mock(
+                status_code=200,
+                json=bad_json
+            );
+            restapp = self.app.Applications.proc1.act1
+            restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_job_succeeded(self, mock_requests):
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
+        );
+        self.create_cepaa_set(1)
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSucceeded',
+                                    'messages': 'result messages'})
+        );
+        restapp = self.app.Applications.proc1.act1
+        restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_job_failed(self, mock_requests):
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
+        );
+        self.create_cepaa_set(1)
+        with self.assertRaisesRegexp(Exception, 'job failed'):
+            mock_requests.get.return_value = Mock(
+                status_code=200,
+                json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobFailed'})
+            );
+            restapp = self.app.Applications.proc1.act1
+            restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_job_not_done(self, mock_requests):
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
+        );
+        self.create_cepaa_set(1)
+        with self.assertRaisesRegexp(Exception, 'job not done'):
+            mock_requests.get.return_value = Mock(
+                status_code=200,
+                json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobExecuting'})
+            );
+            restapp = self.app.Applications.proc1.act1
+            restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_job_unknown_status(self, mock_requests):
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
+        );
+        self.create_cepaa_set(1)
+        with self.assertRaisesRegexp(Exception, 'unknown status'):
+            mock_requests.get.return_value = Mock(
+                status_code=200,
+                json=Mock(return_value={'jobId': 1, 'jobStatus': 'unknown status'})
+            );
+            restapp = self.app.Applications.proc1.act1
+            restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+
+
