@@ -121,6 +121,7 @@ class RemoteRESTApplication(SimpleItem):
                 elif job_status == 'esriJobFailed':
                     workitem.addEvent('%s job id %s for %s failed.'
                                        % (self.app_name, jobid, envelope_url))
+                    self.__finish(workitem_id, REQUEST)
                 elif job_status == 'esriJobExecuting':
                     workitem.addEvent('%s job id %s for %s is still running.'
                                        % (self.app_name, jobid, envelope_url))
