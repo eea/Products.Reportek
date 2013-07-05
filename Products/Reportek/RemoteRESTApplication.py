@@ -117,6 +117,7 @@ class RemoteRESTApplication(SimpleItem):
                     messages = data['messages']
                     workitem.addEvent('%s job id %s for %s successfully finished.'
                                        % (self.app_name, jobid, envelope_url))
+                    self.__finish(workitem_id, REQUEST)
                 elif job_status == 'esriJobFailed':
                     workitem.addEvent('%s job id %s for %s failed.'
                                        % (self.app_name, jobid, envelope_url))
@@ -148,4 +149,10 @@ class RemoteRESTApplication(SimpleItem):
     def __update(self, workitem_id, values):
         workitem = getattr(self, workitem_id)
         getattr(workitem, self.app_name).update(values)
+
+    def __finish(self, workitem_id, REQUEST=None):
+        """ Completes the workitem and forwards it """
+        self.activateWorkitem(workitem_id, actor='openflow_engine')
+        self.completeWorkitem(workitem_id, actor='openflow_engine', REQUEST=REQUEST)
+
 InitializeClass(RemoteRESTApplication)

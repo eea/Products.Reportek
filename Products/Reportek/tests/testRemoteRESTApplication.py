@@ -43,7 +43,10 @@ class RemoteRESTApplicationProduct(_BaseTest):
         getattr(self.wf, proc_id).addActivity(act_id,
                             split_mode='xor',
                             join_mode='xor',
-                            start_mode=1)
+                            start_mode=1,
+                            finish_mode=1,
+                            complete_automatically=0)
+        self.wf[proc_id].addTransition('to_end', act_id, 'End')
         getattr(self.wf, proc_id).begin = act_id
         self.wf.setProcessMappings(proc_id, '1', '1')
 
@@ -206,7 +209,23 @@ class RemoteRESTApplicationProduct(_BaseTest):
         restapp = self.app.Applications.proc1.act1
         restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
         exp = re.compile('\w+ job id 1 for http:\/\/[\w+\/]+ successfully finished.$')
-        self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-1]['event'], exp)
+        self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-3]['event'], exp)
+
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_job_success_finishes_application(self, mock_requests):
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
+        );
+        self.create_cepaa_set(1)
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSucceeded',
+                                    'messages': 'result messages'})
+        );
+        restapp = self.app.Applications.proc1.act1
+        restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        self.assertEqual('complete', self.col1.env1['0'].status)
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_failed(self, mock_requests):
