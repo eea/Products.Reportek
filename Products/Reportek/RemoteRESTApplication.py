@@ -154,9 +154,11 @@ class RemoteRESTApplication(SimpleItem):
     def __update(self, workitem_id, values):
         workitem = getattr(self, workitem_id)
         getattr(workitem, self.app_name).update(values)
+        workitem._p_changed = 1
 
     def __decrease_retries(self, workitem):
         getattr(workitem, self.app_name)['retries_left']-=1
+        workitem._p_changed = 1
 
     def __post_feedback(self, workitem, jobid, messages):
         envelope = self.aq_parent
