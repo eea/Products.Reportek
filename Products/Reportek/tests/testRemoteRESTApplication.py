@@ -165,10 +165,11 @@ class RemoteRESTApplicationProduct(_BaseTest):
             json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
         );
         self.create_cepaa_set(1)
-        with self.assertRaisesRegexp(Exception, 'invalid status code'):
-            mock_requests.get.return_value = Mock(status_code=201);
-            restapp = self.app.Applications.proc1.act1
-            restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        mock_requests.get.return_value = Mock(status_code=201);
+        restapp = self.app.Applications.proc1.act1
+        restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        exp = re.compile('\w+ job id 1 for http:\/\/[\w+\/]+ returned invalid status code 201.$')
+        self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-1]['event'], exp)
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_invalid_json(self, mock_requests):
@@ -179,13 +180,16 @@ class RemoteRESTApplicationProduct(_BaseTest):
             json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
         );
         self.create_cepaa_set(1)
-        with self.assertRaisesRegexp(Exception, 'response is not json'):
-            mock_requests.get.return_value = Mock(
-                status_code=200,
-                json=bad_json
-            );
-            restapp = self.app.Applications.proc1.act1
-            restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=bad_json
+        );
+        restapp = self.app.Applications.proc1.act1
+        restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        exp = re.compile('\w+ job id 1 for http:\/\/[\w+\/]+ output is not json.$')
+        self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-2]['event'], exp)
+        exp = re.compile('\w+ job id 1 for http:\/\/[\w+\/]+ output is invalid.$')
+        self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-1]['event'], exp)
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_succeeded(self, mock_requests):
@@ -201,6 +205,8 @@ class RemoteRESTApplicationProduct(_BaseTest):
         );
         restapp = self.app.Applications.proc1.act1
         restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        exp = re.compile('\w+ job id 1 for http:\/\/[\w+\/]+ successfully finished.$')
+        self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-1]['event'], exp)
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_failed(self, mock_requests):
@@ -209,13 +215,14 @@ class RemoteRESTApplicationProduct(_BaseTest):
             json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
         );
         self.create_cepaa_set(1)
-        with self.assertRaisesRegexp(Exception, 'job failed'):
-            mock_requests.get.return_value = Mock(
-                status_code=200,
-                json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobFailed'})
-            );
-            restapp = self.app.Applications.proc1.act1
-            restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobFailed'})
+        );
+        restapp = self.app.Applications.proc1.act1
+        restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        exp = re.compile('\w+ job id 1 for http:\/\/[\w+\/]+ failed.$')
+        self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-1]['event'], exp)
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_not_done(self, mock_requests):
@@ -224,13 +231,14 @@ class RemoteRESTApplicationProduct(_BaseTest):
             json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
         );
         self.create_cepaa_set(1)
-        with self.assertRaisesRegexp(Exception, 'job not done'):
-            mock_requests.get.return_value = Mock(
-                status_code=200,
-                json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobExecuting'})
-            );
-            restapp = self.app.Applications.proc1.act1
-            restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobExecuting'})
+        );
+        restapp = self.app.Applications.proc1.act1
+        restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        exp = re.compile('\w+ job id 1 for http:\/\/[\w+\/]+ is still running.$')
+        self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-1]['event'], exp)
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_unknown_status(self, mock_requests):
@@ -239,12 +247,11 @@ class RemoteRESTApplicationProduct(_BaseTest):
             json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
         );
         self.create_cepaa_set(1)
-        with self.assertRaisesRegexp(Exception, 'unknown status'):
-            mock_requests.get.return_value = Mock(
-                status_code=200,
-                json=Mock(return_value={'jobId': 1, 'jobStatus': 'unknown status'})
-            );
-            restapp = self.app.Applications.proc1.act1
-            restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
-
-
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'unknown status'})
+        );
+        restapp = self.app.Applications.proc1.act1
+        restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        exp = re.compile('\w+ job id 1 for http:\/\/[\w+\/]+ has status [\w+\s]+.$')
+        self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-1]['event'], exp)

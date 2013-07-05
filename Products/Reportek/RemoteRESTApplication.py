@@ -96,6 +96,7 @@ class RemoteRESTApplication(SimpleItem):
 
     def callApplication(self, workitem_id, REQUEST):
         workitem = getattr(self, workitem_id)
+        envelope_url = workitem.getMySelf().absolute_url(0)
         attributes = getattr(workitem, self.app_name)
         params = {
             'f': 'pjson',
@@ -104,25 +105,33 @@ class RemoteRESTApplication(SimpleItem):
         resp = requests.get(self.ServiceCheckURL + str(jobid), params=params)
 
         if resp.status_code == 200:
+            data = None
             try:
                 data = resp.json()
             except ValueError:
-                raise Exception, 'response is not json'
+                workitem.addEvent('%s job id %s for %s output is not json.'
+                                   % (self.app_name, jobid, envelope_url))
             if data and 'jobId' in data:
                 job_status = data['jobStatus']
                 if job_status == 'esriJobSucceeded':
                     messages = data['messages']
-                    return messages
+                    workitem.addEvent('%s job id %s for %s successfully finished.'
+                                       % (self.app_name, jobid, envelope_url))
                 elif job_status == 'esriJobFailed':
-                    raise Exception, 'job failed'
+                    workitem.addEvent('%s job id %s for %s failed.'
+                                       % (self.app_name, jobid, envelope_url))
                 elif job_status == 'esriJobExecuting':
-                    raise Exception, 'job not done'
+                    workitem.addEvent('%s job id %s for %s is still running.'
+                                       % (self.app_name, jobid, envelope_url))
                 else:
-                    raise Exception, job_status
+                    workitem.addEvent('%s job id %s for %s has status %s.'
+                       % (self.app_name, jobid, envelope_url, job_status))
             else:
-                raise Exception, 'invalid response'
+                workitem.addEvent('%s job id %s for %s output is invalid.'
+                                   % (self.app_name, jobid, envelope_url))
         else:
-            raise Exception, 'invalid status code'
+            workitem.addEvent('%s job id %s for %s returned invalid status code %s.'
+                               % (self.app_name, jobid, envelope_url, resp.status_code))
 
     def __initialize(self, p_workitem_id):
         """ Adds REST-QA specific extra properties to the workitem """
