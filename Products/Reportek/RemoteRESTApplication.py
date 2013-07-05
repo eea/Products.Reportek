@@ -74,10 +74,12 @@ class RemoteRESTApplication(SimpleItem):
         resp = requests.get(self.ServiceSubmitURL, params=params)
 
         if resp.status_code == 200:
+            data = None
             try:
                 data = resp.json()
             except ValueError:
-                raise Exception, 'response is not json'
+                workitem.addEvent('%s job request for %s response is not json.'
+                                   % (self.app_name, envelope_url))
             if data and 'jobId' in data:
                 job_id = data['jobId']
                 self.__update(workitem_id, {'jobid': job_id})
@@ -86,9 +88,11 @@ class RemoteRESTApplication(SimpleItem):
                     workitem.addEvent('%s job request for %s successfully submited.'
                                        % (self.app_name, envelope_url))
             else:
-                raise Exception, 'invalid response'
+                workitem.addEvent('%s job request for %s response is invalid.'
+                                   % (self.app_name, envelope_url))
         else:
-            raise Exception, 'invalid status code'
+            workitem.addEvent('%s job request for %s returned invalid status code %s.'
+                               % (self.app_name, envelope_url, resp.status_code))
 
     def callApplication(self, workitem_id, REQUEST):
         workitem = getattr(self, workitem_id)

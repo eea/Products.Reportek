@@ -1,3 +1,4 @@
+import re
 import unittest
 from mock import Mock, patch
 from utils import create_fake_root
@@ -111,19 +112,15 @@ class RemoteRESTApplicationProduct(_BaseTest):
             json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
         );
         self.create_cepaa_set(1)
-        import re
         exp = re.compile('\w+ job request for http:\/\/[\w+\/]+ successfully submited.$')
-        for item in self.app.col1.env1['0'].event_log:
-            if exp.match(item['event']):
-                break
-        else:
-            assert False, 'Success message not found in workitem.event_log'
+        self.assertRegexpMatches(self.app.col1.env1['0'].event_log[1]['event'], exp)
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_request_for_new_job_invalid_status_code(self, mock_requests):
         mock_requests.get.return_value = Mock(status_code=201);
-        with self.assertRaisesRegexp(Exception, 'invalid status code'):
-            self.create_cepaa_set(1)
+        self.create_cepaa_set(1)
+        exp = re.compile('\w+ job request for http:\/\/[\w+\/]+ returned invalid status code 201.$')
+        self.assertRegexpMatches(self.app.col1.env1['0'].event_log[1]['event'], exp)
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_request_for_new_job_response_is_not_json(self, mock_requests):
@@ -133,8 +130,11 @@ class RemoteRESTApplicationProduct(_BaseTest):
             status_code=200,
             json=bad_json
         );
-        with self.assertRaisesRegexp(Exception, 'response is not json'):
-            self.create_cepaa_set(1)
+        self.create_cepaa_set(1)
+        exp = re.compile('\w+ job request for http:\/\/[\w+\/]+ response is not json.$')
+        self.assertRegexpMatches(self.app.col1.env1['0'].event_log[1]['event'], exp)
+        exp = re.compile('\w+ job request for http:\/\/[\w+\/]+ response is invalid.$')
+        self.assertRegexpMatches(self.app.col1.env1['0'].event_log[2]['event'], exp)
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_request_for_new_job_invalid_json_response(self, mock_requests):
@@ -142,8 +142,9 @@ class RemoteRESTApplicationProduct(_BaseTest):
             status_code=200,
             json=Mock(return_value={})
         );
-        with self.assertRaisesRegexp(Exception, 'invalid response'):
-            self.create_cepaa_set(1)
+        self.create_cepaa_set(1)
+        exp = re.compile('\w+ job request for http:\/\/[\w+\/]+ response is invalid.$')
+        self.assertRegexpMatches(self.app.col1.env1['0'].event_log[1]['event'], exp)
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_workitem_initialization(self, mock_requests):
