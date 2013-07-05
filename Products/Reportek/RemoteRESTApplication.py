@@ -27,6 +27,7 @@ from DateTime import DateTime
 from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl import ClassSecurityInfo
+from AccessControl.Permissions import view_management_screens
 from OFS.SimpleItem import SimpleItem
 
 
@@ -47,6 +48,13 @@ class RemoteRESTApplication(SimpleItem):
 
     security = ClassSecurityInfo()
     meta_type = 'Remote REST Application'
+    manage_options = (
+        ( {'label' : 'Settings', 'action' : 'manage_settings_html'}, ) +
+        SimpleItem.manage_options
+    )
+
+    security.declareProtected(view_management_screens, 'manage_settings_html')
+    manage_settings_html = PageTemplateFile('zpt/RemoteRESTApplicationSettings', globals())
 
     def __init__(self, id, title, ServiceSubmitURL, ServiceCheckURL, app_name, nRetries=5, retryFrequency=300, nTimeBetweenCalls=60):
         """ Initialize a new instance of Document """
@@ -58,6 +66,17 @@ class RemoteRESTApplication(SimpleItem):
         self.nRetries = nRetries                    # integer
         self.retryFrequency = retryFrequency        # integer - seconds
         self.nTimeBetweenCalls = nTimeBetweenCalls  # integer - seconds
+
+    def manage_settings(self, title, ServiceSubmitURL, ServiceCheckURL, app_name, nRetries, retryFrequency, nTimeBetweenCalls):
+        """ Change properties of the QA REST Application """
+        self.title = title
+        self.title = title
+        self.ServiceSubmitURL = ServiceSubmitURL
+        self.ServiceCheckURL = ServiceCheckURL
+        self.app_name = app_name
+        self.nRetries = nRetries
+        self.retryFrequency = retryFrequency
+        self.nTimeBetweenCalls = nTimeBetweenCalls
 
     def __call__(self, workitem_id, REQUEST=None):
         workitem = getattr(self, workitem_id)
@@ -94,6 +113,7 @@ class RemoteRESTApplication(SimpleItem):
             workitem.addEvent('%s job request for %s returned invalid status code %s.'
                                % (self.app_name, envelope_url, resp.status_code))
 
+    security.declareProtected('Use OpenFlow', 'callApplication')
     def callApplication(self, workitem_id, REQUEST):
         workitem = getattr(self, workitem_id)
         envelope_url = workitem.getMySelf().absolute_url(0)

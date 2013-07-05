@@ -1,0 +1,48 @@
+<div tal:replace="structure here/manage_tabs"/>
+
+<p class="form-help">
+	To change property values, edit the values and click "Save Changes". 
+</p>
+
+<form action="manage_settings" method="post">
+<table>
+  <tr>
+    <th align="left">Title</th>
+    <td><input type="text" name="title" tal:attributes="value here/title" size="40" /></td>
+  </tr>
+  <tr>
+    <th align="left">Submit URL</th>
+    <td><input type="text" name="ServiceSubmitURL" tal:attributes="value here/ServiceSubmitURL" size="40" />
+    </td>
+  </tr>
+  <tr>
+    <th align="left">Check URL</th>
+    <td><input type="text" name="ServiceCheckURL" tal:attributes="value here/ServiceCheckURL" size="40" /></td>
+  </tr>
+	<tr>
+		<th align="left">Activity ID</th>
+		<td><input type="text" name="app_name" tal:attributes="value here/app_name" size="40" /></td>
+	</tr>
+	<tr>
+		<th align="left">Maximum number of retries</th>
+		<td><input type="text" name="nRetries" tal:attributes="value here/nRetries" size="5" /></td>
+	</tr>
+	<tr>
+		<th align="left">Frequency of retry</th>
+    <td><input type="text" name="retryFrequency"
+               tal:attributes="value here/retryFrequency" size="5" /> 
+			<em>(seconds)</em>
+		</td>
+	</tr>
+	<tr>
+		<th align="left">Seconds to wait between XML/RPC calls</th>
+    <td><input type="text" name="nTimeBetweenCalls"
+               tal:attributes="value here/nTimeBetweenCalls" size="5" />
+		</td>
+	</tr>
+	<tr>
+		<td></td>
+		<td><input type="submit" value="Save Changes" /></td>
+	</tr>
+</table>
+</form>
