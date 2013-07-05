@@ -354,7 +354,7 @@ class RemoteRESTApplicationProduct(_BaseTest):
         );
         self.app.Catalog = MagicMock(return_value=[Mock()], getobject=lambda x: workitem)
         self.assertEqual(5, workitem.restapp['retries_left'])
-        self.ReportekEngine.runAutomaticApplications(p_applications='act1')
+        self.ReportekEngine.runAutomaticApplications(p_applications='AutomaticQA||act1')
         self.assertEqual(4, workitem.restapp['retries_left'])
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
