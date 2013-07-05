@@ -1,17 +1,22 @@
 import unittest
 from mock import Mock, patch
+from utils import create_fake_root
+from common import create_mock_request, _WorkflowTestCase
 
-from Products.Reportek.RemoteRESTApplication import RemoteRESTApplication
+from OFS.Folder import Folder
 
-class RemoteRESTAppTestCase(unittest.TestCase):
+from Products.Reportek import constants
+from Products.Reportek.RemoteRESTApplication import RemoteRESTApplication, manage_addRemoteRESTApplication
+
+class RemoteRESTApplicationClass(unittest.TestCase):
 
     def test_init(self):
         restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url',
                                         'http://check.url', 'name')
         self.assertEqual('restapp', restapp.id)
         self.assertEqual('title', restapp.title)
+        self.assertEqual('name', restapp.app_name)
         self.assertEqual('http://submit.url', restapp.ServiceSubmitURL)
-        self.assertEqual('http://check.url', restapp.ServiceCheckURL)
         self.assertEqual('http://check.url', restapp.ServiceCheckURL)
         # asser defaults
         self.assertEqual(5, restapp.nRetries)
@@ -74,7 +79,7 @@ class RemoteRESTAppTestCase(unittest.TestCase):
         );
         restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url',
                                         'http://check.url/', 'name')
-        restapp.get('1')
+        restapp.callApplication('1')
         mock_requests.get.assert_called_once_with(
             'http://check.url/1',
             params={'f': 'pjson'}
@@ -86,7 +91,7 @@ class RemoteRESTAppTestCase(unittest.TestCase):
         restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url',
                                         'http://check.url/', 'name')
         with self.assertRaisesRegexp(Exception, 'invalid status code'):
-            restapp.get('1')
+            restapp.callApplication('1')
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_invalid_json(self, mock_requests):
@@ -99,7 +104,7 @@ class RemoteRESTAppTestCase(unittest.TestCase):
         restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url',
                                         'http://check.url/', 'name')
         with self.assertRaisesRegexp(Exception, 'response is not json'):
-            restapp.get('1')
+            restapp.callApplication('1')
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_succeeded(self, mock_requests):
@@ -110,7 +115,7 @@ class RemoteRESTAppTestCase(unittest.TestCase):
         );
         restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url',
                                         'http://check.url/', 'name')
-        self.assertEqual('result messages', restapp.get('1'))
+        self.assertEqual('result messages', restapp.callApplication('1'))
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_failed(self, mock_requests):
@@ -121,7 +126,7 @@ class RemoteRESTAppTestCase(unittest.TestCase):
         restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url',
                                         'http://check.url/', 'name')
         with self.assertRaisesRegexp(Exception, 'job failed'):
-            restapp.get('1')
+            restapp.callApplication('1')
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_not_done(self, mock_requests):
@@ -132,7 +137,7 @@ class RemoteRESTAppTestCase(unittest.TestCase):
         restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url',
                                         'http://check.url/', 'name')
         with self.assertRaisesRegexp(Exception, 'job not done'):
-            restapp.get('1')
+            restapp.callApplication('1')
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_unknown_status(self, mock_requests):
@@ -143,4 +148,33 @@ class RemoteRESTAppTestCase(unittest.TestCase):
         restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url',
                                         'http://check.url/', 'name')
         with self.assertRaisesRegexp(Exception, 'unknown status'):
-            restapp.get('1')
+            restapp.callApplication('1')
+
+class RemoteRESTApplicationProduct(_WorkflowTestCase):
+
+    def setUp(self):
+        super(RemoteRESTApplicationProduct, self).setUp()
+        self.app._setOb(
+            constants.APPLICATIONS_FOLDER_ID,
+            Folder(constants.APPLICATIONS_FOLDER_ID))
+        self.apps_folder = getattr(self.app, constants.APPLICATIONS_FOLDER_ID)
+        self.apps_folder._setOb(
+            'Common',
+            Folder('Common'))
+
+    def test_add_application_to_zope_object(self):
+        manage_addRemoteRESTApplication(
+            self.apps_folder,
+            'restapp', 'title',
+            'http://submit.url', 'http://check.url',
+            'name'
+        )
+        self.assertEqual('restapp', self.apps_folder.Common.restapp.id)
+        self.assertEqual('title', self.apps_folder.Common.restapp.title)
+        self.assertEqual('name', self.apps_folder.Common.restapp.app_name)
+        self.assertEqual('http://submit.url', self.apps_folder.Common.restapp.ServiceSubmitURL)
+        self.assertEqual('http://check.url', self.apps_folder.Common.restapp.ServiceCheckURL)
+        # asser defaults
+        self.assertEqual(5, self.apps_folder.Common.restapp.nRetries)
+        self.assertEqual(300, self.apps_folder.Common.restapp.retryFrequency)
+        self.assertEqual(60, self.apps_folder.Common.restapp.nTimeBetweenCalls)

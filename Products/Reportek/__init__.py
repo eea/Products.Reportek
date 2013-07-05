@@ -39,6 +39,7 @@ import Collection
 import Referral
 import OpenFlowEngine
 import RemoteApplication
+import RemoteRESTApplication
 import DataflowMappings
 import ReportekEngine
 
@@ -293,6 +294,15 @@ def initialize(context):
            constructors = (
                 RemoteApplication.manage_addRemoteApplicationForm,
                 RemoteApplication.manage_addRemoteApplication),
+           icon = 'www/qa_application.gif'
+           )
+
+        context.registerClass(
+           RemoteRESTApplication.RemoteRESTApplication,
+           permission='Add Remote Application',
+           constructors = (
+                RemoteRESTApplication.manage_addRemoteRESTApplicationForm,
+                RemoteRESTApplication.manage_addRemoteRESTApplication),
            icon = 'www/qa_application.gif'
            )
 

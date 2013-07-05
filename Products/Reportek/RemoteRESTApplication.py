@@ -22,11 +22,29 @@
 ##
 
 import requests
-import os
+from Globals import InitializeClass
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from AccessControl import ClassSecurityInfo
+from OFS.SimpleItem import SimpleItem
 
-#http://test.discomap.eea.europa.eu/arcgis/rest/services/Article17QAQCToolBeta/GPServer/Article17QAQCToolBeta/submitJob
 
-class RemoteRESTApplication():
+manage_addRemoteRESTApplicationForm = PageTemplateFile('zpt/RemoteRESTApplicationAdd',globals())
+
+
+def manage_addRemoteRESTApplication(self, id='', title='', ServiceSubmitURL='', ServiceCheckURL='', app_name='', REQUEST=None):
+    """ Generic application that calls a remote REST service """
+
+    ob = RemoteRESTApplication(id, title, ServiceSubmitURL, ServiceCheckURL, app_name)
+    self._setObject(id, ob)
+
+    if REQUEST is not None:
+        return self.manage_main(self, REQUEST, update_menu=1)
+
+
+class RemoteRESTApplication(SimpleItem):
+
+    security = ClassSecurityInfo()
+    meta_type = 'Remote REST Application'
 
     def __init__(self, id, title, ServiceSubmitURL, ServiceCheckURL, app_name, nRetries=5, retryFrequency=300, nTimeBetweenCalls=60):
         """ Initialize a new instance of Document """
@@ -62,7 +80,7 @@ class RemoteRESTApplication():
         else:
             raise Exception, 'invalid status code'
 
-    def get(self, jobid):
+    def callApplication(self, jobid):
         params = {
             'f': 'pjson',
         }
@@ -89,3 +107,5 @@ class RemoteRESTApplication():
                 raise Exception, 'invalid response'
         else:
             raise Exception, 'invalid status code'
+
+InitializeClass(RemoteRESTApplication)
