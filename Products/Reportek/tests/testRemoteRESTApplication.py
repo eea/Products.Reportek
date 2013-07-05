@@ -1,6 +1,6 @@
 import re
 import unittest
-from mock import Mock, patch
+from mock import Mock, MagicMock, patch
 from utils import create_fake_root
 from DateTime import DateTime
 
@@ -8,6 +8,7 @@ from OFS.Folder import Folder
 
 from common import create_mock_request, _BaseTest, create_process
 from Products.Reportek.Collection import Collection
+from Products.Reportek.Converters import Converters
 from Products.Reportek.Envelope import Envelope
 from Products.Reportek import constants
 from Products.Reportek.RemoteRESTApplication import RemoteRESTApplication, manage_addRemoteRESTApplication
@@ -226,6 +227,30 @@ class RemoteRESTApplicationProduct(_BaseTest):
         restapp = self.app.Applications.proc1.act1
         restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
         self.assertEqual('complete', self.col1.env1['0'].status)
+
+    @patch.object(Converters, '_http_params')
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_job_success_posts_feedback(self, mock_requests, mock_http_params):
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
+        );
+        self.create_cepaa_set(1)
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSucceeded',
+                                    'messages': 'result messages'})
+        );
+        restapp = self.app.Applications.proc1.act1
+        self.app._setObject('Converters', Converters())
+        from Products.Reportek.ReportekEngine import ReportekEngine
+        self.col1.env1.getEngine = Mock(return_value=ReportekEngine())
+        self.col1.env1._invalidate_zip_cache = Mock(return_value=None)
+        safe_html = Mock()
+        safe_html.convert = Mock(return_value=Mock(text='feedbacktext'))
+        self.app.Converters.__getitem__ = Mock(return_value=safe_html)
+        restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        self.assertIn('restapp_1_', self.app.col1.env1.objectIds()[1])
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_failed(self, mock_requests):

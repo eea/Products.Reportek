@@ -117,6 +117,7 @@ class RemoteRESTApplication(SimpleItem):
                     messages = data['messages']
                     workitem.addEvent('%s job id %s for %s successfully finished.'
                                        % (self.app_name, jobid, envelope_url))
+                    self.__post_feedback(workitem, jobid)
                     self.__finish(workitem_id, REQUEST)
                 elif job_status == 'esriJobFailed':
                     workitem.addEvent('%s job id %s for %s failed.'
@@ -150,6 +151,14 @@ class RemoteRESTApplication(SimpleItem):
     def __update(self, workitem_id, values):
         workitem = getattr(self, workitem_id)
         getattr(workitem, self.app_name).update(values)
+
+    def __post_feedback(self, workitem, jobid):
+        envelope = self.aq_parent
+        feedback_id = self.app_name + '_' + str(jobid) + '_' + str(int(DateTime()))
+        envelope.manage_addFeedback(id=feedback_id,
+                title= self.app_name + str(jobid),
+                activity_id=workitem.activity_id,
+                automatic=1)
 
     def __finish(self, workitem_id, REQUEST=None):
         """ Completes the workitem and forwards it """
