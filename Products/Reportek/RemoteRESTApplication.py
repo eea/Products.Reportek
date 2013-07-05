@@ -138,6 +138,7 @@ class RemoteRESTApplication(SimpleItem):
         else:
             workitem.addEvent('%s job id %s for %s returned invalid status code %s.'
                                % (self.app_name, jobid, envelope_url, resp.status_code))
+            self.__finish(workitem_id, REQUEST)
 
     def __initialize(self, p_workitem_id):
         """ Adds REST-QA specific extra properties to the workitem """

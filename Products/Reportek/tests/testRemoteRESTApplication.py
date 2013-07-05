@@ -175,7 +175,7 @@ class RemoteRESTApplicationProduct(_BaseTest):
         restapp = self.app.Applications.proc1.act1
         restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
         exp = re.compile('\w+ job id 1 for http:\/\/[\w+\/]+ returned invalid status code 201.$')
-        self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-1]['event'], exp)
+        self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-3]['event'], exp)
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_invalid_json(self, mock_requests):
@@ -402,6 +402,18 @@ class RemoteRESTApplicationProduct(_BaseTest):
             status_code=200,
             json=bad_json
         );
+        restapp = self.app.Applications.proc1.act1
+        restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        self.assertEqual('complete', self.col1.env1['0'].status)
+
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_job_invalid_status_code_finishes_activity(self, mock_requests):
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
+        );
+        self.create_cepaa_set(1)
+        mock_requests.get.return_value = Mock(status_code=201);
         restapp = self.app.Applications.proc1.act1
         restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
         self.assertEqual('complete', self.col1.env1['0'].status)
