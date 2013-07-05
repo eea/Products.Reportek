@@ -208,6 +208,7 @@ class RemoteRESTApplicationProduct(_BaseTest):
                                     'messages': 'result messages'})
         );
         restapp = self.app.Applications.proc1.act1
+        self.col1.env1.manage_addFeedback = Mock()
         restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
         exp = re.compile('\w+ job id 1 for http:\/\/[\w+\/]+ successfully finished.$')
         self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-3]['event'], exp)
@@ -224,13 +225,13 @@ class RemoteRESTApplicationProduct(_BaseTest):
             json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSucceeded',
                                     'messages': 'result messages'})
         );
+        self.col1.env1.manage_addFeedback = Mock()
         restapp = self.app.Applications.proc1.act1
         restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
         self.assertEqual('complete', self.col1.env1['0'].status)
 
-    @patch.object(Converters, '_http_params')
     @patch('Products.Reportek.RemoteRESTApplication.requests')
-    def test_job_success_posts_feedback(self, mock_requests, mock_http_params):
+    def test_job_success_posts_feedback(self, mock_requests):
         mock_requests.get.return_value = Mock(
             status_code=200,
             json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
@@ -242,15 +243,14 @@ class RemoteRESTApplicationProduct(_BaseTest):
                                     'messages': 'result messages'})
         );
         restapp = self.app.Applications.proc1.act1
-        self.app._setObject('Converters', Converters())
-        from Products.Reportek.ReportekEngine import ReportekEngine
-        self.col1.env1.getEngine = Mock(return_value=ReportekEngine())
-        self.col1.env1._invalidate_zip_cache = Mock(return_value=None)
-        safe_html = Mock()
-        safe_html.convert = Mock(return_value=Mock(text='feedbacktext'))
-        self.app.Converters.__getitem__ = Mock(return_value=safe_html)
+        self.col1.env1.manage_addFeedback = Mock()
         restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
-        self.assertIn('restapp_1_', self.app.col1.env1.objectIds()[1])
+        assert self.col1.env1.manage_addFeedback.call_count == 1
+        call_args = self.col1.env1.manage_addFeedback.call_args[1]
+        self.assertEqual('act1', call_args['activity_id'])
+        self.assertEqual(1, call_args['automatic'])
+        self.assertEqual('restapp_jobid_1', call_args['title'])
+        self.assertEqual('result messages', call_args.get('feedbacktext'))
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_failed(self, mock_requests):
