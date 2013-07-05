@@ -134,6 +134,7 @@ class RemoteRESTApplication(SimpleItem):
             else:
                 workitem.addEvent('%s job id %s for %s output is invalid.'
                                    % (self.app_name, jobid, envelope_url))
+                self.__finish(workitem_id, REQUEST)
         else:
             workitem.addEvent('%s job id %s for %s returned invalid status code %s.'
                                % (self.app_name, jobid, envelope_url, resp.status_code))

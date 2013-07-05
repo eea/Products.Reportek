@@ -193,9 +193,9 @@ class RemoteRESTApplicationProduct(_BaseTest):
         restapp = self.app.Applications.proc1.act1
         restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
         exp = re.compile('\w+ job id 1 for http:\/\/[\w+\/]+ output is not json.$')
-        self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-2]['event'], exp)
+        self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-4]['event'], exp)
         exp = re.compile('\w+ job id 1 for http:\/\/[\w+\/]+ output is invalid.$')
-        self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-1]['event'], exp)
+        self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-3]['event'], exp)
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_succeeded(self, mock_requests):
@@ -388,3 +388,20 @@ class RemoteRESTApplicationProduct(_BaseTest):
         self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-1]['event'], exp)
         workitem = self.app.col1.env1['0']
         self.assertEqual(4, workitem.restapp['retries_left'])
+
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_job_invalid_json_finishes_activity(self, mock_requests):
+        def bad_json():
+            raise ValueError
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
+        );
+        self.create_cepaa_set(1)
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=bad_json
+        );
+        restapp = self.app.Applications.proc1.act1
+        restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        self.assertEqual('complete', self.col1.env1['0'].status)
