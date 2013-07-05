@@ -5,11 +5,13 @@ from utils import create_fake_root
 from DateTime import DateTime
 
 from OFS.Folder import Folder
+from Products.ZCatalog.ZCatalog import ZCatalog
 
 from common import create_mock_request, _BaseTest, create_process
 from Products.Reportek.Collection import Collection
 from Products.Reportek.Converters import Converters
 from Products.Reportek.Envelope import Envelope
+from Products.Reportek.ReportekEngine import ReportekEngine
 from Products.Reportek import constants
 from Products.Reportek.RemoteRESTApplication import RemoteRESTApplication, manage_addRemoteRESTApplication
 
@@ -335,6 +337,25 @@ class RemoteRESTApplicationProduct(_BaseTest):
         self.assertEqual(1, workitem.restapp['retries_left'])
         restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
         self.assertEqual('complete', self.col1.env1['0'].status)
+
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_activity_is_found_by_cron_job(self, mock_requests):
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
+        );
+        self.create_cepaa_set(1)
+        self.ReportekEngine = ReportekEngine().__of__(self.app)
+        workitem = self.app.col1.env1['0']
+        self.assertEqual(5, workitem.restapp['retries_left'])
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobExecuting'})
+        );
+        self.app.Catalog = MagicMock(return_value=[Mock()], getobject=lambda x: workitem)
+        self.assertEqual(5, workitem.restapp['retries_left'])
+        self.ReportekEngine.runAutomaticApplications(p_applications='act1')
+        self.assertEqual(4, workitem.restapp['retries_left'])
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_unknown_status(self, mock_requests):
