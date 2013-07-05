@@ -372,3 +372,5 @@ class RemoteRESTApplicationProduct(_BaseTest):
         restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
         exp = re.compile('\w+ job id 1 for http:\/\/[\w+\/]+ has status [\w+\s]+.$')
         self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-1]['event'], exp)
+        workitem = self.app.col1.env1['0']
+        self.assertEqual(4, workitem.restapp['retries_left'])
