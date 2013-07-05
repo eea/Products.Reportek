@@ -339,6 +339,20 @@ class RemoteRESTApplicationProduct(_BaseTest):
         self.assertEqual('complete', self.col1.env1['0'].status)
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_decrease_finishes_job_when_reaches_0(self, mock_requests):
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
+        );
+        self.create_cepaa_set(1)
+        workitem = self.app.col1.env1['0']
+        workitem.restapp['retries_left'] = 1
+        restapp = self.app.Applications.proc1.act1.__of__(self.app.col1.env1)
+        restapp._RemoteRESTApplication__decrease_retries(workitem, self.app.REQUEST)
+        self.assertEqual(0, workitem.restapp['retries_left'])
+        self.assertEqual('complete', self.col1.env1['0'].status)
+
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_activity_is_found_by_cron_job(self, mock_requests):
         mock_requests.get.return_value = Mock(
             status_code=200,
