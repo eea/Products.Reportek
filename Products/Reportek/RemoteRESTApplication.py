@@ -124,8 +124,11 @@ class RemoteRESTApplication(SimpleItem):
                                        % (self.app_name, jobid, envelope_url))
                     self.__finish(workitem_id, REQUEST)
                 elif job_status == 'esriJobExecuting':
+                    self.__decrease_retries(workitem)
                     workitem.addEvent('%s job id %s for %s is still running.'
                                        % (self.app_name, jobid, envelope_url))
+                    if getattr(workitem, self.app_name)['retries_left'] == 0:
+                        self.__finish(workitem_id, REQUEST)
                 else:
                     workitem.addEvent('%s job id %s for %s has status %s.'
                        % (self.app_name, jobid, envelope_url, job_status))
@@ -151,6 +154,9 @@ class RemoteRESTApplication(SimpleItem):
     def __update(self, workitem_id, values):
         workitem = getattr(self, workitem_id)
         getattr(workitem, self.app_name).update(values)
+
+    def __decrease_retries(self, workitem):
+        getattr(workitem, self.app_name)['retries_left']-=1
 
     def __post_feedback(self, workitem, jobid, messages):
         envelope = self.aq_parent

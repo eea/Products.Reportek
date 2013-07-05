@@ -300,6 +300,43 @@ class RemoteRESTApplicationProduct(_BaseTest):
         self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-1]['event'], exp)
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_job_not_done_decreases_retries_left(self, mock_requests):
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
+        );
+        self.create_cepaa_set(1)
+        workitem = self.app.col1.env1['0']
+        self.assertEqual(5, workitem.restapp['retries_left'])
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobExecuting'})
+        );
+        restapp = self.app.Applications.proc1.act1
+        restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        self.assertEqual(4, workitem.restapp['retries_left'])
+
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_job_finished_when_no_retries_left(self, mock_requests):
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
+        );
+        self.create_cepaa_set(1)
+        workitem = self.app.col1.env1['0']
+        self.assertEqual(5, workitem.restapp['retries_left'])
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobExecuting'})
+        );
+        restapp = self.app.Applications.proc1.act1
+        for idx in xrange(0,4):
+            restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        self.assertEqual(1, workitem.restapp['retries_left'])
+        restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        self.assertEqual('complete', self.col1.env1['0'].status)
+
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_unknown_status(self, mock_requests):
         mock_requests.get.return_value = Mock(
             status_code=200,
