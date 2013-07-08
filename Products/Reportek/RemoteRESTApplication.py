@@ -56,7 +56,7 @@ class RemoteRESTApplication(SimpleItem):
     security.declareProtected(view_management_screens, 'manage_settings_html')
     manage_settings_html = PageTemplateFile('zpt/RemoteRESTApplicationSettings', globals())
 
-    def __init__(self, id, title, ServiceSubmitURL, ServiceCheckURL, app_name, nRetries=5, retryFrequency=300, nTimeBetweenCalls=60):
+    def __init__(self, id, title, ServiceSubmitURL, ServiceCheckURL, app_name, nRetries=5):
         """ Initialize a new instance of Document """
         self.id = id
         self.title = title
@@ -64,10 +64,8 @@ class RemoteRESTApplication(SimpleItem):
         self.ServiceCheckURL = ServiceCheckURL
         self.app_name = app_name
         self.nRetries = nRetries                    # integer
-        self.retryFrequency = retryFrequency        # integer - seconds
-        self.nTimeBetweenCalls = nTimeBetweenCalls  # integer - seconds
 
-    def manage_settings(self, title, ServiceSubmitURL, ServiceCheckURL, app_name, nRetries, retryFrequency, nTimeBetweenCalls):
+    def manage_settings(self, title, ServiceSubmitURL, ServiceCheckURL, app_name, nRetries):
         """ Change properties of the QA REST Application """
         self.title = title
         self.title = title
@@ -75,8 +73,6 @@ class RemoteRESTApplication(SimpleItem):
         self.ServiceCheckURL = ServiceCheckURL
         self.app_name = app_name
         self.nRetries = nRetries
-        self.retryFrequency = retryFrequency
-        self.nTimeBetweenCalls = nTimeBetweenCalls
 
     def __call__(self, workitem_id, REQUEST=None):
         workitem = getattr(self, workitem_id)

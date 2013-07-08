@@ -108,8 +108,6 @@ class RemoteRESTApplicationProduct(_BaseTest):
         self.assertEqual('http://check.url', self.apps_folder.Common.restapp.ServiceCheckURL)
         # asser defaults
         self.assertEqual(5, self.apps_folder.Common.restapp.nRetries)
-        self.assertEqual(300, self.apps_folder.Common.restapp.retryFrequency)
-        self.assertEqual(60, self.apps_folder.Common.restapp.nTimeBetweenCalls)
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_app_writes_success_in_event_log(self, mock_requests):
