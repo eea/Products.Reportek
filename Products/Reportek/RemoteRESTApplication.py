@@ -65,7 +65,7 @@ class RemoteRESTApplication(SimpleItem):
         self.app_name = app_name
         self.nRetries = nRetries                    # integer
 
-    def manage_settings(self, title, ServiceSubmitURL, ServiceCheckURL, app_name, nRetries):
+    def manage_settings(self, title, ServiceSubmitURL, ServiceCheckURL, app_name, nRetries, REQUEST):
         """ Change properties of the QA REST Application """
         self.title = title
         self.title = title
@@ -73,6 +73,8 @@ class RemoteRESTApplication(SimpleItem):
         self.ServiceCheckURL = ServiceCheckURL
         self.app_name = app_name
         self.nRetries = nRetries
+        if REQUEST is not None:
+            return self.manage_settings_html(manage_tabs_message='Saved changes.')
 
     def __call__(self, workitem_id, REQUEST=None):
         workitem = getattr(self, workitem_id)
