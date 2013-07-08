@@ -253,6 +253,28 @@ class RemoteRESTApplicationProduct(_BaseTest):
         self.assertEqual('result messages', call_args.get('feedbacktext'))
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_job_failure_posts_feedback(self, mock_requests):
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
+        );
+        self.create_cepaa_set(1)
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobFailed',
+                                    'messages': 'result fail messages'})
+        );
+        restapp = self.app.Applications.proc1.act1
+        self.col1.env1.manage_addFeedback = Mock()
+        restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        assert self.col1.env1.manage_addFeedback.call_count == 1
+        call_args = self.col1.env1.manage_addFeedback.call_args[1]
+        self.assertEqual('act1', call_args['activity_id'])
+        self.assertEqual(1, call_args['automatic'])
+        self.assertEqual('restapp_jobid_1', call_args['title'])
+        self.assertEqual('result fail messages', call_args.get('feedbacktext'))
+
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_failed(self, mock_requests):
         mock_requests.get.return_value = Mock(
             status_code=200,
@@ -261,9 +283,11 @@ class RemoteRESTApplicationProduct(_BaseTest):
         self.create_cepaa_set(1)
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobFailed'})
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobFailed',
+                                    'messages': 'result fail messages'})
         );
         restapp = self.app.Applications.proc1.act1
+        self.col1.env1.manage_addFeedback = Mock()
         restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
         exp = re.compile('\w+ job id 1 for http:\/\/[\w+\/]+ failed.$')
         self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-3]['event'], exp)
@@ -277,9 +301,11 @@ class RemoteRESTApplicationProduct(_BaseTest):
         self.create_cepaa_set(1)
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobFailed'})
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobFailed',
+                                    'messages': 'result fail messages'})
         );
         restapp = self.app.Applications.proc1.act1
+        self.col1.env1.manage_addFeedback = Mock()
         restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
         self.assertEqual('complete', self.col1.env1['0'].status)
 
