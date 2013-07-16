@@ -174,6 +174,7 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
             'CODE': '0',
             'VALUE': text,
             'SCRIPT_TITLE': "mock script",
+            'FEEDBACK_STATUS': 'success',
             'METATYPE': 'application/x-mock',
         }
         self.remoteapp._RemoteApplication__getResult4XQueryServiceJob(
@@ -201,6 +202,28 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
 
         self.assertIn('see attachment', feedback.feedbacktext)
         self.assertEqual(feedback.content_type, 'text/html')
+
+    def test_feedback_for_file_with_space_chars(self):
+        self.remoteapp.the_workitem = Mock(the_app={
+            'getResult': {
+                'the_jobid': {
+                    'fileURL': 'http://example.com/name%20with%20spaces.txt',
+                },
+            }
+        })
+
+        from Products.Reportek.Document import Document
+        doc = Document('name with spaces.txt', '', content_type= "text/plain")
+        doc = doc.__of__(self.envelope)
+        self.envelope._setObject('name with spaces.txt', doc)
+
+        assert self.envelope['name with spaces.txt']
+        self.receive_feedback('text')
+        [feedback] = [item for item in self.envelope.objectValues()
+                      if item.meta_type == 'Report Feedback']
+        self.assertEqual('name with spaces.txt', feedback.document_id)
+        self.assertEqual(
+            [feedback], self.envelope['name with spaces.txt'].getFeedbacksForDocument())
 
 
 class BlockerFeedbackTest(unittest.TestCase):

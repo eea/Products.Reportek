@@ -31,6 +31,7 @@ from AccessControl.Permissions import view_management_screens
 from DateTime import DateTime
 import xmlrpclib
 import string
+import urllib
 from Products.PythonScripts.standard import html_quote
 
 
@@ -302,7 +303,7 @@ class RemoteApplication(SimpleItem):
         l_wk_prop = eval('l_workitem.' + self.app_name)
         # find out what file this job was for
         l_file_url = l_wk_prop['getResult'][p_jobID]['fileURL']
-        l_file_id = string.split(l_file_url, '/')[-1]
+        l_file_id = urllib.unquote(string.split(l_file_url, '/')[-1])
 
         try:
             l_server = xmlrpclib.ServerProxy(self.RemoteServer)
