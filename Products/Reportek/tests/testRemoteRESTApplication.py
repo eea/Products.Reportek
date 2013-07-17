@@ -3,6 +3,7 @@ import unittest
 from mock import Mock, MagicMock, patch
 from utils import create_fake_root
 from DateTime import DateTime
+from path import path
 
 from OFS.Folder import Folder
 from Products.ZCatalog.ZCatalog import ZCatalog
@@ -271,7 +272,8 @@ class RemoteRESTApplicationProduct(_BaseTest):
                     }
                 }
             }),
-            content=open('tests/result.zip').read()
+
+            content=(path(__file__).parent.abspath() / 'result.zip').bytes()
         );
         restapp = self.app.Applications.proc1.act1
         CONVERTER_PARAMS = {
