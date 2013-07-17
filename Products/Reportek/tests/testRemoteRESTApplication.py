@@ -252,6 +252,53 @@ class RemoteRESTApplicationProduct(_BaseTest):
         self.assertEqual('restapp_jobid_1', call_args['title'])
         self.assertEqual('result messages', call_args.get('feedbacktext'))
 
+    @patch.object(Converters, '_get_local_converters')
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_job_success_attaches_zipfile_to_feedback(self, mock_requests, mock_local_converters):
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
+        );
+        self.create_cepaa_set(1)
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={
+                'jobId': 1, 'jobStatus': 'esriJobSucceeded',
+                'messages': 'result messages',
+                'results': {
+                    'ResultZip': {
+                        "paramURL" : 'results/ResultZip'
+                    }
+                }
+            }),
+            content=open('tests/result.zip').read()
+        );
+        restapp = self.app.Applications.proc1.act1
+        CONVERTER_PARAMS = {
+            'id': 'save_html',
+            'title': 'safe html',
+            'convert_url': 'convert/safe_html',
+            'ct_input': '',
+            'ct_output': '',
+            'ct_schema': '',
+            'ct_extraparams': '',
+            'description': '',
+            'suffix': ''
+        }
+
+        from Products.Reportek.Converter import Converter, LocalHttpConverter
+        self.app.Converters = Mock()
+        self.app.Converters.__getitem__ = Mock(
+                return_value=Mock(convert=Mock(
+                    return_value=Mock(text='safe html'))))
+        self.col1.getEngine = Mock(return_value=Mock())
+        self.col1.env1._invalidate_zip_cache = Mock()
+        restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        [feedback] = [item for item in self.col1.env1.objectValues()
+                           if item.meta_type == 'Report Feedback']
+        [attach] = feedback.objectValues()
+        self.assertEqual('env1_results.zip', attach.__name__)
+
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_failure_posts_feedback(self, mock_requests):
         mock_requests.get.return_value = Mock(

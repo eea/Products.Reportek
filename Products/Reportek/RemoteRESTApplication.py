@@ -23,6 +23,7 @@
 
 import requests
 from DateTime import DateTime
+from StringIO import StringIO
 
 from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -135,7 +136,20 @@ class RemoteRESTApplication(SimpleItem):
                     messages = data['messages']
                     workitem.addEvent('%s job id %s for %s successfully finished.'
                                        % (self.app_name, jobid, envelope_url))
-                    self.__post_feedback(workitem, jobid, messages)
+                    attach = None
+                    if data.get('results'):
+                        result_url = None
+                        if data['results'].get('ResultZip'):
+                            if data['results']['ResultZip'].get('paramURL'):
+                                result_url = data['results']['ResultZip'].get('paramURL')
+                        if result_url:
+                            resp = requests.get(self.ServiceCheckURL + str(jobid) +
+                                    '/' + result_url)
+                            if resp.status_code == 200:
+                                attach = StringIO(resp.content)
+                                attach.filename = '%s_results.zip' %workitem.getMySelf().id
+
+                    self.__post_feedback(workitem, jobid, messages, attach)
                     self.__finish(workitem_id, REQUEST)
                 elif job_status == 'esriJobFailed':
                     workitem.addEvent('%s job id %s for %s failed.'
@@ -184,11 +198,12 @@ class RemoteRESTApplication(SimpleItem):
         if getattr(workitem, self.app_name)['retries_left'] == 0:
             self.__finish(workitem.id, REQUEST)
 
-    def __post_feedback(self, workitem, jobid, messages):
+    def __post_feedback(self, workitem, jobid, messages, attach=None):
         envelope = self.aq_parent
         feedback_id = self.app_name + '_' + str(jobid) + '_' + str(int(DateTime()))
         envelope.manage_addFeedback(
                 id=feedback_id,
+                file=attach,
                 title= self.app_name + '_jobid_%s' %jobid,
                 activity_id=workitem.activity_id,
                 automatic=1,
