@@ -41,7 +41,7 @@ class RemoteRESTApplicationProduct(_BaseTest):
         manage_addRemoteRESTApplication(
             proc,
             app_id, 'title',
-            'http://submit.url', 'http://check.url',
+            'http://submit.url/', 'http://check.url/',
             'restapp'
         )
         getattr(self.wf, proc_id).addActivity(act_id,
@@ -85,11 +85,11 @@ class RemoteRESTApplicationProduct(_BaseTest):
             status_code=200,
             json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
         );
-        restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url',
-                                        'http://check.url', 'name')
+        restapp = RemoteRESTApplication('restapp', 'title', 'http://submit.url/',
+                                        'http://check.url/', 'name')
         self.create_cepaa_set(1)
         mock_requests.get.assert_called_once_with(
-            'http://submit.url',
+            'http://submit.url/',
             params={'EnvelopeURL': 'http://nohost/col1/env1',
                     'f': 'pjson'}
         )
@@ -99,14 +99,14 @@ class RemoteRESTApplicationProduct(_BaseTest):
         manage_addRemoteRESTApplication(
             self.apps_folder,
             'restapp', 'title',
-            'http://submit.url', 'http://check.url',
+            'http://submit.url/', 'http://check.url/',
             'restapp'
         )
         self.assertEqual('restapp', self.apps_folder.Common.restapp.id)
         self.assertEqual('title', self.apps_folder.Common.restapp.title)
         self.assertEqual('restapp', self.apps_folder.Common.restapp.app_name)
-        self.assertEqual('http://submit.url', self.apps_folder.Common.restapp.ServiceSubmitURL)
-        self.assertEqual('http://check.url', self.apps_folder.Common.restapp.ServiceCheckURL)
+        self.assertEqual('http://submit.url/', self.apps_folder.Common.restapp.ServiceSubmitURL)
+        self.assertEqual('http://check.url/', self.apps_folder.Common.restapp.ServiceCheckURL)
         # asser defaults
         self.assertEqual(5, self.apps_folder.Common.restapp.nRetries)
 
@@ -251,7 +251,9 @@ class RemoteRESTApplicationProduct(_BaseTest):
         self.assertEqual('act1', call_args['activity_id'])
         self.assertEqual(1, call_args['automatic'])
         self.assertEqual('restapp_jobid_1', call_args['title'])
-        self.assertEqual('result messages', call_args.get('feedbacktext'))
+        self.assertEqual(
+            'Your delivery can be accepted. Please finalise the submission',
+            call_args.get('feedbacktext'))
 
     @patch.object(Converters, '_get_local_converters')
     @patch('Products.Reportek.RemoteRESTApplication.requests')
@@ -321,7 +323,10 @@ class RemoteRESTApplicationProduct(_BaseTest):
         self.assertEqual('act1', call_args['activity_id'])
         self.assertEqual(1, call_args['automatic'])
         self.assertEqual('restapp_jobid_1', call_args['title'])
-        self.assertEqual('result fail messages', call_args.get('feedbacktext'))
+        self.assertEqual(
+            "Your delivery didn't pass validation.\n"
+            "You can check the output here: %s" % "http://check.url/1",
+            call_args.get('feedbacktext'))
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_failed(self, mock_requests):
