@@ -798,7 +798,9 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
     security.declareProtected('View', 'envelope_zip')
     def envelope_zip(self, REQUEST, RESPONSE):
         """ Go through the envelope and find all the external documents
-            then zip them and send the result to the user
+            then zip them and send the result to the user.
+            It is meant for humans, so it's ok to only allow them to download
+            envelopes they need to work on (e.g. reporters) or are released.
 
             fixme: It is not impossible that the client only wants part of the
             zipfile, as in index_html of Document.py due to the partial
@@ -948,7 +950,10 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
 
     security.declareProtected('View', 'xml')
     def xml(self, inline='false', REQUEST=None):
-        """ returns the envelope metadata in XML format """
+        """ Returns the envelope metadata in XML format.
+            It is meant for web services, so it only filters what the account
+            has the rights to access and does not look for release status.
+        """
         from XMLMetadata import XMLMetadata
         xml = XMLMetadata(self)
         REQUEST.RESPONSE.setHeader('content-type', 'text/xml; charset=utf-8')
@@ -956,8 +961,11 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
 
     security.declareProtected('View', 'rdf')
     def rdf(self, REQUEST):
-        """ Returns the envelope metadata in RDF format
-            This includes files and feedback objects
+        """ Returns the envelope metadata in RDF format.
+            This includes files and feedback objects.
+            It is meant for triple stores, so there no point in returning
+            anything until the envelope is released, because only released
+            content should be indexed.
         """
         REQUEST.RESPONSE.setHeader('content-type', 'application/rdf+xml; charset=utf-8')
         if not self.canViewContent():
