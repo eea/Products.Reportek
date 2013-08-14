@@ -94,6 +94,9 @@ class QARepository(Folder):
         elif dataflow_uris and not content_type_in:
             return [x for x in self.objectValues('QAScript')
                       if (getattr(x, 'workflow', None) in dataflow_uris)]
+        elif not dataflow_uris and content_type_in:
+            return [x for x in self.objectValues('QAScript')
+                      if (content_type_in == x.content_type_in)]
         elif not dataflow_uris:
             return self.objectValues('QAScript')
 

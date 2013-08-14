@@ -202,3 +202,13 @@ class QAScriptTest(unittest.TestCase):
             [qa_repository.schema_qascript,
              qa_repository.mdb_workflow_qascript],
             local_scripts)
+
+    def test_workflow_scripts_are_found_by_content_type(self):
+        qa_repository = self.qa_repository
+
+        #assert filtered by workflow and content type
+        local_scripts = qa_repository._get_local_qa_scripts(
+            content_type_in=mimetypes.types_map['.doc'])
+        self.assertEqual(
+            [qa_repository.doc_workflow_qascript],
+            local_scripts)
