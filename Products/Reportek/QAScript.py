@@ -51,12 +51,13 @@ class QAScript(SimpleItem):
         SimpleItem.manage_options
     )
 
-    def __init__(self, id, title, description, xml_schema, content_type_out, script_url, qa_extraparams):
+    def __init__(self, id, title, description, xml_schema, workflow, content_type_out, script_url, qa_extraparams):
         """ """
         self.id = id
         self.title = title
         self.description = description
         self.xml_schema = xml_schema
+        self.workflow = workflow
         self.content_type_out = content_type_out
         self.script_url = script_url
         self.qa_extraparams = qa_extraparams

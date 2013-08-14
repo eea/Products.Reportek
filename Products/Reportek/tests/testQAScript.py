@@ -44,3 +44,23 @@ class QAScriptTest(unittest.TestCase):
 
         self.assertEqual(result.data, mock_popen_output)
         self.assertEqual(file_data, [doc_content])
+
+    def test_local_script_workflow_attribute_initialisation(self):
+        doc_content = 'test content for our document'
+        root = create_fake_root()
+        envelope = create_envelope(root)
+        envelope.dataflow_uris = ['dataflow_uri']
+        qa_repository = create_qa_repository(root)
+        from Products.Reportek.QAScript import QAScript
+        qascript = QAScript(
+            id = 'myscript',
+            title = None,
+            description = None,
+            xml_schema = None,
+            workflow = 'dataflow_uri',
+            content_type_out = 'text/plain',
+            script_url = 'url',
+            qa_extraparams = None
+        ).__of__(qa_repository)
+        qa_repository._setObject('myscript', qascript)
+        self.assertEqual('dataflow_uri', qascript.workflow)
