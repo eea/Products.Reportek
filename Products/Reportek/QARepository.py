@@ -73,15 +73,25 @@ class QARepository(Folder):
         """ """
         return self.unrestrictedTraverse(self.QA_application, None)
 
-    def _get_local_qa_scripts(self, p_schema=None, dataflow_uris=None):
+    def _get_local_qa_scripts(self, p_schema=None, dataflow_uris=None,
+            content_type_in=None):
         """ """
         if p_schema and not dataflow_uris:
             return [x for x in self.objectValues('QAScript') if x.xml_schema == p_schema]
-        elif p_schema and dataflow_uris:
+        elif p_schema and dataflow_uris and not content_type_in:
             return [x for x in self.objectValues('QAScript')
                       if (getattr(x, 'workflow', None) in dataflow_uris or
                           x.xml_schema == p_schema)]
-        elif dataflow_uris:
+        elif p_schema and dataflow_uris and content_type_in:
+            return [x for x in self.objectValues('QAScript')
+                      if ((getattr(x, 'workflow', None) in dataflow_uris and
+                          content_type_in == x.content_type_in) or
+                          x.xml_schema == p_schema)]
+        elif dataflow_uris and content_type_in:
+            return [x for x in self.objectValues('QAScript')
+                      if (getattr(x, 'workflow', None) in dataflow_uris and
+                          content_type_in == x.content_type_in)]
+        elif dataflow_uris and not content_type_in:
             return [x for x in self.objectValues('QAScript')
                       if (getattr(x, 'workflow', None) in dataflow_uris)]
         elif not dataflow_uris:
