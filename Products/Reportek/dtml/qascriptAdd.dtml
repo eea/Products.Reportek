@@ -25,6 +25,10 @@
 		<td><input type="text" name="xml_schema" id="xml_schema" size="40" /></td>
 	</tr>
 	<tr>
+		<th><div class="form-optional">Workflow</div></th>
+		<td><input type="text" name="workflow" id="workflow" size="40" /></td>
+	</tr>
+	<tr>
 		<th><div class="form-optional">Output content type</div></th>
 		<td><input type="text" name="content_type_out" id=="content_type_out" size="40" /></td>
 	</tr>

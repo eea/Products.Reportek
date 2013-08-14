@@ -32,9 +32,9 @@ import RepUtils
 
 manage_addQAScriptForm = Globals.DTMLFile('dtml/qascriptAdd', globals())
 
-def manage_addQAScript(self, id, title='', description='', xml_schema='', content_type_out='', script_url='', qa_extraparams='', REQUEST=None):
+def manage_addQAScript(self, id, title='', description='', xml_schema='', workflow=None, content_type_out='', script_url='', qa_extraparams='', REQUEST=None):
     """ add a new QAScript object """
-    ob = QAScript(id, title, description, xml_schema, content_type_out, script_url, RepUtils.utConvertLinesToList(qa_extraparams))
+    ob = QAScript(id, title, description, xml_schema, workflow, content_type_out, script_url, RepUtils.utConvertLinesToList(qa_extraparams))
     self._setObject(id, ob)
     if REQUEST is not None:
         return self.manage_main(self, REQUEST, update_menu=1)
@@ -66,11 +66,12 @@ class QAScript(SimpleItem):
     security = ClassSecurityInfo()
 
     security.declareProtected(view_management_screens, 'manage_settings')
-    def manage_settings(self, title='', description='', xml_schema='', content_type_out='', script_url='', qa_extraparams='', REQUEST=None):
+    def manage_settings(self, title='', description='', xml_schema='', workflow=None, content_type_out='', script_url='', qa_extraparams='', REQUEST=None):
         """ """
         self.title = title
         self.description = description
         self.xml_schema = xml_schema
+        self.workflow = workflow
         self.content_type_out = content_type_out
         self.script_url = script_url
         self.qa_extraparams = RepUtils.utConvertLinesToList(qa_extraparams)
