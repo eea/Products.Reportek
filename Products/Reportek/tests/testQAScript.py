@@ -136,7 +136,10 @@ class QAScriptTest(unittest.TestCase):
 
         mock_dm_container = Mock(getXMLSchemasForDataflows=Mock(return_value=[]))
         qa_repository.getDataflowMappingsContainer = Mock(return_value=mock_dm_container)
+
+        self.doc.content_type = 'application/msaccess'
         result = qa_repository.canRunQAOnFiles([self.doc])
+
         self.assertEqual(('foo.txt', 'loc_mdb_workflow_qascript'),
             (result.keys()[0], result.values()[0][0][0])
         )
@@ -212,3 +215,34 @@ class QAScriptTest(unittest.TestCase):
         self.assertEqual(
             [qa_repository.doc_workflow_qascript],
             local_scripts)
+
+    def test_workflow_scripts_are_filtered_by_doc_content_type(self):
+        qa_repository = self.qa_repository
+
+        #assert filtered by workflow and content type
+        local_scripts = qa_repository._get_local_qa_scripts(
+            dataflow_uris=['dataflow/uri'],
+            content_type_in='application/msaccess')
+        self.assertEqual(
+            [qa_repository.mdb_workflow_qascript],
+            local_scripts)
+
+        #assert filtered by schema, workflow and content type
+        local_scripts = qa_repository._get_local_qa_scripts(
+            p_schema='xml.schema',
+            dataflow_uris=['dataflow/uri'],
+            content_type_in='application/msaccess')
+        self.assertEqual(
+            [qa_repository.schema_qascript,
+             qa_repository.mdb_workflow_qascript],
+            local_scripts)
+
+        mock_dm_container = Mock(getXMLSchemasForDataflows=Mock(return_value=[]))
+        qa_repository.getDataflowMappingsContainer = Mock(return_value=mock_dm_container)
+
+        self.doc.content_type = 'application/msword'
+        result = qa_repository.canRunQAOnFiles([self.doc])
+        self.assertEqual(
+            map(lambda item: item[0], result['foo.txt']),
+            ['loc_doc_workflow_qascript']
+        )

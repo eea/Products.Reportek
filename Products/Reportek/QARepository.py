@@ -168,7 +168,8 @@ class QARepository(Folder):
                     ['loc_%s' % y.id, y.title, y.bobobase_modification_time(), None] for y in
                         self._get_local_qa_scripts(
                             l_file.xml_schema_location,
-                            dataflow_uris=l_file.dataflow_uris)
+                            dataflow_uris=l_file.dataflow_uris,
+                            content_type_in=l_file.content_type)
                 ]
                 if len(l_buff):
                     l_ret[l_file.id] = l_buff
