@@ -20,13 +20,14 @@
 		<td><input type="text" name="xml_schema" id="xml_schema" value="&dtml-xml_schema;" size="50" /></td>
 	</tr>
 	<tr>
-		<th><div class="form-optional">Workflow</div></th>
-		<td><input type="text" name="workflow" id="workflow" size="40" /></td>
+		<td><label for="workflow" class="form-optional">Workflow URI</label></td>
+		<td><input type="text" name="workflow" id="workflow" size="50"
+               value="&dtml-workflow;"/></td>
 	</tr>
 	<tr>
-		<th><div class="form-optional">Accepted content-types</div></th>
+		<td><label for="content_type_in" class="form-optional">Accepted content-type</label></td>
     <td><input type="text" name="content_type_in" id="content_type_in"
-               size="40" /></td>
+               size="50" value="&dtml-content_type_in;"/></td>
 	</tr>
 	<tr>
 		<td><label for="content_type_out" class="form-label">Output content type</label></td>

@@ -81,6 +81,7 @@ class QAScript(SimpleItem):
         self.description = description
         self.xml_schema = xml_schema
         self.workflow = workflow
+        self.content_type_in = content_type_in
         self.content_type_out = content_type_out
         self.script_url = script_url
         self.qa_extraparams = RepUtils.utConvertLinesToList(qa_extraparams)

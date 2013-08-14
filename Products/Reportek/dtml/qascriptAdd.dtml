@@ -29,7 +29,7 @@
 		<td><input type="text" name="workflow" id="workflow" size="40" /></td>
 	</tr>
 	<tr>
-		<th><div class="form-optional">Accepted content-types</div></th>
+		<th><div class="form-optional">Accepted content-type</div></th>
     <td><input type="text" name="content_type_in" id="content_type_in"
                size="40" /></td>
 	</tr>
