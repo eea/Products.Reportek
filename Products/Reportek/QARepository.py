@@ -73,11 +73,14 @@ class QARepository(Folder):
         """ """
         return self.unrestrictedTraverse(self.QA_application, None)
 
-    def _get_local_qa_scripts(self, p_schema=None):
+    def _get_local_qa_scripts(self, p_schema=None, dataflow_uris=None):
         """ """
         if p_schema:
             return [x for x in self.objectValues('QAScript') if x.xml_schema == p_schema]
-        else:
+        elif dataflow_uris:
+            return [x for x in self.objectValues('QAScript')
+                      if x.workflow in dataflow_uris]
+        elif not dataflow_uris:
             return self.objectValues('QAScript')
 
     def _get_remote_qa_scripts(self, p_schema=''):
@@ -134,16 +137,20 @@ class QARepository(Folder):
         if l_qa_app:
             l_server_url = l_qa_app.RemoteServer
             l_remote_server = l_qa_app.RemoteService
-
         for l_file in files:
             # get the valid schemas for the envelope's dataflows
             l_valid_schemas = self.getDataflowMappingsContainer().getXMLSchemasForDataflows(l_file.dataflow_uris)
             # go on only if it's an XML file with a non-empty valid schema or if no valid schemas
             # are defined for those dataflows
             #NOTE due to updated dataflow_uris, l_valid_schemas is always None
-            if l_file.xml_schema_location and (l_file.xml_schema_location in l_valid_schemas or not l_valid_schemas):
+            if ((l_file.xml_schema_location and
+                (l_file.xml_schema_location in l_valid_schemas or not l_valid_schemas)) or
+                self._get_local_qa_scripts(dataflow_uris=l_file.dataflow_uris)):
                 #local scripts
-                l_buff = [['loc_%s' % y.id, y.title, y.bobobase_modification_time()] for y in self._get_local_qa_scripts(l_file.xml_schema_location)]
+                l_buff = [['loc_%s' % y.id, y.title,
+                    y.bobobase_modification_time()] for y in
+                    self._get_local_qa_scripts(
+                        l_file.xml_schema_location, dataflow_uris=l_file.dataflow_uris)]
                 if len(l_buff):
                     l_ret[l_file.id] = l_buff
                 #remote scripts

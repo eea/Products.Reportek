@@ -64,3 +64,39 @@ class QAScriptTest(unittest.TestCase):
         ).__of__(qa_repository)
         qa_repository._setObject('myscript', qascript)
         self.assertEqual('dataflow_uri', qascript.workflow)
+
+    def test_local_script_found_by_workflow(self):
+        doc_content = 'test content for our document'
+        root = create_fake_root()
+        envelope = create_envelope(root)
+        envelope.dataflow_uris = ['dataflow_uri']
+        doc = add_document(envelope, create_upload_file(doc_content, 'foo.txt'))
+        qa_repository = create_qa_repository(root)
+        from Products.Reportek.QAScript import QAScript
+        qascript = QAScript(
+            id = 'myscript',
+            title = None,
+            description = None,
+            xml_schema = None,
+            workflow = 'dataflow_uri',
+            content_type_out = 'text/plain',
+            script_url = 'url',
+            qa_extraparams = None
+        ).__of__(qa_repository)
+        from datetime import datetime
+        qascript.bobobase_modification_time = Mock(return_value=datetime.now())
+        qa_repository._setObject('myscript', qascript)
+        self.assertEqual('dataflow_uri', qascript.workflow)
+
+        local_scripts = qa_repository._get_local_qa_scripts(dataflow_uris=envelope.dataflow_uris)
+        self.assertEqual([qa_repository.myscript], local_scripts)
+
+        # assert prior workflow attribute behaviour
+        local_scripts = qa_repository._get_local_qa_scripts()
+        self.assertEqual([qa_repository.myscript], local_scripts)
+        mock_dm_container = Mock(getXMLSchemasForDataflows=Mock(return_value=[]))
+        qa_repository.getDataflowMappingsContainer = Mock(return_value=mock_dm_container)
+        result = qa_repository.canRunQAOnFiles([doc])
+        self.assertEqual(('foo.txt', 'loc_myscript'),
+            (result.keys()[0], result.values()[0][0][0])
+        )
