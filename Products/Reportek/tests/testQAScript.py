@@ -1,5 +1,4 @@
 import unittest
-import mimetypes
 from datetime import datetime
 from StringIO import StringIO
 from mock import Mock, patch, call
@@ -30,7 +29,7 @@ class QAScriptTest(unittest.TestCase):
             description = None,
             xml_schema = 'xml.schema',
             workflow = None,
-            content_type_in = mimetypes.types_map['.mdb'],
+            content_type_in = 'application/msaccess',
             content_type_out = 'text/plain',
             script_url = 'url',
             qa_extraparams = None
@@ -41,7 +40,7 @@ class QAScriptTest(unittest.TestCase):
             description = None,
             xml_schema = '',
             workflow = 'dataflow/uri',
-            content_type_in = mimetypes.types_map['.mdb'],
+            content_type_in = 'application/msaccess',
             content_type_out = 'text/plain',
             script_url = 'url',
             qa_extraparams = None
@@ -52,7 +51,7 @@ class QAScriptTest(unittest.TestCase):
             description = None,
             xml_schema = '',
             workflow = 'dataflow/uri',
-            content_type_in = mimetypes.types_map['.doc'],
+            content_type_in = 'application/msword',
             content_type_out = 'text/plain',
             script_url = 'url',
             qa_extraparams = None
@@ -63,7 +62,7 @@ class QAScriptTest(unittest.TestCase):
             description = None,
             xml_schema = '',
             workflow = None,
-            content_type_in = mimetypes.types_map['.mdb'],
+            content_type_in = 'application/msaccess',
             content_type_out = 'text/plain',
             script_url = 'url',
             qa_extraparams = None
@@ -111,7 +110,7 @@ class QAScriptTest(unittest.TestCase):
             description = None,
             xml_schema = None,
             workflow = 'dataflow_uri',
-            content_type_in = mimetypes.types_map['.mdb'],
+            content_type_in = 'application/msaccess',
             content_type_out = 'text/plain',
             script_url = 'url',
             qa_extraparams = None
@@ -211,7 +210,7 @@ class QAScriptTest(unittest.TestCase):
 
         #assert filtered by workflow and content type
         local_scripts = qa_repository._get_local_qa_scripts(
-            content_type_in=mimetypes.types_map['.doc'])
+            content_type_in='application/msword')
         self.assertEqual(
             [qa_repository.doc_workflow_qascript],
             local_scripts)
