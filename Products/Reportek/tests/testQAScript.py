@@ -1,8 +1,10 @@
 import unittest
+import mimetypes
 from StringIO import StringIO
 from mock import Mock, patch, call
 from utils import create_fake_root, create_upload_file
 from utils import create_envelope, add_document
+from Products.Reportek.QAScript import QAScript
 
 
 def create_qa_repository(parent, id='qa_repository'):
@@ -45,25 +47,28 @@ class QAScriptTest(unittest.TestCase):
         self.assertEqual(result.data, mock_popen_output)
         self.assertEqual(file_data, [doc_content])
 
-    def test_local_script_workflow_attribute_initialisation(self):
+    def test_local_script_attributes_initialisation(self):
         doc_content = 'test content for our document'
         root = create_fake_root()
         envelope = create_envelope(root)
         envelope.dataflow_uris = ['dataflow_uri']
         qa_repository = create_qa_repository(root)
-        from Products.Reportek.QAScript import QAScript
         qascript = QAScript(
             id = 'myscript',
             title = None,
             description = None,
             xml_schema = None,
             workflow = 'dataflow_uri',
+            content_type_in = mimetypes.types_map['.mdb'],
             content_type_out = 'text/plain',
             script_url = 'url',
             qa_extraparams = None
         ).__of__(qa_repository)
         qa_repository._setObject('myscript', qascript)
         self.assertEqual('dataflow_uri', qascript.workflow)
+        self.assertEqual(
+            'application/msaccess',
+            qascript.content_type_in)
 
     def test_local_script_found_by_workflow(self):
         doc_content = 'test content for our document'
@@ -79,6 +84,7 @@ class QAScriptTest(unittest.TestCase):
             description = None,
             xml_schema = None,
             workflow = 'dataflow_uri',
+            content_type_in = mimetypes.types_map['.mdb'],
             content_type_out = 'text/plain',
             script_url = 'url',
             qa_extraparams = None
@@ -115,6 +121,7 @@ class QAScriptTest(unittest.TestCase):
             description = None,
             xml_schema = 'xml.schema',
             workflow = None,
+            content_type_in = mimetypes.types_map['.mdb'],
             content_type_out = 'text/plain',
             script_url = 'url',
             qa_extraparams = None
@@ -125,6 +132,7 @@ class QAScriptTest(unittest.TestCase):
             description = None,
             xml_schema = '',
             workflow = 'dataflow/uri',
+            content_type_in = mimetypes.types_map['.mdb'],
             content_type_out = 'text/plain',
             script_url = 'url',
             qa_extraparams = None
@@ -135,6 +143,7 @@ class QAScriptTest(unittest.TestCase):
             description = None,
             xml_schema = '',
             workflow = None,
+            content_type_in = mimetypes.types_map['.mdb'],
             content_type_out = 'text/plain',
             script_url = 'url',
             qa_extraparams = None
