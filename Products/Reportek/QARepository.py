@@ -75,11 +75,15 @@ class QARepository(Folder):
 
     def _get_local_qa_scripts(self, p_schema=None, dataflow_uris=None):
         """ """
-        if p_schema:
+        if p_schema and not dataflow_uris:
             return [x for x in self.objectValues('QAScript') if x.xml_schema == p_schema]
+        elif p_schema and dataflow_uris:
+            return [x for x in self.objectValues('QAScript')
+                      if (getattr(x, 'workflow', None) in dataflow_uris or
+                          x.xml_schema == p_schema)]
         elif dataflow_uris:
             return [x for x in self.objectValues('QAScript')
-                      if x.workflow in dataflow_uris]
+                      if (getattr(x, 'workflow', None) in dataflow_uris)]
         elif not dataflow_uris:
             return self.objectValues('QAScript')
 
@@ -147,10 +151,12 @@ class QARepository(Folder):
                 (l_file.xml_schema_location in l_valid_schemas or not l_valid_schemas)) or
                 self._get_local_qa_scripts(dataflow_uris=l_file.dataflow_uris)):
                 #local scripts
-                l_buff = [['loc_%s' % y.id, y.title,
-                    y.bobobase_modification_time()] for y in
-                    self._get_local_qa_scripts(
-                        l_file.xml_schema_location, dataflow_uris=l_file.dataflow_uris)]
+                l_buff = [
+                    ['loc_%s' % y.id, y.title, y.bobobase_modification_time(), None] for y in
+                        self._get_local_qa_scripts(
+                            l_file.xml_schema_location,
+                            dataflow_uris=l_file.dataflow_uris)
+                ]
                 if len(l_buff):
                     l_ret[l_file.id] = l_buff
                 #remote scripts
