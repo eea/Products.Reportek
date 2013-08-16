@@ -136,17 +136,20 @@ class RemoteRESTApplication(SimpleItem):
                     workitem.addEvent('%s job id %s for %s successfully finished.'
                                        % (self.app_name, jobid, envelope_url))
                     attach = None
-                    if data.get('results'):
-                        result_url = None
-                        if data['results'].get('ResultZip'):
-                            if data['results']['ResultZip'].get('value'):
-                                result_url = data['results']['ResultZip'].get('value')
-                        if result_url:
-                            resp = requests.get(self.ServiceCheckURL + str(jobid) +
-                                    '/' + result_url)
-                            if resp.status_code == 200:
-                                attach = StringIO(resp.content)
-                                attach.filename = '%s_results.zip' %workitem.getMySelf().id
+                    try:
+                        result_url = data['results']['ResultZip'].get('value')
+                        resp = requests.get(self.ServiceCheckURL + str(jobid) +
+                                '/' + result_url)
+                        if resp.status_code == 200:
+                            attach = StringIO(resp.content)
+                            attach.filename = '%s_results.zip' %workitem.getMySelf().id
+                        else:
+                            raise Exception(
+                                'Could not fetch result file from this URL: %s'
+                                    % result_url
+                            )
+                    except KeyError as err:
+                        raise err
 
                     messages = 'Your delivery can be accepted. Please finalise the submission'
                     self.__post_feedback(workitem, jobid, messages, attach)

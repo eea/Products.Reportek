@@ -205,8 +205,17 @@ class RemoteRESTApplicationProduct(_BaseTest):
         self.create_cepaa_set(1)
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSucceeded',
-                                    'messages': 'result messages'})
+            json=Mock(return_value={
+                'jobId': 1, 'jobStatus': 'esriJobSucceeded',
+                'messages': 'result messages',
+                'results': {
+                    'ResultZip': {
+                        "value" : 'results/ResultZip'
+                    }
+                }
+            }),
+
+            content=(path(__file__).parent.abspath() / 'result.zip').bytes()
         );
         restapp = self.app.Applications.proc1.act1
         self.col1.env1.manage_addFeedback = Mock()
@@ -223,8 +232,17 @@ class RemoteRESTApplicationProduct(_BaseTest):
         self.create_cepaa_set(1)
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSucceeded',
-                                    'messages': 'result messages'})
+            json=Mock(return_value={
+                'jobId': 1, 'jobStatus': 'esriJobSucceeded',
+                'messages': 'result messages',
+                'results': {
+                    'ResultZip': {
+                        "value" : 'results/ResultZip'
+                    }
+                }
+            }),
+
+            content=(path(__file__).parent.abspath() / 'result.zip').bytes()
         );
         self.col1.env1.manage_addFeedback = Mock()
         restapp = self.app.Applications.proc1.act1
@@ -240,8 +258,17 @@ class RemoteRESTApplicationProduct(_BaseTest):
         self.create_cepaa_set(1)
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSucceeded',
-                                    'messages': 'result messages'})
+            json=Mock(return_value={
+                'jobId': 1, 'jobStatus': 'esriJobSucceeded',
+                'messages': 'result messages',
+                'results': {
+                    'ResultZip': {
+                        "value" : 'results/ResultZip'
+                    }
+                }
+            }),
+
+            content=(path(__file__).parent.abspath() / 'result.zip').bytes()
         );
         restapp = self.app.Applications.proc1.act1
         self.col1.env1.manage_addFeedback = Mock()
