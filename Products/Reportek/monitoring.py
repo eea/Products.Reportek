@@ -38,6 +38,8 @@ remote_conversion_log = logging.getLogger('Products.Reportek'
 converter_detection_log = logging.getLogger('Products.Reportek'
                                             '.Converters.detection')
 
+gisqa_log = logging.getLogger('Products.Reportek.RemoteRESTApplication.gisqa')
+
 
 def log_pub_failure(event):
     if event.retry:
@@ -92,6 +94,8 @@ def initialize():
         cube_log.addHandler(sentry_handler)
         remote_conversion_log.addHandler(sentry_handler)
         converter_detection_log.addHandler(sentry_handler)
+        converter_detection_log.addHandler(sentry_handler)
+        gisqa_log.addHandler(sentry_handler)
 
         from raven.contrib.zope import ZopeSentryHandler
         zope_sentry_handler = ZopeSentryHandler(sentry_url)
@@ -100,3 +104,4 @@ def initialize():
         cube_log.addHandler(zope_sentry_handler)
         remote_conversion_log.addHandler(zope_sentry_handler)
         converter_detection_log.addHandler(zope_sentry_handler)
+        gisqa_log.addHandler(zope_sentry_handler)
