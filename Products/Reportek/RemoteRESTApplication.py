@@ -140,8 +140,7 @@ class RemoteRESTApplication(SimpleItem):
                     attach = None
                     try:
                         result_url = data['results']['ResultZip'].get('value', '')
-                        resp = requests.get(self.ServiceCheckURL + str(jobid) +
-                                '/' + result_url)
+                        resp = requests.get(result_url)
                         if resp.status_code == 200:
                             attach = StringIO(resp.content)
                             attach.filename = '%s_results.zip' %workitem.getMySelf().id

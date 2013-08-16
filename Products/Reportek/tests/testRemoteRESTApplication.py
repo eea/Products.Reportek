@@ -1,6 +1,6 @@
 import re
 import unittest
-from mock import Mock, MagicMock, patch
+from mock import Mock, MagicMock, patch, call
 from utils import create_fake_root
 from DateTime import DateTime
 from path import path
@@ -263,7 +263,7 @@ class RemoteRESTApplicationProduct(_BaseTest):
                 'messages': 'result messages',
                 'results': {
                     'ResultZip': {
-                        "value" : 'results/ResultZip'
+                        "value" : 'http://results/ResultZip'
                     }
                 }
             }),
@@ -297,7 +297,7 @@ class RemoteRESTApplicationProduct(_BaseTest):
                 'messages': 'result messages',
                 'results': {
                     'ResultZip': {
-                        "value" : 'results/ResultZip'
+                        "value" : 'http://results/ResultZip'
                     }
                 }
             }),
@@ -325,10 +325,16 @@ class RemoteRESTApplicationProduct(_BaseTest):
         self.col1.getEngine = Mock(return_value=Mock())
         self.col1.env1._invalidate_zip_cache = Mock()
         restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        self.assertEqual(
+            call('http://results/ResultZip'),
+            mock_requests.get.mock_calls[-1])
         [feedback] = [item for item in self.col1.env1.objectValues()
                            if item.meta_type == 'Report Feedback']
         [attach] = feedback.objectValues()
         self.assertEqual('env1_results.zip', attach.__name__)
+        self.assertEqual(
+            (path(__file__).parent.abspath() / 'result.zip').bytes(),
+            attach.data_file.open().read())
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_failure_posts_feedback(self, mock_requests):
