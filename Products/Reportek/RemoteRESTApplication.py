@@ -139,8 +139,8 @@ class RemoteRESTApplication(SimpleItem):
                     if data.get('results'):
                         result_url = None
                         if data['results'].get('ResultZip'):
-                            if data['results']['ResultZip'].get('paramURL'):
-                                result_url = data['results']['ResultZip'].get('paramURL')
+                            if data['results']['ResultZip'].get('value'):
+                                result_url = data['results']['ResultZip'].get('value')
                         if result_url:
                             resp = requests.get(self.ServiceCheckURL + str(jobid) +
                                     '/' + result_url)

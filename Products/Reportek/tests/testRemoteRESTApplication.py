@@ -270,7 +270,7 @@ class RemoteRESTApplicationProduct(_BaseTest):
                 'messages': 'result messages',
                 'results': {
                     'ResultZip': {
-                        "paramURL" : 'results/ResultZip'
+                        "value" : 'results/ResultZip'
                     }
                 }
             }),
