@@ -21,6 +21,7 @@
 ## RemoteApplication
 ##
 
+import logging
 import requests
 from DateTime import DateTime
 from StringIO import StringIO
@@ -31,6 +32,7 @@ from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from OFS.SimpleItem import SimpleItem
 
+logger = logging.getLogger(__name__ + '.gisqa')
 
 manage_addRemoteRESTApplicationForm = PageTemplateFile('zpt/RemoteRESTApplicationAdd',globals())
 
@@ -137,19 +139,19 @@ class RemoteRESTApplication(SimpleItem):
                                        % (self.app_name, jobid, envelope_url))
                     attach = None
                     try:
-                        result_url = data['results']['ResultZip'].get('value')
+                        result_url = data['results']['ResultZip'].get('value', '')
                         resp = requests.get(self.ServiceCheckURL + str(jobid) +
                                 '/' + result_url)
                         if resp.status_code == 200:
                             attach = StringIO(resp.content)
                             attach.filename = '%s_results.zip' %workitem.getMySelf().id
                         else:
-                            raise Exception(
+                            logger.warning(
                                 'Could not fetch result file from this URL: %s'
                                     % result_url
                             )
                     except KeyError as err:
-                        raise err
+                        logger.warning('Unable to find %s in JSON.' % err)
 
                     messages = 'Your delivery can be accepted. Please finalise the submission'
                     self.__post_feedback(workitem, jobid, messages, attach)
