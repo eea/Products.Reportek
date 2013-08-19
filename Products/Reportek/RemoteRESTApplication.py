@@ -21,10 +21,12 @@
 ## RemoteApplication
 ##
 
+import re
 import logging
 import requests
 from DateTime import DateTime
 from StringIO import StringIO
+from urlparse import urlparse
 
 from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -144,7 +146,8 @@ class RemoteRESTApplication(SimpleItem):
                                 self.ServiceCheckURL + '%s/%s' %(str(jobid), result_url),
                                 params=params)
                         if resp.status_code == 200:
-                            resp = requests.get(resp.json()['value'])
+                            zip_url = re.sub('(/)*\\\\', '/', resp.json()['value'])
+                            resp = requests.get(zip_url)
                             if resp.status_code == 200:
                                 attach = StringIO(resp.content)
                                 attach.filename = '%s_results.zip' %workitem.getMySelf().id

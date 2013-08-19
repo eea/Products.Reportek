@@ -308,7 +308,7 @@ class RemoteRESTApplicationProduct(_BaseTest):
                 json=Mock(return_value={
                         'paramName': 'ResultZip',
                         'dataType': 'GPString',
-                        'value' : 'http://result.zip'
+                        'value' : 'http://test/\\server\\job\\scratch/result.zip'
                     }
                 )
             ),
@@ -342,7 +342,10 @@ class RemoteRESTApplicationProduct(_BaseTest):
             call('http://check.url/1/results/ResultZip', params={'f': 'pjson'}),
             mock_requests.get.mock_calls[-2])
         self.assertEqual(
-            call('http://result.zip'),
+            'http://test/server/job/scratch/result.zip',
+            mock_requests.get.mock_calls[-1][1][0])
+        self.assertEqual(
+            call('http://test/server/job/scratch/result.zip'),
             mock_requests.get.mock_calls[-1])
         [feedback] = [item for item in self.col1.env1.objectValues()
                            if item.meta_type == 'Report Feedback']
