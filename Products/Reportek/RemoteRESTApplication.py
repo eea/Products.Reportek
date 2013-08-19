@@ -141,7 +141,8 @@ class RemoteRESTApplication(SimpleItem):
                     try:
                         result_url = data['results']['ResultZip']['paramUrl']
                         resp = requests.get(
-                                self.ServiceCheckURL + '%s/%s' %(str(jobid), result_url))
+                                self.ServiceCheckURL + '%s/%s' %(str(jobid), result_url),
+                                params=params)
                         if resp.status_code == 200:
                             resp = requests.get(resp.json()['value'])
                             if resp.status_code == 200:

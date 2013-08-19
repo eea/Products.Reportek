@@ -339,7 +339,7 @@ class RemoteRESTApplicationProduct(_BaseTest):
         self.col1.env1._invalidate_zip_cache = Mock()
         restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
         self.assertEqual(
-            call('http://check.url/1/results/ResultZip'),
+            call('http://check.url/1/results/ResultZip', params={'f': 'pjson'}),
             mock_requests.get.mock_calls[-2])
         self.assertEqual(
             call('http://result.zip'),
