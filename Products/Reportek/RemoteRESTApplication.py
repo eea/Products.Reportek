@@ -139,14 +139,22 @@ class RemoteRESTApplication(SimpleItem):
                                        % (self.app_name, jobid, envelope_url))
                     attach = None
                     try:
-                        result_url = data['results']['ResultZip'].get('value', '')
-                        resp = requests.get(result_url)
+                        result_url = data['results']['ResultZip']['paramUrl']
+                        resp = requests.get(
+                                self.ServiceCheckURL + '%s/%s' %(str(jobid), result_url))
                         if resp.status_code == 200:
-                            attach = StringIO(resp.content)
-                            attach.filename = '%s_results.zip' %workitem.getMySelf().id
+                            resp = requests.get(resp.json()['value'])
+                            if resp.status_code == 200:
+                                attach = StringIO(resp.content)
+                                attach.filename = '%s_results.zip' %workitem.getMySelf().id
+                            else:
+                                logger.warning(
+                                    'Could not fetch result file from this URL: %s'
+                                        % result_url
+                                )
                         else:
                             logger.warning(
-                                'Could not fetch result file from this URL: %s'
+                                'Could not fetch results from: %s'
                                     % result_url
                             )
                     except KeyError as err:

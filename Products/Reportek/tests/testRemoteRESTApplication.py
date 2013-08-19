@@ -290,20 +290,33 @@ class RemoteRESTApplicationProduct(_BaseTest):
             json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
         );
         self.create_cepaa_set(1)
-        mock_requests.get.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value={
-                'jobId': 1, 'jobStatus': 'esriJobSucceeded',
-                'messages': 'result messages',
-                'results': {
-                    'ResultZip': {
-                        "value" : 'http://results/ResultZip'
+        mock_requests.get.side_effect = [
+            Mock(
+                status_code=200,
+                json=Mock(return_value={
+                    'jobId': 1, 'jobStatus': 'esriJobSucceeded',
+                    'messages': 'result messages',
+                    'results': {
+                        'ResultZip': {
+                            "paramUrl" : 'results/ResultZip'
+                        }
                     }
-                }
-            }),
-
-            content=(path(__file__).parent.abspath() / 'result.zip').bytes()
-        );
+                })
+            ),
+            Mock(
+                status_code=200,
+                json=Mock(return_value={
+                        'paramName': 'ResultZip',
+                        'dataType': 'GPString',
+                        'value' : 'http://result.zip'
+                    }
+                )
+            ),
+            Mock(
+                status_code=200,
+                content=(path(__file__).parent.abspath() / 'result.zip').bytes()
+            ),
+        ]
         restapp = self.app.Applications.proc1.act1
         CONVERTER_PARAMS = {
             'id': 'save_html',
@@ -326,7 +339,10 @@ class RemoteRESTApplicationProduct(_BaseTest):
         self.col1.env1._invalidate_zip_cache = Mock()
         restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
         self.assertEqual(
-            call('http://results/ResultZip'),
+            call('http://check.url/1/results/ResultZip'),
+            mock_requests.get.mock_calls[-2])
+        self.assertEqual(
+            call('http://result.zip'),
             mock_requests.get.mock_calls[-1])
         [feedback] = [item for item in self.col1.env1.objectValues()
                            if item.meta_type == 'Report Feedback']
