@@ -94,7 +94,6 @@ def initialize():
         cube_log.addHandler(sentry_handler)
         remote_conversion_log.addHandler(sentry_handler)
         converter_detection_log.addHandler(sentry_handler)
-        converter_detection_log.addHandler(sentry_handler)
         gisqa_log.addHandler(sentry_handler)
 
         from raven.contrib.zope import ZopeSentryHandler
