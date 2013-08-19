@@ -151,7 +151,7 @@ class RemoteRESTApplication(SimpleItem):
                             else:
                                 logger.warning(
                                     'Could not fetch result file from this URL: %s'
-                                        % result_url
+                                        % resp.json()['value']
                                 )
                         else:
                             logger.warning(
