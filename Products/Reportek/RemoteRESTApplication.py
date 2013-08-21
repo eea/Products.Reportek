@@ -164,7 +164,7 @@ class RemoteRESTApplication(SimpleItem):
                     except KeyError as err:
                         logger.warning('Unable to find %s in JSON.' % err)
 
-                    messages = 'The results for this assessment are attached to this feedback'
+                    messages = 'The results for this assessment are attached to this feedback.'
                     self.__post_feedback(workitem, jobid, messages, attach)
                     self.__finish(workitem_id, REQUEST)
                 elif job_status == 'esriJobFailed':
