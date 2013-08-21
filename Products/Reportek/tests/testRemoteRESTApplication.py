@@ -277,9 +277,9 @@ class RemoteRESTApplicationProduct(_BaseTest):
         call_args = self.col1.env1.manage_addFeedback.call_args[1]
         self.assertEqual('act1', call_args['activity_id'])
         self.assertEqual(1, call_args['automatic'])
-        self.assertEqual('restapp_jobid_1', call_args['title'])
+        self.assertEqual('restapp results', call_args['title'])
         self.assertEqual(
-            'Your delivery can be accepted. Please finalise the submission',
+            'The results for this assessment are attached to this feedback.',
             call_args.get('feedbacktext'))
 
     @patch.object(Converters, '_get_local_converters')
@@ -374,10 +374,10 @@ class RemoteRESTApplicationProduct(_BaseTest):
         call_args = self.col1.env1.manage_addFeedback.call_args[1]
         self.assertEqual('act1', call_args['activity_id'])
         self.assertEqual(1, call_args['automatic'])
-        self.assertEqual('restapp_jobid_1', call_args['title'])
+        self.assertEqual('restapp results', call_args['title'])
         self.assertEqual(
-            "Your delivery didn't pass validation.\n"
-            "You can check the output here: %s" % "http://check.url/1",
+            "Your delivery didn't pass validation.\n\n"
+            "result fail messages",
             call_args.get('feedbacktext'))
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')

@@ -164,15 +164,16 @@ class RemoteRESTApplication(SimpleItem):
                     except KeyError as err:
                         logger.warning('Unable to find %s in JSON.' % err)
 
-                    messages = 'Your delivery can be accepted. Please finalise the submission'
+                    messages = 'The results for this assessment are attached to this feedback'
                     self.__post_feedback(workitem, jobid, messages, attach)
                     self.__finish(workitem_id, REQUEST)
                 elif job_status == 'esriJobFailed':
                     workitem.addEvent('%s job id %s for %s failed.'
                                        % (self.app_name, jobid, envelope_url))
                     if data:
-                        messages = ("Your delivery didn't pass validation.\n"
-                                   "You can check the output here: %s" %(self.ServiceCheckURL + str(jobid)))
+                        messages = (
+                            "Your delivery didn't pass validation.\n\n%s" %data['messages']
+                        )
                         self.__post_feedback(workitem, jobid, messages)
                     self.__finish(workitem_id, REQUEST)
                 elif job_status == 'esriJobExecuting':
@@ -221,7 +222,7 @@ class RemoteRESTApplication(SimpleItem):
         envelope.manage_addFeedback(
                 id=feedback_id,
                 file=attach,
-                title= self.app_name + '_jobid_%s' %jobid,
+                title='%s results' % self.app_name,
                 activity_id=workitem.activity_id,
                 automatic=1,
                 feedbacktext=messages
