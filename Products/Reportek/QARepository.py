@@ -24,7 +24,7 @@ __doc__ = """
       of the Report Documents.
 """
 import xmlrpclib
-import os
+import subprocess, shlex
 
 from OFS.Folder import Folder
 from AccessControl import ClassSecurityInfo
@@ -227,8 +227,12 @@ class QARepository(Folder):
                             params.append(eval(k))
 
                         command = l_script_obj.script_url % tuple(params)
-                        l_res_data.data = os.popen(command).read()
-
+                        proc = subprocess.Popen(
+                                   shlex.split(command),
+                                   stdout=subprocess.PIPE,
+                                   stderr=subprocess.STDOUT,
+                                   shell=False)
+                        l_res_data.data = proc.stdout.read()
                 else:
                     l_res_data.data =  'QA error'
 
