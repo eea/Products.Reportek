@@ -376,9 +376,41 @@ class RemoteRESTApplicationProduct(_BaseTest):
         self.assertEqual(1, call_args['automatic'])
         self.assertEqual('restapp results', call_args['title'])
         self.assertEqual(
-            "Your delivery didn't pass validation.\n\n"
-            "result fail messages",
+            "Your delivery didn't pass validation.",
             call_args.get('feedbacktext'))
+
+
+    @patch('Products.Reportek.RemoteRESTApplication.requests')
+    def test_job_failure_attaches_log_to_feedback(self, mock_requests):
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobSubmitted'})
+        );
+        self.create_cepaa_set(1)
+        mock_requests.get.return_value = Mock(
+            status_code=200,
+            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobFailed',
+                                    'messages': 'result fail messages'})
+        );
+        from Products.Reportek.Converter import Converter, LocalHttpConverter
+        self.app.Converters = Mock()
+        self.app.Converters.__getitem__ = Mock(
+                return_value=Mock(convert=Mock(
+                    return_value=Mock(text='safe html'))))
+        self.col1.getEngine = Mock(return_value=Mock())
+        self.col1.env1._invalidate_zip_cache = Mock()
+        restapp = self.app.Applications.proc1.act1
+        restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        [feedback] = [item for item in self.col1.env1.objectValues()
+                           if item.meta_type == 'Report Feedback']
+        [attach] = feedback.objectValues()
+        [feedback] = [item for item in self.col1.env1.objectValues()
+                           if item.meta_type == 'Report Feedback']
+        [attach] = feedback.objectValues()
+        self.assertEqual('output.log', attach.__name__)
+        self.assertEqual(
+            'result fail messages',
+            attach.data_file.open().read())
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_failed(self, mock_requests):

@@ -136,10 +136,10 @@ class RemoteRESTApplication(SimpleItem):
                                    % (self.app_name, jobid, envelope_url))
             if data and 'jobId' in data:
                 job_status = data['jobStatus']
+                attach = None
                 if job_status == 'esriJobSucceeded':
                     workitem.addEvent('%s job id %s for %s successfully finished.'
                                        % (self.app_name, jobid, envelope_url))
-                    attach = None
                     try:
                         result_url = data['results']['ResultZip']['paramUrl']
                         resp = requests.get(
@@ -170,11 +170,13 @@ class RemoteRESTApplication(SimpleItem):
                 elif job_status == 'esriJobFailed':
                     workitem.addEvent('%s job id %s for %s failed.'
                                        % (self.app_name, jobid, envelope_url))
+                    messages = (
+                        "Your delivery didn't pass validation."
+                    )
                     if data:
-                        messages = (
-                            "Your delivery didn't pass validation.\n\n%s" %data['messages']
-                        )
-                        self.__post_feedback(workitem, jobid, messages)
+                        attach = StringIO(data['messages'])
+                        attach.filename = 'output.log'
+                    self.__post_feedback(workitem, jobid, messages, attach)
                     self.__finish(workitem_id, REQUEST)
                 elif job_status == 'esriJobExecuting':
                     workitem.addEvent('%s job id %s for %s is still running.'
