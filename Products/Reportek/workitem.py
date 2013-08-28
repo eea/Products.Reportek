@@ -87,14 +87,13 @@ class workitem(CatalogAware, SimpleItem, PropertyManager):
             path = apps_folder[self.getProcess().id][activity.id].virtual_url_path()
         elif apps_folder.get('Common', {}).get(activity.id):
             path = apps_folder['Common'][activity.id].virtual_url_path()
-        app = self.getPhysicalRoot().restrictedTraverse(url)
+        app = self.getPhysicalRoot().restrictedTraverse(path)
         manage_page = 'manage_main'
         if getattr(app, 'manage_settings_html', None):
             manage_page = 'manage_settings_html'
+        url = "-"
         if path:
             url = '/%s/%s' %(url, manage_page)
-        else:
-            url = "-"
         return {'id': activity.application or activity.id, 'url': url}
 
 
