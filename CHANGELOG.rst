@@ -1,3 +1,9 @@
+3.4 (2013-09-09)
+----------------
+* Remote converters use RESTful API
+* Local QA script assignable to mime-type
+* Remote REST Application (Art. 17)
+
 3.3 (2013-06-17)
 ----------------
 * Add globally_restricted_site flag in ReportekEngine (for BDR) [dincamih]
