@@ -159,20 +159,20 @@ class activity(CatalogAware, SimpleItem):
 
         mapped_by_path = False
 
-        # check in Applications/proc_name/
-        try:
-            app_path = '%s/%s/%s' %(constants.APPLICATIONS_FOLDER_ID, proc.id, self.id)
-            application = root.unrestrictedTraverse(app_path)
-            if application:
-                mapped_by_path = True
-        except KeyError:
-            app_path = None
-
         # check in Applications/Common/
         try:
             app_path = '%s/%s/%s' %(constants.APPLICATIONS_FOLDER_ID, 'Common', self.id)
             application = root.unrestrictedTraverse(app_path)
             if application and not mapped_by_path:
+                mapped_by_path = True
+        except KeyError:
+            app_path = None
+
+        # check in Applications/proc_name/
+        try:
+            app_path = '%s/%s/%s' %(constants.APPLICATIONS_FOLDER_ID, proc.id, self.id)
+            application = root.unrestrictedTraverse(app_path)
+            if application:
                 mapped_by_path = True
         except KeyError:
             app_path = None

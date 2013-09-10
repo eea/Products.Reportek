@@ -250,6 +250,22 @@ class ActivityFindsApplicationTestCase(_WorkflowTestCase):
         current_application = self.env1.getApplicationUrl(current_workitem.id)
         self.assertEqual(current_application, 'Applications/Common/act1')
 
+    def test_getApplicationUrl_proc_folder_has_priority(self):
+        """
+        Test if EnvelopeInstance.getApplicationUrl checks next
+        in <root>/<Applications Folder>/Common/<activity_id> for an application
+        NOTE: The id of the application should be the same as the id of the
+        activity
+        """
+        self.create_cepaa_set(1)
+        app = SimpleItem('act1').__of__(self.app.Applications.proc1)
+        app.id = 'act1'
+        self.app.Applications._setOb('Common', Folder('Common'))
+        self.app.Applications.Common._setOb('act1', app)
+        current_workitem = self.env1.objectValues('Workitem')[-1]
+        current_application = self.env1.getApplicationUrl(current_workitem.id)
+        self.assertEqual(current_application, 'Applications/proc1/act1')
+
     def test_getApplicationUrl_finds_application_attribute(self):
         """
         Test if EnvelopeInstance.getApplicationUrl checks next
