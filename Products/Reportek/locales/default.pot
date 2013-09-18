@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-09-13 15:36+0000\n"
+"POT-Creation-Date: 2013-09-16 09:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -16,6 +16,14 @@ msgstr ""
 "Language-Name: English\n"
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: default\n"
+
+#: Reportek/zpt/envelope/documents_section.zpt:63
+msgid "-Limited-"
+msgstr ""
+
+#: Reportek/zpt/envelope/documents_section.zpt:89
+msgid "Access limitations may apply for files, which are not (yet) released for public view. Files marked with ${lock-icon} are unavailable. You must log in to get access."
+msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:8
 msgid "Add feedback"
@@ -37,8 +45,16 @@ msgstr ""
 msgid "Envelope is ${status}"
 msgstr ""
 
+#: Reportek/zpt/envelope/documents_section.zpt:9
+msgid "Files in this envelope"
+msgstr ""
+
 #: Reportek/zpt/envelope/overview.zpt:95
 msgid "If you want to stay updated about events in this envelope ${subscribe} for this country and the current dataflow(s)."
+msgstr ""
+
+#: Reportek/zpt/envelope/documents_section.zpt:78
+msgid "No files uploaded"
 msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:117
@@ -95,5 +111,20 @@ msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:12
 msgid "Zip&nbsp;Envelope"
+msgstr ""
+
+#. Default: "Document accepted by the client"
+#: Reportek/zpt/envelope/documents_section.zpt:41
+msgid "document-accepted"
+msgstr ""
+
+#. Default: "No access"
+#: Reportek/zpt/envelope/documents_section.zpt:66
+msgid "no-access"
+msgstr ""
+
+#. Default: "File operations: [View file in different formats], [File properties], [View the feedback posted it (if any)]"
+#: Reportek/zpt/envelope/documents_section.zpt:22
+msgid "title-documents-section"
 msgstr ""
 
