@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-09-16 13:03+0000\n"
+"POT-Creation-Date: 2013-09-16 13:07+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,6 +25,10 @@ msgstr ""
 msgid "(Previous ${n})"
 msgstr ""
 
+#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:41
+msgid "(optional)"
+msgstr ""
+
 #: Reportek/zpt/envelope/macros.zpt:14
 msgid "(user: ${username})"
 msgstr ""
@@ -43,6 +47,14 @@ msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:8
 msgid "Add feedback"
+msgstr ""
+
+#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:14
+msgid "Add file"
+msgstr ""
+
+#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:5
+msgid "Back to envelope"
 msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:60
@@ -83,12 +95,24 @@ msgstr ""
 msgid "Envelope is ${status}"
 msgstr ""
 
+#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:33
+msgid "File"
+msgstr ""
+
 #: Reportek/zpt/envelope/documents_section.zpt:9
 msgid "Files in this envelope"
 msgstr ""
 
+#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:22
+msgid "Files with the same filename as ones already existing in the envelope will be overwritten."
+msgstr ""
+
 #: Reportek/zpt/envelope/tabs.zpt:59
 msgid "History"
+msgstr ""
+
+#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:38
+msgid "Id"
 msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:95
@@ -140,6 +164,10 @@ msgstr ""
 msgid "Reported"
 msgstr ""
 
+#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:44
+msgid "Restricted from public view"
+msgstr ""
+
 #: Reportek/zpt/envelope/overview.zpt:72
 msgid "Status"
 msgstr ""
@@ -173,20 +201,39 @@ msgid "This page displays all the history of tasks that have executed in this en
 msgstr ""
 
 #: Reportek/zpt/envelope/properties.zpt:22
+#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:28
 msgid "Title"
+msgstr ""
+
+#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:21
+msgid "Warning:"
 msgstr ""
 
 #: Reportek/zpt/envelope/properties.zpt:38
 msgid "Year"
 msgstr ""
 
+#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:16
+msgid "You can upload one single file or z non-hierarchical <em>.zip</em> archive. The zip archive will be unpacked and its content uploaded into the envelope."
+msgstr ""
+
 #: Reportek/zpt/envelope/overview.zpt:12
 msgid "Zip&nbsp;Envelope"
+msgstr ""
+
+#. Default: "Add"
+#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:49
+msgid "add-button"
 msgstr ""
 
 #. Default: "Document accepted by the client"
 #: Reportek/zpt/envelope/documents_section.zpt:41
 msgid "document-accepted"
+msgstr ""
+
+#. Default: "Go back to envelope"
+#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:5
+msgid "go-back-title"
 msgstr ""
 
 #. Default: "No access"
