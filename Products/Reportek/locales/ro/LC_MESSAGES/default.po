@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-09-13 13:57+0000\n"
+"POT-Creation-Date: 2013-09-13 15:36+0000\n"
 "PO-Revision-Date: 2013-09-13 16:06+0300\n"
 "Last-Translator: Mihai Dinca <mihai.dinca@eaudeweb.ro>\n"
 "Language-Team: Romanian\n"
@@ -17,4 +17,84 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: default\n"
 "Language: ro\n"
+
+#: Reportek/zpt/envelope/overview.zpt:8
+msgid "Add feedback"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:60
+msgid "Coverage"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:25
+msgid "Description"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:12
+msgid "Download zipped envelope with available files"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:76
+msgid "Envelope is ${status}"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:95
+msgid "If you want to stay updated about events in this envelope ${subscribe} for this country and the current dataflow(s)."
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:117
+msgid "Not available"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:92
+msgid "Note"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:42
+msgid "Notice: this envelope has no obligation tag"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:29
+msgid "Obligations"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:51
+msgid "Period"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:8
+msgid "Post feedback for this release"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:109
+msgid "Remember to release the envelope when you have uploaded all files"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:67
+msgid "Reported"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:72
+msgid "Status"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:96
+msgid "Subscribe to receive notifications"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:36
+msgid "Terminated"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:42
+msgid "The obligation tag makes it possible for the requesters to find the delivery"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:118
+msgid "This envelope is not yet available for public view. Work is still in progress."
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:12
+msgid "Zip&nbsp;Envelope"
+msgstr ""
 
