@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-09-16 12:56+0000\n"
+"POT-Creation-Date: 2013-09-16 12:58+0000\n"
 "PO-Revision-Date: 2013-09-13 16:06+0300\n"
 "Last-Translator: Mihai Dinca <mihai.dinca@eaudeweb.ro>\n"
 "Language-Team: Romanian\n"
@@ -151,6 +151,10 @@ msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:118
 msgid "This envelope is not yet available for public view. Work is still in progress."
+msgstr ""
+
+#: Reportek/zpt/envelope/history.zpt:7
+msgid "This page displays all the history of tasks that have executed in this envelope. If you want to see more details about a task, just expand the ${plus-icon} icon next to it."
 msgstr ""
 
 #: Reportek/zpt/envelope/properties.zpt:22
