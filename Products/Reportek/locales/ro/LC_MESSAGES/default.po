@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-09-16 11:41+0000\n"
+"POT-Creation-Date: 2013-09-16 12:56+0000\n"
 "PO-Revision-Date: 2013-09-13 16:06+0300\n"
 "Last-Translator: Mihai Dinca <mihai.dinca@eaudeweb.ro>\n"
 "Language-Team: Romanian\n"
@@ -39,7 +39,12 @@ msgid "Add feedback"
 msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:60
+#: Reportek/zpt/envelope/properties.zpt:101
 msgid "Coverage"
+msgstr ""
+
+#: Reportek/zpt/envelope/properties.zpt:128
+msgid "Coverage note"
 msgstr ""
 
 #: Reportek/zpt/envelope/feedback_section.zpt:40
@@ -47,6 +52,7 @@ msgid "Delete"
 msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:25
+#: Reportek/zpt/envelope/properties.zpt:29
 msgid "Description"
 msgstr ""
 
@@ -60,6 +66,10 @@ msgstr ""
 
 #: Reportek/zpt/envelope/tabs.zpt:38
 msgid "Edit properties"
+msgstr ""
+
+#: Reportek/zpt/envelope/properties.zpt:16
+msgid "Envelope Properties"
 msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:76
@@ -99,6 +109,7 @@ msgid "Notice: this envelope has no obligation tag"
 msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:29
+#: Reportek/zpt/envelope/properties.zpt:70
 msgid "Obligations"
 msgstr ""
 
@@ -140,6 +151,14 @@ msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:118
 msgid "This envelope is not yet available for public view. Work is still in progress."
+msgstr ""
+
+#: Reportek/zpt/envelope/properties.zpt:22
+msgid "Title"
+msgstr ""
+
+#: Reportek/zpt/envelope/properties.zpt:38
+msgid "Year"
 msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:12
