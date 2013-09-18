@@ -77,24 +77,25 @@ class workitem(CatalogAware, SimpleItem, PropertyManager):
         return self.activity_id + " by " + self.actor + ", status: " + self.status
 
     def activity_application(self, activity_id):
-        activity = getattr(self.getProcess(), activity_id)
+        activity = getattr(self.getProcess(), activity_id, None)
         wf_engine = getattr(self, constants.WORKFLOW_ENGINE_ID)
         apps_folder = getattr(self.getPhysicalRoot(), constants.APPLICATIONS_FOLDER_ID)
         path = ''
-        if activity.application:
-            path = wf_engine._applications.get(activity.application, {}).get('url')
-        elif apps_folder.get(self.getProcess().id, {}).get(activity.id):
-            path = apps_folder[self.getProcess().id][activity.id].virtual_url_path()
-        elif apps_folder.get('Common', {}).get(activity.id):
-            path = apps_folder['Common'][activity.id].virtual_url_path()
-        app = self.getPhysicalRoot().restrictedTraverse(path)
-        manage_page = 'manage_main'
-        if getattr(app, 'manage_settings_html', None):
-            manage_page = 'manage_settings_html'
+        if activity:
+            if activity.application:
+                path = wf_engine._applications.get(activity.application, {}).get('url')
+            elif apps_folder.get(self.getProcess().id, {}).get(activity.id):
+                path = apps_folder[self.getProcess().id][activity.id].virtual_url_path()
+            elif apps_folder.get('Common', {}).get(activity.id):
+                path = apps_folder['Common'][activity.id].virtual_url_path()
+            app = self.getPhysicalRoot().restrictedTraverse(path)
+            manage_page = 'manage_main'
+            if getattr(app, 'manage_settings_html', None):
+                manage_page = 'manage_settings_html'
         url = "-"
         if path:
             url = '/%s/%s' %(url, manage_page)
-        return {'id': activity.application or activity.id, 'url': url}
+        return {'id': getattr(activity, 'application', None) or activity_id, 'url': url}
 
 
     def lastActivityDate(self):
