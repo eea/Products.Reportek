@@ -6,7 +6,7 @@
                  page_url string:${request/URL}?;
                  SecurityManager modules/AccessControl/getSecurityManager">
 
-<fieldset><legend>Files in this envelope</legend>
+<fieldset><legend i18n:translate="">Files in this envelope</legend>
 
   <tal:block condition="documents/object_list">
     <div tal:replace="structure context/documents_pagination"/>
@@ -23,6 +23,7 @@
       [View file in different formats],
       [File properties],
       [View the feedback posted it (if any)]"
+          i18n:attributes="title title-documents-section"
           tal:attributes="href string:${item/id}/manage_document"
           tal:content="item/id">id</a>
         </td>
@@ -38,7 +39,8 @@
             <img src="/misc_/Reportek/lockicon_gif" alt="No access" width="16" height="16" />
           </tal:block>
             <img tal:condition="item/get_accept_time"
-                 src="/misc_/Reportek/accepted" alt="Document accepted by the client" />
+                 src="/misc_/Reportek/accepted" alt="Document accepted by the client" 
+                 i18n:attributes="alt document-accepted"/>
         </td>
         <td><em tal:content="context/title">title</em></td>
         <td tal:content="python:item.upload_time().strftime('%d %b %Y')"></td>
@@ -58,10 +60,11 @@
                   tal:content="string:(Limited)"/>
         </tal:block>
 				<tal:block condition="not:python:SecurityManager.checkPermission('View', item)">
-          <td>-Limited-</td>
+          <td i18n:translate="">-Limited-</td>
           <td style="white-space:nowrap">
             <tal:block define="dummy python:request.set('therearerestrictions',1)"/>
-            <img src="/misc_/Reportek/lockicon_gif" alt="No access" width="16" height="16" />
+            <img src="/misc_/Reportek/lockicon_gif" alt="No access"
+                 i18n:attributes="alt no-access" width="16" height="16" />
           </td>
         </tal:block>
           <td><em tal:content="context/title">title</em></td>
@@ -72,7 +75,7 @@
           </td>
         </tr>
     </tal:block>
-			<span tal:condition="not:documents/object_list">
+			<span tal:condition="not:documents/object_list" i18n:translate="">
 				No files uploaded
 			</span>
 		</tbody>
@@ -81,9 +84,10 @@
 		<tal:block replace="structure context/documents_pagination"/>
   </tal:block>
 
-<p tal:condition="python:request.get('therearerestrictions', 0) > 0">
+<p tal:condition="python:request.get('therearerestrictions', 0) > 0" i18n:translate="">
 	Access limitations may apply for files, which are not (yet) released for public view. Files marked with
-	<img src="/misc_/Reportek/lockicon_gif" alt="Padlock" width="16" height="16" /> are unavailable. 
+	<img src="/misc_/Reportek/lockicon_gif" alt="Padlock" width="16" height="16"
+  i18n:name="lock-icon"/> are unavailable. 
 	You must log in to get access.
 </p>
 
