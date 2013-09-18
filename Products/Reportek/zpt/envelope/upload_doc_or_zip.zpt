@@ -1,0 +1,44 @@
+<span tal:replace="structure here/standard_html_header" />
+<div id="operations">
+	<ul>
+		<li>
+			<a tal:attributes="href python:context.getMySelf().absolute_url()" title="Go back to envelope">
+				Back to envelope
+			</a>
+		</li>
+	</ul>
+</div>
+
+<h1>Add file</h1>
+
+<p>
+	You can upload one single file or z non-hierarchical <em>.zip</em> archive.
+	The zip archive will be unpacked and its content uploaded into the envelope.
+</p>
+<div class="note-msg">
+	<strong>Warning:</strong>
+	<p>Files with the same filename as ones already existing in the envelope will be overwritten.</p>
+</div>
+
+<form method="post" action="manage_addDocOrZip" enctype="multipart/form-data" name="frmAddOtherFile">
+	<span style="height: 2em; width: 17em; font-weight: 700; float: left;">Title</span>
+	<input type="text" name="title" size="40" />
+	<br clear="all" />
+
+	<span style="height: 2em; width: 17em; font-weight: 700; float: left;">File</span>
+	<input type="file" name="file" size="25" value="" style="margin-top: 0.5em" />
+	<br clear="all" />
+
+	<span style="height: 2em; width: 17em; font-weight: 700; float: left;">Id</span>
+	<input type="text" name="id" size="40" style="margin-top: 0.5em" />
+	<span style="font-size: 0.8em">(optional)</span>
+	<br clear="all" />
+
+	<span style="height: 2em; width: 17em; font-weight: 700; float: left;">Restricted from public view</span>
+	<input type="checkbox" name="restricted" />
+	<br clear="all" />
+
+	<input type="submit" value="Add" />
+</form>
+
+<span tal:replace="structure here/standard_html_footer" />

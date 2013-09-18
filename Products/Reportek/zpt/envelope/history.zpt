@@ -1,0 +1,61 @@
+<span tal:replace="structure here/standard_html_header" />
+  <tal:block condition="python:context.canViewContent()">
+    <div tal:replace="structure python:context.envelope_tabs(tab='history_section')"/>
+    <h1 tal:content="string:History of ${context/title_or_id}"></h1>
+    <p>
+        This page displays all the history of tasks that have executed in this envelope.
+        If you want to see more details about a task, just expand the <img src="/misc_/Reportek/plus_gif" alt="Expand item for more information" border="0" /> icon next to it.
+    </p>
+
+    <table border="0" cellpadding="2" cellspacing="2">
+    <tal:block define="actives python:[]" repeat="item python:context.objectValues('Workitem')">
+      <tr tal:define="condition python:request.has_key('w' + item.id) and request['w' + item.id] == '1'">
+        <tal:block condition="condition">
+        <td valign="top">
+          <a rel="nofollow"
+            tal:define="url0 request/URL0;
+                        query_string python:context.changeQueryString(
+                          request['QUERY_STRING'], 'w' + item.id, '0'
+                        )"
+            tal:attributes="href string:${url0}?${query_string}">
+            <img src="/misc_/Reportek/minus_gif" alt="Collapse item" border="0" />
+          </a>
+        </td>
+        <td><strong tal:content="python:item.getActivityDetails('title')"></strong>
+            (<span tal:define="date python:item.lastActivityDate().strftime('%Y/%m/%d')"
+                   tal:replace="string:${item/status} ${date}"></span>
+           <span tal:condition="python:item.actor not in ['', 'Anonymous
+             User', 'openflow_engine']" tal:content="string: by ${item/actor}"></span>)
+          <div tal:replace="structure item/workitemDetails"/>
+        </td>
+        </tal:block>
+
+        <tal:block condition="not:condition">
+          <td valign="top">
+            <a rel="nofollow"
+              tal:define="url0 request/URL0;
+                          query_string python:context.changeQueryString(
+                            request['QUERY_STRING'], 'w' + item.id, '1'
+                          )"
+              tal:attributes="href string:${url0}?${query_string}">
+              <img src="/misc_/Reportek/plus_gif"
+              alt="Expand item for more information" border="0" />
+            </a>
+          </td>
+          <td><strong tal:content="python:item.getActivityDetails('title')"></strong>
+            (<span tal:define="date python:item.lastActivityDate().strftime('%Y/%m/%d')"
+                   tal:replace="string:${item/status} ${date}"></span>
+             <span tal:condition="python:item.actor not in ['', 'Anonymous
+               User', 'openflow_engine']" tal:content="string: by ${item/actor}"></span>)
+          </td>
+        </tal:block>
+
+        <dtml-if "status in ('active','inactive')">
+            <dtml-call "actives.append(activity_id)">
+        </dtml-if>
+      </tr>
+    </tal:block>
+    </table>
+
+  </tal:block>
+<span tal:replace="structure here/standard_html_footer" />

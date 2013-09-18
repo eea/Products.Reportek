@@ -29,7 +29,7 @@ class EnvelopeRenderingTestCase(_BaseTest):
 
     def test_overview_without_rights(self):
         from utils import publish_view
-        self.assertIn('This envelope is not yet available for public view.\nWork is still in progress.',
+        self.assertIn('This envelope is not yet available for public view.\n',
                        publish_view(self.envelope).body)
 
     def test_overview_with_rights(self):

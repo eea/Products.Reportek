@@ -1,0 +1,105 @@
+<span tal:replace="structure here/standard_html_header" />
+  <tal:block condition="python:context.canViewContent()">
+    <div tal:replace="structure python:context.envelope_tabs(tab='overview')"/>
+
+    <div id="operations">
+      <ul>
+        <tal:block condition="python:context.canAddFeedback()">
+          <li><a href="manage_addFeedbackForm" title="Post feedback for this release">Add feedback</a></li>
+        </tal:block>
+          <li><a href="envelope_zip" rel="nofollow" title="Download zipped envelope with available files">Zip&nbsp;Envelope</a></li>
+        <div tal:replace="structure python:context.activity_operations(REQUEST=context.REQUEST)"/>
+      </ul>
+    </div>
+
+    <h1 tal:content="python:context.title_or_id()"></h1>
+
+    <div class="metadata">
+      <table border="0" cellspacing="2" cellpadding="2">
+      <tbody>
+      <tr>
+        <th>Description</th>
+        <td tal:content="python:context.descr"></td>
+      </tr>
+      <tr>
+        <th>Obligations</th>
+        <td>
+          <tal:block condition="python:context.dataflow_uris" repeat="uri python:context.dataflow_uris">
+            <tal:block define="df python:context.dataflow_lookup(uri)">
+              <a tal:attributes="href python:df['details_url']"
+                 tal:content="python:df['TITLE']"></a>
+              <tal:block condition="python:df.get('terminated', '0') == '1'">
+               <em>Terminated</em>
+              </tal:block>
+              <br/>
+            </tal:block>
+          </tal:block>
+          <tal:block condition="python:not context.dataflow_uris">
+            <span style="color:maroon;font-weight:bold"
+                  title="The obligation tag makes it possible for the requesters to find the delivery">
+              Notice: this envelope has no obligation tag</span>
+          </tal:block>
+        </td>
+      </tr>
+      <tr>
+        <th>Period</th>
+        <td tal:condition="python:context.endyear == ''"
+            tal:content="python:'%s - %s' %(context.year, context.partofyear)">
+        </td>
+        <td tal:condition="not:python:context.endyear == ''"
+            tal:content="python:'%s to %s' %(context.year, context.partofyear)">
+        </td>
+      </tr>
+      <tr>
+        <th>Coverage</th>
+        <td tal:content="context/getCountryName">
+          <span tal:condition="context/locality" tal:replace="python:': %s' %context.locality"></span>
+        </td>
+      </tr>
+      <tal:block condition="context/released">
+      <tr>
+        <th>Reported</th>
+        <td tal:content="context/reportingdate"></td>
+      </tr>
+      </tal:block>
+      <tr>
+        <th>Status</th>
+        <td><span tal:condition="not:python:context.status in ('running', 'active')">
+            Envelope is <span tal:replace="context/status"></span><br/></span>
+          <tal:block define="activeW python:context.getListOfWorkitems('active');
+                             inactiveW python:context.getListOfWorkitems('inactive')">
+            <metal:block use-macro="here/macros/tasks_in_progress">
+            </metal:block>
+          </tal:block>
+        </td>
+      </tr>
+      </tbody>
+      </table>
+      </div>
+
+    <div class="note-msg">
+      <strong>Note</strong>
+      <p>
+        If you want to stay updated about events in this envelope <a href="ReportekEngine/subscriptions_html">Subscribe to receive notifications</a> for this country and the current dataflow(s).
+      </p>
+    </div>
+    <form id="objectItems" method="post"
+          tal:define="action_url python:context.absolute_url()"
+          tal:attributes="action string:${action_url}/">
+
+    <div tal:replace="structure context/documents_section"/>
+
+    <tal:block condition="not:context/released">
+    <strong>Remember to release the envelope when you have uploaded all files</strong>
+    </tal:block>
+
+    <div tal:replace="structure context/feedback_section"/>
+
+    </form>
+  </tal:block>
+  <tal:block condition="not:python:context.canViewContent()">
+    <h1>Not available</h1>
+    <p>This envelope is not yet available for public view.
+    Work is still in progress.</p>
+  </tal:block>
+<span tal:replace="structure here/standard_html_footer" />

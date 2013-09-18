@@ -1,0 +1,189 @@
+<span tal:replace="structure here/standard_html_header" />
+  <tal:block
+    condition="python:context.canViewContent()"
+    define="canChangeFile python:context.canChangeEnvelope() and not
+                                 context.get_accept_time();
+
+            isLimited python: not context.acquiredRolesAreUsedBy('View');
+
+            valid_schemas context/getValidXMLSchemas;
+
+            beforeEditForm context/getWebQ_BeforeEditForm_URL;
+
+            can_view_or_edit_with_webq
+            python:context.getWebQ_BeforeEditForm_URL and
+                   context.xml_schema_location in context.getValidXMLSchemas()">
+
+    <div id="operations">
+      <ul>
+        <li>
+          <a tal:attributes="href python:context.getParentNode().absolute_url()"
+             title="Go back to the envelope that contains this file">Back to envelope</a>
+        </li>
+      </ul>
+    </div>
+
+    <h1>File: <span tal:replace="context/id"/></h1>
+
+    <tal:block
+      condition="python:not getattr(context.ReportekEngine,
+                                    'globally_restricted_site', False) and isLimited">
+    <p>The access to this file is limited, meaning it is not (yet) released for public view.</p>
+    </tal:block>
+
+    <div id="content">
+      <tal:block condition="options/warnings | nothing">
+      <div class="caution-msg" tal:content="options/warnings"></div>
+      </tal:block>
+      <fieldset><legend>View file as</legend>
+        <ul>
+            <li><a tal:attributes="href python:context.absolute_url(0); type context/content_type;">Original</a></li>
+
+            <tal:block define="converters options/converters">
+              <tal:block repeat="conv_item python:converters[0]">
+              <li>
+                <a class="converter"
+                   tal:define="
+                     file_url python:context.absolute_url(1);
+                     xsl python:conv_item['xsl']"
+                   tal:attributes="
+                     href string:/Converters/run_conversion?file=${file_url}&conv=${xsl}&source=local;
+                     type python:conv_item['content_type_out'];
+                     conv_id python:conv_item['xsl'];
+                     conv_file python:context.absolute_url(1);
+                     conv_source string:local"
+                   tal:content="python:conv_item['description']">
+                </a> <span tal:define="more_info python:conv_item['more_info']"
+                           tal:condition="more_info"
+                           tal:replace="string:(${more_info})"/>
+              </li>
+              </tal:block>
+
+              <tal:block repeat="conv_item python:converters[1]">
+              <li>
+                <a tal:define="
+                     file_url python:context.absolute_url(1);
+                     c_id python:conv_item['convert_id']"
+                   tal:attributes="
+                     href string:/Converters/run_conversion?file=${file_url}&conv=${c_id}&source=remote;
+                     type python:conv_item['content_type_out'];"
+                   tal:content="python:conv_item['description']">
+                </a> <span tal:define="more_info python:conv_item['more_info']"
+                           tal:condition="more_info"
+                           tal:replace="string:(${more_info})"/>
+              </li>
+              </tal:block>
+            </tal:block>
+        </ul>
+        <p tal:condition="python:context.get_size() == 0">
+          <strong>Warning:</strong> this file is empty so viewing it in different formats might not work as expected!
+        </p>
+      </fieldset>
+
+      <fieldset tal:condition="python: not context.released and canChangeFile and options['manage_and_edit']">
+        <legend>Change file</legend>
+        <ul>
+          <tal:block condition="context/isGML">
+          <li tal:condition="can_view_or_edit_with_webq">
+            <a tal:attributes="
+                 href string:${beforeEditForm}?mode=edit&amp;language=En&amp;schema=${xml_schema_location}&amp;instance=${context/absolute_url}&amp;instance_title=${context/title_or_id}">Edit metadata with Web form</a>
+          </li>
+          <li><a tal:attributes="href string:uploadESRI?file=${context/id}>">Upload ESRI</a></li>
+          </tal:block>
+
+          <tal:block condition="python: not context.isGML and can_view_or_edit_with_webq">
+          <li>
+            <a tal:attributes="
+                 href string:${beforeEditForm}?mode=edit&amp;language=En&amp;schema=${context/xml_schema_location}&amp;instance=${context/absolute_url}&amp;instance_title=${context/title_or_id}">Edit metadata with Web form</a>
+          </li>
+          </tal:block>
+          <tal:block condition="not:python: not context.isGML and can_view_or_edit_with_webq">
+          <form tal:attributes="action string:${context/absolute_url}/manage_file_upload" method="post" enctype="multipart/form-data">
+            <li>Local upload: <input type="file" name="file" size="25" value="" /> <input type="submit" value="Upload" /></li>
+            </form>
+          </tal:block>
+        </ul>
+      </fieldset>
+
+      <fieldset><legend>Edit file properties</legend>
+      <form name="edit" id="edit" tal:attributes="action request/URL1" method="post">
+      <table cellspacing="5" cellpadding="0" border="0">
+        <tr>
+            <td><label for="title" class="question">Title</label></td>
+            <td tal:condition="canChangeFile">
+              <input type="text" name="title" id="title" size="50"
+                     tal:attributes="value context/title" />
+            </td>
+            <td tal:condition="not:canChangeFile"
+                tal:content="context/title">
+            </td>
+        </tr>
+        <tr tal:condition="python:context.content_type == 'text/xml'">
+            <td class="question">Schema location</td>
+            <td><span tal:replace="context/xml_schema_location"/>
+              <input type="hidden" name="xml_schema_location"
+                     tal:attributes="value context/xml_schema_location"/>
+            </td>
+        </tr>
+        <tr>
+            <td class="question">File size</td>
+            <td tal:content="string:${context/size} (${context/rawsize} Bytes)"></td>
+        </tr>
+        <tr>
+            <td class="question">Last uploaded</td>
+            <td tal:content="python: context.upload_time().strftime('%d %b %Y %H:%M')"></td>
+        </tr>
+        <tr tal:condition="
+              python:not getattr(context.ReportekEngine, 'globally_restricted_site', False)">
+          <td class="question">Restricted from public view</td>
+          <td tal:condition="canChangeFile"><input type="hidden" name="applyRestriction" value="1" />
+            <tal:block condition="isLimited">
+              <input type="checkbox" name="restricted" checked="checked"/>
+            </tal:block>
+            <tal:block condition="not:isLimited">
+              <input type="checkbox" name="restricted"/>
+            </tal:block>
+          </td>
+          <td tal:condition="not:canChangeFile">
+            <span tal:content="python:test(isLimited, Yes, No)"/>
+          </td>
+        </tr>
+        <tr tal:condition="context/get_accept_time">
+          <td class="question">Document accepted by the client</td>
+          <td>
+            <img tal:condition="context/get_accept_time" src="misc_/Reportek/accepted" alt="Document accepted by the client" />
+            <span tal:condition="not:context/get_accept_time" tal:replace="string:not yet"/>
+          </td>
+        </tr>
+        <tr tal:condition="canChangeFile">
+            <td>&nbsp;</td>
+            <td><input type="submit" name="manage_editDocument:method" value=" Change " /></td>
+        </tr>
+      </table>
+      </form>
+      </fieldset>
+
+      <fieldset tal:condition="not:context/released"><legend>Quality assessment</legend>
+        <tal:block condition="python:context.getQAScripts().has_key(context.id)">
+          <tal:block repeat="script_item python:context.getQAScripts()[context.id]">
+            <tal:block condition="python:context.canHaveOnlineQA(script_item[3])">
+            <p><span tal:replace="python:'Run %s' %script_item[1]"/>
+              <a tal:attributes="
+                  href python:'runQAScript?p_file_url=%s&amp;p_script_id=%s' %(
+                    context.absolute_url(), script_item[0]);
+
+                  title python:'Click to run %s' %script_item[1]"
+                  rel="nofollow" class="test_button"
+                  tal:content="string:Run QA #${repeat/script_item/number}"></a>
+            </tal:block>
+            <tal:block condition="not:python:context.canHaveOnlineQA(script_item[3])">
+              <p>File too large to run the <em><dtml-var "script_item[1]"></em> quality assessment script directly. Use the feedback generated by the <em>automatic quality assessment</em> to view the results.</p>
+            </tal:block>
+          </tal:block>
+        </tal:block>
+        <tal:block condition="not:python:context.getQAScripts().has_key(id)">
+          <p>No quality assessment scripts available for this document.</p>
+        </tal:block>
+      </fieldset>
+  </tal:block>
+<span tal:replace="structure here/standard_html_footer" />

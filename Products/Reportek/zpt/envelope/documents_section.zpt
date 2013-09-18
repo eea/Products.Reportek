@@ -1,0 +1,92 @@
+<div tal:define="dummy python:request.set('therearerestrictions',0)"
+     tal:replace="nothing"/>
+
+<div class="filessection"
+     tal:define="documents python:context.getDocuments(request);
+                 page_url string:${request/URL}?;
+                 SecurityManager modules/AccessControl/getSecurityManager">
+
+<fieldset><legend>Files in this envelope</legend>
+
+  <tal:block condition="documents/object_list">
+    <div tal:replace="structure context/documents_pagination"/>
+
+    <table cellspacing="2" cellpadding="2">
+    <tbody>
+
+    <tal:block repeat="item documents/object_list">
+
+      <tr tal:condition="python:item.meta_type=='Report Document'" valign="baseline">
+        <td tal:content="python:repeat['item'].number() + (int(request.get('page', '1'))-1)*20"></td>
+        <td><img tal:attributes="src string:${item/id}/icon_gif" alt="File icon" /></td>
+        <td><a title="File operations:
+      [View file in different formats],
+      [File properties],
+      [View the feedback posted it (if any)]"
+          tal:attributes="href string:${item/id}/manage_document"
+          tal:content="item/id">id</a>
+        </td>
+        <td style="white-space:nowrap">
+          <tal:block
+            condition="python:SecurityManager.checkPermission('View', item)">
+            <span tal:condition="not:python:context.acquiredRolesAreUsedBy('View')"
+                  tal:content="string:(Limited)"/>
+          </tal:block>
+          <tal:block
+            condition="not:python:SecurityManager.checkPermission('View', item)">
+            <tal:block define="dummy python:request.set('therearerestrictions',1)"/>
+            <img src="/misc_/Reportek/lockicon_gif" alt="No access" width="16" height="16" />
+          </tal:block>
+            <img tal:condition="item/get_accept_time"
+                 src="/misc_/Reportek/accepted" alt="Document accepted by the client" />
+        </td>
+        <td><em tal:content="context/title">title</em></td>
+        <td tal:content="python:item.upload_time().strftime('%d %b %Y')"></td>
+        <td style="width:6em">
+          <span tal:condition="python:hasattr(item, 'size')"
+                tal:content="item/size"/>
+        </td>
+      </tr>
+
+			<tr tal:condition="not:python:item.meta_type=='Report Document'" valign="baseline">
+				<td tal:content="python:repeat['number']+(int(REQUEST.get('page', '1'))-1)*20"></td>
+				<td><img src="misc_/Reportek/hyperlink_gif" alt="Hyperlink icon" /></td>
+				<tal:block condition="python:SecurityManager.checkPermission('View', item)">
+          <td><a tal:attributes="href item/id" tal:content="item/id">id</a></td>
+          <td style="white-space:nowrap">
+            <span tal:condition="not:python:context.acquiredRolesAreUsedBy('View')"
+                  tal:content="string:(Limited)"/>
+        </tal:block>
+				<tal:block condition="not:python:SecurityManager.checkPermission('View', item)">
+          <td>-Limited-</td>
+          <td style="white-space:nowrap">
+            <tal:block define="dummy python:request.set('therearerestrictions',1)"/>
+            <img src="/misc_/Reportek/lockicon_gif" alt="No access" width="16" height="16" />
+          </td>
+        </tal:block>
+          <td><em tal:content="context/title">title</em></td>
+          <td tal:content="python:context.upload_time.strftime('%d %b %Y')"></td>
+          <td style="width:6em">
+            <span tal:condition="python:hasattr(item, 'size')"
+                  tal:content="item/size"/>
+          </td>
+        </tr>
+    </tal:block>
+			<span tal:condition="not:documents/object_list">
+				No files uploaded
+			</span>
+		</tbody>
+		</table>
+
+		<tal:block replace="structure context/documents_pagination"/>
+  </tal:block>
+
+<p tal:condition="python:request.get('therearerestrictions', 0) > 0">
+	Access limitations may apply for files, which are not (yet) released for public view. Files marked with
+	<img src="/misc_/Reportek/lockicon_gif" alt="Padlock" width="16" height="16" /> are unavailable. 
+	You must log in to get access.
+</p>
+
+</fieldset>
+
+</div>

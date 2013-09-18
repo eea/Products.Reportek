@@ -1,0 +1,48 @@
+<tal:block metal:define-macro="tasks_in_progress">
+  <tal:block condition="python:activeW">
+    Task(s) in progress:
+    <tal:block repeat="item activeW">
+      <tal:block condition="python:item.actor == 'openflow_engine'"><img style="vertical-align: middle" src="/misc_/Reportek/work_in_process" alt="Work in progress for this activity" />
+      </tal:block>
+      <strong tal:content="python:item.getActivityDetails('title')"></strong>
+      (<span tal:replace="python:item.getActivityDetails('description')"></span>)
+      <tal:block condition="python:item.actor == 'openflow_engine'">
+        <dtml-call "RESPONSE.setHeader('Refresh','60')">
+      </tal:block>
+      <tal:block condition="not:python:item.actor == 'openflow_engine'">
+        (user: <span tal:replace="item/actor">username</span>)
+      </tal:block>
+      <span tal:condition="not:repeat/item/last">,</span>
+    </tal:block>
+  </tal:block>
+  <tal:block condition="python:inactiveW">
+    Task(s) waiting to be assigned:
+    <tal:block repeat="item inactiveW">
+      <tal:block define="canPull python:context.getOpenFlowEngine().canPullActivity(
+                                     item.activity_id,
+                                     request.AUTHENTICATED_USER.getRolesInContext(context),
+                                     item.getInstanceProcessId())">
+        <tal:block condition="canPull">
+
+          <strong>
+            <a tal:define="w_id item/id;
+                           dest_url python:context.getMySelf().absolute_url()"
+               tal:attributes="href string:activateWorkitem?workitem_id=${w_id}&DestinationURL=${dest_url}"
+               title="Activation means you accept responsibility for this task.
+                      Only the person who has activated the task can work on it.
+                      Afterwards you can click on [Deactivate] or
+                      [Complete]">Activate task: <em>
+               <span tal:replace="python:item.getActivityDetails('title')"></span></em>
+            </a>
+          </strong>
+          (<span tal:replace="python:item.getActivityDetails('description')"></span>)
+          <span tal:condition="not:repeat/item/last">, </span>
+        </tal:block>
+        <tal:block condition="not:canPull">
+          <strong><span tal:replace="python:item.getActivityDetails('title')"></span></strong>
+          <span tal:condition="not:repeat/item/last">, </span>
+        </tal:block>
+      </tal:block>
+    </tal:block>
+  </tal:block>
+</tal:block>

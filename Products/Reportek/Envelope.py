@@ -35,6 +35,7 @@ import Products
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 import Globals, OFS.SimpleItem, OFS.ObjectManager
 from Globals import DTMLFile, MessageDialog
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 import AccessControl.Role, webdav.Collection
 from AccessControl import getSecurityManager, ClassSecurityInfo, Unauthorized
 from zExceptions import Forbidden
@@ -170,6 +171,9 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
     security.declareProtected('Change Envelopes', 'manage_renameObject')
     security.declareProtected('Change Envelopes', 'manage_renameObjects')
 
+    security.declareProtected('View', 'macros')
+    macros = PageTemplateFile('zpt/envelope/macros', globals()).macros
+
     def __init__(self, process, title, authUser, year, endyear, partofyear, country, locality, descr):
         """ Envelope constructor
         """
@@ -254,7 +258,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
     # then he should be redirected to the special work page
     # But he should still be able to see the overview page.
     security.declareProtected('View', 'overview')
-    overview = DTMLFile('dtml/envelopeIndex',globals())
+    overview = PageTemplateFile('zpt/envelope/overview', globals())
 
     security.declareProtected('View', 'index_html')
     def index_html(self, REQUEST=None):
@@ -276,8 +280,10 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                     l_no_active_workitems += 1
                     l_default_tab = w.id
         if l_no_active_workitems == 1:
+            application = self.getPhysicalRoot().restrictedTraverse(l_application_url)
             params = {'workitem_id': l_default_tab,
                       'client': self,
+                      'document_title': application.title,
                       'REQUEST': REQUEST,
                       'RESPONSE': REQUEST.RESPONSE
             }
@@ -324,7 +330,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         return documents
 
     security.declareProtected('View', 'documents_section')
-    documents_section = DTMLFile('dtml/envelopeDocuments_section', globals())
+    documents_section = PageTemplateFile('zpt/envelope/documents_section', globals())
 
     security.declareProtected('View', 'documents_pagination')
     documents_pagination = DTMLFile('dtml/envelopeDocuments_pagination', globals())
@@ -333,13 +339,13 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
     documents_management_section = DTMLFile('dtml/envelopeDocumentsManagement_section', globals())
 
     security.declareProtected('View', 'feedback_section')
-    feedback_section = DTMLFile('dtml/envelopeFeedback_section', globals())
+    feedback_section = PageTemplateFile('zpt/envelope/feedback_section', globals())
 
     security.declareProtected('View', 'envelope_tabs')
-    envelope_tabs = DTMLFile('dtml/envelopeTabs', globals())
+    envelope_tabs = PageTemplateFile('zpt/envelope/tabs', globals())
 
     security.declareProtected('Change Envelopes', 'manage_prop')
-    manage_prop=DTMLFile('dtml/envelopeProp',globals())
+    manage_prop = PageTemplateFile('zpt/envelope/properties', globals())
 
     security.declareProtected('Change Envelopes', 'envelope_previous')
     envelope_previous=DTMLFile('dtml/envelopeEarlierReleases',globals())

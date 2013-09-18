@@ -1,0 +1,152 @@
+<tal:block define="SecurityManager
+                   modules/AccessControl/getSecurityManager;
+                   permission_condition
+                   python:SecurityManager.checkPermission( 'View management screens', template)">
+
+  <tal:block condition="permission_condition">
+    <span tal:replace="structure context/manage_page_header"/>
+    <span tal:content="structure python:context.manage_tabs(management_view='Properties')"/>
+  </tal:block>
+  <tal:block condition="
+        not:python:SecurityManager.checkPermission('View management screens', template)">
+    <span tal:replace="structure context/standard_html_header"/>
+
+    <span tal:replace="structure python:context.envelope_tabs(tab='manage_prop')"/>
+
+    <h1>Envelope Properties</h1>
+  </tal:block>
+
+  <form name="edit" tal:attributes="action request/URL1" method="post">
+    <table>
+      <tr>
+        <th>Title</th>
+        <td>
+          <input type="text" size="50" name="title" tal:attributes="value context/title"/>
+        </td>
+      </tr>
+
+      <tr>
+        <th>Description</th>
+        <td>
+          <textarea name="descr" rows="5" cols="50"
+                    tal:content="context/descr">descr
+          </textarea>
+        </td>
+      </tr>
+
+      <tr>
+        <th>Year</th>
+        <td>
+          <input type="text" name="year" size="4" maxlength="4"
+                 tal:attributes="value context/year"/>
+          <select name="partofyear">
+          <tal:block
+            repeat="item python:('Whole Year',
+                   'First Half', 'Second Half',
+                   'First Quarter', 'Second Quarter',
+                   'Third Quarter', 'Fourth Quarter',
+                   'January','February','March','April', 'May','June',
+                   'July','August','September','October','November','December')">
+            <tal:block condition="python:item == request.get('partofyear')">
+              <option tal:attributes="selected string:selected; value item"
+                      tal:content="item">
+              </option>
+            </tal:block>
+            <tal:block condition="not:python:item == request.get('partofyear')">
+              <option tal:attributes="value item"
+                      tal:content="item">
+              </option>
+            </tal:block>
+          </tal:block>
+          </select>
+          <span class="form-optional">to</span>
+          <input type="text" name="endyear" size="4" maxlength="4"
+                 tal:attributes="value context/endyear" />
+        </td>
+      </tr>
+
+      <tal:block define="dummy python:request.set('group',0)"/>
+      <tr>
+        <th>Obligations</th>
+        <td>
+          <select id="dataflows" size="15" name="dataflow_uris:list" multiple="multiple">
+            <tal:block repeat="item context/dataflow_table">
+              <tal:block condition="python:request['group'] != item['SOURCE_TITLE']">
+                <tal:block condition="not:repeat/item/start" replace="structure string:</optgroup>"/>
+                <tal:block replace="structure string:<optgroup label='${item/SOURCE_TITLE}' size=80>"/>
+                <tal:block define="dummy python:request.set('group', item['SOURCE_TITLE'])"/>
+              </tal:block>
+              <span
+                tal:define="
+                  join nocall:modules/string/join;
+                  source python:join(item['SOURCE_TITLE'].split()[0:2]);
+                  terminated_condition python:item.get('terminated', '0') == '1';
+                  selected_condition python:item['uri'] in context.dataflow_uris;
+                  label python:test(terminated_condition, '(terminated)', '');
+                  selected python:test(selected_condition, 'selected=selected', '');
+                  css_class python:test(terminated_condition, 'class=terminated', '')"
+                tal:replace="
+                  structure
+                  string:<option value=${item/uri} ${selected} ${css_class}>
+                           [${source}] ${item/TITLE} ${label}
+                         </option>"
+              />
+              <tal:block replace="structure string:</optgroup>"/>
+            </tal:block>
+          </select>
+        </td>
+      </tr>
+
+      <tr>
+        <th>Coverage</th>
+        <td>
+          <select name="country">
+            <option
+              tal:define="
+                selected_condition python:context.country == '';
+                selected python:test(selected_condition, 'selected=selected', '')"
+              tal:replace="structure string:
+                <option ${selected} value=''>
+                  Unspecified
+                </option>"
+            />
+            <tal:block repeat="item context/localities_table">
+              <option
+                tal:define="selected_condition python:item['uri'] == context.country;
+                            selected python:test(selected_condition, 'selected=selected', '')"
+                tal:replace="structure string:
+                    <option ${selected} value=${item/uri}>
+                      ${item/name}
+                    </option>"
+              />
+            </tal:block>
+          </select>
+        </td>
+      </tr>
+
+      <tr>
+        <th>Coverage note</th>
+        <td>
+          <input type="text" name="locality" size="30" tal:attributes="value context/locality" />
+        </td>
+      </tr>
+
+      <tr>
+        <td></td>
+        <td>
+          <input type="submit" name="manage_editEnvelope:method" value="Change" />
+        </td>
+      </tr>
+
+    </table>
+  </form>
+
+  <tal:block condition="permission_condition">
+    <span tal:replace="structure context/manage_page_footer"/>
+  </tal:block>
+
+  <tal:block condition="not:permission_condition">
+    <span tal:replace="structure context/standard_html_footer"/>
+  </tal:block>
+
+</tal:block>

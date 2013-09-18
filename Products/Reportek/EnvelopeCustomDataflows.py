@@ -31,6 +31,7 @@ When writing in this class, specify the name of the dataflow as comment first
 
 # Zope imports
 from Globals import DTMLFile, MessageDialog, InitializeClass
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 try: from zope.contenttype import guess_content_type # Zope 2.10 and newer
 except: from zope.app.content_types import guess_content_type # Zope 2.9 and older
 from AccessControl import ClassSecurityInfo
@@ -100,7 +101,7 @@ class EnvelopeCustomDataflows:
 
     #generic method that uploads a single file or a zip
     security.declareProtected('Change Envelopes', 'upload_doc_or_zip')
-    upload_doc_or_zip = DTMLFile('dataflows/envelope_upload_doc_or_zip',globals())
+    upload_doc_or_zip = PageTemplateFile('zpt/envelope/upload_doc_or_zip', globals())
 
     def _get_xml_files_by_schema(self, schema):
         """ Returns the list of XML files with the given schema from that envelope """

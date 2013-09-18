@@ -1,0 +1,59 @@
+<tal:block define="workflow_tabs python:context.getWorkflowTabs(request)">
+<tal:block condition="not:python:request.get('tab')">
+    <div tal:replace="nothing" tal:define="dummy python:request.set('tab', 'index_html')"/>
+</tal:block>
+
+<div id="tabbedmenu">
+    <ul>
+      <tal:block condition="python:request.get('tab') in ['overview', 'index_html']"
+                 replace="structure string:<li id='currenttab'>"/>
+      <tal:block condition="not:python:request.get('tab') in ['overview', 'index_html']"
+                 replace="structure string:<li>"/>
+        <a href="overview"
+           title="Information about the envelope and change of status">Overview</a>
+      <tal:block replace="structure string:</li>"/>
+      <tal:block repeat="wtab workflow_tabs">
+        <tal:block define="workitem_id python:wtab[0];
+                           app_url python:wtab[1];
+                           app_title python:wtab[2]">
+          <tal:block condition="python:request.get('tab') == workitem_id"
+                     replace="structure string:<li id='currenttab'>"/>
+          <tal:block condition="not:python:request.get('tab') == workitem_id"
+                     replace="structure string:<li>"/>
+            <a tal:attributes="href
+               string:${container/absolute_url}/?workitem_id=${workitem_id}&tab=${workitem_id};
+               title app_title"
+               tal:content="app_title">app_title</a>
+          <tal:block replace="structure string:</li>"/>
+        </tal:block>
+      </tal:block>
+
+      <tal:block condition="python:context.canChangeEnvelope()">
+        <tal:block condition="python:request.get('tab') == 'manage_prop'"
+                   replace="structure string:<li id='currenttab'>"/>
+        <tal:block condition="not:python:request.get('tab') == 'manage_prop'"
+                   replace="structure string:<li>"/>
+          <a href="manage_prop" title="Edit the properties on the envelope">Edit properties</a>
+        <tal:block replace="structure string:</li>"/>
+      </tal:block>
+
+      <tal:block condition="context/canAddFiles" replace="nothing">
+        <tal:block condition="python:request.get('tab') == 'envelope_previous'"
+                   replace="structure string:<li id='currenttab'>"/>
+        <tal:block condition="not:python:request.get('tab') == 'envelope_previous'"
+                   replace="structure string:<li>"/>
+          <a href="envelope_previous" title="See the previous releases">Previous releases</a>
+        <tal:block replace="structure string:</li>"/>
+      </tal:block>
+
+      <tal:block condition="python:request.get('tab') == 'history_section'"
+                 replace="structure string:<li id='currenttab'>"/>
+      <tal:block condition="not:python:request.get('tab') == 'history_section'"
+                 replace="structure string:<li>"/>
+        <a href="history_section" title="Workflow history and operations">History</a>
+      <tal:block replace="structure string:</li>"/>
+
+    </ul>
+</div>
+
+</tal:block>

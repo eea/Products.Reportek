@@ -32,6 +32,7 @@ from Products.ZCatalog.CatalogAwareness import CatalogAware
 from OFS.SimpleItem import SimpleItem
 from zExceptions import Forbidden, Redirect
 from Globals import DTMLFile, MessageDialog, package_home
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 try: from zope.contenttype import guess_content_type # Zope 2.10 and newer
 except: from zope.app.content_types import guess_content_type # Zope 2.9 and older
 from webdav.common import rfc1123_date
@@ -337,7 +338,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     # Below there are the two forms for the document operations
     # The second one contains links to the file editing (regular upload 
     # or editing with external editors e.g. XForms)
-    _manage_template = DTMLFile('dtml/documentManage', globals())
+    _manage_template = PageTemplateFile('zpt/document/manage', globals())
 
     security.declareProtected('View', 'manage_document')
     def manage_document(self, REQUEST=None, manage_and_edit=False):
