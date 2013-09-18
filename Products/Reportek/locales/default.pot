@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-09-16 12:58+0000\n"
+"POT-Creation-Date: 2013-09-16 13:03+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -25,12 +25,20 @@ msgstr ""
 msgid "(Previous ${n})"
 msgstr ""
 
+#: Reportek/zpt/envelope/macros.zpt:14
+msgid "(user: ${username})"
+msgstr ""
+
 #: Reportek/zpt/envelope/documents_section.zpt:63
 msgid "-Limited-"
 msgstr ""
 
 #: Reportek/zpt/envelope/documents_section.zpt:89
 msgid "Access limitations may apply for files, which are not (yet) released for public view. Files marked with ${lock-icon} are unavailable. You must log in to get access."
+msgstr ""
+
+#: Reportek/zpt/envelope/macros.zpt:37
+msgid "Activate task: ${title}"
 msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:8
@@ -140,6 +148,14 @@ msgstr ""
 msgid "Subscribe to receive notifications"
 msgstr ""
 
+#: Reportek/zpt/envelope/macros.zpt:3
+msgid "Task(s) in progress:"
+msgstr ""
+
+#: Reportek/zpt/envelope/macros.zpt:20
+msgid "Task(s) waiting to be assigned:"
+msgstr ""
+
 #: Reportek/zpt/envelope/overview.zpt:36
 msgid "Terminated"
 msgstr ""
@@ -195,6 +211,11 @@ msgstr ""
 #. Default: "Information about the envelope and change of status"
 #: Reportek/zpt/envelope/tabs.zpt:12
 msgid "tab-overview-title"
+msgstr ""
+
+#. Default: "Activation means you accept responsibility for this task. Only the person who has activated the task can work on it. Afterwards you can click on [Deactivate] or [Complete]"
+#: Reportek/zpt/envelope/macros.zpt:29
+msgid "task-activate-title"
 msgstr ""
 
 #. Default: "File operations: [View file in different formats], [File properties], [View the feedback posted it (if any)]"
