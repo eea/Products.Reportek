@@ -20,7 +20,7 @@
         <tal:block condition="python:SecurityManager.checkPermission('View', feedb_item)">
 					<span
             tal:condition="not:python:context.acquiredRolesAreUsedBy('View')"
-            tal:replace="string:(Limited)">(Limited)</span>
+            tal:replace="string:(Limited)" i18n:translate="">(Limited)</span>
         </tal:block>
         <tal:block condition="not:python:SecurityManager.checkPermission('View', feedb_item)">
           <tal:block define="dummy python:request.set('therearerestrictions',1)"></tal:block>
@@ -35,30 +35,36 @@
               tal:replace="string:(Posted on ${postingdate} for the ${releasedate} release)"/>
 
         <tal:block condition="python:context.canEditFeedback() and not feedb_item.automatic">
-          <a tal:attributes="href string:${context/absolute_url}/manage_editFeedbackForm" title="Edit feedback" class="test_button">Edit</a>
+          <a tal:attributes="href string:${context/absolute_url}/manage_editFeedbackForm" title="Edit feedback" class="test_button"
+             i18n:translate="">Edit</a>
           <a tal:attributes="href string:manage_deleteFeedbackForm?id=${feedb_item/id}"
-             title="Delete feedback" class="test_button">Delete</a>
+             title="Delete feedback" class="test_button"
+             i18n:translate="">Delete</a>
         </tal:block>
       </td>
     </tr>
     <tr tal:condition="not:feedbacks">
-      <td>No feedback posted in this envelope</td>
+      <td i18n:translate="">No feedback posted in this envelope</td>
     </tr>
     <tr>
       <td colspan="6">
           <a href="previousbatch" tal:define="p batch/previous"
                                   tal:condition="p"
-                                  tal:attributes="href string:?fs=${p/first}">
-              (Previous <span tal:replace="p/length">n</span>)
+                                  tal:attributes="href string:?fs=${p/first}"
+                                  i18n:translate="">
+              (Previous <span tal:replace="p/length" i18n:name="n">n</span>)
           </a>
           <a href="nextbatch" tal:define="n batch/next"
                               tal:condition="n"
-                              tal:attributes="href string:?fs=${n/first}">
-               (Next <span tal:replace="n/length">n</span>)
+                              tal:attributes="href string:?fs=${n/first}"
+                              i18n:translate="">
+               (Next <span tal:replace="n/length" i18n:name="n">n</span>)
           </a>
 
         <span tal:condition="python:total_number > 20"
-              tal:replace="string:of ${total_number} feedbacks"/>
+              i18n:translate="">
+              of <span i18n:name="total_number" tal:replace="total_number"/> feedbacks
+        </span>
       </td>
     </tr>
 </tbody>
