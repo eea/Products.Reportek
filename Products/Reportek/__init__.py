@@ -46,7 +46,7 @@ import ReportekEngine
 from constants import CONVERTERS_ID, ENGINE_ID, WORKFLOW_ENGINE_ID, DATAFLOW_MAPPINGS, DEFAULT_CATALOG, QAREPOSITORY_ID
 
 from zope.i18nmessageid import MessageFactory
-MessageFactory = MessageFactory('Products.Reportek')
+MessageFactory = MessageFactory('Reportek')
 
 maintenance_options = (
     ZCatalog.manage_options[:1] +
