@@ -20,31 +20,31 @@ msgstr ""
 
 #: Reportek/zpt/envelope/feedback_section.zpt:61
 msgid "(Next ${n})"
-msgstr ""
+msgstr "(Următoarele ${n})"
 
 #: Reportek/zpt/envelope/feedback_section.zpt:55
 msgid "(Previous ${n})"
-msgstr ""
+msgstr "(Anterioarele ${n})"
 
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:41
 msgid "(optional)"
-msgstr ""
+msgstr "(opţional)"
 
 #: Reportek/zpt/envelope/macros.zpt:14
 msgid "(user: ${username})"
-msgstr ""
+msgstr "(utilizator: ${username})"
 
 #: Reportek/zpt/envelope/documents_section.zpt:63
 msgid "-Limited-"
-msgstr ""
+msgstr "-Limitat-"
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:46
 msgid "1) ${upload-button} one or more files into this envelope. You can always interrupt your work and continue your contribution at a later time without losing data."
-msgstr ""
+msgstr "1) ${upload-button} unul sau mai multe fișiere în această anvelopă. Puteți întrerupe oricând lucru și continua mai târziu, fără a pierde date."
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:63
 msgid "1. You can run all the QA checks on all files in the envelopes by selecting the ${button} button."
-msgstr ""
+msgstr "1. Puteți rula toate verificările automate pe fișierele dn acestă anvelopă apăsând butonul ${button}."
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:53
 msgid "2) Once you are satisfied that your delivery is complete and correct, choose ${release-button} and the envelope with your delivery will be automatically validated by QA procedures. If the delivery conforms to the <q><em>Rules for the acceptance of Member State deliveries in Reportnet</em></q> you will be able to finalise your delivery (finalise the <em>Release envelope</em> step). If the QA procedure fails you will be redirected back to Draft delivery."
@@ -52,115 +52,115 @@ msgstr ""
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:66
 msgid "2. You can test files which are less than 4MB in size one by one using the ${run-qa} button next to each item."
-msgstr ""
+msgstr "2. Fișierele mai mici de 4MB pot fi verificate unul câte unul apăsând pe butoanele ${run-qa} de lângă fiecare."
 
 #: Reportek/zpt/document/manage.zpt:83
 msgid "<strong>Warning:</strong> this file is empty so viewing it in different formats might not work as expected!"
-msgstr ""
+msgstr "<strong>Atenție:</strong> acest fișier este gol, așa încât vizualizarea sa în diferite formate nu va funcționa!"
 
 #: Reportek/zpt/envelope/documents_section.zpt:89
 msgid "Access limitations may apply for files, which are not (yet) released for public view. Files marked with ${lock-icon} are unavailable. You must log in to get access."
-msgstr ""
+msgstr "Unele fișiere pot avea limitări de acces. În acest caz trebuie să vă înregistrați în sistem pentru a le vedea."
 
 #: Reportek/zpt/envelope/macros.zpt:37
 msgid "Activate task: ${title}"
-msgstr ""
+msgstr "Activează activitatea: ${title}"
 
 #: Reportek/zpt/envelope/overview.zpt:8
 msgid "Add feedback"
-msgstr ""
+msgstr "Adaugă Feedback"
 
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:14
 msgid "Add file"
-msgstr ""
+msgstr "Adaugă fișier"
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:12
 msgid "Add hyperlink"
-msgstr ""
+msgstr "Adaugă link extern"
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:59
 msgid "Automatic QA service"
-msgstr ""
+msgstr "Serviciul de verificare automată"
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:21
 msgid "Back to drafting"
-msgstr ""
+msgstr "Înapoi la draft"
 
 #: Reportek/zpt/document/manage.zpt:20
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:5
 msgid "Back to envelope"
-msgstr ""
+msgstr "Înapoi la anvelopă"
 
 #: Reportek/zpt/document/manage.zpt:89
 msgid "Change file"
-msgstr ""
+msgstr "Modifică fișier"
 
 #: Reportek/zpt/envelope/overview.zpt:60
 #: Reportek/zpt/envelope/properties.zpt:101
 msgid "Coverage"
-msgstr ""
+msgstr "Acoperire geografică"
 
 #: Reportek/zpt/envelope/properties.zpt:128
 msgid "Coverage note"
-msgstr ""
+msgstr "Detalii despre acoperirea geografică"
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:33
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:8
 msgid "Deactivate task"
-msgstr ""
+msgstr "Deactivează activitate"
 
 #: Reportek/zpt/envelope/feedback_section.zpt:40
 msgid "Delete"
-msgstr ""
+msgstr "Șterge"
 
 #: Reportek/zpt/envelope/overview.zpt:25
 #: Reportek/zpt/envelope/properties.zpt:29
 msgid "Description"
-msgstr ""
+msgstr "Descriere"
 
 #: Reportek/zpt/document/manage.zpt:164
 msgid "Document accepted by the client"
-msgstr ""
+msgstr "Document acceptat de client"
 
 #: Reportek/zpt/envelope/overview.zpt:12
 msgid "Download zipped envelope with available files"
-msgstr ""
+msgstr "Descarcă conținutul arhivat al anvelopei"
 
 #: Reportek/zpt/envelope/feedback_section.zpt:38
 msgid "Edit"
-msgstr ""
+msgstr "Editează"
 
 #: Reportek/zpt/document/manage.zpt:120
 msgid "Edit file properties"
-msgstr ""
+msgstr "Editează proprietățile fișierului"
 
 #: Reportek/zpt/document/manage.zpt:93
 msgid "Edit metadata with Web form"
-msgstr ""
+msgstr "Editează metadatele cu formulare Web"
 
 #: Reportek/zpt/envelope/tabs.zpt:38
 msgid "Edit properties"
-msgstr ""
+msgstr "Editează proprietățile"
 
 #: Reportek/zpt/envelope/properties.zpt:16
 msgid "Envelope Properties"
-msgstr ""
+msgstr "Proprietățile anvelopei"
 
 #: Reportek/zpt/envelope/overview.zpt:76
 msgid "Envelope is ${status}"
-msgstr ""
+msgstr "Anvelopa are statusul ${status}"
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:88
 msgid "Envelope level QA rules checking availability of mandatory files can be tested using the ${run-qa} button."
-msgstr ""
+msgstr "Validarea la nivelul anvelopei care verifică existența fișierelor obligatorii poate fi apelată folosind butonul ${run-qa}."
 
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:33
 msgid "File"
-msgstr ""
+msgstr "Fișier"
 
 #: Reportek/zpt/document/manage.zpt:141
 msgid "File size"
-msgstr ""
+msgstr "Mărimea fișierului"
 
 #: Reportek/zpt/document/manage.zpt:192
 msgid "File too large to run the ${qa-script} quality assessment script directly. Use the feedback generated by the <em>automatic quality assessment</em> to view the results."
@@ -168,11 +168,11 @@ msgstr ""
 
 #: Reportek/zpt/document/manage.zpt:28
 msgid "File: ${file-id}"
-msgstr ""
+msgstr "Fișier: ${file-id}"
 
 #: Reportek/zpt/envelope/documents_section.zpt:9
 msgid "Files in this envelope"
-msgstr ""
+msgstr "Fișiere în acestă anvelopă"
 
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:22
 msgid "Files with the same filename as ones already existing in the envelope will be overwritten."
@@ -180,11 +180,11 @@ msgstr ""
 
 #: Reportek/zpt/envelope/tabs.zpt:59
 msgid "History"
-msgstr ""
+msgstr "Istoric"
 
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:38
 msgid "Id"
-msgstr ""
+msgstr "Id"
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:69
 msgid "If some of the tests detect errors, it is recommended that you try to correct them before releasing the envelope. After you release the envelope, the system will always automatically run the full QA procedures and the public results will be placed into the feedback area of the envelope."
@@ -204,23 +204,23 @@ msgstr ""
 
 #: Reportek/zpt/envelope/feedback_section.zpt:47
 msgid "No feedback posted in this envelope"
-msgstr ""
+msgstr "Nici un Feedback încărcat în această anvelopă"
 
 #: Reportek/zpt/envelope/documents_section.zpt:78
 msgid "No files uploaded"
-msgstr ""
+msgstr "Nici un fișier încărcat"
 
 #: Reportek/zpt/document/manage.zpt:197
 msgid "No quality assessment scripts available for this document."
-msgstr ""
+msgstr "Nu există scripturi de verificare automată pentru acest document"
 
 #: Reportek/zpt/envelope/overview.zpt:117
 msgid "Not available"
-msgstr ""
+msgstr "Nu este disponibil"
 
 #: Reportek/zpt/envelope/overview.zpt:92
 msgid "Note"
-msgstr ""
+msgstr "Notă"
 
 #: Reportek/zpt/envelope/overview.zpt:42
 msgid "Notice: this envelope has no obligation tag"
@@ -356,15 +356,15 @@ msgstr ""
 
 #: Reportek/zpt/document/manage.zpt:42
 msgid "View file as"
-msgstr ""
+msgstr "Vizualizează fișier în format"
 
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:21
 msgid "Warning:"
-msgstr ""
+msgstr "Atenție:"
 
 #: Reportek/zpt/envelope/properties.zpt:38
 msgid "Year"
-msgstr ""
+msgstr "An"
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:77
 msgid "You can run a quality assessment operation yourself on all files at once.<br /> Doing so will interrupt the drafting activity for a few minutes (task is deactivated), after which you can return to Draft (by activating the task) and read the QA feedback."
@@ -376,17 +376,17 @@ msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:12
 msgid "Zip&nbsp;Envelope"
-msgstr ""
+msgstr "Descarcă conținut arhivat"
 
 #. Default: "Add"
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:49
 msgid "add-button"
-msgstr ""
+msgstr "Adaugă"
 
 #. Default: "Back to drafting"
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:28
 msgid "back-to-draft"
-msgstr ""
+msgstr "Înapoi la draft"
 
 #. Default: "Deactivation keeps the work already done, and makes it possible for someone else to take over the task"
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:33
@@ -403,7 +403,7 @@ msgstr ""
 #: Reportek/zpt/document/manage.zpt:20
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:5
 msgid "go-back-title"
-msgstr ""
+msgstr "Înapoi la anvelopă"
 
 #. Default: "No access"
 #: Reportek/zpt/envelope/documents_section.zpt:66
@@ -412,7 +412,7 @@ msgstr ""
 
 #: Reportek/zpt/envelope/feedback_section.zpt:66
 msgid "of ${total_number} feedbacks"
-msgstr ""
+msgstr "din ${total_number} Feedback-uri"
 
 #. Default: "When you have finished your uploads, you can release without the ability to revoke"
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:27
