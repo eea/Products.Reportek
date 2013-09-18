@@ -2,9 +2,12 @@
   <tal:block condition="python:context.canViewContent()">
     <div tal:replace="structure python:context.envelope_tabs(tab='history_section')"/>
     <h1 tal:content="string:History of ${context/title_or_id}"></h1>
-    <p>
+    <p i18n:translate="">
         This page displays all the history of tasks that have executed in this envelope.
-        If you want to see more details about a task, just expand the <img src="/misc_/Reportek/plus_gif" alt="Expand item for more information" border="0" /> icon next to it.
+        If you want to see more details about a task, just expand the <img
+          src="/misc_/Reportek/plus_gif" alt="Expand item for more information"
+          border="0"
+          i18n:name="plus-icon"/> icon next to it.
     </p>
 
     <table border="0" cellpadding="2" cellspacing="2">
