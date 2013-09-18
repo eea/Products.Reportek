@@ -1,7 +1,5 @@
-<tal:block define="workflow_tabs python:context.getWorkflowTabs(request)">
-<tal:block condition="not:python:request.get('tab')">
-    <div tal:replace="nothing" tal:define="dummy python:request.set('tab', 'index_html')"/>
-</tal:block>
+<tal:block define="workflow_tabs python:context.getWorkflowTabs(request);
+                   dummy python: request.set('tab', options.get('tab') or request.get('tab') or 'overview')">
 
 <div id="tabbedmenu">
     <ul>
