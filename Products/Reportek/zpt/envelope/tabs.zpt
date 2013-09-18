@@ -10,7 +10,9 @@
       <tal:block condition="not:python:request.get('tab') in ['overview', 'index_html']"
                  replace="structure string:<li>"/>
         <a href="overview"
-           title="Information about the envelope and change of status">Overview</a>
+           title="Information about the envelope and change of status"
+           i18n:attributes="title tab-overview-title"
+           i18n:translate="">Overview</a>
       <tal:block replace="structure string:</li>"/>
       <tal:block repeat="wtab workflow_tabs">
         <tal:block define="workitem_id python:wtab[0];
@@ -33,7 +35,9 @@
                    replace="structure string:<li id='currenttab'>"/>
         <tal:block condition="not:python:request.get('tab') == 'manage_prop'"
                    replace="structure string:<li>"/>
-          <a href="manage_prop" title="Edit the properties on the envelope">Edit properties</a>
+          <a href="manage_prop" title="Edit the properties on the envelope"
+             i18n:attributes="title tab-edit-title"
+             i18n:translate="">Edit properties</a>
         <tal:block replace="structure string:</li>"/>
       </tal:block>
 
@@ -42,7 +46,9 @@
                    replace="structure string:<li id='currenttab'>"/>
         <tal:block condition="not:python:request.get('tab') == 'envelope_previous'"
                    replace="structure string:<li>"/>
-          <a href="envelope_previous" title="See the previous releases">Previous releases</a>
+          <a href="envelope_previous" title="See the previous releases"
+             i18n:attributes="title tab-previous-title"
+             i18n:translate="">Previous releases</a>
         <tal:block replace="structure string:</li>"/>
       </tal:block>
 
@@ -50,7 +56,9 @@
                  replace="structure string:<li id='currenttab'>"/>
       <tal:block condition="not:python:request.get('tab') == 'history_section'"
                  replace="structure string:<li>"/>
-        <a href="history_section" title="Workflow history and operations">History</a>
+        <a href="history_section" title="Workflow history and operations"
+           i18n:attributes="title tab-history-title"
+           i18n:translate="">History</a>
       <tal:block replace="structure string:</li>"/>
 
     </ul>
