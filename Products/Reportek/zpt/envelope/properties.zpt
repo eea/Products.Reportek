@@ -13,20 +13,20 @@
 
     <span tal:replace="structure python:context.envelope_tabs(tab='manage_prop')"/>
 
-    <h1>Envelope Properties</h1>
+    <h1 i18n:translate="">Envelope Properties</h1>
   </tal:block>
 
   <form name="edit" tal:attributes="action request/URL1" method="post">
     <table>
       <tr>
-        <th>Title</th>
+        <th i18n:translate="">Title</th>
         <td>
           <input type="text" size="50" name="title" tal:attributes="value context/title"/>
         </td>
       </tr>
 
       <tr>
-        <th>Description</th>
+        <th i18n:translate="">Description</th>
         <td>
           <textarea name="descr" rows="5" cols="50"
                     tal:content="context/descr">descr
@@ -35,7 +35,7 @@
       </tr>
 
       <tr>
-        <th>Year</th>
+        <th i18n:translate="">Year</th>
         <td>
           <input type="text" name="year" size="4" maxlength="4"
                  tal:attributes="value context/year"/>
@@ -67,7 +67,7 @@
 
       <tal:block define="dummy python:request.set('group',0)"/>
       <tr>
-        <th>Obligations</th>
+        <th i18n:translate="">Obligations</th>
         <td>
           <select id="dataflows" size="15" name="dataflow_uris:list" multiple="multiple">
             <tal:block repeat="item context/dataflow_table">
@@ -98,7 +98,7 @@
       </tr>
 
       <tr>
-        <th>Coverage</th>
+        <th i18n:translate="">Coverage</th>
         <td>
           <select name="country">
             <option
@@ -125,7 +125,7 @@
       </tr>
 
       <tr>
-        <th>Coverage note</th>
+        <th i18n:translate="">Coverage note</th>
         <td>
           <input type="text" name="locality" size="30" tal:attributes="value context/locality" />
         </td>
