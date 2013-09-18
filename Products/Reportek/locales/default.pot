@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-09-16 13:29+0000\n"
+"POT-Creation-Date: 2013-09-16 15:23+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,6 +37,22 @@ msgstr ""
 msgid "-Limited-"
 msgstr ""
 
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:46
+msgid "1) ${upload-button} one or more files into this envelope. You can always interrupt your work and continue your contribution at a later time without losing data."
+msgstr ""
+
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:63
+msgid "1. You can run all the QA checks on all files in the envelopes by selecting the ${button} button."
+msgstr ""
+
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:53
+msgid "2) Once you are satisfied that your delivery is complete and correct, choose ${release-button} and the envelope with your delivery will be automatically validated by QA procedures. If the delivery conforms to the <q><em>Rules for the acceptance of Member State deliveries in Reportnet</em></q> you will be able to finalise your delivery (finalise the <em>Release envelope</em> step). If the QA procedure fails you will be redirected back to Draft delivery."
+msgstr ""
+
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:66
+msgid "2. You can test files which are less than 4MB in size one by one using the ${run-qa} button next to each item."
+msgstr ""
+
 #: Reportek/zpt/document/manage.zpt:83
 msgid "<strong>Warning:</strong> this file is empty so viewing it in different formats might not work as expected!"
 msgstr ""
@@ -57,6 +73,18 @@ msgstr ""
 msgid "Add file"
 msgstr ""
 
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:12
+msgid "Add hyperlink"
+msgstr ""
+
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:59
+msgid "Automatic QA service"
+msgstr ""
+
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:21
+msgid "Back to drafting"
+msgstr ""
+
 #: Reportek/zpt/document/manage.zpt:20
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:5
 msgid "Back to envelope"
@@ -73,6 +101,11 @@ msgstr ""
 
 #: Reportek/zpt/envelope/properties.zpt:128
 msgid "Coverage note"
+msgstr ""
+
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:33
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:8
+msgid "Deactivate task"
 msgstr ""
 
 #: Reportek/zpt/envelope/feedback_section.zpt:40
@@ -116,6 +149,10 @@ msgstr ""
 msgid "Envelope is ${status}"
 msgstr ""
 
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:88
+msgid "Envelope level QA rules checking availability of mandatory files can be tested using the ${run-qa} button."
+msgstr ""
+
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:33
 msgid "File"
 msgstr ""
@@ -146,6 +183,10 @@ msgstr ""
 
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:38
 msgid "Id"
+msgstr ""
+
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:69
+msgid "If some of the tests detect errors, it is recommended that you try to correct them before releasing the envelope. After you release the envelope, the system will always automatically run the full QA procedures and the public results will be placed into the feedback area of the envelope."
 msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:95
@@ -201,12 +242,24 @@ msgstr ""
 msgid "Period"
 msgstr ""
 
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:27
+msgid "Permanent release"
+msgstr ""
+
 #: Reportek/zpt/envelope/overview.zpt:8
 msgid "Post feedback for this release"
 msgstr ""
 
 #: Reportek/zpt/document/manage.zpt:178
 msgid "Quality assessment"
+msgstr ""
+
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:20
+msgid "Release envelope"
+msgstr ""
+
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:23
+msgid "Release to public"
 msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:109
@@ -220,6 +273,18 @@ msgstr ""
 #: Reportek/zpt/document/manage.zpt:150
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:44
 msgid "Restricted from public view"
+msgstr ""
+
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:66
+msgid "Run QA"
+msgstr ""
+
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:82
+msgid "Run envelope QA"
+msgstr ""
+
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:63
+msgid "Run full QA"
 msgstr ""
 
 #: Reportek/zpt/document/manage.zpt:134
@@ -250,8 +315,16 @@ msgstr ""
 msgid "The access to this file is limited, meaning it is not (yet) released for public view."
 msgstr ""
 
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:23
+msgid "The envelope is currently not released for the public. If you want to change your delivery as a reaction to the feedback, then you must click on ${back-to-draft} and continue changing the files. If you consider your delivery finalised, click on ${release-to-public} and the ETC will start reviewing it."
+msgstr ""
+
 #: Reportek/zpt/envelope/overview.zpt:42
 msgid "The obligation tag makes it possible for the requesters to find the delivery"
+msgstr ""
+
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:60
+msgid "The system can help you assess quality of the uploaded XML files. You have two options:"
 msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:118
@@ -268,8 +341,16 @@ msgstr ""
 msgid "Title"
 msgstr ""
 
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:46
+msgid "Upload"
+msgstr ""
+
 #: Reportek/zpt/document/manage.zpt:98
 msgid "Upload ESRI"
+msgstr ""
+
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:15
+msgid "Upload zipfile"
 msgstr ""
 
 #: Reportek/zpt/document/manage.zpt:42
@@ -284,6 +365,10 @@ msgstr ""
 msgid "Year"
 msgstr ""
 
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:77
+msgid "You can run a quality assessment operation yourself on all files at once.<br /> Doing so will interrupt the drafting activity for a few minutes (task is deactivated), after which you can return to Draft (by activating the task) and read the QA feedback."
+msgstr ""
+
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:16
 msgid "You can upload one single file or z non-hierarchical <em>.zip</em> archive. The zip archive will be unpacked and its content uploaded into the envelope."
 msgstr ""
@@ -295,6 +380,17 @@ msgstr ""
 #. Default: "Add"
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:49
 msgid "add-button"
+msgstr ""
+
+#. Default: "Back to drafting"
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:28
+msgid "back-to-draft"
+msgstr ""
+
+#. Default: "Deactivation keeps the work already done, and makes it possible for someone else to take over the task"
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:33
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:8
+msgid "deactivate-task-title"
 msgstr ""
 
 #. Default: "Document accepted by the client"
@@ -315,6 +411,41 @@ msgstr ""
 
 #: Reportek/zpt/envelope/feedback_section.zpt:66
 msgid "of ${total_number} feedbacks"
+msgstr ""
+
+#. Default: "When you have finished your uploads, you can release without the ability to revoke"
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:27
+msgid "permanent-release-title"
+msgstr ""
+
+#. Default: "Enter hyperlink reference"
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:12
+msgid "reference-link-title"
+msgstr ""
+
+#. Default: "When you have finished your uploads, you must state that you have completed the task"
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:20
+msgid "release-title"
+msgstr ""
+
+#. Default: "Release to public"
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:30
+msgid "release-to-public"
+msgstr ""
+
+#. Default: "Rerun automatic QA"
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:32
+msgid "rerun-qa"
+msgstr ""
+
+#. Default: "Run the automatic Quality Assessment"
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:72
+msgid "run-qa-title"
+msgstr ""
+
+#. Default: "Run envelope level statistics"
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:82
+msgid "run-statistics-title"
 msgstr ""
 
 #. Default: "Edit the properties on the envelope"
@@ -345,5 +476,20 @@ msgstr ""
 #. Default: "Upload"
 #: Reportek/zpt/document/manage.zpt:112
 msgid "upload-button"
+msgstr ""
+
+#. Default: "Upload single file"
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:46
+msgid "upload-single-title"
+msgstr ""
+
+#. Default: "Upload multiple files packed into a zip archive. The zip cannot contain a folder structure."
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:15
+msgid "upload-zip-title"
+msgstr ""
+
+#. Default: "Upload single file"
+#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:9
+msgid "uploade-single-title"
 msgstr ""
 

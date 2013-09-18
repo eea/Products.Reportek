@@ -1,21 +1,22 @@
 # --- PLEASE EDIT THE LINES BELOW CORRECTLY ---
-# SOME DESCRIPTIVE TITLE.
-# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+# Romanian translations for PACKAGE package.
+# Mihai Dinca <mihai.dinca@eaudeweb.ro>, 2013.
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-09-16 15:23+0000\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: LANGUAGE <LL@li.org>\n"
+"POT-Creation-Date: 2013-09-16 14:47+0000\n"
+"PO-Revision-Date: 2013-09-16 17:30+0300\n"
+"Last-Translator: Mihai Dinca <mihai.dinca@eaudeweb.ro>\n"
+"Language-Team: Romanian\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=utf-8\n"
+"Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Plural-Forms: nplurals=1; plural=0\n"
+"Plural-Forms: nplurals=3; plural=n==1 ? 0 : (n==0 || (n%100 > 0 && n%100 < 20)) ? 1 : 2;\n"
 "Language-Code: en\n"
 "Language-Name: English\n"
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: default\n"
+"Language: ro\n"
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:46
 msgid "1) ${upload-button} one or more files into this envelope. You can always interrupt your work and continue your contribution at a later time without losing data."
@@ -45,12 +46,7 @@ msgstr ""
 msgid "Automatic QA service"
 msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:21
-msgid "Back to drafting"
-msgstr ""
-
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:33
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:8
 msgid "Deactivate task"
 msgstr ""
 
@@ -70,10 +66,6 @@ msgstr ""
 msgid "Release envelope"
 msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:23
-msgid "Release to public"
-msgstr ""
-
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:66
 msgid "Run QA"
 msgstr ""
@@ -84,10 +76,6 @@ msgstr ""
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:63
 msgid "Run full QA"
-msgstr ""
-
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:23
-msgid "The envelope is currently not released for the public. If you want to change your delivery as a reaction to the feedback, then you must click on ${back-to-draft} and continue changing the files. If you consider your delivery finalised, click on ${release-to-public} and the ETC will start reviewing it."
 msgstr ""
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:60
@@ -106,14 +94,8 @@ msgstr ""
 msgid "You can run a quality assessment operation yourself on all files at once.<br /> Doing so will interrupt the drafting activity for a few minutes (task is deactivated), after which you can return to Draft (by activating the task) and read the QA feedback."
 msgstr ""
 
-#. Default: "Back to drafting"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:28
-msgid "back-to-draft"
-msgstr ""
-
 #. Default: "Deactivation keeps the work already done, and makes it possible for someone else to take over the task"
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:33
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:8
 msgid "deactivate-task-title"
 msgstr ""
 
@@ -130,16 +112,6 @@ msgstr ""
 #. Default: "When you have finished your uploads, you must state that you have completed the task"
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:20
 msgid "release-title"
-msgstr ""
-
-#. Default: "Release to public"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:30
-msgid "release-to-public"
-msgstr ""
-
-#. Default: "Rerun automatic QA"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:32
-msgid "rerun-qa"
 msgstr ""
 
 #. Default: "Run the automatic Quality Assessment"
