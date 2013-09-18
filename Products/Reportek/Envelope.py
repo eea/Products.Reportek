@@ -51,7 +51,7 @@ import RepUtils
 import Document
 import Hyperlink
 import Feedback
-from constants import WORKFLOW_ENGINE_ID
+from constants import WORKFLOW_ENGINE_ID, ENGINE_ID
 from exceptions import InvalidPartOfYear
 from CountriesManager import CountriesManager
 from EnvelopeInstance import EnvelopeInstance
@@ -202,6 +202,14 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             return False
         else:
             return getattr(QA_workitems[-1], 'blocker', False)
+
+    def uns_is_set(self):
+        """ Returns True if UNS server is set """
+        engine = getattr(self, ENGINE_ID)
+        if engine and getattr(engine, 'UNS_server', False):
+            return True
+        else:
+            return False
 
     def has_blocker_feedback(self, REQUEST=None):
         """ web callable version of is_blocked """
