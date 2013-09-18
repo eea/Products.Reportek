@@ -88,7 +88,7 @@
       </table>
       </div>
 
-    <div class="note-msg">
+    <div class="note-msg" tal:condition="context/uns_is_set">
       <strong i18n:translate="">Note</strong>
       <p i18n:translate="">
         If you want to stay updated about events in this envelope 
