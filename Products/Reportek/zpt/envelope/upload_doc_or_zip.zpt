@@ -2,43 +2,51 @@
 <div id="operations">
 	<ul>
 		<li>
-			<a tal:attributes="href python:context.getMySelf().absolute_url()" title="Go back to envelope">
+			<a tal:attributes="href python:context.getMySelf().absolute_url()" title="Go back to envelope"
+         i18n:attributes="title go-back-title"
+         i18n:translate="">
 				Back to envelope
 			</a>
 		</li>
 	</ul>
 </div>
 
-<h1>Add file</h1>
+<h1 i18n:translate="">Add file</h1>
 
-<p>
+<p i18n:translate="">
 	You can upload one single file or z non-hierarchical <em>.zip</em> archive.
 	The zip archive will be unpacked and its content uploaded into the envelope.
 </p>
 <div class="note-msg">
-	<strong>Warning:</strong>
-	<p>Files with the same filename as ones already existing in the envelope will be overwritten.</p>
+	<strong i18n:translate="">Warning:</strong>
+	<p i18n:translate="">
+    Files with the same filename as ones already existing in the envelope will be overwritten.
+  </p>
 </div>
 
 <form method="post" action="manage_addDocOrZip" enctype="multipart/form-data" name="frmAddOtherFile">
-	<span style="height: 2em; width: 17em; font-weight: 700; float: left;">Title</span>
+	<span style="height: 2em; width: 17em; font-weight: 700; float: left;"
+        i18n:translate="">Title</span>
 	<input type="text" name="title" size="40" />
 	<br clear="all" />
 
-	<span style="height: 2em; width: 17em; font-weight: 700; float: left;">File</span>
+	<span style="height: 2em; width: 17em; font-weight: 700; float: left;"
+        i18n:translate="">File</span>
 	<input type="file" name="file" size="25" value="" style="margin-top: 0.5em" />
 	<br clear="all" />
 
-	<span style="height: 2em; width: 17em; font-weight: 700; float: left;">Id</span>
+	<span style="height: 2em; width: 17em; font-weight: 700; float: left;"
+        i18n:translate="">Id</span>
 	<input type="text" name="id" size="40" style="margin-top: 0.5em" />
-	<span style="font-size: 0.8em">(optional)</span>
+	<span style="font-size: 0.8em" i18n:translate="">(optional)</span>
 	<br clear="all" />
 
-	<span style="height: 2em; width: 17em; font-weight: 700; float: left;">Restricted from public view</span>
+	<span style="height: 2em; width: 17em; font-weight: 700; float: left;"
+        i18n:translate="">Restricted from public view</span>
 	<input type="checkbox" name="restricted" />
 	<br clear="all" />
 
-	<input type="submit" value="Add" />
+	<input type="submit" value="Add" i18n:attributes="value add-button"/>
 </form>
 
 <span tal:replace="structure here/standard_html_footer" />
