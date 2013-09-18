@@ -51,7 +51,7 @@
   <subscriber for="zope.lifecycleevent.interfaces.IObjectMovedEvent"
               handler="Products.Reportek.OpenFlowEngine.handle_application_move_events" />
 
-  <configure xmlns:i18n="http://namespaces.zope.org/i18n" i18n_domain="Reportek">
+  <configure xmlns:i18n="http://namespaces.zope.org/i18n">
       <i18n:registerTranslations directory="locales" />
   </configure>
 
