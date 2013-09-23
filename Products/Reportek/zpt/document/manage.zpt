@@ -4,7 +4,7 @@
     define="canChangeFile python:context.canChangeEnvelope() and not
                                  context.get_accept_time();
 
-            isLimited python: not context.acquiredRolesAreUsedBy('View');
+            isLimited python: not has_permission('View');
 
             valid_schemas context/getValidXMLSchemas;
 
