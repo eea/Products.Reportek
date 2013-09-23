@@ -70,7 +70,7 @@ BACKUP_ON_DELETE = 0
 ALWAYS_BACKUP = 1
 UNDO_POLICY = BACKUP_ON_DELETE
 
-manage_addDocumentForm = DTMLFile('dtml/documentAdd',globals())
+manage_addDocumentForm = PageTemplateFile('zpt/document/add', globals())
 
 def manage_addDocument(self, id='', title='',
         file='', content_type='', restricted='', REQUEST=None):
