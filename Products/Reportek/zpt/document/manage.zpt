@@ -193,9 +193,11 @@
             </tal:block>
           </tal:block>
         </tal:block>
-        <tal:block condition="not:python:context.getQAScripts().has_key(id)">
+
+        <tal:block condition="not:python:context.getQAScripts().has_key(context.id)">
           <p i18n:translate="">No quality assessment scripts available for this document.</p>
         </tal:block>
+
       </fieldset>
   </tal:block>
 <span tal:replace="structure here/standard_html_footer" />
