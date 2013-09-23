@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-09-16 15:23+0000\n"
+"POT-Creation-Date: 2013-09-19 14:10+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,11 +17,15 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: default\n"
 
-#: Reportek/zpt/envelope/feedback_section.zpt:61
+#: Reportek/zpt/envelope/feedback_section.zpt:66
 msgid "(Next ${n})"
 msgstr ""
 
-#: Reportek/zpt/envelope/feedback_section.zpt:55
+#: Reportek/zpt/envelope/feedback_section.zpt:33
+msgid "(Posted automatically on ${postingdate})"
+msgstr ""
+
+#: Reportek/zpt/envelope/feedback_section.zpt:60
 msgid "(Previous ${n})"
 msgstr ""
 
@@ -63,6 +67,11 @@ msgstr ""
 
 #: Reportek/zpt/envelope/macros.zpt:37
 msgid "Activate task: ${title}"
+msgstr ""
+
+#: Reportek/zpt/document/add.zpt:57
+#: Reportek/zpt/envelope/add_zip.zpt:49
+msgid "Add"
 msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:8
@@ -108,7 +117,7 @@ msgstr ""
 msgid "Deactivate task"
 msgstr ""
 
-#: Reportek/zpt/envelope/feedback_section.zpt:40
+#: Reportek/zpt/envelope/feedback_section.zpt:45
 msgid "Delete"
 msgstr ""
 
@@ -125,7 +134,7 @@ msgstr ""
 msgid "Download zipped envelope with available files"
 msgstr ""
 
-#: Reportek/zpt/envelope/feedback_section.zpt:38
+#: Reportek/zpt/envelope/feedback_section.zpt:43
 msgid "Edit"
 msgstr ""
 
@@ -137,7 +146,7 @@ msgstr ""
 msgid "Edit metadata with Web form"
 msgstr ""
 
-#: Reportek/zpt/envelope/tabs.zpt:38
+#: Reportek/zpt/envelope/tabs.zpt:36
 msgid "Edit properties"
 msgstr ""
 
@@ -153,6 +162,11 @@ msgstr ""
 msgid "Envelope level QA rules checking availability of mandatory files can be tested using the ${run-qa} button."
 msgstr ""
 
+#: Reportek/zpt/envelope/feedback_section.zpt:1
+msgid "Feedback for this envelope"
+msgstr ""
+
+#: Reportek/zpt/document/add.zpt:36
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:33
 msgid "File"
 msgstr ""
@@ -177,8 +191,12 @@ msgstr ""
 msgid "Files with the same filename as ones already existing in the envelope will be overwritten."
 msgstr ""
 
-#: Reportek/zpt/envelope/tabs.zpt:59
+#: Reportek/zpt/envelope/tabs.zpt:57
 msgid "History"
+msgstr ""
+
+#: Reportek/zpt/envelope/history.zpt:5
+msgid "History of ${title}"
 msgstr ""
 
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:38
@@ -187,6 +205,10 @@ msgstr ""
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:69
 msgid "If some of the tests detect errors, it is recommended that you try to correct them before releasing the envelope. After you release the envelope, the system will always automatically run the full QA procedures and the public results will be placed into the feedback area of the envelope."
+msgstr ""
+
+#: Reportek/zpt/document/add.zpt:22
+msgid "If the filename already exists in the envelope, the existing file will be overwritten."
 msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:95
@@ -201,7 +223,7 @@ msgstr ""
 msgid "Local upload: ${file-input} ${submit-button}"
 msgstr ""
 
-#: Reportek/zpt/envelope/feedback_section.zpt:47
+#: Reportek/zpt/envelope/feedback_section.zpt:52
 msgid "No feedback posted in this envelope"
 msgstr ""
 
@@ -234,7 +256,7 @@ msgstr ""
 msgid "Original"
 msgstr ""
 
-#: Reportek/zpt/envelope/tabs.zpt:12
+#: Reportek/zpt/envelope/tabs.zpt:10
 msgid "Overview"
 msgstr ""
 
@@ -270,6 +292,7 @@ msgstr ""
 msgid "Reported"
 msgstr ""
 
+#: Reportek/zpt/document/add.zpt:46
 #: Reportek/zpt/document/manage.zpt:150
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:44
 msgid "Restricted from public view"
@@ -331,13 +354,13 @@ msgstr ""
 msgid "This envelope is not yet available for public view. Work is still in progress."
 msgstr ""
 
-#: Reportek/zpt/envelope/history.zpt:7
+#: Reportek/zpt/envelope/history.zpt:10
 msgid "This page displays all the history of tasks that have executed in this envelope. If you want to see more details about a task, just expand the ${plus-icon} icon next to it."
 msgstr ""
 
+#: Reportek/zpt/document/add.zpt:32
 #: Reportek/zpt/document/manage.zpt:124
 #: Reportek/zpt/envelope/properties.zpt:22
-#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:28
 msgid "Title"
 msgstr ""
 
@@ -357,6 +380,7 @@ msgstr ""
 msgid "View file as"
 msgstr ""
 
+#: Reportek/zpt/document/add.zpt:21
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:21
 msgid "Warning:"
 msgstr ""
@@ -409,7 +433,7 @@ msgstr ""
 msgid "no-access"
 msgstr ""
 
-#: Reportek/zpt/envelope/feedback_section.zpt:66
+#: Reportek/zpt/envelope/feedback_section.zpt:71
 msgid "of ${total_number} feedbacks"
 msgstr ""
 
@@ -449,17 +473,17 @@ msgid "run-statistics-title"
 msgstr ""
 
 #. Default: "Edit the properties on the envelope"
-#: Reportek/zpt/envelope/tabs.zpt:38
+#: Reportek/zpt/envelope/tabs.zpt:36
 msgid "tab-edit-title"
 msgstr ""
 
 #. Default: "Workflow history and operations"
-#: Reportek/zpt/envelope/tabs.zpt:59
+#: Reportek/zpt/envelope/tabs.zpt:57
 msgid "tab-history-title"
 msgstr ""
 
 #. Default: "Information about the envelope and change of status"
-#: Reportek/zpt/envelope/tabs.zpt:12
+#: Reportek/zpt/envelope/tabs.zpt:10
 msgid "tab-overview-title"
 msgstr ""
 
