@@ -1,0 +1,131 @@
+<tal:block define="SecurityManager
+                   modules/AccessControl/getSecurityManager;
+                   permission_condition
+                   python:SecurityManager.checkPermission( 'View management screens', template)">
+  <span tal:replace="structure here/standard_html_header" />
+
+  <div id="operations">
+      <ul>
+      <li>
+        <a tal:attributes="href python:context.getMySelf().absolute_url()" title="Go back to envelope"
+           i18n:attributes="title go-back-title"
+           i18n:translate="">
+          Back to envelope
+        </a>
+      </li>
+      <tal:block condition="python:context.checkPermissionAddComments() and not context.automatic">
+        <li><a href="comment_add_html" title="Add comment" i18n:translate="">Add comment</a></li>
+      </tal:block>
+      </ul>
+  </div>
+
+  <h1 i18n:translate="">Feedback: <span tal:replace="context/title_or_id" i18n:name="title"/></h1>
+
+  <table class="datatable"
+         tal:define="postingdate python:context.postingdate.strftime('%d %b %Y %H:%M');
+                     releasedate python:context.releasedate.strftime('%d %b %Y %H:%M')">
+  <tr>
+      <th scope="row" class="scope-row" i18n:translate="">Subject: </th>
+      <td><span tal:replace="context/title"/></td>
+  </tr>
+  <tal:block condition="context/automatic">
+    <tr>
+      <th scope="row" class="scope-row" i18n:translate="">Posted automatically on: </th>
+      <td><span tal:replace="postingdate"/></td>
+    </tr>
+  </tal:block>
+  <tal:block condition="not:context/automatic">
+    <tr>
+      <th scope="row" class="scope-row" i18n:translate="">Envelope release: </th>
+      <td><span tal:replace="releasedate"/></td>
+    </tr>
+    <tr>
+      <th scope="row" class="scope-row" i18n:translate="">Posted on: </th>
+      <td><span tal:replace="postingdate"/></td>
+    </tr>
+    <tr>
+      <th scope="row" class="scope-row" i18n:translate="">Author</th>
+      <td><span tal:replace="context/getOwner"/></td>
+    </tr>
+  </tal:block>
+  <tr tal:condition="context/activity_id">
+      <th scope="row" class="scope-row" i18n:translate="">Task: </th>
+      <td>
+        <span tal:on-error="string: ${context/activity_id}">
+          <span tal:replace="python:context.getActivityDetails('title')"/>
+        </span>
+      </td>
+  </tr>
+
+  <tr tal:condition="python:template.document_id and template.document_id != 'xml'">
+      <th scope="row" class="scope-row" i18n:translate="">Referred file:</th>
+      <td tal:define="referred_doc python:getattr(context, 'document_id', None)">
+          <tal:block condition="referred_doc">
+              <a tal:attributes="href string:${referred_doc/absolute_url}/manage_document"
+                 title="View file details" tal:content="context/document_id"></a>
+          </tal:block>
+          <tal:block condition="not:referred_doc">
+              <span tal:replace="template/document_id"/>
+              <span i18n:translate=""> (File was deleted from the envelope)</span>
+          </tal:block>
+      </td>
+  </tr>
+
+  <tal:block define="att_file python:context.objectValues(['File', 'File (Blob)'])"
+             condition="python:len(att_file)>0">
+    <tr>
+      <th scope="row" class="scope-row" i18n:translate="">Attached files: </th>
+      <td>
+        <tal:block repeat="file_item att_file">
+          <span tal:replace="file_item/getId"/> <a style="font-size: 0.8em"
+                                                   tal:attributes="href file_item/absolute_url"
+                                                   title="Download attached file"
+                                                   i18n:attributes="title download-attached-title"
+                                                   i18n:translate="">[download]</a><br />
+        </tal:block>
+      </td>
+    </tr>
+  </tal:block>
+
+  </table>
+
+
+  <tal:block define="
+    is_html
+      python:context.content_type.startswith('text/html') or context.feedbacktext[:1] == '<';
+    is_plain
+      python:context.content_type.startswith('text/plain')">
+    <tal:block condition="is_html">
+      <span tal:replace="structure context/feedbacktext"/>
+    </tal:block>
+
+    <tal:block condition="python:not is_html and is_plain">
+      <p tal:content="context/feedbacktext"></p>
+    </tal:block>
+
+    <tal:block condition="python: not is_html and not is_plain">
+    <p i18n:translate="">
+      <a href="compileFeedbacktext"
+         target="_blank"
+         i18n:translate=""
+         i18n:name="read-feedback-link">Read this feedback</a> (this will open in another window).
+    </p>
+    </tal:block>
+  </tal:block>
+
+  <tal:block condition="not:context/automatic">
+    <div class="important-msg">
+      <strong i18n:translate="">Important notice</strong>
+      <p i18n:translate="">
+        If you want to be notified when other feedback is added to this envelope or comments are posted on feedback items,
+        you need to <a href="ReportekEngine/subscriptions_html"
+                       i18n:name="subscribe-notifications-link"
+                       i18n:translate="">subscribe to receive notifications</a> 
+      </p>
+      </div>
+
+      <span tal:replace="structure context/comments_box"/>
+    </tal:block>
+
+    <span tal:replace="structure here/standard_html_footer" />
+</tal:block>

@@ -42,6 +42,7 @@ from OFS.ObjectManager import ObjectManager
 from blob import add_OfsBlobFile
 from OFS.PropertyManager import PropertyManager
 from Globals import DTMLFile, MessageDialog, InitializeClass
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl import getSecurityManager, ClassSecurityInfo
 #from webdav.WriteLockInterface import WriteLockInterface
 from DateTime import DateTime
@@ -273,7 +274,7 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
                             action=REQUEST['HTTP_REFERER'])
 
     security.declareProtected('View', 'index_html')
-    index_html = DTMLFile('dtml/feedbackIndex', globals())
+    index_html = PageTemplateFile('zpt/feedback/index', globals())
 
     security.declareProtected('Change Feedback', 'manage_editFeedbackForm')
     manage_editFeedbackForm = DTMLFile('dtml/feedbackEdit', globals())
