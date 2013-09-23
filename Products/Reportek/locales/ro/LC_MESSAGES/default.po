@@ -214,7 +214,7 @@ msgstr "Dacă numele fișierului există deja în anvelopă, fișierul existent 
 
 #: Reportek/zpt/envelope/overview.zpt:95
 msgid "If you want to stay updated about events in this envelope ${subscribe} for this country and the current dataflow(s)."
-msgstr ""
+msgstr " "
 
 #: Reportek/zpt/document/manage.zpt:145
 msgid "Last uploaded"
@@ -238,7 +238,7 @@ msgstr "Nu există scripturi de verificare automată pentru acest document"
 
 #: Reportek/zpt/envelope/overview.zpt:117
 msgid "Not available"
-msgstr "Nu este disponibil"
+msgstr "Această pagină nu este disponibilă pentru public"
 
 #: Reportek/zpt/envelope/overview.zpt:92
 msgid "Note"
@@ -275,7 +275,7 @@ msgstr "Adăugați feedback pentru această "
 
 #: Reportek/zpt/document/manage.zpt:178
 msgid "Quality assessment"
-msgstr "Verificare "
+msgstr "Validare"
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:20
 msgid "Release envelope"
