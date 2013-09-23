@@ -59,7 +59,7 @@
 
   <tr tal:condition="python:template.document_id and template.document_id != 'xml'">
       <th scope="row" class="scope-row" i18n:translate="">Referred file:</th>
-      <td tal:define="referred_doc python:getattr(context, 'document_id', None)">
+      <td tal:define="referred_doc python:getattr(context, context.document_id, None)">
           <tal:block condition="referred_doc">
               <a tal:attributes="href string:${referred_doc/absolute_url}/manage_document"
                  title="View file details" tal:content="context/document_id"></a>
