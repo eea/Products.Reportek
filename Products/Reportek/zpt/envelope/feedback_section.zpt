@@ -1,4 +1,4 @@
-<fieldset><legend>Feedback for this envelope</legend>
+<fieldset><legend i18n:translate="">Feedback for this envelope</legend>
 <table cellspacing="2" cellpadding="2" style="width: 100%">
   <tbody tal:define="feedbacks context/getFeedbackObjects;
                      total_number python:len(feedbacks);
@@ -26,9 +26,14 @@
           <tal:block define="dummy python:request.set('therearerestrictions',1)"></tal:block>
 					<img src="misc_/Reportek/lockicon_gif" alt="No access" style="width: 16px; height: 16px" />
         </tal:block>
-        <span tal:condition="feedb_item/automatic"
-              tal:define="postingdate python:feedb_item.postingdate.strftime('%d %b %Y')"
-              tal:replace="string:(Posted automatically on ${postingdate})"/>
+        <tal:block
+              condition="feedb_item/automatic"
+              define="postingdate python:feedb_item.postingdate.strftime('%d %b %Y')">
+          <tal:block i18n:translate="">
+              (Posted automatically on <div tal:replace="postingdate"
+                                            i18n:name="postingdate"/>)
+          </tal:block>
+        </tal:block>
         <span tal:condition="not:feedb_item/automatic"
               tal:define="postingdate python:feedb_item.postingdate.strftime('%d %b %Y');
                           releasedate python:feedb_item.releasedate.strftime('%d %b %Y')"
