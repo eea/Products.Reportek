@@ -1126,6 +1126,10 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             REQUEST.SESSION.set('msg', msg)
             REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
 
+    security.declareProtected('View', 'has_permission')
+    def has_permission(self, *args, **kwargs):
+        return self.acquiredRolesAreUsedBy(*args, **kwargs)
+
 # Initialize the class in order the security assertions be taken into account
 Globals.InitializeClass(Envelope)
 

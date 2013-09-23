@@ -19,7 +19,7 @@
            tal:content="feedb_item/title_or_id">title_or_id</a>
         <tal:block condition="python:SecurityManager.checkPermission('View', feedb_item)">
 					<span
-            tal:condition="not:python:context.acquiredRolesAreUsedBy('View')"
+            tal:condition="not:python:context.has_permission('View')"
             tal:replace="string:(Limited)" i18n:translate="">(Limited)</span>
         </tal:block>
         <tal:block condition="not:python:SecurityManager.checkPermission('View', feedb_item)">

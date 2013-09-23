@@ -30,7 +30,7 @@
         <td style="white-space:nowrap">
           <tal:block
             condition="python:SecurityManager.checkPermission('View', item)">
-            <span tal:condition="not:python:context.acquiredRolesAreUsedBy('View')"
+            <span tal:condition="not:python:context.has_permission('View')"
                   tal:content="string:(Limited)"/>
           </tal:block>
           <tal:block
@@ -56,7 +56,7 @@
 				<tal:block condition="python:SecurityManager.checkPermission('View', item)">
           <td><a tal:attributes="href item/id" tal:content="item/id">id</a></td>
           <td style="white-space:nowrap">
-            <span tal:condition="not:python:context.acquiredRolesAreUsedBy('View')"
+            <span tal:condition="not:python:context.has_permission('View')"
                   tal:content="string:(Limited)"/>
         </tal:block>
 				<tal:block condition="not:python:SecurityManager.checkPermission('View', item)">
