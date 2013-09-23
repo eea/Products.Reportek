@@ -53,6 +53,6 @@
 
   </tal:block>
 
-  <span condition="has_permission" tal:replace="structure context/manage_page_footer"/>
-  <span condition="not:has_permission" tal:replace="structure context/standard_html_footer"/>
+  <span tal:condition="has_permission" tal:replace="structure context/manage_page_footer"/>
+  <span tal:condition="not:has_permission" tal:replace="structure context/standard_html_footer"/>
 </tal:block>
