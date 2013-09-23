@@ -18,7 +18,7 @@
       <ul>
         <li>
           <a tal:attributes="href python:context.getParentNode().absolute_url()"
-             title="Go back to the envelope that contains this file"
+             title="Go back to envelope"
              i18n:attributes="title go-back-title"
              i18n:translate="">Back to envelope</a>
         </li>
