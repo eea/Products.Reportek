@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-09-19 14:10+0000\n"
+"POT-Creation-Date: 2013-09-20 10:21+0000\n"
 "PO-Revision-Date: 2013-09-13 16:06+0300\n"
 "Last-Translator: Mihai Dinca <mihai.dinca@eaudeweb.ro>\n"
 "Language-Team: Romanian\n"
@@ -17,6 +17,14 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: default\n"
 "Language: ro\n"
+
+#: Reportek/zpt/feedback/index.zpt:108
+msgid "${read-feedback-link} (this will open in another window)."
+msgstr ""
+
+#: Reportek/zpt/feedback/index.zpt:69
+msgid "(File was deleted from the envelope)"
+msgstr ""
 
 #: Reportek/zpt/envelope/feedback_section.zpt:66
 msgid "(Next ${n})"
@@ -75,6 +83,10 @@ msgstr "Activează activitatea: ${title}"
 msgid "Add"
 msgstr "Adaugă"
 
+#: Reportek/zpt/feedback/index.zpt:17
+msgid "Add comment"
+msgstr ""
+
 #: Reportek/zpt/envelope/overview.zpt:8
 msgid "Add feedback"
 msgstr "Adaugă feedback"
@@ -87,6 +99,14 @@ msgstr "Adaugă fișier"
 msgid "Add hyperlink"
 msgstr "Adaugă link extern"
 
+#: Reportek/zpt/feedback/index.zpt:77
+msgid "Attached files:"
+msgstr ""
+
+#: Reportek/zpt/feedback/index.zpt:47
+msgid "Author"
+msgstr ""
+
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:59
 msgid "Automatic QA service"
 msgstr "Serviciul de verificare automată"
@@ -97,6 +117,7 @@ msgstr "Înapoi la draft"
 
 #: Reportek/zpt/document/manage.zpt:20
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:5
+#: Reportek/zpt/feedback/index.zpt:10
 msgid "Back to envelope"
 msgstr "Înapoi la anvelopă"
 
@@ -163,9 +184,17 @@ msgstr "Anvelopa are statusul ${status}"
 msgid "Envelope level QA rules checking availability of mandatory files can be tested using the ${run-qa} button."
 msgstr "Validarea la nivelul anvelopei care verifică existența fișierelor obligatorii poate fi apelată folosind butonul ${run-qa}."
 
+#: Reportek/zpt/feedback/index.zpt:39
+msgid "Envelope release:"
+msgstr ""
+
 #: Reportek/zpt/envelope/feedback_section.zpt:1
 msgid "Feedback for this envelope"
 msgstr "Feedback pentru această anvelopă"
+
+#: Reportek/zpt/feedback/index.zpt:22
+msgid "Feedback: ${title}"
+msgstr ""
 
 #: Reportek/zpt/document/add.zpt:36
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:33
@@ -212,9 +241,17 @@ msgstr "Dacă unele din aceste teste detectează erori, este recomandat să înc
 msgid "If the filename already exists in the envelope, the existing file will be overwritten."
 msgstr "Dacă numele fișierului există deja în anvelopă, fișierul existent va fi suprascris."
 
+#: Reportek/zpt/feedback/index.zpt:121
+msgid "If you want to be notified when other feedback is added to this envelope or comments are posted on feedback items, you need to ${subscribe-notifications-link}"
+msgstr ""
+
 #: Reportek/zpt/envelope/overview.zpt:95
 msgid "If you want to stay updated about events in this envelope ${subscribe} for this country and the current dataflow(s)."
 msgstr " "
+
+#: Reportek/zpt/feedback/index.zpt:118
+msgid "Important notice"
+msgstr ""
 
 #: Reportek/zpt/document/manage.zpt:145
 msgid "Last uploaded"
@@ -273,9 +310,25 @@ msgstr "Lansare pentru public permanentă"
 msgid "Post feedback for this release"
 msgstr "Adăugați feedback pentru această "
 
+#: Reportek/zpt/feedback/index.zpt:33
+msgid "Posted automatically on:"
+msgstr ""
+
+#: Reportek/zpt/feedback/index.zpt:43
+msgid "Posted on:"
+msgstr ""
+
 #: Reportek/zpt/document/manage.zpt:178
 msgid "Quality assessment"
 msgstr "Validare"
+
+#: Reportek/zpt/feedback/index.zpt:108
+msgid "Read this feedback"
+msgstr ""
+
+#: Reportek/zpt/feedback/index.zpt:61
+msgid "Referred file:"
+msgstr ""
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:20
 msgid "Release envelope"
@@ -319,6 +372,10 @@ msgstr "Locația schemei XML"
 msgid "Status"
 msgstr "Status"
 
+#: Reportek/zpt/feedback/index.zpt:28
+msgid "Subject:"
+msgstr ""
+
 #: Reportek/zpt/envelope/overview.zpt:96
 msgid "Subscribe to receive notifications"
 msgstr "Subscriere pentru a primi notificări"
@@ -330,6 +387,10 @@ msgstr "Activități în curs:"
 #: Reportek/zpt/envelope/macros.zpt:20
 msgid "Task(s) waiting to be assigned:"
 msgstr "Activități care pot fi asignate:"
+
+#: Reportek/zpt/feedback/index.zpt:52
+msgid "Task:"
+msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:36
 msgid "Terminated"
@@ -402,6 +463,10 @@ msgstr "Puteți încărca un singur fișier sau o arhivă <em>.zip</em> non iera
 msgid "Zip&nbsp;Envelope"
 msgstr "Descarcă conținut arhivat"
 
+#: Reportek/zpt/feedback/index.zpt:80
+msgid "[download]"
+msgstr ""
+
 #. Default: "Add"
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:49
 msgid "add-button"
@@ -423,9 +488,15 @@ msgstr "Deactivarea păstrează munca deja făcută și lasă posibilitatea alto
 msgid "document-accepted"
 msgstr "Document acceptat de client"
 
+#. Default: "Download attached file"
+#: Reportek/zpt/feedback/index.zpt:80
+msgid "download-attached-title"
+msgstr ""
+
 #. Default: "Go back to envelope"
 #: Reportek/zpt/document/manage.zpt:20
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:5
+#: Reportek/zpt/feedback/index.zpt:10
 msgid "go-back-title"
 msgstr "Înapoi la anvelopă"
 
@@ -472,6 +543,10 @@ msgstr "Rulați validarea automată"
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:82
 msgid "run-statistics-title"
 msgstr "Rulați validarea la nivel de anvelopă"
+
+#: Reportek/zpt/feedback/index.zpt:121
+msgid "subscribe to receive notifications"
+msgstr ""
 
 #. Default: "Edit the properties on the envelope"
 #: Reportek/zpt/envelope/tabs.zpt:36
