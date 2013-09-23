@@ -24,7 +24,7 @@ msgstr "(Următoarele ${n})"
 
 #: Reportek/zpt/envelope/feedback_section.zpt:33
 msgid "(Posted automatically on ${postingdate})"
-msgstr ""
+msgstr "(Încărcat automat la ${postingdate})"
 
 #: Reportek/zpt/envelope/feedback_section.zpt:60
 msgid "(Previous ${n})"
@@ -73,11 +73,11 @@ msgstr "Activează activitatea: ${title}"
 #: Reportek/zpt/document/add.zpt:57
 #: Reportek/zpt/envelope/add_zip.zpt:49
 msgid "Add"
-msgstr ""
+msgstr "Adaugă"
 
 #: Reportek/zpt/envelope/overview.zpt:8
 msgid "Add feedback"
-msgstr "Adaugă Feedback"
+msgstr "Adaugă feedback"
 
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:14
 msgid "Add file"
@@ -165,7 +165,7 @@ msgstr "Validarea la nivelul anvelopei care verifică existența fișierelor obl
 
 #: Reportek/zpt/envelope/feedback_section.zpt:1
 msgid "Feedback for this envelope"
-msgstr ""
+msgstr "Feedback pentru această anvelopă"
 
 #: Reportek/zpt/document/add.zpt:36
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:33
@@ -198,7 +198,7 @@ msgstr "Istoric"
 
 #: Reportek/zpt/envelope/history.zpt:5
 msgid "History of ${title}"
-msgstr ""
+msgstr "Istoric al ${title}"
 
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:38
 msgid "Id"
@@ -206,11 +206,11 @@ msgstr "Id"
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:69
 msgid "If some of the tests detect errors, it is recommended that you try to correct them before releasing the envelope. After you release the envelope, the system will always automatically run the full QA procedures and the public results will be placed into the feedback area of the envelope."
-msgstr ""
+msgstr "Dacă unele din aceste teste detectează erori, este recomandat să încercați să le corectați înainte de a finaliza activitatea. După finalizare, sistemul va rula automat toate testele de validare."
 
 #: Reportek/zpt/document/add.zpt:22
 msgid "If the filename already exists in the envelope, the existing file will be overwritten."
-msgstr ""
+msgstr "Dacă numele fișierului există deja în anvelopă, fișierul existent va fi suprascris."
 
 #: Reportek/zpt/envelope/overview.zpt:95
 msgid "If you want to stay updated about events in this envelope ${subscribe} for this country and the current dataflow(s)."
@@ -279,7 +279,7 @@ msgstr "Verificare "
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:20
 msgid "Release envelope"
-msgstr "Lansare pentru public"
+msgstr "Finalizează activitate"
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:23
 msgid "Release to public"
@@ -287,7 +287,7 @@ msgstr "Lansare pentru public"
 
 #: Reportek/zpt/envelope/overview.zpt:109
 msgid "Remember to release the envelope when you have uploaded all files"
-msgstr "Amintiți-vă să lansați anvelopa pentru public după ce ați încărcat toate fișierele necesare"
+msgstr " "
 
 #: Reportek/zpt/envelope/overview.zpt:67
 msgid "Reported"
@@ -367,11 +367,11 @@ msgstr "Titlu"
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:46
 msgid "Upload"
-msgstr "Încărcare"
+msgstr "Încărcați"
 
 #: Reportek/zpt/document/manage.zpt:98
 msgid "Upload ESRI"
-msgstr "Încărcare Shapefile"
+msgstr "Încărcați Shapefile"
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:15
 msgid "Upload zipfile"
@@ -456,7 +456,7 @@ msgstr "Când ați terminat de încăcat datele trebuie să declarați activitat
 #. Default: "Release to public"
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:30
 msgid "release-to-public"
-msgstr "Lansare pentru public"
+msgstr "Finalizare activitate"
 
 #. Default: "Rerun automatic QA"
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:32
