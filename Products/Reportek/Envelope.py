@@ -801,7 +801,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
     ##################################################
 
     security.declareProtected('Add Envelopes', 'manage_addzipfileform')
-    manage_addzipfileform = DTMLFile('dtml/zipfileAdd',globals())
+    manage_addzipfileform = PageTemplateFile('zpt/envelope/add_zip', globals())
 
     def _get_zip_cache(self):
         zip_cache = path(CLIENT_HOME)/'zip_cache'
