@@ -364,8 +364,9 @@ class RemoteRESTApplicationProduct(_BaseTest):
         self.create_cepaa_set(1)
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobFailed',
-                                    'messages': 'result fail messages'})
+            json=Mock(return_value={
+                'jobId': 1, 'jobStatus': 'esriJobFailed',
+                'messages': [{'type': 'fail', 'description': 'log message'}]})
         );
         restapp = self.app.Applications.proc1.act1
         self.col1.env1.manage_addFeedback = Mock()
@@ -389,8 +390,9 @@ class RemoteRESTApplicationProduct(_BaseTest):
         self.create_cepaa_set(1)
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobFailed',
-                                    'messages': 'result fail messages'})
+            json=Mock(return_value={
+                'jobId': 1, 'jobStatus': 'esriJobFailed',
+                'messages': [{'type': 'fail', 'description': 'log message'}]})
         );
         from Products.Reportek.Converter import Converter, LocalHttpConverter
         self.app.Converters = Mock()
@@ -409,7 +411,7 @@ class RemoteRESTApplicationProduct(_BaseTest):
         [attach] = feedback.objectValues()
         self.assertEqual('output.log', attach.__name__)
         self.assertEqual(
-            'result fail messages',
+                'fail: log message\n',
             attach.data_file.open().read())
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
@@ -421,8 +423,9 @@ class RemoteRESTApplicationProduct(_BaseTest):
         self.create_cepaa_set(1)
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobFailed',
-                                    'messages': 'result fail messages'})
+            json=Mock(return_value={
+                'jobId': 1, 'jobStatus': 'esriJobFailed',
+                'messages': [{'type': 'success', 'description': 'result messages'}]})
         );
         restapp = self.app.Applications.proc1.act1
         self.col1.env1.manage_addFeedback = Mock()
@@ -439,8 +442,9 @@ class RemoteRESTApplicationProduct(_BaseTest):
         self.create_cepaa_set(1)
         mock_requests.get.return_value = Mock(
             status_code=200,
-            json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobFailed',
-                                    'messages': 'result fail messages'})
+            json=Mock(return_value={
+                'jobId': 1, 'jobStatus': 'esriJobFailed',
+                'messages': [{'type': 'success', 'description': 'result messages'}]})
         );
         restapp = self.app.Applications.proc1.act1
         self.col1.env1.manage_addFeedback = Mock()

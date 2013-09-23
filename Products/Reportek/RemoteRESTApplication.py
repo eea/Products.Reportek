@@ -174,7 +174,11 @@ class RemoteRESTApplication(SimpleItem):
                         "Your delivery didn't pass validation."
                     )
                     if data:
-                        attach = StringIO(data['messages'])
+                        attach = StringIO()
+                        for item in data.get('messages'):
+                            attach.write('%s: %s\n' %(item.get('type'), item.get('description')))
+                        attach.flush()
+                        attach.seek(0)
                         attach.filename = 'output.log'
                     self.__post_feedback(workitem, jobid, messages, attach)
                     self.__finish(workitem_id, REQUEST)
