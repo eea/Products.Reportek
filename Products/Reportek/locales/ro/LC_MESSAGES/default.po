@@ -20,11 +20,11 @@ msgstr ""
 
 #: Reportek/zpt/feedback/index.zpt:108
 msgid "${read-feedback-link} (this will open in another window)."
-msgstr ""
+msgstr "${read-feedback-link} (se va deschide în fereastră separată)."
 
 #: Reportek/zpt/feedback/index.zpt:69
 msgid "(File was deleted from the envelope)"
-msgstr ""
+msgstr "(Fișierul a fost șters din anvelopă)"
 
 #: Reportek/zpt/envelope/feedback_section.zpt:66
 msgid "(Next ${n})"
@@ -76,7 +76,7 @@ msgstr "Unele fișiere pot avea limitări de acces. În acest caz trebuie să v�
 
 #: Reportek/zpt/envelope/operations.zpt:12
 msgid "Activate task"
-msgstr ""
+msgstr "Activați activitatea"
 
 #: Reportek/zpt/envelope/macros.zpt:37
 msgid "Activate task: ${title}"
@@ -93,7 +93,7 @@ msgstr ""
 
 #: Reportek/zpt/feedback/index.zpt:17
 msgid "Add comment"
-msgstr ""
+msgstr "Adaugă comentariu"
 
 #: Reportek/zpt/envelope/overview.zpt:8
 msgid "Add feedback"
@@ -109,15 +109,15 @@ msgstr "Adaugă link extern"
 
 #: Reportek/zpt/feedback/add.zpt:52
 msgid "Attach file"
-msgstr ""
+msgstr "Atașează fișier"
 
 #: Reportek/zpt/feedback/index.zpt:77
 msgid "Attached files:"
-msgstr ""
+msgstr "Fișiere atașate:"
 
 #: Reportek/zpt/feedback/index.zpt:47
 msgid "Author"
-msgstr ""
+msgstr "Autor"
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:59
 msgid "Automatic QA service"
@@ -139,7 +139,7 @@ msgstr "Modifică fișier"
 
 #: Reportek/zpt/envelope/operations.zpt:28
 msgid "Complete"
-msgstr ""
+msgstr "Completată"
 
 #: Reportek/zpt/envelope/overview.zpt:60
 #: Reportek/zpt/envelope/properties.zpt:101
@@ -201,11 +201,11 @@ msgstr "Validarea la nivelul anvelopei care verifică existența fișierelor obl
 
 #: Reportek/zpt/feedback/index.zpt:39
 msgid "Envelope release:"
-msgstr ""
+msgstr "Lansarea anvelopei:"
 
 #: Reportek/zpt/feedback/add.zpt:46
 msgid "Feedback content (plain text)"
-msgstr ""
+msgstr "Conținutul feedback-ului (text)"
 
 #: Reportek/zpt/envelope/feedback_section.zpt:1
 msgid "Feedback for this envelope"
@@ -213,7 +213,7 @@ msgstr "Feedback pentru această anvelopă"
 
 #: Reportek/zpt/feedback/index.zpt:22
 msgid "Feedback: ${title}"
-msgstr ""
+msgstr "Feedback: ${title}"
 
 #: Reportek/zpt/document/add.zpt:36
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:33
@@ -242,7 +242,7 @@ msgstr "Fișierele cu acelasi nume ca cele deja încărcate în anvelopă vor fi
 
 #: Reportek/zpt/envelope/operations.zpt:44
 msgid "Forward"
-msgstr ""
+msgstr "Înainte"
 
 #: Reportek/zpt/envelope/tabs.zpt:57
 msgid "History"
@@ -266,11 +266,11 @@ msgstr "Dacă numele fișierului există deja în anvelopă, fișierul existent 
 
 #: Reportek/zpt/feedback/add.zpt:18
 msgid "If you want to be notified when other feedback is added to this envelope or comments are posted on feedback items, you need to ${subscribe-link}"
-msgstr ""
+msgstr " "
 
 #: Reportek/zpt/feedback/index.zpt:121
 msgid "If you want to be notified when other feedback is added to this envelope or comments are posted on feedback items, you need to ${subscribe-notifications-link}"
-msgstr ""
+msgstr " "
 
 #: Reportek/zpt/envelope/overview.zpt:95
 msgid "If you want to stay updated about events in this envelope ${subscribe} for this country and the current dataflow(s)."
@@ -279,7 +279,7 @@ msgstr " "
 #: Reportek/zpt/feedback/add.zpt:15
 #: Reportek/zpt/feedback/index.zpt:118
 msgid "Important notice"
-msgstr ""
+msgstr "Notă importantă"
 
 #: Reportek/zpt/document/manage.zpt:145
 msgid "Last uploaded"
@@ -340,11 +340,11 @@ msgstr "Adăugați feedback pentru această "
 
 #: Reportek/zpt/feedback/index.zpt:33
 msgid "Posted automatically on:"
-msgstr ""
+msgstr "Postat în mod automat la:"
 
 #: Reportek/zpt/feedback/index.zpt:43
 msgid "Posted on:"
-msgstr ""
+msgstr "Postat la:"
 
 #: Reportek/zpt/document/manage.zpt:178
 msgid "Quality assessment"
@@ -352,11 +352,11 @@ msgstr "Validare"
 
 #: Reportek/zpt/feedback/index.zpt:108
 msgid "Read this feedback"
-msgstr ""
+msgstr "Citiți acest feedback"
 
 #: Reportek/zpt/feedback/index.zpt:61
 msgid "Referred file:"
-msgstr ""
+msgstr "Fișier referit:"
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:20
 msgid "Release envelope"
@@ -402,11 +402,11 @@ msgstr "Status"
 
 #: Reportek/zpt/feedback/add.zpt:42
 msgid "Subject"
-msgstr ""
+msgstr "Subiect"
 
 #: Reportek/zpt/feedback/index.zpt:28
 msgid "Subject:"
-msgstr ""
+msgstr "Subiect:"
 
 #: Reportek/zpt/envelope/overview.zpt:96
 msgid "Subscribe to receive notifications"
@@ -422,7 +422,7 @@ msgstr "Activități care pot fi asignate:"
 
 #: Reportek/zpt/feedback/index.zpt:52
 msgid "Task:"
-msgstr ""
+msgstr "Activitate:"
 
 #: Reportek/zpt/envelope/overview.zpt:36
 msgid "Terminated"
@@ -472,7 +472,7 @@ msgstr "Încărcare zip"
 
 #: Reportek/zpt/feedback/add.zpt:33
 msgid "Use the form to submit feedback to this delivery. You can attach one file to this feedback now and add othe files later by editing the feedback."
-msgstr ""
+msgstr "Folosiți această formă pentru a adăuga feedback pentru această livrare. Puteți atașa un fișier acum, și mai multe la editarea feedback-ului."
 
 #: Reportek/zpt/document/manage.zpt:42
 msgid "View file as"
@@ -501,7 +501,7 @@ msgstr "Descarcă conținut arhivat"
 
 #: Reportek/zpt/feedback/index.zpt:80
 msgid "[download]"
-msgstr ""
+msgstr "[descarcă]"
 
 #. Default: "Add"
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:49
@@ -516,7 +516,7 @@ msgstr "Înapoi la draft"
 #. Default: "Add feedback"
 #: Reportek/zpt/feedback/add.zpt:63
 msgid "button-add-feedback"
-msgstr ""
+msgstr "Adaugă feedback"
 
 #. Default: "Deactivation keeps the work already done, and makes it possible for someone else to take over the task"
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:33
@@ -532,7 +532,7 @@ msgstr "Document acceptat de client"
 #. Default: "Download attached file"
 #: Reportek/zpt/feedback/index.zpt:80
 msgid "download-attached-title"
-msgstr ""
+msgstr "Descarcă fișier atașat"
 
 #. Default: "Go back to envelope"
 #: Reportek/zpt/document/manage.zpt:20
@@ -588,7 +588,7 @@ msgstr "Rulați validarea la nivel de anvelopă"
 #: Reportek/zpt/feedback/add.zpt:18
 #: Reportek/zpt/feedback/index.zpt:121
 msgid "subscribe to receive notifications"
-msgstr ""
+msgstr " "
 
 #. Default: "Edit the properties on the envelope"
 #: Reportek/zpt/envelope/tabs.zpt:36
