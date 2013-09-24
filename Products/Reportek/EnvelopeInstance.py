@@ -95,7 +95,7 @@ class EnvelopeInstance(CatalogAware, Folder):
     chooseFallin = DTMLFile('dtml/Workflow/envelopeChooseFallin', globals())
 
     security.declarePublic('activity_operations')
-    activity_operations = DTMLFile('dtml/envelopeActivityOperations', globals())
+    activity_operations = PageTemplateFile('zpt/envelope/operations', globals())
 
     def getWorkflowTabs(self, REQUEST):
         """ Returns the tuple:
