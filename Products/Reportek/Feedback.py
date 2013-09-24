@@ -253,6 +253,10 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
         l_process = self.unrestrictedTraverse(self.getParentNode().process_path)
         return getattr(getattr(l_process, self.activity_id), p_attribute)
 
+    security.declareProtected('View', 'get_owner')
+    def get_owner(self, *args, **kwargs):
+        return self.getOwner(*args, **kwargs)
+
     security.declareProtected('Change Envelopes', 'manage_restrictFeedback')
     def manage_restrictFeedback(self, REQUEST=None):
         """ Restrict access to this feedback
