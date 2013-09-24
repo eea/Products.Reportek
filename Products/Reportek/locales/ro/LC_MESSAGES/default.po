@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-09-20 10:21+0000\n"
+"POT-Creation-Date: 2013-09-23 14:25+0000\n"
 "PO-Revision-Date: 2013-09-13 16:06+0300\n"
 "Last-Translator: Mihai Dinca <mihai.dinca@eaudeweb.ro>\n"
 "Language-Team: Romanian\n"
@@ -74,6 +74,10 @@ msgstr "<strong>Atenție:</strong> acest fișier este gol, așa încât vizualiz
 msgid "Access limitations may apply for files, which are not (yet) released for public view. Files marked with ${lock-icon} are unavailable. You must log in to get access."
 msgstr "Unele fișiere pot avea limitări de acces. În acest caz trebuie să vă înregistrați în sistem pentru a le vedea."
 
+#: Reportek/zpt/envelope/operations.zpt:12
+msgid "Activate task"
+msgstr ""
+
 #: Reportek/zpt/envelope/macros.zpt:37
 msgid "Activate task: ${title}"
 msgstr "Activează activitatea: ${title}"
@@ -82,6 +86,10 @@ msgstr "Activează activitatea: ${title}"
 #: Reportek/zpt/envelope/add_zip.zpt:49
 msgid "Add"
 msgstr "Adaugă"
+
+#: Reportek/zpt/feedback/add.zpt:12
+msgid "Add Feedback"
+msgstr ""
 
 #: Reportek/zpt/feedback/index.zpt:17
 msgid "Add comment"
@@ -98,6 +106,10 @@ msgstr "Adaugă fișier"
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:12
 msgid "Add hyperlink"
 msgstr "Adaugă link extern"
+
+#: Reportek/zpt/feedback/add.zpt:52
+msgid "Attach file"
+msgstr ""
 
 #: Reportek/zpt/feedback/index.zpt:77
 msgid "Attached files:"
@@ -117,13 +129,17 @@ msgstr "Înapoi la draft"
 
 #: Reportek/zpt/document/manage.zpt:20
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:5
-#: Reportek/zpt/feedback/index.zpt:10
+#: Reportek/zpt/feedback/add.zpt:5
 msgid "Back to envelope"
 msgstr "Înapoi la anvelopă"
 
 #: Reportek/zpt/document/manage.zpt:89
 msgid "Change file"
 msgstr "Modifică fișier"
+
+#: Reportek/zpt/envelope/operations.zpt:28
+msgid "Complete"
+msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:60
 #: Reportek/zpt/envelope/properties.zpt:101
@@ -134,8 +150,7 @@ msgstr "Acoperire geografică"
 msgid "Coverage note"
 msgstr "Detalii despre acoperirea geografică"
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:33
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:8
+#: Reportek/zpt/envelope/operations.zpt:33
 msgid "Deactivate task"
 msgstr "Deactivează activitate"
 
@@ -188,6 +203,10 @@ msgstr "Validarea la nivelul anvelopei care verifică existența fișierelor obl
 msgid "Envelope release:"
 msgstr ""
 
+#: Reportek/zpt/feedback/add.zpt:46
+msgid "Feedback content (plain text)"
+msgstr ""
+
 #: Reportek/zpt/envelope/feedback_section.zpt:1
 msgid "Feedback for this envelope"
 msgstr "Feedback pentru această anvelopă"
@@ -221,6 +240,10 @@ msgstr "Fișiere în acestă anvelopă"
 msgid "Files with the same filename as ones already existing in the envelope will be overwritten."
 msgstr "Fișierele cu acelasi nume ca cele deja încărcate în anvelopă vor fi suprascrise."
 
+#: Reportek/zpt/envelope/operations.zpt:44
+msgid "Forward"
+msgstr ""
+
 #: Reportek/zpt/envelope/tabs.zpt:57
 msgid "History"
 msgstr "Istoric"
@@ -241,6 +264,10 @@ msgstr "Dacă unele din aceste teste detectează erori, este recomandat să înc
 msgid "If the filename already exists in the envelope, the existing file will be overwritten."
 msgstr "Dacă numele fișierului există deja în anvelopă, fișierul existent va fi suprascris."
 
+#: Reportek/zpt/feedback/add.zpt:18
+msgid "If you want to be notified when other feedback is added to this envelope or comments are posted on feedback items, you need to ${subscribe-link}"
+msgstr ""
+
 #: Reportek/zpt/feedback/index.zpt:121
 msgid "If you want to be notified when other feedback is added to this envelope or comments are posted on feedback items, you need to ${subscribe-notifications-link}"
 msgstr ""
@@ -249,6 +276,7 @@ msgstr ""
 msgid "If you want to stay updated about events in this envelope ${subscribe} for this country and the current dataflow(s)."
 msgstr " "
 
+#: Reportek/zpt/feedback/add.zpt:15
 #: Reportek/zpt/feedback/index.zpt:118
 msgid "Important notice"
 msgstr ""
@@ -269,7 +297,7 @@ msgstr "Nici un Feedback încărcat în această anvelopă"
 msgid "No files uploaded"
 msgstr "Nici un fișier încărcat"
 
-#: Reportek/zpt/document/manage.zpt:197
+#: Reportek/zpt/document/manage.zpt:198
 msgid "No quality assessment scripts available for this document."
 msgstr "Nu există scripturi de verificare automată pentru acest document"
 
@@ -372,6 +400,10 @@ msgstr "Locația schemei XML"
 msgid "Status"
 msgstr "Status"
 
+#: Reportek/zpt/feedback/add.zpt:42
+msgid "Subject"
+msgstr ""
+
 #: Reportek/zpt/feedback/index.zpt:28
 msgid "Subject:"
 msgstr ""
@@ -438,6 +470,10 @@ msgstr "Încărcați Shapefile"
 msgid "Upload zipfile"
 msgstr "Încărcare zip"
 
+#: Reportek/zpt/feedback/add.zpt:33
+msgid "Use the form to submit feedback to this delivery. You can attach one file to this feedback now and add othe files later by editing the feedback."
+msgstr ""
+
 #: Reportek/zpt/document/manage.zpt:42
 msgid "View file as"
 msgstr "Vizualizează fișier în format"
@@ -477,6 +513,11 @@ msgstr "Adaugă"
 msgid "back-to-draft"
 msgstr "Înapoi la draft"
 
+#. Default: "Add feedback"
+#: Reportek/zpt/feedback/add.zpt:63
+msgid "button-add-feedback"
+msgstr ""
+
 #. Default: "Deactivation keeps the work already done, and makes it possible for someone else to take over the task"
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:33
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:8
@@ -496,7 +537,7 @@ msgstr ""
 #. Default: "Go back to envelope"
 #: Reportek/zpt/document/manage.zpt:20
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:5
-#: Reportek/zpt/feedback/index.zpt:10
+#: Reportek/zpt/feedback/add.zpt:5
 msgid "go-back-title"
 msgstr "Înapoi la anvelopă"
 
@@ -544,6 +585,7 @@ msgstr "Rulați validarea automată"
 msgid "run-statistics-title"
 msgstr "Rulați validarea la nivel de anvelopă"
 
+#: Reportek/zpt/feedback/add.zpt:18
 #: Reportek/zpt/feedback/index.zpt:121
 msgid "subscribe to receive notifications"
 msgstr ""

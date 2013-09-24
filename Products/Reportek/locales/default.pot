@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-09-20 10:21+0000\n"
+"POT-Creation-Date: 2013-09-23 14:25+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -73,6 +73,10 @@ msgstr ""
 msgid "Access limitations may apply for files, which are not (yet) released for public view. Files marked with ${lock-icon} are unavailable. You must log in to get access."
 msgstr ""
 
+#: Reportek/zpt/envelope/operations.zpt:12
+msgid "Activate task"
+msgstr ""
+
 #: Reportek/zpt/envelope/macros.zpt:37
 msgid "Activate task: ${title}"
 msgstr ""
@@ -80,6 +84,10 @@ msgstr ""
 #: Reportek/zpt/document/add.zpt:57
 #: Reportek/zpt/envelope/add_zip.zpt:49
 msgid "Add"
+msgstr ""
+
+#: Reportek/zpt/feedback/add.zpt:12
+msgid "Add Feedback"
 msgstr ""
 
 #: Reportek/zpt/feedback/index.zpt:17
@@ -96,6 +104,10 @@ msgstr ""
 
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:12
 msgid "Add hyperlink"
+msgstr ""
+
+#: Reportek/zpt/feedback/add.zpt:52
+msgid "Attach file"
 msgstr ""
 
 #: Reportek/zpt/feedback/index.zpt:77
@@ -116,12 +128,16 @@ msgstr ""
 
 #: Reportek/zpt/document/manage.zpt:20
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:5
-#: Reportek/zpt/feedback/index.zpt:10
+#: Reportek/zpt/feedback/add.zpt:5
 msgid "Back to envelope"
 msgstr ""
 
 #: Reportek/zpt/document/manage.zpt:89
 msgid "Change file"
+msgstr ""
+
+#: Reportek/zpt/envelope/operations.zpt:28
+msgid "Complete"
 msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:60
@@ -133,8 +149,7 @@ msgstr ""
 msgid "Coverage note"
 msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:33
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:8
+#: Reportek/zpt/envelope/operations.zpt:33
 msgid "Deactivate task"
 msgstr ""
 
@@ -187,6 +202,10 @@ msgstr ""
 msgid "Envelope release:"
 msgstr ""
 
+#: Reportek/zpt/feedback/add.zpt:46
+msgid "Feedback content (plain text)"
+msgstr ""
+
 #: Reportek/zpt/envelope/feedback_section.zpt:1
 msgid "Feedback for this envelope"
 msgstr ""
@@ -220,6 +239,10 @@ msgstr ""
 msgid "Files with the same filename as ones already existing in the envelope will be overwritten."
 msgstr ""
 
+#: Reportek/zpt/envelope/operations.zpt:44
+msgid "Forward"
+msgstr ""
+
 #: Reportek/zpt/envelope/tabs.zpt:57
 msgid "History"
 msgstr ""
@@ -240,6 +263,10 @@ msgstr ""
 msgid "If the filename already exists in the envelope, the existing file will be overwritten."
 msgstr ""
 
+#: Reportek/zpt/feedback/add.zpt:18
+msgid "If you want to be notified when other feedback is added to this envelope or comments are posted on feedback items, you need to ${subscribe-link}"
+msgstr ""
+
 #: Reportek/zpt/feedback/index.zpt:121
 msgid "If you want to be notified when other feedback is added to this envelope or comments are posted on feedback items, you need to ${subscribe-notifications-link}"
 msgstr ""
@@ -248,6 +275,7 @@ msgstr ""
 msgid "If you want to stay updated about events in this envelope ${subscribe} for this country and the current dataflow(s)."
 msgstr ""
 
+#: Reportek/zpt/feedback/add.zpt:15
 #: Reportek/zpt/feedback/index.zpt:118
 msgid "Important notice"
 msgstr ""
@@ -268,7 +296,7 @@ msgstr ""
 msgid "No files uploaded"
 msgstr ""
 
-#: Reportek/zpt/document/manage.zpt:197
+#: Reportek/zpt/document/manage.zpt:198
 msgid "No quality assessment scripts available for this document."
 msgstr ""
 
@@ -371,6 +399,10 @@ msgstr ""
 msgid "Status"
 msgstr ""
 
+#: Reportek/zpt/feedback/add.zpt:42
+msgid "Subject"
+msgstr ""
+
 #: Reportek/zpt/feedback/index.zpt:28
 msgid "Subject:"
 msgstr ""
@@ -437,6 +469,10 @@ msgstr ""
 msgid "Upload zipfile"
 msgstr ""
 
+#: Reportek/zpt/feedback/add.zpt:33
+msgid "Use the form to submit feedback to this delivery. You can attach one file to this feedback now and add othe files later by editing the feedback."
+msgstr ""
+
 #: Reportek/zpt/document/manage.zpt:42
 msgid "View file as"
 msgstr ""
@@ -476,6 +512,11 @@ msgstr ""
 msgid "back-to-draft"
 msgstr ""
 
+#. Default: "Add feedback"
+#: Reportek/zpt/feedback/add.zpt:63
+msgid "button-add-feedback"
+msgstr ""
+
 #. Default: "Deactivation keeps the work already done, and makes it possible for someone else to take over the task"
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:33
 #: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:8
@@ -495,7 +536,7 @@ msgstr ""
 #. Default: "Go back to envelope"
 #: Reportek/zpt/document/manage.zpt:20
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:5
-#: Reportek/zpt/feedback/index.zpt:10
+#: Reportek/zpt/feedback/add.zpt:5
 msgid "go-back-title"
 msgstr ""
 
@@ -543,6 +584,7 @@ msgstr ""
 msgid "run-statistics-title"
 msgstr ""
 
+#: Reportek/zpt/feedback/add.zpt:18
 #: Reportek/zpt/feedback/index.zpt:121
 msgid "subscribe to receive notifications"
 msgstr ""
