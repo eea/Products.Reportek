@@ -4,7 +4,7 @@
     define="canChangeFile python:context.canChangeEnvelope() and not
                                  context.get_accept_time();
 
-            isLimited python: not has_permission('View');
+            isLimited python: not context.has_permission('View');
 
             valid_schemas context/getValidXMLSchemas;
 
@@ -157,7 +157,7 @@
             </tal:block>
           </td>
           <td tal:condition="not:canChangeFile">
-            <span tal:content="python:test(isLimited, Yes, No)"/>
+            <span tal:content="python:test(isLimited, 'Yes', 'No')"/>
           </td>
         </tr>
         <tr tal:condition="context/get_accept_time">
