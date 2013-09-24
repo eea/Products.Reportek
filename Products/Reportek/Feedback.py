@@ -53,7 +53,7 @@ from Comment import CommentsManager
 import RepUtils
 from Products.Reportek import constants
 
-manage_addFeedbackForm = DTMLFile('dtml/feedbackAdd',globals())
+manage_addFeedbackForm = PageTemplateFile('zpt/feedback/add', globals())
 
 def manage_addFeedback(self, id ='', title='', feedbacktext='', file='', activity_id='', automatic=0,
         content_type='text/plain', document_id=None, script_url=None, restricted='', REQUEST=None):

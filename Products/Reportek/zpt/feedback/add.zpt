@@ -1,0 +1,80 @@
+<span tal:replace="structure here/standard_html_header" />
+<div id="operations">
+	<ul>
+      <li>
+        <a tal:attributes="href python:request['URL1']" title="Go back to envelope"
+           i18n:attributes="title go-back-title"
+           i18n:translate="">Back to envelope</a>
+      </li>
+	</ul>
+</div>
+
+<h1 i18n:translate="">Add Feedback</h1>
+
+<div class="important-msg" tal:condition="context/uns_is_set">
+	<strong i18n:translate="">Important notice</strong>
+	<p i18n:translate="">
+		If you want to be notified when other feedback is added to this envelope or comments are posted on feedback items,
+		you need to <a href="ReportekEngine/subscriptions_html"
+                   i18n:name="subscribe-link"
+                   i18n:translate="">subscribe to receive notifications</a>
+  </p>
+</div>
+
+<script src="++resource++static/ckeditor/ckeditor.js"></script>
+
+<tal:block condition="not:context/released">
+	<p>You can only add feedback in an envelope when it is released!</p>
+</tal:block>
+<tal:block condition="python: context.released and not context.canAddFeedback()">
+	<p>A manual feedback already exists for this envelope!</p>
+</tal:block>
+<tal:block condition="python:context.canAddFeedback()">
+  <p class="form-help"
+     i18n:translate="">Use the form to submit feedback to this delivery. You can attach one file to this feedback now and add othe files later by editing the feedback.
+  </p>
+
+  <form action="manage_addFeedback" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="id"
+           tal:attributes="value python:'feedback%s' % str(int(context.ZopeTime()))" />
+    <table>
+      <tr>
+        <th style="width: 15%" i18n:translate="">Subject</th>
+        <td><input type="text" name="title:utf8:ustring" size="60" style="width:85%" /></td> 
+      </tr>
+      <tr>
+        <th style="width: 15%" i18n:translate="">Feedback content (plain text)</th>
+              <td>
+                  <textarea id="ckeditor-textarea" cols="60" rows="100" name="feedbacktext:utf8:ustring" style="width:85%"></textarea>
+        </td>
+      </tr>
+      <tr>
+        <th style="width: 15%" i18n:translate="">Attach file</th>
+        <td><input type="file" name="file" size="25" value="" /></td>
+      </tr>
+      <tr>
+        <th align="left" i18n:translate="">Restricted from public view</th>
+        <td align="left"><input type="checkbox" name="restricted" /></td>
+      </tr>
+
+      <tr>
+        <td></td>
+        <td>
+          <input type="submit"
+                 value="Add feedback"
+                 i18n:attributes="value button-add-feedback"/>
+        </td>
+      </tr>
+    </table>
+  </form>
+</tal:block>
+
+<script>
+    CKEDITOR.replace('ckeditor-textarea',
+        {
+            height: 400
+        }
+    );
+</script>
+
+<span tal:replace="structure here/standard_html_footer" />
