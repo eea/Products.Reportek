@@ -40,7 +40,7 @@
               tal:replace="string:(Posted on ${postingdate} for the ${releasedate} release)"/>
 
         <tal:block condition="python:context.canEditFeedback() and not feedb_item.automatic">
-          <a tal:attributes="href string:${context/absolute_url}/manage_editFeedbackForm" title="Edit feedback" class="test_button"
+          <a tal:attributes="href string:${feedb_item/absolute_url}/manage_editFeedbackForm" title="Edit feedback" class="test_button"
              i18n:translate="">Edit</a>
           <a tal:attributes="href string:manage_deleteFeedbackForm?id=${feedb_item/id}"
              title="Delete feedback" class="test_button"
