@@ -114,7 +114,7 @@
   </tal:block>
 
   <tal:block condition="not:context/automatic">
-    <div class="important-msg">
+    <div class="important-msg" tal:condition="context/uns_is_set">
       <strong i18n:translate="">Important notice</strong>
       <p i18n:translate="">
         If you want to be notified when other feedback is added to this envelope or comments are posted on feedback items,
@@ -122,10 +122,10 @@
                        i18n:name="subscribe-notifications-link"
                        i18n:translate="">subscribe to receive notifications</a> 
       </p>
-      </div>
+    </div>
 
-      <span tal:replace="structure context/comments_box"/>
-    </tal:block>
+    <span tal:replace="structure context/comments_box"/>
+  </tal:block>
 
     <span tal:replace="structure here/standard_html_footer" />
 </tal:block>
