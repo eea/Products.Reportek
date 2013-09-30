@@ -99,14 +99,14 @@
                  i18n:translate="">Upload ESRI</a></li>
           </tal:block>
 
-          <tal:block condition="python: not context.isGML and can_view_or_edit_with_webq">
+          <tal:block condition="python: not context.isGML() and can_view_or_edit_with_webq">
           <li>
             <a tal:attributes="
                  href string:${beforeEditForm}?mode=edit&amp;language=En&amp;schema=${context/xml_schema_location}&amp;instance=${context/absolute_url}&amp;instance_title=${context/title_or_id}"
                i18n:translate="">Edit metadata with Web form</a>
           </li>
           </tal:block>
-          <tal:block condition="not:python: not context.isGML and can_view_or_edit_with_webq">
+          <tal:block condition="not:python: not context.isGML() and can_view_or_edit_with_webq">
           <form tal:attributes="action string:${context/absolute_url}/manage_file_upload" method="post" enctype="multipart/form-data">
             <li i18n:translate="">Local upload: <input type="file" name="file"
                 size="25" value="" i18n:name="file-input"/> <input
