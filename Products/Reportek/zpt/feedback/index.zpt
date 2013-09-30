@@ -2,7 +2,8 @@
                    modules/AccessControl/getSecurityManager;
                    permission_condition
                    python:SecurityManager.checkPermission( 'View management screens', template)">
-  <span tal:replace="structure here/standard_html_header" />
+  <tal:block define="header here/standard_html_header"
+             replace="structure python:header.encode('latin-1')" />
 
   <div id="operations">
       <ul>
