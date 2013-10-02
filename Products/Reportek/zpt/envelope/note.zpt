@@ -2,7 +2,7 @@
   <metal:block fill-slot="workarea">
 
     <tal:block define="the_content_type python:request.SESSION.get('note_content_type', 'text/html');
-                       redirect_to python:request.SESSION.get('redirect_to', context.absolute_url())">
+                       redirect_to python:request.SESSION.get('redirect_to', context.getMySelf().absolute_url())">
       <!-- if -->
       <tal:block condition="
         python:the_content_type.find('text/html') != -1 or
@@ -33,11 +33,11 @@
 
         <!-- if -->
         <tal:block condition="python:the_content_type.find('text/html') != -1">
-          <p tal:content="python:request.SESSION.get('note_text', '')"></p>
+          <p tal:content="structure python:request.SESSION.get('note_text', '')"></p>
         </tal:block>
         <!-- elif-->
         <tal:block condition="python:the_content_type.find('text/plain') != -1">
-          <p tal:content="python:request.SESSION.get('note_text', '')"></p>
+          <p tal:content="structure python:request.SESSION.get('note_text', '')"></p>
         </tal:block>
         <!-- end -->
 
