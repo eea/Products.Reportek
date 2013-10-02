@@ -1,0 +1,70 @@
+<metal:block use-macro="context/layout/macros/layout">
+  <metal:block fill-slot="workarea">
+
+    <tal:block define="the_content_type python:request.SESSION.get('note_content_type', 'text/html');
+                       redirect_to python:request.SESSION.get('redirect_to', context.absolute_url())">
+      <!-- if -->
+      <tal:block condition="
+        python:the_content_type.find('text/html') != -1 or
+               the_content_type.find('text/plain') != -1">
+        <div id="operations">
+            <ul>
+              <tal:block condition="python:request.PARENTS[0].meta_type == 'Report Document'">
+                <li><a href="manage_edit_document">Go back to file</a></li>
+              </tal:block>
+              <li>
+                <a tal:attributes="href redirect_to">Go back to envelope</a>
+              </li>
+            </ul>
+        </div>
+
+
+        <h1 tal:content="python:request.SESSION.get('note_title', '')"></h1>
+
+        <tal:block condition="python:request.SESSION.has_key('note_tip')">
+          <div style="float: right;
+                      width: 16em;
+                      border: 1px solid #666666;
+                      padding: 1em;
+                      background-color: #FFFFE1;">
+            <strong>Tip:</strong> <span tal:replace="python:request.SESSION.get('note_tip', '')"/>
+          </div>
+        </tal:block>
+
+        <!-- if -->
+        <tal:block condition="python:the_content_type.find('text/html') != -1">
+          <p tal:content="python:request.SESSION.get('note_text', '')"></p>
+        </tal:block>
+        <!-- elif-->
+        <tal:block condition="python:the_content_type.find('text/plain') != -1">
+          <p tal:content="python:request.SESSION.get('note_text', '')"></p>
+        </tal:block>
+        <!-- end -->
+
+      </tal:block>
+
+      <!-- else -->
+      <tal:block condition="
+        not:python:the_content_type.find('text/html') != -1 or
+                   the_content_type.find('text/plain') != -1">
+        <tal:block define="
+          dummy python:request.response.setHeader('content-type', the_content_type)">
+        </tal:block>
+        <span tal:replace="structure python:request.SESSION.get('note_text', '')"/>
+      </tal:block>
+      <!-- end -->
+
+      <tal:block condition="python:request.SESSION.has_key('redirect_to')">
+        <tal:block define="dummy python:request.SESSION.delete('redirect_to')"/>
+      </tal:block>
+
+      <tal:block condition="python:request.SESSION.has_key('note_title')">
+        <tal:block define="dummy python:request.SESSION.delete('note_title')"/>
+      </tal:block>
+      <tal:block condition="python:request.SESSION.has_key('note_text')">
+        <tal:block define="dummy python:request.SESSION.delete('note_text')"/>
+      </tal:block>
+
+    </tal:block>
+  </metal:block>
+</metal:block>

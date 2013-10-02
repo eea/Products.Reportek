@@ -28,6 +28,7 @@ This class which Envelope subclasses from handles the integration with remote sy
 
 # Zope imports
 from Globals import DTMLFile, MessageDialog, InitializeClass
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl import getSecurityManager, ClassSecurityInfo
 
 
@@ -69,7 +70,7 @@ class EnvelopeRemoteServicesManager:
         return getattr(self, QAREPOSITORY_ID).canRunQAOnFiles(self.objectValues('Report Document'))
 
     security.declareProtected('View', 'note')
-    note = DTMLFile('dtml/envelopeNote', globals())
+    note = PageTemplateFile('zpt/envelope/note', globals())
 
     security.declareProtected('View', 'runQAScript')
     def runQAScript(self, p_file_url, p_script_id, REQUEST, return_inline=0):
