@@ -1,8 +1,10 @@
 <metal:block use-macro="context/layout/macros/layout">
   <metal:block fill-slot="workarea">
 
-    <tal:block define="the_content_type python:request.SESSION.get('note_content_type', 'text/html');
-                       redirect_to python:request.SESSION.get('redirect_to', context.getMySelf().absolute_url())">
+    <tal:block define="
+      the_content_type python:request.SESSION.get('note_content_type', 'text/html');
+      redirect_to python:request.SESSION.get('redirect_to', context.getMySelf().absolute_url());
+      expiration_message string:This page has expired.">
       <!-- if -->
       <tal:block condition="
         python:the_content_type.find('text/html') != -1 or
@@ -33,11 +35,13 @@
 
         <!-- if -->
         <tal:block condition="python:the_content_type.find('text/html') != -1">
-          <p tal:content="structure python:request.SESSION.get('note_text', '')"></p>
+          <p tal:content="
+            structure python:request.SESSION.get('note_text', expiration_message)"></p>
         </tal:block>
         <!-- elif-->
         <tal:block condition="python:the_content_type.find('text/plain') != -1">
-          <p tal:content="structure python:request.SESSION.get('note_text', '')"></p>
+          <p tal:content="
+            structure python:request.SESSION.get('note_text', expiration_message)"></p>
         </tal:block>
         <!-- end -->
 
@@ -50,7 +54,8 @@
         <tal:block define="
           dummy python:request.response.setHeader('content-type', the_content_type)">
         </tal:block>
-        <span tal:replace="structure python:request.SESSION.get('note_text', '')"/>
+        <span tal:replace="
+          structure python:request.SESSION.get('note_text', expiration_message)"/>
       </tal:block>
       <!-- end -->
 
@@ -63,6 +68,9 @@
       </tal:block>
       <tal:block condition="python:request.SESSION.has_key('note_text')">
         <tal:block define="dummy python:request.SESSION.delete('note_text')"/>
+      </tal:block>
+      <tal:block condition="python:request.SESSION.has_key('note_tip')">
+        <tal:block define="dummy python:request.SESSION.delete('note_tip')"/>
       </tal:block>
 
     </tal:block>
