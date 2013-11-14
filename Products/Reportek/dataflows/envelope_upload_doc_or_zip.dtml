@@ -12,7 +12,7 @@
 <h1>Add file</h1>
 
 <p>
-	You can upload one single file or z non-hierarchical <em>.zip</em> archive.
+	You can upload one single file or a non-hierarchical <em>.zip</em> archive.
 	The zip archive will be unpacked and its content uploaded into the envelope.
 </p>
 <div class="note-msg">
