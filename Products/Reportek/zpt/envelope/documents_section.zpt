@@ -86,8 +86,7 @@
 
 <p tal:condition="python:request.get('therearerestrictions', 0) > 0" i18n:translate="">
 	Access limitations may apply for files, which are not (yet) released for public view. Files marked with
-	<img src="/misc_/Reportek/lockicon_gif" alt="Padlock" width="16" height="16"
-  i18n:name="lock-icon"/> are unavailable. 
+	<img src="/misc_/Reportek/lockicon_gif" alt="Padlock" width="16" height="16" i18n:name="lock-icon"/> are unavailable. 
 	You must log in to get access.
 </p>
 
