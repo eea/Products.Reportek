@@ -37,7 +37,7 @@ from Products.PythonScripts.standard import html_quote
 
 feedback_log = logging.getLogger(__name__ + '.feedback')
 
-FEEDBACKTEXT_LIMIT = 1024 * 8 # 8KB
+FEEDBACKTEXT_LIMIT = 1024 * 16 # 16KB
 
 
 manage_addRemoteApplicationForm = DTMLFile('dtml/RemoteApplicationAdd',globals())
