@@ -171,7 +171,6 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
     security.declareProtected('Change Envelopes', 'manage_renameObject')
     security.declareProtected('Change Envelopes', 'manage_renameObjects')
 
-    security.declareProtected('View', 'macros')
     macros = PageTemplateFile('zpt/envelope/macros', globals()).macros
 
     def __init__(self, process, title, authUser, year, endyear, partofyear, country, locality, descr):
