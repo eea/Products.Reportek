@@ -29,6 +29,7 @@ import tempfile
 import os
 from zipfile import *
 from urlparse import urlparse
+import requests
 
 # Zope imports
 from OFS.Folder import Folder
@@ -158,6 +159,19 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return ['','Whole Year', 'First Half', 'Second Half',
            'First Quarter', 'Second Quarter', 'Third Quarter', 'Fourth Quarter',
            'January','February','March','April', 'May','June','July','August','September','October','November','December']
+
+    security.declareProtected('View', 'content_registry_ping')
+    def content_registry_ping(uri, create=True):
+        """ Pings the Content Registry to harvest a new envelope almost immediately after the envelope is released or revoked
+            with the name of the envelope's RDF output
+        """
+        CR_API_URL = 'http://cr.eionet.europa.eu/ping'
+        params = {'uri': uri}
+        if create: params['create'] = 'true'
+        resp = requests.get(CR_API_URL, params=params)
+        if resp.status_code == 200:
+            return (1, resp.text)
+        return (0, resp.text)
 
     security.declareProtected(view_management_screens, 'change_ownership')
     def change_ownership(self, obj, newuser, deluser):
@@ -328,8 +342,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         pattern = kwargs.get('pattern', REQUEST.get('pattern', ''))
         countries = kwargs.get('ccountries', REQUEST.get('ccountries', None))
         title = kwargs.get('ctitle', REQUEST.get('ctitle', ''))
-        obligation = kwargs.get('cobligation', REQUEST.get('cobligation', []))
+        obligation = kwargs.get('dataflow_uris', REQUEST.get('dataflow_uris', []))
         collection_id = kwargs.get('cid', REQUEST.get('cid', ''))
+        allow_collections = int(kwargs.get('allow_collections', REQUEST.get('allow_collections', 0)))
+        allow_envelopes = int(kwargs.get('allow_envelopes', REQUEST.get('allow_envelopes', 0)))
         for spatial_uri in countries:
             country = self.localities_dict().get(spatial_uri)
             if country:
@@ -342,8 +358,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     col = target.manage_addCollection(
                         title, '', '', '', '', spatial_uri, '',
                         obligation,
-                        allow_collections=0,
-                        allow_envelopes=1,
+                        allow_collections=allow_collections,
+                        allow_envelopes=allow_collections,
                         id=collection_id
                     )
                     messages['success'].append(country['name'])

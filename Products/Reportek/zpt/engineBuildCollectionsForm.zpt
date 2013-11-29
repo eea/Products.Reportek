@@ -110,10 +110,9 @@ function toggleSelectCountries(group) {
 <tr>
   <td><label class="question">Subojects</label></td>
   <td>
-    <input type="checkbox" value="1" name="allow_envelopes:int"
-           id="allow_envelopes" checked="checked"/>
+    <input type="checkbox" value="1" name="allow_envelopes" id="allow_envelopes" checked="checked"/>
     <label for="allow_envelopes">Envelopes</label>
-    <input type="checkbox" value="1" name="allow_collections:int" id="allow_collections"/>
+    <input type="checkbox" value="1" name="allow_collections" id="allow_collections"/>
     <label for="allow_collections">Collections</label>
 </td>
 </tr>
@@ -135,7 +134,7 @@ if (select_div) {
   select_div.innerHTML = select_buttons;
 
   var select_div = document.getElementById('select_users');
-  var select_buttons = '<input class="form-element" type="button" name="selectAllUsers" value="Select All" onclick="toggleSelectUsers(); return false"/>';
+  var select_buttons = '<input class="form-element" type="button" name="selectAllUsers" value="Select All" onclick="toggleSelectUsers(); return false" />';
   select_div.innerHTML = select_buttons;
   }
 //-->
