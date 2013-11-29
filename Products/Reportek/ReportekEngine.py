@@ -343,6 +343,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         countries = kwargs.get('ccountries', REQUEST.get('ccountries', None))
         title = kwargs.get('ctitle', REQUEST.get('ctitle', ''))
         obligation = kwargs.get('dataflow_uris', REQUEST.get('dataflow_uris', []))
+        if isinstance(obligation, list):
+            obligation = [obligation]
         collection_id = kwargs.get('cid', REQUEST.get('cid', ''))
         allow_collections = int(kwargs.get('allow_collections', REQUEST.get('allow_collections', 0)))
         allow_envelopes = int(kwargs.get('allow_envelopes', REQUEST.get('allow_envelopes', 0)))
