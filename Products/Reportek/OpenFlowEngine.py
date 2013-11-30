@@ -854,4 +854,8 @@ def handle_application_move_events(obj):
                 'Choose a valid name from this list: %s' %(
                     ', '.join(valid_new_ids))
             )
-    root.REQUEST['manage_tabs_message'] =  ' '.join(messages)
+    try:
+        root.REQUEST['manage_tabs_message'] =  ' '.join(messages)
+    except TypeError:
+        # skip, not a real REQUEST
+        pass
