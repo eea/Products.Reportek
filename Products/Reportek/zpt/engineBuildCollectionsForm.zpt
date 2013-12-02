@@ -91,15 +91,15 @@ function toggleSelectCountries(group) {
 <table>
 <tr>
   <td><label class="question">Collection id</label></td>
-  <td><input type="text" name="cid" size="10"></td>
+  <td><input type="text" name="cid" size="10" /></td>
 </tr>
 <tr>
   <td><label class="question">Title</label></td>
-  <td><input type="text" name="ctitle" size="50"></td>
+  <td><input type="text" name="ctitle" size="50" /></td>
 </tr>
 <tr>
   <td><label class="question">Target path</label></td>
-  <td><input type="text" name="pattern" size="10"> <span>e.g.: eea/noise<span></td>
+  <td><input type="text" name="pattern" size="10" /> <span>e.g.: eea/noise<span></td>
 </tr>
 <tr>
   <td><label class="question">Obligation</label></td>

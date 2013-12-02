@@ -324,7 +324,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                   pattern = 'eea/noise',
                   ccountries = ['http://spatial/1'],
                   ctitle='Test collection',
-                  cobligation= ['http://dataflow/1'],
+                  dataflow_uris= ['http://dataflow/1'],
                   cid='test_id',
                   REQUEST=self.root.REQUEST
               )
@@ -341,9 +341,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             return self.Build_collections_form(REQUEST, messages=messages)
         pattern = kwargs.get('pattern', REQUEST.get('pattern', ''))
         countries = kwargs.get('ccountries', REQUEST.get('ccountries', None))
+        if not isinstance(countries, list):
+            countries = [countries]
         title = kwargs.get('ctitle', REQUEST.get('ctitle', ''))
         obligation = kwargs.get('dataflow_uris', REQUEST.get('dataflow_uris', []))
-        if isinstance(obligation, list):
+        if not isinstance(obligation, list):
             obligation = [obligation]
         collection_id = kwargs.get('cid', REQUEST.get('cid', ''))
         allow_collections = int(kwargs.get('allow_collections', REQUEST.get('allow_collections', 0)))
