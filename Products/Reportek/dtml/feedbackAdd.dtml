@@ -7,12 +7,14 @@
 
 <h1>Add Feedback</h1>
 
+<dtml-if expr="getEngine().uns_notifications_enabled()">
 <div class="important-msg">
 	<strong>Important notice</strong>
 	<p>
 		If you want to be notified when other feedback is added to this envelope or comments are posted on feedback items,
 		you need to <a href="ReportekEngine/subscriptions_html">subscribe to receive notifications</a> 
 </div>
+</dtml-if>
 
 <script src="++resource++static/ckeditor/ckeditor.js"></script>
 
@@ -32,9 +34,7 @@
 		</tr>
 		<tr>
 			<th style="width: 15%">Feedback content (plain text)</th>
-            <td>
-                <textarea id="ckeditor-textarea" cols="60" rows="100" name="feedbacktext:utf8:ustring" style="width:85%"></textarea>
-			</td>
+			<td><textarea id="ckeditor-textarea" cols="60" rows="100" name="feedbacktext:utf8:ustring" style="width:85%"></textarea></td>
 		</tr>
 		<tr>
 			<th style="width: 15%">Attach file</th>
@@ -44,19 +44,6 @@
 			<th align="left">Restricted from public view</th>
 			<td align="left"><input type="checkbox" name="restricted" /></td>
 		</tr>
-		<dtml-comment>
-		<tr>
-			<th>Referred file (if any)</th>
-			<td><select name="document_id">
-				<option></option>
-				<dtml-in "objectValues('Report Document')">
-				<option value="<dtml-var id>"><dtml-var title_or_id html_quote size=70></option>
-				</dtml-in>
-			</select>
-			</td>
-		</tr>
-		</dtml-comment>
-
 		<tr>
 			<td></td><td><input type="submit" value="Add feedback" /></td>
 		</tr>

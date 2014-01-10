@@ -79,13 +79,14 @@
 </dtml-if>
 
 <dtml-unless automatic>
+<dtml-if expr="getEngine().uns_notifications_enabled()">
 	<div class="important-msg">
 		<strong>Important notice</strong>
 		<p>
 			If you want to be notified when other feedback is added to this envelope or comments are posted on feedback items,
 			you need to <a href="ReportekEngine/subscriptions_html">subscribe to receive notifications</a> 
 	</div>
-
+</dtml-if>
 	<dtml-var comments_box>
 </dtml-unless>
 
