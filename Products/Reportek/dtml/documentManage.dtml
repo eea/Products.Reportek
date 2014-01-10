@@ -89,7 +89,10 @@
 <tr>
     <td><label for="title" class="question">Title</label></td>
     <dtml-if canChangeFile>
-    <td><input type="text" name="title" id="title" size="50" value="&dtml-title;" /></td>
+    <td>
+      <input type="text" name="title" id="title" size="50" value="&dtml-title;" />
+      <input type="hidden" name="content_type" id="content_type" size="40" value="&dtml-content_type;" />
+    </td>
     <dtml-else>
     <td id="title"><dtml-var title></td>
     </dtml-if>

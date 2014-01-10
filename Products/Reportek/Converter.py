@@ -190,12 +190,6 @@ class RemoteConverter(Converter):
                                   'file_name': file_obj.absolute_url(0)},
                             stream=True)
             result.raise_for_status()
-
-            # TODO transfer-encoding doesn't work with https
-            # find a solution for chunked transfer encoding
-            # NOTE THIS IS A HACK TO DISABLE IT
-            # result.headers.pop('transfer-encoding')
-
             self.REQUEST.RESPONSE.headers.update(result.headers)
             for chunk in result.iter_content(chunk_size=64*1024):
                 self.REQUEST.RESPONSE.write(chunk)

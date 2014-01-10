@@ -214,6 +214,19 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         """ web callable version of is_blocked """
         return self.is_blocked
 
+    def is_acceptable(self):
+        """ Returns acceptability status """
+        QA_workitems = [
+            wi for wi in self.getMySelf().getListOfWorkitems()
+               if wi.activity_id == 'AutomaticQA' and wi.status == 'complete'
+        ]
+        if self.is_blocked:
+            return False
+        elif QA_workitems:
+            return True
+        else:
+            return None
+
     def __setstate__(self,state):
         """ """
         Envelope.inheritedAttribute('__setstate__')(self, state)
