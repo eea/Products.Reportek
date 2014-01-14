@@ -250,6 +250,27 @@ def utSortByAttr(p_obj_list, p_attr, p_sort_order=0):
         l_temp.reverse()
     return map(operator.getitem, l_temp, (-1,)*len(l_temp))
 
+def utSortListByAttr(p_obj_list, p_attr, p_sort_order=0):
+    """ Sort a list of objects by one of the attributes """
+    l_temp = map(None, (p_obj_item[p_attr] for p_obj_item in p_obj_list), p_obj_list)
+    l_temp.sort()
+    if p_sort_order:
+        l_temp.reverse()
+    return map(operator.getitem, l_temp, (-1,)*len(l_temp))
+
+def utTruncString(s, p_size=50):
+    #get a string and returns only a number of size characters
+    if len(s)>p_size: return '%s...' % s[:p_size]
+    else: return s
+
+def utSortObjsListByMethod(p_list, p_method, p_desc=1):
+    """Sort a list of objects by an attribute values"""
+    l_len = len(p_list)
+    l_temp = map(None, map(lambda x, y: getattr(x, y)(), p_list, (p_method,)*l_len), xrange(l_len), p_list)
+    l_temp.sort()
+    if p_desc: l_temp.reverse()
+    return map(operator.getitem, l_temp, (-1,)*l_len)
+
 def utSortByMethod(p_obj_list, p_attr, p_date, p_sort_order=0):
     """ Sort a list of objects by the result of one of their functions """
     l_temp = map(None, map(lambda x,y:eval('x.' + y + '()'), p_obj_list, (p_attr,)*len(p_obj_list)), xrange(len(p_obj_list)), p_obj_list, (p_date,)*len(p_obj_list))

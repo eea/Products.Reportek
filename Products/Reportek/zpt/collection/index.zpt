@@ -1,0 +1,75 @@
+<span tal:replace="structure here/standard_html_header" />
+
+<span tal:replace="structure here/collection_tabs" />
+
+<tal:block tal:define="SecurityManager modules/AccessControl/getSecurityManager;
+	permission_allow_envelopes python:here.allow_envelopes and SecurityManager.checkPermission('Add Envelopes', here);
+	permission_allow_collections python:here.allow_collections and SecurityManager.checkPermission('Add Collections', here);
+	permission_chgcoll python:SecurityManager.checkPermission('Change Collections', here);
+	has_descr python:here.descr!=''; has_dataflow_uris python:len(here.dataflow_uris)>0">
+
+<div id="operations" tal:condition="python:permission_allow_envelopes or permission_allow_collections">
+	<ul>
+		<li><a href="manage_addReferralForm" title="Create a new Referral if a certain delivery data is not stored on this system, in which case specify another location for it." i18n:attributes="title" i18n:translate="">New referral</a></li>
+		<li tal:condition="permission_allow_collections"><a href="manage_addCollectionForm" title="Collections are folders that define the structure for the Data Repository, grouping Envelopes by country and by the reporting obligations they respond to." i18n:attributes="title" i18n:translate="">New collection</a></li>
+		<li tal:condition="permission_allow_envelopes"><a href="manage_addEnvelopeForm" title="Envelopes store all the information about a delivery" i18n:attributes="title" i18n:translate="">New envelope</a></li>
+	</ul>
+</div>
+
+<div class="metadata">
+	<h1 tal:content="here/title_or_id" />
+	<table tal:condition="python:has_descr or has_dataflow_uris">
+	<tbody>
+	<tr tal:condition="has_descr">
+		<th valign="top" i18n:translate="">Description</th>
+		<td tal:content="structure python:here.tlzNewlineToBr(here.descr)" />
+	</tr>
+	<tr tal:condition="has_dataflow_uris">
+		<th valign="top" i18n:translate="">Obligation(s)</th>
+		<td><tal:block tal:repeat="item here/dataflow_uris"><tal:block tal:define="item_df python:here.dataflow_lookup(item)"><a tal:attributes="href item_df/details_url" tal:content="item_df/TITLE" /><em tal:condition="python:item_df.get('terminated', '0')=='1'" i18n:translate="">Terminated</em><br tal:condition="python:not path('repeat/item/end')" /></tal:block></tal:block></td>
+	</tr>
+	</tbody>
+	</table>
+</div>
+
+<form method="post" tal:attributes="action string:${request/URL1}/">
+<div class="filessection">
+	<h2 i18n:translate="">Envelopes and subcollections</h2>
+	<table style="width: 100%; border: 0">
+		<col style="width: 16px" tal:condition="permission_chgcoll" />
+		<col style="width: 18px" />
+		<col />
+		<col style="width: 7em" />
+		<tbody>
+			<tr valign="top" tal:repeat="item python:test(here.allow_envelopes==1, here.tlzSortObjsListByMethod(here.objectValues(['Report Collection']), 'bobobase_modification_time', 1), here.tlzSortByAttr(here.objectValues(['Report Collection']), 'title'))">
+				<td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>
+				<td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Collection" i18n:attributes="alt" /></td>
+				<td><a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" /></td>
+				<td tal:content="python:item.bobobase_modification_time().strftime('%d %b %Y')" />
+			</tr>
+			<tr valign="top" tal:repeat="item python:here.tlzSortByAttr(here.objectValues(['Report Envelope']), 'reportingdate', 1)">
+				<td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>
+				<td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Envelope" i18n:attributes="alt" /></td>
+				<td><a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" /></td>
+				<td tal:content="python:item.reportingdate.strftime('%d %b %Y')" />
+			</tr>
+			<tr valign="top" tal:repeat="item python:here.tlzSortByAttr(here.objectValues(['Repository Referral']), 'title')">
+				<td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>
+				<td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Repository Referral" i18n:attributes="alt" /></td>
+				<td><a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" /></td>
+				<td tal:content="python:item.bobobase_modification_time().strftime('%d %b %Y')" />
+			</tr>
+		</tbody>
+	</table>
+	<tal:block tal:condition="permission_chgcoll">
+		<input type="submit" class="fileop" name="manage_cutObjects:method" value="Cut" title="Select some files to cut them" i18n:attributes="value,title" />
+		<input type="submit" class="fileop" name="manage_copyObjects:method" value="Copy" title="Select some files to copy them" i18n:attributes="value,title" />
+		<input tal:condition="here/cb_dataValid" type="submit" class="fileop" name="manage_pasteObjects:method" value="Paste" title="Paste previously selected files to this envelope" i18n:attributes="value,title" />
+		<input type="submit" class="fileop" name="manage_delObjects:method" value="Delete" title="Select some files to delete them" i18n:attributes="value,title" />
+	</tal:block>
+</div>
+</form>
+
+</tal:block>
+
+<span tal:replace="structure here/standard_html_footer" />

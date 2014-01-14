@@ -1,0 +1,73 @@
+<span tal:replace="structure here/standard_html_header" />
+
+<span tal:replace="structure python:here.collection_tabs(tab='worklist')" />
+
+<h1><span i18n:translate="" tal:omit-tag="">Task list for</span> <span tal:replace="here/title_or_id" /></h1>
+
+<p i18n:translate="">This page contains the TODO list for all users working in this collection. First, this gives you an overview of what tasks you can work on next: If there is no user assigned to an envelope, click on the envelope's link and activate the task which is awaiting assignment. Secondly, if you've already started work in an envelope by activating a task, look for your username  in the list below to find the link to the envelope.</p>
+
+<p i18n:translate=""><strong>Note:</strong> remember the first task reporters have to do in order to start the delivery on this website is to create the envelope. Such tasks do not appear in the list below.</p>
+
+<tal:block tal:define="sortby python:request.get('sort', 'reportingdate'); how python:request.get('how', 'desc'); items python:here.SearchSortWorkitems(sortby=sortby, how=how); has_items python:len(items)>0">
+	<tal:block tal:condition="has_items">
+		<table class="sortable" border="0">
+		<thead>
+			<tr>
+				<tal:block tal:condition="python:sortby=='country'">
+					<tal:block tal:condition="python:how=='asc'">
+						<th class="sorted" scope="col"><a href="worklist?sort=country&amp;how=desc" rel="nofollow" title="Sorted A..Z by coverage - Click to reverse" i18n:attributes="title"><span i18n:translate="" tal:omit-tag="">Coverage</span><img src="/misc_/Reportek/sort_asc" width="12" height="12" border="0" alt="" /></a></th>
+					</tal:block>
+					<tal:block tal:condition="python:how!='asc'">
+						<th class="sorted" scope="col"><a href="worklist?sort=country&amp;how=asc" rel="nofollow" title="Sorted Z..A by coverage - Click to reverse" i18n:attributes="title"><span i18n:translate="" tal:omit-tag="">Coverage</span><img src="/misc_/Reportek/sort_desc" width="12" height="12" border="0" alt="" /></a></th>
+					</tal:block>
+				</tal:block>
+				<tal:block tal:condition="python:sortby!='country'">
+					<th scope="col"><a href="worklist?sort=country&amp;how=asc" rel="nofollow" title="Sortable" i18n:attributes="title"><span i18n:translate="" tal:omit-tag="">Coverage</span><img src="/misc_/Reportek/sortnot" width="12" height="12" alt="" /></a></th>
+				</tal:block>
+				<th scope="col"><span i18n:translate="">Envelope</span></th>
+				<th scope="col"><span i18n:translate="">Task</span></th>
+				<th scope="col"><span i18n:translate="">Status</span></th>
+				<tal:block tal:condition="python:sortby=='actor'">
+					<tal:block tal:condition="python:how=='asc'">
+						<th class="sorted" scope="col"><a href="worklist?sort=actor&amp;how=desc" rel="nofollow" title="Sorted A..Z by user - Click to reverse" i18n:attributes="title"><span i18n:translate="" tal:omit-tag="">User</span><img src="/misc_/Reportek/sort_asc" width="12" height="12" border="0" alt="" /></a></th>
+					</tal:block>
+					<tal:block tal:condition="python:how!='asc'">
+						<th class="sorted" scope="col"><a href="worklist?sort=actor&amp;how=asc" rel="nofollow" title="Sorted Z..A by user - Click to reverse" i18n:attributes="title"><span i18n:translate="" tal:omit-tag="">User</span><img src="/misc_/Reportek/sort_desc" width="12" height="12" border="0" alt="" /></a></th>
+					</tal:block>
+				</tal:block>
+				<tal:block tal:condition="python:sortby!='actor'">
+					<th scope="col"><a href="worklist?sort=actor&amp;how=asc" rel="nofollow" title="Sortable" i18n:attributes="title"><span i18n:translate="" tal:omit-tag="">User</span><img src="/misc_/Reportek/sortnot" width="12" height="12" alt="" /></a></th>
+				</tal:block>
+				<tal:block tal:condition="python:sortby=='reportingdate'">
+					<tal:block tal:condition="python:how=='asc'">
+						<th class="sorted" scope="col"><a href="worklist?sort=reportingdate&amp;how=desc" rel="nofollow" title="Sort A..Z by last reporting date - Click to reverse" i18n:attributes="title"><span i18n:translate="" tal:omit-tag="">Reporting date</span><img src="/misc_/Reportek/sort_asc" width="12" height="12" border="0" alt="" /></a></th>
+					</tal:block>
+					<tal:block tal:condition="python:how!='asc'">
+						<th class="sorted" scope="col"><a href="worklist?sort=reportingdate&amp;how=asc" rel="nofollow" title="Sort Z..A by last reporting date - Click to reverse" i18n:attributes="title"><span i18n:translate="" tal:omit-tag="">Reporting date</span><img src="/misc_/Reportek/sort_desc" width="12" height="12" border="0" alt="" /></a></th>
+					</tal:block>
+				</tal:block>
+				<tal:block tal:condition="python:sortby!='reportingdate'">
+					<th scope="col"><a href="worklist?sort=reportingdate&amp;how=asc" rel="nofollow" title="Sortable" i18n:attributes="title"><span i18n:translate="" tal:omit-tag="">Reporting date</span><img src="/misc_/Reportek/sortnot" width="12" height="12" alt="" /></a></th>
+				</tal:block>
+			</tr>
+		</thead>
+		<tbody>
+			<tal:block tal:repeat="item items">
+			<tr tal:define="parent item/getParentNode" tal:attributes="class python:test(path('repeat/item/even'), 'even', None)">
+				<td tal:content="parent/getCountryName" />
+				<td><a tal:attributes="href string:${parent/absolute_url}/" tal:content="parent/title_or_id" /></td>
+				<td tal:content="python:item.getActivityDetails('title')" />
+				<td tal:content="item/status" />
+				<td><span tal:condition="item/actor" tal:replace="item/actor" /><em tal:condition="python:not item.actor" i18n:translate="">Not assigned</em></td>
+				<td tal:content="python:item.reportingdate.strftime('%Y-%m-%d %H:%M')" />
+			</tr>
+			</tal:block>
+		</tbody>
+		</table>
+	</tal:block>
+	<tal:block tal:condition="python:not has_items">
+		<p i18n:translate="">No task is in progress or waiting to be assigned in this collection.</p>
+	</tal:block>
+</tal:block>
+
+<span tal:replace="structure here/standard_html_footer" />

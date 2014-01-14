@@ -31,7 +31,6 @@ from Products.ZCatalog.CatalogAwareness import CatalogAware
 import Globals
 import AccessControl.Role, webdav.Collection
 from AccessControl.Permissions import manage_users
-from Globals import DTMLFile
 from AccessControl import getSecurityManager, ClassSecurityInfo
 from OFS.Folder import Folder
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -46,9 +45,7 @@ import Referral
 from CountriesManager import CountriesManager
 from Toolz import Toolz
 
-
-
-manage_addCollectionForm=DTMLFile('dtml/collAdd', globals())
+manage_addCollectionForm=PageTemplateFile('zpt/collection/add', globals())
 
 def manage_addCollection(self, title, descr,
             year, endyear, partofyear, country, locality, dataflow_uris,
@@ -194,10 +191,10 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
     manage_addReferral = Referral.manage_addReferral
 
     security.declareProtected('View', 'index_html')
-    index_html=DTMLFile('dtml/collIndex',globals())
+    index_html = PageTemplateFile('zpt/collection/index', globals())
 
     security.declareProtected('Change Collections', 'manage_prop')
-    manage_prop=DTMLFile('dtml/collProp',globals())
+    manage_prop = PageTemplateFile('zpt/collection/prop', globals())
 
     _get_users_list = PageTemplateFile('zpt/collUsers', globals())
 
@@ -362,10 +359,10 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
                             action='./manage_main')
 
     security.declareProtected('Use OpenFlow', 'worklist')
-    worklist =  DTMLFile('dtml/collWorklist', globals())
+    worklist =  PageTemplateFile('zpt/collection/worklist', globals())
 
     security.declareProtected('View', 'collection_tabs')
-    collection_tabs = DTMLFile('dtml/collTabs', globals())
+    collection_tabs = PageTemplateFile('zpt/collection/tabs', globals())
 
     security.declarePublic('getWorkitemsForWorklist')
     def getWorkitemsForWorklist(self, p_ret=None):

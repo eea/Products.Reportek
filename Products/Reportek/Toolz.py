@@ -24,6 +24,7 @@
 """
 from DateTime import DateTime
 import RepUtils
+from Products.PythonScripts.standard import url_quote, html_quote
 
 class Toolz:
     """ Useful functions """
@@ -78,3 +79,46 @@ class Toolz:
 
     def getLDAPUserEmail(self, dn):
         return unicode(dn.get('mail', ''), 'iso-8859-1').encode('utf-8')
+
+    #collection related - must be globals to be able to call them in any context (ROOT or collection)
+    def dataflow_table_grouped(self, key='SOURCE_TITLE', desc=0):
+        #ROOT method dataflow_table returns a list of dictionaries with the following keys:
+        #['terminated', 'PK_RA_ID', 'SOURCE_TITLE', 'details_url', 'TITLE', 'uri', 'LAST_UPDATE', 'PK_SOURCE_ID']
+        #we want to group items by given key, ascendent(desc=0) or descendent(desc=1)
+        r = {}
+        #group items
+        rhk = r.has_key
+        for item in RepUtils.utSortListByAttr(self.dataflow_table(), key, desc):
+            if not rhk(item[key]): r[item[key]] = []
+            r[item[key]].append(item)
+        #sort keys
+        keys = r.keys()
+        keys.sort()
+        if desc: keys.reverse()
+        return keys, r
+
+    def partofyear_table(self):
+        return ['',
+            'Whole Year', 'First Half', 'Second Half', 'First Quarter', 'Second Quarter', 'Third Quarter', 'Fourth Quarter',
+            'January', 'February', 'March', 'April', 'May','June', 'July', 'August', 'September', 'October', 'November', 'December'
+        ]
+
+    def tlzNewlineToBr(self, s):
+        #converts the new lines to br tags and encodes the content
+        t = html_quote(s)
+        if t.find('\r') >= 0: t = ''.join(t.split('\r'))
+        if t.find('\n') >= 0: t = '<br />'.join(t.split('\n'))
+        return t
+
+    def tlzNewlineToBrEx(self, s):
+        #converts the new lines to br tags and without encoding the content
+        t = s
+        if t.find('\r') >= 0: t = ''.join(t.split('\r'))
+        if t.find('\n') >= 0: t = '<br />'.join(t.split('\n'))
+        return t
+
+    def tlzSortByAttr(self, p_obj_list, p_attr, p_sort_order=0):
+        return RepUtils.utSortByAttr(p_obj_list, p_attr, p_sort_order)
+
+    def tlzSortObjsListByMethod(self, p_obj_list, p_attr, p_sort_order=0):
+        return RepUtils.utSortObjsListByMethod(p_obj_list, p_attr, p_sort_order)
