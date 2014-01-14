@@ -12,11 +12,11 @@
 <table border="0">
 <tr>
 	<th>Name of method</th>
-	<td><input type="text" name="name" value="" /></td>
+	<td><input type="text" name="name" value="" size="70" /></td>
 </tr>
 <tr>
 	<th>URL to be called</th>
-	<td><input type="text" name="link" value="" /></td>
+	<td><input type="text" name="link" value="" size="70" /></td>
 </tr>
 </table>
 
