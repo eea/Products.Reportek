@@ -34,7 +34,7 @@ import Products
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from OFS.SimpleItem import SimpleItem
 import Globals
-from Globals import DTMLFile
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl import getSecurityManager, ClassSecurityInfo
 import AccessControl.Role
 from DateTime import DateTime
@@ -44,9 +44,7 @@ import RepUtils
 from CountriesManager import CountriesManager
 import constants
 
-
-
-manage_addReferralForm=DTMLFile('dtml/referAdd', globals())
+manage_addReferralForm = PageTemplateFile('zpt/referral/add', globals())
 
 def manage_addReferral(self, title, descr, referral_url,
             year, endyear, partofyear, country, locality, dataflow_uris,
@@ -222,13 +220,13 @@ class Referral(CatalogAware, SimpleItem, CountriesManager):
         return startDate
 
     security.declareProtected('View', 'index_html')
-    index_html=DTMLFile('dtml/referIndex',globals())
+    index_html = PageTemplateFile('zpt/referral/index', globals())
 
     security.declareProtected('View', 'referral_tabs')
-    referral_tabs = DTMLFile('dtml/referTabs', globals())
+    referral_tabs = PageTemplateFile('zpt/referral/tabs', globals())
 
     security.declareProtected('Change Collections', 'manage_prop')
-    manage_prop=DTMLFile('dtml/referProp',globals())
+    manage_prop = PageTemplateFile('zpt/referral/prop', globals())
 
     security.declarePublic('years')
 

@@ -1,0 +1,41 @@
+<tal:block define="SecurityManager modules/AccessControl/getSecurityManager; has_permission python:SecurityManager.checkPermission('View management screens', template)">
+
+	<tal:block condition="has_permission">
+		<span tal:replace="structure context/manage_page_header" />
+		<span tal:replace="structure python:context.manage_tabs(management_view='Properties')" />
+	</tal:block>
+	<tal:block condition="python:not has_permission">
+		<span tal:replace="structure here/standard_html_header" />
+		<div id="tabbedmenu">
+			<ul>
+				<li id="currenttab"><a href="manage_uploadForm" i18n:translate="">Upload</a></li>
+				<li><a href="manage_main" i18n:translate="">Edit Properties</a></li>
+			</ul>
+		</div>
+	</tal:block>
+
+	<h1 i18n:translate="">Upload file</h1>
+
+	<form tal:attributes="action request/URL1" method="post" enctype="multipart/form-data">
+	<table cellspacing="2" border="0">
+		<tr><td colspan="2">&nbsp;</td></tr>
+		<tr><th colspan="2" align="left"><strong i18n:translate="">Local upload</strong></th></tr>
+		<tr>
+			<th align="left"><label for="file" i18n:translate="">File</label></th>
+			<td align="left"><input type="file" id="file" name="file" size="25" value="" /></td>
+		</tr>
+		<tr>
+			<th align="left"><label for="restricted" i18n:translate="">Restricted all files from public view</label></th>
+			<td align="left"><input type="checkbox" id="restricted" name="restricted" /></td>
+		</tr>
+		<tr>
+			<td>&nbsp;</td>
+			<td><br /><input type="submit" value="Upload" name="manage_file_upload:method" i18n:attributes="value" /></td>
+		</tr>
+	</table>
+	</form>
+
+	<span tal:condition="has_permission" tal:replace="structure context/manage_page_footer" />
+	<span tal:condition="not:has_permission" tal:replace="structure context/standard_html_footer" />
+
+</tal:block>

@@ -31,7 +31,7 @@ from AccessControl import getSecurityManager, ClassSecurityInfo
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from OFS.SimpleItem import SimpleItem
 from zExceptions import Forbidden, Redirect
-from Globals import DTMLFile, MessageDialog, package_home
+from Globals import MessageDialog, package_home
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 try: from zope.contenttype import guess_content_type # Zope 2.10 and newer
 except: from zope.app.content_types import guess_content_type # Zope 2.9 and older
@@ -368,7 +368,16 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         return self.manage_document(REQUEST=REQUEST, manage_and_edit=True)
 
     security.declareProtected('View', 'flash_document')
-    flash_document = DTMLFile('dtml/documentFlashView', globals())
+    flash_document = PageTemplateFile('zpt/document/flashview', globals())
+
+    def flash_document_js(self):
+        if self.canChangeEnvelope() and not self.get_accept_time() and not self.released: editable = 'editable'
+        else: editable = ''
+        return """<script language="javascript" type="text/javascript">
+	<!--
+	var absolute_url = '%s', country_code = '%s', editable = '%s';
+	// -->
+	</script>""" % (self.absolute_url(), self.getParentNode().getCountryCode(), editable)
 
     security.declareProtected('Change Envelopes', 'manage_restrictDocument')
     def manage_restrictDocument(self, REQUEST=None):
@@ -394,7 +403,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     # Protected management methods #
     ################################ 
     # Management Interface
-    _manage_main_template = DTMLFile('dtml/documentEdit', globals())
+    _manage_main_template = PageTemplateFile('zpt/document/edit', globals())
     def manage_main(self, REQUEST=None):
         """ """
         #TODO refactor manage_main and manage_document
@@ -453,7 +462,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             self.xml_schema_location = ''
 
     # File upload Interface
-    manage_uploadForm = DTMLFile('dtml/docUpload', globals())
+    manage_uploadForm = PageTemplateFile('zpt/document/upload', globals())
 
     def manage_file_upload(self, file='', content_type='', REQUEST=None):
         """ Upload file from local directory """

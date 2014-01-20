@@ -7,7 +7,7 @@ import logging
 import xmlrpclib
 import requests
 from OFS.SimpleItem import SimpleItem
-from Globals import DTMLFile, InitializeClass
+from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -118,6 +118,6 @@ class DataflowMappingTable(SimpleItem):
     manage_html = PageTemplateFile('zpt/dataflow_mapping_table.zpt', globals())
 
     security.declarePublic('dataflows_select')
-    dataflows_select = DTMLFile('dtml/dataflows_select', globals())
+    dataflows_select = PageTemplateFile('zpt/dataflows_select', globals())
 
 InitializeClass(DataflowMappingTable)

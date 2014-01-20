@@ -1,0 +1,42 @@
+<span tal:replace="structure context/manage_page_header" />
+<span tal:replace="structure context/manage_tabs" />
+
+<p class="form-help" i18n:translate="">To change property values, edit the values and click "Save Changes".</p>
+
+<form action="manage_settings" method="post">
+<table border="0" cellpadding="2" cellspacing="0">
+	<col style="width:10em" />
+	<col />
+	<tr>
+		<th align="left"><label for="title" i18n:translate="">Title</label></th>
+		<td><input type="text" id="title" name="title" tal:attributes="value here/title" size="90" /></td>
+	</tr>
+	<tr>
+		<th align="left"><label for="dataflow_uri" i18n:translate="">Dataflow</label></th>
+		<td><span tal:replace="structure python:here.dataflows_select(edit=1)" /></td>
+	</tr>
+	<tr>
+		<th align="left" valign="top"><label for="allowedSchemas" i18n:translate="">Schemas without webforms<br />(One per line)</label></th>
+		<td align="left" valign="top"><textarea id="allowedSchemas" name="allowedSchemas:lines" cols="90" rows="5" tal:content="python:'\n'.join(here.allowedSchemas)"></textarea></td>
+	</tr>
+	<tr>
+		<th align="left" valign="top"><label for="webformSchemas" i18n:translate="">Schema with webforms</label></th>
+		<td align="left" valign="top"><textarea id="webformSchemas" name="webformSchemas:lines" cols="90" rows="5" tal:content="python:'\n'.join(here.webformSchemas)"></textarea></td>
+	</tr>
+	<tr>
+		<th align="left"><label for="file_id" i18n:translate="">File ID for webforms</label></th>
+		<td align="left"><input type="text" id="file_id" name="file_id" tal:attributes="value here/file_id" size="50" /></td>
+	</tr>
+	<tr>
+		<td>&nbsp;</td>
+		<td><input type="submit" value="Save Changes" i18n:attributes="value" /></td>
+	</tr>
+</table>
+<dl>
+	<dt i18n:translate="">Debug</dt>
+	<dd>schema_url: <dtml-var schema_url missing html_quote></dd>
+	<dd>has_webForm: <dtml-var has_webForm missing html_quote></dd>
+</dl>
+</form>
+
+<span tal:replace="structure context/manage_page_footer" />

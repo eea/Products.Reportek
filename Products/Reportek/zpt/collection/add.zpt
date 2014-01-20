@@ -5,7 +5,7 @@
 		<span tal:replace="structure python:context.manage_form_title(template, context, form_title='Add Collection', help_product='Reportek', help_topic='')"/>
 	</tal:block>
 	<tal:block condition="python:not has_permission">
-		<span tal:replace="structure context/standard_html_header"/>
+		<span tal:replace="structure context/standard_html_header" />
 		<h1 i18n:translate="">Add Collection</h1>
 	</tal:block>
 
@@ -75,7 +75,7 @@
 	</table>
 	</form>
 
-	<span tal:condition="has_permission" tal:replace="structure context/manage_page_footer"/>
-	<span tal:condition="not:has_permission" tal:replace="structure context/standard_html_footer"/>
+	<span tal:condition="has_permission" tal:replace="structure context/manage_page_footer" />
+	<span tal:condition="not:has_permission" tal:replace="structure context/standard_html_footer" />
 
 </tal:block>

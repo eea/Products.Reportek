@@ -24,9 +24,10 @@ __doc__ = """
 
 # Zope imports
 from OFS.Folder import Folder
-from Globals import DTMLFile, InitializeClass
+from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 import Globals
 
 # product imports
@@ -150,7 +151,7 @@ class DataflowMappings(Folder):
 #       return list([x.allowedSchemas + x.webformSchemas for x in self.objectValues('Reportek Dataflow Mapping Record')])
 
     security.declareProtected('Manage OpenFlow', 'dataflowsMappingsView')
-    dataflowsMappingsView = DTMLFile('dtml/mapDataflowsSchemasView', globals())
+    dataflowsMappingsView = PageTemplateFile('zpt/mapDataflowsSchemasView', globals())
 
     security.declareProtected(view_management_screens, 'manage_addDataflowMappingRecordForm')
     manage_addDataflowMappingRecordForm = DataflowMappingRecord.manage_addDataflowMappingRecordForm
@@ -165,7 +166,7 @@ class DataflowMappings(Folder):
     manage_addDataflowMappingTable = DataflowMappingTable.manage_addDataflowMappingTable
 
     security.declarePublic('dataflows_select')
-    dataflows_select = DTMLFile('dtml/dataflows_select', globals())
+    dataflows_select = PageTemplateFile('zpt/dataflows_select', globals())
 
 
 Globals.InitializeClass(DataflowMappings)

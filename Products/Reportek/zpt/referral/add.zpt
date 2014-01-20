@@ -2,40 +2,37 @@
 
 	<tal:block condition="has_permission">
 		<span tal:replace="structure context/manage_page_header" />
-		<span tal:replace="structure python:context.manage_tabs(management_view='Properties')" />
+		<span tal:replace="structure python:context.manage_form_title(template, context, form_title='Add Referral', help_product='Reportek', help_topic='Referral_Add.stx')" />
 	</tal:block>
 	<tal:block condition="python:not has_permission">
-		<span tal:replace="structure here/standard_html_header" />
-		<span tal:replace="structure python:here.collection_tabs(tab='manage_prop')" />
-		<h1 i18n:translate="">Collection Properties</h1>
+		<span tal:replace="structure context/standard_html_header" />
+		<h1 i18n:translate="">Add Referral</h1>
 	</tal:block>
 
-	<form name="edit" tal:attributes="action string:${request/URL1}/" method="post">
-	<table valign="top">
+	<p class="form-help" i18n:translate="">If a certain delivery data is not stored on this system, specify another location for it.</p>
+
+	<form action="manage_addReferral" method="post" name="form">
+	<table border="0" cellspacing="5" cellpadding="0">
 		<tr>
 			<th><label for="title" i18n:translate="">Title</label></th>
-			<td><input type="text" size="50" id="title" name="title" tal:attributes="value here/title" /></td> 
+			<td><input type="text" id="title" name="title" size="50" value="" /></td>
+		</tr>
+		<tr>
+			<th><label for="referral_url" i18n:translate="">Referral URL</label></th>
+			<td><input type="text" id="referral_url" name="referral_url" size="50" value="" /></td>
 		</tr>
 		<tr>
 			<th valign="top"><label for="descr" i18n:translate="">Description</label></th>
-			<td><textarea id="descr" name="descr" rows="5" cols="50" tal:content="here/descr"></textarea></td>
+			<td><textarea cols="50" rows="6" name="descr" id="descr"></textarea></td>
 		</tr>
-		<tr>
-			<th i18n:translate="">Subobjects</th>
-			<td>
-				<input type="checkbox" id="allow_collections" name="allow_collections:int" value="1" tal:attributes="checked here/allow_collections" /> <label for="allow_collections" i18n:translate="">Collections</label>
-				<input type="checkbox" id="allow_envelopes" name="allow_envelopes:int" value="1"  tal:attributes="checked here/allow_envelopes" /> <label for="allow_envelopes" i18n:translate="">Envelopes</label>
-			</td>
-		</tr>
-		<tr><th colspan="2" i18n:translate="">Values used for inheritance</th></tr>
-		<tr>
+		<tr tal:define="default here/dataflow_uris | python:[]">
 			<th valign="top"><label for="dataflow_uris" i18n:translate="">Obligations</label></th>
 			<td tal:define="data here/dataflow_table_grouped; groups python:data[0]; items python:data[1]">
 				<select id="dataflow_uris" size="15" name="dataflow_uris:list" multiple="multiple">
 					<tal:block tal:repeat="group groups">
 						<optgroup tal:attributes="label python:test(len(group)<=80, group, '%s ...' % group[:77])">
 							<tal:block tal:repeat="item python:items[group]">
-							<option tal:define="terminated python:item.has_key('terminated') and item['terminated']=='1'" tal:attributes="value item/uri; class python:test(terminated, 'terminated', None); selected python:item['uri'] in here.dataflow_uris">
+							<option tal:define="terminated python:item.has_key('terminated') and item['terminated']=='1'" tal:attributes="value item/uri; class python:test(terminated, 'terminated', None); selected python:item['uri'] in default">
 								[<span tal:replace="python:' '.join(item['SOURCE_TITLE'].split()[0:2])" />]
 								<span tal:replace="python:test(len(item['TITLE'])<=80, item['TITLE'], '%s ...' % item['TITLE'][:77])" />
 								<tal:block tal:condition="terminated"> (<span i18n:translate="" tal:omit-tag="">terminated</span>)</tal:block>
@@ -46,31 +43,32 @@
 				</select>
 			</td>
 		</tr>
-		<tr>
+		<tr tal:define="default here/partofyear | nothing">
 			<th><label for="year" i18n:translate="">Relating to which year</label></th>
 			<td>
 				<input type="text" name="year" id="year" size="4" maxlength="4" tal:attributes="value here/year | nothing" />
 				<select name="partofyear" id="partofyear">
-					<option tal:repeat="item here/partofyear_table" tal:attributes="value item; selected python:item==here.partofyear" tal:content="item" i18n:translate="" />
+					<option tal:repeat="item here/partofyear_table" tal:attributes="value item; selected python:item==default" tal:content="item" i18n:translate="" />
 				</select>
 				<label for="endyear" class="form-optional" i18n:translate="">to</label>
-				<input type="text" id="endyear" name="endyear" size="4" maxlength="4" tal:attributes="value here/endyear" />
+				<input type="text" id="endyear" name="endyear" size="4" maxlength="4" value="" />
 			</td>
 		</tr>
-		<tr>
+		<tr tal:define="default here/country | nothing">
 			<th><label for="country" i18n:translate="">Coverage</label></th>
 			<td>
 				<select name="country" id="country">
 					<option value="" i18n:translate="">Unspecified</option>
-					<option tal:repeat="item here/localities_table" tal:attributes="value item/uri; selected python:item['uri']==here.country" tal:content="item/name" />
+					<option tal:repeat="item here/localities_table" tal:attributes="value item/uri; selected python:item['uri']==default" tal:content="item/name" />
 				</select>
 			</td>
 		</tr>
-		<tr>
+		<tr tal:define="default here/locality | nothing">
 			<th><label for="locality" i18n:translate="">Coverage note</label></th>
-			<td><input type="text" name="locality" id="locality" size="30" tal:attributes="value here/locality" /></td>
+			<td><input type="text" name="locality" id="locality" size="30" tal:attributes="value default" /></td>
 		</tr>
-		<tr><td></td><td><input type="submit" name="manage_editCollection:method" value="Change" i18n:attributes="value" /></td></tr> 
+		<tr><td></td><td><input type="submit" value="Add" i18n:attributes="value" /></td></tr>
+	</table>
 	</form>
 
 	<span tal:condition="has_permission" tal:replace="structure context/manage_page_footer" />

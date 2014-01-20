@@ -1,0 +1,50 @@
+<span tal:replace="structure here/standard_html_header" />
+
+<span tal:replace="structure here/referral_tabs" />
+
+<tal:block tal:define="has_descr python:here.descr!=''; has_dataflow_uris python:len(here.dataflow_uris)>0">
+
+<div class="metadata">
+	<h1 tal:content="here/title_or_id" />
+	<p tal:condition="here/referral_url">
+		<span tal:omit-tag="" i18n:translate="">The data you are looking for are not stored on this system. Please continue your search on </span>
+		<a tal:attributes="href here/referral_url" tal:content="here/referral_url" />.
+	</p>
+	<table>
+	<tbody>
+		<tr>
+			<th valign="top" i18n:translate="">Description</th>
+			<td>
+				<tal:block tal:condition="has_descr"><span tal:replace="structure python:here.tlzNewlineToBr(here.descr)" /></tal:block>
+				<tal:block tal:condition="python:not has_descr"><span tal:omit-tag="" i18n:translate="">(No description)</span></tal:block>
+			</td>
+		</tr>
+		<tr>
+			<th valign="top" i18n:translate="">Obligation(s)</th>
+			<td>
+				<tal:block tal:condition="has_dataflow_uris"><tal:block tal:repeat="item here/dataflow_uris"><tal:block tal:define="item_df python:here.dataflow_lookup(item)"><a tal:attributes="href item_df/details_url" tal:content="item_df/TITLE" /><em tal:condition="python:item_df.get('terminated', '0')=='1'" i18n:translate="">Terminated</em><br tal:condition="python:not path('repeat/item/end')" /></tal:block></tal:block></tal:block>
+				<tal:block tal:condition="python:not has_dataflow_uris"><span style="color:maroon;font-weight:bold" title="The obligation tag makes it possible for the requesters to find the delivery" i18n:attributes="title" i18n:translate="">Notice: this referral has no obligation tag</span></tal:block>
+			</td>
+		</tr>
+		<tr tal:condition="here/year">
+			<th valign="top" i18n:translate="">Period</th>
+			<td>
+				<tal:block tal:condition="python:not here.endyear"><span tal:replace="here/year" /> - <span tal:replace="here/partofyear" /></tal:block>
+				<tal:block tal:condition="here/endyear"><span tal:replace="here/year" /> to <span tal:replace="here/endyear" /></tal:block>
+			</td>
+		</tr>
+		<tr tal:condition="here/country">
+			<th valign="top" i18n:translate="">Coverage</th>
+			<td><span tal:replace="here/getCountryName" /><tal:block tal:condition="here/locality">: <span tal:replace="here/locality" /></tal:block></td>
+		</tr>
+		<tr tal:condition="here/referral_url">
+			<th valign="top" i18n:translate="">Referral</th>
+			<td><a tal:attributes="href here/referral_url" tal:content="here/referral_url" /></td>
+		</tr>
+	</tbody>
+	</table>
+</div>
+
+</tal:block>
+
+<span tal:replace="structure here/standard_html_footer" />

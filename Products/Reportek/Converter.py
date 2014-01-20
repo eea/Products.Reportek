@@ -30,6 +30,7 @@ __version__='$Rev$'[6:-2]
 from OFS.SimpleItem import SimpleItem
 from AccessControl import ClassSecurityInfo, getSecurityManager, Unauthorized
 from AccessControl.Permissions import view_management_screens, view
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from zExceptions import Redirect
 import Globals
 import RepUtils
@@ -44,7 +45,7 @@ import blob
 from RepUtils import extension
 from conversion_registry import request_params
 
-manage_addConverterForm = Globals.DTMLFile('dtml/converterAdd', globals())
+manage_addConverterForm = PageTemplateFile('zpt/converters/item_add', globals())
 
 def manage_addConverter(self, id, title='', convert_url='', ct_input='', ct_output='', ct_schema='', ct_extraparams='', description='', suffix='', REQUEST=None):
     """ add a new converter object """
@@ -114,7 +115,7 @@ class Converter(SimpleItem):
         return RepUtils.utConvertListToLines(self.ct_extraparams)
 
     security.declareProtected(view_management_screens, 'manage_settings_html')
-    manage_settings_html = Globals.DTMLFile('dtml/converterEdit', globals())
+    manage_settings_html = PageTemplateFile('zpt/converters/item_edit', globals())
 
     def __call__(self, file_url, converter_id, output_file_name='', REQUEST=None):
         file_obj = self.getPhysicalRoot().restrictedTraverse(file_url, None)

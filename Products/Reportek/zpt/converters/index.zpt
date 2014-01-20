@@ -1,0 +1,194 @@
+<span tal:replace="structure context/manage_page_header" />
+<span tal:replace="structure python:context.manage_tabs(management_view='View')" />
+
+<link rel="stylesheet" type="text/css" href="http://www.eionet.europa.eu/styles/eionet2007/screen.css" media="screen" />
+<script src="++resource++static/datatables-1.9.4/js/jquery.js"></script>
+<script src="++resource++static/datatables-1.9.4/js/jquery.dataTables.js"></script>
+<script src="++resource++static/spin.min.js"></script>
+<script type="text/javascript" charset="utf-8">
+    $(document).ready(function() {
+            var collapsed_text = 'show';
+            var expanded_text = 'hide';
+            var collapsible=$('.note-msg #collapsible')
+            var button=$('.note-msg #collapse_button')
+            $(button).html(expanded_text);
+            $(button).bind('click',
+                function(){
+                    if($(collapsible).attr('collapsed')=='false'){
+                        $(collapsible).slideUp();
+                        $(collapsible).attr('collapsed', 'true');
+                        $(button).html(collapsed_text);
+                    }
+                    else{
+                        $(collapsible).slideDown();
+                        $(collapsible).attr('collapsed', 'false');
+                        $(button).html(expanded_text);
+                    }
+                }
+            );
+            $('.dataTable').dataTable({
+                "bScrollInfinite": true,
+                "bScrollCollapse": true,
+                "sScrollY": "200px"
+            });
+            $('#ajax_conv').click(function(event) {
+                event.preventDefault();
+                $.ajax({
+                    url:'./ajax_remote_converters',
+                    beforeSend: function(){
+                        var opts = {
+                          lines: 13, // The number of lines to draw
+                          length: 4, // The length of each line
+                          width: 2, // The line thickness
+                          radius: 7, // The radius of the inner circle
+                          corners: 1, // Corner roundness (0..1)
+                          rotate: 0, // The rotation offset
+                          color: '#000', // #rgb or #rrggbb
+                          speed: 1, // Rounds per second
+                          trail: 60, // Afterglow percentage
+                          shadow: false, // Whether to render a shadow
+                          hwaccel: false, // Whether to use hardware acceleration
+                          className: 'spinner', // The CSS class to assign to the spinner
+                          zIndex: 2e9, // The z-index (defaults to 2000000000)
+                          top: 'auto', // Top position relative to parent in px
+                          left: '0px' // Left position relative to parent in px
+                        };
+                        $('#spinner').replaceWith("<div id='spinner'></div>");
+                        var target = document.getElementById('spinner');
+                        var spinner = new Spinner(opts).spin(target);
+                    },
+                    success: function(data){
+                        $('#remote').replaceWith(data);
+                        $('#remote_dataTable').css('font-size', '14px');
+                        $('#remote_dataTable').css('margin', '0px');
+                        $('#remote_dataTable').dataTable({
+                            "bScrollInfinite": true,
+                            "bScrollCollapse": true,
+                            "sScrollY": "200px"
+                        });
+                    }
+                });
+            });
+
+    });
+</script>
+
+<div class='note-msg'>
+	<strong>Converters available in this system.</strong>
+	[<a href="#" style="font-weight: normal;" id="collapse_button">hide</a>]
+	<div id='collapsible' collapsed="false" style="overflow-y: scroll; height: 400px; margin-top: 10px;">
+		<p class="form-help">Converters can come from two sources, but their source is not apparent to the end users using them:</p>
+		<ol style="font-weight: normal;">
+			<li><strong>Remote Conversion Service</strong> (e.g. converters.eionet.europa.eu) - with which the Data Repository interacts through an XML-RPC-based API, used mainly to convert to/from XML formats<br /><br /></li>
+			<li><strong>Local Conversion Service</strong> - a local REST application (running on the same machine as the Data Repository, on port 5000), used to convert files of various mime types
+				<ul>
+					<li>
+						How it works
+						<ul>
+							<li>A specific converter is called by making a POST request to its allocated URL (e.g.: http://localhost:5000/convert/<converter_id>). The request must contain the file data and the extra-parameters.</li>
+							<li>The conversion service saves the data in a temporary file and invokes the conversion command using the path to the temporary file and the extra-parameters as input parameters for this command. Conversion commands are executable system commands or scripts stored on the same machine. (e.g.: unzip)</li>
+							<li>The result of the conversion or any message generated by an error is sent back as the response to the incoming POST request</li>
+							<li>Data Repository receives and displays the response to the client</li>
+						</ul>
+					</li>
+					<li>Configuration
+						<ul>
+							<li>The configuration file is a JSON stored in <strong>&lt;app_root_folder&gt;/.config/converters.json</strong></li>
+							<li>Basically it's a list of dictionaries that looks like this:<br/>
+								<code>
+									[{
+									<br/>
+									"name": "ziplist",
+									<br/>
+									"command": "unzip -l {0}",
+									<br/>
+									"accepted_content_types":
+									["application/x-zip-compressed",
+									"application/zip"],
+									<br/>
+									"title": "List of
+									contents",
+									<br/>
+									"returned_content_type":
+									"text/plain;charset=utf-8"
+									<br/>
+									}, ..., {...}]
+								</code>
+							</li>
+							<li>Accepted dictionary keys and description
+								<ul>
+									<li><strong>name</strong>: the id of the converter (the id that appears in the URL where the POST request is to be sent)</li>
+									<li><strong>command</strong>: the command used for conversion</li>
+									<li><strong>title</strong>: title displayed to client</li>
+									<li><strong>accepted_content_types</strong>: list of mime-types that this converter can handle</li>
+									<li><strong>returned_content_type</strong>: the mime-type of the response</li>
+									<li><strong>extraparams</strong>: extra input parameters needed by the command</li>
+									<li><strong>ct_schema</strong>: schema used to check if a converter is fit for an xml file</li>
+									<li><strong>description</strong>: converter description</li>
+								</ul>
+							</li>
+							<li>Command configuration
+								<ul>
+									<li>A simple command string looks like this: <code>"unzip -l {0}"</code> where {0} is always the placeholder for the path of file to be converted. (temporary file generated by the application used to store the incoming file data)</li>
+									<li>Complex commands can have multiple input parameters: <code>"python ./bin/gml_to_png_thumbnail_bg.py --gml {0} --country {1}"</code> The application uses the <code>format</code> function to replace the placeholders with corresponding values. That would be something equivalent to: <code>command.format(*([file_path] + extra_params))</code></li>
+								</ul>
+							</li>
+							<li>Adding/Removing/Modifying a converter is equivalent to adding/removing/modifying a dictionary in the list found in <strong>&lt;app_root_folder&gt;/.config/converters.json</strong></li>
+						</ul>
+					</li>
+				</ul>
+			</li>
+		</ol>
+	</div>
+</div>
+
+<tal:block tal:define="include_remote python:test(request.get('include_remote', '').lower() in ['true', 'yes', '1'], True, False); convs python:here.getConvertersDescriptions(include_remote=include_remote)">
+
+<h2 i18n:translate="">Local converters</h2>
+<table border="1" cellpadding="2" cellspacing="0" class="dataTable" style="margin: 0px; font-size: 14px;">
+<thead>
+<tr>
+	<th i18n:translate="">Name</th>
+	<th i18n:translate="">Input content type</th>
+	<th i18n:translate="">Output content type</th>
+</tr>
+</thead>
+<tbody>
+<tr tal:repeat="item python:convs[0]">
+	<td tal:content="item/title_or_id" />
+	<td tal:content="python:', '.join(item.ct_input)"></td>
+	<td tal:content="item/ct_output" />
+</tr>
+</tbody>
+</table>
+
+<h2 i18n:translate="">Remote converters</h2>
+<tal:block tal:condition="python:include_remote==True">
+	<div id="remote">
+		<table border="1" cellpadding="2" cellspacing="0" class="dataTable" id="remote_dataTable">
+		<thead>
+		<tr>
+			<th i18n:translate="">Name</th>
+			<th i18n:translate="">XML schema</th>
+			<th i18n:translate="">Result type</th>
+		</tr>
+		</thead>
+		<tbody>
+		<tr tal:repeat="item python:convs[1]">
+			<td tal:content="item/description" />
+			<td tal:content="item/xml_schema" />
+			<td tal:content="item/result_type" />
+		</tr>
+		</tbody>
+		</table>
+	</div>
+</tal:block>
+<tal:block tal:condition="python:include_remote!=True">
+	<div id="spinner">
+		<a id="ajax_conv" href="./?include_remote=True" i18n:translate="">Show remote converters</a>
+	</div>
+</tal:block>
+
+</tal:block>
+
+<span tal:replace="structure context/manage_page_footer" />

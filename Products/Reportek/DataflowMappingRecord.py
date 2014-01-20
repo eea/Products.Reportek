@@ -24,14 +24,15 @@ __doc__ = """
 
 # Zope imports
 from OFS.SimpleItem import SimpleItem
-from Globals import DTMLFile, InitializeClass
+from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 import Globals
 
 # product imports
 
-manage_addDataflowMappingRecordForm = Globals.DTMLFile('dtml/mapDataflowSchemaAdd', globals())
+manage_addDataflowMappingRecordForm = PageTemplateFile('zpt/mapDataflowSchemaAdd', globals())
 
 def manage_addDataflowMappingRecord(self, id, title='', dataflow_uri='', allowedSchemas=[], webformSchemas=[], file_id='', REQUEST=None):
     """ add a new converter object """
@@ -137,9 +138,9 @@ class DataflowMappingRecord(SimpleItem):
 #       self.has_webForm = hasWF
 
     security.declareProtected(view_management_screens, 'manage_settings_html')
-    manage_settings_html = Globals.DTMLFile('dtml/mapDataflowSchemaEdit', globals())
+    manage_settings_html = PageTemplateFile('zpt/mapDataflowSchemaEdit', globals())
 
     security.declarePublic('dataflows_select')
-    dataflows_select = DTMLFile('dtml/dataflows_select', globals())
+    dataflows_select = PageTemplateFile('zpt/dataflows_select', globals())
 
 Globals.InitializeClass(DataflowMappingRecord)

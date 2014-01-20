@@ -7,13 +7,13 @@
             <span style="text-align: center; font-weight: bold; font-size: 6px; color: #77003b;">!</span>
         </td>
         <td valign="top">
-            <span style="text-align: center" tal:content="options/message" />
+            <span style="text-align: center" tal:content="options/message" i18n:translate="" />
         </td>
     </tr>
     <tr>
         <td valign="top"> </td>
         <td valign="top">
-            <span style="text-align: center"><input type="submit" value="   ok   " /></span>
+            <span style="text-align: center"><input type="submit" value="   ok   " i18n:attributes="value" /></span>
         </td>
     </tr>
 </table>

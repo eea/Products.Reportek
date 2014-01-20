@@ -1,0 +1,16 @@
+<table border="1" cellpadding="2" cellspacing="0" class="dataTable" id="remote_dataTable">
+<thead>
+<tr>
+	<th i18n:translate="">Name</th>
+	<th i18n:translate="">XML schema</th>
+	<th i18n:translate="">Result type</th>
+</tr>
+</thead>
+<tbody>
+<tr tal:repeat="item options/convs | python:[]">
+	<td tal:content="conv_item/description" />
+	<td tal:content="conv_item/xml_schema" />
+	<td tal:content="conv_item/result_type" />
+</tr>
+</tbody>
+</table>

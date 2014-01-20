@@ -1,0 +1,20 @@
+<span tal:replace="structure here/standard_html_header" />
+
+<h2 i18n:translate="">Dataflows / XML types' correspondence</h2>
+
+<table border="1" cellspacing="0" cellpadding="0">
+	<tr>
+		<th i18n:translate="">Title</th>
+		<th i18n:translate="">Dataflow</th>
+		<th i18n:translate="">Schemas without webform</th>
+		<th i18n:translate="">Schemas with webform</th>
+	</tr>
+	<tr tal:repeat="item python:here.ReportekEngine.tlzSortByAttr(here.objectValues(['Reportek Dataflow Mapping Record']), 'dataflow_uri')">
+		<td>&nbsp;<a tal:attributes="href string:${item/absolute_url}/manage_settings_html" tal:content="item/title_or_id" />&nbsp;</td>
+		<td><a tal:attributes="href python:item.dataflow_uri.replace('eionet.eu.int', 'eionet.europa.eu')" tal:content="item/dataflow_uri" /></td>
+		<td tal:content="structure python:here.ReportekEngine.tlzNewlineToBr('\n'.join(item.allowedSchemas))" />
+		<td tal:content="structure python:here.ReportekEngine.tlzNewlineToBr('\n'.join(item.webformSchemas))" />
+	</tr>
+</table>
+
+<span tal:replace="structure here/standard_html_footer" />

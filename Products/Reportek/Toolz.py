@@ -82,6 +82,7 @@ class Toolz:
 
     #collection related - must be globals to be able to call them in any context (ROOT or collection)
     def dataflow_table_grouped(self, key='SOURCE_TITLE', desc=0):
+        """ """
         #ROOT method dataflow_table returns a list of dictionaries with the following keys:
         #['terminated', 'PK_RA_ID', 'SOURCE_TITLE', 'details_url', 'TITLE', 'uri', 'LAST_UPDATE', 'PK_SOURCE_ID']
         #we want to group items by given key, ascendent(desc=0) or descendent(desc=1)

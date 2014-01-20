@@ -1,0 +1,8 @@
+<div id="tabbedmenu" tal:define="tab options/tab | nothing; SecurityManager modules/AccessControl/getSecurityManager">
+	<ul>
+		<li tal:attributes="id python:test(tab=='index_html' or tab=='' or tab is None, 'currenttab', None)"><a href="index_html" i18n:translate="">Overview</a></li>
+		<tal:block  tal:condition="python:SecurityManager.checkPermission('Change Collections', here)">
+			<li tal:attributes="id python:test(tab=='manage_prop', 'currenttab', None)"><a href="manage_prop" i18n:translate="">Edit properties</a></li>
+		</tal:block>
+	</ul>
+</div>

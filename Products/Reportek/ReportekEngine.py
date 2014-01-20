@@ -132,7 +132,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security = ClassSecurityInfo()
 
     security.declareProtected(view_management_screens, 'manage_properties')
-    manage_properties = DTMLFile('dtml/engineProp', globals())
+    manage_properties = PageTemplateFile('zpt/engine/prop', globals())
 
     security.declareProtected(view_management_screens, 'manage_editEngine')
     def manage_editEngine(self, title='', webq_url='', webq_envelope_menu='', webq_before_edit_page='', QA_application='', globally_restricted_site=False, REQUEST=None):
@@ -761,7 +761,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     subscriptions_html = DTMLFile('dtml/engineSubscriptions', globals())
 
     security.declareProtected('View', 'uns_settings')
-    uns_settings = DTMLFile('dtml/engineUNSInterface', globals())
+    uns_settings = PageTemplateFile('zpt/engine/unsinterface', globals())
 
     security.declareProtected('View management screens', 'manage_editUNSInterface')
     def manage_editUNSInterface(self, UNS_server, UNS_username, UNS_password, UNS_password_confirmation, UNS_channel_id, UNS_notification_types, REQUEST=None):

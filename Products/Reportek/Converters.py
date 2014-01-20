@@ -39,6 +39,7 @@ import json
 from OFS.Folder import Folder
 from AccessControl import getSecurityManager, ClassSecurityInfo, Unauthorized
 from AccessControl.Permissions import view_management_screens, view
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from zExceptions import Redirect
 import Globals
 
@@ -74,13 +75,13 @@ class Converters(Folder):
     manage_addConverter = Converter.manage_addConverter
 
     security.declareProtected(view_management_screens, 'index_html')
-    index_html = Globals.DTMLFile('dtml/convertersIndex', globals())
+    index_html = PageTemplateFile('zpt/converters/index', globals())
 
     security.declareProtected(view_management_screens, 'manage_converters_html')
-    manage_converters_html = Globals.DTMLFile('dtml/convertersEdit', globals())
+    manage_converters_html = PageTemplateFile('zpt/converters/edit', globals())
 
     security.declareProtected(view_management_screens, 'remote_converters')
-    remote_converters = Globals.DTMLFile('dtml/convertersRemoteTable', globals())
+    remote_converters = PageTemplateFile('zpt/converters/remote', globals())
 
     def __init__(self):
         """ """
