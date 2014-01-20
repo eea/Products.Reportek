@@ -2,11 +2,11 @@
 
 	<tal:block condition="has_permission">
 		<span tal:replace="structure context/manage_page_header"/>
-		<span tal:replace="structure python:context.manage_form_title(template, context, form_title='Add Document', help_product='Reportek', help_topic='Document_Add.stx')"/>
+		<span tal:replace="structure python:context.manage_form_title(template, context, form_title='Add Collection', help_product='Reportek', help_topic='')"/>
 	</tal:block>
 	<tal:block condition="python:not has_permission">
 		<span tal:replace="structure context/standard_html_header"/>
-		<h1 i18n:translate="">Add Document</h1>
+		<h1 i18n:translate="">Add Collection</h1>
 	</tal:block>
 
 	<p class="form-help" i18n:translate="">A collection is an organisation of envelopes. Some fields you fill out will show up as default values for all envelopes and collections you subsequently create in this collection.</p>
