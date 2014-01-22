@@ -57,11 +57,14 @@ from CountriesManager import CountriesManager
 from paginator import DiggPaginator, EmptyPage, InvalidPage
 from zope.interface import implements
 from interfaces import IReportekEngine
+from zope.i18n.negotiator import normalize_lang
+from zope.i18n.interfaces import II18nAware, INegotiator
+from zope.component import queryUtility, getUtility
 
 class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     """ Stores generic attributes for Reportek """
 
-    implements(IReportekEngine)
+    implements(IReportekEngine, II18nAware)
     meta_type = 'Reportek Engine'
     icon = 'misc_/Reportek/Converters'
 
@@ -85,6 +88,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             {'id':'QA_application', 'type':'string', 'mode':'w'},
             {'id':'globally_restricted_site', 'type':'tokens', 'mode':'w'}
     )
+
 
     def all_meta_types( self, interfaces=None ):
         """
@@ -221,6 +225,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security.declareProtected(view_management_screens, 'Build_collections_form')
     Build_collections_form = PageTemplateFile('zpt/engineBuildCollectionsForm', globals())
+
+    security.declarePublic('languages_box')
+    languages_box = PageTemplateFile('zpt/languages_box', globals())
 
     def assign_roles(self, user, role, local_roles, doc):
         local_roles.append(role)
@@ -931,5 +938,31 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declareProtected('View', 'getUniqueValuesFor')
     def getUniqueValuesFor(self, value):
         return self.Catalog.uniqueValuesFor(value)
+
+    security.declarePublic('getAvailableLanguages')
+    def getAvailableLanguages(self):
+        """Get avalilable languages as their .mo files are found in locales/<ln_code> folders
+        map them to their localized name."""
+        negociator = getUtility(INegotiator)
+        return negociator.getAvailableLanguages()
+
+    security.declarePublic('getSelectedLanguage')
+    def getSelectedLanguage(self):
+        """Get selected language for this requester. The lang is selected by
+        HTTP headers, cookie or stored default"""
+        negociator = getUtility(INegotiator)
+        return negociator.getSelectedLanguage(self.REQUEST)
+
+    # public access
+    #security.declarePublic('setCookieLanguage')
+    def setCookieLanguage(self):
+        """Sets the language of the site by cookie.
+        negotiator will read this pref from cookie on every request
+        """
+        new_lang = self.REQUEST.get('chlang')
+        if new_lang:
+            new_lang = normalize_lang(new_lang)
+            self.REQUEST.RESPONSE.setCookie('reportek_language', new_lang, path='/')
+            self.REQUEST.RESPONSE.redirect(self.REQUEST['HTTP_REFERER'])
 
 Globals.InitializeClass(ReportekEngine)

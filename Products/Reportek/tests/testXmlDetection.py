@@ -1,10 +1,10 @@
 import unittest
 from StringIO import StringIO
+from Products.Reportek.XMLInfoParser import detect_schema, detect_single_schema
 
 
 def setUpModule():
-    global detect_schema, detect_single_schema
-    from Products.Reportek.XMLInfoParser import detect_schema, detect_single_schema
+    pass
 
 
 class XmlDetectionTest(unittest.TestCase):

@@ -22,7 +22,7 @@
                  class=".messages.MessagesView"
                  permission="zope2.View" />
 
-   <browser:resourceDirectory
+    <browser:resourceDirectory
        name="static"
        directory="www/static" />
 
