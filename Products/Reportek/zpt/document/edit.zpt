@@ -18,7 +18,7 @@
 		<span tal:replace="structure here/standard_html_header" />
 		<div id="tabbedmenu">
 			<ul>
-				<li><a href="index_html">Overview</a></li>
+				<li><a href="index_html" i18n:translate="">Overview</a></li>
 				<li id="currenttab"><a href="manage_main" i18n:translate="">Edit Properties</a></li>
 			</ul>
 		</div>

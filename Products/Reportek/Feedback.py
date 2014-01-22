@@ -281,7 +281,6 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
     index_html = PageTemplateFile('zpt/feedback/index', globals())
 
     security.declareProtected('Change Feedback', 'manage_editFeedbackForm')
-    manage_editFeedbackForm = DTMLFile('dtml/feedbackEdit', globals())
     manage_editFeedbackForm = PageTemplateFile('zpt/feedback/edit', globals())
 
     security.declareProtected('Change Feedback', 'manage_uploadAttFeedbackForm')

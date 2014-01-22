@@ -24,14 +24,13 @@
 <script src="++resource++static/ckeditor/ckeditor.js"></script>
 
 <tal:block condition="not:context/released">
-	<p>You can only add feedback in an envelope when it is released!</p>
+	<p i18n:translate="">You can only add feedback in an envelope when it is released!</p>
 </tal:block>
 <tal:block condition="python: context.released and not context.canAddFeedback()">
-	<p>A manual feedback already exists for this envelope!</p>
+	<p i18n:translate="">A manual feedback already exists for this envelope!</p>
 </tal:block>
 <tal:block condition="python:context.canAddFeedback()">
-  <p class="form-help"
-     i18n:translate="">Use the form to submit feedback to this delivery. You can attach one file to this feedback now and add othe files later by editing the feedback.
+  <p class="form-help" i18n:translate="">Use the form to submit feedback to this delivery. You can attach one file to this feedback now and add othe files later by editing the feedback.
   </p>
 
   <form action="manage_addFeedback" method="post" enctype="multipart/form-data">
@@ -60,9 +59,7 @@
       <tr>
         <td></td>
         <td>
-          <input type="submit"
-                 value="Add feedback"
-                 i18n:attributes="value button-add-feedback"/>
+          <input type="submit" value="Add feedback" i18n:attributes="value button-add-feedback"/>
         </td>
       </tr>
     </table>

@@ -15,23 +15,23 @@
 	</tr>
 	<tr>
 		<td style="vertical-align: top;"><label for="convert_url" class="form-label">Converter path</label></td>
-		<td><input type="text" name="convert_url" id="convert_url" tal:attributes="value here/convert_url" size="50" /><span tal:omit-tag="">(e.g. <em>pdftotext -raw %s -</em>)</span></td>
+		<td><input type="text" name="convert_url" id="convert_url" tal:attributes="value here/convert_url" size="50" />(e.g. <em>pdftotext -raw %s -</em>)</td>
 	</tr>
 	<tr>
 		<td style="vertical-align: top;"><label for="ct_input" class="form-optional">Content-Type input</label></td>
-		<td style="vertical-align: top;"><input type="text" name="ct_input" id="ct_input" size="25" tal:attributes="value here/ct_input" /><span tal:omit-tag="">(e.g. <em>application/pdf</em>)</span></td>
+		<td style="vertical-align: top;"><input type="text" name="ct_input" id="ct_input" size="25" tal:attributes="value here/ct_input" />(e.g. <em>application/pdf</em>)</td>
 	</tr>
 	<tr>
 		<td style="vertical-align: top;"><label for="suffix" class="form-optional">Filename suffix</label></td>
-		<td style="vertical-align: top;"><input type="text" name="suffix" id="suffix" size="10" tal:attributes="value here/suffix" /><span tal:omit-tag="">(<em>Match on file's suffix</em>)</span></td>
+		<td style="vertical-align: top;"><input type="text" name="suffix" id="suffix" size="10" tal:attributes="value here/suffix" />(<em>Match on file's suffix</em>)</td>
 	</tr>
 	<tr>
 		<td style="vertical-align: top;"><label for="ct_schema" class="form-optional">XML schema</label></td>
-		<td style="vertical-align: top;"><input type="text" name="ct_schema" id="ct_schema" size="40" tal:attributes="value here/ct_schema" /><span tal:omit-tag="">(<em>Only for XML files</em>)</span></td>
+		<td style="vertical-align: top;"><input type="text" name="ct_schema" id="ct_schema" size="40" tal:attributes="value here/ct_schema" />(<em>Only for XML files</em>)</td>
 	</tr>
 	<tr>
 		<td style="vertical-align: top;"><label for="ct_output" class="form-label">Content-Type output</label></td>
-		<td style="vertical-align: top;"><input type="text" name="ct_output" id="ct_output" size="25" tal:attributes="value here/ct_output" /><span tal:omit-tag="">(e.g. <em>text/plain</em>)</span></td>
+		<td style="vertical-align: top;"><input type="text" name="ct_output" id="ct_output" size="25" tal:attributes="value here/ct_output" />(e.g. <em>text/plain</em>)</td>
 	</tr>
 	<tr>
 		<td colspan="2">Define the values for the extra parameters to be evaluated as Python expressions in the exact order as they appear in the converter function called. You can use '<code>file_obj</code>' as file context and '<code>converter_obj<code>' as the converter context. (e.g. <code>file_obj.getParentNode().getCountryCode()</code>)</td>

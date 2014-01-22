@@ -14,10 +14,10 @@
 
   <tal:block condition="not:has_permission">
     <span tal:replace="structure context/standard_html_header"/>
-    <h1>Upload zipfile archive</h1>
+    <h1 i18n:translate="">Upload zipfile archive</h1>
   </tal:block>
 
-    <p>The zipfile upload makes it possible for you to add a large number of files
+    <p i18n:translate="">The zipfile upload makes it possible for you to add a large number of files
     in one upload. The zipfile will be uploaded and unwrapped.</p>
 
   <tal:block define="
@@ -27,15 +27,15 @@
     <form action="manage_addzipfile" method="post" enctype="multipart/form-data" name="form">
     <table cellspacing="5" cellpadding="0">
       <tr>
-        <th align="left" valign="top">Zip file</th>
+        <th align="left" valign="top" i18n:translate="">Zip file</th>
         <td align="left" valign="top"><input type="file" name="file" size="25" value="" /></td>
       </tr>
       <tr>
-        <td colspan="2">&nbsp;<br /></td>
+        <td colspan="2"> <br /></td>
       </tr>
 
       <tr tal:condition="not:python:force_restricted">
-        <th align="left">Restrict all contained files from public view</th>
+        <th align="left" i18n:translate="">Restrict all contained files from public view</th>
         <td align="left">
             <input tal:condition="default_restricted" type="checkbox" name="restricted" checked="checked" />
             <input tal:condition="not:default_restricted" type="checkbox" name="restricted" />
@@ -46,7 +46,7 @@
         <td>
           <input tal:condition="force_restricted" type="hidden" name="restricted" value="on"/>
         </td>
-        <td><input type="submit" value="Add" i18n:attributes="value"/></td>
+        <td><input type="submit" value="Add" i18n:attributes="value" /></td>
       </tr>
     </table>
     </form>

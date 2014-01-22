@@ -7,11 +7,11 @@
 <table border="0" cellpadding="2" cellspacing="0">
 	<tr>
 		<th align="left"><label for="remote_converter">Converter server</label></th>
-		<td><input type="text" id="remote_converter" name="remote_converter" tal:attributes="value here/remote_converter" size="50" /><span tal:omit-tag="">(e.g. <em>http://converters.eionet.europa.eu/RpcRouter</em>)</span></td>
+		<td><input type="text" id="remote_converter" name="remote_converter" tal:attributes="value here/remote_converter" size="50" />(e.g. <em>http://converters.eionet.europa.eu/RpcRouter</em>)</td>
 	</tr>
 	<tr>
 		<th align="left"><label for="api_url">REST API URL</label></th>
-		<td><input type="text" id="api_url" name="api_url" tal:attributes="value here/api_url" size="50" /><span tal:omit-tag="">(e.g. <em>http://converters.eionet.europa.eu/api</em>)</span></td>
+		<td><input type="text" id="api_url" name="api_url" tal:attributes="value here/api_url" size="50" />(e.g. <em>http://converters.eionet.europa.eu/api</em>)</td>
 	</tr>
 	<tr>
 		<td></td>

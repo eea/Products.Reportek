@@ -9,9 +9,7 @@
           <li>
             <a tal:attributes="href python:context.getMySelf().absolute_url()" title="Go back to envelope"
                i18n:attributes="title go-back-title"
-               i18n:translate="">
-              Back to envelope
-            </a>
+               i18n:translate="">Back to envelope</a>
           </li>
           <tal:block condition="python:context.checkPermissionAddComments() and not context.automatic">
             <li><a href="comment_add_html" title="Add comment" i18n:translate="">Add comment</a></li>
@@ -19,7 +17,7 @@
           </ul>
       </div>
 
-      <h1 i18n:translate="">Feedback: <span tal:replace="context/title_or_id" i18n:name="title"/></h1>
+      <h1 i18n:translate="">Feedback: <span tal:replace="context/title_or_id" i18n:name="title" /></h1>
 
       <table class="datatable"
              tal:define="postingdate python:context.postingdate.strftime('%d %b %Y %H:%M');
@@ -122,7 +120,7 @@
                            i18n:translate="">subscribe to receive notifications</a> 
           </p>
         </div>
-        <span tal:replace="structure context/comments_box"/>
+        <span tal:replace="structure context/comments_box" />
       </tal:block>
     </tal:block>
   </metal:block>

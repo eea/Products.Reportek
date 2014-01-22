@@ -16,12 +16,11 @@
 # Rights Reserved.
 #
 # Contributor(s):
-# Cornel Nitu, Finsiel Romania
+# Cornel Nitu, Eau de Web
 
 __doc__ = """
       Converter product module.
-      The Converter define a conversion type
-      .
+      The Converter defines a conversion from one type of file to another
 
       $Id$
 """

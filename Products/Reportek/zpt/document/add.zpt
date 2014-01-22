@@ -14,7 +14,7 @@
   </tal:block>
   <tal:block condition="not:has_permission">
     <span tal:replace="structure context/standard_html_header"/>
-    <h1>Add Document</h1>
+    <h1 i18n:translate="">Add Document</h1>
   </tal:block>
 
   <div class="note-msg">
@@ -54,7 +54,7 @@
       <td>
         <input tal:condition="force_restricted" type="hidden" name="restricted" value="on"/>
       </td>
-      <td><input type="submit" value="Add" i18n:attributes="value"/></td>
+      <td><input type="submit" value="Add" i18n:attributes="value" /></td>
     </tr>
     </table>
   </form>
