@@ -29,7 +29,7 @@
                       border: 1px solid #666666;
                       padding: 1em;
                       background-color: #FFFFE1;">
-            <strong i18n:translate="">Tip:</strong> <span tal:replace="python:request.SESSION.get('note_tip', '')"/>
+            <strong i18n:translate="">Tip:</strong> <span tal:replace="structure python:request.SESSION.get('note_tip', '')"/>
           </div>
         </tal:block>
 
