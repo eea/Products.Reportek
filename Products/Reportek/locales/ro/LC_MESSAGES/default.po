@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-09-23 14:25+0000\n"
+"POT-Creation-Date: 2014-01-21 14:40+0000\n"
 "PO-Revision-Date: 2013-09-13 16:06+0300\n"
 "Last-Translator: Mihai Dinca <mihai.dinca@eaudeweb.ro>\n"
 "Language-Team: Romanian\n"
@@ -50,25 +50,173 @@ msgstr "(utilizator: ${username})"
 msgid "-Limited-"
 msgstr "-Limitat-"
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:46
-msgid "1) ${upload-button} one or more files into this envelope. You can always interrupt your work and continue your contribution at a later time without losing data."
-msgstr "1) ${upload-button} unul sau mai multe fișiere în această anvelopă. Puteți întrerupe oricând lucru și continua mai târziu, fără a pierde date."
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:196
+msgid "-empty-"
+msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:63
-msgid "1. You can run all the QA checks on all files in the envelopes by selecting the ${button} button."
-msgstr "1. Puteți rula toate verificările automate pe fișierele dn acestă anvelopă apăsând butonul ${button}."
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:197
+msgid "-missing-"
+msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:53
-msgid "2) Once you are satisfied that your delivery is complete and correct, choose ${release-button} and the envelope with your delivery will be automatically validated by QA procedures. If the delivery conforms to the <q><em>Rules for the acceptance of Member State deliveries in Reportnet</em></q> you will be able to finalise your delivery (finalise the <em>Release envelope</em> step). If the QA procedure fails you will be redirected back to Draft delivery."
-msgstr "2) Odată ce sunteți satisfăcut(ă) cu datele încărcate, alegeți ${release-button} și anvelopa va fi validată in mod automat de procedurile de validare."
+#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:29
+msgid "1) Your first step is to upload an XML file into this envelope. You can always interrupt your work and continue your contribution at a later time without losing data. As a minimum, manufacturers should provide the vehicle identification numbers (VINs) that they assigned to light commercial vehicles sold in the preceding calendar year or for which a warrant was issued in that year. Manufacturers should moreover provide the detailed data related to those vehicles (according to the MS schema provided). In order to take those data into account for the calculation of the provisional targets, manufacturers should provide their data to the Commission and the EEA at the same time as the annual data submission of the Member States."
+msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:66
-msgid "2. You can test files which are less than 4MB in size one by one using the ${run-qa} button next to each item."
-msgstr "2. Fișierele mai mici de 4MB pot fi verificate unul câte unul apăsând pe butoanele ${run-qa} de lângă fiecare."
+#: ../../../extras/zodb_scripts/privacystatement.zpt:18
+msgid "1. Purpose(s) of the processing"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:207
+msgid "1. Reporting undertaking"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:76
+msgid "10. Data retention"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:216
+msgid "10. Placing on the EU market during the reporting year (sales etc.)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:217
+msgid "11. Exports to countries and territories outside EU"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:80
+msgid "11. Right to appeal"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:218
+msgid "12. Feedstock and process agent use within the reporting undertaking"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:219
+msgid "13. Use within the reporting undertaking other than process agent or feedstock uses"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:220
+msgid "14. Quantities destroyed in your facility"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:221
+msgid "15. Accounting Framework"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:39
+msgid "2) Once you are satisfied with the contribution, you choose <em>Release envelope</em> and your delivery will be realised."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:208
+msgid "2. Definition of substances"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:22
+msgid "2. Recipients of the data processed"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:33
+msgid "3. Personal data concerned"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:209
+msgid "3. Total production"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:37
+msgid "4. Obligatory or optional data"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:210
+msgid "4. Production under industrial rationalisation"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:41
+msgid "5. Categories of data processed"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:211
+msgid "5. Recycling and reclamation by producers"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:49
+msgid "6. Modalities for the processing operation"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:212
+msgid "6. Quantities received from undertakings in the EU (e.g. purchases)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:54
+msgid "7. Safeguarding of data processed"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:213
+msgid "7. Total imports from countries or territories outside EU."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:58
+msgid "8. Right of access and rectification"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:214
+msgid "8. Total stocks"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:67
+msgid "9. Legality of processing"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:215
+msgid "9. Stocks for selected uses held by producers"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:60
+msgid "<em>Add and edit</em> a <a href=\"${DYNAMIC_CONTENT}\">${DYNAMIC_CONTENT}</a> questionnaire"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:59
+msgid "<em>Modify</em> the <a href=\"${DYNAMIC_CONTENT}\">${DYNAMIC_CONTENT}</a> questionnaire"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:68
+msgid "<em>Note: You are advised to print this page in order to be able to follow the process</em>"
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:9
+msgid "<strong>Note:</strong> remember the first task reporters have to do in order to start the delivery on this website is to create the envelope. Such tasks do not appear in the list below."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:69
+msgid "<strong>Step 1:</strong>"
+msgstr ""
 
 #: Reportek/zpt/document/manage.zpt:83
 msgid "<strong>Warning:</strong> this file is empty so viewing it in different formats might not work as expected!"
 msgstr "<strong>Atenție:</strong> acest fișier este gol, așa încât vizualizarea sa în diferite formate nu va funcționa!"
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:46
+msgid "A"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:258
+msgid "A NIL report cannot be combined with any of the other activities."
+msgstr ""
+
+#: Reportek/zpt/collection/add.zpt:12
+msgid "A collection is an organisation of envelopes. Some fields you fill out will show up as default values for all envelopes and collections you subsequently create in this collection."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:76
+msgid "A+B-C+D+E-F+G+H-I-K-L"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:74
+msgid "A+B-C+D+E-F+G+H-I-K-L-M"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:75
+msgid "A-B+C+D-E-F-G-H"
+msgstr ""
 
 #: Reportek/zpt/envelope/documents_section.zpt:89
 msgid "Access limitations may apply for files, which are not (yet) released for public view. Files marked with ${lock-icon} are unavailable. You must log in to get access."
@@ -82,10 +230,15 @@ msgstr "Activați activitatea"
 msgid "Activate task: ${title}"
 msgstr "Activează activitatea: ${title}"
 
+#: Reportek/zpt/collection/add.zpt:74
 #: Reportek/zpt/document/add.zpt:57
 #: Reportek/zpt/envelope/add_zip.zpt:49
 msgid "Add"
 msgstr "Adaugă"
+
+#: Reportek/zpt/collection/add.zpt:9
+msgid "Add Collection"
+msgstr ""
 
 #: Reportek/zpt/feedback/add.zpt:12
 msgid "Add Feedback"
@@ -95,21 +248,107 @@ msgstr ""
 msgid "Add comment"
 msgstr "Adaugă comentariu"
 
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:10
 #: Reportek/zpt/envelope/overview.zpt:8
 msgid "Add feedback"
 msgstr "Adaugă feedback"
 
+#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:12
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:14
 msgid "Add file"
 msgstr "Adaugă fișier"
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:12
-msgid "Add hyperlink"
-msgstr "Adaugă link extern"
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:12
+msgid "Add supporting file"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:153
+msgid "Aerosols"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:74
+msgid "After saving a draft delivery, you can evaluate the quality of the data you have reported. To do so click on the button \"Run QA\" next to the reported file in the envelope. If any of the tests detect errors in the data, it is necessary that you correct them by modifying your questionnaire before submitting the delivery."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:147
+msgid "Amount destroyed by your company (on-site)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:148
+msgid "Amount destroyed on your behalf (off-site within the Community)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:139
+msgid "Amount exported for sale outside the Community"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:138
+msgid "Amount imported into the Community"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:143
+msgid "Amount purchased from other Community sources"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:146
+msgid "Amount reclaimed by your company"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:149
+msgid "Amount used as a feedstock by your company"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:167
+msgid "Annual total exported from the European Community"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:301
+msgid "Argon plasma arc (all controlled substances except BCM, HBFC, MB)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:246
+msgid "At 01 January customs bondage"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:248
+msgid "At 01 January destruction"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:244
+msgid "At 01 January free release"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:242
+msgid "At 01 January total"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:247
+msgid "At 31 December customs bondage"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:249
+msgid "At 31 December destruction"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:245
+msgid "At 31 December free release"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:243
+msgid "At 31 December total"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:108
+msgid "At least one activity must be selected."
+msgstr ""
 
 #: Reportek/zpt/feedback/add.zpt:52
 msgid "Attach file"
 msgstr "Atașează fișier"
+
+#: Reportek/zpt/feedback/edit.zpt:78
+msgid "Attached files"
+msgstr ""
 
 #: Reportek/zpt/feedback/index.zpt:77
 msgid "Attached files:"
@@ -119,38 +358,201 @@ msgstr "Fișiere atașate:"
 msgid "Author"
 msgstr "Autor"
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:59
-msgid "Automatic QA service"
-msgstr "Serviciul de verificare automată"
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:47
+msgid "B"
+msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:21
-msgid "Back to drafting"
-msgstr "Înapoi la draft"
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:83
+msgid "B+J"
+msgstr ""
 
+#: ../../../extras/zodb_scripts/copyFilesFromPreviousDeliveryForm.zpt:5
 #: Reportek/zpt/document/manage.zpt:20
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:5
-#: Reportek/zpt/feedback/add.zpt:5
 msgid "Back to envelope"
 msgstr "Înapoi la anvelopă"
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:86
+msgid "Blocking errors:"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/index_html.zpt:20
+msgid "Browse by obligation"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/index_html.zpt:31
+msgid "By obligation or country"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:48
+msgid "C"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:84
+msgid "C+F+M"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:82
+msgid "C+F+N"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:150
+msgid "Calculated total"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:296
+msgid "Cement kilns (all controlled substances except BCM, Halons, HBFC, HCFC, MB)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:20
+msgid "Certified"
+msgstr ""
+
+#: Reportek/zpt/collection/prop.zpt:73
+#: Reportek/zpt/languages_box.zpt:10
+msgid "Change"
+msgstr ""
 
 #: Reportek/zpt/document/manage.zpt:89
 msgid "Change file"
 msgstr "Modifică fișier"
 
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:178
+msgid "Check contents of delivery"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:276
+msgid "Check licence"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:287
+msgid "Check quantity"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:224
+msgid "Check sum (Total Available - Total Sales/Use/Destruction)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/copyFilesFromPreviousDeliveryForm.zpt:8
+msgid "Choose previous delivery"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/index_html.zpt:9
+msgid "Click on the link below to start the reporting"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:129
+msgid "Co-Producer Form 1, 2 (only for producers)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:134
+msgid "Co-Producer Form: PFCs"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:132
+msgid "Co-Producer Form: SF6"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:239
+msgid "Code"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:73
+msgid "Code of Good Administrative Behaviour (Commission decision 2000/633/EC, ECSC, Euratom);"
+msgstr ""
+
+#: Reportek/zpt/collection/index.zpt:46
+msgid "Collection"
+msgstr ""
+
+#: Reportek/zpt/collection/prop.zpt:10
+msgid "Collection Properties"
+msgstr ""
+
+#: Reportek/zpt/collection/add.zpt:23
+#: Reportek/zpt/collection/prop.zpt:26
+msgid "Collections"
+msgstr ""
+
+#: Reportek/zpt/collection/index.zpt:14
+msgid "Collections are folders that define the structure for the Data Repository, grouping Envelopes by country and by the reporting obligations they respond to."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:225
+msgid "Comments"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:18
+msgid "Company Information"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:240
+msgid "Company activities:"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:126
+msgid "Company contact information"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:14
+msgid "Company name/(metric tonnes)"
+msgstr ""
+
 #: Reportek/zpt/envelope/operations.zpt:28
 msgid "Complete"
 msgstr "Completată"
 
-#: Reportek/zpt/envelope/overview.zpt:60
-#: Reportek/zpt/envelope/properties.zpt:101
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:13
+msgid "Complete delivery"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:47
+msgid "Contact details (company and department, postal address, country of residence, business telephone number, mobile telephone number, fax number, e-mail address, internet address)."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/copyFilesFromPreviousDeliveryForm.zpt:21
+msgid "Copy files"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:15
+msgid "Copy previous delivery"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:42
+msgid "Could not execute the script because the source XML is not available: ${xml-url}"
+msgstr ""
+
+#: Reportek/zpt/collection/add.zpt:62
+#: Reportek/zpt/collection/prop.zpt:61
+#: Reportek/zpt/collection/worklist.zpt:18
 msgid "Coverage"
 msgstr "Acoperire geografică"
 
+#: Reportek/zpt/collection/add.zpt:71
+#: Reportek/zpt/collection/prop.zpt:70
 #: Reportek/zpt/envelope/properties.zpt:128
 msgid "Coverage note"
 msgstr "Detalii despre acoperirea geografică"
 
-#: Reportek/zpt/envelope/operations.zpt:33
+#: Reportek/zpt/collection/index.zpt:13
+msgid "Create a new Referral if a certain delivery data is not stored on this system, in which case specify another location for it."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:241
+msgid "Current Facility activities:"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:230
+msgid "Customs procedure"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:49
+msgid "D"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:28
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:18
+#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:20
 msgid "Deactivate task"
 msgstr "Deactivează activitate"
 
@@ -158,18 +560,55 @@ msgstr "Deactivează activitate"
 msgid "Delete"
 msgstr "Șterge"
 
-#: Reportek/zpt/envelope/overview.zpt:25
-#: Reportek/zpt/envelope/properties.zpt:29
+#: Reportek/zpt/collection/add.zpt:28
+#: Reportek/zpt/collection/index.zpt:24
+#: Reportek/zpt/collection/prop.zpt:20
 msgid "Description"
 msgstr "Descriere"
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:29
+msgid "Designated Member States' staff members (access will be restricted to the data relevant for the specific Member State). No personal data is shared with third parties for direct marketing purposes."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:235
+msgid "Destination Country"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:170
+msgid "Destruction"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:237
+msgid "Destruction technology"
+msgstr ""
 
 #: Reportek/zpt/document/manage.zpt:164
 msgid "Document accepted by the client"
 msgstr "Document acceptat de client"
 
+#: ../../../extras/zodb_scripts/translatable_footer.zpt:1
+msgid "Document last modified"
+msgstr "Ultima modificare a documentului"
+
 #: Reportek/zpt/envelope/overview.zpt:12
 msgid "Download zipped envelope with available files"
 msgstr "Descarcă conținutul arhivat al anvelopei"
+
+#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:27
+msgid "Draft"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:35
+msgid "Draft delivery"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:50
+msgid "E"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:27
+msgid "EEA staff as well as designated external experts or contractors who work on behalf of the EEA for the purpose of data management and compilation, quality assessment, and evaluation;"
+msgstr ""
 
 #: Reportek/zpt/envelope/feedback_section.zpt:43
 msgid "Edit"
@@ -183,9 +622,31 @@ msgstr "Editează proprietățile fișierului"
 msgid "Edit metadata with Web form"
 msgstr "Editează metadatele cu formulare Web"
 
-#: Reportek/zpt/envelope/tabs.zpt:36
+#: Reportek/zpt/collection/tabs.zpt:8
+#: Reportek/zpt/envelope/tabs.zpt:42
 msgid "Edit properties"
 msgstr "Editează proprietățile"
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:161
+msgid "Electrical equipment"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:253
+msgid "Emission"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:273
+msgid "Emissions resulting from feedstock or process agent use are higher than zero and are more than 0,1% of the make-up."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:24
+msgid "Enter feedback to accept or reject the delivery"
+msgstr ""
+
+#: Reportek/zpt/collection/index.zpt:52
+#: Reportek/zpt/collection/worklist.zpt:27
+msgid "Envelope"
+msgstr ""
 
 #: Reportek/zpt/envelope/properties.zpt:16
 msgid "Envelope Properties"
@@ -195,13 +656,38 @@ msgstr "Proprietățile anvelopei"
 msgid "Envelope is ${status}"
 msgstr "Anvelopa are statusul ${status}"
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:88
-msgid "Envelope level QA rules checking availability of mandatory files can be tested using the ${run-qa} button."
-msgstr "Validarea la nivelul anvelopei care verifică existența fișierelor obligatorii poate fi apelată folosind butonul ${run-qa}."
-
 #: Reportek/zpt/feedback/index.zpt:39
 msgid "Envelope release:"
 msgstr "Lansarea anvelopei:"
+
+#: ../../../extras/zodb_scripts/copyFilesFromPreviousDeliveryForm.zpt:16
+msgid "Envelope:"
+msgstr ""
+
+#: Reportek/zpt/collection/add.zpt:24
+#: Reportek/zpt/collection/prop.zpt:27
+msgid "Envelopes"
+msgstr ""
+
+#: Reportek/zpt/collection/index.zpt:37
+msgid "Envelopes and subcollections"
+msgstr ""
+
+#: Reportek/zpt/collection/index.zpt:15
+msgid "Envelopes store all the information about a delivery"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:200
+msgid "Exporter"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:135
+msgid "Exporter Form (all fluorinated greenhouse gas types)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:51
+msgid "F"
+msgstr ""
 
 #: Reportek/zpt/feedback/add.zpt:46
 msgid "Feedback content (plain text)"
@@ -211,8 +697,16 @@ msgstr "Conținutul feedback-ului (text)"
 msgid "Feedback for this envelope"
 msgstr "Feedback pentru această anvelopă"
 
+#: Reportek/zpt/feedback/edit.zpt:30
+msgid "Feedback text"
+msgstr ""
+
 #: Reportek/zpt/feedback/index.zpt:22
 msgid "Feedback: ${title}"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:156
+msgid "Feedstock"
 msgstr ""
 
 #: Reportek/zpt/document/add.zpt:36
@@ -240,11 +734,83 @@ msgstr "Fișiere în acestă anvelopă"
 msgid "Files with the same filename as ones already existing in the envelope will be overwritten."
 msgstr "Fișierele cu acelasi nume ca cele deja încărcate în anvelopă vor fi suprascrise."
 
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:70
+msgid "Fill in data using the on-line questionnaire. The system will automatically store your data in this envelope after clicking the \"Save\" button on the questionnaire. You can always interrupt your work and continue your contribution at a later time without losing data."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/RetireRoute.zpt:16
+msgid "Finish or go back to drafting?"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:152
+msgid "Fire protection"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:24
+msgid "Fluorinated greenhouse gas transaction(s)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:166
+msgid "Fluorinated greenhouse gas type"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:155
+msgid "Foams"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:23
+msgid "For the purpose detailed above, access to your personal data is given to the following persons, without prejudice to a possible transmission to the bodies in charge of monitoring or inspection task in accordance with European Union law:"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:186
+msgid "For your convenience, you can use the \"Copy previous delivery\" button in the new envelope to copy existing xml-files from the current (submitted but rejected) envelope."
+msgstr ""
+
 #: Reportek/zpt/envelope/operations.zpt:44
 msgid "Forward"
 msgstr "Înainte"
 
-#: Reportek/zpt/envelope/tabs.zpt:57
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:52
+msgid "G"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:305
+msgid "Gas phase catalytic dehalogenation (all controlled substances except BCM, Halons, HBFC, MB)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:298
+msgid "Gaseous/fume oxidation (all contolled substances except BCM, HBFC, MB)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:53
+msgid "H"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:171
+msgid "HFC"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:28
+msgid "HFC Import"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:25
+msgid "HFC Production"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:174
+msgid "HFC preparations*"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:173
+msgid "HFCs"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:40
+msgid "Hide details"
+msgstr ""
+
+#: Reportek/zpt/envelope/tabs.zpt:63
 msgid "History"
 msgstr "Istoric"
 
@@ -252,42 +818,214 @@ msgstr "Istoric"
 msgid "History of ${title}"
 msgstr "Istoric al ${title}"
 
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:54
+msgid "I"
+msgstr ""
+
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:38
 msgid "Id"
 msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:69
-msgid "If some of the tests detect errors, it is recommended that you try to correct them before releasing the envelope. After you release the envelope, the system will always automatically run the full QA procedures and the public results will be placed into the feedback area of the envelope."
-msgstr "Dacă unele din aceste teste detectează erori, este recomandat să încercați să le corectați înainte de a finaliza activitatea. După finalizare, sistemul va rula automat toate testele de validare."
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:109
+msgid "If NIL report is selected, then no other activities can be selected."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:86
+msgid "If the feedback \"<em>Data delivery was not acceptable</em>\" is shown in the Feedback section, then some important checks have failed. In this case, a list of errors will also be found in the Feedback report. Additionally, a new envelope will be created and all the reported data/submitted files will be copied to this envelope, so that you can correct the errors in the questionnaire and submit again using the same process as in Step 2. Please note that, in order to do so, you first need to re-activate the task in this newly created envelope."
+msgstr ""
 
 #: Reportek/zpt/document/add.zpt:22
 msgid "If the filename already exists in the envelope, the existing file will be overwritten."
 msgstr "Dacă numele fișierului există deja în anvelopă, fișierul existent va fi suprascris."
 
+#: ../../../extras/zodb_scripts/index_html.zpt:46
+msgid "If you need to change the people with reporting rights for your company or the details of your company account please Login first."
+msgstr ""
+
 #: Reportek/zpt/feedback/add.zpt:18
 msgid "If you want to be notified when other feedback is added to this envelope or comments are posted on feedback items, you need to ${subscribe-link}"
 msgstr " "
 
-#: Reportek/zpt/feedback/index.zpt:121
+#: Reportek/zpt/feedback/index.zpt:120
 msgid "If you want to be notified when other feedback is added to this envelope or comments are posted on feedback items, you need to ${subscribe-notifications-link}"
 msgstr " "
 
-#: Reportek/zpt/envelope/overview.zpt:95
+#: Reportek/zpt/envelope/overview.zpt:105
 msgid "If you want to stay updated about events in this envelope ${subscribe} for this country and the current dataflow(s)."
 msgstr " "
 
+#: ../../../extras/zodb_scripts/index_html.zpt:38
+msgid "If your company already has an account, please login here using the username and password provided to you by the BDR via email:"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/index_html.zpt:42
+msgid "If your company does not yet own a login account please register here:"
+msgstr ""
+
 #: Reportek/zpt/feedback/add.zpt:15
-#: Reportek/zpt/feedback/index.zpt:118
+#: Reportek/zpt/feedback/index.zpt:117
 msgid "Important notice"
 msgstr "Notă importantă"
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:199
+msgid "Importer"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:130
+msgid "Importer Form 3: HFC preparations*"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:83
+msgid "In case all the quality checks have been successful, a positive confirmation receipt will be created under the envelope and your company has successfully reported the required information to DG CLIMA."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:49
+msgid "In case you are not obliged to report (see FAQs under the \"Help\" Section), please add and edit a NIL reporting questionnaire."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:21
+msgid "In progress"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:110
+msgid "In the tab 'Company information' you ticked that you are a producer in this gas group but in the tab referring to this gas group you did not report any production quantities. Please report the produced quantities or un-tick the producer box for this gas group."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:111
+msgid "In the tab 'Company information' you ticked to be an importer in this gas group but in the tab referring to this gas group you did not report any imported quantities. Please check the imported quantities or un-tick the importer box for this gas group."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:123
+msgid "In your last year's submission you reported on 31 December stocks of the gases listed above. That's why these gases were expected in your present report as well. In case you are still an importer or producer in the respective gas group(s) (HFCs/PFCs/SF6), please add these gases to your selection and complete the reporting."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:302
+msgid "Inductively coupled radio frequency plasma (all controlled substances except BCM, HBFC, MB)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:278
+msgid "Invalid data"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:268
+msgid "Invalid process"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:262
+msgid "Invalid value"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:44
+msgid "It is necessary that you correct the blocking errors found by changing your questionnaire before finalizing the delivery!"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:55
+msgid "J"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:56
+msgid "K"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:79
+msgid "K+L+M+N+O+P+Q"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:57
+msgid "L"
+msgstr ""
 
 #: Reportek/zpt/document/manage.zpt:145
 msgid "Last uploaded"
 msgstr "Ultimul încărcat"
 
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:297
+msgid "Liquid injection incineration (all controlled substances except BCM, HBFC, MB)"
+msgstr ""
+
+#: Reportek/zpt/collection/tabs.zpt:11
+msgid "List of reporters"
+msgstr ""
+
 #: Reportek/zpt/document/manage.zpt:112
 msgid "Local upload: ${file-input} ${submit-button}"
 msgstr "Încărcare din local: ${file-input} ${submit-button}"
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:58
+msgid "M"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:162
+msgid "Magnesium die casting operations"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:252
+msgid "Make-up"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:259
+msgid "Mandatory values must be entered."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:303
+msgid "Microwave plasma (all controlled substances except BCM, Halons, HBFC, MB)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:265
+msgid "Missing description"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:34
+msgid "Missing gases"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:260
+msgid "Missing value"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:59
+msgid "N"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:80
+msgid "N+O+P"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:81
+msgid "N+O+P+Q"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:31
+msgid "NIL report"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:46
+msgid "Name (title, first name, surname) and function;"
+msgstr ""
+
+#: Reportek/zpt/collection/index.zpt:14
+msgid "New collection"
+msgstr ""
+
+#: Reportek/zpt/collection/index.zpt:15
+msgid "New envelope"
+msgstr ""
+
+#: Reportek/zpt/collection/index.zpt:13
+msgid "New referral"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:304
+msgid "Nitrogen plasma arc (all controlled substances except BCM, Halons, HBFC, MB)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:270
+msgid "No Total production"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:88
+msgid "No blocking errors have been found."
+msgstr ""
 
 #: Reportek/zpt/envelope/feedback_section.zpt:52
 msgid "No feedback posted in this envelope"
@@ -297,15 +1035,33 @@ msgstr "Nici un Feedback încărcat în această anvelopă"
 msgid "No files uploaded"
 msgstr "Nici un fișier încărcat"
 
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:118
+msgid "No potential errors have been found."
+msgstr ""
+
 #: Reportek/zpt/document/manage.zpt:198
 msgid "No quality assessment scripts available for this document."
 msgstr "Nu există scripturi de verificare automată pentru acest document"
 
-#: Reportek/zpt/envelope/overview.zpt:117
+#: Reportek/zpt/collection/worklist.zpt:69
+msgid "No task is in progress or waiting to be assigned in this collection."
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:61
+msgid "Not assigned"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:127
 msgid "Not available"
 msgstr "Această pagină nu este disponibilă pentru public"
 
-#: Reportek/zpt/envelope/overview.zpt:92
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:291
+msgid "Not zero"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/copyFilesFromPreviousDeliveryForm.zpt:26
+#: ../../../extras/zodb_scripts/index_html.zpt:37
+#: Reportek/zpt/envelope/overview.zpt:102
 msgid "Note"
 msgstr "Notă"
 
@@ -313,26 +1069,156 @@ msgstr "Notă"
 msgid "Notice: this envelope has no obligation tag"
 msgstr "Notificare: această anvelopă nu este marcată cu nici o obligație de raportare"
 
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:60
+msgid "O"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:78
+msgid "O+P+Q+R+S+T+U"
+msgstr ""
+
+#: Reportek/zpt/collection/index.zpt:28
+msgid "Obligation(s)"
+msgstr ""
+
+#: Reportek/zpt/collection/add.zpt:33
+#: Reportek/zpt/collection/prop.zpt:32
 #: Reportek/zpt/envelope/overview.zpt:29
-#: Reportek/zpt/envelope/properties.zpt:70
 msgid "Obligations"
 msgstr "Obligații"
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:79
+msgid "Once you are satisfied that your company report is correct, you must certify the correctness of your report and click on <em>\"Submit the delivery to DG CLIMA and EEA\"</em>. No changes in the reported data in the envelope can be performed afterwards. The system will automatically evaluate the quality of your data, running the same tests as in step 2. This process may take a few minutes. The results will be provided in the Feedback report in the envelope."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:267
+msgid "Only process agent users can report PAU processes and Feedstock users can report FDST processes."
+msgstr ""
 
 #: Reportek/zpt/document/manage.zpt:44
 msgid "Original"
 msgstr ""
 
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:140
+msgid "Other amounts collected for reclamation or destruction from within the Community"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:307
+msgid "Other destruction technology (only BCM, HBFC, MB) (specify in comments field)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:157
+msgid "Other or unknown"
+msgstr ""
+
+#: Reportek/zpt/collection/tabs.zpt:3
 #: Reportek/zpt/envelope/tabs.zpt:10
 msgid "Overview"
 msgstr "Prezentare generală"
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:61
+msgid "P"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:29
+msgid "PFC Import"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:26
+msgid "PFC Production"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:175
+msgid "PFCs/PFC preparations"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:3
+msgid "PRIVACY STATEMENT"
+msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:51
 msgid "Period"
 msgstr "Perioadă"
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:27
-msgid "Permanent release"
-msgstr "Lansare pentru public permanentă"
+#: ../../../extras/zodb_scripts/privacystatement.zpt:42
+msgid "Personal data collected and further processed concern the designated company reporter. Information can relate to all or some of the following data:"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:50
+msgid "Personal data is provided by submission of an online request for user registration. This is an automated processing operation whereby you input the data directly in the form which is then stored in a database. Personal data may be processed manually for the purpose of management of replies or queries to you."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:12
+msgid "Personal data provided by the designated company reporter are processed in accordance with Regulation (EC) No 45/2001 of the European Parliament and of the Council of 18 December 2000 on the protection of individuals with regard to the processing of personal data by the Community institutions and bodies and on the free movement of such data."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:77
+msgid "Personal information will be kept as long as follow-up actions by the EEA or European Commission concerning the reporting of the legally-required data and information may be necessary."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:92
+msgid "Please check the total amounts exported for recycling, reclamation and /or destruction. It must be smaller than or equal to the exported totals of the respective gas."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:106
+msgid "Please click the 'Certify correctness' button in the sheet 'finish' before submitting."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:97
+msgid "Please complete the name of Co-producer."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:185
+msgid "Please create a new envelope and re-submit using only the correct xml file. Note that if you wish to report for more than one reporting year you have to use separate envelopes."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:180
+msgid "Please create a new envelope, fill in the online questionnaire and re-submit."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:183
+msgid "Please delete the file(s) you don't want to keep and then retry to submit to DG CLIMA/EEA."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:119
+msgid "Please do not use more than three decimal places for your entry in metric tons."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:113
+msgid "Please enter only plain figures into the cells."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:114
+msgid "Please enter only positive figures into the cells."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:264
+msgid "Please make sure that when you select 'other' as use, this is specified in the text box."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:255
+msgid "Please make sure that you press the 'certify correctness' button in the finish page of the webform, before submitting the report."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:257
+msgid "Please make sure to select at least one activity. If you have nothing to report, please select NIL report."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:64
+msgid "Please note that depending upon circumstances modifications to existing data may only be made if supported by valid justifying documents."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:188
+msgid "Please note that the quality of any additional files included in your delivery will not be evaluated automatically. In case you wish to have an additional evaluation of this data please contact the F-Gases Reporting support team (${helpdesk-email-address}), providing the link to the current submission (copy and paste the url address of the present webpage)."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:189
+msgid "Please note that the quality of any additional files included in your delivery will not be evaluated automatically. In case you wish to have an additional evaluation of this data please contact the ODS Reporting support team (${helpdesk-email-address}), providing the link to the current submission (copy and paste the url address of the present webpage)."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:55
+msgid "Please use one of the following links to add or update your questionnaire."
+msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:8
 msgid "Post feedback for this release"
@@ -346,33 +1232,158 @@ msgstr "Postat în mod automat la:"
 msgid "Posted on:"
 msgstr "Postat la:"
 
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:116
+msgid "Potential errors:"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:67
+msgid "Process: Step by Step"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:201
+msgid "ProcessAgent"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:236
+msgid "Processes"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:15
+msgid "Processing operations are under the responsibility of the Procurement Officer in the Legal services group acting as Data Controller, regarding the collection and processing of personal data."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:198
+msgid "Producer"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:17
+msgid "Producer And Importer Form"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:128
+msgid "Producer and Importer Form 1 &amp; 2: HFCs"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:133
+msgid "Producer and Importer Form: PFCs"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:131
+msgid "Producer and Importer Form: SF6"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:15
+msgid "Purchases from Community co-producers"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:62
+msgid "Q"
+msgstr ""
+
 #: Reportek/zpt/document/manage.zpt:178
 msgid "Quality assessment"
 msgstr "Validare"
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:271
+msgid "Quantities reported in Table 9 (Stocks for selected uses) have to be equal or less than the stock at the end of the year in table 8. Please note that in Table 9 only stocks resulting from production in the reporting year should be included"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:63
+msgid "R"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:299
+msgid "Reactor cracking (all controlled substances except Halons, BCM, HBFC, MB)"
+msgstr ""
 
 #: Reportek/zpt/feedback/index.zpt:108
 msgid "Read this feedback"
 msgstr "Citiți acest feedback"
 
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:234
+msgid "Recipient"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:169
+msgid "Reclamation"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:168
+msgid "Recycling"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:228
+msgid "Recycling and reclamation (for any uses inside or outside EU)"
+msgstr ""
+
 #: Reportek/zpt/feedback/index.zpt:61
 msgid "Referred file:"
 msgstr "Fișier referit:"
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:20
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:151
+msgid "Refrigeration and air-conditioning"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:9
+msgid "Regulation (EC) No 1005/2009 of the European Parliament and of the Council of 16 September 2009 on substances that deplete the ozone layer (ODS Regulation) and"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:74
+msgid "Regulation (EC) No 1367/2006 of the European Parliament and of the Council of 6 September 2006 on the application of the provisions of the Aarhus Convention on Access to Information, Public Participation in Decision-making and Access to Justice in Environmental Matters to Community institutions and bodies."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:72
+msgid "Regulation (EC) No 401/2009 of the European Parliament and of the Council on the European Environment Agency and on the European Environment Information and Observation Network;"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:10
+msgid "Regulation (EC) No 842/2006 of the European Parliament and of the Council of 17 May 2006 on certain fluorinated greenhouse gases (F-Gas Regulation)"
+msgstr ""
+
+#: Reportek/zpt/collection/add.zpt:51
+#: Reportek/zpt/collection/prop.zpt:50
+msgid "Relating to which year"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:15
 msgid "Release envelope"
 msgstr "Finalizează activitate"
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:23
-msgid "Release to public"
-msgstr "Lansare pentru public"
-
-#: Reportek/zpt/envelope/overview.zpt:109
+#: Reportek/zpt/envelope/overview.zpt:119
 msgid "Remember to release the envelope when you have uploaded all files"
 msgstr " "
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:205
+msgid "Report activities"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:19
+msgid "Report status"
+msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:67
 msgid "Reported"
 msgstr "Raportat"
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:127
+msgid "Reporting HFC production and import data"
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:43
+msgid "Reporting date"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:51
+msgid "Reporting is required for any company that has produced, imported and/or exported more than one metric tonne of fluorinated greenhouse gases, or preparations containing fluorinated greenhouse gases during the reporting year."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:48
+msgid "Reporting is required for any company that has produced, imported, exported, destroyed and/or used ozone-depleting substances as feedstock or process agent."
+msgstr ""
+
+#: Reportek/zpt/collection/index.zpt:58
+msgid "Repository Referral"
+msgstr ""
 
 #: Reportek/zpt/document/add.zpt:46
 #: Reportek/zpt/document/manage.zpt:150
@@ -380,24 +1391,137 @@ msgstr "Raportat"
 msgid "Restricted from public view"
 msgstr "Restricționat pentru public"
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:66
-msgid "Run QA"
-msgstr "Rulează validare"
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:300
+msgid "Rotary kiln incineration (all controlled substances except BCM, HBFC, MB)"
+msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:82
-msgid "Run envelope QA"
-msgstr "Rulează validare pe anvelopă"
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:64
+msgid "S"
+msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:63
-msgid "Run full QA"
-msgstr "Rulează întregul set de validări"
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:172
+msgid "SF6"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:30
+msgid "SF6 Import"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:27
+msgid "SF6 Production"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:16
+msgid "Sales to Community co-producers"
+msgstr ""
 
 #: Reportek/zpt/document/manage.zpt:134
 msgid "Schema location"
 msgstr "Locația schemei XML"
 
+#: ../../../extras/zodb_scripts/index_html.zpt:29
+msgid "Search deliveries"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:164
+msgid "Section 1. Export totals (metric tonnes)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:165
+msgid "Section 2. Total amount exported for recycling, reclamation and/or destruction (metric tonnes)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/index_html.zpt:44
+msgid "Self-registration"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:163
+msgid "Semiconductor manufacture"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/translatable_header.zpt:51
+msgid "Services"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:41
+msgid "Show details"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:154
+msgid "Solvents"
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:43
+msgid "Sort A..Z by last reporting date - Click to reverse"
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:46
+msgid "Sort Z..A by last reporting date - Click to reverse"
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:25
+msgid "Sortable"
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:18
+msgid "Sorted A..Z by coverage - Click to reverse"
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:32
+msgid "Sorted A..Z by user - Click to reverse"
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:21
+msgid "Sorted Z..A by coverage - Click to reverse"
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:35
+msgid "Sorted Z..A by user - Click to reverse"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:232
+msgid "Source country"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:4
+msgid "Statement on personal data protection within the framework of reporting by undertakings (company-based reporting) with the Reportnet Business Data Repository (BDR) for:"
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:29
 #: Reportek/zpt/envelope/overview.zpt:72
 msgid "Status"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:73
+msgid "Step 2:"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:78
+msgid "Step 3:"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:82
+msgid "Step 4:"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:288
+msgid "Stock at the beginning of the year has to match with the stock at the end of previous year indicated in brackets."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:289
+msgid "Stock mismatch"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:144
+msgid "Stocks held at 1 January"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:145
+msgid "Stocks held at 31 December"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:233
+msgid "Stocks reported in table 8 resulting from production in the reporting year:"
 msgstr ""
 
 #: Reportek/zpt/feedback/add.zpt:42
@@ -408,9 +1532,66 @@ msgstr "Subiect"
 msgid "Subject:"
 msgstr "Subiect:"
 
-#: Reportek/zpt/envelope/overview.zpt:96
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:23
+msgid "Submit to DG CLIMA/EEA"
+msgstr ""
+
+#: Reportek/zpt/collection/add.zpt:21
+#: Reportek/zpt/collection/prop.zpt:24
+msgid "Subobjects"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:106
 msgid "Subscribe to receive notifications"
 msgstr "Subscriere pentru a primi notificări"
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:238
+msgid "Substance"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:306
+msgid "Superheated stream reactor (all controlled substances except BCM, Halons HBFC, MB)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:229
+msgid "Supplier"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:266
+msgid "Suppliers and/or recipients of substances have been fully identified (undertaking name, address and country)."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:274
+msgid "Suspicious Emission"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:272
+msgid "Suspicious Quantity"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:65
+msgid "T"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:269
+msgid "Table 5 (recycling and reclamation) should only be filled in if you are an ODS producer. Quantities received from companies for recycling and reclamation need to be reported in Table 6 (quantities received from EU Companies)."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:285
+msgid "Table cannot be filled if 'Not obliged to report' is selected."
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:28
+msgid "Task"
+msgstr ""
+
+#: Reportek/zpt/collection/tabs.zpt:5
+msgid "Task list"
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:5
+msgid "Task list for"
+msgstr ""
 
 #: Reportek/zpt/envelope/macros.zpt:3
 msgid "Task(s) in progress:"
@@ -424,76 +1605,440 @@ msgstr "Activități care pot fi asignate:"
 msgid "Task:"
 msgstr "Activitate:"
 
+#: Reportek/zpt/collection/index.zpt:29
 #: Reportek/zpt/envelope/overview.zpt:36
 msgid "Terminated"
 msgstr "Terminată"
+
+#: ../../../extras/zodb_scripts/index_html.zpt:53
+msgid "The <a href=\"/help/\"><strong>On-line BDR help</strong></a> provides guidance on how to use the BDR for the reporting obligation. In addition the <a href=\"/help/faq\">Frequently Asked Questions (FAQ)</a> also include answers to problems often encountered by users. If you still have problems please contact the BDR Helpdesk using the following email: <a href=\"mailto:BDR.helpdesk@eea.europa.eu\">BDR.helpdesk@eea.europa.eu</a>. The BDR helpdesk will provide assistance on: upload access for new companies, password problem, difficulties during upload procedure, download problems."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/index_html.zpt:5
+msgid "The Business Data Repository is like a bookshelf, with data reports on the environment as submitted by companies to the European Union. The Business Data Repository is part of the Reportnet architecture maintained by EEA."
+msgstr ""
 
 #: Reportek/zpt/document/manage.zpt:33
 msgid "The access to this file is limited, meaning it is not (yet) released for public view."
 msgstr "Acessul la acest fișier este limitat, ceea ce însemnă că nu este (încă) disponibil publicului."
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:23
-msgid "The envelope is currently not released for the public. If you want to change your delivery as a reaction to the feedback, then you must click on ${back-to-draft} and continue changing the files. If you consider your delivery finalised, click on ${release-to-public} and the ETC will start reviewing it."
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:292
+msgid "The accounting framework should be zero. Quantities received, imported, produced and in stock at 1 January of the reporting year should equal quantities placed on the market, exported, used, destroyed and in stock at the end of the year. (Explanation provided)."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:290
+msgid "The accounting framework should be zero. Quantities received, imported, produced and in stock at 1 January of the reporting year should equal quantities placed on the market, exported, used, destroyed and in stock at the end of the year. If the reported quantities are correct but the accounting framework is not zero please provide an explanation in the comment box (on table 'finish')."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:107
+msgid "The allowed range of years is 2007 until current year."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:93
+msgid "The amount reported for export of this gas in the 'Exporter Form' does not match the amount reported for export of this gas in the respective 'Producer/Importer Form'. Please, modify your data where appropriate in order to ensure that both amounts are equal."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:94
+msgid "The amount reported for export of this gas in this form does not match the amount reported for total export of this gas in the 'Exporter Form'. Please, modify your data where appropriate in order to ensure that both amounts are equal."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:120
+msgid "The amounts of the reported gas as stocks 1 January in your present report is not consistent with the amounts reported as stocks 31 December in your previous year's report. (Explanation provided)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:101
+msgid "The amounts of the reported gas as stocks 1 January in your present report should be consistent with the amounts reported as stocks 31 December in your previous year's report. Please note that you should not report on your full stocks but only on that share that was previously imported by your own company. Please change your reported data accordingly or provide an explanation why your reported data is in fact plausible."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:100
+msgid "The amounts of the reported gas as stocks on the 1 January in your present report should be consistent with the amounts reported as stocks on the 31 December in your previous year's report. Please change your reported data accordingly or provide an explanation (in the comment field below the reported data under relevant tab of the questionnaire) for the difference in the reported stock amounts."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:91
+msgid "The check has calculated the sum across all gases of 'Amount exported for sale outside the Community' and has found it to be above one tonne. In such a case you must report as an exporter. Please tick on the exporter box under the tab 'company information', else change your reported data, as appropriate."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:90
+msgid "The check has calculated the sum across all gases of 'Amount imported into the Community' and has found it to be above one tonne. In such a case you must report as an importer. Please tick on the importer box for your respective gas group(s) under the tab 'Company information', else change your reported data as appropriate."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:89
+msgid "The check has calculated the sum across all gases of 'Total new production from your facility/ies' as reported in the questionnaire and has found it to be above one tonne. In such a case your company must report as a producer. If the reported data are correct,please tick on the producer box for your respective gas group(s) under the tab 'Company Information', else change your reported data as appropriate."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:263
+msgid "The codes must exist in the corresponding code list."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:68
+msgid "The collection, storing and processing of personal data is necessary for the performance and support of tasks performed by EEA as mandated by:"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:28
+msgid "The competent European Commission staff members as well as contractors who work on behalf of the European Commission;"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:37
+msgid "The delivery is acceptable but some of the information has to be checked. Please see the QA output."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:38
+msgid "The delivery is acceptable."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:36
+msgid "The delivery is not acceptable. Please see the QA output."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:39
+msgid "The delivery status is unknown."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/RetireRoute.zpt:18
+msgid "The envelope is currently released and the requester may have uploaded some feedback to it. If you want to change your delivery as a reaction to the feedback, then you must click on \"Back to drafting\" to revoke the release. If you are sure you will never need to revoke then you click on \"Finish\"."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:26
+msgid "The envelope is currently released and your task is to inspect the delivery. If you have found some issues you tell the reporter via the feedback button. The feedback should make it clear to the Reporters if the delivery is accepted or not. Reporters will then have to create a new envelope if the feedback rejects the delivery and they need to update the data."
 msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:42
 msgid "The obligation tag makes it possible for the requesters to find the delivery"
 msgstr "Proprietatea obligație creează posibilitatea de a găsi livrarea"
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:60
-msgid "The system can help you assess quality of the uploaded XML files. You have two options:"
-msgstr "Sistemul vă poate ajuta să verificați datele din fișierele XML. Aveți două opțiuni:"
+#: ../../../extras/zodb_scripts/privacystatement.zpt:38
+msgid "The obligatory fields concern the company name, company address, your family name, your first name, your email address, your telephone number, the data reporting obligation for which you have registered, and the country for which the delivery of information or data pertains. The other fields in the enquiry form are optional; if you decide to fill them in, the information will only be used for the above purpose of getting in contact with you."
+msgstr ""
 
-#: Reportek/zpt/envelope/overview.zpt:118
+#: ../../../extras/zodb_scripts/privacystatement.zpt:34
+msgid "The only personal data collected and further processed is the information you encode yourself in the on-line form. EEA needs your personal data to contact you to provide you with feedback concerning the information and data you have submitted, and/or to contact you with queries in relation to it."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:55
+msgid "The personal data collected upon receipt of the user registration application are stored in an electronic database. Access to the collected personal data is only available to a limited number of designated EEA staff members (see point 2 above) with a valid Username and Password."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:87
+msgid "The quality check found important inconsistencies and/or errors in the reported data which need to be fixed."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:45
+msgid "The quality check found some issues that may need to be followed-up with your company at a later stage. You don''t have to change your data at present."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:117
+msgid "The quality check found some issues that may need to be followed-up with your company at a later stage. You don't have to change your data at present."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:275
+msgid "The quantities do not correspond with the license database (value indicated in brackets)."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:22
+msgid "The report is not yet certified"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:46
+msgid "The reporting of your company data should be done by using an on-line questionnaire developed to guide you through this process."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:181
+msgid "The submission cannot be accepted as an envelope can contain either a F-gases questionnaire, not both."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:182
+msgid "The submission cannot be accepted as an envelope can contain either a ODS questionnaire, not both."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:35
+msgid "The validation is passed successfully."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/copyFilesFromPreviousDeliveryForm.zpt:27
+msgid "There is no previous delivery for the same time period in this collection!"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:128
 msgid "This envelope is not yet available for public view. Work is still in progress."
 msgstr "Această anvelopă nu este încă disponibilă pentru public. Fișierele sunt în lucru."
+
+#: Reportek/zpt/collection/worklist.zpt:7
+msgid "This page contains the TODO list for all users working in this collection. First, this gives you an overview of what tasks you can work on next: If there is no user assigned to an envelope, click on the envelope's link and activate the task which is awaiting assignment. Secondly, if you've already started work in an envelope by activating a task, look for your username in the list below to find the link to the envelope."
+msgstr ""
 
 #: Reportek/zpt/envelope/history.zpt:10
 msgid "This page displays all the history of tasks that have executed in this envelope. If you want to see more details about a task, just expand the ${plus-icon} icon next to it."
 msgstr "Această pagină arată toată istoria acitvităților care au fost executate în această anvelopă. Dacă doriți să vedeți detalii despre o activitate, expandați iconița ${plus-icon} de lângă ea."
 
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:282
+msgid "This table can be filled in by producers, importers, exporters, feedstock users and process agent users"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:283
+msgid "This table can be filled only by producers, importers or exporters."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:280
+msgid "This table can only be filled in by exporters."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:279
+msgid "This table can only be filled in by importers."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:281
+msgid "This table can only be filled in by process agent users (only PAU processes) and feedstock users (only FDST processes)."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:277
+msgid "This table can only be filled in by producers."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:284
+msgid "This table can only be filled in by undertakings destroying substances in their own facility."
+msgstr ""
+
+#: Reportek/zpt/collection/add.zpt:17
+#: Reportek/zpt/collection/prop.zpt:16
 #: Reportek/zpt/document/add.zpt:32
-#: Reportek/zpt/document/manage.zpt:124
-#: Reportek/zpt/envelope/properties.zpt:22
 msgid "Title"
 msgstr "Titlu"
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:46
-msgid "Upload"
-msgstr "Încărcați"
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:160
+msgid "Total"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:223
+msgid "Total Sales / Use / Destruction: Table10 + Table11 + Table12 + Table13 + Table14 + Table8 (at 31 Dec total)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:158
+msgid "Total amount placed on the Community market"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:251
+msgid "Total emission"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:250
+msgid "Total make-up"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:137
+msgid "Total new production from your facility/ies"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:222
+msgid "Total quantity available: Table3 (total) + Table6 (total) + Table7 (total) + Table8 (at 1 Jan total)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:159
+msgid "Total sold"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:231
+msgid "Total stocks at the beginning / end of reporting year"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:23
+msgid "Transaction year"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:136
+msgid "Transactions/(metric tonnes)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:227
+msgid "Transferring undertaking"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:66
+msgid "U"
+msgstr ""
+
+#: Reportek/zpt/collection/add.zpt:65
+#: Reportek/zpt/collection/prop.zpt:64
+msgid "Unspecified"
+msgstr ""
 
 #: Reportek/zpt/document/manage.zpt:98
 msgid "Upload ESRI"
 msgstr "Încărcați Shapefile"
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:15
+#: Reportek/zpt/feedback/edit.zpt:108
+msgid "Upload new file"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:18
 msgid "Upload zipfile"
-msgstr "Încărcare zip"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:19
+msgid "Upon reception of your submitted information by EEA, your personal data is collected and further processed for the purpose of the management and administration of the Business Data Repository (BDR). It will also be used by the EEA or its delegated representatives to contact you with queries or feedback concerning information or data submitted to the BDR, or to contact you when such information or data has previously been reported by you to the BDR or the European Commission."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:226
+msgid "Use"
+msgstr ""
 
 #: Reportek/zpt/feedback/add.zpt:33
 msgid "Use the form to submit feedback to this delivery. You can attach one file to this feedback now and add othe files later by editing the feedback."
 msgstr "Folosiți această formă pentru a adăuga feedback pentru această livrare. Puteți atașa un fișier acum, și mai multe la editarea feedback-ului."
 
+#: Reportek/zpt/collection/worklist.zpt:32
+msgid "User"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:67
+msgid "V"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:13
+msgid "Validation report for F-Gases compliance checks"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:195
+msgid "Validation report for Ozone-Depleting Substances compliance checks"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:261
+msgid "Values should be higher than or equal to zero. Decimal signs are not allowed and quantities should always be rounded-up."
+msgstr ""
+
+#: Reportek/zpt/collection/add.zpt:31
+#: Reportek/zpt/collection/prop.zpt:30
+msgid "Values used for inheritance"
+msgstr ""
+
 #: Reportek/zpt/document/manage.zpt:42
 msgid "View file as"
 msgstr "Vizualizează fișier în format"
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:68
+msgid "W"
+msgstr ""
 
 #: Reportek/zpt/document/add.zpt:21
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:21
 msgid "Warning:"
 msgstr "Atenție:"
 
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:32
+msgid "When the feedback is added, you should <em>complete the delivery</em>."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:256
+msgid "Wrong status"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:69
+msgid "X"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:70
+msgid "Y"
+msgstr ""
+
 #: Reportek/zpt/envelope/properties.zpt:38
 msgid "Year"
 msgstr "An"
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:77
-msgid "You can run a quality assessment operation yourself on all files at once.<br /> Doing so will interrupt the drafting activity for a few minutes (task is deactivated), after which you can return to Draft (by activating the task) and read the QA feedback."
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:99
+msgid "You added a new preparation. The new preparation is identical with another preparation on the list. Please, select the preparation from the drop-down list."
 msgstr ""
 
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:98
+msgid "You added a new preparation. The sum of the percentages does not equal 100 %. Please correct the figures."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:81
+msgid "You are entitled to have recourse at any time to the European Data Protection Supervisor (<a href=\"http://www.edps.europa.eu\">http://www.edps.europa.eu</a>; <a href=\"mailto:EDPS@edps.europa.eu\">EDPS@edps.europa.eu</a>) if you consider that your rights under Regulation (EC) No 45/2001 have been infringed as a result of the processing of your personal data by the EEA."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/breadcrumb.zpt:12
+#: ../../../extras/zodb_scripts/translatable_header.zpt:31
+msgid "You are here:"
+msgstr "Ești aici"
+
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:16
-msgid "You can upload one single file or z non-hierarchical <em>.zip</em> archive. The zip archive will be unpacked and its content uploaded into the envelope."
-msgstr "Puteți încărca un singur fișier sau o arhivă <em>.zip</em> non ierarhică (fără foldere). Arhiva va fi despachetată și conținutul ei încărcat în anvelopă."
+msgid "You can upload one single file or a non-hierarchical <em>.zip</em> archive. The zip archive will be unpacked and its content uploaded into the envelope."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:95
+msgid "You did not tick to be a producer in this gas group under the tab 'Company Information'. Thus you cannot report on production. If you want to report on production, please first revisit the 'Company Information' tab and modify your settings on your production activities there."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:191
+msgid "You have added NIL reporting questionnaire but the report is not certified or the data is invalid on the report. Please revise your report and fix the errors."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:187
+msgid "You have made a submission using the online questionnaire correctly. Your data report (xml-file stored in this envelope) is accepted."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:59
+msgid "You have no direct access to the data stored. If you wish to modify or delete any of your personal data, you should address your request in writing to the BDR Helpdesk (<a href=\"mailto:BDR.helpdesk@eea.europa.eu\">BDR.helpdesk@eea.europa.eu</a>) or by post to European Environment Agency, Kongens Nytorv 6, 1050 Copenhagen K, Denmark."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:87
+msgid "You may also contact the EEA's Data Protection Officer (DPO) in case of any difficulties or for any questions relating to the processing of your personal data at the following e-mail address: <a href=\"mailto:Data.ProtectionOfficer@eea.europa.eu\">Data.ProtectionOfficer@eea.europa.eu</a>."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:293
+msgid "You need to provide an EORI code if you are going to report activities related to imports/exports!"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:96
+msgid "You report on \"other or unknown\" intended applications. Please, provide an explanation in this box."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:112
+msgid "You ticked to be an exporter in the sheet 'company information' but no amount of export is considered. Please check the data or untick the export box."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:105
+msgid "Your 'Calculated total' for this gas differs from the 'Total amount placed on the EU market'. It should be equal to the total amount placed on the market. Please change your reported primary data accordingly to make both sums fit."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:104
+msgid "Your 'Calculated total' for this gas is lower than the 'Total amount placed on the EU market'. It should be higher or equal to the total amount placed on the market. Please change your reported primary data to make both sums fit accordingly."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:190
+msgid "Your data report has been completed correctly using the online questionnaire."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:179
+msgid "Your delivery cannot be accepted as you did not complete the online questionnaire as instructed in the BDR user manual."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:184
+msgid "Your delivery cannot be accepted as you have provided more than one xml files (you have completed more than one online questionnaires)."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:43
+msgid "Your delivery did not pass some important checks. In the following sections you will find more information on these errors."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:121
+msgid "Your stock increase between 1 January and 31 December for the gas appears to be implausibly high. It should be smaller than or equal to the sum of Production, Import, Collection for reclamation and destruction, Purchases from Co-producers and Other EU purchases. (Explanation provided)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:102
+msgid "Your stock increase between 1 January and 31 December for the gas appears to be implausibly high. It should be smaller than or equal to the sum of Production, Import, Collection for reclamation and destruction, Purchases from Co-producers and Other EU purchases. Please change your reported data accordingly or provide an explanation (in the comment field below the reported data in the webform) why your reported data is in fact plausible."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:122
+msgid "Your stock increase between 1 January and 31 December for the gas appears to be implausibly high. It should be smaller than or equal to your Imports. Please note that you as a non-producing company should report only only those stockpiled quantitites which were previously imported by your company. (Explanation provided)"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:103
+msgid "Your stock increase between 1 January and 31 December for the gas appears to be implausibly high. It should be smaller than or equal to your Imports. Please note that you as a non-producing company should report only only those stockpiled quantitites which were previously imported by your company. Please change your reported data accordingly or provide an explanation (in the comment field below the reported data in the webform) why your reported data is in fact plausible."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:71
+msgid "Z"
+msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:12
 msgid "Zip&nbsp;Envelope"
@@ -508,19 +2053,35 @@ msgstr "[descarcă]"
 msgid "add-button"
 msgstr "Adaugă"
 
-#. Default: "Back to drafting"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:28
-msgid "back-to-draft"
-msgstr "Înapoi la draft"
+#. Default: "Post feedback for this release"
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:10
+msgid "add-feedback"
+msgstr ""
 
 #. Default: "Add feedback"
 #: Reportek/zpt/feedback/add.zpt:63
 msgid "button-add-feedback"
 msgstr "Adaugă feedback"
 
+#. Default: "Change language"
+#: Reportek/zpt/languages_box.zpt:3
+msgid "change-language"
+msgstr ""
+
+#. Default: "Complete the envelope, after which no action will be possible on this delivery"
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:13
+msgid "complete-delivery"
+msgstr ""
+
+#. Default: "Copy files from previous delivery"
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:15
+msgid "copy-delivery"
+msgstr ""
+
 #. Default: "Deactivation keeps the work already done, and makes it possible for someone else to take over the task"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:33
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:8
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:28
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:18
+#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:20
 msgid "deactivate-task-title"
 msgstr "Deactivarea păstrează munca deja făcută și lasă posibilitatea altor utilizatori să o continue"
 
@@ -546,57 +2107,36 @@ msgstr "Înapoi la anvelopă"
 msgid "no-access"
 msgstr "Acces limmitat"
 
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:33
+msgid "not selected"
+msgstr ""
+
 #: Reportek/zpt/envelope/feedback_section.zpt:71
 msgid "of ${total_number} feedbacks"
 msgstr "din ${total_number} Feedback-uri"
 
-#. Default: "When you have finished your uploads, you can release without the ability to revoke"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:27
-msgid "permanent-release-title"
-msgstr "Când ați terminat de încăcat datele lansați anvelopa la public fără posibilitate de revocare."
-
-#. Default: "Enter hyperlink reference"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:12
-msgid "reference-link-title"
-msgstr "Introduceți referința pentru link"
-
 #. Default: "When you have finished your uploads, you must state that you have completed the task"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:20
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:23
+#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:15
 msgid "release-title"
 msgstr "Când ați terminat de încăcat datele trebuie să declarați activitatea completată"
 
-#. Default: "Release to public"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:30
-msgid "release-to-public"
-msgstr "Finalizare activitate"
-
-#. Default: "Rerun automatic QA"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:32
-msgid "rerun-qa"
-msgstr "Rerulați validarea automată"
-
-#. Default: "Run the automatic Quality Assessment"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:72
-msgid "run-qa-title"
-msgstr "Rulați validarea automată"
-
-#. Default: "Run envelope level statistics"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:82
-msgid "run-statistics-title"
-msgstr "Rulați validarea la nivel de anvelopă"
+#: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:32
+msgid "selected"
+msgstr ""
 
 #: Reportek/zpt/feedback/add.zpt:18
-#: Reportek/zpt/feedback/index.zpt:121
+#: Reportek/zpt/feedback/index.zpt:120
 msgid "subscribe to receive notifications"
 msgstr " "
 
 #. Default: "Edit the properties on the envelope"
-#: Reportek/zpt/envelope/tabs.zpt:36
+#: Reportek/zpt/envelope/tabs.zpt:42
 msgid "tab-edit-title"
 msgstr "Editați proprietățile anvelopei"
 
 #. Default: "Workflow history and operations"
-#: Reportek/zpt/envelope/tabs.zpt:57
+#: Reportek/zpt/envelope/tabs.zpt:63
 msgid "tab-history-title"
 msgstr "Istoric al operațiunilor"
 
@@ -610,28 +2150,34 @@ msgstr "Informații despre anvelopă și schimbarea statusului"
 msgid "task-activate-title"
 msgstr "Activarea implică acceptarea responsabilității pentru această activitate. Numai persoana care a activat activitatea poate lucra la ea. La terminare apăsați pe [Deactivare] sau [Completare]"
 
+#: Reportek/zpt/collection/add.zpt:42
+#: Reportek/zpt/collection/prop.zpt:41
+msgid "terminated"
+msgstr ""
+
 #. Default: "File operations: [View file in different formats], [File properties], [View the feedback posted it (if any)]"
 #: Reportek/zpt/envelope/documents_section.zpt:22
 msgid "title-documents-section"
 msgstr "Operații pe fișier: [Vizualizare fișiere în diferite formate], [Proprietățile fișierului], [Vizualizarea feedback-ului afrerent (dacă există)]"
+
+#: Reportek/zpt/collection/add.zpt:57
+#: Reportek/zpt/collection/prop.zpt:56
+msgid "to"
+msgstr ""
 
 #. Default: "Upload"
 #: Reportek/zpt/document/manage.zpt:112
 msgid "upload-button"
 msgstr "Încărcare"
 
-#. Default: "Upload single file"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:46
-msgid "upload-single-title"
-msgstr "Încărcare fișier"
-
 #. Default: "Upload multiple files packed into a zip archive. The zip cannot contain a folder structure."
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:15
-msgid "upload-zip-title"
-msgstr "Încărcare fisiere multiple dintr-o arhivă zip. Arhiva nu poate conține foldere."
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:18
+msgid "upload-zip"
+msgstr ""
 
 #. Default: "Upload single file"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:9
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:12
+#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:12
 msgid "uploade-single-title"
 msgstr "Încărcare fișier"
 
