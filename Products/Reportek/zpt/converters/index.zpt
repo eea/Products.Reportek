@@ -73,7 +73,7 @@
     });
 </script>
 
-<div class='note-msg'>
+<div class="note-msg">
 	<strong>Converters available in this system.</strong>
 	[<a href="#" style="font-weight: normal;" id="collapse_button">hide</a>]
 	<div id='collapsible' collapsed="false" style="overflow-y: scroll; height: 400px; margin-top: 10px;">
@@ -144,13 +144,13 @@
 
 <tal:block tal:define="include_remote python:test(request.get('include_remote', '').lower() in ['true', 'yes', '1'], True, False); convs python:here.getConvertersDescriptions(include_remote=include_remote)">
 
-<h2 i18n:translate="">Local converters</h2>
+<h2>Local converters</h2>
 <table border="1" cellpadding="2" cellspacing="0" class="dataTable" style="margin: 0px; font-size: 14px;">
 <thead>
 <tr>
-	<th i18n:translate="">Name</th>
-	<th i18n:translate="">Input content type</th>
-	<th i18n:translate="">Output content type</th>
+	<th>Name</th>
+	<th>Input content type</th>
+	<th>Output content type</th>
 </tr>
 </thead>
 <tbody>
@@ -162,15 +162,15 @@
 </tbody>
 </table>
 
-<h2 i18n:translate="">Remote converters</h2>
+<h2>Remote converters</h2>
 <tal:block tal:condition="python:include_remote==True">
 	<div id="remote">
 		<table border="1" cellpadding="2" cellspacing="0" class="dataTable" id="remote_dataTable">
 		<thead>
 		<tr>
-			<th i18n:translate="">Name</th>
-			<th i18n:translate="">XML schema</th>
-			<th i18n:translate="">Result type</th>
+			<th>Name</th>
+			<th>XML schema</th>
+			<th>Result type</th>
 		</tr>
 		</thead>
 		<tbody>
@@ -185,7 +185,7 @@
 </tal:block>
 <tal:block tal:condition="python:include_remote!=True">
 	<div id="spinner">
-		<a id="ajax_conv" href="./?include_remote=True" i18n:translate="">Show remote converters</a>
+		<a id="ajax_conv" href="./?include_remote=True">Show remote converters</a>
 	</div>
 </tal:block>
 

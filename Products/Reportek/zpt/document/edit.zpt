@@ -61,10 +61,10 @@
 			</td>
 		</tr>
 		<tr>
-			<td>&nbsp;</td>
+			<td> </td>
 			<td><input type="submit" name="manage_editDocument:method" value=" Change " i18n:attributes="value" /></td>
 		</tr>
-		<tr><td colspan="2">&nbsp;</td></tr>
+		<tr><td colspan="2"> </td></tr>
 	</table>
 
 	<table border="0" cellpadding="2" cellspacing="0" tal:define="converters options/converters; local_converters python:converters[0]; remote_converters python:converters[1];">

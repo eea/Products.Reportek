@@ -196,7 +196,7 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
     security.declareProtected('Change Collections', 'manage_prop')
     manage_prop = PageTemplateFile('zpt/collection/prop', globals())
 
-    _get_users_list = PageTemplateFile('zpt/collUsers', globals())
+    _get_users_list = PageTemplateFile('zpt/collection/users', globals())
 
     security.declareProtected(manage_users, 'get_users_list')
     def get_users_list(self, REQUEST):

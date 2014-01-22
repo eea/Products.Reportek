@@ -16,7 +16,7 @@
 # Rights Reserved.
 #
 # Contributor(s):
-# Miruna Badescu, Finsiel Romania
+# Miruna Badescu, Eau de Web
 
 __doc__ = """
       Container fo mappings between dataflows and types of XML files (XML schemas)
@@ -151,7 +151,7 @@ class DataflowMappings(Folder):
 #       return list([x.allowedSchemas + x.webformSchemas for x in self.objectValues('Reportek Dataflow Mapping Record')])
 
     security.declareProtected('Manage OpenFlow', 'dataflowsMappingsView')
-    dataflowsMappingsView = PageTemplateFile('zpt/mapDataflowsSchemasView', globals())
+    dataflowsMappingsView = PageTemplateFile('zpt/dataflow-mappings/mapDataflowsSchemasView', globals())
 
     security.declareProtected(view_management_screens, 'manage_addDataflowMappingRecordForm')
     manage_addDataflowMappingRecordForm = DataflowMappingRecord.manage_addDataflowMappingRecordForm

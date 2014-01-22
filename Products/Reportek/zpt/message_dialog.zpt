@@ -4,7 +4,7 @@
 <table border="0" width="100%" cellpadding="10">
     <tr>
         <td valign="top">
-            <span style="text-align: center; font-weight: bold; font-size: 6px; color: #77003b;">!</span>
+            <span style="text-align: center; font-weight: bold; font-size: 50px; color: #77003b;">!</span>
         </td>
         <td valign="top">
             <span style="text-align: center" tal:content="options/message" i18n:translate="" />

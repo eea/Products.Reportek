@@ -1,39 +1,39 @@
 <span tal:replace="structure context/manage_page_header" />
 <span tal:replace="structure python:context.manage_tabs(management_view='UNS settings')" />
 
-<p class="form-help" i18n:translate="">Fill the properties on this page only if this system is linked to a <em>Unified Integration Service</em>.</p>
+<p class="form-help">Fill the properties on this page only if this system is linked to a <em>Unified Integration Service</em>.</p>
 
-<p style="color:red;" tal:condition="python:not here.uns_notifications_enabled()" i18n:translate="">UNS notifications are disabled for this server.</p>
+<p style="color:red;" tal:condition="python:not here.uns_notifications_enabled()">UNS notifications are disabled for this server.</p>
 
 <form action="manage_editUNSInterface" method="post">
 <table>
 	<tr>
-		<th><label for="UNS_server" i18n:translate="">UNS server URL</label></th>
+		<th><label for="UNS_server">UNS server URL</label></th>
 		<td><input type="text" size="50" id="UNS_server" name="UNS_server" tal:attributes="value here/UNS_server" /></td>
 	</tr>
 	<tr>
-		<th><label for="UNS_username" i18n:translate="">UNS username</label></th>
+		<th><label for="UNS_username">UNS username</label></th>
 		<td><input type="text" size="20" id="UNS_username" name="UNS_username" tal:attributes="value here/UNS_username" /></td>
 	</tr>
 	<tr>
-		<th><label for="UNS_password" i18n:translate="">UNS password</label></th>
+		<th><label for="UNS_password">UNS password</label></th>
 		<td><input type="password" size="20" id="UNS_password" name="UNS_password" tal:attributes="value here/UNS_password" /></td>
 	</tr>
 	<tr>
-		<th><label for="UNS_password_confirmation" i18n:translate="">UNS password confirmation</label></th>
+		<th><label for="UNS_password_confirmation">UNS password confirmation</label></th>
 		<td><input type="password" size="20" id="UNS_password_confirmation" name="UNS_password_confirmation" tal:attributes="value here/UNS_password" /></td>
 	</tr>
 	<tr>
-		<th><label for="UNS_channel_id" i18n:translate="">UNS channel ID</label></th>
+		<th><label for="UNS_channel_id">UNS channel ID</label></th>
 		<td><input type="text" size="30" id="UNS_channel_id" name="UNS_channel_id" tal:attributes="value here/UNS_channel_id" /></td>
 	</tr>
 	<tr>
-		<th><label for="UNS_notification_types" i18n:translate="">Notification types</label><br /><span i18n:translate="" tal:omit-tag="">(one on a row)</span></th>
+		<th><label for="UNS_notification_types">Notification types</label><br />(one on a row)</th>
 		<td><textarea size="50" id="UNS_notification_types" name="UNS_notification_types:lines" rows="5" cols="30" tal:content="python:'\n'.join(here.UNS_notification_types)"></textarea></td> 
 	</tr>
 	<tr>
 		<td></td>
-		<td><input type="submit" value="Save changes" i18n:attributes="value" /></td>
+		<td><input type="submit" value="Save changes" /></td>
 	</tr>
 </table>
 </form>

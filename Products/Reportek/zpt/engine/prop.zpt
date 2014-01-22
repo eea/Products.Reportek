@@ -1,7 +1,7 @@
 <span tal:replace="structure context/manage_page_header" />
 <span tal:replace="structure python:context.manage_tabs(management_view='Properties')" />
 
-<p class="form-help" i18n:translate="">This page presents properties that are generic for Reportek.</p>
+<p class="form-help">This page presents properties that are generic for Reportek.</p>
 
 <form name="edit" action="manage_editEngine" method="post">
 <table valign="top">
@@ -12,49 +12,49 @@
 </table>
 <br />
 <fieldset>
-	<legend i18n:translate="">WebQuestionnaire</legend>
-	<p class="form-help" i18n:translate="">The properties below are relevant to the WebQuestionnaire. If there is no such aplication available, leave the fields below empty.</p>
+	<legend>WebQuestionnaire</legend>
+	<p class="form-help">The properties below are relevant to the WebQuestionnaire. If there is no such aplication available, leave the fields below empty.</p>
 	<p class="form-help">
-		<strong><label for="webq_url" i18n:translate="">WebQ XML-RPC server</label></strong>
+		<strong><label for="webq_url">WebQ XML-RPC server</label></strong>
 		<input type="text" size="50" id="webq_url" name="webq_url" tal:attributes="value here/webq_url" />
 	</p>
 	<p class="form-help">
-		<strong><label for="webq_envelope_menu" i18n:translate="">Envelope menu URL</label></strong>
+		<strong><label for="webq_envelope_menu">Envelope menu URL</label></strong>
 		<input type="text" size="50" id="webq_envelope_menu" name="webq_envelope_menu" tal:attributes="value here/webq_envelope_menu" /><br />
-		<span i18n:translate="" tal:omit-tag="">The URL to the WebQ page which constructs a menu for a specified envelope, that is a list of add-buttons, one for each legal XML schema in the envelope and edit buttons for the existing XML files in the envelope.</span>
+		The URL to the WebQ page which constructs a menu for a specified envelope, that is a list of add-buttons, one for each legal XML schema in the envelope and edit buttons for the existing XML files in the envelope.
 	</p>
 	<p class="form-help">
-		<strong><label for="webq_before_edit_page" i18n:translate="">WebQ before edit URL</label></strong>
+		<strong><label for="webq_before_edit_page">WebQ before edit URL</label></strong>
 		<input type="text" size="50" id="webq_before_edit_page" name="webq_before_edit_page" tal:attributes="value here/webq_before_edit_page" /><br />
-		<span i18n:translate="" tal:omit-tag="">WebQ generates this webpage, before the user starts to use the edit form of a file, in order to inquire about the capabilities of the webbrowser and the language the form should be in.</span>
+		WebQ generates this webpage, before the user starts to use the edit form of a file, in order to inquire about the capabilities of the webbrowser and the language the form should be in.
 	</p>
 </fieldset>
 <br />
 <fieldset>
-	<legend i18n:translate="">Quality assessment</legend>
+	<legend>Quality assessment</legend>
 	<p class="form-help">
-		<strong><label for="QA_application" i18n:translate="">QA application relative URL</label></strong>
+		<strong><label for="QA_application">QA application relative URL</label></strong>
 		<input type="text" size="50" id="QA_application" name="QA_application" tal:attributes="value here/QA_application" /><br />
-		<span i18n:translate="" tal:omit-tag="">Leave this field empty if there is no QA service to link to.</span>
+		Leave this field empty if there is no QA service to link to.
 	</p>
 </fieldset>
 <fieldset>
-	<legend i18n:translate="">Globally restricted site</legend>
+	<legend>Globally restricted site</legend>
 	<p class="form-help">
-		<strong><label for="globally_restricted_site" i18n:translate="">Globally restricted site</label></strong>
+		<strong><label for="globally_restricted_site">Globally restricted site</label></strong>
 		<input type="checkbox" id="globally_restricted_site" name="globally_restricted_site" tal:attributes="checked here/globally_restricted_site" /><br />
-		<span i18n:translate="" tal:omit-tag="">Check this box if the content from this site needs to be fully restricted from public view (e.g. BDR). By enabling this option, all Report Documents will be restricted, and users will not be able to change their status.</span>
+		Check this box if the content from this site needs to be fully restricted from public view (e.g. BDR). By enabling this option, all Report Documents will be restricted, and users will not be able to change their status.
 	</p>
 </fieldset>
 <br />
-<input type="submit" value="Save changes" i18n:attributes="value" />
+<input type="submit" value="Save changes" />
 </form>
 
 <form action="runAutomaticApplications" method="get">
 <fieldset>
-	<legend i18n:translate="">Trigger Automatic Applications</legend>
+	<legend>Trigger Automatic Applications</legend>
 	<p class="form-help">
-		<strong><label for="p_applications" i18n:translate="">Name of activity to run</label></strong>
+		<strong><label for="p_applications">Name of activity to run</label></strong>
 		<input type="text" size="50" id="p_applications" name="p_applications" /><br />
 	</p>
 	<input type="submit" value="Trigger" />

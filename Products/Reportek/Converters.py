@@ -137,12 +137,6 @@ class Converters(Folder):
             local_converters.append(conv)
         return local_converters
 
-    """
-    def _get_local_converters(self):
-        """ """
-        return self.objectIds()
-    """
-
     def ajax_remote_converters(self):
         """ """
         convs = self._get_remote_converters()

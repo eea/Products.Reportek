@@ -16,7 +16,7 @@
 # Rights Reserved.
 #
 # Contributor(s):
-# Miruna Badescu, Finsiel Romania
+# Miruna Badescu, Eau de Web
 
 __doc__ = """
       Mappings between dataflows and types of XML files (XML schemas)
@@ -32,7 +32,7 @@ import Globals
 
 # product imports
 
-manage_addDataflowMappingRecordForm = PageTemplateFile('zpt/mapDataflowSchemaAdd', globals())
+manage_addDataflowMappingRecordForm = PageTemplateFile('zpt/dataflow-mappings/mapDataflowSchemaAdd', globals())
 
 def manage_addDataflowMappingRecord(self, id, title='', dataflow_uri='', allowedSchemas=[], webformSchemas=[], file_id='', REQUEST=None):
     """ add a new converter object """
@@ -43,7 +43,7 @@ def manage_addDataflowMappingRecord(self, id, title='', dataflow_uri='', allowed
         return self.manage_main(self, REQUEST, update_menu=1)
 
 class DataflowMappingRecord(SimpleItem):
-    """ Mappings between dataflows and types of XML files (XML schemas) """
+    """ Mappings between reporting obligations (dataflows) and types of XML files (XML schemas) """
 
     meta_type = 'Reportek Dataflow Mapping Record'
     icon = 'misc_/Reportek/datafow_mappings_gif'
@@ -96,7 +96,7 @@ class DataflowMappingRecord(SimpleItem):
 
     security.declareProtected(view_management_screens, 'manage_settings')
     def manage_settings(self, title='', dataflow_uri='', allowedSchemas=[], webformSchemas=[], file_id='', REQUEST=None):
-        """ """
+        """ Editing of a Dataflow Mapping Record """
         self.title = title
         self.dataflow_uri = dataflow_uri
         self.allowedSchemas = filter(None, allowedSchemas)
@@ -133,12 +133,8 @@ class DataflowMappingRecord(SimpleItem):
                 self._p_changed = 1
         self._fix_attributes()
 
-#   def setWebFormAttr(self, hasWF=1):
-#       """ """
-#       self.has_webForm = hasWF
-
     security.declareProtected(view_management_screens, 'manage_settings_html')
-    manage_settings_html = PageTemplateFile('zpt/mapDataflowSchemaEdit', globals())
+    manage_settings_html = PageTemplateFile('zpt/dataflow-mappings/mapDataflowSchemaEdit', globals())
 
     security.declarePublic('dataflows_select')
     dataflows_select = PageTemplateFile('zpt/dataflows_select', globals())
