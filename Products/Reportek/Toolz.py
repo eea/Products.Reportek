@@ -80,11 +80,15 @@ class Toolz:
     def getLDAPUserEmail(self, dn):
         return unicode(dn.get('mail', ''), 'iso-8859-1').encode('utf-8')
 
-    #collection related - must be globals to be able to call them in any context (ROOT or collection)
+    #collection related - must be globals to be able
+    #to call them in any context (ROOT or collection)
     def dataflow_table_grouped(self, key='SOURCE_TITLE', desc=0):
-        """ """
-        #ROOT method dataflow_table returns a list of dictionaries with the following keys:
-        #['terminated', 'PK_RA_ID', 'SOURCE_TITLE', 'details_url', 'TITLE', 'uri', 'LAST_UPDATE', 'PK_SOURCE_ID']
+        #ROOT method dataflow_table returns a list of dictionaries
+        #with the following keys:
+        #[
+        #    'terminated', 'PK_RA_ID', 'SOURCE_TITLE', 'details_url', 'TITLE',
+        #    'uri', 'LAST_UPDATE', 'PK_SOURCE_ID'
+        #]
         #we want to group items by given key, ascendent(desc=0) or descendent(desc=1)
         r = {}
         #group items
@@ -100,8 +104,25 @@ class Toolz:
 
     def partofyear_table(self):
         return ['',
-            'Whole Year', 'First Half', 'Second Half', 'First Quarter', 'Second Quarter', 'Third Quarter', 'Fourth Quarter',
-            'January', 'February', 'March', 'April', 'May','June', 'July', 'August', 'September', 'October', 'November', 'December'
+            'Whole Year',
+            'First Half',
+            'Second Half',
+            'First Quarter',
+            'Second Quarter',
+            'Third Quarter',
+            'Fourth Quarter',
+            'January',
+            'February',
+            'March',
+            'April',
+            'May',
+            'June',
+            'July',
+            'August',
+            'September',
+            'October',
+            'November',
+            'December'
         ]
 
     def tlzNewlineToBr(self, s):
@@ -122,4 +143,7 @@ class Toolz:
         return RepUtils.utSortByAttr(p_obj_list, p_attr, p_sort_order)
 
     def tlzSortObjsListByMethod(self, p_obj_list, p_attr, p_sort_order=0):
-        return RepUtils.utSortObjsListByMethod(p_obj_list, p_attr, p_sort_order)
+        return RepUtils.utSortObjsListByMethod(p_obj_list,
+                                               p_attr,
+                                               p_sort_order)
+

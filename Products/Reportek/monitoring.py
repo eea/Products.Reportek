@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 import logging
 import zExceptions
@@ -53,7 +54,6 @@ def log_pub_failure(event):
 
 
 def log_to_cube(event):
-    import os
     url = os.environ.get('CUBE_POST_URL')
     if not url:
         return

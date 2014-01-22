@@ -1,11 +1,12 @@
+<tal:block metal:define-macro="language_box">
 <form id="change_language" action="/ReportekEngine/setCookieLanguage" method="get">
     <label for="chlang" i18n:translate="change-language">Change language</label>
 	<select name="chlang" id="chlang" onchange="javascript:document.getElementById('change_language').submit()"
         tal:define="currentLang here/ReportekEngine/getSelectedLanguage">
-        
-		<option tal:repeat="item python: context.getAvailableLanguages().items()"
+		<option tal:repeat="item python: here.ReportekEngine.getAvailableLanguages().items()"
             tal:attributes="value python: item[0]; selected python: item[0]==currentLang"
 			tal:content="python: item[1]" />
 	</select>
 	<noscript><input type="submit" value="Change" i18n:attributes="value" /></noscript>
 </form>
+</tal:block>

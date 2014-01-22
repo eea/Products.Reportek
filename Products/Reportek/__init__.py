@@ -238,8 +238,8 @@ def initialize(context):
     create_reportek_indexes(app.Catalog)
     import transaction; transaction.commit()
 
-    import monitoring
-    monitoring.initialize()
+    #import monitoring
+    #monitoring.initialize()
 
     context.registerClass(
        QAScript.QAScript,

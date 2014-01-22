@@ -1,6 +1,8 @@
 <configure xmlns="http://namespaces.zope.org/zope"
            xmlns:zcml="http://namespaces.zope.org/zcml"
-           xmlns:browser="http://namespaces.zope.org/browser">
+           xmlns:browser="http://namespaces.zope.org/browser"
+           xmlns:i18n="http://namespaces.zope.org/i18n"
+           i18n_domain="default">
 
    <browser:view for="Products.ZCatalog.interfaces.IZCatalog"
                    name="manage_maintenance"
@@ -51,8 +53,6 @@
   <subscriber for="zope.lifecycleevent.interfaces.IObjectMovedEvent"
               handler="Products.Reportek.OpenFlowEngine.handle_application_move_events" />
 
-  <configure xmlns:i18n="http://namespaces.zope.org/i18n">
       <i18n:registerTranslations directory="locales" />
-  </configure>
 
 </configure>

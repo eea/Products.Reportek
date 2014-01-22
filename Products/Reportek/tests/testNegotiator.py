@@ -54,8 +54,10 @@ class TestCustomNegotiator(unittest.TestCase):
     @patch('Products.Reportek.negotiator.queryUtility')
     def test_getAvailableLanguages(self, mock_queryUtility):
         mock_translation_domain = Mock()
-        langs_dict = mock_translation_domain.getCatalogsInfo.return_value
-        langs_dict.keys.return_value = self.AVAILABLE_LANGS
+        langs_dict = {}
+        for l in self.AVAILABLE_LANGS + ['test']:
+            langs_dict[l] = l
+        mock_translation_domain.getCatalogsInfo.return_value = langs_dict
         mock_queryUtility.return_value = mock_translation_domain
         langs = self.negotiator.getAvailableLanguages()
         self.assertEqual(langs, dict(zip(

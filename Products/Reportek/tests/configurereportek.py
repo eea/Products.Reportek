@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # This is a mix-in class to set up Reportek
 
 class ConfigureReportek:
@@ -65,7 +66,7 @@ class ConfigureReportek:
     def createStandardCollection(self):
         # title, descr,year, endyear, partofyear, country, locality,
         # dataflow_uris,allow_collections=0, allow_envelopes=0, id='', REQUEST=None
-        self.app.manage_addProduct['Reportek'].manage_addCollection('TestTitle', 'Desc',
+        self.app.manage_addProduct['Reportek'].manage_addCollection('Collection Title', 'Desc',
             '2003', '2004', '', 'http://rod.eionet.eu.int/spatial/2', '', ['http://rod.eionet.eu.int/obligations/8'],
             allow_collections=1, allow_envelopes=1, id='collection')
 
@@ -82,7 +83,7 @@ class ConfigureReportek:
         self.login()
         user = getSecurityManager().getUser()
         self.app.REQUEST.AUTHENTICATED_USER = user
-        #col.manage_addProduct['Reportek'].manage_addEnvelope('', '', '2003', '2004', '',
+        #col.manage_addProduct['Reportek'].manage_addEnvelope('Envelope title', '', '2003', '2004', '',
         # 'http://rod.eionet.eu.int/spatial/2', REQUEST=None, previous_delivery='')
         from utils import simple_addEnvelope
         simple_addEnvelope(col.manage_addProduct['Reportek'], '', '', '2003', '2004', '',
