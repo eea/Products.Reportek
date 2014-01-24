@@ -853,7 +853,6 @@ class SearchResultsTest(_BaseTest):
         envs = [el.getObject() for el in results]
         self.assertEqual(envs, [self.root.first_envelope])
 
-
 class ReportekEngineZipTest(unittest.TestCase):
 
     def test_zip_download(self):

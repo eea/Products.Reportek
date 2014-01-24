@@ -1,3 +1,4 @@
+<tal:block define="global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'"/>
 <span tal:replace="structure here/standard_html_header" />
 <tal:block condition="python:context.canViewContent()">
   <div tal:replace="structure python:context.envelope_tabs(tab='overview')"/>
@@ -83,6 +84,16 @@
           </metal:block>
         </tal:block>
       </td>
+    </tr>
+    <tr tal:condition="isBdrDeployment">
+        <th>Acceptability status</th>
+        <td tal:define="statuses
+                           python:{
+                                True: 'Data delivery is acceptable',
+                                False: 'Data delivery is not acceptable',
+                                None: 'n/a'}"
+            tal:content="python:statuses[context.is_acceptable()]">
+        </td>
     </tr>
     </tbody>
     </table>

@@ -24,6 +24,7 @@ __doc__ = """
       Added in the Root folder by product's __init__
 """
 
+
 from path import path
 import tempfile
 import os
@@ -33,7 +34,6 @@ import requests
 
 # Zope imports
 from OFS.Folder import Folder
-from OFS.ObjectManager import ObjectManager
 from AccessControl import getSecurityManager, ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens, view
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -49,7 +49,6 @@ from copy import copy
 # product imports
 import constants
 from Products.Reportek.constants import DEFAULT_CATALOG
-from Products.Reportek.Collection import manage_addCollection
 import RepUtils
 from Toolz import Toolz
 from DataflowsManager import DataflowsManager
@@ -59,7 +58,7 @@ from zope.interface import implements
 from interfaces import IReportekEngine
 from zope.i18n.negotiator import normalize_lang
 from zope.i18n.interfaces import II18nAware, INegotiator
-from zope.component import queryUtility, getUtility
+from zope.component import getUtility
 
 class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     """ Stores generic attributes for Reportek """
@@ -137,6 +136,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security.declareProtected(view_management_screens, 'manage_properties')
     manage_properties = PageTemplateFile('zpt/engine/prop', globals())
+
+    security.declarePublic('getDeploymentType')
+    def getDeploymentType(self):
+        return Products.Reportek.REPORTEK_DEPLOYMENT
 
     security.declareProtected(view_management_screens, 'manage_editEngine')
     def manage_editEngine(self, title='', webq_url='', webq_envelope_menu='', webq_before_edit_page='', QA_application='', globally_restricted_site=False, REQUEST=None):
@@ -348,15 +351,13 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             return self.Build_collections_form(REQUEST, messages=messages)
         pattern = kwargs.get('pattern', REQUEST.get('pattern', ''))
         countries = kwargs.get('ccountries', REQUEST.get('ccountries', None))
-        if not isinstance(countries, list):
-            countries = [countries]
         title = kwargs.get('ctitle', REQUEST.get('ctitle', ''))
         obligation = kwargs.get('dataflow_uris', REQUEST.get('dataflow_uris', []))
         if not isinstance(obligation, list):
             obligation = [obligation]
         collection_id = kwargs.get('cid', REQUEST.get('cid', ''))
         allow_collections = int(kwargs.get('allow_collections', REQUEST.get('allow_collections', 0)))
-        allow_envelopes = int(kwargs.get('allow_envelopes', REQUEST.get('allow_envelopes', 0)))
+        allow_envelopes = int(kwargs.get('allow_envelopes', REQUEST.get('allow_envelopes', 1)))
         for spatial_uri in countries:
             country = self.localities_dict().get(spatial_uri)
             if country:
@@ -366,15 +367,15 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                         pattern = self.clean_pattern(pattern)
                         target_path = '/'.join([country['iso'].lower(), pattern])
                     target = self.getPhysicalRoot().restrictedTraverse(target_path)
-                    col = target.manage_addCollection(
+                    target.manage_addCollection(
                         title, '', '', '', '', spatial_uri, '',
                         obligation,
                         allow_collections=allow_collections,
-                        allow_envelopes=allow_collections,
+                        allow_envelopes=allow_envelopes,
                         id=collection_id
                     )
                     messages['success'].append(country['name'])
-                except KeyError as ex:
+                except KeyError:
                     messages['fail'].append('%s(%s*)' %(country['name'], target_path))
         return self.Build_collections_form(REQUEST, messages=messages)
 

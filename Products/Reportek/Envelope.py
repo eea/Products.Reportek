@@ -28,23 +28,19 @@ $Id$"""
 __version__='$Revision$'[11:-2]
 
 
-import time, os, types, tempfile, string
+import os, types, tempfile, string
 from path import path
 from zipfile import *
-import Products
-from Products.ZCatalog.CatalogAwareness import CatalogAware
 import Globals, OFS.SimpleItem, OFS.ObjectManager
-from Globals import DTMLFile, MessageDialog
+from Globals import DTMLFile
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-import AccessControl.Role, webdav.Collection
+import AccessControl.Role
 from AccessControl import getSecurityManager, ClassSecurityInfo, Unauthorized
+from Products.Reportek import permission_manage_properties_envelopes
 from zExceptions import Forbidden
 from DateTime import DateTime
 from DateTime.interfaces import SyntaxError
 from ZPublisher.Iterators import filestream_iterator
-import urllib
-import xmlrpclib
-import operator
 
 # Product specific imports
 import RepUtils
@@ -216,13 +212,13 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
 
     def is_acceptable(self):
         """ Returns acceptability status """
-        QA_workitems = [
+        if self.is_blocked:
+            return False
+        completed_automaticQA_workitems = [
             wi for wi in self.getMySelf().getListOfWorkitems()
                if wi.activity_id == 'AutomaticQA' and wi.status == 'complete'
         ]
-        if self.is_blocked:
-            return False
-        elif QA_workitems:
+        if completed_automaticQA_workitems:
             return True
         else:
             return None
@@ -541,7 +537,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
     # Edit metadata
     ##################################################
 
-    security.declareProtected('Change Envelopes', 'manage_editEnvelope')
+    security.declareProtected(permission_manage_properties_envelopes, 'manage_editEnvelope')
     def manage_editEnvelope(self, title, descr,
             year, endyear, partofyear, country, locality, dataflow_uris=[],
             REQUEST=None):
@@ -565,7 +561,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                             message="The properties of %s have been changed!" % self.id,
                             action='./manage_main')
 
-    security.declareProtected('Change Envelopes', 'manage_changeEnvelope')
+    security.declareProtected(permission_manage_properties_envelopes, 'manage_changeEnvelope')
     def manage_changeEnvelope(self, title=None, descr=None,
             year=None, endyear=None, country=None, dataflow_uris=None,
             reportingdate=None,

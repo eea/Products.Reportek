@@ -54,6 +54,8 @@ class CustomNegotiator(Negotiator):
 
     def getLanguage(self, langs, request):
 
+        if not langs:
+            return None
         # get lang from cookie
         langs = normalize_langs(langs)
         self.purgeWeirdZopeI18nTestLang(langs)

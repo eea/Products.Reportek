@@ -23,6 +23,8 @@
 __doc__ = """Reportek __init__ """
 __version__ = '$Rev$'[6:-2]
 
+from config import *
+
 # Zope imports
 import Globals
 from App.ImageFile import ImageFile

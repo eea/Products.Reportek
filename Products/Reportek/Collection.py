@@ -31,6 +31,7 @@ from Products.ZCatalog.CatalogAwareness import CatalogAware
 import Globals
 import AccessControl.Role, webdav.Collection
 from AccessControl.Permissions import manage_users
+from Products.Reportek import permission_manage_properties_collections
 from AccessControl import getSecurityManager, ClassSecurityInfo
 from OFS.Folder import Folder
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -71,7 +72,7 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
     security = ClassSecurityInfo()
 
     manage_options = Folder.manage_options[:3] + \
-        ( 
+        (
             {'label':'Settings', 'action':'manage_prop', 'help':('Reportek','Collection_Properties.stx')},
             {'label':'List of reporters', 'action':'get_users_list'},
         ) + Folder.manage_options[3:]
@@ -290,7 +291,7 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
             l_dfdict[l_item['uri']] = l_item
         return l_dfdict
 
-    security.declareProtected('Change Collections', 'manage_editCollection')
+    security.declareProtected(permission_manage_properties_collections, 'manage_editCollection')
     def manage_editCollection(self, title, descr,
             year, endyear, partofyear, locality, country='',
             allow_collections=0,allow_envelopes=0,dataflow_uris=[],REQUEST=None):
@@ -324,7 +325,7 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
                             message="The categories of %s have been changed!" % self.id,
                             action='./manage_main')
 
-    security.declareProtected('Change Collections', 'manage_changeCollection')
+    security.declareProtected(permission_manage_properties_collections, 'manage_changeCollection')
     def manage_changeCollection(self, title=None,
             year=None,endyear=None,partofyear=None,country=None,locality=None,
             descr=None,
