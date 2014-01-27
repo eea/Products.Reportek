@@ -26,6 +26,9 @@
 #(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 #SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
+#Zope imports
+from Globals import InitializeClass
+from AccessControl import ClassSecurityInfo
 
 from math import ceil, floor
 
@@ -102,6 +105,11 @@ class Paginator(object):
         return range(1, self.num_pages + 1)
     page_range = property(_get_page_range)
 
+    security = ClassSecurityInfo()
+    security.setDefaultAccess("allow")
+
+InitializeClass(Paginator)
+
 QuerySetPaginator = Paginator # For backwards-compatibility.
 
 class Page(object):
@@ -148,6 +156,10 @@ class Page(object):
             return self.paginator.count
         return self.number * self.paginator.per_page
 
+    security = ClassSecurityInfo()
+    security.setDefaultAccess("allow")
+
+InitializeClass(Page)
 
 class ExPaginator(Paginator):
     """Adds a ``softlimit`` option to ``page()``. If True, querying a
@@ -188,6 +200,11 @@ class ExPaginator(Paginator):
                 return self.page(self.num_pages, softlimit=False)
             else:
                 raise e
+
+    security = ClassSecurityInfo()
+    security.setDefaultAccess("allow")
+
+InitializeClass(ExPaginator)
 
 class DiggPaginator(ExPaginator):
     """
@@ -404,6 +421,11 @@ class DiggPaginator(ExPaginator):
         page.__class__ = DiggPage
         return page
 
+    security = ClassSecurityInfo()
+    security.setDefaultAccess("allow")
+
+InitializeClass(DiggPaginator)
+
 class DiggPage(Page):
     def __str__(self):
         return " ... ".join(filter(None, [
@@ -411,12 +433,17 @@ class DiggPage(Page):
                             " ".join(map(str, self.main_range)),
                             " ".join(map(str, self.trailing_range))]))
 
+    security = ClassSecurityInfo()
+    security.setDefaultAccess("allow")
+
+InitializeClass(DiggPage)
+
 from Products.Five.browser import BrowserView
-from Globals import DTMLFile
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
 class PaginationView(BrowserView):
 
     def __call__(self, **kwargs):
         return pagination.__of__(self.aq_parent)(**kwargs)
 
-pagination = DTMLFile('dtml/envelopeDocuments_pagination', globals())
+pagination = PageTemplateFile('zpt/envelope/documents_pagination', globals())

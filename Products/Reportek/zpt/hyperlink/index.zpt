@@ -1,0 +1,23 @@
+<span tal:replace="structure here/standard_html_header" />
+
+<div id="operations">
+	<ul>
+		<li><a tal:attributes="href python:here.getParentNode().absolute_url()" title="Go back to the envelope that contains this hyperlink" i18n:attributes="title" i18n:translate="">Back to envelope</a></li>
+	</ul>
+</div>
+
+<h1><tal:block i18n:translate="">Hyperlink</tal:block>: <span tal:replace="here/title_or_id" /></h1>
+
+<table>
+	<tr>
+		<th scope="row" i18n:translate="">Title</th>
+		<td tal:content="here/title" />
+	</tr>
+	<tr>
+		<th scope="row" i18n:translate="">URL</th>
+		<td><a tal:attributes="href here/hyperlinkurl" tal:content="here/hyperlinkurl" /></td>
+	</tr>
+</table>
+
+
+<span tal:replace="structure here/standard_html_footer" />

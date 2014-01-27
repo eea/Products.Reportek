@@ -1,0 +1,43 @@
+<tal:block define="SecurityManager modules/AccessControl/getSecurityManager; has_permission python:SecurityManager.checkPermission('View management screens', template)">
+
+	<tal:block condition="has_permission">
+		<span tal:replace="structure context/manage_page_header"/>
+		<span tal:replace="structure python:context.manage_form_title(template, context, form_title='Add Hyperlink', help_product='Reportek', help_topic='Hyperlink_Add.stx')"/>
+	</tal:block>
+	<tal:block condition="python:not has_permission">
+		<span tal:replace="structure context/standard_html_header" />
+		<h1 i18n:translate="">Add Hyperlink</h1>
+	</tal:block>
+
+	<tal:block tal:condition="here/released">
+		<p i18n:translate="">You can not add hyperlink in an envelope when it is released!</p>
+		<p><tal:block i18n:translate="">Go</tal:block> <a tal:attributes="href request/HTTP_REFERER" i18n:translate="">back</a>.</p>
+	</tal:block>
+	<tal:block tal:condition="python:not here.released">
+		<p class="form-help" i18n:translate="">Use the form to submit hyperlink to this delivery.</p>
+		<form action="manage_addHyperlink" method="post">
+		<table>
+			<tr>
+				<th style="width: 15%"><label for="title" i18n:translate="">Title</label></th>
+				<td><input type="text" id="title" name="title" size="60" style="width:85%" value="" /></td>
+			</tr>
+			<tr>
+				<th style="width: 15%"><label for="hyperlinkurl" i18n:translate="">URL</label></th>
+				<td><input type="text" id="hyperlinkurl" name="hyperlinkurl" size="60" value="http://" style="width:85%" /></td>
+			</tr>
+			<tr>
+				<th><label for="id" i18n:translate="">Identifier</label></th>
+				<td><input type="text" id="id" name="id" size="40" style="width:85%" /> (<tal:block i18n:translate="">optional</tal:block>)</td>
+			</tr>
+			<tr>
+				<td></td>
+				<td><input type="submit" value="Add hyperlink" i18n:attributes="value" /></td>
+			</tr>
+		</table>
+		</form>
+	</tal:block>
+
+	<span tal:condition="has_permission" tal:replace="structure context/manage_page_footer" />
+	<span tal:condition="not:has_permission" tal:replace="structure context/standard_html_footer" />
+
+</tal:block>

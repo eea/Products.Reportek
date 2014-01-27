@@ -1,0 +1,24 @@
+<tal:block tal:replace="structure here/standard_html_header" />
+
+<tal:block tal:define=="file_id python:request.get('file', '')">
+
+	<div id="operations">
+		<ul>
+			<li><a tal:attributes="href request/URL2" i18n:translate="">Back to envelope</a></li>
+		</ul>
+	</div>
+
+	<tal:block tal:condition="file_id">
+		<h1><tal:block i18n:translate="">Are you sure you want to delete</tal:block> <span tal:replace="file_id" /></h1>
+		<div>
+			<form method="post" name="frmDeleteAttFeedback" action="manage_deleteAttFeedback">
+				<input type="hidden" name="file_id" tal:attributes="value file_id" />
+				<input type="submit" value="Delete" name="go" i18n:attributes="value" />
+				<input type="submit" value="Cancel" name="go" i18n:attributes="value" />
+			</form>
+		</div>
+	</tal:block>
+
+</tal:block>
+
+<tal:block tal:replace="structure here/standard_html_footer" />

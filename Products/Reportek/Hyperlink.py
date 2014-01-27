@@ -29,7 +29,8 @@ __doc__ = """
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from OFS.SimpleItem import SimpleItem
 from OFS.PropertyManager import PropertyManager
-from Globals import DTMLFile, MessageDialog, InitializeClass
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Globals import MessageDialog, InitializeClass
 from AccessControl import getSecurityManager, ClassSecurityInfo
 from DateTime import DateTime
 from App.ImageFile import ImageFile
@@ -37,7 +38,7 @@ import RepUtils
 from time import time
 import string
 
-manage_addHyperlinkForm = DTMLFile('dtml/hyperlinkAdd',globals())
+manage_addHyperlinkForm = PageTemplateFile('zpt/hyperlink/add', globals())
 
 def manage_addHyperlink(self, id ='', title='', hyperlinkurl='', REQUEST=None):
     """Adds hyperlink as a file to a folder."""
@@ -130,10 +131,10 @@ class ReportHyperlink(CatalogAware,
                             action=REQUEST['HTTP_REFERER'])
 
     security.declareProtected('View', 'index_html')
-    index_html = DTMLFile('dtml/hyperlinkIndex', globals())
+    index_html = PageTemplateFile('zpt/hyperlink/index', globals())
 
     security.declareProtected('Change Envelopes', 'manage_editHyperlinkForm')
-    manage_editHyperlinkForm = DTMLFile('dtml/hyperlinkEdit', globals())
+    manage_editHyperlinkForm = PageTemplateFile('zpt/hyperlink/edit', globals())
 
     security.declareProtected('Change Envelopes', 'manage_restrictDocument')
     def manage_restrictDocument(self, REQUEST=None):

@@ -41,7 +41,7 @@ from OFS.SimpleItem import SimpleItem
 from OFS.ObjectManager import ObjectManager
 from blob import add_OfsBlobFile
 from OFS.PropertyManager import PropertyManager
-from Globals import DTMLFile, MessageDialog, InitializeClass
+from Globals import MessageDialog, InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl import getSecurityManager, ClassSecurityInfo
 #from webdav.WriteLockInterface import WriteLockInterface
@@ -284,9 +284,9 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
     manage_editFeedbackForm = PageTemplateFile('zpt/feedback/edit', globals())
 
     security.declareProtected('Change Feedback', 'manage_uploadAttFeedbackForm')
-    manage_uploadAttFeedbackForm = DTMLFile('dtml/feedbackUploadAtt', globals())
+    manage_uploadAttFeedbackForm = PageTemplateFile('zpt/feedback/uploadatt', globals())
 
     security.declareProtected('Change Feedback', 'manage_deleteAttFeedbackForm')
-    manage_deleteAttFeedbackForm = DTMLFile('dtml/feedbackDeleteAtt', globals())
+    manage_deleteAttFeedbackForm = PageTemplateFile('zpt/feedback/deleteatt', globals())
 
 InitializeClass(ReportFeedback)
