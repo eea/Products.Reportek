@@ -106,70 +106,68 @@ def create_reportek_objects(app):
         app._setObject(constants.DEFAULT_CATALOG, catalog)
 
 
+def add_index(name, catalog, meta_type, meta=False):
+    if name not in catalog.indexes():
+        if meta_type == 'ZCTextIndex':
+            item_extras = Empty()
+            item_extras.doc_attr = name
+            item_extras.index_type = 'Okapi BM25 Rank'
+            item_extras.lexicon_id = 'lexicon'
+            catalog.addIndex(name, meta_type, item_extras)
+        else:
+            catalog.addIndex(name, meta_type)
+
+    if meta and name not in catalog.schema():
+        #Add Catalog metadata
+        catalog.addColumn(name)
+
+
+def add_lexicon(catalog):
+    elem = []
+    wordSplitter = Empty()
+    wordSplitter.group = 'Word Splitter'
+    wordSplitter.name = 'HTML aware splitter'
+
+    caseNormalizer = Empty()
+    caseNormalizer.group = 'Case Normalizer'
+    caseNormalizer.name = 'Case Normalizer'
+
+    stopWords = Empty()
+    stopWords.group = 'Stop Words'
+    stopWords.name = 'Remove listed and single char words'
+
+    elem.append(wordSplitter)
+    elem.append(caseNormalizer)
+    elem.append(stopWords)
+    catalog.manage_addProduct['ZCTextIndex'].manage_addLexicon('lexicon', '', elem)
+
+
 def create_reportek_indexes(catalog):
-    """ Add a series of indexes in it if these are not there """
+    if not hasattr(catalog, 'lexicon'):
+        add_lexicon(catalog)
+    add_index('id', catalog, 'FieldIndex', meta=True)
+    add_index('title', catalog, 'ZCTextIndex', meta=True)
+    add_index('meta_type', catalog, 'FieldIndex', meta=True)
+    add_index('bobobase_modification_time', catalog, 'DateIndex', meta=True)
+    add_index('activity_id', catalog, 'FieldIndex')
+    add_index('actor', catalog, 'FieldIndex')
+    add_index('content_type', catalog, 'FieldIndex')
+    add_index('country', catalog, 'FieldIndex')
+    add_index('dataflow_uris', catalog, 'KeywordIndex')
+    add_index('getCountryName', catalog, 'FieldIndex')
+    add_index('instance_id', catalog, 'FieldIndex')
+    add_index('partofyear', catalog, 'FieldIndex')
+    add_index('path', catalog, 'PathIndex')
+    add_index('process_path', catalog, 'FieldIndex')
+    add_index('released', catalog, 'FieldIndex')
+    add_index('reportingdate', catalog, 'FieldIndex')
+    add_index('status', catalog, 'FieldIndex')
+    add_index('xml_schema_location', catalog, 'FieldIndex')
+    add_index('years', catalog, 'KeywordIndex')
 
-    available_indexes = catalog.indexes()
-    available_metadata = catalog.schema()
-    if not ('id' in available_indexes):
-        catalog.addIndex('id', 'FieldIndex')
-    if not ('id' in available_metadata):
-        catalog.addColumn('id')
 
-    if not ('meta_type' in available_indexes):
-        catalog.addIndex('meta_type', 'FieldIndex')
-    if not ('meta_type' in available_metadata):
-        catalog.addColumn('meta_type')
-
-    if not ('bobobase_modification_time' in available_indexes):
-        catalog.addIndex('bobobase_modification_time', 'DateIndex')
-    if not ('bobobase_modification_time' in available_metadata):
-        catalog.addColumn('bobobase_modification_time')
-
-    if not ('activity_id' in available_indexes):
-        catalog.addIndex('activity_id', 'FieldIndex')
-
-    if not ('actor' in available_indexes):
-        catalog.addIndex('actor', 'FieldIndex')
-
-    if not ('content_type' in available_indexes):
-        catalog.addIndex('content_type', 'FieldIndex')
-
-    if not ('country' in available_indexes):
-        catalog.addIndex('country', 'FieldIndex')
-
-    if not ('dataflow_uris' in available_indexes):
-        catalog.addIndex('dataflow_uris', 'KeywordIndex')
-
-    if not ('getCountryName' in available_indexes):
-        catalog.addIndex('getCountryName', 'FieldIndex')
-
-    if not ('instance_id' in available_indexes):
-        catalog.addIndex('instance_id', 'FieldIndex')
-
-    if not ('partofyear' in available_indexes):
-        catalog.addIndex('partofyear', 'FieldIndex')
-
-    if not ('path' in available_indexes):
-        catalog.addIndex('path', 'PathIndex')
-
-    if not ('process_path' in available_indexes):
-        catalog.addIndex('process_path', 'FieldIndex')
-
-    if not ('released' in available_indexes):
-        catalog.addIndex('released', 'FieldIndex')
-
-    if not ('reportingdate' in available_indexes):
-        catalog.addIndex('reportingdate', 'FieldIndex')
-
-    if not ('status' in available_indexes):
-        catalog.addIndex('status', 'FieldIndex')
-
-    if not ('xml_schema_location' in available_indexes):
-        catalog.addIndex('xml_schema_location', 'FieldIndex')
-
-    if not ('years' in available_indexes):
-        catalog.addIndex('years', 'KeywordIndex')
+class Empty:
+    pass
 
 
 def startup(context):
@@ -178,7 +176,6 @@ def startup(context):
 
     create_reportek_objects(app)
     create_reportek_indexes(app[constants.DEFAULT_CATALOG])
-
     transaction.commit()
 
 
