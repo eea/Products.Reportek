@@ -1,3 +1,11 @@
+3.4 (unreleased)
+----------------
+
+3.4 (2014-01-27)
+----------------
+* Various fixes for a fresh, clean and up-to-date buildout
+* Unified products BDR and CDR (based on buildout REPORTEK_DEPLOYMENT env var)
+* Add multilanguage to Reportek
 3.4 (2013-09-09)
 ----------------
 * Remote converters use RESTful API
