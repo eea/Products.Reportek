@@ -27,6 +27,7 @@ from config import *
 
 # Zope imports
 import Globals
+import Zope2
 from App.ImageFile import ImageFile
 from Products.ZCatalog.ZCatalog import ZCatalog
 
@@ -45,7 +46,7 @@ import RemoteRESTApplication
 import DataflowMappings
 import ReportekEngine
 
-from constants import CONVERTERS_ID, ENGINE_ID, WORKFLOW_ENGINE_ID, DATAFLOW_MAPPINGS, DEFAULT_CATALOG, QAREPOSITORY_ID
+import constants
 
 from zope.i18nmessageid import MessageFactory
 MessageFactory = MessageFactory('Reportek')
@@ -62,105 +63,48 @@ ZCatalog.manage_options = maintenance_options
 
 def create_reportek_objects(app):
 
-    ###########################################
-    #   The Engine folder in Root
-    ###########################################
-    if hasattr(app, ENGINE_ID):
-        repo_engine = getattr(app, ENGINE_ID)
-    else:
-        try:
-            repo_engine = ReportekEngine.ReportekEngine()
-            app._setObject(ENGINE_ID, repo_engine)
-            transaction.note('Added Reportek Engine')
-            transaction.commit()
-        except:
-            pass
-        repo_engine = getattr(app, ENGINE_ID)
-    assert repo_engine is not None
+    #Add ReportekEngine instance
+    try:
+        repo_engine = getattr(app, constants.ENGINE_ID)
+    except AttributeError:
+        repo_engine = ReportekEngine.ReportekEngine()
+        app._setObject(constants.ENGINE_ID, repo_engine)
 
+    #Add converters folder
+    try:
+        converters = getattr(app, constants.CONVERTERS_ID)
+    except AttributeError:
+        converters = Converters.Converters()
+        app._setObject(constants.CONVERTERS_ID, converters)
 
-    ###########################################
-    #   The Converters folder in Root
-    ###########################################
-    if hasattr(app, CONVERTERS_ID):
-        converters = getattr(app, CONVERTERS_ID)
-    else:
-        try:
-            converters = Converters.Converters()
-            app._setObject(CONVERTERS_ID, converters)
-            transaction.note('Added Reportek Converters')
-            transaction.commit()
-        except:
-            pass
-        converters = getattr(app, CONVERTERS_ID)
-    assert converters is not None
+    #Add QARepository folder
+    try:
+        qarepo = getattr(app, constants.QAREPOSITORY_ID)
+    except AttributeError:
+        qarepo = QARepository.QARepository()
+        app._setObject(constants.QAREPOSITORY_ID, qarepo)
 
-    ###########################################
-    #   The QARepository folder in Root
-    ###########################################
-    if hasattr(app, QAREPOSITORY_ID):
-        qarepo = getattr(app, QAREPOSITORY_ID)
-    else:
-        try:
-            qarepo = QARepository.QARepository()
-            app._setObject(QAREPOSITORY_ID, qarepo)
-            transaction.note('Added Reportek QARepository')
-            transaction.commit()
-        except:
-            pass
-        qarepo = getattr(app, QAREPOSITORY_ID)
-    assert qarepo is not None
+    #Add dataflow mapping
+    try:
+        dataflow_mapping = getattr(app, constants.DATAFLOW_MAPPINGS)
+    except AttributeError:
+        dataflow_mapping = DataflowMappings.DataflowMappings()
+        app._setObject(constants.DATAFLOW_MAPPINGS, dataflow_mapping)
 
-    ###########################################
-    #   The dataflow mapping in Root
-    ###########################################
-    if hasattr(app, DATAFLOW_MAPPINGS):
-        dataflow_mapping = getattr(app, DATAFLOW_MAPPINGS)
-    else:
-        try:
-            dataflow_mapping = DataflowMappings.DataflowMappings()
-            app._setObject(DATAFLOW_MAPPINGS, dataflow_mapping)
-            transaction.note('Added dataflow mapping engine')
-            transaction.commit()
-        except:
-            pass
-        dataflow_mapping = getattr(app, DATAFLOW_MAPPINGS)
-    assert dataflow_mapping is not None
+    #Add OpenFlowEngine instance
+    try:
+        workflow = getattr(app, constants.WORKFLOW_ENGINE_ID)
+    except AttributeError:
+        workflow = OpenFlowEngine.OpenFlowEngine(constants.WORKFLOW_ENGINE_ID)
+        app._setObject(constants.WORKFLOW_ENGINE_ID, workflow)
 
+    #Add Catalog
+    try:
+        catalog = getattr(app, constants.DEFAULT_CATALOG)
+    except AttributeError:
+        catalog = ZCatalog(constants.DEFAULT_CATALOG, 'Reportek Catalog')
+        app._setObject(constants.DEFAULT_CATALOG, catalog)
 
-    ###########################################
-    #   The OpenFlowEngine in Root
-    ###########################################
-    if hasattr(app, WORKFLOW_ENGINE_ID):
-        workflow_engine = getattr(app, WORKFLOW_ENGINE_ID)
-    else:
-        try:
-            workflow_engine = OpenFlowEngine.OpenFlowEngine(WORKFLOW_ENGINE_ID)
-            app._setObject(WORKFLOW_ENGINE_ID, workflow_engine)
-            transaction.note('Added Reportek Workflow engine')
-            transaction.commit()
-        except:
-            pass
-        workflow_engine = getattr(app, WORKFLOW_ENGINE_ID)
-    assert workflow_engine is not None
-
-    ###########################################
-    #   Default Catalog definition
-    ###########################################
-    """ Verify if the Root Folder already contains a ZCatalog. Add one if it does not.
-    """
-    if hasattr(app, DEFAULT_CATALOG):
-        catalog = getattr(app, DEFAULT_CATALOG)
-    else:
-        try:
-            catalog = ZCatalog(DEFAULT_CATALOG, 'Default Catalog for Reportek')
-            app._setObject(DEFAULT_CATALOG, catalog)
-            transaction.note('Added default ZCatalog in Root')
-            transaction.commit()
-        except:
-            pass
-        catalog = getattr(app, DEFAULT_CATALOG)
-    assert catalog is not None
 
 def create_reportek_indexes(catalog):
     """ Add a series of indexes in it if these are not there """
@@ -227,21 +171,22 @@ def create_reportek_indexes(catalog):
     if not ('years' in available_indexes):
         catalog.addIndex('years', 'KeywordIndex')
 
+
+def startup(context):
+    import transaction
+    app = Zope2.bobo_application()
+
+    create_reportek_objects(app)
+    create_reportek_indexes(app[constants.DEFAULT_CATALOG])
+
+    transaction.commit()
+
+
 def initialize(context):
     """ Reportek initializer """
 
     from AccessControl.Permissions import view_management_screens
     import blob
-
-    import Zope2
-    app = Zope2.app()
-
-    create_reportek_objects(app)
-    create_reportek_indexes(app.Catalog)
-    import transaction; transaction.commit()
-
-    #import monitoring
-    #monitoring.initialize()
 
     context.registerClass(
        QAScript.QAScript,
