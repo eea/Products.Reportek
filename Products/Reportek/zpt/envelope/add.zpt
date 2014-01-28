@@ -1,0 +1,74 @@
+<tal:block define="SecurityManager modules/AccessControl/getSecurityManager; has_permission python:SecurityManager.checkPermission('View management screens', template)">
+
+	<tal:block condition="has_permission">
+		<span tal:replace="structure context/manage_page_header"/>
+		<span tal:replace="structure python:context.manage_form_title(template, context, form_title='Add Envelope', help_product='Reportek', help_topic='')"/>
+	</tal:block>
+	<tal:block condition="python:not has_permission">
+		<span tal:replace="structure context/standard_html_header" />
+		<h1 i18n:translate="">Add Envelope</h1>
+	</tal:block>
+
+	<tal:block tal:define="canCreateEnvelope python:here.num_terminated_dataflows()<1">
+
+		<tal:block tal:condition="python:not canCreateEnvelope">
+			<p i18n:translate="">You cannot create envelopes for terminated obligations, you need to change the list of obligations associated to this collection and remove the following:</p>
+			<ul>
+				<tal:block tal:repeat="item here/dataflow_uris">
+					<tal:block tal:define="df python:here.dataflow_lookup(item)">
+						<li tal:condition="python:df.get('terminated', '0')=='1'"><a tal:attributes="href df/details_url" tal:content="df/TITLE" /></li>
+					</tal:block>
+				</tal:block>
+			</ul>
+			<p><a tal:attributes="href string:${here/absolute_url}/" i18n:translate="">Back to collection</a></p>
+		</tal:block>
+
+		<tal:block tal:condition="canCreateEnvelope">
+			<form action="manage_addEnvelope" method="post">
+			<p class="form-help" i18n:translate="">Fill out the fields in this report profile and click <em>Add</em>. This will create an <em>envelope</em> into which you make the delivery.</p>
+			<table>
+				<tr>
+					<th><label for="title" i18n:translate="">Title</label></th>
+					<td><input type="text" id="title" name="title" size="50" value="" /></td>
+				</tr>
+				<tr valign="top">
+					<th><label for="descr" i18n:translate="">Description</label></th>
+					<td><textarea cols="50" rows="6" id="descr" name="descr"></textarea></td>
+				</tr>
+				<tr tal:define="default here/partofyear | nothing; year here/year | nothing; default_year python:test(year, year, (here.ZopeTime()-180).year())">
+					<th><label for="year" i18n:translate="">Relating to which year</label></th>
+					<td>
+						<input type="text" name="year" id="year" size="4" maxlength="4" tal:attributes="value default_year" />
+						<select name="partofyear" id="partofyear">
+							<option tal:repeat="item here/partofyear_table" tal:attributes="value item; selected python:item==default" tal:content="item" i18n:translate="" />
+						</select>
+						<label for="endyear" class="form-optional" i18n:translate="">to</label>
+						<input type="text" id="endyear" name="endyear" size="4" maxlength="4" value="" />
+					</td>
+				</tr>
+				<tr tal:define="default here/country | nothing">
+					<th><label for="country" i18n:translate="">Coverage</label></th>
+					<td>
+						<tal:block tal:condition="python:not default" i18n:translate="">Unspecified</tal:block>
+						<tal:block tal:condition="default"><tal:block tal:repeat="item here/localities_table"><tal:block tal:condition="python:item['uri']==default" tal:content="item/name" /></tal:block></tal:block>
+					</td>
+				</tr>
+				<tr tal:define="default here/locality | nothing">
+					<th><label for="locality" i18n:translate="">Coverage note</label></th>
+					<td><input type="text" name="locality" id="locality" size="30" tal:attributes="value default" /></td>
+				</tr>
+				<tr>
+					<td></td>
+					<td><input type="submit" value="Add" i18n:attributes="value" /></td>
+				</tr>
+			</table>
+			<input type="hidden" id="benice" name="benice" value="1" />
+			</form>
+		</tal:block>
+
+	</tal:block>
+
+	<span tal:condition="has_permission" tal:replace="structure context/manage_page_footer" />
+	<span tal:condition="not:has_permission" tal:replace="structure context/standard_html_footer" />
+
+</tal:block>

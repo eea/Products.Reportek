@@ -28,19 +28,24 @@ $Id$"""
 __version__='$Revision$'[11:-2]
 
 
-import os, types, tempfile, string
+import time, os, types, tempfile, string
 from path import path
 from zipfile import *
+import Products
+from Products.ZCatalog.CatalogAwareness import CatalogAware
 import Globals, OFS.SimpleItem, OFS.ObjectManager
-from Globals import DTMLFile
+from Globals import DTMLFile, MessageDialog
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-import AccessControl.Role
+import AccessControl.Role, webdav.Collection
 from AccessControl import getSecurityManager, ClassSecurityInfo, Unauthorized
 from Products.Reportek import permission_manage_properties_envelopes
 from zExceptions import Forbidden
 from DateTime import DateTime
 from DateTime.interfaces import SyntaxError
 from ZPublisher.Iterators import filestream_iterator
+import urllib
+import xmlrpclib
+import operator
 
 # Product specific imports
 import RepUtils
@@ -62,7 +67,7 @@ from paginator import DiggPaginator, EmptyPage, InvalidPage
 ZIP_CACHE_THRESHOLD = 100000000 # 100 MB
 
 
-manage_addEnvelopeForm=DTMLFile('dtml/envelopeAdd', globals())
+manage_addEnvelopeForm = PageTemplateFile('zpt/envelope/add', globals())
 
 def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
         REQUEST=None, previous_delivery=''):
@@ -349,11 +354,11 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
     documents_section = PageTemplateFile('zpt/envelope/documents_section', globals())
 
     security.declareProtected('View', 'documents_pagination')
-    documents_pagination = DTMLFile('dtml/envelopeDocuments_pagination', globals())
+    documents_pagination = PageTemplateFile('zpt/envelope/documents_pagination', globals())
 
     security.declareProtected('View', 'documents_management_section')
-    documents_management_section = DTMLFile('dtml/envelopeDocumentsManagement_section', globals())
-
+    documents_management_section = PageTemplateFile('zpt/envelope/documentsmanagement_section', globals())
+    
     security.declareProtected('View', 'feedback_section')
     feedback_section = PageTemplateFile('zpt/envelope/feedback_section', globals())
 
@@ -364,7 +369,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
     manage_prop = PageTemplateFile('zpt/envelope/properties', globals())
 
     security.declareProtected('Change Envelopes', 'envelope_previous')
-    envelope_previous=DTMLFile('dtml/envelopeEarlierReleases',globals())
+    envelope_previous = PageTemplateFile('zpt/envelope/earlierreleases', globals())
 
     ##################################################
     # Manage period
@@ -792,7 +797,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
     security.declareProtected('Add Feedback', 'manage_addFeedback')
     manage_addFeedback = Feedback.manage_addFeedback
     security.declareProtected('Add Feedback', 'manage_deleteFeedbackForm')
-    manage_deleteFeedbackForm = DTMLFile('dtml/feedbackDelete',globals())
+    manage_deleteFeedbackForm = PageTemplateFile('zpt/feedback/delete', globals())
 
     security.declareProtected('Change Envelopes', 'manage_addDocumentForm')
     manage_addDocumentForm = Document.manage_addDocumentForm

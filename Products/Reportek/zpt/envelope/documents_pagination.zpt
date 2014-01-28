@@ -1,0 +1,37 @@
+<tal:block tal:define="documents options/documents | nothing; page_url options/page_url | nothing; default_page python:request.get('page', '1')">
+
+	<tal:block tal:condition="python:documents and page_url">
+		<div class="paginator" tal:condition="python:documents.paginator.count>25">
+			<tal:block tal:condition="documents/leading_range">
+				<tal:block tal:repeat="item documents/leading_range">
+					<a class="numberedpage" tal:attributes="href string:${page_url}&page=${item}"><tal:block tal:condition="python:str(item)==default_page"><span class="selected" tal:content="item" /></tal:block><tal:block tal:condition="python:str(item)!=default_page"><span tal:replace="item" /></tal:block></a>&nbsp;
+				</tal:block>
+				...
+			</tal:block>
+
+			<tal:block tal:repeat="item documents/main_range">
+				<a class="numberedpage" tal:attributes="href string:${page_url}&page=${item}"><tal:block tal:condition="python:str(item)==default_page"><span class="selected" tal:content="item" /></tal:block><tal:block tal:condition="python:str(item)!=default_page"><span tal:replace="item" /></tal:block></a>&nbsp;
+			</tal:block>
+
+			<tal:block tal:condition="documents/trailing_range">
+				...
+				<tal:block tal:repeat="item documents/trailing_range">
+					<a class="numberedpage" tal:attributes="href string:${page_url}&page=${item}"><tal:block tal:condition="python:str(item)==default_page"><span class="selected" tal:content="item" /></tal:block><tal:block tal:condition="python:str(item)!=default_page"><span tal:replace="item" /></tal:block></a>&nbsp;
+				</tal:block>
+			</tal:block>
+
+			<span class="navigation" tal:define="has_prev documents/has_previous; has_next documents/has_next">
+				<tal:block tal:condition="has_prev"><a class="prevpage" tal:attributes="href string:${page_url}&page=${documents/previous_page_number}">&lt; <tal:block i18n:translate="">previous</tal:block></a></tal:block>
+				<tal:block tal:condition="python:not has_prev"><span class="prevpage" i18n:translate="">previous</span></tal:block>
+				|
+				<tal:block tal:condition="has_next"><a class="nextpage" tal:attributes="href string:${page_url}&page=${documents/next_page_number}"><tal:block i18n:translate="">next</tal:block> &gt;</a></tal:block>
+				<tal:block tal:condition="python:not has_next"><span class="nextpage" i18n:translate="">next</span></tal:block>
+			</span>
+
+			<span class="matchescount">
+				<span tal:replace="documents/start_index" />-<span tal:replace="documents/end_index" /> <tal:block i18n:translate="">of</tal:block> <span tal:replace="documents/paginator/count" /> <tal:block i18n:translate="">items</tal:block>
+			</span>
+		</div>
+	</tal:block>
+
+</tal:block>
