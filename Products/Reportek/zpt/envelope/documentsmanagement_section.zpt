@@ -26,7 +26,7 @@
 				</td>
 				<td style="white-space:nowrap" tal:define="has_permission python:SecurityManager.checkPermission('View', item)">
 					<tal:block tal:condition="has_permission">
-						<tal:block tal:condition="python:not here.acquiredRolesAreUsedBy('View')" i18n:translate="">(Limited)</tal:block>
+						<tal:block tal:condition="python:not here.isRestricted()" i18n:translate="">(Limited)</tal:block>
 					</tal:block>
 					<tal:block tal:condition="python:not has_permission">
 						<tal:block tal:define="dummy python:request.set('therearerestrictions', 1)" />
@@ -63,7 +63,7 @@
 				<td style="white-space:nowrap" tal:define="has_permission python:SecurityManager.checkPermission('View', item)">
 					<a tal:attributes="title item/hyperlinkurl; href item/hyperlinkurl"><img src="misc_/Reportek/link_gif" width="16" height="16" alt="icon" /></a>
 					<tal:block tal:condition="has_permission">
-						<tal:block tal:condition="python:not here.acquiredRolesAreUsedBy('View')" i18n:translate="">(Limited)</tal:block>
+						<tal:block tal:condition="python:not here.isRestricted()" i18n:translate="">(Limited)</tal:block>
 					</tal:block>
 					<tal:block tal:condition="python:not has_permission">
 						<tal:block tal:define="dummy python:request.set('therearerestrictions', 1)" />

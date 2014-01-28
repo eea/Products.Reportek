@@ -156,4 +156,11 @@ class ReportHyperlink(CatalogAware,
                             message="Document released to public.",
                             action=REQUEST['HTTP_REFERER'])
 
+    security.declarePublic('isRestricted')
+    def isRestricted(self):
+        """ Returns 1 if the file is restricted, 0 otherwise """
+        if self.acquiredRolesAreUsedBy('View'):
+            return 0
+        return 1
+
 InitializeClass(ReportHyperlink)

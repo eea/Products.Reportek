@@ -399,6 +399,13 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
                             message='Document released to public.',
                             action=REQUEST['HTTP_REFERER'])
 
+    security.declarePublic('isRestricted')
+    def isRestricted(self):
+        """ Returns 1 if the file is restricted, 0 otherwise """
+        if self.acquiredRolesAreUsedBy('View'):
+            return 0
+        return 1
+
     ################################
     # Protected management methods #
     ################################ 

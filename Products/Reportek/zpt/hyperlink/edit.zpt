@@ -7,7 +7,7 @@
 	<tal:block condition="python:not has_permission">
 		<span tal:replace="structure here/standard_html_header" />
 		
-		<tal:block tal:define="canChangeFile here/canChangeEnvelope; isLimited python:not here.acquiredRolesAreUsedBy('View')">
+		<tal:block tal:define="canChangeFile here/canChangeEnvelope; isLimited python:not here.isRestricted()">
 			<div id="operations">
 				<ul>
 					<li><a tal:attributes="href request/URL2" i18n:translate="">Back to envelope</a></li>
