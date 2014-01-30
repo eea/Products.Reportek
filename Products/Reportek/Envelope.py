@@ -255,6 +255,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         """ """
         return self.getOwner()
 
+    security.declareProtected('Change Envelopes', 'manage_copyDelivery')
     def manage_copyDelivery(self, previous_delivery, REQUEST=None):
         """ Copies files from another envelope """
         l_envelope = self.unrestrictedTraverse(previous_delivery)

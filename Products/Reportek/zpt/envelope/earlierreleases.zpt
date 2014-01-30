@@ -11,7 +11,7 @@
 
 		<p i18n:translate="">If you want to copy the files from a previous delivery, choose the delivery and click <em>Go</em>:</p>
 
-		<table border="0" tal:condition="python:len(deliveries)>0">
+		<table tal:condition="python:len(deliveries)>0">
 		<tr>
 			<th i18n:translate="">Title</th>
 			<th i18n:translate="">Description</th>
