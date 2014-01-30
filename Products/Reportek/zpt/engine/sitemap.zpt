@@ -1,0 +1,6 @@
+<span tal:replace="structure context/standard_html_header" />
+
+<h1 i18n:translate="">Sitemap for the Data Repository</h1>
+
+
+<span tal:replace="structure context/standard_html_footer" />

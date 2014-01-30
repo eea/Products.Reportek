@@ -1,0 +1,119 @@
+<tal:block tal:define="workitem_id options/workitem_id | python:request.get('workitem_id', '');
+	dummy python:request.set('therearerestrictions', 0);
+	sortby python:request.get('sort', 'id');
+	how python:request.get('how', 'desc');
+	sizeparam python:10;
+	pginf python:here.getEnvelopeDocuments(sortby, how, request.get('qs', 1), sizeparam);
+	qsparam pginf/start; documents pginf/result;
+	SecurityManager modules/AccessControl/getSecurityManager;">
+
+<div class="filessection">
+
+	<fieldset>
+		<legend i18n:translate="">Set accepted status</legend>
+		<p i18n:translate="">Select the files you want to accept from the list below and click <em>Set accepted status</em>. In order to revoke the accepted status of files just uncheck the corresponding option and click on the same button.</p>
+		<p><tal:block i18n:translate="">Alternately you can access the</tal:block> <a tal:attributes="href string:envelope_status_bulk?workitem_id=${workitem_id}" title="Bulk set status" i18n:attributes="title" i18n:translate="">bulk status form</a> <tal:block i18n:translate="">in order to copy and paste the list of files you want to accept/unaccept and execute the operation upon all files at once</tal:block>.</p>
+
+		<form method="post" tal:attributes="action string:${here/absolute_url}/" name="frmFiles">
+
+		<table class="sortable">
+		<thead>
+			<tr>
+				<tal:block tal:condition="python:sortby=='accept_time'">
+					<th tal:condition="python:how=='asc'" class="sorted" scope="col">
+						<a tal:attributes="href string:?workitem_id=${workitem_id}&amp;sort=accept_time&amp;how=desc&amp;qs=${qsparam}" rel="nofollow" title="Sorted A..Z by user - Click to reverse" i18n:attributes="title"><tal:block i18n:translate="">Accepted</tal:block><img src="/misc_/Reportek/sort_asc" width="12" height="12" border="0" /></a>
+					</th>
+					<th tal:condition="python:how!='asc'" class="sorted" scope="col">
+						<a tal:attributes="href string:?workitem_id=${workitem_id}&amp;sort=accept_time&amp;how=asc&amp;qs=${qsparam}" rel="nofollow" title="Sorted Z..A by user - Click to reverse" i18n:attributes="title"><tal:block i18n:translate="">Accepted</tal:block><img src="/misc_/Reportek/sort_desc" width="12" height="12" border="0" /></a>
+					</th>
+				</tal:block>
+				<th tal:condition="python:sortby!='accept_time'" scope="col">
+					<a tal:attributes="href string:?workitem_id=${workitem_id}&amp;sort=accept_time&amp;how=asc&amp;qs=${qsparam}" rel="nofollow" title="Sortable" i18n:attributes="title"><tal:block i18n:translate="">Accepted</tal:block><img src="/misc_/Reportek/sortnot" width="12" height="12" alt="" /></a>
+				</th>
+				<th><span>&nbsp;</span></th>
+				<tal:block tal:condition="python:sortby=='id'">
+					<th tal:condition="python:how=='asc'" class="sorted" scope="col">
+						<a tal:attributes="href string:?workitem_id=${workitem_id}&amp;sort=id&amp;how=desc&amp;qs=${qsparam}" rel="nofollow" title="Sorted A..Z by user - Click to reverse" i18n:attributes="title"><tal:block i18n:translate="">Id</tal:block><img src="/misc_/Reportek/sort_asc" width="12" height="12" border="0" /></a>
+					</th>
+					<th tal:condition="python:how!='asc'" class="sorted" scope="col">
+						<a tal:attributes="href string:?workitem_id=${workitem_id}&amp;sort=id&amp;how=asc&amp;qs=${qsparam}" rel="nofollow" title="Sorted Z..A by user - Click to reverse" i18n:attributes="title"><tal:block i18n:translate="">Id</tal:block><img src="/misc_/Reportek/sort_desc" width="12" height="12" border="0" /></a>
+					</th>
+				</tal:block>
+				<th tal:condition="python:sortby!='id'" scope="col">
+					<a tal:attributes="href string:?workitem_id=${workitem_id}&amp;sort=id&amp;how=asc&amp;qs=${qsparam}" rel="nofollow" title="Sortable" i18n:attributes="title"><tal:block i18n:translate="">Id</tal:block><img src="/misc_/Reportek/sortnot" width="12" height="12" alt="" /></a>
+				</th>
+				<th><span>&nbsp;</span></th>
+				<tal:block tal:condition="python:sortby=='title'">
+					<th tal:condition="python:how=='asc'" class="sorted" scope="col">
+						<a tal:attributes="href string:?workitem_id=${workitem_id}&amp;sort=title&amp;how=desc&amp;qs=${qsparam}" rel="nofollow" title="Sorted A..Z by user - Click to reverse">Title<img src="/misc_/Reportek/sort_asc" width="12" height="12" border="0" /></a>
+					</th>
+					<th tal:condition="python:how!='asc'" class="sorted" scope="col">
+						<a tal:attributes="href string:?workitem_id=${workitem_id}&amp;sort=title&amp;how=asc&amp;qs=${qsparam}" rel="nofollow" title="Sorted Z..A by user - Click to reverse">Title<img src="/misc_/Reportek/sort_desc" width="12" height="12" border="0" /></a>
+					</th>
+				</tal:block>
+				<th tal:condition="python:sortby!='title'" scope="col">
+					<a tal:attributes="href string:?workitem_id=${workitem_id}&amp;sort=title&amp;how=asc&amp;qs=${qsparam}" rel="nofollow" title="Sortable">Title<img src="/misc_/Reportek/sortnot" width="12" height="12" alt="" /></a>
+				</th>
+				<th><span i18n:translate="">Last Update</span></th>
+				<th><span i18n:translate="">Size</span></th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr valign="baseline" tal:repeat="item documents">
+				<td><input type="checkbox" name="ids:list" tal:attributes="value item/id; checked item/get_accept_time" /></td>
+				<td style="width:34px"><img tal:attributes="src string:${item/id}/icon_gif" alt="File icon" /></td>
+				<td><a title="File operations: [View file in different formats], [File properties], [View the feedback posted it (if any)]" tal:attributes="href string:${item/id}/manage_document" tal:content="item/id" i18n:attributes="title" /></td>
+				<td style="white-space:nowrap" tal:define="has_permission python:SecurityManager.checkPermission('View', item)">
+					<tal:block tal:condition="has_permission">
+						<tal:block tal:condition="python:not here.acquiredRolesAreUsedBy('View')" i18n:translate="">(Limited)</tal:block>
+					</tal:block>
+					<tal:block tal:condition="python:not has_permission">
+						<tal:block tal:define="dummy python:request.set('therearerestrictions', 1)" />
+						<img src="misc_/Reportek/lockicon_gif" alt="No access" width="16" height="16" i18n:attributes="alt" />
+					</tal:block>
+					<img tal:condition="item/get_accept_time" src="misc_/Reportek/accepted" alt="Document accepted by the client" i18n:attributes="alt" />
+				</td>
+				<td><em tal:content="item/title" /></td>
+				<td tal:content="python:item.upload_time().strftime('%d %b %Y')" />
+				<td style="width:6em"><tal:block tal:condition="python:hasattr(item, 'size')"><span tal:replace="item/size" /></tal:block></td>
+			</tr>
+			<tr tal:condition="python:pginf['total']==0">
+				<td colspan="7" i18n:translate="">No files uploaded</td>
+			</tr>
+		</tbody>
+		</table>
+
+		<div class="paginator">
+			<tal:block tal:repeat="page pginf/pages">
+				<a tal:condition="page" tal:attributes="href string:?workitem_id=${workitem_id}&amp;sort=${sortby}&amp;how=${how}&amp;qs=${page}"><tal:block tal:condition="python:page==qsparam"><span class="selected" tal:content="page" /></tal:block><tal:block tal:condition="python:page!=qsparam"><span tal:replace="page" /></tal:block></a><span tal:condition="python:not page">...</span>&nbsp;
+			</tal:block>
+			<span class="navigation">
+				<tal:block tal:condition="pginf/has_previous">
+					<a tal:attributes="href string:?workitem_id=${workitem_id}&amp;sort=${sortby}&amp;how=${how}&amp;qs=${pginf/previous_page_number}" i18n:translate="">previous</a>
+				</tal:block>
+				<tal:block tal:condition="pginf/has_next">
+					<a tal:attributes="href string:?workitem_id=${workitem_id}&amp;sort=${sortby}&amp;how=${how}&amp;qs=${pginf/next_page_number}" i18n:translate="">next</a>
+				</tal:block>
+			</span>
+			<span class="matchescount">
+				<span tal:replace="pginf/start_index" />-<span tal:replace="pginf/end_index" /> <tal:block i18n:translate="">of</tal:block> <span tal:replace="pginf/total" /> <tal:block i18n:translate="">files</tal:block>
+			</span>
+		</div>
+
+		<p>
+			<input type="hidden" name="qs:int" tal:attributes="value qsparam" />
+			<input type="hidden" name="sortby" tal:attributes="value sortby" />
+			<input type="hidden" name="how" tal:attributes="value how" />
+			<input type="hidden" name="size:int" tal:attributes="value sizeparam" />
+			<input type="submit" class="fileop" name="setAcceptTime:method" value="Set accepted status" title="Set accepted status for files" i18n:attributes="value;title" />
+		</p>
+
+		</form>
+
+		<p tal:condition="python:request['therearerestrictions']>0" i18n:translate="">Access limitations may apply for files, which are not (yet) released for public view. Files marked with <img src="misc_/Reportek/lockicon_gif" alt="Padlock" width="16" height="16" /> are unavailable. You must log in to get access.</p>
+
+	</fieldset>
+
+</div>
+
+</tal:block>

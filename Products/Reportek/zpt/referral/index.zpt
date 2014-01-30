@@ -7,7 +7,7 @@
 <div class="metadata">
 	<h1 tal:content="here/title_or_id" />
 	<p tal:condition="here/referral_url">
-		<span tal:omit-tag="" i18n:translate="">The data you are looking for are not stored on this system. Please continue your search on </span>
+		<tal:block i18n:translate="">The data you are looking for are not stored on this system. Please continue your search on </tal:block>
 		<a tal:attributes="href here/referral_url" tal:content="here/referral_url" />.
 	</p>
 	<table>
@@ -16,7 +16,7 @@
 			<th valign="top" i18n:translate="">Description</th>
 			<td>
 				<tal:block tal:condition="has_descr"><span tal:replace="structure python:here.tlzNewlineToBr(here.descr)" /></tal:block>
-				<tal:block tal:condition="python:not has_descr"><span tal:omit-tag="" i18n:translate="">(No description)</span></tal:block>
+				<tal:block tal:condition="python:not has_descr"><tal:block i18n:translate="">(No description)</tal:block></tal:block>
 			</td>
 		</tr>
 		<tr>

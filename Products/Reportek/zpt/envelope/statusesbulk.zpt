@@ -1,0 +1,54 @@
+<span tal:replace="structure context/standard_html_header" />
+
+<tal:block tal:define="workitem_id python:request.get('workitem_id', '')">
+
+	<span tal:replace="structure python:here.envelope_tabs(tab=workitem_id)" />
+
+	<div id="operations">
+		<ul>
+			<li><a tal:attributes="href string:${here/absolute_url}/" i18n:translate="">Back to envelope</a></li>
+		</ul>
+	</div>
+
+	<h1 i18n:translate="">Accept/unaccept files</h1>
+
+	<p i18n:translate="">Use this form to copy and paste lists of files you want to accept/unaccept, select the corresponding operation and click the <em>Apply</em> button.</p>
+
+	<form method="post" tal:attributes="action string:${here/absolute_url}/" name="frmSetBulk">
+		<label for="ids" i18n:translate="">Filename list (one per line)</label><br />
+		<tal:block i18n:translate="">All documents in the envelope are already listed</tal:block><br/>
+		<textarea name="ids" cols="50" rows="20" tal:content="python:'\n'.join(here.objectIds(['Report Document']))"></textarea><br />
+		<label for="aaccept" i18n:translate="">Action</label><br />
+		<input type="radio" name="action" value="accept" checked="checked" id="aaccept"/><label for="aaccept"i18n:translate="">Accept</label><br />
+		<input type="radio" name="action" value="unaccept"/ id="aunaccept"><label for="aunaccept"i18n:translate="">Unaccept</label><br /><br />
+		<input type="submit" class="fileop" name="bulkAcceptTime:method" value="Apply" i18n:attributes="value" />
+	</form><br />
+
+	<tal:block tal:condition="python:request.SESSION.has_key('msg')">
+		<h2 i18n:translate="">Information</h2>
+		<tal:block tal:define="msg python:request.SESSION.get('msg', {'info':{}, 'err':{}}); info python:msg['info'].keys(); err python:msg['err'].keys()">
+			<tal:block tal:condition="python:len(info)>0">
+				<div class="system-msg" tal:repeat="item info">
+					<strong tal:content="item" />
+					<tal:block tal:condition="python:msg['info'][item]=='accept'" i18n:translate="">status set to accepted.</tal:block>
+					<tal:block tal:condition="python:msg['info'][item]=='unaccept'" i18n:translate="">status set to unaccepted.</tal:block>
+				</div>
+			</tal:block>
+			<tal:block tal:condition="python:len(err)>0">
+				<div class="error-msg"><span i18n:translate="">Errors:</span><br />
+				<tal:block tal:repeat="item err">
+					<span><tal:block i18n:translate="">The</tal:block> <strong tal:content="item" /> <tal:block i18n:translate="">file could not be found in this envelope.</tal:block></span><br />
+				</tal:block>
+				</div>
+			</tal:block>
+		</tal:block>
+	</tal:block>
+
+	<tal:block tal:condition="python:request.SESSION.has_key('msg')">
+		<tal:block tal:define="dummy python:request.SESSION.delete('msg')" />
+	</tal:block>
+
+</tal:block>
+
+<span tal:replace="structure context/standard_html_footer" />
+

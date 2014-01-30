@@ -34,7 +34,6 @@ from zipfile import *
 import Products
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 import Globals, OFS.SimpleItem, OFS.ObjectManager
-from Globals import DTMLFile, MessageDialog
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 import AccessControl.Role, webdav.Collection
 from AccessControl import getSecurityManager, ClassSecurityInfo, Unauthorized
@@ -1097,25 +1096,36 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
     ##################################################
 
     security.declareProtected('Change Feedback', 'envelope_status')
-    envelope_status = DTMLFile('dtml/envelopeStatuses_section', globals())
+    envelope_status = PageTemplateFile('zpt/envelope/statuses_section', globals())
 
     security.declareProtected('Change Feedback', 'envelope_status_bulk')
-    envelope_status_bulk = DTMLFile('dtml/envelopeStatusesBulk', globals())
+    envelope_status_bulk = PageTemplateFile('zpt/envelope/statusesbulk', globals())
 
     security.declareProtected('Change Feedback', 'getEnvelopeDocuments')
-    def getEnvelopeDocuments(self, sortby='id', how='desc'):
+    def getEnvelopeDocuments(self, sortby='id', how='desc', start=1, howmany=10):
         """ """
         if how == 'desc': how = 0
         else:             how = 1
-        objects = self.objectValues('Report Document')
+        objects = self.objectValues(['Report Document'])
         objects = RepUtils.utSortByAttr(objects, sortby, how)
-        return objects
+        try: start = abs(int(start))
+        except: start = 1
+        try: howmany = abs(int(howmany))
+        except: howmany = 10
+        pginf = DiggPaginator(objects, howmany, body=5, padding=1, margin=2)
+        if start<=0: start = 1
+        if start>pginf.num_pages: start = pginf.num_pages
+        pg = pginf.page(start)
+        return {'total': pginf.count, 'num_pages': pginf.num_pages, 'pages': pg.page_range, 'start': pg.number,
+            'start_index': pg.start_index(), 'end_index': pg.end_index(),
+            'has_next': pg.has_next(), 'next_page_number': pg.next_page_number(),
+            'has_previous': pg.has_previous(), 'previous_page_number': pg.previous_page_number(),
+            'result': pg.object_list}
 
     security.declareProtected('Change Feedback', 'setAcceptTime')
     def setAcceptTime(self, ids='', sortby='id', how='desc', qs=1, size=20,  REQUEST=None):
         """ set accepted status """
-        qs = qs - 1
-        for k in self.getEnvelopeDocuments(sortby, how)[qs:qs+size]:
+        for k in self.getEnvelopeDocuments(sortby, how, qs, size)['result']:
             if k.id in ids: k.set_accept_time()
             else:           k.set_accept_time(0)
         if REQUEST: REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
@@ -1127,14 +1137,14 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         for k in RepUtils.utConvertLinesToList(ids):
             doc = getattr(self, k, None)
             if doc == None:
-                msg['err'][k] = 'The <strong>%s</strong> file could not be found in this envelope.' % k
+                msg['err'][k] = 1
             else:
                 if action == 'accept':
                     doc.set_accept_time()
-                    msg['info'][k] = '<strong>%s</strong> status set to accepted.' % k
+                    msg['info'][k] = 'accept'
                 else:
                     doc.set_accept_time(0)
-                    msg['info'][k] = '<strong>%s</strong> status set to unaccepted.' % k
+                    msg['info'][k] = 'unaccept'
 
         if REQUEST:
             REQUEST.SESSION.set('msg', msg)

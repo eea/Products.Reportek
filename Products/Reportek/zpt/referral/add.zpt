@@ -35,7 +35,7 @@
 							<option tal:define="terminated python:item.has_key('terminated') and item['terminated']=='1'" tal:attributes="value item/uri; class python:test(terminated, 'terminated', None); selected python:item['uri'] in default">
 								[<span tal:replace="python:' '.join(item['SOURCE_TITLE'].split()[0:2])" />]
 								<span tal:replace="python:test(len(item['TITLE'])<=80, item['TITLE'], '%s ...' % item['TITLE'][:77])" />
-								<tal:block tal:condition="terminated"> (<span i18n:translate="" tal:omit-tag="">terminated</span>)</tal:block>
+								<tal:block tal:condition="terminated"> (<tal:block i18n:translate="">terminated</tal:block>)</tal:block>
 							</option>
 							</tal:block>
 						</optgroup>

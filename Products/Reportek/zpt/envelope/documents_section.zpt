@@ -9,7 +9,7 @@
 <fieldset><legend i18n:translate="">Files in this envelope</legend>
 
   <tal:block condition="documents/object_list">
-    <div tal:replace="structure context/documents_pagination"/>
+    <tal:block replace="structure python:context.documents_pagination(documents=documents, page_url=page_url)" />
 
     <table cellspacing="2" cellpadding="2">
     <tbody>
@@ -17,7 +17,7 @@
     <tal:block repeat="item documents/object_list">
 
       <tr tal:condition="python:item.meta_type=='Report Document'" valign="baseline">
-        <td tal:content="python:repeat['item'].index + (int(request.get('page', '1'))-1)*20"></td>
+        <td tal:content="python:path('repeat/item/number') + (int(request.get('page', '1'))-1)*20"></td>
         <td><img tal:attributes="src string:${item/id}/icon_gif" alt="File icon" /></td>
         <td><a title="File operations:
       [View file in different formats],
@@ -30,7 +30,7 @@
         <td style="white-space:nowrap">
           <tal:block
             condition="python:SecurityManager.checkPermission('View', item)">
-            <span tal:condition="not:python:context.has_permission('View')"
+            <span tal:condition="not:python:item.has_permission('View')"
                   tal:content="string:(Limited)"/>
           </tal:block>
           <tal:block
@@ -42,7 +42,7 @@
                  src="/misc_/Reportek/accepted" alt="Document accepted by the client" 
                  i18n:attributes="alt document-accepted"/>
         </td>
-        <td><em tal:content="context/title">title</em></td>
+        <td><em tal:content="item/title">title</em></td>
         <td tal:content="python:item.upload_time().strftime('%d %b %Y')"></td>
         <td style="width:6em">
           <span tal:condition="python:hasattr(item, 'size')"
@@ -51,13 +51,12 @@
       </tr>
 
 			<tr tal:condition="not:python:item.meta_type=='Report Document'" valign="baseline">
-				<td tal:content="python:repeat['item'].index + (int(request.get('page', '1'))-1)*20"></td>
+				<td tal:content="python:path('repeat/item/number')+(int(request.get('page', '1'))-1)*20"></td>
 				<td><img src="misc_/Reportek/hyperlink_gif" alt="Hyperlink icon" /></td>
 				<tal:block condition="python:SecurityManager.checkPermission('View', item)">
           <td><a tal:attributes="href item/id" tal:content="item/id">id</a></td>
           <td style="white-space:nowrap">
-            <span tal:condition="not:python:context.has_permission('View')"
-                  tal:content="string:(Limited)"/>
+            <span tal:condition="not:python:item.has_permission('View')" tal:content="string:(Limited)"/>
         </tal:block>
 				<tal:block condition="not:python:SecurityManager.checkPermission('View', item)">
           <td i18n:translate="">(Limited)</td>
@@ -67,7 +66,7 @@
                  i18n:attributes="alt no-access" width="16" height="16" />
           </td>
         </tal:block>
-          <td><em tal:content="context/title">title</em></td>
+          <td><em tal:content="item/title">title</em></td>
           <td tal:content="python:item.upload_time().strftime('%d %b %Y')"></td>
           <td style="width:6em">
             <span tal:condition="python:hasattr(item, 'size')"
@@ -81,8 +80,8 @@
 		</tbody>
 		</table>
 
-		<tal:block replace="structure context/documents_pagination"/>
-  </tal:block>
+		<tal:block replace="structure python:context.documents_pagination(documents=documents, page_url=page_url)" />
+	</tal:block>
 
 <p tal:condition="python:request.get('therearerestrictions', 0) > 0" i18n:translate="">
 	Access limitations may apply for files, which are not (yet) released for public view. Files marked with

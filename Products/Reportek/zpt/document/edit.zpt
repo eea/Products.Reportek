@@ -33,7 +33,7 @@
 
 	<div class="caution-msg" tal:condition="options/warnings | nothing"><span tal:replace="options/warnings" /></div>
 
-	<h1><span i18n:translate="" tal:omit-tag="">Edit file</span> <span tal:replace="here/title_or_id" /></h1>
+	<h1><tal:block i18n:translate="">Edit file</tal:block> <span tal:replace="here/title_or_id" /></h1>
 
 	<form name="edit" tal:attributes="action request/URL1" method="post">
 	<table cellspacing="5" cellpadding="0" border="0">
@@ -51,13 +51,13 @@
 		</tr>
 		<tr>
 			<th align="left" i18n:translate="">File Size</th>
-			<td align="left"><span tal:replace="here/size" /> (<span tal:replace="here/rawsize" /> <span i18n:translate="" tal:omit-tag="">Bytes</span>)</td>
+			<td align="left"><span tal:replace="here/size" /> (<span tal:replace="here/rawsize" /> <tal:block i18n:translate="">Bytes</tal:block>)</td>
 		</tr>
 		<tr>
 			<th i18n:translate="">Document accepted by the client</th>
 			<td>
 				<tal:block tal:condition="here/get_accept_time"><img src="misc_/Reportek/accepted" alt="Document accepted by the client" i18n:attributes="alt" /></tal:block>
-				<tal:block tal:condition="python:not here.get_accept_time()"><span i18n:translate="" tal:omit-tag="">not yet</span></tal:block>
+				<tal:block tal:condition="python:not here.get_accept_time()"><tal:block i18n:translate="">not yet</tal:block></tal:block>
 			</td>
 		</tr>
 		<tr>

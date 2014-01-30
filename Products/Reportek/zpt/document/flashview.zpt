@@ -11,7 +11,7 @@
 				</li>
 			</ul>
 		</div>
-		<h1><span i18n:translate="" tal:omit-tag="">File</span>: <span tal:replace="here/id" /></h1>
+		<h1><tal:block i18n:translate="">File</tal:block>: <span tal:replace="here/id" /></h1>
 		<p i18n:translate="">The GIS viewer was created using Macromedia Flash 8. If you do not see it properly install the necessary plugin from the <a href="http://www.macromedia.com/go/getflashplayer">Macromedia website</a>.</p>
 	<script type="text/javascript">
         // <![CDATA[
