@@ -17,7 +17,7 @@
     <tal:block repeat="item documents/object_list">
 
       <tr tal:condition="python:item.meta_type=='Report Document'" valign="baseline">
-        <td tal:content="python:repeat['item'].number() + (int(request.get('page', '1'))-1)*20"></td>
+        <td tal:content="python:repeat['item'].index + (int(request.get('page', '1'))-1)*20"></td>
         <td><img tal:attributes="src string:${item/id}/icon_gif" alt="File icon" /></td>
         <td><a title="File operations:
       [View file in different formats],
@@ -51,7 +51,7 @@
       </tr>
 
 			<tr tal:condition="not:python:item.meta_type=='Report Document'" valign="baseline">
-				<td tal:content="python:repeat['number']+(int(REQUEST.get('page', '1'))-1)*20"></td>
+				<td tal:content="python:repeat['item'].index + (int(request.get('page', '1'))-1)*20"></td>
 				<td><img src="misc_/Reportek/hyperlink_gif" alt="Hyperlink icon" /></td>
 				<tal:block condition="python:SecurityManager.checkPermission('View', item)">
           <td><a tal:attributes="href item/id" tal:content="item/id">id</a></td>
@@ -60,7 +60,7 @@
                   tal:content="string:(Limited)"/>
         </tal:block>
 				<tal:block condition="not:python:SecurityManager.checkPermission('View', item)">
-          <td i18n:translate="">-Limited-</td>
+          <td i18n:translate="">(Limited)</td>
           <td style="white-space:nowrap">
             <tal:block define="dummy python:request.set('therearerestrictions',1)"/>
             <img src="/misc_/Reportek/lockicon_gif" alt="No access"
@@ -68,7 +68,7 @@
           </td>
         </tal:block>
           <td><em tal:content="context/title">title</em></td>
-          <td tal:content="python:context.upload_time.strftime('%d %b %Y')"></td>
+          <td tal:content="python:item.upload_time().strftime('%d %b %Y')"></td>
           <td style="width:6em">
             <span tal:condition="python:hasattr(item, 'size')"
                   tal:content="item/size"/>
