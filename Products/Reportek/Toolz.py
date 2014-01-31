@@ -103,8 +103,7 @@ class Toolz:
         return keys, r
 
     def partofyear_table(self):
-        return ['',
-            'Whole Year',
+        return ['Whole Year',
             'First Half',
             'Second Half',
             'First Quarter',
