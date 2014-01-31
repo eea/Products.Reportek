@@ -1,18 +1,12 @@
 <span tal:replace="structure here/standard_html_header" />
   <tal:block
     condition="python:context.canViewContent()"
-    define="canChangeFile python:context.canChangeEnvelope() and not
-                                 context.get_accept_time();
-
-            isLimited python: not context.has_permission('View');
-
+    define="canChangeFile python:context.canChangeEnvelope() and not context.get_accept_time();
+            isLimited context/isRestricted;
             valid_schemas context/getValidXMLSchemas;
-
             beforeEditForm context/getWebQ_BeforeEditForm_URL;
-
             can_view_or_edit_with_webq
-            python:context.getWebQ_BeforeEditForm_URL and
-                   context.xml_schema_location in context.getValidXMLSchemas()">
+            python:context.getWebQ_BeforeEditForm_URL and context.xml_schema_location in context.getValidXMLSchemas()">
 
     <div id="operations">
       <ul>
@@ -27,12 +21,8 @@
 
     <h1 i18n:translate="">File: <span tal:replace="context/id" i18n:name="file-id"/></h1>
 
-    <tal:block
-      condition="python:not getattr(context.ReportekEngine,
-                                    'globally_restricted_site', False) and isLimited">
-    <p i18n:translate="">
-      The access to this file is limited, meaning it is not (yet) released for public view.
-    </p>
+    <tal:block condition="python:not getattr(context.ReportekEngine, 'globally_restricted_site', False) and isLimited">
+    <p i18n:translate="">The access to this file is limited, meaning it is not (yet) released for public view.</p>
     </tal:block>
 
     <div id="content">
@@ -90,9 +80,8 @@
         <ul>
           <tal:block condition="context/isGML">
           <li tal:condition="can_view_or_edit_with_webq">
-            <a tal:attributes="
-                 href
-                 string:${beforeEditForm}?mode=edit&amp;language=En&amp;schema=${xml_schema_location}&amp;instance=${context/absolute_url}&amp;instance_title=${context/title_or_id}"
+            <a tal:attributes="href 
+               string:${beforeEditForm}?mode=edit&amp;language=En&amp;schema=${xml_schema_location}&amp;instance=${context/absolute_url}&amp;instance_title=${context/title_or_id}"
                i18n:translate="">Edit metadata with Web form</a>
           </li>
           <li><a tal:attributes="href string:uploadESRI?file=${context/id}>"
@@ -106,7 +95,7 @@
                i18n:translate="">Edit metadata with Web form</a>
           </li>
           </tal:block>
-          <tal:block condition="not:python: not context.isGML() and can_view_or_edit_with_webq">
+          <tal:block condition="python: not context.isGML() and not can_view_or_edit_with_webq">
           <form tal:attributes="action string:${context/absolute_url}/manage_file_upload" method="post" enctype="multipart/form-data">
             <li i18n:translate="">Local upload: <input type="file" name="file"
                 size="25" value="" i18n:name="file-input"/> <input
@@ -119,16 +108,13 @@
 
       <fieldset><legend i18n:translate="">Edit file properties</legend>
       <form name="edit" id="edit" tal:attributes="action request/URL1" method="post">
-      <table cellspacing="5" cellpadding="0" border="0">
+      <table cellspacing="5" cellpadding="0">
         <tr>
             <td><label for="title" class="question" i18n:translate="">Title</label></td>
             <td tal:condition="canChangeFile">
-              <input type="text" name="title" id="title" size="50"
-                     tal:attributes="value context/title" />
+              <input type="text" name="title" id="title" size="50" tal:attributes="value context/title" />
             </td>
-            <td tal:condition="not:canChangeFile"
-                tal:content="context/title">
-            </td>
+            <td tal:condition="not:canChangeFile" tal:content="context/title"></td>
         </tr>
         <tr tal:condition="python:context.content_type == 'text/xml'">
             <td class="question" i18n:translate="">Schema location</td>
@@ -149,12 +135,7 @@
               python:not getattr(context.ReportekEngine, 'globally_restricted_site', False)">
           <td class="question" i18n:translate="">Restricted from public view</td>
           <td tal:condition="canChangeFile"><input type="hidden" name="applyRestriction" value="1" />
-            <tal:block condition="isLimited">
-              <input type="checkbox" name="restricted" checked="checked"/>
-            </tal:block>
-            <tal:block condition="not:isLimited">
-              <input type="checkbox" name="restricted"/>
-            </tal:block>
+              <input type="checkbox" name="restricted" tal:attributes="checked isLimited" />
           </td>
           <td tal:condition="not:canChangeFile">
             <span tal:content="python:test(isLimited, 'Yes', 'No')"/>
@@ -168,8 +149,8 @@
           </td>
         </tr>
         <tr tal:condition="canChangeFile">
-            <td>&nbsp;</td>
-            <td><input type="submit" name="manage_editDocument:method" value=" Change " /></td>
+            <td> </td>
+            <td><input type="submit" name="manage_editDocument:method" value="Change" i18n:attributes="value" /></td>
         </tr>
       </table>
       </form>

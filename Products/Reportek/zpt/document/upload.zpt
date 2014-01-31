@@ -9,16 +9,15 @@
 		<div id="tabbedmenu">
 			<ul>
 				<li id="currenttab"><a href="manage_uploadForm" i18n:translate="">Upload</a></li>
-				<li><a href="manage_main" i18n:translate="">Edit Properties</a></li>
+				<li><a href="manage_main" i18n:translate="">Edit properties</a></li>
 			</ul>
 		</div>
 	</tal:block>
 
 	<h1 i18n:translate="">Upload file</h1>
-
+	<br />
 	<form tal:attributes="action request/URL1" method="post" enctype="multipart/form-data">
-	<table cellspacing="2" border="0">
-		<tr><td colspan="2">&nbsp;</td></tr>
+	<table cellspacing="2">
 		<tr><th colspan="2" align="left"><strong i18n:translate="">Local upload</strong></th></tr>
 		<tr>
 			<th align="left"><label for="file" i18n:translate="">File</label></th>
@@ -26,10 +25,11 @@
 		</tr>
 		<tr>
 			<th align="left"><label for="restricted" i18n:translate="">Restrict file from public view</label></th>
-			<td align="left"><input type="checkbox" id="restricted" name="restricted" /></td>
+			<td align="left"><input type="hidden" name="applyRestriction" value="1" />
+				<input type="checkbox" id="restricted" name="restricted" tal:attributes="checked context/isRestricted" /></td>
 		</tr>
 		<tr>
-			<td>&nbsp;</td>
+			<td> </td>
 			<td><br /><input type="submit" value="Upload" name="manage_file_upload:method" i18n:attributes="value" /></td>
 		</tr>
 	</table>
