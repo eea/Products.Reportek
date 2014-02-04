@@ -42,6 +42,7 @@ from AccessControl.Permissions import view_management_screens, view
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from zExceptions import Redirect
 import Globals
+import Products
 
 import Converter
 import RepUtils
@@ -123,7 +124,7 @@ class Converters(Folder):
             return self.manage_converters_html(self,REQUEST,manage_tabs_message=message)
 
     def get_local_http_converters_url(self):
-        return 'http://localhost:5000/'  # TODO configure via os.environ
+        return 'http://localhost:%s/' % Products.Reportek.LOCAL_CONVERTERS_PORT
 
     def _http_params(self):
         url = self.get_local_http_converters_url() + 'params'

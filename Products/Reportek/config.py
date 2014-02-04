@@ -20,13 +20,14 @@ __all__ = [
     'DEPLOYMENT_CDR',
     'permission_manage_properties_collections',
     'permission_manage_properties_envelopes',
+    'LOCAL_CONVERTERS_PORT',
 ]
 
 DEPLOYMENT_CDR = 'CDR'
 DEPLOYMENT_BDR = 'BDR'
 
-REPORTEK_DEPLOYMENT_KEY = 'REPORTEK_DEPLOYMENT'
-REPORTEK_DEPLOYMENT = os.environ.get(REPORTEK_DEPLOYMENT_KEY, DEPLOYMENT_CDR)
+REPORTEK_DEPLOYMENT = os.environ.get('REPORTEK_DEPLOYMENT', DEPLOYMENT_CDR)
+LOCAL_CONVERTERS_PORT = os.environ.get('LOCAL_CONVERTERS_PORT', '5000')
 
 if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
     permission_manage_properties_collections = 'Change Collections'
