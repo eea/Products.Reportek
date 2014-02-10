@@ -1,5 +1,6 @@
 3.6.4 (unreleased)
 ----------------
+* adapted locales/update.sh script for buzzardNT staging deployment
 
 3.6.3 (2014-01-27)
 ----------------

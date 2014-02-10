@@ -2,7 +2,7 @@
 cd $(dirname $0)
 domain=default
 i18ndude_name=i18ndude
-i18ndude_path=/var/local/cdr_all/bdr/bin/
+i18ndude_path=/var/local/bdr/staging/zope/bin
 
 [ -n "$1" ] && i18ndude_path="$1"
 
