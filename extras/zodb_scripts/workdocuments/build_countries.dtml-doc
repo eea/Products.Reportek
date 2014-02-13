@@ -1,0 +1,11 @@
+<dtml-var standard_html_header>
+<h2><dtml-var title_or_id></h2>
+<p>
+<dtml-in copy_of_countries_table>
+<dtml-with "_.getitem(_.string.lower(iso))">
+<dtml-call "manage_addProperty('country',iso,'string')">
+</dtml-with>
+<dtml-var "_.string.lower(iso)"> <dtml-var countryname><br>
+</dtml-in>
+</p>
+<dtml-var standard_html_footer>

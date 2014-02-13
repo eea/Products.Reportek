@@ -1,8 +1,0 @@
-<dtml-var standard_html_header>
-<h1><dtml-var title_or_id></h1>
-<dtml-in "objectValues(['DTML Document', 'File'])" sort=id>
-<p>
-<a href="&dtml-id;">&dtml-id;</a> (&dtml-getSize; bytes)
-</p>
-</dtml-in>
-<dtml-var standard_html_footer>

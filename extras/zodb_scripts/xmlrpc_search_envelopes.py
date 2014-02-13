@@ -5,7 +5,7 @@
 ##bind script=script
 ##bind subpath=traverse_subpath
 ##parameters=obligation='http://rod.eionet.eu.int/obligations/37', released=1
-##title=Find envelopes for merging (Used by SMR for Noise DF5)
+##title=Find envelopes for merging
 ##
 reslist = []
 

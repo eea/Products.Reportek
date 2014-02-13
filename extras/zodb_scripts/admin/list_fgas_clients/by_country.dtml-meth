@@ -1,0 +1,30 @@
+<dtml-var standard_html_header>
+
+<dtml-if "REQUEST.has_key('country') and _.len(REQUEST['country']) == 2">
+<dtml-call "REQUEST.set('country',localities_iso_dict(country)['uri'])">
+<dtml-call "REQUEST.set('countryname',localities_dict(country)['name'])">
+</dtml-if>
+
+<h2>CDR reporters for <dtml-var countryname></h2>
+
+<table>
+<tr>
+<th>Path</th>
+<th>Last change</th>
+<th>Reporters</th>
+</tr>
+<dtml-in "Catalog({'meta_type':'Report Collection','country':country})" sort=getPath>
+<dtml-with getObject>
+<dtml-let collaborators="users_with_local_role('Client')">
+<dtml-if "collaborators != []">
+        <tr>
+          <td><a href="&dtml-absolute_url;">/<dtml-var "absolute_url(1)"></a></td>
+          <td><dtml-var bobobase_modification_time fmt=Date></td>
+          <td><dtml-in collaborators><a href="http://www.eionet.europa.eu/directory/user?uid=&dtml-sequence-item;">&dtml-sequence-item;</a> </dtml-in></td>
+        </tr>
+</dtml-if>
+</dtml-let>
+</dtml-with>
+</dtml-in>
+</table>
+<dtml-var standard_html_footer>

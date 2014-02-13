@@ -1,0 +1,133 @@
+<dtml-var standard_html_header>
+	<script type="text/javascript">
+// <![CDATA[
+		splitSelect = {
+			selects:[],
+			current:null,
+			firstName:'dataflows',
+			secondName:'secondary',
+			init:function(){
+				var s = document.getElementById(splitSelect.firstName);
+				var c = document.createElement('select');
+				c.onchange=function(){
+					splitSelect.choose(this.selectedIndex);
+				}
+				s.parentNode.insertBefore(c, s);
+				var g = s.getElementsByTagName('optgroup');
+				for(var i=0,j=g.length;i<j;i++){
+					var o = g[i].getElementsByTagName('option');
+					var news = document.createElement('select');
+					s.parentNode.insertBefore(news, s);
+					news.style.display='none';
+					splitSelect.selects.push(news);
+					var k=0;
+					c.appendChild(o[0]);
+					while(o[k]){
+						if(o[k].getAttribute('selected')==='selected'){
+							splitSelect.current = i;
+							news.style.display = 'block';
+						}
+						news.appendChild(o[k]);
+					}
+				}
+				c.selectedIndex = splitSelect.current;
+				s.parentNode.removeChild(s);
+				c.id = splitSelect.firstName;
+				c.name = splitSelect.firstName;
+				if(splitSelect.current === null){
+					splitSelect.selects[0].style.display = 'block';
+					splitSelect.selects[0].selectedIndex = 0;
+					c.selectedIndex = 0;
+					splitSelect.current = 0;
+				}
+			},
+			choose:function(o){
+				if(splitSelect.current !== null){
+					splitSelect.selects[splitSelect.current].style.display='none';
+					splitSelect.selects[splitSelect.current].name='';
+				}
+				splitSelect.selects[o].style.display='block';			
+				splitSelect.selects[o].name=splitSelect.secondName;			
+				splitSelect.current = o;
+			}
+		}
+		window.onload=splitSelect.init;
+// ]]>
+	</script>
+<form action="resultsdataflow" method="get">
+<h1><dtml-var document_title></h1>
+<table>
+  <tr>
+    <th width="150">Obligation</th>
+    <td>
+  <select size="15" id="dataflows" name="dataflow_uris">
+<dtml-call "REQUEST.set('currentsource','')">
+<dtml-let u="Catalog.uniqueValuesFor('dataflow_uris')">
+<dtml-in dataflow_table mapping sort=SOURCE_TITLE,TITLE>
+<dtml-if "uri in u">
+<dtml-if "currentsource != SOURCE_TITLE">
+<dtml-if "currentsource != ''">
+</optgroup>
+</dtml-if>
+<dtml-call "REQUEST.set('currentsource',SOURCE_TITLE)">
+<optgroup label="<dtml-var currentsource html_quote size=60>">
+</dtml-if>
+<option value="<dtml-var uri html_quote>"
+ label="<dtml-var TITLE html_quote size=80>"
+<dtml-if "_.has_key('terminated') and terminated == '1'">class="terminated"</dtml-if>
+>[<dtml-var "_.string.join(_.string.split(SOURCE_TITLE)[0:2])" html_quote>] <dtml-var TITLE html_quote size=80></option>
+</dtml-if>
+</dtml-in>
+</dtml-let>
+ </optgroup>
+  </select>
+    </td>
+  </tr>
+
+  <tr>
+    <th>About year</th>
+    <td><input type="text" name="years:int:ignore_empty" size="4" maxlength="4" value="" /></td>
+  </tr>
+  <tr>
+    <th>Reported</th>
+    <td><input type="text" name="reportingdate:date:ignore_empty" size="12" maxlength="12" value="" /></td>
+  </tr>
+  <tr>
+    <th width="150">Part of year</th>
+    <td>
+      <select name="partofyear">
+        <option value="">Any part of year</option>
+<dtml-in "('Whole Year',
+           'First Half', 'Second Half',
+           'First Quarter', 'Second Quarter',
+           'Third Quarter', 'Fourth Quarter',
+'January','February','March','April','May','June',
+'July','August','September','October','November','December'
+          )">
+<option value="<dtml-var sequence-item>"><dtml-var sequence-item></option>
+</dtml-in>
+      </select>
+    </td>
+  </tr>
+  <tr>
+    <th width="150">Country</th>
+    <td>
+  <select name="country">
+<option></option>
+<dtml-in localities_table mapping>
+<option value="&dtml-uri;" <dtml-if "uri == ''">selected="selected"</dtml-if>>&dtml-name;</option>
+</dtml-in>
+  </select>
+    </td>
+  </tr>
+
+
+  <tr>
+    <td colspan="2" align="center">
+<input type="submit" value="Submit Query" />
+<input type="reset" value="Reset fields" />
+    </td>
+  </tr>
+</table>
+</form>
+<dtml-var standard_html_footer>

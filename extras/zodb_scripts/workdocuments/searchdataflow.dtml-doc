@@ -14,7 +14,7 @@
 <dtml-let u="Catalog.uniqueValuesFor('dataflow')">
 <dtml-in dataflow_table mapping>
 <dtml-if "_.str(inx) in u">
-<option value="<dtml-var PK_RA_ID html_quote>"><dtml-var TITLE html_quote></option>
+<option value="<dtml-var inx html_quote>"><dtml-var name html_quote></option>
 </dtml-if>
 </dtml-in>
 </dtml-let>

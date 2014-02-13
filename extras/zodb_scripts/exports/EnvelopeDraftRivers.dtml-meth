@@ -1,0 +1,47 @@
+<dtml-if "canViewContent and canAddFiles and is_active_for_me(REQUEST=REQUEST)">
+    <dtml-var standard_html_header>
+    <dtml-var "envelope_tabs(tab=workitem_id)">
+
+    <div id="operations">
+    <ul>
+        <li><a href="completeWorkitem?workitem_id=&dtml-workitem_id;">Complete task</a></li>
+        <li><a href="inactivateWorkitem?workitem_id=&dtml-workitem_id;"
+title="Deactivation keeps the work already
+done, and makes it possible for
+someone else to take over the task">Deactivate task</a></li>
+        <dtml-if canAddFiles>
+            <li style="margin-top:1.5em;"><a href="manage_addDocumentForConversion" title="Upload Excel file for automatic conversion">Convert Excel file</a></li>
+            <li><a href="manage_addDocumentForm" title="Upload single file">Add file</a></li>
+            <li><a href="manage_addzipfileform" title="Upload multiple files packed into a zip archive.
+The zip cannot contain a folder structure.">Upload zipfile</a></li>
+        </dtml-if>
+    </ul>
+    </div>
+    <h1>&dtml-document_title;</h1>
+
+<p>This dataflow is usually delivered by filling out an MS-Excel file; if the file is generated 
+from the <a href="http://dd.eionet.eu.int/GetXls?obj_type=dst&amp;obj_id=2386"
+title="Download the Eionet-Water: Rivers MS-Excel template here">correct Data Dictionary template</a>,
+you can use the conversion facility &mdash;
+<a href="manage_addDocumentForConversion" title="Upload Excel file for automatic conversion">Convert Excel file</a>
+blue button &mdash; which will extract 
+the information from it and upload the delivery in XML format. Otherwise, use the 
+<a href="manage_addDocumentForm" title="Upload single file">Add file</a>
+ or <a href="manage_addzipfileform" title="Upload multiple files packed into a zip archive.
+The zip cannot contain a folder structure.">Upload zipfile</a> blue buttons.</p>
+
+<p>You can always interrupt your work and continue your contribution at a later date without losing
+data.</p>
+
+<p>Once you are satisfied with the contribution, you choose
+<a href="completeWorkitem?workitem_id=&dtml-workitem_id;">Complete task</a> and your delivery 
+will be quality assessed by the system before the envelope can be released to the public.
+</p>
+
+    <dtml-var documents_section>
+    <dtml-var feedback_section>
+
+    <dtml-var standard_html_footer>
+<dtml-else>
+    <dtml-call "RESPONSE.redirect('index_html')">
+</dtml-if>

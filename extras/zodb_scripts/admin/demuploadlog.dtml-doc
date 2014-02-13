@@ -1,16 +1,6 @@
 <dtml-var standard_html_header>
-<div id="operations">
-	<ul>
-		<li><a href="/admin">Administration</a></li>
-		<li><a href="/">Frontpage</a></li>
-	</ul>
-</div>
 <h1><dtml-var title_or_id></h1>
 <pre>
-<dtml-in extractlog reverse prefix="entry">
-<dtml-var entry_item>
-
-</dtml-in>
+<dtml-var extractlog>
 </pre>
-
 <dtml-var standard_html_footer>

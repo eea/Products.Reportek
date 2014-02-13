@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2013-09-23 14:25+0000\n"
+"POT-Creation-Date: 2014-02-13 13:24+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -14,16 +14,36 @@ msgstr ""
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: DOMAIN\n"
 
-#: Reportek/zpt/feedback/index.zpt:108
+#. Default: "ok"
+#: Reportek/zpt/message_dialog.zpt:16
+msgid "   ok   "
+msgstr ""
+
+#. Default: "Change"
+#: Reportek/zpt/document/edit.zpt:65
+msgid " Change "
+msgstr ""
+
+#: Reportek/zpt/feedback/index.zpt:106
 msgid "${read-feedback-link} (this will open in another window)."
 msgstr ""
 
-#: Reportek/zpt/feedback/index.zpt:69
+#: Reportek/zpt/feedback/index.zpt:67
 msgid "(File was deleted from the envelope)"
+msgstr ""
+
+#: Reportek/zpt/envelope/documents_section.zpt:62
+#: Reportek/zpt/envelope/documentsmanagement_section.zpt:29
+#: Reportek/zpt/envelope/statuses_section.zpt:68
+msgid "(Limited)"
 msgstr ""
 
 #: Reportek/zpt/envelope/feedback_section.zpt:66
 msgid "(Next ${n})"
+msgstr ""
+
+#: Reportek/zpt/referral/index.zpt:19
+msgid "(No description)"
 msgstr ""
 
 #: Reportek/zpt/envelope/feedback_section.zpt:33
@@ -42,32 +62,93 @@ msgstr ""
 msgid "(user: ${username})"
 msgstr ""
 
-#: Reportek/zpt/envelope/documents_section.zpt:63
-msgid "-Limited-"
+#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:29
+msgid "1) Your first step is to upload an XML file into this envelope. You can always interrupt your work and continue your contribution at a later time without losing data. As a minimum, manufacturers should provide the vehicle identification numbers (VINs) that they assigned to light commercial vehicles sold in the preceding calendar year or for which a warrant was issued in that year. Manufacturers should moreover provide the detailed data related to those vehicles (according to the MS schema provided). In order to take those data into account for the calculation of the provisional targets, manufacturers should provide their data to the Commission and the EEA at the same time as the annual data submission of the Member States."
 msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:46
-msgid "1) ${upload-button} one or more files into this envelope. You can always interrupt your work and continue your contribution at a later time without losing data."
+#: ../../../extras/zodb_scripts/privacystatement.zpt:18
+msgid "1. Purpose(s) of the processing"
 msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:63
-msgid "1. You can run all the QA checks on all files in the envelopes by selecting the ${button} button."
+#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:39
+msgid "2) Once you are satisfied with the contribution, you choose <em>Release envelope</em> and your delivery will be realised."
 msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:53
-msgid "2) Once you are satisfied that your delivery is complete and correct, choose ${release-button} and the envelope with your delivery will be automatically validated by QA procedures. If the delivery conforms to the <q><em>Rules for the acceptance of Member State deliveries in Reportnet</em></q> you will be able to finalise your delivery (finalise the <em>Release envelope</em> step). If the QA procedure fails you will be redirected back to Draft delivery."
+#: ../../../extras/zodb_scripts/privacystatement.zpt:22
+msgid "2. Recipients of the data processed"
 msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:66
-msgid "2. You can test files which are less than 4MB in size one by one using the ${run-qa} button next to each item."
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:60
+msgid "<em>Add and edit</em> a <a href=\"${DYNAMIC_CONTENT}\">${DYNAMIC_CONTENT}</a> questionnaire"
 msgstr ""
 
-#: Reportek/zpt/document/manage.zpt:83
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:59
+msgid "<em>Modify</em> the <a href=\"${DYNAMIC_CONTENT}\">${DYNAMIC_CONTENT}</a> questionnaire"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:68
+msgid "<em>Note: You are advised to print this page in order to be able to follow the process</em>"
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:9
+msgid "<strong>Note:</strong> remember the first task reporters have to do in order to start the delivery on this website is to create the envelope. Such tasks do not appear in the list below."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:69
+msgid "<strong>Step 1:</strong>"
+msgstr ""
+
+#: Reportek/zpt/document/manage.zpt:73
 msgid "<strong>Warning:</strong> this file is empty so viewing it in different formats might not work as expected!"
 msgstr ""
 
-#: Reportek/zpt/envelope/documents_section.zpt:89
+#: ../../../extras/zodb_scripts/help/security.html.zpt:7
+msgid "A collection administrator, who maintain the hierarchial structure, but who doesn't upload any reports."
+msgstr ""
+
+#: Reportek/zpt/collection/add.zpt:12
+msgid "A collection is an organisation of envelopes. Some fields you fill out will show up as default values for all envelopes and collections you subsequently create in this collection."
+msgstr ""
+
+#: Reportek/zpt/feedback/add.zpt:30
+msgid "A manual feedback already exists for this envelope!"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/security.html.zpt:9
+msgid "A release-coordinator, who releases an envelope to the public. The public must be confident that they are not downloading an incomplete report, so a release/-revocation is logged in the activity log. Once a report is released, it is no longer possible to upload files. If a mistake is found then the release-status can be revoked."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/security.html.zpt:14
+msgid "A reporter, who creates the actual reports. A reporter can request a report to be released when he is finished."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/security.html.zpt:20
+msgid "A user can be one, more or all of these roles at the same time."
+msgstr ""
+
+#: Reportek/zpt/envelope/statusesbulk.zpt:22
+msgid "Accept"
+msgstr ""
+
+#: Reportek/zpt/envelope/statusesbulk.zpt:13
+msgid "Accept/unaccept files"
+msgstr ""
+
+#: Reportek/zpt/envelope/statuses_section.zpt:24
+msgid "Accepted"
+msgstr ""
+
+#: Reportek/zpt/envelope/documents_section.zpt:88
 msgid "Access limitations may apply for files, which are not (yet) released for public view. Files marked with ${lock-icon} are unavailable. You must log in to get access."
+msgstr ""
+
+#: Reportek/zpt/envelope/documentsmanagement_section.zpt:102
+#: Reportek/zpt/envelope/statuses_section.zpt:113
+msgid "Access limitations may apply for files, which are not (yet) released for public view. Files marked with <img src=\"misc_/Reportek/lockicon_gif\" alt=\"Padlock\" width=\"16\" height=\"16\" /> are unavailable. You must log in to get access."
+msgstr ""
+
+#: Reportek/zpt/envelope/statusesbulk.zpt:21
+msgid "Action"
 msgstr ""
 
 #: Reportek/zpt/envelope/operations.zpt:12
@@ -78,128 +159,402 @@ msgstr ""
 msgid "Activate task: ${title}"
 msgstr ""
 
+#: Reportek/zpt/collection/add.zpt:74
 #: Reportek/zpt/document/add.zpt:57
-#: Reportek/zpt/envelope/add_zip.zpt:49
+#: Reportek/zpt/envelope/add.zpt:62
 msgid "Add"
+msgstr ""
+
+#: Reportek/zpt/collection/add.zpt:9
+msgid "Add Collection"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/security.html.zpt:26
+msgid "Add Collections, which is given to the collection administrator"
+msgstr ""
+
+#: Reportek/zpt/document/add.zpt:17
+msgid "Add Document"
+msgstr ""
+
+#: Reportek/zpt/envelope/add.zpt:9
+msgid "Add Envelope"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/security.html.zpt:29
+msgid "Add Envelopes, which is given to the \"reporter\". This allows people to create envelopes. If you have the right to create an envelope you also have the right to add files into it. If there are certain parts of the hierarchy that a reporter should be restricted to, then give him the permission as a local role, or create a user folder on that level."
 msgstr ""
 
 #: Reportek/zpt/feedback/add.zpt:12
 msgid "Add Feedback"
 msgstr ""
 
-#: Reportek/zpt/feedback/index.zpt:17
+#: Reportek/zpt/hyperlink/add.zpt:9
+msgid "Add Hyperlink"
+msgstr ""
+
+#: Reportek/zpt/referral/add.zpt:9
+msgid "Add Referral"
+msgstr ""
+
+#: Reportek/zpt/feedback/index.zpt:15
 msgid "Add comment"
 msgstr ""
 
-#: Reportek/zpt/envelope/overview.zpt:8
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:10
+#: Reportek/zpt/envelope/overview.zpt:9
 msgid "Add feedback"
 msgstr ""
 
+#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:12
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:14
 msgid "Add file"
 msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:12
+#: Reportek/zpt/hyperlink/add.zpt:34
 msgid "Add hyperlink"
 msgstr ""
 
-#: Reportek/zpt/feedback/add.zpt:52
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:12
+msgid "Add supporting file"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/security.html.zpt:21
+msgid "Additionally, a user can only delete objects he himself have created. And in the case of files, only if the envelope is not released."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:74
+msgid "After saving a draft delivery, you can evaluate the quality of the data you have reported. To do so click on the button \"Run QA\" next to the reported file in the envelope. If any of the tests detect errors in the data, it is necessary that you correct them by modifying your questionnaire before submitting the delivery."
+msgstr ""
+
+#: Reportek/zpt/envelope/statusesbulk.zpt:19
+msgid "All documents in the envelope are already listed"
+msgstr ""
+
+#: Reportek/zpt/envelope/statuses_section.zpt:15
+msgid "Alternately you can access the"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/security.html.zpt:16
+msgid "And then there still is the Zope Manager, who can fix everything if/when the security paradigme doesn't cut it."
+msgstr ""
+
+#: Reportek/zpt/envelope/statusesbulk.zpt:24
+msgid "Apply"
+msgstr ""
+
+#: Reportek/zpt/feedback/delete.zpt:12
+#: Reportek/zpt/feedback/deleteatt.zpt:12
+msgid "Are you sure you want to delete"
+msgstr ""
+
+#: Reportek/zpt/feedback/add.zpt:51
 msgid "Attach file"
 msgstr ""
 
-#: Reportek/zpt/feedback/index.zpt:77
+#: Reportek/zpt/feedback/edit.zpt:46
+msgid "Attached files"
+msgstr ""
+
+#: Reportek/zpt/feedback/index.zpt:75
 msgid "Attached files:"
 msgstr ""
 
-#: Reportek/zpt/feedback/index.zpt:47
+#: Reportek/zpt/feedback/index.zpt:45
 msgid "Author"
 msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:59
-msgid "Automatic QA service"
+#: ../../../extras/zodb_scripts/help/index_html.zpt:13
+msgid "BDR manual"
 msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:21
-msgid "Back to drafting"
+#: Reportek/zpt/envelope/add.zpt:23
+msgid "Back to collection"
 msgstr ""
 
-#: Reportek/zpt/document/manage.zpt:20
-#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:5
-#: Reportek/zpt/feedback/add.zpt:5
+#: ../../../extras/zodb_scripts/copyFilesFromPreviousDeliveryForm.zpt:5
+#: Reportek/zpt/document/edit.zpt:28
+#: Reportek/zpt/document/flashview.zpt:10
 msgid "Back to envelope"
 msgstr ""
 
-#: Reportek/zpt/document/manage.zpt:89
+#: Reportek/zpt/feedback/uploadatt.zpt:7
+msgid "Back to feedback"
+msgstr ""
+
+#: Reportek/zpt/document/flashview.zpt:9
+msgid "Back to file"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/index_html.zpt:20
+msgid "Browse by obligation"
+msgstr ""
+
+#: Reportek/zpt/envelope/statuses_section.zpt:15
+msgid "Bulk set status"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/index_html.zpt:31
+msgid "By obligation or country"
+msgstr ""
+
+#: Reportek/zpt/document/edit.zpt:54
+msgid "Bytes"
+msgstr ""
+
+#: Reportek/zpt/feedback/deleteatt.zpt:17
+msgid "Cancel"
+msgstr ""
+
+#: Reportek/zpt/collection/prop.zpt:73
+#: Reportek/zpt/document/manage.zpt:153
+#: Reportek/zpt/feedback/edit.zpt:40
+msgid "Change"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/security.html.zpt:27
+msgid "Change Collections, which is given to \"owner\". Thereby the collection administrator can only modify the collections he has created."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/security.html.zpt:34
+msgid "Change Envelopes. Give this permission to \"owner\" to let a \"reporter\" fill his own envelopes or give the permission to \"reporter\" to let all reporters modify all envelopes."
+msgstr ""
+
+#: Reportek/zpt/document/manage.zpt:79
 msgid "Change file"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/copyFilesFromPreviousDeliveryForm.zpt:8
+msgid "Choose previous delivery"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/index_html.zpt:9
+msgid "Click on the link below to start the reporting"
+msgstr ""
+
+#: Reportek/zpt/collection/index.zpt:46
+msgid "Collection"
+msgstr ""
+
+#: Reportek/zpt/collection/prop.zpt:10
+msgid "Collection Properties"
+msgstr ""
+
+#: Reportek/zpt/collection/add.zpt:23
+#: Reportek/zpt/collection/prop.zpt:26
+msgid "Collections"
+msgstr ""
+
+#: Reportek/zpt/collection/index.zpt:14
+msgid "Collections are folders that define the structure for the Data Repository, grouping Envelopes by country and by the reporting obligations they respond to."
 msgstr ""
 
 #: Reportek/zpt/envelope/operations.zpt:28
 msgid "Complete"
 msgstr ""
 
-#: Reportek/zpt/envelope/overview.zpt:60
-#: Reportek/zpt/envelope/properties.zpt:101
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:13
+msgid "Complete delivery"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/dataconfidentiality.zpt:4
+msgid "Confidentiality requirements apply to data reported under both the ODS and the F-Gas Regulation. Article 27.8 and Article 6.3 respectively stipulate \"The Commission shall take appropriate steps to protect the confidentiality of the information submitted to it.\" The European Environment Agency, who is the key actor in the compilation of the company-reports, will use the following approach to protect the data confidentiality:"
+msgstr ""
+
+#: Reportek/zpt/document/edit.zpt:45
+msgid "Content Type"
+msgstr ""
+
+#: Reportek/zpt/envelope/documentsmanagement_section.zpt:87
+msgid "Copy"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/copyFilesFromPreviousDeliveryForm.zpt:21
+#: Reportek/zpt/envelope/earlierreleases.zpt:20
+msgid "Copy files"
+msgstr ""
+
+#: Reportek/zpt/envelope/earlierreleases.zpt:31
+msgid "Copy files from this delivery"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:15
+msgid "Copy previous delivery"
+msgstr ""
+
+#: Reportek/zpt/collection/add.zpt:62
+#: Reportek/zpt/collection/prop.zpt:61
+#: Reportek/zpt/collection/worklist.zpt:18
 msgid "Coverage"
 msgstr ""
 
-#: Reportek/zpt/envelope/properties.zpt:128
+#: Reportek/zpt/collection/add.zpt:71
+#: Reportek/zpt/collection/prop.zpt:70
+#: Reportek/zpt/envelope/add.zpt:57
 msgid "Coverage note"
 msgstr ""
 
-#: Reportek/zpt/envelope/operations.zpt:33
+#: Reportek/zpt/collection/index.zpt:13
+msgid "Create a new Referral if a certain delivery data is not stored on this system, in which case specify another location for it."
+msgstr ""
+
+#: Reportek/zpt/envelope/documentsmanagement_section.zpt:86
+msgid "Cut"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/dataconfidentiality.zpt:3
+msgid "Data Confidentiality"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/dataconfidentiality.zpt:2
+msgid "Data confidentiality and protection"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:28
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:18
+#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:20
 msgid "Deactivate task"
 msgstr ""
 
+#: Reportek/zpt/envelope/documentsmanagement_section.zpt:91
 #: Reportek/zpt/envelope/feedback_section.zpt:45
+#: Reportek/zpt/feedback/delete.zpt:16
 msgid "Delete"
 msgstr ""
 
-#: Reportek/zpt/envelope/overview.zpt:25
-#: Reportek/zpt/envelope/properties.zpt:29
+#: ../../../extras/zodb_scripts/help/security.html.zpt:37
+msgid "Delete Objects. Typically give this permission to \"owner\" and mayby \"release-coordinator\" or \"collection administrator\"."
+msgstr ""
+
+#: Reportek/zpt/feedback/edit.zpt:54
+msgid "Delete attached file"
+msgstr ""
+
+#: Reportek/zpt/feedback/delete.zpt:11
+msgid "Delete feedback"
+msgstr ""
+
+#: Reportek/zpt/collection/add.zpt:28
+#: Reportek/zpt/collection/index.zpt:24
+#: Reportek/zpt/collection/prop.zpt:20
 msgid "Description"
 msgstr ""
 
-#: Reportek/zpt/document/manage.zpt:164
+#: Reportek/zpt/document/edit.zpt:57
+#: Reportek/zpt/document/manage.zpt:145
+#: Reportek/zpt/envelope/documentsmanagement_section.zpt:35
 msgid "Document accepted by the client"
 msgstr ""
 
-#: Reportek/zpt/envelope/overview.zpt:12
+#: ../../../extras/zodb_scripts/translatable_footer.zpt:1
+msgid "Document last modified"
+msgstr ""
+
+#: Reportek/zpt/feedback/edit.zpt:52
+msgid "Download file"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:13
 msgid "Download zipped envelope with available files"
+msgstr ""
+
+#: Reportek/zpt/document/edit.zpt:27
+msgid "Download/View"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:27
+msgid "Draft"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:35
+msgid "Draft delivery"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:27
+msgid "EEA staff as well as designated external experts or contractors who work on behalf of the EEA for the purpose of data management and compilation, quality assessment, and evaluation;"
 msgstr ""
 
 #: Reportek/zpt/envelope/feedback_section.zpt:43
 msgid "Edit"
 msgstr ""
 
-#: Reportek/zpt/document/manage.zpt:120
+#: Reportek/zpt/feedback/edit.zpt:10
+msgid "Edit Feedback"
+msgstr ""
+
+#: Reportek/zpt/hyperlink/edit.zpt:17
+msgid "Edit Hyperlink"
+msgstr ""
+
+#: Reportek/zpt/document/edit.zpt:22
+msgid "Edit Properties"
+msgstr ""
+
+#: Reportek/zpt/feedback/edit.zpt:53
+msgid "Edit attached file"
+msgstr ""
+
+#: Reportek/zpt/document/edit.zpt:36
+msgid "Edit file"
+msgstr ""
+
+#: Reportek/zpt/document/manage.zpt:109
 msgid "Edit file properties"
 msgstr ""
 
-#: Reportek/zpt/document/manage.zpt:93
+#: Reportek/zpt/document/manage.zpt:83
 msgid "Edit metadata with Web form"
 msgstr ""
 
+#: Reportek/zpt/collection/tabs.zpt:8
+#: Reportek/zpt/document/upload.zpt:12
 #: Reportek/zpt/envelope/tabs.zpt:36
 msgid "Edit properties"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:24
+msgid "Enter feedback to accept or reject the delivery"
+msgstr ""
+
+#: Reportek/zpt/collection/index.zpt:52
+#: Reportek/zpt/collection/worklist.zpt:27
+msgid "Envelope"
 msgstr ""
 
 #: Reportek/zpt/envelope/properties.zpt:16
 msgid "Envelope Properties"
 msgstr ""
 
-#: Reportek/zpt/envelope/overview.zpt:76
+#: Reportek/zpt/envelope/overview.zpt:77
 msgid "Envelope is ${status}"
 msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:88
-msgid "Envelope level QA rules checking availability of mandatory files can be tested using the ${run-qa} button."
-msgstr ""
-
-#: Reportek/zpt/feedback/index.zpt:39
+#: Reportek/zpt/feedback/index.zpt:37
 msgid "Envelope release:"
 msgstr ""
 
-#: Reportek/zpt/feedback/add.zpt:46
+#: ../../../extras/zodb_scripts/copyFilesFromPreviousDeliveryForm.zpt:16
+msgid "Envelope:"
+msgstr ""
+
+#: Reportek/zpt/collection/add.zpt:24
+#: Reportek/zpt/collection/prop.zpt:27
+msgid "Envelopes"
+msgstr ""
+
+#: Reportek/zpt/collection/index.zpt:37
+msgid "Envelopes and subcollections"
+msgstr ""
+
+#: Reportek/zpt/collection/index.zpt:15
+msgid "Envelopes store all the information about a delivery"
+msgstr ""
+
+#: Reportek/zpt/envelope/statusesbulk.zpt:38
+msgid "Errors:"
+msgstr ""
+
+#: Reportek/zpt/feedback/add.zpt:45
 msgid "Feedback content (plain text)"
 msgstr ""
 
@@ -207,28 +562,46 @@ msgstr ""
 msgid "Feedback for this envelope"
 msgstr ""
 
-#: Reportek/zpt/feedback/index.zpt:22
+#: Reportek/zpt/feedback/edit.zpt:20
+msgid "Feedback text"
+msgstr ""
+
+#: Reportek/zpt/feedback/index.zpt:20
 msgid "Feedback: ${title}"
 msgstr ""
 
 #: Reportek/zpt/document/add.zpt:36
-#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:33
+#: Reportek/zpt/document/flashview.zpt:14
+#: Reportek/zpt/document/upload.zpt:23
 msgid "File"
 msgstr ""
 
-#: Reportek/zpt/document/manage.zpt:141
+#: Reportek/zpt/document/edit.zpt:53
+msgid "File Size"
+msgstr ""
+
+#: Reportek/zpt/envelope/statuses_section.zpt:65
+msgid "File operations: [View file in different formats], [File properties], [View the feedback posted it (if any)]"
+msgstr ""
+
+#: Reportek/zpt/document/manage.zpt:127
 msgid "File size"
 msgstr ""
 
-#: Reportek/zpt/document/manage.zpt:192
+#: Reportek/zpt/document/manage.zpt:173
 msgid "File too large to run the ${qa-script} quality assessment script directly. Use the feedback generated by the <em>automatic quality assessment</em> to view the results."
 msgstr ""
 
-#: Reportek/zpt/document/manage.zpt:28
+#: Reportek/zpt/document/manage.zpt:22
 msgid "File: ${file-id}"
 msgstr ""
 
+#: Reportek/zpt/envelope/statusesbulk.zpt:18
+msgid "Filename list (one per line)"
+msgstr ""
+
 #: Reportek/zpt/envelope/documents_section.zpt:9
+#: Reportek/zpt/envelope/documentsmanagement_section.zpt:12
 msgid "Files in this envelope"
 msgstr ""
 
@@ -236,8 +609,59 @@ msgstr ""
 msgid "Files with the same filename as ones already existing in the envelope will be overwritten."
 msgstr ""
 
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:70
+msgid "Fill in data using the on-line questionnaire. The system will automatically store your data in this envelope after clicking the \"Save\" button on the questionnaire. You can always interrupt your work and continue your contribution at a later time without losing data."
+msgstr ""
+
+#: Reportek/zpt/envelope/add.zpt:28
+msgid "Fill out the fields in this report profile and click <em>Add</em>. This will create an <em>envelope</em> into which you make the delivery."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/RetireRoute.zpt:16
+msgid "Finish or go back to drafting?"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:23
+msgid "For the purpose detailed above, access to your personal data is given to the following persons, without prejudice to a possible transmission to the bodies in charge of monitoring or inspection task in accordance with European Union law:"
+msgstr ""
+
 #: Reportek/zpt/envelope/operations.zpt:44
 msgid "Forward"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/security.html.zpt:3
+msgid "Four (Five) types of user roles are foreseen:"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/faq/index_html.zpt:3
+msgid "Frequently Asked Questions"
+msgstr ""
+
+#: Reportek/zpt/document/edit.zpt:81
+#: Reportek/zpt/envelope/earlierreleases.zpt:31
+#: Reportek/zpt/hyperlink/add.zpt:14
+msgid "Go"
+msgstr ""
+
+#: Reportek/zpt/document/flashview.zpt:10
+#: Reportek/zpt/envelope/note.zpt:18
+msgid "Go back to envelope"
+msgstr ""
+
+#: Reportek/zpt/envelope/note.zpt:15
+msgid "Go back to file"
+msgstr ""
+
+#: Reportek/zpt/hyperlink/index.zpt:5
+msgid "Go back to the envelope that contains this hyperlink"
+msgstr ""
+
+#: Reportek/zpt/document/flashview.zpt:9
+msgid "Go back to this file operations page"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/index_html.zpt:2
+msgid "Help: How to use the Business Data Repository (BDR)"
 msgstr ""
 
 #: Reportek/zpt/envelope/tabs.zpt:57
@@ -248,164 +672,496 @@ msgstr ""
 msgid "History of ${title}"
 msgstr ""
 
+#: Reportek/zpt/envelope/documentsmanagement_section.zpt:62
+#: Reportek/zpt/hyperlink/index.zpt:9
+msgid "Hyperlink"
+msgstr ""
+
+#: Reportek/zpt/hyperlink/edit.zpt:26
+msgid "Hyperlink URL"
+msgstr ""
+
+#: Reportek/zpt/envelope/statuses_section.zpt:36
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:38
 msgid "Id"
 msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:69
-msgid "If some of the tests detect errors, it is recommended that you try to correct them before releasing the envelope. After you release the envelope, the system will always automatically run the full QA procedures and the public results will be placed into the feedback area of the envelope."
+#: Reportek/zpt/hyperlink/add.zpt:29
+msgid "Identifier"
+msgstr ""
+
+#: Reportek/zpt/referral/add.zpt:12
+msgid "If a certain delivery data is not stored on this system, specify another location for it."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:86
+msgid "If the feedback \"<em>Data delivery was not acceptable</em>\" is shown in the Feedback section, then some important checks have failed. In this case, a list of errors will also be found in the Feedback report. Additionally, a new envelope will be created and all the reported data/submitted files will be copied to this envelope, so that you can correct the errors in the questionnaire and submit again using the same process as in Step 2. Please note that, in order to do so, you first need to re-activate the task in this newly created envelope."
 msgstr ""
 
 #: Reportek/zpt/document/add.zpt:22
 msgid "If the filename already exists in the envelope, the existing file will be overwritten."
 msgstr ""
 
+#: ../../../extras/zodb_scripts/index_html.zpt:46
+msgid "If you need to change the people with reporting rights for your company or the details of your company account please Login first."
+msgstr ""
+
 #: Reportek/zpt/feedback/add.zpt:18
 msgid "If you want to be notified when other feedback is added to this envelope or comments are posted on feedback items, you need to ${subscribe-link}"
 msgstr ""
 
-#: Reportek/zpt/feedback/index.zpt:121
+#: Reportek/zpt/feedback/index.zpt:118
 msgid "If you want to be notified when other feedback is added to this envelope or comments are posted on feedback items, you need to ${subscribe-notifications-link}"
 msgstr ""
 
-#: Reportek/zpt/envelope/overview.zpt:95
+#: Reportek/zpt/envelope/earlierreleases.zpt:12
+msgid "If you want to copy the files from a previous delivery, choose the delivery and click <em>Go</em>:"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:106
 msgid "If you want to stay updated about events in this envelope ${subscribe} for this country and the current dataflow(s)."
 msgstr ""
 
+#: ../../../extras/zodb_scripts/index_html.zpt:38
+msgid "If your company already has an account, please login here using the username and password provided to you by the BDR via email:"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/index_html.zpt:42
+msgid "If your company does not yet own a login account please register here:"
+msgstr ""
+
 #: Reportek/zpt/feedback/add.zpt:15
-#: Reportek/zpt/feedback/index.zpt:118
+#: Reportek/zpt/feedback/index.zpt:115
 msgid "Important notice"
 msgstr ""
 
-#: Reportek/zpt/document/manage.zpt:145
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:83
+msgid "In case all the quality checks have been successful, a positive confirmation receipt will be created under the envelope and your company has successfully reported the required information to DG CLIMA."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:49
+msgid "In case you are not obliged to report (see FAQs under the \"Help\" Section), please add and edit a NIL reporting questionnaire."
+msgstr ""
+
+#: Reportek/zpt/document/flashview.zpt:166
+msgid "In order to access this page, Javascript needs to be enabled on your brwoser. Please enable it and refresh the page."
+msgstr ""
+
+#: Reportek/zpt/envelope/statusesbulk.zpt:28
+msgid "Information"
+msgstr ""
+
+#: Reportek/zpt/envelope/statuses_section.zpt:57
+msgid "Last Update"
+msgstr ""
+
+#: Reportek/zpt/document/manage.zpt:131
 msgid "Last uploaded"
 msgstr ""
 
-#: Reportek/zpt/document/manage.zpt:112
+#: Reportek/zpt/collection/tabs.zpt:11
+msgid "List of reporters"
+msgstr ""
+
+#: Reportek/zpt/document/edit.zpt:76
+msgid "Local converters"
+msgstr ""
+
+#: Reportek/zpt/document/upload.zpt:21
+msgid "Local upload"
+msgstr ""
+
+#: Reportek/zpt/document/manage.zpt:101
 msgid "Local upload: ${file-input} ${submit-button}"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/index_html.zpt:9
+msgid "More information"
+msgstr ""
+
+#: Reportek/zpt/collection/index.zpt:14
+msgid "New collection"
+msgstr ""
+
+#: Reportek/zpt/collection/index.zpt:15
+msgid "New envelope"
+msgstr ""
+
+#: Reportek/zpt/collection/index.zpt:13
+msgid "New referral"
+msgstr ""
+
+#: Reportek/zpt/envelope/documentsmanagement_section.zpt:33
+#: Reportek/zpt/envelope/statuses_section.zpt:72
+msgid "No access"
 msgstr ""
 
 #: Reportek/zpt/envelope/feedback_section.zpt:52
 msgid "No feedback posted in this envelope"
 msgstr ""
 
-#: Reportek/zpt/envelope/documents_section.zpt:78
+#: Reportek/zpt/envelope/documents_section.zpt:77
+#: Reportek/zpt/envelope/documentsmanagement_section.zpt:78
+#: Reportek/zpt/envelope/statuses_section.zpt:81
 msgid "No files uploaded"
 msgstr ""
 
-#: Reportek/zpt/document/manage.zpt:198
+#: Reportek/zpt/envelope/earlierreleases.zpt:38
+msgid "No previous deliveries have been made."
+msgstr ""
+
+#: Reportek/zpt/document/manage.zpt:179
 msgid "No quality assessment scripts available for this document."
 msgstr ""
 
-#: Reportek/zpt/envelope/overview.zpt:117
+#: Reportek/zpt/collection/worklist.zpt:69
+msgid "No task is in progress or waiting to be assigned in this collection."
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:61
+msgid "Not assigned"
+msgstr ""
+
+#: Reportek/zpt/document/flashview.zpt:173
+#: Reportek/zpt/envelope/overview.zpt:128
 msgid "Not available"
 msgstr ""
 
-#: Reportek/zpt/envelope/overview.zpt:92
+#: ../../../extras/zodb_scripts/copyFilesFromPreviousDeliveryForm.zpt:26
+#: ../../../extras/zodb_scripts/index_html.zpt:37
+#: Reportek/zpt/envelope/overview.zpt:103
 msgid "Note"
 msgstr ""
 
-#: Reportek/zpt/envelope/overview.zpt:42
+#: Reportek/zpt/envelope/overview.zpt:43
 msgid "Notice: this envelope has no obligation tag"
 msgstr ""
 
-#: Reportek/zpt/envelope/overview.zpt:29
-#: Reportek/zpt/envelope/properties.zpt:70
+#: Reportek/zpt/referral/index.zpt:26
+msgid "Notice: this referral has no obligation tag"
+msgstr ""
+
+#: Reportek/zpt/collection/index.zpt:28
+#: Reportek/zpt/referral/index.zpt:23
+msgid "Obligation(s)"
+msgstr ""
+
+#: Reportek/zpt/collection/add.zpt:33
+#: Reportek/zpt/collection/prop.zpt:32
+#: Reportek/zpt/envelope/overview.zpt:30
 msgid "Obligations"
 msgstr ""
 
-#: Reportek/zpt/document/manage.zpt:44
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:79
+msgid "Once you are satisfied that your company report is correct, you must certify the correctness of your report and click on <em>\"Submit the delivery to DG CLIMA and EEA\"</em>. No changes in the reported data in the envelope can be performed afterwards. The system will automatically evaluate the quality of your data, running the same tests as in step 2. This process may take a few minutes. The results will be provided in the Feedback report in the envelope."
+msgstr ""
+
+#: Reportek/zpt/document/edit.zpt:75
+#: Reportek/zpt/document/manage.zpt:34
 msgid "Original"
 msgstr ""
 
+#: Reportek/zpt/collection/tabs.zpt:3
+#: Reportek/zpt/document/edit.zpt:21
 #: Reportek/zpt/envelope/tabs.zpt:10
 msgid "Overview"
 msgstr ""
 
-#: Reportek/zpt/envelope/overview.zpt:51
+#: ../../../extras/zodb_scripts/privacystatement.zpt:3
+msgid "PRIVACY STATEMENT"
+msgstr ""
+
+#: Reportek/zpt/envelope/documentsmanagement_section.zpt:89
+msgid "Paste"
+msgstr ""
+
+#: Reportek/zpt/envelope/documentsmanagement_section.zpt:89
+msgid "Paste previously selected files to this envelope"
+msgstr ""
+
+#: Reportek/zpt/envelope/earlierreleases.zpt:18
+#: Reportek/zpt/envelope/overview.zpt:52
+#: Reportek/zpt/referral/index.zpt:30
 msgid "Period"
 msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:27
-msgid "Permanent release"
+#: ../../../extras/zodb_scripts/help/security.html.zpt:22
+msgid "Permissions"
 msgstr ""
 
-#: Reportek/zpt/envelope/overview.zpt:8
+#: ../../../extras/zodb_scripts/privacystatement.zpt:12
+msgid "Personal data provided by the designated company reporter are processed in accordance with Regulation (EC) No 45/2001 of the European Parliament and of the Council of 18 December 2000 on the protection of individuals with regard to the processing of personal data by the Community institutions and bodies and on the free movement of such data."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:55
+msgid "Please use one of the following links to add or update your questionnaire."
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:9
 msgid "Post feedback for this release"
 msgstr ""
 
-#: Reportek/zpt/feedback/index.zpt:33
+#: Reportek/zpt/feedback/index.zpt:31
 msgid "Posted automatically on:"
 msgstr ""
 
-#: Reportek/zpt/feedback/index.zpt:43
+#: Reportek/zpt/feedback/index.zpt:41
 msgid "Posted on:"
 msgstr ""
 
-#: Reportek/zpt/document/manage.zpt:178
+#: Reportek/zpt/envelope/earlierreleases.zpt:10
+msgid "Previous deliveries"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:67
+msgid "Process: Step by Step"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:15
+msgid "Processing operations are under the responsibility of the Procurement Officer in the Legal services group acting as Data Controller, regarding the collection and processing of personal data."
+msgstr ""
+
+#: Reportek/zpt/document/manage.zpt:159
 msgid "Quality assessment"
 msgstr ""
 
-#: Reportek/zpt/feedback/index.zpt:108
+#: Reportek/zpt/feedback/index.zpt:106
 msgid "Read this feedback"
 msgstr ""
 
-#: Reportek/zpt/feedback/index.zpt:61
+#: Reportek/zpt/referral/index.zpt:41
+msgid "Referral"
+msgstr ""
+
+#: Reportek/zpt/referral/add.zpt:21
+#: Reportek/zpt/referral/prop.zpt:20
+msgid "Referral URL"
+msgstr ""
+
+#: Reportek/zpt/feedback/index.zpt:59
 msgid "Referred file:"
 msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:20
+#: ../../../extras/zodb_scripts/privacystatement.zpt:9
+msgid "Regulation (EC) No 1005/2009 of the European Parliament and of the Council of 16 September 2009 on substances that deplete the ozone layer (ODS Regulation) and"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:10
+msgid "Regulation (EC) No 842/2006 of the European Parliament and of the Council of 17 May 2006 on certain fluorinated greenhouse gases (F-Gas Regulation)"
+msgstr ""
+
+#: Reportek/zpt/collection/add.zpt:51
+#: Reportek/zpt/collection/prop.zpt:50
+#: Reportek/zpt/envelope/add.zpt:39
+msgid "Relating to which year"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/security.html.zpt:39
+msgid "Release Envelopes. Can be given to \"owner\", \"reporter\" or some other class of users."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:15
 msgid "Release envelope"
 msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:23
-msgid "Release to public"
+#: Reportek/zpt/envelope/earlierreleases.zpt:19
+msgid "Released"
 msgstr ""
 
-#: Reportek/zpt/envelope/overview.zpt:109
+#: Reportek/zpt/envelope/overview.zpt:120
 msgid "Remember to release the envelope when you have uploaded all files"
 msgstr ""
 
-#: Reportek/zpt/envelope/overview.zpt:67
+#: Reportek/zpt/document/edit.zpt:78
+msgid "Remote converters"
+msgstr ""
+
+#: Reportek/zpt/envelope/documentsmanagement_section.zpt:85
+msgid "Rename"
+msgstr ""
+
+#: Reportek/zpt/document/edit.zpt:29
+msgid "Replace file"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:68
 msgid "Reported"
 msgstr ""
 
+#: Reportek/zpt/collection/worklist.zpt:43
+msgid "Reporting date"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:51
+msgid "Reporting is required for any company that has produced, imported and/or exported more than one metric tonne of fluorinated greenhouse gases, or preparations containing fluorinated greenhouse gases during the reporting year."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:48
+msgid "Reporting is required for any company that has produced, imported, exported, destroyed and/or used ozone-depleting substances as feedstock or process agent."
+msgstr ""
+
+#: Reportek/zpt/collection/index.zpt:58
+msgid "Repository Referral"
+msgstr ""
+
+#: Reportek/zpt/referral/prop.zpt:10
+msgid "Repository Referral Properties"
+msgstr ""
+
+#: Reportek/zpt/envelope/add_zip.zpt:38
+msgid "Restrict all contained files from public view"
+msgstr ""
+
+#: Reportek/zpt/document/upload.zpt:27
+msgid "Restrict file from public view"
+msgstr ""
+
 #: Reportek/zpt/document/add.zpt:46
-#: Reportek/zpt/document/manage.zpt:150
+#: Reportek/zpt/document/manage.zpt:136
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:44
 msgid "Restricted from public view"
 msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:66
-msgid "Run QA"
-msgstr ""
-
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:82
-msgid "Run envelope QA"
-msgstr ""
-
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:63
-msgid "Run full QA"
-msgstr ""
-
-#: Reportek/zpt/document/manage.zpt:134
+#: Reportek/zpt/document/edit.zpt:49
+#: Reportek/zpt/document/manage.zpt:120
 msgid "Schema location"
 msgstr ""
 
-#: Reportek/zpt/envelope/overview.zpt:72
+#: ../../../extras/zodb_scripts/index_html.zpt:29
+msgid "Search deliveries"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/security.html.zpt:2
+msgid "Security Principles"
+msgstr ""
+
+#: Reportek/zpt/envelope/documentsmanagement_section.zpt:87
+msgid "Select some files to copy them"
+msgstr ""
+
+#: Reportek/zpt/envelope/documentsmanagement_section.zpt:86
+msgid "Select some files to cut them"
+msgstr ""
+
+#: Reportek/zpt/envelope/documentsmanagement_section.zpt:91
+msgid "Select some files to delete them"
+msgstr ""
+
+#: Reportek/zpt/envelope/documentsmanagement_section.zpt:85
+msgid "Select some files to rename them"
+msgstr ""
+
+#: Reportek/zpt/envelope/statuses_section.zpt:14
+msgid "Select the files you want to accept from the list below and click <em>Set accepted status</em>. In order to revoke the accepted status of files just uncheck the corresponding option and click on the same button."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/index_html.zpt:44
+msgid "Self-registration"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/translatable_header.zpt:51
+msgid "Services"
+msgstr ""
+
+#: Reportek/zpt/envelope/statuses_section.zpt:13
+msgid "Set accepted status"
+msgstr ""
+
+#: Reportek/zpt/envelope/statuses_section.zpt:108
+msgid "Set accepted status for files"
+msgstr ""
+
+#: Reportek/zpt/engine/sitemap.zpt:3
+msgid "Sitemap for the Data Repository"
+msgstr ""
+
+#: Reportek/zpt/envelope/statuses_section.zpt:58
+msgid "Size"
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:43
+msgid "Sort A..Z by last reporting date - Click to reverse"
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:46
+msgid "Sort Z..A by last reporting date - Click to reverse"
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:25
+#: Reportek/zpt/envelope/statuses_section.zpt:31
+msgid "Sortable"
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:18
+msgid "Sorted A..Z by coverage - Click to reverse"
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:32
+#: Reportek/zpt/envelope/statuses_section.zpt:24
+msgid "Sorted A..Z by user - Click to reverse"
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:21
+msgid "Sorted Z..A by coverage - Click to reverse"
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:35
+#: Reportek/zpt/envelope/statuses_section.zpt:27
+msgid "Sorted Z..A by user - Click to reverse"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:4
+msgid "Statement on personal data protection within the framework of reporting by undertakings (company-based reporting) with the Reportnet Business Data Repository (BDR) for:"
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:29
+#: Reportek/zpt/envelope/overview.zpt:73
 msgid "Status"
 msgstr ""
 
-#: Reportek/zpt/feedback/add.zpt:42
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:73
+msgid "Step 2:"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:78
+msgid "Step 3:"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:82
+msgid "Step 4:"
+msgstr ""
+
+#: Reportek/zpt/feedback/add.zpt:41
 msgid "Subject"
 msgstr ""
 
-#: Reportek/zpt/feedback/index.zpt:28
+#: Reportek/zpt/feedback/index.zpt:26
 msgid "Subject:"
 msgstr ""
 
-#: Reportek/zpt/envelope/overview.zpt:96
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:23
+msgid "Submit to DG CLIMA/EEA"
+msgstr ""
+
+#: Reportek/zpt/collection/add.zpt:21
+#: Reportek/zpt/collection/prop.zpt:24
+msgid "Subobjects"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:107
 msgid "Subscribe to receive notifications"
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:28
+msgid "Task"
+msgstr ""
+
+#: Reportek/zpt/collection/tabs.zpt:5
+msgid "Task list"
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:5
+msgid "Task list for"
 msgstr ""
 
 #: Reportek/zpt/envelope/macros.zpt:3
@@ -416,61 +1172,175 @@ msgstr ""
 msgid "Task(s) waiting to be assigned:"
 msgstr ""
 
-#: Reportek/zpt/feedback/index.zpt:52
+#: Reportek/zpt/feedback/index.zpt:50
 msgid "Task:"
 msgstr ""
 
-#: Reportek/zpt/envelope/overview.zpt:36
+#: Reportek/zpt/collection/index.zpt:29
+#: Reportek/zpt/envelope/overview.zpt:37
+#: Reportek/zpt/referral/index.zpt:25
 msgid "Terminated"
 msgstr ""
 
-#: Reportek/zpt/document/manage.zpt:33
+#: Reportek/zpt/envelope/statusesbulk.zpt:40
+msgid "The"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/index_html.zpt:53
+msgid "The <a href=\"/help/\"><strong>On-line BDR help</strong></a> provides guidance on how to use the BDR for the reporting obligation. In addition the <a href=\"/help/faq\">Frequently Asked Questions (FAQ)</a> also include answers to problems often encountered by users. If you still have problems please contact the BDR Helpdesk using the following email: <a href=\"mailto:BDR.helpdesk@eea.europa.eu\">BDR.helpdesk@eea.europa.eu</a>. The BDR helpdesk will provide assistance on: upload access for new companies, password problem, difficulties during upload procedure, download problems."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/index_html.zpt:5
+msgid "The Business Data Repository is like a bookshelf, with data reports on the environment as submitted by companies to the European Union. The Business Data Repository is part of the Reportnet architecture maintained by EEA."
+msgstr ""
+
+#: Reportek/zpt/document/flashview.zpt:15
+msgid "The GIS viewer was created using Macromedia Flash 8. If you do not see it properly install the necessary plugin from the <a href=\"http://www.macromedia.com/go/getflashplayer\">Macromedia website</a>."
+msgstr ""
+
+#: Reportek/zpt/document/manage.zpt:25
 msgid "The access to this file is limited, meaning it is not (yet) released for public view."
 msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:23
-msgid "The envelope is currently not released for the public. If you want to change your delivery as a reaction to the feedback, then you must click on ${back-to-draft} and continue changing the files. If you consider your delivery finalised, click on ${release-to-public} and the ETC will start reviewing it."
+#: ../../../extras/zodb_scripts/privacystatement.zpt:28
+msgid "The competent European Commission staff members as well as contractors who work on behalf of the European Commission;"
 msgstr ""
 
-#: Reportek/zpt/envelope/overview.zpt:42
+#: Reportek/zpt/referral/index.zpt:10
+msgid "The data you are looking for are not stored on this system. Please continue your search on"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/RetireRoute.zpt:18
+msgid "The envelope is currently released and the requester may have uploaded some feedback to it. If you want to change your delivery as a reaction to the feedback, then you must click on \"Back to drafting\" to revoke the release. If you are sure you will never need to revoke then you click on \"Finish\"."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:26
+msgid "The envelope is currently released and your task is to inspect the delivery. If you have found some issues you tell the reporter via the feedback button. The feedback should make it clear to the Reporters if the delivery is accepted or not. Reporters will then have to create a new envelope if the feedback rejects the delivery and they need to update the data."
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:43
+#: Reportek/zpt/referral/index.zpt:26
 msgid "The obligation tag makes it possible for the requesters to find the delivery"
 msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:60
-msgid "The system can help you assess quality of the uploaded XML files. You have two options:"
+#: ../../../extras/zodb_scripts/help/index_html.zpt:3
+msgid "The purpose of this website is to make it easy for companies to fulfil a number of mandatory reporting obligations. BDR also allows to store the reports and can therefore be used as the single repository which can be consulted at European level by the European Commission and the European Environment Agency and on a country level by the designated responsible from the Competent Authority."
 msgstr ""
 
-#: Reportek/zpt/envelope/overview.zpt:118
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:46
+msgid "The reporting of your company data should be done by using an on-line questionnaire developed to guide you through this process."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/security.html.zpt:6
+msgid "The visitor, who can browse released reports and download the files."
+msgstr ""
+
+#: Reportek/zpt/envelope/add_zip.zpt:20
+msgid "The zipfile upload makes it possible for you to add a large number of files in one upload. The zipfile will be uploaded and unwrapped."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/security.html.zpt:23
+msgid "There are six permissions:"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/copyFilesFromPreviousDeliveryForm.zpt:27
+msgid "There is no previous delivery for the same time period in this collection!"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:129
 msgid "This envelope is not yet available for public view. Work is still in progress."
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:7
+msgid "This page contains the TODO list for all users working in this collection. First, this gives you an overview of what tasks you can work on next: If there is no user assigned to an envelope, click on the envelope's link and activate the task which is awaiting assignment. Secondly, if you've already started work in an envelope by activating a task, look for your username in the list below to find the link to the envelope."
 msgstr ""
 
 #: Reportek/zpt/envelope/history.zpt:10
 msgid "This page displays all the history of tasks that have executed in this envelope. If you want to see more details about a task, just expand the ${plus-icon} icon next to it."
 msgstr ""
 
+#: Reportek/zpt/envelope/note.zpt:32
+msgid "Tip:"
+msgstr ""
+
+#: Reportek/zpt/collection/add.zpt:17
+#: Reportek/zpt/collection/prop.zpt:16
 #: Reportek/zpt/document/add.zpt:32
-#: Reportek/zpt/document/manage.zpt:124
-#: Reportek/zpt/envelope/properties.zpt:22
 msgid "Title"
 msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:46
+#: Reportek/zpt/hyperlink/add.zpt:25
+#: Reportek/zpt/hyperlink/index.zpt:17
+msgid "URL"
+msgstr ""
+
+#: Reportek/zpt/envelope/statusesbulk.zpt:23
+msgid "Unaccept"
+msgstr ""
+
+#: Reportek/zpt/collection/add.zpt:65
+#: Reportek/zpt/collection/prop.zpt:64
+#: Reportek/zpt/envelope/add.zpt:52
+msgid "Unspecified"
+msgstr ""
+
+#: Reportek/zpt/document/upload.zpt:11
+#: Reportek/zpt/feedback/edit.zpt:68
+#: Reportek/zpt/feedback/uploadatt.zpt:16
 msgid "Upload"
 msgstr ""
 
-#: Reportek/zpt/document/manage.zpt:98
+#: Reportek/zpt/document/manage.zpt:87
 msgid "Upload ESRI"
 msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:15
+#: Reportek/zpt/document/upload.zpt:17
+msgid "Upload file"
+msgstr ""
+
+#: Reportek/zpt/feedback/edit.zpt:63
+msgid "Upload new file"
+msgstr ""
+
+#: Reportek/zpt/feedback/uploadatt.zpt:11
+msgid "Upload new file for"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:18
 msgid "Upload zipfile"
+msgstr ""
+
+#: Reportek/zpt/envelope/add_zip.zpt:17
+msgid "Upload zipfile archive"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:19
+msgid "Upon reception of your submitted information by EEA, your personal data is collected and further processed for the purpose of the management and administration of the Business Data Repository (BDR). It will also be used by the EEA or its delegated representatives to contact you with queries or feedback concerning information or data submitted to the BDR, or to contact you when such information or data has previously been reported by you to the BDR or the European Commission."
 msgstr ""
 
 #: Reportek/zpt/feedback/add.zpt:33
 msgid "Use the form to submit feedback to this delivery. You can attach one file to this feedback now and add othe files later by editing the feedback."
 msgstr ""
 
-#: Reportek/zpt/document/manage.zpt:42
+#: Reportek/zpt/hyperlink/add.zpt:17
+msgid "Use the form to submit hyperlink to this delivery."
+msgstr ""
+
+#: Reportek/zpt/envelope/statusesbulk.zpt:15
+msgid "Use this form to copy and paste lists of files you want to accept/unaccept, select the corresponding operation and click the <em>Apply</em> button."
+msgstr ""
+
+#: Reportek/zpt/collection/worklist.zpt:32
+msgid "User"
+msgstr ""
+
+#: Reportek/zpt/collection/add.zpt:31
+#: Reportek/zpt/collection/prop.zpt:30
+msgid "Values used for inheritance"
+msgstr ""
+
+#: Reportek/zpt/document/edit.zpt:72
+#: Reportek/zpt/document/manage.zpt:32
 msgid "View file as"
 msgstr ""
 
@@ -479,23 +1349,48 @@ msgstr ""
 msgid "Warning:"
 msgstr ""
 
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:32
+msgid "When the feedback is added, you should <em>complete the delivery</em>."
+msgstr ""
+
 #: Reportek/zpt/envelope/properties.zpt:38
 msgid "Year"
 msgstr ""
 
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:77
-msgid "You can run a quality assessment operation yourself on all files at once.<br /> Doing so will interrupt the drafting activity for a few minutes (task is deactivated), after which you can return to Draft (by activating the task) and read the QA feedback."
+#: ../../../extras/zodb_scripts/breadcrumb.zpt:12
+#: ../../../extras/zodb_scripts/translatable_header.zpt:31
+msgid "You are here:"
+msgstr ""
+
+#: Reportek/zpt/document/flashview.zpt:174
+msgid "You are trying to access a file from an envelope which is not yet available for public view. Work is still in progress."
+msgstr ""
+
+#: Reportek/zpt/hyperlink/add.zpt:13
+msgid "You can not add hyperlink in an envelope when it is released!"
+msgstr ""
+
+#: Reportek/zpt/feedback/add.zpt:27
+msgid "You can only add feedback in an envelope when it is released!"
 msgstr ""
 
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:16
-msgid "You can upload one single file or z non-hierarchical <em>.zip</em> archive. The zip archive will be unpacked and its content uploaded into the envelope."
+msgid "You can upload one single file or a non-hierarchical <em>.zip</em> archive. The zip archive will be unpacked and its content uploaded into the envelope."
 msgstr ""
 
-#: Reportek/zpt/envelope/overview.zpt:12
+#: Reportek/zpt/envelope/add.zpt:15
+msgid "You cannot create envelopes for terminated obligations, you need to change the list of obligations associated to this collection and remove the following:"
+msgstr ""
+
+#: Reportek/zpt/envelope/add_zip.zpt:30
+msgid "Zip file"
+msgstr ""
+
+#: Reportek/zpt/envelope/overview.zpt:13
 msgid "Zip&nbsp;Envelope"
 msgstr ""
 
-#: Reportek/zpt/feedback/index.zpt:80
+#: Reportek/zpt/feedback/index.zpt:78
 msgid "[download]"
 msgstr ""
 
@@ -504,19 +1399,43 @@ msgstr ""
 msgid "add-button"
 msgstr ""
 
-#. Default: "Back to drafting"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:28
-msgid "back-to-draft"
+#. Default: "Post feedback for this release"
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:10
+msgid "add-feedback"
+msgstr ""
+
+#: Reportek/zpt/hyperlink/add.zpt:14
+msgid "back"
+msgstr ""
+
+#: Reportek/zpt/envelope/statuses_section.zpt:15
+msgid "bulk status form"
 msgstr ""
 
 #. Default: "Add feedback"
-#: Reportek/zpt/feedback/add.zpt:63
+#: Reportek/zpt/feedback/add.zpt:62
 msgid "button-add-feedback"
 msgstr ""
 
+#. Default: "Change language"
+#: Reportek/zpt/languages_box.zpt:3
+msgid "change-language"
+msgstr ""
+
+#. Default: "Complete the envelope, after which no action will be possible on this delivery"
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:13
+msgid "complete-delivery"
+msgstr ""
+
+#. Default: "Copy files from previous delivery"
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:15
+msgid "copy-delivery"
+msgstr ""
+
 #. Default: "Deactivation keeps the work already done, and makes it possible for someone else to take over the task"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:33
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:8
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:28
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:18
+#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:20
 msgid "deactivate-task-title"
 msgstr ""
 
@@ -526,63 +1445,93 @@ msgid "document-accepted"
 msgstr ""
 
 #. Default: "Download attached file"
-#: Reportek/zpt/feedback/index.zpt:80
+#: Reportek/zpt/feedback/index.zpt:78
 msgid "download-attached-title"
 msgstr ""
 
+#: Reportek/zpt/envelope/statusesbulk.zpt:40
+msgid "file could not be found in this envelope."
+msgstr ""
+
+#: Reportek/zpt/envelope/statuses_section.zpt:99
+msgid "files"
+msgstr ""
+
 #. Default: "Go back to envelope"
-#: Reportek/zpt/document/manage.zpt:20
+#: Reportek/zpt/document/manage.zpt:14
 #: Reportek/zpt/envelope/upload_doc_or_zip.zpt:5
 #: Reportek/zpt/feedback/add.zpt:5
 msgid "go-back-title"
 msgstr ""
 
+#: Reportek/zpt/envelope/documentsmanagement_section.zpt:22
+msgid "icon"
+msgstr ""
+
+#: Reportek/zpt/envelope/statuses_section.zpt:15
+msgid "in order to copy and paste the list of files you want to accept/unaccept and execute the operation upon all files at once"
+msgstr ""
+
+#: Reportek/zpt/envelope/documents_pagination.zpt:32
+msgid "items"
+msgstr ""
+
+#: Reportek/zpt/envelope/documents_pagination.zpt:27
+#: Reportek/zpt/envelope/statuses_section.zpt:95
+msgid "next"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/dataconfidentiality.zpt:13
+msgid "no information on the content of the report submitted by an individual producer, importer or exporter will be divulged;"
+msgstr ""
+
 #. Default: "No access"
-#: Reportek/zpt/envelope/documents_section.zpt:66
+#: Reportek/zpt/envelope/documents_section.zpt:65
 msgid "no-access"
+msgstr ""
+
+#: Reportek/zpt/document/edit.zpt:60
+msgid "not yet"
+msgstr ""
+
+#: Reportek/zpt/envelope/documents_pagination.zpt:32
+#: Reportek/zpt/envelope/statuses_section.zpt:99
+msgid "of"
 msgstr ""
 
 #: Reportek/zpt/envelope/feedback_section.zpt:71
 msgid "of ${total_number} feedbacks"
 msgstr ""
 
-#. Default: "When you have finished your uploads, you can release without the ability to revoke"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:27
-msgid "permanent-release-title"
+#: ../../../extras/zodb_scripts/help/dataconfidentiality.zpt:12
+msgid "only aggregated data will be published, which also contain information on specific substances and uses;"
 msgstr ""
 
-#. Default: "Enter hyperlink reference"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:12
-msgid "reference-link-title"
+#: Reportek/zpt/hyperlink/add.zpt:30
+msgid "optional"
+msgstr ""
+
+#: Reportek/zpt/envelope/documents_pagination.zpt:24
+#: Reportek/zpt/envelope/statuses_section.zpt:92
+msgid "previous"
 msgstr ""
 
 #. Default: "When you have finished your uploads, you must state that you have completed the task"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:20
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:23
+#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:15
 msgid "release-title"
 msgstr ""
 
-#. Default: "Release to public"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:30
-msgid "release-to-public"
+#: Reportek/zpt/envelope/statusesbulk.zpt:33
+msgid "status set to accepted."
 msgstr ""
 
-#. Default: "Rerun automatic QA"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/ReleaseAndForward.zpt:32
-msgid "rerun-qa"
-msgstr ""
-
-#. Default: "Run the automatic Quality Assessment"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:72
-msgid "run-qa-title"
-msgstr ""
-
-#. Default: "Run envelope level statistics"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:82
-msgid "run-statistics-title"
+#: Reportek/zpt/envelope/statusesbulk.zpt:34
+msgid "status set to unaccepted."
 msgstr ""
 
 #: Reportek/zpt/feedback/add.zpt:18
-#: Reportek/zpt/feedback/index.zpt:121
+#: Reportek/zpt/feedback/index.zpt:118
 msgid "subscribe to receive notifications"
 msgstr ""
 
@@ -606,28 +1555,36 @@ msgstr ""
 msgid "task-activate-title"
 msgstr ""
 
+#: Reportek/zpt/collection/add.zpt:42
+#: Reportek/zpt/collection/prop.zpt:41
+#: Reportek/zpt/referral/add.zpt:38
+msgid "terminated"
+msgstr ""
+
 #. Default: "File operations: [View file in different formats], [File properties], [View the feedback posted it (if any)]"
 #: Reportek/zpt/envelope/documents_section.zpt:22
 msgid "title-documents-section"
 msgstr ""
 
+#: Reportek/zpt/collection/add.zpt:57
+#: Reportek/zpt/collection/prop.zpt:56
+#: Reportek/zpt/envelope/add.zpt:45
+msgid "to"
+msgstr ""
+
 #. Default: "Upload"
-#: Reportek/zpt/document/manage.zpt:112
+#: Reportek/zpt/document/manage.zpt:101
 msgid "upload-button"
 msgstr ""
 
-#. Default: "Upload single file"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:46
-msgid "upload-single-title"
-msgstr ""
-
 #. Default: "Upload multiple files packed into a zip archive. The zip cannot contain a folder structure."
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:15
-msgid "upload-zip-title"
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:18
+msgid "upload-zip"
 msgstr ""
 
 #. Default: "Upload single file"
-#: Products.Reportek/extras/zodb_scripts/Applications/art17_habitats_2012/Draft.zpt:9
+#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:12
+#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:12
 msgid "uploade-single-title"
 msgstr ""
 

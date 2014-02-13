@@ -1,0 +1,9 @@
+<tal:block content="structure here/standard_html_header" />
+    
+<h1 i18n:translate="">Frequently Asked Questions</h1>
+
+<ul tal:define="files python:here.objectValues('File')">
+  <li tal:repeat="file files"><a tal:attributes="href file/absolute_url" tal:content="file/title_or_id" /></li>
+</ul>
+
+<tal:block content="structure here/standard_html_footer" />

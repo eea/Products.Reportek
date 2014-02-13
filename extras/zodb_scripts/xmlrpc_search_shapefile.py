@@ -15,57 +15,45 @@ def print_as_elm(mydict):
         attrs.append('%s="%s"' % (elm,html_quote(str(value))))
     return "  <file %s/>" % " ".join(attrs)
 
+reslist = []
+
 if RA_ID is None:
-    RA_ID = 521
+   RA_ID = 521
 
 search_args = {
-    'meta_type':'Report Envelope',
-    'dataflow_uris':'http://rod.eionet.eu.int/obligations/' + str(RA_ID)
+   'meta_type':'Report Document',
+   'dataflow_uris':'http://rod.eionet.eu.int/obligations/' + str(RA_ID)
 }
 
 if country is not None:
     if len(country) == 2:
         search_args['country'] = context.localities_iso_dict(string.upper(country))['uri']
 
-filelist = []
-
 for item in container.Catalog(search_args):
     obj = item.getObject()
+    
+    if (string.upper(obj.id)[-3:] == 'DBF' or obj.xml_schema_location[:50] == 'http://water.eionet.europa.eu/schemas/dir200060ec/'):
+        res = { 'url': obj.absolute_url(0),
+            'id': obj.id,
+            'title': obj.title,
+            'country_code': obj.getCountryCode(),
+            'locality': obj.locality,
+            'schema': obj.xml_schema_location,
+            'isreleased': obj.released,
+            'reportingdate': obj.reportingdate.HTML4(),
+            'uploaded': obj.upload_time().HTML4()
+        }
 
-    for file in obj.objectValues('Report Document'):    
-        if (string.upper(file.id)[-3:] == 'DBF' or file.xml_schema_location[:50] == 'http://water.eionet.europa.eu/schemas/dir200060ec/'):
-    #   if (file.id):
-
-            ps  = file.permission_settings()
-
-            for p in ps:
-                if (p['name'] == 'View'):
-                    restricted = ( not p['acquire'] ) + 0
-                    break
-
-            res = {
-                'url': file.absolute_url(0),
-                'physicalpath': file.physicalpath(),
-                'id': file.id,
-                'country_code': file.getCountryCode(),
-                'locality': file.locality,
-                'schema': file.xml_schema_location,
-                'reportingdate': file.reportingdate.HTML4(),
-                'unixtime': int(file.reportingdate),
-                'isreleased': file.released,
-                'isrestricted': restricted,
-                'uploaded': file.upload_time().HTML4()
-            }
-            filelist.append(res)
+        reslist.append(res)
 
 req = context.REQUEST
 
 if req['CONTENT_TYPE'] == 'text/xml' and req['REQUEST_METHOD'] == 'POST':
-    return filelist
+    return reslist
 else:
     req.RESPONSE.setHeader('content-type','text/xml; charset=UTF-8')
     print "<results>"
-    for d in filelist:
+    for d in reslist:
          print print_as_elm(d)
     print "</results>"
     return printed

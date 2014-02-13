@@ -1,6 +1,0 @@
-<dtml-call expr="RESPONSE.setHeader('content-type', 'text/plain')"><dtml-call "REQUEST.set('meta_type','Report Envelope')"><dtml-call "REQUEST.set('sort_on','reportingdate')">
-<dtml-call "REQUEST.set('sort_order','reverse')"><dtml-unless separator><dtml-call "REQUEST.set('separator','	')"></dtml-unless><dtml-unless limit><dtml-call "REQUEST.set('limit',2000)"></dtml-unless>
-Reportingdate<dtml-var separator>Country<dtml-var separator>Path<dtml-var separator>Released<dtml-var separator>Obligations
-<dtml-in Catalog size=limit start=query_start><dtml-with "getObject()"><dtml-var reportingdate fmt="%Y-%m-%dT%H:%M"><dtml-var separator><dtml-var getCountryName><dtml-var separator><dtml-var "getpath(data_record_id_)"><dtml-var separator><dtml-var released><dtml-var separator><dtml-var dataflow_uris>
-</dtml-with>
-</dtml-in>

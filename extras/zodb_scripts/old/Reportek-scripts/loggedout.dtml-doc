@@ -1,7 +1,0 @@
-<dtml-var name="standard_html_header">
-<dtml-comment>
-<dtml-call expr="RESPONSE.expireCookie( '__ac', path='/' )">
-</dtml-comment>
-<h2>To log out you must close your webbrowser.</h2>
-
-<dtml-var name="standard_html_footer">

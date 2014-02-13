@@ -1,28 +1,11 @@
 <dtml-var standard_html_header>
-<h1><dtml-var title_or_id> <dtml-var document_title></h1>
-
-<h2>User access</h2>
+<h2><dtml-var title_or_id> <dtml-var document_title></h2>
 <ul>
 <li><a href="list_auditors">Show where auditors have access</a></li>
 <li><a href="list_reporters">Show where reporters have access</a></li>
-<li><a href="list_collaborators">Show where data collaborators have access</a></li>
-<li><a href="list_clients">Show where Clients (Data Requesters) have access</a></li>
-<li><a href="list_reporters2">List CDR data reporters for a given obligation</a></li>
 <li><a href="list_emails">List CDR data reporter emails for a given obligation</a></li>
-<li><a href="Assign_client_form">Assign the 'Client'/'Reporter'/'Auditor' role by given obligation</a></li>
-</ul>
-
-<h2>Generic</h2>
-<ul>
-<li><a href="searchcollections">Search for collections with obligation</a></li>
-<li><a href="wrong_country">Collections allocated to the wrong country</a></li>
-<li><a href="wrong_country?otype=envelope">Envelopes allocated to the wrong country</a></li>
-<li><a href="statistics">Statistics</a></li>
-</ul>
-
-<h2>Dataflow-specific</h2>
-<ul>
 <li><a href="demuploadlog">Show the AQ-DEM upload log</a></li>
+<li><a href="Assign_client_form">Assign 'Client' role by given obligation</a></li>
+<li><a href="/ReportekEngine/envelopes_autocomplete">Auto complete envelopes</a></li>
 </ul>
-
 <dtml-var standard_html_footer>

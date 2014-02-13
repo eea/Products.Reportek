@@ -1,0 +1,90 @@
+<dtml-var standard_html_header>
+<h1>PRIVACY STATEMENT</h1>
+<p style="font-weight:bold">
+Statement on personal data protection within the framework of reporting by undertakings
+ (company-based reporting) with the Reportnet Business Data Repository (BDR) for:
+</p>
+<ul style="font-weight:bold">
+  <li>Regulation (EC) No 1005/2009 of the European Parliament and of the Council of 16 September 2009 on substances that deplete the ozone layer (ODS Regulation) and 
+  <li>Regulation (EC) No 842/2006 of the European Parliament and of the Council of 17 May 2006 on certain fluorinated greenhouse gases (F-Gas Regulation)
+</ul>
+<p>
+Personal data provided by the designated company reporter are processed in accordance with Regulation (EC) No 45/2001 of the European Parliament and of the Council of 18 December 2000 on the protection of individuals with regard to the processing of personal data by the Community institutions and bodies and on the free movement of such data.
+</p>
+<p>
+Processing operations are under the responsibility of the Procurement Officer in the Legal services group acting as Data Controller, regarding the collection and processing of personal data. 
+</p>
+<h2>1. Purpose(s) of the processing</h2>
+<p>
+Upon reception of your submitted information by EEA, your personal data is collected and further processed for the purpose of the management and administration of the Business Data Repository (BDR). It will also be used by the EEA or its delegated representatives to contact you with queries or feedback concerning information or data submitted to the BDR, or to contact you when such information or data has previously been reported by you to the BDR or the European Commission.
+</p>
+<h2>2. Recipients of the data processed</h2>
+<p>
+For the purpose detailed above, access to your personal data is given to the following persons, without prejudice to a possible transmission to the bodies in charge of monitoring or inspection task in accordance with European Union law:
+</p>
+<ul>
+  <li>EEA staff as well as designated external experts or contractors who work on behalf of the EEA for the purpose of data management and compilation, quality assessment, and evaluation;
+  <li>The competent European Commission staff members as well as contractors who work on behalf of the European Commission;
+  <li>Designated Member States’ staff members (access will be restricted to the data relevant for the specific Member State).
+No personal data is shared with third parties for direct marketing purposes.
+</ul>
+<h2>3. Personal data concerned</h2>
+<p>
+The only personal data collected and further processed is the information you encode yourself in the on-line form. EEA needs your personal data to contact you to provide you with feedback concerning the information and data you have submitted, and/or to contact you with queries in relation to it. 
+</p>
+<h2>4. Obligatory or optional data</h2>
+<p>
+The obligatory fields concern the company name, company address, your family name, your first name, your email address, your telephone number, the data reporting obligation for which you have registered, and the country for which the delivery of information or data pertains. The other fields in the enquiry form are optional; if you decide to fill them in, the information will only be used for the above purpose of getting in contact with you.  
+</p>
+<h2>5. Categories of data processed</h2>
+<p>
+Personal data collected and further processed concern the designated company reporter. Information can relate to all or some of the following data:
+</p>
+<ul>
+  <li>Name (title, first name, surname) and function ;
+  <li>Contact details (company and department, postal address, country of residence, business telephone number, mobile telephone number, fax number, e-mail address, internet address).
+</ul>
+<h2>6. Modalities for the processing operation</h2>
+<p>
+Personal data is provided by submission of an online request for user registration. This is an automated processing operation whereby you input the data directly in the form which is then stored in a database. 
+Personal data may be processed manually for the purpose of management of replies or queries to you.
+</p>
+<h2>7. Safeguarding of data processed</h2>
+<p>
+The personal data collected upon receipt of the user registration application are stored in an electronic database. Access to the collected personal data is only available to a limited number of designated EEA staff members (see point 2 above) with a valid Username and Password. 
+</p>
+<h2>8. Right of access and rectification</h2>
+You have no direct access to the data stored. If you wish to modify or delete any of your personal data,
+ you should address your request in writing to the
+ BDR Helpdesk (<a href="mailto:BDR.helpdesk@eea.europa.eu">BDR.helpdesk@eea.europa.eu</a>) or by post to
+ European Environment Agency, Kongens Nytorv 6, 1050 Copenhagen K, Denmark.
+</p>
+<p>
+Please note that depending upon circumstances modifications to existing data may only be made if supported by valid justifying documents.
+</p>
+<h2>9. Legality of processing</h2>
+<p>
+The collection, storing and processing of personal data is necessary for the performance and support of tasks performed by EEA as mandated by: 
+</p>
+<ul>
+  <li>Regulation (EC) No 401/2009 of the European Parliament and of the Council on the European Environment Agency and on the European Environment Information and Observation Network; 
+  <li>Code of Good Administrative Behaviour (Commission decision 2000/633/EC, ECSC, Euratom);
+  <li>Regulation (EC) No 1367/2006 of the European Parliament and of the Council of 6 September 2006 on the application of the provisions of the Aarhus Convention on Access to Information, Public Participation in Decision-making and Access to Justice in Environmental Matters to Community institutions and bodies.
+</ul>
+<h2>10. Data retention</h2>
+<p>
+Personal information will be kept as long as follow-up actions by the EEA or European Commission concerning the reporting of the legally-required data and information may be necessary. 
+</p>
+<h2>11. Right to appeal</h2>
+<p>
+You are entitled to have recourse at any time to the European Data Protection Supervisor
+(<a href="http://www.edps.europa.eu">http://www.edps.europa.eu</a>;
+ <a href="mailto:EDPS@edps.europa.eu">EDPS@edps.europa.eu</a>) if you consider that your rights under
+ Regulation (EC) No 45/2001 have been infringed as a result of the processing of your personal data by the EEA.
+</p>
+<p>
+You may also contact the EEA’s Data Protection Officer (DPO) in case of any difficulties or for any
+ questions relating to the processing of your personal data at the following e-mail address:
+ <a href="mailto:Data.ProtectionOfficer@eea.europa.eu">Data.ProtectionOfficer@eea.europa.eu</a>.
+</p>
+<dtml-var standard_html_footer>

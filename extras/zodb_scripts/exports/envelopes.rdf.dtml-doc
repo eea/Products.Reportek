@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns:rod="http://rod.eionet.eu.int/schema.rdf#">
+
+<rdf:Description rdf:about="">
+   <rdfs:label>Deliveries from &dtml-SERVER_URL;</rdfs:label>
+</rdf:Description>
+
+<rdfs:Class rdf:ID="Delivery" rdfs:label="National Delivery"/>
+<rdfs:Class rdf:ID="Referral" rdfs:label="Repository Referral"/>
+
+<dtml-let remap="_.string.maketrans(' ','_')">
+<dtml-in "Catalog(meta_type='Report Envelope')">
+<dtml-with getObject>
+  <rod:Delivery rdf:about="&dtml-absolute_url;">
+    <dc:title><dtml-var title_or_id html_quote></dc:title>
+<dtml-if description>
+    <dc:description><dtml-var descr missing html_quote></dc:description>
+</dtml-if>
+    <dc:date><dtml-var reportingdate fmt=HTML4></dc:date>
+    <dc:language>en</dc:language>
+    <dc:identifier rdf:resource="&dtml-absolute_url;"/>
+<dtml-if country>
+    <rod:locality rdf:resource="<dtml-var country>" />
+</dtml-if>
+<dtml-in years>
+    <dc:coverage><dtml-var sequence-item></dc:coverage>
+</dtml-in>
+<dtml-in dataflow_uris>
+    <rod:obligation rdf:resource="<dtml-var sequence-item>" />
+</dtml-in>
+ </rod:Delivery>
+</dtml-with>
+</dtml-in>
+
+<dtml-in "Catalog(meta_type='Repository Referral')">
+<dtml-with getObject>
+  <rod:Referral rdf:about="&dtml-absolute_url;">
+    <dc:title><dtml-var title_or_id html_quote></dc:title>
+<dtml-if description>
+    <dc:description><dtml-var descr missing html_quote></dc:description>
+</dtml-if>
+    <dc:identifier rdf:resource="&dtml-referral_url;"/>
+<dtml-if country>
+    <rod:locality rdf:resource="<dtml-var country>" />
+</dtml-if>
+<dtml-in years>
+    <dc:coverage><dtml-var sequence-item></dc:coverage>
+</dtml-in>
+<dtml-in dataflow_uris>
+    <rod:obligation rdf:resource="<dtml-var sequence-item>" />
+</dtml-in>
+ </rod:Referral>
+</dtml-with>
+</dtml-in>
+
+</dtml-let>
+
+</rdf:RDF>

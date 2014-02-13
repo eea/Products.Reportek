@@ -1,0 +1,99 @@
+<tal:block define="context options/client;
+				view_condition python:context.canViewContent() and
+						not context.released and
+						context.is_active_for_me(REQUEST=request)">
+
+	<tal:block define="workitem_id options/workitem_id" condition="view_condition">
+		<tal:block content="structure here/standard_html_header" />
+		<div tal:replace="structure python:context.envelope_tabs(tab=workitem_id)"/>
+
+		<div id="operations">
+		<ul>
+			<li tal:condition="context/canAddFiles"><a href="manage_addDocumentForm" title="Upload single file"
+					i18n:attributes="title uploade-single-title"
+					i18n:translate="">Add supporting file</a></li>
+			<li tal:condition="context/canAddFiles"><a href="copyFilesFromPreviousDeliveryForm" title="Copy files from previous delivery"
+					i18n:attributes="title copy-delivery"
+					i18n:translate="">Copy previous delivery</a></li>
+			<li tal:condition="context/canAddFiles"><a href="manage_addzipfileform" title="Upload multiple files packed into a zip archive. The zip cannot contain a folder structure."
+					i18n:attributes="title upload-zip"
+					i18n:translate="">Upload zipfile</a></li>
+		</ul><br />
+		<ul>
+			<li><a tal:attributes="href string:completeWorkitem?workitem_id=${workitem_id}"
+				title="When you have finished your uploads, you must state that you have completed the task"
+				i18n:attributes="title release-title"
+				i18n:translate="">Submit to DG CLIMA/EEA</a>
+			</li>
+			<li><a tal:attributes="href string:inactivateWorkitem?workitem_id=${workitem_id}"
+				title="Deactivation keeps the work already done, and makes it possible for someone else to take over the task"
+				i18n:attributes="title deactivate-task-title"
+				i18n:translate="">Deactivate task</a></li>
+		</ul>
+		</div>
+
+		<h1 i18n:translate="">Draft delivery</h1>
+
+		<tal:block define="dummy python:request.SESSION.set('force_restricted', '1');
+						env_menu python:context.getWebQ_MenuEnvelope_URL();
+						env_url python:context.absolute_url();
+						env_obl python:list(context.dataflow_uris)[0];
+						menu_url string:${env_menu}?language=En&amp;envelope=${env_url}&amp;obligation=${env_obl}&amp;schema=;
+						schemas python:[x for x in here.DataflowMappings.objectValues('Reportek Dataflow Mapping Record') if x.has_webForm and x.dataflow_uri in context.dataflow_uris];
+						companyId python:context.getParentNode().id">
+
+		<div class="upload_data" tal:condition="schemas">
+			<p i18n:translate="">The reporting of your company data should be done by using an on-line questionnaire developed to guide you through this process.</p>
+
+			<p tal:condition="python:'http://rod.eionet.europa.eu/obligations/213' in context.dataflow_uris"><span i18n:translate="">Reporting is required for any company that has produced, imported, exported, destroyed and/or used ozone-depleting substances as feedstock or process agent.</span><br />
+			<span i18n:translate="">In case you are not obliged to report (see FAQs under the "Help" Section), please add and edit a NIL reporting questionnaire.</span></p>
+
+			<p tal:condition="python:'http://rod.eionet.europa.eu/obligations/669' in context.dataflow_uris"><span i18n:translate="">Reporting is required for any company that has produced,
+			imported and/or exported more than one metric tonne of fluorinated greenhouse gases, or preparations containing fluorinated greenhouse gases during the reporting year.</span><br />
+			<span i18n:translate="">In case you are not obliged to report (see FAQs under the "Help" Section), please add and edit a NIL reporting questionnaire.</span></p>
+
+			<p i18n:translate="">Please use one of the following links to add or update your questionnaire.</p>
+
+			<ul>
+			<tal:block repeat="sch schemas">
+				<li tal:condition="python:context.hasFilesForSchema(sch.schema_url)" i18n:translate=""><em>Modify</em> the <a tal:attributes="href string:${menu_url}${sch/schema_url}&amp;companyId=${companyId}" tal:content="python:sch.title_or_id()" /> questionnaire</li>
+				<li tal:condition="python:not context.hasFilesForSchema(sch.schema_url)" i18n:translate=""><em>Add and edit</em> a <a tal:attributes="href string:${menu_url}${sch/schema_url}&amp;add=true&amp;file_id=questionnaire_${sch/id}.xml&amp;companyId=${companyId}" tal:content="python:sch.title_or_id()" /> questionnaire</li>
+			</tal:block>
+			</ul>
+
+		</div>
+		</tal:block>
+
+		<p i18n:translate="">Process: Step by Step</p>
+		<p i18n:translate=""><em>Note: You are advised to print this page in order to be able to follow the process</em></p>
+		<p i18n:translate=""><strong>Step 1:</strong></p>
+		<p i18n:translate="">Fill in data using the on-line questionnaire. The system will automatically store your data in this envelope after clicking the "Save" button on the questionnaire.
+		You can always interrupt your work and continue your contribution at a later time without losing data.</p>
+
+		<p><strong i18n:translate="">Step 2:</strong></p>
+		<p i18n:translate="">After saving a draft delivery, you can evaluate the quality of the data you have reported. To do so click on the button "Run QA" next to
+		the reported file in the envelope. If any of the tests detect errors in the data, it is necessary that you correct them by modifying your
+		questionnaire before submitting the delivery.</p>
+
+		<p><strong i18n:translate="">Step 3:</strong></p>
+		<p i18n:translate="">Once you are satisfied that your company report is correct, you must certify the correctness of your report and click on <em>"Submit the delivery to DG CLIMA and EEA"</em>.
+		No changes in the reported data in the envelope can be performed afterwards. The system will automatically evaluate the quality of your data, running the same tests as in step 2. This process may take a few minutes. The results will be provided in the Feedback report in the envelope.</p>
+
+		<p><strong i18n:translate="">Step 4:</strong></p>
+		<p i18n:translate="">In case all the quality checks have been successful, a positive confirmation receipt will be created under the envelope and your company 
+		has successfully reported the required information to DG CLIMA.</p>
+
+		<p i18n:translate="">If the feedback "<em>Data delivery was not acceptable</em>" is shown in the Feedback section, then some important checks have failed. 
+		In this case, a list of errors will also be found in the Feedback report. Additionally, a new envelope will be created and all the reported data/submitted files 
+		will be copied to this envelope, so that you can correct the errors in the questionnaire and submit again using the same process as in Step 2.
+		Please note that, in order to do so, you first need to re-activate the task in this newly created envelope.</p>
+
+		<tal:block content="structure context/documents_management_section" />
+		<tal:block content="structure context/feedback_section" />
+
+		<tal:block content="structure here/standard_html_footer" />
+	</tal:block>
+	<tal:block condition="python:not view_condition">
+		<tal:block define="dummy python:here.REQUEST.response.redirect('%s/overview' % context.getMySelf().absolute_url())" />
+	</tal:block>
+</tal:block>

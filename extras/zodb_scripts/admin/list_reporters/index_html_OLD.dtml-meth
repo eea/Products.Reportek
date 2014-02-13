@@ -1,0 +1,24 @@
+<dtml-var standard_html_header>
+<table>      
+<tr>
+<th>Path</th>
+<th>Last change</th>
+<th>Reporters</th>
+</tr>
+<dtml-in "Catalog({'meta_type':'Report Collection'})" sort=getPath>
+<dtml-with getObject>
+<dtml-let reporters="users_with_local_role('Reporter')">
+<dtml-if "reporters != []">
+        <tr>
+          <td><a href="&dtml-absolute_url;">/<dtml-var "absolute_url(1)"></a></td>
+          <td><dtml-var bobobase_modification_time fmt=Date></td>
+          <td><dtml-in reporters><a href="http://directory.eionet.eu.int/user?uid=&dtml-sequence-item;">&dtml-sequence-item;</a> 
+</dtml-in></td>
+        </tr>
+</dtml-if>
+</dtml-let>
+</dtml-with>
+
+</dtml-in>
+</table>
+<dtml-var standard_html_footer>

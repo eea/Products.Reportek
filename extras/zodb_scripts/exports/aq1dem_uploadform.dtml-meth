@@ -1,0 +1,39 @@
+<dtml-var standard_html_header>
+<h2><dtml-var title_or_id> <dtml-var document_title></h2>
+    <p>The zipfile upload makes it possible for you to add a large number of files
+    in one upload. The zipfile will be uploaded and unwrapped.</p>
+
+    <form action="aq1dem_uploadf" method="post"
+         enctype="multipart/form-data" name="form">
+<table cellspacing="5" cellpadding="0" border="0">
+    <tr>
+	<th align="left" valign="top">Title</th>
+	<td align="left" valign="top"><input type="text" name="title" size="25" value=""></td>
+    </tr>
+    <tr>
+	<th align="left" valign="top">Year</th>
+	<td align="left" valign="top"><input type="text" name="year" size="4" value=""></td>
+    </tr>
+    <tr>
+	<th align="left" valign="top">Country</th>
+	<td align="left" valign="top"><input type="text" name="country" size="2" value="AL"></td>
+    </tr>
+    <tr>
+	<th align="left" valign="top">Zip file</th>
+	<td align="left" valign="top">
+		<input type="file" name="file" size="25" value="">
+	</td>
+    </tr>
+    <tr>
+	<td colspan="2">&nbsp;</td>
+    </tr>
+    <tr>
+	<td colspan="2">&nbsp;</td>
+    </tr>
+    <tr>
+	<td>&nbsp;</td>
+	<td><input type="submit" value=" Add "></td>
+    </tr>
+</table>
+</form>
+<dtml-var standard_html_footer>

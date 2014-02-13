@@ -1,20 +1,14 @@
 <dtml-var standard_html_header>
 <h2><dtml-var title_or_id></h2>
 <dtml-if "_.has_key('HTTP_REFERER')">
-
- <dtml-call "RESPONSE.redirect(HTTP_REFERER)">
+    <dtml-call "RESPONSE.redirect(HTTP_REFERER)">
 </dtml-if>
 <p>
-<ul>
-<dtml-if "_.has_key('came_from')">
-<dtml-comment>
- <dtml-call "RESPONSE.redirect(came_from)">
-</dtml-comment>
-
-<li><a href="&dtml-came_from;">Go back to where you came from</a> or</li>
-
-</dtml-if>
-<li><a href="/">Go to front page</a></li>
-</ul>
+    <ul>
+        <dtml-if "_.has_key('came_from')">
+           <li><a href="&dtml-came_from;">Go back to where you came from</a> or</li>
+        </dtml-if>
+       <li><a href="/">Go to front page</a></li>
+     </ul>
 </p>
 <dtml-var standard_html_footer>

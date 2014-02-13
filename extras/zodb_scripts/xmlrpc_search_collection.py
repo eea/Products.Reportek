@@ -5,7 +5,7 @@
 ##bind script=script
 ##bind subpath=traverse_subpath
 ##parameters=country
-##title=Find collection harbouring AQ-1 and return path
+##title=
 ##
 for item in container.Catalog({'meta_type':'Report Collection',
    'dataflow_uris':'http://rod.eionet.eu.int/obligations/26',

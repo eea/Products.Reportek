@@ -1,0 +1,8 @@
+<dtml-call "RESPONSE.setHeader('Refresh', '1; URL=' + BASE0 + '/logout')">
+<dtml-var standard_html_header>
+<h2><dtml-var document_title></h2>
+<p>
+In a second you will get the login prompt. You must enter something other than your
+password and then click OK to log out.
+</p>
+<dtml-var standard_html_footer>

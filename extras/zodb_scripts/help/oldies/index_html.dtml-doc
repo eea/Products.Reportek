@@ -1,0 +1,45 @@
+<dtml-var standard_html_header>
+<h1><dtml-var title_or_id></h1>
+<p>
+The purpose of this website is to make it easy for companies to fulfil
+ a number of mandatory reporting obligations.  BDR also allows to store the
+ reports and can therefore be used as the single repository which can be 
+consulted at European level by the European Commission and the European Environment Agency
+ and on a country level by the designated responsible from the Competent Authority.
+</p>
+<h2>More information</h2>
+<ul>
+<li>How to upload a report</a>
+<ul>
+<li><a href="/help/BDR_Reporting_manual_2013-v2.0.pdf">BDR manual</a></li>
+<li><a href="/help/BDR_Manual_Version2_Annex_I-ODS.pdf">ANNEX I – ODS Reporting</a></li>
+<li><a href="/help/BDR_Manual_Version2_Annex_II-F-gases.pdf">ANNEX II – F-Gases Reporting</a></li>
+</ul>
+</li>
+<li><a href="dataconfidentiality">Data confidentiality and protection</a></li>
+</ul>
+<!-- h2>Reporting obligation specific instructions</h2>
+<p>Fluorinated Gases (F-Gases)</p>
+<ul>
+<li><a href="http://ec.europa.eu/clima/policies/f-gas/reporting/faq_en.htm">Frequently Asked Questions (FAQs)</a></li>
+<li><a href="http://ec.europa.eu/clima/policies/f-gas/reporting/index_en.htm">European Commission website information
+ on reporting including reporting template</a></li>
+</ul>
+<p>Ozone Depleting Substances (ODS)</p>
+<ul>
+<li><a href="http://circa.europa.eu/Public/irc/env/review_2037/library?l=/reporting_article">Manual
+ for reporting and reporting templates</a></li>
+<li><a href="http://ec.europa.eu/clima/policies/ozone/ods/index_en.htm">European Commission website information on reporting</a></li>
+</ul -->
+<h2>Frequently Asked Questions</h2>
+<ul>
+  <li><a href="/help/faq/FAQ_Fgas_v1.0.pdf">Fluorinated Gases (F-gases)</a></li>
+  <li><a href="/help/faq/FAQ_ODS_v1.0.pdf">Ozone Depleting Substances (ODS)</a></li>
+</ul>
+<p>
+In case you need further help, please contact the BDR helpdesk:
+ <a href="mailto:BDR.helpdesk@eea.europa.eu">BDR.helpdesk@eea.europa.eu</a>.
+</p>
+
+<script type="text/javascript" src="/styles/mark_special_links.js"></script>
+<dtml-var standard_html_footer>

@@ -9,9 +9,10 @@
 ##
 REQUEST = container.REQUEST
 RESPONSE =  REQUEST.RESPONSE
-print context.standard_html_header(context,context.REQUEST)
+print context.standard_html_header(context,context.REQUEST).encode('latin-1')
 #also works: print context['standard_html_header'](context,context.REQUEST)
 print "<h1>Next time, click on the OK button in the login dialogue</h1>\n"
+print '''<p>Go to <a href="/">Front page</a></p>'''
 if REQUEST.AUTHENTICATED_USER.getUserName() != 'Anonymous User':
     RESPONSE.setStatus(401)
     RESPONSE.setHeader('WWW-Authenticate','Basic realm="Zope"')

@@ -1,0 +1,13 @@
+<dtml-var standard_html_header>
+<h2>Sitemap</h2>
+<p><a href="&dtml-URL0;?expand_all=1">Expand All</a> |
+   <a href="&dtml-URL0;?collapse_all=1">Collapse All</a>
+</p>
+
+<p>
+<dtml-tree branches="publicObjects" skip_unauthorized="1" sort=title>
+<IMG SRC="<dtml-var SCRIPT_NAME>/<dtml-var icon>">
+  <a href="&dtml-absolute_url;"><dtml-var title_or_id></a>
+</dtml-tree>
+</p>
+<dtml-var standard_html_footer>

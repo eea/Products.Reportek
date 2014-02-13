@@ -4,7 +4,7 @@
 ##bind namespace=
 ##bind script=script
 ##bind subpath=traverse_subpath
-##parameters=schema, country=None
+##parameters=schema, country=None, locality=None
 ##title=Find files with a certain shema (Used by WISE)
 ##
 from Products.PythonScripts.standard import html_quote
@@ -28,6 +28,9 @@ if country is not None:
         search_args['country'] = context.localities_iso_dict(country)['uri']
     else:
         search_args['country'] = country
+
+if locality is not None:
+    search_args['locality'] = locality
 
 for item in container.Catalog(search_args):
     obj = item.getObject()

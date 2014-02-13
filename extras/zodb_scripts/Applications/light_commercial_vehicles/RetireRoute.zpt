@@ -1,0 +1,35 @@
+<tal:block define="context options/client;
+				view_condition python:context.canViewContent() and context.is_active_for_me(REQUEST=request)">
+
+	<tal:block define="workitem_id options/workitem_id" condition="view_condition">
+		<tal:block content="structure here/standard_html_header" />
+		<div tal:replace="structure python:context.envelope_tabs(tab=workitem_id)"/>
+
+		<div id="operations">
+			<ul>
+			<li><a tal:attributes="href string:inactivateWorkitem?workitem_id=${workitem_id}"
+				title="Deactivation keeps the work already done, and makes it possible for someone else to take over the task"
+				i18n:attributes="title deactivate-task-title"
+				i18n:translate="">Deactivate task</a></li>
+			</ul>
+		</div>
+		<h1 i18n:translate="">Finish or go back to drafting?</h1>
+
+		<p i18n:translate="">The envelope is currently released and the requester may have uploaded some feedback to it. 
+		If you want to change your delivery as a reaction to the feedback, then you must click on 
+		"Back to drafting" to revoke the release. If you are sure you will never need to revoke
+		then you click on "Finish".</p>
+
+		<form action="EnvelopeRetire" method="post">
+			<input type="hidden" name="workitem_id" tal:attributes="value workitem_id" />
+			<input type="submit" name="inspectresult" value="Back to drafting" />
+			<input type="submit" name="inspectresult" value="Finish" />
+		</form>
+		<tal:block content="structure context/feedback_section" />
+
+		<tal:block content="structure here/standard_html_footer" />
+	</tal:block>
+	<tal:block condition="python:not view_condition">
+		<tal:block define="dummy python:here.REQUEST.response.redirect('%s/overview' % context.getMySelf().absolute_url())" />
+	</tal:block>
+</tal:block>

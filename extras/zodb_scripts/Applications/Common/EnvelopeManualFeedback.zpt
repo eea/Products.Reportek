@@ -1,0 +1,42 @@
+<tal:block define="context options/client;
+				view_condition python:context.canViewContent() and
+						context.is_active_for_me(REQUEST=request)">
+
+	<tal:block define="workitem_id options/workitem_id" condition="view_condition">
+		<tal:block content="structure here/standard_html_header" />
+		<div tal:replace="structure python:context.envelope_tabs(tab=workitem_id)"/>
+		<div id="operations">
+			<ul>
+				<li tal:condition="context/canAddFeedback"><a href="manage_addFeedbackForm" title="Post feedback for this release"
+					i18n:attributes="title add-feedback"
+					i18n:translate="">Add feedback</a></li>
+				<li><a tal:attributes="href string:completeWorkitem?workitem_id=${workitem_id}"
+					title="Complete the envelope, after which no action will be possible on this delivery"
+					i18n:attributes="title complete-delivery"
+					i18n:translate="">Complete delivery</a>
+				</li>
+				<li><a tal:attributes="href string:inactivateWorkitem?workitem_id=${workitem_id}"
+					title="Deactivation keeps the work already done, and makes it possible for someone else to take over the task"
+					i18n:attributes="title deactivate-task-title"
+					i18n:translate="">Deactivate task</a></li>
+			</ul>
+		</div>
+		<h1 i18n:translate="">Enter feedback to accept or reject the delivery</h1>
+
+		<p i18n:translate="">The envelope is currently released and your task is to inspect the delivery.
+		If you have found some issues you tell the reporter via the feedback button.
+		The feedback should make it clear to the Reporters if the delivery is accepted or not. 
+		Reporters will then have to create a new envelope if the feedback rejects the delivery and they need to update the data.
+		</p>
+
+		<p i18n:translate="">When the feedback is added, you should <em>complete the delivery</em>.</p>
+
+		<tal:block content="structure context/documents_management_section" />
+		<tal:block content="structure context/feedback_section" />
+
+		<tal:block content="structure here/standard_html_footer" />
+	</tal:block>
+	<tal:block condition="python:not view_condition">
+		<tal:block define="dummy python:here.REQUEST.response.redirect('%s/overview' % context.getMySelf().absolute_url())" />
+	</tal:block>
+</tal:block>

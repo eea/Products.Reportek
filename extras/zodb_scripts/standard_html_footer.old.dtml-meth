@@ -1,0 +1,7 @@
+</div> <!-- workarea -->
+</div> <!-- container -->
+<div id="pagefoot">
+Document last modified <dtml-var bobobase_modification_time fmt=Date>.
+</div>
+</body>
+</html>

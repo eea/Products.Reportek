@@ -1,6 +1,7 @@
 # import zodb_scripts; reload(zodb_scripts); zodb_scripts.dump_code(app)
 from path import path
 import codecs
+import sys
 
 meta_types = ['DTML Document', 'DTML Method', 'Script (Python)', 'Page Template']
 ext_map = {
@@ -38,5 +39,9 @@ def dump_code(app):
         if not file_path.parent.exists():
             file_path.parent.makedirs()
         f = codecs.open(file_path, 'w', encoding='utf-8')
-        f.write(src)
+        try:
+            f.write(src)
+        except Exception as e:
+            sys.stderr.write(str(e) + '\n')
+            pass
         f.close()

@@ -1,0 +1,33 @@
+<tal:block content="structure here/standard_html_header" />
+<h1 i18n:translate="">Data confidentiality and protection</h1>
+<h2 i18n:translate="">Data Confidentiality</h2>
+<p i18n:translate="">
+Confidentiality requirements apply to data reported under both the ODS and the F-Gas Regulation.
+Article 27.8 and Article 6.3 respectively stipulate "The Commission shall take appropriate steps to protect
+the confidentiality of the information submitted to it."
+The European Environment Agency, who is the key actor in the compilation of the company-reports,
+will use the following approach to protect the data confidentiality:
+</p>
+<ul>
+<li i18n:translate="">only aggregated data will be published, which also contain information on specific substances and uses;</li>
+<li i18n:translate="">no information on the content of the report submitted by an individual producer, importer or exporter will be divulged;</li>
+<li i18n:translate="">if the information submitted on a specific substance or use is based only on two reports or
+less than two reports, the respective quantity will not be divulged, in order to avoid that an
+undertaking could determine the content of the report of its competitor(s). This practise has not
+been laid down in an official procedure but it mirrors the “three company rule” applied by industry.</li>
+</ul>
+<h2 i18n:translate="">Data Protection Rules</h2>
+<p i18n:translate="">
+Since the EEA is an official EU body, Regulation (EC) No 45/2001 of the European Parliament
+and of the Council of 18 December 2000 on the protection of individuals with regard to the
+processing of personal data by the Community institutions and bodies and on the free movement
+of such data (Regulation on Data Protection), applies to it. 
+</p>
+<p i18n:translate="">
+This implies that EEA has to apply data protection rules when processing personal data such as
+the contact details of the reporters under the ODS and F-Gas Regulation.  
+</p>
+<p i18n:translate="">
+The Specific Privacy Statement related to the processing of this personal data is available <a href="/privacystatement">here</a>.
+</p>
+<tal:block content="structure here/standard_html_footer" />

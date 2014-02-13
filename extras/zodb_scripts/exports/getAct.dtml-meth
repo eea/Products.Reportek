@@ -1,0 +1,6 @@
+<dtml-var standard_html_header>
+<h2><dtml-var title_or_id> <dtml-var document_title></h2>
+<dtml-in dataflow_table mapping>
+<dtml-var PK_RA_ID> <dtml-var TITLE><br>
+</dtml-in>
+<dtml-var standard_html_footer>

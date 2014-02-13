@@ -1,0 +1,88 @@
+<dtml-if "canViewContent() and canAddFiles() and not released and is_active_for_me(REQUEST)">
+<dtml-var standard_html_header>
+<dtml-call "REQUEST.SESSION.set('force_restricted', '1')">
+    <dtml-var "envelope_tabs(tab=workitem_id)">
+<dtml-let menu_url="getWebQ_MenuEnvelope_URL() + '?language=En&amp;envelope=' + getMySelf().absolute_url() + '&amp;obligation=' + list(getMySelf().dataflow_uris)[0] + '&amp;schema='"
+	schemas="[x for x in DataflowMappings.objectValues('Reportek Dataflow Mapping Record') if x.has_webForm and x.dataflow_uri in getMySelf().dataflow_uris]"
+        companyId="getParentNode().id">
+
+    <div id="operations">
+    <ul>
+        <dtml-if canAddFiles>
+           <li><a href="manage_addDocumentForm" title="Upload single file">Add supporting file</a></li>
+           <li><a href="copyFilesFromPreviousDeliveryForm" title="Copy files from previous delivery">Copy previous delivery</a></li>
+           <li><a href="manage_addzipfileform" title="Upload multiple files packed into a zip archive.
+The zip cannot contain a folder structure.">Upload zipfile</a></li>
+        </dtml-if>
+</ul>
+<br />
+<ul>
+        <li><a href="completeWorkitem?workitem_id=&dtml-workitem_id;"
+title="When you have finished your uploads, you must
+state that you have completed the task">Submit to DG CLIMA/EEA</a></li>
+<dtml-comment>
+        <li><a href="completeWorkitem?workitem_id=&dtml-workitem_id;&amp;release_and_finish=1"
+title="When you have finished your uploads,
+you can release without the
+ability to revoke">Permanent release</a></li>
+</dtml-comment>
+        <li><a href="inactivateWorkitem?workitem_id=&dtml-workitem_id;"
+title="Deactivation keeps the work already
+done, and makes it possible for
+someone else to take over the task">Deactivate task</a></li>
+	</ul>
+	</div>
+	<h1>&dtml-document_title;</h1>
+	<dtml-if schemas>
+	<div class="upload_data">
+	<p>The reporting of your company data should be done by using the on-line questionnaire developed to guide you through this process. Please use the following link to add or update the reporting questionnaire.</p>
+	<ul>
+		<dtml-in schemas prefix=dm>
+			<dtml-if "hasFilesForSchema(dm_item.schema_url)">
+				<li><em>Modify</em> the <a href="<dtml-var menu_url><dtml-var "dm_item.schema_url">&amp;companyId=<dtml-var companyId>"><dtml-var "dm_item.title_or_id()"></a> questionnaire</li>
+			<dtml-else>
+				<li><em>Add and edit</em> a <a href="<dtml-var menu_url><dtml-var "dm_item.schema_url">&amp;add=true&amp;file_id=questionnaire_<dtml-var "dm_item.id">.xml&amp;companyId=<dtml-var companyId>"><dtml-var "dm_item.title_or_id()"></a> questionnaire</li>
+			</dtml-if>
+		</dtml-in>
+	</ul>
+
+	</div>
+	</dtml-if>
+
+<p>Process: Step by Step</p>
+<p><em>Note: You are advised to print this page in order to be able to follow the process</em></p>
+<p><strong>Step 1:</strong></p>
+<p>Fill in data using the on-line questionnaire. The system will automatically store your data in this envelope after clicking the "Save" button on the questionnaire.
+You can always interrupt your work and continue your contribution at a later time without losing data.</p>
+
+<p><strong>Step 2:</strong></p>
+<p>After saving a draft delivery, you can evaluate the quality of the data you have reported. To do so click on the button "Run QA" next to
+the reported file in the envelope. If some of the tests detect errors in the data, it is necessary that you correct them by modifying your
+questionnaire before submitting the delivery.</p>
+
+<p><strong>Step 3:</strong></p>
+<p>Once you are satisfied that your company report is correct, you must click on 
+<a href="completeWorkitem?workitem_id=&dtml-workitem_id;">Submit the delivery to DG CLIMA and EEA</a>.
+The system will automatically evaluate the quality of your data, running the same tests as in step 2. This process may take a few minutes.  
+The results will be provided in the Feedback report in the envelope.</p>
+
+<p>At this point you officially submit your report to DG Clima and a "<em>Confirmation of Receipt</em>" will be automatically provided by the system
+in the Feedback section of the envelope. No changes in the reported data in the envelope can be performed afterwards.</p>
+
+<p><strong>Step 4:</strong></p>
+<p>In case all the quality checks have been successful, a positive confirmation receipt will be created under the envelope and your company 
+will have successfully reported the required information.</p>
+
+<p>If the feedback "<em>Data delivery was not acceptable</em>" is shown in the Feedback section, then some important checks have failed. 
+In this case, a list of errors will also be found in the Feedback report. Additionally, a new envelope will be created and all the reported data/submitted files 
+will be copied to this envelope, so that you can correct the errors in the questionnaire and submit again using the same process as in Step 2.
+Please note that, in order to do so, you first need to re-activate the task in this newly created envelope.</p>
+	</dtml-let>
+
+    <dtml-var documents_management_section>
+    <dtml-var feedback_section>
+
+    <dtml-var standard_html_footer>
+<dtml-else>
+    <dtml-call "RESPONSE.redirect('overview')">
+</dtml-if>

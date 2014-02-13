@@ -40,6 +40,7 @@ for obl in obligationspos:
     odict = {}
     odict['uri'] = obl['subject']
     odict['terminated'] = '0'
+    odict['TITLE'] = 'No title'
     buf = triples.query(subject=obl['subject'])
     for j in buf:
         if j['predicate'] == 'http://www.w3.org/2000/01/rdf-schema#label':

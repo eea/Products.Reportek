@@ -1,0 +1,92 @@
+<dtml-if "canViewContent and canAddFiles and is_active_for_me(REQUEST=REQUEST)">
+    <dtml-var standard_html_header>
+    <dtml-var "envelope_tabs(tab=workitem_id)">
+
+<dtml-var canRunQAOnFiles>
+
+<dtml-in "DataflowMappings.objectValues('Reportek Dataflow Mapping Record')" prefix=dm>
+    <dtml-if "dm_item.dataflow_uri == 'http://rod.eionet.eu.int/obligations/37'">
+        <dtml-call "REQUEST.set(dm_item.id, dm_item.schema_url)">
+    </dtml-if>
+</dtml-in>
+<dtml-let menu_url="getWebQ_MenuEnvelope_URL() + '?language=En&amp;envelope=' + getMySelf().absolute_url() + '&amp;schema='">
+
+    <div id="operations">
+    <ul>
+        <li><a href="completeWorkitem?workitem_id=&dtml-workitem_id;">Complete task</a></li>
+        <li><a href="inactivateWorkitem?workitem_id=&dtml-workitem_id;"
+title="Deactivation keeps the work already
+done, and makes it possible for
+someone else to take over the task">Deactivate task</a></li>
+        <dtml-if canAddFiles>
+            <li style="margin-top:1.5em;"><a href="manage_addDocumentForConversion"
+ title="Upload Excel file for automatic conversion">Convert Excel file</a></li>
+            <li><a href="manage_addDocumentForm" title="Upload single file">Add file</a></li>
+            <li><a href="manage_addzipfileform" title="Upload multiple files packed into a zip archive.
+The zip cannot contain a folder structure.">Upload zipfile</a></li>
+        </dtml-if>
+    </ul>
+    </div>
+    <h1>&dtml-document_title;</h1>
+
+<p>This dataflow can be delivered with webforms. Either follow the steps below or upload the
+conventional MS-Excel file with the blue buttons. If you filled the MS-Excel file from the
+correct Data Dictionary template, you can use the conversion facility which will extract the information from
+it and upload the delivery in XML format; this information can be later edited using the webforms.</p>
+<ul>
+<dtml-if moe_0>
+	<dtml-if "hasFilesForSchema(moe_0)">
+<li>modify <a href="<dtml-var menu_url><dtml-var moe_0>">the <em>comment</em>
+ about the monthly ozone exceedances</a></li>
+<dtml-else>
+<li>add <a href="<dtml-var menu_url><dtml-var moe_0>&amp;add=true&amp;file_id=comment.xml">a <em>comment</em>
+ about the monthly ozone exceedances</a></li>
+	</dtml-if>
+</dtml-if>
+
+<dtml-if moe_1>
+	<dtml-if "hasFilesForSchema(moe_1)">
+<li>modify <a href="<dtml-var menu_url><dtml-var moe_1>">new <em>station(s)</em> meta-information</a></li>
+<dtml-else>
+<li>add <a href="<dtml-var menu_url><dtml-var moe_1>&amp;add=true&amp;file_id=stations.xml">new
+ <em>station(s)</em> meta-information</a></li>
+	</dtml-if>
+</dtml-if>
+
+<dtml-if moe_2>
+	<dtml-if "hasFilesForSchema(moe_2)">
+<li>modify <a href="<dtml-var menu_url><dtml-var moe_2>"><em>exceedance of ozone alert</em> threshold values</a></li>
+<dtml-else>
+<li>add <a href="<dtml-var menu_url><dtml-var moe_2>&amp;add=true&amp;file_id=exceedance_alert.xml"><em>exceedance
+ of ozone alert</em> threshold values</a></li>
+	</dtml-if>
+</dtml-if>
+
+<dtml-if moe_3>
+	<dtml-if "hasFilesForSchema(moe_3)">
+<li>modify <a href="<dtml-var menu_url><dtml-var moe_3>"><em>exceedance
+ of ozone information</em> threshold values</a></li>
+<dtml-else>
+<li>add <a href="<dtml-var menu_url><dtml-var moe_3>&amp;add=true&amp;file_id=exceedance_information.xml"><em>exceedance
+ of ozone information</em> threshold values</a></li>
+	</dtml-if>
+</dtml-if>
+</ul>
+
+<p>You can always interrupt your work and continue your contribution at a later
+date without losing data as long as the WebForm is saved during and after editing.</p>
+
+<p>Once you are satisfied with the contribution, you choose
+<a href="completeWorkitem?workitem_id=&dtml-workitem_id;">Complete task</a> and your delivery 
+will be quality assessed by the system before the envelope is released to the public.
+</p>
+
+</dtml-let>
+
+    <dtml-var documents_management_section>
+    <dtml-var feedback_section>
+
+    <dtml-var standard_html_footer>
+<dtml-else>
+    <dtml-call "RESPONSE.redirect('index_html')">
+</dtml-if>

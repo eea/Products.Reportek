@@ -1,0 +1,22 @@
+<dtml-var standard_html_header>
+<!-- ['az','by','ba','hr','cy','ge','kz','kg','mk','mt','md','mc','ru',
+'yu','ch','tj','tm','tr','ua','uz' ] -->
+
+<dtml-let ccs="['az', ]">
+<dtml-in ccs>
+<dtml-let countryup="_.string.upper(_['sequence-item'])">
+<dtml-with "_.getitem(_['sequence-item'])">
+<dtml-with "_.getitem('other')">
+<dtml-with "_.getitem('kiev')">
+
+<dtml-call "manage_addProduct['Reportek'].manage_addCollection('Soil Questionnaire',
+'',
+'','','',
+countryup,'','177',allow_envelopes=1,useid='soil')">
+</dtml-with>
+</dtml-with>
+</dtml-with>
+</dtml-let>
+</dtml-in>
+</dtml-let>
+<dtml-var standard_html_footer>

@@ -1,0 +1,243 @@
+<dtml-var standard_html_header>
+<style type="text/css">
+.admin_table th{
+  background:#5F7F7E none repeat scroll 0%;
+  border:1px solid #FFFFFF;
+  color:#FFFFFF;
+  font-weight:normal;
+  line-height:1.8em;
+}
+
+.admin_table tr.even {
+  background:#FAFAFA none repeat scroll 0%;
+}
+
+.admin_table tr.odd {
+  background:#FFFFFF none repeat scroll 0%;
+}
+
+.admin_table td.norecord {
+  font-weight:bold;
+  text-align:center;
+}
+
+</style>
+<script type="text/javascript">
+// <![CDATA[
+
+// Simulating a 'set' with a dictionary
+eu25 = { at:1,be:1,cy:1,cz:1,
+ de:1,dk:1,ee:1,es:1,fi:1,fr:1,gb:1,gr:1,
+ hu:1,ie:1,it:1,lt:1,lu:1,lv:1,mt:1,nl:1,
+ pl:1,pt:1,se:1,si:1,sk:1 }
+
+eu27 = { at:1,be:1,bg:1,cy:1,cz:1,
+ de:1,dk:1,ee:1,es:1,fi:1,fr:1,gb:1,gr:1,
+ hu:1,ie:1,it:1,lt:1,lu:1,lv:1,mt:1,nl:1,
+ pl:1,pt:1,ro:1,se:1,si:1,sk:1 }
+
+eea31 = { at:1,be:1,bg:1,cy:1,cz:1,
+ de:1,dk:1,ee:1,es:1,fi:1,fr:1,gb:1,gr:1,
+ hu:1,ie:1,is:1,it:1,li:1,lt:1,lu:1,lv:1,mt:1,no:1, nl:1,
+ pl:1,pt:1,ro:1,se:1,si:1,sk:1,tr:1 }
+
+europe = {}
+
+isSelected = false;
+
+function toggleSelectCountries(group) {
+  var countries = document.getElementsByName('ccountries:list');
+  if (isSelected == false || group != europe ) {
+    for (i = 0; i < countries.length; i++)
+     if (group == europe || countries[i].value in group) {
+      countries[i].checked = true ;
+      }
+      isSelected = true;
+      document.objectItems.selectAllCountries.value = "Deselect All";
+      return isSelected;
+  }
+  else {
+    for (i = 0; i < countries.length; i++)
+      countries[i].checked = false ;
+      isSelected = false;
+      document.objectItems.selectAllCountries.value = "Select All";
+      return isSelected;       
+  }
+}
+
+var userIsSelected = false
+function toggleSelectUsers(){
+  var users = document.getElementsByName('dns:list');
+  if(!userIsSelected){
+    document.objectItems.selectAllUsers.value = "Deselect All";
+    userIsSelected = true;
+    for (i = 0; i < users.length; i++)
+      users[i].checked = true;
+  }else{
+    document.objectItems.selectAllUsers.value = "Select All";
+    userIsSelected = false;
+    for (i = 0; i < users.length; i++)
+      users[i].checked = false;
+  }
+}
+// ]]>
+</script>
+
+<!-- Assign role -->
+<dtml-if name="assign_client_button">
+<div style="border: 1px solid #5F7F7E; color: #5F7F7E; padding: 1em;">
+<label>
+<strong>Client</strong> role was assigned for 
+user
+<dtml-if name="dns">
+ <dtml-if expr="len(dns)>1">(s)</dtml-if>
+</dtml-if>:
+<dtml-var expr="', '.join(dns)"><br />
+in the following collections:
+</label>
+<ul>
+  <dtml-in expr="Assign_client(dns=dns, cobligation=cobligation, ccountries=ccountries)">
+     <dtml-let doc_path="_['sequence-item'].absolute_url() ">
+       <li>&dtml-doc_path;</li>
+     </dtml-let>
+  </dtml-in>
+</ul>
+</div>
+</dtml-if>
+
+<!-- Remove role -->
+<dtml-if name="remove_client_button">
+<div style="border: 1px solid #5F7F7E; color: #5F7F7E; padding: 1em;">
+<label>
+<strong>Client</strong> role was removed for 
+user
+<dtml-if name="dns">
+  <dtml-if expr="dns and len(dns)>1">(s)</dtml-if>
+</dtml-if>:
+<dtml-var expr="', '.join(dns)"><br />
+in the following collections:
+</label>
+<ul>
+  <dtml-in expr="Remove_client(dns=dns, cobligation=cobligation, ccountries=ccountries)">
+     <dtml-let doc_path="_['sequence-item'].absolute_url() ">
+       <li>&dtml-doc_path;</li>
+     </dtml-let>
+  </dtml-in>
+</ul>
+</div>
+</dtml-if>
+
+<!-- Template title -->
+<h1><dtml-var title_or_id></h1>
+
+<!-- Serch users -->
+<fieldset style="padding: 1em;">
+<legend>Find user(s)</legend>
+<form action="<dtml-var name="URL1">/Assign_client_form" method="post">
+  <label for="search_term">containing</label>
+  <input type="text" name="search_term" id="search_term" size="30">
+  <label for="search_param">matching criteria</label>
+  <select name="search_param" id="search_param">
+    <dtml-in expr="acl_users.getLDAPSchema()">
+      <dtml-let sk="_['sequence-key']"
+                si="_['sequence-item']">
+        <option value="&dtml-sk;">
+          &dtml-si; (&dtml-sk;)
+        </option>
+      </dtml-let>
+    </dtml-in>
+  </select>
+  <input type="submit" name="find_button_pressed" value="Search">
+</form>
+</fieldset>
+
+<!-- Search users results -->
+<dtml-if name="find_button_pressed">
+<form action="<dtml-var name="URL1">/Assign_client_form" method="post" name="objectItems">
+<dtml-let res="acl_users.findUser(search_param=search_param, search_term=search_term)">
+
+<fieldset>
+<legend>Select user(s) to assign 'Client' role</legend>
+<table border="0" cellspacing="2" cellpadding="2" class="admin_table" width="100%">
+   <tr>
+     <th></th>
+     <th>User ID</th>
+     <th>Canonical name</th>
+     <th width="60%">Distinguished Name</th>
+   </tr>
+  <dtml-in expr="res" mapping sort="sn">
+    <dtml-if sequence-odd>
+      <tr class="odd">
+    <dtml-else>
+      <tr class="even">
+    </dtml-if>
+      <td><input type="checkbox" name="dns:list" value="&dtml-uid;" /></td>
+      <td>&dtml-uid;</td>
+      <td>&dtml-cn;</td>
+      <td>&dtml-dn;</td>
+    </tr>
+  <dtml-else>
+    <tr><td colspan="4" class="norecord">No record match !</td>
+  </dtml-in>
+  </table>
+  <div id="select_users" style="text-align: right; padding-top: 1em"></div>  
+</fieldset>
+
+<!-- Countries -->
+<dtml-if res>
+<fieldset><legend>Countries</legend>
+<dtml-in localities_table mapping>
+<div style="width:12em; float:left">
+<input type="checkbox" name="ccountries:list" id="cb&dtml.lower-iso;" value="&dtml.lower-iso;"><label for="cb&dtml.lower-iso;">&dtml-name;</label>
+</div>
+</dtml-in>
+<div id="select_countries" style="clear: both; text-align: right; padding-top: 1em"></div>
+</fieldset>
+
+<!-- Obligation -->
+<fieldset><legend>Obligation:</legend>
+<select size="15" id="dataflows" name="cobligation">
+<dtml-call "REQUEST.set('currentsource','')">
+<dtml-in dataflow_table mapping sort=SOURCE_TITLE,TITLE>
+<dtml-if "currentsource != SOURCE_TITLE">
+<dtml-if "currentsource != ''">
+</optgroup>
+</dtml-if>
+<dtml-call "REQUEST.set('currentsource',SOURCE_TITLE)">
+<optgroup label="<dtml-var currentsource html_quote size=60>">
+</dtml-if>
+<option value="<dtml-var uri html_quote>"
+ label="<dtml-var TITLE html_quote size=80>"
+<dtml-if "_.has_key('terminated') and terminated == '1'">class="terminated"</dtml-if>
+>[<dtml-var "_.string.join(_.string.split(SOURCE_TITLE)[0:2])" html_quote>] <dtml-var TITLE html_quote size=80></option>
+</dtml-in>
+ </optgroup>
+  </select>
+</fieldset>
+<br/>
+<input type="submit" value="Assign 'Client' role" name="assign_client_button"/>
+<input type="submit" value="Remove 'Client' role" name="remove_client_button"/>
+
+
+<script type="text/javascript">
+<!-- 
+if (document.forms[0]) {
+  var select_div = document.getElementById('select_countries');
+  var select_buttons = '<input class="form-element" type="button" name="selectAllCountries" value="Select All" onclick="toggleSelectCountries(europe); return false"/>';
+  select_buttons += '<input class="form-element" type="button" name="selectEu25" value="Select EU25" onclick="toggleSelectCountries(eu25); return false"/>';
+  select_buttons += '<input class="form-element" type="button" name="selectEu27" value="Select EU27" onclick="toggleSelectCountries(eu27); return false"/>';
+  select_buttons += '<input class="form-element" type="button" name="selectEea31" value="Select EEA31" onclick="toggleSelectCountries(eea31); return false"/>';
+  select_div.innerHTML = select_buttons;
+
+  var select_div = document.getElementById('select_users');
+  var select_buttons = '<input class="form-element" type="button" name="selectAllUsers" value="Select All" onclick="toggleSelectUsers(); return false"/>';
+  select_div.innerHTML = select_buttons;
+  }
+//-->
+</script>
+
+</dtml-if>
+</dtml-let>
+</form>
+</dtml-if>
+<dtml-var standard_html_footer>

@@ -1,8 +1,20 @@
 <dtml-var standard_html_header>
-<h2><dtml-var title_or_id> <dtml-var document_title></h2>
+<h1><dtml-var title_or_id></h1>
+
 <dtml-in "objectValues('Image')" sort=id>
-<p>
-<img src="&dtml-id;" border="0"> &dtml-id;
-</p>
+<dtml-if sequence-start>
+<ul>
+</dtml-if>
+<li><a href="<dtml-var id>"><dtml-var id></a> (<dtml-var title_or_id>)
+<dtml-if "height <= 150 and width <= 430">
+<img src="&dtml-id;" width="&dtml-width;" height="&dtml-height;" alt=""/>
+<dtml-else>
+(Dimensions: &dtml-width;x&dtml-height;)
+</dtml-if>
+</li>
+<dtml-if sequence-end>
+</ul>
+</dtml-if>
 </dtml-in>
+
 <dtml-var standard_html_footer>

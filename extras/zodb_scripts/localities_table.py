@@ -7,11 +7,71 @@
 ##parameters=
 ##title=
 ##
-def inline_replace(x):
-    x['uri'] = x['uri'].replace('eionet.europa.eu','eionet.eu.int')
-    return x
-
-try: 
-    return map(inline_replace, container.localities_rod())
-except:
-    return []
+return [
+# {'iso': 'AL', 'name': 'Albania', 'uri': 'http://rod.eionet.europa.eu/spatial/2'},
+# {'iso': 'DZ', 'name': 'Algeria', 'uri': 'http://rod.eionet.europa.eu/spatial/110'},
+# {'iso': 'AD', 'name': 'Andorra', 'uri': 'http://rod.eionet.europa.eu/spatial/96'},
+# {'iso': 'AM', 'name': 'Armenia', 'uri': 'http://rod.eionet.europa.eu/spatial/97'},
+  {'iso': 'AT', 'name': 'Austria', 'uri': 'http://rod.eionet.europa.eu/spatial/3'},
+# {'iso': 'AZ', 'name': 'Azerbaijan', 'uri': 'http://rod.eionet.europa.eu/spatial/98'},
+# {'iso': 'BY', 'name': 'Belarus', 'uri': 'http://rod.eionet.europa.eu/spatial/4'},
+  {'iso': 'BE', 'name': 'Belgium', 'uri': 'http://rod.eionet.europa.eu/spatial/5'},
+# {'iso': 'BA', 'name': 'Bosnia and Herzegovina', 'uri': 'http://rod.eionet.europa.eu/spatial/6'},
+  {'iso': 'BG', 'name': 'Bulgaria', 'uri': 'http://rod.eionet.europa.eu/spatial/7'},
+  {'iso': 'HR', 'name': 'Croatia', 'uri': 'http://rod.eionet.europa.eu/spatial/8'},
+  {'iso': 'CY', 'name': 'Cyprus', 'uri': 'http://rod.eionet.europa.eu/spatial/9'},
+  {'iso': 'CZ', 'name': 'Czech Republic', 'uri': 'http://rod.eionet.europa.eu/spatial/10'},
+  {'iso': 'DK', 'name': 'Denmark', 'uri': 'http://rod.eionet.europa.eu/spatial/11'},
+# {'iso': 'EG', 'name': 'Egypt', 'uri': 'http://rod.eionet.europa.eu/spatial/109'},
+  {'iso': 'EE', 'name': 'Estonia', 'uri': 'http://rod.eionet.europa.eu/spatial/12'},
+  {'iso': 'FI', 'name': 'Finland', 'uri': 'http://rod.eionet.europa.eu/spatial/13'},
+  {'iso': 'FR', 'name': 'France', 'uri': 'http://rod.eionet.europa.eu/spatial/14'},
+# {'iso': 'GE', 'name': 'Georgia', 'uri': 'http://rod.eionet.europa.eu/spatial/99'},
+  {'iso': 'DE', 'name': 'Germany', 'uri': 'http://rod.eionet.europa.eu/spatial/15'},
+# {'iso': 'GI', 'name': 'Gibraltar', 'uri': 'http://rod.eionet.europa.eu/spatial/114'},
+  {'iso': 'GR', 'name': 'Greece', 'uri': 'http://rod.eionet.europa.eu/spatial/16'},
+  {'iso': 'HU', 'name': 'Hungary', 'uri': 'http://rod.eionet.europa.eu/spatial/17'},
+  {'iso': 'IS', 'name': 'Iceland', 'uri': 'http://rod.eionet.europa.eu/spatial/18'},
+  {'iso': 'IE', 'name': 'Ireland', 'uri': 'http://rod.eionet.europa.eu/spatial/20'},
+# {'iso': 'IL', 'name': 'Israel', 'uri': 'http://rod.eionet.europa.eu/spatial/116'},
+  {'iso': 'IT', 'name': 'Italy', 'uri': 'http://rod.eionet.europa.eu/spatial/19'},
+# {'iso': 'JO', 'name': 'Jordan', 'uri': 'http://rod.eionet.europa.eu/spatial/108'},
+# {'iso': 'KZ', 'name': 'Kazakhstan', 'uri': 'http://rod.eionet.europa.eu/spatial/100'},
+# {'iso': 'XK', 'name': 'Kosovo under the UNSCR 1244/99', 'uri': 'http://rod.eionet.europa.eu/spatial/42'},
+# {'iso': 'KG', 'name': 'Kyrgyzstan', 'uri': 'http://rod.eionet.europa.eu/spatial/101'},
+  {'iso': 'LV', 'name': 'Latvia', 'uri': 'http://rod.eionet.europa.eu/spatial/21'},
+# {'iso': 'LB', 'name': 'Lebanon', 'uri': 'http://rod.eionet.europa.eu/spatial/117'},
+# {'iso': 'LY', 'name': 'Libya', 'uri': 'http://rod.eionet.europa.eu/spatial/111'},
+  {'iso': 'LI', 'name': 'Liechtenstein', 'uri': 'http://rod.eionet.europa.eu/spatial/102'},
+  {'iso': 'LT', 'name': 'Lithuania', 'uri': 'http://rod.eionet.europa.eu/spatial/22'},
+  {'iso': 'LU', 'name': 'Luxembourg', 'uri': 'http://rod.eionet.europa.eu/spatial/23'},
+# {'iso': 'MK', 'name': 'Macedonia (FYR)', 'uri': 'http://rod.eionet.europa.eu/spatial/24'},
+  {'iso': 'MT', 'name': 'Malta', 'uri': 'http://rod.eionet.europa.eu/spatial/25'},
+# {'iso': 'MD', 'name': 'Moldova', 'uri': 'http://rod.eionet.europa.eu/spatial/26'},
+# {'iso': 'MC', 'name': 'Monaco', 'uri': 'http://rod.eionet.europa.eu/spatial/103'},
+# {'iso': 'ME', 'name': 'Montenegro', 'uri': 'http://rod.eionet.europa.eu/spatial/115'},
+# {'iso': 'MA', 'name': 'Morocco', 'uri': 'http://rod.eionet.europa.eu/spatial/112'},
+  {'iso': 'NL', 'name': 'Netherlands', 'uri': 'http://rod.eionet.europa.eu/spatial/27'},
+  {'iso': 'NO', 'name': 'Norway', 'uri': 'http://rod.eionet.europa.eu/spatial/28'},
+# {'iso': 'PS', 'name': 'Palestinian Territory', 'uri': 'http://rod.eionet.europa.eu/spatial/118'},
+  {'iso': 'PL', 'name': 'Poland', 'uri': 'http://rod.eionet.europa.eu/spatial/29'},
+  {'iso': 'PT', 'name': 'Portugal', 'uri': 'http://rod.eionet.europa.eu/spatial/30'},
+  {'iso': 'RO', 'name': 'Romania', 'uri': 'http://rod.eionet.europa.eu/spatial/31'},
+# {'iso': 'RU', 'name': 'Russian Federation', 'uri': 'http://rod.eionet.europa.eu/spatial/32'},
+# {'iso': 'SM', 'name': 'San Marino', 'uri': 'http://rod.eionet.europa.eu/spatial/104'},
+# {'iso': 'RS', 'name': 'Serbia', 'uri': 'http://rod.eionet.europa.eu/spatial/41'},
+  {'iso': 'SK', 'name': 'Slovakia', 'uri': 'http://rod.eionet.europa.eu/spatial/33'},
+  {'iso': 'SI', 'name': 'Slovenia', 'uri': 'http://rod.eionet.europa.eu/spatial/34'},
+  {'iso': 'ES', 'name': 'Spain', 'uri': 'http://rod.eionet.europa.eu/spatial/35'},
+  {'iso': 'SE', 'name': 'Sweden', 'uri': 'http://rod.eionet.europa.eu/spatial/36'},
+  {'iso': 'CH', 'name': 'Switzerland', 'uri': 'http://rod.eionet.europa.eu/spatial/37'},
+# {'iso': 'SY', 'name': 'Syria', 'uri': 'http://rod.eionet.europa.eu/spatial/119'},
+# {'iso': 'TJ', 'name': 'Tajikistan', 'uri': 'http://rod.eionet.europa.eu/spatial/105'},
+# {'iso': 'TN', 'name': 'Tunisia', 'uri': 'http://rod.eionet.europa.eu/spatial/113'},
+  {'iso': 'TR', 'name': 'Turkey', 'uri': 'http://rod.eionet.europa.eu/spatial/38'},
+# {'iso': 'TM', 'name': 'Turkmenistan', 'uri': 'http://rod.eionet.europa.eu/spatial/106'},
+# {'iso': 'UA', 'name': 'Ukraine', 'uri': 'http://rod.eionet.europa.eu/spatial/39'},
+  {'iso': 'GB', 'name': 'United Kingdom', 'uri': 'http://rod.eionet.europa.eu/spatial/40'},
+# {'iso': 'UZ', 'name': 'Uzbekistan', 'uri': 'http://rod.eionet.europa.eu/spatial/107'}
+  {'iso': 'EU', 'name': 'European Union', 'uri': 'http://rod.eionet.europa.eu/spatial/1'}
+]

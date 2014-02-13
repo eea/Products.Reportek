@@ -1,7 +1,0 @@
-</div> <!-- workarea -->
-<div id="pagefoot">
-Last modified <dtml-var bobobase_modification_time fmt=Date>.
-[<a href="http://validator.w3.org/check/referer">Validate HTML</a>]
-</div>
-</body>
-</html>

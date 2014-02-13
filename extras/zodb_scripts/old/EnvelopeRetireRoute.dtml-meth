@@ -1,0 +1,29 @@
+<dtml-if "canViewContent and is_active_for_me(REQUEST=REQUEST)">
+    <dtml-var standard_html_header>
+    <dtml-var "envelope_tabs(tab=workitem_id)">
+    <div id="operations">
+    <ul>
+        <li><a href="inactivateWorkitem?workitem_id=&dtml-workitem_id;"
+title="Deactivation keeps the work already
+done, and makes it possible for
+someone else to take over the task">Deactivate task</a></li>
+    </ul>
+    </div>
+    <h1><dtml-var document_title></h1>
+
+    <p>The envelope currently contains the feedback from the Automatic quality assessment and the requester may have uploaded some additional feedback to it. 
+    If you want to change your delivery as a reaction to the feedback, then you must click on 
+    "Back to drafting" to revoke the release. If you are sure you will never need to revoke
+    then you click on "Submit delivery to DG CLIMA and EEA".</p>
+
+    <form action="EnvelopeRetire">
+    <input type="hidden" name="workitem_id" value="<dtml-var workitem_id>" />
+    <input type="submit" name="inspectresult" value="Back to drafting" />
+    <input type="submit" name="inspectresult" value="Submit delivery to DG CLIMA and EEA" />
+    </form>
+    <dtml-var feedback_section>
+
+    <dtml-var standard_html_footer>
+<dtml-else>
+    <dtml-call "RESPONSE.redirect('overview')">
+</dtml-if>

@@ -1,0 +1,56 @@
+From: BDR Helpdesk <BDR.Helpdesk@eea.europa.eu>
+To: <dtml-var CONTACTEMAIL>
+<dtml-mime type=text/html encode=quoted-printable>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style>
+</style>
+</head>
+<body>
+
+Subject: Reporting data on ODS covering 2011
+
+
+Dear <dtml-var CONTACT missing html_quote>,
+</p>
+<p>
+This message is addressed to you as the contact person of an undertaking which did not yet submit data on Ozone Depleting Substances (ODS)
+ under Article 27 of Regulation (EC) No 1005/2009.
+</p>
+<p>
+You receive this message because so far we have not received the report for [COMPANY NAME] in [COUNTRY] with username [USER-ID]. 
+</p>
+<p>
+In case you should have sent the report already before 1 March 2012, please contact us at
+<a href="mailto:ods.reporting@eea.europa.eu">ods.reporting@eea.europa.eu</a> to verify whether or not the report was actually received.
+</p>
+<p>
+In case you should not have submitted your report we kindly ask you to complete the forms available at
+<a href="
+http://circa.europa.eu/Public/irc/env/review_2037/library?l=/reporting_article">http://circa.europa.eu/Public/irc/env/review_2037/library?l=/reporting_article</a>
+at your earliest convenience.
+The forms need to be submitted directly to the European Environment Agency using the online Business Data Repository (BDR).
+This requires the use of your username ([USER-ID]) and your earlier received password. A quick guide in multiple languages,
+a more detailed user manual and further information is available on the BDR website (<a href="https://bdr.eionet.europa.eu">https://bdr.eionet.europa.eu</a>).
+Please submit the forms in BDR at your earliest convenience but at the latest by 31 March 2012.
+</p>
+<p>
+Reporting is not required if you import or export products or equipments containing or relying on ODS (e.g. fire extinguishers or aircraft).
+</p>
+<p>
+If you received this e-mail but you think that you are no longer subject to the reporting obligations, please be so kind to inform
+us accordingly by e-mail to <a href="mailto:ods.reporting@eea.europa.eu">ods.reporting@eea.europa.eu</a>.
+</p>
+<p>
+
+Thank you in advance for your co-operation.
+</p>
+<p>
+
+Eva Goossens<br/>
+European Environment Agency
+</p>
+</body>
+</html>
+</dtml-mime>

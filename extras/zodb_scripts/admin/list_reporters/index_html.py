@@ -40,13 +40,6 @@ for hit in hits:
        obj.users_with_local_role(role),
        obj.dataflow_uris
     ))
-root_obj = context.restrictedTraverse(['',])
-results.append( (root_obj.absolute_url(0),
-   '/',
-   root_obj.bobobase_modification_time().Date(),
-   root_obj.users_with_local_role(role),
-   []
-))
 results.sort(pathcompare)
 evenstr=''
 for hit in results:

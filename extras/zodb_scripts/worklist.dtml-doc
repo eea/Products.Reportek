@@ -1,32 +1,22 @@
 <dtml-var standard_html_header>
-<dtml-unless sort_on>
-<dtml-call "REQUEST.set('sort_on', 'country')">
-</dtml-unless>
-<dtml-unless "REQUEST.has_key('sort_order')">
-<dtml-if "sort_on in ('reportingdate',)">
-<dtml-call "REQUEST.set('sort_order', 'reverse')">
-<dtml-else>
-<dtml-call "REQUEST.set('sort_order', '')">
-</dtml-if>
-</dtml-unless>
-
 <h1><dtml-var title_or_id></h1>
 <p>This is a list of envelopes where work is still going on.</p>
-
-<table class="sortable">
+<table>
 <thead>
 <tr>
-<dtml-var "sortable_table(( {'id':'country','title':'Country','sortable':1},
-{'id':'title','title':'Envelope','sortable':0},
-{'id':'reportingdate','title':'Date','sortable':1}), sort_on, sort_order)">
+<th>Country</th>
+<th>Envelope</th>
+<th>Date</th>
 </tr>
 </thead>
 <tbody>
 <dtml-let ldict=localities_dict dummy="{'uri': '', 'name': 'Unknown', 'iso': 'XX'}">
 <dtml-in "Catalog(meta_type=['Report Envelope'],
-     released=0, sort_on=sort_on, sort_order=sort_order)">
+     released=0,
+     sort_on='country',
+     sort_order='reverse')">
 <dtml-try>
-<tr<dtml-if sequence-even> class="zebraeven"</dtml-if>>
+<tr>
 <dtml-with getObject>
 <td><dtml-var "ldict.get(country,dummy)['name']"></td>
 <td><a href="<dtml-var getPath url_quote>"

@@ -1,7 +1,0 @@
-<dtml-call "REQUEST.set('meta_type','Report Collection')">
-<dtml-call "REQUEST.set('dataflow_uris','http://rod.eionet.eu.int/obligations/26')">
-<dtml-call "REQUEST.set('collectionslist',[])">
-<dtml-in Catalog sort=bobobase_modification_time reverse>
-<dtml-call "REQUEST['collectionslist'].append( { 'title': title , 'url': _.str(getPath()) })">
-</dtml-in>
-<dtml-return "REQUEST['collectionslist']">

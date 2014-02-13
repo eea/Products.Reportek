@@ -1,0 +1,10 @@
+<dtml-var standard_html_header>
+<h2><dtml-var title_or_id></h2>
+<p>
+<dtml-let u="Catalog.uniqueValuesFor('dataflow_uris')">
+<dtml-in u>
+<dtml-var sequence-item><br>
+</dtml-in>
+</dtml-let>
+</p>
+<dtml-var standard_html_footer>
