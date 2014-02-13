@@ -1,11 +1,13 @@
 # import zodb_scripts; reload(zodb_scripts); zodb_scripts.dump_code(app)
 from path import path
+import codecs
 
-meta_types = ['DTML Document', 'DTML Method', 'Script (Python)']
+meta_types = ['DTML Document', 'DTML Method', 'Script (Python)', 'Page Template']
 ext_map = {
     'DTML Document': '.dtml-doc',
     'DTML Method': '.dtml-meth',
     'Script (Python)': '.py',
+    'Page Template': '.zpt',
 }
 
 
@@ -16,7 +18,12 @@ def get_zodb_scripts(app):
     zodb_scripts = {}
     for ob_id, ob in app.ZopeFind(app, obj_metatypes=meta_types, search_sub=True):
         zodb_path = '/'.join(ob.getPhysicalPath()[1:])
-        zodb_scripts[zodb_path] = (ob.meta_type, ob.document_src())
+        src = ob.document_src()
+        try:
+            src = codecs.decode(src, 'utf-8')
+        except:
+            pass
+        zodb_scripts[zodb_path] = (ob.meta_type, src)
     return zodb_scripts
 
 
@@ -30,6 +37,6 @@ def dump_code(app):
         file_path = repo/(zodb_path + ext)
         if not file_path.parent.exists():
             file_path.parent.makedirs()
-        f = open(file_path, 'wb')
+        f = codecs.open(file_path, 'w', encoding='utf-8')
         f.write(src)
         f.close()
