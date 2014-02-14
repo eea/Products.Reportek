@@ -4,7 +4,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2014-02-13 13:24+0000\n"
+"POT-Creation-Date: 2014-02-14 14:39+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -73,12 +73,48 @@ msgstr ""
 msgid "1. Purpose(s) of the processing"
 msgstr ""
 
+#: ../../../extras/zodb_scripts/privacystatement.zpt:76
+msgid "10. Data retention"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:80
+msgid "11. Right to appeal"
+msgstr ""
+
 #: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:39
 msgid "2) Once you are satisfied with the contribution, you choose <em>Release envelope</em> and your delivery will be realised."
 msgstr ""
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:22
 msgid "2. Recipients of the data processed"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:33
+msgid "3. Personal data concerned"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:37
+msgid "4. Obligatory or optional data"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:41
+msgid "5. Categories of data processed"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:49
+msgid "6. Modalities for the processing operation"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:54
+msgid "7. Safeguarding of data processed"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:58
+msgid "8. Right of access and rectification"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:67
+msgid "9. Legality of processing"
 msgstr ""
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:60
@@ -127,6 +163,14 @@ msgstr ""
 
 #: ../../../extras/zodb_scripts/help/security.html.zpt:20
 msgid "A user can be one, more or all of these roles at the same time."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/index_html.zpt:14
+msgid "ANNEX I - ODS Reporting"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/index_html.zpt:15
+msgid "ANNEX II - F-Gases Reporting"
 msgstr ""
 
 #: Reportek/zpt/envelope/statusesbulk.zpt:22
@@ -335,6 +379,10 @@ msgstr ""
 msgid "Click on the link below to start the reporting"
 msgstr ""
 
+#: ../../../extras/zodb_scripts/privacystatement.zpt:73
+msgid "Code of Good Administrative Behaviour (Commission decision 2000/633/EC, ECSC, Euratom);"
+msgstr ""
+
 #: Reportek/zpt/collection/index.zpt:46
 msgid "Collection"
 msgstr ""
@@ -362,6 +410,10 @@ msgstr ""
 
 #: ../../../extras/zodb_scripts/help/dataconfidentiality.zpt:4
 msgid "Confidentiality requirements apply to data reported under both the ODS and the F-Gas Regulation. Article 27.8 and Article 6.3 respectively stipulate \"The Commission shall take appropriate steps to protect the confidentiality of the information submitted to it.\" The European Environment Agency, who is the key actor in the compilation of the company-reports, will use the following approach to protect the data confidentiality:"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:47
+msgid "Contact details (company and department, postal address, country of residence, business telephone number, mobile telephone number, fax number, e-mail address, internet address)."
 msgstr ""
 
 #: Reportek/zpt/document/edit.zpt:45
@@ -409,7 +461,12 @@ msgstr ""
 msgid "Data Confidentiality"
 msgstr ""
 
+#: ../../../extras/zodb_scripts/help/dataconfidentiality.zpt:19
+msgid "Data Protection Rules"
+msgstr ""
+
 #: ../../../extras/zodb_scripts/help/dataconfidentiality.zpt:2
+#: ../../../extras/zodb_scripts/help/index_html.zpt:18
 msgid "Data confidentiality and protection"
 msgstr ""
 
@@ -441,6 +498,10 @@ msgstr ""
 #: Reportek/zpt/collection/index.zpt:24
 #: Reportek/zpt/collection/prop.zpt:20
 msgid "Description"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:29
+msgid "Designated Member States' staff members (access will be restricted to the data relevant for the specific Member State). No personal data is shared with third parties for direct marketing purposes."
 msgstr ""
 
 #: Reportek/zpt/document/edit.zpt:57
@@ -624,6 +685,10 @@ msgstr ""
 msgid "Finish or go back to drafting?"
 msgstr ""
 
+#: ../../../extras/zodb_scripts/help/index_html.zpt:32
+msgid "Fluorinated Gases (F-gases)"
+msgstr ""
+
 #: ../../../extras/zodb_scripts/privacystatement.zpt:23
 msgid "For the purpose detailed above, access to your personal data is given to the following persons, without prejudice to a possible transmission to the bodies in charge of monitoring or inspection task in accordance with European Union law:"
 msgstr ""
@@ -637,6 +702,7 @@ msgid "Four (Five) types of user roles are foreseen:"
 msgstr ""
 
 #: ../../../extras/zodb_scripts/help/faq/index_html.zpt:3
+#: ../../../extras/zodb_scripts/help/index_html.zpt:30
 msgid "Frequently Asked Questions"
 msgstr ""
 
@@ -673,6 +739,10 @@ msgstr ""
 
 #: Reportek/zpt/envelope/history.zpt:5
 msgid "History of ${title}"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/index_html.zpt:15
+msgid "How to upload a report <ul> <li><a href=\"/help/BDR_Reporting_manual_2013-v2.0.pdf\">x</a></li> <li><a href=\"/help/BDR_Manual_Version2_Annex_I-ODS.pdf\">x</a></li> <li><a href=\"/help/BDR_Manual_Version2_Annex_II-F-gases.pdf\">x</a></li> </ul>"
 msgstr ""
 
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:62
@@ -746,6 +816,10 @@ msgstr ""
 msgid "In case you are not obliged to report (see FAQs under the \"Help\" Section), please add and edit a NIL reporting questionnaire."
 msgstr ""
 
+#: ../../../extras/zodb_scripts/help/index_html.zpt:35
+msgid "In case you need further help, please contact the BDR helpdesk: <a href=\"mailto:BDR.helpdesk@eea.europa.eu\">BDR.helpdesk@eea.europa.eu</a>."
+msgstr ""
+
 #: Reportek/zpt/document/flashview.zpt:166
 msgid "In order to access this page, Javascript needs to be enabled on your brwoser. Please enable it and refresh the page."
 msgstr ""
@@ -780,6 +854,10 @@ msgstr ""
 
 #: ../../../extras/zodb_scripts/help/index_html.zpt:9
 msgid "More information"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:46
+msgid "Name (title, first name, surname) and function;"
 msgstr ""
 
 #: Reportek/zpt/collection/index.zpt:14
@@ -870,6 +948,10 @@ msgstr ""
 msgid "Overview"
 msgstr ""
 
+#: ../../../extras/zodb_scripts/help/index_html.zpt:33
+msgid "Ozone Depleting Substances (ODS)"
+msgstr ""
+
 #: ../../../extras/zodb_scripts/privacystatement.zpt:3
 msgid "PRIVACY STATEMENT"
 msgstr ""
@@ -892,8 +974,24 @@ msgstr ""
 msgid "Permissions"
 msgstr ""
 
+#: ../../../extras/zodb_scripts/privacystatement.zpt:42
+msgid "Personal data collected and further processed concern the designated company reporter. Information can relate to all or some of the following data:"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:50
+msgid "Personal data is provided by submission of an online request for user registration. This is an automated processing operation whereby you input the data directly in the form which is then stored in a database. Personal data may be processed manually for the purpose of management of replies or queries to you."
+msgstr ""
+
 #: ../../../extras/zodb_scripts/privacystatement.zpt:12
 msgid "Personal data provided by the designated company reporter are processed in accordance with Regulation (EC) No 45/2001 of the European Parliament and of the Council of 18 December 2000 on the protection of individuals with regard to the processing of personal data by the Community institutions and bodies and on the free movement of such data."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:77
+msgid "Personal information will be kept as long as follow-up actions by the EEA or European Commission concerning the reporting of the legally-required data and information may be necessary."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:64
+msgid "Please note that depending upon circumstances modifications to existing data may only be made if supported by valid justifying documents."
 msgstr ""
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:55
@@ -947,6 +1045,14 @@ msgstr ""
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:9
 msgid "Regulation (EC) No 1005/2009 of the European Parliament and of the Council of 16 September 2009 on substances that deplete the ozone layer (ODS Regulation) and"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:74
+msgid "Regulation (EC) No 1367/2006 of the European Parliament and of the Council of 6 September 2006 on the application of the provisions of the Aarhus Convention on Access to Information, Public Participation in Decision-making and Access to Justice in Environmental Matters to Community institutions and bodies."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:72
+msgid "Regulation (EC) No 401/2009 of the European Parliament and of the Council on the European Environment Agency and on the European Environment Information and Observation Network;"
 msgstr ""
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:10
@@ -1072,6 +1178,10 @@ msgstr ""
 
 #: Reportek/zpt/envelope/statuses_section.zpt:108
 msgid "Set accepted status for files"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/dataconfidentiality.zpt:20
+msgid "Since the EEA is an official EU body, Regulation (EC) No 45/2001 of the European Parliament and of the Council of 18 December 2000 on the protection of individuals with regard to the processing of personal data by the Community institutions and bodies and on the free movement of such data (Regulation on Data Protection), applies to it."
 msgstr ""
 
 #: Reportek/zpt/engine/sitemap.zpt:3
@@ -1201,8 +1311,16 @@ msgstr ""
 msgid "The GIS viewer was created using Macromedia Flash 8. If you do not see it properly install the necessary plugin from the <a href=\"http://www.macromedia.com/go/getflashplayer\">Macromedia website</a>."
 msgstr ""
 
+#: ../../../extras/zodb_scripts/help/dataconfidentiality.zpt:30
+msgid "The Specific Privacy Statement related to the processing of this personal data is available <a href=\"/privacystatement\">here</a>."
+msgstr ""
+
 #: Reportek/zpt/document/manage.zpt:25
 msgid "The access to this file is limited, meaning it is not (yet) released for public view."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:68
+msgid "The collection, storing and processing of personal data is necessary for the performance and support of tasks performed by EEA as mandated by:"
 msgstr ""
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:28
@@ -1224,6 +1342,18 @@ msgstr ""
 #: Reportek/zpt/envelope/overview.zpt:43
 #: Reportek/zpt/referral/index.zpt:26
 msgid "The obligation tag makes it possible for the requesters to find the delivery"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:38
+msgid "The obligatory fields concern the company name, company address, your family name, your first name, your email address, your telephone number, the data reporting obligation for which you have registered, and the country for which the delivery of information or data pertains. The other fields in the enquiry form are optional; if you decide to fill them in, the information will only be used for the above purpose of getting in contact with you."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:34
+msgid "The only personal data collected and further processed is the information you encode yourself in the on-line form. EEA needs your personal data to contact you to provide you with feedback concerning the information and data you have submitted, and/or to contact you with queries in relation to it."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:55
+msgid "The personal data collected upon receipt of the user registration application are stored in an electronic database. Access to the collected personal data is only available to a limited number of designated EEA staff members (see point 2 above) with a valid Username and Password."
 msgstr ""
 
 #: ../../../extras/zodb_scripts/help/index_html.zpt:3
@@ -1252,6 +1382,10 @@ msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:129
 msgid "This envelope is not yet available for public view. Work is still in progress."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/dataconfidentiality.zpt:26
+msgid "This implies that EEA has to apply data protection rules when processing personal data such as the contact details of the reporters under the ODS and F-Gas Regulation."
 msgstr ""
 
 #: Reportek/zpt/collection/worklist.zpt:7
@@ -1360,6 +1494,10 @@ msgstr ""
 msgid "Year"
 msgstr ""
 
+#: ../../../extras/zodb_scripts/privacystatement.zpt:81
+msgid "You are entitled to have recourse at any time to the European Data Protection Supervisor (<a href=\"http://www.edps.europa.eu\">http://www.edps.europa.eu</a>; <a href=\"mailto:EDPS@edps.europa.eu\">EDPS@edps.europa.eu</a>) if you consider that your rights under Regulation (EC) No 45/2001 have been infringed as a result of the processing of your personal data by the EEA."
+msgstr ""
+
 #: ../../../extras/zodb_scripts/breadcrumb.zpt:12
 #: ../../../extras/zodb_scripts/translatable_header.zpt:31
 msgid "You are here:"
@@ -1383,6 +1521,14 @@ msgstr ""
 
 #: Reportek/zpt/envelope/add.zpt:15
 msgid "You cannot create envelopes for terminated obligations, you need to change the list of obligations associated to this collection and remove the following:"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:59
+msgid "You have no direct access to the data stored. If you wish to modify or delete any of your personal data, you should address your request in writing to the BDR Helpdesk (<a href=\"mailto:BDR.helpdesk@eea.europa.eu\">BDR.helpdesk@eea.europa.eu</a>) or by post to European Environment Agency, Kongens Nytorv 6, 1050 Copenhagen K, Denmark."
+msgstr ""
+
+#: ../../../extras/zodb_scripts/privacystatement.zpt:87
+msgid "You may also contact the EEA's Data Protection Officer (DPO) in case of any difficulties or for any questions relating to the processing of your personal data at the following e-mail address: <a href=\"mailto:Data.ProtectionOfficer@eea.europa.eu\">Data.ProtectionOfficer@eea.europa.eu</a>."
 msgstr ""
 
 #: Reportek/zpt/envelope/add_zip.zpt:30
@@ -1469,6 +1615,10 @@ msgstr ""
 
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:22
 msgid "icon"
+msgstr ""
+
+#: ../../../extras/zodb_scripts/help/dataconfidentiality.zpt:14
+msgid "if the information submitted on a specific substance or use is based only on two reports or less than two reports, the respective quantity will not be divulged, in order to avoid that an undertaking could determine the content of the report of its competitor(s). This practise has not been laid down in an official procedure but it mirrors the \"three company rule\" applied by industry."
 msgstr ""
 
 #: Reportek/zpt/envelope/statuses_section.zpt:15

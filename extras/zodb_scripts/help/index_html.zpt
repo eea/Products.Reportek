@@ -11,8 +11,8 @@ consulted at European level by the European Commission and the European Environm
 <li i18n:translate="">How to upload a report
 	<ul>
 	<li><a href="/help/BDR_Reporting_manual_2013-v2.0.pdf" i18n:translate="">BDR manual</a></li>
-	<li><a href="/help/BDR_Manual_Version2_Annex_I-ODS.pdf" i18n:translate="">ANNEX I – ODS Reporting</a></li>
-	<li><a href="/help/BDR_Manual_Version2_Annex_II-F-gases.pdf" i18n:translate="">ANNEX II – F-Gases Reporting</a></li>
+	<li><a href="/help/BDR_Manual_Version2_Annex_I-ODS.pdf" i18n:translate="">ANNEX I - ODS Reporting</a></li>
+	<li><a href="/help/BDR_Manual_Version2_Annex_II-F-gases.pdf" i18n:translate="">ANNEX II - F-Gases Reporting</a></li>
 	</ul>
 </li>
 <li><a href="dataconfidentiality" i18n:translate="">Data confidentiality and protection</a></li>
