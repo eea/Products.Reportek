@@ -86,7 +86,7 @@
       </td>
     </tr>
     <tr tal:condition="isBdrDeployment">
-        <th>Acceptability status</th>
+        <th i18n:translate="">Acceptability status</th>
         <td tal:define="statuses
                            python:{
                                 True: 'Data delivery is acceptable',
