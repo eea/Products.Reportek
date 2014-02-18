@@ -1,6 +1,7 @@
 import os.path
 from time import time, strftime, localtime
 from ZODB.blob import Blob, POSKeyError
+from App.config import getConfiguration
 from persistent import Persistent
 import Globals
 from AccessControl import ClassSecurityInfo
@@ -52,9 +53,15 @@ class FileContainer(Persistent):
             raise StorageError
 
     def _update_metadata(self, fs_path):
-        self.fs_path = fs_path
+        self.fs_path = fs_path[len(self.get_blob_dir)+1:]
         self.mtime = os.path.getmtime(fs_path)
         self.size = os.path.getsize(fs_path)
+
+    @classmethod
+    def get_blob_dir(cls):
+        config = getConfiguration()
+        factory = config.dbtab.getDatabaseFactory(name=config.dbtab.getName('/'))
+        return factory.config.storage.config.blob_dir
 
 
 class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):

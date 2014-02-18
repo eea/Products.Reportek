@@ -3,10 +3,12 @@
 #>>> add_blob_fs_path.update(app)
 import transaction
 from ZODB.POSException import POSKeyError
+from Products.Reportek.blob import FileContainer
 
 __all__ = ['update']
 
 def do_update(app):
+    blob_dir = FileContainer.get_blob_dir()
     for brain in app.Catalog(meta_type='Report Document'):
         ob = brain.getObject()
         data_file = getattr(ob, 'data_file', None)
@@ -17,9 +19,12 @@ def do_update(app):
                     setattr(data_file, 'fs_path', file_handle.name)
                     file_handle.close()
                     print ob.absolute_url(1)
+                elif data_file.fs_path.startswith('/'):
+                    data_file.fs_path = data_file.fs_path[len(blob_dir)+1:]
+                    print "Correcting absolute path to blob-only path %s" % data_file.fs_path
                 else:
-                    print 'Skipping new version/already patched object at %s' % ob.absolute_url(1)
-                    print "fs_path was %s" % ob.fs_path
+                    print "Skipping new version/already patched object at %s" % ob.absolute_url(1)
+                    print "fs_path was %s" % data_file.fs_path
             except POSKeyError:
                 print "No blob file for %s" % ob.absolute_url(1)
 

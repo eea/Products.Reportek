@@ -329,9 +329,16 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     def blob_path(self):
         """ Return the actual path of the file on server fs as coded by zope
         inside the blob structure"""
+        # Multilang unfriendly. But only tech staff debugging will use these...
+        not_found = "file not found"
         if getattr(self.data_file, 'fs_path', None) is None:
-            return 'file not found'
-        return self.data_file.fs_path
+            return not_found + " (upload failed?)"
+        blob_dir = FileContainer.get_blob_dir()
+        path = os.path.join(blob_dir, self.data_file.fs_path)
+        if not os.path.isfile(path):
+            return not_found + " (should have been: %s)" % path
+
+        return path
 
     def canHaveOnlineQA(self, upper_limit=None):
         """ Determines whether a HTTP QA can be done during Draft, based on file size
