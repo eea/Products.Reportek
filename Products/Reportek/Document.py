@@ -55,6 +55,7 @@ from XMLInfoParser import detect_schema
 from constants import CONVERTERS_ID, QAREPOSITORY_ID, ENGINE_ID
 from interfaces import IDocument
 from blob import FileContainer, StorageError
+from ZODB.blob import FilesystemHelper
 
 FLAT = 0
 SYNC_ZODB = 1
@@ -323,6 +324,14 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     def size(self):
         """ Returns a formatted stringified version of the file size """
         return self._bytetostring(self.get_size())
+
+    security.declareProtected('View management screens', 'blob_path')
+    def blob_path(self):
+        """ Return the actual path of the file on server fs as coded by zope
+        inside the blob structure"""
+        if getattr(self.data_file, 'fs_path', None) is None:
+            return 'file not found'
+        return self.data_file.fs_path
 
     def canHaveOnlineQA(self, upper_limit=None):
         """ Determines whether a HTTP QA can be done during Draft, based on file size

@@ -32,6 +32,7 @@ class FileContainer(Persistent):
         self.mtime = time()
         self.size = 0
         self.content_type = 'application/octet-stream'
+        self.fs_path = ''
 
     def open(self, mode='rb'):
         ok_modes = ['rb', 'wb']
@@ -51,6 +52,7 @@ class FileContainer(Persistent):
             raise StorageError
 
     def _update_metadata(self, fs_path):
+        self.fs_path = fs_path
         self.mtime = os.path.getmtime(fs_path)
         self.size = os.path.getsize(fs_path)
 
