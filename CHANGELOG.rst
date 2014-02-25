@@ -1,5 +1,10 @@
-3.6.4 (unreleased)
+3.6.5 (unreleased)
 ----------------
+
+3.6.4 (2014-02-25)
+----------------
+* Task 18472 - Refactor search.
+* Task 17979 - Add blob path in filesystem to manage document view
 * adapted locales/update.sh script for buzzardNT staging deployment
 
 3.6.3 (2014-01-27)
