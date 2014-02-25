@@ -233,11 +233,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """Search the ZCatalog for Report Envelopes,
         show results and keep displaying the form """
         # show the initial default populated
-        #if self.REQUEST.method == 'GET':
         if 'sort_on' not in self.REQUEST:
             return self._searchdataflow()
-
-        # form must be submitted with post
 
         # make sure fields you are not searching for are not included
         # in the query, not even with '' or None values
