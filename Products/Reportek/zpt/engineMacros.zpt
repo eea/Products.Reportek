@@ -5,7 +5,9 @@
                                       ('TITLE', 'nocase', 'asc'));
                       currentsource string:'';
                       values python:context.dataflow_table();
-                      dummy python:values.sort(key=lambda k: (k.get('uri') in u, k['SOURCE_TITLE'], k['TITLE']));">
+                      dummy python:values.sort(key=lambda k: (k.get('uri') in u, k['SOURCE_TITLE'], k['TITLE']));"
+          tal:attributes="size obligation_select_size | default">
+    <option value="">Any obligation</option>
     <tal:block repeat="value values">
       <tal:block
           define="flip python:repeat['value'].start or
@@ -17,10 +19,12 @@
                      content="structure string:</optgroup>" />
           <tal:block condition="flip"
                      content='structure string:<optgroup label="${source_title}">'/>
-              <tal:block define="text python:value['TITLE'][:75] + ' ...' if len(value['TITLE'])>75 else value['TITLE'];">
+              <tal:block define="text python:value['TITLE'][:75] + ' ...' if len(value['TITLE'])>75 else value['TITLE'];
+                                 given_selected obligation_selected | nothing">
               <option tal:attributes="value value/uri;
                                       label text;
-                                      class python: 'terminated' if value.get('terminated')=='1' else ''"
+                                      class python: 'terminated' if value.get('terminated')=='1' else '';
+                                      selected python: value['uri'] == given_selected;"
                       tal:content="text"/>
               </tal:block>
           </tal:block>
@@ -49,9 +53,11 @@
                                         'Second Quarter', 'Third Quarter',
                                         'Fourth Quarter', 'January',
                                         'February', 'March', 'April', 'May', 'June',
-                                        'July','August','September','October','November','December')"
+                                        'July','August','September','October','November','December');
+                        given_value partofyear_selected | nothing;"
             tal:repeat="value options"
-            tal:attributes="value value"
+            tal:attributes="value value;
+                            selected python: value == given_value;"
             tal:content="value">
         part_of_year
     </option>
@@ -62,9 +68,11 @@
 <metal:block define-macro="countrySelect">
   <select id="country" name="country">
     <option></option>
-    <option tal:define="values python:context.localities_table"
+    <option tal:define="values python:context.localities_table;
+                        given_value country_selected | nothing;"
             tal:repeat="value values"
-            tal:attributes="value value/uri"
+            tal:attributes="value value/uri;
+                            selected python: value['uri'] == given_value"
             tal:content="value/name" >
         country
     </option>
@@ -93,7 +101,11 @@
                                                     'partofyear=%s&'
                                                     'country=%s&'
                                                     'sort_on=%s&'
-                                                    'sort_order=%s' %(
+                                                    'sort_order=%s&'
+                                                    'release_status=%s&'
+                                                    'reportingdate_start:date:ignore_empty=%s&'
+                                                    'reportingdate_end:date:ignore_empty=%s'
+                                                    %(
                                                           p.first,
                                                           request.get('dataflow_uris'),
                                                           request.get('xml_schema_location'),
@@ -101,7 +113,11 @@
                                                           request.get('partofyear'),
                                                           request.get('country'),
                                                           request.get('sort_on'),
-                                                          request.get('sort_order'))">
+                                                          request.get('sort_order'),
+                                                          request.get('release_status', ''),
+                                                          request.get('reportingdate_start', ''),
+                                                          request.get('reportingdate_end', ''),
+                                                          )">
     (Previous <span tal:replace="p/length">n</span> results)
 </a>
 </metal:block>
@@ -134,7 +150,11 @@
                                                     'partofyear=%s&'
                                                     'country=%s&'
                                                     'sort_on=%s&'
-                                                    'sort_order=%s' %(
+                                                    'sort_order=%s&'
+                                                    'release_status=%s&'
+                                                    'reportingdate_start:date:ignore_empty=%s&'
+                                                    'reportingdate_end:date:ignore_empty=%s'
+                                                    %(
                                                           n.first,
                                                           request.get('dataflow_uris', ''),
                                                           request.get('xml_schema_location', ''),
@@ -142,7 +162,11 @@
                                                           request.get('partofyear', ''),
                                                           request.get('country', ''),
                                                           request.get('sort_on', ''),
-                                                          request.get('sort_order', ''))">
+                                                          request.get('sort_order', ''),
+                                                          request.get('release_status', ''),
+                                                          request.get('reportingdate_start', ''),
+                                                          request.get('reportingdate_end', ''),
+                                                          )">
          (Next <span tal:replace="n/length">n</span> results)
     </a>
 </metal:block>

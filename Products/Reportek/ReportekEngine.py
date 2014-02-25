@@ -211,12 +211,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declareProtected('View', 'recent')
     recent = PageTemplateFile('zpt/engineRecentUploads', globals())
 
-    security.declareProtected('View', 'searchdataflow')
-    searchdataflow = PageTemplateFile('zpt/engineSearchByObligation', globals())
-
-    security.declareProtected('View', 'resultsdataflow')
-    resultsdataflow = PageTemplateFile('zpt/engineSearchByObligationResults', globals())
-
     security.declareProtected('View', 'searchxml')
     searchxml = PageTemplateFile('zpt/engineSearchXml', globals())
 
@@ -231,6 +225,69 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security.declarePublic('languages_box')
     languages_box = PageTemplateFile('zpt/languages_box', globals())
+
+    _searchdataflow = PageTemplateFile('zpt/searchdataflow', globals())
+
+    security.declareProtected('View', 'searchdataflow')
+    def searchdataflow(self):
+        """Search the ZCatalog for Report Envelopes,
+        show results and keep displaying the form """
+        # show the initial default populated
+        #if self.REQUEST.method == 'GET':
+        if 'sort_on' not in self.REQUEST:
+            return self._searchdataflow()
+
+        # form must be submitted with post
+
+        # make sure fields you are not searching for are not included
+        # in the query, not even with '' or None values
+        catalog_args = {
+            'meta_type': 'Report Envelope',
+        }
+
+        status = self.REQUEST.get('release_status')
+        if status == 'anystatus':
+            catalog_args.pop('released', None)
+        elif status == 'released':
+            catalog_args['released'] = 1
+        elif status == 'notreleased':
+            catalog_args['released'] = 0
+        else:
+            # FIXME this stops the view but does not display a proper error
+            self.REQUEST.RESPONSE.setStatus(400, 'bla')
+            return self.REQUEST.RESPONSE
+
+        if self.REQUEST.get('query_start'):
+            catalog_args['start'] = self.REQUEST['query_start']
+        if self.REQUEST.get('sort_on'):
+            catalog_args['sort_on'] = self.REQUEST['sort_on']
+        if self.REQUEST.get('sort_order'):
+            catalog_args['sort_order'] = self.REQUEST['sort_order']
+        if self.REQUEST.get('dataflow_uris'):
+            catalog_args['dataflow_uris'] = self.REQUEST['dataflow_uris']
+        if self.REQUEST.get('country'):
+            catalog_args['country'] = self.REQUEST['country']
+        if self.REQUEST.get('years'):
+            catalog_args['years'] = self.REQUEST['years']
+        if self.REQUEST.get('partofyear'):
+            catalog_args['partofyear'] = self.REQUEST['partofyear']
+
+        reportingdate_start = self.REQUEST.get('reportingdate_start')
+        reportingdate_end = self.REQUEST.get('reportingdate_end')
+        dateRangeQuery = {}
+        if reportingdate_start and reportingdate_end:
+            dateRangeQuery['range'] = 'min:max'
+            dateRangeQuery['query'] = [reportingdate_start, reportingdate_end]
+        elif reportingdate_start:
+            dateRangeQuery['range'] = 'min'
+            dateRangeQuery['query'] = reportingdate_start
+        elif reportingdate_end:
+            dateRangeQuery['range'] = 'max'
+            dateRangeQuery['query'] = reportingdate_end
+        if dateRangeQuery:
+            catalog_args['reportingdate'] = dateRangeQuery
+        envelopes = self.Catalog(**catalog_args)
+        return self._searchdataflow(results=envelopes, **self.REQUEST.form)
 
     def assign_roles(self, user, role, local_roles, doc):
         local_roles.append(role)
