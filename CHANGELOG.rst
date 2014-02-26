@@ -1,5 +1,7 @@
 3.6.6 (unreleased)
 ----------------
+* Task 18609 - Fix radio button labels on search form.
+
 3.6.5 (2014-02-26)
 ----------------
 * Task 17979 - Fix blob path computation
