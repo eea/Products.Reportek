@@ -85,12 +85,12 @@ function toggleSelect() {
                                                ('released', 'Released'),
                                                ('notreleased', 'Unreleased')];">
                 <tal:block tal:repeat="id_content id_contents">
-                <label tal:content="python: id_content[1]"
-                       tal:attributes="for python: id_content[0];"></label>
                 <input type="radio" name="release_status"
                        tal:attributes="id python: id_content[0];
                                        value python: id_content[0];
                                        checked python: id_content[0] == status;"/>
+                <label tal:content="python: id_content[1]"
+                       tal:attributes="for python: id_content[0];"></label>
                 </tal:block>
             </td>
         </tr>
