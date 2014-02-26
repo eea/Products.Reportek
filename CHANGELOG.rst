@@ -1,5 +1,9 @@
 3.6.6 (unreleased)
 ----------------
+
+3.6.6 (2014-02-26)
+----------------
+* Some fixes to DTML -> ZPT conversion. Fix the envelope overview automatic refresh.
 * Task 18609 - Fix radio button labels on search form.
 
 3.6.5 (2014-02-26)
