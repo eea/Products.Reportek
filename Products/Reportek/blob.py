@@ -53,7 +53,7 @@ class FileContainer(Persistent):
             raise StorageError
 
     def _update_metadata(self, fs_path):
-        self.fs_path = fs_path[len(self.get_blob_dir)+1:]
+        self.fs_path = fs_path[len(self.get_blob_dir())+1:]
         self.mtime = os.path.getmtime(fs_path)
         self.size = os.path.getsize(fs_path)
 
