@@ -34,8 +34,8 @@
 </table>
 <dl>
 	<dt>Debug</dt>
-	<dd>schema_url: <dtml-var schema_url missing html_quote></dd>
-	<dd>has_webForm: <dtml-var has_webForm missing html_quote></dd>
+	<dd>schema_url: <tal:block content="here/schema_url" /></dd>
+	<dd>has_webForm: <tal:block content="here/has_webForm" /></dd>
 </dl>
 </form>
 

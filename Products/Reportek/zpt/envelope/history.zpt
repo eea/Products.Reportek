@@ -2,18 +2,16 @@
   <tal:block condition="python:context.canViewContent()">
     <div tal:replace="structure python:context.envelope_tabs(tab='history_section')"/>
     <h1 i18n:translate="">
-      History of <span tal:replace="string:${context/title_or_id}"
-                       i18n:name="title"/>
+      History of <span tal:replace="string:${context/title_or_id}" i18n:name="title"/>
     </h1>
     <p i18n:translate="">
         This page displays all the history of tasks that have executed in this envelope.
         If you want to see more details about a task, just expand the <img
           src="/misc_/Reportek/plus_gif" alt="Expand item for more information"
-          border="0"
           i18n:name="plus-icon"/> icon next to it.
     </p>
 
-    <table border="0" cellpadding="2" cellspacing="2">
+    <table cellpadding="2" cellspacing="2">
     <tal:block define="actives python:[]" repeat="item python:context.objectValues('Workitem')">
       <tr tal:define="condition python:request.has_key('w' + item.id) and request['w' + item.id] == '1'">
         <tal:block condition="condition">
@@ -24,7 +22,7 @@
                           request['QUERY_STRING'], 'w' + item.id, '0'
                         )"
             tal:attributes="href string:${url0}?${query_string}">
-            <img src="/misc_/Reportek/minus_gif" alt="Collapse item" border="0" />
+            <img src="/misc_/Reportek/minus_gif" alt="Collapse item" />
           </a>
         </td>
         <td><strong tal:content="python:item.getActivityDetails('title')"></strong>
@@ -56,9 +54,6 @@
           </td>
         </tal:block>
 
-        <dtml-if "status in ('active','inactive')">
-            <dtml-call "actives.append(activity_id)">
-        </dtml-if>
       </tr>
     </tal:block>
     </table>

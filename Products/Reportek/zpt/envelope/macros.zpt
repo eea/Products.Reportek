@@ -7,7 +7,7 @@
       <strong tal:content="python:item.getActivityDetails('title')"></strong>
       (<span tal:replace="python:item.getActivityDetails('description')"></span>)
       <tal:block condition="python:item.actor == 'openflow_engine'">
-        <dtml-call "RESPONSE.setHeader('Refresh','60')">
+        <tal:block define="dummy_var python:request.RESPONSE.setHeader('Refresh','60')" />
       </tal:block>
       <tal:block condition="not:python:item.actor == 'openflow_engine'"
         i18n:translate="">
