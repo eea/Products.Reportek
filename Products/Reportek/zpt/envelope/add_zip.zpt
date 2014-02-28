@@ -1,24 +1,8 @@
-<tal:block define="SecurityManager
-                   modules/AccessControl/getSecurityManager;
-                   has_permission
-                   python:SecurityManager.checkPermission('View management screens', template)">
-  <tal:block condition="has_permission">
-    <span tal:replace="structure context/manage_page_header"/>
-    <span tal:replace="structure python:
-      context.manage_form_title(template, context,
-        form_title='Upload zipfile archive',
-        help_product='Reportek',
-        help_topic='Document_Add.stx'
-      )"/>
-  </tal:block>
+<span tal:replace="structure context/standard_html_header"/>
 
-  <tal:block condition="not:has_permission">
-    <span tal:replace="structure context/standard_html_header"/>
-    <h1 i18n:translate="">Upload zipfile archive</h1>
-  </tal:block>
+<h1 i18n:translate="">Upload zipfile archive</h1>
 
-    <p i18n:translate="">The zipfile upload makes it possible for you to add a large number of files
-    in one upload. The zipfile will be uploaded and unwrapped.</p>
+<p i18n:translate="">The zipfile upload makes it possible for you to add a large number of files in one upload. The zipfile will be uploaded and unwrapped.</p>
 
   <tal:block define="
     default_restricted python:request.SESSION.get('default_restricted', '');
@@ -53,6 +37,4 @@
 
   </tal:block>
 
-  <span tal:condition="has_permission" tal:replace="structure context/manage_page_footer"/>
-  <span tal:condition="not:has_permission" tal:replace="structure context/standard_html_footer"/>
-</tal:block>
+<span tal:replace="structure context/standard_html_footer"/>
