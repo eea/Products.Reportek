@@ -1,5 +1,9 @@
-3.6.6 (unreleased)
+3.6.8 (unreleased)
 ----------------
+
+3.6.7 (2014-02-28)
+----------------
+* Task 18521 - Fixed the expiration message on the envelope note page
 
 3.6.6 (2014-02-26)
 ----------------
