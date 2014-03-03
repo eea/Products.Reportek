@@ -108,6 +108,7 @@ function toggleSelect() {
 <form action="ReportekEngine/zipEnvelopes" method="post" id="frmZip"
       tal:define="query_start python:request.get('query_start') or 0;
                   Batch python:modules['ZTUtils'].Batch;
+                  html_quote python:modules['Products.PythonScripts.standard'].html_quote;
                   batch python:Batch(options['results'], 50, int(query_start), orphan=1);">
 
     <metal:block use-macro="here/macros/resultsTable">
@@ -119,6 +120,7 @@ function toggleSelect() {
         {'id':'company','title':'Company','sortable':0},
         {'id':'userid','title':'User ID','sortable':0},
         {'id':'title','title':'Title','sortable':0},
+        {'id':'envurl','title':'URL','sortable':0},
         {'id':'years','title':'Years','sortable':1},
         {'id':'dataflow_uris','title':'Obligation','sortable':1},
         {'id':'reportingdate','title':'Reported','sortable':1},
@@ -157,6 +159,7 @@ function toggleSelect() {
             title_link
         </a>
     </td>
+    <td tal:content="python: html_quote(obj.absolute_url())"></td>
     <td style="white-space:nowrap"
         tal:content="python: '%s-%s' %(obj.year, obj.endyear) if obj.endyear else obj.year">
         year-endyear
