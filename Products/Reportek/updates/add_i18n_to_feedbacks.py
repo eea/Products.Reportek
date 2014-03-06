@@ -1,5 +1,6 @@
 # Use this update script from ./bin/instance debug
 # from Products.Reportek.updates import add_i18n_to_feedbacks
+# add_i18n_to_feedbacks.update(app)
 # you will need a feedbacks specific default.pot file in the directory you are running from
 #
 # Please note that the task this script tries to accomplish is not trivial
@@ -106,7 +107,7 @@ def do_update(o, app, bySrc, safeMatchOnly=True):
             feedbacktext = varPat.sub(replStr, feedbacktext)
 
     # add line endings back
-    return bs(feedbacktext).prettify().encode('utf-8')
+    return bs(feedbacktext.encode('utf-8')).prettify()
 
 def update(app):
     po_filename = 'default.pot'
