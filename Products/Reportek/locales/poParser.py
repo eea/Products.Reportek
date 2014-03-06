@@ -5,7 +5,7 @@ import re
 
 class PoBlock(object):
     #> #. Default: "Add"
-    varPattern = re.compile(r'\${[\S-]+}')
+    varPattern = re.compile(r'\${([\S-]+)}')
     #> #: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:121
     sourcePattern = re.compile(r'^#: (.*\S):\d+')
     comment = u'#'
@@ -15,7 +15,8 @@ class PoBlock(object):
     # sourcefiles -> set of msgidOrSrc
     source2ids = defaultdict(set)
 
-    def __init__(self):
+    def __init__(self, noPerifericQuotes):
+        self.noPerifericQuotes = noPerifericQuotes
         self.blockLines = []
         self.default_message = None
         self.default_message_trimmed = None
@@ -25,17 +26,17 @@ class PoBlock(object):
         self.translated = True
         self.htmlsIn = []
         self.sources = []
+        self.i18n_vars = []
+        self.msgidOrSrc_parts = []
 
     def trim(self, msg):
-        # assume only one occurence
-        m = self.varPattern.search(msg)
-        if not m:
-            return msg
-        if m.start() > len(msg) - m.end():
-            # no more stripping  - I want as many char as possible left
-            return msg[:m.start()]
-        else:
-            return msg[m.end():]
+        # FIXME only one of Default/msgid will have vars?
+        if not self.i18n_vars:
+            self.i18n_vars = self.varPattern.findall(msg)
+        self.msgidOrSrc_parts = self.varPattern.split(msg)
+        self.msgidOrSrc_parts = [ x for x in self.msgidOrSrc_parts if x not in self.i18n_vars ]
+        # no more stripping  - I want as many char as possible left
+        return max(self.msgidOrSrc_parts, key=len)
 
     def tryRecordSource(self, line):
         m = self.sourcePattern.search(line)
@@ -45,11 +46,15 @@ class PoBlock(object):
     def trySetDefault(self, line):
         if line.startswith(self.default):
             self.default_message = line[len(self.default):].strip()
+            if self.noPerifericQuotes:
+                self.default_message = self.default_message.strip('"')
             self.default_message_trimmed = self.trim(self.default_message)
 
     def trySetMsgid(self, line):
         if line.startswith(self.msgid):
             self.msgidOrSrc = line[len(self.msgid):].strip()
+            if self.noPerifericQuotes:
+                self.msgidOrSrc = self.msgidOrSrc.strip('"')
             self.msgidOrSrc_trimmed = self.trim(self.msgidOrSrc)
             self._trackSource()
 
@@ -85,14 +90,14 @@ class PoBlock(object):
         return allNeighbours
 
 
-def po_load(file_name, poHeader=None, bySrc=None, byMsgid=None):
+def po_load(file_name, poHeader=None, bySrc=None, byMsgid=None, noPerifericQuotes=False):
     # note that in case of bySrc we will have overlappings
     # (because msg-id-stuff was not thoroughly implemented)
     # at the end of the day they reffer to the same message.
     # this overwirting may mismatch the soruces
     # but we will surely find another neighbour leading to all the others
 
-    block = PoBlock()
+    block = PoBlock(noPerifericQuotes=noPerifericQuotes)
     state = 'header'
     for line in codecs.open(file_name, 'r', 'utf-8'):
         line = line.strip()
@@ -138,7 +143,7 @@ def po_load(file_name, poHeader=None, bySrc=None, byMsgid=None):
                     bySrc[block.lookForThis] = block
                 if byMsgid is not None:
                     byMsgid[block.msgidOrSrc] = block
-                block = PoBlock()
+                block = PoBlock(noPerifericQuotes=noPerifericQuotes)
                 continue
             else:
                 block.blockLines.append(line)

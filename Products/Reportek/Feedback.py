@@ -35,6 +35,7 @@ import StringIO
 from os.path import join, isfile
 
 # Zope imports
+from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from AccessControl.Permissions import view_management_screens
 from OFS.SimpleItem import SimpleItem
@@ -193,8 +194,7 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
         # the next line of code will raise an exception
         # because we don't want to save unsecure html
         sanitizer = convs['safe_html']
-        result = sanitizer.convert(tmp, sanitizer.id)
-        self.feedbacktext = result.text
+        self.feedbacktext = sanitizer.convert(tmp, sanitizer.id).text
         if content_type:
             self.content_type = content_type
         if document_id != 'None':
@@ -238,6 +238,11 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
         if p_action == 'Delete': self.manage_delObjects(file_id)
         if REQUEST is not None:
             REQUEST.RESPONSE.redirect('%s/manage_editFeedbackForm' % self.absolute_url())
+
+    def renderFeedbacktext(self):
+        pt = ZopePageTemplate(self.id+'_tmp')
+        pt.write(self.feedbacktext)
+        return pt.__of__(self)()
 
     def compileFeedbacktext(self, REQUEST):
         """ If the feedbacktext has another content type than plain text or HTML,

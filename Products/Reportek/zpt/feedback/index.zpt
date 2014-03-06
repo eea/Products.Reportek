@@ -90,11 +90,11 @@
 
       <tal:block define="
         is_html
-          python:context.content_type.startswith('text/html') or context.feedbacktext[:1] == '<';
+          python:context.content_type.startswith('text/html') or context.feedbacktext[0] == '<';
         is_plain
           python:context.content_type.startswith('text/plain')">
         <tal:block condition="is_html">
-          <span tal:replace="structure context/feedbacktext"/>
+          <span tal:replace="structure context/renderFeedbacktext"/>
         </tal:block>
 
         <tal:block condition="python:not is_html and is_plain">
