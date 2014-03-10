@@ -25,8 +25,14 @@ def do_update(app):
                     data_file.fs_path = file_handle.name[len(blob_dir)+1:]
                     print "Correcting bad tmp path: %s to good path: %s" % (old_path, data_file.fs_path)
                 elif data_file.fs_path.startswith('/'):
-                    data_file.fs_path = data_file.fs_path[len(blob_dir)+1:]
-                    print "Correcting absolute path to blob-only path %s" % data_file.fs_path
+                    if data_file.fs_path.startswith(blob_dir):
+                        data_file.fs_path = data_file.fs_path[len(blob_dir)+1:]
+                        print "Correcting absolute path to blob-only path %s" % data_file.fs_path
+                    else:
+                        print ("Cannot substract blob_dir: %s from path: %s with"
+                               " , did you bring it from"
+                               " another deployment, or changed the blob_dir"
+                               " in the meantime?")%(blob_dir, data_file.fs_path)
                 else:
                     print "Skipping new version/already patched object with path %s" % data_file.fs_path
             except POSKeyError:
