@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='Products.Reportek',
-    version='3.6.9',
+    version='3.6.10',
     author='Eau de Web',
     author_email='office@eaudeweb.ro',
     url='http://naaya.eaudeweb.ro',

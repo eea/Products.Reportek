@@ -1,5 +1,10 @@
-3.6.9 (unreleased)
+3.6.10 (unreleased)
 ----------------
+
+3.6.9 (2014-03-10)
+----------------
+* Task 17247 - Rerender feedback htmls. Update script to readd missing html. Prevent reportek.convertes/safe_html from removing i18n
+* Task 17979 - Fix blob path when uploading new file
 
 3.6.8 (2014-03-03)
 ----------------
