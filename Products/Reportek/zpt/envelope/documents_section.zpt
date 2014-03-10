@@ -30,7 +30,7 @@
         <td style="white-space:nowrap">
           <tal:block
             condition="python:SecurityManager.checkPermission('View', item)">
-            <span tal:condition="not:python:item.has_permission('View')"
+            <span tal:condition="item/isRestricted"
                   tal:content="string:(Limited)"/>
           </tal:block>
           <tal:block
@@ -39,7 +39,7 @@
             <img src="/misc_/Reportek/lockicon_gif" alt="No access" width="16" height="16" />
           </tal:block>
             <img tal:condition="item/get_accept_time"
-                 src="/misc_/Reportek/accepted" alt="Document accepted by the client" 
+                 src="/misc_/Reportek/accepted" alt="Document accepted by the client"
                  i18n:attributes="alt document-accepted"/>
         </td>
         <td><em tal:content="item/title">title</em></td>
@@ -56,7 +56,7 @@
 				<tal:block condition="python:SecurityManager.checkPermission('View', item)">
           <td><a tal:attributes="href item/id" tal:content="item/id">id</a></td>
           <td style="white-space:nowrap">
-            <span tal:condition="not:python:item.has_permission('View')" tal:content="string:(Limited)"/>
+            <span tal:condition="item/isRestricted">(Limited)</span>
         </tal:block>
 				<tal:block condition="not:python:SecurityManager.checkPermission('View', item)">
           <td i18n:translate="">(Limited)</td>
@@ -85,7 +85,7 @@
 
 <p tal:condition="python:request.get('therearerestrictions', 0) > 0" i18n:translate="">
 	Access limitations may apply for files, which are not (yet) released for public view. Files marked with
-	<img src="/misc_/Reportek/lockicon_gif" alt="Padlock" width="16" height="16" i18n:name="lock-icon"/> are unavailable. 
+	<img src="/misc_/Reportek/lockicon_gif" alt="Padlock" width="16" height="16" i18n:name="lock-icon"/> are unavailable.
 	You must log in to get access.
 </p>
 

@@ -23,7 +23,7 @@ This page sets what roles can do what.
 	<tr>
 		<td tal:content="process/id">Process id</td>
 		<td>
-			<select multiple="" name="activities:list" style="width:100%">
+			<select multiple="" name="activities:list" style="width:100%; height: 150px">
 				<tal:block repeat="activity python:process.objectValues('Activity')">
 					<tal:block
 						define="list python:here.getActivitiesPullableOnRole()"
