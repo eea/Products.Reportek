@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 from collections import defaultdict
 import codecs
 import re
@@ -33,8 +33,8 @@ class PoBlock(object):
         # FIXME only one of Default/msgid will have vars?
         if not self.i18n_vars:
             self.i18n_vars = self.varPattern.findall(msg)
-        self.msgidOrSrc_parts = self.varPattern.split(msg)
-        self.msgidOrSrc_parts = [ x for x in self.msgidOrSrc_parts if x not in self.i18n_vars ]
+            self.msgidOrSrc_parts = self.varPattern.split(msg)
+            self.msgidOrSrc_parts = [ x for x in self.msgidOrSrc_parts if x not in self.i18n_vars ]
         # no more stripping  - I want as many char as possible left
         return max(self.msgidOrSrc_parts, key=len)
 
@@ -71,6 +71,25 @@ class PoBlock(object):
     def getBlockText(self):
         return u'\n'.join(self.blockLines)
 
+    def replaceTranslation(self, transMsg):
+        for i, line in enumerate(self.blockLines):
+            if line.startswith(self.msgstr):
+                break
+        self.blockLines = self.blockLines[:i]
+        self.blockLines.append(u'%s "%s"\n' % (self.msgstr, transMsg))
+        self.blockLines.append(u'\n')
+
+    def replaceTranslationPreserveVars(self, trMsg=u' ✕ '):
+        for i, line in enumerate(self.blockLines):
+            if line.startswith(self.msgstr):
+                break
+        self.blockLines = self.blockLines[:i]
+        vars_and_ends = [u'']
+        vars_and_ends.extend([ "${%s}"%var for var in self.i18n_vars ])
+        vars_and_ends.append(u'')
+        self.blockLines.append(self.msgstr + ' "' + trMsg.join(vars_and_ends) + '"\n')
+        self.blockLines.append(u'\n')
+
     def foundInHtml(self, html_base_name):
         return html_base_name in self.htmlsIn;
 
@@ -81,6 +100,13 @@ class PoBlock(object):
             return self.default_message_trimmed
         else:
             return self.msgidOrSrc_trimmed
+
+    @property
+    def srcMsg(self):
+        if self.default_message:
+            return self.default_message
+        else:
+            return self.msgidOrSrc
 
     @property
     def neighbours(self):
