@@ -19,7 +19,9 @@ def do_update(app):
                     setattr(data_file, 'fs_path', file_handle.name)
                     file_handle.close()
                     print ob.absolute_url(1)
-                elif data_file.fs_path.startswith('/tmp/') or data_file.fs_path is '':
+                elif (data_file.fs_path.startswith('/tmp/')
+                      or data_file.fs_path.startswith('tmp/')
+                      or data_file.fs_path is ''):
                     old_path = data_file.fs_path
                     file_handle = data_file._blob.open('r')
                     data_file.fs_path = file_handle.name[len(blob_dir)+1:]
