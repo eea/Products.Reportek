@@ -53,9 +53,19 @@ class FileContainer(Persistent):
             raise StorageError
 
     def _update_metadata(self, fs_path):
-        self.fs_path = fs_path[len(self.get_blob_dir())+1:]
+        # fs_path is inside /tmp/ right now, can't save path
         self.mtime = os.path.getmtime(fs_path)
         self.size = os.path.getsize(fs_path)
+
+    def get_fs_path(self):
+        blob_dir = self.get_blob_dir()
+        try:
+            if not self.fs_path:
+                this_data_file = self._blob.open('r')
+                self.fs_path = this_data_file.name[len(blob_dir)+1:]
+            return os.path.join(blob_dir, self.fs_path)
+        except:
+            return ''
 
     @classmethod
     def get_blob_dir(cls):

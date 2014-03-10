@@ -19,12 +19,16 @@ def do_update(app):
                     setattr(data_file, 'fs_path', file_handle.name)
                     file_handle.close()
                     print ob.absolute_url(1)
+                elif data_file.fs_path.startswith('/tmp/') or data_file.fs_path is '':
+                    old_path = data_file.fs_path
+                    file_handle = data_file._blob.open('r')
+                    data_file.fs_path = file_handle.name[len(blob_dir)+1:]
+                    print "Correcting bad tmp path: %s to good path: %s" % (old_path, data_file.fs_path)
                 elif data_file.fs_path.startswith('/'):
                     data_file.fs_path = data_file.fs_path[len(blob_dir)+1:]
                     print "Correcting absolute path to blob-only path %s" % data_file.fs_path
                 else:
-                    print "Skipping new version/already patched object at %s" % ob.absolute_url(1)
-                    print "fs_path was %s" % data_file.fs_path
+                    print "Skipping new version/already patched object with path %s" % data_file.fs_path
             except POSKeyError:
                 print "No blob file for %s" % ob.absolute_url(1)
 

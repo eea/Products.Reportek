@@ -333,8 +333,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         not_found = "file not found"
         if getattr(self.data_file, 'fs_path', None) is None:
             return not_found + " (upload failed?)"
-        blob_dir = FileContainer.get_blob_dir()
-        path = os.path.join(blob_dir, self.data_file.fs_path)
+        path = self.data_file.get_fs_path()
         if not os.path.isfile(path):
             return not_found + " (should have been: %s)" % path
 
