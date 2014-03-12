@@ -23,6 +23,7 @@ for f in $out_dir/*; do
 	for xlf in `find $f -type f -name '*.xlf'`; do
 		echo "change file ${xlf}; put lang $lang in target-language"
 		sed -i -e"s:<file\>\(.*\)>:<file\1 target-language=\"${lang}\">:" ${xlf}
+		sed -i -e"s:source-language=\"en-US\":source-language=\"en-GB\":" ${xlf}
 	done
 done
 
