@@ -239,7 +239,12 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             on the envelope's history tab
         """
         for l_w in self.getWorkitemsActiveForMe(self.REQUEST):
-            l_w.addEvent('file upload', 'File: %s' % self.id)
+            l_w.addEvent('file upload', 'File: {0} ({1})'
+                            .format(
+                                self.id,
+                                self._bytetostring(self.data_file.size)
+                            )
+                        )
 
     def index_html(self, REQUEST, RESPONSE, icon=0):
         """ Returns the contents of the file.  Also, sets the
