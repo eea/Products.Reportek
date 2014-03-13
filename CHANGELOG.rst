@@ -1,5 +1,6 @@
 3.6.12 (unreleased)
 ----------------
+* Task 17612 - Build_collections: improve error messages
 
 3.6.11 (2014-03-13)
 ----------------

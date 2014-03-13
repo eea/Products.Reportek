@@ -111,7 +111,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         # The URL to the WebQ page which constructs a menu for a specified envelope
         # called via HTTP GET
         self.webq_envelope_menu = 'http://cdr.eionet.europa.eu/webq/WebQMenu'
-        # The URL to the WebQ webpage, before the user starts to use the edit form. 
+        # The URL to the WebQ webpage, before the user starts to use the edit form.
         # The purpose is to ask the capabilities of the user webbrowser
         # and what language the form should be in.
         # called via HTTP GET
@@ -430,7 +430,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     )
                     messages['success'].append(country['name'])
                 except KeyError:
-                    messages['fail'].append('%s(%s*)' %(country['name'], target_path))
+                    err = "{0}: the specified path does not exist [{1}]".format     (country['name'], target_path)
+                    messages['fail'].append(err)
         return self.Build_collections_form(REQUEST, messages=messages)
 
     def response_messages(self, crole, users, ccountries, dataflow_uris,
@@ -547,7 +548,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             kwargs.update(REQUEST.form)
         status = kwargs.get('status', '')
         obligation = kwargs.get('obligation', '')
-        
+
         catalog = getattr(self, DEFAULT_CATALOG, None)
         if not catalog:
             return
@@ -580,7 +581,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             if doc.getActivityDetails('title') == 'Draft' and doc.status == 'inactive':
                 continue
             yield doc
-    
+
     security.declareProtected(view_management_screens, 'autoCompleteEnvelopes')
     def autoCompleteEnvelopes(self, REQUEST=None, **kwargs):
         """ Run autocomplete process
@@ -725,7 +726,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security.declareProtected('View', 'lookup_last_delivery')
     def lookup_last_delivery(self, dataflow_uris, country, reporting_period=''):
-        """ Find the newest delivery with the same location and dataflows, 
+        """ Find the newest delivery with the same location and dataflows,
             but is older than the reporting_period in the argument
             If the reporting_period is not provided, finds them all until today
         """
@@ -735,15 +736,15 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             l_reporting_period = DateTime()
         l_deliveries = self._xmlrpc_search_delivery(dataflow_uris=dataflow_uris, country=country)
         if l_deliveries:
-            # order all envelopes by start data in reverse and 
+            # order all envelopes by start data in reverse and
             # filter only the ones that have the start date previous than l_reporting_period
             return RepUtils.utSortByMethod(l_deliveries, 'getStartDate', l_reporting_period, 1)
         return []
 
     security.declareProtected(view_management_screens, 'harvestXforms')
     def harvestXforms(self):
-        """ calls getXforms from the WebQ, and updates the DataflowMappingRecord table 
-            for the haswebform attribute 
+        """ calls getXforms from the WebQ, and updates the DataflowMappingRecord table
+            for the haswebform attribute
             To be called on regular basis by a cron job
         """
         if self.webq_url:
@@ -780,8 +781,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security.declareProtected('View', 'getEnvelopesInfo')
     def getEnvelopesInfo(self, obligation):
-        """ Returns a list with all information about envelopes for a certain obligation, 
-            including the XML files inside 
+        """ Returns a list with all information about envelopes for a certain obligation,
+            including the XML files inside
         """
         reslist = []
         l_catalog = getattr(self, constants.DEFAULT_CATALOG)
@@ -859,7 +860,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security.declareProtected('View', 'canUserSubscribeToUNS')
     def canUserSubscribeToUNS(self, user_id='', REQUEST=None):
-        """ Indicates if the user given as parameter or authenticated 
+        """ Indicates if the user given as parameter or authenticated
             is allowed to subscribe to UNS for this channel
         """
         if not user_id:
@@ -877,7 +878,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declareProtected('View', 'subscribeToUNS')
     def subscribeToUNS(self, filter_country='', filter_dataflows=[], filter_event_types=[], REQUEST=None):
         """ Creates new or updates existing subscription to the specified
-            If there is a request, returns a message, otherwise, returns 
+            If there is a request, returns a message, otherwise, returns
             (1, '') for success
             (0, error_description) for failure
         """

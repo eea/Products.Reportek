@@ -66,12 +66,11 @@ function toggleSelectCountries(group) {
     <label tal:content="python:'Unable to create collection for'">
         Content
     </label>
-    <p tal:content="python:', '.join(options['messages']['fail'])">
-        fails
-    </p>
-    <p>
-        *incompatible tree structure
-    </p>
+    <ul>
+        <tal:block repeat="error options/messages/fail">
+        <li tal:content="error" />
+        </tal:block>
+    </ul>
 </div>
 
 <form action="/ReportekEngine/Build_collections" method="post"  name="objectItems">
@@ -108,7 +107,7 @@ function toggleSelectCountries(group) {
   </td>
 </tr>
 <tr>
-  <td><label class="question">Subojects</label></td>
+  <td><label class="question">Subobjects</label></td>
   <td>
     <input type="checkbox" value="1" name="allow_envelopes" id="allow_envelopes" checked="checked"/>
     <label for="allow_envelopes">Envelopes</label>
@@ -124,7 +123,7 @@ function toggleSelectCountries(group) {
 
 <script type="text/javascript">
 
-<!-- 
+<!--
 var select_div = document.getElementById('select_countries');
 if (select_div) {
   var select_buttons = '<input class="form-element" type="button" name="selectAllCountries" value="Select All" onclick="toggleSelectCountries(europe); return false"/>';
