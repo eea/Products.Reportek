@@ -92,7 +92,7 @@ def manage_addDocument(self, id='', title='',
         id = id.strip()
         id = RepUtils.cleanup_id(id)
         # delete the previous file with the same id, if exists
-        if hasattr(self, id):
+        if self.get(id) and instance(self.get(id), Document):
             self.manage_delObjects(id)
         self = self.this()
         self._setObject(id, Document(id, title))
@@ -351,7 +351,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         return True
 
     # Below there are the two forms for the document operations
-    # The second one contains links to the file editing (regular upload 
+    # The second one contains links to the file editing (regular upload
     # or editing with external editors e.g. XForms)
     _manage_template = PageTemplateFile('zpt/document/manage', globals())
 
@@ -423,7 +423,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
     ################################
     # Protected management methods #
-    ################################ 
+    ################################
     # Management Interface
     _manage_main_template = PageTemplateFile('zpt/document/edit', globals())
     def manage_main(self, REQUEST=None):

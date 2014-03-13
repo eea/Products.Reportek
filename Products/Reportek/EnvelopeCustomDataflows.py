@@ -188,10 +188,10 @@ class EnvelopeCustomDataflows:
                 # Change the original file title to show the conversion result
                 l_doc.manage_editDocument(title='%s - converted into an XML delivery' % l_original_type, content_type=l_doc.content_type)
                 # add feedback with the conversion log
-                self.manage_addFeedback(id='conversion_log_%s' % l_id, 
-                        title='Conversion log for file %s' % l_id, 
-                        feedbacktext=l_ret_list['conversionLog'], 
-                        automatic=1, 
+                self.manage_addFeedback(id='conversion_log_%s' % l_id,
+                        title='Conversion log for file %s' % l_id,
+                        feedbacktext=l_ret_list['conversionLog'],
+                        automatic=1,
                         content_type='text/html',
                         document_id=l_id)
                 if REQUEST is not None:
@@ -210,10 +210,10 @@ class EnvelopeCustomDataflows:
                 # Change the original file title to show the conversion result
                 l_doc.manage_editDocument(title='%s - not converted into an XML delivery' % l_original_type, content_type=l_doc.content_type)
                 # add feedback with the conversion log
-                self.manage_addFeedback(id='conversion_log_%s' % l_id, 
-                        title='Conversion log for file %s' % l_id, 
-                        feedbacktext=l_ret_list['conversionLog'], 
-                        automatic=1, 
+                self.manage_addFeedback(id='conversion_log_%s' % l_id,
+                        title='Conversion log for file %s' % l_id,
+                        feedbacktext=l_ret_list['conversionLog'],
+                        automatic=1,
                         content_type='text/html',
                         document_id=l_id)
 
@@ -232,10 +232,10 @@ class EnvelopeCustomDataflows:
                 # Change the original file title to show the conversion result
                 l_doc.manage_editDocument(title='%s - not converted into an XML delivery - not based on the most recent reporting template' % l_original_type, content_type=l_doc.content_type)
                 # add feedback with the conversion log
-                self.manage_addFeedback(id='conversion_log_%s' % l_id, 
-                        title='Conversion log for file %s' % l_id, 
-                        feedbacktext=l_ret_list['conversionLog'], 
-                        automatic=1, 
+                self.manage_addFeedback(id='conversion_log_%s' % l_id,
+                        title='Conversion log for file %s' % l_id,
+                        feedbacktext=l_ret_list['conversionLog'],
+                        automatic=1,
                         content_type='text/html',
                         document_id=l_id)
                 if REQUEST is not None:
@@ -442,7 +442,7 @@ class EnvelopeCustomDataflows:
                 return 0
 
     security.declareProtected('Change Envelopes', 'manage_addDocOrZip')
-    def manage_addDocOrZip(self, file, restricted='', REQUEST=None):
+    def manage_addDocOrZip(self, file, restricted='', id='', REQUEST=None):
         """ Adds a file or unpacks a zip in the envelope """
         if not file or type(file) is type('') or not hasattr(file,'filename'):
             if REQUEST is not None:
@@ -452,9 +452,16 @@ class EnvelopeCustomDataflows:
             return 0
         else:
             if file.filename.endswith('.zip'):
-                return self.manage_addzipfile(file=file, restricted=restricted, REQUEST=REQUEST)
+                return self.manage_addzipfile(
+                            file=file,
+                            restricted=restricted,
+                            REQUEST=REQUEST)
             else:
-                return self.manage_addDocument(file=file, restricted=restricted, REQUEST=REQUEST)
+                return self.manage_addDocument(
+                            id=id,
+                            file=file,
+                            restricted=restricted,
+                            REQUEST=REQUEST)
 
     security.declareProtected('Change Envelopes', 'manage_addDDFile')
     def manage_addDDFile(self, file, restricted='', required_schema=[], REQUEST=None):
@@ -495,7 +502,7 @@ class EnvelopeCustomDataflows:
             country_name = str(self.localities_dict().get(self.country, {'name':'Unknown'})['name'])
             for df in self.dataflow_uris:
                 if event_type:
-                    filters.append({'http://rod.eionet.europa.eu/schema.rdf#locality': country_name, 'http://rod.eionet.europa.eu/schema.rdf#obligation': engine.getDataflowTitle(df), 
+                    filters.append({'http://rod.eionet.europa.eu/schema.rdf#locality': country_name, 'http://rod.eionet.europa.eu/schema.rdf#obligation': engine.getDataflowTitle(df),
                     'http://rod.eionet.europa.eu/schema.rdf#event_type': event_type})
                 else:
                     filters.append({'http://rod.eionet.europa.eu/schema.rdf#locality': country_name, 'http://rod.eionet.europa.eu/schema.rdf#obligation': engine.getDataflowTitle(df)})
