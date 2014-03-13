@@ -1,5 +1,9 @@
-3.6.11 (unreleased)
+3.6.12 (unreleased)
 ----------------
+
+3.6.11 (2014-03-13)
+----------------
+* Task 17922 - Write size of uploaded file to event log [nituacor]
 
 3.6.10 (2014-03-10)
 ----------------
