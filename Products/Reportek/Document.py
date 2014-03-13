@@ -92,7 +92,7 @@ def manage_addDocument(self, id='', title='',
         id = id.strip()
         id = RepUtils.cleanup_id(id)
         # delete the previous file with the same id, if exists
-        if self.get(id) and instance(self.get(id), Document):
+        if self.get(id) and isinstance(self.get(id), Document):
             self.manage_delObjects(id)
         self = self.this()
         self._setObject(id, Document(id, title))
