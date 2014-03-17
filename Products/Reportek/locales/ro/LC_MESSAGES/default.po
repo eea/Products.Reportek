@@ -265,7 +265,7 @@ msgstr "ANEXA II - Raportarea F-Gases"
 #: templates/organisation_update.html:68
 #: templates/self_register.html:62
 msgid "About EORI number"
-msgstr ""
+msgstr "Despre numărul EORI"
 
 #: Reportek/zpt/envelope/statusesbulk.zpt:22
 msgid "Accept"
@@ -290,7 +290,7 @@ msgstr "Unele fișiere pot avea limitări de acces. Fișierele marcate cu <img s
 
 #: templates/organisation_update.html:88
 msgid "Account name"
-msgstr ""
+msgstr "Nume cont"
 
 #: Reportek/zpt/envelope/statusesbulk.zpt:21
 msgid "Action"
@@ -362,7 +362,7 @@ msgstr "Adaugă Hyperlink"
 
 #: templates/organisation_add_person.html:6
 msgid "Add person"
-msgstr ""
+msgstr "Adaugă persoană"
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:12
 msgid "Add supporting file"
@@ -504,7 +504,7 @@ msgstr "Manual BDR"
 #: templates/organisation_add_person.html:33
 #: templates/person_update.html:33
 msgid "Back"
-msgstr ""
+msgstr "Înapoi"
 
 #: Reportek/zpt/envelope/add.zpt:23
 msgid "Back to collection"
@@ -526,7 +526,7 @@ msgstr "Înapoi la fișier"
 
 #: templates/organisation_update.html:14
 msgid "Back to reporting"
-msgstr ""
+msgstr "Înapoi la raportare"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:77
 msgid "Blocking errors:"
@@ -674,12 +674,12 @@ msgstr "Informații de contact companie"
 #: templates/organisation_update.html:23
 #: templates/self_register.html:37
 msgid "Company details"
-msgstr ""
+msgstr "Detalii companie"
 
 #: models.py:95
 #: templates/organisation_update.html:34
 msgid "Company name"
-msgstr ""
+msgstr "Nume companie"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:5
 msgid "Company name/(metric tonnes)"
@@ -724,7 +724,7 @@ msgstr "Copiază livrare precedentă"
 
 #: templates/organisation_update.html:78
 msgid "Country"
-msgstr ""
+msgstr "Țară"
 
 #: Reportek/zpt/collection/add.zpt:62
 #: Reportek/zpt/collection/prop.zpt:61
@@ -810,7 +810,7 @@ msgstr "Personalul desemnat din Statele Membre (accesul va fi restricționat la 
 
 #: templates/self_register.html:73
 msgid "Designated company reporter nr 1"
-msgstr ""
+msgstr "Raportorul desemnat de companie nr 1"
 
 #. Default: "Reporterii desemnați de o întreprindere, care trebuie să raporteze în conformitate cu articolul 6 din Regulamentul F-gaz sau cu articolul 27 din regulamentul de ODS, ar trebui să se înregistreze pentru a fi în măsură să raporteze."
 #: templates/self_register.html:11
@@ -869,11 +869,11 @@ msgstr "Personalul EEA, precum și experții externi sau contractorii desemnați
 
 #: models.py:103
 msgid "EORI number"
-msgstr ""
+msgstr "Număr EORI"
 
 #: models.py:93
 msgid "Economic Operators Registration and Identification number (EORI)"
-msgstr ""
+msgstr "Număr de identificare și înregistrare pentru operator economic (EORI)"
 
 #: Reportek/zpt/envelope/feedback_section.zpt:43
 msgid "Edit"
@@ -919,11 +919,11 @@ msgstr "Echipament electric"
 
 #: models.py:155
 msgid "Email address"
-msgstr ""
+msgstr "Adresă de e-mail"
 
 #: models.py:156
 msgid "Email address 2"
-msgstr ""
+msgstr "Adresă de e-mail 2"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:244
 msgid "Emission"
@@ -988,11 +988,11 @@ msgstr "F"
 
 #: models.py:152
 msgid "Family name"
-msgstr ""
+msgstr "Nume de familie"
 
 #: models.py:164
 msgid "Fax"
-msgstr ""
+msgstr "Fax"
 
 #: Reportek/zpt/feedback/add.zpt:45
 msgid "Feedback content (plain text)"
@@ -1071,7 +1071,7 @@ msgstr "Protecție împotriva incendiilor"
 
 #: models.py:153
 msgid "First name"
-msgstr ""
+msgstr "Prenume"
 
 #: ../../../extras/zodb_scripts/help/index_html.zpt:32
 msgid "Fluorinated Gases (F-gases)"
@@ -1091,7 +1091,7 @@ msgstr "Spume"
 
 #: templates/self_register_done.html:10
 msgid "For questions please contact the %(helpdesk_email)s."
-msgstr ""
+msgstr "Pentru întrebări vă rugăm contactați %(helpdesk_email)"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:23
 msgid "For the purpose detailed above, access to your personal data is given to the following persons, without prejudice to a possible transmission to the bodies in charge of monitoring or inspection task in accordance with European Union law:"
@@ -1196,11 +1196,11 @@ msgstr "Istoric al ${title}"
 
 #: templates/organisation_name_history.html:9
 msgid "Home"
-msgstr ""
+msgstr "Acasă"
 
 #: ../../../extras/zodb_scripts/help/index_html.zpt:15
 msgid "How to upload a report"
-msgstr ""
+msgstr "Cum se încarcă un raport"
 
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:62
 #: Reportek/zpt/hyperlink/index.zpt:9
@@ -1463,7 +1463,7 @@ msgstr "Plic nou"
 
 #: templates/organisation_update.html:127
 msgid "New person"
-msgstr ""
+msgstr "Persoană nouă"
 
 #: Reportek/zpt/collection/index.zpt:13
 msgid "New referral"
@@ -1549,7 +1549,7 @@ msgstr "O+P+Q+R+S+T+U"
 
 #: templates/organisation_update.html:98
 msgid "Obligation"
-msgstr ""
+msgstr "Ogligație"
 
 #: Reportek/zpt/collection/index.zpt:28
 #: Reportek/zpt/referral/index.zpt:23
@@ -1627,7 +1627,7 @@ msgstr "Lipește fișierele selectate anterior în acest Plic"
 
 #: templates/organisation_update.html:113
 msgid "People"
-msgstr ""
+msgstr "Persoane"
 
 #: Reportek/zpt/envelope/earlierreleases.zpt:18
 #: Reportek/zpt/envelope/overview.zpt:52
@@ -1657,11 +1657,11 @@ msgstr "Informațiile cu caracter personal vor fi păstrate atât timp cât ar m
 
 #: models.py:99
 msgid "Place 1 / Municipality"
-msgstr ""
+msgstr "Loc 1 / Municipalitate"
 
 #: models.py:101
 msgid "Place 2 / Region"
-msgstr ""
+msgstr "Loc 2 / Regiune"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:83
 msgid "Please check the total amounts exported for recycling, reclamation and /or destruction. It must be smaller than or equal to the exported totals of the respective gas."
@@ -1733,7 +1733,7 @@ msgstr "Adăugați feedback pentru această lansare"
 
 #: models.py:100
 msgid "Postal code"
-msgstr ""
+msgstr "Cod poștal"
 
 #: Reportek/zpt/feedback/index.zpt:31
 msgid "Posted automatically on:"
@@ -1928,7 +1928,7 @@ msgstr "Raportarea este obligatorie pentru orice companie care a produs, importa
 
 #: templates/self_register.html:8
 msgid "Reporting undertakings"
-msgstr ""
+msgstr "Detalii de raportare"
 
 #: Reportek/zpt/collection/index.zpt:58
 msgid "Repository Referral"
@@ -1940,7 +1940,7 @@ msgstr "Proprietățile Referinței"
 
 #: templates/self_register.html:102
 msgid "Request account"
-msgstr ""
+msgstr "Cere cont"
 
 #: Reportek/zpt/envelope/add_zip.zpt:38
 msgid "Restrict all contained files from public view"
@@ -1984,7 +1984,7 @@ msgstr "Vânzări către co-producători comunitari"
 #: templates/organisation_update.html:108
 #: templates/person_update.html:31
 msgid "Save"
-msgstr ""
+msgstr "Salvează"
 
 #: Reportek/zpt/document/edit.zpt:49
 #: Reportek/zpt/document/manage.zpt:120
@@ -2030,7 +2030,7 @@ msgstr "Selectați fișierele pe care doriți să le acceptați din lista de mai
 #: templates/self_register.html:7
 #: templates/self_register_done.html:6
 msgid "Self registration"
-msgstr ""
+msgstr "Auto-înregistrare"
 
 #: ../../../extras/zodb_scripts/index_html.zpt:44
 msgid "Self-registration"
@@ -2038,7 +2038,7 @@ msgstr "Auto-înregistrare"
 
 #: templates/self_register.html:24
 msgid "Self-registration form"
-msgstr ""
+msgstr "Formular de auto-înregistrare"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:154
 msgid "Semiconductor manufacture"
@@ -2154,7 +2154,7 @@ msgstr "Stocurile raportate în tabelul 8 rezultă din producția în anul de ra
 
 #: models.py:98
 msgid "Street and nr"
-msgstr ""
+msgstr "Stradă și număr"
 
 #: Reportek/zpt/feedback/add.zpt:41
 msgid "Subject"
@@ -2239,15 +2239,15 @@ msgstr "Activitate:"
 
 #: models.py:158
 msgid "Telephone"
-msgstr ""
+msgstr "Telefon"
 
 #: models.py:159
 msgid "Telephone 2"
-msgstr ""
+msgstr "Telefon 2"
 
 #: models.py:161
 msgid "Telephone 3"
-msgstr ""
+msgstr "Telefon 3"
 
 #: Reportek/zpt/collection/index.zpt:29
 #: Reportek/zpt/envelope/overview.zpt:37
@@ -2413,7 +2413,7 @@ msgstr "Raportarea datelor companiei dvs. ar trebui să fie realizată prin util
 
 #: templates/self_register_done.html:8
 msgid "The request for registration was completed successfully. An email was sent to your account with the registration details. The BDR team will review your request and take the appropriate actions."
-msgstr ""
+msgstr "Cererea de înregistrare a fost finalizată cu succes. Un e-mail a fost trimis la contul dvs. cu detaliile de înregistrare. Echipa BDR va analiza cererea dumneavoastră și va lua măsurile corespunzătoare."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:172
 msgid "The submission cannot be accepted as an envelope can contain either a F-gases questionnaire, not both."
@@ -2511,7 +2511,7 @@ msgstr "Pentru a facilita retrimiterea, unui nou Plic a fost creat la link-ul ur
 
 #: templates/organisation_update.html:40
 msgid "To modify company name, please contact"
-msgstr ""
+msgstr "Pentru a modifica numele companiei vă rugăm contactați"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:151
 msgid "Total"
@@ -2582,11 +2582,11 @@ msgstr "Nespecificat"
 
 #: templates/organisation_update.html:20
 msgid "Update organisation"
-msgstr ""
+msgstr "Modifică organizație"
 
 #: templates/person_update.html:6
 msgid "Update person details"
-msgstr ""
+msgstr "Modifică detalii persoană"
 
 #: Reportek/zpt/document/upload.zpt:11
 #: Reportek/zpt/feedback/edit.zpt:68
@@ -2648,7 +2648,7 @@ msgstr "V"
 
 #: models.py:105
 msgid "VAT number"
-msgstr ""
+msgstr "Cod TVA"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:4
 msgid "Validation report for F-Gases compliance checks"
@@ -2845,7 +2845,7 @@ msgstr "înapoi"
 
 #: templates/self_register.html:20
 msgid "below"
-msgstr ""
+msgstr "mai jos"
 
 #: Reportek/zpt/envelope/statuses_section.zpt:15
 msgid "bulk status form"
@@ -2935,7 +2935,7 @@ msgstr "Înapoi la Plic"
 
 #: templates/organisation_update.html:41
 msgid "helpdesk"
-msgstr ""
+msgstr "helpdesk"
 
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:22
 msgid "icon"
@@ -3009,7 +3009,7 @@ msgstr "selectat"
 
 #: templates/self_register.html:20
 msgid "self-registration form"
-msgstr ""
+msgstr "formular de auto-înregistrare"
 
 #: Reportek/zpt/envelope/statusesbulk.zpt:33
 msgid "status set to accepted."
