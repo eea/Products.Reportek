@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2014-02-14 14:39+0000\n"
+"POT-Creation-Date: 2014-03-17 11:01+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -258,6 +258,11 @@ msgstr ""
 msgid "ANNEX II - F-Gases Reporting"
 msgstr ""
 
+#: templates/organisation_update.html:68
+#: templates/self_register.html:62
+msgid "About EORI number"
+msgstr ""
+
 #: Reportek/zpt/envelope/statusesbulk.zpt:22
 msgid "Accept"
 msgstr ""
@@ -277,6 +282,10 @@ msgstr ""
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:102
 #: Reportek/zpt/envelope/statuses_section.zpt:113
 msgid "Access limitations may apply for files, which are not (yet) released for public view. Files marked with <img src=\"misc_/Reportek/lockicon_gif\" alt=\"Padlock\" width=\"16\" height=\"16\" /> are unavailable. You must log in to get access."
+msgstr ""
+
+#: templates/organisation_update.html:88
+msgid "Account name"
 msgstr ""
 
 #: Reportek/zpt/envelope/statusesbulk.zpt:21
@@ -345,6 +354,10 @@ msgstr ""
 
 #: Reportek/zpt/hyperlink/add.zpt:34
 msgid "Add hyperlink"
+msgstr ""
+
+#: templates/organisation_add_person.html:6
+msgid "Add person"
 msgstr ""
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:12
@@ -484,6 +497,11 @@ msgstr ""
 msgid "BDR manual"
 msgstr ""
 
+#: templates/organisation_add_person.html:33
+#: templates/person_update.html:33
+msgid "Back"
+msgstr ""
+
 #: Reportek/zpt/envelope/add.zpt:23
 msgid "Back to collection"
 msgstr ""
@@ -500,6 +518,10 @@ msgstr ""
 
 #: Reportek/zpt/document/flashview.zpt:9
 msgid "Back to file"
+msgstr ""
+
+#: templates/organisation_update.html:14
+msgid "Back to reporting"
 msgstr ""
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:77
@@ -645,6 +667,16 @@ msgstr ""
 msgid "Company contact information"
 msgstr ""
 
+#: templates/organisation_update.html:23
+#: templates/self_register.html:37
+msgid "Company details"
+msgstr ""
+
+#: models.py:95
+#: templates/organisation_update.html:34
+msgid "Company name"
+msgstr ""
+
 #: ../../../extras/i18n-fgases-ods-qa.zpt:5
 msgid "Company name/(metric tonnes)"
 msgstr ""
@@ -684,6 +716,10 @@ msgstr ""
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:15
 msgid "Copy previous delivery"
+msgstr ""
+
+#: templates/organisation_update.html:78
+msgid "Country"
 msgstr ""
 
 #: Reportek/zpt/collection/add.zpt:62
@@ -768,6 +804,15 @@ msgstr ""
 msgid "Designated Member States' staff members (access will be restricted to the data relevant for the specific Member State). No personal data is shared with third parties for direct marketing purposes."
 msgstr ""
 
+#: templates/self_register.html:73
+msgid "Designated company reporter nr 1"
+msgstr ""
+
+#. Default: "Reporterii desemnați de o întreprindere, care trebuie să raporteze în conformitate cu articolul 6 din Regulamentul F-gaz sau cu articolul 27 din regulamentul de ODS, ar trebui să se înregistreze pentru a fi în măsură să raporteze."
+#: templates/self_register.html:11
+msgid "Designated reporters of an undertaking, who have to report in accordance with Article 6 of the F-Gas Regulation or Article 27 of the ODS Regulation, should register in order to be able to report."
+msgstr ""
+
 #: ../../../extras/i18n-fgases-ods-qa.zpt:226
 msgid "Destination Country"
 msgstr ""
@@ -818,6 +863,14 @@ msgstr ""
 msgid "EEA staff as well as designated external experts or contractors who work on behalf of the EEA for the purpose of data management and compilation, quality assessment, and evaluation;"
 msgstr ""
 
+#: models.py:103
+msgid "EORI number"
+msgstr ""
+
+#: models.py:93
+msgid "Economic Operators Registration and Identification number (EORI)"
+msgstr ""
+
 #: Reportek/zpt/envelope/feedback_section.zpt:43
 msgid "Edit"
 msgstr ""
@@ -858,6 +911,14 @@ msgstr ""
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:152
 msgid "Electrical equipment"
+msgstr ""
+
+#: models.py:155
+msgid "Email address"
+msgstr ""
+
+#: models.py:156
+msgid "Email address 2"
 msgstr ""
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:244
@@ -919,6 +980,14 @@ msgstr ""
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:42
 msgid "F"
+msgstr ""
+
+#: models.py:152
+msgid "Family name"
+msgstr ""
+
+#: models.py:164
+msgid "Fax"
 msgstr ""
 
 #: Reportek/zpt/feedback/add.zpt:45
@@ -996,6 +1065,10 @@ msgstr ""
 msgid "Fire protection"
 msgstr ""
 
+#: models.py:153
+msgid "First name"
+msgstr ""
+
 #: ../../../extras/zodb_scripts/help/index_html.zpt:32
 msgid "Fluorinated Gases (F-gases)"
 msgstr ""
@@ -1012,8 +1085,17 @@ msgstr ""
 msgid "Foams"
 msgstr ""
 
+#: templates/self_register_done.html:10
+msgid "For questions please contact the %(helpdesk_email)s."
+msgstr ""
+
 #: ../../../extras/zodb_scripts/privacystatement.zpt:23
 msgid "For the purpose detailed above, access to your personal data is given to the following persons, without prejudice to a possible transmission to the bodies in charge of monitoring or inspection task in accordance with European Union law:"
+msgstr ""
+
+#. Default: "Pentru întreprinderile de raportare, pentru prima dată, cererea de cont vor fi evaluate și vor fi furnizate de conectare și parola."
+#: templates/self_register.html:30
+msgid "For undertakings reporting for the first time, the account request will be evaluated and login and password will be provided."
 msgstr ""
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:177
@@ -1108,8 +1190,12 @@ msgstr ""
 msgid "History of ${title}"
 msgstr ""
 
+#: templates/organisation_name_history.html:9
+msgid "Home"
+msgstr ""
+
 #: ../../../extras/zodb_scripts/help/index_html.zpt:15
-msgid "How to upload a report <ul> <li><a href=\"/help/BDR_Reporting_manual_2013-v2.0.pdf\">x</a></li> <li><a href=\"/help/BDR_Manual_Version2_Annex_I-ODS.pdf\">x</a></li> <li><a href=\"/help/BDR_Manual_Version2_Annex_II-F-gases.pdf\">x</a></li> </ul>"
+msgid "How to upload a report"
 msgstr ""
 
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:62
@@ -1201,6 +1287,16 @@ msgstr ""
 
 #: ../../../extras/zodb_scripts/help/index_html.zpt:35
 msgid "In case you need further help, please contact the BDR helpdesk: <a href=\"mailto:BDR.helpdesk@eea.europa.eu\">BDR.helpdesk@eea.europa.eu</a>."
+msgstr ""
+
+#. Default: "În cazul în care tu sau o altă persoană în compania dumneavoastră deja au primit un nume de utilizator și o parolă, dar au uitat sau, în cazul în care aveți nevoie de asistență suplimentară logare, vă rugăm să contactați biroul de asistență la: %(helpdesk_email)s."
+#: templates/self_register.html:16
+msgid "In case you or another person in your company already have received a username and password but have forgotten it or in case you need further assistance logging in, please contact the helpdesk at: %(helpdesk_email)s."
+msgstr ""
+
+#. Default: "În cazul în care întreprinderea este un reporter prima dată și, prin urmare, nu a primit încă un nume de utilizator și parolă, vă rugăm să treceți la "
+#: templates/self_register.html:20
+msgid "In case your undertaking is a first time reporter and has therefore not yet received a username and password, please proceed to the"
 msgstr ""
 
 #: Reportek/zpt/document/flashview.zpt:166
@@ -1361,6 +1457,10 @@ msgstr ""
 msgid "New envelope"
 msgstr ""
 
+#: templates/organisation_update.html:127
+msgid "New person"
+msgstr ""
+
 #: Reportek/zpt/collection/index.zpt:13
 msgid "New referral"
 msgstr ""
@@ -1443,6 +1543,10 @@ msgstr ""
 msgid "O+P+Q+R+S+T+U"
 msgstr ""
 
+#: templates/organisation_update.html:98
+msgid "Obligation"
+msgstr ""
+
 #: Reportek/zpt/collection/index.zpt:28
 #: Reportek/zpt/referral/index.zpt:23
 msgid "Obligation(s)"
@@ -1517,6 +1621,10 @@ msgstr ""
 msgid "Paste previously selected files to this envelope"
 msgstr ""
 
+#: templates/organisation_update.html:113
+msgid "People"
+msgstr ""
+
 #: Reportek/zpt/envelope/earlierreleases.zpt:18
 #: Reportek/zpt/envelope/overview.zpt:52
 #: Reportek/zpt/referral/index.zpt:30
@@ -1541,6 +1649,14 @@ msgstr ""
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:77
 msgid "Personal information will be kept as long as follow-up actions by the EEA or European Commission concerning the reporting of the legally-required data and information may be necessary."
+msgstr ""
+
+#: models.py:99
+msgid "Place 1 / Municipality"
+msgstr ""
+
+#: models.py:101
+msgid "Place 2 / Region"
 msgstr ""
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:83
@@ -1595,6 +1711,11 @@ msgstr ""
 msgid "Please note that depending upon circumstances modifications to existing data may only be made if supported by valid justifying documents."
 msgstr ""
 
+#. Default: "Vă rugăm să rețineți că acest formular de înregistrare ar trebui să fie utilizat numai în cazul în care societatea dumneavoastră nu a primit încă un nume de utilizator și o parolă. În cazul în care un nume de uitat sau parola sau în cazul unei schimbări de detalii reporter, vă rugăm să contactați biroul de asistență la: %(helpdesk_email)s."
+#: templates/self_register.html:26
+msgid "Please note that this registration form should only be used if your company has not yet received a login and a password. In the case of a forgotten login or password or in the case of a change of reporter details, please contact the helpdesk at: %(helpdesk_email)s."
+msgstr ""
+
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:55
 msgid "Please use one of the following links to add or update your questionnaire."
 msgstr ""
@@ -1604,6 +1725,10 @@ msgstr ""
 
 #: Reportek/zpt/envelope/overview.zpt:9
 msgid "Post feedback for this release"
+msgstr ""
+
+#: models.py:100
+msgid "Postal code"
 msgstr ""
 
 #: Reportek/zpt/feedback/index.zpt:31
@@ -1797,12 +1922,20 @@ msgstr ""
 msgid "Reporting is required for any company that has produced, imported, exported, destroyed and/or used ozone-depleting substances as feedstock or process agent."
 msgstr ""
 
+#: templates/self_register.html:8
+msgid "Reporting undertakings"
+msgstr ""
+
 #: Reportek/zpt/collection/index.zpt:58
 msgid "Repository Referral"
 msgstr ""
 
 #: Reportek/zpt/referral/prop.zpt:10
 msgid "Repository Referral Properties"
+msgstr ""
+
+#: templates/self_register.html:102
+msgid "Request account"
 msgstr ""
 
 #: Reportek/zpt/envelope/add_zip.zpt:38
@@ -1841,6 +1974,12 @@ msgstr ""
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:7
 msgid "Sales to Community co-producers"
+msgstr ""
+
+#: templates/organisation_add_person.html:31
+#: templates/organisation_update.html:108
+#: templates/person_update.html:31
+msgid "Save"
 msgstr ""
 
 #: Reportek/zpt/document/edit.zpt:49
@@ -1884,8 +2023,17 @@ msgstr ""
 msgid "Select the files you want to accept from the list below and click <em>Set accepted status</em>. In order to revoke the accepted status of files just uncheck the corresponding option and click on the same button."
 msgstr ""
 
+#: templates/self_register.html:7
+#: templates/self_register_done.html:6
+msgid "Self registration"
+msgstr ""
+
 #: ../../../extras/zodb_scripts/index_html.zpt:44
 msgid "Self-registration"
+msgstr ""
+
+#: templates/self_register.html:24
+msgid "Self-registration form"
 msgstr ""
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:154
@@ -2000,6 +2148,10 @@ msgstr ""
 msgid "Stocks reported in table 8 resulting from production in the reporting year:"
 msgstr ""
 
+#: models.py:98
+msgid "Street and nr"
+msgstr ""
+
 #: Reportek/zpt/feedback/add.zpt:41
 msgid "Subject"
 msgstr ""
@@ -2079,6 +2231,18 @@ msgstr ""
 
 #: Reportek/zpt/feedback/index.zpt:50
 msgid "Task:"
+msgstr ""
+
+#: models.py:158
+msgid "Telephone"
+msgstr ""
+
+#: models.py:159
+msgid "Telephone 2"
+msgstr ""
+
+#: models.py:161
+msgid "Telephone 3"
 msgstr ""
 
 #: Reportek/zpt/collection/index.zpt:29
@@ -2243,6 +2407,10 @@ msgstr ""
 msgid "The reporting of your company data should be done by using an on-line questionnaire developed to guide you through this process."
 msgstr ""
 
+#: templates/self_register_done.html:8
+msgid "The request for registration was completed successfully. An email was sent to your account with the registration details. The BDR team will review your request and take the appropriate actions."
+msgstr ""
+
 #: ../../../extras/i18n-fgases-ods-qa.zpt:172
 msgid "The submission cannot be accepted as an envelope can contain either a F-gases questionnaire, not both."
 msgstr ""
@@ -2337,6 +2505,10 @@ msgstr ""
 msgid "To facilitate your re-submission a new envelope has been created at the following link and all the reported data/submitted files have been copied there:"
 msgstr ""
 
+#: templates/organisation_update.html:40
+msgid "To modify company name, please contact"
+msgstr ""
+
 #: ../../../extras/i18n-fgases-ods-qa.zpt:151
 msgid "Total"
 msgstr ""
@@ -2404,6 +2576,14 @@ msgstr ""
 msgid "Unspecified"
 msgstr ""
 
+#: templates/organisation_update.html:20
+msgid "Update organisation"
+msgstr ""
+
+#: templates/person_update.html:6
+msgid "Update person details"
+msgstr ""
+
 #: Reportek/zpt/document/upload.zpt:11
 #: Reportek/zpt/feedback/edit.zpt:68
 #: Reportek/zpt/feedback/uploadatt.zpt:16
@@ -2460,6 +2640,10 @@ msgstr ""
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:58
 msgid "V"
+msgstr ""
+
+#: models.py:105
+msgid "VAT number"
 msgstr ""
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:4
@@ -2655,6 +2839,10 @@ msgstr ""
 msgid "back"
 msgstr ""
 
+#: templates/self_register.html:20
+msgid "below"
+msgstr ""
+
 #: Reportek/zpt/envelope/statuses_section.zpt:15
 msgid "bulk status form"
 msgstr ""
@@ -2741,6 +2929,10 @@ msgstr ""
 msgid "go-back-title"
 msgstr ""
 
+#: templates/organisation_update.html:41
+msgid "helpdesk"
+msgstr ""
+
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:22
 msgid "icon"
 msgstr ""
@@ -2809,6 +3001,10 @@ msgstr ""
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:23
 msgid "selected"
+msgstr ""
+
+#: templates/self_register.html:20
+msgid "self-registration form"
 msgstr ""
 
 #: Reportek/zpt/envelope/statusesbulk.zpt:33
