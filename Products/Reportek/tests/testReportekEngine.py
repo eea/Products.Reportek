@@ -10,6 +10,7 @@ from Products.Reportek.Envelope import Envelope
 from Products.Reportek.Collection import Collection
 from Products.Reportek import constants
 from Products.Reportek import Converters
+from Testing import ZopeTestCase
 
 def setUpModule(self):
     self._cleanup_temp_reposit = create_temp_reposit()
@@ -31,6 +32,7 @@ class _BaseTest(unittest.TestCase):
         from Products.PluginIndexes.KeywordIndex.KeywordIndex import KeywordIndex
         from Products.PluginIndexes.DateIndex.DateIndex import DateIndex
         from Products.PluginIndexes.PathIndex.PathIndex import PathIndex
+        from Products.ZCTextIndex.ZCTextIndex import PLexicon, ZCTextIndex
         from Products.Reportek import create_reportek_indexes
         self.root = makerequest(create_fake_root())
 
@@ -40,14 +42,18 @@ class _BaseTest(unittest.TestCase):
             {'name': 'FieldIndex', 'instance': FieldIndex},
             {'name': 'KeywordIndex', 'instance': KeywordIndex},
             {'name': 'DateIndex', 'instance': DateIndex},
+            {'name': 'ZCTextIndex', 'instance': ZCTextIndex},
             {'name': 'PathIndex', 'instance': PathIndex},]
+        lexicon = PLexicon('lexicon', '')
+        self.root.Catalog._setObject('lexicon', lexicon)
         create_reportek_indexes(self.root.Catalog)
 
 
-class ReportekEngineTest(_BaseTest):
+class ReportekEngineTest(ZopeTestCase.ZopeTestCase, _BaseTest):
 
     def setUp(self):
-        super(ReportekEngineTest, self).setUp()
+        ZopeTestCase.ZopeTestCase.setUp(self)
+        _BaseTest.setUp(self)
         self.engine = create_reportek_engine(self.root)
         self.engine.localities_dict=Mock(return_value={
             'http://rod.eionet.eu.int/spatial/2': {'name': 'Albania'},
@@ -490,7 +496,9 @@ class ReportekEngineTest(_BaseTest):
         from copy import copy
         self.engine.ZopeTime = Mock(return_value=DateTime())
         before_values = copy(self.engine.__dict__)
-        assert self.engine.manage_editEngine(REQUEST=self.root.REQUEST)
+        # FIXME
+        self.login()
+        assert self.engine.manage_properties()
         self.assertEqual(before_values, self.engine.__dict__)
 
     def test_manage_editEngine_no_REQUEST(self):
@@ -498,6 +506,7 @@ class ReportekEngineTest(_BaseTest):
         This tests simulates a programmatic call to ReportekEngine.manage_editEngine
         and checks that engine's attributes are changed accordingly
         """
+        # FIXME
         self.engine.ZopeTime = Mock(return_value=DateTime())
         self.engine.title='Before Title'
         self.engine.manage_editEngine(title='After Title', REQUEST=None)
@@ -508,6 +517,7 @@ class ReportekEngineTest(_BaseTest):
         This tests simulates a POST to ReportekEngine.manage_editEngine
         and checks that engine's attributes are changed accordingly
         """
+        # FIXME
         self.root.REQUEST['REQUEST_METHOD'] = 'POST'
         self.engine.ZopeTime = Mock(return_value=DateTime())
         self.engine.title='Before Title'

@@ -3,7 +3,7 @@
 
 <p class="form-help">This page presents properties that are generic for Reportek.</p>
 
-<form name="edit" action="manage_editEngine" method="post">
+<form name="edit" action="manage_properties" method="post">
 <table valign="top">
 	<tr>
 		<th><label for="title">Title</label></th>
@@ -45,6 +45,17 @@
 		<input type="checkbox" id="globally_restricted_site" name="globally_restricted_site" tal:attributes="checked here/globally_restricted_site" /><br />
 		Check this box if the content from this site needs to be fully restricted from public view (e.g. BDR). By enabling this option, all Report Documents will be restricted, and users will not be able to change their status.
 	</p>
+</fieldset>
+<fieldset>
+	<legend>Content Registry</legend>
+	<p class="form-help">
+        <label for='cr_api_url'><strong>Content Registry API URL</strong></label>
+		<input type="text" size="50" id="cr_api_url" name="cr_api_url"
+               tal:attributes="value here/cr_api_url" />
+        <br />
+        <span>(leave it empty if Content Registry is not to be pingged)
+        <br />
+    </p>
 </fieldset>
 <br />
 <input type="submit" value="Save changes" />

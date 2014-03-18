@@ -27,6 +27,8 @@ for f in $out_dir/*; do
 	done
 done
 
+find $out_dir -type f -name 'default.xlf' -execdir mv default.xlf default.xml \;
+
 out_dir_small_name=`basename $out_dir`
 cd ${out_dir}/..
 tar -czf ${out_dir_small_name}.tar.gz $out_dir_small_name
