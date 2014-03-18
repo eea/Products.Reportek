@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # The contents of this file are subject to the Mozilla Public
 # License Version 1.1 (the "License"); you may not use this file
 # except in compliance with the License. You may obtain a copy of
@@ -17,6 +18,7 @@
 #
 # Contributor(s):
 # Miruna Badescu, Eau de Web
+# Daniel Bărăgan, Eau de Web
 
 __doc__ = """
       Engine for the Reportek Product
@@ -45,6 +47,7 @@ import xmlrpclib
 from DateTime import DateTime
 from time import time, strftime
 from copy import copy
+from BeautifulSoup import BeautifulSoup as bs
 
 # product imports
 import constants
@@ -88,6 +91,22 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             {'id':'globally_restricted_site', 'type':'tokens', 'mode':'w'}
     )
 
+    # The URL to the WebQ XML-RPC server
+    # Empty means no WebQ available
+    webq_url = 'http://cdr.eionet.europa.eu/webq/RpcRouter'
+    # The URL to the WebQ page which constructs a menu for a specified envelope
+    # called via HTTP GET
+    webq_envelope_menu = 'http://cdr.eionet.europa.eu/webq/WebQMenu'
+    # The URL to the WebQ webpage, before the user starts to use the edit form.
+    # The purpose is to ask the capabilities of the user webbrowser
+    # and what language the form should be in.
+    # called via HTTP GET
+    webq_before_edit_page = 'http://cdr.eionet.europa.eu/webq/WebQEdit'
+    # The default QA application used for manual and automatic triggered QA operation
+    # If this is empty, this Reportek instance does not have a QA system linked to it
+    QA_application = ''
+    globally_restricted_site = False
+    cr_api_url = 'http://cr.eionet.europa.eu/ping'
 
     def all_meta_types( self, interfaces=None ):
         """
@@ -105,17 +124,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     def __init__(self, webq_url=''):
         """ constructor """
         self.id = constants.ENGINE_ID
-        # The URL to the WebQ XML-RPC server
-        # Empty means no WebQ available
-        self.webq_url = 'http://cdr.eionet.europa.eu/webq/RpcRouter'
-        # The URL to the WebQ page which constructs a menu for a specified envelope
-        # called via HTTP GET
-        self.webq_envelope_menu = 'http://cdr.eionet.europa.eu/webq/WebQMenu'
-        # The URL to the WebQ webpage, before the user starts to use the edit form.
-        # The purpose is to ask the capabilities of the user webbrowser
-        # and what language the form should be in.
-        # called via HTTP GET
-        self.webq_before_edit_page = 'http://cdr.eionet.europa.eu/webq/WebQEdit'
         # UNS configuration parameters
         self.UNS_server = ''
         self.UNS_username = ''
@@ -123,10 +131,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.UNS_channel_id = ''
         self.UNS_notification_types = ['Envelope release', 'Envelope revoke']
         #self.UNS_notification_types = ['Envelope complete', 'Envelope release', 'Envelope revoke', 'Manual feedback posted', 'Quality assessment finished']
-        # The default QA application used for manual and automatic triggered QA operation
-        # If this is empty, this Reportek instance does not have a QA system linked to it
-        self.QA_application = ''
-        self.globally_restricted_site = False
 
     security.declareProtected(view_management_screens, 'index_html')
     index_html = PageTemplateFile('zpt/engine_index', globals())
@@ -134,31 +138,29 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     #security stuff
     security = ClassSecurityInfo()
 
-    security.declareProtected(view_management_screens, 'manage_properties')
-    manage_properties = PageTemplateFile('zpt/engine/prop', globals())
-
     security.declarePublic('getDeploymentType')
     def getDeploymentType(self):
         return Products.Reportek.REPORTEK_DEPLOYMENT
 
-    security.declareProtected(view_management_screens, 'manage_editEngine')
-    def manage_editEngine(self, title='', webq_url='', webq_envelope_menu='', webq_before_edit_page='', QA_application='', globally_restricted_site=False, REQUEST=None):
+    _manage_properties = PageTemplateFile('zpt/engine/prop', globals())
+
+    security.declareProtected(view_management_screens, 'manage_properties')
+    def manage_properties(self):
         """ Manage the edited values """
-        if ((not REQUEST) or
-            (REQUEST and REQUEST['REQUEST_METHOD']=='POST')):
-            self.title = title
-            self.webq_url = webq_url
-            self.webq_envelope_menu = webq_envelope_menu
-            self.webq_before_edit_page = webq_before_edit_page
-            self.QA_application = QA_application
-            if globally_restricted_site:
-                globally_restricted_site = True
-            self.globally_restricted_site = globally_restricted_site
-        if REQUEST and REQUEST['REQUEST_METHOD']=='POST':
-            message="Properties changed"
-            return self.manage_properties(self,REQUEST,manage_tabs_message=message)
-        if REQUEST and REQUEST['REQUEST_METHOD']=='GET':
-            return self.manage_properties(self,REQUEST)
+        if self.REQUEST['REQUEST_METHOD'] == 'GET':
+            return self._manage_properties()
+
+        self.title = self.REQUEST.get('title', self.title)
+        self.webq_url = self.REQUEST.get('webq_url', self.webq_url)
+        self.webq_envelope_menu = self.REQUEST.get('webq_envelope_menu', self.webq_envelope_menu)
+        self.webq_before_edit_page = self.REQUEST.get('webq_before_edit_page', self.webq_before_edit_page)
+        self.QA_application = self.REQUEST.get('QA_application', self.QA_application)
+        self.globally_restricted_site = bool(self.REQUEST.get('globally_restricted_site',
+                                                self.globally_restricted_site))
+        self.cr_api_url = self.REQUEST.get('cr_api_url', self.cr_api_url)
+
+        # don't send the completed from back, the values set on self must be used
+        return self._manage_properties(manage_tabs_message="Properties changed")
 
     security.declarePublic('getPartsOfYear')
     def getPartsOfYear(self):
@@ -168,17 +170,30 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
            'January','February','March','April', 'May','June','July','August','September','October','November','December']
 
     security.declareProtected('View', 'content_registry_ping')
-    def content_registry_ping(uri, create=True):
+    def content_registry_ping(self, uri, create=True):
         """ Pings the Content Registry to harvest a new envelope almost immediately after the envelope is released or revoked
             with the name of the envelope's RDF output
         """
-        CR_API_URL = 'http://cr.eionet.europa.eu/ping'
         params = {'uri': uri}
-        if create: params['create'] = 'true'
-        resp = requests.get(CR_API_URL, params=params)
+        if create:
+            params['create'] = 'true'
+        resp = requests.get(self.cr_api_url, params=params)
         if resp.status_code == 200:
-            return (1, resp.text)
-        return (0, resp.text)
+            return (True, resp.text)
+        return (False, resp.text)
+
+    @classmethod
+    def content_registry_pretty_message(cls, message):
+        try:
+            if '<html' in message:
+                messageBody = bs(message).find('body').text
+            elif '<?xml' in message:
+                messageBody = bs(message).find('response').text
+        except:
+            messageBody = ""
+
+        return messageBody
+
 
     security.declareProtected(view_management_screens, 'change_ownership')
     def change_ownership(self, obj, newuser, deluser):

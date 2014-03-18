@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # The contents of this file are subject to the Mozilla Public
 # License Version 1.1 (the "License"); you may not use this file
 # except in compliance with the License. You may obtain a copy of
@@ -17,6 +18,7 @@
 #
 # Contributor(s):
 # Soren Roug, EEA
+# Daniel Bărăgan, Eau de Web
 
 
 """Envelope object
@@ -28,23 +30,22 @@ $Id$"""
 __version__='$Revision$'[11:-2]
 
 
-import time, os, types, tempfile, string
+import os, types, tempfile, string
 from path import path
 from zipfile import *
-import Products
-from Products.ZCatalog.CatalogAwareness import CatalogAware
 import Globals, OFS.SimpleItem, OFS.ObjectManager
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-import AccessControl.Role, webdav.Collection
+from AccessControl.Permissions import view_management_screens
+import AccessControl.Role
 from AccessControl import getSecurityManager, ClassSecurityInfo, Unauthorized
 from Products.Reportek import permission_manage_properties_envelopes
+from Products.Reportek.ReportekEngine import ReportekEngine
 from zExceptions import Forbidden
 from DateTime import DateTime
 from DateTime.interfaces import SyntaxError
 from ZPublisher.Iterators import filestream_iterator
-import urllib
-import xmlrpclib
-import operator
+import logging
+logger = logging.getLogger("Reportek")
 
 # Product specific imports
 import RepUtils
@@ -491,39 +492,75 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             return startDate + '/P1M'
         return startDate
 
+    def _content_registry_ping(self, create=False):
+        engine = getattr(self, ENGINE_ID)
+        if engine.cr_api_url:
+            success, message = engine.content_registry_ping(self.absolute_url(), False)
+            if (create and success and
+                'URL not in catalogue of sources, no action taken.' in message):
+                success, message = engine.content_registry_ping(self.absolute_url(), True)
+            messageBody = engine.content_registry_pretty_message(message)
+            if success:
+                logger.info("Content Registry (%s) ping OK, response was: %s"
+                            % (engine.cr_api_url, messageBody))
+            else:
+                logger.warning("Content Registry (%s) ping unsuccesfull: %s"
+                                % (engine.cr_api_url, messageBody))
+        else:
+            logger.debug("Content Registry is not supposed to be pingged (url empty)")
+
     ##################################################
     # Manage release status
     # The release-flag locks the envelope from getting new files.
     # It thereby prevents the clients from downloading incomplete envelopes.
     ##################################################
-
-    security.declareProtected('Release Envelopes', 'release_envelope')
-    def release_envelope(self,REQUEST=None):
+    security.declareProtected(view_management_screens, 'release_envelope_manual')
+    def release_envelope_manual(self):
         """ Releases an envelope to the public
             Must also set the "View" permission on the object?
         """
+        return self.release_envelope()
+
+    security.declareProtected('Release Envelopes', 'release_envelope')
+    ##################################################
+    # Releases an envelope to the public
+    # Must also set the "View" permission on the object?
+    ##################################################
+    def release_envelope(self):
+        # no doc string - don't call this from browser
         if self.released != 1:
             self.released = 1
             self.reportingdate = DateTime()
             # update ZCatalog
             self.reindex_object()
             self._invalidate_zip_cache()
+            self._content_registry_ping(create=True)
 
-        if REQUEST is not None:
+        if self.REQUEST is not None:
             return self.messageDialog(
                             message="The envelope has now been released to the public!",
                             action='./manage_main')
 
-    security.declareProtected('Release Envelopes', 'unrelease_envelope')
-    def unrelease_envelope(self,REQUEST=None):
-        """ Releases an envelope to the public
+    security.declareProtected(view_management_screens, 'unrelease_envelope_manual')
+    def unrelease_envelope_manual(self):
+        """ Unreleases an envelope to the public
             Must also remove the "View" permission on the object?
         """
+        return self.unrelease_envelope()
+
+    security.declareProtected('Release Envelopes', 'unrelease_envelope')
+    ##################################################
+    # Unreleases an envelope to the public
+    # Must also remove the "View" permission on the object?
+    ##################################################
+    def unrelease_envelope(self):
+        # no doc string - don't call this from browser
         if self.released != 0:
             self.released = 0
             # update ZCatalog
             self.reindex_object()
-        if REQUEST is not None:
+            self._content_registry_ping()
+        if self.REQUEST is not None:
             return self.messageDialog(
                             message="The envelope is no longer available to the public!",
                             action='./manage_main')

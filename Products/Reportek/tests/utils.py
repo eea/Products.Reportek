@@ -199,6 +199,13 @@ def makelist(arg):
 
 
 class FakeRootObject(Folder):
+    def manage_page_header(self):
+        return 'manage header'
+    def manage_page_footer(self):
+        return 'manage footer'
+    def manage_page_tabs(self):
+        return 'manage tabs'
+
     def getPhysicalPath(self):
         return ('',)
     def getPhysicalRoot(self):
