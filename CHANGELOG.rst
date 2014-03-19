@@ -1,7 +1,7 @@
 3.6.12 (unreleased)
 ----------------
 * Task 17612 - Build_collections: improve error messages
-* Task 17109 - Implement ping on enevlope release/revoke [baragdan]
+* Task 17109 - Implement ping on enevlope release but not yet on revoke [baragdan]
 
 3.6.11 (2014-03-13)
 ----------------

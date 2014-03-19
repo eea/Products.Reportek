@@ -494,11 +494,12 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
 
     def _content_registry_ping(self, create=False):
         engine = getattr(self, ENGINE_ID)
+        url = self.absolute_url() + '/rdf'
         if engine.cr_api_url:
-            success, message = engine.content_registry_ping(self.absolute_url(), False)
+            success, message = engine.content_registry_ping(url, False)
             if (create and success and
                 'URL not in catalogue of sources, no action taken.' in message):
-                success, message = engine.content_registry_ping(self.absolute_url(), True)
+                success, message = engine.content_registry_ping(url, True)
             messageBody = engine.content_registry_pretty_message(message)
             if success:
                 logger.info("Content Registry (%s) ping OK, response was: %s"
@@ -559,7 +560,9 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             self.released = 0
             # update ZCatalog
             self.reindex_object()
-            self._content_registry_ping()
+            # TODO don't do it on revoke until we know exactly how delete will be communicated to CR 
+            # sending the same URL as in release would raise 401 for CR anyway
+            #self._content_registry_ping()
         if self.REQUEST is not None:
             return self.messageDialog(
                             message="The envelope is no longer available to the public!",
