@@ -149,6 +149,15 @@ class EnvelopeInstance(CatalogAware, Folder):
         """ Returns the process as an object"""
         return self.unrestrictedTraverse(self.process_path)
 
+    security.declareProtected('View management screens','setProcess')
+    def setProcess(self, process_path):
+        """ Returns the process as an object
+            It's something only Managers can do, and only after verifying
+            the compatibility between the two processes
+        """
+        self.process_path = process_path
+        self._p_changed = 1
+
     ###########################################
     #   Workitems
     ###########################################
