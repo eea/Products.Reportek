@@ -28,7 +28,7 @@ from collections import defaultdict
 # Zope imports
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
-from Globals import InitializeClass, DTMLFile
+from Globals import InitializeClass
 from DateTime import DateTime
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
@@ -40,6 +40,7 @@ import Products
 #from webdav.WriteLockInterface import WriteLockInterface
 
 # product imports
+from Toolz import Toolz
 from expression import exprNamespace
 from expression import Expression
 import RepUtils
@@ -50,8 +51,6 @@ from xpdl2openflow import xpdlparser
 # custom exceptions imports
 from exceptions import CannotPickProcess, NoProcessAvailable
 
-manage_addOpenFlowEngineForm = DTMLFile('dtml/Workflow/workflowEngineAdd', globals())
-
 def manage_addOpenFlowEngine(self, id, title, REQUEST=None):
     """Add a new OpenFlowEngine object
     """
@@ -61,7 +60,7 @@ def manage_addOpenFlowEngine(self, id, title, REQUEST=None):
         return self.manage_main(self, REQUEST, update_menu=1)
 
 
-class OpenFlowEngine(Folder):
+class OpenFlowEngine(Folder, Toolz):
     """ A openflow contains all the processes of the openflow """
 
     #__implements__ = (WriteLockInterface,)
@@ -109,10 +108,10 @@ class OpenFlowEngine(Folder):
     manage_addProcessForm = process.manage_addProcessForm
 
     security.declareProtected('Manage OpenFlow', 'manage_addApplicationForm')
-    manage_addApplicationForm = DTMLFile('dtml/Workflow/applicationAdd', globals())
+    manage_addApplicationForm = PageTemplateFile('zpt/Workflow/application_add', globals())
 
     security.declareProtected('Manage OpenFlow', 'manage_editApplicationForm')
-    manage_editApplicationForm = DTMLFile('dtml/Workflow/applicationEdit', globals())
+    manage_editApplicationForm = PageTemplateFile('zpt/Workflow/application_edit', globals())
 
     security.declareProtected('Manage OpenFlow', 'manage_editActivitiesPushableOnRole')
     manage_editActivitiesPushableOnRole = PageTemplateFile('zpt/Workflow/manage_editActivitiesPushableOnRole', globals())
@@ -732,11 +731,10 @@ class OpenFlowEngine(Folder):
 
 
     security.declareProtected('Manage OpenFlow', 'workflow_map_processes')
-    workflow_map_processes =  DTMLFile('dtml/Workflow/workflowMapProcesses', globals())
+    workflow_map_processes = PageTemplateFile('zpt/Workflow/workflowMapProcesses', globals())
 
     security.declareProtected('Manage OpenFlow', 'workflow_map_process')
-    workflow_map_process =  DTMLFile('dtml/Workflow/workflowMapProcess', globals())
-
+    workflow_map_process = PageTemplateFile('zpt/Workflow/workflowMapProcess', globals())
 
     security.declarePublic('getApplicationToActivitiesMapping')
     def getApplicationToActivitiesMapping(self):

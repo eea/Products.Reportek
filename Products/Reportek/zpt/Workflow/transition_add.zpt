@@ -1,0 +1,51 @@
+<tal:block tal:replace="structure context/manage_page_header"/>
+<tal:block tal:replace="structure python:context.manage_form_title(template, context, form_title='Add Transition', help_product='Reportek', help_topic='')"/>
+
+<p class="form-help">
+	Transitions define the appropiate sequence of activities for a workflow.
+</p>
+
+<form action="addTransition" method="post">
+<table>
+	<tr>
+		<td class="form-label" style="vertical-align:top"><label for="id">Id</label></td>
+		<td colspan="4">
+			<input type="text" size="20" name="id" id="id" value="" /><br />
+			You can leave this field blank, it will be set to a default value
+		</td>
+	</tr>
+	<tr>
+		<td class="form-label" style="vertical-align:top"><label for="condition">Condition</label></td>
+		<td colspan="4">
+			<input type="text" size="100" name="condition" id="condition" value="" /><br />
+			write the condition as a TAL expression like in: <pre>python:instance.some_property=='value'</pre>
+		</td>
+	</tr>
+	<tr>
+		<td class="form-label" style="vertical-align:top"><label for="description">Description</label></td>
+		<td colspan="4"><input type="text" size="100" name="description" id="description" value="" /></td>
+	</tr>
+	<tr tal:define="activities python:here.tlzSortByAttr(here.objectValues(['Activity']), 'id')">
+		<td class="form-label" style="vertical-align:top">Transition</td>
+		<td style="vertical-align:top"><label for="From">From</label></td>
+		<td>
+			<select name="From" id="From">
+				<option tal:repeat="item activities" tal:attributes="value item/id" tal:content="item/id" />
+			</select>
+		</td>
+		<td style="vertical-align:top"><label for="To">To</label></td>
+		<td>
+			<select name="To" id="To">
+				<option tal:repeat="item activities" tal:attributes="value item/id" tal:content="item/id" />
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td></td>
+		<td colspan="4"><input type="submit" name="submit" value="Add Transition" /></td>
+	</tr>
+</table>
+</form>
+
+
+<tal:block tal:replace="structure context/manage_page_footer"/>

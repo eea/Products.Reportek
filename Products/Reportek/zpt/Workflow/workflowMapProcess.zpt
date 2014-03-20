@@ -1,0 +1,65 @@
+<tal:block tal:replace="structure context/manage_page_header" />
+<tal:block tal:replace="structure python:context.manage_tabs(management_view='Map processes')" />
+
+<tal:block tal:define="p_process python:request.get('p_process', ''); proc python:getattr(here, p_process);
+	l_mappings here/getProcessMappings; l_dataflows python:l_mappings[p_process]['dataflows']; l_countries python:l_mappings[p_process]['countries']">
+
+<p class="form-help">Applicability of process <a tal:attributes="href string:${proc/absolute_url}/" style="font-weight: bold;" tal:content="proc/title_or_id" /> for dataflows and countries.</p>
+
+<form action="setProcessMappings" method="post">
+<table border="1" style="width:100%; border-collapse:collapse">
+<thead>
+	<tr>
+		<th>Dataflows</th>
+		<th>Countries</th>
+	</tr>
+</thead>
+<tbody>
+	<tr>
+		<td>
+			<table border="0">
+				<tr>
+					<td colspan="2"><input type="radio" name="p_dataflows_all" id="p_dataflows_all1" value="1" tal:attributes="checked python:l_dataflows == ['*']" /><label for="p_dataflows_all1">All</label></td>
+				</tr>
+				<tr>
+					<td><input type="radio" name="p_dataflows_all" id="p_dataflows_all0" value="0" tal:attributes="checked python:l_dataflows != ['*']" /><label for="p_dataflows_all0">Pick</label></td>
+					<td tal:define="data here/dataflow_table_grouped; groups python:data[0]; items python:data[1]">
+						<select id="dataflows" size="20" multiple="multiple" name="p_dataflows" id="p_dataflows">
+							<tal:block tal:repeat="group groups">
+								<optgroup tal:attributes="label python:test(len(group)<=80, group, '%s ...' % group[:77])">
+									<tal:block tal:repeat="item python:items[group]">
+									<option tal:attributes="value item/uri; label python:test(len(item['TITLE'])<=70, item['TITLE'], '%s ...' % item['TITLE'][:67]); selected python:l_dataflows and item['uri'] in l_dataflows">
+										[<span tal:replace="python:' '.join(item['SOURCE_TITLE'].split()[0:2])" />]
+										<span tal:replace="python:test(len(item['TITLE'])<=70, item['TITLE'], '%s ...' % item['TITLE'][:67])" />
+									</option>
+									</tal:block>
+								</optgroup>
+							</tal:block>
+						</select>
+					</td>
+				</tr>
+			</table>
+		</td>
+		<td>
+			<table border="0">
+				<tr>
+					<td colspan="2"><input type="radio" name="p_countries_all" id="p_countries_all1" value="1" tal:attributes="checked python:l_countries == ['*']" /> <label for="p_countries_all1">All</label></td>
+				</tr>
+				<tr>
+					<td><input type="radio" name="p_countries_all" id="p_countries_all0" value="0" tal:attributes="checked python:l_countries != ['*']" /> <label for="p_countries_all0">Pick</label></td>
+					<td>
+						<select size="20" multiple="multiple" name="p_countries" id="p_countries">
+							<option tal:repeat="item here/getCountries" tal:attributes="value item/uri; selected python:l_countries and item['uri'] in l_countries" tal:content="item/name" />
+						</select>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</tbody>
+</table>
+</form>
+
+</tal:block>
+
+<tal:block tal:replace="structure context/manage_page_footer" />

@@ -1,0 +1,112 @@
+<tal:block tal:replace="structure context/manage_page_header"/>
+<tal:block tal:replace="structure python:context.manage_form_title(template, context, form_title='Add Activity', help_product='Reportek', help_topic='')"/>
+
+<p class="form-help">
+	An activity represents something to be done: giving authorization,
+	updating a database, sending an e-mail, loading a truck, filling a form,
+	printing a document and so on.
+</p>
+
+<form action="addActivity" method="post">
+<table border="0" style="width:100%">
+	<col style="width:10em"/>
+	<col />
+	<tr>
+		<td class="form-label"><label for="id">Id</label></td>
+		<td><input type="text" name="id" id="id" value="myact" /></td>
+	</tr>
+	<tr>
+		<td class="form-label"><label for="title">Title</label></td>
+		<td><input type="text" name="title" id="title" value="" /></td>
+	</tr>
+	<tr>
+		<td class="form-label"><label for="description">Description</label></td>
+		<td><textarea name="description" id="description" cols="50" rows="4"></textarea></td>
+	</tr>
+	<tr>
+		<td class="form-label">Workitem handling</td>
+		<td>
+			<label for="join_mode">Join kind:</label>
+			<select name="join_mode" id="join_mode">
+				<option value="and">And</option>
+				<option value="xor">Xor</option>
+			</select>
+			<label for="split_mode">Split kind:</label>
+			<select name="split_mode" id="split_mode">
+				<option value="and">And</option>
+				<option value="xor">Xor</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2" class="form-label">Activity kind</td>
+	</tr>
+	<tr>
+		<td colspan="2" style="padding-left:1em">
+			<table border="1" style="background-color:#e0e0e0;border-collapse:collapse;">
+				<col style="width:7em"/>
+				<col />
+				<tr>
+					<td class="form-label">
+						<input type="radio" id="dummykind" name="kind:string" value="dummy" />
+						<label for="dummykind" class="form-label">Dummy</label>
+					</td>
+					<td>Routing activity</td>
+				</tr>
+				<tr>
+					<td>
+						<input type="radio" id="standardkind" name="kind:string" value="standard" checked="checked" />
+						<label for="standardkind" class="form-label">Application</label>
+					</td>
+					<td align="right">
+						<label for="application">Name:</label>
+						<select name="application" id="application">
+							<option value=""> - None - </option>
+							<option tal:repeat="item here/listApplications" tal:attributes="value item/name" tal:content="item/name" />
+						</select>
+						<div bgcolor="#E0E0E0">
+							<label for="push_application">Pushing application:</label>
+							<select name="push_application" id="push_application">
+								<option value=""> - None - </option>
+								<option tal:repeat="item here/listApplications" tal:attributes="value item/name" tal:content="item/name" />
+							</select>
+							<p>
+								If specified: upon workitem arrival in the activity, the specified application
+								will be called to find out a specific user; the workitem will be automatically assigned 
+								to this user. There is no need to check this button if automatic start is checked:
+								the workitmem will be automatically assigned to "OpenFlow engine".
+							</p>
+						</div>
+						<div bgcolor="#E0E0E0">
+							<input type="checkbox" id="start_mode" name="start_mode:int" value="1" /> <label for="start_mode">Automatic start</label>
+							<p>If checked: upon workitem arrival in the activity, the activity application will be automatically started.</p>
+							<input type="checkbox" id="complete_automatically" name="complete_automatically:int" value="1" /> <label for="complete_automatically">complete automatically</label>
+							<p>If checked: upon the automatic start, the workitem will be also automatically completed.</p>
+						</div>
+						<div bgcolor="#E0E0E0">
+							<input type="checkbox" id="finish_mode" name="finish_mode:int" value="1" checked="checked"> <label for="finish_mode">Automatic forward</label>
+							<p>If checked: upon workitem completion of the activity, the workitem will be automatically forwarded onward (to next activity/activities).</p>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td>
+						<input type="radio" id="subflowkind" name="kind:string" value="subflow" />
+						<label for="subflowkind" class="form-label">Subprocess</label>
+					</td>
+					<td align="right">
+						<label for="subflow">Subflow:</label>
+						<select name="subflow" id="subflow">
+							<option value=""></option>
+							<option tal:repeat="item python:request.PARENTS[1].objectValues(['Process'])" tal:attributes="value item/id" tal:content="item/id" />
+						</select>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+</table>
+<input type="submit" name="submit" value="Add Activity" />
+</form>
+
+<tal:block tal:replace="structure context/manage_page_footer"/>

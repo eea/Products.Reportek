@@ -7,7 +7,7 @@ import requests
 
 # Zope imports
 from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass, DTMLFile
+from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from OFS.Folder import Folder
 from DateTime import DateTime
@@ -21,7 +21,7 @@ from Products.Reportek import constants
 
 CycleError = 'CycleError' # For _topsort()
 
-manage_addProcessForm = DTMLFile('dtml/Workflow/processAdd', globals())
+manage_addProcessForm = PageTemplateFile('zpt/Workflow/process_add.zpt', globals())
 
 def manage_addProcess(self, id, title='', description='', BeginEnd=None, priority=0, begin=None, end=None, REQUEST=None):
     """ """
@@ -72,16 +72,23 @@ class process(CatalogAware, Folder):
                 self.end = ''
 
     security.declareProtected('Manage OpenFlow', 'manage_addActivityForm')
-    manage_addActivityForm = DTMLFile('dtml/Workflow/activityAdd', globals())
+    manage_addActivityForm = PageTemplateFile('zpt/Workflow/activity_add.zpt', globals())
 
     security.declareProtected('Manage OpenFlow', 'manage_addTransitionForm')
-    manage_addTransitionForm = DTMLFile('dtml/Workflow/transitionAdd', globals())
+    manage_addTransitionForm = PageTemplateFile('zpt/Workflow/transition_add.zpt', globals())
 
     security.declareProtected('Manage OpenFlow', 'index_html')
-    index_html = DTMLFile('dtml/Workflow/processMap', globals())
+    index_html = PageTemplateFile('zpt/Workflow/process_map.zpt', globals())
 
-#   security.declareProtected('Manage OpenFlow', 'Setting')
-#   Setting = DTMLFile('dtml/Workflow/processSetting', globals())
+    security.declareProtected('Manage OpenFlow', 'jsIeSupport')
+    def jsIeSupport(self):
+        return """<!--[if IE]>
+    <script>
+        var png = $('<img src="%s/workflow_graph">');
+        $('.workflow-graph #process_graph').replaceWith(png);
+        $('#legend').css({'display': 'inline'});
+    </script>
+<![endif]-->""" % self.absolute_url()
 
     security.declareProtected('Manage OpenFlow', 'manage_role_table')
     manage_role_table = PageTemplateFile('zpt/Workflow/manage_role_table.zpt', globals())

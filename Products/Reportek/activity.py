@@ -22,7 +22,8 @@
 
 #Zope imports
 from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass, DTMLFile
+from Globals import InitializeClass
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from OFS.SimpleItem import SimpleItem
 from Products.ZCatalog.CatalogPathAwareness import CatalogAware
 from Products.Reportek import constants
@@ -84,9 +85,9 @@ class activity(CatalogAware, SimpleItem):
                 self.complete_automatically = 0
 
     security.declareProtected('Manage OpenFlow', 'manage_editForm')
-    manage_editForm = DTMLFile('dtml/Workflow/activityEdit', globals())
+    manage_editForm = PageTemplateFile('zpt/Workflow/activity_edit.zpt', globals())
 
-    index_html = DTMLFile('dtml/Workflow/activityIndex', globals())
+    index_html = PageTemplateFile('zpt/Workflow/activity_index.zpt', globals())
 
     security.declareProtected('Manage OpenFlow', 'edit')
     def edit(self,

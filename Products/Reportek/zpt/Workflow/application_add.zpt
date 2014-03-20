@@ -1,0 +1,20 @@
+<tal:block tal:replace="structure context/manage_page_header"/>
+<tal:block tal:replace="structure python:context.manage_form_title(template, context, form_title='Add Application', help_product='Reportek', help_topic='')"/>
+
+<h2>Application creation</h2>
+
+<form action="addApplication" method="post">
+<table border="0">
+	<tr>
+		<th><label for="name">Name of method</label></th>
+		<td><input type="text" name="name" id="name" value="" size="70" /></td>
+	</tr>
+	<tr>
+		<th><label for="link">URL to be called</label></th>
+		<td><input type="text" name="link" id="link" value="" size="70" /></td>
+	</tr>
+</table>
+<input type="submit" name="submit" value="Add application" />
+</form>
+
+<tal:block tal:replace="structure context/manage_page_footer"/>
