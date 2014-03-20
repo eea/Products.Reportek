@@ -29,6 +29,7 @@ import subprocess, shlex
 from OFS.Folder import Folder
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 import Globals
 
 import constants
@@ -256,10 +257,10 @@ class QARepository(Folder):
             return self.manage_qascripts_html(self,REQUEST,manage_tabs_message=message)
 
     security.declareProtected(view_management_screens, 'manage_qascripts_html')
-    manage_qascripts_html = Globals.DTMLFile('dtml/qascriptsEdit', globals())
+    manage_qascripts_html = PageTemplateFile('zpt/qa/scripts_edit', globals())
 
     security.declareProtected(view_management_screens, 'index_html')
-    index_html = Globals.DTMLFile('dtml/qascriptsIndex', globals())
+    index_html = PageTemplateFile('zpt/qa/scripts_index', globals())
 
 Globals.InitializeClass(QARepository)
 

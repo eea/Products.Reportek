@@ -145,17 +145,3 @@ class Toolz:
         return RepUtils.utSortObjsListByMethod(p_obj_list,
                                                p_attr,
                                                p_sort_order)
-
-    #SimpleTree support - work in progress!
-    def tlzGetRoot(self):
-        return self.getPhysicalRoot()
-
-    def tlzFilterTreeChildren(self, x):
-        root = self.tlzGetRoot()
-        if x is root:
-            return root
-        else:
-            if x.meta_type in ['Report Collection', 'Report Envelope', 'Repository Referral']:
-                return x
-            else:
-                return None

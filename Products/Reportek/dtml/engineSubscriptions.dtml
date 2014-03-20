@@ -17,7 +17,7 @@
 </p>
 <form action="subscribeToUNS" method="post">
 <table>
-</tr>
+<tr>
 	<th><label for="filter_dataflows">Obligation is</label></th>
 	<td>
 		<dtml-call "REQUEST.set('group',0)">

@@ -1,0 +1,42 @@
+<tal:block tal:replace="structure context/manage_page_header" />
+<tal:block tal:replace="structure python:context.manage_tabs(management_view='View')" />
+
+<p class="form-help">
+	This page presents the available QA scripts.
+</p>
+
+<tal:block tal:define="qas here/getQAScriptsDescriptions; qas_local python:qas[0]; qas_remote python:qas[1];">
+
+<h2>Local QA scripts</h2>
+
+<table border="1" cellpadding="2" cellspacing="0">
+<tr>
+	<th>Name</th>
+	<th>XML schema</th>
+	<th>Output content type</th>
+</tr>
+<tr tal:repeat="item qas_local">
+	<td tal:content="item/title_or_id" />
+	<td tal:content="item/xml_schema" />
+	<td tal:content="item/content_type_out" />
+</tr>
+</table>
+
+<h2>Remote QA scripts</h2>
+
+<table border="1" cellpadding="2" cellspacing="0">
+<tr>
+	<th>Name</th>
+	<th>XML schema</th>
+	<th>Output content type</th>
+</tr>
+<tr tal:repeat="item qas_remote">
+	<td tal:content="item/description" />
+	<td tal:content="item/xml_schema" />
+	<td tal:content="item/content_type_out" />
+</tr>
+</table>
+
+</tal:block>
+
+<tal:block tal:replace="structure here/manage_page_footer" />

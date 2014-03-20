@@ -1,0 +1,17 @@
+<tal:block tal:replace="structure context/manage_page_header" />
+<tal:block tal:replace="structure python:context.manage_tabs(management_view='Remote QA Scripts')" />
+
+<p class="form-help">
+	If a remote QA service is available, its parameters should be stored in a <em>Remote Application</em>
+	object. If such an object has been defined, specify its relative path below.
+	Leave this field empty if there is no QA service to link to.
+</p>
+
+<form action="manage_edit" method="post">
+	<label for="QA_application">QA application relative URL:</label>
+	<input type="text" name="QA_application" id="QA_application" tal:attributes="value here/QA_application" size="50" />
+	<br />
+	<input type="submit" value="Save changes" />
+</form>
+
+<tal:block tal:replace="structure here/manage_page_footer" />

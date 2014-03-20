@@ -27,10 +27,11 @@ __version__='$Rev$'[6:-2]
 from OFS.SimpleItem import SimpleItem
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 import Globals
 import RepUtils
 
-manage_addQAScriptForm = Globals.DTMLFile('dtml/qascriptAdd', globals())
+manage_addQAScriptForm = PageTemplateFile('zpt/qa/script_add', globals())
 
 def manage_addQAScript(self, id, title='', description='', xml_schema='',
         workflow=None, content_type_in='', content_type_out='',
@@ -101,7 +102,6 @@ class QAScript(SimpleItem):
         return RepUtils.utConvertListToLines(self.qa_extraparams)
 
     security.declareProtected(view_management_screens, 'manage_settings_html')
-    manage_settings_html = Globals.DTMLFile('dtml/qascriptEdit', globals())
-
+    manage_settings_html = PageTemplateFile('zpt/qa/script_edit', globals())
 
 Globals.InitializeClass(QAScript)

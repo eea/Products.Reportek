@@ -1,0 +1,58 @@
+<tal:block tal:replace="structure context/manage_page_header" />
+<tal:block tal:replace="structure context/manage_tabs" />
+
+<p class="form-help">
+	To change property values, edit the values and click "Save changes". 
+</p>
+
+<form action="manage_settings" method="post">
+<table border="0" cellpadding="2" cellspacing="0">
+	<tr>
+		<td><label for="title" class="form-optional">Title</label></td>
+		<td><input type="text" name="title" id="title" tal:attributes="value here/title" size="35" /></td>
+	</tr>
+	<tr>
+		<td><label for="description" class="form-optional">Description</label></td>
+		<td><textarea name="description" id="description" cols="40" rows="3" tal:content="here/description"></textarea></td>
+	</tr>
+	<tr>
+		<td><label for="xml_schema" class="form-optional">XML schema</label></td>
+		<td><input type="text" name="xml_schema" id="xml_schema" tal:attributes="value here/xml_schema" size="50" /></td>
+	</tr>
+	<tr>
+		<td><label for="workflow" class="form-optional">Workflow URI</label></td>
+		<td><input type="text" name="workflow" id="workflow" size="50" tal:attributes="value here/workflow" /></td>
+	</tr>
+	<tr>
+		<td><label for="content_type_in" class="form-optional">Accepted content-type</label></td>
+		<td><input type="text" name="content_type_in" id="content_type_in" size="50" tal:attributes="value here/content_type_in" /></td>
+	</tr>
+	<tr>
+		<td><label for="content_type_out" class="form-label">Output content type</label></td>
+		<td><input type="text" name="content_type_out" id=="content_type_out" tal:attributes="value here/content_type_out" size="40" /></td>
+	</tr>
+	<tr>
+		<td><label for="script_url" class="form-label">Script path</td>
+		<td><input type="text" name="script_url" id="script_url" tal:attributes="value here/script_url" size="70" /></td>
+	</tr>
+	<tr>
+		<td colspan="2">
+			Define the values for the extra parameters to be evaluated as Python expressions
+			in the exact order as they appear in the QA function called.
+			You can use '<code>file_obj</code>' as file context and '<code>l_script_obj<code>'
+			as the QA script object.
+			(e.g. <code>file_obj.getParentNode().getCountryCode()</code>)
+		</td>
+	</tr>
+	<tr>
+		<td><label for="qa_extraparams" class="form-optional">Extra parameters</label></td>
+		<td valign="top"><textarea name="qa_extraparams" id="qa_extraparams" rows="5" cols="40" tal:content="here/getExtraParameters"></textarea></td>
+	</tr>
+	<tr>
+		<td></td>
+		<td><input type="submit" value="Save changes" /></td>
+	</tr>
+</table>
+</form>
+
+<tal:block tal:replace="structure here/manage_page_footer" />

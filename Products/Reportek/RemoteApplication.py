@@ -25,8 +25,9 @@ import tempfile
 import logging
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from OFS.SimpleItem import SimpleItem
-from Globals import DTMLFile, InitializeClass
+from Globals import InitializeClass
 from AccessControl import getSecurityManager, ClassSecurityInfo
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl.Permissions import view_management_screens
 from DateTime import DateTime
 import xmlrpclib
@@ -40,7 +41,7 @@ feedback_log = logging.getLogger(__name__ + '.feedback')
 FEEDBACKTEXT_LIMIT = 1024 * 16 # 16KB
 
 
-manage_addRemoteApplicationForm = DTMLFile('dtml/RemoteApplicationAdd',globals())
+manage_addRemoteApplicationForm = PageTemplateFile('zpt/remote/application_add', globals())
 
 def manage_addRemoteApplication(self, id='', title='', RemoteServer='', RemoteService='', app_name='', REQUEST=None):
     """ Generic application that calls a remote service 
@@ -426,6 +427,6 @@ class RemoteApplication(SimpleItem):
         self.completeWorkitem(p_workitem_id, actor='openflow_engine', REQUEST=REQUEST)
 
     security.declareProtected(view_management_screens, 'manage_settings_html')
-    manage_settings_html = DTMLFile('dtml/RemoteApplicationSettings', globals())
+    manage_settings_html = PageTemplateFile('zpt/remote/application_edit', globals())
 
 InitializeClass(RemoteApplication)

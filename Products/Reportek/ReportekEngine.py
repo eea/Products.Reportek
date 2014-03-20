@@ -39,7 +39,6 @@ from OFS.Folder import Folder
 from AccessControl import getSecurityManager, ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens, view
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Globals import DTMLFile
 from App.config import getConfiguration
 import Globals
 import Products
@@ -511,8 +510,23 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             reporters.update(self.getReportersByCountry(k.absolute_url(1), p_role))
         return reporters
 
+    security.declarePrivate('sitemap_filter')
+    def sitemap_filter(self, objs):
+        return [x for x in objs if x.meta_type in ['Report Collection', 'Report Envelope', 'Repository Referral']]
+
+    security.declareProtected('View', 'getSitemap')
+    def getSitemap(self, tree_root=None, tree_pre='tree'):
+        from ZTUtils import SimpleTreeMaker
+        if tree_root is None: tree_root = self.getPhysicalRoot()
+        tm = SimpleTreeMaker(tree_pre)
+        tm.setChildAccess(filter=self.sitemap_filter)
+        tm.setSkip('')
+        tree, rows = tm.cookieTree(tree_root)
+        rows.pop(0)
+        return {'root': tree, 'rows': rows}
+
     security.declareProtected('View', 'sitemap')
-    sitemap = DTMLFile('dtml/engineSitemap', globals())
+    sitemap = PageTemplateFile('zpt/engine/sitemap', globals())
 
     security.declarePublic('getWebQURL')
     def getWebQURL(self):
@@ -836,7 +850,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     ################################################################################
 
     security.declareProtected('View', 'subscriptions_html')
-    subscriptions_html = DTMLFile('dtml/engineSubscriptions', globals())
+    subscriptions_html = PageTemplateFile('zpt/engine/subscriptions', globals())
 
     security.declareProtected('View', 'uns_settings')
     uns_settings = PageTemplateFile('zpt/engine/unsinterface', globals())

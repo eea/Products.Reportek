@@ -1,6 +1,22 @@
-<span tal:replace="structure context/standard_html_header" />
+<tal:block tal:replace="structure context/standard_html_header" />
 
-<h1 i18n:translate="">Sitemap for the Data Repository</h1>
+<h1 i18n:translate="">Sitemap for the Central Data Repository</h1>
 
+<tal:block tal:define="sitemap here/getSitemap; height sitemap/root/height">
 
-<span tal:replace="structure context/standard_html_footer" />
+	<table cellspacing="0" border="0" style="margin-top:20px;">
+		<tr tal:repeat="row sitemap/rows">
+			<td tal:repeat="ident python:range(0, row.depth - 1)" width="16" style="white-space: nowrap"></td>
+			<td style="white-space: nowrap" valign="top" width="16" tal:define="rlink row/branch">
+				<a tal:condition="rlink/link" tal:attributes="name row/id; href string:${request/URL}${rlink/link}" tal:content="structure rlink/img" />
+			</td>
+			<td tal:attributes="colspan python:height-row.depth" tal:define="obj row/object; url string:${obj/absolute_url}/" align="left" valign="top">
+				<a tal:attributes="href url" tal:condition="obj/icon | nothing"><img tal:attributes="src string:${request/BASEPATH1}/${obj/icon}; alt obj/meta_type" border="0" title="Click to open this item" i18n:attributes="title" /></a>
+				<a tal:attributes="href url" tal:content="obj/title_or_id" />
+			</td>
+		</tr>
+	</table>
+
+</tal:block>
+
+<tal:block tal:replace="structure context/standard_html_footer" />
