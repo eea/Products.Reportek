@@ -89,15 +89,15 @@ class EnvelopeCustomDataflows:
     #generic method that converts Excel files (XLS or ODS) to XML
     #if the Excel template comes from Data Dictionary
     security.declareProtected('Change Envelopes', 'upload_excel_file')
-    upload_excel_file = DTMLFile('dataflows/envelope_upload_excel_file',globals())
+    upload_excel_file = PageTemplateFile('zpt/envelope/upload_excel_file', globals())
 
     #generic method that converts Excel files (XLS or ODS) to XML
     security.declareProtected('Change Envelopes', 'upload_generic_excel_file')
-    upload_generic_excel_file = DTMLFile('dataflows/envelope_upload_generic_excel_file',globals())
+    upload_generic_excel_file = PageTemplateFile('zpt/envelope/upload_generic_excel_file', globals())
 
     #generic method that uploads a DD file or accompanying data
     security.declareProtected('Change Envelopes', 'upload_dd_file')
-    upload_dd_file = DTMLFile('dataflows/envelope_upload_dd_file',globals())
+    upload_dd_file = PageTemplateFile('zpt/envelope/upload_dd_file', globals())
 
     #generic method that uploads a single file or a zip
     security.declareProtected('Change Envelopes', 'upload_doc_or_zip')
