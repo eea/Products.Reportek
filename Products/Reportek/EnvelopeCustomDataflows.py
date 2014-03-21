@@ -613,19 +613,6 @@ class EnvelopeCustomDataflows:
 #    uploadESRI = DTMLFile('dtml/envelopeUploadESRI',globals())
 
     ##################################################
-    #   Rivers
-    ##################################################
-
-    security.declareProtected('Change Envelopes', 'upload_rivers_excel_file')
-    upload_rivers_excel_file = DTMLFile('dataflows/Rivers/documentAddExcelData',globals())
-
-    security.declareProtected('Change Envelopes', 'upload_xml_file')
-    upload_xml_file = DTMLFile('dataflows/Rivers/documentAddXMLData',globals())
-
-    security.declareProtected('Change Envelopes', 'upload_data_file')
-    upload_data_file = DTMLFile('dataflows/Rivers/documentAddOtherData',globals())
-
-    ##################################################
     #   Groundwater
     ##################################################
 
