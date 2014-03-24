@@ -3,7 +3,8 @@
     <tal:block define="SecurityManager
                        modules/AccessControl/getSecurityManager;
                        permission_condition
-                       python:SecurityManager.checkPermission( 'View management screens', template)">
+                       python:SecurityManager.checkPermission( 'View management screens', template);
+                       global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'">
       <div id="operations">
           <ul>
           <li>
@@ -93,8 +94,11 @@
           python:context.content_type.startswith('text/html') or context.feedbacktext[0] == '<';
         is_plain
           python:context.content_type.startswith('text/plain')">
-        <tal:block condition="is_html">
+        <tal:block condition="python: is_html and isBdrDeployment">
           <span tal:replace="structure context/renderFeedbacktext"/>
+        </tal:block>
+        <tal:block condition="python: is_html and not isBdrDeployment">
+          <span tal:replace="structure context/feedbacktext"/>
         </tal:block>
 
         <tal:block condition="python:not is_html and is_plain">
