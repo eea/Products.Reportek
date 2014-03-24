@@ -159,7 +159,9 @@ function toggleSelect() {
             title_link
         </a>
     </td>
-    <td tal:content="python: html_quote(obj.absolute_url())"></td>
+    <td tal:condition="isBdrDeployment"
+        tal:content="python: html_quote(obj.absolute_url())">
+    </td>
     <td style="white-space:nowrap"
         tal:content="python: '%s-%s' %(obj.year, obj.endyear) if obj.endyear else obj.year">
         year-endyear
