@@ -4,7 +4,8 @@ from DateTime import DateTime
 from time import time
 from OFS.SimpleItem import SimpleItem 
 from OFS.PropertyManager import PropertyManager
-from Globals import DTMLFile,InitializeClass
+from Globals import InitializeClass
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.CatalogPathAwareness import CatalogAware
 
 class workitem(CatalogAware, SimpleItem, PropertyManager):
@@ -61,13 +62,13 @@ class workitem(CatalogAware, SimpleItem, PropertyManager):
         )
 
     security.declareProtected('Manage OpenFlow', 'workitemProperties')
-    workitemProperties = DTMLFile('dtml/Workflow/workitemEdit', globals())
+    workitemProperties = PageTemplateFile('zpt/Workflow/workitem_edit', globals())
 
     security.declareProtected('Use OpenFlow', 'workitemDetails')
-    workitemDetails = DTMLFile('dtml/Workflow/workitemDetails', globals())
+    workitemDetails = PageTemplateFile('zpt/Workflow/workitem_details', globals())
 
     security.declareProtected('View', 'index_html')
-    index_html=DTMLFile('dtml/Workflow/workitemIndex',globals())
+    index_html = PageTemplateFile('zpt/Workflow/workitem_index', globals())
 
     def __setstate__(self,state):
         """ """

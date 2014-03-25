@@ -1,0 +1,68 @@
+<tal:block tal:replace="structure context/standard_html_header" />
+
+<h1 tal:content="here/title_or_id" />
+
+<table style="width:100%">
+	<col style="width:11em"/>
+	<col />
+	<tr>
+		<th scope="row" class="scope-row">Title</th>
+		<td tal:content="here/title" />
+	</tr>
+	<tr>
+		<th scope="row" class="scope-row">Description</th>
+		<td tal:content="here/description" />
+	</tr>
+	<tr>
+		<th scope="row" class="scope-row">Workitem handling</th>
+		<td>Join kind:
+			<select id="join_mode" name="join_mode">
+				<option value="and" tal:attributes="selected python:here.join_mode=='and'">and</option>
+				<option value="xor" tal:attributes="selected python:here.join_mode=='xor'">xor</option>
+			</select>
+			Split kind:
+			<select id="split_mode" name="split_mode">
+				<option value="and" tal:attributes="selected python:here.split_mode=='and'">and</option>
+				<option value="xor" tal:attributes="selected python:here.split_mode=='xor'">xor</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2" class="form-label">Activity kind</td>
+	</tr>
+	<tr>
+		<td colspan="2" style="padding-left: 1em">
+			<table border="1" style="background-color:#E0E0E0; border-collapse:collapse">
+			<col style="width:7em"/>
+			<col/>
+			<tr tal:condition="python:here.kind=='dummy'">
+				<td>Dummy</td>
+				<td>Used for routing of work flowing in the process.</td>
+			</tr>
+			<tr tal:condition="python:here.kind=='standard'">
+				<td>Application</td>
+				<td>
+					<div>Application name: <tal:block tal:replace="here/application" /></div>
+					<div>Pushing application: <tal:block tal:replace="here/push_application" /></div>
+					<div>
+						<input type="checkbox" id="start_mode" readonly="readonly" name="start_mode:int" value="1" tal:attributes="checked here/start_mode" /> Automatic start<br />
+						<div style="padding-left:2em">If checked: upon workitem arrival in the activity, the activity application will be automatically started.</div>
+						<input type="checkbox" id="complete_automatically" readonly="readonly" name="complete_automatically" tal:attributes="checked here/complete_automatically" /> Complete automatically<br />
+						<div style="padding-left:2em">If checked: upon the automatic start, the workitem will be also automatically completed.</div>
+					</div>
+					<div>
+						<input type="checkbox" id="finish_mode" readonly="readonly" name="finish_mode:int" value="1" tal:attributes="checked here/finish_mode" /> Automatic forward<br />
+						<div style="padding-left:2em">If checked: upon workitem completion of the activity, the workitem will be automatically forwarded onward (to next activity/activities).</div>
+					</div>
+				</td>
+			</tr>
+			<tr tal:condition="python:here.kind=='subflow'">
+				<th scope="row" class="scope-row">Subprocess</th>
+				<td>Subflow: <tal:block tal:replace="here/subflow" /></td>
+			</tr>
+			</table>
+		</td>
+	</tr>
+</table>
+
+<tal:block tal:replace="structure context/standard_html_footer" />

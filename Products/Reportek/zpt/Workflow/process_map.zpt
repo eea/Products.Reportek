@@ -1,0 +1,170 @@
+<tal:block tal:replace="structure context/manage_page_header" />
+<tal:block tal:replace="structure context/manage_tabs" />
+
+<script src="++resource++static/jquery-1.8.2.min.js"></script>
+<script type="text/javascript" charset="utf-8">
+    function slide_toggle(){
+        var collapsed_text = 'show description';
+        var expanded_text = 'hide description';
+        if($(collapsible).attr('collapsed')=='false'){
+            $(collapsible).slideUp();
+            $(collapsible).attr('collapsed', 'true');
+            $(this).html(collapsed_text);
+        }
+        else{
+            $(collapsible).slideDown();
+            $(collapsible).attr('collapsed', 'false');
+            $(this).html(expanded_text);
+        }
+    }
+    $(document).ready(function() {
+            var start_hidden = true;
+            var collapsed_text = 'show description';
+            var expanded_text = 'hide description';
+            var collapsible=$('.note-msg #collapsible');
+            var button=$('.note-msg #collapse_button');
+            $(button).bind('click', slide_toggle);
+            $(collapsible).slideUp(0);
+            $(collapsible).attr('collapsed', 'true');
+            $(button).html(collapsed_text);
+    });
+</script>
+
+<style>
+.workflow-graph {
+	overflow: hidden;
+}
+.workflow-graph img, .workflow-graph table {
+	float: left;
+	margin: 10px;
+}
+</style>
+
+<div class="note-msg">
+	<h3><strong>Applications to activities mappings</strong> [<a href="#" style="font-weight: normal;" id="collapse_button">show description</a>]</h3>
+	<div id="collapsible" collapsed="true" style="margin-top: 10px;">
+		<hr/>
+		<p>Currently there are two possibilities to map an application to an activity:</p>
+		<ul>
+			<li>automatically <span style="color: green;" tal:content="string:[auto]" /> - by path (new)</li>
+			<li>manually <span style="color: orange;" tal:content="string:[man]" /> - by assigning an application instance to the application attribute of the activity (deprecated)</li>
+		</ul>
+		<p>Reportek has a folder structure and mechanism to automatically map applications to activities.</p>
+		<p>
+			The root folder is <code>/Applications</code>. Each workflow must have a  folder named exactly like its id.<br/>
+			In order to be mapped automatically to an activity, an application must be stored in one of these subfolders and must have a name that matches an activity that's part of the corresponding workflow.
+		</p>
+		<p>
+			Example of an automatically mapped application: <strong>/Applications/CDDA/Draft.</strong>
+			This application would be mapped to the <strong>Draft</strong> activity in the <strong>CDDA</strong> workflow.
+		</p>
+		<h4>Graph features (not supported in IE):</h4>
+		<p>
+			<img tal:attributes="src string:${here/absolute_url}/workflow_graph_help" />
+		</p>
+	</div>
+	<hr/>
+</div>
+
+<div style="text-align: right">
+	<form action="." method="post">
+		<input type="submit" name="manage_addActivityForm:method" value="Add Activity" />
+		<input type="submit" name="manage_addTransitionForm:method" value="Add Transition" />
+	</form>
+</div>
+
+<div class="workflow-graph">
+	<object id="process_graph" data="./workflow_graph?output=svg"></object>
+	<table id="legend" style="display: none;">
+		<tr tal:repeat="item here/workflow_graph_legend">
+			<th tal:content="item/short_name" />
+			<th tal:content="item/long_name" />
+		</tr>
+	</table>
+</div>
+
+<h2>Activities</h2>
+<tal:block tal:define="unref_activities here/listUnreferedActivities; activities python:here.tlzSortByAttr(here.objectValues(['Activity']), 'id')">
+	<tal:block tal:condition="python:len(activities)>0">
+		<form action="." method="post">
+		<table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr bgcolor="#CCCCCC">
+				<th>Activity</th>
+				<th>Kind</th>
+				<th>Join</th>
+				<th>Split</th>
+				<th>Application name</th>
+				<th>Push application</th>
+				<th>Start mode</th>
+				<th>Finish mode</th>
+				<th>Subflow process</th>
+			</tr>
+			<tr tal:repeat="item activities" tal:attributes="bgcolor python:test(path('repeat/item/even'), '#fff', '#eee')">
+				<td>
+					<input type="checkbox" name="ids:list" tal:attributes="value item/id" />
+					<a tal:attributes="href string:${item/id}/manage_workspace" tal:content="item/id" />
+					<tal:block tal:condition="python:item.id not in unref_activities"><span style="color: red" title="This activity has no incoming/outcoming transitions">[not used]</span></tal:block>
+				</td>
+				<td align="center" tal:content="item/kind" />
+				<td align="center" tal:content="item/join_mode" />
+				<td align="center" tal:content="item/split_mode" />
+				<tal:block tal:condition="python:item.kind=='standard'">
+					<td tal:content="item/application" />
+					<td align="center" tal:content="item/push_application" />
+					<td align="center" tal:content="python:test(item.start_mode, 'Automatic', 'Manual')" />
+					<td align="center" tal:content="python:test(item.finish_mode, 'Automatic', 'Manual')" />
+				</tal:block>
+				<tal:block tal:condition="python:item.kind!='standard'">
+					<td> </td>
+					<td> </td>
+					<td> </td>
+					<td> </td>
+				</tal:block>
+				<tal:block tal:condition="python:item.kind=='subflow'">
+					<td align="center" tal:content="item/subflow" />
+				</tal:block>
+				<td> </td>
+				<td> </td>
+				<td> </td>
+			</tr>
+		</table>
+		<input type="submit" name="manage_delObjects:method" value="Delete activity" />
+		</form>
+	</tal:block>
+	<tal:block tal:condition="python:len(activities)==0">
+		<p>There are no activities yet.</p>
+	</tal:block>
+</tal:block>
+
+<h2>Transitions</h2>
+<tal:block tal:define="transitions python:here.tlzSortByAttr(here.objectValues(['Transition']), 'id')">
+	<tal:block tal:condition="python:len(transitions)>0">
+		<form action="." method="post">
+		<table border="0" cellpadding="0" cellspacing="0" width="100%">
+			<tr bgcolor="#CCCCCC">
+				<th align="left">Transition</th>
+				<th>Condition</th>
+				<th>From</th>
+				<th>To</th>
+			</tr>
+			<tr tal:repeat="item transitions" tal:attributes="bgcolor python:test(path('repeat/item/even'), '#fff', '#eee')">
+				<td>
+					<input type="checkbox" name="ids:list" tal:attributes="value item/id" />
+					<a tal:attributes="href string:${item/id}/manage_workspace" tal:content="item/id" />
+				</td>
+				<td tal:content="python:test(item.condition, item.condition, '- nocondition -')" />
+				<td tal:content="item/From" />
+				<td tal:content="item/To" />
+			</tr>
+		</table>
+		<input type="submit" name="manage_delObjects:method" value="Delete transition" />
+		</form>
+	</tal:block>
+	<tal:block tal:condition="python:len(transitions)==0">
+		<p>There are no transitions yet.</p>
+	</tal:block>
+</tal:block>
+
+<tal:block tal:replace="structure here/jsIeSupport" />
+
+<tal:block tal:replace="structure context/manage_page_footer" />

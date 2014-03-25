@@ -75,7 +75,6 @@ class _BaseTest(unittest.TestCase):
         from mock import Mock
         from utils import create_fake_root, makerequest
         from OFS.Folder import Folder
-        from Globals import DTMLFile
         from Products.Reportek.Collection import Collection
         from Products.Reportek.OpenFlowEngine import OpenFlowEngine
 

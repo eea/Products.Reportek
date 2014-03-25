@@ -1,0 +1,33 @@
+<tal:block tal:replace="structure context/standard_html_header" />
+
+<tal:block tal:define="env python:here.getEnvironment(here.id)">
+	<h2>
+		<tal:block tal:condition="here/activity_id"><tal:block tal:replace="here/activity_id" /></tal:block><tal:block tal:condition="python:not here.activity_id"><em i18n:translate="">No activity</em></tal:block>
+		(<tal:block tal:condition="python:env[3].title"><tal:block tal:replace="python:env[3].title" /></tal:block><tal:block tal:condition="python:not env[3].title" i18n:translate="">no title</tal:block>)
+	</h2>
+	<p>
+		<!-- engine, workitem, process, activity -->
+		<strong i18n:translate="">Instructions:</strong>
+		<tal:block tal:condition="python:here.status == 'inactive'" i18n:translate="">
+			To tell your coworkers that you have taken the task to work on this envelope you must activate the workitem.
+		</tal:block>
+		<tal:block tal:condition="python:here.status != 'inactive'">
+			<tal:block tal:condition="python:env[3].description"><tal:block tal:replace="python:env[3].description" /></tal:block><tal:block tal:condition="python:not env[3].description" i18n:translate="">None</tal:block>
+		</tal:block>
+	</p>
+</tal:block>
+
+<tal:block tal:replace="structure here/workitemDetails" />
+
+<tal:block tal:condition="python:here.status == 'complete' and not here.workitems_to and here.getDestinations(here.id)">
+	<h3 i18n:translate="">Operations</h3>
+	<table border="0">
+	<tbody>
+		<tr>
+			<td><a tal:attributes="href string:forwardWorkitem?workitem_id=${here/id}"><tal:block i18n:translate="">Forward to</tal:block> <tal:block tal:replace="python:here.getDestinations(here.id)[0]['activity_to_id']" /></a></td>
+		</tr>
+	</tbody>
+	</table>
+</tal:block>
+
+<tal:block tal:replace="structure context/standard_html_footer" />

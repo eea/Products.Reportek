@@ -1,0 +1,20 @@
+<tal:block tal:replace="structure context/manage_page_header" />
+<tal:block tal:replace="structure context/manage_tabs" />
+
+<h1>Edit application <tal:block tal:replace="here/name" /></h1>
+
+<form action="editApplication" method="post">
+<table border="0">
+	<tr>
+		<th><label for="name">Application</label></th>
+		<td><tal:block tal:replace="here/name" /> <input type="hidden" name="name" tal:attributes="value here/name" /></td>
+	</tr>
+	<tr>
+		<th><label for="link">URL</label></th>
+		<td><input size="70" type="text" name="link" tal:attributes="value here/link" /></td>
+	</tr>
+</table>
+<input type="submit" value="Change" />
+</form>
+
+<tal:block tal:replace="structure context/manage_page_footer" />

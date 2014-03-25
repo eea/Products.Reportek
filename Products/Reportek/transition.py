@@ -28,7 +28,8 @@ This class is part of the workflow system
 
 #Zope imports
 from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass, DTMLFile
+from Globals import InitializeClass
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from OFS.SimpleItem import SimpleItem
 from Products.ZCatalog.CatalogPathAwareness import CatalogAware
 
@@ -53,10 +54,10 @@ class transition(CatalogAware, SimpleItem):
     security = ClassSecurityInfo()
 
     security.declareProtected('Manage OpenFlow', 'manage_editTransitionForm')
-    manage_editTransitionForm = DTMLFile('dtml/Workflow/transitionEdit', globals())
+    manage_editTransitionForm = PageTemplateFile('zpt/Workflow/transition_edit.zpt', globals())
 
 #   security.declareProtected('Use OpenFlow', 'index_html')
-    index_html = DTMLFile('dtml/Workflow/transitionIndex', globals())
+    index_html = PageTemplateFile('zpt/Workflow/transition_index.zpt', globals())
 
     meta_type = 'Transition'
     icon = 'misc_/Reportek/Transition.gif'

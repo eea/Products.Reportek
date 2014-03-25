@@ -1,0 +1,46 @@
+<tal:block tal:replace="structure context/standard_html_header" />
+
+<div id="operations">
+	<ul>
+		<li>
+			<a tal:attributes="href python:'%s/'% here.getMySelf().absolute_url()" title="Go back to envelope" i18n:attributes="title" i18n:translate="">Back to envelope</a>
+		</li>
+	</ul>
+</div>
+
+<h1 i18n:translate="">Upload file</h1>
+
+<p i18n:translate="">
+	If you filled the file from the correct Data Dictionary template (.XLS or .ODS), the conversion facility will extract
+	the information from it and convert the delivery to XML format.
+	You can also directly upload the XML files following the Data Dictionary schema.
+</p>
+<div class="note-msg">
+	<strong i18n:translate="">Note</strong>
+	<p i18n:translate="">
+		In each of these cases above, the XML files already existing in this envelope
+		and the previous delivery in the original format (if any) will be first deleted.
+	</p>
+</div>
+<p i18n:translate="">
+	Additionally, upload accompanying or explanatory information in any other format.
+</p>
+
+<form action="manage_addDDFile" method="post" enctype="multipart/form-data" name="form">
+	<tal:block tal:repeat="item python:request.SESSION.get('required_schema', [])">
+		<input type="hidden" name="required_schema:list" tal:attributes="value item" />
+	</tal:block>
+	<label for="file" i18n:translate="">File</label>
+	<input type="file" name="file" id="file" size="25" value="" />
+	<br />
+	<label for="restricted" i18n:translate="">Restricted from public view</label>
+	<input type="checkbox" name="restricted" id="restricted" />
+	<br /><br />
+	<input type="submit" value="Add" i18n:attributes="value" />
+</form>
+
+<tal:block tal:condition="python:request.SESSION.has_key('required_schema')">
+	<tal:block tal:replace="python:request.SESSION.delete('required_schema')" />
+</tal:block>
+
+<tal:block tal:replace="structure context/standard_html_footer" />

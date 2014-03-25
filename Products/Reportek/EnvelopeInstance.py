@@ -28,7 +28,7 @@ This class is part of the workflow system
 
 # Zope imports
 from AccessControl import getSecurityManager, ClassSecurityInfo
-from Globals import InitializeClass, DTMLFile, MessageDialog
+from Globals import InitializeClass, MessageDialog
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from OFS.Folder import Folder
 from Products.ZCatalog.CatalogPathAwareness import CatalogAware
@@ -85,14 +85,14 @@ class EnvelopeInstance(CatalogAware, Folder):
 
     # History of the envelope for administrators
     security.declareProtected('Manage OpenFlow', 'manage_history_html')
-    manage_history_html = DTMLFile('dtml/Workflow/envelopeManageHistory', globals())
+    manage_history_html = PageTemplateFile('zpt/envelope/manage_history', globals())
 
     # History of the envelope for all users
     security.declareProtected('View', 'history_section')
     history_section = PageTemplateFile('zpt/envelope/history', globals())
 
     security.declareProtected('Manage OpenFlow', 'chooseFallin')
-    chooseFallin = DTMLFile('dtml/Workflow/envelopeChooseFallin', globals())
+    chooseFallin = PageTemplateFile('zpt/envelope/choose_fallin', globals())
 
     security.declarePublic('activity_operations')
     activity_operations = PageTemplateFile('zpt/envelope/operations', globals())

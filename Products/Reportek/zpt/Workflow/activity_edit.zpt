@@ -1,0 +1,107 @@
+<tal:block tal:replace="structure context/manage_page_header" />
+<tal:block tal:replace="structure context/manage_tabs" />
+
+<form action="edit" method="post">
+<table style="width:100%">
+	<col style="width:11em"/>
+	<col />
+	<tr>
+		<td class="form-label"><label for="title">Title</label></td>
+		<td><input type="text" id="title" name="title" size="50" tal:attributes="value here/title" /></td>
+	</tr>
+	<tr>
+		<td class="form-label"><label for="description">Description</label></td>
+		<td><textarea id="description" name="description" cols="50" rows="4" tal:content="here/description"></textarea></td>
+	</tr>
+	<tr>
+		<td class="form-label">Workitem handling</td>
+		<td>
+			<label for="join_mode">Join kind:</label>
+			<select id="join_mode" name="join_mode">
+				<option value="and" tal:attributes="selected python:here.join_mode=='and'">and</option>
+				<option value="xor" tal:attributes="selected python:here.join_mode=='xor'">xor</option>
+			</select>
+			<label for="split_mode">Split kind:</label>
+			<select id="split_mode" name="split_mode">
+				<option value="and" tal:attributes="selected python:here.split_mode=='and'">and</option>
+				<option value="xor" tal:attributes="selected python:here.split_mode=='xor'">xor</option>
+			</select>
+		</td>
+	</tr>
+	<tr>
+		<td colspan="2" class="form-label">Activity kind</td>
+	</tr>
+	<tr>
+		<td colspan="2" style="padding-left: 1em">
+			<table border="1" style="background-color:#E0E0E0; border-collapse:collapse">
+				<col style="width:7em"/>
+				<col/>
+				<tr>
+					<td>
+						<input type="radio" id="dummykind" name="kind:string" value="dummy" tal:attributes="checked python:here.kind=='dummy'" />
+						<label for="dummykind" class="form-label">Dummy</label>
+					</td>
+					<td>Used for routing of work flowing in the process.</td>
+				</tr>
+				<tr>
+					<td>
+						<input type="radio" id="standardkind" name="kind:string" value="standard" tal:attributes="checked python:here.kind=='standard'" />
+						<label for="standardkind" class="form-label">Application</label>
+					</td>
+					<td>
+						<div>
+							<label for="application">Application name:</label>
+							<select name="application" id="application">
+								<option value=""> - None - </option>
+								<option tal:repeat="item here/listApplications" tal:attributes="value item/name; selected python:item['name']==here.application" tal:content="item/name" />
+							</select>
+							<div style="padding-left:2em">If checked: the workitem will execute this webpage/application.</div>
+						</div>
+						<div>
+							<label for="push_application">Pushing application:</label>
+							<select name="push_application" id="push_application">
+								<option value=""> - None - </option>
+								<option tal:repeat="item here/listApplications" tal:attributes="value item/name; selected python:item['name']==here.push_application" tal:content="item/name" />
+							</select>
+							<div style="padding-left:2em">
+								If checked: upon workitem arrival in the activity, the specified application will be called 
+								to find out a specific user; the workitem will be automatically assigned to this user.
+								There is no need to check this button if automatic start is checked: the workitmem will be automatically assigned to "OpenFlow engine".
+							</div>
+						</div>
+						<div>
+							<input type="checkbox" id="start_mode" name="start_mode:int" value="1" tal:attributes="checked here/start_mode" /> <label for="start_mode">Automatic start</label><br />
+							<div style="padding-left:2em">If checked: upon workitem arrival in the activity, the activity application will be automatically started.</div>
+							<input type="checkbox" id="complete_automatically" name="complete_automatically" tal:attributes="checked here/complete_automatically" /> <label for="complete_automatically">Complete automatically</label><br />
+							<div style="padding-left:2em">If checked: upon the automatic start, the workitem will be also automatically completed.</div>
+						</div>
+						<div>
+							<input type="checkbox" id="finish_mode" name="finish_mode:int" value="1" tal:attributes="checked here/finish_mode" /> <label for="finish_mode">Automatic forward</label><br />
+							<div style="padding-left:2em">If checked: upon workitem completion of the activity, the workitem will be automatically forwarded onward (to next activity/activities).</div>
+						</div>
+					</td>
+				</tr>
+				<tr>
+					<td class="form-label">
+						<input type="radio" id="subflowkind" name="kind:string" value="subflow" tal:attributes="checked python:here.kind=='subflow'" />
+						<label for="subflowkind" class="form-label">Subprocess</label>
+					</td>
+					<td>
+						<label for="subflow">Subflow:</label>
+						<select name="subflow" id="subflow">
+							<option value=""></option>
+							<option tal:repeat="item python:request.PARENTS[2].objectValues(['Process'])" tal:attributes="value item/id; selected python:item.id==here.subflow" tal:content="item/id" />
+						</select>
+					</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	<tr>
+		<td></td>
+		<td><input type="submit" name="submit" value="Change" /></td>
+	</tr>
+</table>
+</form>
+
+<tal:block tal:replace="structure context/manage_page_footer" />

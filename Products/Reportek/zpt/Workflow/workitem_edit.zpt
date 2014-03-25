@@ -1,0 +1,68 @@
+<tal:block tal:replace="structure context/manage_page_header" />
+<tal:block tal:replace="structure context/manage_tabs" />
+
+<p class="form-help">
+	Properties of the Workitem.
+</p>
+
+<table border="0" cellpadding="2" cellspacing="0">
+	<tr>
+		<th style="vertical-align: top">Activity ID</th>
+		<td tal:content="here/activity_id" />
+	</tr>
+	<tr>
+		<th style="vertical-align: top">Application</th>
+		<td tal:define="activity_application python:here.activity_application(here.activity_id)">
+			<a tal:attributes="href activity_application/url" tal:content="activity_application/id" />
+		</td>
+	</tr>
+	<tr>
+		<th style="vertical-align: top">Previous Workitems</th>
+		<td><tal:block tal:repeat="item here/workitems_from"><tal:block tal:replace="item" /> </tal:block></td>
+	</tr>
+	<tr>
+		<th style="vertical-align: top">Following Workitems</th>
+		<td><tal:block tal:repeat="item here/workitems_to"><tal:block tal:replace="item" /> </tal:block></td>
+	</tr>
+	<tr>
+		<th style="vertical-align: top">Status</th>
+		<td tal:content="here/status" />
+	</tr>
+	<tr>
+		<th style="vertical-align: top">Actor</th>
+		<td tal:content="here/actor" />
+	</tr>
+	<tr>
+		<th style="vertical-align: top">Priority</th>
+		<td tal:content="here/priority" />
+	</tr>
+	<tr>
+		<th style="vertical-align: top">Blocked</th>
+		<td tal:content="here/blocked" />
+	</tr>
+	<tr>
+		<th style="vertical-align: top">Graph level</th>
+		<td tal:content="here/graph_level" />
+	</tr>
+	<tr>
+		<th style="vertical-align: top">Push roles</th>
+		<td tal:content="python:test(here.push_roles, ', '.join(here.push_roles), 'N/A')" />
+	</tr>
+	<tr>
+		<th style="vertical-align: top">Pull roles</th>
+		<td tal:content="python:test(here.pull_roles, ', '.join(here.pull_roles), 'N/A')" />
+	</tr>
+	<tr>
+		<th style="vertical-align: top">Eventlog</th>
+		<td>
+			<dl>
+				<tal:block tal:repeat="item here/event_log">
+					<dt><tal:block tal:replace="python:item['time'].strftime('%Y-%m-%d %H:%M:%S')" />: <tal:block tal:replace="structure item/event" /></dt>
+					<dd tal:content="structure python:here.tlzNewlineToBr(item['comment'])" />
+				</tal:block>
+			</dl>
+		</td>
+	</tr>
+</table>
+
+<tal:block tal:replace="structure context/manage_page_footer" />

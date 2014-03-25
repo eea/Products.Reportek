@@ -27,7 +27,7 @@ This class which Envelope subclasses from handles the integration with remote sy
 """
 
 # Zope imports
-from Globals import DTMLFile, MessageDialog, InitializeClass
+from Globals import MessageDialog, InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl import getSecurityManager, ClassSecurityInfo
 
