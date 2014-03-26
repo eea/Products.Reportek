@@ -58,8 +58,9 @@
 	</tr>
 </tbody>
 </table>
+<input type="hidden" name="p_process" id="p_process" tal:attributes="value p_process" />
+<p><input type="submit" value="Save changes" /></p>
 </form>
-
 </tal:block>
 
 <tal:block tal:replace="structure context/manage_page_footer" />
