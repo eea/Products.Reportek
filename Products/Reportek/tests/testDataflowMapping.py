@@ -2,8 +2,8 @@ import unittest
 
 from Products.Reportek.constants import DATAFLOW_MAPPINGS
 from Products.Reportek.DataflowMappings import DataflowMappings
-from Products.Reportek import DataflowMappingRecord
-from Products.Reportek import DataflowMappingTable
+from Products.Reportek.DataflowMappingRecord import DataflowMappingRecord
+from Products.Reportek.DataflowMappingTable import DataflowMappingTable
 from utils import create_fake_root
 
 
@@ -26,18 +26,16 @@ class DFMTestCase(unittest.TestCase):
         self.mappings = self.app[self.id]
 
 
-    def add_mapping(self, id_, *args, **kwargs):
-        func = DataflowMappingRecord.manage_addDataflowMappingRecord
-        func(self.mappings, id_, *args, **kwargs)
-        ob = self.mappings[id_]
-        ob._fix_attributes()
+    def add_mapping(self, oid, *args, **kwargs):
+        ob = DataflowMappingRecord(oid, *args, **kwargs)
+        self.mappings._setObject(oid, ob)
+        self.mappings[oid]._fix_attributes()
 
 
-    def add_table(self, id_, dataflow_uri, mapping):
-        func = DataflowMappingTable.manage_addDataflowMappingTable
-        func(self.mappings, id_, id_, dataflow_uri)
-        ob = self.mappings[id_]
-        ob.mapping = mapping
+    def add_table(self, oid, dataflow_uri, mapping):
+        ob = DataflowMappingTable(oid, oid, dataflow_uri)
+        self.mappings._setObject(oid, ob)
+        self.mappings[oid].mapping = mapping
 
 
     def test_add_dataflow_mapping(self):

@@ -1,78 +1,93 @@
-# The contents of this file are subject to the Mozilla Public
-# License Version 1.1 (the "License"); you may not use this file
-# except in compliance with the License. You may obtain a copy of
-# the License at http://www.mozilla.org/MPL/
-#
-# Software distributed under the License is distributed on an "AS
-# IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
-# implied. See the License for the specific language governing
-# rights and limitations under the License.
-#
-# The Original Code is Reportek version 1.0.
-#
-# The Initial Developer of the Original Code is European Environment
-# Agency (EEA).  Portions created by Finsiel are
-# Copyright (C) European Environment Agency.  All
-# Rights Reserved.
-#
-# Contributor(s):
-# Miruna Badescu, Eau de Web
+__doc__ = "Container for mappings between dataflows and XML schemas"
 
-__doc__ = """
-      Container fo mappings between dataflows and types of XML files (XML schemas)
-"""
-
-# Zope imports
 from OFS.Folder import Folder
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-import Globals
 
-# product imports
-import constants
-import RepUtils
-import DataflowMappingRecord
-import DataflowMappingTable
+from constants import DATAFLOW_MAPPINGS, ENGINE_ID
 
 
-MAPPING_RECORD_METATYPE = 'Reportek Dataflow Mapping Record'
-MAPPING_TABLE_METATYPE = 'Reportek Dataflow Mapping Table'
+MAPPING_RECORD = 'Reportek Dataflow Mapping Record'
+MAPPING_TABLE = 'Reportek Dataflow Mapping Table'
 
 
 class DataflowMappings(Folder):
-    """ Mappings between dataflows and types of XML files (XML schemas) """
+    """ Container for mappings between dataflows and XML schemas """
 
     meta_type = 'Reportek Dataflow Mappings'
     icon = 'misc_/Reportek/datafow_mappings_gif'
 
-    manage_options = ( Folder.manage_options[0], ) + \
-        ( {'label':'View', 'action':'dataflowsMappingsView'}, ) + \
-        Folder.manage_options[2:] 
+    manage_options = (
+            Folder.manage_options[0],
+            {'label':'View', 'action':'dataflowsMappingsView'}
+            ) + Folder.manage_options[2:]
+
 
     def all_meta_types( self, interfaces=None ):
-        """
-            What can you put inside me? Checks if the legal products are
-            actually installed in Zope
-        """
-        y = [{'name': MAPPING_RECORD_METATYPE,
-              'action': 'manage_addDataflowMappingRecordForm',
-              'permission': view_management_screens},
-             {'name': MAPPING_TABLE_METATYPE,
-              'action': 'manage_addDataflowMappingTable_html',
-              'permission': view_management_screens}]
+        return [
+            {
+                'name': MAPPING_RECORD,
+                'action': '+/add_dataflowmapping_record',
+                'permission': view_management_screens
+            },
+            {
+                'name': MAPPING_TABLE,
+                'action': '+/add_dataflowmapping_table',
+                'permission': view_management_screens
+            }]
 
-        return y
 
     security = ClassSecurityInfo()
 
-    def __init__(self, title=''):
-        """ constructor """
-        self.id = constants.DATAFLOW_MAPPINGS
+
+    def __init__(self):
+        self.id = DATAFLOW_MAPPINGS
+
 
     def getEngine(self):
-        return getattr(self, constants.ENGINE_ID)
+         return getattr(self, ENGINE_ID)
+
+
+    def getWebformsForDataflows(self, dataflow_uris):
+        """ Returns all schemas with webforms for a list of dataflows """
+        return [
+            schema
+            for r in self.objectValues(MAPPING_RECORD)
+                if r.dataflow_uri in dataflow_uris and r.webformSchemas
+            for schema in r.webformSchemas
+        ]
+
+
+    def getXMLSchemasForDataflow(self, dataflow_uri):
+        """ Returns all schemas for a given dataflow """
+        # possbile bug, should return also r.allowedSchemas
+        return [
+            schema
+            for r in self.objectValues(MAPPING_RECORD)
+                if r.dataflow_uri == dataflow_uri
+            for schema in r.webformSchemas
+        ]
+
+
+    def getXMLSchemasForDataflows(self, dataflow_uris):
+        """ Returns all schemas for a list of dataflows """
+        return [
+            schema
+            for r in self.objectValues(MAPPING_RECORD)
+                if r.dataflow_uri in dataflow_uris
+            for schema in r.allowedSchemas + r.webformSchemas
+        ]
+
+    def getXMLSchemasForAllDataflows(self):
+        """ Returns all schemas for all dataflows """
+        return [
+            schema
+            for r in self.objectValues(MAPPING_RECORD)
+            for schema in r.allowedSchemas + r.webformSchemas
+        ]
+
 
     security.declarePublic('get_schemas_for_dataflows')
     def get_schemas_for_dataflows(self, dataflow_uris):
@@ -92,7 +107,7 @@ class DataflowMappings(Folder):
 
         """
         out = []
-        for mapping_record in self.objectValues([MAPPING_RECORD_METATYPE]):
+        for mapping_record in self.objectValues([MAPPING_RECORD]):
             if mapping_record.dataflow_uri not in dataflow_uris:
                 continue
             out.append({
@@ -100,7 +115,7 @@ class DataflowMappings(Folder):
                 'uri': mapping_record.schema_url,
                 'webform_filename': mapping_record.file_id,
             })
-        for mapping_table in self.objectValues([MAPPING_TABLE_METATYPE]):
+        for mapping_table in self.objectValues([MAPPING_TABLE]):
             if mapping_table.dataflow_uri not in dataflow_uris:
                 continue
             for schema in mapping_table.mapping:
@@ -110,63 +125,19 @@ class DataflowMappings(Folder):
                 })
         return out
 
-    def getWebformsForDataflows(self, p_dataflow_uris):
-        """ returns all the schemas with webforms for given dataflows """
-        tmp_list = []
-        for x in self.objectValues('Reportek Dataflow Mapping Record'):
-            if x.dataflow_uri in p_dataflow_uris:
-                tmp_list += x.webformSchemas
-        return tmp_list
-
-    def getXMLSchemasForDataflow(self, p_dataflow_uri):
-        """ returns all the valid schemas for a dataflow """
-        tmp_list = []
-        for x in self.objectValues('Reportek Dataflow Mapping Record'):
-            if x.dataflow_uri == p_dataflow_uri:
-                tmp_list += x.webformSchemas
-        return tmp_list
-#       return [x.webformSchemas for x in self.objectValues('Reportek Dataflow Mapping Record') if x.dataflow_uri == p_dataflow_uri]
-
-    def getXMLSchemasForDataflows(self, p_dataflow_uris):
-        """ returns all the valid schemas for multiple dataflows,
-            but doesn't check for the existance of XForms for those schemas
-        """
-        tmp_list = []
-        for x in self.objectValues('Reportek Dataflow Mapping Record'):
-            if x.dataflow_uri in p_dataflow_uris:
-                tmp_list += x.allowedSchemas
-                tmp_list += x.webformSchemas
-        return tmp_list
-#       return [x.allowedSchemas + x.webformSchemas for x in self.objectValues('Reportek Dataflow Mapping Record') if x.dataflow_uri in p_dataflow_uris]
-
-    def getXMLSchemasForAllDataflows(self):
-        """ returns all the valid schemas for multiple dataflows,
-            but doesn't check for the existance of XForms for those schemas
-        """
-        tmp_list = []
-        for x in self.objectValues('Reportek Dataflow Mapping Record'):
-            tmp_list += x.allowedSchemas
-            tmp_list += x.webformSchemas
-        return tmp_list
-#       return list([x.allowedSchemas + x.webformSchemas for x in self.objectValues('Reportek Dataflow Mapping Record')])
-
     security.declareProtected('Manage OpenFlow', 'dataflowsMappingsView')
-    dataflowsMappingsView = PageTemplateFile('zpt/dataflow-mappings/mapDataflowsSchemasView', globals())
-
-    security.declareProtected(view_management_screens, 'manage_addDataflowMappingRecordForm')
-    manage_addDataflowMappingRecordForm = DataflowMappingRecord.manage_addDataflowMappingRecordForm
-
-    security.declareProtected(view_management_screens, 'manage_addDataflowMappingRecord')
-    manage_addDataflowMappingRecord = DataflowMappingRecord.manage_addDataflowMappingRecord
-
-    security.declareProtected(view_management_screens, 'manage_addDataflowMappingTable_html')
-    manage_addDataflowMappingTable_html = DataflowMappingTable.manage_addDataflowMappingTable_html
-
-    security.declareProtected(view_management_screens, 'manage_addDataflowMappingTable')
-    manage_addDataflowMappingTable = DataflowMappingTable.manage_addDataflowMappingTable
+    dataflowsMappingsView = PageTemplateFile(
+            'zpt/dataflow-mappings/mapDataflowsSchemasView',
+            globals())
 
     security.declarePublic('dataflows_select')
-    dataflows_select = PageTemplateFile('zpt/dataflows_select', globals())
+    dataflows_select = PageTemplateFile(
+            'zpt/dataflow-mappings/dataflows_select',
+            globals())
 
+    def truncate(self, text):
+        if len(text)<=80:
+            return text
+        return '%s ...' % text[:77]
 
-Globals.InitializeClass(DataflowMappings)
+InitializeClass(DataflowMappings)

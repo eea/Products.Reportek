@@ -1,61 +1,60 @@
 <configure xmlns="http://namespaces.zope.org/zope"
-           xmlns:zcml="http://namespaces.zope.org/zcml"
-           xmlns:browser="http://namespaces.zope.org/browser"
-           xmlns:i18n="http://namespaces.zope.org/i18n"
-           i18n_domain="default">
+        xmlns:zcml="http://namespaces.zope.org/zcml"
+        xmlns:browser="http://namespaces.zope.org/browser"
+        xmlns:i18n="http://namespaces.zope.org/i18n"
+        xmlns:five="http://namespaces.zope.org/five"
+        i18n_domain="default">
 
     <subscriber for="zope.processlifetime.IDatabaseOpenedWithRoot"
-                handler=".startup" />
+            handler=".startup" />
 
-   <browser:view for="Products.ZCatalog.interfaces.IZCatalog"
-                   name="manage_maintenance"
-                   class=".catalog.MaintenanceView"
-                   permission="zope2.ViewManagementScreens" />
+    <browser:view for="Products.ZCatalog.interfaces.IZCatalog"
+            name="manage_maintenance"
+            class=".catalog.MaintenanceView"
+            permission="zope2.ViewManagementScreens" />
 
-   <browser:view for="Products.ZCatalog.interfaces.IZCatalog"
-                   name="manage_do_rebuild"
-                   class=".catalog.RebuildView"
-                   permission="zope2.ViewManagementScreens" />
+    <browser:view for="Products.ZCatalog.interfaces.IZCatalog"
+            name="manage_do_rebuild"
+            class=".catalog.RebuildView"
+            permission="zope2.ViewManagementScreens" />
 
-   <browser:view for="Products.Reportek.interfaces.IReportekEngine"
-                   name="records_pagination"
-                   class=".paginator.PaginationView"
-                   permission="zope2.View" />
+    <browser:view for="Products.Reportek.interfaces.IReportekEngine"
+            name="records_pagination"
+            class=".paginator.PaginationView"
+            permission="zope2.View" />
 
-   <browser:view for="zope.interface.Interface"
-                 name="reportek_messages"
-                 class=".messages.MessagesView"
-                 permission="zope2.View" />
+    <browser:view for="zope.interface.Interface"
+            name="reportek_messages"
+            class=".messages.MessagesView"
+            permission="zope2.View" />
 
     <browser:resourceDirectory
-       name="static"
-       directory="www/static" />
+            name="static"
+            directory="www/static" />
 
-  <configure zcml:condition="installed zope.container">
+    <include package="." file="dataflow_mappings.zcml" />
 
-    <subscriber for="Products.Reportek.interfaces.IEnvelope
-                     zope.container.interfaces.IObjectMovedEvent"
+    <configure zcml:condition="installed zope.container">
+        <subscriber for="Products.Reportek.interfaces.IEnvelope
+                        zope.container.interfaces.IObjectMovedEvent"
                 handler="Products.Reportek.Envelope.movedEnvelope" />
+    </configure>
 
-  </configure>
-
-  <configure zcml:condition="not-installed zope.container">
-
-    <subscriber for="Products.Reportek.interfaces.IEnvelope
-                     zope.app.container.interfaces.IObjectMovedEvent"
+    <configure zcml:condition="not-installed zope.container">
+        <subscriber for="Products.Reportek.interfaces.IEnvelope
+                        zope.app.container.interfaces.IObjectMovedEvent"
                 handler="Products.Reportek.Envelope.movedEnvelope" />
+    </configure>
 
-  </configure>
+    <subscriber for="ZPublisher.interfaces.IPubEnd"
+            handler=".monitoring.log_to_cube" />
 
-  <subscriber for="ZPublisher.interfaces.IPubEnd"
-              handler=".monitoring.log_to_cube" />
+    <subscriber for="ZPublisher.interfaces.IPubFailure"
+            handler=".monitoring.log_pub_failure" />
 
-  <subscriber for="ZPublisher.interfaces.IPubFailure"
-              handler=".monitoring.log_pub_failure" />
+    <subscriber for="zope.lifecycleevent.interfaces.IObjectMovedEvent"
+            handler="Products.Reportek.OpenFlowEngine.handle_application_move_events" />
 
-  <subscriber for="zope.lifecycleevent.interfaces.IObjectMovedEvent"
-              handler="Products.Reportek.OpenFlowEngine.handle_application_move_events" />
-
-      <i18n:registerTranslations directory="locales" />
+    <i18n:registerTranslations directory="locales" />
 
 </configure>

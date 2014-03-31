@@ -1,4 +1,4 @@
-""" Multiple dataflow mappings for a single obligation """
+__doc__ = """ Multiple dataflow mappings for a single obligation """
 
 import json
 from collections import defaultdict
@@ -10,25 +10,37 @@ from OFS.SimpleItem import SimpleItem
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
+
+from Products.Five.browser import BrowserView
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
 import messages
 
-
 log = logging.getLogger(__name__)
 
 
-manage_addDataflowMappingTable_html = PageTemplateFile(
-    'zpt/dataflow_mapping_table_create.zpt', globals())
+class AddForm(BrowserView):
 
+    def __init__(self, context, request):
+        super(AddForm, self).__init__(context, request)
+        self.parent = self.context.getParentNode()
 
-def manage_addDataflowMappingTable(self, id, title, dataflow_uri,
-                                   REQUEST=None):
-    """ add a new converter object """
-    ob = DataflowMappingTable(id, title, dataflow_uri)
-    self._setObject(id, ob)
-    if REQUEST is not None:
-        return self.manage_main(self, REQUEST, update_menu=1)
+    def add(self):
+        form = self.request.form
+        oid = form.get('id')
+        ob = DataflowMappingTable(
+                oid,
+                form.get('title'),
+                form.get('dataflow_uri'))
+        self.parent._setObject(oid, ob)
+        return self.request.response.redirect(
+                    self.parent.absolute_url() + '/manage_main')
+
+    def __call__(self, *args, **kwargs):
+        if self.request.method == 'POST':
+            return self.add()
+        return self.index(context=self.parent)
+
 
 
 class DataflowMappingTable(SimpleItem):
@@ -115,9 +127,8 @@ class DataflowMappingTable(SimpleItem):
         REQUEST.RESPONSE.redirect(self.absolute_url() + '/manage_html')
 
     security.declareProtected(view_management_screens, 'manage_html')
-    manage_html = PageTemplateFile('zpt/dataflow_mapping_table.zpt', globals())
-
-    security.declarePublic('dataflows_select')
-    dataflows_select = PageTemplateFile('zpt/dataflows_select', globals())
+    manage_html = PageTemplateFile(
+            'zpt/dataflow-mappings/dataflow_mapping_table.zpt',
+            globals())
 
 InitializeClass(DataflowMappingTable)
