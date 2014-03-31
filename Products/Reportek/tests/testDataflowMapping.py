@@ -1,9 +1,9 @@
 import unittest
 
 from Products.Reportek.constants import DATAFLOW_MAPPINGS
-from Products.Reportek.DataflowMappings import DataflowMappings
+from Products.Reportek.DataflowMappingsRecord import DataflowMappingsRecord
 from Products.Reportek.DataflowMappingRecord import DataflowMappingRecord
-from Products.Reportek.DataflowMappingTable import DataflowMappingTable
+from Products.Reportek.DataflowMappings import DataflowMappings
 from utils import create_fake_root
 
 
@@ -33,7 +33,7 @@ class DFMTestCase(unittest.TestCase):
 
 
     def add_table(self, oid, dataflow_uri, mapping):
-        ob = DataflowMappingTable(oid, oid, dataflow_uri)
+        ob = DataflowMappingsRecord(oid, oid, dataflow_uri)
         self.mappings._setObject(oid, ob)
         self.mappings[oid].mapping = mapping
 
@@ -173,7 +173,7 @@ class DFMTestCase(unittest.TestCase):
                 self.mappings.getXMLSchemasForDataflow(obligation))
 
 
-    # DataflowMappingTable tests
+    # DataflowMappings tests
 
     def test_api_returns_empty_result_for_empty_query(self):
         self.assertEqual(self.mappings.get_schemas_for_dataflows([]), [])

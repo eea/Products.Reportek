@@ -28,7 +28,7 @@ class AddForm(BrowserView):
     def add(self):
         form = self.request.form
         oid = form.get('id')
-        ob = DataflowMappingTable(
+        ob = DataflowMappingsRecord(
                 oid,
                 form.get('title'),
                 form.get('dataflow_uri'))
@@ -43,10 +43,10 @@ class AddForm(BrowserView):
 
 
 
-class DataflowMappingTable(SimpleItem):
-    """ Mappings between dataflows and types of XML files (XML schemas) """
+class DataflowMappingsRecord(SimpleItem):
+    """ Multiple dataflow mappings for a single obligation """
 
-    meta_type = 'Reportek Dataflow Mapping Table'
+    meta_type = 'Dataflow Mappings Record'
     icon = 'misc_/Reportek/datafow_mapping_table_gif'
 
     security = ClassSecurityInfo()
@@ -131,4 +131,4 @@ class DataflowMappingTable(SimpleItem):
             'zpt/dataflow-mappings/dataflow_mapping_table.zpt',
             globals())
 
-InitializeClass(DataflowMappingTable)
+InitializeClass(DataflowMappingsRecord)

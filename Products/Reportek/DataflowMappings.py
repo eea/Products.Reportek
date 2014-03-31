@@ -10,7 +10,7 @@ from constants import DATAFLOW_MAPPINGS, ENGINE_ID
 
 
 MAPPING_RECORD = 'Reportek Dataflow Mapping Record'
-MAPPING_TABLE = 'Reportek Dataflow Mapping Table'
+MAPPING_TABLE = 'Dataflow Mappings Record'
 
 
 class DataflowMappings(Folder):
@@ -34,7 +34,7 @@ class DataflowMappings(Folder):
             },
             {
                 'name': MAPPING_TABLE,
-                'action': '+/add_dataflowmapping_table',
+                'action': '+/add_record',
                 'permission': view_management_screens
             }]
 
