@@ -11,6 +11,7 @@ from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 
+from Products.ZCatalog.CatalogAwareness import CatalogAware
 from Products.Five.browser import BrowserView
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
@@ -58,8 +59,10 @@ class AddForm(BrowserView):
 
 
 
-class DataflowMappingsRecord(SimpleItem):
+class DataflowMappingsRecord(CatalogAware, SimpleItem):
     """ Multiple dataflow mappings for a single obligation """
+
+    meta_type = 'Dataflow Mappings Record'
 
     security = ClassSecurityInfo()
 

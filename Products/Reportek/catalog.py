@@ -1,5 +1,5 @@
 """
-This tool is a wrapper around Products.ZCatalog. On initialization it creates 
+This tool is a wrapper around Products.ZCatalog. On initialization it creates
 the required indexes and metadata and offers a few convenience and
 maintenance functionalities such as catalog rebuilding and missing objects
 reporting.
@@ -27,6 +27,7 @@ REPORTEK_META_TYPES = [
         'Workitem',
         'Converter',
         'QAScript',
+        'Dataflow Mappings Record',
         'DTML Document',
         'DTML Method',
         'File',
