@@ -1,5 +1,7 @@
 __doc__ = "Container for mappings between dataflows and XML schemas"
 
+import warnings
+
 from OFS.Folder import Folder
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
@@ -44,42 +46,57 @@ class DataflowMappings(Folder):
 
     def getWebformsForDataflows(self, dataflow_uris):
         """ Returns all schemas with webforms for a list of dataflows """
+        warnings.warn(
+                'Reportek.DataflowMappings.getWebformsForDataflows is'
+                'deprecated. Use getXMLSchemasForDataflows instead.',
+                DeprecationWarning, stacklevel=2)
         return [
-            schema
-            for r in self.objectValues(MAPPING_RECORD)
-                if r.dataflow_uri in dataflow_uris and r.webformSchemas
-            for schema in r.webformSchemas
-        ]
+            schema['url']
+            for brain in self.Catalog(
+                    meta_type=RECORD,
+                    dataflow_uri=dataflow_uris,
+                    path='/DataflowMappings')
+            for schema in brain.getObject().mapping
+            if schema['has_webform'] is True
+            ]
 
 
     def getXMLSchemasForDataflow(self, dataflow_uri):
         """ Returns all schemas for a given dataflow """
         # possbile bug, should return also r.allowedSchemas
         return [
-            schema
-            for r in self.objectValues(MAPPING_RECORD)
-                if r.dataflow_uri == dataflow_uri
-            for schema in r.webformSchemas
-        ]
+            schema['url']
+            for brain in self.Catalog(
+                    meta_type=RECORD,
+                    dataflow_uri=dataflow_uri,
+                    path='/DataflowMappings')
+            for schema in brain.getObject().mapping
+            if schema['has_webform'] is True
+            ]
 
 
     def getXMLSchemasForDataflows(self, dataflow_uris):
         """ Returns all schemas for a list of dataflows """
-        for b in self.Catalog(
+        return [
+            schema['url']
+            for brain in self.Catalog(
                     meta_type=RECORD,
                     dataflow_uri=dataflow_uris,
-                    path='/DataflowMappings'):
-            ob = b.getObject()
-            return [schema['url'] for schema in ob.mapping]
+                    path='/DataflowMappings')
+            for schema in brain.getObject().mapping
+            ]
 
 
     def getXMLSchemasForAllDataflows(self):
         """ Returns all schemas for all dataflows """
         return [
-            schema
-            for r in self.objectValues(MAPPING_RECORD)
-            for schema in r.allowedSchemas + r.webformSchemas
+            schema['url']
+            for brain in self.Catalog(
+                    meta_type=RECORD,
+                    path='/DataflowMappings')
+            for schema in brain.getObject().mapping
         ]
+
 
 
     security.declarePublic('get_schemas_for_dataflows')
