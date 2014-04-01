@@ -61,9 +61,6 @@ class AddForm(BrowserView):
 class DataflowMappingsRecord(SimpleItem):
     """ Multiple dataflow mappings for a single obligation """
 
-    meta_type = 'Dataflow Mappings Record'
-    icon = 'misc_/Reportek/datafow_mapping_table_gif'
-
     security = ClassSecurityInfo()
 
     manage_options = (

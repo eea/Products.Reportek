@@ -275,7 +275,6 @@ misc_ = {
     "envelope.gif":  ImageFile("www/envelope.gif", globals()),
     "openflowEngine_gif": ImageFile("www/openflowEngine.gif", globals()),
     "datafow_mappings_gif": ImageFile("www/datafow_mappings.gif", globals()),
-    "datafow_mapping_table_gif": ImageFile("www/datafow_mapping_table.gif", globals()),
     "edit_comment_gif":  ImageFile("www/edit_comment.gif", globals()),
     "delete_comment_gif":  ImageFile("www/delete_comment.gif", globals()),
     "manage_doc_gif":  ImageFile("www/manage_doc.gif", globals()),

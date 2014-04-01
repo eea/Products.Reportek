@@ -2,6 +2,10 @@
         xmlns:browser="http://namespaces.zope.org/browser"
         xmlns:five="http://namespaces.zope.org/five">
 
+    <browser:resource
+            name="dataflow_mappings_record.item.gif"
+            file="www/dataflow_mappings_record.gif"/>
+
     <five:registerClass
             class=".DataflowMappingRecord.DataflowMappingRecord"
             meta_type="Reportek Dataflow Mapping Record"
@@ -19,6 +23,7 @@
             class=".DataflowMappingsRecord.DataflowMappingsRecord"
             meta_type="Dataflow Mappings Record"
             addview="add_record"
+            icon="dataflow_mappings_record.item.gif"
             permission="zope2.ViewManagementScreens"
             global="False"/>
 
