@@ -10,7 +10,7 @@ from constants import DATAFLOW_MAPPINGS, ENGINE_ID
 
 
 MAPPING_RECORD = 'Reportek Dataflow Mapping Record'
-MAPPING_TABLE = 'Dataflow Mappings Record'
+RECORD = 'Dataflow Mappings Record'
 
 
 class DataflowMappings(Folder):
@@ -25,12 +25,7 @@ class DataflowMappings(Folder):
     def all_meta_types( self, interfaces=None ):
         return [
             {
-                'name': MAPPING_RECORD,
-                'action': '+/add_dataflowmapping_record',
-                'permission': view_management_screens
-            },
-            {
-                'name': MAPPING_TABLE,
+                'name': RECORD,
                 'action': '+/add_record',
                 'permission': view_management_screens
             }]
@@ -112,7 +107,7 @@ class DataflowMappings(Folder):
                 'uri': mapping_record.schema_url,
                 'webform_filename': mapping_record.file_id,
             })
-        for mapping_table in self.objectValues([MAPPING_TABLE]):
+        for mapping_table in self.objectValues([RECORD]):
             if mapping_table.dataflow_uri not in dataflow_uris:
                 continue
             for schema in mapping_table.mapping:
