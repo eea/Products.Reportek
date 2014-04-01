@@ -65,12 +65,13 @@ class DataflowMappings(Folder):
 
     def getXMLSchemasForDataflows(self, dataflow_uris):
         """ Returns all schemas for a list of dataflows """
-        return [
-            schema
-            for r in self.objectValues(MAPPING_RECORD)
-                if r.dataflow_uri in dataflow_uris
-            for schema in r.allowedSchemas + r.webformSchemas
-        ]
+        for b in self.Catalog(
+                    meta_type=RECORD,
+                    dataflow_uri=dataflow_uris,
+                    path='/DataflowMappings'):
+            ob = b.getObject()
+            return [schema['url'] for schema in ob.mapping]
+
 
     def getXMLSchemasForAllDataflows(self):
         """ Returns all schemas for all dataflows """

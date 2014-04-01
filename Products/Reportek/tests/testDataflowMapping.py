@@ -4,7 +4,7 @@ from Products.Reportek.constants import DATAFLOW_MAPPINGS
 from Products.Reportek.DataflowMappingsRecord import DataflowMappingsRecord
 from Products.Reportek.DataflowMappingRecord import DataflowMappingRecord
 from Products.Reportek.DataflowMappings import DataflowMappings
-from utils import create_fake_root
+from utils import makerequest, create_fake_root, create_catalog
 
 
 
@@ -18,18 +18,63 @@ class DFMTestCase(unittest.TestCase):
 
     id = DATAFLOW_MAPPINGS
 
-
     def setUp(self):
-        self.app = create_fake_root()
+        self.app = makerequest(create_fake_root())
+        self.catalog = create_catalog(self.app)
         dm = DataflowMappings()
         self.app._setObject(self.id, dm)
         self.mappings = self.app[self.id]
 
 
     def add_mapping(self, oid, *args, **kwargs):
-        ob = DataflowMappingRecord(oid, *args, **kwargs)
+        ob = DataflowMappingsRecord(
+                    oid,
+                    title=args[0],
+                    dataflow_uri=args[1])
         self.mappings._setObject(oid, ob)
-        self.mappings[oid]._fix_attributes()
+
+        mapping = []
+        for schema in args[2]:
+            mapping.append(
+                {
+                    'url': schema,
+                    'name': '',
+                    'has_webform':False
+                }
+            )
+
+        for schema in args[3]:
+            mapping.append(
+                {
+                    'url': schema,
+                    'name': '',
+                    'has_webform':True
+                }
+            )
+        self.mappings[oid].mapping = mapping
+
+
+    def update_mapping(self, ob, *args, **kwargs):
+
+        mapping = []
+        for schema in args[2]:
+            mapping.append(
+                {
+                    'url': schema,
+                    'name': '',
+                    'has_webform':False
+                }
+            )
+
+        for schema in args[3]:
+            mapping.append(
+                {
+                    'url': schema,
+                    'name': '',
+                    'has_webform':True
+                }
+            )
+        ob.mapping = mapping
 
 
     def add_table(self, oid, dataflow_uri, mapping):
@@ -39,6 +84,10 @@ class DFMTestCase(unittest.TestCase):
 
 
     def test_add_dataflow_mapping(self):
+
+        obligation = 'http://rod.eionet.eu.int/obligations/22'
+        schema = 'http://schema.xx/schema.xsd'
+
         self.add_mapping('test','test title',obligation,[schema],[])
         self.assertTrue(hasattr(self.mappings, 'test'))
         self.assertEqual(
@@ -46,11 +95,13 @@ class DFMTestCase(unittest.TestCase):
                 self.mappings.getXMLSchemasForDataflows([obligation]))
 
         changed_schema = 'http://schema.xx/CHANGED.xsd'
-        self.mappings.test.manage_settings(
-                title='changed test title',
-                dataflow_uri=obligation,
-                allowedSchemas=[changed_schema],
-                webformSchemas=[])
+
+        self.update_mapping(
+                self.mappings.test,
+                'changed test title',
+                obligation,
+                [changed_schema],
+                [])
         self.assertEqual(
                 [changed_schema],
                 self.mappings.getXMLSchemasForDataflows([obligation]))
