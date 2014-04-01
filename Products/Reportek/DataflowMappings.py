@@ -16,9 +16,6 @@ MAPPING_TABLE = 'Dataflow Mappings Record'
 class DataflowMappings(Folder):
     """ Container for mappings between dataflows and XML schemas """
 
-    meta_type = 'Reportek Dataflow Mappings'
-    icon = 'misc_/Reportek/datafow_mappings_gif'
-
     manage_options = (
             Folder.manage_options[0],
             {'label':'View', 'action':'dataflowsMappingsView'}

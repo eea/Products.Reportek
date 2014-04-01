@@ -3,8 +3,19 @@
         xmlns:five="http://namespaces.zope.org/five">
 
     <browser:resource
-            name="dataflow_mappings_record.item.gif"
+            name="dataflow_mappings_record.gif"
             file="www/dataflow_mappings_record.gif"/>
+
+    <browser:resource
+            name="dataflow_mappings.gif"
+            file="www/dataflow_mappings.gif"/>
+
+    <five:registerClass
+            class=".DataflowMappings.DataflowMappings"
+            meta_type="Reportek Dataflow Mappings"
+            icon="dataflow_mappings.gif"
+            permission="zope2.ViewManagementScreens"
+            global="True"/>
 
     <five:registerClass
             class=".DataflowMappingRecord.DataflowMappingRecord"
@@ -23,7 +34,7 @@
             class=".DataflowMappingsRecord.DataflowMappingsRecord"
             meta_type="Dataflow Mappings Record"
             addview="add_record"
-            icon="dataflow_mappings_record.item.gif"
+            icon="dataflow_mappings_record.gif"
             permission="zope2.ViewManagementScreens"
             global="False"/>
 
