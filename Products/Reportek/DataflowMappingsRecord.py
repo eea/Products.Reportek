@@ -36,8 +36,23 @@ class AddForm(BrowserView):
         return self.request.response.redirect(
                     self.parent.absolute_url() + '/manage_main')
 
+    def get_records_by_dataflow(self, dataflow_uri):
+        return [
+            record
+            for record in self.parent.objectValues('Dataflow Mappings Record')
+            if record.dataflow_uri == dataflow_uri
+        ]
+
     def __call__(self, *args, **kwargs):
         if self.request.method == 'POST':
+            existing_records = self.get_records_by_dataflow(
+                                    self.request.form['dataflow_uri'])
+            if existing_records:
+                [record] = existing_records
+                raise Exception(
+                            'A record with this dataflow already exists: {0}'
+                            .format(record.absolute_url())
+                        )
             return self.add()
         return self.index(context=self.parent)
 
