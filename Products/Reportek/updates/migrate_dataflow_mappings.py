@@ -33,11 +33,19 @@ def do_update(app):
         mappings._setObject(oid, ob)
         schemas = []
         for data in v:
-            schemas.append({
-                    'url':data['schema'],
-                    'name':data['title'],
-                    'has_webform':False})
-            mappings[oid].mapping = {'schemas':schemas}
+            if isinstance(data['schema'], list):
+                if len(data['schema']) > 0:
+                    schema = data['schema'][0]
+                else:
+                    schema = ''
+            else:
+                schema = data['schema']
+            if schema:
+                schemas.append({
+                        'url':schema,
+                        'name':data['title'],
+                        'has_webform':False})
+                mappings[oid].mapping = {'schemas':schemas}
 
 
 def update(app):
