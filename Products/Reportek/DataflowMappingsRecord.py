@@ -67,7 +67,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
     security = ClassSecurityInfo()
 
     manage_options = (
-        {'label': 'Schemas', 'action': 'manage_html'},
+        {'label': 'Schemas', 'action': 'edit'},
     ) + SimpleItem.manage_options
 
     def __init__(self, id, title, dataflow_uri):
@@ -76,7 +76,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
         self.dataflow_uri = dataflow_uri
         self.mapping = {'schemas': []}
 
-    security.declarePrivate('mapping')
+    security.declareProtected(view_management_screens, 'mapping')
     @property
     def mapping(self):
         return json.loads(self.mapping_json)
@@ -119,31 +119,73 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
 
         REQUEST.RESPONSE.redirect(self.absolute_url() + '/manage_html')
 
-    security.declareProtected(view_management_screens, 'update')
-    def update(self, title, dataflow_uri, REQUEST):
-        """ """
-        self.title = title
-        self.dataflow_uri = dataflow_uri
 
-        mapping_groups = defaultdict(dict)
-        for field_name, value in REQUEST.form.items():
-            if field_name.startswith('schema_'):
-                _, n, subname = field_name.split('_', 2)
-                mapping_groups[int(n)][subname] = value.decode('utf-8')
+    _edit = PageTemplateFile( 'zpt/dataflow-mappings/edit_record.zpt', globals())
 
-        self.mapping = {
-            'schemas': [{
-                    'url': group['url'],
-                    'name': group['name'],
-                    'has_webform': bool(group.get('has_webform')),
-                } for n, group in sorted(mapping_groups.items())]
-        }
 
-        REQUEST.RESPONSE.redirect(self.absolute_url() + '/manage_html')
+    security.declareProtected(view_management_screens, 'add_schema')
+    def add_schema(self, REQUEST):
+        """ Add schema """
 
-    security.declareProtected(view_management_screens, 'manage_html')
-    manage_html = PageTemplateFile(
-            'zpt/dataflow-mappings/dataflow_mapping_table.zpt',
-            globals())
+        data = self.mapping
+        schema_uri = REQUEST.form.get('schema', '').strip()
+
+        if schema_uri:
+            if schema_uri in [r.get('url') for r in data.get('schemas')]:
+                return 'Schema already exists!'
+            else:
+                form_data = {
+                    'url': schema_uri,
+                    'name': REQUEST.form.get('name'),
+                    'has_webform':REQUEST.form.get('has_webform', False)
+                }
+                data['schemas'].append(form_data)
+                self.mapping = data
+                return 'Schema successfully added'
+
+        return 'Schema cannot be empty!'
+
+
+    security.declareProtected(view_management_screens, 'add_schema')
+    def delete_schemas(self, REQUEST):
+        """ Delete schemas """
+
+        data = self.mapping
+        schemas = REQUEST.form.get('ids', [])
+
+        newdata = []
+        for x in data.get('schemas'):
+            if x['url'] not in schemas:
+                newdata.append(x)
+
+        self.mapping = {'schemas': newdata}
+
+
+    security.declareProtected(view_management_screens, 'edit')
+    def edit(self, REQUEST):
+        """ Edit properties """
+
+        message_dialog = ''
+
+        if REQUEST.method == 'POST':
+
+            if REQUEST.form.get('add'):
+                message_dialog = self.add_schema(REQUEST)
+
+            if REQUEST.form.get('delete'):
+                message_dialog = self.delete_schemas(REQUEST)
+
+            if REQUEST.form.get('update'):
+                self.title = REQUEST.form['title']
+                self.dataflow_uri = REQUEST.form['dataflow_uri']
+                message_dialog = 'Saved changes.'
+
+        data = self.mapping
+
+        return self._edit(
+                    schemas=data.get('schemas'),
+                    message_dialog=message_dialog,
+                )
+
 
 InitializeClass(DataflowMappingsRecord)

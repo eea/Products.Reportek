@@ -60,7 +60,7 @@
   // ]]>
 </script>
 
-<select id="dataflow_uri" name="dataflow_uri"
+<select class="form-element" id="dataflow_uri" name="dataflow_uri"
   tal:define="data context/ReportekEngine/dataflow_table_grouped;
               groups python:data[0];
               items python:data[1];

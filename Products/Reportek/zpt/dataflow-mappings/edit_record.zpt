@@ -1,0 +1,135 @@
+<tal:block replace="structure context/manage_page_header" />
+<tal:block replace="structure context/manage_tabs" />
+<tal:block replace="structure context/reportek_messages" />
+
+<div class="system-msg"
+     tal:condition="options/message_dialog | nothing"
+     tal:content="options/message_dialog" />
+
+
+<p class="form-help">
+  Edit the values and click "Save Changes".
+</p>
+
+<form action="" method="post">
+
+  <table cellspacing="0" cellpadding="2" border="0">
+    <tr>
+      <td>
+        <label class="form-label" for="title">Title</label>
+      </td>
+      <td>
+        <input class="form-element" id="title" name="title" size="60"
+          tal:attributes="value here/title" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label class="form-label" for="dataflow_uri">Dataflow</label>
+      </td>
+      <td>
+        <tal:block content="structure python:here.dataflows_select(edit=1)" />
+      </td>
+    </tr>
+    <tr class="row-hilite">
+      <td></td>
+      <td>
+        <input type="submit" name="update" value="Save Changes" />
+      </td>
+    </tr>
+  </table>
+
+  <br />
+
+  <tal:block condition="options/schemas">
+
+    <p class="form-help">
+      Check one or more schemas and click the "Delete" button
+      in order to delete them.
+    </p>
+
+    <table cellspacing="0" cellpadding="2" border="0"
+          style="width:100%; font-size:0.8em;">
+      <tr class="list-header">
+        <th></th>
+        <th>Schema</th>
+        <th>Name</th>
+        <th>Has WebForm</th>
+      </tr>
+
+      <tr tal:repeat="schema options/schemas">
+        <td>
+          <input type="checkbox" name="ids:list"
+                 tal:attributes="value schema/url" />
+        </td>
+        <td>
+          <a tal:attributes="href schema/url" tal:content="schema/url" />
+        </td>
+        <td tal:content="schema/name" />
+        <td align="center" tal:content="schema/has_webform" />
+      </tr>
+      <tr class="row-hilite">
+        <td></td>
+        <td colspan="3">
+          <input type="submit" name="delete" value="Delete" />
+        </td>
+      </tr>
+    </table>
+
+  </tal:block>
+
+  <p tal:condition="not:options/schemas">
+    <strong>Schemas list is empty.</strong>
+  </p>
+
+</form>
+
+<br />
+
+<p class="form-help">
+  To add a new mapping, enter a schema, a name,
+  check if it has a webform and click the "Add" button.
+</p>
+
+
+<form action="" method="post">
+  <table cellspacing="0" cellpadding="2" border="0">
+    <tr>
+      <td>
+        <label class="form-label" for="schema">Schema *</label>
+      </td>
+      <td colspan="2">
+        <input type="text" id="schema" name="schema" size="100" />
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label class="form-label" for="name">Name</label>
+      </td>
+      <td>
+        <input type="text" id="name" name="name" size="60" />
+      </td>
+      <td>
+        <label class="form-label" for="has_webform">Has WebForm</label>
+        <input name="has_webform:boolean" id="has_webform" type="checkbox" />
+      </td>
+    </tr>
+    <tr class="row-hilite">
+      <td></td>
+      <td colspan="2">
+        <input type="submit" name="add" value="Add" />
+      </td>
+    </tr>
+  </table>
+</form>
+
+<br />
+
+<form action="load_from_dd" method="post">
+  <div class="form-element">
+    Load mappings from DataDictionary and WebQ:
+    <button type="submit">Load</button>
+  </div>
+</form>
+
+<tal:block replace="structure context/manage_page_footer" />
