@@ -1,3 +1,4 @@
+#
 from mock import patch, Mock
 from common import BaseTest, ConfigureReportek
 
