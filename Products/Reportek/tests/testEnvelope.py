@@ -1,4 +1,3 @@
-import os, sys
 import unittest
 import lxml.etree
 from StringIO import StringIO
@@ -6,8 +5,8 @@ from Testing import ZopeTestCase
 from AccessControl import getSecurityManager
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
-from configurereportek import ConfigureReportek
-from utils import create_fake_root, create_temp_reposit, create_upload_file
+from common import ConfigureReportek
+from utils import create_fake_root, create_upload_file
 from utils import create_envelope, add_document, simple_addEnvelope
 from mock import Mock, patch
 from zope.lifecycleevent import ObjectMovedEvent
@@ -16,23 +15,13 @@ from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
 from Products.Reportek import OpenFlowEngine
 
-from Products.Reportek.Collection import Collection
-from Products.Reportek.Envelope import Envelope
-from Products.Reportek.process import process
-from Products.Reportek import exceptions
-from common import create_mock_request, create_process, _BaseTest, _WorkflowTestCase
+from common import BaseTest, WorkflowTestCase
 
 
-def setUpModule(self):
-    self._cleanup_temp_reposit = create_temp_reposit()
-
-def tearDownModule(self):
-    self._cleanup_temp_reposit()
-
-
-class EnvelopeTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
+class EnvelopeTestCase(BaseTest, ConfigureReportek):
 
     def afterSetUp(self):
+        super(EnvelopeTestCase, self).afterSetUp()
         self.createStandardDependencies()
         self.createStandardCollection()
         self.assertTrue(hasattr(self.app, 'collection'),'Collection did not get created')
@@ -69,6 +58,7 @@ class EnvelopeTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.envelope = None
         for env in col.objectValues('Report Envelope'):
             self.envelope = env
+            self.envelope.messageDialog = Mock()
             break
         self.assertNotEqual(self.envelope, None)
 
@@ -214,7 +204,7 @@ class EnvelopeCustomDataflowsXmlTest(unittest.TestCase):
         self.assertEqual(dom.firstChild.attributes['title'].value, 'bar')
 
 
-class ActivityFindsApplicationTestCase(_WorkflowTestCase):
+class ActivityFindsApplicationTestCase(WorkflowTestCase):
 
     def setUp(self):
         super(ActivityFindsApplicationTestCase, self).setUp()

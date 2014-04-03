@@ -1,11 +1,10 @@
-import os, sys
 import unittest
 from zExceptions import Redirect
 from StringIO import StringIO
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
-from configurereportek import ConfigureReportek
+from common import BaseTest, ConfigureReportek
 from fileuploadmock import FileUploadMock
 from utils import (create_temp_reposit, HtmlPage, MockDatabase,
                    break_document_data_file)
@@ -13,7 +12,7 @@ from mock import Mock, patch
 import transaction
 
 
-class DocumentTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
+class DocumentTestCase(BaseTest, ConfigureReportek):
 
     # Currently the physical document is not renamed if the object in ZODB is moved
     # That makes it difficult to work in the file system
@@ -21,6 +20,7 @@ class DocumentTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
     physpath_must_track_zodb = False
 
     def afterSetUp(self):
+        super(DocumentTestCase, self).afterSetUp()
         self._cleanup_temp_reposit = create_temp_reposit()
 
         self.createStandardDependencies()

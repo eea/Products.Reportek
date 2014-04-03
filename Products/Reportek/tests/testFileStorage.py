@@ -1,38 +1,17 @@
-import os
 import time
 import unittest
 from StringIO import StringIO
 import zipfile
 from mock import Mock, patch
 import transaction
-from utils import (create_fake_root, makerequest, create_temp_reposit,
-                   create_upload_file, create_envelope, add_document,
+from utils import (create_fake_root, makerequest,
+                   create_upload_file, create_envelope,
                    MockDatabase, break_document_data_file)
 from Products.Reportek import constants
-from Products.Reportek import Converters
-
-
-def create_mock_request():
-    request = Mock()
-    request.physicalPathToVirtualPath = lambda x: x
-    request.physicalPathToURL = lambda x: x
-    response = request.RESPONSE
-    response._data = StringIO()
-    response.write = response._data.write
-    request._headers = {}
-    request.get_header = request._headers.get
-    return request
-
-
-def setUpModule(self):
-    from Products.Reportek import Document; self.Document = Document
-    from Products.Reportek import Envelope; self.Envelope = Envelope
-    from Products.Reportek import blob; self.blob = blob
-    self._cleanup_temp_reposit = create_temp_reposit()
-
-
-def tearDownModule(self):
-    self._cleanup_temp_reposit()
+from Products.Reportek.Converters import Converters
+from Products.Reportek import Document
+from Products.Reportek import blob
+from common import BaseTest, ConfigureReportek
 
 
 def create_document_with_data(data):
@@ -48,7 +27,7 @@ def doc_data(doc):
         return data_file_handle.read()
 
 
-class FileStorageTest(unittest.TestCase):
+class FileStorageTest(BaseTest):
 
     def test_manage_file_upload(self):
         data = 'hello world, file for test!'
@@ -78,20 +57,20 @@ class FileStorageTest(unittest.TestCase):
 
         root = create_fake_root()
         root.getWorkitemsActiveForMe = Mock(return_value=[])
-        root.REQUEST = create_mock_request()
+        root.REQUEST = BaseTest.create_mock_request()
         root.REQUEST.physicalPathToVirtualPath = lambda x: x
 
         doc_id = Document.manage_addDocument(root, file=create_upload_file(data))
         self.assertEqual(doc_id, 'testfile.txt')
         doc = root[doc_id]
 
-        request = create_mock_request()
+        request = BaseTest.create_mock_request()
         doc.index_html(request, request.RESPONSE)
         self.assertEqual(request.RESPONSE._data.getvalue(), data)
 
     def test_get_zip_info(self):
         root = create_fake_root()
-        root.REQUEST = create_mock_request()
+        root.REQUEST = BaseTest.create_mock_request()
         envelope = create_envelope(root)
 
         zip_data = StringIO()
@@ -198,73 +177,6 @@ class DataFileApiTest(unittest.TestCase):
         self.assertRaises(ValueError, doc.data_file.open, 'x')
 
 
-def ofs_copy_object(source_ob, dest_ob):
-    from Products.Reportek import Document
-    with patch.object(source_ob.__class__, 'cb_isCopyable'):
-        clip = source_ob.__parent__.manage_copyObjects([source_ob.getId()])
-        with patch.object(dest_ob.__class__, '_verifyObjectPaste'):
-            dest_ob.manage_pasteObjects(clip)
-    new_ob = dest_ob[source_ob.getId()]
-    return new_ob
-
-
-def ofs_cut_paste_object(source_ob, dest_ob):
-    from Products.Reportek import Document
-    with patch.object(source_ob.__class__, 'cb_isMoveable'):
-        clip = source_ob.__parent__.manage_cutObjects([source_ob.getId()])
-        with patch.object(dest_ob.__class__, '_verifyObjectPaste'):
-            dest_ob.manage_pasteObjects(clip)
-    new_ob = dest_ob[source_ob.getId()]
-    return new_ob
-
-
-class OfsActionsTest(unittest.TestCase):
-
-    def setUp(self):
-        self.zodb = MockDatabase()
-        self.root = create_fake_root()
-        self.zodb.root['root_ob'] = self.root
-        transaction.commit()
-
-    def tearDown(self):
-        self.zodb.cleanup()
-
-    def test_copy_preserves_content(self):
-        content = "the document content"
-        envelope1 = create_envelope(self.root, 'env1')
-        envelope2 = create_envelope(self.root, 'env2')
-        doc1 = add_document(envelope1, create_upload_file(content))
-
-        doc2 = ofs_copy_object(doc1, envelope2)
-
-        self.assertEqual(doc_data(doc2), content)
-
-    def test_modifying_copy_leaves_original_intact(self):
-        content_1 = "content one"
-        content_2 = "content two"
-        envelope1 = create_envelope(self.root, 'env1')
-        envelope2 = create_envelope(self.root, 'env2')
-        doc1 = add_document(envelope1, create_upload_file(content_1))
-
-        doc2 = ofs_copy_object(doc1, envelope2)
-
-        with doc2.data_file.open('wb') as data_file_handle:
-            data_file_handle.write(content_2)
-
-        self.assertEqual(doc_data(doc2), content_2)
-        self.assertEqual(doc_data(doc1), content_1)
-
-    def test_cut_paste_preserves_content(self):
-        content = "the document content"
-        envelope1 = create_envelope(self.root, 'env1')
-        envelope2 = create_envelope(self.root, 'env2')
-        doc1 = add_document(envelope1, create_upload_file(content))
-
-        doc2 = ofs_cut_paste_object(doc1, envelope2)
-
-        self.assertEqual(doc_data(doc2), content)
-
-
 def download_envelope_zip(envelope):
     """ call Envelope.envelope_zip using patched security managers """
     envelope_patch = patch('Products.Reportek.Envelope.getSecurityManager')
@@ -278,23 +190,20 @@ def download_envelope_zip(envelope):
             return envelope.envelope_zip(REQUEST, REQUEST.RESPONSE)
 
 
-class ZipDownloadTest(unittest.TestCase):
+class ZipDownloadTest(BaseTest, ConfigureReportek):
 
-    def setUp(self):
-        self._plain_root = self.root = create_fake_root()
-        self.root.getWorkitemsActiveForMe = Mock(return_value=[])
-        self.mock_request()
-        self.envelope = create_envelope(self.root)
-        setattr(
-            self.envelope.getPhysicalRoot(),
-            constants.CONVERTERS_ID,
-            Converters.Converters())
+    def afterSetUp(self):
+        super(ZipDownloadTest, self).afterSetUp()
+        self.createStandardDependencies()
+        self.app._setObject('Converters', Converters())
+        self.createStandardCollection()
+        self.envelope = self.createStandardEnvelope()
         safe_html = Mock(convert=Mock(text='feedbacktext'))
-        getattr(self.envelope.getPhysicalRoot(),
+        getattr(self.app.Converters,
                 constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
 
     def mock_request(self):
-        request = create_mock_request()
+        request = BaseTest.create_mock_request()
         self.root = makerequest(self._plain_root, StringIO())
         request = self.root.REQUEST
         request.AUTHENTICATED_USER = Mock()
@@ -304,7 +213,7 @@ class ZipDownloadTest(unittest.TestCase):
         return request
 
     def download_zip(self, envelope):
-        envelope.REQUEST = self.mock_request()
+        envelope.REQUEST = BaseTest.create_mock_request()
         rv = download_envelope_zip(envelope)
         return zipfile.ZipFile(rv)
 

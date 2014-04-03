@@ -8,7 +8,7 @@ from path import path
 from OFS.Folder import Folder
 from Products.ZCatalog.ZCatalog import ZCatalog
 
-from common import create_mock_request, _BaseTest, create_process
+from common import WorkflowTestCase
 from Products.Reportek.Collection import Collection
 from Products.Reportek.Converters import Converters
 from Products.Reportek.Envelope import Envelope
@@ -17,7 +17,17 @@ from Products.Reportek import constants
 from Products.Reportek.RemoteRESTApplication import RemoteRESTApplication, manage_addRemoteRESTApplication
 
 
-class RemoteRESTApplicationProduct(_BaseTest):
+class RemoteRESTApplicationProduct(WorkflowTestCase):
+
+    def setUp(self):
+        super(RemoteRESTApplicationProduct, self).setUp()
+        self.app._setOb(
+            constants.APPLICATIONS_FOLDER_ID,
+            Folder(constants.APPLICATIONS_FOLDER_ID))
+        self.apps_folder = getattr(self.app, constants.APPLICATIONS_FOLDER_ID)
+        self.apps_folder._setOb(
+            'Common',
+            Folder('Common'))
 
     def create_cepaa_set(self, idx):
         col_id = "col%s" %idx
@@ -32,7 +42,7 @@ class RemoteRESTApplicationProduct(_BaseTest):
 
         self.app.Templates.StartActivity = Mock(return_value='Test Application')
         self.app.Templates.StartActivity.title_or_id = Mock(return_value='Start Activity Template')
-        create_process(self, proc_id)
+        self.create_process(self, proc_id)
         self.wf.addApplication(app_id, 'SomeFolder/%s' %app_id)
 
         self.app.Applications._setOb(proc_id, Folder(proc_id))
@@ -68,16 +78,6 @@ class RemoteRESTApplicationProduct(_BaseTest):
         setattr(self, col_id, getattr(self.app, col_id))
         setattr(self, env_id, getattr(getattr(self.app, col_id), env_id))
         getattr(self, env_id).startInstance(self.app.REQUEST)
-
-    def setUp(self):
-        super(RemoteRESTApplicationProduct, self).setUp()
-        self.app._setOb(
-            constants.APPLICATIONS_FOLDER_ID,
-            Folder(constants.APPLICATIONS_FOLDER_ID))
-        self.apps_folder = getattr(self.app, constants.APPLICATIONS_FOLDER_ID)
-        self.apps_folder._setOb(
-            'Common',
-            Folder('Common'))
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_request_for_new_job_success(self, mock_requests):

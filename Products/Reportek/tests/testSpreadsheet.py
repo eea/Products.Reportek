@@ -1,37 +1,27 @@
-import os, sys, transaction
+import os
 from StringIO import StringIO
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
-from configurereportek import ConfigureReportek
+from common import BaseTest, ConfigureReportek
 from fileuploadmock import FileUploadMock
 from mock import patch, Mock
-from utils import create_temp_reposit
-from Products.Reportek import constants
-from Products.Reportek import Converters
+from Products.Reportek.Converters import Converters
 
 TESTDIR = os.path.abspath(os.path.dirname(__file__))
 
-def setUpModule(self):
-    self._cleanup_temp_reposit = create_temp_reposit()
 
-
-def tearDownModule(self):
-    self._cleanup_temp_reposit()
-
-
-class SpreadsheetTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
+class SpreadsheetTestCase(BaseTest, ConfigureReportek):
 
     def afterSetUp(self):
+        super(SpreadsheetTestCase, self).afterSetUp()
         self.createStandardDependencies()
+        self.app._setObject('Converters', Converters())
         self.createStandardCollection()
         self.assertTrue(hasattr(self.app, 'collection'),'Collection did not get created')
         self.assertNotEqual(self.app.collection, None)
         self.envelope = self.createStandardEnvelope()
         self.envelope.manage_addFeedback = Mock(return_value='feedbacktext')
-        from Products.Reportek import EnvelopeCustomDataflows
-        self._orig_invoke = EnvelopeCustomDataflows.invoke_conversion_service
-        transaction.begin()
 
     def test_upload_nothing(self):
         """ Check convert_excel_file when no file is uploaded
@@ -42,8 +32,9 @@ class SpreadsheetTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.assertEquals(0, len(self.envelope.objectIds('Report Document')))
         self.assertEquals(-1, res)
 
+    @patch('transaction.commit')
     @patch('Products.Reportek.EnvelopeCustomDataflows.invoke_conversion_service')
-    def x_test_convert_text(self, mock_invoke):
+    def test_convert_text(self, mock_invoke, mock_commit):
         """ Create a text document in the envelope and try to convert to XML
             This doesn't work, but the original file is uploaded
             Verify the content_type is text/plain
@@ -77,8 +68,9 @@ class SpreadsheetTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         document = self.envelope['testfile.xml']
         self.assertEquals('text/xml', document.content_type)
 
+    @patch('transaction.commit')
     @patch('Products.Reportek.EnvelopeCustomDataflows.invoke_conversion_service')
-    def test_upload_empty_excel(self, mock_invoke):
+    def test_upload_empty_excel(self, mock_invoke, mock_commit):
         mock_invoke.return_value = {
             'conversionLog': '-- conversion log --',
             'convertedFiles': [],
@@ -93,8 +85,9 @@ class SpreadsheetTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
         self.assertEquals('application/vnd.ms-excel', document.content_type)
         self.assertEquals([], [x for x in self.envelope.objectValues('Report Document') if x.content_type == 'text/xml'])
 
+    @patch('transaction.commit')
     @patch('Products.Reportek.EnvelopeCustomDataflows.invoke_conversion_service')
-    def test_convert_excel(self, mock_invoke):
+    def test_convert_excel(self, mock_invoke, mock_commit):
         """ Check convert_excel_file when an correct template is uploaded
             The conversion works and produces XML files in the envelope
             The original file is also uploaded

@@ -1,18 +1,16 @@
-import os, sys
 from Testing import ZopeTestCase
 from AccessControl import getSecurityManager
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
-from configurereportek import ConfigureReportek
+from common import BaseTest, ConfigureReportek
 
 
-class ReferralTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
+class ReferralTestCase(BaseTest, ConfigureReportek):
 
     def afterSetUp(self):
+        super(ReferralTestCase, self).afterSetUp()
         self.createStandardDependencies()
-	self.createStandardCollection()
-        self.assertTrue(hasattr(self.app, 'collection'),'Collection did not get created')
-        self.assertNotEqual(self.app.collection, None)
+        self.createStandardCollection()
 
     def test_addReferral(self):
         """ To create an referral the following is needed:

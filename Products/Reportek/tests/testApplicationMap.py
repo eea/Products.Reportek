@@ -1,21 +1,22 @@
-import os, sys
 from Testing import ZopeTestCase
-from configurereportek import ConfigureReportek
+ZopeTestCase.installProduct('Reportek')
+ZopeTestCase.installProduct('PythonScripts')
 
-from common import _WorkflowTestCase
+from common import ConfigureReportek
+
+from common import WorkflowTestCase, BaseTest
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
 from Products.Reportek import constants
 
-ZopeTestCase.installProduct('Reportek')
-ZopeTestCase.installProduct('PythonScripts')
 
 
-class ApplicationsTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
+class ApplicationsTestCase(BaseTest, ConfigureReportek):
     """ This simple test checks the Openflow engine
     """
 
     def afterSetUp(self):
+        super(ApplicationsTestCase, self).afterSetUp()
         self.createStandardDependencies()
         self.wf = self.app.WorkflowEngine
 
@@ -33,7 +34,7 @@ class ApplicationsTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
             {'link': 'beta', 'name': 'beta_app'},
             {'link': 'delta', 'name': 'delta_app'}] , self.wf.listApplications())
 
-class ActivityApplicationMapping(_WorkflowTestCase):
+class ActivityApplicationMapping(WorkflowTestCase):
     """
     Test activity finds its application based on process that is part of
     """
