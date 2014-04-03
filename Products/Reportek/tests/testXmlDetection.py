@@ -3,10 +3,6 @@ from StringIO import StringIO
 from Products.Reportek.XMLInfoParser import detect_schema, detect_single_schema
 
 
-def setUpModule():
-    pass
-
-
 class XmlDetectionTest(unittest.TestCase):
 
     def test_create_xml_document(self):

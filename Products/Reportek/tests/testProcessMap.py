@@ -1,6 +1,6 @@
-import os, sys
+import os
 from Testing import ZopeTestCase
-from configurereportek import ConfigureReportek
+from common import BaseTest, ConfigureReportek
 from Products.Reportek.exceptions import CannotPickProcess
 
 ZopeTestCase.installProduct('Reportek')
@@ -9,13 +9,14 @@ ZopeTestCase.installProduct('PythonScripts')
 TESTDIR = os.path.abspath(os.path.dirname(__file__))
 
 
-class OpenflowTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
+class OpenflowTestCase(BaseTest, ConfigureReportek):
     """ This simple test checks the Openflow engine
     """
 
     def afterSetUp(self):
+        super(OpenflowTestCase, self).afterSetUp()
+        self.createStandardCatalog()
         self.createStandardDependencies()
-        self.wf = self.app.WorkflowEngine
 
     def testCreation(self):
         """ Check for the correct creation of the WorkflowEngine """

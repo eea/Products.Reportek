@@ -1,40 +1,15 @@
-import unittest
-from utils import create_fake_root, makerequest, create_temp_reposit
-from mock import patch
+from mock import patch, Mock
+from common import BaseTest, ConfigureReportek
 
 
-def setUpModule(self):
-    self._cleanup_temp_reposit = create_temp_reposit()
+class CatalogTest(BaseTest, ConfigureReportek):
 
-
-def tearDownModule(self):
-    self._cleanup_temp_reposit()
-
-
-class CatalogTest(unittest.TestCase):
-
-    def setUp(self):
-        from Products.ZCatalog.ZCatalog import ZCatalog
-        from Products.PluginIndexes.FieldIndex.FieldIndex import FieldIndex
-        from Products.PluginIndexes.KeywordIndex.KeywordIndex import KeywordIndex
-        from Products.PluginIndexes.DateIndex.DateIndex import DateIndex
-        from Products.PluginIndexes.PathIndex.PathIndex import PathIndex
-        from Products.Reportek import create_reportek_indexes
-
-        self.root = makerequest(create_fake_root())
-
-        catalog = ZCatalog('Catalog', 'Default Catalog for Reportek')
-        self.root._setObject('Catalog', catalog)
-        self.root.Catalog.meta_types = [
-            {'name': 'FieldIndex', 'instance': FieldIndex},
-            {'name': 'KeywordIndex', 'instance': KeywordIndex},
-            {'name': 'DateIndex', 'instance': DateIndex},
-            {'name': 'PathIndex', 'instance': PathIndex},]
-        create_reportek_indexes(self.root.Catalog)
+    def afterSetUp(self):
+        super(CatalogTest, self).afterSetUp()
+        self.createStandardCatalog()
 
     def test_autocatalog_new_object(self):
         from Products.Reportek.EnvelopeInstance import EnvelopeInstance
-        from mock import Mock
 
         process = Mock()
         envelope = EnvelopeInstance(process)
@@ -69,7 +44,6 @@ class CatalogTest(unittest.TestCase):
 
     def test_envelope_indexes(self):
         from Products.Reportek.Envelope import Envelope
-        from mock import Mock
 
         self.root.localities_table = Mock(return_value=[
                     {
@@ -95,10 +69,11 @@ class CatalogTest(unittest.TestCase):
                             locality='TestLocality',
                             descr='TestDescription')
 
+        self.engine.messageDialog = Mock()
         first_envelope.id = 'first_envelope'
-        self.root._setObject(first_envelope.id, first_envelope)
-        self.root[first_envelope.id].manage_changeEnvelope(dataflow_uris='http://example.com/dataflow/1')
-        self.root[first_envelope.id].release_envelope()
+        self.engine._setObject(first_envelope.id, first_envelope)
+        self.engine[first_envelope.id].manage_changeEnvelope(dataflow_uris='http://example.com/dataflow/1')
+        self.engine[first_envelope.id].release_envelope()
 
         second_envelope = Envelope(process=process,
                             title='SecondEnvelope',
@@ -108,11 +83,11 @@ class CatalogTest(unittest.TestCase):
                             partofyear='February',
                             country='http://example.com/country/2',
                             locality='TestLocality',
-                            descr='TestDescription')
+                            descr='TestDescription').__of__(self.engine)
 
         second_envelope.id = 'second_envelope'
-        self.root._setObject(second_envelope.id, second_envelope)
-        self.root[second_envelope.id].manage_changeEnvelope(dataflow_uris='http://example.com/dataflow/2')
+        self.engine._setObject(second_envelope.id, second_envelope)
+        self.engine[second_envelope.id].manage_changeEnvelope(dataflow_uris='http://example.com/dataflow/2')
 
         definitions = [
             ({'meta_type': 'Report Envelope'}, [first_envelope, second_envelope]),
@@ -123,7 +98,7 @@ class CatalogTest(unittest.TestCase):
             ({'meta_type': 'Report Envelope', 'partofyear': 'January'}, [first_envelope]),
             ({'meta_type': 'Report Envelope', 'process_path': '/ProcessURL'}, [first_envelope, second_envelope]),
             ({'meta_type': 'Report Envelope', 'released': 1}, [first_envelope]),
-            ({'meta_type': 'Report Envelope', 'path': '/first_envelope'}, [first_envelope]),
+            ({'meta_type': 'Report Envelope', 'path': '/ReportekEngine/first_envelope'}, [first_envelope]),
             ]
 
         for query, ok_results in definitions:
@@ -146,15 +121,15 @@ class CatalogTest(unittest.TestCase):
             results = self.root.Catalog(**query)
             self.assertEqual([b.getObject() for b in results], ok_results)
 
-    def test_maintenance_tab(self):
-        from mock import Mock
+    @patch('transaction.savepoint')
+    def test_maintenance_tab(self, mock_trans):
         from Products.Reportek.Collection import Collection
         from Products.Reportek.Envelope import Envelope
         from Products.Reportek.Document import Document
         from Products.Reportek.catalog import catalog_rebuild
 
         process = Mock()
-        self.root._p_jar = Mock()
+        #self.root._p_jar = Mock()
 
         collection = Collection(id='test_collection')
         self.root._setObject(collection.id, collection)
@@ -168,7 +143,8 @@ class CatalogTest(unittest.TestCase):
 
         self.root.Catalog.manage_catalogClear()
         catalog_rebuild(self.root)
-        self.assertEqual(len(self.root.Catalog), 3)
+        # ZopeTestCase setsup a test_folder_1_ too, hence 4 objects
+        self.assertEqual(len(self.root.Catalog), 4)
 
         definitions = [
             ({'meta_type': 'Report Collection'}, [collection]),
@@ -184,7 +160,6 @@ class CatalogTest(unittest.TestCase):
     def test_date_indexes(self, mock_DateTime):
         from Products.Reportek.Envelope import Envelope
         from DateTime import DateTime
-        from mock import Mock
 
         process = Mock()
 

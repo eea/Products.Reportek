@@ -1,25 +1,14 @@
 # -*- coding: utf-8 -*-
-import os, sys
 import unittest
-import json
 from Products.Reportek import constants
 from mock import Mock, patch
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
-from configurereportek import ConfigureReportek
+from common import BaseTest, ConfigureReportek
 from fileuploadmock import FileUploadMock
-from utils import create_temp_reposit, create_fake_root, create_envelope
+from utils import create_fake_root, create_envelope
 from Products.Reportek import Converters
-from OFS.SimpleItem import Item
-
-
-def setUpModule(self):
-    self._cleanup_temp_reposit = create_temp_reposit()
-
-
-def tearDownModule(self):
-    self._cleanup_temp_reposit()
 
 
 class MockResponse:
@@ -31,9 +20,10 @@ class MockResponse:
         pass
 
 
-class FeedbackTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
+class FeedbackTestCase(BaseTest, ConfigureReportek):
 
     def afterSetUp(self):
+        super(FeedbackTestCase, self).afterSetUp()
         self.createStandardDependencies()
         self.createStandardCollection()
         self.assertTrue(hasattr(self.app, 'collection'),
