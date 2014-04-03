@@ -91,6 +91,7 @@ class ReportekEngineTest(BaseTest, ConfigureReportek):
                             country='http://example.com/country/1',
                             locality='TestLocality',
                             descr='TestDescription')
+        first_envelope._content_registry_ping = Mock()
         first_envelope.id = 'first_envelope'
         self.root._setObject(first_envelope.id, first_envelope)
         self.root[first_envelope.id].manage_changeEnvelope(
@@ -747,6 +748,7 @@ class SearchResultsTest(BaseTest, ConfigureReportek):
                             country='http://example.com/country/1',
                             locality='TestLocality',
                             descr='TestDescription')
+        first_envelope._content_registry_ping = Mock()
         first_envelope.id = 'first_envelope'
         self.root._setObject(first_envelope.id, first_envelope)
         self.root[first_envelope.id].manage_changeEnvelope(dataflow_uris='http://example.com/dataflow/1')
@@ -774,6 +776,7 @@ class SearchResultsTest(BaseTest, ConfigureReportek):
                             country='http://example.com/country/2',
                             locality='TestLocality',
                             descr='TestDescription')
+        second_envelope._content_registry_ping = Mock()
         second_envelope.id = 'second_envelope'
         self.root._setObject(second_envelope.id, second_envelope)
         self.root[second_envelope.id].manage_changeEnvelope(dataflow_uris='http://example.com/dataflow/2')

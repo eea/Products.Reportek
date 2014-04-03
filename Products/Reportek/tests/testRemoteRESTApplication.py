@@ -73,6 +73,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
                        country='http://spatial/1',
                        locality='TestLocality',
                        descr='TestDescription')
+        env._content_registry_ping = Mock()
         env.id = env_id
         getattr(self.app, col_id)._setOb(env_id, env)
         setattr(self, col_id, getattr(self.app, col_id))

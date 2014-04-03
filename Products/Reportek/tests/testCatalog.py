@@ -69,6 +69,7 @@ class CatalogTest(BaseTest, ConfigureReportek):
                             locality='TestLocality',
                             descr='TestDescription')
 
+        first_envelope._content_registry_ping = Mock()
         self.engine.messageDialog = Mock()
         first_envelope.id = 'first_envelope'
         self.engine._setObject(first_envelope.id, first_envelope)
@@ -85,6 +86,7 @@ class CatalogTest(BaseTest, ConfigureReportek):
                             locality='TestLocality',
                             descr='TestDescription').__of__(self.engine)
 
+        second_envelope._content_registry_ping = Mock()
         second_envelope.id = 'second_envelope'
         self.engine._setObject(second_envelope.id, second_envelope)
         self.engine[second_envelope.id].manage_changeEnvelope(dataflow_uris='http://example.com/dataflow/2')
@@ -135,6 +137,7 @@ class CatalogTest(BaseTest, ConfigureReportek):
         self.root._setObject(collection.id, collection)
 
         envelope = Envelope(process, '', '', '', '', '', '', '', '')
+        envelope._content_registry_ping = Mock()
         envelope.id = 'test_envelope'
         self.root[collection.id]._setObject(envelope.id, envelope)
 
@@ -165,11 +168,13 @@ class CatalogTest(BaseTest, ConfigureReportek):
 
         mock_DateTime.return_value = DateTime('2012/05/25')
         first_envelope = Envelope(process, 'FirstEnvelope', '', '', '', '', '', '', '')
+        first_envelope._content_registry_ping = Mock()
         first_envelope.id = 'first_envelope'
         self.root._setObject(first_envelope.id, first_envelope)
 
         mock_DateTime.return_value = DateTime('2012/05/26')
         second_envelope = Envelope(process, 'SecondEnvelope', '', '', '', '', '', '', '')
+        second_envelope._content_registry_ping = Mock()
         second_envelope.id = 'second_envelope'
         self.root._setObject(second_envelope.id, second_envelope)
 

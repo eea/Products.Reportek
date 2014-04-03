@@ -129,6 +129,7 @@ class UNSCallsTest(unittest.TestCase):
 
         process = Mock()
         e = Envelope(process, '', '', '', '', '', '', '', '')
+        e._content_registry_ping = Mock()
         e.id = 'envelope'
         e.dataflow_uris = [mock_dataflow['uri']]
         e.country = mock_localities['es']['uri']
