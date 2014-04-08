@@ -1,5 +1,4 @@
 <span tal:replace="structure here/standard_html_header" />
-  <tal:block condition="python:context.canViewContent()">
     <div tal:replace="structure python:context.envelope_tabs(tab='history_section')"/>
     <h1 i18n:translate="">
       History of <span tal:replace="string:${context/title_or_id}" i18n:name="title"/>
@@ -58,5 +57,4 @@
     </tal:block>
     </table>
 
-  </tal:block>
 <span tal:replace="structure here/standard_html_footer" />
