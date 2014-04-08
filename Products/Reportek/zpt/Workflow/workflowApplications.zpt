@@ -9,7 +9,7 @@
             var expanded_text = 'hide';
             var collapsible=$('.note-msg #collapsible');
             var button=$('.note-msg #collapse_button');
-            $(button).html(expanded_text);
+            $(button).html(collapsed_text);
             $(button).bind('click',
                 function(){
                     if($(collapsible).attr('collapsed')=='false'){
@@ -32,12 +32,13 @@
 	}
 </style>
 
-<div class='note-msg'>
-  <h3>
-  <strong>Applications to activities mappings</strong>
-  [<a href="#" style="font-weight: normal;" id="collapse_button">hide</a>]
-  </h3>
-  <div id='collapsible' collapsed="false" style="margin-top: 10px;">
+<p>Jump to | <a href="#help">Help<a> | <a href="#byprocess">Applications by process<a> | <a href="#manage">Manage Applications<a> |</p>
+
+<div class="note-msg">
+  <h2><a name="help"></a>Help on Applications to activities mappings
+  [<a href="#" style="font-weight: normal;" id="collapse_button">show</a>]
+  </h2>
+  <div id="collapsible" collapsed="true" style="margin-top: 10px;">
       <hr/>
       Currently there are two possibilities to map an application to an
       activity:
@@ -73,18 +74,18 @@
   <hr/>
 </div>
 
-<div style="display: inline;">
-    <span> HINT: find all automatically assigned applications by using <span
-            style="color: green;" tal:content="string:[auto]"></span> when searching</span>
-<div>
-
 <div style="text-align: right">
 	<form action="manage_addApplicationForm" method="post">
 	<input type="submit" name="submit" value="Add Application" />
 	</form>
 </div>
 
-<table style="border: 0; width: 100%" class="workflow-applications">
+<tal:block define="apps_list python:[]">
+
+<h2><a name="byprocess"></a>Applications by process</h2>
+<p>HINT: find all automatically assigned applications by using <span
+            style="color: green;" tal:content="string:[auto]"></span> when searching</p>
+<table class="workflow-applications">
 
 	<thead>
 	<tr>
@@ -106,7 +107,7 @@
 			<ul>
 				<li tal:repeat="activity python:proc.objectValues('Activity')">
 					<a tal:attributes="href string:${activity/absolute_url}/manage_workspace"
-					   tal:content="string:${activity/getId}"></a>
+					   tal:content="string:${activity/getId}"></a> 
 				</li>
 			</ul>
 			<em tal:condition="python:not proc.objectValues('Activity')">
@@ -117,6 +118,7 @@
 			<ul>
               <tal:block repeat="activity python:proc.objectValues('Activity')">
                 <tal:block define="result python:activity.mapped_application_details()">
+                
                   <li
                     tal:define=
                       "hint python:lambda(arg): 'automatically' if arg else 'manually';
@@ -155,7 +157,7 @@
                     </tal:block>
                     <tal:block condition="python:not result['path']">
                         -
-                    </tal:block>
+                    </tal:block> 
 			      </li>
                 </tal:block>
               </tal:block>
@@ -168,7 +170,35 @@
 
 	</tbody>
 </table>
+<br style="clear: both" />
+<h2><a name="manage"></a>Manage Applications</h2>
 
+<form action="deleteApplication" method="post">
+<table style="border: 1px solid grey" cellpadding="2" cellspacing="2">
+	<tr>
+		<th scope="row" style="background-color: #f0f0f0;">#</th>
+		<th scope="row" style="background-color: #f0f0f0;">Application name</th>
+		<th scope="row" style="background-color: #f0f0f0;">URL</th>
+	</tr>
+
+	<tr tal:repeat="applications container/listApplications">
+		<td style="border-bottom: 1px solid grey" tal:content="repeat/applications/number"></td>
+		<td style="border-bottom: 1px solid grey">
+			<input type="checkbox" name="app_ids:list" value="name"
+				tal:attributes="value applications/name"/>
+			<a align="left"
+				tal:content="applications/name"
+				tal:attributes="href string:manage_editApplicationForm?name=${applications/name}&link=${applications/link}">Application Id</a>
+		</td>
+		<td style="border-bottom: 1px solid grey" tal:content="applications/link">Application URL</td>
+	</tr>
+
+</table>
+
+<input type="submit" name="deleteApplication" value="Delete applications" />
+</form>
+
+</tal:block>
 
 <script src="++resource++static/datatables-1.9.4/js/jquery.js"></script>
 <script src="++resource++static/datatables-1.9.4/js/jquery.dataTables.js"></script>
@@ -179,5 +209,4 @@
 	});
 </script>
 
-
-<p tal:replace="structure here/manage_page_footer" omit-tag="">Footer</p>
+<p tal:replace="structure here/manage_page_footer">Footer</p>

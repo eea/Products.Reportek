@@ -8,7 +8,7 @@
 	Activity details can be viewed by selecting the activity.
 </p>
 
-<table border="2">
+<table class="datatable">
 	<tr>
 		<th>Description</th>
 		<td tal:content="here/description" />
