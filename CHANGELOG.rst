@@ -1,5 +1,6 @@
 3.6.12 (unreleased)
 ----------------
+* Task 18707 - Fix receiving of remote conversion service results [baragdan]
 * Task 17612 - Build_collections: improve error messages
 * Task 17109 - Implement ping on enevlope release but not yet on revoke [baragdan]
 

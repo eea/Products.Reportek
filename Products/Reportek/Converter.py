@@ -190,6 +190,15 @@ class RemoteConverter(Converter):
                                   'file_name': file_obj.absolute_url(0)},
                             stream=True)
             result.raise_for_status()
+            #
+            # let zope add the transfer-encoding: chuncked header if required
+            # (that is if the connection is not closed so there is more to come)
+            # TODO what if the requests does not decode payload?
+            # it handles chunked and gzip automatically, but what about the rest?
+            #
+            # result.headers is a case insensitive dict
+            #
+            result.headers.pop('transfer-encoding')
             self.REQUEST.RESPONSE.headers.update(result.headers)
             for chunk in result.iter_content(chunk_size=64*1024):
                 self.REQUEST.RESPONSE.write(chunk)
