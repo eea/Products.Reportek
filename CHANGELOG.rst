@@ -1,4 +1,7 @@
-3.6.12 (unreleased)
+3.6.13 (unreleased)
+----------------
+
+3.6.12 (2014-04-11)
 ----------------
 * Task 18707 - Fix receiving of remote conversion service results [baragdan]
 * Task 17612 - Build_collections: improve error messages
