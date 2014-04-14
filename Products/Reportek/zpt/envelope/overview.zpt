@@ -54,7 +54,7 @@
           tal:content="python:'%s - %s' %(context.year, context.partofyear)">
       </td>
       <td tal:condition="not:python:context.endyear == ''"
-          tal:content="python:'%s to %s' %(context.year, context.partofyear)">
+          tal:content="python:'%s to %s' %(context.year, context.endyear)">
       </td>
     </tr>
     <tr>

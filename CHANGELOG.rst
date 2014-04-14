@@ -1,5 +1,6 @@
 3.6.13 (unreleased)
 ----------------
+* Task 19310 - fix displaying of multiyear obligation in envelope overview [baragdan]
 
 3.6.12 (2014-04-11)
 ----------------
