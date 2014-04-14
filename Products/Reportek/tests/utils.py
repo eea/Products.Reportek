@@ -328,6 +328,16 @@ def add_document(envelope, upload_file):
         doc_id = manage_addDocument(envelope, file=upload_file)
     return envelope[doc_id]
 
+def add_feedback(envelope, feedbacktext):
+    from Products.Reportek.Feedback import manage_addFeedback
+    manage_addFeedback(envelope, feedbacktext=feedbacktext)
+    return envelope.objectValues('Report Feedback')[0]
+
+def add_hyperlink(envelope, hyperlink):
+    from Products.Reportek.Hyperlink import manage_addHyperlink
+    manage_addHyperlink(envelope, hyperlinkurl=hyperlink)
+    return envelope.objectValues('Report Hyperlink')[0]
+
 
 class MockDatabase(object):
 

@@ -191,7 +191,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             elif '<?xml' in message:
                 messageBody = bs(message).find('response').text
         except:
-            messageBody = ""
+            messageBody = message
 
         return messageBody
 

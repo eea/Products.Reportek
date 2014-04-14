@@ -757,7 +757,7 @@ class SearchResultsTest(BaseTest, ConfigureReportek):
             self.root.getPhysicalRoot(),
             constants.CONVERTERS_ID,
             Converters.Converters())
-        safe_html = Mock(convert=Mock(text='feedbacktext'))
+        safe_html = Mock(convert=Mock(return_value=Mock(text='feedbacktext')))
         getattr(self.root.getPhysicalRoot(),
                 constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
         self.root['first_envelope'].manage_addFeedback('feedbackid', 'Title',

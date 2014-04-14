@@ -32,6 +32,7 @@ __version__='$Revision$'[11:-2]
 
 import os, types, tempfile, string
 from path import path
+import threading
 from zipfile import *
 import Globals, OFS.SimpleItem, OFS.ObjectManager
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -492,6 +493,35 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             return startDate + '/P1M'
         return startDate
 
+    def _log_ping(self, success, message, url, action='update/create', engine=None):
+        engine = engine or getattr(self, ENGINE_ID)
+        messageBody = engine.content_registry_pretty_message(message)
+        if success:
+            logger.info("Content Registry (%s) pingged OK for the %s of %s\nResponse was: %s"
+                        % (engine.cr_api_url, action, url, messageBody))
+        else:
+            logger.warning("Content Registry (%s) ping unsuccesfull for the %s of %s\nResponse was: %s"
+                            % (engine.cr_api_url, action, url, messageBody))
+
+    def _content_registry_async_ping(envelope, uris, engine=None, create=False, delete=False):
+        engine = engine or getattr(envelope, ENGINE_ID)
+        if delete:
+            for uri in uris:
+                success, message = engine.content_registry_ping(uri, additional_action='delete')
+                envelope._log_ping(success, message, uri, action='delete', engine=engine)
+        else:
+            # we don't actually know whether an envelope was released before,
+            # thus we don't know whether to create it or not -
+            # so we try to *not* create it on first try
+            # if create is True, make a second attempt to ping with explicit 'create'
+            for uri in uris:
+                success, message = engine.content_registry_ping(uri)
+                if (create and success and
+                    'URL not in catalogue of sources, no action taken.' in message):
+                    success, message = engine.content_registry_ping(uri, additional_action='create')
+                envelope._log_ping(success, message, uri, engine=engine)
+
+
     def _content_registry_ping(self, create=False, delete=False):
         """Instruct ReportekEngine to ping CR
         create - try to create the CR entry *if* the initial regular ping
@@ -499,31 +529,27 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         delete - don't ping for update but for delete
         """
         engine = getattr(self, ENGINE_ID)
-        url = self.absolute_url() + '/rdf'
         if not engine.cr_api_url:
             logger.debug("Content Registry is not supposed to be pingged (url empty)")
             return
 
-        if delete:
-            success, message = engine.content_registry_ping(url, additional_action='delete')
-            logger.warning("Conten Registry (%s) pingged for deletion of: %s.\nResponse was %s\n %s"
-                           %(engine.cr_api_url, url, success, message))
-        else:
-            # we don't actually know whether an envelope was released before,
-            # thus we don't know whether to create it or not -
-            # so we try to *not* create it on first try
-            # if create is True, make a second attempt to ping with explicit 'create'
-            success, message = engine.content_registry_ping(url)
-            if (create and success and
-                'URL not in catalogue of sources, no action taken.' in message):
-                success, message = engine.content_registry_ping(url, additional_action='create')
-            messageBody = engine.content_registry_pretty_message(message)
-            if success:
-                logger.info("Content Registry (%s) ping OK, response was: %s"
-                            % (engine.cr_api_url, messageBody))
-            else:
-                logger.warning("Content Registry (%s) ping unsuccesfull: %s"
-                                % (engine.cr_api_url, messageBody))
+        # the main uri - the rdf to everything inside
+        uris = [ self.absolute_url() + '/rdf' ]
+        innerObjsByMetatype = self._getObjectsForContentRegistry()
+        # repeat the inner uris for CR mechanics
+        uris.extend( o.absolute_url() for objs in innerObjsByMetatype.values() for o in objs )
+
+        # delegate this to fire and forget thread - don't keep the user (browser) waiting
+        pingger = threading.Thread(target=Envelope._content_registry_async_ping,
+                         name='contentRegistrySendPings',
+                         args=(self, uris),
+                         kwargs={'engine': engine,
+                                 'create': create,
+                                 'delete': delete})
+        pingger.setDaemon(True)
+        pingger.start()
+        return
+
 
     ##################################################
     # Manage release status
@@ -575,9 +601,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             self.released = 0
             # update ZCatalog
             self.reindex_object()
-            # TODO don't do it on revoke until we know exactly how delete will be communicated to CR 
-            # sending the same URL as in release would raise 401 for CR anyway
-            #self._content_registry_ping()
+            self._content_registry_ping(delete=True)
         if self.REQUEST is not None:
             return self.messageDialog(
                             message="The envelope is no longer available to the public!",
@@ -1041,6 +1065,14 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         REQUEST.RESPONSE.setHeader('content-type', 'text/xml; charset=utf-8')
         return xml.envelopeMetadata(inline)
 
+    def _getObjectsForContentRegistry(self):
+        objByMetatype = {}
+        metatypes = ['Report Document', 'Report Hyperlink', 'Report Feedback']
+        for t in metatypes:
+            objByMetatype[t] = [ o for o in self.objectValues(t) ]
+        return objByMetatype
+
+
     security.declareProtected('View', 'rdf')
     def rdf(self, REQUEST):
         """ Returns the envelope metadata in RDF format.
@@ -1098,49 +1130,57 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             res_a('<cr:hasFeedback rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(self.absolute_url()), fileid))
         res_a('</Delivery>')
 
-        for fileobj in self.objectValues('Report Document'):
-            try: # FIXME: If we get an exception after two lines, we have invalid XML. Make it transactional
-                res_a('<File rdf:about="%s">' % fileobj.absolute_url())
-                res_a('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(fileobj.title_or_id()))
-                res_a('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(fileobj.title_or_id()))
-                res_a('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % fileobj.upload_time().HTML4())
-                res_a('<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>' % fileobj.upload_time().HTML4())
-                res_a('<cr:mediaType>%s</cr:mediaType>' % fileobj.content_type)
-                if fileobj.content_type == "text/xml":
-                   res_a('<cr:xmlSchema>%s</cr:xmlSchema>' % RepUtils.xmlEncode(fileobj.xml_schema_location))
-                res_a('</File>')
-            except: pass
-
-        for fileobj in self.objectValues('Report Hyperlink'):
-            try: # FIXME: If we get an exception after two lines, we have invalid XML. Make it transactional
-                res_a('<File rdf:about="%s">' % fileobj.hyperlinkurl())
-                res_a('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(fileobj.title_or_id()))
-                res_a('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(fileobj.title_or_id()))
-                res_a('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % fileobj.upload_time().HTML4())
-                res_a('<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>' % fileobj.upload_time().HTML4())
-                res_a('</File>')
-            except: pass
-
-        for feedback in self.objectValues('Report Feedback'):
-            res_a('<cr:Feedback rdf:about="%s">' % feedback.absolute_url())
-            res_a('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(feedback.title_or_id()))
-            res_a('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(feedback.title_or_id()))
-            res_a('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % feedback.releasedate.HTML4())
-            res_a('<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</released>' % feedback.releasedate.HTML4())
-            res_a('<cr:mediaType>%s</cr:mediaType>' % feedback.content_type)
-            if feedback.document_id not in [None, 'xml']:
-                res_a('<cr:feedbackFor rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(self.absolute_url()),
-                         RepUtils.xmlEncode(feedback.document_id)))
-            for attachment in feedback.objectValues(['File', 'File (Blob)']):
-                res_a('<cr:hasAttachment rdf:resource="%s"/>' % attachment.absolute_url())
-            res_a('</cr:Feedback>')
-            for attachment in feedback.objectValues(['File', 'File (Blob)']):
-                res_a('<cr:FeedbackAttachment rdf:about="%s">' % attachment.absolute_url())
-                res_a('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(attachment.title_or_id()))
-                res_a('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(attachment.title_or_id()))
-                res_a('<cr:mediaType>%s</cr:mediaType>' % attachment.content_type)
-                res_a('<cr:attachmentOf rdf:resource="%s"/>' % feedback.absolute_url())
-                res_a('</cr:FeedbackAttachment>')
+        objsByType = self._getObjectsForContentRegistry()
+        for metatype, objs in objsByType.items():
+            for o in objs:
+                xmlChunk = []
+                if metatype == 'Report Document':
+                    try:
+                        xmlChunk.append('<File rdf:about="%s">' % o.absolute_url())
+                        xmlChunk.append('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(o.title_or_id()))
+                        xmlChunk.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(o.title_or_id()))
+                        xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.upload_time().HTML4())
+                        xmlChunk.append('<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>' % o.upload_time().HTML4())
+                        xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % o.content_type)
+                        if o.content_type == "text/xml":
+                            xmlChunk.append('<cr:xmlSchema>%s</cr:xmlSchema>' % RepUtils.xmlEncode(o.xml_schema_location))
+                        xmlChunk.append('</File>')
+                    except:
+                        xmlChunk = []
+                elif metatype == 'Report Hyperlink':
+                    try:
+                        xmlChunk.append('<File rdf:about="%s">' % o.hyperlinkurl())
+                        xmlChunk.append('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(o.title_or_id()))
+                        xmlChunk.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(o.title_or_id()))
+                        xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.upload_time().HTML4())
+                        xmlChunk.append('<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>' % o.upload_time().HTML4())
+                        xmlChunk.append('</File>')
+                    except:
+                        xmlChunk = []
+                elif metatype == 'Report Feedback':
+                    try:
+                        xmlChunk.append('<cr:Feedback rdf:about="%s">' % o.absolute_url())
+                        xmlChunk.append('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(o.title_or_id()))
+                        xmlChunk.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(o.title_or_id()))
+                        xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.releasedate.HTML4())
+                        xmlChunk.append('<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</released>' % o.releasedate.HTML4())
+                        xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % o.content_type)
+                        if o.document_id not in [None, 'xml']:
+                            xmlChunk.append('<cr:feedbackFor rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(self.absolute_url()),
+                                    RepUtils.xmlEncode(o.document_id)))
+                        for attachment in o.objectValues(['File', 'File (Blob)']):
+                            xmlChunk.append('<cr:hasAttachment rdf:resource="%s"/>' % attachment.absolute_url())
+                        xmlChunk.append('</cr:Feedback>')
+                        for attachment in o.objectValues(['File', 'File (Blob)']):
+                            xmlChunk.append('<cr:FeedbackAttachment rdf:about="%s">' % attachment.absolute_url())
+                            xmlChunk.append('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(attachment.title_or_id()))
+                            xmlChunk.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(attachment.title_or_id()))
+                            xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % attachment.content_type)
+                            xmlChunk.append('<cr:attachmentOf rdf:resource="%s"/>' % o.absolute_url())
+                            xmlChunk.append('</cr:FeedbackAttachment>')
+                    except:
+                        xmlChunk = []
+                res.extend(xmlChunk)
 
         res_a('</rdf:RDF>')
         return '\n'.join(res)
