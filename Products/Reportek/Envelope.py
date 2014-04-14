@@ -492,14 +492,31 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             return startDate + '/P1M'
         return startDate
 
-    def _content_registry_ping(self, create=False):
+    def _content_registry_ping(self, create=False, delete=False):
+        """Instruct ReportekEngine to ping CR
+        create - try to create the CR entry *if* the initial regular ping
+                 had not found the URL in CR
+        delete - don't ping for update but for delete
+        """
         engine = getattr(self, ENGINE_ID)
         url = self.absolute_url() + '/rdf'
-        if engine.cr_api_url:
-            success, message = engine.content_registry_ping(url, False)
+        if not engine.cr_api_url:
+            logger.debug("Content Registry is not supposed to be pingged (url empty)")
+            return
+
+        if delete:
+            success, message = engine.content_registry_ping(url, additional_action='delete')
+            logger.warning("Conten Registry (%s) pingged for deletion of: %s.\nResponse was %s\n %s"
+                           %(engine.cr_api_url, url, success, message))
+        else:
+            # we don't actually know whether an envelope was released before,
+            # thus we don't know whether to create it or not -
+            # so we try to *not* create it on first try
+            # if create is True, make a second attempt to ping with explicit 'create'
+            success, message = engine.content_registry_ping(url)
             if (create and success and
                 'URL not in catalogue of sources, no action taken.' in message):
-                success, message = engine.content_registry_ping(url, True)
+                success, message = engine.content_registry_ping(url, additional_action='create')
             messageBody = engine.content_registry_pretty_message(message)
             if success:
                 logger.info("Content Registry (%s) ping OK, response was: %s"
@@ -507,8 +524,6 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             else:
                 logger.warning("Content Registry (%s) ping unsuccesfull: %s"
                                 % (engine.cr_api_url, messageBody))
-        else:
-            logger.debug("Content Registry is not supposed to be pingged (url empty)")
 
     ##################################################
     # Manage release status
