@@ -1143,7 +1143,8 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                         xmlChunk.append('<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>' % o.upload_time().HTML4())
                         xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % o.content_type)
                         if o.content_type == "text/xml":
-                            xmlChunk.append('<cr:xmlSchema>%s</cr:xmlSchema>' % RepUtils.xmlEncode(o.xml_schema_location))
+                            for location in RepUtils.xmlEncode(o.xml_schema_location).split():
+                                xmlChunk.append('<cr:xmlSchema rdf:resource="%s"/>' % location)
                         xmlChunk.append('</File>')
                     except:
                         xmlChunk = []
