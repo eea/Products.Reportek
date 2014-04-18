@@ -20,11 +20,14 @@ import messages
 log = logging.getLogger(__name__)
 
 
+
 class AddForm(BrowserView):
+
 
     def __init__(self, context, request):
         super(AddForm, self).__init__(context, request)
         self.parent = self.context.getParentNode()
+
 
     def add(self):
         form = self.request.form
@@ -37,12 +40,13 @@ class AddForm(BrowserView):
         return self.request.response.redirect(
                     self.parent.absolute_url() + '/manage_main')
 
+
     def get_records_by_dataflow(self, dataflow_uri):
-        return [
-            record
-            for record in self.parent.objectValues('Dataflow Mappings Record')
-            if record.dataflow_uri == dataflow_uri
-        ]
+        return self.parent.Catalog(
+                meta_type='Dataflow Mappings Record',
+                dataflow_uri=dataflow_uri,
+                path='/DataflowMappings')
+
 
     def __call__(self, *args, **kwargs):
         if self.request.method == 'POST':
@@ -66,9 +70,11 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
 
     security = ClassSecurityInfo()
 
+
     manage_options = (
         {'label': 'Schemas', 'action': 'edit'},
     ) + SimpleItem.manage_options
+
 
     def __init__(self, id, title, dataflow_uri):
         self.id = id
@@ -76,14 +82,17 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
         self.dataflow_uri = dataflow_uri
         self.mapping = {'schemas': []}
 
+
     security.declareProtected(view_management_screens, 'mapping')
     @property
     def mapping(self):
         return json.loads(self.mapping_json)
 
+
     @mapping.setter
     def mapping(self, value):
         self.mapping_json = json.dumps(value)
+
 
     security.declareProtected(view_management_screens, 'load_from_dd')
     def load_from_dd(self, REQUEST):
@@ -176,9 +185,16 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
                 message_dialog = self.delete_schemas(REQUEST)
 
             if REQUEST.form.get('update'):
-                self.title = REQUEST.form['title']
-                self.dataflow_uri = REQUEST.form['dataflow_uri']
-                message_dialog = 'Saved changes.'
+                existing_records = self.Catalog(
+                        meta_type='Dataflow Mappings Record',
+                        dataflow_uri=REQUEST.form['dataflow_uri'],
+                        path='/DataflowMappings')
+                if existing_records:
+                    raise Exception('A record for this dataflow already exists')
+                else:
+                    self.title = REQUEST.form['title']
+                    self.dataflow_uri = REQUEST.form['dataflow_uri']
+                    message_dialog = 'Saved changes.'
 
         data = self.mapping
 

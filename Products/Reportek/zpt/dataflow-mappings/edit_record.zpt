@@ -8,7 +8,7 @@
 
 
 <p class="form-help">
-  Edit the values and click "Save Changes".
+  Choose a title, a dataflow and click "Save Changes".
 </p>
 
 <form action="" method="post">
@@ -44,8 +44,8 @@
   <tal:block condition="options/schemas">
 
     <p class="form-help">
-      Check one or more schemas and click the "Delete" button
-      in order to delete them.
+      List of available schemas for this dataflow. Check one or more
+      records and click the "Delete" button in order to delete them.
     </p>
 
     <table cellspacing="0" cellpadding="2" border="0"
@@ -87,8 +87,8 @@
 <br />
 
 <p class="form-help">
-  To add a new mapping, enter a schema, a name,
-  check if it has a webform and click the "Add" button.
+  To add a new mapping, enter a schema, a name, check if there is a
+  webform for this schema or not, and click the "Add" button.
 </p>
 
 
