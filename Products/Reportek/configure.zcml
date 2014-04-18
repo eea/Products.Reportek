@@ -46,9 +46,6 @@
                 handler="Products.Reportek.Envelope.movedEnvelope" />
     </configure>
 
-    <subscriber for="ZPublisher.interfaces.IPubEnd"
-            handler=".monitoring.log_to_cube" />
-
     <subscriber for="ZPublisher.interfaces.IPubFailure"
             handler=".monitoring.log_pub_failure" />
 

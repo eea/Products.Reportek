@@ -64,7 +64,7 @@ class workitem(CatalogAware, SimpleItem, PropertyManager):
     security.declareProtected('Manage OpenFlow', 'workitemProperties')
     workitemProperties = PageTemplateFile('zpt/Workflow/workitem_edit', globals())
 
-    security.declareProtected('Use OpenFlow', 'workitemDetails')
+    security.declareProtected('View', 'workitemDetails')
     workitemDetails = PageTemplateFile('zpt/Workflow/workitem_details', globals())
 
     security.declareProtected('View', 'index_html')

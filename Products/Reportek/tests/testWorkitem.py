@@ -1,4 +1,3 @@
-import os, sys
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 from Products.Reportek.workitem import workitem
@@ -10,8 +9,7 @@ class WorkitemTestCase(ZopeTestCase.ZopeTestCase):
     def afterSetUp(self):
         blocked = 0
         self.w = workitem('id', 'instance_id', 'process_id', blocked)
-        
-    
+
     def testCreation(self):
         """ Check for the correct creation of a workitem """
         assert self.w, 'workitem not created'

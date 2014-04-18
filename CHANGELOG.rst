@@ -1,5 +1,10 @@
-3.6.12 (unreleased)
+3.6.13 (unreleased)
 ----------------
+* Task 19310 - fix displaying of multiyear obligation in envelope overview [baragdan]
+
+3.6.12 (2014-04-11)
+----------------
+* Task 18707 - Fix receiving of remote conversion service results [baragdan]
 * Task 17612 - Build_collections: improve error messages
 * Task 17109 - Implement ping on enevlope release but not yet on revoke [baragdan]
 

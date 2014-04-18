@@ -1,10 +1,7 @@
-import os, sys
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 
 from Products.Reportek.process import process
-from Products.Reportek.activity import activity
-from Products.Reportek.transition import transition
 
 
 class processDefinitionCreationTestCase(ZopeTestCase.ZopeTestCase):
@@ -16,7 +13,7 @@ class processDefinitionCreationTestCase(ZopeTestCase.ZopeTestCase):
 
         # Create a Process Definition with two activity (Begin, End) and one transition
         self.pd = process('begin_end', 'Testprocess','', 0, 0, 0, 0 )
-    
+
     def testProcessInstanceCreation(self):
         """ Check a simple process definition creation """
         self.pd.addActivity('Begin')

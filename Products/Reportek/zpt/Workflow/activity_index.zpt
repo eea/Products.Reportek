@@ -2,7 +2,7 @@
 
 <h1 tal:content="here/title_or_id" />
 
-<table style="width:100%">
+<table class="datatable">
 	<col style="width:11em"/>
 	<col />
 	<tr>

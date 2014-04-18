@@ -24,6 +24,7 @@ __doc__ = """Reportek __init__ """
 __version__ = '$Rev$'[6:-2]
 
 from config import *
+import monitoring
 
 # Zope imports
 import Globals
@@ -251,6 +252,8 @@ def initialize(context):
 
         context.registerHelp()
         context.registerHelpTitle('Zope Help')
+
+        monitoring.initialize()
 
     except:
         import sys, traceback, string

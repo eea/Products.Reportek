@@ -1,31 +1,27 @@
-import os, sys
-import unittest
+from mock import Mock
 from Testing import ZopeTestCase
-from configurereportek import ConfigureReportek
+from common import ConfigureReportek
 from fileuploadmock import FileUploadMock
-from utils import create_temp_reposit
 from zExceptions import Redirect
 from mock import patch
 
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
+from common import BaseTest
 
-from Products.Reportek.constants import WEBQ_XML_REPOSITORY, CONVERTERS_ID
+from Products.Reportek.constants import CONVERTERS_ID
 from Products.Reportek.Converters import Converters
-from Products.Reportek.Converter import Converter
 
 
-def setUpModule(self):
-    self._cleanup_temp_reposit = create_temp_reposit()
-
-
-def tearDownModule(self):
-    self._cleanup_temp_reposit()
-
-
-class FundamentalsTestCase(ZopeTestCase.ZopeTestCase):
+class FundamentalsTestCase(BaseTest):
 
     _setup_fixture = 0
+    def afterSetUp(self):
+        super(FundamentalsTestCase, self).afterSetUp()
+        setattr(self.root.getPhysicalRoot(), CONVERTERS_ID, Converters())
+        safe_html = Mock(convert=Mock(text='feedbacktext'))
+        getattr(self.root.getPhysicalRoot(), CONVERTERS_ID).__getitem__ = Mock(
+            return_value=safe_html)
 
     def test_absolute_url(self):
         """ Small test to see if absolute_url returns the expected """
@@ -36,14 +32,20 @@ class FundamentalsTestCase(ZopeTestCase.ZopeTestCase):
         server_name = getattr(self.app, CONVERTERS_ID).remote_converter
         self.assertEquals("http://converters.eionet.europa.eu/RpcRouter", server_name)
 
-class ConvertersTestCase(ZopeTestCase.ZopeTestCase, ConfigureReportek):
+class ConvertersTestCase(BaseTest, ConfigureReportek):
 
     def afterSetUp(self):
+        super(ConvertersTestCase, self).afterSetUp()
         self.createStandardDependencies()
         self.createStandardCollection()
         self.assertTrue(hasattr(self.app, 'collection'),'Collection did not get created')
         self.assertNotEqual(self.app.collection, None)
         self.envelope = self.createStandardEnvelope()
+        setattr(self.root.getPhysicalRoot(), CONVERTERS_ID, Converters())
+        safe_html = Mock(convert=Mock(text='feedbacktext'))
+        getattr(self.root.getPhysicalRoot(), CONVERTERS_ID).__getitem__ = Mock(
+            return_value=safe_html)
+
 
     def create_text_document(self):
         """ Supporting method
