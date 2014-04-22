@@ -298,7 +298,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if dateRangeQuery:
             catalog_args['reportingdate'] = dateRangeQuery
         envelopes = self.Catalog(**catalog_args)
-        return self._searchdataflow(results=envelopes, **self.REQUEST.form)
+        envelopeObjects = []
+        for eBrain in envelopes:
+            o = eBrain.getObject()
+            if getSecurityManager().checkPermission('View', o):
+                envelopeObjects.append(o)
+        return self._searchdataflow(results=envelopeObjects, **self.REQUEST.form)
 
     def assign_roles(self, user, role, local_roles, doc):
         local_roles.append(role)

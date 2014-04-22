@@ -1,5 +1,6 @@
-3.6.13 (unreleased)
+3.6.13 (2014-04-22)
 ----------------
+* Task 19353 - fix searchdataflow displaying search regardless of permissions
 * Task 19310 - fix displaying of multiyear obligation in envelope overview [baragdan]
 
 3.6.12 (2014-04-11)

@@ -132,7 +132,12 @@
   <tbody>
       <tal:block repeat="result batch">
       <tr tal:attributes="class python:'zebraeven' if not repeat['result'].index%2 else ''">
-        <tal:block define="obj python:result.getObject()">
+        <tal:comment content="nothing">
+        if result has getObject, then it is a brain, fetch the object
+        else it probably is an already fetched object - return function
+        that returns the initial object back
+        </tal:comment>
+        <tal:block define="obj python: getattr(result, 'getObject', lambda: result)()">
           <metal:block define-slot="resultsTableRowFormat"/>
         </tal:block>
       </tr>
