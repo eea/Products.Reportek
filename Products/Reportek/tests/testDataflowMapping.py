@@ -2,7 +2,6 @@ import unittest
 
 from Products.Reportek.constants import DATAFLOW_MAPPINGS
 from Products.Reportek.DataflowMappingsRecord import DataflowMappingsRecord
-from Products.Reportek.DataflowMappingRecord import DataflowMappingRecord
 from Products.Reportek.DataflowMappings import DataflowMappings
 from utils import makerequest, create_fake_root, create_catalog
 
@@ -89,7 +88,7 @@ class DFMTestCase(unittest.TestCase):
         self.assertTrue(hasattr(self.mappings, 'test'))
         self.assertEqual(
                 [schema],
-                self.mappings.getXMLSchemasForDataflows([obligation]))
+                self.mappings.getSchemasForDataflows(obligation))
 
         changed_schema = 'http://schema.xx/CHANGED.xsd'
 
@@ -101,7 +100,7 @@ class DFMTestCase(unittest.TestCase):
                 [])
         self.assertEqual(
                 [changed_schema],
-                self.mappings.getXMLSchemasForDataflows([obligation]))
+                self.mappings.getSchemasForDataflows(obligation))
 
 
     def test_add_multiple_dataflow_mappings(self):
@@ -113,11 +112,11 @@ class DFMTestCase(unittest.TestCase):
         self.add_mapping('test','test title',obligation,[schema1, schema2],[])
         self.assertEqual(
                 [schema1, schema2],
-                self.mappings.getXMLSchemasForDataflows([obligation]))
+                self.mappings.getSchemasForDataflows(obligation))
 
         # Must return empty list as there are no webforms
         self.assertEqual([],
-              self.mappings.getXMLSchemasForDataflow(obligation))
+              self.mappings.getSchemasForDataflows(obligation, web_form_only=True))
 
 
     def test_add_multiple_dataflow_mappings_with_webform(self):
@@ -129,12 +128,12 @@ class DFMTestCase(unittest.TestCase):
         self.add_mapping('test1','test title',obligation,[],[schema1,schema2])
         self.assertEqual(
                 [schema1, schema2],
-                self.mappings.getXMLSchemasForDataflows([obligation]))
+                self.mappings.getSchemasForDataflows(obligation))
 
         # Must return list of schemas with webforms
         self.assertEqual(
                 [schema1, schema2],
-                self.mappings.getXMLSchemasForDataflow(obligation))
+                self.mappings.getSchemasForDataflows(obligation, web_form_only=True))
 
 
     def test_add_multiple_dataflow_mappings_one_with_webform(self):
@@ -152,12 +151,12 @@ class DFMTestCase(unittest.TestCase):
         # Must return all - two
         self.assertEqual(
                 [schema1, schema2],
-                self.mappings.getXMLSchemasForDataflows([obligation]))
+                self.mappings.getSchemasForDataflows(obligation))
 
         # Must return list of schemas with webforms - one
         self.assertEqual(
                 [schema2],
-                self.mappings.getXMLSchemasForDataflow(obligation))
+                self.mappings.getSchemasForDataflows(obligation, web_form_only=True))
 
 
     def test_multiple_schemas(self):
@@ -171,7 +170,7 @@ class DFMTestCase(unittest.TestCase):
 
         self.assertEqual(
                 [schema1, schema2],
-                self.mappings.test.getXMLSchemasForDataflows([obligation]))
+                self.mappings.test.getSchemasForDataflows(obligation))
 
 
     def test_multiple_records(self):
@@ -187,11 +186,11 @@ class DFMTestCase(unittest.TestCase):
 
         self.assertEqual(
                 [schema1, schema2],
-                self.mappings.getXMLSchemasForDataflows([obligation]))
+                self.mappings.getSchemasForDataflows(obligation))
 
         self.assertEqual(
                 [],
-                self.mappings.getXMLSchemasForDataflow(obligation))
+                self.mappings.getSchemasForDataflows(obligation, web_form_only=True))
 
 
     def test_same_schema_multiple_obligations(self):
@@ -203,12 +202,12 @@ class DFMTestCase(unittest.TestCase):
         self.add_mapping('test','test title',obligation,[],[schema1,schema2])
         self.assertEqual(
                 [schema1, schema2],
-                self.mappings.getXMLSchemasForDataflows([obligation]))
+                self.mappings.getSchemasForDataflows(obligation))
 
         # Must return list of schemas with webforms
         self.assertEqual(
                 [schema1, schema2],
-                self.mappings.getXMLSchemasForDataflow(obligation))
+                self.mappings.getSchemasForDataflows(obligation, web_form_only=True))
 
 
     def test_two_mappings_same_obligation(self):
@@ -226,12 +225,12 @@ class DFMTestCase(unittest.TestCase):
         # Must return all - two
         self.assertEqual(
                 [schema, schema_with_form],
-                self.mappings.getXMLSchemasForDataflows([obligation]))
+                self.mappings.getSchemasForDataflows(obligation))
 
         # Must return list of schemas with webforms - one
         self.assertEqual(
                 [schema_with_form],
-                self.mappings.getXMLSchemasForDataflow(obligation))
+                self.mappings.getSchemasForDataflows(obligation, web_form_only=True))
 
 
     def test_two_mappings_with_empty_schema(self):
@@ -247,63 +246,9 @@ class DFMTestCase(unittest.TestCase):
                 [])
         self.assertEqual(
                 [schema1, schema2],
-                self.mappings.getXMLSchemasForDataflows([obligation]))
+                self.mappings.getSchemasForDataflows(obligation))
 
         # Must return empty list as there are no webforms for obl. 22
         self.assertEqual(
                 [],
-                self.mappings.getXMLSchemasForDataflow(obligation))
-
-
-    # DataflowMappings tests
-
-    # def test_api_returns_empty_result_for_empty_query(self):
-    #     self.assertEqual(self.mappings.get_schemas_for_dataflows([]), [])
-
-
-    # def test_api_returns_item(self):
-    #     self.add_mapping('test', 'test title', obligation, [schema], [])
-    #     schemas = self.mappings.get_schemas_for_dataflows([obligation])
-    #     self.assertEqual(len(schemas), 1)
-
-    #     [schema_info] = schemas
-    #     self.assertDictContainsSubset({
-    #         'title': 'test title',
-    #         'uri': schema,
-    #         'webform_filename': 'test.xml',
-    #     }, schema_info)
-
-
-    # def test_api_filters_out_non_matching_dataflows(self):
-    #     other_obligation = 'http://rod.eionet.eu.int/obligations/23'
-    #     self.add_mapping('test','test title',obligation,[schema],[])
-    #     self.add_table(
-    #             'test_table',
-    #             obligation,
-    #             [{
-    #                 'url': schema,
-    #                 'name': 'test title',
-    #                 'has_webform': False}
-    #             ])
-
-    #     schemas = self.mappings.get_schemas_for_dataflows([other_obligation])
-    #     self.assertEqual(len(schemas), 0)
-
-
-    # def test_api_returns_results_from_mapping_table(self):
-    #     self.add_table(
-    #             'test',
-    #             obligation,
-    #             [{
-    #                 'url': schema,
-    #                 'name': 'test title',
-    #                 'has_webform': False}
-    #             ])
-    #     schemas = self.mappings.get_schemas_for_dataflows([obligation])
-    #     self.assertEqual(len(schemas), 1)
-
-    #     [schema_info] = schemas
-    #     self.assertDictContainsSubset({
-    #         'title': 'test title',
-    #         'uri': schema,
-    #     }, schema_info)
+                self.mappings.getSchemasForDataflows(obligation, web_form_only=True))

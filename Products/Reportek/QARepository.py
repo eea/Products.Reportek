@@ -157,7 +157,7 @@ class QARepository(Folder):
             l_remote_server = l_qa_app.RemoteService
         for l_file in files:
             # get the valid schemas for the envelope's dataflows
-            l_valid_schemas = self.getDataflowMappingsContainer().getXMLSchemasForDataflows(l_file.dataflow_uris)
+            l_valid_schemas = self.getDataflowMappingsContainer().getSchemasForDataflows(l_file.dataflow_uris)
             # go on only if it's an XML file with a non-empty valid schema or if no valid schemas
             # are defined for those dataflows
             #NOTE due to updated dataflow_uris, l_valid_schemas is always None
