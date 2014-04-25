@@ -2293,7 +2293,7 @@ msgstr "Gama de ani permisă este din 2007 până în anul curent."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:84
 msgid "The amount reported for export of this gas in the 'Exporter Form' does not match the amount reported for export of this gas in the respective 'Producer/Importer Form'. Please, modify your data where appropriate in order to ensure that both amounts are equal."
-msgstr "Cantitatea raportată pentru export a acestui gaz în 'Formularul exportator' nu se potrivește cu valoarea raportată pentru export a acestui gaz în respectiva 'Producator/Formularul Importator". Vă rugăm să modificați datele acolo unde este cazul, pentru a vă asigura că cele două sume sunt egale."
+msgstr "Cantitatea raportată pentru export a acestui gaz în 'Formularul exportator' nu se potrivește cu valoarea raportată pentru export a acestui gaz în respectiva 'Producator/Formularul Importator'. Vă rugăm să modificați datele acolo unde este cazul, pentru a vă asigura că cele două sume sunt egale."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:85
 msgid "The amount reported for export of this gas in this form does not match the amount reported for total export of this gas in the 'Exporter Form'. Please, modify your data where appropriate in order to ensure that both amounts are equal."
