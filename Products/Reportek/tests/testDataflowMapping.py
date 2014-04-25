@@ -114,12 +114,11 @@ class DFMTestCase(unittest.TestCase):
         self.add_mapping('test','test title',obligation,[schema1,schema2],[])
         self.assertTrue(hasattr(self.mappings, 'test'))
 
-        self.assertEqual(
-                [schema1, schema2],
+        self.assertEqual([schema1, schema2],
                 self.mappings.test.getSchemasForDataflows(obligation))
 
 
-    def test_add_schemas(self):
+    def test_add_schema(self):
         obligation = 'http://rod.eionet.eu.int/obligations/22'
         schema1 = 'http://schema.xx/schema1.xsd'
         schema2 = 'http://schema.xx/schema2.xsd'
@@ -129,9 +128,67 @@ class DFMTestCase(unittest.TestCase):
         request = Mock(form=dict(schema=schema2,
                                 name='schema2'))
         self.mappings.test.add_schema(request)
-        self.assertEqual(
-                [schema1, schema2],
+        self.assertEqual([schema1, schema2],
                 self.mappings.test.getSchemasForDataflows(obligation))
+
+    def test_delete_schemas(self):
+        obligation = 'http://rod.eionet.eu.int/obligations/22'
+        schema1 = 'http://schema.xx/schema1.xsd'
+        schema2 = 'http://schema.xx/schema2.xsd'
+        # never added; delete_schemas should hold robust though
+        schema3 = 'http://schema.xx/schema3.xsd'
+
+        self.add_mapping('test','test title',obligation,[schema1,schema2],[])
+        self.assertTrue(hasattr(self.mappings, 'test'))
+        self.assertEqual([schema1, schema2],
+                self.mappings.test.getSchemasForDataflows(obligation))
+        request = Mock(form=dict(ids=[schema1, schema3]))
+        self.mappings.test.delete_schemas(request)
+        self.assertEqual([schema2],
+                self.mappings.test.getSchemasForDataflows(obligation))
+
+    def test_edit_add(self):
+        obligation = 'http://rod.eionet.eu.int/obligations/22'
+        self.add_mapping('test','test title',obligation,[],[])
+
+        self.mappings.test._edit = Mock()
+        self.mappings.test.add_schema = Mock()
+        request = Mock(method='POST',
+                       form=dict(add=True))
+        self.mappings.test.edit(request)
+        self.assertTrue(self.mappings.test.add_schema.called)
+        self.assertTrue(self.mappings.test._edit.called)
+
+    def test_edit_delete(self):
+        obligation = 'http://rod.eionet.eu.int/obligations/22'
+        self.add_mapping('test','test title',obligation,[],[])
+
+        self.mappings.test._edit = Mock()
+        self.mappings.test.delete_schemas = Mock()
+        request = Mock(method='POST',
+                       form=dict(delete=True))
+        self.mappings.test.edit(request)
+        self.assertTrue(self.mappings.test.delete_schemas.called)
+        self.assertTrue(self.mappings.test._edit.called)
+
+
+    def test_edit_update(self):
+        obligation = 'http://rod.eionet.eu.int/obligations/22'
+        schema1 = 'http://schema.xx/schema1.xsd'
+        self.add_mapping('test','test title',obligation,[schema1],[])
+        newTitle = 'new test title'
+        newObligation = 'http://rod.eionet.eu.int/obligations/22_new'
+
+        self.mappings.test._edit = Mock()
+        #self.mappings.test.delete_schemas = Mock()
+        request = Mock(method='POST',
+                       form=dict(update=True,
+                                 dataflow_uri=newObligation,
+                                 title=newTitle))
+        self.mappings.test.edit(request)
+        self.assertEqual(self.mappings.test.title, newTitle)
+        self.assertEqual(self.mappings.test.dataflow_uri, newObligation)
+        self.assertTrue(self.mappings.test._edit.called)
 
 
     def test_multiple_records(self):

@@ -17,6 +17,7 @@
             permission="zope2.ViewManagementScreens"
             global="True"/>
 
+    <!-- old -->
     <five:registerClass
             class=".DataflowMappingRecord.DataflowMappingRecord"
             meta_type="Reportek Dataflow Mapping Record"
@@ -24,6 +25,7 @@
             permission="zope2.ViewManagementScreens"
             global="False"/>
 
+    <!-- old -->
     <browser:page for="zope.browser.interfaces.IAdding"
             name="add_dataflowmapping_record"
             class=".DataflowMappingRecord.AddForm"

@@ -125,9 +125,6 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
         REQUEST.RESPONSE.redirect(self.absolute_url() + '/manage_html')
 
 
-    _edit = PageTemplateFile( 'zpt/dataflow-mappings/edit_record.zpt', globals())
-
-
     security.declareProtected(view_management_screens, 'add_schema')
     def add_schema(self, REQUEST):
         """ Add schema """
@@ -157,6 +154,9 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
         self._mappings = [ x for x in self._mappings if x['url'] not in schemas ]
 
 
+    _edit = PageTemplateFile( 'zpt/dataflow-mappings/edit_record.zpt', globals())
+
+
     security.declareProtected(view_management_screens, 'edit')
     def edit(self, REQUEST):
         """ Edit properties """
@@ -172,12 +172,6 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
                 message_dialog = self.delete_schemas(REQUEST)
 
             if REQUEST.form.get('update'):
-                existing_records = self.Catalog(
-                        meta_type='Dataflow Mappings Record',
-                        dataflow_uri=REQUEST.form['dataflow_uri'],
-                        path='/DataflowMappings')
-                if existing_records:
-                    raise Exception('A record for this dataflow already exists')
                 self.title = REQUEST.form['title']
                 self.dataflow_uri = REQUEST.form['dataflow_uri']
                 message_dialog = 'Saved changes.'
