@@ -1,7 +1,6 @@
 __doc__ = """ Multiple dataflow mappings for a single obligation """
 
 import json
-from collections import defaultdict
 from os import environ
 import logging
 import xmlrpclib
@@ -80,18 +79,18 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
         self.id = id
         self.title = title
         self.dataflow_uri = dataflow_uri
-        self.mapping = {'schemas': []}
+        self._mappings = []
 
 
     security.declareProtected(view_management_screens, 'mapping')
     @property
     def mapping(self):
-        return json.loads(self.mapping_json)
+        return {'schemas': self._mappings}
 
 
     @mapping.setter
     def mapping(self, value):
-        self.mapping_json = json.dumps(value)
+        self._mappings = value.get('schemas', [])
 
 
     security.declareProtected(view_management_screens, 'load_from_dd')
@@ -105,13 +104,10 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
             webq = xmlrpclib.ServerProxy(webq_url).WebQService
             webq_resp = webq.getXForm([row['url'] for row in resp.json()])
 
-            self.mapping = {
-                'schemas': [{
-                    'url': row['url'],
-                    'name': row['name'],
-                    'has_webform': bool(webq_resp.get(row['url'])),
-                } for row in resp.json()]
-            }
+            self._mappings = [ {'url': row['url'],
+                               'name': row['name'],
+                               'has_webform': bool(webq_resp.get(row['url'])),
+                              } for row in resp.json() ]
             messages.add(REQUEST, "Mappings updated from Data Dictionary.")
 
         elif resp.status_code == 404:
@@ -136,20 +132,19 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
     def add_schema(self, REQUEST):
         """ Add schema """
 
-        data = self.mapping
         schema_uri = REQUEST.form.get('schema', '').strip()
 
         if schema_uri:
-            if schema_uri in [r.get('url') for r in data.get('schemas')]:
+            # go through the getter to obtain an object
+            if schema_uri in [ r.get('url') for r in self._mappings ]:
                 return 'Schema already exists!'
             else:
                 form_data = {
                     'url': schema_uri,
                     'name': REQUEST.form.get('name'),
-                    'has_webform':REQUEST.form.get('has_webform', False)
+                    'has_webform': REQUEST.form.get('has_webform', False)
                 }
-                data['schemas'].append(form_data)
-                self.mapping = data
+                self._mappings.append(form_data)
                 return 'Schema successfully added'
 
         return 'Schema cannot be empty!'
@@ -158,16 +153,8 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
     security.declareProtected(view_management_screens, 'add_schema')
     def delete_schemas(self, REQUEST):
         """ Delete schemas """
-
-        data = self.mapping
         schemas = REQUEST.form.get('ids', [])
-
-        newdata = []
-        for x in data.get('schemas'):
-            if x['url'] not in schemas:
-                newdata.append(x)
-
-        self.mapping = {'schemas': newdata}
+        self._mappings = [ x for x in self._mappings if x['url'] not in schemas ]
 
 
     security.declareProtected(view_management_screens, 'edit')
@@ -191,15 +178,12 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
                         path='/DataflowMappings')
                 if existing_records:
                     raise Exception('A record for this dataflow already exists')
-                else:
-                    self.title = REQUEST.form['title']
-                    self.dataflow_uri = REQUEST.form['dataflow_uri']
-                    message_dialog = 'Saved changes.'
-
-        data = self.mapping
+                self.title = REQUEST.form['title']
+                self.dataflow_uri = REQUEST.form['dataflow_uri']
+                message_dialog = 'Saved changes.'
 
         return self._edit(
-                    schemas=data.get('schemas'),
+                    schemas=self._mappings,
                     message_dialog=message_dialog,
                 )
 

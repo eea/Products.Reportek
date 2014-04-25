@@ -62,7 +62,7 @@ class DataflowMappings(Folder):
                 query['dataflow_uri'] = [dataflow_uris]
 
         for brain in self.Catalog(**query):
-            for schema in brain.getObject().mapping:
+            for schema in brain.getObject().mapping['schemas']:
                 if not web_form_only or schema['has_webform']:
                     res.append(schema['url'])
         return res

@@ -4,6 +4,7 @@ from Products.Reportek.constants import DATAFLOW_MAPPINGS
 from Products.Reportek.DataflowMappingsRecord import DataflowMappingsRecord
 from Products.Reportek.DataflowMappings import DataflowMappings
 from utils import makerequest, create_fake_root, create_catalog
+from mock import Mock
 
 
 class DFMTestCase(unittest.TestCase):
@@ -45,62 +46,7 @@ class DFMTestCase(unittest.TestCase):
                         'has_webform':True
                     }
                 )
-        self.mappings[oid].mapping = mapping
-
-
-    def update_mapping(self, ob, *args, **kwargs):
-
-        mapping = []
-        for schema in args[2]:
-            if schema:
-                mapping.append(
-                    {
-                        'url': schema,
-                        'name': '',
-                        'has_webform':False
-                    }
-                )
-
-        for schema in args[3]:
-            if schema:
-                mapping.append(
-                    {
-                        'url': schema,
-                        'name': '',
-                        'has_webform':True
-                    }
-                )
-        ob.mapping = mapping
-
-
-    def add_table(self, oid, dataflow_uri, mapping):
-        ob = DataflowMappingsRecord(oid, oid, dataflow_uri)
-        self.mappings._setObject(oid, ob)
-        self.mappings[oid].mapping = mapping
-
-
-    def test_add_dataflow_mapping(self):
-
-        obligation = 'http://rod.eionet.eu.int/obligations/22'
-        schema = 'http://schema.xx/schema.xsd'
-
-        self.add_mapping('test','test title',obligation,[schema],[])
-        self.assertTrue(hasattr(self.mappings, 'test'))
-        self.assertEqual(
-                [schema],
-                self.mappings.getSchemasForDataflows(obligation))
-
-        changed_schema = 'http://schema.xx/CHANGED.xsd'
-
-        self.update_mapping(
-                self.mappings.test,
-                'changed test title',
-                obligation,
-                [changed_schema],
-                [])
-        self.assertEqual(
-                [changed_schema],
-                self.mappings.getSchemasForDataflows(obligation))
+        self.mappings[oid].mapping = {'schemas': mapping}
 
 
     def test_add_multiple_dataflow_mappings(self):
@@ -168,6 +114,21 @@ class DFMTestCase(unittest.TestCase):
         self.add_mapping('test','test title',obligation,[schema1,schema2],[])
         self.assertTrue(hasattr(self.mappings, 'test'))
 
+        self.assertEqual(
+                [schema1, schema2],
+                self.mappings.test.getSchemasForDataflows(obligation))
+
+
+    def test_add_schemas(self):
+        obligation = 'http://rod.eionet.eu.int/obligations/22'
+        schema1 = 'http://schema.xx/schema1.xsd'
+        schema2 = 'http://schema.xx/schema2.xsd'
+
+        self.add_mapping('test','test title',obligation,[schema1],[])
+        self.assertTrue(hasattr(self.mappings, 'test'))
+        request = Mock(form=dict(schema=schema2,
+                                name='schema2'))
+        self.mappings.test.add_schema(request)
         self.assertEqual(
                 [schema1, schema2],
                 self.mappings.test.getSchemasForDataflows(obligation))
