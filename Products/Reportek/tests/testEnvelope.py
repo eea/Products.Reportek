@@ -6,14 +6,17 @@ from AccessControl import getSecurityManager
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
 from common import ConfigureReportek
-from utils import create_fake_root, create_upload_file
-from utils import create_envelope, add_document, simple_addEnvelope
+from utils import (create_fake_root, create_upload_file, create_envelope,
+                   add_document, add_feedback, add_hyperlink, simple_addEnvelope)
 from mock import Mock, patch
 from zope.lifecycleevent import ObjectMovedEvent
 
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
 from Products.Reportek import OpenFlowEngine
+from Products.Reportek import constants
+from Products.Reportek import Converters
+import time
 
 from common import BaseTest, WorkflowTestCase
 
@@ -561,3 +564,99 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
             'Application act2 moved! '\
             'Id act2 was not mapped by path to any activity.',
             self.app.REQUEST['manage_tabs_message'])
+
+class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
+
+    def afterSetUp(self):
+        super(EnvelopeCRTestCase, self).afterSetUp()
+        self.createStandardDependencies()
+        self.createStandardCollection()
+        self.assertTrue(hasattr(self.app, 'collection'),'Collection did not get created')
+        self.assertNotEqual(self.app.collection, None)
+        col = self.app.collection
+        self.login() # Login as test_user_1_
+        user = getSecurityManager().getUser()
+        self.app.REQUEST.AUTHENTICATED_USER = user
+        simple_addEnvelope(col.manage_addProduct['Reportek'], '', '', '2003', '2004', '',
+         'http://rod.eionet.eu.int/localities/1', REQUEST=None, previous_delivery='')
+        self.envelope = None
+        for env in col.objectValues('Report Envelope'):
+            self.envelope = env
+            break
+        self.engine.content_registry_ping = Mock()
+        # add subobjects of type document, feedback, hyperlink
+        content = 'test content for our document'
+        self.doc = add_document(self.envelope, create_upload_file(content, 'foo.txt'))
+
+        feedbacktext = 'feedback text'
+        setattr(
+            self.root.getPhysicalRoot(),
+            constants.CONVERTERS_ID,
+            Converters.Converters())
+        safe_html = Mock(convert=Mock(return_value=Mock(text=feedbacktext)))
+        getattr(self.root.getPhysicalRoot(),
+                constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
+        self.feed = add_feedback(self.envelope, feedbacktext)
+        self.link = add_hyperlink(self.envelope, 'hyper/link')
+
+    def test_subobjectsForContentRegistry(self):
+        objsByType = self.envelope._getObjectsForContentRegistry()
+        expectedObjsByType = {
+            'Report Hyperlink': [self.link],
+            'Report Feedback': [self.feed],
+            'Report Document': [self.doc]
+        }
+        self.assertDictEqual(objsByType, expectedObjsByType)
+
+    def test_ping_update(self):
+        ok_message = '''<?xml version="1.0"?>
+        <response>
+            <message>URL added to the urgent harvest queue: http://cdrtest.eionet.europa.eu/ro/colu0vgwa/colu0vgdq/envu0vgka/rdf</message>
+            <flerror>0</flerror>
+        </response>'''
+        self.engine.content_registry_ping.return_value = (200, ok_message)
+        self.envelope.release_envelope()
+        time.sleep(0.05)
+
+        self.assertTrue(self.engine.content_registry_ping.called)
+        call_args_list = self.engine.content_registry_ping.call_args_list
+        self.assertIn(((self.envelope.absolute_url()+'/rdf',), {}), call_args_list)
+        self.assertIn(((self.doc.absolute_url(),), {}), call_args_list)
+        self.assertIn(((self.feed.absolute_url(),), {}), call_args_list)
+        self.assertIn(((self.link.absolute_url(),), {}), call_args_list)
+
+    def test_ping_create(self):
+        not_there_message = '''<?xml version="1.0"?>
+        <response>
+            <message>URL not in catalogue of sources, no action taken.</message>
+            <flerror>0</flerror>
+        </response>'''
+        self.engine.content_registry_ping.return_value = (200, not_there_message)
+        self.envelope.release_envelope()
+        time.sleep(0.05)
+
+        self.assertTrue(self.engine.content_registry_ping.called)
+        call_args_list = self.engine.content_registry_ping.call_args_list
+        self.assertIn(((self.envelope.absolute_url()+'/rdf',), {'additional_action':'create'}), call_args_list)
+        self.assertIn(((self.doc.absolute_url(),), {'additional_action':'create'}), call_args_list)
+        self.assertIn(((self.feed.absolute_url(),), {'additional_action':'create'}), call_args_list)
+        self.assertIn(((self.link.absolute_url(),), {'additional_action':'create'}), call_args_list)
+
+
+    def test_ping_delete(self):
+        ok_message = '''<?xml version="1.0"?>
+        <response>
+            <message>URL added to the urgent harvest queue: http://cdrtest.eionet.europa.eu/ro/colu0vgwa/colu0vgdq/envu0vgka/rdf</message>
+            <flerror>0</flerror>
+        </response>'''
+        self.engine.content_registry_ping.return_value = (200, ok_message)
+        self.envelope.released = 1
+        self.envelope.unrelease_envelope()
+        time.sleep(0.05)
+
+        self.assertTrue(self.engine.content_registry_ping.called)
+        call_args_list = self.engine.content_registry_ping.call_args_list
+        self.assertIn(((self.envelope.absolute_url()+'/rdf',), {'additional_action':'delete'}), call_args_list)
+        self.assertIn(((self.doc.absolute_url(),), {'additional_action':'delete'}), call_args_list)
+        self.assertIn(((self.feed.absolute_url(),), {'additional_action':'delete'}), call_args_list)
+        self.assertIn(((self.link.absolute_url(),), {'additional_action':'delete'}), call_args_list)

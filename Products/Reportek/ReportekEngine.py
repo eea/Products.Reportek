@@ -169,13 +169,15 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
            'January','February','March','April', 'May','June','July','August','September','October','November','December']
 
     security.declareProtected('View', 'content_registry_ping')
-    def content_registry_ping(self, uri, create=True):
+    def content_registry_ping(self, uri, additional_action=None):
         """ Pings the Content Registry to harvest a new envelope almost immediately after the envelope is released or revoked
             with the name of the envelope's RDF output
         """
         params = {'uri': uri}
-        if create:
+        if additional_action == 'create':
             params['create'] = 'true'
+        elif additional_action == 'delete':
+            params['delete'] = 'true'
         resp = requests.get(self.cr_api_url, params=params)
         if resp.status_code == 200:
             return (True, resp.text)
@@ -189,7 +191,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             elif '<?xml' in message:
                 messageBody = bs(message).find('response').text
         except:
-            messageBody = ""
+            messageBody = message
 
         return messageBody
 
