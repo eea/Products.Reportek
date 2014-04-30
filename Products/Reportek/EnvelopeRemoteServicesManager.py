@@ -273,13 +273,7 @@ class EnvelopeRemoteServicesManager:
         """ The purpose is to know if to put an edit button and a record in 'view as...' select
             next to XML files
         """
-        l_return_list = []
-        l_name = self.getDataflowMappingsContainer().getSchemasForDataflows
-        # FIXME why one by one, why not use getSchemasForDataflows(self.dataflow_uris)?
-        # keep duplicates?
-        for l_dataflow_uri in self.dataflow_uris:
-            l_return_list.extend(l_name(l_dataflow_uri))
-        return l_return_list
+        return self.getDataflowMappingsContainer().getSchemasForDataflows(self.dataflow_uris)
 
     def getWebQ_BeforeEditForm_URL(self):
         """ Retrieves the URL to the edit for of the XML file - if any """

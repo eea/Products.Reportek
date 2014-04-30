@@ -270,3 +270,23 @@ class DFMTestCase(unittest.TestCase):
         self.assertEqual(
                 [],
                 self.mappings.getSchemasForDataflows(obligation, web_form_only=True))
+
+    def test_getSchemaObjectsForDataflow(self):
+        obligation = 'http://rod.eionet.eu.int/obligations/22'
+        schema1 = 'http://schema.xx/schema1.xsd'
+        schema2 = 'http://schema.xx/schema2.xsd'
+        self.add_mapping('test1',
+                'test title',
+                obligation,
+                [schema1,schema2],
+                [])
+        expected = [
+            {'has_webform': False,
+             'name': '',
+             'url': schema1},
+            {'has_webform': False,
+             'name': '',
+             'url': schema2}]
+
+        results = list(self.mappings.getSchemaObjectsForDataflows(obligation, False))
+        self.assertEqual(expected, results)

@@ -1,12 +1,11 @@
 __doc__ = "Container for mappings between dataflows and XML schemas"
 
-import warnings
-
 from OFS.Folder import Folder
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from UserList import UserList
 
 from constants import DATAFLOW_MAPPINGS, ENGINE_ID
 
@@ -43,19 +42,20 @@ class DataflowMappings(Folder):
          return getattr(self, ENGINE_ID)
 
 
-    def getSchemasForDataflows(self, dataflow_uris=None, web_form_only=False):
-        """ Returns schemas for one or many dataflows
+    def getSchemaObjectsForDataflows(self, dataflow_uris, web_form_only):
+        """ Returns schema objects for one or many dataflows
         dataflow_uris - one uri (str) looked after, a list for any uri in it
                         or leave None (False) for all dataflows
         web_form_only - if True only Schemas that have webforms will be returned
 
-        return - list of found schemas"""
-        res = []
+        return - list of found schema objects"""
         query = {
             'meta_type': RECORD,
             'path': '/DataflowMappings'
         }
         if dataflow_uris:
+            if isinstance(dataflow_uris, UserList):
+                dataflow_uris = list(dataflow_uris)
             if isinstance(dataflow_uris, list):
                 query['dataflow_uri'] = dataflow_uris
             else:
@@ -64,8 +64,18 @@ class DataflowMappings(Folder):
         for brain in self.Catalog(**query):
             for schema in brain.getObject().mapping['schemas']:
                 if not web_form_only or schema['has_webform']:
-                    res.append(schema['url'])
-        return res
+                    yield schema
+
+
+    def getSchemasForDataflows(self, dataflow_uris=None, web_form_only=False):
+        """ Returns schemas for one or many dataflows
+        dataflow_uris - one uri (str) looked after, a list for any uri in it
+                        or leave None (False) for all dataflows
+        web_form_only - if True only Schemas that have webforms will be returned
+
+        return - list of found schemas"""
+        schemaObjects = self.getSchemaObjectsForDataflows(dataflow_uris, web_form_only)
+        return [ schema['url'] for schema in schemaObjects ]
 
 
     security.declareProtected('Manage OpenFlow', 'dataflowsMappingsView')
