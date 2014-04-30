@@ -30,6 +30,7 @@ $Id$"""
 __version__='$Revision$'[11:-2]
 
 
+import time
 import os, types, tempfile, string
 from path import path
 import threading
@@ -516,10 +517,12 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             # if create is True, make a second attempt to ping with explicit 'create'
             for uri in uris:
                 success, message = engine.content_registry_ping(uri)
+                envelope._log_ping(success, message, uri, engine=engine)
                 if (create and success and
                     'URL not in catalogue of sources, no action taken.' in message):
+                    time.sleep(1)
                     success, message = engine.content_registry_ping(uri, additional_action='create')
-                envelope._log_ping(success, message, uri, engine=engine)
+                    envelope._log_ping(success, message, uri, engine=engine)
 
 
     def _content_registry_ping(self, create=False, delete=False):

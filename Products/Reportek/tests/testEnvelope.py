@@ -1,3 +1,4 @@
+import time
 import unittest
 import lxml.etree
 from StringIO import StringIO
@@ -5,7 +6,6 @@ from Testing import ZopeTestCase
 from AccessControl import getSecurityManager
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
-from common import ConfigureReportek
 from utils import (create_fake_root, create_upload_file, create_envelope,
                    add_document, add_feedback, add_hyperlink, simple_addEnvelope)
 from mock import Mock, patch
@@ -16,10 +16,18 @@ from OFS.SimpleItem import SimpleItem
 from Products.Reportek import OpenFlowEngine
 from Products.Reportek import constants
 from Products.Reportek import Converters
-import time
 
-from common import BaseTest, WorkflowTestCase
+from common import BaseTest, WorkflowTestCase, ConfigureReportek
 
+
+# differentiate real and thread sleeping from sleeping inside the test
+def _mysleep():
+    from time import sleep as s
+    sleep = s
+    def inner(t):
+        sleep(t)
+    return inner
+mysleep = _mysleep()
 
 class EnvelopeTestCase(BaseTest, ConfigureReportek):
 
@@ -615,8 +623,9 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
             <flerror>0</flerror>
         </response>'''
         self.engine.content_registry_ping.return_value = (200, ok_message)
-        self.envelope.release_envelope()
-        time.sleep(0.05)
+        with patch('time.sleep'):
+            self.envelope.release_envelope()
+        mysleep(0.05)
 
         self.assertTrue(self.engine.content_registry_ping.called)
         call_args_list = self.engine.content_registry_ping.call_args_list
@@ -625,7 +634,8 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         self.assertIn(((self.feed.absolute_url(),), {}), call_args_list)
         self.assertIn(((self.link.absolute_url(),), {}), call_args_list)
 
-    def test_ping_create(self):
+    @patch('time.sleep')
+    def test_ping_create(self, sleep_mock):
         not_there_message = '''<?xml version="1.0"?>
         <response>
             <message>URL not in catalogue of sources, no action taken.</message>
@@ -633,7 +643,7 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         </response>'''
         self.engine.content_registry_ping.return_value = (200, not_there_message)
         self.envelope.release_envelope()
-        time.sleep(0.05)
+        mysleep(0.05)
 
         self.assertTrue(self.engine.content_registry_ping.called)
         call_args_list = self.engine.content_registry_ping.call_args_list
@@ -651,8 +661,9 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         </response>'''
         self.engine.content_registry_ping.return_value = (200, ok_message)
         self.envelope.released = 1
-        self.envelope.unrelease_envelope()
-        time.sleep(0.05)
+        with patch('time.sleep'):
+            self.envelope.unrelease_envelope()
+        mysleep(0.05)
 
         self.assertTrue(self.engine.content_registry_ping.called)
         call_args_list = self.engine.content_registry_ping.call_args_list
