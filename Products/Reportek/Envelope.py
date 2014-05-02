@@ -1087,53 +1087,53 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         REQUEST.RESPONSE.setHeader('content-type', 'application/rdf+xml; charset=utf-8')
         if not self.canViewContent():
             raise Unauthorized, "Envelope is not available"
+
+        objsByType = self._getObjectsForContentRegistry()
         res = []
-        res_a = res.append  #optimisation
 
-        res_a('<?xml version="1.0" encoding="utf-8"?>')
-        res_a('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"')
-        res_a(' xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"')
-        res_a(' xmlns:dct="http://purl.org/dc/terms/"')
-        res_a(' xmlns:cr="http://cr.eionet.europa.eu/ontologies/contreg.rdf#"')
-        res_a(' xmlns="http://rod.eionet.europa.eu/schema.rdf#">')
+        res.append('<?xml version="1.0" encoding="utf-8"?>')
+        res.append('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"')
+        res.append(' xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"')
+        res.append(' xmlns:dct="http://purl.org/dc/terms/"')
+        res.append(' xmlns:cr="http://cr.eionet.europa.eu/ontologies/contreg.rdf#"')
+        res.append(' xmlns="http://rod.eionet.europa.eu/schema.rdf#">')
 
-        res_a('<Delivery rdf:about="%s">' % RepUtils.xmlEncode(self.absolute_url()))
-        res_a('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(self.title_or_id()))
-        res_a('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(self.title_or_id()))
-        res_a('<dct:creator>%s</dct:creator>' %RepUtils.xmlEncode(self.customer))
+        res.append('<Delivery rdf:about="%s">' % RepUtils.xmlEncode(self.absolute_url()))
+        res.append('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(self.title_or_id()))
+        res.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(self.title_or_id()))
+        res.append('<dct:creator>%s</dct:creator>' %RepUtils.xmlEncode(self.customer))
         if self.descr:
-             res_a('<dct:description>%s</dct:description>' % RepUtils.xmlEncode(self.descr))
+             res.append('<dct:description>%s</dct:description>' % RepUtils.xmlEncode(self.descr))
 
-        res_a('<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</released>' % self.reportingdate.HTML4())
+        res.append('<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</released>' % self.reportingdate.HTML4())
 
-        res_a('<link>%s</link>' % RepUtils.xmlEncode(self.absolute_url()))
+        res.append('<link>%s</link>' % RepUtils.xmlEncode(self.absolute_url()))
         if self.country:
-            res_a('<locality rdf:resource="%s" />' % self.country.replace('eionet.eu.int','eionet.europa.eu'))
+            res.append('<locality rdf:resource="%s" />' % self.country.replace('eionet.eu.int','eionet.europa.eu'))
         if self.locality != '':
-            res_a('<coverageNote>%s</coverageNote>' % RepUtils.xmlEncode(self.locality))
+            res.append('<coverageNote>%s</coverageNote>' % RepUtils.xmlEncode(self.locality))
 
         period = self.getPeriod()
         if period != '':
-            res_a('<period>%s</period>' % period)
+            res.append('<period>%s</period>' % period)
 
         startDT = self.getStartDate()
         if startDT:
-            res_a('<startOfPeriod rdf:datatype="http://www.w3.org/2001/XMLSchema#date">%s</startOfPeriod>' % startDT.strftime('%Y-%m-%d'))
+            res.append('<startOfPeriod rdf:datatype="http://www.w3.org/2001/XMLSchema#date">%s</startOfPeriod>' % startDT.strftime('%Y-%m-%d'))
 
         endDT = self.getEndDate()
         if endDT:
-            res_a('<endOfPeriod rdf:datatype="http://www.w3.org/2001/XMLSchema#date">%s</endOfPeriod>' % endDT.strftime('%Y-%m-%d'))
+            res.append('<endOfPeriod rdf:datatype="http://www.w3.org/2001/XMLSchema#date">%s</endOfPeriod>' % endDT.strftime('%Y-%m-%d'))
 
         for flow in self.dataflow_uris:
-            res_a('<obligation rdf:resource="%s"/>' % RepUtils.xmlEncode(flow.replace('eionet.eu.int','eionet.europa.eu')))
+            res.append('<obligation rdf:resource="%s"/>' % RepUtils.xmlEncode(flow.replace('eionet.eu.int','eionet.europa.eu')))
 
-        for fileid in self.objectIds('Report Document'):
-            res_a('<hasFile rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(self.absolute_url()), fileid))
-        for fileid in self.objectIds('Report Feedback'):
-            res_a('<cr:hasFeedback rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(self.absolute_url()), fileid))
-        res_a('</Delivery>')
+        for o in objsByType.get('Report Document', []):
+            res.append('<hasFile rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(self.absolute_url()), o.id))
+        for o in objsByType.get('Report Feedback', []):
+            res.append('<cr:hasFeedback rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(self.absolute_url()), o.id))
+        res.append('</Delivery>')
 
-        objsByType = self._getObjectsForContentRegistry()
         for metatype, objs in objsByType.items():
             for o in objs:
                 xmlChunk = []
@@ -1186,7 +1186,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                         xmlChunk = []
                 res.extend(xmlChunk)
 
-        res_a('</rdf:RDF>')
+        res.append('</rdf:RDF>')
         return '\n'.join(res)
 
 

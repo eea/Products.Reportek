@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+ xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+ xmlns:dct="http://purl.org/dc/terms/"
+ xmlns:cr="http://cr.eionet.europa.eu/ontologies/contreg.rdf#"
+ xmlns="http://rod.eionet.europa.eu/schema.rdf#">
+<Delivery rdf:about="http://nohost/collection/envu2nsuq">
+<rdfs:label>envu2nsuq</rdfs:label>
+<dct:title>envu2nsuq</dct:title>
+<dct:creator>test_user_1_</dct:creator>
+<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:41Z</released>
+<link>http://nohost/collection/envu2nsuq</link>
+<locality rdf:resource="http://rod.eionet.europa.eu/spatial/2" />
+<coverageNote>http://rod.eionet.eu.int/localities/1</coverageNote>
+<period>2003-01-01/P2Y</period>
+<startOfPeriod rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2003-01-01</startOfPeriod>
+<endOfPeriod rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2004-12-31</endOfPeriod>
+<obligation rdf:resource="http://rod.eionet.europa.eu/obligations/8"/>
+<hasFile rdf:resource="http://nohost/collection/envu2nsuq/foo.txt"/>
+<cr:hasFeedback rdf:resource="http://nohost/collection/envu2nsuq/feedback1399024721"/>
+</Delivery>
+<cr:Feedback rdf:about="http://nohost/collection/envu2nsuq/feedback1399024721">
+<rdfs:label>feedback1399024721</rdfs:label>
+<dct:title>feedback1399024721</dct:title>
+<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:41Z</dct:issued>
+<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:41Z</released>
+<cr:mediaType>text/plain</cr:mediaType>
+</cr:Feedback>
+<File rdf:about="http://nohost/collection/envu2nsuq/foo.txt">
+<rdfs:label>foo.txt</rdfs:label>
+<dct:title>foo.txt</dct:title>
+<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:41Z</dct:issued>
+<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:41Z</dct:date>
+<cr:mediaType>text/plain</cr:mediaType>
+</File>
+</rdf:RDF>

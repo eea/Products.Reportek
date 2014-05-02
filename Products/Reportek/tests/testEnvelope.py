@@ -6,6 +6,7 @@ from Testing import ZopeTestCase
 from AccessControl import getSecurityManager
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
+from DateTime import DateTime
 from utils import (create_fake_root, create_upload_file, create_envelope,
                    add_document, add_feedback, add_hyperlink, simple_addEnvelope)
 from mock import Mock, patch
@@ -19,6 +20,8 @@ from Products.Reportek import Converters
 
 from common import BaseTest, WorkflowTestCase, ConfigureReportek
 
+import os.path
+TESTDIR = os.path.abspath(os.path.dirname(__file__))
 
 # differentiate real and thread sleeping from sleeping inside the test
 def _mysleep():
@@ -572,6 +575,63 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
             'Application act2 moved! '\
             'Id act2 was not mapped by path to any activity.',
             self.app.REQUEST['manage_tabs_message'])
+
+class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
+
+    def afterSetUp(self):
+        super(EnvelopeRdfTestCase, self).afterSetUp()
+        self.createStandardDependencies()
+        self.createStandardCollection()
+        self.assertTrue(hasattr(self.app, 'collection'),'Collection did not get created')
+        self.assertNotEqual(self.app.collection, None)
+        col = self.app.collection
+        self.login() # Login as test_user_1_
+        user = getSecurityManager().getUser()
+        self.app.REQUEST.AUTHENTICATED_USER = user
+        simple_addEnvelope(col.manage_addProduct['Reportek'], '', '', '2003', '2004', '',
+         'http://rod.eionet.eu.int/localities/1', REQUEST=None, previous_delivery='')
+        self.envelope = None
+        for env in col.objectValues('Report Envelope'):
+            self.envelope = env
+            break
+        self.envelope.id = 'envu2nsuq'
+        self.envelope.reportingdate = DateTime('2014/05/02 12:58:41')
+        self.engine.content_registry_ping = Mock()
+        # add subobjects of type document, feedback, hyperlink
+        content = 'test content for our document'
+        self.doc = add_document(self.envelope, create_upload_file(content, 'foo.txt'))
+        #self.doc = add_document(self.envelope, create_upload_file(content, 'foo space foo.xml'))
+        self.doc.upload_time = Mock(return_value=DateTime('2014/05/02 12:58:41'))
+
+        feedbacktext = 'feedback text'
+        setattr(
+            self.root.getPhysicalRoot(),
+            constants.CONVERTERS_ID,
+            Converters.Converters())
+        safe_html = Mock(convert=Mock(return_value=Mock(text=feedbacktext)))
+        getattr(self.root.getPhysicalRoot(),
+                constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
+        self.feed = add_feedback(self.envelope, feedbacktext, feedbackId='feedback1399024721')
+        self.link = add_hyperlink(self.envelope, 'hyper/link')
+        self.envelope._content_registry_ping = Mock()
+
+    def test_subobjectsForContentRegistry(self):
+        objsByType = self.envelope._getObjectsForContentRegistry()
+        expectedObjsByType = {
+            'Report Hyperlink': [self.link],
+            'Report Feedback': [self.feed],
+            'Report Document': [self.doc]
+        }
+        self.assertDictEqual(objsByType, expectedObjsByType)
+
+    def test_rdf(self):
+        self.envelope.release_envelope()
+        self.envelope.reportingdate = DateTime('2014/05/02 12:58:41')
+        rdf = self.envelope.rdf(self.app.REQUEST)
+        f = open(os.path.join(TESTDIR, 'rdf.xml'), 'r')
+        expected = f.read()
+        f.close()
+        self.assertEqual(str(rdf), expected)
 
 class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
 

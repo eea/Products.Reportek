@@ -328,9 +328,9 @@ def add_document(envelope, upload_file):
         doc_id = manage_addDocument(envelope, file=upload_file)
     return envelope[doc_id]
 
-def add_feedback(envelope, feedbacktext):
+def add_feedback(envelope, feedbacktext, feedbackId=None):
     from Products.Reportek.Feedback import manage_addFeedback
-    manage_addFeedback(envelope, feedbacktext=feedbacktext)
+    manage_addFeedback(envelope, feedbacktext=feedbacktext, id=feedbackId)
     return envelope.objectValues('Report Feedback')[0]
 
 def add_hyperlink(envelope, hyperlink):
