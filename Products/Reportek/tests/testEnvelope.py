@@ -676,24 +676,6 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         }
         self.assertDictEqual(objsByType, expectedObjsByType)
 
-    def test_ping_update(self):
-        ok_message = '''<?xml version="1.0"?>
-        <response>
-            <message>URL added to the urgent harvest queue: http://cdrtest.eionet.europa.eu/ro/colu0vgwa/colu0vgdq/envu0vgka/rdf</message>
-            <flerror>0</flerror>
-        </response>'''
-        self.engine.content_registry_ping.return_value = (200, ok_message)
-        with patch('time.sleep'):
-            self.envelope.release_envelope()
-        mysleep(0.05)
-
-        self.assertTrue(self.engine.content_registry_ping.called)
-        call_args_list = self.engine.content_registry_ping.call_args_list
-        self.assertIn(((self.envelope.absolute_url()+'/rdf',), {}), call_args_list)
-        self.assertIn(((self.doc.absolute_url(),), {}), call_args_list)
-        self.assertIn(((self.feed.absolute_url(),), {}), call_args_list)
-        self.assertIn(((self.link.absolute_url(),), {}), call_args_list)
-
     @patch('time.sleep')
     def test_ping_create(self, sleep_mock):
         not_there_message = '''<?xml version="1.0"?>

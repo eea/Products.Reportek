@@ -504,28 +504,21 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             logger.warning("Content Registry (%s) ping unsuccesfull for the %s of %s\nResponse was: %s"
                             % (engine.cr_api_url, action, url, messageBody))
 
-    def _content_registry_async_ping(envelope, uris, engine=None, create=False, delete=False):
+    def _content_registry_async_ping(envelope, uris, engine=None, delete=False):
         engine = engine or getattr(envelope, ENGINE_ID)
         if delete:
             for uri in uris:
                 success, message = engine.content_registry_ping(uri, additional_action='delete')
                 envelope._log_ping(success, message, uri, action='delete', engine=engine)
         else:
-            # we don't actually know whether an envelope was released before,
-            # thus we don't know whether to create it or not -
-            # so we try to *not* create it on first try
-            # if create is True, make a second attempt to ping with explicit 'create'
             for uri in uris:
-                success, message = engine.content_registry_ping(uri)
+                # We don't know whether an envelope is in CR or not
+                # but always creating it will both create and harvest anyway
+                success, message = engine.content_registry_ping(uri, additional_action='create')
                 envelope._log_ping(success, message, uri, engine=engine)
-                if (create and success and
-                    'URL not in catalogue of sources, no action taken.' in message):
-                    time.sleep(1)
-                    success, message = engine.content_registry_ping(uri, additional_action='create')
-                    envelope._log_ping(success, message, uri, engine=engine)
 
 
-    def _content_registry_ping(self, create=False, delete=False):
+    def _content_registry_ping(self, delete=False):
         """Instruct ReportekEngine to ping CR
         create - try to create the CR entry *if* the initial regular ping
                  had not found the URL in CR
@@ -547,7 +540,6 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                          name='contentRegistrySendPings',
                          args=(self, uris),
                          kwargs={'engine': engine,
-                                 'create': create,
                                  'delete': delete})
         pingger.setDaemon(True)
         pingger.start()
@@ -579,7 +571,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             # update ZCatalog
             self.reindex_object()
             self._invalidate_zip_cache()
-            self._content_registry_ping(create=True)
+            self._content_registry_ping()
 
         if self.REQUEST is not None:
             return self.messageDialog(
