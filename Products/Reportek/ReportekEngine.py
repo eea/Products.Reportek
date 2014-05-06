@@ -162,13 +162,13 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         # don't send the completed from back, the values set on self must be used
         return self._manage_properties(manage_tabs_message="Properties changed")
 
-    # checking whether we can ping or not will also require authorization...
-    security.declareProtected('Release Envelopes', 'contentRegistryPingger')
+    security.declareProtected('Release Envelopes', 'canPingCR')
+    def canPingCR(self):
+        """Check if a pingger is or can be created"""
+        return bool(self.contentRegistryPingger)
+
     @property
     def contentRegistryPingger(self):
-        """Access the component that pings the Content Registry
-        this will create an pingger object on first call
-        and retrieve it on subsequent calls"""
         pingger = getattr(self, '_contentRegistryPingger', None)
         if pingger:
             return pingger
