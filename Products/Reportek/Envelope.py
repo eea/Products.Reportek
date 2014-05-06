@@ -39,7 +39,7 @@ from AccessControl.Permissions import view_management_screens
 import AccessControl.Role
 from AccessControl import getSecurityManager, ClassSecurityInfo, Unauthorized
 from Products.Reportek import permission_manage_properties_envelopes
-from Products.Reportek.ReportekEngine import ReportekEngine
+from Products.PythonScripts.standard import url_quote
 from zExceptions import Forbidden
 from DateTime import DateTime
 from DateTime.interfaces import SyntaxError
@@ -1087,7 +1087,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             res.append('<obligation rdf:resource="%s"/>' % RepUtils.xmlEncode(flow.replace('eionet.eu.int','eionet.europa.eu')))
 
         for o in objsByType.get('Report Document', []):
-            res.append('<hasFile rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(self.absolute_url()), o.id))
+            res.append('<hasFile rdf:resource="%s"/>' % RepUtils.xmlEncode(o.absolute_url()) )
         for o in objsByType.get('Report Feedback', []):
             res.append('<cr:hasFeedback rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(self.absolute_url()), o.id))
         res.append('</Delivery>')
@@ -1129,7 +1129,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                         xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % o.content_type)
                         if o.document_id not in [None, 'xml']:
                             xmlChunk.append('<cr:feedbackFor rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(self.absolute_url()),
-                                    RepUtils.xmlEncode(o.document_id)))
+                                    RepUtils.xmlEncode(url_quote(o.document_id)) ))
                         for attachment in o.objectValues(['File', 'File (Blob)']):
                             xmlChunk.append('<cr:hasAttachment rdf:resource="%s"/>' % attachment.absolute_url())
                         xmlChunk.append('</cr:Feedback>')

@@ -1,5 +1,6 @@
 3.6.14 (unreleased)
 ----------------
+* Task 19418 - RDF output has links url quoted [baragdan]
 * Task 18960 - Reportek to split xmlSchema on space in RDF output [baragdan]
 * Task 19323 - Implement ping/delete to the Content Registry [baragdan]
 * Task 17109 - Implement a ping to the content registry (also pings subitems) [baragdan]

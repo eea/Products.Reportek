@@ -568,6 +568,7 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
             'Id act2 was not mapped by path to any activity.',
             self.app.REQUEST['manage_tabs_message'])
 
+
 class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
 
     def afterSetUp(self):
@@ -624,6 +625,17 @@ class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
         expected = f.read()
         f.close()
         self.assertEqual(str(rdf), expected)
+
+    def test_space_in_name(self):
+        self.doc.id = 'another document id with space.txt'
+        self.envelope.release_envelope()
+        self.envelope.reportingdate = DateTime('2014/05/02 12:58:41')
+        rdf = self.envelope.rdf(self.app.REQUEST)
+        f = open(os.path.join(TESTDIR, 'rdf_space.xml'), 'r')
+        expected = f.read()
+        f.close()
+        self.assertEqual(str(rdf), expected)
+
 
 
 class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
