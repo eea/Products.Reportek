@@ -166,6 +166,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declareProtected('Release Envelopes', 'contentRegistryPingger')
     @property
     def contentRegistryPingger(self):
+        """Access the component that pings the Content Registry
+        this will create an pingger object on first call
+        and retrieve it on subsequent calls"""
         pingger = getattr(self, '_contentRegistryPingger', None)
         if pingger:
             return pingger
