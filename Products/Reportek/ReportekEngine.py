@@ -32,7 +32,6 @@ import tempfile
 import os
 from zipfile import *
 from urlparse import urlparse
-import requests
 
 # Zope imports
 from OFS.Folder import Folder
@@ -46,11 +45,11 @@ import xmlrpclib
 from DateTime import DateTime
 from time import time, strftime
 from copy import copy
-from BeautifulSoup import BeautifulSoup as bs
 
 # product imports
 import constants
 from Products.Reportek.constants import DEFAULT_CATALOG
+from Products.Reportek.ContentRegistryPingger import ContentRegistryPingger
 import RepUtils
 from Toolz import Toolz
 from DataflowsManager import DataflowsManager
@@ -157,9 +156,24 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.globally_restricted_site = bool(self.REQUEST.get('globally_restricted_site',
                                                 self.globally_restricted_site))
         self.cr_api_url = self.REQUEST.get('cr_api_url', self.cr_api_url)
+        if self.cr_api_url:
+            self.contentRegistryPingger.api_url(self.cr_api_url)
 
         # don't send the completed from back, the values set on self must be used
         return self._manage_properties(manage_tabs_message="Properties changed")
+
+    # checking whether we can ping or not will also require authorization...
+    security.declareProtected('Release Envelopes', 'contentRegistryPingger')
+    @property
+    def contentRegistryPingger(self):
+        pingger = getattr(self, '_contentRegistryPingger', None)
+        if pingger:
+            return pingger
+        elif self.cr_api_url:
+            self._contentRegistryPingger = ContentRegistryPingger(self.cr_api_url)
+            return self._contentRegistryPingger
+        else:
+            return None
 
     security.declarePublic('getPartsOfYear')
     def getPartsOfYear(self):
@@ -167,33 +181,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return ['','Whole Year', 'First Half', 'Second Half',
            'First Quarter', 'Second Quarter', 'Third Quarter', 'Fourth Quarter',
            'January','February','March','April', 'May','June','July','August','September','October','November','December']
-
-    security.declareProtected('View', 'content_registry_ping')
-    def content_registry_ping(self, uri, additional_action=None):
-        """ Pings the Content Registry to harvest a new envelope almost immediately after the envelope is released or revoked
-            with the name of the envelope's RDF output
-        """
-        params = {'uri': uri}
-        if additional_action == 'create':
-            params['create'] = 'true'
-        elif additional_action == 'delete':
-            params['delete'] = 'true'
-        resp = requests.get(self.cr_api_url, params=params)
-        if resp.status_code == 200:
-            return (True, resp.text)
-        return (False, resp.text)
-
-    @classmethod
-    def content_registry_pretty_message(cls, message):
-        try:
-            if '<html' in message:
-                messageBody = bs(message).find('body').text
-            elif '<?xml' in message:
-                messageBody = bs(message).find('response').text
-        except:
-            messageBody = message
-
-        return messageBody
 
 
     security.declareProtected(view_management_screens, 'change_ownership')

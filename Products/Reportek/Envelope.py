@@ -30,10 +30,8 @@ $Id$"""
 __version__='$Revision$'[11:-2]
 
 
-import time
 import os, types, tempfile, string
 from path import path
-import threading
 from zipfile import *
 import Globals, OFS.SimpleItem, OFS.ObjectManager
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -494,55 +492,25 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             return startDate + '/P1M'
         return startDate
 
-    def _log_ping(self, success, message, url, action='update/create', engine=None):
-        engine = engine or getattr(self, ENGINE_ID)
-        messageBody = engine.content_registry_pretty_message(message)
-        if success:
-            logger.info("Content Registry (%s) pingged OK for the %s of %s\nResponse was: %s"
-                        % (engine.cr_api_url, action, url, messageBody))
-        else:
-            logger.warning("Content Registry (%s) ping unsuccesfull for the %s of %s\nResponse was: %s"
-                            % (engine.cr_api_url, action, url, messageBody))
 
-    def _content_registry_async_ping(envelope, uris, engine=None, delete=False):
-        engine = engine or getattr(envelope, ENGINE_ID)
-        if delete:
-            for uri in uris:
-                success, message = engine.content_registry_ping(uri, additional_action='delete')
-                envelope._log_ping(success, message, uri, action='delete', engine=engine)
-        else:
-            for uri in uris:
-                # We don't know whether an envelope is in CR or not
-                # but always creating it will both create and harvest anyway
-                success, message = engine.content_registry_ping(uri, additional_action='create')
-                envelope._log_ping(success, message, uri, engine=engine)
-
-
-    def _content_registry_ping(self, delete=False):
+    security.declareProtected('Release Envelopes', 'content_registry_ping')
+    def content_registry_ping(self, delete=False):
         """Instruct ReportekEngine to ping CR
-        create - try to create the CR entry *if* the initial regular ping
-                 had not found the URL in CR
-        delete - don't ping for update but for delete
+        delete - don't ping for create+update but for delete
         """
         engine = getattr(self, ENGINE_ID)
-        if not engine.cr_api_url:
-            logger.debug("Content Registry is not supposed to be pingged (url empty)")
+        crPingger = engine.contentRegistryPingger
+        if not crPingger:
+            logger.debug("Not pingging Content Registry.")
             return
 
-        # the main uri - the rdf to everything inside
+        ping_argument = 'delete' if delete else 'create'
+        # the main uri - the rdf listing everything inside
         uris = [ self.absolute_url() + '/rdf' ]
         innerObjsByMetatype = self._getObjectsForContentRegistry()
-        # repeat the inner uris for CR mechanics
+        # ping CR for inner uris
         uris.extend( o.absolute_url() for objs in innerObjsByMetatype.values() for o in objs )
-
-        # delegate this to fire and forget thread - don't keep the user (browser) waiting
-        pingger = threading.Thread(target=Envelope._content_registry_async_ping,
-                         name='contentRegistrySendPings',
-                         args=(self, uris),
-                         kwargs={'engine': engine,
-                                 'delete': delete})
-        pingger.setDaemon(True)
-        pingger.start()
+        crPingger.content_registry_ping_async(uris, ping_argument=ping_argument)
         return
 
 
@@ -571,7 +539,6 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             # update ZCatalog
             self.reindex_object()
             self._invalidate_zip_cache()
-            self._content_registry_ping()
 
         if self.REQUEST is not None:
             return self.messageDialog(
@@ -596,7 +563,6 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             self.released = 0
             # update ZCatalog
             self.reindex_object()
-            self._content_registry_ping(delete=True)
         if self.REQUEST is not None:
             return self.messageDialog(
                             message="The envelope is no longer available to the public!",

@@ -1,4 +1,3 @@
-import time
 import unittest
 import lxml.etree
 from StringIO import StringIO
@@ -17,20 +16,14 @@ from OFS.SimpleItem import SimpleItem
 from Products.Reportek import OpenFlowEngine
 from Products.Reportek import constants
 from Products.Reportek import Converters
+from Products.Reportek import ContentRegistryPingger
 
 from common import BaseTest, WorkflowTestCase, ConfigureReportek
+from utils import mysleep
 
 import os.path
 TESTDIR = os.path.abspath(os.path.dirname(__file__))
 
-# differentiate real and thread sleeping from sleeping inside the test
-def _mysleep():
-    from time import sleep as s
-    sleep = s
-    def inner(t):
-        sleep(t)
-    return inner
-mysleep = _mysleep()
 
 class EnvelopeTestCase(BaseTest, ConfigureReportek):
 
@@ -153,7 +146,6 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
 
     def test_saveXML_on_released_envelope(self):
         from Products.Reportek import exceptions
-        from Products.Reportek import EnvelopeRemoteServicesManager
         self.test_addEnvelope()
         self.envelope.released = True
         with self.assertRaises(exceptions.EnvelopeReleasedException) as ex:
@@ -633,6 +625,7 @@ class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
         f.close()
         self.assertEqual(str(rdf), expected)
 
+
 class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
 
     def afterSetUp(self):
@@ -646,12 +639,16 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         user = getSecurityManager().getUser()
         self.app.REQUEST.AUTHENTICATED_USER = user
         simple_addEnvelope(col.manage_addProduct['Reportek'], '', '', '2003', '2004', '',
-         'http://rod.eionet.eu.int/localities/1', REQUEST=None, previous_delivery='')
+                           'http://rod.eionet.eu.int/localities/1', REQUEST=None, previous_delivery='')
         self.envelope = None
         for env in col.objectValues('Report Envelope'):
             self.envelope = env
             break
-        self.engine.content_registry_ping = Mock()
+
+        self.engine.cr_api_url = 'http://none'
+        self.pingger = self.engine.contentRegistryPingger
+        self.assertTrue(bool(self.pingger))
+        ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async = Mock()
         # add subobjects of type document, feedback, hyperlink
         content = 'test content for our document'
         self.doc = add_document(self.envelope, create_upload_file(content, 'foo.txt'))
@@ -663,7 +660,7 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
             Converters.Converters())
         safe_html = Mock(convert=Mock(return_value=Mock(text=feedbacktext)))
         getattr(self.root.getPhysicalRoot(),
-                constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
+                                constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
         self.feed = add_feedback(self.envelope, feedbacktext)
         self.link = add_hyperlink(self.envelope, 'hyper/link')
 
@@ -676,40 +673,46 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         }
         self.assertDictEqual(objsByType, expectedObjsByType)
 
-    @patch('time.sleep')
-    def test_ping_create(self, sleep_mock):
-        not_there_message = '''<?xml version="1.0"?>
-        <response>
-            <message>URL not in catalogue of sources, no action taken.</message>
-            <flerror>0</flerror>
-        </response>'''
-        self.engine.content_registry_ping.return_value = (200, not_there_message)
-        self.envelope.release_envelope()
+    def test_ping_create(self):
+        expectedUris = set([
+            self.envelope.absolute_url()+'/rdf',
+            self.doc.absolute_url(),
+            self.feed.absolute_url(),
+            self.link.absolute_url(),
+        ])
+        self.envelope.content_registry_ping()
         mysleep(0.05)
 
-        self.assertTrue(self.engine.content_registry_ping.called)
-        call_args_list = self.engine.content_registry_ping.call_args_list
-        self.assertIn(((self.envelope.absolute_url()+'/rdf',), {'additional_action':'create'}), call_args_list)
-        self.assertIn(((self.doc.absolute_url(),), {'additional_action':'create'}), call_args_list)
-        self.assertIn(((self.feed.absolute_url(),), {'additional_action':'create'}), call_args_list)
-        self.assertIn(((self.link.absolute_url(),), {'additional_action':'create'}), call_args_list)
-
+        self.assertTrue(ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.called)
+        call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.call_args
+        args = call_args[0]
+        kwargs = call_args[1]
+        self.assertEqual(len(args), 1)
+        uris = args[0]
+        self.assertEqual(len(uris), 4)
+        self.assertEqual(set(uris), expectedUris)
+        self.assertEqual(len(kwargs), 1)
+        ping_argument = kwargs.get('ping_argument')
+        self.assertEqual(ping_argument, 'create')
 
     def test_ping_delete(self):
-        ok_message = '''<?xml version="1.0"?>
-        <response>
-            <message>URL added to the urgent harvest queue: http://cdrtest.eionet.europa.eu/ro/colu0vgwa/colu0vgdq/envu0vgka/rdf</message>
-            <flerror>0</flerror>
-        </response>'''
-        self.engine.content_registry_ping.return_value = (200, ok_message)
-        self.envelope.released = 1
-        with patch('time.sleep'):
-            self.envelope.unrelease_envelope()
+        expectedUris = set([
+            self.envelope.absolute_url()+'/rdf',
+            self.doc.absolute_url(),
+            self.feed.absolute_url(),
+            self.link.absolute_url(),
+        ])
+        self.envelope.content_registry_ping(delete=True)
         mysleep(0.05)
 
-        self.assertTrue(self.engine.content_registry_ping.called)
-        call_args_list = self.engine.content_registry_ping.call_args_list
-        self.assertIn(((self.envelope.absolute_url()+'/rdf',), {'additional_action':'delete'}), call_args_list)
-        self.assertIn(((self.doc.absolute_url(),), {'additional_action':'delete'}), call_args_list)
-        self.assertIn(((self.feed.absolute_url(),), {'additional_action':'delete'}), call_args_list)
-        self.assertIn(((self.link.absolute_url(),), {'additional_action':'delete'}), call_args_list)
+        self.assertTrue(ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.called)
+        call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.call_args
+        args = call_args[0]
+        kwargs = call_args[1]
+        self.assertEqual(len(args), 1)
+        uris = args[0]
+        self.assertEqual(len(uris), 4)
+        self.assertEqual(set(uris), expectedUris)
+        self.assertEqual(len(kwargs), 1)
+        ping_argument = kwargs.get('ping_argument')
+        self.assertEqual(ping_argument, 'delete')

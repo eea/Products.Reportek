@@ -362,6 +362,16 @@ def break_document_data_file(doc):
     os.unlink(b._p_blob_committed or b._p_blob_uncommitted)
 
 
+# differentiate real and thread sleeping from sleeping inside the test
+def _mysleep():
+    from time import sleep as s
+    sleep = s
+    def inner(t):
+        sleep(t)
+    return inner
+mysleep = _mysleep()
+
+
 __all__ = [
     'setupCoreSessions',
     'setupSiteErrorLog',
@@ -369,4 +379,5 @@ __all__ = [
     'startZServer',
     'importObjectFromFile',
     'appcall',
+    'mysleep',
 ]
