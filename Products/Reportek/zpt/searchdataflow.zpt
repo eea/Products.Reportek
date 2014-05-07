@@ -36,7 +36,7 @@ function toggleSelect() {
 
 <form id="frmSearch" action="searchdataflow" method="get">
     <table class="formtable"
-           tal:define="obligation_select_size string:1;
+           tal:define="obligation_select_size python:'1' if isBdrDeployment else '15';
                        obligation_selected options/dataflow_uris | nothing;
                        years options/years | nothing;
                        reportingdate_start python: test(options.get('reportingdate_start'), options.get('reportingdate_start', DateTime(1,1,1)).strftime('%Y/%m/%d'), '');
