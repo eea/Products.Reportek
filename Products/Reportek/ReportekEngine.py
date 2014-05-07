@@ -157,7 +157,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                                                 self.globally_restricted_site))
         self.cr_api_url = self.REQUEST.get('cr_api_url', self.cr_api_url)
         if self.cr_api_url:
-            self.contentRegistryPingger.api_url(self.cr_api_url)
+            self.contentRegistryPingger.api_url = self.cr_api_url
 
         # don't send the completed from back, the values set on self must be used
         return self._manage_properties(manage_tabs_message="Properties changed")
