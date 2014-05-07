@@ -169,14 +169,14 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     @property
     def contentRegistryPingger(self):
+        if not self.cr_api_url:
+            return None
         pingger = getattr(self, '_contentRegistryPingger', None)
         if pingger:
             return pingger
-        elif self.cr_api_url:
+        else:
             self._contentRegistryPingger = ContentRegistryPingger(self.cr_api_url)
             return self._contentRegistryPingger
-        else:
-            return None
 
     security.declarePublic('getPartsOfYear')
     def getPartsOfYear(self):
