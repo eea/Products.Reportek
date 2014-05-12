@@ -9,15 +9,13 @@ from OFS.SimpleItem import SimpleItem
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
+from ZODB.PersistentList import PersistentList
 
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from Products.Five.browser import BrowserView
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
 import messages
-import logging
-logger = logging.getLogger("Reportek")
-
 
 log = logging.getLogger(__name__)
 
@@ -82,8 +80,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
         self.id = id
         self.title = title
         self.dataflow_uri = dataflow_uri
-        logger.warning("Changing _mappings (init)")
-        self._mappings = []
+        self._mappings = PersistentList()
 
 
     security.declareProtected(view_management_screens, 'mapping')
@@ -95,8 +92,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
     @mapping.setter
     def mapping(self, value):
         if 'schemas' in value:
-            logger.warning("Changing _mappings (setter)")
-            self._mappings = value['schemas']
+            self._mappings = PersistentList(value['schemas'])
 
 
     security.declareProtected(view_management_screens, 'load_from_dd')
@@ -110,12 +106,11 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
             webq = xmlrpclib.ServerProxy(webq_url).WebQService
             webq_resp = webq.getXForm([row['url'] for row in resp.json()])
 
-            logger.warning("Changing _mappings (load_from_dd)")
-            self._mappings = [ {'url': row['url'],
+            self._mappings = PersistentList( {'url': row['url'],
                                'name': row['name'],
                                'has_webform': bool(webq_resp.get(row['url'])),
                                'webform_file_id': webq_resp.get(row['url'], ''),
-                              } for row in resp.json() ]
+                              } for row in resp.json() )
             messages.add(REQUEST, "Mappings updated from Data Dictionary.")
 
         elif resp.status_code == 404:
@@ -160,8 +155,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
     def delete_schemas(self, REQUEST):
         """ Delete schemas """
         schemas = REQUEST.form.get('ids', [])
-        logger.warning("Changing _mappings (delete_schema)")
-        self._mappings = [ x for x in self._mappings if x['url'] not in schemas ]
+        self._mappings = PersistentList( x for x in self._mappings if x['url'] not in schemas )
 
 
     _edit = PageTemplateFile( 'zpt/dataflow-mappings/edit_record.zpt', globals())
