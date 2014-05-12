@@ -15,6 +15,9 @@ from Products.Five.browser import BrowserView
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
 import messages
+import logging
+logger = logging.getLogger("Reportek")
+
 
 log = logging.getLogger(__name__)
 
@@ -79,6 +82,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
         self.id = id
         self.title = title
         self.dataflow_uri = dataflow_uri
+        logger.warning("Changing _mappings (init)")
         self._mappings = []
 
 
@@ -90,7 +94,9 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
 
     @mapping.setter
     def mapping(self, value):
-        self._mappings = value.get('schemas', [])
+        if 'schemas' in value:
+            logger.warning("Changing _mappings (setter)")
+            self._mappings = value['schemas']
 
 
     security.declareProtected(view_management_screens, 'load_from_dd')
@@ -104,9 +110,11 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
             webq = xmlrpclib.ServerProxy(webq_url).WebQService
             webq_resp = webq.getXForm([row['url'] for row in resp.json()])
 
+            logger.warning("Changing _mappings (load_from_dd)")
             self._mappings = [ {'url': row['url'],
                                'name': row['name'],
                                'has_webform': bool(webq_resp.get(row['url'])),
+                               'webform_file_id': webq_resp.get(row['url'], ''),
                               } for row in resp.json() ]
             messages.add(REQUEST, "Mappings updated from Data Dictionary.")
 
@@ -122,7 +130,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
             messages.add(REQUEST, "Error fetching from Data Dictionary",
                          'error')
 
-        REQUEST.RESPONSE.redirect(self.absolute_url() + '/manage_html')
+        REQUEST.RESPONSE.redirect(self.absolute_url() + '/edit')
 
 
     security.declareProtected(view_management_screens, 'add_schema')
@@ -139,7 +147,8 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
                 form_data = {
                     'url': schema_uri,
                     'name': REQUEST.form.get('name'),
-                    'has_webform': REQUEST.form.get('has_webform', False)
+                    'has_webform': REQUEST.form.get('webform_file_id', False),
+                    'webform_file_id': REQUEST.form.get('webform_file_id', ''),
                 }
                 self._mappings.append(form_data)
                 return 'Schema successfully added'
@@ -151,6 +160,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
     def delete_schemas(self, REQUEST):
         """ Delete schemas """
         schemas = REQUEST.form.get('ids', [])
+        logger.warning("Changing _mappings (delete_schema)")
         self._mappings = [ x for x in self._mappings if x['url'] not in schemas ]
 
 

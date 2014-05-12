@@ -110,8 +110,8 @@
         <input type="text" id="name" name="name" size="60" />
       </td>
       <td>
-        <label class="form-label" for="has_webform">Has WebForm</label>
-        <input name="has_webform:boolean" id="has_webform" type="checkbox" />
+        <label class="form-label" for="has_webform">WebForm file id</label>
+        <input type="text" id="webform_file_id" name="webform_file_id" />
       </td>
     </tr>
     <tr class="row-hilite">

@@ -1,3 +1,4 @@
+<tal:block define="global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'"/>
 <script type="text/javascript">
   //<![CDATA[
   splitSelect = {
@@ -60,11 +61,13 @@
   // ]]>
 </script>
 
-<select class="form-element" id="dataflow_uri" name="dataflow_uri"
-  tal:define="data context/ReportekEngine/dataflow_table_grouped;
+<select size=25 class="form-element" id="dataflow_uri" name="dataflow_uri" size="15"
+  tal:define="obligation_select_size python:'1' if isBdrDeployment else '15';
+              data context/ReportekEngine/dataflow_table_grouped;
               groups python:data[0];
               items python:data[1];
-              dataflow_uri context/dataflow_uri | nothing">
+              dataflow_uri context/dataflow_uri | nothing"
+  tal:attributes="size obligation_select_size">
   <option></option>
   <tal:block tal:repeat="group groups">
     <optgroup tal:attributes="label python:context.truncate(group)">
