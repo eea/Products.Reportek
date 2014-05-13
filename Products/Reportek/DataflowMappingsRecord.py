@@ -108,7 +108,6 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
 
             self._mappings = PersistentList( {'url': row['url'],
                                'name': row['name'],
-                               'has_webform': bool(webq_resp.get(row['url'])),
                                'webform_file_id': webq_resp.get(row['url'], ''),
                               } for row in resp.json() )
             messages.add(REQUEST, "Mappings updated from Data Dictionary.")
@@ -142,9 +141,13 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
                 form_data = {
                     'url': schema_uri,
                     'name': REQUEST.form.get('name'),
-                    'has_webform': REQUEST.form.get('webform_file_id', False),
                     'webform_file_id': REQUEST.form.get('webform_file_id', ''),
                 }
+                if form_data['webform_file_id'] == 'Auto detect':
+                    webq_url = self.ReportekEngine.webq_url
+                    webq = xmlrpclib.ServerProxy(webq_url).WebQService
+                    webq_resp = webq.getXForm([schema_uri])
+                    form_data['webform_file_id'] = webq_resp.get(schema_uri, '')
                 self._mappings.append(form_data)
                 return 'Schema successfully added'
 

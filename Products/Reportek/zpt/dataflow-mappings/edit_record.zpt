@@ -54,7 +54,7 @@
         <th></th>
         <th>Schema</th>
         <th>Name</th>
-        <th>Has WebForm</th>
+        <th>WebForm file</th>
       </tr>
 
       <tr tal:repeat="schema options/schemas">
@@ -66,7 +66,7 @@
           <a tal:attributes="href schema/url" tal:content="schema/url" />
         </td>
         <td tal:content="schema/name" />
-        <td align="center" tal:content="schema/has_webform" />
+        <td align="center" tal:content="schema/webform_file_id" />
       </tr>
       <tr class="row-hilite">
         <td></td>
@@ -110,14 +110,14 @@
         <input type="text" id="name" name="name" size="60" />
       </td>
       <td>
-        <label class="form-label" for="has_webform">WebForm file id</label>
-        <input type="text" id="webform_file_id" name="webform_file_id" />
+        <label class="form-label" for="webform_file_id">WebForm file id</label>
+        <input type="text" id="webform_file_id" name="webform_file_id" value="Auto detect" />
       </td>
     </tr>
     <tr class="row-hilite">
       <td></td>
       <td colspan="2">
-        <input type="submit" name="add" value="Add" />
+        <input type="submit" name="add" value="Add looking up file id in WebQ" />
       </td>
     </tr>
   </table>
