@@ -106,10 +106,15 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
             webq = xmlrpclib.ServerProxy(webq_url).WebQService
             webq_resp = webq.getXForm([row['url'] for row in resp.json()])
 
-            self._mappings = PersistentList( {'url': row['url'],
-                               'name': row['name'],
-                               'webform_file_id': webq_resp.get(row['url'], ''),
-                              } for row in resp.json() )
+            new_mappings = PersistentList()
+            for i, row in enumerate(resp.json()):
+                mapping = {
+                    'url': row['url'],
+                    'name': row['name'],
+                    'webform_file_id': "%s_%d.xml"%(self.id, i) if webq_resp.get(row['url']) else '',
+                }
+                new_mappings.append(mapping)
+            self._mappings = new_mappings
             messages.add(REQUEST, "Mappings updated from Data Dictionary.")
 
         elif resp.status_code == 404:
@@ -126,32 +131,47 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
 
         REQUEST.RESPONSE.redirect(self.absolute_url() + '/edit')
 
+    def _get_next_webform_file_id(self):
+        webform_file_ids = [ x['webform_file_id'] for x in self._mappings if x['webform_file_id'] ]
+        if not webform_file_ids:
+            return "%s_1.xml" % self.id
+        for i in xrange(1, 1000):
+            candidate_id = "%s_%d.xml" % (self.id, i)
+            if candidate_id not in webform_file_ids:
+                return candidate_id
+        raise IndexError("More than 1000 schemas in a mapping")
 
     security.declareProtected(view_management_screens, 'add_schema')
     def add_schema(self, REQUEST):
         """ Add schema """
 
         schema_uri = REQUEST.form.get('schema', '').strip()
+        schema_name = REQUEST.form.get('name', '').strip()
+        if not schema_uri or not schema_name:
+            return 'Schema and name cannot be empty!'
+        # go through the getter to obtain an object
+        if schema_uri in ( r['url'] for r in self._mappings ):
+            return 'Schema already exists!'
 
-        if schema_uri:
-            # go through the getter to obtain an object
-            if schema_uri in [ r.get('url') for r in self._mappings ]:
-                return 'Schema already exists!'
+        form_data = {
+            'url': schema_uri,
+            'name': schema_name,
+            'webform_file_id': REQUEST.form.get('webform_file_id', ''),
+        }
+        if form_data['webform_file_id'] == 'Auto detect':
+            webq_url = self.ReportekEngine.webq_url
+            webq = xmlrpclib.ServerProxy(webq_url).WebQService
+            webq_resp = webq.getXForm([schema_uri])
+            # WebQ has a form for this, so we shall need and webform file id
+            if webq_resp.get(schema_uri):
+                form_data['webform_file_id'] = self._get_next_webform_file_id()
             else:
-                form_data = {
-                    'url': schema_uri,
-                    'name': REQUEST.form.get('name'),
-                    'webform_file_id': REQUEST.form.get('webform_file_id', ''),
-                }
-                if form_data['webform_file_id'] == 'Auto detect':
-                    webq_url = self.ReportekEngine.webq_url
-                    webq = xmlrpclib.ServerProxy(webq_url).WebQService
-                    webq_resp = webq.getXForm([schema_uri])
-                    form_data['webform_file_id'] = webq_resp.get(schema_uri, '')
-                self._mappings.append(form_data)
-                return 'Schema successfully added'
+                form_data['webform_file_id'] = ''
+        elif form_data['webform_file_id'] and not form_data['webform_file_id'].endswith('.xml'):
+            form_data['webform_file_id'] = form_data['webform_file_id'] + '.xml'
+        self._mappings.append(form_data)
+        return 'Schema successfully added'
 
-        return 'Schema cannot be empty!'
 
 
     security.declareProtected(view_management_screens, 'add_schema')
