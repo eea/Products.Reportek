@@ -32,8 +32,8 @@ class DFMTestCase(unittest.TestCase):
                 mapping.append(
                     {
                         'url': schema,
-                        'name': '',
-                        'has_webform':False
+                        'name': 'x',
+                        'webform_file_id': ''
                     }
                 )
 
@@ -42,8 +42,8 @@ class DFMTestCase(unittest.TestCase):
                 mapping.append(
                     {
                         'url': schema,
-                        'name': '',
-                        'has_webform':True
+                        'name': 'x',
+                        'webform_file_id': 'x_1.xml'
                     }
                 )
         self.mappings[oid].mapping = {'schemas': mapping}
@@ -278,14 +278,14 @@ class DFMTestCase(unittest.TestCase):
         self.add_mapping('test1',
                 'test title',
                 obligation,
-                [schema1,schema2],
-                [])
+                [schema1],
+                [schema2])
         expected = [
-            {'has_webform': False,
-             'name': '',
+            {'webform_file_id': '',
+             'name': 'x',
              'url': schema1},
-            {'has_webform': False,
-             'name': '',
+            {'webform_file_id': 'x_1.xml',
+             'name': 'x',
              'url': schema2}]
 
         results = list(self.mappings.getSchemaObjectsForDataflows(obligation, False))
