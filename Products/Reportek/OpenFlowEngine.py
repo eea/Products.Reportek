@@ -659,7 +659,7 @@ class OpenFlowEngine(Folder, Toolz):
             if l_process_id not in self.process_mappings.keys():
                 # FIXME - superfluous operations here.
                 # Could this hide a bug? Do we need a copy of process_mappings?!?
-                # because we currently don't actually have a copy...
+                # because we currently don't actually have a copy but a reference...
                 self.process_mappings[l_process_id] = {'dataflows':[], 'countries':[]}
                 l_return_dict[l_process_id] = {'dataflows':[], 'countries':[]}
             else:

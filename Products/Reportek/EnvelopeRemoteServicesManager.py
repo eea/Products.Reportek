@@ -37,12 +37,15 @@ import RepUtils
 from constants import QAREPOSITORY_ID
 from Products.Reportek.exceptions import EnvelopeReleasedException
 
+import re
+
 class EnvelopeRemoteServicesManager:
     """ This class which Envelope subclasses from handles the integration
         with various remote systems (GDEM, UNS, etc.)
     """
 
     security = ClassSecurityInfo()
+    webq_xml_pat = re.compile(r'(?P<base>.+_\d+)(?P<additional>\.\d+)?\.xml')
 
     security.declareProtected('View', 'hasSpecificFile')
     def hasSpecificFile(self, schema):
@@ -57,6 +60,37 @@ class EnvelopeRemoteServicesManager:
         """
         l_list = [x for x in self.objectValues('Report Document') if x.xml_schema_location == p_schema_url]
         return len(l_list)
+
+    # FIXME condition racing - concurent threads on the same envelope will collide
+    # FIXME This is ugly coupled with DataflowMappingsRecord _get_next_webform_file_id
+    # when the usage of this will be clear make only one object responsible for these names
+    security.declarePublic('getNextDocIdForSchema')
+    def getNextDocIdForSchema(self, schema_uri):
+        """Right now this is used only in Article 21, for additional xml WebQ documents
+        on the same schema (with different language though). The DataflowMappingsRecord holds
+        the name of the first document for a given schema. Document computes the following.
+        This must be refactored!"""
+        docNamesForSchema = [ doc.id for doc in self.objectValues('Report Document') if doc.xml_schema_location == schema_uri ]
+        if not docNamesForSchema:
+            return
+
+        base = None
+        for doc in docNamesForSchema:
+            m = self.webq_xml_pat.match(doc)
+            if m:
+                base = m.group('base')
+                break
+            elif doc.endswith('.xml'):
+                base = doc[:-4]
+                break
+        if not base:
+            return
+
+        for i in xrange(1, 1000):
+            candidate_id = "%s.%d.xml" % (base, i)
+            if candidate_id not in docNamesForSchema:
+                return candidate_id
+        raise IndexError("More than 1000 schemas in a mapping")
 
     ##################################################
     # QA service

@@ -83,9 +83,19 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
         self._mappings = PersistentList()
 
 
+    security.declareProtected(view_management_screens, 'get_mapping')
+    def get_mapping(self):
+        """ Return the low-level mapping (persistent) list.
+        This is momentarily required by Article 21, workflow, but we should refactor
+        the whole mechanism """
+        return self._mappings
+
     security.declareProtected(view_management_screens, 'mapping')
+    # FIXME This was supposed to be used from web but properties cannot
+    # so we should remove this hasle.
     @property
     def mapping(self):
+        """ x"""
         return {'schemas': self._mappings}
 
 
@@ -131,6 +141,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
 
         REQUEST.RESPONSE.redirect(self.absolute_url() + '/edit')
 
+    # FIXME See EnvelopeRemoteServicesManager.py:getNextDocIdForSchema() . This will need redesign.
     def _get_next_webform_file_id(self):
         webform_file_ids = [ x['webform_file_id'] for x in self._mappings if x['webform_file_id'] ]
         if not webform_file_ids:
