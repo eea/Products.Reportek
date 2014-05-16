@@ -121,7 +121,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
                 mapping = {
                     'url': row['url'],
                     'name': row['name'],
-                    'webform_file_id': "%s_%d.xml"%(self.id, i) if webq_resp.get(row['url']) else '',
+                    'has_webform': True if webq_resp.get(row['url']) else False,
                 }
                 new_mappings.append(mapping)
             self._mappings = new_mappings
@@ -141,45 +141,35 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
 
         REQUEST.RESPONSE.redirect(self.absolute_url() + '/edit')
 
-    # FIXME See EnvelopeRemoteServicesManager.py:getNextDocIdForSchema() . This will need redesign.
-    def _get_next_webform_file_id(self):
-        webform_file_ids = [ x['webform_file_id'] for x in self._mappings if x['webform_file_id'] ]
-        if not webform_file_ids:
-            return "%s_1.xml" % self.id
-        for i in xrange(1, 1000):
-            candidate_id = "%s_%d.xml" % (self.id, i)
-            if candidate_id not in webform_file_ids:
-                return candidate_id
-        raise IndexError("More than 1000 schemas in a mapping")
-
     security.declareProtected(view_management_screens, 'add_schema')
     def add_schema(self, REQUEST):
         """ Add schema """
 
         schema_uri = REQUEST.form.get('schema', '').strip()
         schema_name = REQUEST.form.get('name', '').strip()
+        has_webform = REQUEST.form.get('has_webform', None)
         if not schema_uri or not schema_name:
             return 'Schema and name cannot be empty!'
         # go through the getter to obtain an object
         if schema_uri in ( r['url'] for r in self._mappings ):
             return 'Schema already exists!'
 
-        form_data = {
-            'url': schema_uri,
-            'name': schema_name,
-            'webform_file_id': REQUEST.form.get('webform_file_id', ''),
-        }
-        if form_data['webform_file_id'] == 'Auto detect':
+        if has_webform == 'auto':
             webq_url = self.ReportekEngine.webq_url
             webq = xmlrpclib.ServerProxy(webq_url).WebQService
             webq_resp = webq.getXForm([schema_uri])
             # WebQ has a form for this, so we shall need and webform file id
             if webq_resp.get(schema_uri):
-                form_data['webform_file_id'] = self._get_next_webform_file_id()
+                has_webform = True
             else:
-                form_data['webform_file_id'] = ''
-        elif form_data['webform_file_id'] and not form_data['webform_file_id'].endswith('.xml'):
-            form_data['webform_file_id'] = form_data['webform_file_id'] + '.xml'
+                has_webform = False
+        else:
+            has_webform = True if has_webform == 'yes' else False
+        form_data = {
+            'url': schema_uri,
+            'name': schema_name,
+            'has_webform': has_webform,
+        }
         self._mappings.append(form_data)
         return 'Schema successfully added'
 

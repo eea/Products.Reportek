@@ -27,9 +27,10 @@ This class which Envelope subclasses from handles the integration with remote sy
 """
 
 # Zope imports
-from Globals import MessageDialog, InitializeClass
+from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from AccessControl import getSecurityManager, ClassSecurityInfo
+from AccessControl import ClassSecurityInfo
+from Products.Reportek.Document import Document
 
 
 # Product specific imports
@@ -45,7 +46,7 @@ class EnvelopeRemoteServicesManager:
     """
 
     security = ClassSecurityInfo()
-    webq_xml_pat = re.compile(r'(?P<base>.+_\d+)(?P<additional>\.\d+)?\.xml')
+    webq_xml_pat = re.compile(r'(?P<base>.+__\d+)(?P<additional>\.\d+)?\.xml')
 
     security.declareProtected('View', 'hasSpecificFile')
     def hasSpecificFile(self, schema):
@@ -61,36 +62,57 @@ class EnvelopeRemoteServicesManager:
         l_list = [x for x in self.objectValues('Report Document') if x.xml_schema_location == p_schema_url]
         return len(l_list)
 
+    def getFilesForSchema(self, schema_uri):
+        """Return a list of Documents names in this envelope that are bound to the schema_uri."""
+        return [ doc.id for doc in self.objectValues(Document.meta_type) ]
+
     # FIXME condition racing - concurent threads on the same envelope will collide
-    # FIXME This is ugly coupled with DataflowMappingsRecord _get_next_webform_file_id
-    # when the usage of this will be clear make only one object responsible for these names
-    security.declarePublic('getNextDocIdForSchema')
-    def getNextDocIdForSchema(self, schema_uri):
-        """Right now this is used only in Article 21, for additional xml WebQ documents
-        on the same schema (with different language though). The DataflowMappingsRecord holds
-        the name of the first document for a given schema. Document computes the following.
-        This must be refactored!"""
-        docNamesForSchema = [ doc.id for doc in self.objectValues('Report Document') if doc.xml_schema_location == schema_uri ]
-        if not docNamesForSchema:
-            return
+    security.declarePublic('getNextDocId')
+    def getNextDocId(self, schema_uri=None, name=None):
+        """ Find an available name for a document inside this envelope.
+        Could be a new document per schema or another document (multilang)
+        for a schema that already has some documents.
+        schema_uri - give a name in the familly of this schema
+        name - use this as a base for naming the document, otherwise envelope id will be used"""
+        if not name:
+            name = self.id
+        docs = [ doc for doc in self.objectValues('Report Document') ]
+        # first file
+        if not docs:
+            return "%s__1.xml" % name
 
-        base = None
-        for doc in docNamesForSchema:
-            m = self.webq_xml_pat.match(doc)
-            if m:
-                base = m.group('base')
-                break
-            elif doc.endswith('.xml'):
-                base = doc[:-4]
-                break
-        if not base:
-            return
+        docNames = [ doc.id for doc in docs ]
 
-        for i in xrange(1, 1000):
-            candidate_id = "%s.%d.xml" % (base, i)
-            if candidate_id not in docNamesForSchema:
-                return candidate_id
-        raise IndexError("More than 1000 schemas in a mapping")
+        docNamesForSchema = None
+        if schema_uri:
+            docNamesForSchema = [ doc.id for doc in docs if doc.xml_schema_location == schema_uri ]
+        # try to add a document in the name__nn.mm.xml familly
+        if docNamesForSchema:
+            base = None
+            for doc in docNamesForSchema:
+                m = self.webq_xml_pat.match(doc)
+                if m:
+                    base = m.group('base')
+                    break
+                elif doc.endswith('.xml'):
+                    base = doc[:-4]
+                    break
+            # no naming we know, but there are files for this schema
+            if not base:
+                base = self.id
+            for i in xrange(1, 1000):
+                candidate_id = "%s.%d.xml" % (base, i)
+                if candidate_id not in docNames:
+                    return candidate_id
+            raise IndexError("More than 1000 schemas in a mapping")
+
+        else:
+            # No other files for this schema, but there are files whatsoever
+            for i in xrange(1, 1000):
+                candidate_id = "%s__%d.xml" % (name, i)
+                if candidate_id not in docNames:
+                    return candidate_id
+            raise IndexError("More than 1000 schemas in a mapping")
 
     ##################################################
     # QA service

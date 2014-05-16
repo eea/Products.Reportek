@@ -33,7 +33,7 @@ class DFMTestCase(unittest.TestCase):
                     {
                         'url': schema,
                         'name': 'x',
-                        'webform_file_id': ''
+                        'has_webform': False
                     }
                 )
 
@@ -43,7 +43,7 @@ class DFMTestCase(unittest.TestCase):
                     {
                         'url': schema,
                         'name': 'x',
-                        'webform_file_id': 'x_1.xml'
+                        'has_webform': True
                     }
                 )
         self.mappings[oid].mapping = {'schemas': mapping}
@@ -281,10 +281,10 @@ class DFMTestCase(unittest.TestCase):
                 [schema1],
                 [schema2])
         expected = [
-            {'webform_file_id': '',
+            {'has_webform': False,
              'name': 'x',
              'url': schema1},
-            {'webform_file_id': 'x_1.xml',
+            {'has_webform': True,
              'name': 'x',
              'url': schema2}]
 

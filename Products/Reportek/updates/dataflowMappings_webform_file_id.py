@@ -8,9 +8,11 @@ from Products.Reportek.DataflowMappingsRecord import DataflowMappingsRecord
 
 def do_update(dmr):
     for schema in dmr._mappings:
-        if schema['webform_file_id']:
-            schema['webform_file_id'] = dmr._get_next_webform_file_id()
+        if 'webform_file_id' in schema:
+            schema['has_webform'] = bool(schema['webform_file_id'])
+            del schema['webform_file_id']
             dmr._mappings._p_changed = 1
+
 
 def update(app):
     mappings = app.DataflowMappings

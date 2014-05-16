@@ -64,7 +64,7 @@ class DataflowMappings(Folder):
         res = []
         for brain in self.Catalog(**query):
             for schema in brain.getObject().mapping['schemas']:
-                if not web_form_only or schema['webform_file_id']:
+                if not web_form_only or schema['has_webform']:
                     # yield schema # can't yield here if using dtml; it doesn't know how to iterate
                     res.append(schema)
         return res
