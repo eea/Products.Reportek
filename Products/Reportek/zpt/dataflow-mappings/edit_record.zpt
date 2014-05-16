@@ -122,7 +122,7 @@
     <tr class="row-hilite">
       <td></td>
       <td colspan="2">
-        <input type="submit" name="add" value="Add detecting if it has webform" />
+        <input type="submit" name="add" value="Add" />
       </td>
     </tr>
   </table>

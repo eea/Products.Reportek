@@ -66,6 +66,7 @@ class EnvelopeRemoteServicesManager:
         """Return a list of Documents names in this envelope that are bound to the schema_uri."""
         return [ doc.id for doc in self.objectValues(Document.meta_type) ]
 
+
     # FIXME condition racing - concurent threads on the same envelope will collide
     security.declarePublic('getNextDocId')
     def getNextDocId(self, schema_uri=None, baseName=None):
@@ -78,6 +79,9 @@ class EnvelopeRemoteServicesManager:
             baseName = self.id
         else:
             baseName = RepUtils.cleanup_id(baseName)
+            if len(baseName) < 3:
+                baseName = self.id
+
         docs = [ doc for doc in self.objectValues('Report Document') ]
         # first file
         if not docs:
