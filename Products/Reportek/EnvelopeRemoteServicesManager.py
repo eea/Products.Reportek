@@ -27,9 +27,10 @@ This class which Envelope subclasses from handles the integration with remote sy
 """
 
 # Zope imports
-from Globals import MessageDialog, InitializeClass
+from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from AccessControl import getSecurityManager, ClassSecurityInfo
+from AccessControl import ClassSecurityInfo
+from Products.Reportek.Document import Document
 
 
 # Product specific imports
@@ -37,12 +38,15 @@ import RepUtils
 from constants import QAREPOSITORY_ID
 from Products.Reportek.exceptions import EnvelopeReleasedException
 
+import re
+
 class EnvelopeRemoteServicesManager:
     """ This class which Envelope subclasses from handles the integration
         with various remote systems (GDEM, UNS, etc.)
     """
 
     security = ClassSecurityInfo()
+    webq_xml_pat = re.compile(r'(?P<base>.+__\d+)(?P<additional>\.\d+)?\.xml')
 
     security.declareProtected('View', 'hasSpecificFile')
     def hasSpecificFile(self, schema):
@@ -57,6 +61,64 @@ class EnvelopeRemoteServicesManager:
         """
         l_list = [x for x in self.objectValues('Report Document') if x.xml_schema_location == p_schema_url]
         return len(l_list)
+
+    def getFilesForSchema(self, schema_uri):
+        """Return a list of Documents names in this envelope that are bound to the schema_uri."""
+        return [ doc.id for doc in self.objectValues(Document.meta_type) ]
+
+
+    # FIXME condition racing - concurent threads on the same envelope will collide
+    security.declarePublic('getNextDocId')
+    def getNextDocId(self, schema_uri=None, baseName=None):
+        """ Find an available name for a document inside this envelope.
+        Could be a new document per schema or another document (multilang)
+        for a schema that already has some documents.
+        schema_uri - give a name in the familly of this schema
+        baseName - use this as a base for naming the document, otherwise envelope id will be used"""
+        if not baseName:
+            baseName = self.id
+        else:
+            baseName = RepUtils.cleanup_id(baseName)
+            if len(baseName) < 3:
+                baseName = self.id
+
+        docs = [ doc for doc in self.objectValues('Report Document') ]
+        # first file
+        if not docs:
+            return "%s__1.xml" % baseName
+
+        docNames = [ doc.id for doc in docs ]
+
+        docNamesForSchema = None
+        if schema_uri:
+            docNamesForSchema = [ doc.id for doc in docs if doc.xml_schema_location == schema_uri ]
+        # try to add a document in the name__nn.mm.xml familly
+        if docNamesForSchema:
+            base = None
+            for doc in docNamesForSchema:
+                m = self.webq_xml_pat.match(doc)
+                if m:
+                    base = m.group('base')
+                    break
+                elif doc.endswith('.xml'):
+                    base = doc[:-4]
+                    break
+            # no naming we know, but there are files for this schema
+            if not base:
+                base = baseName
+            for i in xrange(1, 1000):
+                candidate_id = "%s.%d.xml" % (base, i)
+                if candidate_id not in docNames:
+                    return candidate_id
+            raise IndexError("More than 1000 schemas in a mapping")
+
+        else:
+            # No other files for this schema, but there are files whatsoever
+            for i in xrange(1, 1000):
+                candidate_id = "%s__%d.xml" % (baseName, i)
+                if candidate_id not in docNames:
+                    return candidate_id
+            raise IndexError("More than 1000 schemas in a mapping")
 
     ##################################################
     # QA service
@@ -159,7 +221,7 @@ class EnvelopeRemoteServicesManager:
             Returns the dictionary of {xml_schema_location:[URL_file]}
         """
         l_res = {}
-        l_valid_schemas = self.getDataflowMappingsContainer().getXMLSchemasForDataflows(self.dataflow_uris)
+        l_valid_schemas = self.getDataflowMappingsContainer().getSchemasForDataflows(self.dataflow_uris)
         for docu in self.objectValues('Report Document'):
             if docu.content_type == 'text/xml' and docu.xml_schema_location and (docu.xml_schema_location in l_valid_schemas or not l_valid_schemas):
                 l_key = str(docu.xml_schema_location)
@@ -273,11 +335,7 @@ class EnvelopeRemoteServicesManager:
         """ The purpose is to know if to put an edit button and a record in 'view as...' select
             next to XML files
         """
-        l_return_list = []
-        l_name = self.getDataflowMappingsContainer().getXMLSchemasForDataflow
-        for l_dataflow_uri in self.dataflow_uris:
-            l_return_list.extend(l_name(l_dataflow_uri))
-        return l_return_list
+        return self.getDataflowMappingsContainer().getSchemasForDataflows(self.dataflow_uris)
 
     def getWebQ_BeforeEditForm_URL(self):
         """ Retrieves the URL to the edit for of the XML file - if any """

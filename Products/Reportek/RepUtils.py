@@ -114,11 +114,16 @@ def iter_file_data(in_file, chunk_size=131072):
         yield chunk
 
 
-def cleanup_id(str):
+def cleanup_id(name):
     """ Cleanup an id
         Should be more thorough and e.g. remove trailing dots/spaces
     """
-    return string.translate(str, TRANSMAP)
+    if type(name) is unicode:
+        try:
+            name = name.encode('ascii')
+        except UnicodeEncodeError as e:
+            name = name[:e.start].encode('ascii')
+    return string.translate(name, TRANSMAP)
 
 def generate_id(template):
     """ Generate a unique string

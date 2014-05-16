@@ -31,6 +31,7 @@ import Globals
 import Zope2
 from App.ImageFile import ImageFile
 from Products.ZCatalog.ZCatalog import ZCatalog
+from Products.ZCTextIndex.ZCTextIndex import PLexicon
 
 # Product imports
 import RepUtils
@@ -124,23 +125,18 @@ def add_index(name, catalog, meta_type, meta=False):
 
 
 def add_lexicon(catalog):
-    elem = []
-    wordSplitter = Empty()
-    wordSplitter.group = 'Word Splitter'
-    wordSplitter.name = 'HTML aware splitter'
+    from Products.ZCTextIndex.HTMLSplitter import HTMLWordSplitter
+    from Products.ZCTextIndex.Lexicon import CaseNormalizer
+    from Products.ZCTextIndex.Lexicon import StopWordAndSingleCharRemover
 
-    caseNormalizer = Empty()
-    caseNormalizer.group = 'Case Normalizer'
-    caseNormalizer.name = 'Case Normalizer'
-
-    stopWords = Empty()
-    stopWords.group = 'Stop Words'
-    stopWords.name = 'Remove listed and single char words'
-
-    elem.append(wordSplitter)
-    elem.append(caseNormalizer)
-    elem.append(stopWords)
-    catalog.manage_addProduct['ZCTextIndex'].manage_addLexicon('lexicon', '', elem)
+    lexicon = PLexicon(
+                'lexicon',
+                'Lexicon',
+                HTMLWordSplitter(),
+                CaseNormalizer(),
+                StopWordAndSingleCharRemover()
+            )
+    catalog._setObject('lexicon', lexicon)
 
 
 def create_reportek_indexes(catalog):
@@ -154,6 +150,7 @@ def create_reportek_indexes(catalog):
     add_index('actor', catalog, 'FieldIndex')
     add_index('content_type', catalog, 'FieldIndex')
     add_index('country', catalog, 'FieldIndex')
+    add_index('dataflow_uri', catalog, 'FieldIndex')
     add_index('dataflow_uris', catalog, 'KeywordIndex')
     add_index('getCountryName', catalog, 'FieldIndex')
     add_index('instance_id', catalog, 'FieldIndex')
@@ -277,8 +274,6 @@ misc_ = {
     "document_gif":  ImageFile("www/document.gif", globals()),
     "envelope.gif":  ImageFile("www/envelope.gif", globals()),
     "openflowEngine_gif": ImageFile("www/openflowEngine.gif", globals()),
-    "datafow_mappings_gif": ImageFile("www/datafow_mappings.gif", globals()),
-    "datafow_mapping_table_gif": ImageFile("www/datafow_mapping_table.gif", globals()),
     "edit_comment_gif":  ImageFile("www/edit_comment.gif", globals()),
     "delete_comment_gif":  ImageFile("www/delete_comment.gif", globals()),
     "manage_doc_gif":  ImageFile("www/manage_doc.gif", globals()),

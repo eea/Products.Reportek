@@ -1,0 +1,84 @@
+<tal:block define="global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'"/>
+<script type="text/javascript">
+  //<![CDATA[
+  splitSelect = {
+    selects:[],
+    current:null,
+    firstName:'dataflow_uri',
+    secondName:'dataflow_groups',
+    init:function(){
+      var s = document.getElementById(splitSelect.firstName);
+      var c = document.createElement('select');
+      c.onchange=function(){
+        splitSelect.choose(this.selectedIndex);
+      }
+      s.parentNode.insertBefore(c, s);
+      var g = s.getElementsByTagName('optgroup');
+      for(var i=0,j=g.length;i<j;i++){
+        var the_label = g[i].getAttribute('label');
+        var new_option = document.createElement('option');
+        var o = g[i].getElementsByTagName('option');
+        var news = document.createElement('select');
+        s.parentNode.insertBefore(news, s);
+        news.style.display='none';
+        splitSelect.selects.push(news);
+        var k=0;
+
+        c.appendChild(new_option);
+        c.options[i] = new Option(the_label, "value")
+        while(o[k]){
+          if(o[k].selected===true){
+            splitSelect.current = i;
+            news.style.display = 'block';
+          }
+          news.appendChild(o[k]);
+        }
+      }
+      c.selectedIndex = splitSelect.current;
+      s.parentNode.removeChild(s);
+      c.id = splitSelect.secondName;
+      c.name = splitSelect.secondName;
+      if(splitSelect.current === null){
+        splitSelect.selects[0].style.display = 'block';
+        splitSelect.selects[0].selectedIndex = 0;
+        c.selectedIndex = 0;
+        splitSelect.current = 0;
+      }
+    },
+    choose:function(o){
+      if(splitSelect.current !== null){
+        splitSelect.selects[splitSelect.current].style.display='none';
+        splitSelect.selects[splitSelect.current].name='';
+        splitSelect.selects[splitSelect.current].id='';
+      }
+      splitSelect.selects[o].style.display='block';
+      splitSelect.selects[o].name=splitSelect.firstName;
+      splitSelect.selects[o].id=splitSelect.firstName;
+      splitSelect.current = o;
+    }
+  }
+  //window.onload=splitSelect.init;
+  // ]]>
+</script>
+
+<select size=25 class="form-element" id="dataflow_uri" name="dataflow_uri" size="15"
+  tal:define="obligation_select_size python:'1' if isBdrDeployment else '15';
+              data context/ReportekEngine/dataflow_table_grouped;
+              groups python:data[0];
+              items python:data[1];
+              dataflow_uri context/dataflow_uri | nothing"
+  tal:attributes="size obligation_select_size">
+  <option></option>
+  <tal:block tal:repeat="group groups">
+    <optgroup tal:attributes="label python:context.truncate(group)">
+      <tal:block tal:repeat="item python:items[group]">
+        <option tal:attributes="value item/uri;
+                  selected python:item['uri'] == dataflow_uri;
+                  label python:context.truncate(item['TITLE'])">
+          [<span tal:replace="python:' '.join(item['SOURCE_TITLE'].split()[0:2])" />]
+          <span tal:replace="python:context.truncate(item['TITLE'])" />
+        </option>
+      </tal:block>
+    </optgroup>
+  </tal:block>
+</select>

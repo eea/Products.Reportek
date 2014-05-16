@@ -1,0 +1,49 @@
+<configure xmlns="http://namespaces.zope.org/zope"
+        xmlns:browser="http://namespaces.zope.org/browser"
+        xmlns:five="http://namespaces.zope.org/five">
+
+    <browser:resource
+            name="dataflow_mappings_record.gif"
+            file="www/dataflow_mappings_record.gif"/>
+
+    <browser:resource
+            name="dataflow_mappings.gif"
+            file="www/dataflow_mappings.gif"/>
+
+    <five:registerClass
+            class=".DataflowMappings.DataflowMappings"
+            meta_type="Reportek Dataflow Mappings"
+            icon="dataflow_mappings.gif"
+            permission="zope2.ViewManagementScreens"
+            global="True"/>
+
+    <!-- old -->
+    <five:registerClass
+            class=".DataflowMappingRecord.DataflowMappingRecord"
+            meta_type="Reportek Dataflow Mapping Record"
+            addview="add_dataflowmapping_record"
+            permission="zope2.ViewManagementScreens"
+            global="False"/>
+
+    <!-- old -->
+    <browser:page for="zope.browser.interfaces.IAdding"
+            name="add_dataflowmapping_record"
+            class=".DataflowMappingRecord.AddForm"
+            template="zpt/dataflow-mappings/mapDataflowSchemaAdd.zpt"
+            permission="zope2.ViewManagementScreens"/>
+
+    <five:registerClass
+            class=".DataflowMappingsRecord.DataflowMappingsRecord"
+            meta_type="Dataflow Mappings Record"
+            addview="add_record"
+            icon="dataflow_mappings_record.gif"
+            permission="zope2.ViewManagementScreens"
+            global="False"/>
+
+    <browser:page for="zope.browser.interfaces.IAdding"
+            name="add_record"
+            class=".DataflowMappingsRecord.AddForm"
+            template="zpt/dataflow-mappings/add_record.zpt"
+            permission="zope2.ViewManagementScreens"/>
+
+</configure>

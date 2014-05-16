@@ -56,7 +56,7 @@ def setupCoreSessions(app=None):
     from Acquisition import aq_base
     commit = 0
 
-    if app is None: 
+    if app is None:
         return appcall(setupCoreSessions)
 
     if not hasattr(app, 'temp_folder'):
@@ -96,7 +96,7 @@ def setupCoreSessions(app=None):
 
 def setupZGlobals(app=None):
     '''Sets up the ZGlobals BTree required by ZClasses.'''
-    if app is None: 
+    if app is None:
         return appcall(setupZGlobals)
 
     root = app._p_jar.root()
@@ -108,7 +108,7 @@ def setupZGlobals(app=None):
 
 def setupSiteErrorLog(app=None):
     '''Sets up the error_log object required by ZPublisher.'''
-    if app is None: 
+    if app is None:
         return appcall(setupSiteErrorLog)
 
     if not hasattr(app, 'error_log'):
@@ -214,6 +214,29 @@ class FakeRootObject(Folder):
 
 def create_fake_root():
     return FakeRootObject()
+
+
+def create_catalog(app):
+    from Products.ZCatalog.ZCatalog import ZCatalog
+    from Products.PluginIndexes.FieldIndex.FieldIndex import FieldIndex
+    from Products.ZCTextIndex.ZCTextIndex import ZCTextIndex
+    from Products.PluginIndexes.DateIndex.DateIndex import DateIndex
+    from Products.PluginIndexes.KeywordIndex.KeywordIndex import KeywordIndex
+    from Products.PluginIndexes.PathIndex.PathIndex import PathIndex
+    from Products.Reportek import create_reportek_indexes
+
+    app._setObject('Catalog', ZCatalog('Catalog'))
+    catalog = app.Catalog
+
+    catalog.meta_types = [
+            {'name': 'FieldIndex', 'instance': FieldIndex},
+            {'name': 'ZCTextIndex', 'instance': ZCTextIndex},
+            {'name': 'DateIndex', 'instance': DateIndex},
+            {'name': 'KeywordIndex', 'instance': KeywordIndex},
+            {'name': 'PathIndex', 'instance': PathIndex}]
+
+    create_reportek_indexes(catalog)
+    return catalog
 
 
 def create_temp_reposit():

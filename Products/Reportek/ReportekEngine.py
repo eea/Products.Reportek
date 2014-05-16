@@ -776,7 +776,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if self.webq_url:
             l_dataflow_mappings_container = getattr(self, constants.DATAFLOW_MAPPINGS)
             l_maprecords = l_dataflow_mappings_container.objectValues('Reportek Dataflow Mapping Record')
-            l_valid_schemas = l_dataflow_mappings_container.getXMLSchemasForAllDataflows()
+            l_valid_schemas = l_dataflow_mappings_container.getSchemasForDataflows()
             try:
                 l_server = xmlrpclib.ServerProxy(self.webq_url)
                 # GetXForm returns a dictionary {'XML_schema':'Form_name'}

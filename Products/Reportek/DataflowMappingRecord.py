@@ -1,46 +1,39 @@
-# The contents of this file are subject to the Mozilla Public
-# License Version 1.1 (the "License"); you may not use this file
-# except in compliance with the License. You may obtain a copy of
-# the License at http://www.mozilla.org/MPL/
-#
-# Software distributed under the License is distributed on an "AS
-# IS" basis, WITHOUT WARRANTY OF ANY KIND, either express or
-# implied. See the License for the specific language governing
-# rights and limitations under the License.
-#
-# The Original Code is Reportek version 1.0.
-#
-# The Initial Developer of the Original Code is European Environment
-# Agency (EEA).  Portions created by Finsiel are
-# Copyright (C) European Environment Agency.  All
-# Rights Reserved.
-#
-# Contributor(s):
-# Miruna Badescu, Eau de Web
+__doc__ = """ Mappings between dataflows and XML schemas """
 
-__doc__ = """
-      Mappings between dataflows and types of XML files (XML schemas)
-"""
-
-# Zope imports
 from OFS.SimpleItem import SimpleItem
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-import Globals
+from Products.Five.browser import BrowserView
 
-# product imports
 
-manage_addDataflowMappingRecordForm = PageTemplateFile('zpt/dataflow-mappings/mapDataflowSchemaAdd', globals())
+class AddForm(BrowserView):
 
-def manage_addDataflowMappingRecord(self, id, title='', dataflow_uri='', allowedSchemas=[], webformSchemas=[], file_id='', REQUEST=None):
-    """ add a new converter object """
-    ob = DataflowMappingRecord(id, title, dataflow_uri, allowedSchemas, webformSchemas, file_id)
-    self._setObject(id, ob)
-    self[id]._fix_attributes()
-    if REQUEST is not None:
-        return self.manage_main(self, REQUEST, update_menu=1)
+    def __init__(self, context, request):
+        super(AddForm, self).__init__(context, request)
+        self.parent = self.context.getParentNode()
+
+    def add(self):
+        form = self.request.form
+        oid = form.get('id')
+        ob = DataflowMappingRecord(
+                oid,
+                form.get('title'),
+                form.get('dataflow_uri'),
+                form.get('allowedSchemas'),
+                form.get('webformSchemas'),
+                form.get('file_id'))
+        self.parent._setObject(oid, ob)
+        self.parent[oid]._fix_attributes()
+        return self.request.response.redirect(
+                    self.parent.absolute_url() + '/manage_main')
+
+    def __call__(self, *args, **kwargs):
+        if self.request.method == 'POST':
+            return self.add()
+        return self.index(context=self.parent)
+
 
 class DataflowMappingRecord(SimpleItem):
     """ Mappings between reporting obligations (dataflows) and types of XML files (XML schemas) """
@@ -136,7 +129,4 @@ class DataflowMappingRecord(SimpleItem):
     security.declareProtected(view_management_screens, 'manage_settings_html')
     manage_settings_html = PageTemplateFile('zpt/dataflow-mappings/mapDataflowSchemaEdit', globals())
 
-    security.declarePublic('dataflows_select')
-    dataflows_select = PageTemplateFile('zpt/dataflows_select', globals())
-
-Globals.InitializeClass(DataflowMappingRecord)
+InitializeClass(DataflowMappingRecord)

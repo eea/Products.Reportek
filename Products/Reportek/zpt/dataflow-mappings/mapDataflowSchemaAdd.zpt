@@ -1,7 +1,7 @@
-<span tal:replace="structure context/manage_page_header" />
-<span tal:replace="structure python:context.manage_form_title(template, context, form_title='Add Reportek Dataflow Mapping Record', help_product='Reportek', help_topic='')" />
+<span tal:replace="structure options/context/manage_page_header" />
+<span tal:replace="structure python:options['context'].manage_form_title(template, context, form_title='Add Reportek Dataflow Mapping Record', help_product='Reportek', help_topic='')" />
 
-<form action="manage_addDataflowMappingRecord" method="post">
+<form action="" method="post">
 <table cellspacing="5" cellpadding="0" border="0">
 	<col style="width:10em" />
 	<col />
@@ -15,7 +15,9 @@
 	</tr>
 	<tr>
 		<th align="left" valign="top"><label for="dataflow_uri">Obligation</label></th>
-		<td align="left" valign="top"><span tal:replace="structure here/dataflows_select" /></td>
+		<td align="left" valign="top">
+			<span tal:replace="structure options/context/dataflows_select" />
+		</td>
 	</tr>
 	<tr>
 		<th align="left" valign="top"><label for="allowedSchemas">Schemas without webforms<br />(one per line)</label></th>
@@ -39,4 +41,4 @@
 </table>
 </form>
 
-<span tal:replace="structure context/manage_page_footer" />
+<span tal:replace="structure options/context/manage_page_footer" />
