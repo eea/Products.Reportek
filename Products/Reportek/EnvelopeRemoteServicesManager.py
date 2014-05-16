@@ -68,18 +68,20 @@ class EnvelopeRemoteServicesManager:
 
     # FIXME condition racing - concurent threads on the same envelope will collide
     security.declarePublic('getNextDocId')
-    def getNextDocId(self, schema_uri=None, name=None):
+    def getNextDocId(self, schema_uri=None, baseName=None):
         """ Find an available name for a document inside this envelope.
         Could be a new document per schema or another document (multilang)
         for a schema that already has some documents.
         schema_uri - give a name in the familly of this schema
-        name - use this as a base for naming the document, otherwise envelope id will be used"""
-        if not name:
-            name = self.id
+        baseName - use this as a base for naming the document, otherwise envelope id will be used"""
+        if not baseName:
+            baseName = self.id
+        else:
+            baseName = RepUtils.cleanup_id(baseName)
         docs = [ doc for doc in self.objectValues('Report Document') ]
         # first file
         if not docs:
-            return "%s__1.xml" % name
+            return "%s__1.xml" % baseName
 
         docNames = [ doc.id for doc in docs ]
 
@@ -99,7 +101,7 @@ class EnvelopeRemoteServicesManager:
                     break
             # no naming we know, but there are files for this schema
             if not base:
-                base = self.id
+                base = baseName
             for i in xrange(1, 1000):
                 candidate_id = "%s.%d.xml" % (base, i)
                 if candidate_id not in docNames:
@@ -109,7 +111,7 @@ class EnvelopeRemoteServicesManager:
         else:
             # No other files for this schema, but there are files whatsoever
             for i in xrange(1, 1000):
-                candidate_id = "%s__%d.xml" % (name, i)
+                candidate_id = "%s__%d.xml" % (baseName, i)
                 if candidate_id not in docNames:
                     return candidate_id
             raise IndexError("More than 1000 schemas in a mapping")
