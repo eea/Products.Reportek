@@ -138,7 +138,7 @@ class QAScriptTest(unittest.TestCase):
         local_scripts = qa_repository._get_local_qa_scripts()
         self.assertEqual(4, len(local_scripts))
 
-        mock_dm_container = Mock(getXMLSchemasForDataflows=Mock(return_value=[]))
+        mock_dm_container = Mock(getSchemasForDataflows=Mock(return_value=[]))
         qa_repository.getDataflowMappingsContainer = Mock(return_value=mock_dm_container)
 
         self.doc.content_type = 'application/msaccess'
@@ -241,7 +241,7 @@ class QAScriptTest(unittest.TestCase):
              qa_repository.mdb_workflow_qascript],
             local_scripts)
 
-        mock_dm_container = Mock(getXMLSchemasForDataflows=Mock(return_value=[]))
+        mock_dm_container = Mock(getSchemasForDataflows=Mock(return_value=[]))
         qa_repository.getDataflowMappingsContainer = Mock(return_value=mock_dm_container)
 
         self.doc.content_type = 'application/msword'

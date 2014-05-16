@@ -110,8 +110,13 @@
         <input type="text" id="name" name="name" size="60" />
       </td>
       <td>
-        <label class="form-label" for="has_webform">Has WebForm</label>
-        <input name="has_webform:boolean" id="has_webform" type="checkbox" />
+        <span class="form-label">Has Webform:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        <input name="has_webform" id="has_webform_yes" type="radio" value="yes"/>
+        <label class="form-label" for="has_webform_yes">Yes</label>
+        <input name="has_webform" id="has_webform_no" type="radio" value="no"/>
+        <label class="form-label" for="has_webform_no">No</label>
+        <input name="has_webform" id="has_webform_auto" type="radio" value="auto" checked/>
+        <label class="form-label" for="has_webform_auto">Figure it out from WebQ</label>
       </td>
     </tr>
     <tr class="row-hilite">

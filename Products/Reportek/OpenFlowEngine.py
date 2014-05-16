@@ -648,7 +648,7 @@ class OpenFlowEngine(Folder, Toolz):
 
     security.declarePublic('getProcessMappings')
     def getProcessMappings(self):
-        """ returns a dictionary with the valid process mappings 
+        """ returns a dictionary with the valid process mappings
             remembers mappings for erased processes - you never know when it's useful
             A newly added process is not valid for any dataflow or country
         """
@@ -657,6 +657,9 @@ class OpenFlowEngine(Folder, Toolz):
         for l_process_id in l_all_processes:
             # add new processes
             if l_process_id not in self.process_mappings.keys():
+                # FIXME - superfluous operations here.
+                # Could this hide a bug? Do we need a copy of process_mappings?!?
+                # because we currently don't actually have a copy but a reference...
                 self.process_mappings[l_process_id] = {'dataflows':[], 'countries':[]}
                 l_return_dict[l_process_id] = {'dataflows':[], 'countries':[]}
             else:

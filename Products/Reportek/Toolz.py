@@ -22,9 +22,10 @@
 """ Toolz module
     Contains functions useful for many classes
 """
+from collections import defaultdict
 from DateTime import DateTime
 import RepUtils
-from Products.PythonScripts.standard import url_quote, html_quote
+from Products.PythonScripts.standard import html_quote
 
 class Toolz:
     """ Useful functions """
@@ -84,23 +85,14 @@ class Toolz:
     #to call them in any context (ROOT or collection)
     def dataflow_table_grouped(self, key='SOURCE_TITLE', desc=0):
         #ROOT method dataflow_table returns a list of dictionaries
-        #with the following keys:
-        #[
-        #    'terminated', 'PK_RA_ID', 'SOURCE_TITLE', 'details_url', 'TITLE',
-        #    'uri', 'LAST_UPDATE', 'PK_SOURCE_ID'
-        #]
+        #with the following keys: 'terminated', 'PK_RA_ID', 'SOURCE_TITLE',
+        # 'details_url', 'TITLE', 'uri', 'LAST_UPDATE', 'PK_SOURCE_ID'
         #we want to group items by given key, ascendent(desc=0) or descendent(desc=1)
-        r = {}
-        #group items
-        rhk = r.has_key
+        r = defaultdict(list)
         for item in RepUtils.utSortListByAttr(self.dataflow_table(), key, desc):
-            if not rhk(item[key]): r[item[key]] = []
             r[item[key]].append(item)
-        #sort keys
-        keys = r.keys()
-        keys.sort()
-        if desc: keys.reverse()
-        return keys, r
+        # unfortunetely, Zope framework seems not to handle just any Python code (like defaultdict), so ulglify this a little, the zope way...
+        return sorted(r.keys(), reverse=desc), dict(r)
 
     def partofyear_table(self):
         return ['Whole Year',

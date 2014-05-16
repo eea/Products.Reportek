@@ -1,7 +1,6 @@
 __doc__ = """ Multiple dataflow mappings for a single obligation """
 
 import json
-from collections import defaultdict
 from os import environ
 import logging
 import xmlrpclib
@@ -10,6 +9,7 @@ from OFS.SimpleItem import SimpleItem
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
+from ZODB.PersistentList import PersistentList
 
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from Products.Five.browser import BrowserView
@@ -80,18 +80,29 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
         self.id = id
         self.title = title
         self.dataflow_uri = dataflow_uri
-        self.mapping = {'schemas': []}
+        self._mappings = PersistentList()
 
+
+    security.declareProtected(view_management_screens, 'get_mapping')
+    def get_mapping(self):
+        """ Return the low-level mapping (persistent) list.
+        This is momentarily required by Article 21, workflow, but we should refactor
+        the whole mechanism """
+        return self._mappings
 
     security.declareProtected(view_management_screens, 'mapping')
+    # FIXME This was supposed to be used from web but properties cannot
+    # so we should remove this hasle.
     @property
     def mapping(self):
-        return json.loads(self.mapping_json)
+        """ x"""
+        return {'schemas': self._mappings}
 
 
     @mapping.setter
     def mapping(self, value):
-        self.mapping_json = json.dumps(value)
+        if 'schemas' in value:
+            self._mappings = PersistentList(value['schemas'])
 
 
     security.declareProtected(view_management_screens, 'load_from_dd')
@@ -105,13 +116,15 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
             webq = xmlrpclib.ServerProxy(webq_url).WebQService
             webq_resp = webq.getXForm([row['url'] for row in resp.json()])
 
-            self.mapping = {
-                'schemas': [{
+            new_mappings = PersistentList()
+            for i, row in enumerate(resp.json()):
+                mapping = {
                     'url': row['url'],
                     'name': row['name'],
-                    'has_webform': bool(webq_resp.get(row['url'])),
-                } for row in resp.json()]
-            }
+                    'has_webform': True if webq_resp.get(row['url']) else False,
+                }
+                new_mappings.append(mapping)
+            self._mappings = new_mappings
             messages.add(REQUEST, "Mappings updated from Data Dictionary.")
 
         elif resp.status_code == 404:
@@ -126,48 +139,50 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
             messages.add(REQUEST, "Error fetching from Data Dictionary",
                          'error')
 
-        REQUEST.RESPONSE.redirect(self.absolute_url() + '/manage_html')
-
-
-    _edit = PageTemplateFile( 'zpt/dataflow-mappings/edit_record.zpt', globals())
-
+        REQUEST.RESPONSE.redirect(self.absolute_url() + '/edit')
 
     security.declareProtected(view_management_screens, 'add_schema')
     def add_schema(self, REQUEST):
         """ Add schema """
 
-        data = self.mapping
         schema_uri = REQUEST.form.get('schema', '').strip()
+        schema_name = REQUEST.form.get('name', '').strip()
+        has_webform = REQUEST.form.get('has_webform', None)
+        if not schema_uri or not schema_name:
+            return 'Schema and name cannot be empty!'
+        # go through the getter to obtain an object
+        if schema_uri in ( r['url'] for r in self._mappings ):
+            return 'Schema already exists!'
 
-        if schema_uri:
-            if schema_uri in [r.get('url') for r in data.get('schemas')]:
-                return 'Schema already exists!'
+        if has_webform == 'auto':
+            webq_url = self.ReportekEngine.webq_url
+            webq = xmlrpclib.ServerProxy(webq_url).WebQService
+            webq_resp = webq.getXForm([schema_uri])
+            # WebQ has a form for this, so we shall need and webform file id
+            if webq_resp.get(schema_uri):
+                has_webform = True
             else:
-                form_data = {
-                    'url': schema_uri,
-                    'name': REQUEST.form.get('name'),
-                    'has_webform':REQUEST.form.get('has_webform', False)
-                }
-                data['schemas'].append(form_data)
-                self.mapping = data
-                return 'Schema successfully added'
+                has_webform = False
+        else:
+            has_webform = True if has_webform == 'yes' else False
+        form_data = {
+            'url': schema_uri,
+            'name': schema_name,
+            'has_webform': has_webform,
+        }
+        self._mappings.append(form_data)
+        return 'Schema successfully added'
 
-        return 'Schema cannot be empty!'
 
 
     security.declareProtected(view_management_screens, 'add_schema')
     def delete_schemas(self, REQUEST):
         """ Delete schemas """
-
-        data = self.mapping
         schemas = REQUEST.form.get('ids', [])
+        self._mappings = PersistentList( x for x in self._mappings if x['url'] not in schemas )
 
-        newdata = []
-        for x in data.get('schemas'):
-            if x['url'] not in schemas:
-                newdata.append(x)
 
-        self.mapping = {'schemas': newdata}
+    _edit = PageTemplateFile( 'zpt/dataflow-mappings/edit_record.zpt', globals())
 
 
     security.declareProtected(view_management_screens, 'edit')
@@ -185,21 +200,12 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
                 message_dialog = self.delete_schemas(REQUEST)
 
             if REQUEST.form.get('update'):
-                existing_records = self.Catalog(
-                        meta_type='Dataflow Mappings Record',
-                        dataflow_uri=REQUEST.form['dataflow_uri'],
-                        path='/DataflowMappings')
-                if existing_records:
-                    raise Exception('A record for this dataflow already exists')
-                else:
-                    self.title = REQUEST.form['title']
-                    self.dataflow_uri = REQUEST.form['dataflow_uri']
-                    message_dialog = 'Saved changes.'
-
-        data = self.mapping
+                self.title = REQUEST.form['title']
+                self.dataflow_uri = REQUEST.form['dataflow_uri']
+                message_dialog = 'Saved changes.'
 
         return self._edit(
-                    schemas=data.get('schemas'),
+                    schemas=self._mappings,
                     message_dialog=message_dialog,
                 )
 

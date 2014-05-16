@@ -1,17 +1,15 @@
 __doc__ = "Container for mappings between dataflows and XML schemas"
 
-import warnings
-
 from OFS.Folder import Folder
 from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from UserList import UserList
 
 from constants import DATAFLOW_MAPPINGS, ENGINE_ID
 
 
-MAPPING_RECORD = 'Reportek Dataflow Mapping Record'
 RECORD = 'Dataflow Mappings Record'
 
 
@@ -44,96 +42,44 @@ class DataflowMappings(Folder):
          return getattr(self, ENGINE_ID)
 
 
-    def getWebformsForDataflows(self, dataflow_uris):
-        """ Returns all schemas with webforms for a list of dataflows """
-        warnings.warn(
-                'Reportek.DataflowMappings.getWebformsForDataflows is'
-                'deprecated. Use getXMLSchemasForDataflows instead.',
-                DeprecationWarning, stacklevel=2)
-        return [
-            schema['url']
-            for brain in self.Catalog(
-                    meta_type=RECORD,
-                    dataflow_uri=dataflow_uris,
-                    path='/DataflowMappings')
-            for schema in brain.getObject().mapping
-            if schema['has_webform'] is True
-            ]
+    def getSchemaObjectsForDataflows(self, dataflow_uris, web_form_only):
+        """ Returns schema objects for one or many dataflows
+        dataflow_uris - one uri (str) looked after, a list for any uri in it
+                        or leave None (False) for all dataflows
+        web_form_only - if True only Schemas that have webforms will be returned
+
+        return - list of found schema objects"""
+        query = {
+            'meta_type': RECORD,
+            'path': '/DataflowMappings'
+        }
+        if dataflow_uris:
+            if isinstance(dataflow_uris, UserList):
+                dataflow_uris = list(dataflow_uris)
+            if isinstance(dataflow_uris, list):
+                query['dataflow_uri'] = dataflow_uris
+            else:
+                query['dataflow_uri'] = [dataflow_uris]
+
+        res = []
+        for brain in self.Catalog(**query):
+            for schema in brain.getObject().mapping['schemas']:
+                if not web_form_only or schema['has_webform']:
+                    # yield schema # can't yield here if using dtml; it doesn't know how to iterate
+                    res.append(schema)
+        return res
 
 
-    def getXMLSchemasForDataflow(self, dataflow_uri):
-        """ Returns all schemas for a given dataflow """
-        # possbile bug, should return also r.allowedSchemas
-        return [
-            schema['url']
-            for brain in self.Catalog(
-                    meta_type=RECORD,
-                    dataflow_uri=dataflow_uri,
-                    path='/DataflowMappings')
-            for schema in brain.getObject().mapping
-            if schema['has_webform'] is True
-            ]
+    def getSchemasForDataflows(self, dataflow_uris=None, web_form_only=False):
+        """ Returns schemas for one or many dataflows
+        dataflow_uris - one uri (str) looked after, a list for any uri in it
+                        or leave None (False) for all dataflows
+        web_form_only - if True only Schemas that have webforms will be returned
 
+        return - list of found schemas"""
+        schemaObjects = self.getSchemaObjectsForDataflows(dataflow_uris, web_form_only)
+        return [ schema['url'] for schema in schemaObjects ]
 
-    def getXMLSchemasForDataflows(self, dataflow_uris):
-        """ Returns all schemas for a list of dataflows """
-        return [
-            schema['url']
-            for brain in self.Catalog(
-                    meta_type=RECORD,
-                    dataflow_uri=dataflow_uris,
-                    path='/DataflowMappings')
-            for schema in brain.getObject().mapping
-            ]
-
-
-    def getXMLSchemasForAllDataflows(self):
-        """ Returns all schemas for all dataflows """
-        return [
-            schema['url']
-            for brain in self.Catalog(
-                    meta_type=RECORD,
-                    path='/DataflowMappings')
-            for schema in brain.getObject().mapping
-        ]
-
-
-
-    security.declarePublic('get_schemas_for_dataflows')
-    def get_schemas_for_dataflows(self, dataflow_uris):
-        """
-        Get a list of XML schemas that apply to `dataflow_uris`. The list
-        includes user-friendly title, the schema URI, and the default
-        filename for new webform-generated xml uploads:
-
-        >>> DataflowMappings.get_schemas_for_dataflows(
-        ...   ['http://rod.eionet.eu.int/obligations/32'])
-        [{'title': 'Nationally designated areas (CDDA-1) 2',
-          'uri': 'http://dd.eionet.europa.eu/GetSchema?id=TBL7602',
-          'webform_filename': 'cdda-2.xml'},
-         {'title': 'Nationally designated areas (CDDA-1) 3',
-          'uri': 'http://dd.eionet.europa.eu/GetSchema?id=TBL7599',
-          'webform_filename': 'cdda-3.xml'}]
-
-        """
-        out = []
-        for mapping_record in self.objectValues([MAPPING_RECORD]):
-            if mapping_record.dataflow_uri not in dataflow_uris:
-                continue
-            out.append({
-                'title': mapping_record.title_or_id(),
-                'uri': mapping_record.schema_url,
-                'webform_filename': mapping_record.file_id,
-            })
-        for mapping_table in self.objectValues([RECORD]):
-            if mapping_table.dataflow_uri not in dataflow_uris:
-                continue
-            for schema in mapping_table.mapping:
-                out.append({
-                    'title': schema['name'],
-                    'uri': schema['url'],
-                })
-        return out
 
     security.declareProtected('Manage OpenFlow', 'dataflowsMappingsView')
     dataflowsMappingsView = PageTemplateFile(
