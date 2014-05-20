@@ -95,15 +95,19 @@ class workitem(CatalogAware, SimpleItem, PropertyManager):
                 manage_page = 'manage_settings_html'
         url = "-"
         if path:
-            url = '/%s/%s' %(url, manage_page)
+            url = '/%s/%s' %(path, manage_page)
         return {'id': getattr(activity, 'application', None) or activity_id, 'url': url}
 
+    def activity_link(self, activity_id):
+        activity = getattr(self.getProcess(), activity_id, None)
+        url = activity.absolute_url()+"/manage_editForm" if activity else "-"
+        return {'id': activity_id, 'url': url}
 
     def lastActivityDate(self):
         """ Returns last activity date and time based on the workitem's event log """
         if len(self.event_log):
             return self.event_log[-1]['time']
-        return creation_time
+        return self.creation_time
 
     security.declareProtected('Manage OpenFlow', 'edit')
     def edit(self,
@@ -238,5 +242,13 @@ class workitem(CatalogAware, SimpleItem, PropertyManager):
         except:
             return self.activity_id
 
+    def getActivityAttribute(self, attr):
+        """Returns activity attr attribute if activity is found.
+        Otherwise returns None. Caller must consider both return cases."""
+        process = self.unrestrictedTraverse(self.process_path)
+        try:
+            return getattr(getattr(process, self.activity_id), attr)
+        except:
+            return None
 
 InitializeClass(workitem)

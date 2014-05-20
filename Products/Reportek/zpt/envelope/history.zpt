@@ -12,7 +12,8 @@
 
     <table cellpadding="2" cellspacing="2">
     <tal:block define="actives python:[]" repeat="item python:context.objectValues('Workitem')">
-      <tr tal:define="condition python:request.has_key('w' + item.id) and request['w' + item.id] == '1'">
+      <tr tal:define="condition python:request.has_key('w' + item.id) and request['w' + item.id] == '1';
+                      activity_name python:item.getActivityAttribute('title')">
         <tal:block condition="condition">
         <td valign="top">
           <a rel="nofollow"
@@ -24,7 +25,11 @@
             <img src="/misc_/Reportek/minus_gif" alt="Collapse item" />
           </a>
         </td>
-        <td><strong tal:content="python:item.getActivityDetails('title')"></strong>
+        <td><strong tal:condition="activity_name" tal:content="activity_name"></strong>
+            <strong tal:condition="not:activity_name"
+                    tal:define="copied_activity_name python:item.activity_id"
+                    tal:content="string:${copied_activity_name} (activity renamed or missing)"
+                    style="color:red;">replace activity name</strong>
             (<span tal:define="date python:item.lastActivityDate().strftime('%Y/%m/%d')"
                    tal:replace="string:${item/status} ${date}"></span>
            <span tal:condition="python:item.actor not in ['', 'Anonymous
@@ -45,7 +50,11 @@
               alt="Expand item for more information" border="0" />
             </a>
           </td>
-          <td><strong tal:content="python:item.getActivityDetails('title')"></strong>
+          <td><strong tal:condition="activity_name" tal:content="activity_name"></strong>
+            <strong tal:condition="not:activity_name"
+                    tal:define="copied_activity_name python:item.activity_id"
+                    tal:content="string:${copied_activity_name} (activity renamed or missing)"
+                    style="color:red;"> replace with activity name</strong>
             (<span tal:define="date python:item.lastActivityDate().strftime('%Y/%m/%d')"
                    tal:replace="string:${item/status} ${date}"></span>
              <span tal:condition="python:item.actor not in ['', 'Anonymous
