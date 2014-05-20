@@ -1,5 +1,10 @@
-3.6.14 (unreleased)
+3.6.15 (unreleased)
 ----------------
+
+3.6.14 (2014-05-20)
+----------------
+* Task 3312 - Refactor DataflowMappings [baragdan]
+* Task 17579 - Envelope activities history show missing activities in red [baragdan]
 * Task 19418 - RDF output has links url quoted [baragdan]
 * Task 18960 - Reportek to split xmlSchema on space in RDF output [baragdan]
 * Task 19323 - Implement ping/delete to the Content Registry [baragdan]
