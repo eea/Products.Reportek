@@ -68,6 +68,13 @@ class PoBlock(object):
         for s in self.sources:
             self.source2ids[s].add(self.lookForThis)
 
+    def untranslate(self):
+        for i, line in enumerate(self.blockLines):
+            if line.startswith(self.msgstr):
+                break
+        self.blockLines = self.blockLines[:i]
+        self.blockLines.append('msgstr ""\n')
+
     def getBlockText(self):
         return u'\n'.join(self.blockLines)
 
