@@ -38,9 +38,6 @@
 	<dt>zipEnvelopes</dt>
 	<dd>Used in the <a href="/resultsdataflow">dataflow search results form</a> to allow users select released envelopes and zip their content together with the metadata.</dd>
 
-	<dt>harvestXforms</dt>
-	<dd>Calls <code>getXforms</code> from the WebQ and updates the <code>DataflowMappingRecord</code> table for the <code>haswebform</code> attribute. To be called on regular basis by a cron job.</dd>
-
 	<dt>change_ownership</dt>
 	<dd>Method available to Managers that can be used in ZMI scripts to change the ownership of objects such as collections, envelopes and files</dd>
 

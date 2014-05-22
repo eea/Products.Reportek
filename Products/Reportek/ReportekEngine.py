@@ -769,35 +769,13 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security.declareProtected(view_management_screens, 'harvestXforms')
     def harvestXforms(self):
-        """ calls getXforms from the WebQ, and updates the DataflowMappingRecord table
+        """ Deprecated - use (with care) load_from_dd() on each DataflowMappingsRecord object for similar result
+
+            calls getXforms from the WebQ, and updates the DataflowMappingRecord table
             for the haswebform attribute
             To be called on regular basis by a cron job
         """
-        if self.webq_url:
-            l_dataflow_mappings_container = getattr(self, constants.DATAFLOW_MAPPINGS)
-            l_maprecords = l_dataflow_mappings_container.objectValues('Reportek Dataflow Mapping Record')
-            l_valid_schemas = l_dataflow_mappings_container.getSchemasForDataflows()
-            try:
-                l_server = xmlrpclib.ServerProxy(self.webq_url)
-                # GetXForm returns a dictionary {'XML_schema':'Form_name'}
-                l_ret = l_server.WebQService.getXForm(l_valid_schemas)
-            except xmlrpclib.Fault, l_fault:
-                return str(l_fault)
-            # An HTTP protocol error - retry later
-            except xmlrpclib.ProtocolError, l_protocol:
-                return str(l_protocol)
-            # A broken response package - critical, do not retry
-            except xmlrpclib.ResponseError, l_response:
-                return str(l_response)
-            # Generic client error - critical, do not retry
-            except xmlrpclib.Error, err:
-                return str(err)
-        # Update the dataflow mappings
-        for l_item in l_maprecords:
-            for schema_url in l_item.allowedSchemas + l_item.webformSchemas:
-                if l_ret.has_key(schema_url):
-                    l_item.set_schema_type(schema_url, l_ret[schema_url] != '')
-        return '1'
+        raise DeprecationWarning('DataflowMappingRecord objects have been deprecated, use DataflowMappingsRecord objects instead')
 
     ################################################################################
     #

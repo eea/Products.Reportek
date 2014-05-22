@@ -81,11 +81,6 @@ class DataflowMappings(Folder):
         return [ schema['url'] for schema in schemaObjects ]
 
 
-    security.declareProtected('Manage OpenFlow', 'dataflowsMappingsView')
-    dataflowsMappingsView = PageTemplateFile(
-            'zpt/dataflow-mappings/mapDataflowsSchemasView',
-            globals())
-
     security.declarePublic('dataflows_select')
     dataflows_select = PageTemplateFile(
             'zpt/dataflow-mappings/dataflows_select',
