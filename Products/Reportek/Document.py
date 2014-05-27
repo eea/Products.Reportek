@@ -106,6 +106,7 @@ def manage_addDocument(self, id='', title='',
             self.manage_delObjects(save_id)
             transaction.commit()
             self.manage_renameObject(id, save_id)
+            id = save_id
         engine = getattr(self.getPhysicalRoot(), ENGINE_ID, None)
         globally_restricted_site = getattr(engine, 'globally_restricted_site', False)
         if restricted or globally_restricted_site:
