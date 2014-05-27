@@ -411,8 +411,7 @@ class EnvelopeCustomDataflows:
             except SchemaError as e:
                 if REQUEST:
                     return self.messageDialog(
-                        message="The file you are trying to upload wasn't generated "
-                                " according to the Data Dictionary schema!"
+                        message="The file you are trying to upload does not have valid schema location"
                                 " File not uploaded! (reason was: %s)"%str(e.args),
                         action='index_html')
             file.seek(0)
@@ -610,42 +609,6 @@ class EnvelopeCustomDataflows:
 #
 #    security.declareProtected('Change Envelopes', 'uploadESRI')
 #    uploadESRI = DTMLFile('dtml/envelopeUploadESRI',globals())
-
-    ##################################################
-    #   Groundwater
-    ##################################################
-
-#    security.declareProtected('Change Envelopes', 'fetchXMLFileGW')
-#    def fetchXMLFileGW(self, REQUEST=None):
-#        """ Grabs one XML file from a fixed location and uploads it as Report Document
-#        """
-#        # Construct the name of the file based on patters and the country code
-#        # Countries are kept as URI like 'http://cdr.eionet.eu.int/rdf/countries#LY'
-#        l_file_id_gw = self.getCountryCode().upper() + '_bodies.xml'
-#        l_file_id_sw = self.getCountryCode().upper() + '_saltwaterintrusion.xml'
-#        l_file_gw, l_content_type = RepUtils.utGrabFromUrl(WEBQ_XML_REPOSITORY + l_file_id_gw)
-#        l_file_sw, l_content_type = RepUtils.utGrabFromUrl(WEBQ_XML_REPOSITORY + l_file_id_sw)
-#        if l_file_gw is None and l_file_sw is None and REQUEST is not None:
-#            return self.messageDialog(
-#                                message='There is no initial data available. Use the webforms to create and edit the delivery files.',
-#                                action=self.absolute_url())
-#        elif l_file_gw is None and l_file_sw is None:
-#            return 0
-#
-#        if hasattr(self, l_file_id_gw):
-#            self.manage_delObjects(l_file_id_gw)
-#        if hasattr(self, l_file_id_sw):
-#            self.manage_delObjects(l_file_id_sw)
-#        if l_file_gw is not None:
-#            self.manage_addDocument(id=l_file_id_gw, file=l_file_gw, content_type=l_content_type)
-#        if l_file_sw is not None:
-#            self.manage_addDocument(id=l_file_id_sw, file=l_file_sw, content_type=l_content_type)
-#
-#        if REQUEST is not None:
-#            return self.messageDialog(
-#                            message='File(s) successfully fetched!',
-#                            action=self.absolute_url())
-#        return 1
 
     security.declareProtected('Change Envelopes', 'uploadGISfiles')
     def uploadGISfiles(self, file_shp=None, file_shx=None, file_prj=None, file_dbf=None, file_metainfo=None, REQUEST=None):

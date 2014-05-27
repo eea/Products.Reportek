@@ -31,6 +31,12 @@ import lxml.etree
 class SchemaError(ValueError):
     pass
 
+def locations_str(locations):
+    if not hasattr(locations, '__iter__'):
+        return locations
+    loc_list = [ loc for loc in locations ]
+    return ' '.join(loc_list)
+
 def absolute_location(location):
     return location.startswith('http://') or location.startswith('https://')
 
@@ -63,12 +69,12 @@ def detect_schema(src):
         location_list = location.split()
         # schemaLocation must come in pairs (schema, location)
         if location_list and len(location_list) % 2:
-            return ''
+            raise SchemaError('schemaLocation must have pairs of values', locations_str(location_list))
         location_list = location_list[1::2] # pick every 2nd item in list (the location)
         if location_list:
             location_list_valid = filter(absolute_location, location_list)
             if len(location_list) != len(location_list_valid):
-                raise SchemaError('Schema location is relative', str(list(set(location_list) - set(location_list_valid))))
+                raise SchemaError('Schema location is relative', locations_str(set(location_list) - set(location_list_valid)))
         return ' '.join(location_list)
 
     location = doc.docinfo.system_url

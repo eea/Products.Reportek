@@ -121,8 +121,13 @@ class XmlDetectionTest(unittest.TestCase):
         <report xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="https://schema.eu/schema.xsd">
          </report>'''
-        schema_location = detect_schema(StringIO(content))
-        self.assertEqual(schema_location, '')
+        exception_args = None
+        expected_exception_args = ('schemaLocation must have pairs of values', 'https://schema.eu/schema.xsd')
+        try:
+            detect_schema(StringIO(content))
+        except SchemaError as e:
+            exception_args = e.args
+            self.assertEqual(exception_args, expected_exception_args)
 
     def test_create_xml_good_multiple_schemaLocation(self):
         content = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -138,7 +143,7 @@ class XmlDetectionTest(unittest.TestCase):
         xsi:schemaLocation="https://schema.eu/0 schema.xsd https://schema.eu/1 https://schema.eu/schema1.xsd">
          </report>'''
         exception_args = None
-        expected_exception_args = ('Schema location is relative', "['schema.xsd']")
+        expected_exception_args = ('Schema location is relative', 'schema.xsd')
         try:
             detect_schema(StringIO(content))
         except SchemaError as e:
