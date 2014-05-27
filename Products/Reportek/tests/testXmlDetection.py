@@ -1,6 +1,6 @@
 import unittest
 from StringIO import StringIO
-from Products.Reportek.XMLInfoParser import detect_schema, detect_single_schema
+from Products.Reportek.XMLInfoParser import detect_schema, detect_single_schema, SchemaError
 
 
 class XmlDetectionTest(unittest.TestCase):
@@ -32,7 +32,7 @@ class XmlDetectionTest(unittest.TestCase):
         """ Create a XML document with single xsi schema """
         content = '''<?xml version="1.0" encoding="UTF-8"?>
         <report xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://schema.eu/schema.xsd">
+        xsi:schemaLocation="http://schema.eu/0 http://schema.eu/schema.xsd">
          </report>'''
         schema_location = detect_schema(StringIO(content))
         self.assertEqual(schema_location, 'http://schema.eu/schema.xsd')
@@ -79,8 +79,71 @@ class XmlDetectionTest(unittest.TestCase):
         content = '''<?xml version="1.0" encoding="UTF-8"?>
         <report attribute="unclosed
         </report>'''
+        exception_args = None
+        try:
+            detect_schema(StringIO(content))
+        except SchemaError as e:
+            exception_args = e.args
+            self.assertIn('XML Syntax Error', exception_args)
+
+    def test_create_xml_good_noNamespaceSchemaLocation(self):
+        content = '''<?xml version="1.0" encoding="UTF-8"?>
+        <report xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="https://schema.eu/schema.xsd">
+         </report>'''
+        schema_location = detect_schema(StringIO(content))
+        self.assertEqual(schema_location, 'https://schema.eu/schema.xsd')
+
+    def test_create_xml_bad_noNamespaceSchemaLocation(self):
+        """Schema locations must be fully qualified and start with http(s)"""
+        content = '''<?xml version="1.0" encoding="UTF-8"?>
+        <report xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="schema.xsd">
+         </report>'''
+        exception_args = None
+        expected_exception_args = ('Schema location is relative', 'schema.xsd')
+        try:
+            detect_schema(StringIO(content))
+        except SchemaError as e:
+            exception_args = e.args
+            self.assertEqual(exception_args, expected_exception_args)
+
+    def test_create_xml_good_schemaLocation(self):
+        content = '''<?xml version="1.0" encoding="UTF-8"?>
+        <report xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://schema.eu/0 https://schema.eu/schema.xsd">
+         </report>'''
+        schema_location = detect_schema(StringIO(content))
+        self.assertEqual(schema_location, 'https://schema.eu/schema.xsd')
+
+    def test_create_xml_noPairs_schemaLocation(self):
+        content = '''<?xml version="1.0" encoding="UTF-8"?>
+        <report xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://schema.eu/schema.xsd">
+         </report>'''
         schema_location = detect_schema(StringIO(content))
         self.assertEqual(schema_location, '')
+
+    def test_create_xml_good_multiple_schemaLocation(self):
+        content = '''<?xml version="1.0" encoding="UTF-8"?>
+        <report xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://schema.eu/0 https://schema.eu/schema.xsd https://schema.eu/1 https://schema.eu/schema1.xsd">
+         </report>'''
+        schema_location = detect_schema(StringIO(content))
+        self.assertEqual(schema_location, 'https://schema.eu/schema.xsd https://schema.eu/schema1.xsd')
+
+    def test_create_xml_bad_multiple_schemaLocation(self):
+        content = '''<?xml version="1.0" encoding="UTF-8"?>
+        <report xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://schema.eu/0 schema.xsd https://schema.eu/1 https://schema.eu/schema1.xsd">
+         </report>'''
+        exception_args = None
+        expected_exception_args = ('Schema location is relative', "['schema.xsd']")
+        try:
+            detect_schema(StringIO(content))
+        except SchemaError as e:
+            exception_args = e.args
+            self.assertEqual(exception_args, expected_exception_args)
 
     def test_gml_document(self):
         """ Create a GML file in the envelope

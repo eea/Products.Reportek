@@ -1,5 +1,6 @@
 3.6.15 (unreleased)
 ----------------
+* Task 17226 - Reject ambiguous schema locations [baragdan]
 
 3.6.14 (2014-05-20)
 ----------------

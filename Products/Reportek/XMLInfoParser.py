@@ -28,34 +28,55 @@ __version__='$Revision$'[11:-2]
 
 import lxml.etree
 
+class SchemaError(ValueError):
+    pass
+
+def absolute_location(location):
+    return location.startswith('http://') or location.startswith('https://')
 
 def detect_schema(src):
+    """ Detect the schema location of this xml file.
+    The schema may be missing completely in which case we return empty string
+    However the xml must be well formmed and the schema location must be in absolute form;
+    otherwise throw an SchemaError exception in order to reject the file.
+    """
     try:
         iterparser = lxml.etree.iterparse(src)
-        event, element = next(iterparser)
+        event, element = next(iter(iterparser))
         doc = element.getroottree()
-    except lxml.etree.XMLSyntaxError:
-        return ''
+    except lxml.etree.XMLSyntaxError as e:
+        raise SchemaError('XML Syntax Error', *e.args)
 
     root = doc.getroot()
 
     location = root.attrib.get('{http://www.w3.org/2001/XMLSchema-instance}'
                                'noNamespaceSchemaLocation')
-    if location is not None:
-        return location
+    if location:
+        if absolute_location(location):
+            return location
+        else:
+            raise SchemaError('Schema location is relative', location)
 
     location = root.attrib.get('{http://www.w3.org/2001/XMLSchema-instance}'
                                'schemaLocation')
     if location is not None:
         location_list = location.split()
-        if len(location_list) > 1:
-            return ' '.join(location_list[1::2]) # pick every 2nd item in list
-        else:
-            return location_list[0]
+        # schemaLocation must come in pairs (schema, location)
+        if location_list and len(location_list) % 2:
+            return ''
+        location_list = location_list[1::2] # pick every 2nd item in list (the location)
+        if location_list:
+            location_list_valid = filter(absolute_location, location_list)
+            if len(location_list) != len(location_list_valid):
+                raise SchemaError('Schema location is relative', str(list(set(location_list) - set(location_list_valid))))
+        return ' '.join(location_list)
 
     location = doc.docinfo.system_url
-    if location is not None:
-        return location
+    if location:
+        if absolute_location(location):
+            return location
+        else:
+            raise SchemaError('Schema location is relative', location)
 
     return ''
 

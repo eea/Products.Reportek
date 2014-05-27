@@ -24,38 +24,28 @@ __version__='$Rev$'[6:-2]
 
 import Globals, IconShow
 import requests
-import stat
-import urllib, os, types, string
-from __main__ import *
+import os, string
+#from __main__ import *
 from AccessControl import getSecurityManager, ClassSecurityInfo
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from OFS.SimpleItem import SimpleItem
-from zExceptions import Forbidden, Redirect
-from Globals import MessageDialog, package_home
+from zExceptions import Redirect
+from Globals import package_home
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-try: from zope.contenttype import guess_content_type # Zope 2.10 and newer
-except: from zope.app.content_types import guess_content_type # Zope 2.9 and older
+from zope.contenttype import guess_content_type # Zope 2.10 and newer
 from webdav.common import rfc1123_date
 from DateTime import DateTime
-from mimetools import choose_boundary
-from os.path import join, isfile
+from os.path import join
 from zope.interface import implements
-try:
-    from zope.container.interfaces import IObjectRemovedEvent, IObjectAddedEvent
-except ImportError:
-    from zope.app.container.interfaces import IObjectRemovedEvent, IObjectAddedEvent
 from time import time
-try: from cStringIO import StringIO
-except: from StringIO import StringIO
+import transaction
 
 # Product imports
 import RepUtils
-from Converters import Converters
-from XMLInfoParser import detect_schema
-from constants import CONVERTERS_ID, QAREPOSITORY_ID, ENGINE_ID
+from XMLInfoParser import detect_schema, SchemaError
+from constants import QAREPOSITORY_ID, ENGINE_ID
 from interfaces import IDocument
 from blob import FileContainer, StorageError
-from ZODB.blob import FilesystemHelper
 
 FLAT = 0
 SYNC_ZODB = 1
@@ -85,19 +75,37 @@ def manage_addDocument(self, id='', title='',
         # generate id from filename and make sure, there are no spaces in the id
         id = file.filename
     if id:
+        save_id = None
         id = id[max(string.rfind(id,'/'),
                   string.rfind(id,'\\'),
                   string.rfind(id,':')
                  )+1:]
         id = id.strip()
         id = RepUtils.cleanup_id(id)
+
         # delete the previous file with the same id, if exists
         if self.get(id) and isinstance(self.get(id), Document):
-            self.manage_delObjects(id)
+            save_id = id
+            id = id + '___tmp_%f'%time()
+
+        obj = Document(id, title)
         self = self.this()
-        self._setObject(id, Document(id, title))
+        self._setObject(id, obj)
         obj = self._getOb(id)
-        obj.manage_file_upload(file, content_type)
+        try:
+            obj.manage_file_upload(file, content_type)
+        except SchemaError as e:
+            self.manage_delObjects(id)
+            if REQUEST:
+                return self.messageDialog(
+                    message='The file is an invalid XML (reason: %s)'%str(e.args),
+                    action='./manage_main')
+            else:
+                return ''
+        if save_id:
+            self.manage_delObjects(save_id)
+            transaction.commit()
+            self.manage_renameObject(id, save_id)
         engine = getattr(self.getPhysicalRoot(), ENGINE_ID, None)
         globally_restricted_site = getattr(engine, 'globally_restricted_site', False)
         if restricted or globally_restricted_site:

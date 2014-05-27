@@ -30,12 +30,11 @@ When writing in this class, specify the name of the dataflow as comment first
 """
 
 # Zope imports
-from Globals import DTMLFile, MessageDialog, InitializeClass
+from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 try: from zope.contenttype import guess_content_type # Zope 2.10 and newer
 except: from zope.app.content_types import guess_content_type # Zope 2.9 and older
 from AccessControl import ClassSecurityInfo
-from DateTime import DateTime
 import xmlrpclib
 import string
 import logging
@@ -44,17 +43,11 @@ from xml.dom.minidom import parseString
 
 # Product specific imports
 import RepUtils
-from constants import WEBQ_XML_REPOSITORY, CONVERTERS_ID
+from constants import CONVERTERS_ID
 from zip_content import ZZipFile
-from XMLInfoParser import detect_single_schema
-from constants import QAREPOSITORY_ID
-import zip_content
-from DataflowsManager import DataflowsManager
+from XMLInfoParser import detect_single_schema, SchemaError
 
-from os.path import join
-import tempfile
-import os, traceback
-from zipfile import *
+#from zipfile import *
 
 conversion_log = logging.getLogger(__name__ + '.conversion')
 
@@ -411,8 +404,16 @@ class EnvelopeCustomDataflows:
         file.seek(0)
         content_type, enc = guess_content_type(file.filename, first_1k)
         if content_type == 'text/xml':
-            #verify the XML schema
-            schema = detect_single_schema(file)
+            try:
+                #verify the XML schema
+                schema = detect_single_schema(file)
+            except SchemaError as e:
+                if REQUEST:
+                    return self.messageDialog(
+                        message="The file you are trying to upload wasn't generated "
+                                " according to the Data Dictionary schema!"
+                                " File not uploaded! (reason was: %s)"%str(e.args),
+                        action='index_html')
             file.seek(0)
             if (not required_schema and schema.startswith('http://dd.eionet.europa.eu/GetSchema?id=')) or schema in RepUtils.utConvertToList(required_schema):
                 #delete all the XML files from this envelope which containt this schema
