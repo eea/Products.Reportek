@@ -32,9 +32,9 @@ When writing in this class, specify the name of the dataflow as comment first
 # Zope imports
 from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-try: from zope.contenttype import guess_content_type # Zope 2.10 and newer
-except: from zope.app.content_types import guess_content_type # Zope 2.9 and older
+from zope.contenttype import guess_content_type # Zope 2.10 and newer
 from AccessControl import ClassSecurityInfo
+import re
 import xmlrpclib
 import string
 import logging
@@ -68,6 +68,7 @@ class EnvelopeCustomDataflows:
     """ This class which Envelope subclasses from contains functions specific to one or more dataflows.
     """
 
+    fileTypeByName_pattern = re.compile(r'\.(xml|xlf|xslt?|xsd|gml)$', flags=re.I)
     security = ClassSecurityInfo()
 
     ##################################################
@@ -425,7 +426,9 @@ class EnvelopeCustomDataflows:
             else:
                 if REQUEST is not None:
                     return self.messageDialog(
-                                message="The file you are trying to upload wasn't generated according to the Data Dictionary schema! File not uploaded!",
+                                message="The file you are trying to upload wasn't generated "
+                                        " according to the Data Dictionary schema!"
+                                        " File not uploaded!",
                                 action='index_html')
                 else:
                     return 0
@@ -476,7 +479,7 @@ class EnvelopeCustomDataflows:
             l_filename = file.filename.lower()
             if l_filename.endswith('.xls') or l_filename.endswith('.xlsx') or l_filename.endswith('.ods'):
                 return self.convert_excel_file(file=file, restricted=restricted, REQUEST=REQUEST)
-            elif l_filename.endswith('.xml'):
+            elif re.search(self.fileTypeByName_pattern, l_filename):
                 return self.replace_dd_xml(file=file, restricted=restricted, required_schema=required_schema, REQUEST=REQUEST)
             elif l_filename.endswith('.zip'):
                 return self.manage_addzipfile(file=file, restricted=restricted, REQUEST=REQUEST)
