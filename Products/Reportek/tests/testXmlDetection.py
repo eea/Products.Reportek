@@ -101,7 +101,7 @@ class XmlDetectionTest(unittest.TestCase):
         xsi:noNamespaceSchemaLocation="schema.xsd">
          </report>'''
         exception_args = None
-        expected_exception_args = ('Schema location is relative', 'schema.xsd')
+        expected_exception_args = ('Schema location is not a valid URL', 'schema.xsd')
         try:
             detect_schema(StringIO(content))
         except SchemaError as e:
@@ -143,7 +143,7 @@ class XmlDetectionTest(unittest.TestCase):
         xsi:schemaLocation="https://schema.eu/0 schema.xsd https://schema.eu/1 https://schema.eu/schema1.xsd">
          </report>'''
         exception_args = None
-        expected_exception_args = ('Schema location is relative', 'schema.xsd')
+        expected_exception_args = ('Schema location is not a valid URL', 'schema.xsd')
         try:
             detect_schema(StringIO(content))
         except SchemaError as e:

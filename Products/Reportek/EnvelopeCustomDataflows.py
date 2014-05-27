@@ -411,8 +411,8 @@ class EnvelopeCustomDataflows:
             except SchemaError as e:
                 if REQUEST:
                     return self.messageDialog(
-                        message="The file you are trying to upload does not have valid schema location"
-                                " File not uploaded! (reason was: %s)"%str(e.args),
+                        message="The file you are trying to upload does not have valid schema location."
+                                " File not uploaded! Reason: %s"%str(e.args),
                         action='index_html')
             file.seek(0)
             if (not required_schema and schema.startswith('http://dd.eionet.europa.eu/GetSchema?id=')) or schema in RepUtils.utConvertToList(required_schema):
@@ -506,109 +506,6 @@ class EnvelopeCustomDataflows:
                     filters.append({'http://rod.eionet.europa.eu/schema.rdf#locality': country_name, 'http://rod.eionet.europa.eu/schema.rdf#obligation': engine.getDataflowTitle(df)})
 
             engine.uns_subscribe_actors(actors, filters)
-
-    ##################################################
-    #   Conversions - SHP to GML related
-    ##################################################
-
-# replace this Article 17 specific functionality with a generic form for uploading shapefiles
-
-#    security.declareProtected('View', 'testExistingFile')
-#    def testExistingFile(self, filename):
-#        """ """
-#        return hasattr(self, filename)
-#
-#    security.declareProtected('Change Envelopes', 'convert_esri_to_xml')
-#    def convert_esri_to_xml(self, file_id, shx_file, shp_file, dbf_file, xml_file, prj_file):
-#        """ """
-#        shp_filename = RepUtils.getFilename(shp_file.filename)
-#        dbf_filename = RepUtils.getFilename(dbf_file.filename)
-#        shx_filename = RepUtils.getFilename(shx_file.filename)
-#        prj_filename = RepUtils.getFilename(prj_file.filename)
-#        if len(shp_filename) and len(dbf_filename) and len(shx_filename) and len(prj_filename):
-#
-#            tmp_basename = shp_filename[:-3]
-#            xml_filename = '%sxml' % tmp_basename
-#
-#            #pre-generation tests
-#            for k in SHORT_ESRI_EXTENSIONS:
-#                if eval('%s_filename' % k)[:-3] != tmp_basename:
-#                    return 'All files must have the same name and different extensions.'
-#            try:    prj_file_data = prj_file.read()
-#            except: prj_file_data = ''
-#            if len(prj_file_data) == 0:
-#                return 'PRJ file is empty!'
-#
-#            from Products.Reportek_dependencies.GML.shp_to_gml import shp_to_gml
-#            try:
-#                #generate GML convertion
-#                l_filename_tmp = RepUtils.cookId(shp_file)
-#                l_filename = l_filename_tmp[:l_filename_tmp.rfind('.')]
-#
-#                gml_file_obj = getattr(self, file_id, None)
-#
-#                if gml_file_obj.get_accept_time():
-#                    return 'Document cannot be changed since it has already accepted by the client'
-#
-#                #get uploaded ESRI data
-#                shp_file_data = shp_file.read()
-#                shx_file_data = shx_file.read()
-#                dbf_file_data = dbf_file.read()
-#                try:    xml_file_data = xml_file.read()
-#                except: xml_file_data = ''
-#
-#                #temporary generate ESRI data/files
-#                RepUtils.createTempFile(shp_file_data, shp_filename)
-#                RepUtils.createTempFile(shx_file_data, shx_filename)
-#                RepUtils.createTempFile(dbf_file_data, dbf_filename)
-#                RepUtils.createTempFile(prj_file_data, prj_filename)
-#                RepUtils.createTempFile(xml_file_data, xml_filename)
-#
-#                gml_data = shp_to_gml(filename=l_filename_tmp, in_schema=str(gml_file_obj.xml_schema_location),
-#                                    temp_name=gml_file_obj.id[:gml_file_obj.id.rfind('.')])
-#
-#                #upload GML data on the GML file
-#                gml_file_obj.manage_file_upload(gml_data, 'text/xml')
-#
-#                #upload/add ESRI files on envelope
-#                gml_filename = gml_file_obj.id[:-4]
-#                gml_file_title = gml_file_obj.title
-#                for k in ESRI_EXTENSIONS:
-#                    esri_file_id = '%s.%s' % (gml_filename, k)
-#                    esri_file_data = eval('%s_file_data' % k)
-#                    if self.testExistingFile(esri_file_id):
-#                        esri_file_obj = getattr(self, esri_file_id, None)
-#                        esri_file_obj.manage_file_upload(esri_file_data, '')
-#                    else:
-#                        self.manage_addDocument(esri_file_id, '%s file of the %s' % (k.upper(), gml_file_title),
-#                                        esri_file_data, '','')
-#
-#                #delete temp files
-#                for k in ESRI_EXTENSIONS:
-#                    RepUtils.deleteTempFile('%s.%s' % (l_filename, k))
-#
-#                l_msg = 'done'
-#            except Exception, e:
-#                l_msg = 'Error during conversion! %s' % str(e)
-#        else:
-#            l_msg = 'Missing mandatory files:'
-#            for k in SHORT_ESRI_EXTENSIONS:
-#                if not len(eval('%s_filename' % k)):
-#                    l_msg = '%s %s file,' % (l_msg, k.upper())
-#            l_msg = '%s.' % l_msg[:-1]
-#        return l_msg
-#
-#    security.declareProtected('Change Envelopes', 'convert_ESRI2XML')
-#    def convert_ESRI2XML(self, file_id, shx_file, shp_file, dbf_file, meta_file, prj_file, REQUEST=None):
-#        """ """
-#        msg = self.convert_esri_to_xml(file_id, shx_file, shp_file, dbf_file, meta_file, prj_file)
-#        if msg == 'done':
-#            REQUEST.RESPONSE.redirect(self.absolute_url())
-#        else:
-#            REQUEST.RESPONSE.redirect('%s/uploadESRI?file=%s&msg=%s' % (self.absolute_url(), file_id, msg))
-#
-#    security.declareProtected('Change Envelopes', 'uploadESRI')
-#    uploadESRI = DTMLFile('dtml/envelopeUploadESRI',globals())
 
     security.declareProtected('Change Envelopes', 'uploadGISfiles')
     def uploadGISfiles(self, file_shp=None, file_shx=None, file_prj=None, file_dbf=None, file_metainfo=None, REQUEST=None):

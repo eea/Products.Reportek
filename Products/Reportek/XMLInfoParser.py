@@ -61,7 +61,7 @@ def detect_schema(src):
         if absolute_location(location):
             return location
         else:
-            raise SchemaError('Schema location is relative', location)
+            raise SchemaError('Schema location is not a valid URL', location)
 
     location = root.attrib.get('{http://www.w3.org/2001/XMLSchema-instance}'
                                'schemaLocation')
@@ -74,7 +74,7 @@ def detect_schema(src):
         if location_list:
             location_list_valid = filter(absolute_location, location_list)
             if len(location_list) != len(location_list_valid):
-                raise SchemaError('Schema location is relative', locations_str(set(location_list) - set(location_list_valid)))
+                raise SchemaError('Schema location is not a valid URL', locations_str(set(location_list) - set(location_list_valid)))
         return ' '.join(location_list)
 
     location = doc.docinfo.system_url
@@ -82,7 +82,7 @@ def detect_schema(src):
         if absolute_location(location):
             return location
         else:
-            raise SchemaError('Schema location is relative', location)
+            raise SchemaError('Schema location is not a valid URL', location)
 
     return ''
 
