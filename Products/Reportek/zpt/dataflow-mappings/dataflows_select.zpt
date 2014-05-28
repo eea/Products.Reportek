@@ -70,13 +70,13 @@
   tal:attributes="size obligation_select_size">
   <option></option>
   <tal:block tal:repeat="group groups">
-    <optgroup tal:attributes="label python:context.truncate(group)">
+    <optgroup tal:attributes="label python:context.ReportekEngine.truncate(group)">
       <tal:block tal:repeat="item python:items[group]">
         <option tal:attributes="value item/uri;
                   selected python:item['uri'] == dataflow_uri;
-                  label python:context.truncate(item['TITLE'])">
+                  label python:context.ReportekEngine.truncate(item['TITLE'])">
           [<span tal:replace="python:' '.join(item['SOURCE_TITLE'].split()[0:2])" />]
-          <span tal:replace="python:context.truncate(item['TITLE'])" />
+          <span tal:replace="python:context.ReportekEngine.truncate(item['TITLE'])" />
         </option>
       </tal:block>
     </optgroup>

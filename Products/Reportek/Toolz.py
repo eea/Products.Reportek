@@ -137,3 +137,8 @@ class Toolz:
         return RepUtils.utSortObjsListByMethod(p_obj_list,
                                                p_attr,
                                                p_sort_order)
+
+    def truncate(self, text):
+        if len(text)<=80:
+            return text
+        return '%s ...' % text[:77]

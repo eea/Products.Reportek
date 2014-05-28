@@ -86,9 +86,5 @@ class DataflowMappings(Folder):
             'zpt/dataflow-mappings/dataflows_select',
             globals())
 
-    def truncate(self, text):
-        if len(text)<=80:
-            return text
-        return '%s ...' % text[:77]
 
 InitializeClass(DataflowMappings)

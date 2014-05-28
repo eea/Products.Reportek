@@ -1,5 +1,6 @@
 3.6.15 (unreleased)
 ----------------
+* Task 19856 - Fix Obligation list under envelope properties [baragdan]
 * Task 3279 - Broaden the detection of xml mime type [baragdan]
 * Task 17226 - Reject ambiguous schema locations [baragdan]
 
