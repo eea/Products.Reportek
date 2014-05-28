@@ -32,7 +32,7 @@ When writing in this class, specify the name of the dataflow as comment first
 # Zope imports
 from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from zope.contenttype import guess_content_type # Zope 2.10 and newer
+from zope.contenttype import guess_content_type
 from AccessControl import ClassSecurityInfo
 import re
 import xmlrpclib

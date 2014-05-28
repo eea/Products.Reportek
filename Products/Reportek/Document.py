@@ -25,14 +25,13 @@ __version__='$Rev$'[6:-2]
 import Globals, IconShow
 import requests
 import os, string
-#from __main__ import *
 from AccessControl import getSecurityManager, ClassSecurityInfo
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from OFS.SimpleItem import SimpleItem
 from zExceptions import Redirect
 from Globals import package_home
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from zope.contenttype import guess_content_type # Zope 2.10 and newer
+from zope.contenttype import guess_content_type
 from webdav.common import rfc1123_date
 from DateTime import DateTime
 from os.path import join

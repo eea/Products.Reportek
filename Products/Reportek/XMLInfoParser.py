@@ -32,7 +32,7 @@ class SchemaError(ValueError):
     pass
 
 def locations_str(locations):
-    if not hasattr(locations, '__iter__'):
+    if isinstance(locations, basestring):
         return locations
     loc_list = [ loc for loc in locations ]
     return ' '.join(loc_list)
