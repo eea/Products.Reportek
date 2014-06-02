@@ -588,13 +588,13 @@ class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
             self.envelope = env
             break
         self.envelope.id = 'envu2nsuq'
-        self.envelope.reportingdate = DateTime('2014/05/02 12:58:41')
+        self.envelope.reportingdate = DateTime('2014/05/02 09:58:41 UTC')
         self.engine.content_registry_ping = Mock()
         # add subobjects of type document, feedback, hyperlink
         content = 'test content for our document'
         self.doc = add_document(self.envelope, create_upload_file(content, 'foo.txt'))
         #self.doc = add_document(self.envelope, create_upload_file(content, 'foo space foo.xml'))
-        self.doc.upload_time = Mock(return_value=DateTime('2014/05/02 12:58:41'))
+        self.doc.upload_time = Mock(return_value=DateTime('2014/05/02 09:58:41 UTC'))
 
         feedbacktext = 'feedback text'
         setattr(
@@ -619,7 +619,7 @@ class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
 
     def test_rdf(self):
         self.envelope.release_envelope()
-        self.envelope.reportingdate = DateTime('2014/05/02 12:58:41')
+        self.envelope.reportingdate = DateTime('2014/05/02 09:58:41 UTC')
         rdf = self.envelope.rdf(self.app.REQUEST)
         f = open(os.path.join(TESTDIR, 'rdf.xml'), 'r')
         expected = f.read()
@@ -629,7 +629,7 @@ class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
     def test_space_in_name(self):
         self.doc.id = 'another document id with space.txt'
         self.envelope.release_envelope()
-        self.envelope.reportingdate = DateTime('2014/05/02 12:58:41')
+        self.envelope.reportingdate = DateTime('2014/05/02 09:58:41 UTC')
         rdf = self.envelope.rdf(self.app.REQUEST)
         f = open(os.path.join(TESTDIR, 'rdf_space.xml'), 'r')
         expected = f.read()
