@@ -94,15 +94,20 @@ class SpreadsheetTestCase(BaseTest, ConfigureReportek):
             Verify the content_type is 'application/vnd.ms-excel'
             The expected result is 1
         """
+        xml_content = '''<?xml version="1.0" encoding="UTF-8"?>
+        <report xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="https://schema.eu/schema1 https://schema.eu/schema.xsd">
+         </report>'''
+
         mock_invoke.return_value = {
             'conversionLog': '-- conversion log --',
-            'convertedFiles': [{'content': Mock(data='-- some content --'),
+            'convertedFiles': [{'content': Mock(data=xml_content),
                                 'fileName': 'StationsRivers.xml'},
-                               {'content': Mock(data='-- some content --'),
+                               {'content': Mock(data=xml_content),
                                 'fileName': 'NutrientsRivers_Agg.xml'},
-                               {'content': Mock(data='-- some content --'),
+                               {'content': Mock(data=xml_content),
                                 'fileName': 'HazSubstRivers_Agg.xml'},
-                               {'content': Mock(data='-- some content --'),
+                               {'content': Mock(data=xml_content),
                                 'fileName': 'HazSubstRivers_Disagg.xml'}],
             'resultCode': '0',
             'resultDescription': 'Conversion successful.',
