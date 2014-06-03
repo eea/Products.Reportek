@@ -27,22 +27,15 @@ from collections import defaultdict
 
 # Zope imports
 from AccessControl import ClassSecurityInfo
-from AccessControl.Permissions import view_management_screens
 from Globals import InitializeClass
-from DateTime import DateTime
 from OFS.Folder import Folder
-from OFS.SimpleItem import SimpleItem
-from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
-from Products.Reportek import exceptions
 import Products
 #from webdav.WriteLockInterface import WriteLockInterface
 
 # product imports
 from Toolz import Toolz
-from expression import exprNamespace
-from expression import Expression
 import RepUtils
 import process
 from openflow2xpdl import OpenFlow2Xpdl
