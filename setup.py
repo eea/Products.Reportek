@@ -13,5 +13,6 @@ setup(
         'lxml',
         'path.py',
         'requests==1.2.3',
+        'Zope2',
     ],
 )
