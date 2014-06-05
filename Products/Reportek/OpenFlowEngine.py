@@ -22,6 +22,8 @@
 # Miruna Badescu, Finsiel Romania
 #
 
+import json
+import md5
 import re
 from collections import defaultdict
 
@@ -29,6 +31,7 @@ from collections import defaultdict
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.Folder import Folder
+from OFS.ObjectManager import checkValidId
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
 import Products
@@ -52,6 +55,9 @@ def manage_addOpenFlowEngine(self, id, title, REQUEST=None):
     if REQUEST is not None:
         return self.manage_main(self, REQUEST, update_menu=1)
 
+
+class OpenFlowEngineImportError(ValueError):
+    pass
 
 class OpenFlowEngine(Folder, Toolz):
     """ A openflow contains all the processes of the openflow """
@@ -322,7 +328,7 @@ class OpenFlowEngine(Folder, Toolz):
     security.declareProtected('Manage OpenFlow', 'addApplication')
     def addApplication(self, name, link, REQUEST=None):
         """ adds an application declaration """
-        if not name in self._applications.keys():
+        if name not in self._applications:
             self._applications[name] = {'url' : link}
             self._p_changed = 1
             if REQUEST:
@@ -332,15 +338,14 @@ class OpenFlowEngine(Folder, Toolz):
     def deleteApplication(self, app_ids=None, REQUEST=None):
         """ removes an application """
         for name in app_ids:
-            if name in self._applications.keys():
-                del(self._applications[name])
+            self._applications.pop(name)
         self._p_changed = 1
         if REQUEST: REQUEST.RESPONSE.redirect(REQUEST.HTTP_REFERER)
 
     security.declareProtected('Manage OpenFlow', 'editApplication')
     def editApplication(self, name, link, REQUEST=None):
         """ edits an application declaration """
-        if name not in self._applications.keys():
+        if name not in self._applications:
             return
         self._applications[name] = {'url' : link}
         self._p_changed = 1
@@ -478,7 +483,7 @@ class OpenFlowEngine(Folder, Toolz):
     security.declareProtected('View', 'exportToXml')
     def exportToXml(self, proc='', REQUEST=None):
         """ Export Workflow structure to an XML file
-            If the 'proc' parameter is given, it takes 
+            If the 'proc' parameter is given, it takes
         """
         export_xml = []
         export_xml_append = export_xml.append
@@ -510,7 +515,7 @@ class OpenFlowEngine(Folder, Toolz):
                 start_mode='%s' finish_mode='%s' complete_automatically='%s'
                 subflow='%s' push_application='%s' application='%s'
                 parameters='%s' description='%s' kind='%s'
-                pushable_roles='%s' pullable_roles='%s'/>\n""" % 
+                pushable_roles='%s' pullable_roles='%s'/>\n""" %
                (utils_xmlEncode(activity.id), utils_xmlEncode(activity.title), utils_xmlEncode(activity.split_mode),
                 utils_xmlEncode(activity.join_mode), utils_xmlEncode(activity.self_assignable), utils_xmlEncode(activity.start_mode),
                 utils_xmlEncode(activity.finish_mode), utils_xmlEncode(activity.complete_automatically),
@@ -630,6 +635,190 @@ class OpenFlowEngine(Folder, Toolz):
         if REQUEST:
             if res: message="Imported successfully"
             else: message="Failed to import"
+            return self.workflow_impex(self,REQUEST,manage_tabs_message=message)
+
+    def _applicationDetails(self, url, expected_type=None):
+        try:
+            app = self.getParentNode().unrestrictedTraverse(url)
+            app_type = app.meta_type
+            if expected_type and expected_type == app_type:
+                return app_type, ''
+            content = app.read()
+            if type(content) is unicode:
+                content = content.encode('utf-8')
+            checksum = md5.md5(content).hexdigest()
+        except:
+            app_type = ''
+            checksum = ''
+
+        return app_type, checksum
+
+
+    security.declareProtected('View', 'exportToJson')
+    def exportToJson(self, proc='', REQUEST=None):
+        """ Export Workflow structure to an .json file
+            If proc parameter is missing then
+            include all the processes available to this object"""
+
+        workflow = {
+            'processes': [],
+            'applications': [],
+        }
+        if REQUEST:
+            REQUEST.RESPONSE.setHeader('content-type', 'application/json; charset=UTF-8')
+        if proc:
+            procs = [ getattr(self, proc) ]
+        else:
+            procs = self.objectValues('Process')
+
+        for pr in procs:
+            process = {
+                'rid': pr.id,
+                'title': pr.title,
+                'description': pr.description,
+                'priority': pr.priority,
+                'begin': pr.begin,
+                'end': pr.end,
+                'activities': [],
+                'transitions': [],
+            }
+            for act in pr.objectValues('Activity'):
+                activity = {
+                    'rid': act.id,
+                    'title': act.title,
+                    'description': act.description,
+                    'kind': act.kind,
+                    'split_mode': act.split_mode,
+                    'join_mode': act.join_mode,
+                    'self_assignable': act.self_assignable,
+                    'start_mode': act.start_mode,
+                    'finish_mode': act.finish_mode,
+                    'complete_automatically': act.complete_automatically,
+                    'subflow': act.subflow,
+                    'push_application': act.push_application,
+                    'application': act.application,
+                    'parameters': act.parameters,
+                    'pushable_roles': [ pushR for pushR in self.getPushRoles(pr.id, act.id) ],
+                    'pullable_roles': [ pullR for pullR in self.getPullRoles(pr.id, act.id) ],
+                }
+                process['activities'].append(activity)
+            for trans in pr.objectValues('Transition'):
+                transition = {
+                    'rid': trans.id,
+                    'description': trans.description,
+                    'from': trans.From,
+                    'to': trans.To,
+                    'condition': trans.condition,
+                }
+                process['transitions'].append(transition)
+            workflow['processes'].append(process)
+
+        for appName, appValue in self._applications.items():
+            url = appValue['url']
+            app_type, checksum = self._applicationDetails(url)
+            application = {
+                'rid': appName,
+                'url': url,
+                'type': app_type,
+                'checksum': checksum,
+            }
+            workflow['applications'].append(application)
+
+        return json.dumps(workflow)
+
+    def _importFromJson(self, json_stream):
+        """Process json from input stream and aggregates the components of a workflow.
+        This function is supposed to raise exceptions if input is invalid."""
+        obj = json.load(json_stream)
+        for pr in obj['processes']:
+            pr_id = str(pr['rid'])
+            try:
+                checkValidId(self, pr_id)
+            except:
+                raise OpenFlowEngineImportError('Invalid rid', pr_id)
+
+            self.manage_addProcess(pr_id, unicode(pr.get('title', '')),
+                unicode(pr.get('description', '')), None, int(pr['priority']), unicode(pr['begin']),
+                unicode(pr['end']))
+
+            process = self._getOb(pr_id)
+            pushRoles = defaultdict(list)
+            pullRoles = defaultdict(list)
+            for act in pr.get('activities', []):
+                act_id = str(act['rid'])
+                try:
+                    checkValidId(process, act_id)
+                except:
+                    raise OpenFlowEngineImportError('Invalid rid', act_id)
+                process.addActivity(act_id, act['split_mode'], act['join_mode'],
+                    int(act['self_assignable']), int(act['start_mode']), int(act['finish_mode']),
+                    str(act.get('subflow', '')), str(act.get('push_application', '')),
+                    str(act.get('application', '')), unicode(act.get('title', '')),
+                    str(act.get('parameters', '')), unicode(act.get('description', '')),
+                    str(act['kind']), int(act['complete_automatically']))
+                for pushR in act['pushable_roles']:
+                    if pushR:
+                        pushR = str(pushR)
+                        pushRoles[pushR].append(act_id)
+                for pullR in act['pullable_roles']:
+                    if pullR:
+                        pullR = str(pullR)
+                        pullRoles[pullR].append(act_id)
+            for role, activities in pushRoles.items():
+                # This might not be enough but seems better than the hardcoded tuple in aquisitionless object rolemanger.py:RoleManager()
+                if role in self.__ac_roles__:
+                    self.editActivitiesPushableOnRole(role, pr_id, activities)
+            for role, activities in pullRoles.items():
+                if role in self.__ac_roles__:
+                    self.editActivitiesPullableOnRole(role, pr_id, activities)
+            for trans in pr['transitions']:
+                trans_id = str(trans['rid'])
+                try:
+                    checkValidId(process, trans_id)
+                except:
+                    raise OpenFlowEngineImportError('Invalid rid', act_id)
+                process.addTransition(trans_id, str(trans['from']),
+                    str(trans['to']), str(trans['condition']), unicode(trans['description']))
+
+        applications = obj.get('applications', [])
+        for app in applications:
+            self.addApplication(str(app['rid']), str(app['url']))
+
+        return applications
+
+
+    security.declareProtected('Manage OpenFlow', 'importFromJson')
+    def importFromJson(self, file_obj, REQUEST=None):
+        """ Reconstructs the workflow from a .json file """
+
+        message="Imported successfully"
+        app_details = []
+        try:
+            imported_applications = self._importFromJson(file_obj)
+            for app in imported_applications:
+                existing_type, existing_checksum = self._applicationDetails(app['url'], app['type'])
+                # TODO differentiate between same/different and missing one each side
+                same_checksum = False
+                if app['type'] == existing_type:
+                    same_type = app['type']
+                    if app['checksum'] == existing_checksum:
+                        same_checksum = True
+                else:
+                    same_type = False
+                app_cmp = {
+                    'name': app['rid'],
+                    'path': app['url'],
+                    'type': same_type,
+                    'checksum': same_checksum,
+                }
+                app_details.append(app_cmp)
+        except OpenFlowEngineImportError as e:
+            message=u"Failed to import. Reason: %s" % unicode(e.args)
+        except:
+            message="Failed to import"
+
+        # add zpt with app_details results here
+        if REQUEST:
             return self.workflow_impex(self,REQUEST,manage_tabs_message=message)
 
     security.declareProtected('Manage OpenFlow', 'workflow_impex')
@@ -793,7 +982,6 @@ def handle_application_move_events(obj):
     wf = getattr(root, constants.WORKFLOW_ENGINE_ID)
     proc_old = None
     proc_new = None
-    message = ''
     messages = []
 
     if obj.oldParent:
