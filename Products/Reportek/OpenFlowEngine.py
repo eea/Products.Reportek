@@ -338,7 +338,7 @@ class OpenFlowEngine(Folder, Toolz):
     def deleteApplication(self, app_ids=None, REQUEST=None):
         """ removes an application """
         for name in app_ids:
-            self._applications.pop(name)
+            self._applications.pop(name, None)
         self._p_changed = 1
         if REQUEST: REQUEST.RESPONSE.redirect(REQUEST.HTTP_REFERER)
 
@@ -641,7 +641,7 @@ class OpenFlowEngine(Folder, Toolz):
         try:
             app = self.getParentNode().unrestrictedTraverse(url)
             app_type = app.meta_type
-            if expected_type and expected_type == app_type:
+            if expected_type and expected_type != app_type:
                 return app_type, ''
             content = app.read()
             if type(content) is unicode:
@@ -654,7 +654,7 @@ class OpenFlowEngine(Folder, Toolz):
         return app_type, checksum
 
 
-    security.declareProtected('View', 'exportToJson')
+    security.declareProtected('View management screens', 'exportToJson')
     def exportToJson(self, proc='', REQUEST=None):
         """ Export Workflow structure to an .json file
             If proc parameter is missing then
@@ -724,12 +724,13 @@ class OpenFlowEngine(Folder, Toolz):
             }
             workflow['applications'].append(application)
 
-        return json.dumps(workflow)
+        return json.dumps(workflow, indent=4)
 
     def _importFromJson(self, json_stream):
         """Process json from input stream and aggregates the components of a workflow.
         This function is supposed to raise exceptions if input is invalid."""
         obj = json.load(json_stream)
+        validRoles = self.validRoles()
         for pr in obj['processes']:
             pr_id = str(pr['rid'])
             try:
@@ -737,9 +738,8 @@ class OpenFlowEngine(Folder, Toolz):
             except:
                 raise OpenFlowEngineImportError('Invalid rid', pr_id)
 
-            self.manage_addProcess(pr_id, unicode(pr.get('title', '')),
-                unicode(pr.get('description', '')), None, int(pr['priority']), unicode(pr['begin']),
-                unicode(pr['end']))
+            self.manage_addProcess(pr_id, pr['title'], pr['description'], None,
+                int(pr['priority']), pr['begin'], pr['end'])
 
             process = self._getOb(pr_id)
             pushRoles = defaultdict(list)
@@ -752,10 +752,9 @@ class OpenFlowEngine(Folder, Toolz):
                     raise OpenFlowEngineImportError('Invalid rid', act_id)
                 process.addActivity(act_id, act['split_mode'], act['join_mode'],
                     int(act['self_assignable']), int(act['start_mode']), int(act['finish_mode']),
-                    str(act.get('subflow', '')), str(act.get('push_application', '')),
-                    str(act.get('application', '')), unicode(act.get('title', '')),
-                    str(act.get('parameters', '')), unicode(act.get('description', '')),
-                    str(act['kind']), int(act['complete_automatically']))
+                    str(act['subflow']), str(act['push_application']),
+                    str(act['application']), act['title'], str(act['parameters']),
+                    act['description'], str(act['kind']), int(act['complete_automatically']))
                 for pushR in act['pushable_roles']:
                     if pushR:
                         pushR = str(pushR)
@@ -765,20 +764,19 @@ class OpenFlowEngine(Folder, Toolz):
                         pullR = str(pullR)
                         pullRoles[pullR].append(act_id)
             for role, activities in pushRoles.items():
-                # This might not be enough but seems better than the hardcoded tuple in aquisitionless object rolemanger.py:RoleManager()
-                if role in self.__ac_roles__:
+                if role in validRoles:
                     self.editActivitiesPushableOnRole(role, pr_id, activities)
             for role, activities in pullRoles.items():
-                if role in self.__ac_roles__:
+                if role in validRoles:
                     self.editActivitiesPullableOnRole(role, pr_id, activities)
-            for trans in pr['transitions']:
+            for trans in pr.get('transitions', []):
                 trans_id = str(trans['rid'])
                 try:
                     checkValidId(process, trans_id)
                 except:
                     raise OpenFlowEngineImportError('Invalid rid', act_id)
-                process.addTransition(trans_id, str(trans['from']),
-                    str(trans['to']), str(trans['condition']), unicode(trans['description']))
+                process.addTransition(trans_id, str(trans['from']), str(trans['to']),
+                    str(trans['condition']), trans['description'])
 
         applications = obj.get('applications', [])
         for app in applications:
