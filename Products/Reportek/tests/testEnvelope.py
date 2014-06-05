@@ -251,7 +251,8 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
 
     def _make_openflow_json(self, pr_id=u'begin_end_new', act_id=u'Begin',
             transition_id=u'begin_end',
-            app_name_url=(u'script1', u'Applications/an_application')):
+            app_name_url=(u'script1', u'Applications/an_application'),
+            roles=[u'Manager']):
 
         obj = {
             u'applications': [{u'checksum': u'48aaf9f159480ee25a3b56edab1c7f47',
@@ -269,7 +270,7 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
                                              u'join_mode': u'and',
                                              u'kind': u'standard',
                                              u'parameters': u'',
-                                             u'pullable_roles': [u'Manager', u'destroyer'],
+                                             u'pullable_roles': roles,
                                              u'push_application': u'',
                                              u'pushable_roles': [],
                                              u'rid': act_id,
@@ -444,6 +445,18 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
         except Exception as e:
             exception_args = e.args
         self.assertIsNotNone(exception_args)
+
+    def test_openflow_importFromJson_badRole(self):
+        self.createStandardCatalog()
+        wfe = getattr(self.app, 'WorkflowEngine')
+
+        weird_roles = [u'Manager', u'destroyer']
+        make_json = partial(self._make_openflow_json, roles=weird_roles)
+        jsonStream = make_json()
+        wfe._importFromJson(jsonStream)
+
+        pullRoles = wfe.getActivitiesPullableOnRole()
+        self.assertNotIn('destroyer', pullRoles)
 
 def get_xml_metadata(envelope, inline='false'):
     from Products.Reportek.XMLMetadata import XMLMetadata
