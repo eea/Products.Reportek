@@ -21,9 +21,9 @@ All other modules
 .. automodule:: Products.Reportek.CountriesManager
    :members:
 
-:mod:`Products.Reportek.DataflowMappingRecord`
-----------------------------------------------
-.. automodule:: Products.Reportek.DataflowMappingRecord
+:mod:`Products.Reportek.DataflowMappingsRecord`
+-----------------------------------------------
+.. automodule:: Products.Reportek.DataflowMappingsRecord
    :members:
 
 :mod:`Products.Reportek.DataflowMappings`
@@ -79,11 +79,6 @@ All other modules
 :mod:`Products.Reportek.RepUtils`
 ---------------------------------
 .. automodule:: Products.Reportek.RepUtils
-   :members:
-
-:mod:`Products.Reportek.StaticServe`
-------------------------------------
-.. automodule:: Products.Reportek.StaticServe
    :members:
 
 :mod:`Products.Reportek.tables`
