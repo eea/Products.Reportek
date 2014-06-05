@@ -32,6 +32,7 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from OFS.Folder import Folder
 from OFS.ObjectManager import checkValidId
+import transaction
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
 import Products
@@ -637,12 +638,10 @@ class OpenFlowEngine(Folder, Toolz):
             else: message="Failed to import"
             return self.workflow_impex(self,REQUEST,manage_tabs_message=message)
 
-    def _applicationDetails(self, url, expected_type=None):
+    def _applicationDetails(self, url):
         try:
             app = self.getParentNode().unrestrictedTraverse(url)
             app_type = app.meta_type
-            if expected_type and expected_type != app_type:
-                return app_type, ''
             content = app.read()
             if type(content) is unicode:
                 content = content.encode('utf-8')
@@ -732,11 +731,11 @@ class OpenFlowEngine(Folder, Toolz):
         obj = json.load(json_stream)
         validRoles = self.validRoles()
         for pr in obj['processes']:
-            pr_id = str(pr['rid'])
             try:
+                pr_id = str(pr['rid'])
                 checkValidId(self, pr_id)
             except:
-                raise OpenFlowEngineImportError('Invalid rid', pr_id)
+                raise OpenFlowEngineImportError('Invalid rid', pr.get('rid', None))
 
             self.manage_addProcess(pr_id, pr['title'], pr['description'], None,
                 int(pr['priority']), pr['begin'], pr['end'])
@@ -745,11 +744,11 @@ class OpenFlowEngine(Folder, Toolz):
             pushRoles = defaultdict(list)
             pullRoles = defaultdict(list)
             for act in pr.get('activities', []):
-                act_id = str(act['rid'])
                 try:
+                    act_id = str(act['rid'])
                     checkValidId(process, act_id)
                 except:
-                    raise OpenFlowEngineImportError('Invalid rid', act_id)
+                    raise OpenFlowEngineImportError('Invalid rid', act.get('rid', None))
                 process.addActivity(act_id, act['split_mode'], act['join_mode'],
                     int(act['self_assignable']), int(act['start_mode']), int(act['finish_mode']),
                     str(act['subflow']), str(act['push_application']),
@@ -770,17 +769,21 @@ class OpenFlowEngine(Folder, Toolz):
                 if role in validRoles:
                     self.editActivitiesPullableOnRole(role, pr_id, activities)
             for trans in pr.get('transitions', []):
-                trans_id = str(trans['rid'])
                 try:
+                    trans_id = str(trans['rid'])
                     checkValidId(process, trans_id)
                 except:
-                    raise OpenFlowEngineImportError('Invalid rid', act_id)
+                    raise OpenFlowEngineImportError('Invalid rid', trans.get('rid', None))
                 process.addTransition(trans_id, str(trans['from']), str(trans['to']),
                     str(trans['condition']), trans['description'])
 
         applications = obj.get('applications', [])
-        for app in applications:
-            self.addApplication(str(app['rid']), str(app['url']))
+        try:
+            for app in applications:
+                self.addApplication(str(app['rid']), str(app['url']))
+        except:
+            raise OpenFlowEngineImportError('Error adding application',
+                        app.get('rid', None), app.get('url', None))
 
         return applications
 
@@ -794,26 +797,29 @@ class OpenFlowEngine(Folder, Toolz):
         try:
             imported_applications = self._importFromJson(file_obj)
             for app in imported_applications:
-                existing_type, existing_checksum = self._applicationDetails(app['url'], app['type'])
-                # TODO differentiate between same/different and missing one each side
-                same_checksum = False
-                if app['type'] == existing_type:
-                    same_type = app['type']
+                existing_type, existing_checksum = self._applicationDetails(app['url'])
+                if not existing_type:
+                    cmp_result = '--missing--'
+                elif existing_type == app['type']:
                     if app['checksum'] == existing_checksum:
-                        same_checksum = True
+                        cmp_result = ''
+                    else:
+                        cmp_result = '--different--'
                 else:
-                    same_type = False
-                app_cmp = {
-                    'name': app['rid'],
-                    'path': app['url'],
-                    'type': same_type,
-                    'checksum': same_checksum,
-                }
-                app_details.append(app_cmp)
+                    cmp_result = '--different--'
+                if cmp_result:
+                    app_cmp = {
+                        'name': app['rid'],
+                        'path': app['url'],
+                        'cmp_result': cmp_result,
+                    }
+                    app_details.append(app_cmp)
         except OpenFlowEngineImportError as e:
             message=u"Failed to import. Reason: %s" % unicode(e.args)
+            transaction.abort()
         except:
             message="Failed to import"
+            transaction.abort()
 
         # add zpt with app_details results here
         if REQUEST:

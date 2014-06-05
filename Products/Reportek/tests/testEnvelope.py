@@ -9,7 +9,7 @@ ZopeTestCase.installProduct('PythonScripts')
 from DateTime import DateTime
 from utils import (create_fake_root, create_upload_file, create_envelope,
                    add_document, add_feedback, add_hyperlink, simple_addEnvelope)
-from mock import Mock, patch, call
+from mock import Mock, patch
 from functools import partial
 from zope.lifecycleevent import ObjectMovedEvent
 import md5
@@ -21,6 +21,7 @@ from Products.Reportek import OpenFlowEngine
 from Products.Reportek import constants
 from Products.Reportek import Converters
 from Products.Reportek import ContentRegistryPingger
+from Products.Reportek.OpenFlowEngine import OpenFlowEngineImportError
 
 from common import BaseTest, WorkflowTestCase, ConfigureReportek
 from utils import mysleep
@@ -248,13 +249,15 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
         }
         self.assertEqual(proc, expected_proc)
 
-    def _make_openflow_json(self, pr_id):
+    def _make_openflow_json(self, pr_id=u'begin_end_new', act_id=u'Begin',
+            transition_id=u'begin_end',
+            app_name_url=(u'script1', u'Applications/an_application')):
 
         obj = {
             u'applications': [{u'checksum': u'48aaf9f159480ee25a3b56edab1c7f47',
-                               u'rid': u'script1',
+                               u'rid': app_name_url[0],
                                u'type': u'Script (Python)',
-                               u'url': u'Applications/an_application'},
+                               u'url': app_name_url[1]},
                               {u'checksum': u'6d440bda5b6bc8f337e611ce7b6a172e',
                                u'rid': u'script2',
                                u'type': u'Script (Python)',
@@ -269,7 +272,7 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
                                              u'pullable_roles': [u'Manager', u'destroyer'],
                                              u'push_application': u'',
                                              u'pushable_roles': [],
-                                             u'rid': u'Begin',
+                                             u'rid': act_id,
                                              u'self_assignable': 1,
                                              u'split_mode': u'and',
                                              u'start_mode': 0,
@@ -300,17 +303,15 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
                             u'transitions': [{u'condition': u'python: len([ i for i in xrange(1, 11)])',
                                               u'description': u'',
                                               u'from': u'Begin',
-                                              u'rid': u'begin_end',
+                                              u'rid': transition_id,
                                               u'to': u'End'}]}]
         }
         return StringIO(json.dumps(obj))
 
-    #@patch('Products.Reportek.process.process.addActivity')
-    #@patch('Products.Reportek.OpenFlowEngine.OpenFlowEngine.manage_addProcess')
     def test_openflow_importFromJson(self):
         self.createStandardCatalog()
-        pr_id = 'begin_end_new'
-        make_json = partial(self._make_openflow_json, pr_id)
+        pr_id = u'begin_end_new'
+        make_json = partial(self._make_openflow_json, pr_id=pr_id)
         jsonControlObj = json.load(make_json())
         jsonStream = make_json()
 
@@ -380,6 +381,69 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
         self.assertIn(app1, applications)
         self.assertIn(app2, applications)
 
+    def test_openflow_importFromJson_wrongId(self):
+        self.createStandardCatalog()
+        wfe = getattr(self.app, 'WorkflowEngine')
+
+        pr_id = u'begin_end_new_ă'
+        make_json = partial(self._make_openflow_json, pr_id)
+        jsonStream = make_json()
+        expected_exception_args = ('Invalid rid', pr_id)
+        exception_args = None
+        try:
+            wfe._importFromJson(jsonStream)
+        except OpenFlowEngineImportError as e:
+            exception_args = e.args
+        self.assertEqual(exception_args, expected_exception_args)
+
+        pr_id = u'begin_end_new'
+        act_id = u'B€gin'
+        make_json = partial(self._make_openflow_json, pr_id, act_id)
+        jsonStream = make_json()
+        expected_exception_args = ('Invalid rid', act_id)
+        exception_args = None
+        try:
+            wfe._importFromJson(jsonStream)
+        except OpenFlowEngineImportError as e:
+            exception_args = e.args
+        self.assertEqual(exception_args, expected_exception_args)
+
+        pr_id = u'begin_end_new2'
+        trans_id = u'b€gin_end'
+        make_json = partial(self._make_openflow_json, pr_id, transition_id=trans_id)
+        jsonStream = make_json()
+        expected_exception_args = ('Invalid rid', trans_id)
+        exception_args = None
+        try:
+            wfe._importFromJson(jsonStream)
+        except OpenFlowEngineImportError as e:
+            exception_args = e.args
+        self.assertEqual(exception_args, expected_exception_args)
+
+        pr_id = u'begin_end_new3'
+        app_name = u'Draft'
+        app_url = u'/Applications/Drâft'
+        make_json = partial(self._make_openflow_json, pr_id, app_name_url=(app_name, app_url))
+        jsonStream = make_json()
+        expected_exception_args = ('Error adding application', app_name, app_url)
+        exception_args = None
+        try:
+            wfe._importFromJson(jsonStream)
+        except OpenFlowEngineImportError as e:
+            exception_args = e.args
+        self.assertEqual(exception_args, expected_exception_args)
+
+    def test_openflow_importFromJson_generalException(self):
+        self.createStandardCatalog()
+        wfe = getattr(self.app, 'WorkflowEngine')
+
+        jsonStream = StringIO(json.dumps({}))
+        exception_args = None
+        try:
+            wfe._importFromJson(jsonStream)
+        except Exception as e:
+            exception_args = e.args
+        self.assertIsNotNone(exception_args)
 
 def get_xml_metadata(envelope, inline='false'):
     from Products.Reportek.XMLMetadata import XMLMetadata
