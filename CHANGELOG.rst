@@ -1,11 +1,11 @@
 3.6.15 (unreleased)
-----------------
+-------------------
 * Task 19856 - Fix Obligation list under envelope properties [baragdan]
 * Task 3279 - Broaden the detection of xml mime type [baragdan]
 * Task 17226 - Reject ambiguous schema locations [baragdan]
 
 3.6.14 (2014-05-20)
-----------------
+-------------------
 * Task 3312 - Refactor DataflowMappings [baragdan]
 * Task 17579 - Envelope activities history show missing activities in red [baragdan]
 * Task 19418 - RDF output has links url quoted [baragdan]
@@ -14,54 +14,54 @@
 * Task 17109 - Implement a ping to the content registry (also pings subitems) [baragdan]
 
 3.6.13 (2014-04-22)
-----------------
+-------------------
 * Task 19353 - fix searchdataflow displaying search regardless of permissions
 * Task 19310 - fix displaying of multiyear obligation in envelope overview [baragdan]
 
 3.6.12 (2014-04-11)
-----------------
+-------------------
 * Task 18707 - Fix receiving of remote conversion service results [baragdan]
 * Task 17612 - Build_collections: improve error messages
 * Task 17109 - Implement ping on enevlope release but not yet on revoke [baragdan]
 
 3.6.11 (2014-03-13)
-----------------
+-------------------
 * Task 17922 - Write size of uploaded file to event log [nituacor]
 
 3.6.10 (2014-03-10)
-----------------
+-------------------
 * Task 17979 - Fix yet another kind of blob path.
 
 3.6.9 (2014-03-10)
-----------------
+------------------
 * Task 17247 - Rerender feedback htmls. Update script to readd missing html. Prevent reportek.convertes/safe_html from removing i18n
 * Task 17979 - Fix blob path when uploading new file
 
 3.6.8 (2014-03-03)
-----------------
+------------------
 * Task 18701 - Add url filed back to search form
 
 3.6.7 (2014-02-28)
-----------------
+------------------
 * Task 18521 - Fixed the expiration message on the envelope note page
 
 3.6.6 (2014-02-26)
-----------------
+------------------
 * Some fixes to DTML -> ZPT conversion. Fix the envelope overview automatic refresh.
 * Task 18609 - Fix radio button labels on search form.
 
 3.6.5 (2014-02-26)
-----------------
+------------------
 * Task 17979 - Fix blob path computation
 
 3.6.4 (2014-02-25)
-----------------
+------------------
 * Task 18472 - Refactor search.
 * Task 17979 - Add blob path in filesystem to manage document view
 * adapted locales/update.sh script for buzzardNT staging deployment
 
 3.6.3 (2014-01-27)
-----------------
+------------------
 * Various fixes for a fresh, clean and up-to-date buildout
 * Unified products BDR and CDR (based on buildout REPORTEK_DEPLOYMENT env var)
 * Add multilanguage to Reportek
