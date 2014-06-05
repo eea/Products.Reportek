@@ -1,6 +1,5 @@
 __doc__ = """ Multiple dataflow mappings for a single obligation """
 
-import json
 from os import environ
 import logging
 import xmlrpclib
@@ -20,14 +19,10 @@ import messages
 log = logging.getLogger(__name__)
 
 
-
 class AddForm(BrowserView):
-
-
     def __init__(self, context, request):
         super(AddForm, self).__init__(context, request)
         self.parent = self.context.getParentNode()
-
 
     def add(self):
         form = self.request.form

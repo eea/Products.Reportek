@@ -1,4 +1,4 @@
-__doc__ = "Container for mappings between dataflows and XML schemas"
+__doc__ = """Container for mappings between dataflows and XML schemas"""
 
 from OFS.Folder import Folder
 from Globals import InitializeClass
@@ -43,12 +43,12 @@ class DataflowMappings(Folder):
 
 
     def getSchemaObjectsForDataflows(self, dataflow_uris, web_form_only):
-        """ Returns schema objects for one or many dataflows
-        dataflow_uris - one uri (str) looked after, a list for any uri in it
-                        or leave None (False) for all dataflows
+        """
+        Returns schemas for one or many dataflows
+        dataflow_uris - one uri (str) looked after, a list for any uri in it or leave None (False) for all dataflows
         web_form_only - if True only Schemas that have webforms will be returned
-
-        return - list of found schema objects"""
+        return - list of found schema objects
+        """
         query = {
             'meta_type': RECORD,
             'path': '/DataflowMappings'
@@ -71,12 +71,12 @@ class DataflowMappings(Folder):
 
 
     def getSchemasForDataflows(self, dataflow_uris=None, web_form_only=False):
-        """ Returns schemas for one or many dataflows
-        dataflow_uris - one uri (str) looked after, a list for any uri in it
-                        or leave None (False) for all dataflows
+        """
+        Returns schemas for one or many dataflows
+        dataflow_uris - one uri (str) looked after, a list for any uri in it or leave None (False) for all dataflows
         web_form_only - if True only Schemas that have webforms will be returned
-
-        return - list of found schemas"""
+        return - list of found schema objects
+        """
         schemaObjects = self.getSchemaObjectsForDataflows(dataflow_uris, web_form_only)
         return [ schema['url'] for schema in schemaObjects ]
 
