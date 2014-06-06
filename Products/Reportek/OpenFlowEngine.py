@@ -29,6 +29,7 @@ from collections import defaultdict
 
 # Zope imports
 from AccessControl import ClassSecurityInfo
+from AccessControl.Permissions import view_management_screens
 from Globals import InitializeClass
 from OFS.Folder import Folder
 from OFS.ObjectManager import checkValidId
@@ -47,6 +48,9 @@ from xpdl2openflow import xpdlparser
 
 # custom exceptions imports
 from exceptions import CannotPickProcess, NoProcessAvailable
+
+import logging
+logger = logging.getLogger("Reportek")
 
 def manage_addOpenFlowEngine(self, id, title, REQUEST=None):
     """Add a new OpenFlowEngine object
@@ -639,13 +643,21 @@ class OpenFlowEngine(Folder, Toolz):
             return self.workflow_impex(self,REQUEST,manage_tabs_message=message)
 
     def _applicationDetails(self, url):
+        typesWithContent = ['Script (Python)', 'DTML Method', 'DTML Document', 'Page Template']
         try:
-            app = self.getParentNode().unrestrictedTraverse(url)
+            url = str(url)
+            if not url.startswith('/'):
+                url = '/' + url
+            app = self.unrestrictedTraverse(url)
             app_type = app.meta_type
-            content = app.read()
-            if type(content) is unicode:
-                content = content.encode('utf-8')
-            checksum = md5.md5(content).hexdigest()
+            if app_type in typesWithContent:
+                content = app.read()
+                if type(content) is unicode:
+                    content = content.encode('utf-8')
+                checksum = md5.md5(content).hexdigest()
+            else:
+                # other types will be checked based on type only
+                checksum = ''
         except:
             app_type = ''
             checksum = ''
@@ -653,7 +665,7 @@ class OpenFlowEngine(Folder, Toolz):
         return app_type, checksum
 
 
-    security.declareProtected('View management screens', 'exportToJson')
+    security.declareProtected(view_management_screens, 'exportToJson')
     def exportToJson(self, proc='', REQUEST=None):
         """ Export Workflow structure to an .json file
             If proc parameter is missing then
@@ -663,12 +675,15 @@ class OpenFlowEngine(Folder, Toolz):
             'processes': [],
             'applications': [],
         }
-        if REQUEST:
-            REQUEST.RESPONSE.setHeader('content-type', 'application/json; charset=UTF-8')
         if proc:
+            filename = '%s.json' % proc
             procs = [ getattr(self, proc) ]
         else:
+            filename = 'workflows.json'
             procs = self.objectValues('Process')
+        if REQUEST:
+            REQUEST.RESPONSE.setHeader('content-type', 'application/json; charset=UTF-8')
+            REQUEST.RESPONSE.setHeader('Content-Disposition', 'attachment; filename=%s' % filename)
 
         for pr in procs:
             process = {
@@ -727,7 +742,9 @@ class OpenFlowEngine(Folder, Toolz):
 
     def _importFromJson(self, json_stream):
         """Process json from input stream and aggregates the components of a workflow.
-        This function is supposed to raise exceptions if input is invalid."""
+        It returns the applications part of json object with its id and url converted to ascii str.
+        The caller may then compare the applications inside the iported object vs the apps already in the system.
+        This function is supposed to raise exceptions if invalid data is found in the input json."""
         obj = json.load(json_stream)
         validRoles = self.validRoles()
         for pr in obj['processes']:
@@ -780,7 +797,10 @@ class OpenFlowEngine(Folder, Toolz):
         applications = obj.get('applications', [])
         try:
             for app in applications:
-                self.addApplication(str(app['rid']), str(app['url']))
+                # we also alter the returning object
+                app['rid'] = str(app['rid'])
+                app['url'] = str(app['url'])
+                self.addApplication(app['rid'], app['url'])
         except:
             raise OpenFlowEngineImportError('Error adding application',
                         app.get('rid', None), app.get('url', None))
@@ -789,39 +809,49 @@ class OpenFlowEngine(Folder, Toolz):
 
 
     security.declareProtected('Manage OpenFlow', 'importFromJson')
-    def importFromJson(self, file_obj, REQUEST=None):
+    def importFromJson(self, file, REQUEST=None):
         """ Reconstructs the workflow from a .json file """
 
         message="Imported successfully"
-        app_details = []
+        problem_apps = []
         try:
-            imported_applications = self._importFromJson(file_obj)
+            imported_applications = self._importFromJson(file)
             for app in imported_applications:
                 existing_type, existing_checksum = self._applicationDetails(app['url'])
                 if not existing_type:
-                    cmp_result = '--missing--'
+                    cmp_result = 'missing'
                 elif existing_type == app['type']:
                     if app['checksum'] == existing_checksum:
                         cmp_result = ''
                     else:
-                        cmp_result = '--different--'
+                        cmp_result = 'different'
                 else:
-                    cmp_result = '--different--'
+                    cmp_result = 'different'
                 if cmp_result:
                     app_cmp = {
                         'name': app['rid'],
                         'path': app['url'],
                         'cmp_result': cmp_result,
                     }
-                    app_details.append(app_cmp)
+                    problem_apps.append(app_cmp)
         except OpenFlowEngineImportError as e:
-            message=u"Failed to import. Reason: %s" % unicode(e.args)
+            logger.error("Workflow Import/Export: Failed to import OpenFlowEngine json. Reason: %s" % unicode(e.args))
+            message=u"Failed to import. Is your json file the result of Export to JSON functionality?"
             transaction.abort()
-        except:
-            message="Failed to import"
+        except Exception as e:
+            logger.error("Workflow Import/Export: Failed to import OpenFlowEngine json. Reason: %s" % unicode(e.args))
+            message="Failed to import."
             transaction.abort()
 
-        # add zpt with app_details results here
+        if problem_apps:
+            msg_parts = [message, "Some of the following apps differ:"]
+            for app in problem_apps:
+                msg = "App %s with path: %s is <b>%s</b>" % (app['name'], app['path'], app['cmp_result'])
+                msg_parts.append(msg)
+                logger.warning("Workflow Import/Export: App %s with path: %s is %s" % (app['name'], app['path'], app['cmp_result']))
+            msg_parts.append("")
+            message = "\n".join(msg_parts)
+
         if REQUEST:
             return self.workflow_impex(self,REQUEST,manage_tabs_message=message)
 

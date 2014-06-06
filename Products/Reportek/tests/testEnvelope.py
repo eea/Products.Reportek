@@ -167,12 +167,14 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
 
         folder.manage_addProduct['PythonScripts'].manage_addPythonScript(id='an_application')
         script1 = getattr(folder, 'an_application')
+        # test unicode
         script1.write(u"return 'blâ'")
         expected_type1 = script1.meta_type
         expected_checksum1 = md5.md5(script1.read().encode('utf-8')).hexdigest()
 
         folder.manage_addProduct['PythonScripts'].manage_addPythonScript(id='another_application')
         script2 = getattr(folder, 'another_application')
+        # test string with non ascii chars
         script2.ZPythonScript_edit(params='',body="return 'blâ'")
         expected_type2 = script2.meta_type
         expected_checksum2 = md5.md5(script2.read()).hexdigest()
