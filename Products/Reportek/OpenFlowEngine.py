@@ -43,8 +43,6 @@ import Products
 from Toolz import Toolz
 import RepUtils
 import process
-from openflow2xpdl import OpenFlow2Xpdl
-from xpdl2openflow import xpdlparser
 
 # custom exceptions imports
 from exceptions import CannotPickProcess, NoProcessAvailable
@@ -369,15 +367,6 @@ class OpenFlowEngine(Folder, Toolz):
     ##################################################
     # IMPORT/EXPORT functions                        #
     ##################################################
-    security.declareProtected('Manage OpenFlow', 'importFromXml')
-    def importFromXml(self, file, REQUEST=None):
-        """ Imports the contained objects from XML """
-        res = self._importFromXml(file.read())
-        if REQUEST:
-            if res: message="Imported successfully"
-            else: message="Failed to import"
-            return self.workflow_impex(self,REQUEST,manage_tabs_message=message)
-
     def _applicationDetails(self, url):
         typesWithContent = ['Script (Python)', 'DTML Method', 'DTML Document', 'Page Template']
         try:
