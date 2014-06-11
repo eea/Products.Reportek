@@ -1103,7 +1103,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                         xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.upload_time().HTML4())
                         xmlChunk.append('<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>' % o.upload_time().HTML4())
                         xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % o.content_type)
-                        xmlChunk.append('<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>' % repr(bool(o.isRestricted())).lower())
+                        xmlChunk.append('<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>' % repr(o.isRestricted()).lower())
                         if o.content_type == "text/xml":
                             for location in RepUtils.xmlEncode(o.xml_schema_location).split():
                                 xmlChunk.append('<cr:xmlSchema rdf:resource="%s"/>' % location)
@@ -1128,7 +1128,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                         xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.releasedate.HTML4())
                         xmlChunk.append('<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</released>' % o.releasedate.HTML4())
                         xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % o.content_type)
-                        xmlChunk.append('<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>' % repr(bool(o.isRestricted())).lower())
+                        xmlChunk.append('<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>' % repr(o.isRestricted()).lower())
                         if o.document_id not in [None, 'xml']:
                             xmlChunk.append('<cr:feedbackFor rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(self.absolute_url()),
                                     RepUtils.xmlEncode(url_quote(o.document_id)) ))
