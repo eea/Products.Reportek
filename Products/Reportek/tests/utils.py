@@ -344,17 +344,24 @@ def simple_addEnvelope(parent, *args, **kwargs):
     return envelope
 
 
-def add_document(envelope, upload_file):
+def add_document(envelope, upload_file, restricted=False, id=''):
     from Products.Reportek.Document import manage_addDocument
     with patch.object(envelope, 'REQUEST', create=True) as mock_request:
         mock_request.physicalPathToVirtualPath = lambda x: x
-        doc_id = manage_addDocument(envelope, file=upload_file)
+        restricted_str = 'on' if restricted else ''
+        doc_id = manage_addDocument(envelope, file=upload_file,
+                                    restricted=restricted_str, id=id)
     return envelope[doc_id]
 
-def add_feedback(envelope, feedbacktext, feedbackId=None):
+
+def add_feedback(envelope, feedbacktext, feedbackId=None, restricted=False, idx=0):
     from Products.Reportek.Feedback import manage_addFeedback
-    manage_addFeedback(envelope, feedbacktext=feedbacktext, id=feedbackId)
-    return envelope.objectValues('Report Feedback')[0]
+    restricted_str = 'on' if restricted else ''
+    manage_addFeedback(envelope, feedbacktext=feedbacktext, id=feedbackId,
+                       restricted=restricted_str)
+
+    return envelope.objectValues('Report Feedback')[idx]
+
 
 def add_hyperlink(envelope, hyperlink):
     from Products.Reportek.Hyperlink import manage_addHyperlink

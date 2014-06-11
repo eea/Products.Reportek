@@ -593,8 +593,11 @@ class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
         # add subobjects of type document, feedback, hyperlink
         content = 'test content for our document'
         self.doc = add_document(self.envelope, create_upload_file(content, 'foo.txt'))
+        self. doc2 = add_document(self.envelope, create_upload_file(content, 'foo.txt'),
+                                  id='file2', restricted=True)
         #self.doc = add_document(self.envelope, create_upload_file(content, 'foo space foo.xml'))
         self.doc.upload_time = Mock(return_value=DateTime('2014/05/02 09:58:41 UTC'))
+        self.doc2.upload_time = Mock(return_value=DateTime('2014/05/02 09:58:42 UTC'))
 
         feedbacktext = 'feedback text'
         setattr(
@@ -605,6 +608,8 @@ class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
         getattr(self.root.getPhysicalRoot(),
                 constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
         self.feed = add_feedback(self.envelope, feedbacktext, feedbackId='feedback1399024721')
+        self.feed2 = add_feedback(self.envelope, feedbacktext, feedbackId='feedback1399024722',
+                                  restricted=True, idx=1)
         self.link = add_hyperlink(self.envelope, 'hyper/link')
         self.envelope._content_registry_ping = Mock()
 
@@ -612,8 +617,8 @@ class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
         objsByType = self.envelope._getObjectsForContentRegistry()
         expectedObjsByType = {
             'Report Hyperlink': [self.link],
-            'Report Feedback': [self.feed],
-            'Report Document': [self.doc]
+            'Report Feedback': [self.feed, self.feed2],
+            'Report Document': [self.doc, self.doc2]
         }
         self.assertDictEqual(objsByType, expectedObjsByType)
 

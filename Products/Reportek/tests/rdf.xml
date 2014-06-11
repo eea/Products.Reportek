@@ -17,7 +17,9 @@
 <endOfPeriod rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2004-12-31</endOfPeriod>
 <obligation rdf:resource="http://rod.eionet.europa.eu/obligations/8"/>
 <hasFile rdf:resource="http://nohost/collection/envu2nsuq/foo.txt"/>
+<hasFile rdf:resource="http://nohost/collection/envu2nsuq/file2"/>
 <cr:hasFeedback rdf:resource="http://nohost/collection/envu2nsuq/feedback1399024721"/>
+<cr:hasFeedback rdf:resource="http://nohost/collection/envu2nsuq/feedback1399024722"/>
 </Delivery>
 <cr:Feedback rdf:about="http://nohost/collection/envu2nsuq/feedback1399024721">
 <rdfs:label>feedback1399024721</rdfs:label>
@@ -27,6 +29,14 @@
 <cr:mediaType>text/plain</cr:mediaType>
 <restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</restricted>
 </cr:Feedback>
+<cr:Feedback rdf:about="http://nohost/collection/envu2nsuq/feedback1399024722">
+<rdfs:label>feedback1399024722</rdfs:label>
+<dct:title>feedback1399024722</dct:title>
+<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:41Z</dct:issued>
+<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:41Z</released>
+<cr:mediaType>text/plain</cr:mediaType>
+<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</restricted>
+</cr:Feedback>
 <File rdf:about="http://nohost/collection/envu2nsuq/foo.txt">
 <rdfs:label>foo.txt</rdfs:label>
 <dct:title>foo.txt</dct:title>
@@ -34,5 +44,13 @@
 <dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:41Z</dct:date>
 <cr:mediaType>text/plain</cr:mediaType>
 <restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</restricted>
+</File>
+<File rdf:about="http://nohost/collection/envu2nsuq/file2">
+<rdfs:label>file2</rdfs:label>
+<dct:title>file2</dct:title>
+<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:42Z</dct:issued>
+<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:42Z</dct:date>
+<cr:mediaType>text/plain</cr:mediaType>
+<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</restricted>
 </File>
 </rdf:RDF>
