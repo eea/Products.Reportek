@@ -81,20 +81,20 @@ class QARepository(Folder):
             return [x for x in self.objectValues('QAScript') if x.xml_schema == p_schema]
         elif p_schema and dataflow_uris and not content_type_in:
             return [x for x in self.objectValues('QAScript')
-                      if (getattr(x, 'workflow', None) in dataflow_uris or
+                      if (getattr(x, 'obligation', None) in dataflow_uris or
                           x.xml_schema == p_schema)]
         elif p_schema and dataflow_uris and content_type_in:
             return [x for x in self.objectValues('QAScript')
-                      if ((getattr(x, 'workflow', None) in dataflow_uris and
+                      if ((getattr(x, 'obligation', None) in dataflow_uris and
                           content_type_in == getattr(x, 'content_type_in', None)) or
                           x.xml_schema == p_schema)]
         elif dataflow_uris and content_type_in:
             return [x for x in self.objectValues('QAScript')
-                      if (getattr(x, 'workflow', None) in dataflow_uris and
+                      if (getattr(x, 'obligation', None) in dataflow_uris and
                           content_type_in == getattr(x, 'content_type_in', None))]
         elif dataflow_uris and not content_type_in:
             return [x for x in self.objectValues('QAScript')
-                      if (getattr(x, 'workflow', None) in dataflow_uris)]
+                      if (getattr(x, 'obligation', None) in dataflow_uris)]
         elif not dataflow_uris and content_type_in:
             return [x for x in self.objectValues('QAScript')
                       if (content_type_in == getattr(x, 'content_type_in', None))]
@@ -196,7 +196,7 @@ class QARepository(Folder):
             If the id starts with 'loc_', then the script is local (Python),
             otherwise call the query service
 
-            This method can be only called from the browser and the result is 
+            This method can be only called from the browser and the result is
             displayed in a temporary page
         """
         l_res_ct = 'text/plain'
