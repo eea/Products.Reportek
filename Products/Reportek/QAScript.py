@@ -57,14 +57,14 @@ class QAScript(SimpleItem):
         SimpleItem.manage_options
     )
 
-    def __init__(self, id, title, description, xml_schema, workflow,
+    def __init__(self, id, title, description, xml_schema, obligation,
             content_type_in, content_type_out, script_url, qa_extraparams):
         """ """
         self.id = id
         self.title = title
         self.description = description
         self.xml_schema = xml_schema
-        self.workflow = workflow
+        self.obligation = obligation
         self.content_type_in = content_type_in
         self.content_type_out = content_type_out
         self.script_url = script_url
@@ -75,13 +75,13 @@ class QAScript(SimpleItem):
 
     security.declareProtected(view_management_screens, 'manage_settings')
     def manage_settings(self, title='', description='', xml_schema='',
-            workflow=None, content_type_in='',
+            obligation=None, content_type_in='',
             content_type_out='', script_url='', qa_extraparams='', REQUEST=None):
         """ """
         self.title = title
         self.description = description
         self.xml_schema = xml_schema
-        self.workflow = workflow
+        self.obligation = obligation
         self.content_type_in = content_type_in
         self.content_type_out = content_type_out
         self.script_url = script_url
