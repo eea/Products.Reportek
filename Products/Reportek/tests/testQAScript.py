@@ -121,7 +121,7 @@ class QAScriptTest(unittest.TestCase):
             qa_extraparams = None
         ).__of__(self.qa_repository)
         self.qa_repository._setObject('myscript', qascript)
-        self.assertEqual('dataflow_uri', qascript.workflow)
+        self.assertEqual('dataflow_uri', qascript.obligation)
         self.assertEqual(
             'application/msaccess',
             qascript.content_type_in)
