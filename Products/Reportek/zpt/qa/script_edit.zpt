@@ -20,13 +20,24 @@
 		<td><input type="text" name="xml_schema" id="xml_schema" tal:attributes="value here/xml_schema" size="50" /></td>
 	</tr>
 	<tr>
-		<td><label for="obligation" class="form-optional">Obligation</label></td>
+		<td><label for="workflow" class="form-optional">Obligation</label></td>
 		<td tal:define="data here/ReportekEngine/dataflow_table_grouped; groups python:data[0]; items python:data[1]">
-			<select id="obligation" size="15" name="obligation">
+			<select id="workflow" size="15" name="workflow">
 				<tal:block tal:repeat="group groups">
 					<optgroup tal:attributes="label python:test(len(group)<=80, group, '%s ...' % group[:77])">
 						<tal:block tal:repeat="item python:items[group]">
-							<option tal:define="terminated python:item.has_key('terminated') and item['terminated']=='1'" tal:attributes="value item/uri; class python:test(terminated, 'terminated', None); selected python:item['uri'] == here.obligation">
+							<option
+                                                        tal:define="terminated
+                                                        python:item.has_key('terminated')
+                                                        and
+                                                        item['terminated']=='1'"
+                                                        tal:attributes="value
+                                                        item/uri; class
+                                                        python:test(terminated,
+                                                        'terminated', None);
+                                                        selected
+                                                        python:item['uri'] ==
+                                                        here.workflow">
 								[<span tal:replace="python:' '.join(item['SOURCE_TITLE'].split()[0:2])" />]
 								<span tal:replace="python:test(len(item['TITLE'])<=80, item['TITLE'], '%s ...' % item['TITLE'][:77])" />
 								<tal:block tal:condition="terminated"> (<tal:block i18n:translate="">terminated</tal:block>)</tal:block>
@@ -48,6 +59,20 @@
 	<tr>
 		<td><label for="script_url" class="form-label">Script path</td>
 		<td><input type="text" name="script_url" id="script_url" tal:attributes="value here/script_url" size="70" /></td>
+	</tr>
+	<tr>
+		<td><label for="max_size" class="form-label">Upper limit for file size</td>
+                <tal:block tal:condition="python:hasattr(here, 'max_size')">
+                    <td><input type="text" name="max_size" id="max_size" 
+                            size="70" tal:attributes="value
+                            here/max_size"/>MB (default 10 MB)
+                    </td>
+                </tal:block>
+                <tal:block tal:condition="python: not hasattr(here, 
+                    'max_size')">
+		    <td ><input type="text" name="max_size" id="max_size" 
+                            size="70" value="10" />MB (default 10 MB)</td>
+                </tal:block>
 	</tr>
 	<tr>
 		<td colspan="2">

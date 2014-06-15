@@ -1,7 +1,6 @@
 import unittest
 from datetime import datetime
-from StringIO import StringIO
-from mock import Mock, patch, call
+from mock import Mock, patch
 from utils import create_fake_root, create_upload_file
 from utils import create_envelope, add_document
 from Products.Reportek.QAScript import QAScript
@@ -28,10 +27,11 @@ class QAScriptTest(unittest.TestCase):
             title = None,
             description = None,
             xml_schema = 'xml.schema',
-            obligation= None,
+            workflow= None,
             content_type_in = 'application/msaccess',
             content_type_out = 'text/plain',
             script_url = 'url',
+            max_size = '10',
             qa_extraparams = None
         ).__of__(self.qa_repository)
         mdb_workflow_qascript = QAScript(
@@ -39,10 +39,11 @@ class QAScriptTest(unittest.TestCase):
             title = None,
             description = None,
             xml_schema = '',
-            obligation= 'dataflow/uri',
+            workflow= 'dataflow/uri',
             content_type_in = 'application/msaccess',
             content_type_out = 'text/plain',
             script_url = 'url',
+            max_size = '10',
             qa_extraparams = None
         ).__of__(self.qa_repository)
         doc_workflow_qascript = QAScript(
@@ -50,10 +51,11 @@ class QAScriptTest(unittest.TestCase):
             title = None,
             description = None,
             xml_schema = '',
-            obligation= 'dataflow/uri',
+            workflow= 'dataflow/uri',
             content_type_in = 'application/msword',
             content_type_out = 'text/plain',
             script_url = 'url',
+            max_size = '10',
             qa_extraparams = None
         ).__of__(self.qa_repository)
         stalling_qascript = QAScript(
@@ -61,10 +63,11 @@ class QAScriptTest(unittest.TestCase):
             title = None,
             description = None,
             xml_schema = '',
-            obligation= None,
+            workflow= None,
             content_type_in = 'application/msaccess',
             content_type_out = 'text/plain',
             script_url = 'url',
+            max_size = '10',
             qa_extraparams = None
         ).__of__(self.qa_repository)
         schema_qascript.bobobase_modification_time = Mock( return_value=datetime.now())
@@ -114,21 +117,24 @@ class QAScriptTest(unittest.TestCase):
             title = None,
             description = None,
             xml_schema = None,
-            obligation = 'dataflow_uri',
+            workflow = 'dataflow_uri',
             content_type_in = 'application/msaccess',
             content_type_out = 'text/plain',
             script_url = 'url',
+            max_size = 99,
             qa_extraparams = None
         ).__of__(self.qa_repository)
         self.qa_repository._setObject('myscript', qascript)
-        self.assertEqual('dataflow_uri', qascript.obligation)
+        self.assertEqual('dataflow_uri', qascript.workflow)
+        self.assertEqual(99, qascript.max_size)
         self.assertEqual(
             'application/msaccess',
             qascript.content_type_in)
 
     def test_local_script_found_by_workflow(self):
         qa_repository = self.qa_repository
-        local_scripts = qa_repository._get_local_qa_scripts(dataflow_uris=self.envelope.dataflow_uris)
+        local_scripts = qa_repository._get_local_qa_scripts(
+            dataflow_uris=self.envelope.dataflow_uris)
         self.assertEqual(
             [qa_repository.mdb_workflow_qascript,
              qa_repository.doc_workflow_qascript],

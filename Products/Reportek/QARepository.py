@@ -1,4 +1,4 @@
-# The contents of this file are subject to the Mozilla Public
+#Products/Reportek/QARepository.py The contents of this file are subject to the Mozilla Public
 # License Version 1.1 (the "License"); you may not use this file
 # except in compliance with the License. You may obtain a copy of
 # the License at http://www.mozilla.org/MPL/
@@ -81,20 +81,20 @@ class QARepository(Folder):
             return [x for x in self.objectValues('QAScript') if x.xml_schema == p_schema]
         elif p_schema and dataflow_uris and not content_type_in:
             return [x for x in self.objectValues('QAScript')
-                      if (getattr(x, 'obligation', None) in dataflow_uris or
+                      if (getattr(x, 'workflow', None) in dataflow_uris or
                           x.xml_schema == p_schema)]
         elif p_schema and dataflow_uris and content_type_in:
             return [x for x in self.objectValues('QAScript')
-                      if ((getattr(x, 'obligation', None) in dataflow_uris and
+                      if ((getattr(x, 'workflow', None) in dataflow_uris and
                           content_type_in == getattr(x, 'content_type_in', None)) or
                           x.xml_schema == p_schema)]
         elif dataflow_uris and content_type_in:
             return [x for x in self.objectValues('QAScript')
-                      if (getattr(x, 'obligation', None) in dataflow_uris and
+                      if (getattr(x, 'workflow', None) in dataflow_uris and
                           content_type_in == getattr(x, 'content_type_in', None))]
         elif dataflow_uris and not content_type_in:
             return [x for x in self.objectValues('QAScript')
-                      if (getattr(x, 'obligation', None) in dataflow_uris)]
+                      if (getattr(x, 'workflow', None) in dataflow_uris)]
         elif not dataflow_uris and content_type_in:
             return [x for x in self.objectValues('QAScript')
                       if (content_type_in == getattr(x, 'content_type_in', None))]
@@ -178,7 +178,9 @@ class QARepository(Folder):
                 if l_qa_app:
                     try:
                         l_server = xmlrpclib.ServerProxy(l_server_url)
-                        l_tmp = eval('l_server.%s.listQAScripts(\'%s\')' %(l_remote_server, l_file.xml_schema_location))
+                        l_tmp = eval('l_server.%s.listQAScripts(\'%s\')'
+                                     %(l_remote_server,
+                                       l_file.xml_schema_location))
                         if len(l_tmp) > 0:
                             # take just the script id and title
                             if l_ret.has_key(l_file.id):
