@@ -16,10 +16,6 @@
 		<td><textarea name="description" id="description" cols="40" rows="3"></textarea></td>
 	</tr>
 	<tr>
-		<th><label class="form-optional" for="xml_schema">XML schema</label></th>
-		<td><input type="text" name="xml_schema" id="xml_schema" size="40" /></td>
-	</tr>
-	<tr>
 		<th><label for="workflow" class="form-optional">Obligation</label></th>
 		<td tal:define="data here/ReportekEngine/dataflow_table_grouped; groups python:data[0]; items python:data[1]">
 			<select id="workflow" size="15" name="workflow">
@@ -42,6 +38,10 @@
 		<td><input type="text" name="content_type_in" id="content_type_in" size="40" /></td>
 	</tr>
 	<tr>
+		<th><label class="form-optional" for="xml_schema">XML schema</label></th>
+		<td><input type="text" name="xml_schema" id="xml_schema" size="40" /></td>
+	</tr>
+	<tr>
 		<th><label class="form-optional" for="content_type_out">Output content type</label></th>
 		<td><input type="text" name="content_type_out" id="content_type_out" size="40" /></td>
 	</tr>
@@ -52,7 +52,7 @@
 	<tr>
 		<th><label for="max_size" class="form-label">Upper limit for file size</th>
 		<td><input type="text" name="max_size" id="max_size" size="70"
-                value="10" />MB (default 10 MB)</td>
+						value="10" />MB (default 10 MB)</td>
 	</tr>
 	<tr>
 		<td colspan="2">
