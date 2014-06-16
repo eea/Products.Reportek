@@ -88,7 +88,7 @@ class QAScript(SimpleItem):
         self.content_type_in = content_type_in
         self.content_type_out = content_type_out
         self.script_url = script_url
-        self.max_size = max_size
+        self.max_size = float(max_size)
         self.qa_extraparams = RepUtils.utConvertLinesToList(qa_extraparams)
         self._p_changed = 1
         if REQUEST:
