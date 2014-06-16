@@ -159,6 +159,7 @@
       <fieldset tal:condition="not:context/released"><legend i18n:translate="">Quality assessment</legend>
         <tal:block condition="python:context.getQAScripts().has_key(context.id)">
           <tal:block repeat="script_item python:context.getQAScripts()[context.id]">
+          <tal nelu tal:content="script_item" />
             <tal:block condition="python:context.canHaveOnlineQA(script_item[3])">
             <p><span tal:replace="python:'Run %s' %script_item[1]"/>
               <a tal:attributes="

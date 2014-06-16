@@ -151,10 +151,12 @@ class QARepository(Folder):
             which can be manually run against the contained XML files
         """
         l_ret = {}
+        #calculate remote service URL
         l_qa_app = self.getQAApplication()
         if l_qa_app:
             l_server_url = l_qa_app.RemoteServer
             l_remote_server = l_qa_app.RemoteService
+
         for l_file in files:
             # get the valid schemas for the envelope's dataflows
             l_valid_schemas = self.getDataflowMappingsContainer().getSchemasForDataflows(l_file.dataflow_uris)
@@ -166,7 +168,8 @@ class QARepository(Folder):
                 self._get_local_qa_scripts(dataflow_uris=l_file.dataflow_uris)):
                 #local scripts
                 l_buff = [
-                    ['loc_%s' % y.id, y.title, y.bobobase_modification_time(), None] for y in
+                    ['loc_%s' % y.id, y.title, y.bobobase_modification_time(),
+                     y.max_size] for y in
                         self._get_local_qa_scripts(
                             l_file.xml_schema_location,
                             dataflow_uris=l_file.dataflow_uris,
@@ -265,6 +268,7 @@ class QARepository(Folder):
     index_html = PageTemplateFile('zpt/qa/scripts_index', globals())
 
 Globals.InitializeClass(QARepository)
+
 
 class QAResult:
     """ container for QAScript results """
