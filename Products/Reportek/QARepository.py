@@ -20,11 +20,13 @@
 
 __doc__ = """
       QARepository product module.
-      The QARepository is used to make different type of quality assurance checks
-      of the Report Documents.
+      The QARepository is used to make different type of quality assurance
+      checks of the Report Documents.
 """
+
+import subprocess
+import shlex
 import xmlrpclib
-import subprocess, shlex
 
 from OFS.Folder import Folder
 from AccessControl import ClassSecurityInfo
@@ -35,6 +37,7 @@ import Globals
 import constants
 import QAScript
 import RepUtils
+
 
 class QARepository(Folder):
     """ """
@@ -259,7 +262,8 @@ class QARepository(Folder):
         self.QA_application = QA_application
         if REQUEST:
             message="Content changed"
-            return self.manage_qascripts_html(self,REQUEST,manage_tabs_message=message)
+            return self.manage_qascripts_html(self,REQUEST,
+                                              manage_tabs_message = message)
 
     security.declareProtected(view_management_screens, 'manage_qascripts_html')
     manage_qascripts_html = PageTemplateFile('zpt/qa/scripts_edit', globals())
