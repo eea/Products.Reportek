@@ -18,7 +18,7 @@
 	<tr>
 		<th><label for="workflow" class="form-optional">Obligation</label></th>
 		<td tal:define="data here/ReportekEngine/dataflow_table_grouped; groups python:data[0]; items python:data[1]">
-			<select id="workflow" size="15" name="workflow">
+			<select id="workflow" name="workflow">
 				<tal:block tal:repeat="group groups">
 					<optgroup tal:attributes="label python:test(len(group)<=80, group, '%s ...' % group[:77])">
 						<tal:block tal:repeat="item python:items[group]">
