@@ -394,7 +394,8 @@ class OpenFlowEngine(Folder, Toolz):
     def exportToJson(self, proc='', REQUEST=None):
         """ Export Workflow structure to an .json file
             If proc parameter is missing then
-            include all the processes available to this object"""
+            include all the processes available to this object
+        """
 
         workflow = {
             'processes': [],
@@ -410,6 +411,7 @@ class OpenFlowEngine(Folder, Toolz):
             REQUEST.RESPONSE.setHeader('content-type', 'application/json; charset=UTF-8')
             REQUEST.RESPONSE.setHeader('Content-Disposition', 'attachment; filename=%s' % filename)
 
+        applications_for_these_processes = set()
         for pr in procs:
             process = {
                 'rid': pr.id,
@@ -441,6 +443,7 @@ class OpenFlowEngine(Folder, Toolz):
                     'pullable_roles': [ pullR for pullR in self.getPullRoles(pr.id, act.id) ],
                 }
                 process['activities'].append(activity)
+                applications_for_these_processes.add(act.application)
             for trans in pr.objectValues('Transition'):
                 transition = {
                     'rid': trans.id,
@@ -453,15 +456,16 @@ class OpenFlowEngine(Folder, Toolz):
             workflow['processes'].append(process)
 
         for appName, appValue in self._applications.items():
-            url = appValue['url']
-            app_type, checksum = self._applicationDetails(url)
-            application = {
-                'rid': appName,
-                'url': url,
-                'type': app_type,
-                'checksum': checksum,
-            }
-            workflow['applications'].append(application)
+            if appName in applications_for_these_processes:
+                url = appValue['url']
+                app_type, checksum = self._applicationDetails(url)
+                application = {
+                    'rid': appName,
+                    'url': url,
+                    'type': app_type,
+                    'checksum': checksum,
+                }
+                workflow['applications'].append(application)
 
         return json.dumps(workflow, indent=4)
 
@@ -469,15 +473,16 @@ class OpenFlowEngine(Folder, Toolz):
         """Process json from input stream and aggregates the components of a workflow.
         It returns the applications part of json object with its id and url converted to ascii str.
         The caller may then compare the applications inside the iported object vs the apps already in the system.
-        This function is supposed to raise exceptions if invalid data is found in the input json."""
+        This function is supposed to raise exceptions if invalid data is found in the input json.
+        """
         obj = json.load(json_stream)
         validRoles = self.validRoles()
         for pr in obj['processes']:
             try:
                 pr_id = str(pr['rid'])
                 checkValidId(self, pr_id)
-            except:
-                raise OpenFlowEngineImportError('Invalid rid', pr.get('rid', None))
+            except Exception as e:
+                raise OpenFlowEngineImportError('Invalid rid', pr.get('rid', None), e.args)
 
             self.manage_addProcess(pr_id, pr['title'], pr['description'], None,
                 int(pr['priority']), pr['begin'], pr['end'])
@@ -561,7 +566,10 @@ class OpenFlowEngine(Folder, Toolz):
                     problem_apps.append(app_cmp)
         except OpenFlowEngineImportError as e:
             logger.error("Workflow Import/Export: Failed to import OpenFlowEngine json. Reason: %s" % unicode(e.args))
-            message=u"Failed to import. Is your json file the result of Export to JSON functionality?"
+            if 'Invalid rid' in e.args[0]:
+                message = u"Failed to import. Id %s is invalid or already exists." % e.args[1]
+            else:
+                message=u"Failed to import. Is your json file the result of Export to JSON functionality?"
             transaction.abort()
         except Exception as e:
             logger.error("Workflow Import/Export: Failed to import OpenFlowEngine json. Reason: %s" % unicode(e.args))
