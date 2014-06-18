@@ -1,7 +1,4 @@
-import sys
 from StringIO import StringIO
-import subprocess
-import tempfile
 from path import path
 import requests
 
@@ -12,7 +9,6 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from OFS.Folder import Folder
 from DateTime import DateTime
 from Products.ZCatalog.CatalogPathAwareness import CatalogAware
-from Globals import package_home
 
 # Product imports
 from activity import activity
@@ -173,28 +169,6 @@ class process(CatalogAware, Folder):
                 transpairs.append((t.From,t.To))
             froms.append(t.From)
         return self._topsort(transpairs)
-
-#   security.declareProtected('Manage OpenFlow', 'edit')
-#   def edit(self,
-#            begin=None,
-#            end=None,
-#            title=None,
-#            description=None,
-#            priority=None,
-#            REQUEST=None):
-#       """ changes the process settings """
-#       if title:
-#           self.title = title
-#       if description:
-#           self.description = description
-#       if begin:
-#           self.begin = begin
-#       if end:
-#           self.end = end
-#       if priority:
-#           self.priority = priority
-#       if REQUEST:
-#           return self.Setting(self,REQUEST,manage_tabs_message="Changed")
 
     security.declareProtected('Manage OpenFlow', 'addActivity')
     def addActivity(self,

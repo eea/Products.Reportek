@@ -22,6 +22,8 @@
 # Miruna Badescu, Finsiel Romania
 #
 
+import json
+import md5
 import re
 from collections import defaultdict
 
@@ -29,27 +31,24 @@ from collections import defaultdict
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from Globals import InitializeClass
-from DateTime import DateTime
 from OFS.Folder import Folder
-from OFS.SimpleItem import SimpleItem
-from Products.ZCatalog.ZCatalog import ZCatalog
+from OFS.ObjectManager import checkValidId
+import transaction
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
-from Products.Reportek import exceptions
 import Products
 #from webdav.WriteLockInterface import WriteLockInterface
 
 # product imports
 from Toolz import Toolz
-from expression import exprNamespace
-from expression import Expression
 import RepUtils
 import process
-from openflow2xpdl import OpenFlow2Xpdl
-from xpdl2openflow import xpdlparser
 
 # custom exceptions imports
 from exceptions import CannotPickProcess, NoProcessAvailable
+
+import logging
+logger = logging.getLogger("Reportek")
 
 def manage_addOpenFlowEngine(self, id, title, REQUEST=None):
     """Add a new OpenFlowEngine object
@@ -59,6 +58,9 @@ def manage_addOpenFlowEngine(self, id, title, REQUEST=None):
     if REQUEST is not None:
         return self.manage_main(self, REQUEST, update_menu=1)
 
+
+class OpenFlowEngineImportError(ValueError):
+    pass
 
 class OpenFlowEngine(Folder, Toolz):
     """ A openflow contains all the processes of the openflow """
@@ -329,7 +331,7 @@ class OpenFlowEngine(Folder, Toolz):
     security.declareProtected('Manage OpenFlow', 'addApplication')
     def addApplication(self, name, link, REQUEST=None):
         """ adds an application declaration """
-        if not name in self._applications.keys():
+        if name not in self._applications:
             self._applications[name] = {'url' : link}
             self._p_changed = 1
             if REQUEST:
@@ -339,15 +341,14 @@ class OpenFlowEngine(Folder, Toolz):
     def deleteApplication(self, app_ids=None, REQUEST=None):
         """ removes an application """
         for name in app_ids:
-            if name in self._applications.keys():
-                del(self._applications[name])
+            self._applications.pop(name, None)
         self._p_changed = 1
         if REQUEST: REQUEST.RESPONSE.redirect(REQUEST.HTTP_REFERER)
 
     security.declareProtected('Manage OpenFlow', 'editApplication')
     def editApplication(self, name, link, REQUEST=None):
         """ edits an application declaration """
-        if name not in self._applications.keys():
+        if name not in self._applications:
             return
         self._applications[name] = {'url' : link}
         self._p_changed = 1
@@ -366,277 +367,225 @@ class OpenFlowEngine(Folder, Toolz):
     ##################################################
     # IMPORT/EXPORT functions                        #
     ##################################################
-    def exportToXPDL(self):
-        """ Export Workflow structure to an XPDL file """
-        xmldoc = None
-        xpdl2of = OpenFlow2Xpdl(self, xmldoc, self)
-        xml = xpdl2of.create()
-        return xml
+    def _applicationDetails(self, url):
+        typesWithContent = ['Script (Python)', 'DTML Method', 'DTML Document', 'Page Template']
+        try:
+            url = str(url)
+            if not url.startswith('/'):
+                url = '/' + url
+            app = self.unrestrictedTraverse(url)
+            app_type = app.meta_type
+            if app_type in typesWithContent:
+                content = app.read()
+                if type(content) is unicode:
+                    content = content.encode('utf-8')
+                checksum = md5.md5(content).hexdigest()
+            else:
+                # other types will be checked based on type only
+                checksum = ''
+        except:
+            app_type = ''
+            checksum = ''
 
-    def importFromXPDL(self, file='', REQUEST=None):
-        """ Import Workflow structure from an XPDL file """
-        content = file.read()
-        handler = xpdlparser().parseWorkflow(content)
-        if handler:
-            root = handler.root
+        return app_type, checksum
 
-            #add processes
-            for process in root.process_definitions:
 
-                pid = RepUtils.asciiEncode(process.id)
-                title = RepUtils.asciiEncode(process.name)
-                description = RepUtils.asciiEncode(process.process_header.description)
-                priority = RepUtils.asciiEncode(process.process_header.priority)
-                begin = RepUtils.asciiEncode(process.extendedattributes.get('begin', ''))
-                end = RepUtils.asciiEncode(process.extendedattributes.get('end', ''))
-                try:
-                    priority = int(priority)
-                except:
-                    priority = 0
-                self.manage_addProcess(pid, title, description, None, priority, begin, end)
-
-                #get the process object
-                obj = self._getOb(pid)
-                process_roles = {}
-
-                #add activities
-                for activity in process.activities:
-                    aid = RepUtils.asciiEncode(activity.id)
-                    title = RepUtils.asciiEncode(activity.name)
-                    description = RepUtils.asciiEncode(activity.description)
-
-                    split_mode = RepUtils.asciiEncode(activity.transition_restrictions.split.type)
-                    join_mode = RepUtils.asciiEncode(activity.transition_restrictions.join.type)
-
-                    self_assignable = RepUtils.asciiEncode(activity.extendedattributes.get('self_assignable', ''))
-                    try:    self_assignable = int(self_assignable)
-                    except: self_assignable = 1
-
-                    start_mode = RepUtils.asciiEncode(activity.startmode.mode)
-                    try:    start_mode = int(start_mode)
-                    except: start_mode = 0
-
-                    finish_mode = RepUtils.asciiEncode(activity.finishmode.mode)
-                    try:    finish_mode = int(finish_mode)
-                    except: finish_mode = 0
-
-                    complete_automatically = RepUtils.asciiEncode(activity.extendedattributes.get('complete_automatically', ''))
-                    try:    complete_automatically = int(complete_automatically)
-                    except: complete_automatically = 1
-
-                    if activity.subflow:
-                        subflow = RepUtils.asciiEncode(activity.subflow.id)
-                    else:
-                        subflow = ''
-
-                    parameters = []
-                    if activity.tool:
-                        tool = RepUtils.asciiEncode(activity.tool.id)
-                        for parameter in activity.tool.actual_parameters:
-                            parameters.append(parameter.strip('\n'))
-                    else:
-                        tool = ''
-
-                    pullable_roles = RepUtils.asciiEncode(activity.performer).strip("\n\r\t")
-                    pullable_roles = pullable_roles.split(', ')
-                    push_application = RepUtils.asciiEncode(activity.extendedattributes.get('push_application',''))
-                    activity_kind = RepUtils.asciiEncode(activity.extendedattributes.get('kind',''))
-
-                    obj.addActivity(aid, split_mode.lower(), join_mode.lower(), self_assignable, start_mode, finish_mode,
-                        subflow, push_application, tool, title, '', description, activity_kind, complete_automatically)
-
-                    for role in pullable_roles:
-                        if role != '':
-                            if process_roles.has_key(role):
-                                process_roles[role].append(aid)
-                            else:
-                                process_roles[role] = [aid]
-
-                #add roles
-                for process_role in process_roles.keys():
-                    self.editActivitiesPullableOnRole(process_role, pid, process_roles[process_role], REQUEST=None)
-
-                #add transitions
-                for transition in process.transitions:
-
-                    id = RepUtils.asciiEncode(transition.id)
-                    from_ = RepUtils.asciiEncode(transition.from_)
-                    to = RepUtils.asciiEncode(transition.to)
-                    description = RepUtils.asciiEncode(transition.name)
-                    condition = RepUtils.asciiEncode(transition.condition)
-                    obj.addTransition(id, from_, to, condition, description)
-
-            #add applications
-            for application in root.applications:
-                apid = RepUtils.asciiEncode(application.name)
-                url = RepUtils.asciiEncode(application.id)
-                self.addApplication(apid, url)
-            message="Imported successfully"
-        else:
-            message="Failed to import"
-        if REQUEST:
-            return self.workflow_impex(self,REQUEST,manage_tabs_message=message)
-
-    ##################################################
-    # OLD IMPORT/EXPORT functions  (in XML format)   #
-    ##################################################
-    __roles_separator = ','
-
-    security.declareProtected('View', 'exportToXml')
-    def exportToXml(self, proc='', REQUEST=None):
-        """ Export Workflow structure to an XML file
-            If the 'proc' parameter is given, it takes 
+    security.declareProtected(view_management_screens, 'exportToJson')
+    def exportToJson(self, proc='', REQUEST=None):
+        """ Export Workflow structure to an .json file
+            If proc parameter is missing then
+            include all the processes available to this object
         """
-        export_xml = []
-        export_xml_append = export_xml.append
-        export_xml = []
-        export_xml_append = export_xml.append
-        utils_xmlEncode = RepUtils.xmlEncode
-        REQUEST.RESPONSE.setHeader('content-type', 'text/xml; charset=utf-8')
-        export_xml_append('<?xml version="1.0" encoding="ISO-8859-1"?>')
-        export_xml_append('<workflow>\n')
+
+        workflow = {
+            'processes': [],
+            'applications': [],
+        }
         if proc:
-            REQUEST.RESPONSE.setHeader('Content-Disposition', 'attachment; filename=%s.xml' % proc)
-            proc_list = [getattr(self, proc)]
+            filename = '%s.json' % proc
+            procs = [ getattr(self, proc) ]
         else:
-            REQUEST.RESPONSE.setHeader('Content-Disposition', 'attachment; filename=workflow.xml')
-            proc_list = self.objectValues('Process')
-        for process in proc_list:
-            export_xml_append('<process rid="%s" title="%s" description="%s" priority="%s" begin="%s" end="%s">\n' % (utils_xmlEncode(process.id), utils_xmlEncode(process.title), utils_xmlEncode(process.description), utils_xmlEncode(process.priority), utils_xmlEncode(process.begin), utils_xmlEncode(process.end)))
-            for activity in process.objectValues('Activity'):
-                pushable_roles = []
-                pullable_roles = []
-                for pushable_role in self.getPushRoles(process.id, activity.id):
-                    pushable_roles.append(pushable_role)
-                pushable_roles = self.__roles_separator.join(pullable_roles)
-                for pullable_role in self.getPullRoles(process.id, activity.id):
-                    pullable_roles.append(pullable_role)
-                pullable_roles = self.__roles_separator.join(pullable_roles)
-                export_xml_append("""<activity rid='%s' title='%s'
-                split_mode='%s' join_mode='%s' self_assignable='%s'
-                start_mode='%s' finish_mode='%s' complete_automatically='%s'
-                subflow='%s' push_application='%s' application='%s'
-                parameters='%s' description='%s' kind='%s'
-                pushable_roles='%s' pullable_roles='%s'/>\n""" % 
-               (utils_xmlEncode(activity.id), utils_xmlEncode(activity.title), utils_xmlEncode(activity.split_mode),
-                utils_xmlEncode(activity.join_mode), utils_xmlEncode(activity.self_assignable), utils_xmlEncode(activity.start_mode),
-                utils_xmlEncode(activity.finish_mode), utils_xmlEncode(activity.complete_automatically),
-                utils_xmlEncode(activity.subflow), utils_xmlEncode(activity.push_application),
-                utils_xmlEncode(activity.application), utils_xmlEncode(activity.parameters),
-                utils_xmlEncode(activity.description), utils_xmlEncode(activity.kind),
-                utils_xmlEncode(pushable_roles), utils_xmlEncode(pullable_roles)))
-            for transition in process.objectValues('Transition'):
-                export_xml_append('<transition rid="%s" From="%s" To="%s" condition="%s" description="%s"/>\n' % (utils_xmlEncode(transition.id), utils_xmlEncode(transition.From), utils_xmlEncode(transition.To), utils_xmlEncode(transition.condition), utils_xmlEncode(transition.description)))
-            export_xml_append('</process>\n')
-        for application in self._applications.keys():
-            application_url = self._applications[application]['url']
-            export_xml_append('<application rid="%s" url="%s"/>\n' % (utils_xmlEncode(application), utils_xmlEncode(application_url)))
-        export_xml_append('</workflow>\n')
-        return ''.join(export_xml)
-
-    def _importFromXml(self, p_xml_string):
-        """ Import Workflow structure from an XML """
-        import xpdlparser
-        l_workflowhandler = xpdlparser.sxpdlparser().ParseWorkflow(p_xml_string)
-        if l_workflowhandler:
-            #add process
-            for l_process in l_workflowhandler.processes:
-                l_process_id = RepUtils.asciiEncode(l_process['rid'])
-                l_process_title = RepUtils.asciiEncode(l_process['title'])
-                l_process_description = RepUtils.asciiEncode(l_process['description'])
-                l_process_priority = RepUtils.asciiEncode(l_process['priority'])
-                try:
-                    l_process_priority = int(l_process_priority)
-                except:
-                    l_process_priority = 0
-                l_process_begin = RepUtils.asciiEncode(l_process['begin'])
-                l_process_end = RepUtils.asciiEncode(l_process['end'])
-                self.manage_addProcess(l_process_id, l_process_title, l_process_description, None,
-                    l_process_priority, l_process_begin, l_process_end)
-                l_process_obj = self._getOb(l_process_id)
-                l_process_pushable_roles = {}
-                l_process_pullable_roles = {}
-                #add activities
-                for l_activity in l_process['activities']:
-                    l_activity_id = RepUtils.asciiEncode(l_activity['rid'])
-                    l_activity_split_mode = RepUtils.asciiEncode(l_activity['split_mode'])
-                    l_activity_join_mode = RepUtils.asciiEncode(l_activity['join_mode'])
-                    l_activity_self_assignable = RepUtils.asciiEncode(l_activity['self_assignable'])
-                    try:
-                        l_activity_self_assignable = int(l_activity_self_assignable)
-                    except:
-                        l_activity_self_assignable = 1
-                    l_activity_start_mode = RepUtils.asciiEncode(l_activity['start_mode'])
-                    try:
-                        l_activity_start_mode = int(l_activity_start_mode)
-                    except:
-                        l_activity_start_mode = 0
-                    l_activity_finish_mode = RepUtils.asciiEncode(l_activity['finish_mode'])
-                    try:
-                        l_activity_finish_mode = int(l_activity_finish_mode)
-                    except:
-                        l_activity_finish_mode = 1
-                    l_activity_complete_automatically = RepUtils.asciiEncode(l_activity['complete_automatically'])
-                    try:
-                        l_activity_complete_automatically = int(l_activity_complete_automatically)
-                    except:
-                        l_activity_complete_automatically = 1
-                    l_activity_subflow = RepUtils.asciiEncode(l_activity['subflow'])
-                    l_activity_push_application = RepUtils.asciiEncode(l_activity['push_application'])
-                    l_activity_application = RepUtils.asciiEncode(l_activity['application'])
-                    l_activity_title = RepUtils.asciiEncode(l_activity['title'])
-                    l_activity_parameters = RepUtils.asciiEncode(l_activity['parameters'])
-                    l_activity_description = RepUtils.asciiEncode(l_activity['description'])
-                    l_activity_kind = RepUtils.asciiEncode(l_activity['kind'])
-                    l_activity_pushable_roles = RepUtils.asciiEncode(l_activity['pushable_roles']).split(self.__roles_separator)
-                    l_activity_pullable_roles = RepUtils.asciiEncode(l_activity['pullable_roles']).split(self.__roles_separator)
-                    l_process_obj.addActivity(l_activity_id, l_activity_split_mode, l_activity_join_mode,
-                        l_activity_self_assignable, l_activity_start_mode, l_activity_finish_mode,
-                        l_activity_subflow, l_activity_push_application, l_activity_application,
-                        l_activity_title, l_activity_parameters, l_activity_description, l_activity_kind,
-                        l_activity_complete_automatically)
-                    for l_activity_pushable_role in l_activity_pushable_roles:
-                        if l_activity_pushable_role != '':
-                            if l_process_pushable_roles.has_key(l_activity_pushable_role):
-                                l_process_pushable_roles[l_activity_pushable_role].append(l_activity_id)
-                            else:
-                                l_process_pushable_roles[l_activity_pushable_role] = [l_activity_id]
-                    for l_activity_pullable_role in l_activity_pullable_roles:
-                        if l_activity_pullable_role != '':
-                            if l_process_pullable_roles.has_key(l_activity_pullable_role):
-                                l_process_pullable_roles[l_activity_pullable_role].append(l_activity_id)
-                            else:
-                                l_process_pullable_roles[l_activity_pullable_role] = [l_activity_id]
-                #add roles
-                for l_process_pushable_role in l_process_pushable_roles.keys():
-                    self.editActivitiesPushableOnRole(l_process_pushable_role, l_process_id, l_process_pushable_roles[l_process_pushable_role], REQUEST=None)
-                for l_process_pullable_role in l_process_pullable_roles.keys():
-                    self.editActivitiesPullableOnRole(l_process_pullable_role, l_process_id, l_process_pullable_roles[l_process_pullable_role], REQUEST=None)
-                #add transitions
-                for l_transition in l_process['transitions']:
-                    l_transition_id = RepUtils.asciiEncode(l_transition['rid'])
-                    l_transition_From = RepUtils.asciiEncode(l_transition['From'])
-                    l_transition_To = RepUtils.asciiEncode(l_transition['To'])
-                    l_transition_condition = RepUtils.asciiEncode(l_transition['condition'])
-                    l_transition_description = RepUtils.asciiEncode(l_transition['description'])
-                    l_process_obj.addTransition(l_transition_id, l_transition_From, l_transition_To,
-                        l_transition_condition, l_transition_description)
-            #applications
-            for l_application in l_workflowhandler.applications:
-                l_application_id = RepUtils.asciiEncode(l_application['rid'])
-                l_application_url = RepUtils.asciiEncode(l_application['url'])
-                self.addApplication(l_application_id, l_application_url)
-            return 1
-        else:
-            return 0
-
-    security.declareProtected('Manage OpenFlow', 'importFromXml')
-    def importFromXml(self, file, REQUEST=None):
-        """ Imports the contained objects from XML """
-        res = self._importFromXml(file.read())
+            filename = 'workflows.json'
+            procs = self.objectValues('Process')
         if REQUEST:
-            if res: message="Imported successfully"
-            else: message="Failed to import"
+            REQUEST.RESPONSE.setHeader('content-type', 'application/json; charset=UTF-8')
+            REQUEST.RESPONSE.setHeader('Content-Disposition', 'attachment; filename=%s' % filename)
+
+        applications_for_these_processes = set()
+        for pr in procs:
+            process = {
+                'rid': pr.id,
+                'title': pr.title,
+                'description': pr.description,
+                'priority': pr.priority,
+                'begin': pr.begin,
+                'end': pr.end,
+                'activities': [],
+                'transitions': [],
+            }
+            for act in pr.objectValues('Activity'):
+                activity = {
+                    'rid': act.id,
+                    'title': act.title,
+                    'description': act.description,
+                    'kind': act.kind,
+                    'split_mode': act.split_mode,
+                    'join_mode': act.join_mode,
+                    'self_assignable': act.self_assignable,
+                    'start_mode': act.start_mode,
+                    'finish_mode': act.finish_mode,
+                    'complete_automatically': act.complete_automatically,
+                    'subflow': act.subflow,
+                    'push_application': act.push_application,
+                    'application': act.application,
+                    'parameters': act.parameters,
+                    'pushable_roles': [ pushR for pushR in self.getPushRoles(pr.id, act.id) ],
+                    'pullable_roles': [ pullR for pullR in self.getPullRoles(pr.id, act.id) ],
+                }
+                process['activities'].append(activity)
+                applications_for_these_processes.add(act.application)
+            for trans in pr.objectValues('Transition'):
+                transition = {
+                    'rid': trans.id,
+                    'description': trans.description,
+                    'from': trans.From,
+                    'to': trans.To,
+                    'condition': trans.condition,
+                }
+                process['transitions'].append(transition)
+            workflow['processes'].append(process)
+
+        for appName, appValue in self._applications.items():
+            if appName in applications_for_these_processes:
+                url = appValue['url']
+                app_type, checksum = self._applicationDetails(url)
+                application = {
+                    'rid': appName,
+                    'url': url,
+                    'type': app_type,
+                    'checksum': checksum,
+                }
+                workflow['applications'].append(application)
+
+        return json.dumps(workflow, indent=4)
+
+    def _importFromJson(self, json_stream):
+        """Process json from input stream and aggregates the components of a workflow.
+        It returns the applications part of json object with its id and url converted to ascii str.
+        The caller may then compare the applications inside the iported object vs the apps already in the system.
+        This function is supposed to raise exceptions if invalid data is found in the input json.
+        """
+        obj = json.load(json_stream)
+        validRoles = self.validRoles()
+        for pr in obj['processes']:
+            try:
+                pr_id = str(pr['rid'])
+                checkValidId(self, pr_id)
+            except Exception as e:
+                raise OpenFlowEngineImportError('Invalid rid', pr.get('rid', None), e.args)
+
+            self.manage_addProcess(pr_id, pr['title'], pr['description'], None,
+                int(pr['priority']), pr['begin'], pr['end'])
+
+            process = self._getOb(pr_id)
+            pushRoles = defaultdict(list)
+            pullRoles = defaultdict(list)
+            for act in pr.get('activities', []):
+                try:
+                    act_id = str(act['rid'])
+                    checkValidId(process, act_id)
+                except:
+                    raise OpenFlowEngineImportError('Invalid rid', act.get('rid', None))
+                process.addActivity(act_id, act['split_mode'], act['join_mode'],
+                    int(act['self_assignable']), int(act['start_mode']), int(act['finish_mode']),
+                    str(act['subflow']), str(act['push_application']),
+                    str(act['application']), act['title'], str(act['parameters']),
+                    act['description'], str(act['kind']), int(act['complete_automatically']))
+                for pushR in act['pushable_roles']:
+                    if pushR:
+                        pushR = str(pushR)
+                        pushRoles[pushR].append(act_id)
+                for pullR in act['pullable_roles']:
+                    if pullR:
+                        pullR = str(pullR)
+                        pullRoles[pullR].append(act_id)
+            for role, activities in pushRoles.items():
+                if role in validRoles:
+                    self.editActivitiesPushableOnRole(role, pr_id, activities)
+            for role, activities in pullRoles.items():
+                if role in validRoles:
+                    self.editActivitiesPullableOnRole(role, pr_id, activities)
+            for trans in pr.get('transitions', []):
+                try:
+                    trans_id = str(trans['rid'])
+                    checkValidId(process, trans_id)
+                except:
+                    raise OpenFlowEngineImportError('Invalid rid', trans.get('rid', None))
+                process.addTransition(trans_id, str(trans['from']), str(trans['to']),
+                    str(trans['condition']), trans['description'])
+
+        applications = obj.get('applications', [])
+        try:
+            for app in applications:
+                # we also alter the returning object
+                app['rid'] = str(app['rid'])
+                app['url'] = str(app['url'])
+                self.addApplication(app['rid'], app['url'])
+        except:
+            raise OpenFlowEngineImportError('Error adding application',
+                        app.get('rid', None), app.get('url', None))
+
+        return applications
+
+
+    security.declareProtected('Manage OpenFlow', 'importFromJson')
+    def importFromJson(self, file, REQUEST=None):
+        """ Reconstructs the workflow from a .json file """
+
+        message="Imported successfully"
+        problem_apps = []
+        try:
+            imported_applications = self._importFromJson(file)
+            for app in imported_applications:
+                existing_type, existing_checksum = self._applicationDetails(app['url'])
+                if not existing_type:
+                    cmp_result = 'missing'
+                elif existing_type == app['type']:
+                    if app['checksum'] == existing_checksum:
+                        cmp_result = ''
+                    else:
+                        cmp_result = 'different'
+                else:
+                    cmp_result = 'different'
+                if cmp_result:
+                    app_cmp = {
+                        'name': app['rid'],
+                        'path': app['url'],
+                        'cmp_result': cmp_result,
+                    }
+                    problem_apps.append(app_cmp)
+        except OpenFlowEngineImportError as e:
+            logger.error("Workflow Import/Export: Failed to import OpenFlowEngine json. Reason: %s" % unicode(e.args))
+            if 'Invalid rid' in e.args[0]:
+                message = u"Failed to import. Id %s is invalid or already exists." % e.args[1]
+            else:
+                message=u"Failed to import. Is your json file the result of Export to JSON functionality?"
+            transaction.abort()
+        except Exception as e:
+            logger.error("Workflow Import/Export: Failed to import OpenFlowEngine json. Reason: %s" % unicode(e.args))
+            message="Failed to import."
+            transaction.abort()
+
+        if problem_apps:
+            msg_parts = [message, "Some of the following apps differ:"]
+            for app in problem_apps:
+                msg = "App %s with path: %s is <b>%s</b>" % (app['name'], app['path'], app['cmp_result'])
+                msg_parts.append(msg)
+                logger.warning("Workflow Import/Export: App %s with path: %s is %s" % (app['name'], app['path'], app['cmp_result']))
+            msg_parts.append("")
+            message = "\n".join(msg_parts)
+
+        if REQUEST:
             return self.workflow_impex(self,REQUEST,manage_tabs_message=message)
 
     security.declareProtected('Manage OpenFlow', 'workflow_impex')
@@ -800,7 +749,6 @@ def handle_application_move_events(obj):
     wf = getattr(root, constants.WORKFLOW_ENGINE_ID)
     proc_old = None
     proc_new = None
-    message = ''
     messages = []
 
     if obj.oldParent:

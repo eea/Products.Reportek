@@ -5,13 +5,13 @@
     Tabs
 </h1>
 
-<h2>Import/Export in simple XML format</h2>
+<h2>Import/Export JSON</h2>
 
 <fieldset><legend>Import</legend>
-<form action="importFromXml" method="post" enctype="multipart/form-data">
+<form action="importFromJson" method="post" enctype="multipart/form-data">
 <table cellspacing="2" cellpadding="2" width="100%">
 	<tr>
-		<td class="form-label" width="20%">Upload XML file</td>
+		<td class="form-label" width="20%">Upload JSON file</td>
 		<td width="80%"><input type="file" name="file" /></td>
 	</tr>
 	<tr><td> </td><td><input type="submit" value="Import" /></td></tr>
@@ -20,8 +20,8 @@
 </fieldset>
 
 <fieldset><legend>Export</legend>
-<p>Export the applications, processes and their activities and transitions to an XML file.</p>
-<form action="exportToXml" method="post">
+<p>Export the applications, processes and their activities and transitions to an JSON file.</p>
+<form action="exportToJson" method="post">
 	<label for="proc">Process</label>
 	<select name="proc" id="proc">
 		<option value="">all</option>
@@ -29,32 +29,6 @@
 			<option tal:attributes="value proc/id" tal:content="proc/title_or_id" />
 		</tal:block>
 	</select>
-	<input type="submit" value="Export" />
-</form>
-</fieldset>
-
-<h2>Import/Export in XPDL format</h2>
-
-<fieldset><legend>Import</legend>
-<p>Add new processes, applications, activities and transitions by importing a XPDL file</p>
-<form action="importFromXPDL" method="post" enctype="multipart/form-data">
-<table>
-	<tr>
-		<th>File</th>
-		<td><input type="file" name="file" /></td>
-	</tr>
-
-	<tr>
-		<th></th>
-		<td><input type="submit" value=" Import " /></td>
-	</tr>
-</table>
-</form>
-</fieldset>
-
-<fieldset><legend>Export</legend>
-<p>Export the applications, processes and their activities and transitions to XPDL files.</p>
-<form action="exportToXPDL" method="post">
 	<input type="submit" value="Export" />
 </form>
 </fieldset>

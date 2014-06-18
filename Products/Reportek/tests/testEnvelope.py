@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import unittest
 import lxml.etree
 from StringIO import StringIO
@@ -9,7 +10,10 @@ from DateTime import DateTime
 from utils import (create_fake_root, create_upload_file, create_envelope,
                    add_document, add_feedback, add_hyperlink, simple_addEnvelope)
 from mock import Mock, patch
+from functools import partial
 from zope.lifecycleevent import ObjectMovedEvent
+import md5
+import json
 
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
@@ -17,6 +21,7 @@ from Products.Reportek import OpenFlowEngine
 from Products.Reportek import constants
 from Products.Reportek import Converters
 from Products.Reportek import ContentRegistryPingger
+from Products.Reportek.OpenFlowEngine import OpenFlowEngineImportError
 
 from common import BaseTest, WorkflowTestCase, ConfigureReportek
 from utils import mysleep
@@ -151,6 +156,309 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
         with self.assertRaises(exceptions.EnvelopeReleasedException) as ex:
             self.envelope.saveXML('file_id', Mock(), '')
 
+    def test_openflow_exportToJson(self):
+        self.createStandardCatalog()
+        wfe = getattr(self.app, 'WorkflowEngine')
+        pr = getattr(wfe, 'begin_end')
+        tr = getattr(pr, 'begin_end')
+        tr.condition = "python: len([ i for i in xrange(1, 11)])"
+        self.app.manage_addFolder('Applications')
+        folder = getattr(self.app, 'Applications')
+
+        folder.manage_addProduct['PythonScripts'].manage_addPythonScript(id='an_application')
+        script1 = getattr(folder, 'an_application')
+        # test unicode
+        script1.write(u"return 'blâ'")
+        expected_type1 = script1.meta_type
+        expected_checksum1 = md5.md5(script1.read().encode('utf-8')).hexdigest()
+
+        folder.manage_addProduct['PythonScripts'].manage_addPythonScript(id='another_application')
+        script2 = getattr(folder, 'another_application')
+        # test string with non ascii chars
+        script2.ZPythonScript_edit(params='',body="return 'blâ'")
+        expected_type2 = script2.meta_type
+        expected_checksum2 = md5.md5(script2.read()).hexdigest()
+
+        wfe.addApplication('script1', script1.absolute_url(1))
+        wfe.addApplication('script2', script2.absolute_url(1))
+
+        expected_role = 'Manager'
+        wfe.editActivitiesPullableOnRole(expected_role, 'begin_end', ['Begin', 'Draft', 'Release'])
+
+        r = wfe.exportToJson(proc='begin_end')
+        o = json.loads(r)
+        self.assertIn('applications', o)
+        self.assertIn({
+            'checksum': expected_checksum1,
+            'rid': 'script1',
+            'type': expected_type1,
+            'url': script1.absolute_url(1)
+        }, o['applications'])
+        self.assertIn({
+            'checksum': expected_checksum2,
+            'rid': 'script2',
+            'type': expected_type2,
+            'url': script2.absolute_url(1)
+        }, o['applications'])
+
+        self.assertIn('processes', o)
+        proc = o['processes'][0]
+        expected_proc = {
+            u'activities': [{u'application': u'',
+                             u'complete_automatically': 1,
+                             u'description': u'',
+                             u'finish_mode': 0,
+                             u'join_mode': u'and',
+                             u'kind': u'standard',
+                             u'parameters': u'',
+                             u'pullable_roles': [expected_role],
+                             u'push_application': u'',
+                             u'pushable_roles': [],
+                             u'rid': u'Begin',
+                             u'self_assignable': 1,
+                             u'split_mode': u'and',
+                             u'start_mode': 0,
+                             u'subflow': u'',
+                             u'title': u''},
+                             {u'application': u'',
+                             u'complete_automatically': 1,
+                             u'description': u'',
+                             u'finish_mode': 0,
+                             u'join_mode': u'and',
+                             u'kind': u'standard',
+                             u'parameters': u'',
+                             u'pullable_roles': [],
+                             u'push_application': u'',
+                             u'pushable_roles': [],
+                             u'rid': u'End',
+                             u'self_assignable': 1,
+                             u'split_mode': u'and',
+                             u'start_mode': 0,
+                             u'subflow': u'',
+                             u'title': u''}],
+            u'begin': u'Begin',
+            u'description': u'',
+            u'end': u'End',
+            u'priority': 0,
+            u'rid': u'begin_end',
+            u'title': u'',
+            u'transitions': [{
+                u'condition': tr.condition,
+                u'description': u'',
+                u'from': u'Begin',
+                u'rid': u'begin_end',
+                u'to': u'End'}]
+        }
+        self.assertEqual(proc, expected_proc)
+
+    def _make_openflow_json(self, pr_id=u'begin_end_new', act_id=u'Begin',
+            transition_id=u'begin_end',
+            app_name_url=(u'script1', u'Applications/an_application'),
+            roles=[u'Manager']):
+
+        obj = {
+            u'applications': [{u'checksum': u'48aaf9f159480ee25a3b56edab1c7f47',
+                               u'rid': app_name_url[0],
+                               u'type': u'Script (Python)',
+                               u'url': app_name_url[1]},
+                              {u'checksum': u'6d440bda5b6bc8f337e611ce7b6a172e',
+                               u'rid': u'script2',
+                               u'type': u'Script (Python)',
+                               u'url': u'Applications/another_application'}],
+            u'processes': [{u'activities': [{u'application': u'',
+                                             u'complete_automatically': 1,
+                                             u'description': u'',
+                                             u'finish_mode': 0,
+                                             u'join_mode': u'and',
+                                             u'kind': u'standard',
+                                             u'parameters': u'',
+                                             u'pullable_roles': roles,
+                                             u'push_application': u'',
+                                             u'pushable_roles': [],
+                                             u'rid': act_id,
+                                             u'self_assignable': 1,
+                                             u'split_mode': u'and',
+                                             u'start_mode': 0,
+                                             u'subflow': u'',
+                                             u'title': u''},
+                                            {u'application': u'',
+                                             u'complete_automatically': 1,
+                                             u'description': u'',
+                                             u'finish_mode': 0,
+                                             u'join_mode': u'and',
+                                             u'kind': u'standard',
+                                             u'parameters': u'',
+                                             u'pullable_roles': [],
+                                             u'push_application': u'',
+                                             u'pushable_roles': [],
+                                             u'rid': u'End',
+                                             u'self_assignable': 1,
+                                             u'split_mode': u'and',
+                                             u'start_mode': 0,
+                                             u'subflow': u'',
+                                             u'title': u''}],
+                            u'begin': u'Begin',
+                            u'description': u'Șșș',
+                            u'end': u'End',
+                            u'priority': 0,
+                            u'rid': pr_id,
+                            u'title': u'Ă title',
+                            u'transitions': [{u'condition': u'python: len([ i for i in xrange(1, 11)])',
+                                              u'description': u'',
+                                              u'from': u'Begin',
+                                              u'rid': transition_id,
+                                              u'to': u'End'}]}]
+        }
+        return StringIO(json.dumps(obj))
+
+    def test_openflow_importFromJson(self):
+        self.createStandardCatalog()
+        pr_id = u'begin_end_new'
+        make_json = partial(self._make_openflow_json, pr_id=pr_id)
+        jsonControlObj = json.load(make_json())
+        jsonStream = make_json()
+
+        wfe = getattr(self.app, 'WorkflowEngine')
+        applications = wfe._importFromJson(jsonStream)
+        proc = jsonControlObj['processes'][0]
+        pr = getattr(wfe, pr_id)
+        self.assertEqual(pr.title, proc['title'])
+        self.assertEqual(pr.description, proc['description'])
+        self.assertEqual(pr.priority, int(proc['priority']))
+        self.assertEqual(pr.begin, proc['begin'])
+        self.assertEqual(pr.end, proc['end'])
+
+        act1 = proc['activities'][0]
+        self.assertTrue(hasattr(pr, act1['rid']))
+        a1 = getattr(pr, act1['rid'])
+        act2 = proc['activities'][1]
+        self.assertTrue(hasattr(pr, act2['rid']))
+        a2 = getattr(pr, act2['rid'])
+
+        self.assertEqual(a1.title, act1['title'])
+        self.assertEqual(a2.title, act2['title'])
+        self.assertEqual(a1.description, act1['description'])
+        self.assertEqual(a2.description, act2['description'])
+        self.assertEqual(a1.split_mode, act1['split_mode'])
+        self.assertEqual(a2.split_mode, act2['split_mode'])
+        self.assertEqual(a1.join_mode, act1['join_mode'])
+        self.assertEqual(a2.join_mode, act2['join_mode'])
+        self.assertEqual(a1.self_assignable, int(act1['self_assignable']))
+        self.assertEqual(a2.self_assignable, int(act2['self_assignable']))
+        self.assertEqual(a1.start_mode, int(act1['start_mode']))
+        self.assertEqual(a2.start_mode, int(act2['start_mode']))
+        self.assertEqual(a1.finish_mode, int(act1['finish_mode']))
+        self.assertEqual(a2.finish_mode, int(act2['finish_mode']))
+        self.assertEqual(a1.complete_automatically, int(act1['complete_automatically']))
+        self.assertEqual(a2.complete_automatically, int(act2['complete_automatically']))
+        self.assertEqual(a1.subflow, str(act1['subflow']))
+        self.assertEqual(a2.subflow, str(act2['subflow']))
+        self.assertEqual(a1.push_application, str(act1['push_application']))
+        self.assertEqual(a2.push_application, str(act2['push_application']))
+        self.assertEqual(a1.application, str(act1['application']))
+        self.assertEqual(a2.application, str(act2['application']))
+        self.assertEqual(a1.parameters, str(act1['parameters']))
+        self.assertEqual(a2.parameters, str(act2['parameters']))
+        self.assertEqual(a1.kind, str(act1['kind']))
+        self.assertEqual(a2.kind, str(act2['kind']))
+
+        pushRoles = wfe.getActivitiesPushableOnRole()
+        self.assertEqual(pushRoles, {})
+        pullRoles = wfe.getActivitiesPullableOnRole()
+        self.assertEqual(pullRoles, {'Manager': {'begin_end_new': ['Begin']}})
+
+        trans = proc['transitions'][0]
+        tr = getattr(pr, trans['rid'])
+        self.assertEqual(tr.description, trans['description'])
+        self.assertEqual(tr.From, trans['from'])
+        self.assertEqual(tr.To, trans['to'])
+        self.assertEqual(tr.condition, trans['condition'])
+        app1 = {u'checksum': u'48aaf9f159480ee25a3b56edab1c7f47',
+                u'rid': u'script1',
+                u'type': u'Script (Python)',
+                u'url': u'Applications/an_application'}
+        app2 = {u'checksum': u'6d440bda5b6bc8f337e611ce7b6a172e',
+                u'rid': u'script2',
+                u'type': u'Script (Python)',
+                u'url': u'Applications/another_application'}
+        self.assertIn(app1, applications)
+        self.assertIn(app2, applications)
+
+    def test_openflow_importFromJson_wrongId(self):
+        self.createStandardCatalog()
+        wfe = getattr(self.app, 'WorkflowEngine')
+
+        pr_id = u'begin_end_new_ă'
+        make_json = partial(self._make_openflow_json, pr_id)
+        jsonStream = make_json()
+        expected_exception_args = ('Invalid rid', pr_id)
+        exception_args = None
+        try:
+            wfe._importFromJson(jsonStream)
+        except OpenFlowEngineImportError as e:
+            exception_args = e.args
+        self.assertEqual(exception_args, expected_exception_args)
+
+        pr_id = u'begin_end_new'
+        act_id = u'B€gin'
+        make_json = partial(self._make_openflow_json, pr_id, act_id)
+        jsonStream = make_json()
+        expected_exception_args = ('Invalid rid', act_id)
+        exception_args = None
+        try:
+            wfe._importFromJson(jsonStream)
+        except OpenFlowEngineImportError as e:
+            exception_args = e.args
+        self.assertEqual(exception_args, expected_exception_args)
+
+        pr_id = u'begin_end_new2'
+        trans_id = u'b€gin_end'
+        make_json = partial(self._make_openflow_json, pr_id, transition_id=trans_id)
+        jsonStream = make_json()
+        expected_exception_args = ('Invalid rid', trans_id)
+        exception_args = None
+        try:
+            wfe._importFromJson(jsonStream)
+        except OpenFlowEngineImportError as e:
+            exception_args = e.args
+        self.assertEqual(exception_args, expected_exception_args)
+
+        pr_id = u'begin_end_new3'
+        app_name = u'Draft'
+        app_url = u'/Applications/Drâft'
+        make_json = partial(self._make_openflow_json, pr_id, app_name_url=(app_name, app_url))
+        jsonStream = make_json()
+        expected_exception_args = ('Error adding application', app_name, app_url)
+        exception_args = None
+        try:
+            wfe._importFromJson(jsonStream)
+        except OpenFlowEngineImportError as e:
+            exception_args = e.args
+        self.assertEqual(exception_args, expected_exception_args)
+
+    def test_openflow_importFromJson_generalException(self):
+        self.createStandardCatalog()
+        wfe = getattr(self.app, 'WorkflowEngine')
+
+        jsonStream = StringIO(json.dumps({}))
+        exception_args = None
+        try:
+            wfe._importFromJson(jsonStream)
+        except Exception as e:
+            exception_args = e.args
+        self.assertIsNotNone(exception_args)
+
+    def test_openflow_importFromJson_badRole(self):
+        self.createStandardCatalog()
+        wfe = getattr(self.app, 'WorkflowEngine')
+
+        weird_roles = [u'Manager', u'destroyer']
+        make_json = partial(self._make_openflow_json, roles=weird_roles)
+        jsonStream = make_json()
+        wfe._importFromJson(jsonStream)
+
+        pullRoles = wfe.getActivitiesPullableOnRole()
+        self.assertNotIn('destroyer', pullRoles)
 
 def get_xml_metadata(envelope, inline='false'):
     from Products.Reportek.XMLMetadata import XMLMetadata

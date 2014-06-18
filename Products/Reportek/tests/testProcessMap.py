@@ -22,35 +22,6 @@ class OpenflowTestCase(BaseTest, ConfigureReportek):
         """ Check for the correct creation of the WorkflowEngine """
         self.assertTrue(hasattr(self.app, 'WorkflowEngine'))
 
-    def test_exportxml(self):
-        """ Check that the application exports one workflow correctly """
-        exported = """<?xml version="1.0" encoding="ISO-8859-1"?><workflow>
-<process rid="process1" title="" description="" priority="0" begin="Begin" end="End">
-<activity rid='Begin' title=''
-                split_mode='and' join_mode='and' self_assignable='1'
-                start_mode='0' finish_mode='0' complete_automatically='1'
-                subflow='' push_application='' application=''
-                parameters='' description='' kind='standard'
-                pushable_roles='' pullable_roles=''/>
-<activity rid='End' title=''
-                split_mode='and' join_mode='and' self_assignable='1'
-                start_mode='0' finish_mode='0' complete_automatically='1'
-                subflow='' push_application='' application=''
-                parameters='' description='' kind='standard'
-                pushable_roles='' pullable_roles=''/>
-</process>
-</workflow>
-"""
-        self.wf.manage_addProcess('process1', BeginEnd=1)
-        self.wf.setProcessMappings('process1', '1', '1')
-        self.assertEquals(exported, self.wf.exportToXml('process1', self.app.REQUEST))
-
-    def test_importxml(self):
-        of = getattr(self.app, 'WorkflowEngine')
-        f = open(os.path.join(TESTDIR, 'workflow_example.xml'),'r')
-        of.importFromXml(f)
-        self.assertTrue(hasattr(of,'noise_dataflows'))
-
     def testWorkflowEngine(self):
         of = getattr(self.app, 'WorkflowEngine')
         self.assertEquals(of.meta_type, 'Workflow Engine')

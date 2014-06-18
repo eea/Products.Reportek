@@ -1,5 +1,8 @@
+# -*- coding: utf-8 -*-
 from Products.Reportek.exceptions import CannotPickProcess, NoProcessAvailable
 from common import BaseTest, WorkflowTestCase, ConfigureReportek
+
+from mock import Mock
 
 
 class EnvelopeRenderingTestCase(BaseTest, ConfigureReportek):
@@ -109,3 +112,98 @@ class EnvelopePeriodValidationTestCase(BaseTest, ConfigureReportek):
         envelope = BaseTest.create_envelope(self.col, year='abc', endyear='abc')
         self.assertEqual(envelope.year, '')
         self.assertEqual(envelope.endyear, '')
+
+class OpenflowEngineTestCase(WorkflowTestCase):
+    def afterSetUp(self):
+        super(OpenflowEngineTestCase, self).afterSetUp()
+
+    def _add_application_content(self, name='script1',
+                url='an_application', content=u"return 'blâ'"):
+        self.app.manage_addFolder('Applications')
+        folder = getattr(self.app, 'Applications')
+
+        folder.manage_addProduct['PythonScripts'].manage_addPythonScript(id=url)
+        script1 = getattr(folder, url)
+        script1.write(content)
+
+        self.wf.addApplication(name, script1.absolute_url(1))
+
+
+    def test_importFromJson_appDiff_ok(self):
+        self._add_application_content()
+        applications = [{u'checksum': u'48aaf9f159480ee25a3b56edab1c7f47',
+                         u'rid': u'script1',
+                         u'type': u'Script (Python)',
+                         u'url': u'Applications/an_application'},
+                        ]
+
+        self.wf._importFromJson = Mock(return_value=applications)
+        result = Mock()
+        self.wf.workflow_impex = result
+        expected_msg = 'Imported successfully'
+        self.wf.importFromJson(None, REQUEST=True)
+        self.assertTrue(result.called)
+        self.assertEqual(result.call_args[1]['manage_tabs_message'], expected_msg)
+
+    def test_importFromJson_appDiff_typeDiff(self):
+        self._add_application_content()
+        applications = [{u'checksum': u'48aaf9f159480ee25a3b56edab1c7f47',
+                         u'rid': u'script1',
+                         u'type': u'Other type',
+                         u'url': u'Applications/an_application'},
+                        ]
+
+        self.wf._importFromJson = Mock(return_value=applications)
+        result = Mock()
+        self.wf.workflow_impex = result
+        expected_msg = u'Imported successfully\nSome of the following apps differ:\nApp script1 with path: Applications/an_application is <b>different</b>\n'
+        self.wf.importFromJson(None, REQUEST=True)
+        self.assertTrue(result.called)
+        self.assertEqual(result.call_args[1]['manage_tabs_message'], expected_msg)
+
+    def test_importFromJson_appDiff_contentDiff(self):
+        self._add_application_content()
+        applications = [{u'checksum': u'other_checksum',
+                         u'rid': u'script1',
+                         u'type': u'Script (Python)',
+                         u'url': u'Applications/an_application'},
+                        ]
+
+        self.wf._importFromJson = Mock(return_value=applications)
+        result = Mock()
+        self.wf.workflow_impex = result
+        expected_msg = u'Imported successfully\nSome of the following apps differ:\nApp script1 with path: Applications/an_application is <b>different</b>\n'
+        self.wf.importFromJson(None, REQUEST=True)
+        self.assertTrue(result.called)
+        self.assertEqual(result.call_args[1]['manage_tabs_message'], expected_msg)
+
+    def test_importFromJson_appDiff_srcMissing(self):
+        self._add_application_content()
+        applications = [{u'checksum': u'',
+                         u'rid': u'script1',
+                         u'type': u'',
+                         u'url': u'Applications/an_application'},
+                        ]
+
+        self.wf._importFromJson = Mock(return_value=applications)
+        result = Mock()
+        self.wf.workflow_impex = result
+        expected_msg = u'Imported successfully\nSome of the following apps differ:\nApp script1 with path: Applications/an_application is <b>different</b>\n'
+        self.wf.importFromJson(None, REQUEST=True)
+        self.assertTrue(result.called)
+        self.assertEqual(result.call_args[1]['manage_tabs_message'], expected_msg)
+
+    def test_importFromJson_appDiff_dstMissing(self):
+        applications = [{u'checksum': u'48aaf9f159480ee25a3b56edab1c7f47',
+                         u'rid': u'script1',
+                         u'type': u'Script (Python)',
+                         u'url': u'Applications/an_application'},
+                        ]
+
+        self.wf._importFromJson = Mock(return_value=applications)
+        result = Mock()
+        self.wf.workflow_impex = result
+        expected_msg = u'Imported successfully\nSome of the following apps differ:\nApp script1 with path: Applications/an_application is <b>missing</b>\n'
+        self.wf.importFromJson(None, REQUEST=True)
+        self.assertTrue(result.called)
+        self.assertEqual(result.call_args[1]['manage_tabs_message'], expected_msg)
