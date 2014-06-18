@@ -434,7 +434,7 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
             wfe._importFromJson(jsonStream)
         except OpenFlowEngineImportError as e:
             exception_args = e.args
-        self.assertEqual(exception_args, expected_exception_args)
+            self.assertEqual(exception_args[:2], expected_exception_args)
 
         pr_id = u'begin_end_new'
         act_id = u'B€gin'
