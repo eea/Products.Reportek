@@ -162,6 +162,8 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
         pr = getattr(wfe, 'begin_end')
         tr = getattr(pr, 'begin_end')
         tr.condition = "python: len([ i for i in xrange(1, 11)])"
+        pr.addActivity('activity1', application='script1')
+        pr.addActivity('activity2', application='script2')
         self.app.manage_addFolder('Applications')
         folder = getattr(self.app, 'Applications')
 
@@ -181,6 +183,8 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
 
         wfe.addApplication('script1', script1.absolute_url(1))
         wfe.addApplication('script2', script2.absolute_url(1))
+        # this application will not be exported as it is not referenced by any process activity
+        wfe.addApplication('script3', '/this/is/not/referenced/by/any/activity')
 
         expected_role = 'Manager'
         wfe.editActivitiesPullableOnRole(expected_role, 'begin_end', ['Begin', 'Draft', 'Release'])
@@ -188,6 +192,7 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
         r = wfe.exportToJson(proc='begin_end')
         o = json.loads(r)
         self.assertIn('applications', o)
+        self.assertEqual(len(o['applications']), 2)
         self.assertIn({
             'checksum': expected_checksum1,
             'rid': 'script1',
@@ -231,6 +236,38 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
                              u'push_application': u'',
                              u'pushable_roles': [],
                              u'rid': u'End',
+                             u'self_assignable': 1,
+                             u'split_mode': u'and',
+                             u'start_mode': 0,
+                             u'subflow': u'',
+                             u'title': u''},
+                            {u'application': u'script1',
+                             u'complete_automatically': 1,
+                             u'description': u'',
+                             u'finish_mode': 0,
+                             u'join_mode': u'and',
+                             u'kind': u'standard',
+                             u'parameters': u'',
+                             u'pullable_roles': [],
+                             u'push_application': u'',
+                             u'pushable_roles': [],
+                             u'rid': u'activity1',
+                             u'self_assignable': 1,
+                             u'split_mode': u'and',
+                             u'start_mode': 0,
+                             u'subflow': u'',
+                             u'title': u''},
+                            {u'application': u'script2',
+                             u'complete_automatically': 1,
+                             u'description': u'',
+                             u'finish_mode': 0,
+                             u'join_mode': u'and',
+                             u'kind': u'standard',
+                             u'parameters': u'',
+                             u'pullable_roles': [],
+                             u'push_application': u'',
+                             u'pushable_roles': [],
+                             u'rid': u'activity2',
                              u'self_assignable': 1,
                              u'split_mode': u'and',
                              u'start_mode': 0,
