@@ -1,5 +1,9 @@
-3.6.15 (unreleased)
+3.6.16 (unreleased)
 -------------------
+
+3.6.15 (18-06-2014)
+-------------------
+* Task 5992 - Fix and improve Import/Export of open dataflow processes [baragdan]
 * Task 19856 - Fix Obligation list under envelope properties [baragdan]
 * Task 3279 - Broaden the detection of xml mime type [baragdan]
 * Task 17226 - Reject ambiguous schema locations [baragdan]
