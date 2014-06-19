@@ -27,6 +27,7 @@ REPORTEK_META_TYPES = [
         'Workitem',
         'Converter',
         'QAScript',
+        'Reportek Dataflow Mappings',
         'Dataflow Mappings Record',
         'DTML Document',
         'DTML Method',

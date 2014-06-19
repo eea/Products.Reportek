@@ -8,9 +8,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from UserList import UserList
 
 from constants import DATAFLOW_MAPPINGS, ENGINE_ID
-
-
-RECORD = 'Dataflow Mappings Record'
+from DataflowMappingsRecord import DataflowMappingsRecord
 
 
 class DataflowMappings(Folder):
@@ -21,11 +19,12 @@ class DataflowMappings(Folder):
             {'label':'View', 'action':'dataflowsMappingsView'}
             ) + Folder.manage_options[2:]
 
+    meta_type = 'Dataflow Mappings'
 
     def all_meta_types( self, interfaces=None ):
         return [
             {
-                'name': RECORD,
+                'name': DataflowMappingsRecord.meta_type,
                 'action': '+/add_record',
                 'permission': view_management_screens
             }]
@@ -50,7 +49,7 @@ class DataflowMappings(Folder):
         return - list of found schema objects
         """
         query = {
-            'meta_type': RECORD,
+            'meta_type': DataflowMappingsRecord.meta_type,
             'path': '/DataflowMappings'
         }
         if dataflow_uris:
@@ -75,7 +74,7 @@ class DataflowMappings(Folder):
         Returns schemas for one or many dataflows
         dataflow_uris - one uri (str) looked after, a list for any uri in it or leave None (False) for all dataflows
         web_form_only - if True only Schemas that have webforms will be returned
-        return - list of found schema objects
+        return - list of found schemas
         """
         schemaObjects = self.getSchemaObjectsForDataflows(dataflow_uris, web_form_only)
         return [ schema['url'] for schema in schemaObjects ]
