@@ -336,6 +336,9 @@ class OpenFlowEngine(Folder, Toolz):
             self._p_changed = 1
             if REQUEST:
                 REQUEST.RESPONSE.redirect('Applications')
+            else:
+                return True
+        return False
 
     security.declareProtected('Manage OpenFlow', 'deleteApplication')
     def deleteApplication(self, app_ids=None, REQUEST=None):
@@ -530,7 +533,9 @@ class OpenFlowEngine(Folder, Toolz):
                 # we also alter the returning object
                 app['rid'] = str(app['rid'])
                 app['url'] = str(app['url'])
-                self.addApplication(app['rid'], app['url'])
+                # If an app already exists on the target OpenFlowEngine it will not be overwritten
+                if not self.addApplication(app['rid'], app['url']):
+                    app['targetPath'] = self._applications[app['rid']]['url']
         except:
             raise OpenFlowEngineImportError('Error adding application',
                         app.get('rid', None), app.get('url', None))
@@ -547,23 +552,39 @@ class OpenFlowEngine(Folder, Toolz):
         try:
             imported_applications = self._importFromJson(file)
             for app in imported_applications:
-                existing_type, existing_checksum = self._applicationDetails(app['url'])
+                # We shall compare the source path with the already existing path on target
+                targetPath = app.get('targetPath', app['url'])
+                existing_type, existing_checksum = self._applicationDetails(targetPath)
                 if not existing_type:
                     cmp_result = 'missing'
                 elif existing_type == app['type']:
                     if app['checksum'] == existing_checksum:
                         cmp_result = ''
                     else:
-                        cmp_result = 'different'
+                        cmp_result = 'different by content'
                 else:
-                    cmp_result = 'different'
+                    cmp_result = 'different by content'
+
                 if cmp_result:
                     app_cmp = {
                         'name': app['rid'],
                         'path': app['url'],
                         'cmp_result': cmp_result,
                     }
+                    if targetPath != app['url']:
+                        app_cmp['sourceName'] = app['url']
+                        app_cmp['path'] = targetPath
+                        app_cmp['cmp_result'] += ' and ' + 'different by path'
                     problem_apps.append(app_cmp)
+                else:
+                    if targetPath != app['url']:
+                        app_cmp = {
+                            'name': app['rid'],
+                            'sourceName': app['url'],
+                            'path': targetPath,
+                            'cmp_result': 'different by path',
+                        }
+                        problem_apps.append(app_cmp)
         except OpenFlowEngineImportError as e:
             logger.error("Workflow Import/Export: Failed to import OpenFlowEngine json. Reason: %s" % unicode(e.args))
             if 'Invalid rid' in e.args[0]:
@@ -579,9 +600,15 @@ class OpenFlowEngine(Folder, Toolz):
         if problem_apps:
             msg_parts = [message, "Some of the following apps differ:"]
             for app in problem_apps:
-                msg = "App %s with path: %s is <b>%s</b>" % (app['name'], app['path'], app['cmp_result'])
+                if 'sourceName' in app:
+                    additionalPathInfo = " (path on source was: %s)" % app['sourceName']
+                else:
+                    additionalPathInfo = ""
+                msg = "App %s with path: %s is <b>%s</b>%s" % (app['name'],
+                            app['path'], app['cmp_result'], additionalPathInfo)
                 msg_parts.append(msg)
-                logger.warning("Workflow Import/Export: App %s with path: %s is %s" % (app['name'], app['path'], app['cmp_result']))
+                logger.warning("Workflow Import/Export: App %s with path: %s is %s%s" % (app['name'],
+                            app['path'], app['cmp_result'], additionalPathInfo))
             msg_parts.append("")
             message = "\n".join(msg_parts)
 

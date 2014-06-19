@@ -302,7 +302,7 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
                                u'rid': u'script2',
                                u'type': u'Script (Python)',
                                u'url': u'Applications/another_application'}],
-            u'processes': [{u'activities': [{u'application': u'',
+            u'processes': [{u'activities': [{u'application': app_name_url[0],
                                              u'complete_automatically': 1,
                                              u'description': u'',
                                              u'finish_mode': 0,
@@ -318,7 +318,7 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
                                              u'start_mode': 0,
                                              u'subflow': u'',
                                              u'title': u''},
-                                            {u'application': u'',
+                                            {u'application': u'script2',
                                              u'complete_automatically': 1,
                                              u'description': u'',
                                              u'finish_mode': 0,
@@ -420,6 +420,55 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
                 u'url': u'Applications/another_application'}
         self.assertIn(app1, applications)
         self.assertIn(app2, applications)
+
+    def test_openflow_importFromJson_appWithDiffPaths(self):
+        self.createStandardCatalog()
+
+        wfe = getattr(self.app, 'WorkflowEngine')
+        self.app.manage_addFolder('NewApplications')
+        folder = getattr(self.app, 'NewApplications')
+        folder.manage_addProduct['PythonScripts'].manage_addPythonScript(id='an_application')
+        script1 = getattr(folder, 'an_application')
+        script1.write(u"return 'blâ'")
+        wfe.addApplication('script1', script1.absolute_url(1))
+        folder.manage_addProduct['PythonScripts'].manage_addPythonScript(id='another_application')
+        script1 = getattr(folder, 'another_application')
+        script1.write(u"return 'something else'")
+        wfe.addApplication('script2', script1.absolute_url(1))
+
+        pr_id = u'begin_end_new'
+        make_json = partial(self._make_openflow_json, pr_id=pr_id)
+        jsonControlObj = json.load(make_json())
+        jsonStream = make_json()
+
+        applications = wfe._importFromJson(jsonStream)
+        proc = jsonControlObj['processes'][0]
+        pr = getattr(wfe, pr_id)
+
+        act1 = proc['activities'][0]
+        self.assertTrue(hasattr(pr, act1['rid']))
+
+        self.assertEqual(act1['application'], 'script1')
+        app1 = applications[0]
+        self.assertIn('targetPath', app1)
+        self.assertEqual(app1['rid'], act1['application'])
+        self.assertNotEqual(app1['targetPath'], app1['url'])
+        existing_type, existing_checksum = wfe._applicationDetails(app1['targetPath'])
+        # the content checking is still performed though
+        self.assertEqual(app1['checksum'], existing_checksum)
+
+        act2 = proc['activities'][1]
+        self.assertTrue(hasattr(pr, act2['rid']))
+
+        self.assertEqual(act2['application'], 'script2')
+        app2 = applications[1]
+        self.assertIn('targetPath', app2)
+        self.assertEqual(app2['rid'], act2['application'])
+        self.assertNotEqual(app2['targetPath'], app2['url'])
+        existing_type, existing_checksum = wfe._applicationDetails(app2['targetPath'])
+        # the content checking is still performed though
+        self.assertNotEqual(app2['checksum'], existing_checksum)
+
 
     def test_openflow_importFromJson_wrongId(self):
         self.createStandardCatalog()

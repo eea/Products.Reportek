@@ -145,6 +145,25 @@ class OpenflowEngineTestCase(WorkflowTestCase):
         self.assertTrue(result.called)
         self.assertEqual(result.call_args[1]['manage_tabs_message'], expected_msg)
 
+    def test_importFromJson_appDiff_pathDiff(self):
+        self._add_application_content()
+        applications = [{u'checksum': u'48aaf9f159480ee25a3b56edab1c7f47',
+                         u'rid': u'script1',
+                         u'type': u'Script (Python)',
+                         u'targetPath': u'Applications/an_application',
+                         u'url': u'OtherPath/an_application',},
+                        ]
+
+        self.wf._importFromJson = Mock(return_value=applications)
+        result = Mock()
+        self.wf.workflow_impex = result
+        expected_msg = (u'Imported successfully\nSome of the following apps differ:\n'
+        'App script1 with path: Applications/an_application is '
+        '<b>different by path</b> (path on source was: OtherPath/an_application)\n')
+        self.wf.importFromJson(None, REQUEST=True)
+        self.assertTrue(result.called)
+        self.assertEqual(result.call_args[1]['manage_tabs_message'], expected_msg)
+
     def test_importFromJson_appDiff_typeDiff(self):
         self._add_application_content()
         applications = [{u'checksum': u'48aaf9f159480ee25a3b56edab1c7f47',
@@ -156,7 +175,7 @@ class OpenflowEngineTestCase(WorkflowTestCase):
         self.wf._importFromJson = Mock(return_value=applications)
         result = Mock()
         self.wf.workflow_impex = result
-        expected_msg = u'Imported successfully\nSome of the following apps differ:\nApp script1 with path: Applications/an_application is <b>different</b>\n'
+        expected_msg = u'Imported successfully\nSome of the following apps differ:\nApp script1 with path: Applications/an_application is <b>different by content</b>\n'
         self.wf.importFromJson(None, REQUEST=True)
         self.assertTrue(result.called)
         self.assertEqual(result.call_args[1]['manage_tabs_message'], expected_msg)
@@ -172,7 +191,26 @@ class OpenflowEngineTestCase(WorkflowTestCase):
         self.wf._importFromJson = Mock(return_value=applications)
         result = Mock()
         self.wf.workflow_impex = result
-        expected_msg = u'Imported successfully\nSome of the following apps differ:\nApp script1 with path: Applications/an_application is <b>different</b>\n'
+        expected_msg = u'Imported successfully\nSome of the following apps differ:\nApp script1 with path: Applications/an_application is <b>different by content</b>\n'
+        self.wf.importFromJson(None, REQUEST=True)
+        self.assertTrue(result.called)
+        self.assertEqual(result.call_args[1]['manage_tabs_message'], expected_msg)
+
+    def test_importFromJson_appDiff_contentDiff_pathDiff(self):
+        self._add_application_content()
+        applications = [{u'checksum': u'other_checksum',
+                         u'rid': u'script1',
+                         u'type': u'Script (Python)',
+                         u'targetPath': u'Applications/an_application',
+                         u'url': u'OtherPath/an_application',},
+                        ]
+
+        self.wf._importFromJson = Mock(return_value=applications)
+        result = Mock()
+        self.wf.workflow_impex = result
+        expected_msg = (u'Imported successfully\nSome of the following apps differ:\n'
+        'App script1 with path: Applications/an_application is '
+        '<b>different by content and different by path</b> (path on source was: OtherPath/an_application)\n')
         self.wf.importFromJson(None, REQUEST=True)
         self.assertTrue(result.called)
         self.assertEqual(result.call_args[1]['manage_tabs_message'], expected_msg)
@@ -188,7 +226,7 @@ class OpenflowEngineTestCase(WorkflowTestCase):
         self.wf._importFromJson = Mock(return_value=applications)
         result = Mock()
         self.wf.workflow_impex = result
-        expected_msg = u'Imported successfully\nSome of the following apps differ:\nApp script1 with path: Applications/an_application is <b>different</b>\n'
+        expected_msg = u'Imported successfully\nSome of the following apps differ:\nApp script1 with path: Applications/an_application is <b>different by content</b>\n'
         self.wf.importFromJson(None, REQUEST=True)
         self.assertTrue(result.called)
         self.assertEqual(result.call_args[1]['manage_tabs_message'], expected_msg)
