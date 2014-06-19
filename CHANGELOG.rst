@@ -1,5 +1,10 @@
-3.6.16 (unreleased)
+3.6.17 (unreleased)
 -------------------
+
+3.6.16 (19-06-2014)
+-------------------
+* Task 5992 - export only apps referenced by procs; also do path compare and report for apps [baragdan]
+* Task 3312 - Fixed rebuild_catlog to include the dataflow mapping records [baragdan]
 
 3.6.15 (18-06-2014)
 -------------------
