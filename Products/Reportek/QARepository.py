@@ -20,11 +20,13 @@
 
 __doc__ = """
       QARepository product module.
-      The QARepository is used to make different type of quality assurance checks
-      of the Report Documents.
+      The QARepository is used to make different type of quality assurance
+      checks of the Report Documents.
 """
+
+import subprocess
+import shlex
 import xmlrpclib
-import subprocess, shlex
 
 from OFS.Folder import Folder
 from AccessControl import ClassSecurityInfo
@@ -35,6 +37,7 @@ import Globals
 import constants
 import QAScript
 import RepUtils
+
 
 class QARepository(Folder):
     """ """
@@ -151,10 +154,12 @@ class QARepository(Folder):
             which can be manually run against the contained XML files
         """
         l_ret = {}
+        #calculate remote service URL
         l_qa_app = self.getQAApplication()
         if l_qa_app:
             l_server_url = l_qa_app.RemoteServer
             l_remote_server = l_qa_app.RemoteService
+
         for l_file in files:
             # get the valid schemas for the envelope's dataflows
             l_valid_schemas = self.getDataflowMappingsContainer().getSchemasForDataflows(l_file.dataflow_uris)
@@ -166,7 +171,8 @@ class QARepository(Folder):
                 self._get_local_qa_scripts(dataflow_uris=l_file.dataflow_uris)):
                 #local scripts
                 l_buff = [
-                    ['loc_%s' % y.id, y.title, y.bobobase_modification_time(), None] for y in
+                    ['loc_%s' % y.id, y.title, y.bobobase_modification_time(),
+                     y.max_size] for y in
                         self._get_local_qa_scripts(
                             l_file.xml_schema_location,
                             dataflow_uris=l_file.dataflow_uris,
@@ -178,7 +184,9 @@ class QARepository(Folder):
                 if l_qa_app:
                     try:
                         l_server = xmlrpclib.ServerProxy(l_server_url)
-                        l_tmp = eval('l_server.%s.listQAScripts(\'%s\')' %(l_remote_server, l_file.xml_schema_location))
+                        l_tmp = eval('l_server.%s.listQAScripts(\'%s\')'
+                                     %(l_remote_server,
+                                       l_file.xml_schema_location))
                         if len(l_tmp) > 0:
                             # take just the script id and title
                             if l_ret.has_key(l_file.id):
@@ -196,7 +204,7 @@ class QARepository(Folder):
             If the id starts with 'loc_', then the script is local (Python),
             otherwise call the query service
 
-            This method can be only called from the browser and the result is 
+            This method can be only called from the browser and the result is
             displayed in a temporary page
         """
         l_res_ct = 'text/plain'
@@ -254,7 +262,8 @@ class QARepository(Folder):
         self.QA_application = QA_application
         if REQUEST:
             message="Content changed"
-            return self.manage_qascripts_html(self,REQUEST,manage_tabs_message=message)
+            return self.manage_qascripts_html(self,REQUEST,
+                                              manage_tabs_message = message)
 
     security.declareProtected(view_management_screens, 'manage_qascripts_html')
     manage_qascripts_html = PageTemplateFile('zpt/qa/scripts_edit', globals())
@@ -263,6 +272,7 @@ class QARepository(Folder):
     index_html = PageTemplateFile('zpt/qa/scripts_index', globals())
 
 Globals.InitializeClass(QARepository)
+
 
 class QAResult:
     """ container for QAScript results """

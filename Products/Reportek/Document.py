@@ -20,31 +20,33 @@
 
 #     $Id$
 
-__version__='$Rev$'[6:-2]
+__version__ = '$Rev$'[6:-2]
 
-import Globals, IconShow
-import requests
-import os, string
 from AccessControl import getSecurityManager, ClassSecurityInfo
-from Products.ZCatalog.CatalogAwareness import CatalogAware
-from OFS.SimpleItem import SimpleItem
-from zExceptions import Redirect
-from Globals import package_home
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from zope.contenttype import guess_content_type
-from webdav.common import rfc1123_date
 from DateTime import DateTime
+from Globals import package_home
+from OFS.SimpleItem import SimpleItem
 from os.path import join
-from zope.interface import implements
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.ZCatalog.CatalogAwareness import CatalogAware
 from time import time
+from webdav.common import rfc1123_date
+from zExceptions import Redirect
+from zope.contenttype import guess_content_type
+from zope.interface import implements
+import Globals
+import IconShow
+import os
+import requests
+import string
 import transaction
 
 # Product imports
-import RepUtils
-from XMLInfoParser import detect_schema, SchemaError
+from blob import FileContainer, StorageError
 from constants import QAREPOSITORY_ID, ENGINE_ID
 from interfaces import IDocument
-from blob import FileContainer, StorageError
+from XMLInfoParser import detect_schema, SchemaError
+import RepUtils
 
 FLAT = 0
 SYNC_ZODB = 1
@@ -130,6 +132,7 @@ def manage_addDocument(self, id='', title='',
                             action='./manage_main')
         else:
             return ''
+
 
 class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     """ An External Document allows indexing and conversions.
@@ -359,7 +362,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         """
         if not upper_limit:
             upper_limit = 4
-        if self.get_size() > int(upper_limit) * 1000 * 1024: #bytes
+
+        if self.get_size() > float(upper_limit) * 1000 * 1024:  # it's bytes
             return False
         return True
 
@@ -564,11 +568,12 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
                 typ = 'MB'
             strg = '%4.2f' % bytes
             strg = strg[:4]
-            if strg[3]=='.': strg = strg[:3]
+            if strg[3] == '.':
+                strg = strg[:3]
         else:
             typ = 'Bytes'
             strg = '%4.0f' % bytes
-        strg = strg+ ' ' + typ
+        strg = strg + ' ' + typ
         return strg
 
 
