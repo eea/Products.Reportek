@@ -1,5 +1,9 @@
-3.6.17 (unreleased)
+3.6.18 (unreleased)
 -------------------
+
+3.6.17 (23-06-2014)
+-------------------
+* Task 19962 - Implemented functionality for allow to set the maximum size for QA script. [mironovi]
 
 3.6.16 (19-06-2014)
 -------------------
