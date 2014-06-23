@@ -52,14 +52,11 @@
 	</tr>
 	<tr>
 		<td><label for="max_size" class="form-label">Upper limit for file size</td>
-			<tal:block tal:condition="python:hasattr(here, 'max_size')">
+			<tal:block tal:define="max_size python:getattr(here, 'max_size', 10)">
 				<td><input type="text" name="max_size" id="max_size" size="70" 
-						tal:attributes="value here/max_size"/>MB (default 10.00 MB)
-				</td>
-				</tal:block>
-<tal:block tal:condition="python: not hasattr(here, 'max_size')">
-		<td ><input type="text" name="max_size" id="max_size" size="70" value="10" />MB (default 10 MB)</td>
-</tal:block>
+						tal:attributes="value max_size"/>MB (default 10.00 MB)
+		    </td>
+		  </tal:block>
 	</tr>
 	<tr>
 		<td colspan="2">
