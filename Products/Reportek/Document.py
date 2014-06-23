@@ -363,7 +363,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         if not upper_limit:
             upper_limit = 4
 
-        if self.get_size() > int(upper_limit) * 1000 * 1024:  # it's bytes
+        if self.get_size() > float(upper_limit) * 1000 * 1024:  # it's bytes
             return False
         return True
 

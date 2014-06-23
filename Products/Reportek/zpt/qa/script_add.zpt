@@ -52,7 +52,7 @@
 	<tr>
 		<th><label for="max_size" class="form-label">Upper limit for file size</th>
 		<td><input type="text" name="max_size" id="max_size" size="70"
-						value="10" />MB (default 10 MB)</td>
+						value="10.00" />MB (default 10.00 MB)</td>
 	</tr>
 	<tr>
 		<td colspan="2">
