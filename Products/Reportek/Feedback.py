@@ -282,6 +282,11 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
                             message='Document released to public.',
                             action=REQUEST['HTTP_REFERER'])
 
+    security.declarePublic('isRestricted')
+    def isRestricted(self):
+        """ Returns True if the feedback is restricted, False otherwise """
+        return not self.acquiredRolesAreUsedBy('View')
+
     security.declareProtected('View', 'index_html')
     index_html = PageTemplateFile('zpt/feedback/index', globals())
 

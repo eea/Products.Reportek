@@ -433,10 +433,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
     security.declarePublic('isRestricted')
     def isRestricted(self):
-        """ Returns 1 if the file is restricted, 0 otherwise """
-        if self.acquiredRolesAreUsedBy('View'):
-            return 0
-        return 1
+        """ Returns True if the file is restricted, False otherwise """
+        return not self.acquiredRolesAreUsedBy('View')
 
     ################################
     # Protected management methods #
