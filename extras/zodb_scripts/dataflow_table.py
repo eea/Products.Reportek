@@ -10,9 +10,11 @@
 class ServiceTemporarilyUnavailableException(Exception):
     pass
 
+
 def inline_replace(x):
    x['uri'] = x['uri'].replace('eionet.eu.int', 'eionet.europa.eu')
    return x
+
 
 try:
     return map(inline_replace, container.dataflow_rod())
