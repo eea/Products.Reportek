@@ -1,0 +1,7 @@
+<dtml-call expr="RESPONSE.setHeader('content-type', 'text/plain')"><dtml-call "REQUEST.set('meta_type','Report Envelope')">
+<dtml-in "Catalog(meta_type='Report Collection', dataflow_uris=['http://rod.eionet.europa.eu/obligations/521'])">
+<dtml-with "getObject()"><dtml-if "id != 'wfdart13'"><dtml-call "REQUEST.set('cc',localities_dict(country)['iso'])">
+RBD["<dtml-var cc>","<dtml-var "_.string.upper(id)">"] = "<dtml-var title>"</dtml-if></dtml-with>
+<dtml-else>
+  *** There was no data matching this <dtml-var title_or_id> query. ***
+</dtml-in>

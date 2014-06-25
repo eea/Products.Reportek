@@ -1,0 +1,13 @@
+<dtml-var standard_html_header>
+<h1><dtml-var title_or_id></h1>
+<ul>
+<dtml-in "objectValues('File')" sort=title>
+<li><a href="&dtml-id;">&dtml-title;</a></li>
+</dtml-in>
+<li><a  class="link-folder" href="http://eea.eionet.europa.eu/Public/irc/eionet-circle/reporting/library?l=/ippc">Background material on CIRCA</a></li>
+</ul>
+<p>
+If you have problems with CDR please contact <a href="mailto:helpdesk@eionet.europa.eu">Eionet Helpdesk</a>
+</p>
+<script type="text/javascript" src="/styles/mark_special_links.js"></script>
+<dtml-var standard_html_footer>

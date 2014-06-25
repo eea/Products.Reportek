@@ -5,7 +5,7 @@
 ##bind script=script
 ##bind subpath=traverse_subpath
 ##parameters=headers, sort_on, sort_order=''
-##title=
+##title=Display a table header that is sortable
 ##
 from Products.PythonScripts.standard import html_quote
 request = container.REQUEST

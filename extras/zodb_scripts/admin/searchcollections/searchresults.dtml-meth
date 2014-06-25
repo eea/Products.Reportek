@@ -1,0 +1,70 @@
+<dtml-var standard_html_header>
+<div id="operations">
+	<ul>
+		<li><a href="/admin">Administration</a></li>
+		<li><a href="/">Frontpage</a></li>
+	</ul>
+</div>
+<h1>Reportnet collections for: <dtml-var "dataflow_lookup(dataflow_uris[0])['TITLE']"> [<dtml-var "dataflow_uris[0]">]</h1>
+<dtml-comment>
+<ol>
+<dtml-in "Catalog({'meta_type':'Report Collection', 'dataflow_uris':dataflow_uris, 'sort_on':'path'})">
+<li><a href="&dtml-getPath;">&dtml-getPath;</a></li>
+</dtml-in>
+</ol>
+</dtml-comment>
+
+<table class="datatable">
+
+<thead>
+  <tr>
+    <th>Country</th>
+    <th>Path</th>
+    <th>Title</th>
+  </tr>
+</thead>
+
+<tbody>
+<dtml-in "Catalog({'meta_type':'Report Collection', 'dataflow_uris':dataflow_uris})">
+ <dtml-with "getObject()">
+  <tr>
+    <td><dtml-var getCountryName></td>
+    <td><a href="&dtml-getPath;">&dtml-getPath;</a></td>
+    <td>&dtml-title;</td>
+  </tr>
+ </dtml-with>
+<dtml-else>
+  <tr>
+    <td colspan="3">Your query did not have any results</td>
+  </tr>
+</dtml-in>
+</tbody>
+
+</table>
+
+<dtml-if "AUTHENTICATED_USER.has_role('Manager')">
+
+<form method="post" action="createenvelopes">
+<p>
+You can use this form to create empty envelopes for all the above collections.
+</p>
+<table class="formtable">
+<tr>
+<td>Title of envelope</td>
+<td><input type="text" size="60" name="title"/>
+<dtml-in dataflow_uris>
+<input type="hidden" name="dataflow_uris:list" value="&dtml-sequence-item;"/>
+</dtml-in>
+</td>
+</tr>
+<tr>
+<td>Start year</td><td><input name="year" size="4"/></td>
+</tr>
+<tr>
+<td colspan="2"><input type="submit" value="Create envelopes for all"/></td>
+</tr>
+</table>
+</form>
+</dtml-if>
+
+<dtml-var standard_html_footer>

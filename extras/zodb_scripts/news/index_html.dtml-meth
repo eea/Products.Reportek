@@ -1,0 +1,9 @@
+<dtml-var standard_html_header>
+<h2><dtml-var title_or_id></h2>
+<dl>
+<dtml-in "objectValues('Announcement')" sort=reportingdate reverse>
+<dt><a href="&dtml-id;"><dtml-var reportingdate fmt=Date>: &dtml-title_or_id;</a></dt>
+<dd><dtml-var description html_quote newline_to_br></dd>
+</dtml-in>
+</dl>
+<dtml-var standard_html_footer>

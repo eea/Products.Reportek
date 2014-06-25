@@ -1,0 +1,16 @@
+<dtml-call expr="RESPONSE.setHeader('content-type', 'text/plain')"><dtml-call "REQUEST.set('meta_type','Report Envelope')">
+<dtml-unless path><dtml-call "REQUEST.set('path','cz/eu/wfdart13/cz_rb_6000/envs4_tcq')"></dtml-unless>
+# <dtml-var title_or_id> for WFD reporting obligation (envelope: <dtml-var path>)
+
+<dtml-in Catalog><dtml-with "getObject()">
+<dtml-in "objectValues('Report Document')">
+<dtml-if "_.string.upper(id[-7:]) != 'SHP.XML' and _.string.upper(id[-3:]) == 'XML' and _.string.find(_.string.upper(id),'METADATA') == -1">
+<dtml-var physicalpath>
+</dtml-if></dtml-in>
+
+<dtml-in "objectValues('Report Document')">
+<dtml-if "_.string.upper(id[-3:]) == 'DBF'">
+<dtml-var physicalpath>
+</dtml-if></dtml-in>
+</dtml-with>
+<dtml-else>*** There was no data matching this <dtml-var title_or_id> query. ***</dtml-in>

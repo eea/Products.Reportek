@@ -1,0 +1,62 @@
+<dtml-var standard_html_header>
+<h1><dtml-var title_or_id></h1>
+<p>Several types of user roles are foreseen:</p>
+
+<dl>
+<dt>Anonymous visitor</dt>
+<dd>The visitor can browse released reports and download those files that have
+unlimited access.</dd>
+
+<dt>Collection admin</dt>
+<dd>The collection administrator maintains the hierarchial structure,
+but who doesn't upload any reports.</dd>
+
+<dt>Reporter</dt>
+<dd>A reporter, who creates the actual reports. A reporter can 
+release an envelope to the public.
+The public must be confident that they are not downloading an incomplete
+report, so a release/-revocation is logged in the activity log.
+The reporter is responsible for identifying files
+with limited access before releasing the envelope.
+Once a report is released, it is no longer possible to upload files.
+If a mistake is found then the release-status can be revoked.
+</dd>
+
+<dt>Client</dt>
+<dd>Clients can see documents where the access is limited - but only
+in released envelopes.</dd>
+
+<dt>Auditor</dt>
+<dd>The auditor can view unreleased envelopes.</dd>
+
+<dt>Manager</dt>
+<dd>And then there still is the Zope Manager, who can fix everything
+    if/when the security paradigme doesn't cut it.</dd>
+
+</dl>
+<p>    A user can be one, more or all of these roles at the same time.</p>
+<p>    Additionally, a user can only delete objects he himself have created.
+    And in the case of files, only if the envelope is not released.</p>
+<h4>  Permissions</h4>
+<p>    There are six permissions:</p>
+
+<ul>
+<li><p>Add Collections, which is given to the collection administrator</p></li>
+<li><p>Change Collections, which is given to "owner". Thereby the collection
+    administrator can only modify the collections he has created.</p></li>
+<li><p>Add Envelopes, which is given to the "reporter". This allows people to
+    create envelopes. If you have the right to create an envelope you also
+    have the right to add files into it.  If there are certain parts of
+    the hierarchy that a reporter should be restricted to, then give him
+    the permission as a local role, or create a user folder on that level.</p></li>
+<li><p>Change Envelopes. Give this permission to "owner" to let a "reporter"
+    fill his own envelopes or give the permission to "reporter" to let all
+    reporters modify all envelopes.</p></li>
+<li><p>Delete Objects. Typically give this permission to "owner" and mayby
+    "release-coordinator" or "collection administrator".</p></li>
+<li><p>Release Envelopes. Can be given to "owner", "reporter" or some
+    other class of users.</p></li>
+
+</ul>
+
+<dtml-var standard_html_footer>

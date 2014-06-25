@@ -5,10 +5,11 @@
 ##bind script=script
 ##bind subpath=traverse_subpath
 ##parameters=
-##title=Build dictionary with ISO as key
+##title=
 ##
 res = container.localities_table()
 ldict = {}
 for item in res:
     ldict[item['iso']] = item
+ldict['YU'] = {'uri': 'http://rod.eionet.europa.eu/spatial/41', 'name': 'Serbia and Montenegro', 'iso': 'CS'}
 return ldict

@@ -1,0 +1,29 @@
+<dtml-if "canViewContent() and is_active_for_me(REQUEST=REQUEST)">
+    <dtml-var standard_html_header>
+    <dtml-var "envelope_tabs(tab=workitem_id)">
+
+    <div id="operations">
+    <ul>
+        <li><a href="inactivateWorkitem?workitem_id=&dtml-workitem_id;"
+title="Deactivation keeps the work already
+done, and makes it possible for
+someone else to take over the task">Deactivate task</a></li>
+    </ul>
+    </div>
+    <h1><dtml-var document_title></h1>
+
+    <p>You should now ask yourself these questions:</p>
+    <ul>
+    <li>Have you checked all files in the envelope?</li>
+    <li>Is the access rights set correctly?</li>
+    </ul>
+    <form action="EnvelopeInspectionFinish">
+    <input type="hidden" name="workitem_id" value="<dtml-var workitem_id>">
+    <input type="submit" name="inspectresult" value="OK">
+    <input type="submit" name="inspectresult" value="Failed inspection">
+    </form>
+
+    <dtml-var standard_html_footer>
+<dtml-else>
+    <dtml-call "RESPONSE.redirect('index_html')">
+</dtml-if>

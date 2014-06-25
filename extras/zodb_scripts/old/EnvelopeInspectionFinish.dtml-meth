@@ -1,0 +1,3 @@
+<dtml-call "completeWorkitem(workitem_id)">
+<dtml-call "forwardWorkitem(workitem_id)">
+<dtml-call "RESPONSE.redirect('index_html')">

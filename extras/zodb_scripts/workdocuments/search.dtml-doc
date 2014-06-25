@@ -1,0 +1,44 @@
+<dtml-var standard_html_header>
+<form action="searchresults" method="get">
+<h1><dtml-var document_title></h1>
+<table>
+<tr><th width="150">Free text search</th>
+    <td><input type="text" name="PrincipiaSearchSource" size="40" value="" /></td>
+<td></td>
+</tr>
+
+<tr><th>Year</th>
+    <td><input type="text" name="years:int:ignore_empty" size="4" maxlength="4" value="" /></td>
+</tr>
+<tr><th width="150">Part of year</th>
+    <td>
+<select name="partofyear">
+<option value="">Any part of year</option>
+<dtml-in "('Whole Year',
+           'First Half', 'Second Half',
+           'First Quarter', 'Second Quarter',
+           'Third Quarter', 'Fourth Quarter',
+'January','February','March','April','May','June',
+'July','August','September','October','November','December'
+          )">
+<option value="<dtml-var sequence-item>"><dtml-var sequence-item></option>
+</dtml-in>
+</select></td>
+</tr>
+<tr>
+ <th width="150">Country</th>
+ <td>
+  <select name="country">
+<option value="">Unspecified</option>
+<dtml-in localities_table mapping>
+<option value="&dtml-uri;" <dtml-if "uri == ''">selected="selected"</dtml-if>>&dtml-name;</option>
+</dtml-in>
+  </select></td>
+</tr>
+<tr><td colspan="2" align="center">
+<input type="submit" name="SUBMIT" value="Submit Query" />
+<input type="reset" value="Reset fields" />
+</td></tr>
+</table>
+</form>
+<dtml-var standard_html_footer>

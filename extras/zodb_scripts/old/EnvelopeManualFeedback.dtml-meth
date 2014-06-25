@@ -9,9 +9,6 @@
     <dtml-if areRestrictions>
         <li><a href="<dtml-var absolute_url>/manage_unrestrict?ids=<dtml-var "objectIds('Report Document')">">Public access for all files</a></li>
     </dtml-if>
-
-        <li><a href="completeWorkitem?workitem_id=&dtml-workitem_id;"
-title="Complete the envelope, after which no action will be possible on this delivery">Complete delivery</a></li>
         <li><a href="inactivateWorkitem?workitem_id=&dtml-workitem_id;"
 title="Deactivation keeps the work already
 done, and makes it possible for
@@ -20,17 +17,6 @@ someone else to take over the task">Deactivate task</a></li>
     </div>
     <h1><dtml-var document_title></h1>
 
-    <p>The envelope is currently released and your task is to inspect the delivery.
-    If you have found some issues you tell the reporter via the feedback button.
-    The feedback should make it clear to the Reporters if the delivery is accepted or not. 
-    Reporters will then have to create a new envelope if the feedback rejects the delivery and they need to update the data.
-    </p>
-
-    <p>When the feedback is added, you should <a href="completeWorkitem?workitem_id=&dtml-workitem_id;">complete the delivery</a>.
-    </p>
-
-<dtml-comment>
-	<dtml-var envelope_status>
     <p>The envelope is currently released and your task is to inspect the delivery.
     If you have found some issues you tell the reporter via the feedback button.
     Then you click on "Accept delivery". This will ensure that then envelope
@@ -46,14 +32,13 @@ someone else to take over the task">Deactivate task</a></li>
     <form action="EnvelopeRetire">
 	<input type="hidden" name="workitem_id" value="<dtml-var workitem_id>">
 	<input type="submit" name="inspectresult" value="Accept delivery" />
-	<input type="submit" name="inspectresult" value="Reject delivery" />
+	<input type="submit" name="inspectresult" value="Run automatic QA again" />
     </form>
-</dtml-comment>
 
 <dtml-var documents_section>
 <dtml-var feedback_section>
 
 <dtml-var standard_html_footer>
 <dtml-else>
-    <dtml-call "RESPONSE.redirect('overview')">
+    <dtml-call "RESPONSE.redirect('%s/overview' %getMySelf().absolute_url())">
 </dtml-if>

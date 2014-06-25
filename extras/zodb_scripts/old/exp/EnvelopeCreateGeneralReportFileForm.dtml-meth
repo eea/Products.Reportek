@@ -1,0 +1,91 @@
+<dtml-var standard_html_header>
+<h1>Create general report file</h1>
+
+<dtml-if general-report.xml>
+	<div id="operations">
+		<ul>
+			<li><a href="<dtml-var absolute_url>">Back to envelope</a></li>
+		</ul>
+	</div>
+
+	<br /><br />
+	<p>A general report file already exists!</p>
+	<br /><br />
+<dtml-else>
+	<dtml-if "REQUEST.SESSION.has_key('err_msg')">
+		<dtml-let msg_list="REQUEST.SESSION.get('err_msg', [])">
+			<dtml-if "len(msg_list)>0">
+				<dtml-in msg_list prefix=l>
+					<div style="color: red"><dtml-var l_item></div>
+				</dtml-in>
+			</dtml-if>
+		</dtml-let>
+	</dtml-if><br />
+
+	<form method="post" name="generalrepport" action="EnvelopeCreateGeneralReportFile">
+	<table>
+<tr>
+<th style="text-align:left"><label for="language">Select language you will report in</label>
+
+<select name="language" id="language" size="1">
+<dtml-let prefl="REQUEST.SESSION.get('language', Art17clientlang())">
+<dtml-in  Art17Languages prefix=l>
+    <option value="<dtml-var "l_item[1]">"<dtml-if "prefl == l_item[1]"> selected="selected"</dtml-if>
+><dtml-var "l_item[1]">: <dtml-var "l_item[2]" html_quote></option>
+</dtml-in>
+</dtml-let>
+</select>
+</th>
+</tr>
+		<tr>
+			<th>
+				<label>Which biogeographical regions exist in your country?</label>
+			</th>
+		</tr>
+		<tr>
+			<td>
+				<dtml-let prefl="REQUEST.SESSION.get('region', [])">
+				<input type="checkbox" name="region:list" id="alp" value="ALP"<dtml-if "'ALP' in prefl"> checked="checked"</dtml-if> />
+				<label for="alp">Alpine (ALP)</label><br/>
+				<input type="checkbox" name="region:list" id="atl" value="ATL"<dtml-if "'ATL' in prefl"> checked="checked"</dtml-if> />
+				<label for="atl">Atlantic (ATL)</label><br/>
+				<input type="checkbox" name="region:list" id="bor" value="BOR"<dtml-if "'BOR' in prefl"> checked="checked"</dtml-if> />
+				<label for="bor">Boreal (BOR)</label><br/>
+				<input type="checkbox" name="region:list" id="con" value="CON"<dtml-if "'CON' in prefl"> checked="checked"</dtml-if> />
+				<label for="con">Continental (CON)</label><br/>
+				<input type="checkbox" name="region:list" id="med" value="MED"<dtml-if "'MED' in prefl"> checked="checked"</dtml-if> />
+				<label for="med">Mediterranean (MED)</label><br/>
+				<input type="checkbox" name="region:list" id="mac" value="MAC"<dtml-if "'MAC' in prefl"> checked="checked"</dtml-if> />
+				<label for="mac">Macaronesian (MAC)</label><br/>
+				<input type="checkbox" name="region:list" id="pan" value="PAN"<dtml-if "'PAN' in prefl"> checked="checked"</dtml-if> />
+				<label for="pan">Pannonian (PAN)</label><br/>
+				<input type="checkbox" name="region:list" id="atc" value="MATL"<dtml-if "'MATL' in prefl"> checked="checked"</dtml-if> />
+				<label for="atc">Atlantic ocean (MATL)</label><br/>
+				<input type="checkbox" name="region:list" id="blt" value="MBAL"<dtml-if "'MBAL' in prefl"> checked="checked"</dtml-if> />
+				<label for="blt">Baltic sea (MBAL)</label><br/>
+				<input type="checkbox" name="region:list" id="mds" value="MMED"<dtml-if "'MMED' in prefl"> checked="checked"</dtml-if> />
+				<label for="mds">Mediterranean sea (MMED)</label><br/>
+				<input type="checkbox" name="region:list" id="mds" value="MMAC"<dtml-if "'MMAC' in prefl"> checked="checked"</dtml-if> />
+				<label for="mds">Macaronesian/Atlantic ocean (MMAC)</label>
+				</dtml-let>
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" style="text-align:center">
+				<input type="submit" value="Add"/>
+			</td>
+		</tr>
+	</table>
+	</form>
+</dtml-if>
+
+<dtml-if "REQUEST.SESSION.has_key('err_msg')">
+	<dtml-call "REQUEST.SESSION.delete('err_msg')">
+</dtml-if>
+<dtml-if "REQUEST.SESSION.has_key('language')">
+	<dtml-call "REQUEST.SESSION.delete('language')">
+</dtml-if>
+<dtml-if "REQUEST.SESSION.has_key('region')">
+	<dtml-call "REQUEST.SESSION.delete('region')">
+</dtml-if>
+<dtml-var standard_html_footer>

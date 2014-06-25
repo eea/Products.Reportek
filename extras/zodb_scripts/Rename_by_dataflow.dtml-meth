@@ -1,0 +1,25 @@
+<dtml-var standard_html_header>
+<dtml-call "REQUEST.set('meta_type','Report Collection')">
+<dtml-call "REQUEST.set('dataflow','185')">
+
+<dtml-in Catalog>
+   <dtml-if sequence-start>
+<table>      
+   <tr><th>Country</th><th>Title</th></tr>
+   </dtml-if sequence-start>
+   <dtml-with "getObject()">
+        <tr>
+          <td>&dtml-country;</td>
+          <td><dtml-if "title == 'Greenhouse Gas Monitoring Mechanism (AE2b)'">&dtml-title;
+<dtml-call "manage_changeCollection(title='AE-2b: EC Monitoring Mechanism GHG data')">
+<dtml-else>XXXX &dtml-title;</dtml-if></td>
+        </tr>
+   </dtml-with>
+
+<dtml-else>
+
+  There was no data matching this <dtml-var title_or_id> query.
+
+</dtml-in>
+</table>
+<dtml-var standard_html_footer>

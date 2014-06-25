@@ -1,0 +1,70 @@
+<dtml-if "canViewContent() and canAddFiles() and not released and is_active_for_me(REQUEST)">
+    <dtml-var standard_html_header>
+<dtml-let obligation="list(this().dataflow_uris)[0]">
+
+    <dtml-var "envelope_tabs(tab=workitem_id)">
+
+    <div id="operations">
+        <ul>
+            <dtml-if canAddFiles>
+                <li><a href="manage_addDocumentForm" title="Upload single file">Add file</a></li>
+                <li><a href="manage_addHyperlinkForm" title="Enter hyperlink reference">Add hyperlink</a></li>
+                <li><a href="manage_addzipfileform" title="Upload multiple files packed into a zip archive. The zip cannot contain a folder structure.">Upload zipfile</a></li>
+            </dtml-if>
+            <li><a href="completeWorkitem?workitem_id=&dtml-workitem_id;" title="When you have finished your uploads, you must state that you have completed the task">Release envelope</a></li>
+            <dtml-comment>
+                <li><a href="completeWorkitem?workitem_id=&dtml-workitem_id;&amp;release_and_finish=1" title="When you have finished your uploads, you can release without the ability to revoke">Permanent release</a></li>
+            </dtml-comment>
+            <li><a href="inactivateWorkitem?workitem_id=&dtml-workitem_id;" title="Deactivation keeps the work already done, and makes it possible for someone else to take over the task">Deactivate task</a></li>
+        </ul>
+    </div>
+
+    <h1>&dtml-document_title;</h1>
+
+    <dtml-let hasFiles="_.len(objectValues(['Report Document', 'Report Hyperlink'])) > 0">
+
+    <div class="upload_data" style="margin-top:1.5em;">
+
+        <p>1) <a href="manage_addDocumentForm" title="Upload single file">Upload</a> one or more files into this envelope. You can always interrupt
+        your work and continue your contribution at a later time without losing data.</p>
+
+		<dtml-if "hasFiles">
+			<p>2)  Once you are satisfied that your delivery is complete and correct, choose <a href="completeWorkitem?workitem_id=&dtml-workitem_id;">Release 
+			envelope</a> and the envelope with your delivery will be automatically validated by QA procedures. If the delivery conforms to the 
+<dtml-if "obligation == 'http://rod.eionet.europa.eu/obligations/690'">
+			"<em>Rules for the acceptance of Member State deliveries in Reportnet</em>" 
+<dtml-else>
+			"<em>Rules for the acceptance of Red List deliveries in Reportnet</em>" 
+</dtml-if>
+you will be able to finalise your delivery (finalise the 
+			<em>Release envelope</em> step). If the QA procedure fails you will be redirected back to Draft delivery.</p>
+
+			<div class="advise-msg"><strong>Automatic QA service</strong>
+				<p>The system can help you assess quality of the uploaded XML files. You have two options:</p>
+				<ol>
+					<li style="font-weight: bold">1. You can run all the QA checks on all files in the envelopes by selecting the "<em>Run full QA</em>" button.</li>
+					<li style="font-weight: bold">2. You can test files which are less than 4MB in size one by one using the "Run QA " button next to each item.</li>
+				</ol>
+				<p>If some of the tests detect errors, it is recommended that you try to correct them before releasing the envelope. After you release the envelope, the system will always automatically run the full QA procedures and the public results will be placed into the feedback area of the envelope.</p>
+			</div>
+
+			<p><a class="test_button" href="completeWorkitem?workitem_id=&dtml-workitem_id;&amp;dontrelease=0" title="Run the automatic Quality Assessment">Run full QA</a></p>
+			<p>You can run a quality assessment operation yourself on all files at once.<br/> Doing so will interrupt the drafting activity for a few minutes (task is deactivated), after which you can return to Draft (by activating the task) and read the QA feedback.</p>
+
+			<dtml-in "QARepository.getQAScriptsForSchema(obligation)" prefix=script>
+				<p><a href="&dtml-absolute_url;/runQAScript?p_file_url=&dtml-absolute_url;/xml&amp;p_script_id=<dtml-var "script_item">" class="test_button" title="Run envelope level statistics">Run envelope QA</a></p>
+			</dtml-in>
+			<p>Envelope level QA rules checking availability of mandatory files can be tested using the "Run envelope QA" button.</p>
+		</dtml-if>
+            </div>
+    </dtml-let>
+
+</dtml-let>
+
+    <dtml-var documents_management_section>
+    <dtml-var feedback_section>
+
+    <dtml-var standard_html_footer>
+<dtml-else>
+        <dtml-call "RESPONSE.redirect('%s/overview' %getMySelf().absolute_url())">
+</dtml-if>

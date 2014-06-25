@@ -1,0 +1,9 @@
+<dtml-var standard_html_header>
+<h1><dtml-var document_title></h1>
+<form action="manage_changeEnvelope">
+
+Set the reporting date of &dtml-id;:
+<input type="text" name="reportingdate:date" />
+<input type="submit" value="Update" />
+</form>
+<dtml-var standard_html_footer>

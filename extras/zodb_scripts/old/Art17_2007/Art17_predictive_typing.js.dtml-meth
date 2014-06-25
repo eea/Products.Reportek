@@ -1,0 +1,16 @@
+<dtml-let dummy="REQUEST.response.setHeader('Content-type','text/javascript')"></dtml-let>
+
+<dtml-let species_listAll="Art17species_queries(2,'')"
+          species_listIV="Art17species_queries(4,'')"
+          species_listV="Art17species_queries(5,'')"
+          species_listIV_V="Art17species_queries(6,'')">
+
+var pred_speciesAll;
+var pred_speciesIV;
+var pred_speciesV;
+var pred_speciesIV_V;
+pred_speciesAll = {<dtml-in "species_listAll.keys()" prefix=specs><dtml-in "species_listAll[specs_item]" prefix=spec>'<dtml-var "spec_item">':'<dtml-var "spec_key">',</dtml-in></dtml-in>'':''}
+pred_speciesIV = {<dtml-in "species_listIV.keys()" prefix=specs><dtml-in "species_listIV[specs_item]" prefix=spec>'<dtml-var "spec_item">':'<dtml-var "spec_key">',</dtml-in></dtml-in>'':''}
+pred_speciesV = {<dtml-in "species_listV.keys()" prefix=specs><dtml-in "species_listV[specs_item]" prefix=spec>'<dtml-var "spec_item">':'<dtml-var "spec_key">',</dtml-in></dtml-in>'':''}
+pred_speciesIV_V = {<dtml-in "species_listIV_V.keys()" prefix=specs><dtml-in "species_listIV_V[specs_item]" prefix=spec>'<dtml-var "spec_item">':'<dtml-var "spec_key">',</dtml-in></dtml-in>'':''}
+</dtml-let>

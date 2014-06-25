@@ -1,0 +1,107 @@
+<dtml-var standard_html_header>
+
+<h2><dtml-var title_or_id>: all countries 
+
+<dtml-in "Catalog(meta_type='Report Envelope',
+          dataflow_uris=['http://rod.eionet.europa.eu/obligations/37','http://rod.eionet.europa.eu/obligations/386'],
+          reportingdate=ZopeTime() - 365, reportingdate_usage='range:min')" sort=reportingdate reverse>
+
+   <dtml-if sequence-start>
+
+(<dtml-var sequence-length>&nbsp;envelope<dtml-if "_['sequence-length'] > 1">s</dtml-if>)</h2>
+
+<table class="sortable"> 
+<thead>
+   <tr>
+     <th>Reported</th>
+     <th>Country</th>
+     <th>Title / Obligation(s)</th>
+     <th>Activity</th>
+     <th>Status</th>
+     <th>Feedback</th>
+     <th>Files</th>
+   </tr>
+</thead>
+
+<tbody>
+   </dtml-if sequence-start>
+
+   <dtml-with "getObject()">
+        <tr <dtml-if sequence-even>class="zebraeven"</dtml-if>>
+          <td><dtml-var reportingdate fmt="%Y-%m-%d %H:%M:%S"></td>
+
+          <td><dtml-var getCountryName></td>
+          <td>
+              <a href="<dtml-var "getpath(data_record_id_)" >" title="Link to envelope"><dtml-if "title == ''">&dtml-id;<dtml-else>&dtml-title;</dtml-if></a>
+              <br />
+              <ul>
+              <dtml-in dataflow_uris>
+                <li><dtml-var "dataflow_lookup(_['sequence-item'])['TITLE']"></li>
+              </dtml-in>
+              </ul>
+          </td>
+
+          <dtml-with "restrictedTraverse(getpath(data_record_id_))">
+
+       <dtml-in "objectValues('Workitem')" sort=lastActivityDate,id>
+         <dtml-if sequence-end>
+          <td>
+<dtml-if released><em></dtml-if>
+             <dtml-if "activity_id == 'End'"> 
+              <a href="<dtml-var "getpath(data_record_id_)">/envelope_zip" title="Zip envelope and download"><dtml-var activity_id></a>
+             <dtml-else>
+              <dtml-var activity_id> 
+             </dtml-if>
+<dtml-if released></em></dtml-if>
+          </td>
+          <td>
+             <dtml-var status><dtml-if "actor not in ['', 'Anonymous User', 'openflow_engine']"> by <a href="http://www.eionet.europa.eu/sitedirsearch?name=&dtml-actor;"><dtml-var actor></a></dtml-if>
+          </td>
+         </dtml-if>
+       </dtml-in>
+
+          <td>
+           <dtml-in "objectValues('Report Feedback')">
+            <a href="&dtml-absolute_url;" title="Link to feedback item"><dtml-var "id[0:16]"></a> <!-- Report Feedback --><br />
+           <dtml-else>
+            No feedback posted
+           </dtml-in>
+          </td>
+
+          </dtml-with>
+
+          <td>
+           <dtml-in "objectValues(['Report Document', 'Report Hyperlink'])">
+
+            <dtml-if "_.str(id[-3:]) == 'shp'">
+              <a href="&dtml-absolute_url;/manage_document" title="Link to shapefile"><dtml-var id></a> <!-- Report Document or Hyperlink -->
+            <dtml-else>
+              <dtml-var id> <!-- Report Document or Hyperlink -->
+            </dtml-if>
+
+              <dtml-if "not _.SecurityCheckPermission('View',_['sequence-item'])">
+                  <img src="/misc_/Reportek/lockicon_gif" alt="No access" width="16" height="16" />
+                </dtml-if>
+            <br />
+
+           <dtml-else>
+            No files uploaded
+           </dtml-in>
+          </td>
+
+        </tr>
+   </dtml-with>
+
+   <dtml-if sequence-end>
+</tbody>
+</table>
+   </dtml-if sequence-end>
+
+<dtml-else>
+
+  </h2> There was no data matching this query.
+
+</dtml-in>
+<dtml-comment><p>Download this table <a href="recent.csv?dataflow_uris=&dtml-dataflow_uris;">in csv format</a>.</p></dtml-comment>
+
+<dtml-var standard_html_footer>

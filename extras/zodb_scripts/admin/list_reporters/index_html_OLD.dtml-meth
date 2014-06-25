@@ -12,7 +12,7 @@
         <tr>
           <td><a href="&dtml-absolute_url;">/<dtml-var "absolute_url(1)"></a></td>
           <td><dtml-var bobobase_modification_time fmt=Date></td>
-          <td><dtml-in reporters><a href="http://directory.eionet.eu.int/user?uid=&dtml-sequence-item;">&dtml-sequence-item;</a> 
+          <td><dtml-in reporters><a href="http://www.eionet.europa.eu/directory/user?uid=&dtml-sequence-item;">&dtml-sequence-item;</a> 
 </dtml-in></td>
         </tr>
 </dtml-if>

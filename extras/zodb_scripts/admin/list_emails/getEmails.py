@@ -4,7 +4,7 @@
 ##bind namespace=
 ##bind script=script
 ##bind subpath=traverse_subpath
-##parameters=dataflow_uris, separator=0
+##parameters=dataflow_uris, country, separator=0
 ##title=
 ##
 local_users = {}
@@ -15,7 +15,12 @@ try:
 except:
     separator = 0
 
-for brain in context.Catalog(meta_type = ['Report Collection'], dataflow_uris='http://rod.eionet.eu.int/obligations/%s' % dataflow_uris):
+if country:
+    collections = context.Catalog(meta_type = ['Report Collection'], dataflow_uris='http://rod.eionet.europa.eu/obligations/%s' % dataflow_uris, country=country)
+else:
+    collections = context.Catalog(meta_type = ['Report Collection'], dataflow_uris='http://rod.eionet.europa.eu/obligations/%s' % dataflow_uris)
+    
+for brain in collections:
     collection = context.Catalog.getobject(brain.data_record_id_)
 
     #get local reporters
@@ -31,13 +36,13 @@ for brain in context.Catalog(meta_type = ['Report Collection'], dataflow_uris='h
 
 ulocal = []
 for user in local_users:
-    user_ob = context.acl_users.getUserById(user)
+    user_ob = context.acl_users.ldapmultiplugin.acl_users.getUserById(user)
     if user_ob:
         ulocal.append('%s <%s>' % (unicode(user_ob.cn, 'latin-1'), user_ob.mail))
 
 uglobal = []
 for user in global_users:
-    user_ob = context.acl_users.getUserById(user)
+    user_ob = context.acl_users.ldapmultiplugin.acl_users.getUserById(user)
     if user_ob:
         uglobal.append('%s <%s>' % (unicode(user_ob.cn, 'latin-1'), user_ob.mail))
 

@@ -1,0 +1,44 @@
+<dtml-var standard_html_header>
+<h2><dtml-var title></h2>
+<dtml-in "Catalog(meta_type = 'Repository Referral', 
+     sort_on='bobobase_modification_time',
+     sort_order='reverse')" size=250 start=query_start>
+   <dtml-if sequence-start>
+
+      <dtml-if previous-sequence>
+
+        <a href="<dtml-var URL><dtml-var sequence-query
+                 >query_start=<dtml-var
+                 previous-sequence-start-number>">
+        (Previous <dtml-var previous-sequence-size> results)
+        </a>
+
+      </dtml-if previous-sequence>
+<dl>
+   </dtml-if sequence-start>
+
+<dtml-with "Catalog.getobject(data_record_id_)">
+<dt><img src="/misc_/Reportek/referral.gif"> <a href="&dtml-absolute_url;"><dtml-var country>:
+ <dtml-var title_or_id html_quote></a></dt>
+<dd>
+<em>Reporting date:</em> <dtml-var bobobase_modification_time fmt=Date><br />
+<dtml-if "_.has_key('descr') and descr != ''"><em>Description:</em> <dtml-var descr missing html_quote><br /></dtml-if>
+<dtml-if "_.has_key('dataflow') and dataflow != ''"><em>Reporting Activity:</em> <a href="http://peifer.eionet.europa.eu/dataflows/list_all?PK_RA_ID=&dtml-dataflow;"><dtml-var dataflow></a><br /></dtml-if>
+<em>Period:</em> <dtml-var year null="<b>No year</b>">
+</dd>
+</dtml-with>
+   <dtml-if sequence-end>
+</dl>
+      
+      <dtml-if next-sequence>
+
+         <a href="<dtml-var URL><dtml-var sequence-query
+            >query_start=<dtml-var
+            next-sequence-start-number>">
+         (Next <dtml-var next-sequence-size> results)
+         </a>
+
+      </dtml-if next-sequence>
+   </dtml-if sequence-end>
+</dtml-in>
+<dtml-var standard_html_footer>

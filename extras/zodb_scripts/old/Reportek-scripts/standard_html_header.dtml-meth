@@ -1,0 +1,35 @@
+<dtml-call "RESPONSE.setHeader('content-type', 'text/html; charset=iso-8859-1')">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+  <title><dtml-var title_or_id html_quote></title>
+<dtml-if "_.has_key('description') and description">
+  <meta name="description" content="&dtml-description;" />
+</dtml-if>
+  <link rel="stylesheet" type="text/css" href="/styles/layout-print.css" media="print" />
+  <link rel="stylesheet" type="text/css" href="/styles/layout-screen.css" media="screen" title="EIONET style" />
+  <link rel="alternate stylesheet" type="text/css" href="/styles/layout-print.css" media="screen" title="Print preview" />
+<style type="text/css">
+<dtml-var local_stylesheet missing>
+</style>
+</head>
+<body>
+<div id="pagehead">
+<div id="identification">
+  <a href="/"><img src="/images/logo.jpg" alt="Logo" id="logo" /></a>
+  <div class="sitetitle"><dtml-var site_title missing></div>
+  <div class="sitetagline"><dtml-var site_subtitle missing></div>
+</div>
+<dtml-var breadcrumbtrail>
+</div>
+<div id="globalnav">
+ <h2>Services</h2>
+ <ul>
+  <li><a href="/search" title="Search">Search</a></li>
+  <li><a href="/help" title="Introduction to Reportnet Repository">Help</a></li>
+ </ul>
+
+<dtml-var loginout_buttons>
+
+</div>
+<div id="workarea">

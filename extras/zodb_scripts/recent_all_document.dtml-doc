@@ -1,0 +1,68 @@
+<dtml-var standard_html_header>
+<h1><dtml-var title_or_id>
+
+<dtml-call "REQUEST.set('meta_type','Report Document')">
+<dtml-call "REQUEST.set('sort_on','bobobase_modification_time')">
+<dtml-call "REQUEST.set('sort_order','reverse')">
+
+<dtml-in Catalog size=100 start=query_start>
+
+   <dtml-if sequence-start>
+
+(<dtml-var sequence-length>)</h1>
+
+      <dtml-if previous-sequence>
+
+        <a href="<dtml-var URL><dtml-var sequence-query
+                 >query_start=<dtml-var
+                 previous-sequence-start-number>">
+        (Previous <dtml-var previous-sequence-size> results)
+        </a>
+
+      </dtml-if previous-sequence>
+
+<table class="sortable"> 
+<thead>
+   <tr>
+
+<dtml-var "sortable_table((
+{'id':'date1','title':'Modified','sortable':0},
+{'id':'date2','title':'Reported','sortable':0},
+{'id':'size','title':'Size','sortable':0},
+{'id':'title','title':'Title','sortable':0},
+),sort_on,sort_order)">
+   </tr>
+</thead>
+
+<tbody>
+   </dtml-if sequence-start>
+
+
+        <tr <dtml-if sequence-even>class="zebraeven"</dtml-if>>
+          <td><dtml-var reportingdate missing></td>
+          <td><dtml-var bobobase_modification_time></td>
+          <td><dtml-var "getObject().get_size()"></td>
+          <td><a href="<dtml-var "getpath(data_record_id_)">/manage_document">&dtml-id;</a></td>
+        </tr>
+
+   <dtml-if sequence-end>
+</tbody>
+</table>
+      
+      <dtml-if next-sequence>
+
+         <a href="<dtml-var URL><dtml-var sequence-query
+            >query_start=<dtml-var
+            next-sequence-start-number>">
+         (Next <dtml-var next-sequence-size> results)
+         </a>
+
+      </dtml-if next-sequence>
+   </dtml-if sequence-end>
+
+<dtml-else>
+
+  </h1>There was no data.
+
+</dtml-in>
+<dtml-var standard_html_footer>

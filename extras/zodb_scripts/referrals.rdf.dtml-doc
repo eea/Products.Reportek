@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="<dtml-var management_page_charset>" ?>
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns:rod="http://rod.eionet.europa.eu/schema.rdf#">
+<dtml-call "RESPONSE.setHeader('content-type', 'application/rdf+xml;charset='+ management_page_charset)">
+<rdf:Description rdf:about="">
+   <rdfs:label>Deliveries from &dtml-SERVER_URL;</rdfs:label>
+</rdf:Description>
+
+<dtml-in "Catalog(meta_type='Repository Referral')">
+<dtml-try>
+<dtml-with getObject>
+<dtml-if "referral_url != '' and referral_url.find('cdr.eionet.europa.eu') < 0">
+  <rod:Delivery rdf:about="&dtml-absolute_url;">
+    <dc:title><dtml-var title_or_id html_quote></dc:title>
+    <dc:source rdf:resource="&dtml-absolute_url;"/>
+<dtml-if descr>
+    <dc:description><dtml-var descr missing html_quote></dc:description>
+</dtml-if>
+    <dc:identifier>&dtml-referral_url;</dc:identifier>
+<dtml-if country>
+    <rod:locality rdf:resource="<dtml-var "country.replace('eionet.eu.int','eionet.europa.eu')">" />
+</dtml-if>
+<dtml-in years>
+    <dc:coverage><dtml-var sequence-item></dc:coverage>
+</dtml-in>
+<dtml-in dataflow_uris prefix=obl>
+    <rod:obligation rdf:resource="<dtml-var "obl_item.replace('eionet.eu.int','eionet.europa.eu')">" />
+</dtml-in>
+ </rod:Delivery>
+</dtml-if>
+</dtml-with>
+<dtml-except>
+  <!-- deleted referral &dtml-id; -->
+</dtml-try>
+</dtml-in>
+
+</rdf:RDF>

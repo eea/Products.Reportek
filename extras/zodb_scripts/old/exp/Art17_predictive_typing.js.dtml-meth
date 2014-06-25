@@ -1,0 +1,10 @@
+<dtml-let dummy="REQUEST.response.setHeader('Content-type','text/javascript')"></dtml-let>
+
+<dtml-let species_list="Art17species_queries(2,'')"
+          species_listIV="Art17species_queries(4,'')">
+
+var pred_species;
+var pred_speciesIV;
+pred_species = {<dtml-in "species_list.keys()" prefix=specs><dtml-in "species_list[specs_item]" prefix=spec>'<dtml-var "spec_item">':'<dtml-var "spec_key">',</dtml-in></dtml-in>'':''}
+pred_speciesIV = {<dtml-in "species_listIV.keys()" prefix=specs><dtml-in "species_listIV[specs_item]" prefix=spec>'<dtml-var "spec_item">':'<dtml-var "spec_key">',</dtml-in></dtml-in>'':''}
+</dtml-let>

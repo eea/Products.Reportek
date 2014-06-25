@@ -1,0 +1,54 @@
+<dtml-var standard_html_header>
+<h1>Legal notice for CDR datasets</h1>
+<h2>Accessing CDR datasets</h2>
+<p>
+<em>As a general principle, datasets on CDR are publicly available unless they have explicitly been
+access-restricted due for instance to protection of privacy, public security, commercial interests
+or otherwise have sensitive content.</em>
+</p>
+<p>
+With regards to the right to access CDR datasets, the EEA thus follows the policy related to documents
+owned or held by the European Parliament, Council and Commission as regulated through 
+<a class="link-pdf" href="http://www.europarl.europa.eu/RegData/PDF/r1049_en.pdf">Regulation (EC) No 1049/2001</a>
+of the European Parliament and of the Council of 30 May 2001 regarding
+public access to European Parliament, Council and Commission documents.
+</p>
+<p>
+Additionally, in environmentally related matters, access to datasets owned by a country
+is governed by the United Nations Economic Commission for Europe (UNECE)
+<a class="link-pdf" href="http://www.unece.org/env/pp/documents/cep43e.pdf">Convention on Access to Information,
+ Public Participation in Decision-Making and Access to Justice in Environmental Matters</a>
+adopted on 25 June 1998 in the Danish city of Aarhus (Århus).
+</p>
+
+<h2>Re-use (incl. redistribution)</h2>
+<p>
+<em><a rel="license"
+   href="http://creativecommons.org/licenses/by/2.5/dk/deed.en_GB"
+   title="Creative Commons Attribution License"><img
+ style="float:left; width:88px; height:31px; margin: 0.2em" alt="Creative Commons attribition licence logo" src="by.png"/></a>
+Unless otherwise indicated, re-use of content on the CDR website for
+commercial or non-commercial purposes is permitted free of charge,
+provided that the source is acknowledged.</em></p>
+
+<p>The EEA re-use policy follows <a href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=CELEX:32003L0098:EN:HTML">
+Directive 2003/98/EC (<acronym title="Public Sector Information">PSI</acronym> Directive)</a>
+of the European Parliament and the Council on
+the re-use of public sector information throughout the European Union
+and <a class="link-pdf" href="http://eur-lex.europa.eu/LexUriServ/LexUriServ.do?uri=OJ:L:2006:107:0038:0041:EN:PDF">
+Commission Decision 2006/291/EC, Euratom</a> on the re-use of Commission information.</p>
+
+<p>
+<em>The EEA accepts no responsibility or liability whatsoever for the
+re-use of content accessible on its website.</em>
+</p>
+
+<p><em>Datasets with restricted access can only be re-used according to the instructions
+of authorised EEA employees.</em>
+</p>
+
+<p>Any inquiries about re-use of content on the EEA website should be
+addressed to Ove Caspersen, EEA, Kongens Nytorv 6, DK-1050 Copenhagen
+K, Tel +45 33 36 71 00, Fax +45 33 36 71 99
+</p>
+<dtml-var standard_html_footer>

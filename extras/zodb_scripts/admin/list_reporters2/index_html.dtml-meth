@@ -1,0 +1,69 @@
+<dtml-var standard_html_header>
+
+<div id="operations">
+    <ul>
+        <li><a href="/admin">Administration</a></li>
+        <li><a href="/">Frontpage</a></li>
+    </ul>
+</div>
+<h1 style="margin-bottom: 20px;"><dtml-var title_or_id></h1>
+<form action="" method="get">
+    <p>
+        <strong>Obligation:</strong><br />
+        <select size="15" id="dataflows" name="dataflow_uris">
+        <dtml-call "REQUEST.set('currentsource','')">
+        <dtml-let u="Catalog.uniqueValuesFor('dataflow_uris')">
+        <dtml-in dataflow_table mapping sort=SOURCE_TITLE,TITLE>
+            <dtml-if "uri in u">
+                <dtml-if "currentsource != SOURCE_TITLE">
+                    <dtml-if "currentsource != ''">
+                        </optgroup>
+                    </dtml-if>
+                    <dtml-call "REQUEST.set('currentsource',SOURCE_TITLE)">
+                    <optgroup label="<dtml-var currentsource html_quote size=60>">
+                </dtml-if>
+                <option value="<dtml-var "dataflow_id(uri)">" label="<dtml-var TITLE html_quote size=80>"
+                <dtml-if "_.has_key('terminated') and terminated == '1'">class="terminated"</dtml-if>
+                <dtml-if "dataflow_id(uri) == REQUEST.get('dataflow_uris')">selected="selected"</dtml-if>
+                >[<dtml-var "_.string.join(_.string.split(SOURCE_TITLE)[0:2])" html_quote>] <dtml-var TITLE html_quote size=80></option>
+            </dtml-if>
+        </dtml-in>
+        </dtml-let>
+            </optgroup>
+        </select>
+    </p>
+
+    <p>
+        <strong>Country:</strong>
+        <select id="country" name="country">
+            <dtml-let countries="Catalog.uniqueValuesFor('country')">
+                <option value="">All</option>
+                <dtml-in localities_table mapping sort=iso>
+                    <dtml-if "uri in countries">
+                    <option value="<dtml-var uri>"
+                    <dtml-if "uri == REQUEST.get('country')">selected="selected"</dtml-if>>
+                        <dtml-var name html_quote>
+                    </option>
+                    </dtml-if>
+                </dtml-in>
+            </dtml-let>
+        </select>
+    </p>
+
+    <div>
+        <input type="submit" value="Search reporters" />
+    </div>
+</form>
+<dtml-if "REQUEST.has_key('dataflow_uris')">
+    <dtml-let emails="getReporters(dataflow_uris=dataflow_uris, country=country)">
+    <h2>CDR data reporters for <em><dtml-var "getObligationTitle(REQUEST.get('dataflow_uris'))"></em></h2>
+          <dtml-in emails sort>
+            <dtml-var sequence-item><br/>
+          <dtml-else>
+            No data reporters found for this reporting obligation.
+          </dtml-in>
+
+    </dtml-let>
+</dtml-if>
+
+<dtml-var standard_html_footer>

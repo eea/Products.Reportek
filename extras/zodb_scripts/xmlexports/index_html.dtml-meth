@@ -1,12 +1,7 @@
 <dtml-var standard_html_header>
 <h1><dtml-var title_or_id></h1>
-<ul>
-<dtml-in "objectValues('Folder')" sort=id>
-<li><a href="&dtml-id;">&dtml-id; (&dtml-title;)</a></li>
+<dtml-in "objectValues('Folder')">
+<p>
+<a href="&dtml-id;">&dtml-id;</a></p>
 </dtml-in>
-
-<dtml-in "objectValues('File')" sort=id>
-<li><a href="&dtml-id;">&dtml-id; (&dtml-title;) <dtml-var size thousands_commas> bytes</a></li>
-</dtml-in>
-</ul>
 <dtml-var standard_html_footer>

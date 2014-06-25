@@ -1,4 +1,7 @@
 <dtml-var standard_html_header>
+
+<dtml-call "REQUEST.set('start_date', ZopeTime() - 365)">
+
 <h2><dtml-var title_or_id></h2>
 <p>
 <dtml-var REQUEST>

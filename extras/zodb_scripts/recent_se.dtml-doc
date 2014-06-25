@@ -1,0 +1,104 @@
+<dtml-unless country>
+<dtml-call "REQUEST.set('country','SE')">
+</dtml-unless>
+
+<dtml-unless reportingyear>
+<dtml-call "REQUEST.set('reportingyear','2007')">
+</dtml-unless>
+
+<dtml-call "REQUEST.set('meta_type','Report Envelope')">
+<dtml-unless sort_on>
+<dtml-call "REQUEST.set('sort_on','reportingdate')">
+<dtml-call "REQUEST.set('sort_order','reverse')">
+</dtml-unless>
+<dtml-unless sort_order>
+<dtml-call "REQUEST.set('sort_order','')">
+</dtml-unless>
+<dtml-let ldict=localities_dict>
+<dtml-if "REQUEST.has_key('country') and _.len(REQUEST['country']) == 2">
+<dtml-call "REQUEST.set('country',localities_iso_dict(country)['uri'])">
+</dtml-if>
+
+<dtml-var standard_html_header>
+<h1><dtml-var title_or_id> for <dtml-var "ldict[country]['name']"> in <dtml-var reportingyear></h1>
+
+<dtml-in Catalog size=500 start=query_start>
+   <dtml-if sequence-start>
+      <dtml-if previous-sequence>
+
+        <a href="<dtml-var URL><dtml-var sequence-query
+                 >query_start=<dtml-var
+                 previous-sequence-start-number>">
+        (Previous <dtml-var previous-sequence-size> results)
+        </a>
+
+      </dtml-if previous-sequence>
+
+<table class="sortable"> 
+<thead>
+   <tr>
+
+<dtml-var "sortable_table((
+{'id':'reportingdate','title':'Reported','sortable':1},
+{'id':'released','title':'State','sortable':1},
+{'id':'country','title':'Country','sortable':1},
+{'id':'dataflow_uris','title':'Obligation','sortable':1},
+{'id':'years','title':'Period','sortable':1},
+{'id':'title','title':'Title','sortable':0},
+{'id':'description','title':'Description','sortable':0},
+), sort_on, sort_order)">
+   </tr>
+</thead>
+<tbody>
+   </dtml-if sequence-start>
+   <dtml-with "getObject()">
+
+<dtml-if "_.str(reportingdate)[0:4] == reportingyear">
+
+        <tr <dtml-if sequence-even>class="zebraeven"</dtml-if>>
+          <td><dtml-var reportingdate fmt=Date></td>
+
+       <dtml-in "objectValues('Workitem')" sort=lastActivityDate,id>
+         <dtml-if sequence-end>
+          <td><dtml-var "getActivityDetails('title')"></td>
+         </dtml-if>
+       </dtml-in>
+
+<dtml-comment>
+          <td><dtml-unless released>Draft</dtml-unless></td>
+</dtml-comment>
+
+          <td><dtml-var "ldict[country]['name']"></td>
+          <td><dtml-in dataflow_uris prefix=dfuri><a href="<dtml-var "dataflow_lookup(dfuri_item)['details_url']">"><dtml-var "dataflow_lookup(dfuri_item)['TITLE']"></a><br /></dtml-in></td>
+          <td nowrap="nowrap"><dtml-var year><dtml-if "endyear != ''">-<dtml-var endyear></dtml-if></td>
+          <td><a href="<dtml-var "getpath(data_record_id_)">"><dtml-if "title == ''">
+&dtml-id;<dtml-else>&dtml-title;</dtml-if></a></td>
+          <td><dtml-var descr missing html_quote></td>
+        </tr>
+
+</dtml-if>
+
+    </dtml-with>
+
+   <dtml-if sequence-end>
+</tbody>
+</table>
+      
+      <dtml-if next-sequence>
+
+         <a href="<dtml-var URL><dtml-var sequence-query
+            >query_start=<dtml-var
+            next-sequence-start-number>">
+         (Next <dtml-var next-sequence-size> results)
+         </a>
+
+      </dtml-if next-sequence>
+   </dtml-if sequence-end>
+
+<dtml-else>
+
+  There was no data.
+
+</dtml-in>
+</dtml-let>
+<dtml-var standard_html_footer>

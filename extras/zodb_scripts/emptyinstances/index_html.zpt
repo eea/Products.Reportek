@@ -1,0 +1,10 @@
+<tal:block content="structure here/standard_html_header" />
+    
+    <h1 tal:content="here/title_or_id" />
+
+<ul tal:repeat="file here/objectValues">
+<li><img tal:attributes="src file/icon" />
+<a tal:attributes="href file/absolute_url" tal:content="file/title_or_id" /></li>
+</ul>
+
+<tal:block content="structure here/standard_html_footer" />

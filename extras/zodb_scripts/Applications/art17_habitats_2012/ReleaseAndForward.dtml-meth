@@ -1,0 +1,30 @@
+<dtml-if "canViewContent and is_active_for_me(REQUEST=REQUEST)">
+    <dtml-var standard_html_header>
+    <dtml-var "envelope_tabs(tab=workitem_id)">
+    <div id="operations">
+    <ul>
+        <li><a href="inactivateWorkitem?workitem_id=&dtml-workitem_id;"
+title="Deactivation keeps the work already
+done, and makes it possible for
+someone else to take over the task">Deactivate task</a></li>
+    </ul>
+    </div>
+    <h1><dtml-var document_title></h1>
+
+    <p>The envelope is currently not released for the public. 
+    If you want to change your delivery as a reaction to the feedback, then you must click on 
+    "Back to drafting" and continue changing the files. If you consider your delivery finalised, click on "Release to public"
+    and the ETC will start reviewing it.</p>
+
+    <form action="EnvelopeRetire">
+    <input type="hidden" name="workitem_id" value="<dtml-var workitem_id>" />
+    <input type="submit" name="inspectresult" value="Back to drafting" />
+    <input type="submit" name="inspectresult" value="Release to public" />
+    <input type="submit" name="inspectresult" value="Rerun automatic QA" />
+    </form>
+    <dtml-var feedback_section>
+
+    <dtml-var standard_html_footer>
+<dtml-else>
+        <dtml-call "RESPONSE.redirect('%s/overview' %getMySelf().absolute_url())">
+</dtml-if>

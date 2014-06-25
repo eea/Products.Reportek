@@ -1,0 +1,43 @@
+<dtml-var standard_html_header>
+<div id="operations">
+	<ul>
+		<li><a href="/admin">Administration</a></li>
+		<li><a href="/">Frontpage</a></li>
+	</ul>
+</div>
+<h1><dtml-var title_or_id></h1>
+<ul>
+<li>Number of envelopes: <dtml-var "len(Catalog(meta_type='Report Envelope'))"></li>
+<li>Number of <em>released</em> envelopes: <dtml-var "len(Catalog(meta_type='Report Envelope',released=1))"></li>
+<li>Number of files: <dtml-var "len(Catalog(meta_type='Report Document'))"></li>
+<li>Number of feedbacks: <dtml-var "len(Catalog(meta_type='Report Feedback'))"></li>
+<li>Number of hyperlinks: <dtml-var "len(Catalog(meta_type='Report Hyperlink'))"></li>
+<li>Number of referrals: <dtml-var "len(Catalog(meta_type='Repository Referral'))"></li>
+</ul>
+<dtml-comment>
+<dtml-in "Catalog.uniqueValuesFor('meta_type')" prefix=mt>
+<dtml-var mt_item><br/>
+</dtml-in>
+</dtml-comment>
+
+<iframe width='900' height='700' frameBorder="0" src='http://daviz.eionet.europa.eu/visualisations/reportnet-deliveries-per-year-in-totals/embed-chart?chart=chart_1&chartWidth=800&chartHeight=600&customStyle=.googlechart_view{margin-left:0px%3B}'></iframe>
+
+<h2>Total deliveries per country per year</h2>
+
+<iframe width='900' height='952' frameBorder="0" src='http://www.eea.europa.eu/data-and-maps/daviz/deliveries-per-country-per-year-1/embed-dashboard?dashboard=dashboard-01&customStyle=.googlechart_view{margin-left:0px%3B}'></iframe>
+
+
+<h2>Total deliveries (released envelopes) per country</h2>
+<dtml-let loc_dict="localities_dict()">
+<table class="datatable">
+<tr><th>Country</th><th>Deliveries</th></tr>
+<dtml-in "Catalog.uniqueValuesFor('country')" prefix=c>
+<dtml-if "c_item != '' and c_item[0] == 'h'">
+<tr><td><dtml-var "loc_dict[c_item]['name']"></td><td><dtml-var "len(Catalog(meta_type='Report Envelope', released=1, country=c_item))"></td>
+</dtml-if>
+</dtml-in>
+</table>
+</dtml-let>
+
+
+<dtml-var standard_html_footer>

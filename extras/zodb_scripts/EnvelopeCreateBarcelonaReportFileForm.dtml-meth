@@ -1,0 +1,73 @@
+<dtml-var standard_html_header>
+<h1>Create Barcelona Convention report file</h1>
+
+<dtml-if "_.len([x for x in objectValues('Report Document') if x.xml_schema_location == 'http://biodiversity.eionet.europa.eu/schemas/barcelona_convention/barcelona.xsd']) != 0">
+	<div id="operations">
+		<ul>
+			<li><a href="<dtml-var absolute_url>">Back to envelope</a></li>
+		</ul>
+	</div>
+
+	<br /><br />
+	<p>A report file already exists!</p>
+	<br /><br />
+<dtml-else>
+	<div id="operations">
+		<ul>
+			<li><a href="<dtml-var absolute_url>">Back to envelope</a></li>
+		</ul>
+	</div>
+	<dtml-if "REQUEST.SESSION.has_key('err_msg')">
+		<dtml-let msg_list="REQUEST.SESSION.get('err_msg', [])">
+			<dtml-if "len(msg_list)>0">
+				<dtml-in msg_list prefix=l>
+					<div style="color: red"><dtml-var l_item></div>
+				</dtml-in>
+			</dtml-if>
+		</dtml-let>
+	</dtml-if><br />
+
+	<form method="post" name="generalrepport" action="EnvelopeCreateBarcelonaReportFile">
+	<table>
+		<tr>
+			<th style="text-align:left">
+				<label for="language">Select language you will report in</label>
+			</th>
+			<td>
+				<select name="language" id="language" size="1">
+				<dtml-let prefl="REQUEST.SESSION.get('language', Art17clientlang())">
+				<dtml-in  BarcelonaLanguages prefix=l>
+					<option value="<dtml-var "l_item[1]">"<dtml-if "prefl == l_item[1]"> selected="selected"</dtml-if>
+				><dtml-var "l_item[1]">: <dtml-var "l_item[2]" html_quote></option>
+				</dtml-in>
+				</dtml-let>
+				</select>
+			</td>
+		</tr>
+		<tr>
+			<th style="text-align:left">
+				<label>Contracting Party</label>
+			</th>
+			<td style="text-align:left">
+				<input type="text" name="contracting" />
+			</td>
+		</tr>
+		<tr>
+			<td colspan="2" style="text-align:center">
+				<input type="submit" value="Add"/>
+			</td>
+		</tr>
+	</table>
+	</form>
+</dtml-if>
+
+<dtml-if "REQUEST.SESSION.has_key('err_msg')">
+	<dtml-call "REQUEST.SESSION.delete('err_msg')">
+</dtml-if>
+<dtml-if "REQUEST.SESSION.has_key('language')">
+	<dtml-call "REQUEST.SESSION.delete('language')">
+</dtml-if>
+<dtml-if "REQUEST.SESSION.has_key('region')">
+	<dtml-call "REQUEST.SESSION.delete('region')">
+</dtml-if>
+<dtml-var standard_html_footer>

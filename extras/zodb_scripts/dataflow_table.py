@@ -7,5 +7,14 @@
 ##parameters=
 ##title=
 ##
-top = container.REQUEST.PARENTS[-1]
-return top.obligations.list_obligations()
+class ServiceTemporarilyUnavailableException(Exception):
+    pass
+
+def inline_replace(x):
+   x['uri'] = x['uri'].replace('eionet.eu.int', 'eionet.europa.eu')
+   return x
+
+try:
+    return map(inline_replace, container.dataflow_rod())
+except Exception:
+    raise ServiceTemporarilyUnavailableException, "Reporting Obligations Database is temporarily unavailable, please try again later"

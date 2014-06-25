@@ -1,0 +1,54 @@
+<dtml-call "RESPONSE.setHeader('content-type', 'text/xml')"><?xml
+version="1.0" encoding="ISO-8859-1"?>
+<dtml-call "REQUEST.set('meta_type','Report Envelope')">
+<dtml-call "REQUEST.set('released',1)">
+<dtml-call "REQUEST.set('sort_on','reportingdate')">
+<dtml-call "REQUEST.set('sort_order','reverse')">
+<dtml-let ldict=localities_dict>
+<dtml-if "REQUEST.has_key('country') and _.len(REQUEST['country']) == 2">
+<dtml-call "REQUEST.set('country',localities_iso_dict(country)['uri'])">
+</dtml-if>
+</dtml-let>
+<rdf:RDF
+  xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+  xmlns:dc="http://purl.org/dc/elements/1.1/"
+  xmlns="http://purl.org/rss/1.0/"
+>
+ <channel rdf:about="&dtml-absolute_url;">
+  <title><dtml-var title html_quote></title>
+  <link><dtml-var absolute_url html_quote></link>
+<dtml-comment>
+  <items>
+      <rdf:Seq>
+<dtml-in items>
+        <rdf:li resource="&dtml-sequence-item;" />
+</dtml-in>
+      </rdf:Seq>
+    </items>
+</dtml-comment>
+ </channel>
+ <image>
+      <title>CDR Logo</title>
+      <url>http://cdr.eionet.europa.eu/favicon.ico</url>
+      <link>http://cdr.eionet.europa.eu</link>
+      <description>CDR</description>
+ </image>
+<dtml-call "REQUEST.set('items',[])">
+<dtml-in Catalog size=15>
+<dtml-try>
+<dtml-let itemurl="getURL">
+<dtml-call "items.append(itemurl)">
+  <item rdf:about="<dtml-var itemurl>">
+   <title><dtml-var title html_quote></title>
+   <link><dtml-var itemurl></link>
+   <dc:date><dtml-var bobobase_modification_time fmt=HTML4></dc:date>
+  </item>
+</dtml-let>
+
+<dtml-except>
+<!-- Failure in <dtml-var "Catalog.getpath(data_record_id_)">  -->
+</dtml-try>
+</dtml-in>
+
+
+</rdf:RDF>

@@ -1,0 +1,24 @@
+<dtml-var standard_html_header>
+<dtml-call "REQUEST.set('inspectresult','Finish')">
+<h2><dtml-var title_or_id> <dtml-var document_title></h2>
+<dtml-let sortby="REQUEST.get('sort', 'reportingdate')"
+          how="REQUEST.get('how', 'desc')">
+<ul>
+<dtml-in "ReportekEngine.getNotCompletedWorkitems(sortby=sortby, how=how)" prefix=act>
+<dtml-if "activity_id == 'Released' and status=='inactive' and bobobase_modification_time().lessThan(ZopeTime() -30.0)">
+<li>
+<dtml-call "getParentNode().activateWorkitem(id,'openflow_engine')">
+<dtml-call "getParentNode().completeWorkitem(id,'openflow_engine')">
+<dtml-comment>
+</dtml-comment>
+<dtml-var bobobase_modification_time>
+<a href="<dtml-var "getParentNode().absolute_url()">"><dtml-var "getParentNode().absolute_url()"></a>
+<dtml-var id>
+<dtml-var activity_id>
+<dtml-var status>
+</li>
+</dtml-if>
+</dtml-in>
+</ul>
+</dtml-let>
+<dtml-var standard_html_footer>
