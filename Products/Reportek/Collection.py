@@ -284,6 +284,13 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
                 'SOURCE_TITLE': 'Unknown obligations',
                 'PK_RA_ID': '0'}
 
+    def dataflow_dict(self):
+        """ Converts the dataflow table into a dictionary """
+        l_dfdict = {}
+        for l_item in self.dataflow_table():
+            l_dfdict[l_item['uri']] = l_item
+        return l_dfdict
+
     security.declareProtected(permission_manage_properties_collections, 'manage_editCollection')
     def manage_editCollection(self, title, descr,
             year, endyear, partofyear, locality, country='',
