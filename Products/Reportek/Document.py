@@ -522,6 +522,12 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             data_file_handle.seek(0)
             self._setFileSchema(data_file_handle)
 
+        # FIXME This is an ugly hack, the responsability of this comppresion
+        # should be in contained in FileContainer itself, and the copression
+        # be done in only one step...
+        if self.content_type in FileContainer.COMPRESSIBLE_TYPES:
+            self.data_file.doCompress()
+
         self.accept_time = None
         self.logUpload()
         # update ZCatalog

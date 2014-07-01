@@ -1,4 +1,5 @@
 import os.path
+from gzip import GzipFile
 from time import time, strftime, localtime
 from ZODB.blob import Blob, POSKeyError
 from App.config import getConfiguration
@@ -28,12 +29,25 @@ class FileContainer(Persistent):
         file size in bytes
     """
 
-    def __init__(self):
+    COMPRESSIBLE_TYPES = [
+        'application/octet-stream',
+        'text/xml',
+        'application/vnd.ms-excel',
+        'application/msaccess',
+        'text/plain',
+        'application/msword',
+        'text/html',
+    ]
+
+    def __init__(self, content_type='application/octet-stream', compress='auto'):
         self._blob = Blob()
         self.mtime = time()
         self.size = 0
-        self.content_type = 'application/octet-stream'
+        self.content_type = content_type
         self.fs_path = ''
+        self._toCompress = None
+        self.compress = compress
+        self.compressed = False
 
     def open(self, mode='rb'):
         ok_modes = ['rb', 'wb']
@@ -42,6 +56,8 @@ class FileContainer(Persistent):
                              % (mode, ok_modes))
         try:
             file_handle = self._blob.open(mode[0])
+            if self.compressed:
+                file_handle = GzipFile(fileobj=file_handle, mode=mode[0])
             if mode[0] == 'w':
                 orig_close = file_handle.close
                 def close_and_update_metadata():
@@ -55,7 +71,9 @@ class FileContainer(Persistent):
     def _update_metadata(self, fs_path):
         # fs_path is inside /tmp/ right now, can't save path
         self.mtime = os.path.getmtime(fs_path)
-        self.size = os.path.getsize(fs_path)
+        if not self.compressed:
+            self.size = os.path.getsize(fs_path)
+        # TODO determine content_type here
 
     def get_fs_path(self):
         blob_dir = self.get_blob_dir()
@@ -63,6 +81,7 @@ class FileContainer(Persistent):
             if not self.fs_path:
                 this_data_file = self._blob.open('r')
                 self.fs_path = this_data_file.name[len(blob_dir)+1:]
+                this_data_file.close()
             return os.path.join(blob_dir, self.fs_path)
         except:
             return ''
@@ -72,6 +91,26 @@ class FileContainer(Persistent):
         config = getConfiguration()
         factory = config.dbtab.getDatabaseFactory(name=config.dbtab.getName('/'))
         return factory.config.storage.config.blob_dir
+
+    def _shouldCompress(self):
+        if compress == 'yes' or compress == 'auto' and content_type in self.COMPRESSIBLE_TYPES:
+            self._toCompress = True
+        else:
+            self._toCompress = False
+
+    def doCompress(self):
+        path = self.get_fs_path()
+        print "Compressing %s (%d)" % (path, self.size)
+        file_handle = self._blob.open('r')
+        content = file_handle.read()
+        file_handle.close()
+        file_handle = self._blob.open('w')
+
+        # zip and rewrite it
+        replacement = GzipFile(fileobj=file_handle, mtime=self.mtime)
+        replacement.write(content)
+        replacement.close()
+        self.compressed = True
 
 
 class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
