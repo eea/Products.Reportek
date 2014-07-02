@@ -180,14 +180,24 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         """
         self.id = id
         self.title = title
-        self.content_type = content_type
         self.xml_schema_location = '' #needed for XML files
         self.accept_time = None
-        self.data_file = FileContainer()
+        if content_type:
+            self.data_file = FileContainer(content_type)
+        else:
+            self.data_file = FileContainer()
 
     ################################
     # Public methods               #
     ################################
+
+    @property
+    def content_type(self):
+        return self.data_file.content_type
+
+    @content_type.setter
+    def content_type(self, value):
+        self.data_file.content_type = value
 
     def __str__(self): return self.index_html()
 
@@ -253,7 +263,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             l_w.addEvent('file upload', 'File: {0} ({1})'
                             .format(
                                 self.id,
-                                self._bytetostring(self.data_file.size)
+                                self.data_file.human_readable(self.data_file.size)
                             )
                         )
 
@@ -322,7 +332,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             return 0
 
     rawsize = get_size
-#   getSize = get_size
 
     def getFeedbacksForDocument(self):
         """ Returns the Feedback objects associated with this document """
@@ -339,7 +348,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
     def size(self):
         """ Returns a formatted stringified version of the file size """
-        return self._bytetostring(self.get_size())
+        return self.data_file.human_readable(self.get_size())
 
     security.declareProtected('View management screens', 'blob_path')
     def blob_path(self):
@@ -363,7 +372,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         if not upper_limit:
             upper_limit = 4
 
-        if self.get_size() > float(upper_limit) * 1000 * 1024:  # it's bytes
+        if self.get_size() > float(upper_limit) * 1024 * 1024:  # it's bytes
             return False
         return True
 
@@ -470,7 +479,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
                             REQUEST=None):
         """ Manage the edited values """
         if content_type is not None:
-            self.content_type = content_type
+            #self.content_type = content_type
+            self.data_file.content_type = content_type
         if xml_schema_location is not None:
             self.xml_schema_location = xml_schema_location
         if self.title!=title:
@@ -491,42 +501,30 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
                             message="The properties of %s have been changed!" % self.id,
                             action=REQUEST['HTTP_REFERER'])
 
-    def _setFileSchema(self, src):
-        """ If it is an XML file, then extract structure information.
-            The structure is the XML schema or the DTD.
-        """
-        if self.content_type == 'text/xml':
-            self.xml_schema_location = detect_schema(src)
-        else:
-            self.xml_schema_location = ''
-
-    # File upload Interface
-    manage_uploadForm = PageTemplateFile('zpt/document/upload', globals())
+    def is_compressed(self):
+        ''' '''
+        return self.data_file.compressed
 
     def manage_file_upload(self, file='', content_type='', REQUEST=None):
         """ Upload file from local directory """
 
-        if hasattr(file, 'filename'):
-            with self.data_file.open('wb') as data_file_handle:
+        if not content_type:
+            content_type = self._get_content_type(file)
+        self.data_file.content_type = content_type
+        orig_size = self._compute_uncompressed_size(file)
+
+        with self.data_file.open('wb', orig_size=orig_size) as data_file_handle:
+            if hasattr(file, 'filename'):
                 for chunk in RepUtils.iter_file_data(file):
                     data_file_handle.write(chunk)
-
-        else:
-            with self.data_file.open('wb') as data_file_handle:
+            else:
                 data_file_handle.write(file)
 
-        with self.data_file.open('rb') as data_file_handle:
-            self.content_type = self._get_content_type(
-                    data_file_handle, data_file_handle.read(100),
-                    self.id, content_type or self.content_type)
-            data_file_handle.seek(0)
-            self._setFileSchema(data_file_handle)
-
-        # FIXME This is an ugly hack, the responsability of this comppresion
-        # should be in contained in FileContainer itself, and the copression
-        # be done in only one step...
-        if self.content_type in FileContainer.COMPRESSIBLE_TYPES:
-            self.data_file.doCompress()
+        if self.content_type == 'text/xml':
+            with self.data_file.open('rb') as data_file_handle:
+                self.xml_schema_location = detect_schema(data_file_handle)
+        else:
+            self.xml_schema_location = ''
 
         self.accept_time = None
         self.logUpload()
@@ -543,44 +541,42 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     # Private methods              #
     ################################
 
-    def _get_content_type(self, file, body, id, content_type=None):
-        """ Determine the mime-type """
-        if hasattr(file, 'filename'):
-            if file.filename[-4:] == '.gml':
-                return 'text/xml'
-            elif file.filename[-4:] == '.rar':
-                return 'application/x-rar-compressed'
-        elif id[-4:] == '.gml':
-            return 'text/xml'
-        headers = getattr(file, 'headers', None)
-        if headers and headers.has_key('content-type'):
-            content_type = headers['content-type']
+    def _get_content_type(self, file_or_content):
+        """ Determine the mime-type from metadata (file name, headers)
+        and eventually the actual content (Note that zope's guess_content_type does a poor
+        job detecting from content - it's main detection is based on name/ext
+        """
+        name = None
+        headers = None
+        if hasattr(file_or_content, 'filename'):
+            name = file_or_content.filename
+            headers = file_or_content.headers
+            body = file_or_content.read(100)
+            file_or_content.seek(0)
         else:
-            if type(body) is not type(''): body = body.data
-            content_type, enc = guess_content_type(getattr(file,'filename',id),
-                                                   body, content_type)
+            body = file_or_content[:100]
+
+        if not name:
+            name = self.id.lower()
+        else:
+            name = name.lower()
+        if name.endswith('.gml'):
+            return 'text/xml'
+        elif name.endswith('.rar'):
+            return 'application/x-rar-compressed'
+
+        if headers and 'content-type' in headers:
+            return headers['content-type']
+
+        content_type, enc = guess_content_type(name, body)
         return content_type
 
-    def _bytetostring (self, value):
-        """ Convert an int-value (file-size in bytes) to an String
-            with the file-size in Byte, KB or MB
-        """
-        bytes = float(value)
-        if bytes >= 1000:
-            bytes = bytes/1024
-            typ = 'KB'
-            if bytes >= 1000:
-                bytes = bytes/1024
-                typ = 'MB'
-            strg = '%4.2f' % bytes
-            strg = strg[:4]
-            if strg[3] == '.':
-                strg = strg[:3]
-        else:
-            typ = 'Bytes'
-            strg = '%4.0f' % bytes
-        strg = strg + ' ' + typ
-        return strg
+    def _compute_uncompressed_size(self, file_or_content):
+        if hasattr(file_or_content, 'name'):
+            return os.path.getsize(file_or_content.name)
+        elif isinstance(file_or_content, basestring):
+            return len(file_or_content)
+        return 0
 
 
 Globals.InitializeClass(Document)

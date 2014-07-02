@@ -39,41 +39,95 @@ class FileContainer(Persistent):
         'text/html',
     ]
 
+    # FIXME - shouldn't default content_type be None?
     def __init__(self, content_type='application/octet-stream', compress='auto'):
+        ''' Initialize an file-like object. see open for usage.
+        @param compress decide whether to compress content on write. 'auto' will decide based on COMPRESSIBLE_TYPES
+        '''
         self._blob = Blob()
         self.mtime = time()
         self.size = 0
         self.content_type = content_type
         self.fs_path = ''
-        self._toCompress = None
-        self.compress = compress
+        self._toCompress = compress
         self.compressed = False
 
-    def open(self, mode='rb'):
+    def open(self, mode='rb', orig_size=0):
+        '''
+        Opens and returns a file-like object with Blob's __enter__ and __exit__
+        thus 'with FileContainer.open() as x' will work ok.
+
+        Make sure we know the content_type prior to writing so that
+        we shall know whether to compress it or not...
+        If content_type not set by caller, assume value already set (by __init__)
+
+        @param mode string for read or write modes
+        @param orig_size This is the size computed by the caller. used in case of compression.
+
+        @return file-like object opened for operation 'mode'
+        '''
+        # Moreover, this function will act as a closure for concurent calls
+        # (all orig_close vars will be bound to their respective objects)
+
         ok_modes = ['rb', 'wb']
         if mode not in ok_modes:
             raise ValueError("Can't open file with mode %r, only %r allowed"
                              % (mode, ok_modes))
         try:
             file_handle = self._blob.open(mode[0])
-            if self.compressed:
-                file_handle = GzipFile(fileobj=file_handle, mode=mode[0])
-            if mode[0] == 'w':
+            if mode[0] == 'r':
+                if self.compressed:
+                    file_handle = GzipFile(fileobj=file_handle)
+            elif mode[0] == 'w':
+                # GzipFile wil not call fileobj.close() on its own...
                 orig_close = file_handle.close
+                zip_close = None
+                if self.compressed or self._shouldCompress():
+                    file_handle = GzipFile(fileobj=file_handle)
+                    zip_close = file_handle.close
+                    self.compressed = True
                 def close_and_update_metadata():
+                    if zip_close:
+                        zip_close()
                     orig_close()
-                    self._update_metadata(file_handle.name)
+                    self._update_metadata(file_handle.name, orig_size)
                 file_handle.close = close_and_update_metadata
             return file_handle
         except (IOError, POSKeyError):
             raise StorageError
 
-    def _update_metadata(self, fs_path):
+    def _update_metadata(self, fs_path, orig_size):
         # fs_path is inside /tmp/ right now, can't save path
         self.mtime = os.path.getmtime(fs_path)
-        if not self.compressed:
-            self.size = os.path.getsize(fs_path)
-        # TODO determine content_type here
+        self.size = orig_size if orig_size else os.path.getsize(fs_path)
+
+
+    def _shouldCompress(self):
+        if (self._toCompress == 'yes'
+            or self._toCompress == 'auto' and self.content_type in self.COMPRESSIBLE_TYPES):
+            return True
+        return False
+
+    def openAndWrite(self, file_or_content, content_type=None):
+        ''' Write given content to blob file. Also open the target blob for writing.
+        The idea is to have access to the source, determine whether to compress or not
+        and only then open the propper file handle.
+
+        @param file_or_content source; either ZPublisher.HTTPRequest.FileUpload or already loaded string.
+        @param content_type Set object content_type. Based on this the compression decision will be made
+        '''
+
+        if content_type:
+            self.content_type = content_type
+        self.size = self._compute_uncompressed_size(file_or_content)
+
+        # open will detect whether to compress or not and open the propper file handle
+        with self.open('wb') as data_file_handle:
+            if hasattr(file_or_content, 'filename'):
+                for chunk in RepUtils.iter_file_data(file_or_content):
+                    data_file_handle.write(chunk)
+            else:
+                data_file_handle.write(file_or_content)
 
     def get_fs_path(self):
         blob_dir = self.get_blob_dir()
@@ -92,13 +146,17 @@ class FileContainer(Persistent):
         factory = config.dbtab.getDatabaseFactory(name=config.dbtab.getName('/'))
         return factory.config.storage.config.blob_dir
 
-    def _shouldCompress(self):
-        if compress == 'yes' or compress == 'auto' and content_type in self.COMPRESSIBLE_TYPES:
-            self._toCompress = True
-        else:
-            self._toCompress = False
+    UNITS = ['B', 'KB', 'MB', 'GB', 'TB']
+    @classmethod
+    def human_readable(cls, size):
+        compact_size = size
+        step = 0
+        while compact_size > 1024 and step < len(cls.UNITS)-1:
+            compact_size /= 1024.0
+            step += 1
+        return "%.2f %s" % (compact_size, cls.UNITS[step])
 
-    def doCompress(self):
+    def _doCompress(self):
         path = self.get_fs_path()
         print "Compressing %s (%d)" % (path, self.size)
         file_handle = self._blob.open('r')
@@ -167,6 +225,7 @@ class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
         """ change properties and file content """
         form = REQUEST.form
         upload = form.get('file')
+        # FIXME use FileContainer.write
         if upload:
             with self.data_file.open('wb') as stored:
                 for chunk in RepUtils.iter_file_data(upload):

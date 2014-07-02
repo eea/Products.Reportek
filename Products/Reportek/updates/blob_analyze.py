@@ -34,15 +34,16 @@ class RepDocStats(object):
             step += 1
         return "%.2f %s" % (compact_size, cls.UNITS[step])
 
-    SIZE_PATTERN = re.compile(r'(?P<size>[\d.]+) (?P<unit>[A-Z]{1,2})')
+    SIZE_PATTERN = re.compile(r'(?P<size>[\d.]+) (?P<unit>[A-Z]{1,2})', re.I)
     @classmethod
     def computer_readable(cls, size_str):
         m = cls.SIZE_PATTERN.match(size_str)
         if not m:
             return None
         size = float(m.group('size'))
+        unit = m.group('unit').upper()
         try:
-            power = cls.UNITS.index(m.group('unit'))
+            power = cls.UNITS.index(unit)
         except ValueError:
             return None
         return int(size * 1024**power)

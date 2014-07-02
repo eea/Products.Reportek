@@ -349,6 +349,9 @@ class FileContainerTest(unittest.TestCase):
         with ob.open() as f:
             self.assertEqual(f.read(), '')
 
+    def test_compression_ok(self):
+        blb = blob.FileContainer(compress='auto')
+
 
 class OfsBlobFileTest(unittest.TestCase):
 
