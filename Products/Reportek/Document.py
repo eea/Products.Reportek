@@ -30,6 +30,7 @@ from os.path import join
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from time import time
+from StringIO import StringIO
 from webdav.common import rfc1123_date
 from zExceptions import Redirect
 from zope.contenttype import guess_content_type
@@ -352,7 +353,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
     def compressed_size(self):
         if self.data_file.compressed:
-            return (str(self.data_file.compressed_size),
+            return (self.data_file.compressed_size,
                     self.data_file.human_readable(self.data_file.compressed_size) )
 
     security.declareProtected('View management screens', 'blob_path')
@@ -507,7 +508,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
                             action=REQUEST['HTTP_REFERER'])
 
     def is_compressed(self):
-        ''' '''
         return self.data_file.compressed
 
     def manage_file_upload(self, file='', content_type='', REQUEST=None):
@@ -581,6 +581,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             return os.path.getsize(file_or_content.name)
         elif isinstance(file_or_content, basestring):
             return len(file_or_content)
+        elif isinstance(file_or_content, StringIO):
+            return file_or_content.len
         return 0
 
 

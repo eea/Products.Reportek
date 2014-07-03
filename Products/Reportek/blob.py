@@ -29,15 +29,27 @@ class FileContainer(Persistent):
         file size in bytes
     """
 
-    COMPRESSIBLE_TYPES = [
+    COMPRESSIBLE_TYPES = set([
+        'text/x-unknown-content-type',
         'application/octet-stream',
         'text/xml',
-        'application/vnd.ms-excel',
-        'application/msaccess',
         'text/plain',
-        'application/msword',
         'text/html',
-    ]
+        'text/richtext',
+        'application/vnd.ms-excel',
+        'application/vnd.ms-powerpoint',
+        'application/ms-excel',
+        'application/ms-word',
+        'application/msexcel',
+        'application/msword',
+        'application/msaccess',
+        'application/excel',
+        'application/vnd.msexcel',
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/x-msaccess',
+        'application/rtf',
+    ])
 
     # FIXME - shouldn't default content_type be None?
     def __init__(self, content_type='application/octet-stream', compress='auto'):
@@ -187,7 +199,7 @@ class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
 
     def __init__(self, name=''):
         self.__name__ = name
-        self.data_file = FileContainer()
+        self.data_file = FileContainer(compress='no')
 
     def data_file_mtime(self):
         return strftime("%d %B %Y, %H:%M", localtime(self.data_file.mtime))

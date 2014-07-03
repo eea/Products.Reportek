@@ -14,10 +14,9 @@ from Products.Reportek import blob
 from common import BaseTest, ConfigureReportek
 
 
-def create_document_with_data(data, skip_compression=True):
+def create_document_with_data(data, compression='no'):
     doc = Document.Document('testdoc', "Document for Test")
-    if skip_compression:
-        doc.data_file._toCompress = 'no'
+    doc.data_file._toCompress = compression
     with patch.object(doc, 'getWorkitemsActiveForMe',
                       Mock(return_value=[]), create=True):
         doc.manage_file_upload(create_upload_file(data))
@@ -94,6 +93,46 @@ class FileStorageTest(BaseTest):
         doc = create_document_with_data(data)
         self.assertEqual(doc.get_size(), len(data))
         self.assertEqual(doc.rawsize(), len(data))
+
+    def test_compress_auto(self):
+        data = 'hello world, file for test!'
+        doc = create_document_with_data(data, compression='auto')
+        # rawsize must be the uncompressed size.
+        self.assertEqual(doc.rawsize(), len(data))
+        self.assertTrue(doc.is_compressed())
+        compressed_size = doc.compressed_size()[0]
+        self.assertTrue(compressed_size > 0)
+        # being such a small file the compressed version will be bigger. don't compare sizes.
+        self.assertTrue(compressed_size != doc.rawsize())
+        # test fetching the data back
+        read_data = doc.data_file.open('rb').read()
+        self.assertTrue(read_data == data)
+
+    def test_compress_auto_not(self):
+        from Products.Reportek.blob import FileContainer
+        data = 'hello world, file for test!'
+        FileContainer.COMPRESSIBLE_TYPES.discard('text/plain')
+        doc = create_document_with_data(data, compression='auto')
+        FileContainer.COMPRESSIBLE_TYPES.add('text/plain')
+
+        # rawsize must be the uncompressed size.
+        self.assertEqual(doc.rawsize(), len(data))
+        self.assertFalse(doc.is_compressed())
+
+    def test_compress_yes(self):
+        from Products.Reportek.blob import FileContainer
+        data = 'hello world, file for test!'
+        FileContainer.COMPRESSIBLE_TYPES.discard('text/plain')
+        doc = create_document_with_data(data, compression='yes')
+        FileContainer.COMPRESSIBLE_TYPES.add('text/plain')
+
+        # rawsize must be the uncompressed size.
+        self.assertEqual(doc.rawsize(), len(data))
+        self.assertTrue(doc.is_compressed())
+        compressed_size = doc.compressed_size()[0]
+        self.assertTrue(compressed_size > 0)
+        self.assertTrue(compressed_size != doc.rawsize())
+
 
 
 class DataFileApiTest(unittest.TestCase):
