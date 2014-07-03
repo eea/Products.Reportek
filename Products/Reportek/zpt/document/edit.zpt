@@ -51,11 +51,23 @@
 		</tr>
 		<tr>
 			<th align="left" i18n:translate="">File Size</th>
-			<td align="left"><span tal:replace="here/size" /> (<span tal:replace="here/rawsize" /> <tal:block i18n:translate="">Bytes</tal:block>)</td>
+            <td align="left">
+                <span tal:replace="here/size" />
+                (<span tal:replace="here/rawsize" /> <tal:block i18n:translate="">Bytes</tal:block>)
+            </td>
 		</tr>
-        <tr tal:condition="python: has_permission and here.is_compressed()">
-            <th align="left">Compressed</th>
-            <td align="left">Compressed file</td>
+        <tr>
+            <th align="left" i18n:translate="">Compressed size</th>
+            <tal:block condition="here/is_compressed"
+                       define="cSize_bytes_human here/compressed_size">
+                <td align="left">
+                    <span tal:content="python: cSize_bytes_human[1]"></span>
+                    (<span tal:content="python: cSize_bytes_human[0]"></span> Bytes)
+                </td>
+            </tal:block>
+            <tal:block condition="not: here/is_compressed">
+                <td align="left">Not compressed</td>
+            </tal:block>
         </tr>
 		<tr tal:condition="has_permission">
 			<th align="left" i18n:translate="">File path on server</th>

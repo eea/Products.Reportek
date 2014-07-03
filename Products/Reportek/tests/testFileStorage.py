@@ -14,8 +14,10 @@ from Products.Reportek import blob
 from common import BaseTest, ConfigureReportek
 
 
-def create_document_with_data(data):
+def create_document_with_data(data, skip_compression=True):
     doc = Document.Document('testdoc', "Document for Test")
+    if skip_compression:
+        doc.data_file._toCompress = 'no'
     with patch.object(doc, 'getWorkitemsActiveForMe',
                       Mock(return_value=[]), create=True):
         doc.manage_file_upload(create_upload_file(data))

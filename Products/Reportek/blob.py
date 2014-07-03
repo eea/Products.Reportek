@@ -51,6 +51,7 @@ class FileContainer(Persistent):
         self.fs_path = ''
         self._toCompress = compress
         self.compressed = False
+        self.compressed_size = None
 
     def open(self, mode='rb', orig_size=0):
         '''
@@ -100,6 +101,8 @@ class FileContainer(Persistent):
         # fs_path is inside /tmp/ right now, can't save path
         self.mtime = os.path.getmtime(fs_path)
         self.size = orig_size if orig_size else os.path.getsize(fs_path)
+        if self.compressed:
+            self.compressed_size = os.path.getsize(fs_path)
 
 
     def _shouldCompress(self):

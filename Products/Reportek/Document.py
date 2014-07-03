@@ -350,6 +350,11 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         """ Returns a formatted stringified version of the file size """
         return self.data_file.human_readable(self.get_size())
 
+    def compressed_size(self):
+        if self.data_file.compressed:
+            return (str(self.data_file.compressed_size),
+                    self.data_file.human_readable(self.data_file.compressed_size) )
+
     security.declareProtected('View management screens', 'blob_path')
     def blob_path(self):
         """ Return the actual path of the file on server fs as coded by zope
@@ -550,7 +555,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         headers = None
         if hasattr(file_or_content, 'filename'):
             name = file_or_content.filename
-            headers = file_or_content.headers
+            headers = getattr(file_or_content, 'headers', None)
             body = file_or_content.read(100)
             file_or_content.seek(0)
         else:
