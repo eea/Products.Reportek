@@ -78,10 +78,7 @@ def report(app, out):
     total = 0
     total_blob = 0
     total_missing = 0
-    c = 0
     for brain in app.Catalog(meta_type='Report Document'):
-        c +=1
-        if c > 100: break
         missing = False
 
         try:

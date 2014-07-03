@@ -171,20 +171,6 @@ class FileContainer(Persistent):
             step += 1
         return "%.2f %s" % (compact_size, cls.UNITS[step])
 
-    def _doCompress(self):
-        path = self.get_fs_path()
-        print "Compressing %s (%d)" % (path, self.size)
-        file_handle = self._blob.open('r')
-        content = file_handle.read()
-        file_handle.close()
-        file_handle = self._blob.open('w')
-
-        # zip and rewrite it
-        replacement = GzipFile(fileobj=file_handle, mtime=self.mtime)
-        replacement.write(content)
-        replacement.close()
-        self.compressed = True
-
 
 class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
     """ OFS object, similar to Image, that stores its data as a Blob. """
