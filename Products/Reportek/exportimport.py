@@ -10,7 +10,6 @@ from Products.GenericSetup.utils import ObjectManagerHelpers
 from Products.GenericSetup.utils import PropertyManagerHelpers
 from Products.GenericSetup.utils import XMLAdapterBase
 from Products.GenericSetup.interfaces import IBody
-import transaction
 
 from Products.PluggableAuthService.interfaces.authservice import IPluggableAuthService
 
@@ -35,9 +34,7 @@ class AclUsers(XMLAdapterBase, ObjectManagerHelpers, PropertyManagerHelpers):
                 if node_id not in self.context.objectIds():
                     obj = AnzCASClient(node_id, node_name)
                     self.context._setObject(node_id, obj)
-                    transaction.commit()
-                else:
-                    obj = self.context[node_id]
+                obj = self.context[node_id]
 
                 importer = queryMultiAdapter((obj, self.environ), IBody)
                 importer.node = child
