@@ -119,7 +119,8 @@ class FileContainer(Persistent):
 
     def _shouldCompress(self):
         if (self._toCompress == 'yes'
-            or self._toCompress == 'auto' and self.content_type in self.COMPRESSIBLE_TYPES):
+            or self._toCompress == 'auto'
+               and self.content_type.split(';')[0] in self.COMPRESSIBLE_TYPES):
             return True
         return False
 
