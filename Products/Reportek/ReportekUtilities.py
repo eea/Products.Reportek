@@ -1,6 +1,7 @@
 from OFS.Folder import Folder
 from AccessControl import ClassSecurityInfo
 import Products
+import string
 
 from constants import REPORTEK_UTILITIES
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -26,3 +27,48 @@ class ReportekUtilities(Folder):
         types = ['Script (Python)', 'Folder', 'Page Template']
 
         return [type for type in Products.meta_types if type['name'] in types]
+
+    def get_results(self):
+        def pathcompare(p1, p2):
+            return cmp(p1[0], p2[0])
+
+        hits = self.Catalog(meta_type='Report Collection')
+        results = []
+        for hit in hits:
+            obj = hit.getObject()
+            results.append((obj.absolute_url(0), '/' +
+                            obj.absolute_url(1),
+                            obj.bobobase_modification_time().Date(),
+                            obj.users_with_local_role('Client'),
+                            list(obj.dataflow_uris)))
+        root_obj = self.restrictedTraverse(['', ])
+        results.append((root_obj.absolute_url(0), '/',
+                        root_obj.bobobase_modification_time().Date(),
+                        root_obj.users_with_local_role('Client'), []))
+
+        results.sort(pathcompare)
+        return results[0:4]
+
+    def get_obl_hover(self, hit):
+        obl = "None"
+        hover = "None"
+        if len(hit[4]) > 0:
+            ol = []
+            for o in hit[4]:
+                ol.append(self.dataflow_lookup(0)['TITLE'])
+            obl = string.join(ol, '\n')
+            hover = str(len(hit[4]))
+        return (obl, hover)
+
+
+    _list_clients = PageTemplateFile('zpt/admin/list_clients', globals())
+
+    security.declareProtected(view_management_screens, 'list_clients')
+
+    def list_clients(self):
+        """ Manage the edited values """
+
+        if self.REQUEST['REQUEST_METHOD'] == 'GET':
+            return self._list_clients()
+        else:
+            raise NotImplementedError()

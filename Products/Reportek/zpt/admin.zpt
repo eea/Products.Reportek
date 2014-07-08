@@ -7,10 +7,10 @@
     <span tal:replace="structure here/standard_html_header" />
 		<h2>User access</h2>
 		<ul>
-		<li><a href="list_auditors">Show where auditors have access</a></li>
+		<li><a href="#">Show where auditors have access</a></li>
 		<li><a href="list_reporters">Show where reporters have access</a></li>
 		<li><a href="list_collaborators">Show where data collaborators have access</a></li>
-		<li><a href="list_clients">Show where Clients (Data Requesters) have access</a></li>
+		<li><a href="ReportekUtilities/list_clients">Show where Clients (Data Requesters) have access</a></li>
 		<li><a href="list_reporters2">List CDR data reporters for a given obligation</a></li>
 		<li><a href="list_emails">List CDR data reporter emails for a given obligation</a></li>
 		<li><a href="Assign_client_form">Assign the 'Client'/'Reporter'/'Auditor' role by given obligation</a></li>
