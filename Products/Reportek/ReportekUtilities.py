@@ -28,7 +28,7 @@ class ReportekUtilities(Folder):
 
         return [type for type in Products.meta_types if type['name'] in types]
 
-    def get_results(self):
+    def get_results(self, role):
         def pathcompare(p1, p2):
             return cmp(p1[0], p2[0])
 
@@ -39,12 +39,12 @@ class ReportekUtilities(Folder):
             results.append((obj.absolute_url(0), '/' +
                             obj.absolute_url(1),
                             obj.bobobase_modification_time().Date(),
-                            obj.users_with_local_role('Client'),
+                            obj.users_with_local_role(role),
                             list(obj.dataflow_uris)))
         root_obj = self.restrictedTraverse(['', ])
         results.append((root_obj.absolute_url(0), '/',
                         root_obj.bobobase_modification_time().Date(),
-                        root_obj.users_with_local_role('Client'), []))
+                        root_obj.users_with_local_role(role), []))
 
         results.sort(pathcompare)
         return results[0:4]
