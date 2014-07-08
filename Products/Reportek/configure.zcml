@@ -71,8 +71,6 @@
     <adapter factory=".exportimport.ECASServerXMLAdapter"/>
 		<adapter factory=".exportimport.AclUsers" 
 						 name="reportek_aclusers"/>
-		<adapter factory=".exportimport.AclUsers"
-						 name="reportekutilities"/>
 
     <genericsetup:importStep
         name="ecas_setup"
@@ -103,5 +101,4 @@
         provides="Products.GenericSetup.interfaces.EXTENSION"
         />
   </configure>
-  --!>
 </configure>
