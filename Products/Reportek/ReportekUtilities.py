@@ -10,8 +10,9 @@ class ReportekUtilities(Folder):
     meta_type = 'ReportekUtilities'
     security = ClassSecurityInfo()
 
-    def __init__(self):
-        self.id = REPORTEK_UTILITIES
+    def __init__(self, id):
+        #self.id = REPORTEK_UTILITIES
+        self.id = id
 
     def all_meta_types( self, interfaces=None ):
         """

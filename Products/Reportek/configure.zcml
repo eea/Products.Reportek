@@ -55,17 +55,37 @@
 
     <i18n:registerTranslations directory="locales" />
 
+	<!--
+  <five:registerPackage package="." initialize=".zope2.initialize" />
+  <permission id="Reportek.Utilities" title="Add a Reportek Utilities " />
+  <five:registerClass 
+      class=".ReportekUtilities"
+      meta_type="Reportek Utilities"
+      permission="Reportek.Utilities"
+      global="true"
+      />
+	-->
   <!-- Only install GenericSetup handlers if GenericSetup is installed -->
   <configure zcml:condition="installed Products.GenericSetup">
 
     <adapter factory=".exportimport.ECASServerXMLAdapter"/>
-    <adapter factory=".exportimport.AclUsers"/>
+		<adapter factory=".exportimport.AclUsers" 
+						 name="reportek_aclusers"/>
+		<adapter factory=".exportimport.AclUsers"
+						 name="reportekutilities"/>
 
     <genericsetup:importStep
         name="ecas_setup"
         title="ECAS Setup"
         description="Create/setup the CAS"
         handler=".exportimport.setupECASServer">
+    </genericsetup:importStep>
+
+    <genericsetup:importStep
+        name="reportek_utilities"
+        title="Reportek Utilities"
+        description="Create/setup the Reportek Utilities object"
+        handler=".exportimport.setupReportekUtilities">
     </genericsetup:importStep>
 
     <genericsetup:registerProfile

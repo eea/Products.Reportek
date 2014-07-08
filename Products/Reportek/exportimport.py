@@ -100,31 +100,43 @@ class ECASServerXMLAdapter(XMLAdapterBase, ObjectManagerHelpers,
     body = property(_exportBody, XMLAdapterBase._importBody)
 
 
-def setupECASServer(context):
-    def getRoot(context):
-        """
-        Return the root of the site.
-        """
-        root = None
-        pas = context.getSite()
-        """Goes up to the parent node until its provides IApplication
-        Maximum steps 10.
-        """
-        for _ in range(10, 0, -1):
-            root = pas.getParentNode()
-            if IApplication.providedBy(root):
-                break
+def getRoot(context):
+    """
+    Return the root of the site.
+    """
+    root = None
+    pas = context.getSite()
+    """Goes up to the parent node until its provides IApplication
+    Maximum steps 10.
+    """
+    for _ in range(10, 0, -1):
+        root = pas.getParentNode()
+        if IApplication.providedBy(root):
+            break
 
-        return root
+    return root
+
+
+def setupECASServer(context):
     root = getRoot(context)
     if root is None:
         raise ValueError("Error can't optain the root")
 
     acl_users = root['acl_users']
     body = context.readDataFile('ecas.xml')
-    importer = queryMultiAdapter((acl_users, context), IBody)
+    importer = queryMultiAdapter((acl_users, context), IBody,
+                                 name="reportek_aclusers")
     importer.body = body
 
+
+def setupReportekUtilities(context):
+    root = getRoot(context)
+    if root is None:
+        raise ValueError("Error can't optain the root")
+
+    body = context.readDataFile('reportekutilies.xml')
+    importer = queryMultiAdapter((root, context), IBody)
+    importer.body = body
 
 def exportLDAPUserFolder(context):
     raise NotImplementedError
