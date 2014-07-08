@@ -50,12 +50,12 @@ class ReportekUtilities(Folder):
         return results[0:4]
 
     def get_obl_hover(self, hit):
-        obl = "None"
-        hover = "None"
+        obl = ""
+        hover = "0"
         if len(hit[4]) > 0:
             ol = []
             for o in hit[4]:
-                ol.append(self.dataflow_lookup(0)['TITLE'])
+                ol.append(self.dataflow_lookup(o)['TITLE'])
             obl = string.join(ol, '\n')
             hover = str(len(hit[4]))
         return (obl, hover)
