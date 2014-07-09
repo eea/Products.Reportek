@@ -47,7 +47,7 @@ class ReportekUtilities(Folder):
                         root_obj.users_with_local_role(role), []))
 
         results.sort(pathcompare)
-        return results[0:4]
+        return results
 
     def get_obl_hover(self, hit):
         obl = ""
@@ -60,6 +60,12 @@ class ReportekUtilities(Folder):
             hover = str(len(hit[4]))
         return (obl, hover)
 
+    def get_members(self, hit):
+        members = hit[3]
+        for m in members:
+            yield("http://www.eionet.europa.eu/directory/user?uid={0}"
+                  "".format(m),
+                  m)
 
     _list_clients = PageTemplateFile('zpt/admin/list_clients', globals())
 
