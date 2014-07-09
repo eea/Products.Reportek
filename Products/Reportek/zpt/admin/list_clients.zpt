@@ -18,7 +18,7 @@
 	<th>Last change</th>
 	<th>Obl</th>
 	<th>Client</th>
-	</tr>
+</tr>
 	<tr tal:repeat="hit python:here.get_results('Client')">
 		<defs tal:define="obl_hover python:here.get_obl_hover(hit)">
 			<td>
@@ -42,5 +42,12 @@
 	</tr>
 	</table>
 	<a name="byperson"></a><h2>By person</h2>
+	<table class="datatable">
+	<tr>
+		<th>Client</th>
+		<th>Path</th>
+	</tr>
+
+	</table>
   </body>
 </html>

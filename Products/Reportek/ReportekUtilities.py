@@ -62,12 +62,11 @@ class ReportekUtilities(Folder):
 
     def get_obligation_title(self, obligation_uri):
         return self.dataflow_lookup(obligation_uri)['TITLE']
+
     def get_members(self, hit):
         members = hit[3]
-        for m in members:
-            yield("http://www.eionet.europa.eu/directory/user?uid={0}"
-                  "".format(m),
-                  m)
+        for member in members:
+            yield(self.get_person_uri(member), member)
 
     _list_clients = PageTemplateFile('zpt/admin/list_clients', globals())
 
