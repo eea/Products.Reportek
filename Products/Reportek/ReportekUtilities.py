@@ -62,6 +62,7 @@ class ReportekUtilities(Folder):
 
     def get_obligation_title(self, obligation_uri):
         return self.dataflow_lookup(obligation_uri)['TITLE']
+
     def get_members(self, hit):
         members = hit[3]
         for m in members:
@@ -81,7 +82,7 @@ class ReportekUtilities(Folder):
         else:
             raise NotImplementedError()
 
-    def get_data(self, role):
+    def get_data(self, role, obligations_filter=None):
         def path_compare(p1, p2):
             return cmp(p1['path_prefix'], p2['path_prefix'])
 
@@ -89,27 +90,41 @@ class ReportekUtilities(Folder):
         results = []
         for hit in hits:
             obj = hit.getObject()
-            results.append({
-                'path_prefix': obj.absolute_url(0),
-                'path_suffix': '/' + obj.absolute_url(1),
-                'last_change': obj.bobobase_modification_time().Date(),
-                'persons': obj.users_with_local_role(role),
-                'obligation_uris': list(obj.dataflow_uris)
-            })
+            obligations_list = list(obj.dataflow_uris)
+            if (obligations_filter is None or
+                    self.has_common_elements(obligations_filter,
+                                             obligations_list)):
+                results.append({
+                    'path_prefix': obj.absolute_url(0),
+                    'path_suffix': '/' + obj.absolute_url(1),
+                    'last_change': obj.bobobase_modification_time().Date(),
+                    'persons': obj.users_with_local_role(role),
+                    'obligation_uris': obligations_list
+                })
         root_obj = self.restrictedTraverse(['', ])
-        results.append({
-            'path_prefix': root_obj.absolute_url(0),
-            'path_suffix': '/' + root_obj.absolute_url(1),
-            'last_change': root_obj.bobobase_modification_time().Date(),
-            'persons': root_obj.users_with_local_role(role),
-            'obligation_uris': []
-        })
+        if obligations_filter is None:
+            results.append({
+                'path_prefix': root_obj.absolute_url(0),
+                'path_suffix': '/' + root_obj.absolute_url(1),
+                'last_change': root_obj.bobobase_modification_time().Date(),
+                'persons': root_obj.users_with_local_role(role),
+                'obligation_uris': []
+            })
 
         results.sort(path_compare)
-        return results[0:4]
+        return results
+
+    def has_common_elements(self, l1, l2):
+        return bool(set(l1) & set(l2))
 
     def get_person_uri(self, person):
         return 'http://www.eionet.europa.eu/directory/user?uid=%s' % person
 
     list_reporters = PageTemplateFile('zpt/admin/list_reporters', globals())
     security.declareProtected(view_management_screens, 'list_reporters')
+
+    def get_obligations_filter(self):
+        obligations_filter = self.REQUEST.get('obligations', None)
+        if not isinstance(obligations_filter, list):
+            obligations_filter = [obligations_filter]
+        return obligations_filter
