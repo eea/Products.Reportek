@@ -5,9 +5,9 @@ import string
 class ListClients(BrowserView):
     """
     """
-    def __init__(self):
+    def __init__(self, context, request):
+        super(ListClients, self).__init__(context, request)
         self.persons = {}
-
 
     def get_results(self, role):
         def pathcompare(p1, p2):
@@ -44,5 +44,17 @@ class ListClients(BrowserView):
     def get_members(self, hit):
         members = hit[3]
         for member in members:
-            self.persons.setdefault(member, []).append(member)
+            self.persons.setdefault(member, []).append(hit[1])
             yield(self.context.get_person_uri(member), member)
+
+    def get_accounts_paths(self):
+        """
+        """
+        pers_items = self.persons.items()
+        pers_items.sort()
+        for account, paths in pers_items:
+            yield {'account': account,
+                   'paths': paths}
+
+    def get_person_uri(self, person):
+        return 'http://www.eionet.europa.eu/directory/user?uid=%s' % person

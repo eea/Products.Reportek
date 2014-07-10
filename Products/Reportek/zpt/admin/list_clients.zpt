@@ -47,6 +47,17 @@
 		<th>Client</th>
 		<th>Path</th>
 	</tr>
+	<tr tal:repeat="account_paths python:view.get_accounts_paths()">
+		<td>
+			<a href="#" 
+				tal:attributes="href python:view.get_person_uri(account_paths['account'])"
+				tal:content="python:account_paths['account']"/>
+	  </td> 
+		<td>
+			<div tal:repeat="path python:account_paths['paths']"
+				    tal:content="path" />
+		</td>
+	</tr>
 
 	</table>
   </body>
