@@ -1,3 +1,5 @@
+<script src="++resource++static/jquery-1.8.2.min.js"></script>
+<script src="++resource++static/utils.js"></script>
 <html>
   <head>
     <title tal:content="here/title">The title</title>
@@ -7,12 +9,18 @@
     <span tal:replace="structure here/standard_html_header" />
 		<div id="tabbedmenu">
 		<ul>
-			<li id="currenttab"><span>Grouped by path</span></li>
-			<li><a href="#byperson">Grouped by person</a></li>
+			<li id="currenttab">
+				<span onclick="swap_tabs('by_path', 'by_person')">Grouped by path
+				</span>
+		  </li>
+			<li>
+				<span onclick="swap_tabs('by_person', 'by_path')">Grouped by person
+				</span>
+			</li>
 		</ul>
 	</div>
 	<div id="tabbedmenuend"></div>
-	<table class="datatable">
+	<table class="datatable" id="by_path">
 	<tr>
 	<th>Path</th>
 	<th>Last change</th>
@@ -42,7 +50,7 @@
 	</tr>
 	</table>
 	<a name="byperson"></a><h2>By person</h2>
-	<table class="datatable">
+	<table class="datatable" id="by_person">
 	<tr>
 		<th>Client</th>
 		<th>Path</th>
@@ -58,7 +66,6 @@
 				    tal:content="path" />
 		</td>
 	</tr>
-
 	</table>
   </body>
 </html>
