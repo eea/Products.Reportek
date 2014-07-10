@@ -352,7 +352,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         return self.data_file.human_readable(self.get_size())
 
     def compressed_size(self):
-        if self.data_file.compressed:
+        if self.data_file.compressed_safe:
             return (self.data_file.compressed_size,
                     self.data_file.human_readable(self.data_file.compressed_size) )
 
@@ -509,7 +509,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
                             action=REQUEST['HTTP_REFERER'])
 
     def is_compressed(self):
-        return self.data_file.compressed
+        return self.data_file.compressed_safe
 
     def manage_file_upload(self, file='', content_type='', REQUEST=None):
         """ Upload file from local directory """

@@ -19,7 +19,7 @@ class ContentRegistryPingger(object):
             logger.info("Content Registry (%s) pingged OK for the %s of %s\nResponse was: %s"
                         % (self.api_url, action, url, messageBody))
         else:
-            logger.warning("Content Registry (%s) ping unsuccesfull for the %s of %s\nResponse was: %s"
+            logger.warning("Content Registry (%s) ping unsuccessful for the %s of %s\nResponse was: %s"
                             % (self.api_url, action, url, messageBody))
 
     def _content_registry_ping_async(crPingger, uris, ping_argument=None):

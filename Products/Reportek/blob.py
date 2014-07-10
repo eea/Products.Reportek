@@ -65,6 +65,17 @@ class FileContainer(Persistent):
         self.compressed = False
         self.compressed_size = None
 
+    ## Remove this after migration is complete
+    @property
+    def compressed_safe(self):
+        return getattr(self, 'compressed', None)
+
+    @compressed_safe.setter
+    def compressed_safe(self, value):
+        if hasattr(self, 'compressed'):
+            self.compressed = value
+    ## Remove this after migration is complete
+
     def open(self, mode='rb', orig_size=0):
         '''
         Opens and returns a file-like object with Blob's __enter__ and __exit__
@@ -89,16 +100,21 @@ class FileContainer(Persistent):
         try:
             file_handle = self._blob.open(mode[0])
             if mode[0] == 'r':
-                if self.compressed:
+                if self.compressed_safe:
                     file_handle = GzipFile(fileobj=file_handle)
             elif mode[0] == 'w':
                 # GzipFile wil not call fileobj.close() on its own...
                 orig_close = file_handle.close
                 zip_close = None
-                if self.compressed or self._shouldCompress():
+                # The file could have been compressed but we excluded it
+                # from COMPRESSIBLE_TYPES. So if it shouldn't be compressed no more
+                # then it shall become uncompressed on this write
+                if self._shouldCompress():
                     file_handle = GzipFile(fileobj=file_handle)
                     zip_close = file_handle.close
-                    self.compressed = True
+                    self.compressed_safe = True
+                else:
+                    self.compressed_safe = False
                 def close_and_update_metadata():
                     if zip_close:
                         zip_close()
@@ -113,11 +129,15 @@ class FileContainer(Persistent):
         # fs_path is inside /tmp/ right now, can't save path
         self.mtime = os.path.getmtime(fs_path)
         self.size = orig_size if orig_size else os.path.getsize(fs_path)
-        if self.compressed:
+        if self.compressed_safe:
             self.compressed_size = os.path.getsize(fs_path)
 
 
     def _shouldCompress(self):
+        ## Remove this after migration is complete
+        if not hasattr(self, 'compressed'):
+            return False
+        ## Remove this after migration is complete
         if (self._toCompress == 'yes'
             or self._toCompress == 'auto'
                and self.content_type.split(';')[0] in self.COMPRESSIBLE_TYPES):
@@ -148,7 +168,7 @@ class FileContainer(Persistent):
     def get_fs_path(self):
         blob_dir = self.get_blob_dir()
         try:
-            if not self.fs_path:
+            if not getattr(self, 'fs_path', None):
                 this_data_file = self._blob.open('r')
                 self.fs_path = this_data_file.name[len(blob_dir)+1:]
                 this_data_file.close()
