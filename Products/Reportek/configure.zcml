@@ -33,6 +33,8 @@
             directory="www/static" />
 
     <include package="." file="dataflow_mappings.zcml" />
+    <include package="." file="views.zcml" />
+
 
     <configure zcml:condition="installed zope.container">
         <subscriber for="Products.Reportek.interfaces.IEnvelope

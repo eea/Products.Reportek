@@ -23,3 +23,8 @@ class IEnvelope(Interface):
 class IReportekEngine(Interface):
     """ Reportek Engine """
     pass
+
+
+class IReportekUtilities(Interface):
+    """ Reportek Utilities
+    """
