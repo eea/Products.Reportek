@@ -1,26 +1,22 @@
-<script src="++resource++static/jquery-1.8.2.min.js"></script>
+<span tal:replace="structure here/standard_html_header" />
 <script src="++resource++static/utils.js"></script>
-<html>
-  <head>
-    <title tal:content="here/title">The title</title>
-    <meta http-equiv="content-type" content="text/html;charset=utf-8">
-  </head>
-  <body>
-    <span tal:replace="structure here/standard_html_header" />
+
 		<div id="tabbedmenu">
 		<ul>
 			<li id="currenttab">
-				<span onclick="swap_tabs('by_path', 'by_person')">Grouped by path
+				<span onclick="activate_tab('by_path', 'by_person')">Grouped by path
 				</span>
 		  </li>
 			<li>
-				<span onclick="swap_tabs('by_person', 'by_path')">Grouped by person
+				<span onclick="activate_tab('by_person', 'by_path')">Grouped by person
 				</span>
 			</li>
 		</ul>
 	</div>
 	<div id="tabbedmenuend"></div>
-	<table class="datatable" id="by_path">
+	<div id="by_path">
+  <h2>Clients by path</h2>
+	<table class="datatable" >
 	<tr>
 	<th>Path</th>
 	<th>Last change</th>
@@ -39,9 +35,9 @@
 				tal:content="python:obl_hover[1]"></td>
 			<td>
 				<repeat tal:repeat="attr_cnt python:view.get_members(hit)">
-						<a 
+						<a
 							tal:condition="attr_cnt"
-							tal:content="python:attr_cnt[1]" 
+							tal:content="python:attr_cnt[1]"
 							tal:attributes="href python:attr_cnt[0]"
 							/>
 				</repeat>
@@ -49,7 +45,9 @@
 		</defs>
 	</tr>
 	</table>
-	<a name="byperson"></a><h2>By person</h2>
+	</div>
+	<div id="by_person">
+	<h2>By person</h2>
 	<table class="datatable" id="by_person">
 	<tr>
 		<th>Client</th>
@@ -57,15 +55,16 @@
 	</tr>
 	<tr tal:repeat="account_paths python:view.get_accounts_paths()">
 		<td>
-			<a href="#" 
+			<a href="#"
 				tal:attributes="href python:view.get_person_uri(account_paths['account'])"
 				tal:content="python:account_paths['account']"/>
-	  </td> 
+	  </td>
 		<td>
 			<div tal:repeat="path python:account_paths['paths']"
 				    tal:content="path" />
 		</td>
 	</tr>
 	</table>
-  </body>
-</html>
+  </div>
+
+<span tal:replace="structure here/standard_html_footer" />
