@@ -4,50 +4,62 @@
 
 <a name="bypath"></a>
 <div id="tabbedmenu">
-  <ul>
-    <li id="currenttab"><span>Grouped by path</span></li>
-    <li><a href=/admin/list_reporters/by_person>Grouped by person</a></li>
-  </ul>
+	<ul>
+		<li id="currenttab"><span>Grouped by path</span></li>
+		<li><a href=/admin/list_reporters/by_person>Grouped by person</a></li>
+	</ul>
 </div>
 <div id="tabbedmenuend"></div>
 <h1>Filter by obligation</h1>
 <form method="get" tal:define="data here/ReportekEngine/dataflow_table_grouped; groups python:data[0]; items python:data[1]">
-    <select id="obligations" size="15" name="obligations" multiple="multiple">
-        <tal:block tal:repeat="group groups">
-            <optgroup tal:attributes="label python:test(len(group)<=80, group, '%s ...' % group[:77])">
-                <tal:block tal:repeat="item python:items[group]">
-                <option tal:define="terminated python:item.has_key('terminated') and item['terminated']=='1'" tal:attributes="value item/uri; class python:test(terminated, 'terminated', None);">
-                    [<span tal:replace="python:' '.join(item['SOURCE_TITLE'].split()[0:2])" />]
-                    <span tal:replace="python:test(len(item['TITLE'])<=80, item['TITLE'], '%s ...' % item['TITLE'][:77])" />
-                    <tal:block tal:condition="terminated"> (<tal:block i18n:translate="">terminated</tal:block>)</tal:block>
-                </option>
-                </tal:block>
-            </optgroup>
-        </tal:block>
-    </select>
-
-    <table class="datatable">
-        <tr>
-            <th>Path</th>
-            <th>Last change</th>
-            <th>Obligations</th>
-            <th>Reporters</th>
-        </tr>
-
-            <tr tal:repeat="item python:here.get_data('Reporter')">
-                <td><a tal:attributes="href python:item['path_prefix'] + '/' + item['path_suffix']" tal:content="python:item['path_suffix']"></a></td>
-                <td tal:content="python:item['last_change']"></td>
-                <td tal:attributes="title python:str(len(item['obligation_uris'])) + ' obligation(s)'">
-                    <ul tal:repeat="obligation_uri python:item['obligation_uris']">
-                        <li><a tal:attributes="href obligation_uri" tal:content="python:here.get_obligation_title(obligation_uri)"></a></li>
-                    </ul>
-                </td>
-                <td>
-                    <a tal:repeat="person python:item['persons']" tal:attributes="href python:here.get_person_uri(person)" tal:content="person"></a>
-                </td>
-            </tr>
-    </table>
-
+	<select id="obligations" size="15" name="obligations" multiple="multiple">
+		<tal:block tal:repeat="group groups">
+			<optgroup tal:attributes="label python:test(len(group)<=80, group, '%s ...' % group[:77])">
+				<tal:block tal:repeat="item python:items[group]">
+					<option tal:define="terminated python:item.has_key('terminated') and item['terminated']=='1'"
+					        tal:attributes="value item/uri; class python:test(terminated, 'terminated', None); selected python:here.get_obligations_filter() and item['uri'] in here.get_obligations_filter()">
+						[<span tal:replace="python:' '.join(item['SOURCE_TITLE'].split()[0:2])" />]
+						<span tal:replace="python:test(len(item['TITLE'])<=80, item['TITLE'], '%s ...' % item['TITLE'][:77])" />
+						<tal:block tal:condition="terminated"> (<tal:block i18n:translate="">terminated</tal:block>)</tal:block>
+					</option>
+				</tal:block>
+			</optgroup>
+		</tal:block>
+	</select>
+	<br />
+	<input type="submit" value="Filter" />
+	<input type="reset" value="Clear filters" />
 </form>
+
+<table class="datatable">
+	<tr>
+		<th>Path</th>
+		<th>Last change</th>
+		<th>Obligations</th>
+		<th>Reporters</th>
+	</tr>
+
+	<tr tal:repeat="item python:here.get_data('Reporter', here.get_obligations_filter())">
+		<td><a tal:attributes="href python:item['path_prefix'] + '/' + item['path_suffix']"
+		       tal:content="python:item['path_suffix'][:30]"></a></td>
+		<td tal:content="python:item['last_change']"></td>
+		<td tal:attributes="title python:str(len(item['obligation_uris'])) + ' obligation(s)'">
+			<ul>
+				<li tal:repeat="obligation_uri python:item['obligation_uris']">
+					<a tal:attributes="href obligation_uri"
+				       tal:content="python:here.get_obligation_title(obligation_uri)">
+				     </a>
+				</li>
+			</ul>
+		</td>
+		<td>
+			<a tal:repeat="person python:item['persons']" tal:attributes="href python:here.get_person_uri(person)"
+			   tal:content="person">
+			</a>
+		</td>
+	</tr>
+</table>
+
+
 
 <span tal:replace="structure here/standard_html_footer" />
