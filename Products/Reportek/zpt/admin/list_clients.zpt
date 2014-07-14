@@ -7,8 +7,9 @@
 				<span onclick="activate_tab('by_path', 'by_person')">Grouped by path
 				</span>
 		  </li>
-			<li>
-				<span onclick="activate_tab('by_person', 'by_path')">Grouped by person
+			<li id="next">
+				<span onclick="activate_tab('by_person', 'by_path')">
+					<a href="#">Grouped by person</a>
 				</span>
 			</li>
 		</ul>
