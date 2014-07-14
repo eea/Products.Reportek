@@ -1060,6 +1060,7 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         self.pingger = self.engine.contentRegistryPingger
         self.assertTrue(bool(self.pingger))
         ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async = Mock()
+        ContentRegistryPingger.ContentRegistryPingger.content_registry_ping = Mock()
         # add subobjects of type document, feedback, hyperlink
         content = 'test content for our document'
         self.doc = add_document(self.envelope, create_upload_file(content, 'foo.txt'))
@@ -1092,7 +1093,6 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
             self.link.absolute_url(),
         ])
         self.envelope.content_registry_ping()
-        mysleep(0.05)
 
         self.assertTrue(ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.called)
         call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.call_args
@@ -1114,7 +1114,6 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
             self.link.absolute_url(),
         ])
         self.envelope.content_registry_ping(delete=True)
-        mysleep(0.05)
 
         self.assertTrue(ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.called)
         call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.call_args
@@ -1127,3 +1126,24 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         self.assertEqual(len(kwargs), 1)
         ping_argument = kwargs.get('ping_argument')
         self.assertEqual(ping_argument, 'delete')
+
+    def test_ping_sync(self):
+        expectedUris = set([
+            self.envelope.absolute_url()+'/rdf',
+            self.doc.absolute_url(),
+            self.feed.absolute_url(),
+            self.link.absolute_url(),
+        ])
+        self.envelope.content_registry_ping(async=False)
+
+        self.assertTrue(ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called)
+        call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.call_args
+        args = call_args[0]
+        kwargs = call_args[1]
+        self.assertEqual(len(args), 1)
+        uris = args[0]
+        self.assertEqual(len(uris), 4)
+        self.assertEqual(set(uris), expectedUris)
+        self.assertEqual(len(kwargs), 1)
+        ping_argument = kwargs.get('ping_argument')
+        self.assertEqual(ping_argument, 'create')
