@@ -31,7 +31,7 @@ class ContentRegistryPingger(object):
             ping_argument = 'create'
         for uri in uris:
             success, message = self._content_registry_ping(uri, ping_argument=ping_argument)
-            self._log_ping(success, message, uri)
+            self._log_ping(success, message, uri, ping_argument)
             allOk = allOk and success
         return allOk
 
