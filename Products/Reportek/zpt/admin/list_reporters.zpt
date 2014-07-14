@@ -1,4 +1,7 @@
 <span tal:replace="structure here/standard_html_header" />
+<script src="++resource++static/jquery-1.8.2.min.js"></script>
+<script src="++resource++static/select2-3.5.0/select2.js"></script>
+<link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
 
 <h1>List reporters</h1>
 
@@ -9,10 +12,12 @@
 		<li><a href=/admin/list_reporters/by_person>Grouped by person</a></li>
 	</ul>
 </div>
+
 <div id="tabbedmenuend"></div>
 <h1>Filter by obligation</h1>
+
 <form method="get" tal:define="data here/ReportekEngine/dataflow_table_grouped; groups python:data[0]; items python:data[1]">
-	<select id="obligations" size="15" name="obligations" multiple="multiple">
+	<select id="obligations" name="obligations" multiple="multiple" style="width:800px">
 		<tal:block tal:repeat="group groups">
 			<optgroup tal:attributes="label python:test(len(group)<=80, group, '%s ...' % group[:77])">
 				<tal:block tal:repeat="item python:items[group]">
@@ -26,10 +31,12 @@
 			</optgroup>
 		</tal:block>
 	</select>
-	<br />
 	<input type="submit" value="Filter" />
-	<input type="reset" value="Clear filters" />
 </form>
+
+<script>
+	$("#obligations").select2();
+</script>
 
 <table class="datatable">
 	<tr>
@@ -39,7 +46,7 @@
 		<th>Reporters</th>
 	</tr>
 
-	<tr tal:repeat="item python:here.get_data('Reporter', here.get_obligations_filter())">
+	<tr tal:repeat="item python:here.get_data('Reporter')">
 		<td><a tal:attributes="href python:item['path_prefix'] + '/' + item['path_suffix']"
 		       tal:content="python:item['path_suffix'][:30]"></a></td>
 		<td tal:content="python:item['last_change']"></td>

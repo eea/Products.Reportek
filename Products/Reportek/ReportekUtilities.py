@@ -15,6 +15,8 @@ class ReportekUtilities(Folder):
     meta_type = 'ReportekUtilities'
     security = ClassSecurityInfo()
 
+    results_per_page = 20
+
     def __init__(self):
         self.id = REPORTEK_UTILITIES
 
@@ -33,34 +35,28 @@ class ReportekUtilities(Folder):
     def get_obligation_title(self, obligation_uri):
         return self.dataflow_lookup(obligation_uri)['TITLE']
 
-    def get_data(self, role, obligations_filter=None):
+    def get_data(self, role):
         def path_compare(p1, p2):
             return cmp(p1['path_prefix'], p2['path_prefix'])
 
-        hits = self.Catalog(meta_type='Report Collection')
-        results = []
-        for hit in hits:
+        query = {'meta_type': 'Report Collection'}
+        obligations_filter = self.get_obligations_filter()
+        if obligations_filter:
+            query['dataflow_uris'] = obligations_filter
+        query['b_start'] = self.get_query_start()
+        query['b_size'] = self.results_per_page
 
-            obj = hit.getObject()
-            obligations_list = list(obj.dataflow_uris)
-            if (obligations_filter is None or
-                    self.has_common_elements(obligations_filter,
-                                             obligations_list)):
-                results.append({
-                    'path_prefix': obj.absolute_url(0),
-                    'path_suffix': '/' + obj.absolute_url(1),
-                    'last_change': obj.bobobase_modification_time().Date(),
-                    'persons': obj.users_with_local_role(role),
-                    'obligation_uris': obligations_list
-                })
-        root_obj = self.restrictedTraverse(['', ])
-        if obligations_filter is None:
+        brains = self.Catalog(query)
+        results = []
+        for brain in brains:
+            obj = brain.getObject()
+
             results.append({
-                'path_prefix': root_obj.absolute_url(0),
-                'path_suffix': '/' + root_obj.absolute_url(1),
-                'last_change': root_obj.bobobase_modification_time().Date(),
-                'persons': root_obj.users_with_local_role(role),
-                'obligation_uris': []
+                'path_prefix': obj.absolute_url(0),
+                'path_suffix': '/' + obj.absolute_url(1),
+                'last_change': obj.bobobase_modification_time().Date(),
+                'persons': obj.users_with_local_role(role),
+                'obligation_uris': list(obj.dataflow_uris)
             })
 
         results.sort(path_compare)
@@ -76,7 +72,14 @@ class ReportekUtilities(Folder):
     security.declareProtected(view_management_screens, 'list_reporters')
 
     def get_obligations_filter(self):
-        obligations_filter = self.REQUEST.get('obligations', None)
+        obligations_filter = self.REQUEST.get('obligations', [])
         if not isinstance(obligations_filter, list):
             obligations_filter = [obligations_filter]
         return obligations_filter
+
+    def get_query_start(self):
+        return self.get_page_num() * self.results_per_page
+
+    def get_page_num(self):
+        return int(self.REQUEST.get('page_num', 1))
+
