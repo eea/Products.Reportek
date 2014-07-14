@@ -47,6 +47,7 @@ import RemoteApplication
 import RemoteRESTApplication
 import DataflowMappings
 import ReportekEngine
+import ReportekUtilities
 
 import constants
 
@@ -106,6 +107,12 @@ def create_reportek_objects(app):
     except AttributeError:
         catalog = ZCatalog(constants.DEFAULT_CATALOG, 'Reportek Catalog')
         app._setObject(constants.DEFAULT_CATALOG, catalog)
+
+    try:
+        reportek_utilities = getattr(app, constants.REPORTEK_UTILITIES)
+    except AttributeError:
+        reportek_utilities = ReportekUtilities.ReportekUtilities()
+        app._setObject(constants.REPORTEK_UTILITIES, reportek_utilities)
 
 
 def add_index(name, catalog, meta_type, meta=False):
