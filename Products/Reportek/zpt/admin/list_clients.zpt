@@ -13,7 +13,7 @@
 				</span>
 			</li>
 		</ul>
-	</div>
+		</div>
 	<div id="tabbedmenuend"></div>
 	<div id="by_path">
   <h2>Clients by path</h2>
@@ -47,7 +47,7 @@
 	</tr>
 	</table>
 	</div>
-	<div id="by_person">
+	<div id="by_person" style="display:none">
 	<h2>By person</h2>
 	<table class="datatable" id="by_person">
 	<tr>
