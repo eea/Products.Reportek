@@ -24,7 +24,7 @@
 		<tal:block tal:repeat="group here/obligation_groups">
 			<optgroup tal:attributes="label group">
 				<tal:block tal:repeat="obligation python:here.obligations(group)">
-					<option tal:attributes="value obligation/uri;
+					<option tal:attributes="value python:here.obligation_id(obligation['uri']);
 											class python:'terminated' if here.is_terminated(obligation) else nothing;
 											selected python:'selected' if here.is_selected(obligation) else nothing">
 						[<span tal:replace="python:here.source_title_prefix(obligation)" />]
@@ -38,19 +38,20 @@
 		</tal:block>
 	</select>
 
-	<label for="roles">Role</label>
-	<select id="roles" name="roles" multiple="multiple">
-		<option value="auditor">Auditor</option>
-		<option value="client">Client</option>
-		<option value="reporter">Reporter</option>
-		<option value="collaborator">Collaborator</option>
+	<label for="role">Role</label>
+	<select id="role" name="role">
+		<option tal:repeat="role here/get_roles"
+		        tal:content="role"
+		        tal:attributes="selected python:'selected' if here.role_filter() == role else nothing">
+
+        </option>
 	</select>
 
 	<label for="countries">Countries</label>
 	<select id="countries" name="countries" multiple="multiple">
 		<option tal:repeat="country here/localities_rod"
 		        tal:content="python:country['name']"
-				tal:attributes="value python:country['iso']"/>
+				tal:attributes="value python:country['iso']"></option>
 	</select>
 
 	<br />
@@ -61,7 +62,7 @@
 	$("#obligations").select2({
 		width: 200
 	});
-	$("#roles").select2({
+	$("#role").select2({
 		width: 200
 	});
 	$("#countries").select2({
@@ -77,7 +78,7 @@
 		<th>Reporters</th>
 	</tr>
 
-	<tr tal:repeat="item python:here.get_data('Reporter')">
+	<tr tal:repeat="item here/get_data">
 		<td><a tal:attributes="href python:item['path_prefix'] + '/' + item['path_suffix']"
 		       tal:content="python:item['path_suffix'][:30]"></a></td>
 		<td tal:content="python:item['last_change']"></td>
