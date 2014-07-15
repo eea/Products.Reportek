@@ -69,8 +69,6 @@ class ReportekUtilities(Folder):
         obligations_filter = self.get_obligations_filter()
         if obligations_filter:
             query['dataflow_uris'] = obligations_filter
-        query['b_start'] = self.get_query_start()
-        query['b_size'] = self.results_per_page
 
         brains = self.Catalog(query)
         results = []
