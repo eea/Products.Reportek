@@ -102,7 +102,8 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
         r = self.envelope.getEndDate()
         self.assertEqual(r.strftime('%Y-%m-%d'),'2009-09-30')
 
-    def test_endDateMultipleYearsQuarter(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_endDateMultipleYearsQuarter(self, mock_commit):
         self.helpCreateEnvelope('2004', '2009', 'First Quarter')
         s = self.envelope.getStartDate()
         self.assertEqual(s.strftime('%Y-%m-%d'),'2004-01-01')
@@ -113,7 +114,8 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
         assert rdf.find('startOfPeriod') > -1
         assert rdf.find('endOfPeriod') > -1
 
-    def test_DateNoDates(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_DateNoDates(self, mock_commit):
         self.helpCreateEnvelope('', '', 'First Quarter')
         s = self.envelope.getStartDate()
         self.assertEqual(s, None)
@@ -1016,7 +1018,8 @@ class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
         }
         self.assertDictEqual(objsByType, expectedObjsByType)
 
-    def test_rdf(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_rdf(self, mock_commit):
         self.envelope.release_envelope()
         self.envelope.reportingdate = DateTime('2014/05/02 09:58:41 UTC')
         rdf = self.envelope.rdf(self.app.REQUEST)
@@ -1025,7 +1028,8 @@ class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
         f.close()
         self.assertEqual(str(rdf), expected)
 
-    def test_space_in_name(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_space_in_name(self, mock_commit):
         self.doc.id = 'another document id with space.txt'
         self.envelope.release_envelope()
         self.envelope.reportingdate = DateTime('2014/05/02 09:58:41 UTC')
