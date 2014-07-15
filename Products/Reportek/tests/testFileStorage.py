@@ -258,7 +258,8 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         rv = download_envelope_zip(envelope)
         return zipfile.ZipFile(rv)
 
-    def test_one_document(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_one_document(self, mock_commit):
         data = 'hello world, file for test!'
         file_1 = create_upload_file(data)
         doc_id = Document.manage_addDocument(self.envelope, file=file_1)
@@ -269,8 +270,9 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         self.assertEqual(zip_download.read('testfile.txt'), data)
 
     @patch('Products.Reportek.Envelope.ZIP_CACHE_THRESHOLD', -1)
+    @patch('Products.Reportek.Envelope.transaction.commit')
     @patch('Products.Reportek.Envelope.ZipFile')
-    def test_cache_hit_on_2nd_download(self, mock_ZipFile):
+    def test_cache_hit_on_2nd_download(self, mock_ZipFile, mock_commit):
         import zipfile
         mock_ZipFile.side_effect = zipfile.ZipFile
 
@@ -288,7 +290,8 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         self.assertEqual(mock_ZipFile.call_count, 1)
 
     @patch('Products.Reportek.Envelope.ZIP_CACHE_THRESHOLD', -1)
-    def test_cache_invalidation_on_release(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_cache_invalidation_on_release(self, mock_commit):
         # zip cache is invalidated when the envelope is released (in case the
         # envelope had previously been released, unreleased and modified).
 
@@ -300,6 +303,7 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         zip_download = self.download_zip(self.envelope)
         self.assertEqual(zip_download.read('testfile.txt'), 'data one')
 
+        self.envelope.absolute_url = Mock(return_value='url')
         self.envelope.unrelease_envelope()
         doc.manage_file_upload(create_upload_file('data two'))
         self.envelope.release_envelope()
@@ -308,7 +312,8 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         self.assertEqual(zip_download.read('testfile.txt'), 'data two')
 
     @patch('Products.Reportek.Envelope.ZIP_CACHE_THRESHOLD', -1)
-    def test_cache_invalidation_on_feedback(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_cache_invalidation_on_feedback(self, mock_commit):
         self.root.getEngine = Mock()
 
         file_1 = create_upload_file('data one')
@@ -323,7 +328,8 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         zip_download = self.download_zip(self.envelope)
         self.assertTrue("good work" in zip_download.read('feedbacks.html'))
 
-    def test_feedback_content(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_feedback_content(self, mock_commit):
         self.root.getEngine = Mock()
         self.envelope.manage_addFeedback('feedback', title="good work")
         feedback = self.envelope['feedback']
@@ -336,7 +342,8 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         zip_download = self.download_zip(self.envelope)
         self.assertEqual(zip_download.read('opinion.txt'), data)
 
-    def test_large_feedback_content(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_large_feedback_content(self, mock_commit):
         self.root.getEngine = Mock()
         self.envelope.manage_addFeedback('feedback', title="good work")
         feedback = self.envelope['feedback']
@@ -349,7 +356,8 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         zip_download = self.download_zip(self.envelope)
         self.assertEqual(zip_download.read('opinion.txt'), data)
 
-    def test_missing_document_datafile(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_missing_document_datafile(self, mock_commit):
         file_1 = create_upload_file('asdf')
         doc_id = Document.manage_addDocument(self.envelope, file=file_1)
         doc = self.envelope[doc_id]
@@ -358,7 +366,8 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
 
         self.assertRaises(ValueError, download_envelope_zip, self.envelope)
 
-    def test_unauthorized(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_unauthorized(self, mock_commit):
         from AccessControl import Unauthorized
         self.envelope.release_envelope()
         self.envelope.canViewContent = Mock(return_value=False)

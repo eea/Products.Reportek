@@ -304,7 +304,7 @@ def publish_view(view, environ={}, user=None):
         noSecurityManager()
 
 
-def create_envelope(parent, id='envelope', mock_cr_ping=True):
+def create_envelope(parent, id='envelope'):
     from Products.Reportek.Envelope import Envelope
     process = Mock()
     process.absolute_url.return_value = '/mock-process'
@@ -313,8 +313,6 @@ def create_envelope(parent, id='envelope', mock_cr_ping=True):
     e.id = id
     parent._setObject(id, e)
     e.dataflow_uris = []
-    if mock_cr_ping:
-        e._content_registry_ping = Mock() if mock_cr_ping is True else mock_cr_ping
 
     return parent[id]
 
@@ -338,8 +336,6 @@ def simple_addEnvelope(parent, *args, **kwargs):
             params[i] = arg
     result = manage_addEnvelope(parent, *params)
     envelope = parent.unrestrictedTraverse(result.split('/')[-1], None)
-    if 'mock_cr_ping' in kwargs:
-        envelope._content_registry_ping = Mock() if kwargs['mock_cr_ping'] is True else kwargs['mock_cr_ping']
 
     return envelope
 
