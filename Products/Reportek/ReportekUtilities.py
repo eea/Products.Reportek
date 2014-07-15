@@ -13,8 +13,6 @@ class ReportekUtilities(Folder):
 
     security = ClassSecurityInfo()
 
-    ROLES = ['Auditor', 'Client', 'Reporter', 'Collaborator']
-
     def __init__(self, id, title):
         self.id = id
         self.title = title
@@ -111,4 +109,7 @@ class ReportekUtilities(Folder):
         return req_filter
 
     def get_roles(self):
-        return self.ROLES
+        roles = list(self.valid_roles())
+        filter(roles.remove,
+                ['Authenticated', 'Anonymous', 'Manager', 'Owner'])
+        return sorted(roles)
