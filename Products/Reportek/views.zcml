@@ -10,4 +10,10 @@
         class=".views.ListClients"
         template="zpt/admin/list_clients.zpt"/>
 
+    <browser:page
+        name="index_html"
+        for=".ReportekUtilities.IReportekUtilities"
+        permission="zope2.ViewManagementScreens"
+        template="zpt/admin/index.zpt"/>
+
 </configure>

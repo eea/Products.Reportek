@@ -17,20 +17,12 @@ class ReportekUtilities(Folder):
         self.id = id
         self.title = title
 
-    security.declareProtected(view_management_screens, 'index_html')
-    index_html = PageTemplateFile('zpt/admin', globals())
-
     security.declareProtected(view_management_screens, 'search')
     search = PageTemplateFile('zpt/admin/search', globals())
 
-    def all_meta_types(self, interfaces=None):
-        """
-            What can you put inside me? Checks if the legal products are
-            actually installed in Zope
-        """
+    def all_meta_types(self):
         types = ['Script (Python)', 'Folder', 'Page Template']
-
-        return [type for type in Products.meta_types if type['name'] in types]
+        return [ t for t in Products.meta_types if t['name'] in types ]
 
     def obligation_groups(self):
         return self.ReportekEngine.dataflow_table_grouped()[0]
