@@ -108,10 +108,13 @@ def create_reportek_objects(app):
         catalog = ZCatalog(constants.DEFAULT_CATALOG, 'Reportek Catalog')
         app._setObject(constants.DEFAULT_CATALOG, catalog)
 
+    #Add Reportek Utilities
     try:
         reportek_utilities = getattr(app, constants.REPORTEK_UTILITIES)
     except AttributeError:
-        reportek_utilities = ReportekUtilities.ReportekUtilities()
+        reportek_utilities = ReportekUtilities.ReportekUtilities(
+                                    constants.REPORTEK_UTILITIES,
+                                    'Reportek Utilites')
         app._setObject(constants.REPORTEK_UTILITIES, reportek_utilities)
 
 

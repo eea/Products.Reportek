@@ -32,6 +32,17 @@
             name="static"
             directory="www/static" />
 
+    <browser:resource
+            name="reportek_utilities.gif"
+            file="www/converter.gif"/>
+
+    <five:registerClass
+            class=".ReportekUtilities.ReportekUtilities"
+            meta_type="Reportek Utilities"
+            icon="reportek_utilities.gif"
+            permission="zope2.ViewManagementScreens" />
+            global="False"/>
+
     <include package="." file="dataflow_mappings.zcml" />
     <include package="." file="views.zcml" />
 

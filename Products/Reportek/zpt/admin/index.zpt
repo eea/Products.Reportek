@@ -1,0 +1,26 @@
+<tal:block replace="structure here/standard_html_header" />
+
+<h2>User management</h2>
+
+<ul>
+  <li><a href="#">Show where users have access</a></li>
+  <li><a href="Assign_client_form">Assign roles by obligation</a></li>
+  <li><a href="revoke_roles">Revoke roles</a></li>
+</ul>
+
+<h2>Generic</h2>
+
+<ul>
+  <li>
+    <a href="searchcollections">Search for collections with obligation</a>
+  </li>
+  <li>
+    <a href="wrong_country">Collections allocated to the wrong country</a>
+  </li>
+  <li>
+    <a href="wrong_country?otype=envelope">Envelopes allocated to the wrong country</a>
+  </li>
+  <li><a href="statistics">Statistics</a></li>
+</ul>
+
+<tal:block replace="structure here/manage_page_footer" />

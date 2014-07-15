@@ -3,7 +3,6 @@ from AccessControl import ClassSecurityInfo
 import Products
 from zope.interface import implementer
 
-from constants import REPORTEK_UTILITIES
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl.Permissions import view_management_screens
 from interfaces import IReportekUtilities
@@ -12,28 +11,20 @@ from interfaces import IReportekUtilities
 @implementer(IReportekUtilities)
 class ReportekUtilities(Folder):
 
-    meta_type = 'ReportekUtilities'
     security = ClassSecurityInfo()
 
     ROLES = ['Auditor', 'Client', 'Reporter', 'Collaborator']
 
-    def __init__(self):
-        self.id = REPORTEK_UTILITIES
+    def __init__(self, id, title):
+        self.id = id
+        self.title = title
 
-    security.declareProtected(view_management_screens, 'index_html')
-    index_html = PageTemplateFile('zpt/admin', globals())
-
-    search = PageTemplateFile('zpt/admin/search', globals())
     security.declareProtected(view_management_screens, 'search')
+    search = PageTemplateFile('zpt/admin/search', globals())
 
-    def all_meta_types(self, interfaces=None):
-        """
-            What can you put inside me? Checks if the legal products are
-            actually installed in Zope
-        """
+    def all_meta_types(self):
         types = ['Script (Python)', 'Folder', 'Page Template']
-
-        return [type for type in Products.meta_types if type['name'] in types]
+        return [ t for t in Products.meta_types if t['name'] in types ]
 
     def obligation_groups(self):
         return self.ReportekEngine.dataflow_table_grouped()[0]
@@ -48,7 +39,8 @@ class ReportekUtilities(Folder):
         return obligation.get('terminated', '0') == '1'
 
     def is_selected(self, obligation):
-        return obligation['uri'] in self.obligations_filter()
+        return obligation['uri'] in map(self.get_obligation_uri,
+                                        self.obligations_filter())
 
     def source_title_prefix(self, obligation):
         return ' '.join(obligation['SOURCE_TITLE'].split()[0:2])
@@ -79,7 +71,7 @@ class ReportekUtilities(Folder):
             query['dataflow_uris'] = map(self.get_obligation_uri,
                                          obligations_filter)
 
-        role = self.role_filter()
+        role = self.selected_role()
 
         brains = self.Catalog(query)
         results = []
@@ -109,7 +101,7 @@ class ReportekUtilities(Folder):
     def countries_filter(self):
         return self._get_filter('countries')
 
-    def role_filter(self):
+    def selected_role(self):
         return self.REQUEST.get('role', 'Auditor')
 
     def _get_filter(self, filter_name):

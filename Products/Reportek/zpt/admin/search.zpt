@@ -16,7 +16,7 @@
 </div>
 
 <div id="tabbedmenuend"></div>
-<h1>Filter by obligation</h1>
+<h1>Filters</h1>
 
 <form method="get">
   <label for="obligations">Obligation</label>
@@ -42,8 +42,7 @@
   <select id="role" name="role">
     <option tal:repeat="role here/get_roles"
             tal:content="role"
-            tal:attributes="selected python:'selected' if here.role_filter() == role else nothing">
-
+            tal:attributes="selected python:'selected' if here.selected_role() == role else nothing">
     </option>
   </select>
 
@@ -75,7 +74,7 @@
     <th>Path</th>
     <th>Last change</th>
     <th>Obligations</th>
-    <th>Reporters</th>
+    <th tal:content="python:here.selected_role() + 's'">Reporters</th>
   </tr>
 
   <tr tal:repeat="item here/get_data">

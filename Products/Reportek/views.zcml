@@ -3,13 +3,17 @@
     xmlns:browser="http://namespaces.zope.org/browser"
     xmlns:five="http://namespaces.zope.org/five">
 
-
     <browser:page
         name="list_clients"
         for=".ReportekUtilities.IReportekUtilities"
-				permission="zope2.View"
+        permission="zope2.View"
         class=".views.ListClients"
-				template="zpt/admin/list_clients.zpt"
-        />
+        template="zpt/admin/list_clients.zpt"/>
+
+    <browser:page
+        name="index_html"
+        for=".ReportekUtilities.IReportekUtilities"
+        permission="zope2.ViewManagementScreens"
+        template="zpt/admin/index.zpt"/>
 
 </configure>
