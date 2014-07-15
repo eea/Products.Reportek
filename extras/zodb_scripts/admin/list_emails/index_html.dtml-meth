@@ -1,8 +1,15 @@
 <dtml-var standard_html_header>
 
-<h1><dtml-var title_or_id></h1>
+<div id="operations">
+	<ul>
+		<li><a href="/admin">Administration</a></li>
+		<li><a href="/">Frontpage</a></li>
+	</ul>
+</div>
+<h1 style="margin-bottom: 20px;"><dtml-var title_or_id></h1>
 <form action="" method="get">
 	<div>
+		<strong>Obligation:</strong><br />
 		<select size="15" id="dataflows" name="dataflow_uris">
 		<dtml-call "REQUEST.set('currentsource','')">
 		<dtml-let u="Catalog.uniqueValuesFor('dataflow_uris')">
@@ -25,6 +32,24 @@
 			</optgroup>
 		</select>
 	</div>
+
+	<div>
+		<strong>Country:</strong><br />
+		<select id="country" name="country">
+			<dtml-let countries="Catalog.uniqueValuesFor('country')">
+				<option value="">All</option>
+				<dtml-in localities_table mapping sort=iso>
+					<dtml-if "uri in countries">
+					<option value="<dtml-var uri>"
+					<dtml-if "uri == REQUEST.get('country')">selected="selected"</dtml-if>>
+						<dtml-var name html_quote>
+					</option>
+					</dtml-if>
+				</dtml-in>
+			</dtml-let>
+		</select>
+	</div>
+
 	<p>
 		<strong>Choose email client:</strong><br />
 			<label for="separator">MS Outlook</label><input type="radio" name="sep" value="0" <dtml-if "REQUEST.get('sep', '') == '0' or not REQUEST.has_key('sep')">checked="checked"</dtml-if> />
@@ -36,7 +61,7 @@
 	</div>
 </form>
 <dtml-if "REQUEST.has_key('dataflow_uris')">
-	<dtml-let emails="getEmails(dataflow_uris=dataflow_uris, separator=REQUEST.get('sep'))">
+	<dtml-let emails="getEmails(dataflow_uris=dataflow_uris, country=country, separator=REQUEST.get('sep'))">
 	<h2>CDR data reporter emails for <em><dtml-var "getObligationTitle(REQUEST.get('dataflow_uris'))"></em></h2>
 	<dtml-if "emails[0]">
 		<a href="mailto:<dtml-var "emails[0]" html_quote>"><dtml-var "emails[0]" html_quote></a>

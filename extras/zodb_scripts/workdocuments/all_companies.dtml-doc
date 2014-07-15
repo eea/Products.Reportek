@@ -1,9 +1,0 @@
-<dtml-var standard_html_header>
-<h2><dtml-var title_or_id></h2>
-<ul>
-<dtml-in "Catalog(meta_type='Report Collection',
-   sort_on='id')">
-<li><a href="&dtml-getPath;"><dtml-var id></a></li>
-</dtml-in>
-</ul>
-<dtml-var standard_html_footer>

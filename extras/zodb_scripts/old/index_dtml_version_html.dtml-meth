@@ -1,0 +1,58 @@
+<dtml-let layout_columns="3">
+<dtml-var standard_html_header>
+</dtml-let>
+<p>The Central Data Repository is part of the ReportNet architecture.
+The Central Data Repository is like a bookshelf, with data reports on the environment
+as submitted to international clients.</p>
+
+<p>Each country either has a collection
+(<img src="/misc_/Reportek/collection.gif" alt="collection icon" />)
+ for its deliveries or a referral
+(<img src="/misc_/Reportek/referral.gif" alt="referral icon" />) to
+a different preferred repository.
+The data reports within each country collection are arranged
+under the relevant reporting obligations or agreements.</p>
+
+<dtml-let eeams="['at', 'be', 'bg',
+ 'cy', 'cz', 'dk', 'ee', 'fi', 'fr', 'de', 'gr', 'hu',
+ 'is', 'ie', 'it', 'lv', 'li', 'lt', 'lu', 'mt',
+  'nl', 'no', 'pl', 'pt', 'ro', 'sk', 'si',
+ 'es', 'se', 'ch', 'tr', 'gb']"
+ noneea="['al', 'ad', 'am', 'az', 'by', 'ba', 'hr', 'ec', 'ge', 'gi',
+ 'kz', 'xk', 'kg', 'mk','md','mc', 'ru', 'cs', 'ch', 'tj', 'tm', 'ua', 'uz' ]">
+<fieldset><legend>EEA Member countries</legend>
+<dtml-in "objectValues('Report Collection')" sort=title>
+<dtml-if "id in eeams">
+<div class="countrybox">
+<img src="&dtml-icon;" alt="" /> <a href="&dtml-id;"><dtml-var title_or_id html_quote></a>
+</div>
+</dtml-if>
+</dtml-in>
+</fieldset>
+<fieldset><legend>Other countries</legend>
+<dtml-in "objectValues('Report Collection')" sort=title>
+<dtml-if "id not in eeams">
+<div class="countrybox">
+<img src="&dtml-icon;" alt="" /> <a href="&dtml-id;"><dtml-var title_or_id html_quote></a>
+</div>
+</dtml-if>
+</dtml-in>
+</fieldset>
+</dtml-let>
+<p style="clear:left">
+<strong>Need help?</strong> 
+First try the <a href="/help"><strong>On-line CDR help</strong></a>
+then ask the Eionet helpdesk: <a href="mailto:helpdesk@eionet.europa.eu">helpdesk@eionet.europa.eu</a>.
+</p>
+<p>
+Eionet helpdesk will provide assistance for:
+  Upload access for new users,
+  Password problem,
+  Difficulties during upload procedure,
+  Download problems
+</p>
+<!--p>
+Suggestions for improving CDR:
+ <a href="mailto:eionet-group-ug-cdr@roles.eea.eionet.europa.eu">mail to CDR user group</a>
+</p-->
+<dtml-var standard_html_footer>

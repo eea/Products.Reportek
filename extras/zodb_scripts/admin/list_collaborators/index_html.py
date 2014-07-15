@@ -11,7 +11,7 @@
 #from Products.PythonScripts.standard import string
 REQUEST = container.REQUEST
 RESPONSE =  REQUEST.RESPONSE
-role='Client'
+role='Data Collaborator'
 
 def pathcompare(p1,p2):
     return cmp(p1[0],p2[0])
@@ -32,16 +32,14 @@ print """<div class="quickjumps">
 persons = {}
 results = []
 hits = container.Catalog(meta_type='Report Collection')
-
 for hit in hits:
     obj = hit.getObject()
     results.append( (obj.absolute_url(0),
        '/' + obj.absolute_url(1),
        obj.bobobase_modification_time().Date(),
        obj.users_with_local_role(role),
-       obj.dataflow_uris
+       list(obj.dataflow_uris)
     ))
-
 root_obj = context.restrictedTraverse(['',])
 results.append( (root_obj.absolute_url(0),
    '/',
@@ -49,7 +47,6 @@ results.append( (root_obj.absolute_url(0),
    root_obj.users_with_local_role(role),
    []
 ))
-
 results.sort(pathcompare)
 evenstr=''
 for hit in results:

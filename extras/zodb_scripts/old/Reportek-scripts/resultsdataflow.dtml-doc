@@ -1,0 +1,60 @@
+<dtml-var standard_html_header>
+<div id="operations">
+<ul>
+<li><a href="searchdataflow">Search by dataflow</a></li>
+</ul>
+</div>
+<h1>Results of dataflow search</h1>
+
+<dtml-call "REQUEST.set('meta_type','Report Envelope')">
+<dtml-call "REQUEST.set('sort_on','reportingdate')">
+<dtml-call "REQUEST.set('sort_order','reverse')">
+<dtml-let ldict=localities_dict>
+<dtml-in Catalog size=50 start=query_start>
+   <dtml-if sequence-start>
+
+      <dtml-if previous-sequence>
+
+        <a href="<dtml-var URL><dtml-var sequence-query
+                 >query_start=<dtml-var
+                 previous-sequence-start-number>">
+        (Previous <dtml-var previous-sequence-size> results)
+        </a>
+
+      </dtml-if previous-sequence>
+
+<table>      
+   <tr><th>Country</th><th>Title</th><th nowrap="nowrap">Years</th><th>Obligation</th><th>Reported</th></tr>
+   </dtml-if sequence-start>
+   <dtml-with "getObject()">
+        <tr>
+          <td><dtml-var "ldict[country]['name']"></td>
+          <td><a href="<dtml-var "getpath(data_record_id_)">"><dtml-if "title == ''">
+&dtml-id;<dtml-else>&dtml-title;</dtml-if></a></td>
+          <td nowrap="nowrap"><dtml-var year><dtml-if "endyear != ''">-<dtml-var endyear></dtml-if></td>
+          <td><dtml-in dataflow_uris prefix=dfuri>
+<dtml-var "dataflow_lookup(dfuri_item)['TITLE']"><br /></dtml-in></td>
+          <td><dtml-var reportingdate fmt=Date></td>
+        </tr>
+   </dtml-with>
+   <dtml-if sequence-end>
+</table>
+      
+      <dtml-if next-sequence>
+
+         <a href="<dtml-var URL><dtml-var sequence-query
+            >query_start=<dtml-var
+            next-sequence-start-number>">
+         (Next <dtml-var next-sequence-size> results)
+         </a>
+
+      </dtml-if next-sequence>
+   </dtml-if sequence-end>
+
+<dtml-else>
+
+  There was no data matching this <dtml-var title_or_id> query.
+
+</dtml-in>
+</dtml-let>
+<dtml-var standard_html_footer>

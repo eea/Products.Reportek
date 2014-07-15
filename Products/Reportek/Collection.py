@@ -276,7 +276,7 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
         """ Lookup a dataflow on URI and return a dictionary of info """
         try:
             return self.dataflow_dict()[uri]
-        except:
+        except KeyError:
             return {'uri': uri,
                 'details_url': '',
                 'TITLE': 'Unknown/Deleted obligation',

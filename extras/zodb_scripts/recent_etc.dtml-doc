@@ -1,0 +1,156 @@
+<dtml-var standard_html_header>
+<dtml-call "REQUEST.set('meta_type','Report Envelope')">
+
+<dtml-unless RA_ID>
+<dtml-call "REQUEST.set('RA_ID','656')">
+</dtml-unless>
+
+<dtml-call "REQUEST.set('dataflow_uris', {'query': 'http://rod.eionet.europa.eu/obligations/' + RA_ID})">
+<dtml-call "REQUEST.set('dataflow_url', 'http://rod.eionet.europa.eu/obligations/' + RA_ID)">
+
+<dtml-unless "REQUEST.has_key('mindate') and _.len(REQUEST['mindate']) == 10">
+  <dtml-call "REQUEST.set('mindate','2014-01-01')">
+</dtml-unless>
+
+<dtml-unless "REQUEST.has_key('maxdate') and _.len(REQUEST['maxdate']) == 10">
+  <dtml-call "REQUEST.set('maxdate','2100-01-01')">
+</dtml-unless>
+
+<dtml-call "REQUEST.set('reportingdate',
+                            {'range': 'min:max',
+                             'query': [DateTime(REQUEST.get('mindate')),
+                             DateTime(REQUEST.get('maxdate'))]})"
+>
+
+<dtml-unless sort_on>
+<dtml-call "REQUEST.set('sort_on','reportingdate')">
+<dtml-call "REQUEST.set('sort_order','reverse')">
+</dtml-unless>
+
+<dtml-unless sort_order>
+<dtml-call "REQUEST.set('sort_order','')">
+</dtml-unless>
+
+<dtml-if "REQUEST.has_key('country') and _.len(REQUEST['country']) == 2">
+  <dtml-call "REQUEST.set('cc',country)">
+  <dtml-call "REQUEST.set('country',localities_iso_dict(_.string.upper(cc))['uri'])">
+  <dtml-call "REQUEST.set('country_name',localities_iso_dict(_.string.upper(cc))['name'])">
+<dtml-else>
+  <dtml-call "REQUEST.set('country_name','all countries')">
+</dtml-if>
+
+<h2><dtml-var title_or_id> for obligation '<dtml-var
+    "dataflow_lookup(dataflow_url)['TITLE']">': <dtml-var country_name>, <dtml-if "REQUEST['maxdate'] != '2100-01-01'">between <dtml-var mindate> and <dtml-var maxdate><dtml-else>since <dtml-var mindate></dtml-if> 
+
+<dtml-in Catalog>
+   <dtml-if sequence-start>
+
+(<dtml-var sequence-length>&nbsp;envelope<dtml-if "_['sequence-length'] > 1">s</dtml-if>)</h2>
+
+<table class="sortable"> 
+<thead>
+   <tr>
+<dtml-var "sortable_table(( 
+{'id':'reportingdate','title':'Reported','sortable':1},
+{'id':'getCountryName','title':'Country','sortable':1},
+{'id':'title','title':'Title','sortable':0},
+{'id':'activity_id','title':'Activity','sortable':0},
+{'id':'status','title':'Status','sortable':1},
+{'id':'feedback','title':'Feedback','sortable':0},
+{'id':'files','title':'Files','sortable':0}
+), sort_on, sort_order)">
+   </tr>
+</thead>
+
+<tbody>
+   </dtml-if sequence-start>
+
+   <dtml-with "getObject()">
+        <tr <dtml-if sequence-even>class="zebraeven"</dtml-if>>
+          <td><dtml-var reportingdate fmt="%Y-%m-%d %H:%M:%S"></td>
+
+          <td><dtml-var getCountryName><dtml-if locality>: <dtml-var locality></dtml-if></td>
+          <td><a href="<dtml-var "getpath(data_record_id_)" >" title="Link to envelope"><dtml-if "title == ''">&dtml-id;<dtml-else>&dtml-title;</dtml-if></a></td>
+
+          <dtml-with "restrictedTraverse(getpath(data_record_id_))">
+
+       <dtml-in "objectValues('Workitem')" sort=lastActivityDate,id>
+         <dtml-if sequence-end>
+          <td>
+<dtml-if released><em></dtml-if>
+             <dtml-if "activity_id == 'End'"> 
+              <a href="<dtml-var "getpath(data_record_id_)">/envelope_zip" title="Zip envelope and download"><dtml-var activity_id></a>
+             <dtml-else>
+              <dtml-var activity_id> 
+             </dtml-if>
+<dtml-if released></em></dtml-if>
+          </td>
+          <td>
+             <dtml-var status><dtml-if "actor not in ['', 'Anonymous User', 'openflow_engine']"> by <a href="http://www.eionet.europa.eu/users/&dtml-actor;"><dtml-var actor></a></dtml-if>
+          </td>
+         </dtml-if>
+       </dtml-in>
+
+          <td>
+           <dtml-in "objectValues('Report Feedback')">
+            <a href="&dtml-absolute_url;" title="Link to feedback item"><dtml-var "id[0:16]"></a> <!-- Report Feedback --><br />
+           <dtml-else>
+            No feedback posted
+           </dtml-in>
+          </td>
+
+          </dtml-with>
+
+          <td>
+           <dtml-in "objectValues(['Report Document', 'Report Hyperlink'])">
+
+            <dtml-if "_.string.lower(id[-3:]) == 'shp'">
+              <a href="&dtml-absolute_url;/manage_document" title="Link to shapefile"><dtml-var id></a> <!-- Report Document or Hyperlink -->
+            <dtml-else>
+              <dtml-var id> <!-- Report Document or Hyperlink -->
+            </dtml-if>
+
+              <dtml-if "not _.SecurityCheckPermission('View',_['sequence-item'])">
+                  <img src="/misc_/Reportek/lockicon_gif" alt="No access" width="16" height="16" />
+                </dtml-if>
+            <br />
+
+           <dtml-else>
+            No files uploaded
+           </dtml-in>
+          </td>
+
+        </tr>
+   </dtml-with>
+
+   <dtml-if sequence-end>
+</tbody>
+</table>
+   </dtml-if sequence-end>
+
+<dtml-else>
+
+  </h2><p>There was no data matching this query.</p>
+
+</dtml-in>
+
+<dtml-if "mindate == '2013-01-01'">
+<p>
+ <em>
+  The listing of search results is by default limited to deliveries since 2013-01-01.
+  If you want to go further back in history, add the mindate argument to the URL, like this: <a href="&dtml-URL0;?RA_ID=&dtml-RA_ID;&mindate=2010-01-01"><dtml-var URL0>?RA_ID=<dtml-var RA_ID>&mindate=2010-01-01</a>
+ </em>
+</p>
+</dtml-if>
+
+<dtml-unless "REQUEST.has_key('country') and _.len(REQUEST['country']) == 2">
+<p>
+ <em>
+  You can generate a country-specific list like this: <a href="&dtml-URL0;?RA_ID=&dtml-RA_ID;&amp;country=dk"><dtml-var URL0>?RA_ID=&dtml-RA_ID;&amp;country=dk</a>
+ </em>
+</p>
+</dtml-unless>
+
+<dtml-comment><p>Download this table <a href="recent.csv?dataflow_uris=&dtml-dataflow_uris;">in csv format</a>.</p></dtml-comment>
+
+<dtml-var standard_html_footer>

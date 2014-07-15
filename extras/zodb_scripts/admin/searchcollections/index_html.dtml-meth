@@ -1,0 +1,37 @@
+<dtml-var standard_html_header>
+<div id="operations">
+	<ul>
+		<li><a href="/admin">Administration</a></li>
+		<li><a href="/">Frontpage</a></li>
+	</ul>
+</div>
+<h1><dtml-var title_or_id></h1>
+<form action="searchresults" method="get">
+<div>
+  <select size="15" id="dataflows" name="dataflow_uris:list">
+<dtml-call "REQUEST.set('currentsource','')">
+<dtml-let u="Catalog.uniqueValuesFor('dataflow_uris')">
+<dtml-in dataflow_table mapping sort=SOURCE_TITLE,TITLE>
+<dtml-if "uri in u">
+<dtml-if "currentsource != SOURCE_TITLE">
+<dtml-if "currentsource != ''">
+</optgroup>
+</dtml-if>
+<dtml-call "REQUEST.set('currentsource',SOURCE_TITLE)">
+<optgroup label="<dtml-var currentsource html_quote size=60>">
+</dtml-if>
+<option value="<dtml-var uri html_quote>"
+ label="<dtml-var TITLE html_quote size=80>"
+<dtml-if "_.has_key('terminated') and terminated == '1'">class="terminated"</dtml-if>
+>[<dtml-var "_.string.join(_.string.split(SOURCE_TITLE)[0:2])" html_quote>] <dtml-var TITLE html_quote size=80></option>
+</dtml-if>
+</dtml-in>
+</dtml-let>
+ </optgroup>
+  </select>
+</div>
+<div>
+<input type="submit" value="Search" />
+</div>
+</form>
+    <dtml-var standard_html_footer>

@@ -1,0 +1,157 @@
+<dtml-var standard_html_header>
+<dtml-let query_text="REQUEST.get('query_text','')">
+<h1>Create questionnaire for species</h1>
+<p>Use this form to create a species questionnaire. You can provide the scientific name and author if
+the species is not in the list provided.</p>
+
+<form method="get" action="EnvelopeCreateSpeciesFileForm">
+	<table>
+		<tr>
+			<th><label for="query_text">Find species where the name or number contains this text</label></th>
+			<td>
+				<input type="text" name="query_text" id="query_text" value="<dtml-var query_text>" />
+				<input type="submit" value="Filter species" />
+			</td>
+		</tr>
+	</table>
+</form>
+<p>
+	Before starting to fill in the actual form, you might want to use the filter above to narrow the species list.
+	By doing so you can find all the entries where the species' name or number
+	contains the given text. The filtering should happen before you start filling in the
+ form since this action will reload the page resetting the form below.
+</p>
+<form method="post" name="choosespecies" action="EnvelopeCreateSpeciesFile">
+
+<dtml-if "REQUEST.SESSION.has_key('err_msg')">
+	<dtml-let msg_list="REQUEST.SESSION.get('err_msg', [])">
+		<dtml-if "len(msg_list)>0">
+			<dtml-in msg_list prefix=l>
+				<div style="color: red"><dtml-var l_item></div>
+			</dtml-in>
+		</dtml-if>
+	</dtml-let>
+</dtml-if>
+
+<fieldset style="margin-top: 0.5em">
+	<legend style="font-weight: bold"><label for="language">Select language you will report in</span></legend>
+	<dtml-let prefl="REQUEST.SESSION.get('language', Art17clientlang())">
+	<div style="padding-left: 1em; padding-top: 0.5em; padding-bottom: 0.5em">
+		<select name="language" id="language" size="1">
+		<dtml-in  Art17Languages prefix=l>
+				<option value="<dtml-var "l_item[1]">"<dtml-if "prefl==l_item[1]"> selected="selected"</dtml-if>
+		><dtml-var "l_item[1]">: <dtml-var "l_item[2]" html_quote></option>
+		</dtml-in>
+		</select>
+	</div>
+	</dtml-let>
+</fieldset>
+
+<fieldset style="margin-top: 0.5em">
+	<legend style="font-weight: bold">Select species</legend>
+	<dtml-let prefl_sf="REQUEST.SESSION.get('specie_from', 'prechoise')"
+			  prefl_species="REQUEST.SESSION.get('species', '')"
+			  prefl_specie="REQUEST.SESSION.get('specie', '')"
+			  prefl_author="REQUEST.SESSION.get('author', '')">
+
+	<div style="font-weight: bold; border:0px solid #868686; padding-bottom: 0.5em; margin-top: 0.5em">
+		<div style="background-color: #f0f0f0; margin-bottom: 0.5em">
+			<input type="radio" name="specie_from" value="prechoise"<dtml-if "prefl_sf=='prechoise'"> checked="checked"</dtml-if> />
+			<label for="species">Select a species from the list</label>
+		</div>
+		<select name="species" id="species" size="20" style="margin-left: 5em">
+			<dtml-let species_list="Art17species_queries(2,query_text)">
+				<dtml-in "species_list.keys()" prefix=specs>
+					<optgroup label="<dtml-var specs_item>">
+						<dtml-in "species_list[specs_item]" prefix=spec>
+							<option value="<dtml-var "spec_item">"<dtml-if "prefl_species==spec_item"> selected="selected"</dtml-if>>
+								<dtml-var "spec_item">
+								<dtml-if "spec_key!=''">
+									(<dtml-var "spec_key">)
+								</dtml-if>
+							</option>
+						</dtml-in>
+					</optgroup>
+				</dtml-in>
+			</dtml-let>
+		</select>
+	</div>
+	<br />
+
+	<div style="font-weight: bold; border:0px solid #868686; padding-bottom: 0.5em">
+		<div style="background-color: #f0f0f0; margin-bottom: 0.5em">
+			<input type="radio" name="specie_from" value="free_input"<dtml-if "prefl_sf=='free_input'"> checked="checked"</dtml-if> />
+			<span>Define a not-listed species</span>
+		</div>
+
+		<div style="padding-left: 5em">
+			<label for="specie">Species scientific name</label>
+			<input type="text" name="specie" id="specie" value="<dtml-var prefl_specie>" />
+			<br /><br />
+
+			<label for="author">Author name (year)</label>
+			<input style="margin-left: 2em" type="text" name="author" id="author" value="<dtml-var prefl_author>" />
+		</div>
+	</div>
+	</dtml-let>
+</fieldset>
+
+<fieldset style="margin-top: 0.5em">
+	<legend style="font-weight: bold">Which regions is the species in</legend>
+	<dtml-let prefl="REQUEST.SESSION.get('region', [])">
+	<em style="font-size: 0.8em; padding-left: 0.5em">(* you can select more then one region)</em>
+	<div style="padding-left: 2em;">
+		<input type="checkbox" name="region:list" id="alp" value="ALP"<dtml-if "'ALP' in prefl"> checked="checked"</dtml-if> />
+		<label for="alp">Alpine (ALP)</label><br/>
+		<input type="checkbox" name="region:list" id="atl" value="ATL"<dtml-if "'ATL' in prefl"> checked="checked"</dtml-if> />
+		<label for="atl">Atlantic (ATL)</label><br/>
+		<input type="checkbox" name="region:list" id="bor" value="BOR"<dtml-if "'BOR' in prefl"> checked="checked"</dtml-if> />
+		<label for="bor">Boreal (BOR)</label><br/>
+		<input type="checkbox" name="region:list" id="con" value="CON"<dtml-if "'CON' in prefl"> checked="checked"</dtml-if> />
+		<label for="con">Continental (CON)</label><br/>
+		<input type="checkbox" name="region:list" id="med" value="MED"<dtml-if "'MED' in prefl"> checked="checked"</dtml-if> />
+		<label for="med">Mediterranean (MED)</label><br/>
+		<input type="checkbox" name="region:list" id="mac" value="MAC"<dtml-if "'MAC' in prefl"> checked="checked"</dtml-if> />
+		<label for="mac">Macaronesian (MAC)</label><br/>
+		<input type="checkbox" name="region:list" id="pan" value="PAN"<dtml-if "'PAN' in prefl"> checked="checked"</dtml-if> />
+		<label for="pan">Pannonian (PAN)</label><br/>
+		<input type="checkbox" name="region:list" id="atc" value="MATL"<dtml-if "'MATL' in prefl"> checked="checked"</dtml-if> />
+		<label for="atc">Atlantic ocean (MATL)</label><br/>
+		<input type="checkbox" name="region:list" id="blt" value="MBAL"<dtml-if "'MBAL' in prefl"> checked="checked"</dtml-if> />
+		<label for="blt">Baltic sea (MBAL)</label><br/>
+		<input type="checkbox" name="region:list" id="mds" value="MMED"<dtml-if "'MMED' in prefl"> checked="checked"</dtml-if> />
+		<label for="mds">Mediterranean sea (MMED)</label><br/>
+		<input type="checkbox" name="region:list" id="mds" value="MMAC"<dtml-if "'MMAC' in prefl"> checked="checked"</dtml-if> />
+		<label for="mds">Macaronesian/Atlantic ocean (MMAC)</label>
+	</div>
+	</dtml-let>
+</fieldset>
+<br />
+
+<input style="margin-left: 1em" type="submit" value="Create species questionnaire"/>
+<br />
+</form>
+</dtml-let>
+
+<dtml-if "REQUEST.SESSION.has_key('err_msg')">
+	<dtml-call "REQUEST.SESSION.delete('err_msg')">
+</dtml-if>
+<dtml-if "REQUEST.SESSION.has_key('region')">
+	<dtml-call "REQUEST.SESSION.delete('region')">
+</dtml-if>
+<dtml-if "REQUEST.SESSION.has_key('language')">
+	<dtml-call "REQUEST.SESSION.delete('language')">
+</dtml-if>
+<dtml-if "REQUEST.SESSION.has_key('author')">
+	<dtml-call "REQUEST.SESSION.delete('author')">
+</dtml-if>
+<dtml-if "REQUEST.SESSION.has_key('specie')">
+	<dtml-call "REQUEST.SESSION.delete('specie')">
+</dtml-if>
+<dtml-if "REQUEST.SESSION.has_key('specie_from')">
+	<dtml-call "REQUEST.SESSION.delete('specie_from')">
+</dtml-if>
+<dtml-if "REQUEST.SESSION.has_key('species')">
+	<dtml-call "REQUEST.SESSION.delete('species')">
+</dtml-if>
+<dtml-var standard_html_footer>

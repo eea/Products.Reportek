@@ -1,0 +1,40 @@
+<dtml-if "canViewContent() and canAddFiles() and not released and is_active_for_me(REQUEST)">
+<dtml-var standard_html_header>
+	<dtml-var "envelope_tabs(tab=workitem_id)">
+
+	<div id="operations">
+	<ul>
+		<dtml-if canAddFiles>
+			<li><a href="manage_addDocumentForm" title="Upload single file">Add file</a></li>
+		</dtml-if>
+		<li><a href="completeWorkitem?workitem_id=&dtml-workitem_id;&amp;dontrelease=0"
+title="When you have finished your uploads, you must
+state that you have completed the task">Release envelope</a></li>
+		<li><a href="inactivateWorkitem?workitem_id=&dtml-workitem_id;"
+title="Deactivation keeps the work already
+done, and makes it possible for
+someone else to take over the task">Deactivate task</a></li>
+	</ul>
+	</div>
+	<h1>&dtml-document_title;</h1>
+
+	<p>1) Your first step is to <a href="manage_addDocumentForm" title="Upload single file">upload</a> one or more files into this envelope. You can always interrupt
+	your work and continue your contribution at a later time without losing data.</p>
+
+	<p>2) Once you are satisfied with the contribution, you choose 
+	<a href="completeWorkitem?workitem_id=&dtml-workitem_id;&amp;dontrelease=0">Release envelope</a> and your delivery will
+	be released to the public.
+
+<dtml-if "len(objectIds(['Report Document','Report Hyperlink'])) > 0">
+	<p><strong>Automatic QA service</strong> <a class="test_button" style="float: right" href="completeWorkitem?workitem_id=&dtml-workitem_id;&amp;dontrelease=1" title="Run the automatic Quality Assessment">Run full QA</a></p>
+	<p>You can run a quality assessment operation yourself on all files at once.<br/> Doing so will interrupt the drafting activity for a few minutes (task is deactivated), after which you can return to Draft (by activating the task) and read the QA feedback.</p>
+</dtml-if>
+</p>
+
+	<dtml-var documents_management_section>
+	<dtml-var feedback_section>
+
+	<dtml-var standard_html_footer>
+<dtml-else>
+	<dtml-call "RESPONSE.redirect('%s/overview' %getMySelf().absolute_url())">
+</dtml-if>

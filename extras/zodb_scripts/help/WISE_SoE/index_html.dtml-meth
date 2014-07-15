@@ -1,0 +1,18 @@
+<dtml-var standard_html_header>
+<h1><dtml-var title_or_id></h1>
+<p>
+The following material is intended for national reporters of WISE SoE data. It shows how to properly use Reportnet tools in order to help with the reporting process and to improve the quality of deliveries.
+</p>
+
+<h2>Available material</h2>
+<ul>
+<dtml-in "objectValues('File')" sort=title>
+<li><a href="&dtml-id;">&dtml-title;</a></li>
+</dtml-in>
+</ul>
+
+<p>
+If you have problems with CDR please contact <a href="mailto:helpdesk@eionet.europa.eu">Eionet Helpdesk</a>
+</p>
+
+<dtml-var standard_html_footer>

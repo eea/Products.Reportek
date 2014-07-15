@@ -10,8 +10,15 @@
 request = container.REQUEST
 
 #Notify UNS
-#if container.ReportekEngine.UNS_server:
-#    container.ReportekEngine.sendNotificationToUNS(context.getMySelf(), 'Envelope revoke', 'Envelope %s (%s) was revoked from public view' % (context.title_or_id(), context.absolute_url()), request.AUTHENTICATED_USER.getUserName())
+if container.ReportekEngine.UNS_server:
+    container.ReportekEngine.sendNotificationToUNS(context.getMySelf(), 'Envelope revoke', 'Envelope %s (%s) was revoked from public view' % (context.getMySelf().title_or_id(), context.getMySelf().absolute_url()), request.AUTHENTICATED_USER.getUserName())
+
+#ping CR for deletion
+if container.ReportekEngine.canPingCR():
+    context.getMySelf().content_registry_ping(delete=True)
 
 #Unset the release flag on the envelope/instance
-context.unrelease_envelope()
+context.getMySelf().unrelease_envelope()
+
+#Delete the automatic feedback for the confirmation of release, if exists
+context.getMySelf().manage_delObjects([x.id for x in context.getMySelf().objectValues('Report Feedback') if x.title.lower().find('receipt') != -1])

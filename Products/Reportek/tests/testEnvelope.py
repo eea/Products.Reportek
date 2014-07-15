@@ -987,8 +987,11 @@ class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
         # add subobjects of type document, feedback, hyperlink
         content = 'test content for our document'
         self.doc = add_document(self.envelope, create_upload_file(content, 'foo.txt'))
+        self. doc2 = add_document(self.envelope, create_upload_file(content, 'foo.txt'),
+                                  id='file2', restricted=True)
         #self.doc = add_document(self.envelope, create_upload_file(content, 'foo space foo.xml'))
         self.doc.upload_time = Mock(return_value=DateTime('2014/05/02 09:58:41 UTC'))
+        self.doc2.upload_time = Mock(return_value=DateTime('2014/05/02 09:58:42 UTC'))
 
         feedbacktext = 'feedback text'
         setattr(
@@ -999,6 +1002,8 @@ class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
         getattr(self.root.getPhysicalRoot(),
                 constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
         self.feed = add_feedback(self.envelope, feedbacktext, feedbackId='feedback1399024721')
+        self.feed2 = add_feedback(self.envelope, feedbacktext, feedbackId='feedback1399024722',
+                                  restricted=True, idx=1)
         self.link = add_hyperlink(self.envelope, 'hyper/link')
         self.envelope._content_registry_ping = Mock()
 
@@ -1006,8 +1011,8 @@ class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
         objsByType = self.envelope._getObjectsForContentRegistry()
         expectedObjsByType = {
             'Report Hyperlink': [self.link],
-            'Report Feedback': [self.feed],
-            'Report Document': [self.doc]
+            'Report Feedback': [self.feed, self.feed2],
+            'Report Document': [self.doc, self.doc2]
         }
         self.assertDictEqual(objsByType, expectedObjsByType)
 
@@ -1055,6 +1060,7 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         self.pingger = self.engine.contentRegistryPingger
         self.assertTrue(bool(self.pingger))
         ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async = Mock()
+        ContentRegistryPingger.ContentRegistryPingger.content_registry_ping = Mock()
         # add subobjects of type document, feedback, hyperlink
         content = 'test content for our document'
         self.doc = add_document(self.envelope, create_upload_file(content, 'foo.txt'))
@@ -1087,7 +1093,6 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
             self.link.absolute_url(),
         ])
         self.envelope.content_registry_ping()
-        mysleep(0.05)
 
         self.assertTrue(ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.called)
         call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.call_args
@@ -1109,7 +1114,6 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
             self.link.absolute_url(),
         ])
         self.envelope.content_registry_ping(delete=True)
-        mysleep(0.05)
 
         self.assertTrue(ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.called)
         call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.call_args
@@ -1122,3 +1126,24 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         self.assertEqual(len(kwargs), 1)
         ping_argument = kwargs.get('ping_argument')
         self.assertEqual(ping_argument, 'delete')
+
+    def test_ping_sync(self):
+        expectedUris = set([
+            self.envelope.absolute_url()+'/rdf',
+            self.doc.absolute_url(),
+            self.feed.absolute_url(),
+            self.link.absolute_url(),
+        ])
+        self.envelope.content_registry_ping(async=False)
+
+        self.assertTrue(ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called)
+        call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.call_args
+        args = call_args[0]
+        kwargs = call_args[1]
+        self.assertEqual(len(args), 1)
+        uris = args[0]
+        self.assertEqual(len(uris), 4)
+        self.assertEqual(set(uris), expectedUris)
+        self.assertEqual(len(kwargs), 1)
+        ping_argument = kwargs.get('ping_argument')
+        self.assertEqual(ping_argument, 'create')

@@ -4,14 +4,16 @@
 ##bind namespace=
 ##bind script=script
 ##bind subpath=traverse_subpath
-##parameters=obligation='http://rod.eionet.eu.int/obligations/37', released=1
-##title=Find envelopes for merging
+##parameters=obligation='http://rod.eionet.europa.eu/obligations/37', released=1, releasedafter='2000-01-01'
+##title=Find envelopes for merging (Used by SMR for Noise DF5)
 ##
 reslist = []
 
-for item in container.Catalog({'meta_type':'Report Envelope',
-   'dataflow_uris':obligation, 
-   'released':released}):
+for item in container.Catalog({'meta_type': 'Report Envelope',
+   'dataflow_uris': obligation, 
+   'released': released,
+   'reportingdate': {'query':DateTime(releasedafter), 'range':'min' }
+   }):
     obj = item.getObject()
     res = { 'url': obj.absolute_url(0),
         'title': obj.title,

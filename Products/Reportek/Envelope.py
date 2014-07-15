@@ -494,9 +494,12 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
 
 
     security.declareProtected('Release Envelopes', 'content_registry_ping')
-    def content_registry_ping(self, delete=False):
-        """Instruct ReportekEngine to ping CR
-        delete - don't ping for create+update but for delete
+    def content_registry_ping(self, delete=False, async=True):
+        """ Instruct ReportekEngine to ping CR
+            delete - don't ping for create+update but for delete
+            async - do it async or not; note that on delete, CR does not actually fetch envelope contents
+                from CDR thus we can make the CR calls async even in that case
+                when the envelope would not be available to the public anymore.
         """
         engine = getattr(self, ENGINE_ID)
         crPingger = engine.contentRegistryPingger
@@ -510,7 +513,10 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         innerObjsByMetatype = self._getObjectsForContentRegistry()
         # ping CR for inner uris
         uris.extend( o.absolute_url() for objs in innerObjsByMetatype.values() for o in objs )
-        crPingger.content_registry_ping_async(uris, ping_argument=ping_argument)
+        if async:
+            crPingger.content_registry_ping_async(uris, ping_argument=ping_argument)
+        else:
+            crPingger.content_registry_ping(uris, ping_argument=ping_argument)
         return
 
 
@@ -1103,6 +1109,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                         xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.upload_time().HTML4())
                         xmlChunk.append('<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>' % o.upload_time().HTML4())
                         xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % o.content_type)
+                        xmlChunk.append('<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>' % repr(o.isRestricted()).lower())
                         if o.content_type == "text/xml":
                             for location in RepUtils.xmlEncode(o.xml_schema_location).split():
                                 xmlChunk.append('<cr:xmlSchema rdf:resource="%s"/>' % location)
@@ -1127,6 +1134,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                         xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.releasedate.HTML4())
                         xmlChunk.append('<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</released>' % o.releasedate.HTML4())
                         xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % o.content_type)
+                        xmlChunk.append('<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>' % repr(o.isRestricted()).lower())
                         if o.document_id not in [None, 'xml']:
                             xmlChunk.append('<cr:feedbackFor rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(self.absolute_url()),
                                     RepUtils.xmlEncode(url_quote(o.document_id)) ))

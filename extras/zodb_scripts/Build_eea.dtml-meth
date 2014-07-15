@@ -1,0 +1,23 @@
+<dtml-var standard_html_header>
+<dtml-comment>
+<dtml-let ccs="['al','at','be','ba','bg','hr','cy','cz','dk','ee','fi','fr','de',
+'gr','hu','is','it','lv','li','lt','lu','mk','mt','mc','nl','no','pl','pt','ro',
+'cs','sk','si','es','se','ch','tr','bg' ]">
+</dtml-let>
+</dtml-comment>
+<dtml-let ccs="['cs','sk','si','es','se','ch','tr','gb']">
+<dtml-in ccs>
+<dtml-let countryup="_.string.upper(_['sequence-item'])">
+<dtml-with "_.getitem(_['sequence-item'])">
+<dtml-with "_.getitem('eea')">
+
+<dtml-call "manage_addProduct['Reportek'].manage_addCollection('Greenhouse Gas Monitoring Mechanism (AE2b)',
+'',
+'','','',
+countryup,'','185',allow_envelopes=1,useid='ae2b')">
+</dtml-with>
+</dtml-with>
+</dtml-let>
+</dtml-in>
+</dtml-let>
+<dtml-var standard_html_footer>

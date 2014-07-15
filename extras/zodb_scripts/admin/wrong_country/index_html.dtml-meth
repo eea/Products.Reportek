@@ -1,0 +1,31 @@
+<dtml-var standard_html_header>
+<div id="operations">
+	<ul>
+		<li><a href="/admin">Administration</a></li>
+		<li><a href="/">Frontpage</a></li>
+	</ul>
+</div>
+<dtml-call "REQUEST.set('otype', REQUEST.get('otype', 'collection'))">
+<h1><dtml-var "REQUEST['otype'].capitalize()">s allocated to the wrong country</h1>
+
+<dtml-call "REQUEST.set('first_wrong', 0)">
+<dtml-in "Catalog(meta_type=['Report ' + REQUEST['otype'].capitalize()])">
+	<dtml-let obj="Catalog.getobject(data_record_id_)"
+			top_country="top_collection(obj).country"
+			current_country="obj.country">
+		
+		<dtml-if "top_country != current_country">
+			<dtml-call "REQUEST.set('first_wrong', first_wrong+1)">
+			<dtml-if "first_wrong == 1"><ul></dtml-if>
+			<li><a href="<dtml-var "obj.absolute_url()">/manage_prop"><dtml-var "obj.title_or_id()"></a> (country <dtml-var current_country>, instead of <dtml-var top_country>)</li>
+		</dtml-if>
+	</dtml-let>
+</dtml-in>
+<dtml-if first_wrong>
+	</ul>
+<dtml-else>
+	<p>All <dtml-var "REQUEST['otype']">s in this site have the correct country</p>
+</dtml-if>
+
+
+<dtml-var standard_html_footer>

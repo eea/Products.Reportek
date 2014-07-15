@@ -1,0 +1,12 @@
+<dtml-var standard_html_header>
+<h2><dtml-var title_or_id></h2>
+<p>
+The best practice is to create a new collection for Eurowaternet water quantity directly under EEA requests. <br>
+The collection shall have the folowing properties:
+<ul>
+<li>Name: Water quantity</li>
+<li>Subobjects: Envelopes only</li>
+<li>Obligation: [EEA AWP] Water quantity
+</ul>
+You then create a new envelope, upload the data files and release the envelope.
+<dtml-var standard_html_footer>

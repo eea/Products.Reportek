@@ -1,0 +1,12 @@
+<dtml-var standard_html_header>
+<h2><dtml-var title_or_id> <dtml-var document_title></h2>
+
+<dtml-call "REQUEST.set('meta_type','Repository Referral')">
+
+<dtml-in Catalog>
+   <dtml-with "getObject()">
+
+<dtml-var sequence-number> - <a href="<dtml-var "getpath(data_record_id_)">"><dtml-if "title == ''">&dtml-id;<dtml-else>&dtml-title;</dtml-if></a><br />
+
+</dtml-with>
+</dtml-in>

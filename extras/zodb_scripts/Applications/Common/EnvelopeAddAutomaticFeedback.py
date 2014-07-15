@@ -5,14 +5,16 @@
 ##bind script=script
 ##bind subpath=traverse_subpath
 ##parameters=workitem_id, REQUEST
-##title=Automatic feedback when no documents uploaded or the delivery has blocking errors
+##title=Automatic feedback when no documents uploaded
 ##
-if 'feedback' + str(int(context.reportingdate)) in context.objectIds('Report Feedback'):
-    context.manage_delObjects('feedback' + str(int(context.reportingdate)))
+request = container.REQUEST
 
-context.manage_addFeedback(title="Data delivery was not acceptable!",
-    feedbacktext="You either did not upload any files in this envelope or your delivery did not pass the automatic quality assessment. Please correct the errors by modifying the questionnaire before submitting your delivery. The list of errors can be found from the Feedback report attached to the envelope.. Please go back to draft mode and fix these errors.", 
+if 'feedback' + str(int(context.getMySelf().reportingdate)) in context.getMySelf().objectIds('Report Feedback'):
+    context.getMySelf().manage_delObjects('feedback' + str(int(context.getMySelf().reportingdate)))
+
+context.getMySelf().manage_addFeedback(title="You didn't upload!",
+    feedbacktext="You are expected to upload a document in this envelope before releasing it.", 
     automatic=1)
-context.unrelease_envelope()
-    
-context.completeWorkitem(workitem_id)
+context.getMySelf().unrelease_envelope()
+
+context.getMySelf().completeWorkitem(workitem_id)

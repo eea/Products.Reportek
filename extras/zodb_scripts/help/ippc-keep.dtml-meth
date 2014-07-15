@@ -1,0 +1,2 @@
+<dtml-call "RESPONSE.redirect('http://eea.eionet.europa.eu/Public/irc/eionet-circle/reporting/library?l=/ippc')">
+

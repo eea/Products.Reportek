@@ -1,0 +1,1 @@
+<dtml-call "RESPONSE.redirect('http://circa.europa.eu/Public/irc/env/wfd/library?l=/framework_directive/nitrates_directive')">

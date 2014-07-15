@@ -1,60 +1,74 @@
-<tal:block content="structure here/standard_html_header" />
-<div style="margin:2em; padding: 1em 20%; border: 4px solid red; font-size: 1.3em; color:red; text-align:center">
-The BDR website is closed for upgrade until the 2014 reporting starts on 21 February
-</div>
-<p i18n:translate="">The Business Data Repository is like a bookshelf, with data reports on the environment as submitted by companies 
-to the European Union. The Business Data Repository is part of the Reportnet architecture maintained by EEA.</p>
+<tal:block content="structure python:here.standard_html_header(here, request, request.RESPONSE, layout_columns=3)" />
 
-<tal:block condition="python:here.REQUEST.has_key('AUTHENTICATED_USER') and here.REQUEST['AUTHENTICATED_USER'].getUserName() != 'Anonymous User'">
-	<h2 i18n:translate="">Click on the link below to start the reporting</h2>
-	<tal:block define="owncolls python:here.Catalog(id=here.REQUEST['AUTHENTICATED_USER'].getUserName())">
-	<ul tal:repeat="col owncolls">
-	<li><a tal:attributes="href col/getPath" tal:content="col/title" /></li>
-	</ul>
-	<ul tal:condition="python:len(owncolls) == 0">
-	<li>You have no reporting tasks</li>
-	</ul>
-	</tal:block>
+<p>The Central Data Repository is part of the ReportNet architecture.
+The Central Data Repository is like a bookshelf, with data reports on the environment
+as submitted to international clients.</p>
 
-	<tal:block define="colls here/collectionsICanSee">
-		<h2 i18n:translate="">Browse by obligation</h2>
-		<div>
-		<div class="dataflowbox" tal:repeat="col colls">
-		<img tal:attributes="src col/icon" alt="" /> <a tal:attributes="href col/id" tal:content="col/title_or_id" />
-		</div>
-		</div>
-	</tal:block>
+<p>Each country either has a collection
+(<img src="/misc_/Reportek/collection.gif" alt="collection icon" />)
+ for its deliveries or a referral
+(<img src="/misc_/Reportek/referral.gif" alt="referral icon" />) to
+a different preferred repository.
+The data reports within each country collection are arranged
+under the relevant reporting obligations or agreements.</p>
 
+<tal:block define="global eeams python:['at', 'be', 'bg', 'hr', 'cy', 'cz', 'dk', 
+                                'ee', 'fi', 'fr', 'de', 'gr', 'hu', 'is', 
+                                'ie', 'it', 'lv', 'li', 'lt', 'lu', 'mt',
+                                'nl', 'no', 'pl', 'pt', 'ro', 'sk', 'si',
+                                'es', 'se', 'ch', 'tr', 'gb'];
+            global noneea python:['al', 'ad', 'am', 'az', 'by', 'ba', 
+                                  'ge', 'gi', 'kz', 'xk', 'kg', 'mk', 'md',
+                                  'mc', 'ru', 'cs', 'rs', 'me', 'tj', 'tm', 'ua', 'uz' ];
+            global int_orgs python:['ec', 'birdredlist' ];
+            global collections python:here.objectValues('Report Collection');
+            dummy python:collections.sort(key=lambda x: x.title_or_id().lower())" />
 
-	<h2 i18n:translate="">Search deliveries</h2>
-	<ul>
-	<li><a href="searchdataflow" i18n:translate="">By obligation or country</a></li>
-	</ul>
-</tal:block>
+<fieldset>
+    <legend>EEA Member countries</legend>
+    <tal:block repeat="collection collections">
+        <div class="countrybox" tal:condition="python:collection.id in eeams">
+            <img tal:attributes="src collection/icon;" alt="" />
+            <a tal:attributes="href collection/id;" tal:content="collection/title_or_id" />
+        </div>
+    </tal:block>
+</fieldset>
 
-<tal:block condition="python:not (here.REQUEST.has_key('AUTHENTICATED_USER') and here.REQUEST['AUTHENTICATED_USER'].getUserName() != 'Anonymous User')">
-	<div class="note-msg">
-	<strong i18n:translate="">Note</strong>
-	<p i18n:translate="">If your company already has an account, please login here using the username and password provided to you by the BDR via email:</p>
-	<ul>
-	<li tal:content="structure here/buttons_loginout"></li>
-	</ul>
-	<p i18n:translate="">If your company does not yet own a login account please register here:</p>
-	<ul>
-	<li><a class="selfregister" href="/selfregister" i18n:translate="">Self-registration</a></li>
-	</ul>
-	<p><strong i18n:translate="">If you need to change the people with reporting rights for your company or the details of your company account please Login first.</strong></p>
-	</div>
-</tal:block>
+<fieldset>
+    <legend>Other countries and territories</legend>
+    <tal:block repeat="collection collections">
+        <div class="countrybox" tal:condition="python:collection.id in noneea">
+            <img tal:attributes="src collection/icon;" alt="" />
+            <a tal:attributes="href collection/id;" tal:content="collection/title_or_id" />
+        </div>
+    </tal:block>
+</fieldset>
 
-<br/>
-<br/>
+<fieldset>
+    <legend>International organisations</legend>
+    <tal:block repeat="collection collections">
+        <div class="countrybox" tal:condition="python:collection.id in int_orgs">
+            <img tal:attributes="src collection/icon;" alt="" />
+            <a tal:attributes="href collection/id;" tal:content="collection/title_or_id" />
+        </div>
+    </tal:block>
+</fieldset>
 
-<p style="clear:left" i18n:translate="">
-The <a href="/help/"><strong>On-line BDR help</strong></a> provides guidance on how to use the BDR for the reporting obligation. 
-In addition the <a href="/help/faq">Frequently Asked Questions (FAQ)</a> also include answers to problems often encountered by users. 
-If you still have problems please contact the BDR Helpdesk using the following email:  <a href="mailto:BDR.helpdesk@eea.europa.eu">BDR.helpdesk@eea.europa.eu</a>.
-The BDR helpdesk will provide assistance on: upload access for new companies, password problem, difficulties during upload procedure, download problems.
+<p style="clear:left">
+    <strong>Need help?</strong> 
+    First try the <a href="/help"><strong>On-line CDR help</strong></a>
+    then ask the Eionet helpdesk: <a href="mailto:helpdesk@eionet.europa.eu">helpdesk@eionet.europa.eu</a>.
 </p>
 
+<p>
+Eionet helpdesk will provide assistance for:
+  Upload access for new users,
+  Password problem,
+  Difficulties during upload procedure,
+  Download problems
+</p>
+<!--p>
+Suggestions for improving CDR:
+ <a href="mailto:eionet-group-ug-cdr@roles.eea.eionet.eu.int">mail to CDR user group</a>
+</p-->
 <tal:block content="structure here/standard_html_footer" />

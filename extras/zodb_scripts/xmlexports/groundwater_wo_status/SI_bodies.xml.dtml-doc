@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<dd8:GeneralCharacterisation xmlns:dd8="http://dd.eionet.europa.eu/namespace.jsp?ns_id=8" xsi:noNamespaceSchemaLocation="http://dd.eionet.europa.eu/GetSchema?id=TBL2551" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:dd37="http://dd.eionet.europa.eu/namespace.jsp?ns_id=37">
+	<dd8:Row>
+		<dd37:EWN-Code>SI001</dd37:EWN-Code>
+		<dd37:National_code/>
+		<dd37:Name>Mursko-Prekmursko Polje</dd37:Name>
+		<dd37:Reference_year/>
+		<dd37:Location/>
+		<dd37:Area>515</dd37:Area>
+		<dd37:Main_aquifer_type>porous media</dd37:Main_aquifer_type>
+		<dd37:Horizon>1</dd37:Horizon>
+		<dd37:Maximum_length>51</dd37:Maximum_length>
+		<dd37:Maximum_width>21</dd37:Maximum_width>
+		<dd37:Annual_precipitation_min>600</dd37:Annual_precipitation_min>
+		<dd37:Annual_precipitation_mean>850</dd37:Annual_precipitation_mean>
+		<dd37:Annual_precipitation_max>1040</dd37:Annual_precipitation_max>
+		<dd37:Stratigraphy>Quarternary</dd37:Stratigraphy>
+		<dd37:Petrographic_descript/>
+		<dd37:Thickness_min>7</dd37:Thickness_min>
+		<dd37:Thickness_mean>14</dd37:Thickness_mean>
+		<dd37:Thickness_max>82</dd37:Thickness_max>
+		<dd37:Overlaying_strata>quaternary deposits</dd37:Overlaying_strata>
+		<dd37:Depth_to_groundwater_min>1</dd37:Depth_to_groundwater_min>
+		<dd37:Depth_to_groundwater_mean>4</dd37:Depth_to_groundwater_mean>
+		<dd37:Depth_to_groundwater_max>10</dd37:Depth_to_groundwater_max>
+		<dd37:Main_recharge_source>No info</dd37:Main_recharge_source>
+		<dd37:Hydraulic_conductivity_min>1.50E-03</dd37:Hydraulic_conductivity_min>
+		<dd37:Hydraulic_conductivity_mean>3.00E-03</dd37:Hydraulic_conductivity_mean>
+		<dd37:Hydraulic_conductivity_max>4.30E-03</dd37:Hydraulic_conductivity_max>
+		<dd37:Annual_gw_level_amplitude_min>175</dd37:Annual_gw_level_amplitude_min>
+		<dd37:Annual_gw_level_amplitude_mean>176</dd37:Annual_gw_level_amplitude_mean>
+		<dd37:Annual_gw_level_amplitude_max>176</dd37:Annual_gw_level_amplitude_max>
+		<dd37:Land_use_arable_land>45</dd37:Land_use_arable_land>
+		<dd37:Land_use_permanent_crops>5</dd37:Land_use_permanent_crops>
+		<dd37:Land_use_permanent_pasture>12</dd37:Land_use_permanent_pasture>
+		<dd37:Land_use_forest_and_woodland>20</dd37:Land_use_forest_and_woodland>
+		<dd37:Land_use_urban_areas>15</dd37:Land_use_urban_areas>
+		<dd37:Land_use_other>3</dd37:Land_use_other>
+		<dd37:water_abstraction>yes</dd37:water_abstraction>
+		<dd37:water_abstraction_purpose>drinking water, irrigation</dd37:water_abstraction_purpose>
+		<dd37:artificial_recharge/>
+		<dd37:artificial_recharge_purpose/>
+		<dd37:main_infrastructures/>
+		<dd37:main_infrastructures_which/>
+		<dd37:associated_aquatic_ecosystems>yes</dd37:associated_aquatic_ecosystems>
+		<dd37:associated_aquatic_ecosystems_which/>
+	</dd8:Row>
+	<dd8:Row>
+		<dd37:EWN-Code>SI002</dd37:EWN-Code>
+		<dd37:National_code/>
+		<dd37:Name>Celjska Kotlina</dd37:Name>
+		<dd37:Reference_year/>
+		<dd37:Location/>
+		<dd37:Area>125.5</dd37:Area>
+		<dd37:Main_aquifer_type>porous media</dd37:Main_aquifer_type>
+		<dd37:Horizon>1</dd37:Horizon>
+		<dd37:Maximum_length>29</dd37:Maximum_length>
+		<dd37:Maximum_width>10</dd37:Maximum_width>
+		<dd37:Annual_precipitation_min>850</dd37:Annual_precipitation_min>
+		<dd37:Annual_precipitation_mean>1150</dd37:Annual_precipitation_mean>
+		<dd37:Annual_precipitation_max>1440</dd37:Annual_precipitation_max>
+		<dd37:Stratigraphy>Quarternary</dd37:Stratigraphy>
+		<dd37:Petrographic_descript/>
+		<dd37:Thickness_min>10</dd37:Thickness_min>
+		<dd37:Thickness_mean>13</dd37:Thickness_mean>
+		<dd37:Thickness_max>30</dd37:Thickness_max>
+		<dd37:Overlaying_strata>quaternary deposits</dd37:Overlaying_strata>
+		<dd37:Depth_to_groundwater_min>2</dd37:Depth_to_groundwater_min>
+		<dd37:Depth_to_groundwater_mean>2</dd37:Depth_to_groundwater_mean>
+		<dd37:Depth_to_groundwater_max>9</dd37:Depth_to_groundwater_max>
+		<dd37:Main_recharge_source>No info</dd37:Main_recharge_source>
+		<dd37:Hydraulic_conductivity_min/>
+		<dd37:Hydraulic_conductivity_mean>5.00E-03</dd37:Hydraulic_conductivity_mean>
+		<dd37:Hydraulic_conductivity_max/>
+		<dd37:Annual_gw_level_amplitude_min>259</dd37:Annual_gw_level_amplitude_min>
+		<dd37:Annual_gw_level_amplitude_mean>260</dd37:Annual_gw_level_amplitude_mean>
+		<dd37:Annual_gw_level_amplitude_max>261</dd37:Annual_gw_level_amplitude_max>
+		<dd37:Land_use_arable_land>28</dd37:Land_use_arable_land>
+		<dd37:Land_use_permanent_crops>17</dd37:Land_use_permanent_crops>
+		<dd37:Land_use_permanent_pasture>8</dd37:Land_use_permanent_pasture>
+		<dd37:Land_use_forest_and_woodland>21</dd37:Land_use_forest_and_woodland>
+		<dd37:Land_use_urban_areas>21</dd37:Land_use_urban_areas>
+		<dd37:Land_use_other>5</dd37:Land_use_other>
+		<dd37:water_abstraction>yes</dd37:water_abstraction>
+		<dd37:water_abstraction_purpose>drinking water, industrial water</dd37:water_abstraction_purpose>
+		<dd37:artificial_recharge>yes</dd37:artificial_recharge>
+		<dd37:artificial_recharge_purpose/>
+		<dd37:main_infrastructures/>
+		<dd37:main_infrastructures_which/>
+		<dd37:associated_aquatic_ecosystems>yes</dd37:associated_aquatic_ecosystems>
+		<dd37:associated_aquatic_ecosystems_which/>
+	</dd8:Row>
+	<dd8:Row>
+		<dd37:EWN-Code>SI003</dd37:EWN-Code>
+		<dd37:National_code/>
+		<dd37:Name>Ljubljansko polje</dd37:Name>
+		<dd37:Reference_year/>
+		<dd37:Location/>
+		<dd37:Area>95</dd37:Area>
+		<dd37:Main_aquifer_type>porous media</dd37:Main_aquifer_type>
+		<dd37:Horizon>1</dd37:Horizon>
+		<dd37:Maximum_length>18</dd37:Maximum_length>
+		<dd37:Maximum_width>8</dd37:Maximum_width>
+		<dd37:Annual_precipitation_min>1150</dd37:Annual_precipitation_min>
+		<dd37:Annual_precipitation_mean>1400</dd37:Annual_precipitation_mean>
+		<dd37:Annual_precipitation_max>1850</dd37:Annual_precipitation_max>
+		<dd37:Stratigraphy>Quarternary</dd37:Stratigraphy>
+		<dd37:Petrographic_descript/>
+		<dd37:Thickness_min>15</dd37:Thickness_min>
+		<dd37:Thickness_mean>40</dd37:Thickness_mean>
+		<dd37:Thickness_max>70</dd37:Thickness_max>
+		<dd37:Overlaying_strata>quaternary deposits</dd37:Overlaying_strata>
+		<dd37:Depth_to_groundwater_min>2</dd37:Depth_to_groundwater_min>
+		<dd37:Depth_to_groundwater_mean>21</dd37:Depth_to_groundwater_mean>
+		<dd37:Depth_to_groundwater_max>30</dd37:Depth_to_groundwater_max>
+		<dd37:Main_recharge_source>No info</dd37:Main_recharge_source>
+		<dd37:Hydraulic_conductivity_min/>
+		<dd37:Hydraulic_conductivity_mean>1.00E-02</dd37:Hydraulic_conductivity_mean>
+		<dd37:Hydraulic_conductivity_max/>
+		<dd37:Annual_gw_level_amplitude_min>277</dd37:Annual_gw_level_amplitude_min>
+		<dd37:Annual_gw_level_amplitude_mean>278</dd37:Annual_gw_level_amplitude_mean>
+		<dd37:Annual_gw_level_amplitude_max>280</dd37:Annual_gw_level_amplitude_max>
+		<dd37:Land_use_arable_land>22</dd37:Land_use_arable_land>
+		<dd37:Land_use_permanent_crops>4</dd37:Land_use_permanent_crops>
+		<dd37:Land_use_permanent_pasture>9</dd37:Land_use_permanent_pasture>
+		<dd37:Land_use_forest_and_woodland>10</dd37:Land_use_forest_and_woodland>
+		<dd37:Land_use_urban_areas>45</dd37:Land_use_urban_areas>
+		<dd37:Land_use_other>10</dd37:Land_use_other>
+		<dd37:water_abstraction>yes</dd37:water_abstraction>
+		<dd37:water_abstraction_purpose>drinking water, industrial water</dd37:water_abstraction_purpose>
+		<dd37:artificial_recharge/>
+		<dd37:artificial_recharge_purpose/>
+		<dd37:main_infrastructures>yes</dd37:main_infrastructures>
+		<dd37:main_infrastructures_which>urbanisation - drainage, river regulation, morphological changes</dd37:main_infrastructures_which>
+		<dd37:associated_aquatic_ecosystems>yes</dd37:associated_aquatic_ecosystems>
+		<dd37:associated_aquatic_ecosystems_which/>
+	</dd8:Row>
+	<dd8:Row>
+		<dd37:EWN-Code>SI004</dd37:EWN-Code>
+		<dd37:National_code/>
+		<dd37:Name>Krsko-Brezisko polje</dd37:Name>
+		<dd37:Reference_year/>
+		<dd37:Location/>
+		<dd37:Area>243.5</dd37:Area>
+		<dd37:Main_aquifer_type>porous media</dd37:Main_aquifer_type>
+		<dd37:Horizon>2</dd37:Horizon>
+		<dd37:Maximum_length>35</dd37:Maximum_length>
+		<dd37:Maximum_width>22</dd37:Maximum_width>
+		<dd37:Annual_precipitation_min>1000</dd37:Annual_precipitation_min>
+		<dd37:Annual_precipitation_mean>1200</dd37:Annual_precipitation_mean>
+		<dd37:Annual_precipitation_max>1330</dd37:Annual_precipitation_max>
+		<dd37:Stratigraphy>Quarternary</dd37:Stratigraphy>
+		<dd37:Petrographic_descript/>
+		<dd37:Thickness_min>3</dd37:Thickness_min>
+		<dd37:Thickness_mean/>
+		<dd37:Thickness_max>18</dd37:Thickness_max>
+		<dd37:Overlaying_strata>marl, clay</dd37:Overlaying_strata>
+		<dd37:Depth_to_groundwater_min>0</dd37:Depth_to_groundwater_min>
+		<dd37:Depth_to_groundwater_mean>6</dd37:Depth_to_groundwater_mean>
+		<dd37:Depth_to_groundwater_max>18</dd37:Depth_to_groundwater_max>
+		<dd37:Main_recharge_source>No info</dd37:Main_recharge_source>
+		<dd37:Hydraulic_conductivity_min/>
+		<dd37:Hydraulic_conductivity_mean>2.00E-03</dd37:Hydraulic_conductivity_mean>
+		<dd37:Hydraulic_conductivity_max/>
+		<dd37:Annual_gw_level_amplitude_min>145</dd37:Annual_gw_level_amplitude_min>
+		<dd37:Annual_gw_level_amplitude_mean>145</dd37:Annual_gw_level_amplitude_mean>
+		<dd37:Annual_gw_level_amplitude_max>148</dd37:Annual_gw_level_amplitude_max>
+		<dd37:Land_use_arable_land>32</dd37:Land_use_arable_land>
+		<dd37:Land_use_permanent_crops>8</dd37:Land_use_permanent_crops>
+		<dd37:Land_use_permanent_pasture>7</dd37:Land_use_permanent_pasture>
+		<dd37:Land_use_forest_and_woodland>44</dd37:Land_use_forest_and_woodland>
+		<dd37:Land_use_urban_areas>6</dd37:Land_use_urban_areas>
+		<dd37:Land_use_other>3</dd37:Land_use_other>
+		<dd37:water_abstraction>yes</dd37:water_abstraction>
+		<dd37:water_abstraction_purpose>drinking water, irrigation</dd37:water_abstraction_purpose>
+		<dd37:artificial_recharge/>
+		<dd37:artificial_recharge_purpose/>
+		<dd37:main_infrastructures/>
+		<dd37:main_infrastructures_which/>
+		<dd37:associated_aquatic_ecosystems>yes</dd37:associated_aquatic_ecosystems>
+		<dd37:associated_aquatic_ecosystems_which/>
+	</dd8:Row>
+	<dd8:Row>
+		<dd37:EWN-Code>SI005</dd37:EWN-Code>
+		<dd37:National_code/>
+		<dd37:Name>RIZANA spring</dd37:Name>
+		<dd37:Reference_year/>
+		<dd37:Location/>
+		<dd37:Area>189</dd37:Area>
+		<dd37:Main_aquifer_type>karstic media</dd37:Main_aquifer_type>
+		<dd37:Horizon>1</dd37:Horizon>
+		<dd37:Maximum_length>17</dd37:Maximum_length>
+		<dd37:Maximum_width>13</dd37:Maximum_width>
+		<dd37:Annual_precipitation_min>1100</dd37:Annual_precipitation_min>
+		<dd37:Annual_precipitation_mean>1600</dd37:Annual_precipitation_mean>
+		<dd37:Annual_precipitation_max>2150</dd37:Annual_precipitation_max>
+		<dd37:Stratigraphy>Cretaceous</dd37:Stratigraphy>
+		<dd37:Petrographic_descript/>
+		<dd37:Thickness_min>7</dd37:Thickness_min>
+		<dd37:Thickness_mean/>
+		<dd37:Thickness_max>82</dd37:Thickness_max>
+		<dd37:Overlaying_strata>carbonatic soil on limestone</dd37:Overlaying_strata>
+		<dd37:Depth_to_groundwater_min>1</dd37:Depth_to_groundwater_min>
+		<dd37:Depth_to_groundwater_mean/>
+		<dd37:Depth_to_groundwater_max>10</dd37:Depth_to_groundwater_max>
+		<dd37:Main_recharge_source>No info</dd37:Main_recharge_source>
+		<dd37:Hydraulic_conductivity_min/>
+		<dd37:Hydraulic_conductivity_mean/>
+		<dd37:Hydraulic_conductivity_max>4.30E-03</dd37:Hydraulic_conductivity_max>
+		<dd37:Annual_gw_level_amplitude_min>175</dd37:Annual_gw_level_amplitude_min>
+		<dd37:Annual_gw_level_amplitude_mean/>
+		<dd37:Annual_gw_level_amplitude_max>176</dd37:Annual_gw_level_amplitude_max>
+		<dd37:Land_use_arable_land>6</dd37:Land_use_arable_land>
+		<dd37:Land_use_permanent_crops/>
+		<dd37:Land_use_permanent_pasture>18</dd37:Land_use_permanent_pasture>
+		<dd37:Land_use_forest_and_woodland>61</dd37:Land_use_forest_and_woodland>
+		<dd37:Land_use_urban_areas>3</dd37:Land_use_urban_areas>
+		<dd37:Land_use_other>12</dd37:Land_use_other>
+		<dd37:water_abstraction>yes</dd37:water_abstraction>
+		<dd37:water_abstraction_purpose>drinking water</dd37:water_abstraction_purpose>
+		<dd37:artificial_recharge/>
+		<dd37:artificial_recharge_purpose/>
+		<dd37:main_infrastructures/>
+		<dd37:main_infrastructures_which/>
+		<dd37:associated_aquatic_ecosystems/>
+		<dd37:associated_aquatic_ecosystems_which/>
+	</dd8:Row>
+</dd8:GeneralCharacterisation>
