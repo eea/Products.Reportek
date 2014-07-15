@@ -62,6 +62,7 @@ import zip_content
 from zope.interface import implements
 from interfaces import IEnvelope
 from paginator import DiggPaginator, EmptyPage, InvalidPage
+import transaction
 
 
 ZIP_CACHE_THRESHOLD = 100000000 # 100 MB
@@ -545,7 +546,11 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             # update ZCatalog
             self.reindex_object()
             self._invalidate_zip_cache()
-
+            # make this change visible right away (for the CR ping following this call for instance)
+            # otherwise the envelope will really be released only after the calling view
+            # of this function will finish, and ZPublisher will commit automatically
+            transaction.commit()
+            logger.debug("Releasing Envelope: %s" % self.absolute_url())
         if self.REQUEST is not None:
             return self.messageDialog(
                             message="The envelope has now been released to the public!",
@@ -569,6 +574,8 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             self.released = 0
             # update ZCatalog
             self.reindex_object()
+            transaction.commit()
+            logger.debug("UNReleasing Envelope: %s" % self.absolute_url())
         if self.REQUEST is not None:
             return self.messageDialog(
                             message="The envelope is no longer available to the public!",
