@@ -1,4 +1,6 @@
 <span tal:replace="structure here/standard_html_header" />
+
+<!--TODO: put in <head>-->
 <script src="++resource++static/jquery-1.8.2.min.js"></script>
 <script src="++resource++static/select2-3.5.0/select2.js"></script>
 <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
@@ -9,33 +11,54 @@
 <div id="tabbedmenu">
 	<ul>
 		<li id="currenttab"><span>Grouped by path</span></li>
-		<li><a href=/admin/list_reporters/by_person>Grouped by person</a></li>
+		<li><a href="#">Grouped by person</a></li>
 	</ul>
 </div>
 
 <div id="tabbedmenuend"></div>
 <h1>Filter by obligation</h1>
 
-<form method="get" tal:define="data here/ReportekEngine/dataflow_table_grouped; groups python:data[0]; items python:data[1]">
-	<select id="obligations" name="obligations" multiple="multiple" style="width:800px">
-		<tal:block tal:repeat="group groups">
-			<optgroup tal:attributes="label python:test(len(group)<=80, group, '%s ...' % group[:77])">
-				<tal:block tal:repeat="item python:items[group]">
-					<option tal:define="terminated python:item.has_key('terminated') and item['terminated']=='1'"
-					        tal:attributes="value item/uri; class python:test(terminated, 'terminated', None); selected python:here.get_obligations_filter() and item['uri'] in here.get_obligations_filter()">
-						[<span tal:replace="python:' '.join(item['SOURCE_TITLE'].split()[0:2])" />]
-						<span tal:replace="python:test(len(item['TITLE'])<=80, item['TITLE'], '%s ...' % item['TITLE'][:77])" />
-						<tal:block tal:condition="terminated"> (<tal:block i18n:translate="">terminated</tal:block>)</tal:block>
+<form method="get">
+	<label for="obligations">Obligation</label>
+	<select id="obligations" name="obligations" multiple="multiple">
+		<tal:block tal:repeat="group here/obligation_groups">
+			<optgroup tal:attributes="label group">
+				<tal:block tal:repeat="obligation python:here.obligations(group)">
+					<option tal:attributes="value obligation/uri;
+											class python:'terminated' if here.is_terminated(obligation) else nothing;
+											selected python:'selected' if here.is_selected(obligation) else nothing">
+						[<span tal:replace="python:here.source_title_prefix(obligation)" />]
+						<span tal:replace="python:here.shortened_obligation_title(obligation)" />
+						<tal:block tal:condition="python:here.is_terminated(obligation)">
+							(<tal:block i18n:translate="">terminated</tal:block>)
+						</tal:block>
 					</option>
 				</tal:block>
 			</optgroup>
 		</tal:block>
 	</select>
+
+	<label for="roles">Role</label>
+	<select id="roles">
+		<option>Auditor</option>
+		<option>Client</option>
+		<option>Reporter</option>
+		<option>Collaborator</option>
+	</select>
+
+	<br />
 	<input type="submit" value="Filter" />
 </form>
 
 <script>
-	$("#obligations").select2();
+	$("#obligations").select2({
+		allowClear: true,
+		width: 200
+	});
+	$("#roles").select2({
+		allowClear: true,
+		width: 200
+	});
 </script>
 
 <table class="datatable">
@@ -66,7 +89,5 @@
 		</td>
 	</tr>
 </table>
-
-
 
 <span tal:replace="structure here/standard_html_footer" />

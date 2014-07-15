@@ -32,6 +32,31 @@ class ReportekUtilities(Folder):
 
         return [type for type in Products.meta_types if type['name'] in types]
 
+    def obligation_groups(self):
+        return self.ReportekEngine.dataflow_table_grouped()[0]
+
+    def obligations(self, group):
+        return self.ReportekEngine.dataflow_table_grouped()[1][group]
+
+    def obligation_src_title(self, obligation):
+        return obligation['SOURCE_TITLE']
+
+    def is_terminated(self, obligation):
+        return obligation.get('terminated', '0') == '1'
+
+    def is_selected(self, obligation):
+        return obligation['uri'] in self.get_obligations_filter()
+
+    def source_title_prefix(self, obligation):
+        return ' '.join(obligation['SOURCE_TITLE'].split()[0:2])
+
+    def shortened_obligation_title(self, obligation, max_len=80):
+        title = obligation['TITLE']
+        if len(title) <= max_len:
+            return title
+
+        return "%s..." % title[:max_len-3]
+
     def get_obligation_title(self, obligation_uri):
         return self.dataflow_lookup(obligation_uri)['TITLE']
 
@@ -68,8 +93,8 @@ class ReportekUtilities(Folder):
     def get_person_uri(self, person):
         return 'http://www.eionet.europa.eu/directory/user?uid=%s' % person
 
-    list_reporters = PageTemplateFile('zpt/admin/list_reporters', globals())
-    security.declareProtected(view_management_screens, 'list_reporters')
+    search = PageTemplateFile('zpt/admin/search', globals())
+    security.declareProtected(view_management_screens, 'search')
 
     def get_obligations_filter(self):
         obligations_filter = self.REQUEST.get('obligations', [])
