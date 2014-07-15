@@ -15,7 +15,7 @@ import transaction
 
 from time import strftime
 
-def update(app, outName=None):
+def update(app, outName='blob_compression.log'):
     out = sys.stderr
     if outName:
         out = open(outName, 'a')
@@ -62,12 +62,10 @@ def update(app, outName=None):
             transaction.commit()
         except Exception as e:
             try:
-                #sys.stderr.write("On %s\n" % ob.absolute_url())
                 out.write("On %s\n" % ob.absolute_url())
             except:
                 pass
-            #sys.stderr.write(str(e.args) + '\n')
-            out.write(str(e) + '\n' + str(e.args) + '\n')
+            out.write(repr(e) + '\n')
             transaction.abort()
     if outName:
         out.write(" --- End log (%s) ---" % strftime("%a, %d %b %Y %H:%M:%S"))
