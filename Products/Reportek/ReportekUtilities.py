@@ -15,13 +15,14 @@ class ReportekUtilities(Folder):
     meta_type = 'ReportekUtilities'
     security = ClassSecurityInfo()
 
-    results_per_page = 20
-
     def __init__(self):
         self.id = REPORTEK_UTILITIES
 
     security.declareProtected(view_management_screens, 'index_html')
     index_html = PageTemplateFile('zpt/admin', globals())
+
+    search = PageTemplateFile('zpt/admin/search', globals())
+    security.declareProtected(view_management_screens, 'search')
 
     def all_meta_types(self, interfaces=None):
         """
@@ -93,18 +94,9 @@ class ReportekUtilities(Folder):
     def get_person_uri(self, person):
         return 'http://www.eionet.europa.eu/directory/user?uid=%s' % person
 
-    search = PageTemplateFile('zpt/admin/search', globals())
-    security.declareProtected(view_management_screens, 'search')
-
     def get_obligations_filter(self):
         obligations_filter = self.REQUEST.get('obligations', [])
         if not isinstance(obligations_filter, list):
             obligations_filter = [obligations_filter]
         return obligations_filter
-
-    def get_query_start(self):
-        return self.get_page_num() * self.results_per_page
-
-    def get_page_num(self):
-        return int(self.REQUEST.get('page_num', 1))
 
