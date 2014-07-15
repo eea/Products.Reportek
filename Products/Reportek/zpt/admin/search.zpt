@@ -39,11 +39,18 @@
 	</select>
 
 	<label for="roles">Role</label>
-	<select id="roles">
-		<option>Auditor</option>
-		<option>Client</option>
-		<option>Reporter</option>
-		<option>Collaborator</option>
+	<select id="roles" name="roles" multiple="multiple">
+		<option value="auditor">Auditor</option>
+		<option value="client">Client</option>
+		<option value="reporter">Reporter</option>
+		<option value="collaborator">Collaborator</option>
+	</select>
+
+	<label for="countries">Countries</label>
+	<select id="countries" name="countries" multiple="multiple">
+		<option tal:repeat="country here/localities_rod"
+		        tal:content="python:country['name']"
+				tal:attributes="value python:country['iso']"/>
 	</select>
 
 	<br />
@@ -52,11 +59,12 @@
 
 <script>
 	$("#obligations").select2({
-		allowClear: true,
 		width: 200
 	});
 	$("#roles").select2({
-		allowClear: true,
+		width: 200
+	});
+	$("#countries").select2({
 		width: 200
 	});
 </script>
@@ -77,13 +85,13 @@
 			<ul>
 				<li tal:repeat="obligation_uri python:item['obligation_uris']">
 					<a tal:attributes="href obligation_uri"
-				       tal:content="python:here.get_obligation_title(obligation_uri)">
+				       tal:content="python:here.obligation_title(obligation_uri)">
 				     </a>
 				</li>
 			</ul>
 		</td>
 		<td>
-			<a tal:repeat="person python:item['persons']" tal:attributes="href python:here.get_person_uri(person)"
+			<a tal:repeat="person python:item['persons']" tal:attributes="href python:here.person_uri(person)"
 			   tal:content="person">
 			</a>
 		</td>
