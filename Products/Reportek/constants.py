@@ -41,7 +41,7 @@ ERROR100 = ''
 
 #FIXME: Delete
 #Labels that appear on the Web pages
-# geographical coverage labels 
+# geographical coverage labels
 COVERAGE_LABEL = 'Coverage'             # appears on the add/edit forms
 COVERAGE_NOTE_LABEL = 'Coverage note'   # appears on the add/edit forms
 COVERAGE_LOCATION_LABEL = 'Location'    # appears on the view forms

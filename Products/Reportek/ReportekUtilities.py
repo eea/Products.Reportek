@@ -3,7 +3,6 @@ from AccessControl import ClassSecurityInfo
 import Products
 from zope.interface import implementer
 
-from constants import REPORTEK_UTILITIES
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl.Permissions import view_management_screens
 from interfaces import IReportekUtilities
@@ -12,17 +11,17 @@ from interfaces import IReportekUtilities
 @implementer(IReportekUtilities)
 class ReportekUtilities(Folder):
 
-    meta_type = 'ReportekUtilities'
     security = ClassSecurityInfo()
 
-    def __init__(self):
-        self.id = REPORTEK_UTILITIES
+    def __init__(self, id, title):
+        self.id = id
+        self.title = title
 
     security.declareProtected(view_management_screens, 'index_html')
     index_html = PageTemplateFile('zpt/admin', globals())
 
-    search = PageTemplateFile('zpt/admin/search', globals())
     security.declareProtected(view_management_screens, 'search')
+    search = PageTemplateFile('zpt/admin/search', globals())
 
     def all_meta_types(self, interfaces=None):
         """
