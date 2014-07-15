@@ -46,7 +46,7 @@ class ReportekUtilities(Folder):
         return obligation.get('terminated', '0') == '1'
 
     def is_selected(self, obligation):
-        return obligation['uri'] in self.get_obligations_filter()
+        return obligation['uri'] in self.obligations_filter()
 
     def source_title_prefix(self, obligation):
         return ' '.join(obligation['SOURCE_TITLE'].split()[0:2])
@@ -58,7 +58,7 @@ class ReportekUtilities(Folder):
 
         return "%s..." % title[:max_len-3]
 
-    def get_obligation_title(self, obligation_uri):
+    def obligation_title(self, obligation_uri):
         return self.dataflow_lookup(obligation_uri)['TITLE']
 
     def get_data(self, role):
@@ -66,7 +66,7 @@ class ReportekUtilities(Folder):
             return cmp(p1['path_prefix'], p2['path_prefix'])
 
         query = {'meta_type': 'Report Collection'}
-        obligations_filter = self.get_obligations_filter()
+        obligations_filter = self.obligations_filter()
         if obligations_filter:
             query['dataflow_uris'] = obligations_filter
 
@@ -89,12 +89,20 @@ class ReportekUtilities(Folder):
     def has_common_elements(self, l1, l2):
         return bool(set(l1) & set(l2))
 
-    def get_person_uri(self, person):
+    def person_uri(self, person):
         return 'http://www.eionet.europa.eu/directory/user?uid=%s' % person
 
-    def get_obligations_filter(self):
-        obligations_filter = self.REQUEST.get('obligations', [])
-        if not isinstance(obligations_filter, list):
-            obligations_filter = [obligations_filter]
-        return obligations_filter
+    def obligations_filter(self):
+        return self._get_filter('obligations')
 
+    def countries_filter(self):
+        return self._get_filter('countries')
+
+    def roles_filter(self):
+        return self._get_filter('roles')
+
+    def _get_filter(self, filter_name):
+        req_filter = self.REQUEST.get(filter_name, [])
+        if not isinstance(req_filter, list):
+            req_filter = [req_filter]
+        return req_filter
