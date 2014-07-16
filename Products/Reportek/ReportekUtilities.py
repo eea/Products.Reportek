@@ -18,7 +18,7 @@ class ReportekUtilities(Folder):
         self.title = title
 
     security.declareProtected(view_management_screens, 'search')
-    search = PageTemplateFile('zpt/admin/search', globals())
+    search = PageTemplateFile('zpt/utilities/search', globals())
 
     def all_meta_types(self):
         types = ['Script (Python)', 'Folder', 'Page Template']
