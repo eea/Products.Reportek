@@ -37,7 +37,8 @@ class ReportekUtilities(Folder):
         return obligation.get('terminated', '0') == '1'
 
     def is_selected(self, obligation):
-        return obligation['uri'] in self.obligations_filter()
+        return obligation['uri'] in map(self.get_obligation_uri,
+                                        self.obligations_filter())
 
     def source_title_prefix(self, obligation):
         return ' '.join(obligation['SOURCE_TITLE'].split()[0:2])
@@ -49,17 +50,26 @@ class ReportekUtilities(Folder):
 
         return "%s..." % title[:max_len-3]
 
+    def obligation_id(self, obligation_uri):
+        return obligation_uri[obligation_uri.rfind('/')+1:]
+
+    def get_obligation_uri(self, obligation_id):
+        return 'http://rod.eionet.europa.eu/obligations/%s' % obligation_id
+
     def obligation_title(self, obligation_uri):
         return self.dataflow_lookup(obligation_uri)['TITLE']
 
-    def get_data(self, role):
+    def get_data(self):
         def path_compare(p1, p2):
             return cmp(p1['path_prefix'], p2['path_prefix'])
 
         query = {'meta_type': 'Report Collection'}
         obligations_filter = self.obligations_filter()
         if obligations_filter:
-            query['dataflow_uris'] = obligations_filter
+            query['dataflow_uris'] = map(self.get_obligation_uri,
+                                         obligations_filter)
+
+        role = self.selected_role()
 
         brains = self.Catalog(query)
         results = []
@@ -89,11 +99,17 @@ class ReportekUtilities(Folder):
     def countries_filter(self):
         return self._get_filter('countries')
 
-    def roles_filter(self):
-        return self._get_filter('roles')
+    def selected_role(self):
+        return self.REQUEST.get('role', 'Auditor')
 
     def _get_filter(self, filter_name):
         req_filter = self.REQUEST.get(filter_name, [])
         if not isinstance(req_filter, list):
             req_filter = [req_filter]
         return req_filter
+
+    def get_roles(self):
+        roles = list(self.valid_roles())
+        filter(roles.remove,
+                ['Authenticated', 'Anonymous', 'Manager', 'Owner'])
+        return sorted(roles)

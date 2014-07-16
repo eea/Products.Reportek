@@ -9,93 +9,93 @@
 
 <a name="bypath"></a>
 <div id="tabbedmenu">
-	<ul>
-		<li id="currenttab"><span>Grouped by path</span></li>
-		<li><a href="#">Grouped by person</a></li>
-	</ul>
+  <ul>
+    <li id="currenttab"><span>Grouped by path</span></li>
+    <li><a href="#">Grouped by person</a></li>
+  </ul>
 </div>
 
 <div id="tabbedmenuend"></div>
-<h1>Filter by obligation</h1>
+<h1>Filters</h1>
 
 <form method="get">
-	<label for="obligations">Obligation</label>
-	<select id="obligations" name="obligations" multiple="multiple">
-		<tal:block tal:repeat="group here/obligation_groups">
-			<optgroup tal:attributes="label group">
-				<tal:block tal:repeat="obligation python:here.obligations(group)">
-					<option tal:attributes="value obligation/uri;
+  <label for="obligations">Obligation</label>
+  <select id="obligations" name="obligations" multiple="multiple">
+    <tal:block tal:repeat="group here/obligation_groups">
+      <optgroup tal:attributes="label group">
+        <tal:block tal:repeat="obligation python:here.obligations(group)">
+          <option tal:attributes="value python:here.obligation_id(obligation['uri']);
 											class python:'terminated' if here.is_terminated(obligation) else nothing;
 											selected python:'selected' if here.is_selected(obligation) else nothing">
-						[<span tal:replace="python:here.source_title_prefix(obligation)" />]
-						<span tal:replace="python:here.shortened_obligation_title(obligation)" />
-						<tal:block tal:condition="python:here.is_terminated(obligation)">
-							(<tal:block i18n:translate="">terminated</tal:block>)
-						</tal:block>
-					</option>
-				</tal:block>
-			</optgroup>
-		</tal:block>
-	</select>
+            [<span tal:replace="python:here.source_title_prefix(obligation)" />]
+            <span tal:replace="python:here.shortened_obligation_title(obligation)" />
+            <tal:block tal:condition="python:here.is_terminated(obligation)">
+              (<tal:block i18n:translate="">terminated</tal:block>)
+            </tal:block>
+          </option>
+        </tal:block>
+      </optgroup>
+    </tal:block>
+  </select>
 
-	<label for="roles">Role</label>
-	<select id="roles" name="roles" multiple="multiple">
-		<option value="auditor">Auditor</option>
-		<option value="client">Client</option>
-		<option value="reporter">Reporter</option>
-		<option value="collaborator">Collaborator</option>
-	</select>
+  <label for="role">Role</label>
+  <select id="role" name="role">
+    <option tal:repeat="role here/get_roles"
+            tal:content="role"
+            tal:attributes="selected python:'selected' if here.selected_role() == role else nothing">
+    </option>
+  </select>
 
-	<label for="countries">Countries</label>
-	<select id="countries" name="countries" multiple="multiple">
-		<option tal:repeat="country here/localities_rod"
-		        tal:content="python:country['name']"
-				tal:attributes="value python:country['iso']"/>
-	</select>
+  <label for="countries">Countries</label>
+  <select id="countries" name="countries" multiple="multiple">
+    <option tal:repeat="country here/localities_rod"
+            tal:content="python:country['name']"
+            tal:attributes="value python:country['iso']"></option>
+  </select>
 
-	<br />
-	<input type="submit" value="Filter" />
+  <br />
+  <input type="submit" value="Filter" />
 </form>
 
 <script>
-	$("#obligations").select2({
-		width: 200
-	});
-	$("#roles").select2({
-		width: 200
-	});
-	$("#countries").select2({
-		width: 200
-	});
+  $("#obligations").select2({
+    width: 200
+  });
+  $("#role").select2({
+    width: 200
+  });
+  $("#countries").select2({
+    width: 200
+  });
 </script>
 
 <table class="datatable">
-	<tr>
-		<th>Path</th>
-		<th>Last change</th>
-		<th>Obligations</th>
-		<th>Reporters</th>
-	</tr>
+  <tr>
+    <th>Path</th>
+    <th>Last change</th>
+    <th>Obligations</th>
+    <th tal:content="python:here.selected_role() + 's'">Reporters</th>
+  </tr>
 
-	<tr tal:repeat="item python:here.get_data('Reporter')">
-		<td><a tal:attributes="href python:item['path_prefix'] + '/' + item['path_suffix']"
-		       tal:content="python:item['path_suffix'][:30]"></a></td>
-		<td tal:content="python:item['last_change']"></td>
-		<td tal:attributes="title python:str(len(item['obligation_uris'])) + ' obligation(s)'">
-			<ul>
-				<li tal:repeat="obligation_uri python:item['obligation_uris']">
-					<a tal:attributes="href obligation_uri"
-				       tal:content="python:here.obligation_title(obligation_uri)">
-				     </a>
-				</li>
-			</ul>
-		</td>
-		<td>
-			<a tal:repeat="person python:item['persons']" tal:attributes="href python:here.person_uri(person)"
-			   tal:content="person">
-			</a>
-		</td>
-	</tr>
+  <tr tal:repeat="item here/get_data">
+    <td><a tal:attributes="href python:item['path_prefix'] + '/' + item['path_suffix']"
+           tal:content="python:item['path_suffix'][:30]"></a></td>
+    <td tal:content="python:item['last_change']"></td>
+    <td tal:attributes="title python:str(len(item['obligation_uris'])) + ' obligation(s)'">
+      <ul>
+        <li tal:repeat="obligation_uri python:item['obligation_uris']">
+          <a tal:attributes="href obligation_uri"
+             tal:content="python:here.obligation_title(obligation_uri)">
+          </a>
+        </li>
+      </ul>
+    </td>
+    <td>
+      <a tal:repeat="person python:item['persons']" tal:attributes="href python:here.person_uri(person)"
+         tal:content="person">
+      </a>
+    </td>
+  </tr>
 </table>
 
 <span tal:replace="structure here/standard_html_footer" />
