@@ -5,37 +5,46 @@ import json
 
 class DataSources(BrowserView):
     def __init__(self, context, request):
+        """
+        """
         super(DataSources, self).__init__(context, request)
-        pass
 
     def process(self):
         if self.context.REQUEST['REQUEST_METHOD'] == 'GET':
+            """ form parameters
             """
-            search[value]
-            draw
-            start
-            length
+            obligation = self.context.REQUEST.get('obligation', None)
+            role = self.context.REQUEST.get('role', None)
+            #default for country is Romania only for test
+            country = self.context.REQUEST.get('country', 'Romania')
 
+            """datatables parameters
             """
-            for  key in self.context.REQUEST.keys():
-                print "key->{0},value->{1}".format(key,
-                        self.context.REQUEST.get(key))
+            draw = self.context.REQUEST.get('draw')
+            start = self.context.REQUEST.get('start', 0)
+            length = self.context.REQUEST.get('length', 10)
+
+            hits = self.context.Catalog(
+                meta_type='Report Collection',
+                getCountryName=country,
+                b_size=length,
+                b_start=start)
+
+            results = []
+            for hit in hits:
+                obj = hit.getObject()
+                results.append((obj.absolute_url(0), '/' +
+                                obj.absolute_url(1),
+                                obj.bobobase_modification_time().Date(),
+                                obj.users_with_local_role(role),
+                                list(obj.dataflow_uris)))
+
             data_to_return = {"recordsTotal": 90,
-                "draw":self.context.REQUEST.get('draw'),
-                "data": [
-                ["nelu","fifi", "gigi", "mimi"],
-                ["nelu","fifi", "gigi", "mimi"],
-                ["nelu","fifi", "gigi", "mimi"],
-                ["nelu","fifi", "gigi", "mimi"],
-                ["nelu","fifi", "gigi", "mimi"],
-                ["nelu","fifi", "gigi", "mimi"],
-                ["gelu","a", "b", "c"],
-                ["chelu", "d", "e", "ula"],
-                ["felu", "supa", "nupa", "gipa"],
-                ["nelu","fifi", "gigi", "mimi"]
-                ]
+                "draw":draw,
+                "data": results
                 }
             return json.dumps(data_to_return)
+
 
 class ListClients(BrowserView):
     """
