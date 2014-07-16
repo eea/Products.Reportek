@@ -65,7 +65,7 @@ def update(app, outName='blob_compression.log'):
                 out.write("On %s\n" % ob.absolute_url())
             except:
                 pass
-            out.write(repr(e) + '\n')
+            out.write(repr(e) + '\n' + '(%s: %s)\n' % (str(e), str(e.args)))
             transaction.abort()
     if outName:
         out.write(" --- End log (%s) ---" % strftime("%a, %d %b %Y %H:%M:%S"))

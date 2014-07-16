@@ -128,20 +128,6 @@
             <td tal:content="string:${context/size} (${context/rawsize} Bytes)"></td>
         </tr>
         <tr>
-            <td class="question" i18n:translate="">Compressed size</td>
-            <tal:block condition="here/is_compressed">
-                <tal:block define="cSize_bytes_human here/compressed_size;
-                                cSize_b python:cSize_bytes_human[0];
-                                cSize_h python:cSize_bytes_human[1]">
-                    <td tal:content="string:${cSize_h} (${cSize_b} Bytes)"></td>
-                </tal:block>
-            </tal:block>
-            <tal:block condition="not: here/is_compressed">
-                <td>Not compressed</td>
-            </tal:block>
-
-        </tr>
-        <tr>
             <td class="question" i18n:translate="">Last uploaded</td>
             <td tal:content="python: context.upload_time().strftime('%d %b %Y %H:%M')"></td>
         </tr>
