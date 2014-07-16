@@ -54,7 +54,7 @@ def update(app, outName='blob_compression.log'):
                     file_handle = data_file.open('rb')
                     content = file_handle.read()
                     file_handle.close()
-                    with data_file.open('wb', orig_size=data_file.size) as file_handle:
+                    with data_file.open('wb', orig_size=data_file.size, preserve_mtime=True) as file_handle:
                         file_handle.write(content)
                     print "Compressing %s, path: %s (%d:%d)" % (ob.absolute_url(), path, data_file.size, data_file.compressed_size)
                     out.write("Compressing %s, path: %s (%d:%d)\n" % (ob.absolute_url(), path, data_file.size, data_file.compressed_size))

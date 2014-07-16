@@ -76,7 +76,7 @@ class FileContainer(Persistent):
             self.compressed = value
     ## Remove this after migration is complete
 
-    def open(self, mode='rb', orig_size=0):
+    def open(self, mode='rb', orig_size=0, preserve_mtime=False):
         '''
         Opens and returns a file-like object with Blob's __enter__ and __exit__
         thus 'with FileContainer.open() as x' will work ok.
@@ -119,15 +119,17 @@ class FileContainer(Persistent):
                     if zip_close:
                         zip_close()
                     orig_close()
-                    self._update_metadata(file_handle.name, orig_size)
+                    self._update_metadata(file_handle.name, orig_size, preserve_mtime)
                 file_handle.close = close_and_update_metadata
             return file_handle
         except (IOError, POSKeyError):
             raise StorageError
 
-    def _update_metadata(self, fs_path, orig_size):
+    def _update_metadata(self, fs_path, orig_size, preserve_mtime):
         # fs_path is inside /tmp/ right now, can't save path
-        self.mtime = os.path.getmtime(fs_path)
+        ## Remove this after migration is complete
+        if not preserve_mtime:
+            self.mtime = os.path.getmtime(fs_path)
         self.size = orig_size if orig_size else os.path.getsize(fs_path)
         if self.compressed_safe:
             self.compressed_size = os.path.getsize(fs_path)
