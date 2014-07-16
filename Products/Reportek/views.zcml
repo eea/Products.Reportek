@@ -1,27 +1,33 @@
 <configure
-    xmlns="http://namespaces.zope.org/zope"
-    xmlns:browser="http://namespaces.zope.org/browser"
-    xmlns:five="http://namespaces.zope.org/five">
+  xmlns="http://namespaces.zope.org/zope"
+  xmlns:browser="http://namespaces.zope.org/browser"
+  xmlns:five="http://namespaces.zope.org/five">
 
-    <browser:page
-        name="list_clients"
-        for=".ReportekUtilities.IReportekUtilities"
-        permission="zope2.ViewManagementScreens"
-        class=".views.ListClients"
-        template="zpt/admin/list_clients.zpt"/>
+  <browser:page
+    name="list_clients"
+    for=".ReportekUtilities.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.ListClients"
+    template="zpt/utilities/list_clients.zpt"/>
 
-    <browser:page
-        name="index_html"
-        for=".ReportekUtilities.IReportekUtilities"
-        permission="zope2.ViewManagementScreens"
-        template="zpt/admin/index.zpt"/>
+  <browser:page
+    name="index_html"
+    for=".ReportekUtilities.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    template="zpt/utilities/index.zpt"/>
 
-    <browser:page
-      name="data-source"
-      for="*"
-      permission="zope2.View"
-      template="zpt/admin/data-source.zpt"
-      class=".views.DataSources"
-    />
+  <browser:page
+    name="list_users"
+    for=".ReportekUtilities.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.ListUsers"
+    template="zpt/utilities/list_users.zpt"/>
+
+  <browser:page
+    name="data-source"
+    for="*"
+    permission="zope2.ViewManagementScreens"
+    class=".views.DataSources"
+    template="zpt/utilities/data-source.zpt"/>
 
 </configure>

@@ -3,7 +3,7 @@
 <h2>User management</h2>
 
 <ul>
-  <li><a href="#">Show where users have access</a></li>
+  <li><a href="list_users">Show where users have access</a></li>
   <li><a href="Assign_client_form">Assign roles by obligation</a></li>
   <li><a href="revoke_roles">Revoke roles</a></li>
 </ul>

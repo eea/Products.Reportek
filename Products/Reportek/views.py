@@ -93,3 +93,8 @@ class ListClients(BrowserView):
 
     def get_person_uri(self, person):
         return 'http://www.eionet.europa.eu/directory/user?uid=%s' % person
+
+
+class ListUsers(BrowserView):
+
+    pass
