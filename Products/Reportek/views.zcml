@@ -17,6 +17,13 @@
     template="zpt/utilities/list_users.zpt"/>
 
   <browser:page
+    name="list_users_by_person"
+    for=".ReportekUtilities.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.ListUsers"
+    template="zpt/utilities/list_users_by_person.zpt"/>
+
+  <browser:page
     name="data-source"
     for="*"
     permission="zope2.ViewManagementScreens"
