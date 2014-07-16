@@ -69,6 +69,11 @@ class ReportekUtilities(Folder):
             query['dataflow_uris'] = map(self.get_obligation_uri,
                                          obligations_filter)
 
+        if self.countries_filter():
+            filtered_countries = [c['uri'] for c in self.localities_rod()
+                                  if c['iso'] in self.countries_filter()]
+            query['country'] = filtered_countries
+
         role = self.selected_role()
 
         brains = self.Catalog(query)

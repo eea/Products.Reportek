@@ -50,7 +50,9 @@
   <select id="countries" name="countries" multiple="multiple">
     <option tal:repeat="country here/localities_rod"
             tal:content="python:country['name']"
-            tal:attributes="value python:country['iso']"></option>
+            tal:attributes="value python:country['iso'];
+                            selected python:'selected' if country['iso'] in here.countries_filter() else nothing">
+    </option>
   </select>
 
   <br />
