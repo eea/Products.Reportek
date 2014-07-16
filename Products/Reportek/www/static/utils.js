@@ -13,7 +13,7 @@ function initDataTables(table_id) {
         "columnDefs":[{
             "targets": 0,
             "render": function(data, type, full, meta) {
-            return '<a href="'+full.url+'">'+data+'</a>';
+            return '<a href="'+full.url_path+'">'+data+'</a>';
             }
         } ]
     });

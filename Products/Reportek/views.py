@@ -3,17 +3,26 @@ import json
 
 
 class DataSources(BrowserView):
-    def process_data(self):
-        def format_row(path, url_path, last_change, obl, clients):
-            """
-            Format one datatable row.
-            """
-            return {"path": path,
-                    "url_path": url_path,
-                    "last_change": last_change,
-                    "obl": obl,
-                    "clients": clients}
+    @staticmethod
+    def format_row(path, url_path, last_change, obl, clients):
+        """
+        Format one datatable row.
+        """
+        return {"path": path,
+                "url_path": url_path,
+                "last_change": last_change,
+                "obl": obl,
+                "clients": clients}
 
+    @staticmethod
+    def get_obligations(obj):
+        return "obl1 obl2"
+
+    @staticmethod
+    def get_clients(obj):
+        return "cl1 cl2"
+
+    def process_data(self):
         if self.context.REQUEST['REQUEST_METHOD'] == 'GET':
             """ form parameters
             """
@@ -36,12 +45,14 @@ class DataSources(BrowserView):
             results = []
             for hit in hits:
                 obj = hit.getObject()
+
                 results.append(
-                    format_row(
-                        obj.absolute_url(0),
+                    DataSources.format_row(
                         '/' + obj.absolute_url(1),
+                        obj.absolute_url(0),
                         obj.bobobase_modification_time().Date(),
-                        "xxx", "yyy"))
+                        DataSources.get_obligations(obj),
+                        DataSources.get_clients(obj)))
 
             data_to_return = {"recordsTotal": 90, "draw": draw, "data": results}
             return json.dumps(data_to_return)
