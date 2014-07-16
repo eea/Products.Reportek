@@ -1,0 +1,5 @@
+<tal:block replace="structure here/standard_html_header" />
+
+<h1>List users</h1>
+
+<tal:block replace="structure here/manage_page_footer" />
