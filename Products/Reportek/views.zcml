@@ -6,7 +6,7 @@
     <browser:page
         name="list_clients"
         for=".ReportekUtilities.IReportekUtilities"
-        permission="zope2.View"
+        permission="zope2.ViewManagementScreens"
         class=".views.ListClients"
         template="zpt/admin/list_clients.zpt"/>
 
@@ -15,5 +15,13 @@
         for=".ReportekUtilities.IReportekUtilities"
         permission="zope2.ViewManagementScreens"
         template="zpt/admin/index.zpt"/>
+
+    <browser:page
+      name="data-source"
+      for="*"
+      permission="zope2.View"
+      template="zpt/admin/data-source.zpt"
+      class=".views.DataSources"
+    />
 
 </configure>

@@ -1,6 +1,41 @@
 from Products.Five import BrowserView
 import string
+import json
 
+
+class DataSources(BrowserView):
+    def __init__(self, context, request):
+        super(DataSources, self).__init__(context, request)
+        pass
+
+    def process(self):
+        if self.context.REQUEST['REQUEST_METHOD'] == 'GET':
+            """
+            search[value]
+            draw
+            start
+            length
+
+            """
+            for  key in self.context.REQUEST.keys():
+                print "key->{0},value->{1}".format(key,
+                        self.context.REQUEST.get(key))
+            data_to_return = {"recordsTotal": 90,
+                "draw":self.context.REQUEST.get('draw'),
+                "data": [
+                ["nelu","fifi", "gigi", "mimi"],
+                ["nelu","fifi", "gigi", "mimi"],
+                ["nelu","fifi", "gigi", "mimi"],
+                ["nelu","fifi", "gigi", "mimi"],
+                ["nelu","fifi", "gigi", "mimi"],
+                ["nelu","fifi", "gigi", "mimi"],
+                ["gelu","a", "b", "c"],
+                ["chelu", "d", "e", "ula"],
+                ["felu", "supa", "nupa", "gipa"],
+                ["nelu","fifi", "gigi", "mimi"]
+                ]
+                }
+            return json.dumps(data_to_return)
 
 class ListClients(BrowserView):
     """

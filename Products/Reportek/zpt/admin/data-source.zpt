@@ -1,0 +1,2 @@
+<span tal:replace="python:view.process()">
+</span>
