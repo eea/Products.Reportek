@@ -20,6 +20,9 @@ class ReportekUtilities(Folder):
     security.declareProtected(view_management_screens, 'search')
     search = PageTemplateFile('zpt/utilities/search', globals())
 
+    security.declareProtected(view_management_screens, 'search_by_person')
+    search_by_person = PageTemplateFile('zpt/utilities/search_by_person', globals())
+
     def all_meta_types(self):
         types = ['Script (Python)', 'Folder', 'Page Template']
         return [ t for t in Products.meta_types if t['name'] in types ]
@@ -59,28 +62,28 @@ class ReportekUtilities(Folder):
     def obligation_title(self, obligation_uri):
         return self.dataflow_lookup(obligation_uri)['TITLE']
 
-    def get_data(self):
-        def path_compare(p1, p2):
-            return cmp(p1['path_prefix'], p2['path_prefix'])
-
+    def get_brains(self):
         query = {'meta_type': 'Report Collection'}
         obligations_filter = self.obligations_filter()
         if obligations_filter:
             query['dataflow_uris'] = map(self.get_obligation_uri,
                                          obligations_filter)
-
         if self.countries_filter():
             filtered_countries = [c['uri'] for c in self.localities_rod()
                                   if c['iso'] in self.countries_filter()]
             query['country'] = filtered_countries
 
-        role = self.selected_role()
+        return self.Catalog(query)
 
-        brains = self.Catalog(query)
+    def get_data(self):
+        def path_compare(p1, p2):
+            return cmp(p1['path_prefix'], p2['path_prefix'])
+
+        role = self.selected_role()
+        brains = self.get_brains()
         results = []
         for brain in brains:
             obj = brain.getObject()
-
             results.append({
                 'path_prefix': obj.absolute_url(0),
                 'path_suffix': '/' + obj.absolute_url(1),
@@ -90,6 +93,21 @@ class ReportekUtilities(Folder):
             })
 
         results.sort(path_compare)
+        return results
+
+    def get_data_by_person(self):
+        brains = self.get_brains()
+
+        role = self.selected_role()
+        results = {}
+        for brain in brains:
+            obj = brain.getObject()
+            persons = obj.users_with_local_role(role)
+            for person in persons:
+                paths = results.get(person, [])
+                paths.append(obj.absolute_url(1))
+                results[person] = paths
+
         return results
 
     def has_common_elements(self, l1, l2):
@@ -118,3 +136,4 @@ class ReportekUtilities(Folder):
         filter(roles.remove,
                 ['Authenticated', 'Anonymous', 'Manager', 'Owner'])
         return sorted(roles)
+
