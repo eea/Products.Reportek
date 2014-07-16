@@ -105,7 +105,7 @@ class ReportekUtilities(Folder):
         return self._get_filter('countries')
 
     def selected_role(self):
-        return self.REQUEST.get('role', 'Auditor')
+        return self.REQUEST.get('role', self.get_roles()[0])
 
     def _get_filter(self, filter_name):
         req_filter = self.REQUEST.get(filter_name, [])
