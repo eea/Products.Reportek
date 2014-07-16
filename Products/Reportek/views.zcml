@@ -4,13 +4,6 @@
   xmlns:five="http://namespaces.zope.org/five">
 
   <browser:page
-    name="list_clients"
-    for=".ReportekUtilities.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
-    class=".views.ListClients"
-    template="zpt/utilities/list_clients.zpt"/>
-
-  <browser:page
     name="index_html"
     for=".ReportekUtilities.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
@@ -27,7 +20,7 @@
     name="data-source"
     for="*"
     permission="zope2.ViewManagementScreens"
-    class=".views.DataSources"
-    template="zpt/utilities/data-source.zpt"/>
+    attribute="process_data"
+    class=".views.DataSources" />
 
 </configure>

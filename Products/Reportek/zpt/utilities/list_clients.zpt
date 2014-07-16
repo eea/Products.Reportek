@@ -1,37 +1,21 @@
 <span tal:replace="structure here/standard_html_header" />
 <!-- DataTables CSS -->
-<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.0/css/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" 
+  href="//cdn.datatables.net/1.10.0/css/jquery.dataTables.css">
 <!-- jQuery -->
-<script type="text/javascript" charset="utf8" src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" charset="utf8" 
+  src="//code.jquery.com/jquery-1.10.2.min.js"></script>
 <!-- DataTables -->
-<script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.0/js/jquery.dataTables.js"></script>
-
+<script type="text/javascript" charset="utf8"
+  src="//cdn.datatables.net/1.10.0/js/jquery.dataTables.js"></script>
+<script src="++resource++static/utils.js"></script>
 <script>
-$(document).ready( function () {
-$('#table_id').DataTable({
-		serverSide:true,
-		ajax:'/data-source'
-		});
-} );
+$(document).ready(function (){
+  initDataTables('#table_id');
+});
 </script>
 
 <script src="++resource++static/utils.js"></script>
-
-		<div id="tabbedmenu">
-		<ul>
-			<li id="currenttab">
-				<span onclick="activate_tab('by_path', 'by_person')">Grouped by path
-				</span>
-		  </li>
-			<li id="next">
-				<span onclick="activate_tab('by_person', 'by_path')">
-					<a href="#">Grouped by person</a>
-				</span>
-			</li>
-		</ul>
-		</div>
-	<div id="tabbedmenuend"></div>
-	<div id="by_path">
   <h2>Clients by path</h2>
 	<table class="datatable" id="table_id" >
 		<thead>
@@ -39,55 +23,11 @@ $('#table_id').DataTable({
 				<th>Path</th>
 				<th>Last change</th>
 				<th>Obl</th>
-				<th>Client</th>
+				<th>Clients</th>
 			</tr>
 	</thead>
 	<tbody>
-<!--
-		<tr tal:repeat="hit python:view.get_results('Client')">
-			<defs tal:define="obl_hover python:view.get_obl_hover(hit)">
-				<td>
-					<a href="#" tal:attributes="href python:hit[0]"
-							tal:content="python:hit[1]"/>
-				</td>
-				<td tal:content="python:hit[2]"></td>
-				<td title="title"
-					tal:attributes="title python:obl_hover[0]"
-					tal:content="python:obl_hover[1]"></td>
-				<td>
-					<repeat tal:repeat="attr_cnt python:view.get_members(hit)">
-							<a
-								tal:condition="attr_cnt"
-								tal:content="python:attr_cnt[1]"
-								tal:attributes="href python:attr_cnt[0]"
-								/>
-					</repeat>
-				</td>
-			</defs>
-		</tr>
--->
 	</tbody>
 	</table>
-	</div>
-	<div id="by_person" style="display:none">
-	<h2>By person</h2>
-	<table class="datatable" id="by_person">
-	<tr>
-		<th>Client</th>
-		<th>Path</th>
-	</tr>
-	<tr tal:repeat="account_paths python:view.get_accounts_paths()">
-		<td>
-			<a href="#"
-				tal:attributes="href python:view.get_person_uri(account_paths['account'])"
-				tal:content="python:account_paths['account']"/>
-	  </td>
-		<td>
-			<div tal:repeat="path python:account_paths['paths']"
-				    tal:content="path" />
-		</td>
-	</tr>
-	</table>
-  </div>
 
 <span tal:replace="structure here/standard_html_footer" />
