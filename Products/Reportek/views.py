@@ -17,79 +17,32 @@ class DataSources(BrowserView):
                 "obl": obl,
                 "clients": clients}
 
-    @staticmethod
-    def get_obligations(obj):
-        """TODO:
-        """
-        return "obl1 obl2"
-
-    @staticmethod
-    def get_clients(obj):
-        """TODO:
-        """
-        return "cl1 cl2"
-
-    @staticmethod
-    def get_index_by_column(order_column):
-        if order_column == 0:
-            return ""
-        elif order_column == 1:
-            return ""
-        elif order_column == 2:
-            return ""
-        elif order_column == 3:
-            return ""
-        else:
-            return ""
-
-    @staticmethod
-    def get_order_dir(order_dir):
-        if order_dir == "desc":
-            order_dir = "reverse"
-        else:
-            return ""
-
-
-    def get_hits(self, obligation, role, country, start,
-                 length, global_search, order_column, order_dir):
+    def get_hits(self):
         """
         Makes the query in catalog and returns the hits
         """
-        if global_search:
-            """TODO
-            """
-            pass
+        if self.get_global_search():
+            raise NotImplementedError()
         else:
-            hits = self.context.Catalog(
-                meta_type='Report Collection',
-                getCountryName=country,
-                b_size=length,
-                b_start=start,
-                sort_on=DataSources.get_index_by_column(order_column),
-                sort_order=DataSources.get_order_dir(order_dir))
+            country_codes = [c['uri'] for c in self.context.localities_rod()
+                             if c['iso'] in self.get_countries()]
+
+            query = {
+                'meta_type': 'Report Collection',
+                'b_size': self.get_length(),
+                'b_start': self.get_start(),
+                'sort_order': self.get_order_direction()
+            }
+            if country_codes:
+                query['country'] = country_codes
+            hits = self.context.Catalog(query)
 
         return hits
 
     def process_data(self):
         if self.context.REQUEST['REQUEST_METHOD'] == 'GET':
-            """ form parameters
-            """
-            obligations = self.context.REQUEST.get('obligations', None)
-            role = self.context.REQUEST.get('role', None)
-            countries = self.context.REQUEST.get('countries[]')
-
-            """datatables parameters
-            """
-            draw = self.context.REQUEST.get('draw')
-            start = self.context.REQUEST.get('start', 0)
-            length = self.context.REQUEST.get('length', 10)
-            global_search = self.context.REQUEST.get('search[value]')
-            order_column = self.context.REQUEST.get('order[0][column]')
-            order_dir = self.context.REQUEST.get('order[0][dir]')
-
             results = []
-            hits = self.get_hits(obligations, role, countries, start, length,
-                                 global_search, order_column, order_dir)
+            hits = self.get_hits()
             for hit in hits:
                 obj = hit.getObject()
 
@@ -98,11 +51,51 @@ class DataSources(BrowserView):
                         '/' + obj.absolute_url(1),
                         obj.absolute_url(0),
                         obj.bobobase_modification_time().Date(),
-                        DataSources.get_obligations(obj),
-                        DataSources.get_clients(obj)))
+                        list(obj.dataflow_uris),
+                        obj.users_with_local_role(self.selected_role())))
 
-            data_to_return = {"recordsTotal": 90, "draw": draw, "data": results}
+            data_to_return = {"recordsTotal": 90, "draw": self.get_draw(),
+                              "data": results}
             return json.dumps(data_to_return)
+
+    def get_draw(self):
+        return self.context.REQUEST.get('draw')
+
+    def get_start(self):
+        return self.context.REQUEST.get('start', '0')
+
+    def get_length(self):
+        return self.context.REQUEST.get('length', '10')
+
+    def get_global_search(self):
+        return self.context.REQUEST.get('search[value]')
+
+    def get_order_column(self):
+        return self.context.REQUEST.get('order[0][column]')
+
+    def get_order_direction(self):
+        return self.context.REQUEST.get('order[0][dir]')
+
+    def get_countries(self):
+        return self._get_filters_as_list('countries')
+
+    def get_obligations(self):
+        return self._get_filters_as_list('obligations')
+
+    def _get_filters_as_list(self, filter_name):
+        req_filter = self.context.REQUEST.get(filter_name, [])
+        if not isinstance(req_filter, list):
+            req_filter = [req_filter]
+        return req_filter
+
+    def selected_role(self):
+        return self.context.REQUEST.get('role', self.get_roles()[0])
+
+    def get_roles(self):
+        roles = list(self.context.valid_roles())
+        filter(roles.remove,
+               ['Authenticated', 'Anonymous', 'Manager', 'Owner'])
+        return sorted(roles)
 
 
 class ListUsers(BrowserView):
