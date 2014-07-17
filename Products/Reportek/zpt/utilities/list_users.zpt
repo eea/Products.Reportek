@@ -1,17 +1,13 @@
 <tal:block replace="structure here/standard_html_header" />
+
+<!-- TODO: move from <body> in <head> and mvoe from CDN to static-->
 <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
-<!-- DataTables CSS -->
 <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.0/css/jquery.dataTables.css">
-<!-- jQuery -->
+
 <script type="text/javascript" charset="utf8" src="//code.jquery.com/jquery-1.10.2.min.js"></script>
-<!-- DataTables -->
 <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.0/js/jquery.dataTables.js"></script>
-<script src="++resource++static/utils.js"></script>
-<!-- TODO: move from <body> in <head>
-datatable seems to need jquery-1.10.2. is it a must to upgrade our jquery ?
-<script src="++resource++static/jquery-1.8.2.min.js"></script>
--->
 <script src="++resource++static/select2-3.5.0/select2.js"></script>
+<script src="++resource++static/utils.js"></script>
 
 <script>
 $(document).ready(function (){
@@ -19,22 +15,19 @@ $(document).ready(function (){
 });
 </script>
 
-<h1>List users</h1>
+<h1>Show where users have access</h1>
 
 <form method="get">
+
   <label for="obligations">Obligation</label>
   <select id="obligations" name="obligations" multiple="multiple">
-    <tal:block tal:repeat="group view/obligation_groups">
-      <optgroup tal:attributes="label group">
-        <tal:block tal:repeat="obligation python:view.obligations(group)">
-          <option tal:attributes="value python:view.obligation_id(obligation['uri']);
-											class python:'terminated' if view.is_terminated(obligation) else nothing;
-											selected python:'selected' if view.is_selected(obligation) else nothing">
-            [<span tal:replace="python:view.source_title_prefix(obligation)" />]
-            <span tal:replace="python:view.shortened_obligation_title(obligation)" />
-            <tal:block tal:condition="python:view.is_terminated(obligation)">
-              (<tal:block i18n:translate="">terminated</tal:block>)
-            </tal:block>
+    <tal:block define="rod_data view/get_rod_obligations"
+               repeat="instrument rod_data/legal_instruments">
+      <optgroup tal:attributes="label instrument">
+        <tal:block repeat="obl python:rod_data['obligations'][instrument]">
+          <option tal:attributes="value obl/PK_RA_ID;
+                    class obl/terminated"
+                  tal:content="obl/TITLE">
           </option>
         </tal:block>
       </optgroup>
@@ -45,34 +38,22 @@ $(document).ready(function (){
   <select id="role" name="role">
     <option tal:repeat="role view/get_roles"
             tal:content="role"
-            tal:attributes="selected python:'selected' if view.selected_role() == role else nothing">
+            tal:attributes="selected python:request.get('role') == role">
     </option>
   </select>
 
   <label for="countries">Countries</label>
   <select id="countries" name="countries" multiple="multiple">
     <option tal:repeat="country here/localities_rod"
-            tal:content="python:country['name']"
-            tal:attributes="value python:country['iso'];
-                            selected python:'selected' if country['iso'] in view.countries_filter() else nothing">
+            tal:content="country/name"
+            tal:attributes="value country/iso;
+              selected python:country['iso'] in request.get('countries', [])">
     </option>
   </select>
 
-  <br />
   <input type="submit" value="Filter" />
-</form>
 
-<script>
-  $("#obligations").select2({
-    width: 200
-  });
-  $("#role").select2({
-    width: 200
-  });
-  $("#countries").select2({
-    width: 200
-  });
-</script>
+</form>
 
 <div id="tabbedmenu">
   <ul>
