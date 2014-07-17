@@ -15,6 +15,10 @@ function initDataTables(table_id) {
             "render": function(data, type, full, meta) {
             return '<a href="'+full.url_path+'">'+data+'</a>';
             }
-        } ]
+        } ],
+       "fnServerParams":function(aoData) {
+           aoData['obligation'] = 'XXXX';
+           aoData['role'] = 'YYY';
+       }
     });
 }
