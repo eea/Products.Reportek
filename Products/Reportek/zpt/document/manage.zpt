@@ -125,7 +125,10 @@
         </tr>
         <tr>
             <td class="question" i18n:translate="">File size</td>
-            <td tal:content="string:${context/size} (${context/rawsize} Bytes)"></td>
+            <td tal:content="string:${context/size}">
+                <span tal:condition="python: context.rawsize() >= 1024"
+                      tal:content="string: (${context/rawsize} Bytes)"></span>
+            </td>
         </tr>
         <tr>
             <td class="question" i18n:translate="">Last uploaded</td>

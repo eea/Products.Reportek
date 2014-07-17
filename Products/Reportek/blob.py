@@ -189,10 +189,14 @@ class FileContainer(Persistent):
     def human_readable(cls, size):
         compact_size = size
         step = 0
-        while compact_size > 1024 and step < len(cls.UNITS)-1:
+        while compact_size >= 1024 and step < len(cls.UNITS)-1:
             compact_size /= 1024.0
             step += 1
-        return "%.2f %s" % (compact_size, cls.UNITS[step])
+
+        if step == 0:
+            return "%d %s" % (compact_size, cls.UNITS[step])
+        else:
+            return "%.2f %s" % (compact_size, cls.UNITS[step])
 
 
 class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
