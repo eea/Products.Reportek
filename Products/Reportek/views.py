@@ -26,13 +26,31 @@ class DataSources(BrowserView):
         """
         return "cl1 cl2"
 
+    def get_hits(self, obligation, role, country, start,
+                 length, global_search):
+        """
+        Makes the query in catalog and returns the hits
+        """
+        if global_search:
+            """TODO
+            """
+            pass
+        else:
+            hits = self.context.Catalog(
+                meta_type='Report Collection',
+                getCountryName=country,
+                b_size=length,
+                b_start=start)
+
+        return hits
+
     def process_data(self):
         if self.context.REQUEST['REQUEST_METHOD'] == 'GET':
             """ form parameters
             """
-#            obligation = self.context.REQUEST.get('obligation', None)
-#            role = self.context.REQUEST.get('role', None)
-#            default for country is Romania only for test
+            obligation = self.context.REQUEST.get('obligation', None)
+            role = self.context.REQUEST.get('role', None)
+#            default for country is Romania only for TEST
             country = self.context.REQUEST.get('country', 'Romania')
 
             """datatables parameters
@@ -40,13 +58,11 @@ class DataSources(BrowserView):
             draw = self.context.REQUEST.get('draw')
             start = self.context.REQUEST.get('start', 0)
             length = self.context.REQUEST.get('length', 10)
+            global_search = self.context.REQUEST.get('search[value]')
 
-            hits = self.context.Catalog(
-                meta_type='Report Collection',
-                getCountryName=country,
-                b_size=length,
-                b_start=start)
             results = []
+            hits = self.get_hits(obligation, role, country, start, length,
+                                 global_search)
             for hit in hits:
                 obj = hit.getObject()
 
