@@ -74,10 +74,9 @@ class DataSources(BrowserView):
         if self.context.REQUEST['REQUEST_METHOD'] == 'GET':
             """ form parameters
             """
-            obligation = self.context.REQUEST.get('obligation', None)
+            obligations = self.context.REQUEST.get('obligations', None)
             role = self.context.REQUEST.get('role', None)
-#            default for country is Romania only for TEST
-            country = self.context.REQUEST.get('country', 'Romania')
+            countries = self.context.REQUEST.get('countries[]')
 
             """datatables parameters
             """
@@ -89,7 +88,7 @@ class DataSources(BrowserView):
             order_dir = self.context.REQUEST.get('order[0][dir]')
 
             results = []
-            hits = self.get_hits(obligation, role, country, start, length,
+            hits = self.get_hits(obligations, role, countries, start, length,
                                  global_search, order_column, order_dir)
             for hit in hits:
                 obj = hit.getObject()
