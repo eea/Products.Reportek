@@ -55,18 +55,6 @@ $(document).ready(function (){
 
 </form>
 
-<script>
-  $("#obligations").select2({
-    width: 200
-  });
-  $("#role").select2({
-    width: 200
-  });
-  $("#countries").select2({
-    width: 200
-  });
-</script>
-
 <div id="tabbedmenu">
   <ul>
     <li id="currenttab"><span>Grouped by path</span></li>
