@@ -16,10 +16,14 @@ class DataSources(BrowserView):
 
     @staticmethod
     def get_obligations(obj):
+        """TODO:
+        """
         return "obl1 obl2"
 
     @staticmethod
     def get_clients(obj):
+        """TODO:
+        """
         return "cl1 cl2"
 
     def process_data(self):
@@ -181,5 +185,5 @@ class ListUsers(BrowserView):
     def get_roles(self):
         roles = list(self.context.valid_roles())
         filter(roles.remove,
-                ['Authenticated', 'Anonymous', 'Manager', 'Owner'])
+               ['Authenticated', 'Anonymous', 'Manager', 'Owner'])
         return sorted(roles)
