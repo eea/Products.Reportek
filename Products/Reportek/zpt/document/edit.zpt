@@ -51,18 +51,20 @@
 		</tr>
 		<tr>
 			<th align="left" i18n:translate="">File Size</th>
-            <td align="left" tal:content="string:${context/size}">
+            <td align="left">
+                <span tal:content="string:${context/size}"></span>
                 <span tal:condition="python: context.rawsize() >= 1024"
                       tal:content="string: (${context/rawsize} Bytes)"></span>
             </td>
 		</tr>
         <tr>
             <th align="left" i18n:translate="">Compressed size</th>
-            <tal:block condition="here/is_compressed"
-                       define="cSize_bytes_human here/compressed_size;
-                               cSize_bytes python: cSize_bytes_human[0];
-                               cSize_human python: cSize_bytes_human[1]">
-                <td align="left" tal:content="cSize_human">
+            <tal:block condition="here/is_compressed">
+                <td align="left"
+                    tal:define="cSize_bytes_human here/compressed_size;
+                            cSize_bytes python: cSize_bytes_human[0];
+                            cSize_human python: cSize_bytes_human[1]">
+                    <span tal:content="cSize_human"></span>
                     <span tal:condition="python: cSize_bytes >= 1024"
                           tal:content="string: (${cSize_bytes} Bytes)"></span>
                 </td>
