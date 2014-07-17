@@ -15,7 +15,14 @@ function initDataTables(table_id) {
             "render": function(data, type, full, meta) {
             return '<a href="'+full.url_path+'">'+data+'</a>';
             }
-        } ],
+        },
+        {
+            "targets": 2,
+            "render": function(data, type, full, meta) {
+            return data.join("<br />");
+            }
+        }
+    ],
        "fnServerParams":function(aoData) {
            aoData['obligations'] = $('#obligations').select2('val');
            aoData['countries'] = $('#countries').select2('val');
