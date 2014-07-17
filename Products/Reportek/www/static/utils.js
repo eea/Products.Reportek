@@ -18,3 +18,15 @@ function initDataTables(table_id) {
         } ]
     });
 }
+
+$(function () {
+  $("#obligations").select2({
+    width: 200
+  });
+  $("#role").select2({
+    width: 200
+  });
+  $("#countries").select2({
+    width: 200
+  });
+})
