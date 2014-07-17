@@ -26,7 +26,8 @@ $(document).ready(function (){
       <optgroup tal:attributes="label instrument">
         <tal:block repeat="obl python:rod_data['obligations'][instrument]">
           <option tal:attributes="value obl/PK_RA_ID;
-                    class python:'terminated' if obl['terminated'] == '1' else nothing"
+                    class python:'terminated' if obl['terminated'] == '1' else nothing;
+                    selected python:obl['PK_RA_ID'] in view.obligations_filter()"
                   tal:content="obl/TITLE">
           </option>
         </tal:block>
