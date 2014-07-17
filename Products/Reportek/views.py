@@ -1,5 +1,8 @@
-from Products.Five import BrowserView
 import json
+from operator import itemgetter
+from collections import defaultdict
+
+from Products.Five import BrowserView
 
 
 class DataSources(BrowserView):
@@ -79,6 +82,21 @@ class DataSources(BrowserView):
 
 
 class ListUsers(BrowserView):
+
+    def get_rod_obligations(self):
+        """ Get activities from ROD """
+
+        data = sorted(self.context.dataflow_rod(),
+                    key=itemgetter('SOURCE_TITLE'))
+
+        obligations = defaultdict(list)
+        for obl in data:
+            obligations[obl['SOURCE_TITLE']].append(obl)
+
+        return {
+            'legal_instruments': sorted(obligations.keys()),
+            'obligations': obligations }
+
 
     def obligation_groups(self):
         return self.context.ReportekEngine.dataflow_table_grouped()[0]
