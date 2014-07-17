@@ -121,42 +121,6 @@ class ListUsers(BrowserView):
             'legal_instruments': sorted(obligations.keys()),
             'obligations': obligations }
 
-
-    def obligation_groups(self):
-        return self.context.ReportekEngine.dataflow_table_grouped()[0]
-
-    def obligations(self, group):
-        return self.context.ReportekEngine.dataflow_table_grouped()[1][group]
-
-    def obligation_src_title(self, obligation):
-        return obligation['SOURCE_TITLE']
-
-    def is_terminated(self, obligation):
-        return obligation.get('terminated', '0') == '1'
-
-    def is_selected(self, obligation):
-        return obligation['uri'] in map(self.get_obligation_uri,
-                                        self.obligations_filter())
-
-    def source_title_prefix(self, obligation):
-        return ' '.join(obligation['SOURCE_TITLE'].split()[0:2])
-
-    def shortened_obligation_title(self, obligation, max_len=80):
-        title = obligation['TITLE']
-        if len(title) <= max_len:
-            return title
-
-        return "%s..." % title[:max_len-3]
-
-    def obligation_id(self, obligation_uri):
-        return obligation_uri[obligation_uri.rfind('/')+1:]
-
-    def get_obligation_uri(self, obligation_id):
-        return 'http://rod.eionet.europa.eu/obligations/%s' % obligation_id
-
-    def obligation_title(self, obligation_uri):
-        return self.context.dataflow_lookup(obligation_uri)['TITLE']
-
     def get_brains(self):
         query = {'meta_type': 'Report Collection'}
         obligations_filter = self.obligations_filter()

@@ -1,90 +1,18 @@
-<tal:block replace="structure here/standard_html_header" />
-
-<!-- TODO: move from <body> in <head> -->
-<script src="++resource++static/jquery-1.8.2.min.js"></script>
-<script src="++resource++static/select2-3.5.0/select2.js"></script>
-<link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
-
-<h1>List users</h1>
-
-<form method="get">
-  <label for="obligations">Obligation</label>
-  <select id="obligations" name="obligations" multiple="multiple">
-    <tal:block tal:repeat="group view/obligation_groups">
-      <optgroup tal:attributes="label group">
-        <tal:block tal:repeat="obligation python:view.obligations(group)">
-          <option tal:attributes="value python:view.obligation_id(obligation['uri']);
-											class python:'terminated' if view.is_terminated(obligation) else nothing;
-											selected python:'selected' if view.is_selected(obligation) else nothing">
-            [<span tal:replace="python:view.source_title_prefix(obligation)" />]
-            <span tal:replace="python:view.shortened_obligation_title(obligation)" />
-            <tal:block tal:condition="python:view.is_terminated(obligation)">
-              (<tal:block i18n:translate="">terminated</tal:block>)
-            </tal:block>
-          </option>
-        </tal:block>
-      </optgroup>
-    </tal:block>
-  </select>
-
-  <label for="role">Role</label>
-  <select id="role" name="role">
-    <option tal:repeat="role view/get_roles"
-            tal:content="role"
-            tal:attributes="selected python:'selected' if view.selected_role() == role else nothing">
-    </option>
-  </select>
-
-  <label for="countries">Countries</label>
-  <select id="countries" name="countries" multiple="multiple">
-    <option tal:repeat="country here/localities_rod"
-            tal:content="python:country['name']"
-            tal:attributes="value python:country['iso'];
-                            selected python:'selected' if country['iso'] in view.countries_filter() else nothing">
-    </option>
-  </select>
-
-  <br />
-  <input type="submit" value="Filter" />
-</form>
-
-<script>
-  $("#obligations").select2({
-    width: 200
-  });
-  $("#role").select2({
-    width: 200
-  });
-  $("#countries").select2({
-    width: 200
-  });
-</script>
-
-<div id="tabbedmenu">
-  <ul>
-    <li><a tal:attributes="href view/by_path_url">Grouped by path</a></li>
-    <li id="currenttab"><span>Grouped by person</span></li>
-  </ul>
-</div>
-
-<div id="tabbedmenuend"></div>
-
 <table class="datatable">
+
   <tr>
     <th tal:content="view/selected_role"></th>
     <th>Path</th>
   </tr>
 
-  <tal:block tal:define="paths view/get_data_by_person">
-    <tr tal:repeat="person paths/keys">
-      <td tal:content="person"></td>
-      <td>
-        <ul>
-          <li tal:repeat="path python:paths[person]" tal:content="path"></li>
-        </ul>
-      </td>
-    </tr>
-  </tal:block>
-</table>
+  <tr tal:define="paths view/get_data_by_person"
+      tal:repeat="person paths/keys">
+    <td tal:content="person" />
+    <td>
+      <ul>
+        <li tal:repeat="path paths/person" tal:content="path" />
+      </ul>
+    </td>
+  </tr>
 
-<tal:block replace="structure here/manage_page_footer" />
+</table>
