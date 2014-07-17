@@ -26,8 +26,29 @@ class DataSources(BrowserView):
         """
         return "cl1 cl2"
 
+    @staticmethod
+    def get_index_by_column(order_column):
+        if order_column == 0:
+            return ""
+        elif order_column == 1:
+            return ""
+        elif order_column == 2:
+            return ""
+        elif order_column == 3:
+            return ""
+        else:
+            return ""
+
+    @staticmethod
+    def get_order_dir(order_dir):
+        if order_dir == "desc":
+            order_dir = "reverse"
+        else:
+            return ""
+
+
     def get_hits(self, obligation, role, country, start,
-                 length, global_search):
+                 length, global_search, order_column, order_dir):
         """
         Makes the query in catalog and returns the hits
         """
@@ -40,7 +61,9 @@ class DataSources(BrowserView):
                 meta_type='Report Collection',
                 getCountryName=country,
                 b_size=length,
-                b_start=start)
+                b_start=start,
+                sort_on=DataSources.get_index_by_column(order_column),
+                sort_order=DataSources.get_order_dir(order_dir))
 
         return hits
 
@@ -59,10 +82,12 @@ class DataSources(BrowserView):
             start = self.context.REQUEST.get('start', 0)
             length = self.context.REQUEST.get('length', 10)
             global_search = self.context.REQUEST.get('search[value]')
+            order_column = self.context.REQUEST.get('order[0][column]')
+            order_dir = self.context.REQUEST.get('order[0][dir]')
 
             results = []
             hits = self.get_hits(obligation, role, country, start, length,
-                                 global_search)
+                                 global_search, order_column, order_dir)
             for hit in hits:
                 obj = hit.getObject()
 
