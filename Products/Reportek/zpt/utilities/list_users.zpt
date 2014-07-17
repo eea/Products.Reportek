@@ -94,5 +94,6 @@ $(document).ready(function (){
 </thead>
 <tbody>
 </tbody>
+</table>
 
 <tal:block replace="structure here/manage_page_footer" />
