@@ -189,7 +189,8 @@ class FileContainer(Persistent):
     def human_readable(cls, size):
         compact_size = size
         step = 0
-        while compact_size >= 1024 and step < len(cls.UNITS)-1:
+        # keep the maximum number of significant digits to 3
+        while compact_size >= 1000 and step < len(cls.UNITS)-1:
             compact_size /= 1024.0
             step += 1
 

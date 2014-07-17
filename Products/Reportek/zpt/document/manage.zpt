@@ -127,7 +127,7 @@
             <td class="question" i18n:translate="">File size</td>
             <td>
                 <span tal:content="string:${context/size}"></span>
-                <span tal:condition="python: context.rawsize() >= 1024"
+                <span tal:condition="python: context.rawsize() >= 1000"
                       tal:content="string: (${context/rawsize} Bytes)"></span>
             </td>
         </tr>
