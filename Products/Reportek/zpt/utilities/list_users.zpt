@@ -1,6 +1,6 @@
 <tal:block replace="structure here/standard_html_header" />
 
-<!-- TODO: move from <body> in <head> and mvoe from CDN to static-->
+<!-- TODO: move from <body> in <head> and mvoe from CDN to static -->
 <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
 <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.0/css/jquery.dataTables.css">
 
@@ -8,12 +8,6 @@
 <script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.0/js/jquery.dataTables.js"></script>
 <script src="++resource++static/select2-3.5.0/select2.js"></script>
 <script src="++resource++static/utils.js"></script>
-
-<script>
-$(document).ready(function (){
-  initDataTables('#table_id');
-});
-</script>
 
 <h1>Show where users have access</h1>
 

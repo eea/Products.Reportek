@@ -13,31 +13,35 @@ function initDataTables(table_id) {
         "columnDefs":[{
             "targets": 0,
             "render": function(data, type, full, meta) {
-            return '<a href="'+full.url_path+'">'+data+'</a>';
+                return '<a href="'+full.url_path+'">'+data+'</a>';
             }
         },
-        {
-            "targets": 2,
-            "render": function(data, type, full, meta) {
-            return data.join("<br />");
+            {
+                "targets": 2,
+                "render": function(data, type, full, meta) {
+                    return data.join("<br />");
+                }
             }
-        }
-    ],
+        ],
         "fnServerParams":function(aoData) {
-            aoData['obligations'] = $('#obligations').select2('val');
-            aoData['countries'] = $('#countries').select2('val');
-       }
+            debugger;
+            aoData['obligations'] = $('#obligations').val();
+            aoData['countries'] = $('#countries').val();
+            aoData['role'] = $('#role').val();
+        }
     });
 }
 
 $(function () {
-  $("#obligations").select2({
-    width: 200
-  });
-  $("#role").select2({
-    width: 200
-  });
-  $("#countries").select2({
-    width: 200
-  });
+    debugger;
+    $("#obligations").select2({
+        width: 200
+    });
+    $("#role").select2({
+        width: 200
+    });
+    $("#countries").select2({
+        width: 200
+    });
+    initDataTables('#table_id');
 })
