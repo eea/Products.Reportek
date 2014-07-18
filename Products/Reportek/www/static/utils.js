@@ -23,9 +23,9 @@ function initDataTables(table_id) {
             }
         }
     ],
-       "fnServerParams":function(aoData) {
-           aoData['obligations'] = $('#obligations').select2('val');
-           aoData['countries'] = $('#countries').select2('val');
+        "fnServerParams":function(aoData) {
+            aoData['obligations'] = $('#obligations').select2('val');
+            aoData['countries'] = $('#countries').select2('val');
        }
     });
 }
