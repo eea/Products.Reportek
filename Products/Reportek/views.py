@@ -6,53 +6,41 @@ from Products.Five import BrowserView
 
 
 class DataSources(BrowserView):
-    @staticmethod
-    def format_row(path, url_path, last_change, obl, clients):
-        """
-        Format one datatable row.
-        """
-        return {"path": path,
-                "url_path": url_path,
-                "last_change": last_change,
-                "obl": obl,
-                "clients": clients}
 
-    def get_hits(self):
+    def get_brains(self):
         """
         Makes the query in catalog and returns the hits
         """
-        if self.get_global_search():
-            raise NotImplementedError()
-        else:
-            country_codes = [c['uri'] for c in self.context.localities_rod()
-                             if c['iso'] in self.get_countries()]
+        country_codes = [c['uri'] for c in self.context.localities_rod()
+                         if c['iso'] in self.countries_filter()]
 
-            query = {
-                'meta_type': 'Report Collection',
-                'b_size': self.get_length(),
-                'b_start': self.get_start(),
-                'sort_order': self.get_order_direction()
-            }
-            if country_codes:
-                query['country'] = country_codes
-            hits = self.context.Catalog(query)
+        query = {
+            'meta_type': 'Report Collection',
+            'b_size': self.get_length(),
+            'b_start': self.get_start(),
+            'sort_order': self.get_order_direction(),
 
-        return hits
+        }
+        if country_codes:
+            query['country'] = country_codes
+        brains = self.context.Catalog(query)
+        if self.obligations_filter():
+            query['obligations_uri'] = list(self.obligations_filter())
+
+        return brains
 
     def process_data(self):
         if self.context.REQUEST['REQUEST_METHOD'] == 'GET':
             results = []
-            hits = self.get_hits()
-            for hit in hits:
-                obj = hit.getObject()
-
-                results.append(
-                    DataSources.format_row(
-                        '/' + obj.absolute_url(1),
-                        obj.absolute_url(0),
-                        obj.bobobase_modification_time().Date(),
-                        list(obj.dataflow_uris),
-                        obj.users_with_local_role(self.selected_role())))
+            brains = self.get_brains()
+            for brain in brains:
+                obj = brain.getObject()
+                results.append({
+                    'short_path': '/' + obj.absolute_url(1),
+                    'full_path': obj.absolute_url(0),
+                    'last_change': obj.bobobase_modification_time().Date(),
+                    'obligations': list(obj.dataflow_uris),
+                    'clients': obj.users_with_local_role(self.selected_role())})
 
             data_to_return = {"recordsTotal": 90, "draw": self.get_draw(),
                               "data": results}
@@ -76,15 +64,15 @@ class DataSources(BrowserView):
     def get_order_direction(self):
         return self.context.REQUEST.get('order[0][dir]')
 
-    def get_countries(self):
-        return self._get_filters_as_list('countries')
+    def countries_filter(self):
+        return self._filter_as_list('countries[]')
 
-    def get_obligations(self):
-        return self._get_filters_as_list('obligations')
+    def obligations_filter(self):
+        return self._filter_as_list('obligations[]')
 
-    def _get_filters_as_list(self, filter_name):
+    def _filter_as_list(self, filter_name):
         req_filter = self.context.REQUEST.get(filter_name, [])
-        if not isinstance(req_filter, list):
+        if isinstance(req_filter, str):
             req_filter = [req_filter]
         return req_filter
 
@@ -96,6 +84,20 @@ class DataSources(BrowserView):
         filter(roles.remove,
                ['Authenticated', 'Anonymous', 'Manager', 'Owner'])
         return sorted(roles)
+
+    def get_rod_obligations(self):
+        """ Get activities from ROD """
+
+        data = sorted(self.context.dataflow_rod(),
+                    key=itemgetter('SOURCE_TITLE'))
+
+        obligations = defaultdict(list)
+        for obl in data:
+            obligations[obl['SOURCE_TITLE']].append(obl)
+
+        return {
+            'legal_instruments': sorted(obligations.keys()),
+            'obligations': obligations }
 
 
 class ListUsers(BrowserView):

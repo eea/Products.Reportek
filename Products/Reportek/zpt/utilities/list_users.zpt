@@ -64,8 +64,8 @@
     <tr>
       <th>Path</th>
       <th>Last change</th>
-      <th>Obl</th>
-      <th>Clients</th>
+      <th>Obligations</th>
+      <th>Users</th>
     </tr>
 </thead>
 <tbody>
