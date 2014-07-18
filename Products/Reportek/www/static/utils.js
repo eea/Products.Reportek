@@ -24,7 +24,6 @@ function initDataTables(table_id) {
             }
         ],
         "fnServerParams":function(aoData) {
-            debugger;
             aoData['obligations'] = $('#obligations').val();
             aoData['countries'] = $('#countries').val();
             aoData['role'] = $('#role').val();
@@ -33,7 +32,6 @@ function initDataTables(table_id) {
 }
 
 $(function () {
-    debugger;
     $("#obligations").select2({
         width: 200
     });
@@ -43,5 +41,11 @@ $(function () {
     $("#countries").select2({
         width: 200
     });
-    initDataTables('#table_id');
+
+    $(document).ready(function () {
+        if (!$('#table_id').length)
+            //if no #table_id -> no context for initDataTables
+            return;
+        initDataTables('#table_id');
+    })
 })
