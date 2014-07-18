@@ -7,25 +7,35 @@ from Products.Five import BrowserView
 
 class DataSources(BrowserView):
 
+    def __init__(self, context, request):
+        super(DataSources, self).__init__(context, request)
+        self.obligation_uri = self._create_obligation_uri_dict()
+
+    def _create_obligation_uri_dict(self):
+        result = {}
+        for obligation in self.context.dataflow_rod():
+            result[obligation['PK_RA_ID']] = obligation['uri']
+        return result
+
     def get_brains(self):
         """
         Makes the query in catalog and returns the hits
         """
         country_codes = [c['uri'] for c in self.context.localities_rod()
                          if c['iso'] in self.countries_filter()]
-
         query = {
             'meta_type': 'Report Collection',
             'b_size': self.get_length(),
             'b_start': self.get_start(),
             'sort_order': self.get_order_direction(),
-
         }
         if country_codes:
             query['country'] = country_codes
-        brains = self.context.Catalog(query)
         if self.obligations_filter():
-            query['obligations_uri'] = list(self.obligations_filter())
+            dataflow_uris = [self.obligation_uri[obl_id] for obl_id in
+                             self.obligations_filter()]
+            query['dataflow_uris'] = dataflow_uris
+        brains = self.context.Catalog(query)
 
         return brains
 
@@ -40,7 +50,7 @@ class DataSources(BrowserView):
                     'full_path': obj.absolute_url(0),
                     'last_change': obj.bobobase_modification_time().Date(),
                     'obligations': list(obj.dataflow_uris),
-                    'clients': obj.users_with_local_role(self.selected_role())})
+                    'users': obj.users_with_local_role(self.selected_role())})
 
             data_to_return = {"recordsTotal": 90, "draw": self.get_draw(),
                               "data": results}
@@ -85,20 +95,6 @@ class DataSources(BrowserView):
                ['Authenticated', 'Anonymous', 'Manager', 'Owner'])
         return sorted(roles)
 
-    def get_rod_obligations(self):
-        """ Get activities from ROD """
-
-        data = sorted(self.context.dataflow_rod(),
-                    key=itemgetter('SOURCE_TITLE'))
-
-        obligations = defaultdict(list)
-        for obl in data:
-            obligations[obl['SOURCE_TITLE']].append(obl)
-
-        return {
-            'legal_instruments': sorted(obligations.keys()),
-            'obligations': obligations }
-
 
 class ListUsers(BrowserView):
 
@@ -115,39 +111,6 @@ class ListUsers(BrowserView):
         return {
             'legal_instruments': sorted(obligations.keys()),
             'obligations': obligations }
-
-    def get_brains(self):
-        query = {'meta_type': 'Report Collection'}
-        obligations_filter = self.obligations_filter()
-        if obligations_filter:
-            query['dataflow_uris'] = map(self.get_obligation_uri,
-                                         obligations_filter)
-        if self.countries_filter():
-            filtered_countries = [c['uri'] for c in self.context.localities_rod()
-                                  if c['iso'] in self.countries_filter()]
-            query['country'] = filtered_countries
-
-        return self.context.Catalog(query)
-
-    def get_data(self):
-        def path_compare(p1, p2):
-            return cmp(p1['path_prefix'], p2['path_prefix'])
-
-        role = self.selected_role()
-        brains = self.get_brains()
-        results = []
-        for brain in brains:
-            obj = brain.getObject()
-            results.append({
-                'path_prefix': obj.absolute_url(0),
-                'path_suffix': '/' + obj.absolute_url(1),
-                'last_change': obj.bobobase_modification_time().Date(),
-                'persons': obj.users_with_local_role(role),
-                'obligation_uris': list(obj.dataflow_uris)
-            })
-
-        results.sort(path_compare)
-        return results
 
     def get_data_by_person(self):
         brains = self.get_brains()

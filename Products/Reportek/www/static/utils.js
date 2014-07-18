@@ -8,7 +8,7 @@ function initDataTables(table_id) {
             { "data": "short_path" },
             { "data": "last_change" },
             { "data": "obligations" },
-            { "data": "clients" }
+            { "data": "users" }
         ],
         "columnDefs":[{
             "targets": 0,
