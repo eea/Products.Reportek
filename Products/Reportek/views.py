@@ -98,21 +98,18 @@ class DataSources(BrowserView):
         return sorted(roles)
 
 
-class ListUsers(BrowserView):
-
+class AdminMaster(BrowserView):
     def get_rod_obligations(self):
         """ Get activities from ROD """
-
         data = sorted(self.context.dataflow_rod(),
-                    key=itemgetter('SOURCE_TITLE'))
+                      key=itemgetter('SOURCE_TITLE'))
 
         obligations = defaultdict(list)
         for obl in data:
             obligations[obl['SOURCE_TITLE']].append(obl)
 
-        return {
-            'legal_instruments': sorted(obligations.keys()),
-            'obligations': obligations }
+        return {'legal_instruments': sorted(obligations.keys()),
+                'obligations': obligations}
 
     def get_brains(self):
         query = {'meta_type': 'Report Collection'}
@@ -202,3 +199,9 @@ class ListUsers(BrowserView):
         filter(roles.remove,
                ['Authenticated', 'Anonymous', 'Manager', 'Owner'])
         return sorted(roles)
+
+
+class ListUsers(AdminMaster):
+    """
+    """
+    pass

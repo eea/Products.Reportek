@@ -17,6 +17,13 @@
     template="zpt/utilities/list_users.zpt"/>
 
   <browser:page
+    name="admin_master"
+    for=".ReportekUtilities.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    template="zpt/utilities/admin_master.zpt"
+    class=".views.AdminMaster"/>
+
+  <browser:page
     name="list_users_by_person"
     for=".ReportekUtilities.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
