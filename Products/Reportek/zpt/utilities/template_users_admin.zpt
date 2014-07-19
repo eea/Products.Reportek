@@ -1,0 +1,81 @@
+<metal:block define-macro="page">
+<tal:block replace="structure here/standard_html_header" />
+
+<!-- TODO: move from <body> in <head> and mvoe from CDN to static-->
+<link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
+<link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.0/css/jquery.dataTables.css">
+
+<script type="text/javascript" charset="utf8" src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" charset="utf8" src="//cdn.datatables.net/1.10.0/js/jquery.dataTables.js"></script>
+<script src="++resource++static/select2-3.5.0/select2.js"></script>
+<script src="++resource++static/utils.js"></script>
+
+<h1>Show where users have access</h1>
+
+<form method="get">
+
+  <label for="obligations">Obligation</label>
+  <select id="obligations" name="obligations" multiple="multiple">
+    <tal:block define="rod_data view/get_rod_obligations"
+               repeat="instrument rod_data/legal_instruments">
+      <optgroup tal:attributes="label instrument">
+        <tal:block repeat="obl python:rod_data['obligations'][instrument]">
+          <option tal:attributes="value obl/PK_RA_ID;
+                    class python:'terminated' if obl['terminated'] == '1' else nothing;
+                    selected python:obl['PK_RA_ID'] in view.obligations_filter()"
+                  tal:content="obl/TITLE">
+          </option>
+        </tal:block>
+      </optgroup>
+    </tal:block>
+  </select>
+
+  <label for="role">Role</label>
+  <select id="role" name="role">
+    <option tal:repeat="role view/get_roles"
+            tal:content="role"
+            tal:attributes="selected python:request.get('role') == role">
+    </option>
+  </select>
+
+  <label for="countries">Countries</label>
+  <select id="countries" name="countries" multiple="multiple">
+    <option tal:repeat="country here/localities_rod"
+            tal:content="country/name"
+            tal:attributes="value country/iso;
+              selected python:country['iso'] in request.get('countries', [])">
+    </option>
+  </select>
+
+  <input type="submit" value="Filter" />
+
+</form>
+
+<metal:block define-slot="grouped">
+
+  <div  id="tabbedmenu">
+    <ul>
+      <li id="currenttab"><span>Grouped by path</span></li>
+      <li><a tal:attributes="href python:view.get_view('list_users_by_person')">
+          Grouped by person</a>
+      </li>
+    </ul>
+  </div>
+  <div id="tabbedmenuend"></div>
+
+  <table class="datatable" id="table_id">
+    <thead>
+      <tr>
+        <th>Path</th>
+        <th>Last change</th>
+        <th>Obligations</th>
+        <th>Clients</th>
+      </tr>
+  </thead>
+  <tbody>
+  </tbody>
+  </table>
+
+</metal:block>
+
+</metal:block>
