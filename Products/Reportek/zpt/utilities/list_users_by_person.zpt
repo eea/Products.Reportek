@@ -1,18 +1,29 @@
-<table class="datatable">
+<tal:block define="view_parent python:view.get_view_parent()">
+  <metal:block use-macro="view_parent/macros/page">
 
-  <tr>
-    <th tal:content="view/selected_role"></th>
-    <th>Path</th>
-  </tr>
+    <metal:block fill-slot="grouped">
 
-  <tr tal:define="paths view/get_data_by_person"
-      tal:repeat="person paths/keys">
-    <td tal:content="person" />
-    <td>
-      <ul>
-        <li tal:repeat="path paths/person" tal:content="path" />
-      </ul>
-    </td>
-  </tr>
+      <div  id="tabbedmenu">
+        <ul>
+          <li><a tal:attributes="href python:view.get_view('list_users_by_path')">
+              Grouped by path</a></li>
+          <li id="currenttab"><span>Grouped by person</span></li>
+        </ul>
+      </div>
+      <div id="tabbedmenuend"></div>
 
-</table>
+      <table class="datatable" id="table_id">
+        <thead>
+          <tr>
+            <th>Auditor</th>
+            <th>Path</th>
+          </tr>
+      </thead>
+      <tbody>
+      </tbody>
+      </table>
+
+    </metal:block>
+
+  </metal:block>
+</tal:block>

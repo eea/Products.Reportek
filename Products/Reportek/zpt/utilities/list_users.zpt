@@ -1,16 +1,3 @@
-<tal:block define="parinte python:context.restrictedTraverse('@@admin_master')">
-  <metal:block use-macro="parinte/macros/page">
-    <table metal:fill-slot="sort_table" class="datatable" id="table_id">
-      <thead>
-        <tr>
-          <th>Path1</th>
-          <th>Last change</th>
-          <th>Obl</th>
-          <th>Clients</th>
-        </tr>
-    </thead>
-    <tbody>
-    </tbody>
-    </table>
-  </metal:block>
+<tal:block define="view_parent python:view.get_view_parent()">
+  <metal:block use-macro="view_parent/macros/page"/>
 </tal:block>

@@ -10,18 +10,18 @@
     template="zpt/utilities/index.zpt"/>
 
   <browser:page
-    name="list_users"
+    name="template_users_admin"
+    for=".ReportekUtilities.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.TemplateUsersAdmin"
+    template="zpt/utilities/template_users_admin.zpt"/>
+
+  <browser:page
+    name="list_users_by_path"
     for=".ReportekUtilities.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.ListUsers"
     template="zpt/utilities/list_users.zpt"/>
-
-  <browser:page
-    name="admin_master"
-    for=".ReportekUtilities.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
-    template="zpt/utilities/admin_master.zpt"
-    class=".views.AdminMaster"/>
 
   <browser:page
     name="list_users_by_person"
@@ -34,7 +34,7 @@
     name="data-source"
     for="*"
     permission="zope2.ViewManagementScreens"
-    attribute="process_data"
-    class=".views.DataSources" />
+    class=".views.DataSources"
+    attribute="process_data" />
 
 </configure>
