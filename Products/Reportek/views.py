@@ -17,9 +17,7 @@ class DataSources(BrowserView):
         return result
 
     def get_brains(self):
-        """
-        Makes the query in catalog and returns the hits
-        """
+        """Makes the query in catalog and returns the hits """
         country_codes = [c['uri'] for c in self.context.localities_rod()
                          if c['iso'] in self.countries_filter()]
         query = {
@@ -110,35 +108,8 @@ class TemplateUsersAdmin(BrowserView):
         return {'legal_instruments': sorted(obligations.keys()),
                 'obligations': obligations}
 
-    def get_data_by_person(self):
-        brains = self.get_brains()
-
-        role = self.selected_role()
-        results = {}
-        for brain in brains:
-            obj = brain.getObject()
-            persons = obj.users_with_local_role(role)
-            for person in persons:
-                paths = results.get(person, [])
-                paths.append(obj.absolute_url(1))
-                results[person] = paths
-
-        return results
-
-    def has_common_elements(self, l1, l2):
-        return bool(set(l1) & set(l2))
-
-    def person_uri(self, person):
-        return 'http://www.eionet.europa.eu/directory/user?uid=%s' % person
-
     def obligations_filter(self):
         return self._get_filter('obligations')
-
-    def countries_filter(self):
-        return self._get_filter('countries')
-
-    def selected_role(self):
-        return self.context.REQUEST.get('role', self.get_roles()[0])
 
     def _get_filter(self, filter_name):
         req_filter = self.context.REQUEST.get(filter_name, [])
