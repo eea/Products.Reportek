@@ -2,7 +2,7 @@ import time
 import unittest
 from StringIO import StringIO
 import zipfile
-from mock import Mock, patch
+from mock import Mock, patch, call
 import transaction
 from utils import (create_fake_root, makerequest,
                    create_upload_file, create_envelope,
@@ -66,8 +66,31 @@ class FileStorageTest(BaseTest):
         doc = root[doc_id]
 
         request = BaseTest.create_mock_request()
+        request.RESPONSE.setHeader = Mock()
         doc.index_html(request, request.RESPONSE)
         self.assertEqual(request.RESPONSE._data.getvalue(), data)
+        self.assertNotIn(call('content-encoding', 'gzip'), request.RESPONSE.setHeader.call_args_list)
+
+    def test_get_AE_gzip(self):
+        data = 'hello world, file for test!'
+
+        root = create_fake_root()
+        root.getWorkitemsActiveForMe = Mock(return_value=[])
+        root.REQUEST = BaseTest.create_mock_request()
+        root.REQUEST.physicalPathToVirtualPath = lambda x: x
+
+        doc_id = Document.manage_addDocument(root, file=create_upload_file(data))
+        self.assertEqual(doc_id, 'testfile.txt')
+        doc = root[doc_id]
+        compressed_size = doc.compressed_size()[0]
+
+        request = BaseTest.create_mock_request()
+        request.getHeader = Mock(return_value='gzip,bla')
+        request.RESPONSE.setHeader = Mock()
+        doc.index_html(request, request.RESPONSE)
+        self.assertEqual(len(request.RESPONSE._data.getvalue()), compressed_size)
+        self.assertTrue(request.RESPONSE.setHeader.called)
+        self.assertIn(call('content-encoding', 'gzip'), request.RESPONSE.setHeader.call_args_list)
 
     def test_get_zip_info(self):
         root = create_fake_root()
@@ -132,6 +155,20 @@ class FileStorageTest(BaseTest):
         compressed_size = doc.compressed_size()[0]
         self.assertTrue(compressed_size > 0)
         self.assertTrue(compressed_size != doc.rawsize())
+
+    def test_compress_keep_compressed(self):
+        data = 'hello world, file for test!'
+        doc = create_document_with_data(data, compression='auto')
+        # rawsize must be the uncompressed size.
+        self.assertEqual(doc.rawsize(), len(data))
+        self.assertTrue(doc.is_compressed())
+        compressed_size = doc.compressed_size()[0]
+        self.assertTrue(compressed_size > 0)
+        # being such a small file the compressed version will be bigger. don't compare sizes.
+        self.assertTrue(compressed_size != doc.rawsize())
+        # test fetching the data back
+        read_data = doc.data_file.open('rb', skip_decompress=True).read()
+        self.assertTrue(len(read_data) == compressed_size)
 
 
 

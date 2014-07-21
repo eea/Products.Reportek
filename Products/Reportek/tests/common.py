@@ -103,6 +103,7 @@ class BaseTest(ZopeTestCase.ZopeTestCase):
         response.write = response._data.write
         request._headers = {}
         request.get_header = request._headers.get
+        request.getHeader = Mock(return_value='bla')
         return request
 
 

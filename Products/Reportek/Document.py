@@ -275,10 +275,23 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         if icon:
             return self.icon_gif(REQUEST, RESPONSE)
 
-        with self.data_file.open() as data_file_handle:
+        skip_decomp = False
+        ae = REQUEST.getHeader('Accept-Encoding')
+        # TODO also take weights into consideration (gzip;q=0,deflate;q=1)
+        if ae and ae.lower().startswith('gzip'):
+            skip_decomp = True
+        with self.data_file.open(skip_decompress=skip_decomp) as data_file_handle:
+            size = self.data_file.size
+            if skip_decomp and self.is_compressed():
+                # This is hackish. If the client asked for gzip compression first
+                # and we are storing the content compressed
+                # then instruct the FileContiner not to decompress the fetched content
+                # and tell the client that we are serving his content gzipped
+                RESPONSE.setHeader('content-encoding','gzip')
+                size = self.data_file.compressed_size
             RepUtils.http_response_with_file(
                 REQUEST, RESPONSE, data_file_handle,
-                self.content_type, self.data_file.size, self.data_file.mtime)
+                self.content_type, size, self.data_file.mtime)
 
     security.declarePublic('isGML')
     def isGML(self):

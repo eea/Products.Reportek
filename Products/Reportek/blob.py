@@ -10,6 +10,8 @@ from AccessControl.Permissions import view
 import OFS.SimpleItem as _SimpleItem
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 import RepUtils
+import logging
+logger = logging.getLogger("Reportek")
 
 
 class StorageError(Exception):
@@ -76,7 +78,7 @@ class FileContainer(Persistent):
             self.compressed = value
     ## Remove this after migration is complete
 
-    def open(self, mode='rb', orig_size=0, preserve_mtime=False):
+    def open(self, mode='rb', orig_size=0, preserve_mtime=False, skip_decompress=False):
         '''
         Opens and returns a file-like object with Blob's __enter__ and __exit__
         thus 'with FileContainer.open() as x' will work ok.
@@ -100,10 +102,13 @@ class FileContainer(Persistent):
         try:
             file_handle = self._blob.open(mode[0])
             if mode[0] == 'r':
-                if self.compressed_safe:
+                if self.compressed_safe and not skip_decompress:
                     file_handle = GzipFile(fileobj=file_handle)
+                elif self.compressed_safe:
+                    logger.debug("Serving %s compressed as client asked for AE gzip")
             elif mode[0] == 'w':
-                # GzipFile wil not call fileobj.close() on its own...
+                # GzipFile will not call fileobj.close() on its own
+                # because the user that called open should also handle close...
                 orig_close = file_handle.close
                 zip_close = None
                 # The file could have been compressed but we excluded it
