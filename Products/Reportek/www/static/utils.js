@@ -4,7 +4,9 @@ function initDataTables(table_id) {
     $(table_id).DataTable({
         "serverSide": true,
         "ajax":'/data-source',
-        "columns": [
+        "pagingType": "simple",
+        "pagining":true,
+        "columns":[
             { "data": "short_path" },
             { "data": "last_change" },
             { "data": "obligations", "bSortable": false },
@@ -24,15 +26,15 @@ function initDataTables(table_id) {
         }
         ],
         "fnServerParams": function(aoData) {
-            aoData['obligations'] = $('#obligations').val();
-            aoData['countries'] = $('#countries').val();
-            aoData['role'] = $('#role').val();
+            aoData.obligations = $('#obligations').val();
+            aoData.countries = $('#countries').val();
+            aoData.role = $('#role').val();
         }
     });
 }
 
 $(function () {
-    if ($('#table_id').length != 0) {
+    if ($('#table_id').length) {
 
         $("#obligations").select2({
             width: 200

@@ -51,8 +51,10 @@ class DataSources(BrowserView):
                     'obligations': list(obj.dataflow_uris),
                     'users': obj.users_with_local_role(self.selected_role())})
 
-            data_to_return = {"recordsTotal": 90, "draw": self.get_draw(),
-                              "data": results}
+                data_to_return = {
+                    "draw": self.get_draw(),
+                    "data": results
+                }
             return json.dumps(data_to_return)
 
     def get_draw(self):
