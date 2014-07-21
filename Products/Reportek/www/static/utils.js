@@ -4,11 +4,11 @@ function initDataTables(table_id) {
     $(table_id).DataTable({
         "serverSide": true,
         "ajax":'/data-source',
-        "columns":[
+        "columns": [
             { "data": "short_path" },
             { "data": "last_change" },
-            { "data": "obligations" },
-            { "data": "users" }
+            { "data": "obligations", "bSortable": false },
+            { "data": "users", "bSortable": false }
         ],
         "columnDefs":[{
             "targets": 0,

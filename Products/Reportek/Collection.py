@@ -439,6 +439,11 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
                 l_query_array[p_parameter] = p_value
         return l_query_array
 
+    def roles(self):
+        all_roles = set()
+        for user, roles in self.get_local_roles():
+            all_roles = all_roles.union(roles)
+        return all_roles
 
 
     security.declareProtected('View', 'messageDialog')

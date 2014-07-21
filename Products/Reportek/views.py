@@ -25,6 +25,8 @@ class DataSources(BrowserView):
             'b_size': self.get_length(),
             'b_start': self.get_start(),
             'sort_order': self.get_order_direction(),
+            'sort_on': self.get_order_column(),
+            'roles': self.selected_role()
         }
         if country_codes:
             query['country'] = country_codes
@@ -66,7 +68,15 @@ class DataSources(BrowserView):
         return self.context.REQUEST.get('search[value]')
 
     def get_order_column(self):
-        return self.context.REQUEST.get('order[0][column]')
+        col_idx = self.context.REQUEST.get('order[0][column]')
+        if col_idx == '0':
+            return 'path'
+        elif col_idx == '1':
+            return 'bobobase_modification_time'
+        elif col_idx == '2':
+            return 'dataflow_uris'
+        else:
+            raise NotImplementedError()
 
     def get_order_direction(self):
         return self.context.REQUEST.get('order[0][dir]')
