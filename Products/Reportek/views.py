@@ -9,11 +9,18 @@ class DataSources(BrowserView):
     def __init__(self, context, request):
         super(DataSources, self).__init__(context, request)
         self.obligation_uri = self._create_obligation_uri_dict()
+        self.obligation_title = self._create_obligation_title_dict()
 
     def _create_obligation_uri_dict(self):
         result = {}
         for obligation in self.context.dataflow_rod():
             result[obligation['PK_RA_ID']] = obligation['uri']
+        return result
+
+    def _create_obligation_title_dict(self):
+        result = {}
+        for obligation in self.context.dataflow_rod():
+            result[obligation['uri']] = obligation['TITLE']
         return result
 
     def get_brains(self):
@@ -44,16 +51,27 @@ class DataSources(BrowserView):
             brains = self.get_brains()
             for brain in brains:
                 obj = brain.getObject()
+                uris = list(obj.dataflow_uris)
+                # TODO: Find out why uri is not always in dataflow_uris
+                obligations = [
+                    (uri, self.obligation_title.get(uri, '')) for uri in uris
+                ]
+                short_path = '/' + obj.absolute_url(1)
+                full_path = obj.absolute_url(0)
+                users = obj.users_with_local_role(self.selected_role())
+                users_with_uri = [(self.user_uri(user), user) for user in users]
                 results.append({
-                    'short_path': '/' + obj.absolute_url(1),
-                    'full_path': obj.absolute_url(0),
+                    'path': [full_path, short_path],
                     'last_change': obj.bobobase_modification_time().Date(),
-                    'obligations': list(obj.dataflow_uris),
-                    'users': obj.users_with_local_role(self.selected_role())})
+                    'obligations': obligations,
+                    'users': users_with_uri})
 
             data_to_return = {"recordsTotal": 90, "draw": self.get_draw(),
                               "data": results}
             return json.dumps(data_to_return)
+
+    def user_uri(self, user):
+        return "http://www.eionet.europa.eu/directory/user?uid=%s" % user
 
     def get_draw(self):
         return self.context.REQUEST.get('draw')

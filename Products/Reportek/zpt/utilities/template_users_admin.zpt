@@ -69,7 +69,7 @@
         <th>Path</th>
         <th>Last change</th>
         <th>Obligations</th>
-        <th>Clients</th>
+        <th tal:content="python:request.get('role') + 's'"></th>
       </tr>
   </thead>
   <tbody>

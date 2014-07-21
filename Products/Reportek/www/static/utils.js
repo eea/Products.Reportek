@@ -1,36 +1,3 @@
-function initDataTables(table_id) {
-    /*Init the datatable object used in zpt/utilities/list_users.zpt
-     */
-    $(table_id).DataTable({
-        "serverSide": true,
-        "ajax":'/data-source',
-        "columns": [
-            { "data": "short_path" },
-            { "data": "last_change" },
-            { "data": "obligations", "bSortable": false },
-            { "data": "users", "bSortable": false }
-        ],
-        "columnDefs":[{
-            "targets": 0,
-            "render": function(data, type, row) {
-                return '<a href="' + row.full_path + '">' + data + '</a>';
-            }
-        },
-        {
-            "targets": 2,
-            "render": function(data, type, row) {
-                return data.join("<br />");
-            }
-        }
-        ],
-        "fnServerParams": function(aoData) {
-            aoData['obligations'] = $('#obligations').val();
-            aoData['countries'] = $('#countries').val();
-            aoData['role'] = $('#role').val();
-        }
-    });
-}
-
 $(function () {
     if ($('#table_id').length != 0) {
 
@@ -47,3 +14,46 @@ $(function () {
         initDataTables('#table_id');
     }
 })
+
+function initDataTables(table_id) {
+    /*Init the datatable object used in zpt/utilities/list_users.zpt
+     */
+    $(table_id).DataTable({
+        "serverSide": true,
+        "ajax":'/data-source',
+        "columns": [
+            { "data": "path" },
+            { "data": "last_change" },
+            { "data": "obligations", "bSortable": false },
+            { "data": "users", "bSortable": false }
+        ],
+        "columnDefs":[{
+            "targets": 0,
+            "render": function(data, type, row) {
+                return '<a href="' + data[0] + '">' + data[1] + '</a>';
+            }
+        },
+        {
+            "targets": 2,
+            "render": renderAsLI
+        },
+        {
+            "targets": 3,
+            "render": renderAsLI
+        }
+        ],
+        "fnServerParams": function(aoData) {
+            aoData['obligations'] = $('#obligations').val();
+            aoData['countries'] = $('#countries').val();
+            aoData['role'] = $('#role').val();
+        }
+    });
+}
+
+function renderAsLI(data, type, row) {
+    var result_html = '';
+    $.each(data, function(index, value) {
+        result_html += '<li><a href="' + value[0] + '">' + value[1] + '</a></li>';
+    });
+    return '<ul>' + result_html + '</ul>';
+}
