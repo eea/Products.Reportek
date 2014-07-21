@@ -6,8 +6,8 @@ function initDataTables(table_id) {
         "ajax":'/data-source',
         "pagingType": "simple",
         "pagining":true,
-        "columns":[
-            { "data": "short_path" },
+        "columns": [
+            { "data": "path" },
             { "data": "last_change" },
             { "data": "obligations", "bSortable": false },
             { "data": "users", "bSortable": false }
@@ -15,14 +15,16 @@ function initDataTables(table_id) {
         "columnDefs":[{
             "targets": 0,
             "render": function(data, type, row) {
-                return '<a href="' + row.full_path + '">' + data + '</a>';
+                return '<a href="' + data[0] + '">' + data[1] + '</a>';
             }
         },
         {
             "targets": 2,
-            "render": function(data, type, row) {
-                return data.join("<br />");
-            }
+            "render": renderAsLI
+        },
+        {
+            "targets": 3,
+            "render": renderAsLI
         }
         ],
         "fnServerParams": function(aoData) {
@@ -64,3 +66,11 @@ $(function () {
         initDataTables('#table_id');
     }
 });
+
+function renderAsLI(data, type, row) {
+    var result_html = '';
+    $.each(data, function(index, value) {
+        result_html += '<li><a href="' + value[0] + '">' + value[1] + '</a></li>';
+    });
+    return '<ul>' + result_html + '</ul>';
+}
