@@ -51,7 +51,10 @@ class DataSources(BrowserView):
                     'obligations': list(obj.dataflow_uris),
                     'users': obj.users_with_local_role(self.selected_role())})
 
+#               "next_button": "true" if self.get_start() else "false",
+#               "prev_button": "false" if self.get_start() else "true",
                 data_to_return = {
+                    "recordsFiltered": 100,
                     "draw": self.get_draw(),
                     "data": results
                 }

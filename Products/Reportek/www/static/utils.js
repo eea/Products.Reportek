@@ -29,7 +29,22 @@ function initDataTables(table_id) {
             aoData.obligations = $('#obligations').val();
             aoData.countries = $('#countries').val();
             aoData.role = $('#role').val();
+        },
+        "oLanguage":
+        {
+            "sInfo": "",
+            "sInfoFiltered": "",
+        },
+        /*,
+        "fnDrawCallback":function(oSettings) {
+            if (oSettings.json.next_button == "true")
+                if ($("a.paginate_button#table_id_next").length) {
+                    $("a.paginate_button#table_id_next").removeClass("disabled");
+                }
+            if (oSettings.json.prev_button == "true")
+                $("a.paginate_button#table_id_previous").removeClass("disabled");
         }
+        */
     });
 }
 
@@ -48,4 +63,4 @@ $(function () {
 
         initDataTables('#table_id');
     }
-})
+});
