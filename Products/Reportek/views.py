@@ -1,8 +1,7 @@
-import json
-from operator import itemgetter
 from collections import defaultdict
-
+from operator import itemgetter
 from Products.Five import BrowserView
+import json
 
 
 class DataSources(BrowserView):
@@ -24,31 +23,41 @@ class DataSources(BrowserView):
         return result
 
     def get_brains(self):
-        """Makes the query in catalog and returns the hits """
+        """Makes the query in catalog and returns the total number of hits and
+        the hits
+        """
         country_codes = [c['uri'] for c in self.context.localities_rod()
                          if c['iso'] in self.countries_filter()]
         query = {
             'meta_type': 'Report Collection',
-            'b_size': self.get_length(),
-            'b_start': self.get_start(),
-            'sort_order': self.get_order_direction(),
-            'sort_on': self.get_order_column(),
             'roles': self.selected_role()
         }
         if country_codes:
             query['country'] = country_codes
+
+#       Get the total numbers of brains
+        brains_number = len(self.context.Catalog(query))
+
         if self.obligations_filter():
             dataflow_uris = [self.obligation_uri[obl_id] for obl_id in
                              self.obligations_filter()]
             query['dataflow_uris'] = dataflow_uris
+
+#       Added to query parameters for the specific page
+        query['b_size'] = self.get_length()
+        query['b_start'] = self.get_start()
+        query['sort_order'] = self.get_order_direction()
+        query['sort_on'] = self.get_order_column()
+
         brains = self.context.Catalog(query)
 
-        return brains
+        return (brains_number, brains)
 
     def process_data(self):
         if self.context.REQUEST['REQUEST_METHOD'] == 'GET':
             results = []
-            brains = self.get_brains()
+            brains_number, brains = self.get_brains()
+
             for brain in brains:
                 obj = brain.getObject()
                 uris = list(obj.dataflow_uris)
@@ -67,7 +76,7 @@ class DataSources(BrowserView):
                     'users': users_with_uri})
 
                 data_to_return = {
-                    "recordsFiltered": 100,
+                    "recordsFiltered": brains_number,
                     "draw": self.get_draw(),
                     "data": results
                 }
