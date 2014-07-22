@@ -138,6 +138,12 @@ class DataSources(BrowserView):
         return sorted(roles)
 
 
+class ByPersonDataSource(DataSources):
+
+    def process_data(self):
+        return ""
+
+
 class TemplateUsersAdmin(BrowserView):
     """The view's template for users administration"""
 
