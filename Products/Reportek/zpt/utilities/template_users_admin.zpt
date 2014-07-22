@@ -63,7 +63,7 @@
   </div>
   <div id="tabbedmenuend"></div>
 
-  <table class="datatable" id="table_id">
+  <table class="datatable" id="datatable_by_path" data-tableSettings="by_path">
     <thead>
       <tr>
         <th>Path</th>

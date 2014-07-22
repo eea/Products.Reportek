@@ -12,7 +12,7 @@
       </div>
       <div id="tabbedmenuend"></div>
 
-      <table class="datatable" id="table_id">
+      <table class="datatable" id="datatable_by_person" data-tableSettings="by_person">
         <thead>
           <tr>
             <th>Auditor</th>

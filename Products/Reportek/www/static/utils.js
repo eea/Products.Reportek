@@ -1,60 +1,78 @@
-function initDataTables(table_id) {
-    /*Init the datatable object used in zpt/utilities/list_users.zpt
-     */
-    $(table_id).DataTable({
-        "serverSide": true,
-        "ajax":'/data-source',
-        "pagingType": "simple",
-        "pagining":true,
-        "columns": [
-            { "data": "path" },
-            { "data": "last_change" },
-            { "data": "obligations", "bSortable": false },
-            { "data": "users", "bSortable": false }
-        ],
-        "columnDefs":[{
-            "targets": 0,
-            "render": function(data, type, row) {
-                return '<a href="' + data[0] + '">' + data[1] + '</a>';
-            }
+function initDataTables() {
+    /* Init the datatable object */
+
+    var tableSettings = {
+        basic: {
+            "serverSide": true,
+            "pagingType": "simple",
+            "pagining":true,
+            "oLanguage":
+            {
+                "sInfo": "",
+                "sInfoFiltered": "",
+            },
         },
-        {
-            "targets": 2,
-            "render": renderAsLI
+        by_path: {
+            settings: {
+                "columns": [
+                    { "data": "path" },
+                    { "data": "last_change" },
+                    { "data": "obligations", "bSortable": false },
+                    { "data": "users", "bSortable": false }
+                ],
+                "columnDefs":[
+                    { "targets": 0,
+                        "render": function(data, type, row) {
+                        return '<a href="' + data[0] + '">' + data[1] + '</a>';}
+                    },
+                    {
+                        "targets": 2,
+                        "render": renderAsLI
+                    },
+                    {
+                        "targets": 3,
+                        "render": renderAsLI
+                    }
+                ],
+                "fnServerParams": function(aoData) {
+                    aoData.obligations = $('#obligations').val();
+                    aoData.countries = $('#countries').val();
+                    aoData.role = $('#role').val();
+                }
+            },
+            ajax: '/data-source'
         },
-        {
-            "targets": 3,
-            "render": renderAsLI
+        by_person: {
+            settings: {
+                "columns": [
+                    { "data": "auditor" },
+                    { "data": "path" }
+                ]
+            },
+            ajax:'/data-person'
         }
-        ],
-        "fnServerParams": function(aoData) {
-            aoData.obligations = $('#obligations').val();
-            aoData.countries = $('#countries').val();
-            aoData.role = $('#role').val();
-        },
-        "oLanguage":
-        {
-            "sInfo": "",
-            "sInfoFiltered": "",
-        },
-    });
+    };
+
+    var target = $("#datatable_by_path, #datatable_by_person");
+    var settings_name = target.get(0).getAttribute("data-tableSettings");
+    var basic = tableSettings.basic;
+    basic.ajax = tableSettings[settings_name].ajax;
+    var settings = $.extend(basic, tableSettings[settings_name].settings);
+    target.DataTable(settings);
 }
 
 $(function () {
-    if ($('#table_id').length) {
+    $("#obligations").select2({
+        width: 200
+    });
+    $("#role").select2({
+        width: 200
+    });
+    $("#countries").select2({
+        width: 200
+    });
 
-        $("#obligations").select2({
-            width: 200
-        });
-        $("#role").select2({
-            width: 200
-        });
-        $("#countries").select2({
-            width: 200
-        });
-
-        initDataTables('#table_id');
-    }
+    initDataTables();
 });
 
 function renderAsLI(data, type, row) {
