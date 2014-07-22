@@ -66,8 +66,6 @@ class DataSources(BrowserView):
                     'obligations': obligations,
                     'users': users_with_uri})
 
-#               "next_button": "true" if self.get_start() else "false",
-#               "prev_button": "false" if self.get_start() else "true",
                 data_to_return = {
                     "recordsFiltered": 100,
                     "draw": self.get_draw(),
