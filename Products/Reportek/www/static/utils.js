@@ -1,6 +1,11 @@
 function initDataTables() {
     /* Init the datatable object */
 
+    var target = $("#datatable_by_path, #datatable_by_person");
+    if (!target.length)
+        /* If is not the correct context get out from the the function */
+        return;
+
     var tableSettings = {
         basic: {
             "serverSide": true,
@@ -53,15 +58,16 @@ function initDataTables() {
         }
     };
 
-    var target = $("#datatable_by_path, #datatable_by_person");
     var settings_name = target.get(0).getAttribute("data-tableSettings");
     var basic = tableSettings.basic;
+    /* Set up the ajax's path */
     basic.ajax = tableSettings[settings_name].ajax;
     var settings = $.extend(basic, tableSettings[settings_name].settings);
     target.DataTable(settings);
 }
 
 $(function () {
+    /*TODO: set up the correct context for the select2*/
     $("#obligations").select2({
         width: 200
     });
