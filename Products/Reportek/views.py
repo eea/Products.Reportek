@@ -7,18 +7,19 @@ import json
 class DataSources(BrowserView):
     def __init__(self, context, request):
         super(DataSources, self).__init__(context, request)
+        self.dataflow_rod = self.context.dataflow_rod()
         self.obligation_uri = self._create_obligation_uri_dict()
         self.obligation_title = self._create_obligation_title_dict()
 
     def _create_obligation_uri_dict(self):
         result = {}
-        for obligation in self.context.dataflow_rod():
+        for obligation in self.dataflow_rod:
             result[obligation['PK_RA_ID']] = obligation['uri']
         return result
 
     def _create_obligation_title_dict(self):
         result = {}
-        for obligation in self.context.dataflow_rod():
+        for obligation in self.dataflow_rod:
             result[obligation['uri']] = obligation['TITLE']
         return result
 
@@ -34,6 +35,10 @@ class DataSources(BrowserView):
         }
         if country_codes:
             query['country'] = country_codes
+        search_value = self.get_search_value()
+        if search_value:
+            query['path'] = self.get_search_value()
+
 
 #       Get the total numbers of brains
         brains_number = len(self.context.Catalog(query))
@@ -73,13 +78,13 @@ class DataSources(BrowserView):
                     'path': [full_path, short_path],
                     'last_change': obj.bobobase_modification_time().Date(),
                     'obligations': obligations,
-                    'users': users_with_uri})
+                    'users':  users_with_uri})
 
-                data_to_return = {
-                    "recordsFiltered": brains_number,
-                    "draw": self.get_draw(),
-                    "data": results
-                }
+            data_to_return = {
+                "recordsFiltered": brains_number,
+                "draw": self.get_draw(),
+                "data": results
+            }
             return json.dumps(data_to_return)
 
     def user_uri(self, user):
@@ -94,7 +99,7 @@ class DataSources(BrowserView):
     def get_length(self):
         return self.context.REQUEST.get('length', '10')
 
-    def get_global_search(self):
+    def get_search_value(self):
         return self.context.REQUEST.get('search[value]')
 
     def get_order_column(self):
