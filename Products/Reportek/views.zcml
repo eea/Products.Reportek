@@ -37,4 +37,11 @@
     class=".views.DataSources"
     attribute="process_data" />
 
+  <browser:page
+    name="data-person"
+    for="*"
+    permission="zope2.ViewManagementScreens"
+    class=".views.ByPersonDataSource"
+    attribute="process_data" />
+
 </configure>
