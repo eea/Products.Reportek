@@ -27,7 +27,8 @@ function initDataTables() {
                 "columnDefs": [
                     { "targets": 0,
                         "render": function(data, type, row) {
-                        return '<a href="' + data[0] + '">' + data[1] + '</a>';}
+                            return '<a href="' + data[0] + '">' + data[1] + '</a>';
+                        }
                     },
                     {
                         "targets": 2,
@@ -50,8 +51,8 @@ function initDataTables() {
         by_person: {
             settings: {
                 "columns": [
-                    { "data": "auditor" },
-                    { "data": "path" }
+                    { "data": "user" },
+                    { "data": "paths" }
                 ],
                 "columnDefs": [
                     {
