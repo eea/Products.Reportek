@@ -8,14 +8,13 @@ function initDataTables() {
 
     var tableSettings = {
         basic: {
-            "serverSide": true,
             "pagingType": "simple",
             "pagining":true,
             "oLanguage":
             {
                 "sInfo": "",
-                "sInfoFiltered": "",
-            },
+                "sInfoFiltered": ""
+            }
         },
         by_path: {
             settings: {
@@ -25,7 +24,7 @@ function initDataTables() {
                     { "data": "obligations", "bSortable": false },
                     { "data": "users", "bSortable": false }
                 ],
-                "columnDefs":[
+                "columnDefs": [
                     { "targets": 0,
                         "render": function(data, type, row) {
                         return '<a href="' + data[0] + '">' + data[1] + '</a>';}
@@ -45,16 +44,24 @@ function initDataTables() {
                     aoData.role = $('#role').val();
                 }
             },
-            ajax: '/data-source'
+            ajax: '/data-source',
+            "serverSide": true
         },
         by_person: {
             settings: {
                 "columns": [
                     { "data": "auditor" },
                     { "data": "path" }
+                ],
+                "columnDefs": [
+                    {
+                        "targets": 1,
+                        "render": renderAsLI
+                    }
                 ]
             },
-            ajax:'/data-person'
+            ajax:'/data-person',
+            serverSide: false
         }
     };
 
@@ -62,6 +69,7 @@ function initDataTables() {
     var basic = tableSettings.basic;
     /* Set up the ajax's path */
     basic.ajax = tableSettings[settings_name].ajax;
+    basic.serverSide = tableSettings[settings_name].serverSide;
     var settings = $.extend(basic, tableSettings[settings_name].settings);
     target.DataTable(settings);
 }
