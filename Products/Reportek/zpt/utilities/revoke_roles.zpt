@@ -1,8 +1,10 @@
+<script src="++resource++static/revoke_roles.js"></script>
+
 <tal:block content="structure here/standard_html_header" />
 
 <div id="operations">
   <ul>
-    <li><a href="/admin">Administration</a></li>
+    <li><a href="/ReportekUtilities">Administration</a></li>
     <li><a href="/">Frontpage</a></li>
   </ul>
 </div>
@@ -16,15 +18,15 @@
     tal:attributes="value request/search_term | string:">
   <label for="search_param">matching criteria</label>
   <select name="search_param" id="search_param">
-        <tal:block
-          tal:repeat="item python:context.acl_users['ldapmultiplugin']['acl_users'].getLDAPSchema()">
-        <option
-            tal:define="sk python:item[0]; si python:item[1]"
-            tal:attributes="value python:sk"
-            tal:content="python: '%s (%s)' %(si, sk)">
-            si (sk)
-        </option>
-        </tal:block>
+    <tal:block
+      tal:repeat="item python: context.acl_users['ldapmultiplugin']['acl_users'].getLDAPSchema()">
+    <option
+        tal:define="sk python: item[0]; si python: item[1]"
+        tal:attributes="value python: sk"
+        tal:content="python: '%s (%s)' %(si, sk)">
+        si (sk)
+    </option>
+    </tal:block>
   </select>
   <input type="submit" name="btnFind" value="Search users" />
 </form>
@@ -35,11 +37,11 @@
       tal:define="res python:context.acl_users['ldapmultiplugin']['acl_users'].findUser(search_param=request.get('search_param'), search_term=request.get('search_term'))">
       <table class="datatable" style="width:100%;" tal:condition="res">
         <tr>
-           <th></th>
-           <th>Username</th>
-           <th>Name</th>
-           <th>Email</th>
-           <th>DN</th>
+          <th></th>
+          <th>Username</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>DN</th>
         </tr>
         <tr tal:repeat="item res">
           <td>
@@ -80,15 +82,6 @@
   </tal:block>
 </div>
 
-<script>
-  function toggleSelectRoles() {
-    var selectAllCB = document.getElementById("selectAllCB");
-    var elems = document.getElementsByName("ids:list");
-    for (i = 0; i < elems.length; i++) {
-      elems[i].checked = selectAllCB.checked;
-    }
-  }
-</script>
       
 <tal:block condition="python:request.get('btnRoles') and request.get('username')">
   <h2>Revoke user's local roles</h2>

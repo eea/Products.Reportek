@@ -76,17 +76,7 @@ function initDataTables() {
 }
 
 $(function () {
-  /*TODO: set up the correct context for the select2*/
-  $("#obligations").select2({
-    width: 200
-  });
-  $("#role").select2({
-    width: 200
-  });
-  $("#countries").select2({
-    width: 200
-  });
-
+  $("#obligations, #role, #countries").select2({width:200});
   initDataTables();
 });
 
