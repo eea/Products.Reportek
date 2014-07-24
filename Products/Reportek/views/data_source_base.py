@@ -66,7 +66,7 @@ class DataSourceBase(BrowserView):
         return req_filter
 
     def selected_role(self):
-        return self.context.REQUEST.get('role', self.get_roles()[0])
+        return self.context.REQUEST.get('role', '')
 
     def get_roles(self):
         roles = list(self.context.valid_roles())
