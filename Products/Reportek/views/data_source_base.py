@@ -48,7 +48,10 @@ class DataSourceBase(BrowserView):
             raise NotImplementedError()
 
     def get_order_direction(self):
-        return self.context.REQUEST.get('order[0][dir]')
+        request_param = self.context.REQUEST.get('order[0][dir]')
+        if request_param == 'desc':
+            return 'descending'
+        return 'ascending'
 
     def countries_filter(self):
         return self._filter_as_list('countries[]')
