@@ -31,6 +31,13 @@
     template="zpt/utilities/list_users_by_person.zpt"/>
 
   <browser:page
+    name="revoke_roles"
+    for=".ReportekUtilities.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.RevokeRoles"
+    template="zpt/utilities/revoke_roles.zpt"/>
+
+  <browser:page
     name="data-source"
     for="*"
     permission="zope2.ViewManagementScreens"
