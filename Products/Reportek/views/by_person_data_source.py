@@ -10,20 +10,18 @@ class ByPersonDataSource(DataSourceBase):
         country_codes = [c['uri'] for c in self.context.localities_rod()
                          if c['iso'] in self.countries_filter()]
         query = {
-            'meta_type': 'Report Collection',
-            'roles': self.selected_role()
+            'meta_type': 'Report Collection'
         }
+        if self.selected_role():
+            query['roles'] = self.selected_role()
         if country_codes:
             query['country'] = country_codes
-
         if self.obligations_filter():
             dataflow_uris = [self.obligation_uri[obl_id] for obl_id in
                              self.obligations_filter()]
             query['dataflow_uris'] = dataflow_uris
 
-        brains = self.context.Catalog(query)
-
-        return brains
+        return self.context.Catalog(query)
 
     def process_data(self):
         results = []
@@ -32,7 +30,13 @@ class ByPersonDataSource(DataSourceBase):
 
         for brain in brains:
             obj = brain.getObject()
-            users = obj.users_with_local_role(self.selected_role())
+            if self.selected_role():
+                users = obj.users_with_local_role(self.selected_role())
+            else:
+                users = []
+                for user in self.get_roles():
+                    users.extend(obj.users_with_local_role(user))
+
             for user in users:
                 full_path = obj.absolute_url(0)
                 short_path = '/' + obj.absolute_url(1)

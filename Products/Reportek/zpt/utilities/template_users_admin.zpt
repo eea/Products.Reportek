@@ -32,9 +32,10 @@
 
   <label for="role">Role</label>
   <select id="role" name="role">
+    <option></option>
     <option tal:repeat="role view/get_roles"
             tal:content="role"
-            tal:attributes="selected python:request.get('role') == role">
+            tal:attributes="selected python:request.get('role', '') == role">
     </option>
   </select>
 
@@ -69,7 +70,9 @@
         <th>Path</th>
         <th>Last change</th>
         <th>Obligations</th>
-        <th tal:content="python:request.get('role', 'Auditor') + 's'"></th>
+        <th tal:define="user python:request.get('role', 'User')"
+            tal:content="python:user + 's' if user else 'Users'">
+        </th>
       </tr>
   </thead>
   <tbody>
