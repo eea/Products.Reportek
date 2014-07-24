@@ -1,5 +1,4 @@
 <script src="++resource++static/revoke_roles.js"></script>
-
 <tal:block content="structure here/standard_html_header" />
 
 <div id="operations">
@@ -12,14 +11,14 @@
 <h1>Remove a user from all role assignments</h1>
 
 <h2>Find user</h2>
-<form action="" method="post">
+
+<form action="" method="get">
   <label for="search_term">containing</label>
   <input type="text" name="search_term" id="search_term" size="30"
     tal:attributes="value request/search_term | string:">
   <label for="search_param">matching criteria</label>
   <select name="search_param" id="search_param">
-    <tal:block
-      tal:repeat="item python: context.acl_users['ldapmultiplugin']['acl_users'].getLDAPSchema()">
+    <tal:block tal:repeat="item view/get_users_LDAPSchema">
     <option
         tal:define="sk python: item[0]; si python: item[1]"
         tal:attributes="value python: sk"
@@ -32,10 +31,19 @@
 </form>
 
 <tal:block condition="python: request.get('btnFind') or request.get('btnRoles')">
+
   <tal:block condition="request/search_term | nothing">
-    <form action="" method="post"
-      tal:define="res python:context.acl_users['ldapmultiplugin']['acl_users'].findUser(search_param=request.get('search_param'), search_term=request.get('search_term'))">
-      <table class="datatable" style="width:100%;" tal:condition="res">
+
+    <form action="" method="get"
+          tal:define="res python: view.get_username_information()">
+      <span tal:condition="python: res[0] == 'error'">
+        LDAP ERROR. <br />
+        Hint: Too few characters in 'containing'
+      </span>
+
+      <table class="datatable"
+        tal:condition="python: res and res[0] != 'error'"
+        style="width:100%;">
         <tr>
           <th></th>
           <th>Username</th>
@@ -43,7 +51,7 @@
           <th>Email</th>
           <th>DN</th>
         </tr>
-        <tr tal:repeat="item res">
+        <tr tal:repeat="item python:res[1]">
           <td>
             <input type="radio" name="username"
               tal:attributes="value item/uid;
@@ -64,16 +72,19 @@
             <input type="hidden" name="search_term" tal:attributes="value request/search_term">
             <input type="hidden" name="search_param" tal:attributes="value request/search_param">
       </table>
+
       <span tal:condition="not:res">No users found for this criteria.</span>
     </form>
-  </tal:block>
+
+  </tal:block> 
   <p tal:condition="python: not request.get('search_term')">
     <strong>Please enter a search term</strong>
   </p>
 </tal:block>
 
+
 <div class="important-msg"
-    tal:condition="python:request.get('btnRevoke') and request.get('ids')">
+  tal:condition="python:request.get('btnRevoke') and request.get('ids')">
   <tal:block
     define="username python:request.get('username');
             folders python:request.get('ids');
@@ -81,12 +92,10 @@
     <strong>Local roles successfully revoked</strong>
   </tal:block>
 </div>
-
-      
 <tal:block condition="python:request.get('btnRoles') and request.get('username')">
   <h2>Revoke user's local roles</h2>
   <tal:block define="local_roles python:view.get_user_localroles(request.get('username'))">
-    <form action="" method="post" tal:condition="local_roles">
+    <form action="" method="" tal:condition="local_roles">
       <table class="datatable" tal:condition="python:request.get('username')">
         <tr>
           <th><input type="checkbox" id="selectAllCB" onclick="toggleSelectRoles()" /></th>
@@ -121,5 +130,4 @@
     </p>
   </tal:block>
 </tal:block>
-
 <tal:block content="structure here/standard_html_footer"/>
