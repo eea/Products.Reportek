@@ -5,3 +5,10 @@ function toggleSelectRoles() {
     elems[i].checked = selectAllCB.checked;
   }
 }
+
+$(function () {
+  var containing = $("#search_term");
+  if (!containing.val()) {
+    containing[0].focus();
+  }
+});
