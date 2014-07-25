@@ -36,7 +36,7 @@ function initDataTables() {
           },
           {
             "targets": 3,
-            "render": renderAsLI
+            "render": renderClientColumn 
           }
         ],
         "fnServerParams": function(aoData) {
@@ -84,6 +84,14 @@ $(function () {
   $("#countries, #obligations").select2({width: 200});
   initDataTables();
 });
+
+function renderClientColumn(data, type, row) {
+  var result_html = '';
+  $.each(data, function(index, value) {
+    result_html += '<li><a href="' + value[0] + '">' + value[1] + '</a><a href="revoke_roles?search_term='+value[1] + '&search_param=cn&btnFind=Search+users">(x)</a></li>';
+  });
+  return '<ul>' + result_html + '</ul>';
+}
 
 function renderAsLI(data, type, row) {
   var result_html = '';
