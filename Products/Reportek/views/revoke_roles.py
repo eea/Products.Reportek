@@ -34,7 +34,8 @@ class RevokeRoles(BrowserView):
 
         users_infs = self.context.acl_users['ldapmultiplugin']['acl_users'].findUser(
             search_param=matching_criteria, search_term=containing)
-        if users_infs[0]['sn'] == "Error":
+
+        if (users_infs and users_infs[0]['sn'] == "Error"):
             return ('error', )
 
         return ('success', users_infs)
