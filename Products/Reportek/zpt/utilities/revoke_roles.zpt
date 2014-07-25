@@ -59,7 +59,8 @@
                                 checked python: item['uid'] == request.get('username')"/>
             </td>
             <td tal:content="item/uid">uid</td>
-            <td tal:content="item/cn">cn</td>
+            <td tal:content="python: unicode(item['cn'], 'ascii', 'replace')">
+              cn</td>
             <td>
               <a tal:attributes="href string:mailto:${item/mail}"
                 tal:content="item/mail">email
