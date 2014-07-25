@@ -3,3 +3,4 @@ from by_person_data_source import ByPersonDataSource
 from list_users import ListUsers
 from template_users_admin import TemplateUsersAdmin
 from revoke_roles import RevokeRoles
+from assign_role import AssignRole
