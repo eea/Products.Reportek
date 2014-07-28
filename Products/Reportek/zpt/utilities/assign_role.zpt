@@ -9,15 +9,6 @@
 
     <metal:block fill-slot="specific">
 
-      <fieldset><legend>Countries</legend>
-          <tal:block repeat="country python:view.get_all_countries()">
-            <div style="width:12em; float:left">
-              <input type="checkbox" name="" id="" value="">
-                <label for="" tal:content="country"/>
-            </div>
-          </tal:block>
-      </fieldset>
-
       <label for="obligations">Obligation</label>
       <select id="obligations" name="obligations" multiple="multiple">
         <tal:block define="rod_data view/get_rod_obligations"
@@ -32,6 +23,24 @@
             </tal:block>
           </optgroup>
         </tal:block>
+      </select>
+
+      <label for="role">Role</label>
+      <select id="role" name="role">
+        <option></option>
+        <option tal:repeat="role view/get_roles"
+                tal:content="role"
+                tal:attributes="selected python:request.get('role', '') == role">
+        </option>
+      </select>
+
+      <label for="countries">Countries</label>
+      <select id="countries" name="countries" multiple="multiple">
+        <option tal:repeat="country here/localities_rod"
+                tal:content="country/name"
+                tal:attributes="value country/iso;
+                  selected python:country['iso'] in request.get('countries', [])">
+        </option>
       </select>
 
     </metal:block>
