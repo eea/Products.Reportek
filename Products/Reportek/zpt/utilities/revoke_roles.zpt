@@ -76,8 +76,10 @@
           <tr>
             <td colspan="5">
               <input type="submit" name="btnRoles" value="Find user roles" />
-              <input type="hidden" name="search_term" tal:attributes="value request/search_term">
-              <input type="hidden" name="search_param" tal:attributes="value request/search_param">
+              <input type="hidden" name="search_term" tal:attributes="value request/search_term" />
+              <input type="hidden" name="search_param" tal:attributes="value request/search_param" />
+            </td>
+          </tr>
         </table>
 
         <span tal:condition="python: not res[1]">No users found for this criteria.</span>

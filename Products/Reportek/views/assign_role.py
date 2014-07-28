@@ -1,9 +1,10 @@
-from Products.Five import BrowserView
+from template_users_admin import TemplateUsersAdmin
 
 
-class AssignRole(BrowserView):
-    def get_users_LDAPSchema(self):
-        return self.context.acl_users['ldapmultiplugin']['acl_users'].getLDAPSchema()
+class AssignRole(TemplateUsersAdmin):
+    def get_title(self):
+        """ Returns the title of the view """
+        return "Assign Role"
 
     def get_username_information(self):
         """ Returns ('success'/'error', users_infs)
@@ -20,3 +21,33 @@ class AssignRole(BrowserView):
             return ('error', )
 
         return ('success', users_infs)
+
+    def get_all_countries(self):
+        """TODO: verify why the function don't return Algeria, Egypt, Lybia"""
+        return [country for country in self.context.Catalog.uniqueValuesFor(
+                'getCountryName') if country not in ['', 'Unknown']]
+
+    def get_XXX(self):
+        crole = 'Client'
+        query = {
+            'dataflow_uris':  '',
+            'meta_type': 'Report Collection',
+        }
+
+        catalog = self.context.Catalog
+        brains = catalog(**query)
+
+        countries = []
+        res = []
+        for brain in brains:
+            doc = brain.getObject()
+            try:
+                country = doc.getCountryCode()
+            except KeyError:
+                continue
+            if country.lower() not in countries:
+                continue
+            for user in []:
+                doc.manage_setLocalRoles(user, [crole, ])
+            res.append(doc)
+        return res

@@ -1,6 +1,12 @@
+<link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
+<script type="text/javascript" charset="utf8" src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+<script src="++resource++static/select2-3.5.0/select2.js"></script>
+<script src="++resource++static/assign_role.js"></script>
+
 <tal:block replace="structure here/standard_html_header" />
 <br/>
 <h1>Assign role</h1>
+
 
 <form action="" method="get">
   <label for="search_term">containing</label>
@@ -21,7 +27,7 @@
 </form>
 
 
-<tal:block condition="python: request.get('btnFind') or request.get('btnRoles')">
+<tal:block condition="python: request.get('btnFind')">
 
 <form action="" method="get"
       tal:define="res python: view.get_username_information()">
@@ -43,7 +49,7 @@
       </tr>
       <tr tal:repeat="item python:res[1]">
         <td>
-          <input type="radio" name="username"
+          <input type="checkbox" name="username"
             tal:attributes="value item/uid;
                             checked python: item['uid'] == request.get('username')"/>
         </td>
@@ -59,13 +65,38 @@
       </tr>
       <tr>
         <td colspan="5">
-          <input type="submit" name="btnRoles" value="Find user roles" />
           <input type="hidden" name="search_term" tal:attributes="value request/search_term">
           <input type="hidden" name="search_param" tal:attributes="value request/search_param">
     </table>
 
     <span tal:condition="python: not res[1]">No users found for this criteria.</span>
   </tal:block>
+
+  <fieldset><legend>Countries</legend>
+      <tal:block repeat="country python:view.get_all_countries()">
+        <div style="width:12em; float:left">
+          <input type="checkbox" name="" id="" value="">
+            <label for="" tal:content="country"/>
+        </div>
+      </tal:block>
+  </fieldset>
+
+  <label for="obligations">Obligation</label>
+  <select id="obligations" name="obligations" multiple="multiple">
+    <tal:block define="rod_data view/get_rod_obligations"
+               repeat="instrument rod_data/legal_instruments">
+      <optgroup tal:attributes="label instrument">
+        <tal:block repeat="obl python:rod_data['obligations'][instrument]">
+          <option tal:attributes="value obl/PK_RA_ID;
+                    class python:'terminated' if obl['terminated'] == '1' else nothing;
+                    selected python:obl['PK_RA_ID'] in view.obligations_filter()"
+                  tal:content="obl/TITLE">
+          </option>
+        </tal:block>
+      </optgroup>
+    </tal:block>
+  </select>
+
 </form>
 </tal:block>
 
