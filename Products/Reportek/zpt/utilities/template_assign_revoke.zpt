@@ -1,101 +1,104 @@
-<metal:block define-macro="page">
-<tal:block replace="structure here/standard_html_header" />
+<link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
 
 <script type="text/javascript" charset="utf8" src="//code.jquery.com/jquery-1.10.2.min.js"></script>
 <script src="++resource++static/select2-3.5.0/select2.js"></script>
 <script src="++resource++static/revoke_roles.js"></script>
 
+<metal:block define-macro="page">
+  <tal:block replace="structure here/standard_html_header" />
+
 <!-- TODO: move from <body> in <head> and mvoe from CDN to static-->
-<link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
-
-<div id="operations">
-  <ul>
-    <li><a href="/ReportekUtilities">Administration</a></li>
-    <li><a href="/">Frontpage</a></li>
-  </ul>
-</div>
-
-<h1 tal:content="view/get_title"></h1>
-
-<h2>Find user</h2>
-
-<form action="" method="get">
-  <label for="search_term">containing</label>
-  <input type="text" name="search_term" id="search_term" size="30"
-    tal:attributes="value request/search_term | string:">
-  <label for="search_param">matching criteria</label>
-  <select name="search_param" id="search_param">
-    <tal:block tal:repeat="item view/get_users_LDAPSchema">
-    <option
-        tal:define="sk python: item[0]; si python: item[1]"
-        tal:attributes="value python: sk"
-        tal:content="python: '%s (%s)' %(si, sk)">
-        si (sk)
-    </option>
-    </tal:block>
-  </select>
-  <input type="submit" name="btnFind" value="Search users" />
-</form>
 
 
-<tal:block condition="python: request.get('btnFind')">
-  <form action="" method="get"
-        tal:define="res python: view.get_username_information()">
-    <span tal:condition="python: res[0] == 'error'">
-      LDAP ERROR. <br />
-      Hint: Too few characters in 'containing'
-    </span>
+  <div id="operations">
+    <ul>
+      <li><a href="/ReportekUtilities">Administration</a></li>
+      <li><a href="/">Frontpage</a></li>
+    </ul>
+  </div>
 
-    <tal:block condition="python: res[0] != 'error'">
-      <fieldset>
-        <legend tal:content="view/get_select_user_legend"/>
-        <table class="datatable"
-          tal:condition="python: res[1]"
-          style="width:100%;">
-          <tr>
-            <th></th>
-            <th>Username</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>DN</th>
-          </tr>
-          <tr tal:repeat="item python:res[1]">
-            <td>
-              <input type="checkbox" name="username"
-                tal:attributes="value item/uid;
-                                checked python: item['uid'] == request.get('username')"/>
-            </td>
-            <td tal:content="item/uid">uid</td>
-            <td tal:content="python: unicode(item['cn'], 'ascii', 'replace')">
-              cn</td>
-            <td>
-              <a tal:attributes="href string:mailto:${item/mail}"
-                tal:content="item/mail">email
-              </a>
-            </td>
-            <td tal:content="item/dn">dn</td>
-          </tr>
-          <tr>
-            <td colspan="5">
-              <metal:block define-slot="button">
-              </metal:block>
-              <input type="hidden" name="search_term" tal:attributes="value request/search_term">
-              <input type="hidden" name="search_param" tal:attributes="value request/search_param">
-        </table>
-      </fieldset>
+  <h1 tal:content="view/get_title"></h1>
 
-      <span tal:condition="python: not res[1]">No users found for this criteria.</span>
-      <metal:block define-slot="specific">
-        
-      </metal:block>
-    </tal:block>
+  <h2>Find user</h2>
 
+  <form action="" method="get">
+    <label for="search_term">containing</label>
+    <input type="text" name="search_term" id="search_term" size="30"
+      tal:attributes="value request/search_term | string:">
+    <label for="search_param">matching criteria</label>
+    <select name="search_param" id="search_param">
+      <tal:block tal:repeat="item view/get_users_LDAPSchema">
+        <option
+          tal:define="sk python: item[0]; si python: item[1]"
+          tal:attributes="value python: sk"
+          tal:content="python: '%s (%s)' %(si, sk)">
+          si (sk)
+        </option>
+      </tal:block>
+    </select>
+    <input type="submit" name="btnFind" value="Search users" />
   </form>
 
-  <p tal:condition="python: not request.get('search_term')">
-    <strong>Please enter a search term</strong>
-  </p>
-</tal:block>
+
+  <tal:block condition="python: request.get('btnFind')">
+    <form action="" method="get"
+          tal:define="res python: view.get_username_information()">
+      <span tal:condition="python: res[0] == 'error'">
+        LDAP ERROR. <br />
+        Hint: Too few characters in 'containing'
+      </span>
+
+      <tal:block condition="python: res[0] != 'error'">
+        <fieldset>
+          <legend tal:content="view/get_select_user_legend"/>
+          <table class="datatable"
+            tal:condition="python: res[1]"
+            style="width:100%;">
+            <tr>
+              <th></th>
+              <th>Username</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>DN</th>
+            </tr>
+            <tr tal:repeat="item python:res[1]">
+              <td>
+                <input type="checkbox" name="username"
+                  tal:attributes="value item/uid;
+                                  checked python: item['uid'] == request.get('username')"/>
+              </td>
+              <td tal:content="item/uid">uid</td>
+              <td tal:content="python: unicode(item['cn'], 'ascii', 'replace')">
+                cn</td>
+              <td>
+                <a tal:attributes="href string:mailto:${item/mail}"
+                  tal:content="item/mail">email
+                </a>
+              </td>
+              <td tal:content="item/dn">dn</td>
+            </tr>
+            <tr>
+              <td colspan="5">
+                <metal:block define-slot="button">
+                </metal:block>
+                <input type="hidden" name="search_term" tal:attributes="value request/search_term">
+                <input type="hidden" name="search_param" tal:attributes="value request/search_param">
+          </table>
+        </fieldset>
+
+        <span tal:condition="python: not res[1]">No users found for this criteria.</span>
+        <metal:block define-slot="specific">
+          bibi
+        
+        </metal:block>
+      </tal:block>
+
+    </form>
+
+    <p tal:condition="python: not request.get('search_term')">
+      <strong>Please enter a search term</strong>
+    </p>
+  </tal:block>
 
 
 <!--
@@ -122,10 +125,5 @@
   </form>
 </tal:block>
 -->
-
-<metal:block define-slot="specific_elements">
-
+  <tal:block content="structure here/standard_html_footer"/>
 </metal:block>
-
-</metal:block>
-<tal:block content="structure here/standard_html_footer"/>

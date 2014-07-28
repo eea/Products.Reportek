@@ -2,15 +2,15 @@ from template_users_admin import TemplateUsersAdmin
 
 
 class TemplateAssignRevoke(TemplateUsersAdmin):
+    """ TODO: """
+
     def get_title(self):
         """ Returns the title of the view """
-#        raise NotImplemented
-        return "TEMPLATE"
+        raise NotImplemented
 
     def get_select_user_legend(self):
         """ Returns the """
-#        raise NotImplemented
-        return "TEMPLATE_SELECT_USERS"
+        raise NotImplemented
 
     def get_users_LDAPSchema(self):
         return self.context.acl_users['ldapmultiplugin']['acl_users'].getLDAPSchema()

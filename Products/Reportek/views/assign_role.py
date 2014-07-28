@@ -1,10 +1,20 @@
-from template_users_admin import TemplateUsersAdmin
+from template_assign_revoke import TemplateAssignRevoke
 
 
-class AssignRole(TemplateUsersAdmin):
+class AssignRole(TemplateAssignRevoke):
+    """ TODO: """
+
+    def get_view_parent(self):
+        """Returns an instance of TemplateUsersAdmin """
+        return self.context.restrictedTraverse('@@template_assign_revoke')
+
     def get_title(self):
         """ Returns the title of the view """
         return "Assign Role"
+
+    def get_select_user_legend(self):
+        """ Returns the title of the view """
+        return "Select user(s) to assign 'Client' role"
 
     def get_username_information(self):
         """ Returns ('success'/'error', users_infs)
