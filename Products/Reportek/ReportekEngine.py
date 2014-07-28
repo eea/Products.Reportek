@@ -162,9 +162,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         # don't send the completed from back, the values set on self must be used
         return self._manage_properties(manage_tabs_message="Properties changed")
 
-    def canPingCR(self):
+    def canPingCR(self, envelope):
         """Check if a pingger is or can be created"""
-        if getSecurityManager().checkPermission('Release Envelopes', self):
+        if getSecurityManager().checkPermission('Release Envelopes', envelope):
             return bool(self.contentRegistryPingger)
 
     @property
