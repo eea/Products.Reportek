@@ -20,7 +20,6 @@ class ByPathDataSource(DataSourceBase):
         if search_value:
             query['path'] = self.get_search_value()
 
-
         total = len(self.context.Catalog(query))
 
         if self.obligations_filter():
@@ -57,7 +56,7 @@ class ByPathDataSource(DataSourceBase):
                         users.extend(obj.users_with_local_role(role))
                 users_with_uri = [(self.user_uri(user), user) for user in users]
                 results.append({
-                    'path': [full_path, short_path],
+                    'path': [full_path, short_path, obj.title],
                     'last_change': obj.bobobase_modification_time().Date(),
                     'obligations': obligations,
                     'users':  users_with_uri})

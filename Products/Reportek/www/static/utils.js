@@ -27,7 +27,7 @@ function initDataTables() {
         "columnDefs": [
           { "targets": 0,
             "render": function(data, type, row) {
-              return '<a href="' + data[0] + '">' + data[1] + '</a>';
+              return '<a href="' + data[0] + '" title="' + data[2] + '" >' + data[1] + '</a>';
             }
           },
           {
