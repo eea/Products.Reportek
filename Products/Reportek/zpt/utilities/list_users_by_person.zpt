@@ -1,31 +1,37 @@
-<tal:block define="view_parent python:view.get_view_parent()">
-  <metal:block use-macro="view_parent/macros/page">
+<metal:block use-macro="here/template_list_users/macros/users-page">
 
-    <metal:block fill-slot="grouped">
+  <metal:block fill-slot="tabs">
+    <div  id="tabbedmenu">
+      <ul>
+        <li>
+          <a tal:attributes="href python:view.get_view('list_users_by_path')">
+            Grouped by path
+          </a>
+        </li>
+        <li id="currenttab">
+          <span>Grouped by person</span>
+        </li>
+      </ul>
+    </div>
+    <div id="tabbedmenuend"></div>
+  </metal:block>
 
-      <div  id="tabbedmenu">
-        <ul>
-          <li><a tal:attributes="href python:view.get_view('list_users_by_path')">
-              Grouped by path</a></li>
-          <li id="currenttab"><span>Grouped by person</span></li>
-        </ul>
-      </div>
-      <div id="tabbedmenuend"></div>
-
-      <table class="datatable" id="datatable_by_person" data-tableSettings="by_person">
-        <thead>
-          <tr>
-            <th tal:define="user python:request.get('role', 'User')"
-                tal:content="python:user if user else 'User'">
-            </th>
-            <th>Path</th>
-          </tr>
+  <metal:block fill-slot="data-table">
+    <table class="datatable" id="datatable_by_person"
+           data-tableSettings="by_person">
+      <thead>
+        <tr>
+          <th tal:define="user python:request.get('role', 'User')"
+              tal:content="python:user if user else 'User'">
+          </th>
+          <th>Path</th>
+        </tr>
       </thead>
-      <tbody>
-      </tbody>
-      </table>
 
-    </metal:block>
+      <tbody></tbody>
+    </table>
 
   </metal:block>
-</tal:block>
+
+</metal:block>
+

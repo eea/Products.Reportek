@@ -8,9 +8,9 @@ class ListUsers(BaseAdmin):
         """Returns an instance of BaseAdmin """
         return self.context.restrictedTraverse('@@template_list_users')
 
-    def get_view(self, group_criterion):
-        """Returns the view coresponding to the group_criterion"""
+    def get_view(self, view_name):
+        """Returns the view coresponding to the view_name"""
         if self.context.REQUEST.QUERY_STRING:
-            return group_criterion + '?' + self.context.REQUEST.QUERY_STRING
+            return view_name + '?' + self.context.REQUEST.QUERY_STRING
         else:
-            return group_criterion
+            return view_name
