@@ -54,6 +54,8 @@ class ByPathDataSource(DataSourceBase):
                     users = []
                     for role in self.get_roles():
                         users.extend(obj.users_with_local_role(role))
+                if not users:
+                    continue
                 users_with_uri = [(self.user_uri(user), user) for user in users]
                 results.append({
                     'path': [full_path, short_path, obj.title],
