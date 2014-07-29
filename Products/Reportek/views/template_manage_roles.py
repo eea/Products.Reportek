@@ -1,7 +1,7 @@
 from template_list_users import TemplateListUsers
 
 
-class TemplateAssignRevoke(TemplateListUsers):
+class TemplateManageRoles(TemplateListUsers):
     """ TODO: """
 
     def get_title(self):

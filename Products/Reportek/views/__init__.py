@@ -4,4 +4,4 @@ from list_users import ListUsers
 from template_list_users import TemplateListUsers
 from revoke_roles import RevokeRoles
 from assign_role import AssignRole
-from template_assign_revoke import TemplateAssignRevoke
+from template_manage_roles import TemplateManageRoles

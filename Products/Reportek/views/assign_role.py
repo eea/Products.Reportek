@@ -1,12 +1,12 @@
-from template_assign_revoke import TemplateAssignRevoke
+from template_manage_roles import TemplateManageRoles
 
 
-class AssignRole(TemplateAssignRevoke):
+class AssignRole(TemplateManageRoles):
     """ TODO: """
 
     def get_view_parent(self):
         """Returns an instance of TemplateListUsers """
-        return self.context.restrictedTraverse('@@template_assign_revoke')
+        return self.context.restrictedTraverse('@@template_manage_roles')
 
     def get_title(self):
         """ Returns the title of the view """

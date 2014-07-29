@@ -45,11 +45,11 @@
     template="zpt/utilities/assign_role.zpt"/>
 
   <browser:page
-    name="template_assign_revoke"
+    name="template_manage_roles"
     for=".ReportekUtilities.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
-    class=".views.TemplateAssignRevoke"
-    template="zpt/utilities/template_assign_revoke.zpt"/>
+    class=".views.TemplateManageRoles"
+    template="zpt/utilities/template_manage_roles.zpt"/>
 
   <browser:page
     name="data-source"
