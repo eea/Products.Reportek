@@ -1,11 +1,11 @@
-from template_list_users import TemplateListUsers
+from base_admin import BaseAdmin
 
 
-class ListUsers(TemplateListUsers):
+class ListUsers(BaseAdmin):
     """View for list_users_by_path, list_users_by_person"""
 
     def get_view_parent(self):
-        """Returns an instance of TemplateListUsers """
+        """Returns an instance of BaseAdmin """
         return self.context.restrictedTraverse('@@template_list_users')
 
     def get_view(self, group_criterion):

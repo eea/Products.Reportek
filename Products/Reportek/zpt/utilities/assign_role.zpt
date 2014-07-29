@@ -7,6 +7,8 @@
 <tal:block define="view_parent python:view.get_view_parent()">
   <metal:block use-macro="view_parent/macros/page">
 
+    <h1 fill-slot="page-header">Assign role</h1>
+
     <metal:block fill-slot="specific">
 
       <label for="obligations">Obligation</label>

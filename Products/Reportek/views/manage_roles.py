@@ -1,9 +1,15 @@
-from Products.Five import BrowserView
+from base_admin import BaseAdmin
 
 
-class RevokeRoles(BrowserView):
-    """TODO
-    """
+class ManageRoles(BaseAdmin):
+    """ ManageRoles view """
+
+
+    def get_view_parent(self):
+        """Returns an instance of BaseAdmin """
+        return self.context.restrictedTraverse('@@template_manage_roles')
+
+
     def get_user_localroles(self, username):
         results = []
         for brain in self.context.Catalog(meta_type='Report Collection'):
@@ -18,10 +24,12 @@ class RevokeRoles(BrowserView):
 
         return results
 
+
     def revoke_roles(self, paths, username):
         for path in paths:
             folder = self.context.restrictedTraverse(path)
             folder.manage_delLocalRoles(userids=[username, ])
+
 
     def get_username_information(self):
         """ Returns ('success'/'error', users_infs)
@@ -39,6 +47,7 @@ class RevokeRoles(BrowserView):
             return ('error', )
 
         return ('success', users_infs)
+
 
     def get_users_LDAPSchema(self):
         return self.context.acl_users['ldapmultiplugin']['acl_users'].getLDAPSchema()

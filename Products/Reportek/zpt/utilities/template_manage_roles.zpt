@@ -17,7 +17,7 @@
     </ul>
   </div>
 
-  <h1 tal:content="view/get_title"></h1>
+  <h1 define-slot="page-header">Manage roles</h1>
 
   <h2>Find user</h2>
 
@@ -50,7 +50,6 @@
 
       <tal:block condition="python: res[0] != 'error'">
         <fieldset>
-          <legend tal:content="view/get_select_user_legend"/>
           <table class="datatable"
             tal:condition="python: res[1]"
             style="width:100%;">
@@ -89,7 +88,7 @@
         <span tal:condition="python: not res[1]">No users found for this criteria.</span>
         <metal:block define-slot="specific">
           bibi
-        
+
         </metal:block>
       </tal:block>
 
