@@ -87,7 +87,7 @@ $(function () {
 function renderClientColumn(data, type, row) {
   var result_html = '';
   $.each(data, function(index, value) {
-    result_html += '<li><a href="' + value[0] + '">' + value[1] + '</a><a href="revoke_roles?search_term='+value[1] + '&search_param=cn&btnFind=Search+users">(x)</a></li>';
+    result_html += '<li><a href="' + value[0] + '">' + value[1] + '</a><a class="revoke-roles" href="revoke_roles?search_term='+value[1] + '&search_param=cn&btnFind=Search+users"><i class="icon-trash"></i></a></li>';
   });
   return '<ul>' + result_html + '</ul>';
 }

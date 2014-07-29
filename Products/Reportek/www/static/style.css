@@ -1,3 +1,8 @@
+.dataTable {
+  width: 100%;
+  clear: both;
+}
+
 table.dataTable thead .sorting_asc,
 table.dataTable thead .sorting_desc,
 table.dataTable thead .sorting {
@@ -36,6 +41,45 @@ table.dataTable tbody tr.selected {
 table.dataTable thead th {
   white-space: nowrap;
 }
+.dataTables_filter,
+.dataTables_length {
+  margin: .5em 0;
+}
+.dataTables_filter {
+  float: right;
+}
+.dataTables_length {
+  float: left;
+}
+
+.dataTables_paginate {
+  text-align: right;
+}
+.dataTables_paginate a {
+  display: inline-block;
+  margin: 0 3px;
+}
+.dataTables_paginate a:hover {
+  cursor: pointer;
+  color: blue;
+}
+.paginate_button.next:after {
+  content: " >";
+}
+.paginate_button.previous:before {
+  content: "< ";
+}
+
+a.revoke-roles {
+  display: inline-block;
+  margin-left: 1px;
+  color: gray;
+  text-decoration: none;
+}
+a.revoke-roles:hover {
+  color: black;
+  text-decoration: none;
+}
 
 .filters {
   margin-bottom: 2em;
@@ -66,6 +110,9 @@ table.dataTable thead th {
   width: 600px;
   float: left;
   margin: 0!important;
+}
+.select2-drop {
+  font-size: smaller;
 }
 .form-group .select2-container ul {
   margin: 0!important;
