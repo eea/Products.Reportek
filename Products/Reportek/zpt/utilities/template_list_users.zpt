@@ -3,10 +3,10 @@
 
 <!-- TODO: move from <body> in <head> and mvoe from CDN to static-->
 <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
-<link rel="stylesheet" type="text/css" href="++resource++static/jquery.dataTables.css">
+<link rel="stylesheet" type="text/css" href="++resource++static/datatables-1.10.1/media/css/jquery.dataTables.min.css">
 
 <script type="text/javascript" charset="utf8" src="++resource++static/jquery-1.10.2.min.js"></script>
-<script type="text/javascript" charset="utf8" src="++resource++static/jquery.dataTables.js"></script>
+<script type="text/javascript" charset="utf8" src="++resource++static/datatables-1.10.1/media/js/jquery.dataTables.min.js"></script>
 <script src="++resource++static/select2-3.5.0/select2.js"></script>
 <script src="++resource++static/utils.js"></script>
 
