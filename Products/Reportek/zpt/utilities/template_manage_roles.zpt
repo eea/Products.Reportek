@@ -1,6 +1,6 @@
 <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
 
-<script type="text/javascript" charset="utf8" src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" charset="utf8" src="//++resource++static/jquery-1.10.2.min.js"></script>
 <script src="++resource++static/select2-3.5.0/select2.js"></script>
 <script src="++resource++static/revoke_roles.js"></script>
 
