@@ -17,6 +17,13 @@
     template="zpt/utilities/template_list_users.zpt"/>
 
   <browser:page
+    name="filters_macro"
+    for=".ReportekUtilities.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.BaseAdmin"
+    template="zpt/utilities/filters_macro.zpt"/>
+
+  <browser:page
     name="list_users_by_path"
     for=".ReportekUtilities.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
