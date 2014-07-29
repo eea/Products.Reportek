@@ -191,7 +191,7 @@ class FileContainer(Persistent):
 
     UNITS = ['B', 'KB', 'MB', 'GB', 'TB']
     @classmethod
-    def human_readable(cls, size):
+    def human_readable(cls, size, threeDigitsOnly=True):
         compact_size = size
         step = 0
         # keep the maximum number of significant digits to 3
@@ -201,8 +201,17 @@ class FileContainer(Persistent):
 
         if step == 0:
             return "%d %s" % (compact_size, cls.UNITS[step])
+        if threeDigitsOnly:
+            if compact_size >= 100:
+                decimals = 0
+            elif compact_size >= 10:
+                decimals = 1
+            else:
+                decimals = 2
+            format_str = "%%.%df %%s" % decimals
         else:
-            return "%.2f %s" % (compact_size, cls.UNITS[step])
+            format_str = "%%.2f %%s"
+        return format_str % (compact_size, cls.UNITS[step])
 
 
 class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
