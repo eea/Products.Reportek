@@ -6,7 +6,7 @@ class ListUsers(TemplateListUsers):
 
     def get_view_parent(self):
         """Returns an instance of TemplateListUsers """
-        return self.context.restrictedTraverse('@@template_users_admin')
+        return self.context.restrictedTraverse('@@template_list_users')
 
     def get_view(self, group_criterion):
         """Returns the view coresponding to the group_criterion"""
