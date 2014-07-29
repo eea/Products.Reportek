@@ -3,7 +3,7 @@ from operator import itemgetter
 from Products.Five import BrowserView
 
 
-class TemplateUsersAdmin(BrowserView):
+class TemplateListUsers(BrowserView):
     """The view's template for users administration"""
 
     def get_rod_obligations(self):

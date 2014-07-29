@@ -5,7 +5,7 @@ class AssignRole(TemplateAssignRevoke):
     """ TODO: """
 
     def get_view_parent(self):
-        """Returns an instance of TemplateUsersAdmin """
+        """Returns an instance of TemplateListUsers """
         return self.context.restrictedTraverse('@@template_assign_revoke')
 
     def get_title(self):

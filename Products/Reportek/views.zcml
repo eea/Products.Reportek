@@ -10,11 +10,11 @@
     template="zpt/utilities/index.zpt"/>
 
   <browser:page
-    name="template_users_admin"
+    name="template_list_users"
     for=".ReportekUtilities.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
-    class=".views.TemplateUsersAdmin"
-    template="zpt/utilities/template_users_admin.zpt"/>
+    class=".views.TemplateListUsers"
+    template="zpt/utilities/template_list_users.zpt"/>
 
   <browser:page
     name="list_users_by_path"
