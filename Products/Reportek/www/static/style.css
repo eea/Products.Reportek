@@ -36,3 +36,54 @@ table.dataTable tbody tr.selected {
 table.dataTable thead th {
   white-space: nowrap;
 }
+
+.filters {
+  margin-bottom: 2em;
+  padding: 1em;
+  border: 1px solid #B6B6B6;
+  background: #f2f2f2;
+}
+.form-group:before,
+.form-group:after {
+  display: table;
+  content: "";
+}
+.form-group:after {
+  clear: both;
+}
+.form-group {
+  margin-bottom: 1em;
+  width: 100%;
+}
+.form-group label {
+  width: 92px;
+  padding-right: 12px;
+  float: left;
+  text-align: right;
+  line-height: 30px;
+}
+.form-group .select2-container {
+  width: 600px;
+  float: left;
+  margin: 0!important;
+}
+.form-group .select2-container ul {
+  margin: 0!important;
+}
+input[type="submit"] {
+  background: #3065a6;
+  background-image: none;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #428be1), color-stop(100%, #3065a6));
+  background-image: -webkit-linear-gradient(#428be1, #3065a6);
+  background-image: -moz-linear-gradient(#428be1, #3065a6);
+  background-image: -o-linear-gradient(#428be1, #3065a6);
+  background-image: linear-gradient(#428be1, #3065a6);
+  border: 1px solid #3065a6;
+  border-radius: 3px;
+  font-size: small;
+  color: #fff;
+  text-shadow: 0 -1px 0 #3065a6;
+}
+.filters .actions {
+  margin-left: 102px;
+}

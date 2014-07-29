@@ -14,41 +14,53 @@
 
 <form method="get">
 
-  <label for="obligations">Obligation</label>
-  <select id="obligations" name="obligations" multiple="multiple">
-    <tal:block define="rod_data view/get_rod_obligations"
-               repeat="instrument rod_data/legal_instruments">
-      <optgroup tal:attributes="label instrument">
-        <tal:block repeat="obl python:rod_data['obligations'][instrument]">
-          <option tal:attributes="value obl/PK_RA_ID;
-                    class python:'terminated' if obl['terminated'] == '1' else nothing;
-                    selected python:obl['PK_RA_ID'] in view.obligations_filter()"
-                  tal:content="obl/TITLE">
-          </option>
+  <div class="filters">
+    <div class="form-group">
+      <label for="obligations">Obligation</label>
+      <select id="obligations" name="obligations" multiple="multiple">
+        <tal:block define="rod_data view/get_rod_obligations"
+                   repeat="instrument rod_data/legal_instruments">
+          <optgroup tal:attributes="label instrument">
+            <tal:block repeat="obl python:rod_data['obligations'][instrument]">
+              <option tal:attributes="value obl/PK_RA_ID;
+                        class python:'terminated' if obl['terminated'] == '1' else nothing;
+                        selected python:obl['PK_RA_ID'] in view.obligations_filter()"
+                      tal:content="obl/TITLE">
+              </option>
+            </tal:block>
+          </optgroup>
         </tal:block>
-      </optgroup>
-    </tal:block>
-  </select>
+      </select>
+    </div>
 
-  <label for="role">Role</label>
-  <select id="role" name="role">
-    <option></option>
-    <option tal:repeat="role view/get_roles"
-            tal:content="role"
-            tal:attributes="selected python:request.get('role', '') == role">
-    </option>
-  </select>
+    <div class="form-group">
+      <label for="role">Role</label>
+      <select id="role" name="role" style="width: 200px;">
+        <option></option>
+        <option tal:repeat="role view/get_roles"
+                tal:content="role"
+                tal:attributes="selected python:request.get('role', '') == role">
+        </option>
+      </select>
+    </div>
 
-  <label for="countries">Countries</label>
-  <select id="countries" name="countries" multiple="multiple">
-    <option tal:repeat="country here/localities_rod"
-            tal:content="country/name"
-            tal:attributes="value country/iso;
-              selected python:country['iso'] in request.get('countries', [])">
-    </option>
-  </select>
+    <div class="form-group">
+      <label for="countries">Countries</label>
+      <select id="countries" name="countries" multiple="multiple">
+        <option tal:repeat="country here/localities_rod"
+                tal:content="country/name"
+                tal:attributes="value country/iso;
+                  selected python:country['iso'] in request.get('countries', [])">
+        </option>
+      </select>
+    </div>
 
-  <input type="submit" value="Filter" />
+    <div class="actions">
+      <input type="submit" value="Filter" />
+      <a href="#">Clear filters</a>
+    </div>
+
+  </div>
 
 </form>
 

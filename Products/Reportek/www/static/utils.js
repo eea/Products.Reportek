@@ -36,7 +36,7 @@ function initDataTables() {
           },
           {
             "targets": 3,
-            "render": renderClientColumn 
+            "render": renderClientColumn
           }
         ],
         "fnServerParams": function(aoData) {
@@ -77,11 +77,10 @@ function initDataTables() {
 
 $(function () {
   $("#role").select2({
-    width: 200,
     placeholder: "(All)",
     allowClear: true
   });
-  $("#countries, #obligations").select2({width: 200});
+  $("#countries, #obligations").select2();
   initDataTables();
 });
 
