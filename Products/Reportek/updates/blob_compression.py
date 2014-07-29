@@ -26,6 +26,11 @@ def update(app, outName='blob_compression.log'):
             # just making sure we populate the aquisition wrapper for later operation on __dict__
             repr(ob)
             data_file = ob.data_file
+            # TODO - test this locally before migration !!!
+            # get rid of unreliable fs_path
+            if getattr(ob, 'fs_path', None) is not None:
+                delattr(ob, 'fs_path')
+                transaction.commit()
 
             old_FileContainer = not hasattr(data_file, 'compressed')
             if old_FileContainer:

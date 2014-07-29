@@ -62,7 +62,6 @@ class FileContainer(Persistent):
         self.mtime = time()
         self.size = 0
         self.content_type = content_type
-        self.fs_path = ''
         self._toCompress = compress
         self.compressed = False
         self.compressed_size = None
@@ -131,7 +130,6 @@ class FileContainer(Persistent):
             raise StorageError
 
     def _update_metadata(self, fs_path, orig_size, preserve_mtime):
-        # fs_path is inside /tmp/ right now, can't save path
         ## Remove this after migration is complete
         if not preserve_mtime:
             self.mtime = os.path.getmtime(fs_path)
@@ -175,11 +173,10 @@ class FileContainer(Persistent):
     def get_fs_path(self):
         blob_dir = self.get_blob_dir()
         try:
-            if not getattr(self, 'fs_path', None):
-                this_data_file = self._blob.open('r')
-                self.fs_path = this_data_file.name[len(blob_dir)+1:]
-                this_data_file.close()
-            return os.path.join(blob_dir, self.fs_path)
+            this_data_file = self._blob.open('r')
+            fs_path = this_data_file.name[len(blob_dir)+1:]
+            this_data_file.close()
+            return os.path.join(blob_dir, fs_path)
         except:
             return ''
 

@@ -375,9 +375,9 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         inside the blob structure"""
         # Multilang unfriendly. But only tech staff debugging will use these...
         not_found = "file not found"
-        if getattr(self.data_file, 'fs_path', None) is None:
-            return not_found + " (upload failed?)"
         path = self.data_file.get_fs_path()
+        if not path:
+            return not_found + " (upload failed?)"
         if not os.path.isfile(path):
             return not_found + " (should have been: %s)" % path
 
