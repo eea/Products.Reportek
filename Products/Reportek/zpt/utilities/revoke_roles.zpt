@@ -1,6 +1,6 @@
 <link rel="stylesheet" type="text/css" href="++resource++static/jquery.dataTables.css">
 
-<script type="text/javascript" charset="utf8" src="//++resource++static/jquery-1.10.2.min.js"></script>
+<script type="text/javascript" charset="utf8" src="++resource++static/jquery-1.10.2.min.js"></script>
 <script src="++resource++static/revoke_roles.js"></script>
 
 <tal:block content="structure here/standard_html_header" />
