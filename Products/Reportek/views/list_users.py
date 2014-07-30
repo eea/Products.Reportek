@@ -45,7 +45,7 @@ class ListUsers(BaseAdmin):
         query = {'meta_type': 'Report Collection'}
 
         if role:
-            query['roles'] = role
+            query['local_defined_roles'] = role
         if country_codes:
             query['country'] = country_codes
         if dataflow_uris:
@@ -72,24 +72,25 @@ class ListUsers(BaseAdmin):
                             sort_on=self.get_order_column())
 
         results = []
-        for brain in brains:
-            obj = brain.getObject()
 
-            import pdb; pdb.set_trace()
+        for brain in brains:
+
             obligations = [(uri, self.get_obligations_title()[uri]) for uri
-                         in list(obj.dataflow_uris)]
+                         in list(brain.dataflow_uris)]
 
             if role:
-                users = obj.users_with_local_role(role)
+                users = [user for user,roles
+                         in brain.local_defined_users.iteritems()
+                         if role in roles]
             else:
-                users = sum(map(obj.users_with_local_role,
-                        self.context.userdefined_roles()), [])
+                users = brain.local_defined_users.keys()
+
             if not users:
                 continue
 
             results.append({
                 'path': [brain.getPath(), brain.getPath(), brain.title],
-                'last_change': obj.bobobase_modification_time().Date(),
+                'last_change': brain.bobobase_modification_time.Date(),
                 'obligations': obligations,
                 'users':  users})
 

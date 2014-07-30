@@ -77,7 +77,7 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
             {'label':'List of reporters', 'action':'get_users_list'},
         ) + Folder.manage_options[3:]
 
-    def __init__(self, id, title='', year='', endyear='', partofyear='', country='', locality='', 
+    def __init__(self, id, title='', year='', endyear='', partofyear='', country='', locality='',
             descr='', dataflow_uris=[], allow_collections=0, allow_envelopes=0):
         """ constructor """
         self.id = id
@@ -199,10 +199,18 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
 
     _get_users_list = PageTemplateFile('zpt/collection/users', globals())
 
+    def local_defined_users(self):
+        return self.__ac_local_roles__
+
+    def local_unique_roles(self):
+        return set(role for roles
+                in self.__ac_local_roles__.values()
+                for role in roles)
+
     security.declareProtected(manage_users, 'get_users_list')
     def get_users_list(self, REQUEST):
         """ List accounts with the reporter and client roles for current folder and subfolders """
-        from ldap.dn import explode_dn 
+        from ldap.dn import explode_dn
         role_param = REQUEST.get('role', '')
         users = {}
         global_users = {}
@@ -379,7 +387,7 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
         return p_ret
 
     def changeQueryString(self, p_query_string, p_parameter, p_value):
-        """ given the QUERY_STRING part of an URL, the function searches for the 
+        """ given the QUERY_STRING part of an URL, the function searches for the
             parameter p_parameter and gives it the value p_value
         """
         l_ret = ''
@@ -429,7 +437,7 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
                 else:
                     l_query_array[i] = l_input_array[i]
         else:
-            
+
             if p_value == None:
                 try:
                     del(l_query_array[p_parameter])
@@ -438,13 +446,6 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
             else:
                 l_query_array[p_parameter] = p_value
         return l_query_array
-
-    def roles(self):
-        all_roles = set()
-        for user, roles in self.get_local_roles():
-            all_roles = all_roles.union(roles)
-        return all_roles
-
 
     security.declareProtected('View', 'messageDialog')
     def messageDialog(self, message='', action='./manage_main', REQUEST=None):
