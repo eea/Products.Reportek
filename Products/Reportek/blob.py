@@ -35,6 +35,7 @@ class FileContainer(Persistent):
         'text/x-unknown-content-type',
         'application/octet-stream',
         'text/xml',
+        'application/rdf+xml',
         'text/plain',
         'text/html',
         'text/richtext',
