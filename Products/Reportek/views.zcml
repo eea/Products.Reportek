@@ -10,32 +10,39 @@
     template="zpt/utilities/index.zpt"/>
 
   <browser:page
-    name="template_list_users"
+    name="users_template"
     for=".ReportekUtilities.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.BaseAdmin"
-    template="zpt/utilities/template_list_users.zpt"/>
+    template="zpt/utilities/users_template.zpt"/>
 
   <browser:page
-    name="filters_macro"
+    name="roles_template"
     for=".ReportekUtilities.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.BaseAdmin"
-    template="zpt/utilities/filters_macro.zpt"/>
+    template="zpt/utilities/roles_template.zpt"/>
 
   <browser:page
-    name="list_users_by_path"
+    name="filters"
+    for=".ReportekUtilities.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.BaseAdmin"
+    template="zpt/utilities/filters.zpt"/>
+
+  <browser:page
+    name="get_users_by_path"
     for=".ReportekUtilities.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.ListUsers"
-    template="zpt/utilities/list_users_by_path.zpt"/>
+    template="zpt/utilities/get_users_by_path.zpt"/>
 
   <browser:page
-    name="list_users_by_person"
+    name="get_users"
     for=".ReportekUtilities.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.ListUsers"
-    template="zpt/utilities/list_users_by_person.zpt"/>
+    template="zpt/utilities/get_users.zpt"/>
 
   <browser:page
     name="revoke_roles"
@@ -51,12 +58,7 @@
     class=".views.ManageRoles"
     template="zpt/utilities/assign_role.zpt"/>
 
-  <browser:page
-    name="template_manage_roles"
-    for=".ReportekUtilities.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
-    class=".views.BaseAdmin"
-    template="zpt/utilities/template_manage_roles.zpt"/>
+
 
   <browser:page
     name="data-source"

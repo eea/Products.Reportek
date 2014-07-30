@@ -1,4 +1,4 @@
-<metal:block use-macro="here/template_list_users/macros/users-page">
+<metal:block use-macro="here/users_template/macros/users-page">
 
   <metal:block fill-slot="tabs">
     <div  id="tabbedmenu">
@@ -7,7 +7,9 @@
           <span>Grouped by path</span>
         </li>
         <li>
-          <a tal:attributes="href python:view.get_view('list_users_by_person')">Grouped by person </a>
+          <a tal:attributes="href python:view.get_view('get_users')">
+            Grouped by person
+          </a>
         </li>
       </ul>
     </div>

@@ -16,11 +16,10 @@
 
   <h1>Show where users have access</h1>
 
-  <tal:block replace="structure here/filters_macro" />
+  <tal:block replace="structure here/filters" />
 
-  <metal:block define-slot="tabs"></metal:block>
-
-  <metal:block define-slot="data-table"></metal:block>
+  <metal:block define-slot="tabs" />
+  <metal:block define-slot="data-table" />
 
 </metal:block>
 

@@ -6,6 +6,12 @@ from Products.Five import BrowserView
 class BaseAdmin(BrowserView):
     """ Base view for users administration """
 
+    def get_view(self, view_name):
+        """Returns the view coresponding to the view_name"""
+        if self.context.REQUEST.QUERY_STRING:
+            return view_name + '?' + self.context.REQUEST.QUERY_STRING
+        else:
+            return view_name
 
     def get_rod_obligations(self):
         """ Get activities from ROD """
@@ -19,10 +25,8 @@ class BaseAdmin(BrowserView):
         return {'legal_instruments': sorted(obligations.keys()),
                 'obligations': obligations}
 
-
     def obligations_filter(self):
         return self._get_filter('obligations')
-
 
     def _get_filter(self, filter_name):
         req_filter = self.context.REQUEST.get(filter_name, [])
@@ -30,17 +34,14 @@ class BaseAdmin(BrowserView):
             req_filter = [req_filter]
         return req_filter
 
-
     def get_roles(self):
         roles = list(self.context.valid_roles())
         filter(roles.remove,
                ['Authenticated', 'Anonymous', 'Manager', 'Owner'])
         return sorted(roles)
 
-
     def get_users_LDAPSchema(self):
         return self.context.acl_users['ldapmultiplugin']['acl_users'].getLDAPSchema()
-
 
     def get_username_information(self):
         """ Returns ('success'/'error', users_infs)
