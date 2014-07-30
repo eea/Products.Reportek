@@ -37,12 +37,6 @@ class ListUsers(BaseAdmin):
             return 'descending'
         return 'ascending'
 
-    def get_valid_roles(self):
-        roles = list(self.context.valid_roles())
-        filter(roles.remove,
-               ['Authenticated', 'Anonymous', 'Manager', 'Owner'])
-        return sorted(roles)
-
     def search_catalog(self, obligations, countries, role, **kwargs):
         country_codes = self.get_country_codes(countries)
         dataflow_uris = [self.get_obligations[obl_id] for obl_id
@@ -79,23 +73,24 @@ class ListUsers(BaseAdmin):
 
         results = []
         for brain in brains:
-          obj = brain.getObject()
+            obj = brain.getObject()
 
-          obligations = [(uri, self.get_obligations_title()[uri]) for uri
+            import pdb; pdb.set_trace()
+            obligations = [(uri, self.get_obligations_title()[uri]) for uri
                          in list(obj.dataflow_uris)]
 
-          if role:
-              users = obj.users_with_local_role(role)
-          else:
-              users = sum(map(obj.users_with_local_role,
-                        self.get_valid_roles()), [])
-          if not users:
-              continue
+            if role:
+                users = obj.users_with_local_role(role)
+            else:
+                users = sum(map(obj.users_with_local_role,
+                        self.context.userdefined_roles()), [])
+            if not users:
+                continue
 
-          results.append({
-              'path': [obj.absolute_url(1), obj.absolute_url(1), brain.title],
-              'last_change': obj.bobobase_modification_time().Date(),
-              'obligations': obligations,
-              'users':  users})
+            results.append({
+                'path': [brain.getPath(), brain.getPath(), brain.title],
+                'last_change': obj.bobobase_modification_time().Date(),
+                'obligations': obligations,
+                'users':  users})
 
         return json.dumps({"data": results})
