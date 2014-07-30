@@ -14,7 +14,7 @@
 
 <metal:block fill-slot="content">
 
-  <h1>Show where users have access</h1>
+  <h1>Get users local roles</h1>
 
   <tal:block replace="structure here/filters" />
 

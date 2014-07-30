@@ -38,6 +38,13 @@
     template="zpt/utilities/get_users_by_path.zpt"/>
 
   <browser:page
+    name="api.get_users_by_path"
+    for="*"
+    permission="zope2.ViewManagementScreens"
+    class=".views.ListUsers"
+    attribute="getUsersByPath" />
+
+  <browser:page
     name="get_users"
     for=".ReportekUtilities.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
@@ -59,13 +66,6 @@
     template="zpt/utilities/assign_role.zpt"/>
 
 
-
-  <browser:page
-    name="data-source"
-    for="*"
-    permission="zope2.ViewManagementScreens"
-    class=".views.ByPathDataSource"
-    attribute="process_data" />
 
   <browser:page
     name="data-person"

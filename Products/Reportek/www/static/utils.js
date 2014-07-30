@@ -45,7 +45,7 @@ function initDataTables() {
           aoData.role = $('#role').val();
         }
       },
-      ajax: '/data-source',
+      ajax: '/api.get_users_by_path',
       "serverSide": true
     },
     by_person: {

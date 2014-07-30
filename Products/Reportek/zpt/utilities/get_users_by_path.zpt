@@ -17,7 +17,8 @@
   </metal:block>
 
   <metal:block fill-slot="data-table">
-    <table class="datatable" id="datatable_by_path" data-tableSettings="by_path">
+    <table class="datatable" id="datatable_by_path"
+           data-tableSettings="by_path">
       <thead>
         <tr>
           <th>Path</th>
