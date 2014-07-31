@@ -10,33 +10,12 @@ function initDataTable() {
         { "data": "last_change" },
         { "data": "obligations", "bSortable": false },
         { "data": "users", "bSortable": false }
-      ],
-      "columnDefs": [
-        { "targets": 0,
-          "render": function (data, type, row) {
-            return '<a href="' + data[0] + '" title="' + data[2] + '" >' + data[1] + '</a>';
-          }
-        },
-        {
-          "targets": 2,
-          "render": renderAsLI
-        },
-        {
-          "targets": 3,
-          "render": renderClientColumn
-        }
       ]
     },
     by_person: {
       "columns": [
         { "data": "user" },
         { "data": "paths" }
-      ],
-      "columnDefs": [
-        {
-          "targets": 1,
-          "render": renderAsLI
-        }
       ]
     }
   };
@@ -44,7 +23,8 @@ function initDataTable() {
   var dtConfig = {
     pagingType: "simple",
     serverSide: false,
-    processing: true
+    processing: true,
+    pageLength: 100
   };
 
   var tableKey = target.data("table-key");
@@ -54,7 +34,6 @@ function initDataTable() {
   var dataSources = {
     by_path: '/api.get_users_by_path'
   };
-  dataTable.draw();
   $.ajax({
     url: dataSources[tableKey],
     data: {
@@ -66,10 +45,15 @@ function initDataTable() {
       var rows = $.parseJSON(result).data;
       $.each(rows, function(idx, row) {
         dataTable.row.add([
-          renderAsLink(row.path),
+          renderAsLink(row.path[0], row.path[0], row.path[1]),
           row.last_change,
-          renderAsLI(row.obligations),
-          renderAsLI(row.users)]);
+          renderAsUL($.map(row.obligations, function(obligation) {
+            return renderAsLink(obligation[0], obligation[1]);
+          })),
+          renderAsUL($.map(row.users, function(user) {
+            return renderAsLink(getUserUrl(user), user)
+          }))
+        ]);
       });
       dataTable.draw();
     }
@@ -93,11 +77,11 @@ function renderClientColumn(data, type, row) {
   return '<ul>' + result_html + '</ul>';
 }
 
-function renderAsLI(data, type, row) {
+function renderAsUL(li_items) {
   var result_html = '';
 
-  $.each(data, function(index, value) {
-    result_html += '<li>' + renderAsLink(value) + '</li>';
+  $.each(li_items, function(index, li_item) {
+    result_html += '<li>' + li_item + '</li>';
   });
   return '<ul>' + result_html + '</ul>';
 }
@@ -140,6 +124,11 @@ function toggleSelectCountries(group_elem) {
   }
 }
 
-function renderAsLink(value) {
-  return '<a href="' + value[0] + '">' + value[1] + '</a>';
+function renderAsLink(href, display, title) {
+  var title_attribute = title ? ' title="' + title + '"' : '';
+  return '<a href="' + href + '"' + title_attribute + '>' + display + '</a>';
+}
+
+function getUserUrl(user) {
+  return 'http://www.eionet.europa.eu/directory/user?uid=' + user;
 }
