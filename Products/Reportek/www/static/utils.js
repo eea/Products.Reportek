@@ -1,78 +1,79 @@
-function initDataTables() {
+function initDataTable() {
   /* Init the datatable object */
 
-  var target = $("#datatable_by_path, #datatable_by_person");
-  if (!target.length)
-  /* If is not the correct context get out from the the function */
-    return;
+  var target = $("#datatable");
 
-  var tableSettings = {
-    basic: {
-      "pagingType": "simple",
-      "pagining":true,
-      "oLanguage":
-      {
-        "sInfo": "",
-        "sInfoFiltered": ""
-      }
-    },
+  var generalSettings = {
     by_path: {
-      settings: {
-        "columns": [
-          { "data": "path" },
-          { "data": "last_change" },
-          { "data": "obligations", "bSortable": false },
-          { "data": "users", "bSortable": false }
-        ],
-        "columnDefs": [
-          { "targets": 0,
-            "render": function(data, type, row) {
-              return '<a href="' + data[0] + '" title="' + data[2] + '" >' + data[1] + '</a>';
-            }
-          },
-          {
-            "targets": 2,
-            "render": renderAsLI
-          },
-          {
-            "targets": 3,
-            "render": renderClientColumn
+      "columns": [
+        { "data": "path" },
+        { "data": "last_change" },
+        { "data": "obligations", "bSortable": false },
+        { "data": "users", "bSortable": false }
+      ],
+      "columnDefs": [
+        { "targets": 0,
+          "render": function (data, type, row) {
+            return '<a href="' + data[0] + '" title="' + data[2] + '" >' + data[1] + '</a>';
           }
-        ],
-        "fnServerParams": function(aoData) {
-          aoData.obligations = $('#obligations').val();
-          aoData.countries = $('#countries').val();
-          aoData.role = $('#role').val();
+        },
+        {
+          "targets": 2,
+          "render": renderAsLI
+        },
+        {
+          "targets": 3,
+          "render": renderClientColumn
         }
-      },
-      ajax: '/api.get_users_by_path',
-      "serverSide": true
+      ]
     },
     by_person: {
-      settings: {
-        "columns": [
-          { "data": "user" },
-          { "data": "paths" }
-        ],
-        "columnDefs": [
-          {
-            "targets": 1,
-            "render": renderAsLI
-          }
-        ]
-      },
-      ajax:'/data-person',
-      serverSide: false
+      "columns": [
+        { "data": "user" },
+        { "data": "paths" }
+      ],
+      "columnDefs": [
+        {
+          "targets": 1,
+          "render": renderAsLI
+        }
+      ]
     }
   };
 
-  var settings_name = target.get(0).getAttribute("data-tableSettings");
-  var basic = tableSettings.basic;
-  /* Set up the ajax's path */
-  basic.ajax = tableSettings[settings_name].ajax;
-  basic.serverSide = tableSettings[settings_name].serverSide;
-  var settings = $.extend(basic, tableSettings[settings_name].settings);
-  target.DataTable(settings);
+  var dtConfig = {
+    pagingType: "simple",
+    serverSide: false,
+    processing: true
+  };
+
+  var tableKey = target.data("table-key");
+  dtConfig.settings = generalSettings[tableKey];
+  var dataTable = target.DataTable(dtConfig);
+
+  var dataSources = {
+    by_path: '/api.get_users_by_path'
+  };
+  dataTable.draw();
+  $.ajax({
+    url: dataSources[tableKey],
+    data: {
+      obligations: $('#obligations').val(),
+      role: $('#role').val(),
+      countries: $('#countries').val()
+    },
+    success: function(result) {
+      var rows = $.parseJSON(result).data;
+      $.each(rows, function(idx, row) {
+        dataTable.row.add([
+          renderAsLink(row.path),
+          row.last_change,
+          renderAsLI(row.obligations),
+          renderAsLI(row.users)]);
+      });
+      dataTable.draw();
+    }
+  });
 }
 
 $(function () {
@@ -81,7 +82,7 @@ $(function () {
     allowClear: true
   });
   $("#countries, #obligations").select2();
-  initDataTables();
+  initDataTable();
 });
 
 function renderClientColumn(data, type, row) {
@@ -96,7 +97,7 @@ function renderAsLI(data, type, row) {
   var result_html = '';
 
   $.each(data, function(index, value) {
-    result_html += '<li><a href="' + value[0] + '">' + value[1] + '</a></li>';
+    result_html += '<li>' + renderAsLink(value) + '</li>';
   });
   return '<ul>' + result_html + '</ul>';
 }
@@ -137,4 +138,8 @@ function toggleSelectCountries(group_elem) {
     group.text("Select " + root_text);
     group.attr("action", "select");
   }
+}
+
+function renderAsLink(value) {
+  return '<a href="' + value[0] + '">' + value[1] + '</a>';
 }

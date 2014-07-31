@@ -11,33 +11,14 @@ class ListUsers(BaseAdmin):
                 if c['iso'] in countries]
 
     def get_obligations(self):
-        return {o['PK_RA_ID']:o['uri'] for o
+        return {o['PK_RA_ID']: o['uri'] for o
                 in self.context.dataflow_rod()}
 
     def get_obligations_title(self):
-        return {o['uri']:o['TITLE'] for o
+        return {o['uri']: o['TITLE'] for o
                 in self.context.dataflow_rod()}
 
-    def get_order_column(self):
-        #todo
-        col_idx = self.context.REQUEST.get('order[0][column]')
-        if col_idx == '0':
-            return 'path'
-        elif col_idx == '1':
-            return 'bobobase_modification_time'
-        elif col_idx == '2':
-            return 'dataflow_uris'
-        else:
-            raise NotImplementedError()
-
-    def get_order_direction(self):
-        #todo
-        request_param = self.context.REQUEST.get('order[0][dir]')
-        if request_param == 'desc':
-            return 'descending'
-        return 'ascending'
-
-    def search_catalog(self, obligations, countries, role, **kwargs):
+    def search_catalog(self, obligations, countries, role):
         country_codes = self.get_country_codes(countries)
         dataflow_uris = [self.get_obligations[obl_id] for obl_id
                          in obligations]
@@ -51,13 +32,7 @@ class ListUsers(BaseAdmin):
         if dataflow_uris:
             query['dataflow_uris'] = dataflow_uris
 
-        query['b_size'] = kwargs['b_size']
-        query['b_start'] = kwargs['b_start']
-        query['sort_order'] = kwargs['sort_order']
-        query['sort_on'] = kwargs['sort_on']
-
         return self.context.Catalog(query)
-
 
     def getUsersByPath(self, REQUEST):
 
@@ -65,21 +40,22 @@ class ListUsers(BaseAdmin):
         countries = REQUEST.get('countries', [])
         role = REQUEST.get('role', '')
 
-        brains = self.search_catalog(obligations, countries, role,
-                            b_size=REQUEST.get('length', 10),
-                            b_start=REQUEST.get('start', 0),
-                            sort_order=self.get_order_direction(),
-                            sort_on=self.get_order_column())
+        brains = self.search_catalog(obligations, countries, role)
 
         results = []
 
         for brain in brains:
 
-            obligations = [(uri, self.get_obligations_title()[uri]) for uri
-                         in list(brain.dataflow_uris)]
+            obligations = []
+            for uri in list(brain.dataflow_uris):
+                try:
+                    title = self.get_obligations_title()[uri]
+                except KeyError:
+                    title = 'Unknown/Deleted obligation'
+                obligations.append((uri, title))
 
             if role:
-                users = [user for user,roles
+                users = [user for user, roles
                          in brain.local_defined_users.iteritems()
                          if role in roles]
             else:
@@ -88,10 +64,13 @@ class ListUsers(BaseAdmin):
             if not users:
                 continue
 
+            # TODO: get user_urls
+            user_urls = ['#'] * len(users)
+
             results.append({
-                'path': [brain.getPath(), brain.getPath(), brain.title],
+                'path': [brain.getPath(), brain.title],
                 'last_change': brain.bobobase_modification_time.Date(),
                 'obligations': obligations,
-                'users':  users})
+                'users':  zip(user_urls, users)})
 
         return json.dumps({"data": results})

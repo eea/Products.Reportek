@@ -17,8 +17,7 @@
   </metal:block>
 
   <metal:block fill-slot="data-table">
-    <table class="datatable" id="datatable_by_person"
-           data-tableSettings="by_person">
+    <table class="datatable" id="datatable" data-table-key="by_person">
       <thead>
         <tr>
           <th tal:define="user python:request.get('role', 'User')"
