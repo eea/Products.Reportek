@@ -161,7 +161,7 @@ def create_reportek_indexes(catalog):
     add_index('content_type', catalog, 'FieldIndex')
     add_index('country', catalog, 'FieldIndex')
     add_index('dataflow_uri', catalog, 'FieldIndex')
-    add_index('dataflow_uris', catalog, 'KeywordIndex')
+    add_index('dataflow_uris', catalog, 'KeywordIndex', meta=True)
     add_index('getCountryName', catalog, 'FieldIndex')
     add_index('instance_id', catalog, 'FieldIndex')
     add_index('partofyear', catalog, 'FieldIndex')
@@ -173,6 +173,7 @@ def create_reportek_indexes(catalog):
     add_index('xml_schema_location', catalog, 'FieldIndex')
     add_index('years', catalog, 'KeywordIndex')
     add_index('local_unique_roles', catalog, 'KeywordIndex')
+    add_index('local_defined_users', catalog, 'FieldIndex', meta=True)
 
 
 class Empty:
@@ -185,6 +186,7 @@ def startup(context):
 
     create_reportek_objects(app)
     create_reportek_indexes(app[constants.DEFAULT_CATALOG])
+
     transaction.commit()
 
 
