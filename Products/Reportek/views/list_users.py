@@ -59,7 +59,8 @@ class ListUsers(BaseAdmin):
                          in brain.local_defined_users.iteritems()
                          if role in roles]
             else:
-                users = brain.local_defined_users.keys()
+                if isinstance(brain.local_defined_users, dict):
+                    users = brain.local_defined_users.keys()
 
             if not users:
                 continue
