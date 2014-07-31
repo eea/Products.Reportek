@@ -1,6 +1,7 @@
 from collections import defaultdict
 from operator import itemgetter
 from Products.Five import BrowserView
+import Zope2
 
 
 class BaseAdmin(BrowserView):
@@ -12,6 +13,10 @@ class BaseAdmin(BrowserView):
             return view_name + '?' + self.context.REQUEST.QUERY_STRING
         else:
             return view_name
+
+    def get_roles(self):
+        app = Zope2.bobo_application()
+        return sorted(list(app.userdefined_roles()))
 
     def get_rod_obligations(self):
         """ Get activities from ROD """
