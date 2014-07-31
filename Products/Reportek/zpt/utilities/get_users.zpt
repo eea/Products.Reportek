@@ -20,10 +20,10 @@
     <table class="datatable" id="datatable" data-table-key="by_person">
       <thead>
         <tr>
-          <th tal:define="user python:request.get('role', 'User')"
-              tal:content="python:user if user else 'User'">
-          </th>
           <th>Path</th>
+          <th>Last change</th>
+          <th>Obligations</th>
+          <th>User</th>
         </tr>
       </thead>
 

@@ -1,21 +1,49 @@
+function generateRow(row, tableKey) {
+
+  var result = [
+      renderAsLink(row.path[0], row.path[0], row.path[1]),
+      row.last_change,
+      renderAsUL($.map(row.obligations, function (obligation) {
+        return renderAsLink(obligation[0], obligation[1]);
+      }))
+    ];
+
+  if (tableKey === 'by_path')
+    result.push(
+      renderAsUL($.map(row.users, function (user) {
+        return renderAsLink(getUserUrl(user), user)
+      })));
+  else if (tableKey === 'by_person')
+    result.push(row.user);
+
+  return result;
+}
+
 function initDataTable() {
   /* Init the datatable object */
 
   var target = $("#datatable");
 
   var generalSettings = {
-    by_path: {
-      "columns": [
-        { "data": "path" },
-        { "data": "last_change" },
-        { "data": "obligations", "bSortable": false },
-        { "data": "users", "bSortable": false }
-      ]
-    },
+    by_path: {},
     by_person: {
-      "columns": [
-        { "data": "user" },
-        { "data": "paths" }
+      "ordering": false,
+      "drawCallback": function (settings) {
+        var api = this.api();
+        var rows = api.rows({page: 'current'}).nodes();
+        var last = null;
+
+        api.column(3, {page:'current'}).data().each(function(group, i) {
+          if (last !== group) {
+            $(rows).eq(i).before(
+              '<tr class="group"><td colspan="3">' + group + '</td></tr>'
+            );
+            last = group;
+          }
+        });
+      },
+      columnDefs: [
+        {'visible': false, 'targets': 3}
       ]
     }
   };
@@ -28,11 +56,12 @@ function initDataTable() {
   };
 
   var tableKey = target.data("table-key");
-  dtConfig.settings = generalSettings[tableKey];
+  $.extend(dtConfig, generalSettings[tableKey]);
   var dataTable = target.DataTable(dtConfig);
 
   var dataSources = {
-    by_path: '/api.get_users_by_path'
+    by_path: '/api.get_users_by_path',
+    by_person: '/api.get_users'
   };
   $.ajax({
     url: dataSources[tableKey],
@@ -44,16 +73,7 @@ function initDataTable() {
     success: function(result) {
       var rows = $.parseJSON(result).data;
       $.each(rows, function(idx, row) {
-        dataTable.row.add([
-          renderAsLink(row.path[0], row.path[0], row.path[1]),
-          row.last_change,
-          renderAsUL($.map(row.obligations, function(obligation) {
-            return renderAsLink(obligation[0], obligation[1]);
-          })),
-          renderAsUL($.map(row.users, function(user) {
-            return renderAsLink(getUserUrl(user), user)
-          }))
-        ]);
+        dataTable.row.add(generateRow(row, tableKey));
       });
       dataTable.draw();
     }
