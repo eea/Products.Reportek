@@ -1,13 +1,7 @@
 from base_admin import BaseAdmin
 
-
 class ManageRoles(BaseAdmin):
     """ ManageRoles view """
-
-
-    def get_view_parent(self):
-        """Returns an instance of BaseAdmin """
-        return self.context.restrictedTraverse('@@template_manage_roles')
 
 
     def get_user_localroles(self, username):
@@ -31,23 +25,24 @@ class ManageRoles(BaseAdmin):
             folder.manage_delLocalRoles(userids=[username, ])
 
 
-    def get_username_information(self):
-        """ Returns ('success'/'error', users_infs)
-        where:
-            users_infs is the result of the findUser()
-        """
+    def search_ldap_users(self):
+        search_term = self.context.REQUEST.get('search_term')
+        search_param = self.context.REQUEST.get('search_param')
 
-        containing = self.context.REQUEST.get('search_term')
-        matching_criteria = self.context.REQUEST.get('search_param')
+        users = (self.context
+                     .acl_users['ldapmultiplugin']['acl_users']
+                     .findUser(search_param=search_param,
+                               search_term=search_term))
 
-        users_infs = self.context.acl_users['ldapmultiplugin']['acl_users'].findUser(
-            search_param=matching_criteria, search_term=containing)
+        response = {'users': users}
 
-        if (users_infs and users_infs[0]['sn'] == "Error"):
-            return ('error', )
+        if (users and users[0]['sn'] == 'Error'):
+            response['errors'] = True
 
-        return ('success', users_infs)
+        return response
 
 
-    def get_users_LDAPSchema(self):
-        return self.context.acl_users['ldapmultiplugin']['acl_users'].getLDAPSchema()
+    def get_ldap_schema(self):
+        return (self.context
+                    .acl_users['ldapmultiplugin']['acl_users']
+                    .getLDAPSchema())

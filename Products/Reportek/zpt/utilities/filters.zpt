@@ -10,7 +10,7 @@
             <tal:block repeat="obl python:rod_data['obligations'][instrument]">
               <option tal:attributes="value obl/PK_RA_ID;
                         class python:'terminated' if obl['terminated'] == '1' else nothing;
-                        selected python:obl['PK_RA_ID'] in view.obligations_filter()"
+                        selected python:obl['PK_RA_ID'] in request.get('obligations', [])"
                       tal:content="obl/TITLE">
               </option>
             </tal:block>
@@ -48,11 +48,11 @@
       <a href="#">Clear filters</a>
     </div>
 
-    <a onclick="toggleSelectCountries(this);" 
+    <a onclick="toggleSelectCountries(this);"
       id="eu25" action="select" text_root="EU25">Select EU25</a>
-    <a onclick="toggleSelectCountries(this);" 
+    <a onclick="toggleSelectCountries(this);"
       id="eu27" action="select" text_root="EU27"> Select EU27</a>
-    <a onclick="toggleSelectCountries(this);" 
+    <a onclick="toggleSelectCountries(this);"
       id="eu31" action="select" text_root="EU31"> Select EU31</a>
   </div>
 </form>
