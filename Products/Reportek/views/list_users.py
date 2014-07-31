@@ -65,13 +65,10 @@ class ListUsers(BaseAdmin):
             if not users:
                 continue
 
-            # TODO: get user_urls
-            user_urls = ['#'] * len(users)
-
             results.append({
                 'path': [brain.getPath(), brain.title],
                 'last_change': brain.bobobase_modification_time.Date(),
                 'obligations': obligations,
-                'users':  zip(user_urls, users)})
+                'users':  users})
 
         return json.dumps({"data": results})
