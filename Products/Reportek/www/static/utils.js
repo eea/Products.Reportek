@@ -95,10 +95,49 @@ function renderClientColumn(data, type, row) {
 
 function renderAsLI(data, type, row) {
   var result_html = '';
+
   $.each(data, function(index, value) {
     result_html += '<li>' + renderAsLink(value) + '</li>';
   });
   return '<ul>' + result_html + '</ul>';
+}
+
+function toggleSelectCountries(group_elem) {
+  /* action can be select or deselect */
+  var eu_keys = {'eu25': ['AT', 'BE', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 
+                          'FI', 'FR', 'GB', 'GR', 'HU', 'IE', 'IT', 'LT', 
+                          'LU', 'LV', 'MT', 'NL', 'PL', 'PT', 'SE', 'SI', 
+                          'SK'],
+                 'eu27': ['AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES',
+                          'FI','FR','GB','GR','HR', 'HU', 'IE', 'IT', 'LT', 
+                          'LU','LV','MT','NL', 'PL', 'PT', 'RO', 'SE', 'SI',
+                          'SK'],
+                 'eu31': ['AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES',
+                          'FI', 'FR', 'GB', 'GR', 'HU', 'IE', 'IS', 'IT', 'LI',
+                          'LT', 'LU', 'LV', 'MT', 'NO','NL', 'PL', 'PT', 'RO', 
+                          'SE', 'SI', 'SK', 'TR']};
+
+  var countries = $("#s2id_countries");
+  var current_selection = countries.select2("val");
+
+  var group = $(group_elem);
+  var eu = eu_keys[group.attr('id')];
+  var action = group.attr('action');
+  var root_text = group.attr('text_root');
+
+  if (action == 'select') {
+    countries.select2("val", current_selection.concat(eu));
+    group.text("Deselect " + root_text);
+    group.attr("action", "deselect");
+  } else if (action == 'deselect') {
+    var not_eu = [];
+    jQuery.grep(current_selection, function(el) {
+      if (jQuery.inArray(el, eu) == -1) not_eu.push(el);
+    });
+    countries.select2("val", not_eu);
+    group.text("Select " + root_text);
+    group.attr("action", "select");
+  }
 }
 
 function renderAsLink(value) {
