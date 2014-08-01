@@ -106,7 +106,11 @@ function renderAsUL(li_items) {
   return '<ul>' + result_html + '</ul>';
 }
 
-function toggleSelectCountries(group_elem) {
+function clear_filters() {
+   $("#s2id_countries").select2("val", "");
+}
+
+function toggleSelectCountries(eu) {
   /* action can be select or deselect */
   var eu_keys = {'eu25': ['AT', 'BE', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 
                           'FI', 'FR', 'GB', 'GR', 'HU', 'IE', 'IT', 'LT', 
@@ -121,27 +125,8 @@ function toggleSelectCountries(group_elem) {
                           'LT', 'LU', 'LV', 'MT', 'NO','NL', 'PL', 'PT', 'RO', 
                           'SE', 'SI', 'SK', 'TR']};
 
-  var countries = $("#s2id_countries");
-  var current_selection = countries.select2("val");
 
-  var group = $(group_elem);
-  var eu = eu_keys[group.attr('id')];
-  var action = group.attr('action');
-  var root_text = group.attr('text_root');
-
-  if (action == 'select') {
-    countries.select2("val", current_selection.concat(eu));
-    group.text("Deselect " + root_text);
-    group.attr("action", "deselect");
-  } else if (action == 'deselect') {
-    var not_eu = [];
-    jQuery.grep(current_selection, function(el) {
-      if (jQuery.inArray(el, eu) == -1) not_eu.push(el);
-    });
-    countries.select2("val", not_eu);
-    group.text("Select " + root_text);
-    group.attr("action", "select");
-  }
+  $("#s2id_countries").select2("val", eu_keys[eu]);
 }
 
 function renderAsLink(href, display, title) {
