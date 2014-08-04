@@ -14,9 +14,27 @@ class BaseAdmin(BrowserView):
         else:
             return view_name
 
+
+    def get_country_codes(self, countries):
+        return [c['uri'] for c
+                in self.context.localities_rod()
+                if c['iso'] in countries]
+
+
+    def get_obligations(self):
+        return {o['PK_RA_ID']: o['uri'] for o
+                in self.context.dataflow_rod()}
+
+
+    def get_obligations_title(self):
+        return {o['uri']: o['TITLE'] for o
+                in self.context.dataflow_rod()}
+
+
     def get_roles(self):
         app = Zope2.bobo_application()
         return sorted(list(app.userdefined_roles()))
+
 
     def get_rod_obligations(self):
         """ Get activities from ROD """
@@ -31,3 +49,20 @@ class BaseAdmin(BrowserView):
                 'obligations': obligations}
 
 
+    def search_catalog(self, obligations, countries, role, users=[]):
+        country_codes = self.get_country_codes(countries)
+        dataflow_uris = [self.get_obligations()[obl_id] for obl_id
+                         in obligations]
+
+        query = {'meta_type': 'Report Collection'}
+
+        if role:
+            query['local_defined_roles'] = role
+        if country_codes:
+            query['country'] = country_codes
+        if dataflow_uris:
+            query['dataflow_uris'] = dataflow_uris
+        if users:
+            query['local_defined_users'] = users
+
+        return self.context.Catalog(query)

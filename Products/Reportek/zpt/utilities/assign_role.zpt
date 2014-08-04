@@ -1,10 +1,85 @@
 <metal:block use-macro="here/roles_template/macros/roles-page">
 
     <metal:block fill-slot="page-header">
-      <h1>Assign role</h1>
+      <h1>Assign role to Eionet user</h1>
     </metal:block>
 
     <metal:block fill-slot="data-table">
+      <tal:block condition="request/search_term | nothing">
+        <form action="" method="get">
+
+          <tal:block metal:use-macro="here/find_user/macros/users_table" />
+
+          <h2>3. Select one or more countries</h2>
+          <tal:block metal:use-macro="here/filters/macros/countries" />
+
+          <h2>4. Select one or more obligations</h2>
+          <tal:block metal:use-macro="here/filters/macros/obligations" />
+          <em>
+            Leave this field empty in order to assign the role
+            for the entire country collection
+          </em>
+
+          <h2>5. Select role</h2>
+          <tal:block metal:use-macro="here/filters/macros/role" />
+
+          <input type="hidden" name="search_term"
+                 tal:attributes="value request/search_term">
+
+          <input type="hidden" name="search_param"
+                 tal:attributes="value request/search_param">
+
+          <div>
+            <input type="submit" name="preview"
+                   value="Preview collections" />
+          </div>
+
+        </form>
+
+        <p tal:condition="not: request/search_term | nothing">
+          <strong>Please enter a search term</strong>
+        </p>
+
+        <tal:block condition="request/preview | nothing">
+          <h2>6. Confirmation</h2>
+          <p>
+            You are about to assign the role <span tal:replace="request/role" /> for the user <span tal:replace="request/username" />
+            on the following collections.
+          </p>
+          <table class="datatable">
+            <thead>
+              <tr>
+                <th>Country</th>
+                <th>Path</th>
+                <th>Obligations</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr tal:repeat="collection view/get_collections">
+                <td tal:content="collection/country" />
+                <td>
+                  <a tal:attributes="href collection/path"
+                     tal:content="collection/path"/>
+                </td>
+                <td>
+                  <ul>
+                    <tal:block repeat="obl collection/obligations">
+                      <li>
+                        <a tal:attributes="href obl/uri"
+                           tal:content="obl/title" />
+                      </li>
+                    </tal:block>
+                  </ul>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div>
+            <input type="submit" name="confirm" value="Confirm action" />
+          </div>
+        </tal:block>
+      </tal:block>
 
     </metal:block>
 

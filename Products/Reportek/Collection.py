@@ -199,8 +199,14 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
 
     _get_users_list = PageTemplateFile('zpt/collection/users', globals())
 
-    def local_defined_users(self):
+    def local_defined_roles(self):
         return self.__ac_local_roles__
+
+    def local_defined_users(self):
+        if isinstance(self.__ac_local_roles__, dict):
+            return self.__ac_local_roles__.keys()
+        else:
+            print self.absolute_url()
 
     def local_unique_roles(self):
         return set(role for roles

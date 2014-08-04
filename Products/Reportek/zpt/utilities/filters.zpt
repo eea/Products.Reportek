@@ -1,8 +1,9 @@
 <form method="get">
   <div class="filters">
 
+  <tal:block metal:define-macro="obligations">
     <div class="form-group">
-      <label for="obligations">Obligation</label>
+      <label for="obligations">Obligations</label>
       <select id="obligations" name="obligations:list" multiple="multiple">
         <tal:block define="rod_data view/get_rod_obligations"
                    repeat="instrument rod_data/legal_instruments">
@@ -18,7 +19,9 @@
         </tal:block>
       </select>
     </div>
+  </tal:block>
 
+  <tal:block metal:define-macro="role">
     <div class="form-group">
       <label for="role">Role</label>
       <select id="role" name="role" style="width: 200px;">
@@ -29,7 +32,9 @@
         </option>
       </select>
     </div>
+  </tal:block>
 
+  <tal:block metal:define-macro="countries">
     <div class="form-group">
       <label for="countries">Countries</label>
       <select id="countries" name="countries:list" multiple="multiple">
@@ -40,6 +45,7 @@
         </option>
       </select>
     </div>
+  </tal:block>
 
     <div class="actions">
       <input type="submit" value="Filter" />

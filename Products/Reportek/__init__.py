@@ -173,7 +173,8 @@ def create_reportek_indexes(catalog):
     add_index('xml_schema_location', catalog, 'FieldIndex')
     add_index('years', catalog, 'KeywordIndex')
     add_index('local_unique_roles', catalog, 'KeywordIndex')
-    add_index('local_defined_users', catalog, 'FieldIndex', meta=True)
+    add_index('local_defined_users', catalog, 'KeywordIndex', meta=True)
+    add_index('local_defined_roles', catalog, 'FieldIndex', meta=True)
 
 
 class Empty:

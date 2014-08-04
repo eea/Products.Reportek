@@ -87,6 +87,19 @@ a.revoke-roles:hover {
   border: 1px solid #B6B6B6;
   background: #f2f2f2;
 }
+.filters h2,
+form h2 {
+  padding: 0!important;
+  background: none!important;
+  border: 0!important;
+}
+.filters input[type="text"],
+.filters select {
+  font-size: 13px;
+  line-height: 18px;
+  height: 24px;
+  padding: 3px;
+}
 .form-group:before,
 .form-group:after {
   display: table;

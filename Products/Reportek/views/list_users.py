@@ -6,36 +6,6 @@ from base_admin import BaseAdmin
 class ListUsers(BaseAdmin):
     """ View for get_users_by_path, get_users """
 
-    def get_country_codes(self, countries):
-        return [c['uri'] for c
-                in self.context.localities_rod()
-                if c['iso'] in countries]
-
-    def get_obligations(self):
-        return {o['PK_RA_ID']: o['uri'] for o
-                in self.context.dataflow_rod()}
-
-    def get_obligations_title(self):
-        return {o['uri']: o['TITLE'] for o
-                in self.context.dataflow_rod()}
-
-
-    def search_catalog(self, obligations, countries, role):
-        country_codes = self.get_country_codes(countries)
-        dataflow_uris = [self.get_obligations[obl_id] for obl_id
-                         in obligations]
-
-        query = {'meta_type': 'Report Collection'}
-
-        if role:
-            query['local_defined_roles'] = role
-        if country_codes:
-            query['country'] = country_codes
-        if dataflow_uris:
-            query['dataflow_uris'] = dataflow_uris
-
-        return self.context.Catalog(query)
-
 
     def get_records(self, REQUEST):
         obligations = REQUEST.get('obligations', [])
@@ -54,11 +24,11 @@ class ListUsers(BaseAdmin):
 
             if role:
                 users = [user for user, roles
-                         in brain.local_defined_users.iteritems()
+                         in brain.local_defined_roles.iteritems()
                          if role in roles]
             else:
                 if isinstance(brain.local_defined_users, dict):
-                    users = brain.local_defined_users.keys()
+                    users = brain.local_defined_users
 
             if not users:
                 continue
