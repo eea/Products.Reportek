@@ -32,6 +32,7 @@ def update(app, outName='blob_compression.log'):
                 transaction.commit()
 
             old_FileContainer = not hasattr(data_file, 'compressed')
+            skipped_FileContainer = False
             if old_FileContainer:
 
                 setattr(data_file, 'compressed', False)
@@ -49,19 +50,27 @@ def update(app, outName='blob_compression.log'):
                     ob.content_type = doc_ct
                     ob._p_changed = 1
 
+            # new type of object that was created with no compression while solving #20539
+            if (not old_FileContainer
+                and ob.meta_type == 'Report Document'
+                and data_file._toCompress == 'no'):
+                data_file._toCompress = 'auto'
+                skipped_FileContainer = True
+                out.write("Reactivating new type object %s \n" % ob.absolute_url())
+
             # keep changes so far
             transaction.commit()
 
             # zip the report doc
-            if old_FileContainer and data_file._shouldCompress():
-                    path = data_file.get_fs_path()
-                    file_handle = data_file.open('rb')
-                    content = file_handle.read()
-                    file_handle.close()
-                    with data_file.open('wb', orig_size=data_file.size, preserve_mtime=True) as file_handle:
-                        file_handle.write(content)
-                    print "Compressing %s, path: %s (%d:%d)" % (ob.absolute_url(), path, data_file.size, data_file.compressed_size)
-                    out.write("Compressing %s, path: %s (%d:%d)\n" % (ob.absolute_url(), path, data_file.size, data_file.compressed_size))
+            if (old_FileContainer or skipped_FileContainer) and data_file._shouldCompress():
+                path = data_file.get_fs_path()
+                file_handle = data_file.open('rb')
+                content = file_handle.read()
+                file_handle.close()
+                with data_file.open('wb', orig_size=data_file.size, preserve_mtime=True) as file_handle:
+                    file_handle.write(content)
+                print "Compressing %s, path: %s (%d:%d)" % (ob.absolute_url(), path, data_file.size, data_file.compressed_size)
+                out.write("Compressing %s, path: %s (%d:%d)\n" % (ob.absolute_url(), path, data_file.size, data_file.compressed_size))
 
             transaction.commit()
         except Exception as e:
