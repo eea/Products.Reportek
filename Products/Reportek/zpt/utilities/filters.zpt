@@ -51,14 +51,14 @@
       <input type="submit" value="Filter" />
       <input type="hidden" name="filter_by"
              tal:attributes="value request/filter_by | string:path" />
-      <a href="#">Clear filters</a>
+      <a onclick="clear_filters()">Clear filters</a>
     </div>
 
-    <a onclick="toggleSelectCountries(this);"
-      id="eu25" action="select" text_root="EU25">Select EU25</a>
-    <a onclick="toggleSelectCountries(this);"
-      id="eu27" action="select" text_root="EU27"> Select EU27</a>
-    <a onclick="toggleSelectCountries(this);"
-      id="eu31" action="select" text_root="EU31"> Select EU31</a>
+    <a onclick="toggleSelectCountries(this.id);"
+      id="eu25" text_root="EU25">Select EU25</a>
+    <a onclick="toggleSelectCountries(this.id);"
+      id="eu27" text_root="EU27"> Select EU27</a>
+    <a onclick="toggleSelectCountries(this.id);"
+      id="eu31" text_root="EU31"> Select EU31</a>
   </div>
 </form>

@@ -1,5 +1,6 @@
 import json
 from copy import copy
+from operator import itemgetter
 from base_admin import BaseAdmin
 
 
@@ -51,6 +52,8 @@ class ListUsers(BaseAdmin):
                 rr['user'] = user
                 records.append(rr)
 
+        # Datatable needs items sorted by user in order to group them
+        records.sort(key=itemgetter('user'))
         return json.dumps({"data": records})
 
 
