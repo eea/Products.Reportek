@@ -22,19 +22,21 @@ class ManageRoles(BaseAdmin):
     def get_collections(self):
         obligations = self.context.REQUEST.get('obligations', [])
         countries = self.context.REQUEST.get('countries', [])
-        role = self.context.REQUEST.get('role', '')
         user = self.context.REQUEST.get('username', '')
 
         results = []
-        for brain in self.search_catalog(obligations, countries, role, user):
+        for brain in self.search_catalog(obligations,
+                                        countries,
+                                        role='',
+                                        users=user):
 
-            obligations = []
+            record_obligations = []
             for uri in list(brain.dataflow_uris):
                 try:
                     title = self.get_obligations_title()[uri]
                 except KeyError:
                     title = 'Unknown/Deleted obligation'
-                obligations.append({
+                record_obligations.append({
                         'uri': uri,
                         'title': title
                     })
@@ -42,7 +44,8 @@ class ManageRoles(BaseAdmin):
             results.append({
                 'path': brain.getPath(),
                 'country': brain.getCountryName,
-                'obligations': obligations,
+                'obligations': record_obligations,
+                'roles': brain.local_defined_roles,
                 })
 
         return results

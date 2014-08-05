@@ -6,7 +6,7 @@
 
     <metal:block fill-slot="data-table">
       <tal:block condition="request/search_term | nothing">
-        <form action="" method="get">
+        <form action="#preview" method="get">
 
           <tal:block metal:use-macro="here/find_user/macros/users_table" />
 
@@ -41,21 +41,28 @@
         </p>
 
         <tal:block condition="request/preview | nothing">
+          <a name="preview"></a>
+          <tal:block condition="python:
+                    request.get('username', None) and
+                    request.get('countries', []) and
+                    request.get('role', None)">
           <h2>6. Confirmation</h2>
           <p>
             You are about to assign the role <span tal:replace="request/role" /> for the user <span tal:replace="request/username" />
             on the following collections.
           </p>
-          <table class="datatable">
+          <table class="datatable"
+                 tal:define="collections view/get_collections">
             <thead>
               <tr>
                 <th>Country</th>
                 <th>Path</th>
                 <th>Obligations</th>
+                <th>Existing users</th>
               </tr>
             </thead>
             <tbody>
-              <tr tal:repeat="collection view/get_collections">
+              <tr tal:repeat="collection collections">
                 <td tal:content="collection/country" />
                 <td>
                   <a tal:attributes="href collection/path"
@@ -71,6 +78,14 @@
                     </tal:block>
                   </ul>
                 </td>
+                <td style="white-space: nowrap;">
+                  <ul tal:define="local_roles collection/roles">
+                    <li tal:repeat="user local_roles/keys">
+                      <span tal:replace="user"/>
+                      (<span tal:replace="python:', '.join(local_roles[user])"/>)
+                    </li>
+                  </ul>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -79,6 +94,15 @@
             <input type="submit" name="confirm" value="Confirm action" />
           </div>
         </tal:block>
+
+        <p class="error-msg" tal:condition="python:
+                not request.get('username', None) or
+                not request.get('countries', []) or
+                not request.get('role', None)">
+          User, country and role are mandatory fields.
+        </p>
+
+      </tal:block>
       </tal:block>
 
     </metal:block>

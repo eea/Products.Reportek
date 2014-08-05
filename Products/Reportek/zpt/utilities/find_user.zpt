@@ -49,7 +49,8 @@
                               checked python: user['uid'] == request.get('username')"/>
           </td>
           <td tal:content="user/uid" />
-          <td tal:content="user/cn" />
+          <td tal:define="cn user/cn"
+              tal:content="python:cn.decode('latin1')" />
           <td>
             <a tal:attributes="href string:mailto:${user/mail}"
               tal:content="user/mail" />
