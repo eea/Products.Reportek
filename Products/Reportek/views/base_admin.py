@@ -48,7 +48,6 @@ class BaseAdmin(BrowserView):
         return {'legal_instruments': sorted(obligations.keys()),
                 'obligations': obligations}
 
-
     def search_catalog(self, obligations, countries, role, users=[]):
         country_codes = self.get_country_codes(countries)
         dataflow_uris = [self.get_obligations()[obl_id] for obl_id

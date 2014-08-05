@@ -1,143 +1,101 @@
-<link rel="stylesheet" type="text/css" href="++resource++static/jquery.dataTables.css">
+<metal:block use-macro="here/roles_template/macros/roles-page">
 
-<script type="text/javascript" charset="utf8" src="++resource++static/jquery-1.10.2.min.js"></script>
-<script src="++resource++static/revoke_roles.js"></script>
+    <metal:block fill-slot="page-header">
+      <h1>Remove role from Eionet user</h1>
+    </metal:block>
 
-<tal:block content="structure here/standard_html_header" />
+    <metal:block fill-slot="data-table">
+      <tal:block condition="request/search_term | nothing">
+        <form action="#preview" method="get">
 
+          <tal:block metal:use-macro="here/find_user/macros/users_table" />
 
-<div id="operations">
-  <ul>
-    <li><a href="/ReportekUtilities">Administration</a></li>
-    <li><a href="/">Frontpage</a></li>
-  </ul>
-</div>
+          <h2>3. Select one or more countries</h2>
+          <tal:block metal:use-macro="here/filters/macros/countries" />
 
-<h1>Remove a user from all role assignments</h1>
+          <h2>4. Select one or more obligations</h2>
+          <tal:block metal:use-macro="here/filters/macros/obligations" />
 
-<h2>Find user</h2>
+          <h2>5. Select role</h2>
+          <tal:block metal:use-macro="here/filters/macros/role" />
 
-<form action="" method="get">
-  <label for="search_term">containing</label>
-  <input type="text" name="search_term" id="search_term" size="30"
-    tal:attributes="value request/search_term | string:">
-  <label for="search_param">matching criteria</label>
-  <select name="search_param" id="search_param">
-    <tal:block tal:repeat="item view/get_users_LDAPSchema">
-    <option
-        tal:define="sk python: item[0]; si python: item[1]"
-        tal:attributes="value python: sk"
-        tal:content="python: '%s (%s)' %(si, sk)">
-        si (sk)
-    </option>
-    </tal:block>
-  </select>
-  <input type="submit" name="btnFind" value="Search users" />
-</form>
+          <input type="hidden" name="search_term"
+                 tal:attributes="value request/search_term">
 
-<tal:block condition="python: request.get('btnFind') or request.get('btnRoles')">
+          <input type="hidden" name="search_param"
+                 tal:attributes="value request/search_param">
 
-  <tal:block condition="request/search_term | nothing">
+          <div>
+            <input type="submit" name="preview"
+                   value="List user's roles" />
+          </div>
 
-    <form action="" method="get"
-          tal:define="res python: view.get_username_information()">
-      <span tal:condition="python: res[0] == 'error'">
-        LDAP ERROR. <br />
-        Hint: Too few characters in 'containing'
-      </span>
+        </form>
 
-      <tal:block condition="python: res[0] != 'error'">
-        <table class="datatable"
-          tal:condition="python: res[1]"
-          style="width:100%;">
-          <tr>
-            <th></th>
-            <th>Username</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>DN</th>
-          </tr>
-          <tr tal:repeat="item python:res[1]">
-            <td>
-              <input type="radio" name="username"
-                tal:attributes="value item/uid;
-                                checked python: item['uid'] == request.get('username')"/>
-            </td>
-            <td tal:content="item/uid">uid</td>
-            <td tal:content="python: unicode(item['cn'], 'ascii', 'replace')">
-              cn</td>
-            <td>
-              <a tal:attributes="href string:mailto:${item/mail}"
-                tal:content="item/mail">email
-              </a>
-            </td>
-            <td tal:content="item/dn">dn</td>
-          </tr>
-          <tr>
-            <td colspan="5">
-              <input type="submit" name="btnRoles" value="Find user roles" />
-              <input type="hidden" name="search_term" tal:attributes="value request/search_term" />
-              <input type="hidden" name="search_param" tal:attributes="value request/search_param" />
-            </td>
-          </tr>
-        </table>
+        <p tal:condition="not: request/search_term | nothing">
+          <strong>Please enter a search term</strong>
+        </p>
 
-        <span tal:condition="python: not res[1]">No users found for this criteria.</span>
+        <tal:block condition="request/preview | nothing">
+          <a name="preview"></a>
+          <tal:block condition="python:request.get('username', None)">
+          <h2>6. Confirmation</h2>
+          <p>
+            You are about to assign the role <span tal:replace="request/role" /> for the user <span tal:replace="request/username" />
+            on the following collections.
+          </p>
+          <table class="datatable"
+                 tal:define="collections view/get_collections">
+            <thead>
+              <tr>
+                <th></th>
+                <th>Country</th>
+                <th>Path</th>
+                <th>Obligations</th>
+                <th>Existing users</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr tal:repeat="collection collections">
+                <td><input type="checkbox" tal:attributes="name collection/path"></td>
+                <td tal:content="collection/country" />
+                <td>
+                  <a tal:attributes="href collection/path"
+                     tal:content="collection/path"/>
+                </td>
+                <td>
+                  <ul>
+                    <tal:block repeat="obl collection/obligations">
+                      <li>
+                        <a tal:attributes="href obl/uri"
+                           tal:content="obl/title" />
+                      </li>
+                    </tal:block>
+                  </ul>
+                </td>
+                <td style="white-space: nowrap;">
+                  <ul tal:define="local_roles collection/roles">
+                    <li tal:repeat="roles python:[local_roles[user] for user in local_roles.keys() if user == request.get('username', None)]">
+                      <span tal:replace="python:', '.join(roles)"/>
+                    </li>
+                  </ul>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div>
+            <input type="submit" name="confirm" value="Confirm action" />
+          </div>
+        </tal:block>
+
+        <p class="error-msg" tal:condition="python:not request.get('username', None)">
+          User is mandatory.
+        </p>
+
       </tal:block>
-    </form>
+      </tal:block>
 
-  </tal:block>
-  <p tal:condition="python: not request.get('search_term')">
-    <strong>Please enter a search term</strong>
-  </p>
-</tal:block>
+    </metal:block>
 
-
-<div class="important-msg"
-  tal:condition="python:request.get('btnRevoke') and request.get('ids')">
-  <tal:block
-    define="username python:request.get('username');
-            folders python:request.get('ids');
-            dummy python:view.revoke_roles(username=username, paths=folders)">
-    <strong>Local roles successfully revoked</strong>
-  </tal:block>
-</div>
-<tal:block condition="python:request.get('btnRoles') and request.get('username')">
-  <h2>Revoke user's local roles</h2>
-  <tal:block define="local_roles python:view.get_user_localroles(request.get('username'))">
-    <form action="" method="" tal:condition="local_roles">
-      <table class="datatable" tal:condition="python:request.get('username')">
-        <tr>
-          <th><input type="checkbox" id="selectAllCB" onclick="toggleSelectRoles()" /></th>
-          <th>Country</th>
-          <th>Collection</th>
-          <th>Role</th>
-        </tr>
-        <tr tal:repeat="data local_roles">
-          <td>
-            <input type="checkbox" name="ids:list"
-              tal:attributes="value python:data['collection'].absolute_url(1)"/>
-          </td>
-          <td tal:content="data/country" />
-          <td>
-            <a tal:attributes="href data/collection/absolute_url"
-               tal:content="data/collection/title" />
-          <td tal:content="data/roles" />
-        </tr>
-        <tr>
-          <td colspan="4">
-            <input type="submit" name="btnRevoke" value="Revoke roles" />
-            <input type="hidden" name="username" tal:attributes="value request/username">
-            <input type="hidden" name="search_term" tal:attributes="value request/search_term">
-            <input type="hidden" name="search_param" tal:attributes="value request/search_param">
-            <input type="hidden" name="btnRoles" tal:attributes="value request/btnRoles">
-          </td>
-        </tr>
-      </table>
-    </form>
-    <p tal:condition="not:local_roles">
-      <strong>No local roles found for username: <em tal:content="request/username" /></strong>
-    </p>
-  </tal:block>
-</tal:block>
-<tal:block content="structure here/standard_html_footer"/>
+</metal:block>
