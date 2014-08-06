@@ -1,8 +1,8 @@
 from base_admin import BaseAdmin
 
+
 class ManageRoles(BaseAdmin):
     """ ManageRoles view """
-
 
     def get_user_localroles(self, username):
         results = []
@@ -18,7 +18,6 @@ class ManageRoles(BaseAdmin):
 
         return results
 
-
     def get_collections(self):
         obligations = self.context.REQUEST.get('obligations', [])
         countries = self.context.REQUEST.get('countries', [])
@@ -26,9 +25,9 @@ class ManageRoles(BaseAdmin):
 
         results = []
         for brain in self.search_catalog(obligations,
-                                        countries,
-                                        role='',
-                                        users=user):
+                                         countries,
+                                         role='',
+                                         users=user):
 
             record_obligations = []
             for uri in list(brain.dataflow_uris):
@@ -37,16 +36,16 @@ class ManageRoles(BaseAdmin):
                 except KeyError:
                     title = 'Unknown/Deleted obligation'
                 record_obligations.append({
-                        'uri': uri,
-                        'title': title
-                    })
+                    'uri': uri,
+                    'title': title
+                })
 
             results.append({
                 'path': brain.getPath(),
                 'country': brain.getCountryName,
                 'obligations': record_obligations,
                 'roles': brain.local_defined_roles,
-                })
+            })
 
         return results
 
@@ -54,7 +53,6 @@ class ManageRoles(BaseAdmin):
         for path in paths:
             folder = self.context.restrictedTraverse(path)
             folder.manage_delLocalRoles(userids=[username, ])
-
 
     def search_ldap_users(self):
         search_term = self.context.REQUEST.get('search_term')
