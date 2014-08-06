@@ -601,6 +601,12 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             REQUEST=None):
         """ Manage the edited values
         """
+        if not dataflow_uris:
+            if REQUEST:
+                return self.messageDialog(
+                    "You must specify at least one obligation. Settings not saved!",
+                    action='./manage_prop')
+            return
         self.title=title
         try: self.year = int(year)
         except: self.year = ''
