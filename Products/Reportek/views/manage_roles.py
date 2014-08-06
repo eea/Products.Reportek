@@ -49,10 +49,13 @@ class ManageRoles(BaseAdmin):
 
         return results
 
-    def revoke_roles(self, paths, username):
-        for path in paths:
-            folder = self.context.restrictedTraverse(path)
-            folder.manage_delLocalRoles(userids=[username, ])
+    def revoke_roles(self):
+        collections = self.context.REQUEST.get('collections', [])
+        username = self.context.REQUEST.get('username', '')
+        for collection in collections:
+            obj = self.context.unrestrictedTraverse(collection)
+            obj.manage_delLocalRoles(userids=[username])
+            obj.reindex_object()
 
     def search_ldap_users(self):
         search_term = self.context.REQUEST.get('search_term')

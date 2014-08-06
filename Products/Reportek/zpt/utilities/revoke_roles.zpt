@@ -6,96 +6,91 @@
 
     <metal:block fill-slot="data-table">
       <tal:block condition="request/search_term | nothing">
-        <form action="#preview" method="get">
+        <form action="" method="get"
+              tal:condition="not: request/revoke | nothing">
 
           <tal:block metal:use-macro="here/find_user/macros/users_table" />
 
-          <h2>3. Select one or more countries</h2>
-          <tal:block metal:use-macro="here/filters/macros/countries" />
-
-          <h2>4. Select one or more obligations</h2>
-          <tal:block metal:use-macro="here/filters/macros/obligations" />
-
-          <h2>5. Select role</h2>
-          <tal:block metal:use-macro="here/filters/macros/role" />
-
           <input type="hidden" name="search_term"
-                 tal:attributes="value request/search_term">
+                 tal:attributes="value request/search_term" />
 
           <input type="hidden" name="search_param"
-                 tal:attributes="value request/search_param">
+                 tal:attributes="value request/search_param" />
 
           <div>
-            <input type="submit" name="preview"
-                   value="List user's roles" />
+            <input type="submit" name="preview" value="Find user roles" />
           </div>
 
-        </form>
-
-        <p tal:condition="not: request/search_term | nothing">
-          <strong>Please enter a search term</strong>
-        </p>
-
-        <tal:block condition="request/preview | nothing">
-          <a name="preview"></a>
-          <tal:block condition="python:request.get('username', None)">
-          <h2>6. Confirmation</h2>
-          <p>
-            You are about to assign the role <span tal:replace="request/role" /> for the user <span tal:replace="request/username" />
-            on the following collections.
+          <p tal:condition="not: request/search_term | nothing">
+            <strong>Please enter a search term</strong>
           </p>
-          <table class="datatable"
-                 tal:define="collections view/get_collections">
-            <thead>
-              <tr>
-                <th></th>
-                <th>Country</th>
-                <th>Path</th>
-                <th>Obligations</th>
-                <th>Existing users</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr tal:repeat="collection collections">
-                <td><input type="checkbox" tal:attributes="name collection/path"></td>
-                <td tal:content="collection/country" />
-                <td>
-                  <a tal:attributes="href collection/path"
-                     tal:content="collection/path"/>
-                </td>
-                <td>
-                  <ul>
-                    <tal:block repeat="obl collection/obligations">
-                      <li>
-                        <a tal:attributes="href obl/uri"
-                           tal:content="obl/title" />
+
+          <tal:block condition="request/preview | nothing">
+            <tal:block condition="python:request.get('username', None)">
+            <h2>3. Revoke roles</h2>
+            <table class="datatable"
+                   tal:define="collections view/get_collections">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Country</th>
+                  <th>Path</th>
+                  <th>Obligations</th>
+                  <th>Roles</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr tal:repeat="collection collections">
+                  <td>
+                    <input type="checkbox" name="collections:list"
+                           tal:attributes="value collection/path">
+                  </td>
+                  <td tal:content="collection/country" />
+                  <td>
+                    <a tal:attributes="href collection/path"
+                       tal:content="collection/path"/>
+                  </td>
+                  <td>
+                    <ul>
+                      <tal:block repeat="obl collection/obligations">
+                        <li>
+                          <a tal:attributes="href obl/uri"
+                             tal:content="obl/title" />
+                        </li>
+                      </tal:block>
+                    </ul>
+                  </td>
+                  <td style="white-space: nowrap;">
+                    <ul tal:define="local_roles collection/roles">
+                      <li tal:repeat="roles python:[local_roles[user] for user in local_roles.keys() if user == request.get('username', None)]">
+                        <span tal:replace="python:', '.join(roles)"/>
                       </li>
-                    </tal:block>
-                  </ul>
-                </td>
-                <td style="white-space: nowrap;">
-                  <ul tal:define="local_roles collection/roles">
-                    <li tal:repeat="roles python:[local_roles[user] for user in local_roles.keys() if user == request.get('username', None)]">
-                      <span tal:replace="python:', '.join(roles)"/>
-                    </li>
-                  </ul>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
 
-          <div>
-            <input type="submit" name="confirm" value="Confirm action" />
-          </div>
-        </tal:block>
+            <div>
+              <input type="submit" name="revoke" value="Revoke roles" />
+            </div>
+            </tal:block>
 
-        <p class="error-msg" tal:condition="python:not request.get('username', None)">
-          User is mandatory.
-        </p>
 
-      </tal:block>
+            <p class="error-msg"
+               tal:condition="python:not request.get('username', None)">
+              User is mandatory.
+            </p>
+
+          </tal:block>
+        </form>
       </tal:block>
 
+      <tal:block condition="request/revoke | nothing">
+        <tal:block define="dummy view/revoke_roles" />
+        Roles succesfully revoked for user:
+        <strong tal:content="request/username | nothing" />.
+      </tal:block>
     </metal:block>
 
 </metal:block>
