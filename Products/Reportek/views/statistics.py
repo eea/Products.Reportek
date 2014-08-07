@@ -21,6 +21,7 @@ class Statistics(BaseAdmin):
         country_deliveries = []
         for country_url in country_urls:
             if country_url in localities:
+                # TODO try a named tupple here
                 country_deliveries.append(
                     {'country': localities[country_url]['name'],
                      'count': len(self.context.Catalog(meta_type="Report Envelope",
