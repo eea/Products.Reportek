@@ -24,6 +24,13 @@
     template="zpt/utilities/filters.zpt"/>
 
   <browser:page
+    name="statistics"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.Statistics"
+    template="zpt/utilities/statistics.zpt"/>
+
+  <browser:page
     name="get_users_by_path"
     for=".ReportekUtilities.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
