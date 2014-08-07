@@ -14,27 +14,22 @@ class BaseAdmin(BrowserView):
         else:
             return view_name
 
-
     def get_country_codes(self, countries):
         return [c['uri'] for c
                 in self.context.localities_rod()
                 if c['iso'] in countries]
 
-
     def get_obligations(self):
         return {o['PK_RA_ID']: o['uri'] for o
                 in self.context.dataflow_rod()}
-
 
     def get_obligations_title(self):
         return {o['uri']: o['TITLE'] for o
                 in self.context.dataflow_rod()}
 
-
     def get_roles(self):
         app = Zope2.bobo_application()
         return sorted(list(app.userdefined_roles()))
-
 
     def get_rod_obligations(self):
         """ Get activities from ROD """
@@ -65,3 +60,35 @@ class BaseAdmin(BrowserView):
             query['local_defined_users'] = users
 
         return self.context.Catalog(query)
+
+    def get_collections(self):
+        obligations = self.context.REQUEST.get('obligations', [])
+        countries = self.context.REQUEST.get('countries', [])
+        user = self.context.REQUEST.get('username', '')
+
+        results = []
+        for brain in self.search_catalog(obligations,
+                                         countries,
+                                         role='',
+                                         users=user):
+
+            record_obligations = []
+            for uri in list(brain.dataflow_uris):
+                try:
+                    title = self.get_obligations_title()[uri]
+                except KeyError:
+                    title = 'Unknown/Deleted obligation'
+                record_obligations.append({
+                    'uri': uri,
+                    'title': title
+                })
+
+            results.append({
+                'path': brain.getPath(),
+                'country': brain.getCountryName,
+                'obligations': record_obligations,
+                'roles': brain.local_defined_roles,
+                'title': brain.title
+            })
+
+        return results

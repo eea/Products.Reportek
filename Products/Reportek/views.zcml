@@ -86,4 +86,11 @@
     class=".views.ManageRoles"
     template="zpt/utilities/assign_role.zpt"/>
 
+  <browser:page
+    name="searchcollections"
+    for=".ReportekUtilities.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.SearchCollections"
+    template="zpt/utilities/search_collections.zpt"/>
+
 </configure>
