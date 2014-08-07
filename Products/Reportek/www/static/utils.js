@@ -2,10 +2,10 @@ function generateRow(row, tableKey) {
 
   var result = [
       renderAsLink(row.path[0], row.path[0], row.path[1]),
-      row.last_change,
       renderAsUL($.map(row.obligations, function (obligation) {
         return renderAsLink(obligation[0], obligation[1]);
-      }))
+      })),
+      row.last_change
     ];
 
   if (tableKey === 'by_path')
@@ -25,7 +25,13 @@ function initDataTable() {
   var target = $("#datatable");
 
   var generalSettings = {
-    by_path: {},
+    by_path: {
+      "columns": [
+        null,
+        null,
+        {"width": "10%"},
+        {"width": "15%"}
+      ]},
     by_person: {
       "ordering": false,
       "drawCallback": function (settings) {
@@ -44,6 +50,11 @@ function initDataTable() {
       },
       columnDefs: [
         {'visible': false, 'targets': 3}
+      ],
+      "columns": [
+        null,
+        null,
+        {"width": "10%"}
       ]
     }
   };
@@ -99,22 +110,24 @@ function renderAsUL(li_items) {
 }
 
 function clear_filters() {
-   $("#s2id_countries").select2("val", "");
+   $("#countries").select2("val", "");
+   $("#obligations").select2("val", "");
+   $("#role").select2("val", "");
 }
 
 function toggleSelectCountries(eu) {
   /* action can be select or deselect */
-  var eu_keys = {'eu25': ['AT', 'BE', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES', 
-                          'FI', 'FR', 'GB', 'GR', 'HU', 'IE', 'IT', 'LT', 
-                          'LU', 'LV', 'MT', 'NL', 'PL', 'PT', 'SE', 'SI', 
+  var eu_keys = {'eu25': ['AT', 'BE', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES',
+                          'FI', 'FR', 'GB', 'GR', 'HU', 'IE', 'IT', 'LT',
+                          'LU', 'LV', 'MT', 'NL', 'PL', 'PT', 'SE', 'SI',
                           'SK'],
                  'eu27': ['AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES',
-                          'FI','FR','GB','GR','HR', 'HU', 'IE', 'IT', 'LT', 
+                          'FI','FR','GB','GR','HR', 'HU', 'IE', 'IT', 'LT',
                           'LU','LV','MT','NL', 'PL', 'PT', 'RO', 'SE', 'SI',
                           'SK'],
                  'eu31': ['AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES',
                           'FI', 'FR', 'GB', 'GR', 'HU', 'IE', 'IS', 'IT', 'LI',
-                          'LT', 'LU', 'LV', 'MT', 'NO','NL', 'PL', 'PT', 'RO', 
+                          'LT', 'LU', 'LV', 'MT', 'NO','NL', 'PL', 'PT', 'RO',
                           'SE', 'SI', 'SK', 'TR']};
 
 

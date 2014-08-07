@@ -44,6 +44,11 @@
                   selected python:country['iso'] in request.get('countries', [])">
         </option>
       </select>
+    <div class="filters-eu">
+      <a onclick="toggleSelectCountries(this.id);" id="eu25">EU25</a>
+      <a onclick="toggleSelectCountries(this.id);" id="eu27">EU27</a>
+      <a onclick="toggleSelectCountries(this.id);" id="eu31">EU31</a>
+    </div>
     </div>
   </tal:block>
 
@@ -54,11 +59,5 @@
       <a onclick="clear_filters()">Clear filters</a>
     </div>
 
-    <a onclick="toggleSelectCountries(this.id);"
-      id="eu25" text_root="EU25">Select EU25</a>
-    <a onclick="toggleSelectCountries(this.id);"
-      id="eu27" text_root="EU27"> Select EU27</a>
-    <a onclick="toggleSelectCountries(this.id);"
-      id="eu31" text_root="EU31"> Select EU31</a>
   </div>
 </form>

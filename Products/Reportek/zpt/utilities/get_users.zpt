@@ -21,8 +21,8 @@
       <thead>
         <tr>
           <th>Path</th>
-          <th>Last change</th>
           <th>Obligations</th>
+          <th>Last change</th>
           <th>User</th>
         </tr>
       </thead>
@@ -33,4 +33,3 @@
   </metal:block>
 
 </metal:block>
-

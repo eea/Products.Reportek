@@ -21,8 +21,8 @@
       <thead>
         <tr>
           <th>Path</th>
-          <th>Last change</th>
           <th>Obligations</th>
+          <th>Last change</th>
           <th tal:define="user python:request.get('role', 'User')"
               tal:content="python:user + 's' if user else 'Users'">
           </th>
