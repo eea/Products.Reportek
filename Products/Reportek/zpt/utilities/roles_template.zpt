@@ -14,7 +14,9 @@
 <metal:block fill-slot="content">
 
   <metal:block define-slot="page-header"></metal:block>
-  <!-- <tal:block replace="structure here/find_user" /> -->
+
+  <metal:block define-slot="messages"></metal:block>
+
   <tal:block metal:use-macro="here/find_user/macros/filters" />
 
   <metal:block define-slot="data-table"></metal:block>

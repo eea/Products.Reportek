@@ -4,6 +4,12 @@
       <h1>Assign role to Eionet user</h1>
     </metal:block>
 
+    <metal:block fill-slot="messages">
+      <p class="important-msg" tal:condition="request/done | nothing">
+        Operations completed succesfully.
+      </p>
+    </metal:block>
+
     <metal:block fill-slot="data-table">
       <tal:block condition="request/search_term | nothing">
         <form action="#preview" method="get">
@@ -26,79 +32,76 @@
                  tal:attributes="value request/search_param">
 
           <div>
-            <input type="submit" name="preview"
-                   value="Preview collections" />
+            <input type="submit" name="btn.find_collections"
+                   value="Find collections" />
           </div>
 
-        </form>
-
-        <p tal:condition="not: request/search_term | nothing">
-          <strong>Please enter a search term</strong>
-        </p>
-
-        <tal:block condition="request/preview | nothing">
-          <a name="preview"></a>
-          <tal:block condition="python:
-                    request.get('username', None) and
-                    request.get('countries', []) and
-                    request.get('role', None)">
-          <h2>6. Confirmation</h2>
-          <p>
-            You are about to assign the role <span tal:replace="request/role" /> for the user <span tal:replace="request/username" />
-            on the following collections.
+          <p tal:condition="not: request/search_term | nothing">
+            <strong>Please enter a search term</strong>
           </p>
-          <table class="datatable"
-                 tal:define="collections view/get_collections">
-            <thead>
-              <tr>
-                <th>Country</th>
-                <th>Path</th>
-                <th>Obligations</th>
-                <th>Existing users</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr tal:repeat="collection collections">
-                <td tal:content="collection/country" />
-                <td>
-                  <a tal:attributes="href collection/path"
-                     tal:content="collection/path"/>
-                </td>
-                <td>
-                  <ul>
-                    <tal:block repeat="obl collection/obligations">
-                      <li>
-                        <a tal:attributes="href obl/uri"
-                           tal:content="obl/title" />
+
+          <tal:block condition="request/btn.find_collections | nothing">
+            <a name="preview"></a>
+            <tal:block condition="view/display_confirmation">
+
+            <h2>6. Assign role</h2>
+
+            <table class="datatable"
+                   tal:define="collections view/get_collections">
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Country</th>
+                  <th>Path</th>
+                  <th>Obligations</th>
+                  <th>Existing users</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr tal:repeat="collection collections">
+                  <td>
+                    <input type="checkbox" name="collections:list"
+                           tal:attributes="value collection/path">
+                  </td>
+                  <td tal:content="collection/country" />
+                  <td>
+                    <a tal:attributes="href collection/path"
+                       tal:content="collection/path"/>
+                  </td>
+                  <td>
+                    <ul>
+                      <tal:block repeat="obl collection/obligations">
+                        <li>
+                          <a tal:attributes="href obl/uri"
+                             tal:content="obl/title" />
+                        </li>
+                      </tal:block>
+                    </ul>
+                  </td>
+                  <td>
+                    <ul tal:condition="collection/roles"
+                        tal:define="local_roles collection/roles">
+                      <li tal:repeat="user local_roles/keys">
+                        <span tal:replace="user"/>
+                        (<span tal:replace="python:', '.join(local_roles[user])"/>)
                       </li>
-                    </tal:block>
-                  </ul>
-                </td>
-                <td style="white-space: nowrap;">
-                  <ul tal:define="local_roles collection/roles">
-                    <li tal:repeat="user local_roles/keys">
-                      <span tal:replace="user"/>
-                      (<span tal:replace="python:', '.join(local_roles[user])"/>)
-                    </li>
-                  </ul>
-                </td>
-              </tr>
-            </tbody>
-          </table>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
 
-          <div>
-            <input type="submit" name="confirm" value="Confirm action" />
-          </div>
+            <div>
+                <input type="submit" name="btn.assign" value="Assign role" />
+            </div>
+          </tal:block>
+
+          <p class="error-msg" tal:condition="not: view/display_confirmation">
+            User, country and role are mandatory fields.
+          </p>
+
         </tal:block>
-
-        <p class="error-msg" tal:condition="python:
-                not request.get('username', None) or
-                not request.get('countries', []) or
-                not request.get('role', None)">
-          User, country and role are mandatory fields.
-        </p>
-
-      </tal:block>
+      </form>
       </tal:block>
 
     </metal:block>

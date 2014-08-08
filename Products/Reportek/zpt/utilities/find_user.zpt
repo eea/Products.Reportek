@@ -15,6 +15,7 @@
         </tal:block>
       </select>
       <input type="submit" name="btnFind" value="Search" />
+      <a tal:attributes="href string:${here/absolute_url}/${view/__name__}">clear</a>
     </div>
   </form>
 </tal:block>

@@ -2,7 +2,25 @@ from base_admin import BaseAdmin
 
 
 class ManageRoles(BaseAdmin):
-    """ ManageRoles view """
+
+
+    def __call__(self, *args, **kwargs):
+        super(ManageRoles, self).__call__(*args, **kwargs)
+
+        if self.__name__ == 'assign_role':
+            if self.request.get('btn.assign'):
+                self.assign_role()
+                return self.request.response.redirect('%s/%s?done=1' % (
+                        self.context.absolute_url(), self.__name__))
+
+        elif self.__name__ == 'revoke_roles':
+            if self.request.get('btn.revoke'):
+                self.revoke_roles()
+                return self.request.response.redirect('%s/%s?done=1' % (
+                        self.context.absolute_url(), self.__name__))
+
+        return self.index()
+
 
     def get_user_localroles(self, username):
         results = []
@@ -18,19 +36,27 @@ class ManageRoles(BaseAdmin):
 
         return results
 
-
+    def assign_role(self):
+        collections = self.request.get('collections', [])
+        username = self.request.get('username', '')
+        role = self.request.get('role', '')
+        for collection in collections:
+            obj = self.context.unrestrictedTraverse(collection)
+            obj.manage_setLocalRoles(username, [role])
+            obj.reindex_object()
 
     def revoke_roles(self):
-        collections = self.context.REQUEST.get('collections', [])
-        username = self.context.REQUEST.get('username', '')
+        collections = self.request.get('collections', [])
+        username = self.request.get('username', '')
         for collection in collections:
             obj = self.context.unrestrictedTraverse(collection)
             obj.manage_delLocalRoles(userids=[username])
             obj.reindex_object()
 
+
     def search_ldap_users(self):
-        search_term = self.context.REQUEST.get('search_term')
-        search_param = self.context.REQUEST.get('search_param')
+        search_term = self.request.get('search_term')
+        search_param = self.request.get('search_param')
 
         users = (self.context
                      .acl_users['ldapmultiplugin']['acl_users']
@@ -44,8 +70,13 @@ class ManageRoles(BaseAdmin):
 
         return response
 
-
     def get_ldap_schema(self):
         return (self.context
                     .acl_users['ldapmultiplugin']['acl_users']
                     .getLDAPSchema())
+
+    def display_confirmation(self):
+        return (self.request.get('username', None) and
+               self.request.get('countries', []) and
+               self.request.get('role', None))
+

@@ -4,10 +4,15 @@
       <h1>Remove role from Eionet user</h1>
     </metal:block>
 
+    <metal:block fill-slot="messages">
+      <p class="important-msg" tal:condition="request/done | nothing">
+        Operations completed succesfully.
+      </p>
+    </metal:block>
+
     <metal:block fill-slot="data-table">
       <tal:block condition="request/search_term | nothing">
-        <form action="" method="get"
-              tal:condition="not: request/revoke | nothing">
+        <form action="" method="get">
 
           <tal:block metal:use-macro="here/find_user/macros/users_table" />
 
@@ -18,14 +23,14 @@
                  tal:attributes="value request/search_param" />
 
           <div>
-            <input type="submit" name="preview" value="Find user roles" />
+            <input type="submit" name="btn.find_roles" value="Find user roles" />
           </div>
 
           <p tal:condition="not: request/search_term | nothing">
             <strong>Please enter a search term</strong>
           </p>
 
-          <tal:block condition="request/preview | nothing">
+          <tal:block condition="request/btn.find_roles | nothing">
             <tal:block condition="python:request.get('username', None)">
             <h2>3. Revoke roles</h2>
             <table class="datatable"
@@ -61,7 +66,8 @@
                     </ul>
                   </td>
                   <td style="white-space: nowrap;">
-                    <ul tal:define="local_roles collection/roles">
+                    <ul tal:condition="collection/roles"
+                        tal:define="local_roles collection/roles">
                       <li tal:repeat="roles python:[local_roles[user] for user in local_roles.keys() if user == request.get('username', None)]">
                         <span tal:replace="python:', '.join(roles)"/>
                       </li>
@@ -72,7 +78,7 @@
             </table>
 
             <div>
-              <input type="submit" name="revoke" value="Revoke roles" />
+              <input type="submit" name="btn.revoke" value="Revoke roles" />
             </div>
             </tal:block>
 
@@ -86,11 +92,6 @@
         </form>
       </tal:block>
 
-      <tal:block condition="request/revoke | nothing">
-        <tal:block define="dummy view/revoke_roles" />
-        Roles succesfully revoked for user:
-        <strong tal:content="request/username | nothing" />.
-      </tal:block>
     </metal:block>
 
 </metal:block>

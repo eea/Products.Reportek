@@ -5,11 +5,11 @@ class SearchCollections(BaseAdmin):
     """ SearchCollections view """
 
     def create_envelopes(self):
-        obligations = self.context.REQUEST.get('obligations', [])
-        countries = self.context.REQUEST.get('countries', [])
-        user = self.context.REQUEST.get('username', '')
-        title = self.context.REQUEST.get('title', '')
-        year = self.context.REQUEST.get('year', '')
+        obligations = self.request.get('obligations', [])
+        countries = self.request.get('countries', [])
+        user = self.request.get('username', '')
+        title = self.request.get('title', '')
+        year = self.request.get('year', '')
 
         for brain in self.search_catalog(obligations,
                                          countries,

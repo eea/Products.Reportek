@@ -9,8 +9,8 @@ class BaseAdmin(BrowserView):
 
     def get_view(self, view_name):
         """Returns the view coresponding to the view_name"""
-        if self.context.REQUEST.QUERY_STRING:
-            return view_name + '?' + self.context.REQUEST.QUERY_STRING
+        if self.request.QUERY_STRING:
+            return view_name + '?' + self.request.QUERY_STRING
         else:
             return view_name
 
@@ -43,6 +43,7 @@ class BaseAdmin(BrowserView):
         return {'legal_instruments': sorted(obligations.keys()),
                 'obligations': obligations}
 
+
     def search_catalog(self, obligation, countries, role, users=[]):
         country_codes = self.get_country_codes(countries)
 
@@ -59,34 +60,39 @@ class BaseAdmin(BrowserView):
 
         return self.context.Catalog(query)
 
-    def get_collections(self):
-        obligations = self.context.REQUEST.get('obligations', [])
-        countries = self.context.REQUEST.get('countries', [])
-        user = self.context.REQUEST.get('username', '')
 
-        results = []
-        for brain in self.search_catalog(obligations,
+    def get_collections(self):
+        obligation = self.request.get('obligation', [])
+        countries = self.request.get('countries', [])
+        if self.request.get('btn.find_roles'):
+            username  = self.request.get('username', [])
+        elif self.request.get('btn.find_collections'):
+            username = ''
+
+        records = []
+        for brain in self.search_catalog(obligation,
                                          countries,
                                          role='',
-                                         users=user):
+                                         users=username):
 
-            record_obligations = []
+            obligations = []
             for uri in list(brain.dataflow_uris):
                 try:
                     title = self.get_obligations_title()[uri]
                 except KeyError:
                     title = 'Unknown/Deleted obligation'
-                record_obligations.append({
+                obligations.append({
                     'uri': uri,
                     'title': title
                 })
 
-            results.append({
+            records.append({
                 'path': brain.getPath(),
                 'country': brain.getCountryName,
-                'obligations': record_obligations,
+                'obligations': obligations,
                 'roles': brain.local_defined_roles,
                 'title': brain.title
             })
 
-        return results
+        records.sort(key=itemgetter('country'))
+        return records
