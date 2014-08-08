@@ -37,22 +37,21 @@ function initDataTable() {
         var rows = api.rows({page: 'current'}).nodes();
         var last = null;
 
-        api.column(3, {page:'current'}).data().each(function(group, i) {
+        api.column(2, {page:'current'}).data().each(function(group, i) {
           if (last !== group) {
             $(rows).eq(i).before(
-              '<tr class="group"><td colspan="3">' + group + '</td></tr>'
+              '<tr class="group"><td colspan="2">' + group + '</td></tr>'
             );
             last = group;
           }
         });
       },
       columnDefs: [
-        {'visible': false, 'targets': 3}
+        {'visible': false, 'targets': 2}
       ],
       "columns": [
-        null,
-        null,
-        {"width": "10%"}
+        {"width": "20%"},
+        null
       ]
     }
   };

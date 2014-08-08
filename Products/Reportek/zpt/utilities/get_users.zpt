@@ -22,7 +22,6 @@
         <tr>
           <th>Path</th>
           <th>Obligations</th>
-          <th>Last change</th>
           <th>User</th>
         </tr>
       </thead>

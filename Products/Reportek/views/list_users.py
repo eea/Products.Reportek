@@ -41,7 +41,6 @@ class ListUsers(BaseAdmin):
             yield {
                 'path': [brain.getPath(), brain.title],
                 'obligations': obligations,
-                'last_change': brain.bobobase_modification_time.Date(),
                 'users':  users}
 
 
