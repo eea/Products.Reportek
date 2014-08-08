@@ -114,7 +114,7 @@ def create_reportek_objects(app):
     except AttributeError:
         reportek_utilities = ReportekUtilities.ReportekUtilities(
                                     constants.REPORTEK_UTILITIES,
-                                    'Reportek Utilites')
+                                    'Reportek Utilities')
         app._setObject(constants.REPORTEK_UTILITIES, reportek_utilities)
 
 

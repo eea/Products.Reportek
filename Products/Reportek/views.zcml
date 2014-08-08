@@ -5,27 +5,34 @@
 
   <browser:page
     name="index_html"
-    for=".ReportekUtilities.IReportekUtilities"
+    for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     template="zpt/utilities/index.zpt"/>
 
   <browser:page
     name="users_template"
-    for=".ReportekUtilities.IReportekUtilities"
+    for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.BaseAdmin"
     template="zpt/utilities/users_template.zpt"/>
 
   <browser:page
     name="filters"
-    for=".ReportekUtilities.IReportekUtilities"
+    for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.BaseAdmin"
     template="zpt/utilities/filters.zpt"/>
 
   <browser:page
+    name="statistics"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.Statistics"
+    template="zpt/utilities/statistics.zpt"/>
+
+  <browser:page
     name="get_users_by_path"
-    for=".ReportekUtilities.IReportekUtilities"
+    for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.ListUsers"
     template="zpt/utilities/get_users_by_path.zpt"/>
@@ -39,7 +46,7 @@
 
   <browser:page
     name="get_users"
-    for=".ReportekUtilities.IReportekUtilities"
+    for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.ListUsers"
     template="zpt/utilities/get_users.zpt"/>
@@ -53,30 +60,37 @@
 
   <browser:page
     name="find_user"
-    for=".ReportekUtilities.IReportekUtilities"
+    for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.ManageRoles"
     template="zpt/utilities/find_user.zpt"/>
 
   <browser:page
     name="roles_template"
-    for=".ReportekUtilities.IReportekUtilities"
+    for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.ManageRoles"
     template="zpt/utilities/roles_template.zpt"/>
 
   <browser:page
     name="revoke_roles"
-    for=".ReportekUtilities.IReportekUtilities"
+    for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.ManageRoles"
     template="zpt/utilities/revoke_roles.zpt"/>
 
   <browser:page
     name="assign_role"
-    for=".ReportekUtilities.IReportekUtilities"
+    for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.ManageRoles"
     template="zpt/utilities/assign_role.zpt"/>
+
+  <browser:page
+    name="searchcollections"
+    for=".ReportekUtilities.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.SearchCollections"
+    template="zpt/utilities/search_collections.zpt"/>
 
 </configure>
