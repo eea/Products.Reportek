@@ -9,11 +9,16 @@ class ListUsers(BaseAdmin):
 
 
     def get_records(self, REQUEST):
-        obligations = REQUEST.get('obligations', [])
-        countries = REQUEST.get('countries', [])
+
+        obligation = REQUEST.get('obligation', '')
+        countries = REQUEST.get('countries[]', [])
         role = REQUEST.get('role', '')
 
-        for brain in self.search_catalog(obligations, countries, role):
+        if not isinstance(countries, list):
+            countries = [countries]
+
+
+        for brain in self.search_catalog(obligation, countries, role):
 
             obligations = []
             for uri in list(brain.dataflow_uris):

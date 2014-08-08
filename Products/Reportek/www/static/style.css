@@ -78,6 +78,16 @@ table.dataTable tr.group td {
   content: "< ";
 }
 
+.dataTables_processing {
+  padding: .5em;
+  float: right;
+  color: #428be1;
+}
+
+table.dataTable td.sorting_1 {
+  padding: .5em;
+}
+
 a.revoke-roles {
   display: inline-block;
   margin-left: 1px;

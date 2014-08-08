@@ -4,8 +4,7 @@ function generateRow(row, tableKey) {
       renderAsLink(row.path[0], row.path[0], row.path[1]),
       renderAsUL($.map(row.obligations, function (obligation) {
         return renderAsLink(obligation[0], obligation[1]);
-      })),
-      row.last_change
+      }))
     ];
 
   if (tableKey === 'by_path')
@@ -27,9 +26,8 @@ function initDataTable() {
   var generalSettings = {
     by_path: {
       "columns": [
+        {"width": "25%"},
         null,
-        null,
-        {"width": "10%"},
         {"width": "15%"}
       ]},
     by_person: {
@@ -77,7 +75,7 @@ function initDataTable() {
   $.ajax({
     url: dataSources[tableKey],
     data: {
-      obligations: $('#obligations').val(),
+      obligation: $('#obligation').val(),
       role: $('#role').val(),
       countries: $('#countries').val()
     },
@@ -92,11 +90,10 @@ function initDataTable() {
 }
 
 $(function () {
-  $("#role").select2({
-    placeholder: "(All)",
-    allowClear: true
-  });
-  $("#countries, #obligations").select2();
+  $("#role, #obligation, #countries").select2(
+    {
+      allowClear: true
+    });
   initDataTable();
 });
 
@@ -111,7 +108,7 @@ function renderAsUL(li_items) {
 
 function clear_filters() {
    $("#countries").select2("val", "");
-   $("#obligations").select2("val", "");
+   $("#obligation").select2("val", "");
    $("#role").select2("val", "");
 }
 

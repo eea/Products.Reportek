@@ -13,12 +13,8 @@
           <h2>3. Select one or more countries</h2>
           <tal:block metal:use-macro="here/filters/macros/countries" />
 
-          <h2>4. Select one or more obligations</h2>
-          <tal:block metal:use-macro="here/filters/macros/obligations" />
-          <em>
-            Leave this field empty in order to assign the role
-            for the entire country collection
-          </em>
+          <h2>4. Select obligation</h2>
+          <tal:block metal:use-macro="here/filters/macros/select-obligation" />
 
           <h2>5. Select role</h2>
           <tal:block metal:use-macro="here/filters/macros/role" />

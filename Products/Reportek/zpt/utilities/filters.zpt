@@ -1,17 +1,19 @@
-<form method="get">
+<form method="get" action="">
   <div class="filters">
 
-  <tal:block metal:define-macro="obligations">
+  <tal:block metal:define-macro="select-obligation">
     <div class="form-group">
-      <label for="obligations">Obligations</label>
-      <select id="obligations" name="obligations:list" multiple="multiple">
-        <tal:block define="rod_data view/get_rod_obligations"
+      <label for="obligation">Obligation</label>
+      <select id="obligation" name="obligation">
+        <option value=""></option>
+        <tal:block define="req_obl request/obligation | string:;
+                           rod_data view/get_rod_obligations"
                    repeat="instrument rod_data/legal_instruments">
           <optgroup tal:attributes="label instrument">
             <tal:block repeat="obl python:rod_data['obligations'][instrument]">
               <option tal:attributes="value obl/PK_RA_ID;
                         class python:'terminated' if obl['terminated'] == '1' else nothing;
-                        selected python:obl['PK_RA_ID'] in request.get('obligations', [])"
+                        selected python:obl['PK_RA_ID'] == req_obl"
                       tal:content="obl/TITLE">
               </option>
             </tal:block>
@@ -53,9 +55,7 @@
   </tal:block>
 
     <div class="actions">
-      <input type="submit" value="Filter" />
-      <input type="hidden" name="filter_by"
-             tal:attributes="value request/filter_by | string:path" />
+      <input type="submit" name="btnFilter" value="Filter" />
       <a onclick="clear_filters()">Clear filters</a>
     </div>
 

@@ -1,7 +1,7 @@
 <metal:block use-macro="here/users_template/macros/users-page">
 
   <metal:block fill-slot="tabs">
-    <div  id="tabbedmenu">
+    <div id="tabbedmenu">
       <ul>
         <li id="currenttab">
           <span>Grouped by path</span>
@@ -20,12 +20,9 @@
     <table class="datatable" id="datatable" data-table-key="by_path">
       <thead>
         <tr>
-          <th>Path</th>
+          <th>Collection</th>
           <th>Obligations</th>
-          <th>Last change</th>
-          <th tal:define="user python:request.get('role', 'User')"
-              tal:content="python:user + 's' if user else 'Users'">
-          </th>
+          <th>Users</th>
         </tr>
       </thead>
       <tbody>

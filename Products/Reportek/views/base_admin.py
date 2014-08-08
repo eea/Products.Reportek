@@ -48,19 +48,17 @@ class BaseAdmin(BrowserView):
         return {'legal_instruments': sorted(obligations.keys()),
                 'obligations': obligations}
 
-    def search_catalog(self, obligations, countries, role, users=[]):
+    def search_catalog(self, obligation, countries, role, users=[]):
         country_codes = self.get_country_codes(countries)
-        dataflow_uris = [self.get_obligations()[obl_id] for obl_id
-                         in obligations]
 
         query = {'meta_type': 'Report Collection'}
 
         if role:
-            query['local_defined_roles'] = role
+            query['local_unique_roles'] = role
         if country_codes:
             query['country'] = country_codes
-        if dataflow_uris:
-            query['dataflow_uris'] = dataflow_uris
+        if obligation:
+            query['dataflow_uris'] = self.get_obligations()[obligation]
         if users:
             query['local_defined_users'] = users
 
