@@ -93,4 +93,18 @@
     class=".views.SearchCollections"
     template="zpt/utilities/search_collections.zpt"/>
 
+  <browser:page
+    name="collections_wrong_country"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.WrongCountry"
+    template="zpt/utilities/collections_wrong_country.zpt"/>
+
+  <browser:page
+    name="envelopes_wrong_country"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.WrongCountry"
+    template="zpt/utilities/envelopes_wrong_country.zpt"/>
+
 </configure>

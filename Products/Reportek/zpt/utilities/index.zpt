@@ -15,10 +15,10 @@
     <a href="searchcollections">Search for collections with obligation</a>
   </li>
   <li>
-    <a href="wrong_country">Collections allocated to the wrong country</a>
+    <a href="collections_wrong_country">Collections allocated to the wrong country</a>
   </li>
   <li>
-    <a href="wrong_country?otype=envelope">Envelopes allocated to the wrong country</a>
+    <a href="envelopes_wrong_country">Envelopes allocated to the wrong country</a>
   </li>
   <li><a href="statistics">Statistics</a></li>
 </ul>
