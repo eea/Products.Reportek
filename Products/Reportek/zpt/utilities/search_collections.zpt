@@ -15,7 +15,7 @@
 
   <h1>Search for collections with obligation</h1>
   <form action="" method="get">
-    <tal:block metal:use-macro="here/filters/macros/obligations" />
+    <tal:block metal:use-macro="here/filters/macros/select-obligation" />
 
     <input type="submit" name="search" value="search" />
 
