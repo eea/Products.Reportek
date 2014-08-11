@@ -60,14 +60,10 @@ class BaseAdmin(BrowserView):
 
         return self.context.Catalog(query)
 
-
     def get_collections(self):
         obligation = self.request.get('obligation', '')
         countries = self.request.get('countries', [])
-        if self.request.get('btn.find_roles'):
-            username = self.request.get('username', [])
-        else:
-            username = ''
+        username = self.request.get('username', '')
 
         records = []
         for brain in self.search_catalog(obligation,

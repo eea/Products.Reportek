@@ -94,6 +94,22 @@ $(function () {
       allowClear: true
     });
   initDataTable();
+  $(".toggledCB").click(function() {
+    var checkedElems = $(".toggledCB").filter(function(index, element) {
+      return $(element).prop('checked') === true;
+    });
+    if (checkedElems.length === $(".toggledCB").length) {
+      $(".toggleAllCB").prop('checked', true);
+    } else {
+      $(".toggleAllCB").prop('checked', false);
+    }
+  });
+  $(".toggleAllCB").click(function() {
+    var toggleAllBtn = $(this);
+    var checkBoxName = $(this).attr('name');
+    var checkBoxes = $("[name='"+checkBoxName + "']");
+    checkBoxes.prop('checked', toggleAllBtn.prop('checked'));
+  });
 });
 
 function renderAsUL(li_items) {

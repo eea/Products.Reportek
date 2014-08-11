@@ -17,11 +17,12 @@
   <form action="" method="get">
     <tal:block metal:use-macro="here/filters/macros/select-obligation" />
 
-    <input type="submit" name="search" value="search" />
+    <input type="submit" name="btn.search" value="search" />
 
-    <table class="dataTable" tal:condition="request/search | nothing">
+    <table class="dataTable" tal:condition="request/btn.search | nothing">
       <thead>
         <tr>
+          <th><input class="toggleAllCB" type="checkbox" checked="checked" name="collections:list" /></th>
           <th>Country</th>
           <th>Path</th>
           <th>Title</th>
@@ -30,6 +31,10 @@
 
       <tbody>
         <tr tal:repeat="collection view/get_collections">
+          <td>
+            <input type="checkbox" name="collections:list" checked="checked" class="toggledCB"
+                   tal:attributes="value collection/path" />
+          </td>
           <td tal:content="collection/country"></td>
           <td><a tal:attributes="href collection/path" tal:content="collection/path"></a></td>
           <td tal:content="collection/title"></td>
@@ -37,23 +42,26 @@
       </tbody>
     </table>
 
-    <div tal:condition="request/search | nothing">
+    <div tal:condition="request/btn.search | nothing">
       <p>You can use this form to create empty envelopes for all the above collections.</p>
 
         <label for="envelopeTitle">Title of envelope</label>
         <input type="text" />
 
-        <label for="envelopeYear">Title of envelope</label>
+        <label for="envelopeYear">Start year</label>
         <input type="number" />
 
-        <input type="submit" action="" method="get"
-               name="create" value="Create envelopes for all" />
+        <input type="submit"
+               name="btn.create" value="Create envelopes for all" />
     </div>
   </form>
 
-  <tal:block condition="request/create | nothing">
-    <tal:block define="dummy view/create_envelopes" />
-      Envelopes created
+  <tal:block condition="request/btn.create | nothing">
+    <ol>
+      <li tal:repeat="collection request/collections">
+        Creating in <a tal:attributes="href collection" tal:content="collection"></a>
+      </li>
+    </ol>
   </tal:block>
 
 </metal:block>
