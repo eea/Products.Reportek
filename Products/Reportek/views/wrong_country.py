@@ -1,10 +1,11 @@
 from base_admin import BaseAdmin
+import Zope2
 
 class WrongCountry(BaseAdmin):
 
     def _top_collections(self):
-        root = self.context.restrictedTraverse('/')
-        return root.objectValues('Report Collection')
+        app = Zope2.bobo_application()
+        return app.objectValues('Report Collection')
 
     def _wrong_country(self, meta_type):
         wrongs = []
