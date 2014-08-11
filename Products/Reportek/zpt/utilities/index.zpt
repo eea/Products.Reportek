@@ -13,17 +13,17 @@
 
 <ul>
   <li>
-    <a href="searchcollections">Search for collections with obligation</a>
+    <a href="collections.search">Search for collections with obligation</a>
   </li>
   <li>
-    <a href="collections_wrong_country">Collections allocated to the wrong country</a>
+    <a href="collections.wrong_country">Collections allocated to the wrong country</a>
   </li>
   <li>
-    <a href="envelopes_wrong_country">Envelopes allocated to the wrong country</a>
+    <a href="envelopes.wrong_country">Envelopes allocated to the wrong country</a>
   </li>
   <li tal:condition="not: isBdrDeployment"><a href="statistics">Statistics</a></li>
   <li tal:condition="isBdrDeployment">
-    <a href="/ReportekEngine/envelopes_autocomplete">Auto complete envelopes</a>
+    <a href="envelopes.autocomplete">Auto complete envelopes</a>
   </li>
 </ul>
 

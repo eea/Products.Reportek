@@ -1,16 +1,17 @@
 from base_admin import BaseAdmin
 
-
 class SearchCollections(BaseAdmin):
     """ SearchCollections view """
 
     def __call__(self, *args, **kwargs):
-        result = super(SearchCollections, self).__call__(*args, **kwargs)
+        super(SearchCollections, self).__call__(*args, **kwargs)
 
         if self.request.get('btn.create'):
             self.create_envelopes()
+            return self.request.response.redirect('%s/%s?done=1' % (
+                        self.context.absolute_url(), self.__name__))
 
-        return result
+        return self.index()
 
     def create_envelopes(self):
         title = self.request.get('title', '')

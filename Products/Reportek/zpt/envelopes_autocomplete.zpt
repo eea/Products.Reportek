@@ -2,7 +2,7 @@
 <tal:block define="
   status_list python:['', 'active','inactive'];
   tasks_list python:[];
-  
+
   status python:request.get('status', '');
   obligation python:request.get('obligation', '');
   age python:request.get('age', 0);
@@ -17,20 +17,7 @@
   task python:request.get('task', '');
   updates python:here.autoCompleteEnvelopes(ids=ids, task=task);
 ">
-<!-- Scripts -->
-<script type="text/javascript">
-// <![CDATA[
-var toggleSelect = function(caller){
-  var frm = document.objectItems;
-  for(var i=0; i<frm.elements.length; i++){
-    var elem = frm.elements[i];
-    if(elem.type == 'checkbox'){
-      elem.checked = caller.checked;
-    }
-  }
-}
-// ]]>
-</script>
+
 
 <!-- Message box -->
 <fieldset tal:condition="running" style="padding: 0.5em; margin: 0.5em">
@@ -89,7 +76,7 @@ var toggleSelect = function(caller){
 <div tal:condition="empty_res" style="text-align: center">
   <strong>No record match !</strong>
 </div>
-<form name="objectItems" id="objectItems" method="post" action="envelopes_autocomplete" 
+<form name="objectItems" id="objectItems" method="post" action="envelopes_autocomplete"
   tal:condition="not:empty_res">
   <table class="sortable" style="width: 100%">
     <thead>
