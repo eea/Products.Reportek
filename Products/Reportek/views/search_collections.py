@@ -5,7 +5,7 @@ class SearchCollections(BaseAdmin):
     """ SearchCollections view """
 
     def create_envelopes(self):
-        obligations = self.request.get('obligations', [])
+        obligations = self.request.get('obligation', '')
         countries = self.request.get('countries', [])
         user = self.request.get('username', '')
         title = self.request.get('title', '')

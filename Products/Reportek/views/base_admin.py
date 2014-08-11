@@ -62,11 +62,11 @@ class BaseAdmin(BrowserView):
 
 
     def get_collections(self):
-        obligation = self.request.get('obligation', [])
+        obligation = self.request.get('obligation', '')
         countries = self.request.get('countries', [])
         if self.request.get('btn.find_roles'):
-            username  = self.request.get('username', [])
-        elif self.request.get('btn.find_collections'):
+            username = self.request.get('username', [])
+        else:
             username = ''
 
         records = []
