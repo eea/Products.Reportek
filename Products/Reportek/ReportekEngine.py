@@ -205,9 +205,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declareProtected('View', 'globalworklist')
     globalworklist = PageTemplateFile('zpt/engineGlobalWorklist', globals())
 
-    security.declareProtected(view_management_screens, 'countryreporters')
-    countryreporters = PageTemplateFile('zpt/engineCountryReporters', globals())
-
     security.declareProtected('View', 'searchfeedbacks')
     searchfeedbacks = PageTemplateFile('zpt/engineSearchFeedbacks', globals())
 
@@ -446,24 +443,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """ """
         l_countries = self.getParentNode().objectValues('Report Collection')
         return RepUtils.utSortByAttr(l_countries, 'title')
-
-    security.declareProtected('View', 'getCountryByTitle')
-    def getCountryByTitle(self, p_title):
-        """ """
-        for k in self.getCountriesList():
-            if k.title_or_id() == p_title: return k
-
-    security.declareProtected('View', 'getReportersByCountry')
-    def getReportersByCountry(self, p_context, p_role):
-        """ """
-        reporters = {}
-        try:    l_context = self.unrestrictedTraverse(p_context)
-        except: return reporters
-        for k in l_context.get_local_roles():
-            if p_role in k[1]: reporters[k[0]] = p_role
-        for k in l_context.objectValues('Report Collection'):
-            reporters.update(self.getReportersByCountry(k.absolute_url(1), p_role))
-        return reporters
 
     security.declarePrivate('sitemap_filter')
     def sitemap_filter(self, objs):

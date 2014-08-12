@@ -1,0 +1,62 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+<metal:block fill-slot="head">
+  <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
+  <link href="++resource++static/style.css" rel="stylesheet"/>
+
+  <script type="text/javascript" charset="utf8" src="++resource++static/jquery-1.10.2.min.js"></script>
+  <script src="++resource++static/select2-3.5.0/select2.js"></script>
+</metal:block>
+
+
+<metal:block fill-slot="content">
+
+  <h1>Reporters by country</h1>
+  <p class="info">
+    This page lists the users that have the local role of
+    <em>Reporter</em> for the selected country.
+  </p>
+
+  <form method="get" action="">
+    <div class="filters">
+      <div class="form-indent">
+         <label for="country">Country</label>
+        <select id="country" name="country">
+          <option tal:repeat="country options/countries | nothing"
+                  tal:attributes="value country/id;
+                          selected python:country.id == request.get('country')"
+                  tal:content="country/title"/>
+        </select>
+        <input type="submit" name="btn.reporters" value="Show reporters" />
+      </div>
+    </div>
+  </form>
+
+  <table class="datatable" tal:condition="options/reporters | nothing">
+    <thead>
+      <tr>
+        <th>User</th>
+        <th>Name</th>
+        <th>Email</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr tal:repeat="reporter options/reporters">
+        <td tal:content="reporter/uid" />
+        <td tal:content="reporter/name" />
+        <td>
+          <a tal:condition="reporter/email"
+             tal:attributes="href string:mailto:${reporter/email}"
+             tal:content="reporter/email" />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <strong tal:condition="not: options/reporters | nothing">
+    No reporters found for the selected country.
+  </strong>
+
+</metal:block>
+
+</metal:block>

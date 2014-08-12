@@ -7,9 +7,6 @@
 	<dt><a href="/ReportekEngine/globalworklist">Global work list</a></dt>
 	<dd>The TODO list for all users of the website</dd>
 
-	<dt><a href="/ReportekEngine/countryreporters">Country reporters</a></dt>
-	<dd>Lists the users that have the local role of 'Reporter' in each country</dd>
-
 	<dt><a href="/ReportekEngine/manage_properties">manage_properties</a></dt>
 	<dd>ZMI page that sets various global properties, such as links to remote services</dd>
 

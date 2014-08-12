@@ -177,37 +177,3 @@
 </metal:block>
 
 </metal:block>
-
-
-<metal:block define-macro="countryReporters">
-    <h2 style="background-color: #f0f0f0; padding: 0.1em"
-        tal:content="python:country.title or country.id">
-        Country
-    </h2>
-    <tal:block define="reporters_list python:context.getReportersByCountry(country.absolute_url(1),
-                                                                           'Reporter').keys()">
-        <tal:block condition="python:reporters_list">
-            <table class="sortable" width="100%">
-                <tr>
-                    <th><span>ID</span></th>
-                    <th><span>First Name</span></th>
-                    <th><span>Last Name</span></th>
-                    <th><span>Email</span></th>
-                </tr>
-            <tal:block define="dummy python:reporters_list.sort()" repeat="reporter reporters_list">
-                <tal:block define="user_dn python:context.getLDAPUser(reporter)">
-                <tr>
-                    <td tal:content="reporter">reporter</td>
-                    <td tal:content="python:context.getLDAPUserFirstName(user_dn)">First Name</td>
-                    <td tal:content="python:context.getLDAPUserLastName(user_dn)">Last Name</td>
-                    <td tal:content="python:context.getLDAPUserEmail(user_dn)">Email</td>
-                </tr>
-                </tal:block>
-            </tal:block>
-            </table>
-        </tal:block>
-        <tal:block condition="python:not reporters_list">
-            &nbsp;<span>N/A</span>
-        </tal:block>
-    </tal:block>
-</metal:block>
