@@ -93,21 +93,21 @@ $(function () {
     {
       allowClear: true
     });
-  initDataTable();
+  if ($("#datatable").length !== 0)
+    initDataTable();
   $(".toggledCB").click(function() {
     var checkedElems = $(".toggledCB").filter(function(index, element) {
       return $(element).prop('checked') === true;
     });
     if (checkedElems.length === $(".toggledCB").length) {
-      $(".toggleAllCB").prop('checked', true);
+      $("#toggleAllCB").prop('checked', true);
     } else {
-      $(".toggleAllCB").prop('checked', false);
+      $("#toggleAllCB").prop('checked', false);
     }
   });
-  $(".toggleAllCB").click(function() {
+  $("#toggleAllCB").click(function() {
     var toggleAllBtn = $(this);
-    var checkBoxName = $(this).attr('name');
-    var checkBoxes = $("[name='"+checkBoxName + "']");
+    var checkBoxes = $(".toggledCB");
     checkBoxes.prop('checked', toggleAllBtn.prop('checked'));
   });
 });

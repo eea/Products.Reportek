@@ -51,7 +51,7 @@
       <thead>
         <tr>
           <th>
-            <input class="toggleAllCB" type="checkbox" checked="checked" />
+            <input id="toggleAllCB" type="checkbox" checked="checked" />
           </th>
           <th>Country</th>
           <th>Collection path</th>
