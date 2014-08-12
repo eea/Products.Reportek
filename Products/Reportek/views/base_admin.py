@@ -3,9 +3,21 @@ from operator import itemgetter
 from Products.Five import BrowserView
 import Zope2
 
+from Products.Reportek import config
 
 class BaseAdmin(BrowserView):
     """ Base view for users administration """
+
+    def __call__(self, *args, **kwargs):
+        super(BaseAdmin, self).__call__(*args, **kwargs)
+
+        engine = self.context.ReportekEngine.getDeploymentType()
+        if engine == config.DEPLOYMENT_BDR:
+            is_bdr = True
+        else:
+            is_bdr = False
+
+        return self.index(is_bdr=is_bdr)
 
     def get_view(self, view_name):
         """Returns the view coresponding to the view_name"""

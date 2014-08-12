@@ -1,0 +1,19 @@
+<configure
+  xmlns="http://namespaces.zope.org/zope"
+  xmlns:browser="http://namespaces.zope.org/browser"
+  xmlns:meta="http://namespaces.zope.org/meta"
+  xmlns:zcml="http://namespaces.zope.org/zcml">
+
+  <configure zcml:condition="not-have cdr_installation">
+
+    <meta:provides feature="bdr_installation" />
+
+    <browser:page
+      name="envelopes.autocomplete"
+      for=".interfaces.IReportekUtilities"
+      permission="zope2.ViewManagementScreens"
+      class=".views.EnvelopeUtils"
+      template="zpt/utilities/envelopes_autocomplete.zpt"/>
+
+  </configure>
+</configure>

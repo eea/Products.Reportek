@@ -83,4 +83,5 @@ class EnvelopeUtils(BaseAdmin):
                 envelope.activateWorkitem(workitem_id)
 
             # complete envelope
+            self.request.set('inspectresult', 'Finish')
             envelope.completeWorkitem(workitem_id, REQUEST=self.request)

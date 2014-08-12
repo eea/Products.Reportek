@@ -114,6 +114,11 @@
     </table>
   </form>
 
+  <strong tal:condition="python: not options.get('workitems')
+                         and request.get('btn.search')">
+    No envelopes found.
+  </strong>
+
 </metal:block>
 
 </metal:block>

@@ -7,6 +7,7 @@
     name="index_html"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
+    class=".views.BaseAdmin"
     template="zpt/utilities/index.zpt"/>
 
   <browser:page
@@ -22,13 +23,6 @@
     permission="zope2.ViewManagementScreens"
     class=".views.BaseAdmin"
     template="zpt/utilities/filters.zpt"/>
-
-  <browser:page
-    name="statistics"
-    for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
-    class=".views.Statistics"
-    template="zpt/utilities/statistics.zpt"/>
 
   <browser:page
     name="get_users_by_path"
@@ -106,12 +100,5 @@
     permission="zope2.ViewManagementScreens"
     class=".views.WrongCountry"
     template="zpt/utilities/envelopes_wrong_country.zpt"/>
-
-  <browser:page
-    name="envelopes.autocomplete"
-    for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
-    class=".views.EnvelopeUtils"
-    template="zpt/utilities/envelopes_autocomplete.zpt"/>
 
 </configure>

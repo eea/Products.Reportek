@@ -1,30 +1,35 @@
-<tal:block define="global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'"
-           replace="structure here/standard_html_header" />
+<metal:block use-macro="container/standard_template.pt/macros/page">
 
-<h2>User management</h2>
+  <metal:block fill-slot="content">
 
-<ul>
-  <li><a href="get_users_by_path">Show where users have access</a></li>
-  <li><a href="assign_role">Assign roles by obligation</a></li>
-  <li><a href="revoke_roles">Revoke roles</a></li>
-</ul>
+    <h2>User management</h2>
 
-<h2>Generic</h2>
+    <ul>
+      <li><a href="get_users_by_path">Show where users have access</a></li>
+      <li><a href="assign_role">Assign roles by obligation</a></li>
+      <li><a href="revoke_roles">Revoke roles</a></li>
+    </ul>
 
-<ul>
-  <li>
-    <a href="collections.search">Search for collections with obligation</a>
-  </li>
-  <li>
-    <a href="collections.wrong_country">Collections allocated to the wrong country</a>
-  </li>
-  <li>
-    <a href="envelopes.wrong_country">Envelopes allocated to the wrong country</a>
-  </li>
-  <li tal:condition="not: isBdrDeployment"><a href="statistics">Statistics</a></li>
-  <li tal:condition="isBdrDeployment">
-    <a href="envelopes.autocomplete">Auto complete envelopes</a>
-  </li>
-</ul>
+    <h2>Generic</h2>
 
-<tal:block replace="structure here/manage_page_footer" />
+    <ul>
+      <li>
+        <a href="collections.search">Search for collections with obligation</a>
+      </li>
+      <li>
+        <a href="collections.wrong_country">Collections allocated to the wrong country</a>
+      </li>
+      <li>
+        <a href="envelopes.wrong_country">Envelopes allocated to the wrong country</a>
+      </li>
+      <li tal:condition="not: options/is_bdr | nothing">
+        <a href="statistics">Statistics</a>
+      </li>
+      <li tal:condition="options/is_bdr | nothing">
+        <a href="envelopes.autocomplete">Auto complete envelopes</a>
+      </li>
+    </ul>
+
+  </metal:block>
+
+</metal:block>
