@@ -50,7 +50,7 @@
                    tal:define="collections view/get_collections">
               <thead>
                 <tr>
-                  <th></th>
+                  <th><input id="toggleAllCB" type="checkbox" /></th>
                   <th>Country</th>
                   <th>Path</th>
                   <th>Obligations</th>
@@ -60,7 +60,7 @@
               <tbody>
                 <tr tal:repeat="collection collections">
                   <td>
-                    <input type="checkbox" name="collections:list"
+                    <input type="checkbox" class="toggledCB" name="collections:list"
                            tal:attributes="value collection/path">
                   </td>
                   <td tal:content="collection/country" />
