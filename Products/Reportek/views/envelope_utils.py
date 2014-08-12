@@ -1,44 +1,86 @@
 from base_admin import BaseAdmin
+from DateTime import DateTime
 
 
 class EnvelopeUtils(BaseAdmin):
-    """ EnvelopeUtils view """
 
     def __call__(self, *args, **kwargs):
+
+        if self.request.get('btn.autocomplete'):
+            self.auto_complete_envelopes()
+            return self.request.response.redirect('%s/%s?done=1' % (
+                        self.context.absolute_url(), self.__name__))
+
         if self.request.get('btn.search'):
-            print self.get_not_completed_workitems()
+            workitems, tasks = self.get_not_completed_workitems()
+            return self.index(workitems=workitems,
+                              tasks=tasks)
+
         return self.index()
 
 
     def get_envelope_status(self):
+        ignore_list = ['complete', 'fallout', 'running']
         status = self.context.Catalog.uniqueValuesFor('status')
-        return status
+        return [s for s in status if s not in ignore_list]
+
 
     def get_not_completed_workitems(self):
         status = self.request.get('status', '')
         age = self.request.get('age', 0)
         obligation = self.request.get('obligation', '')
 
-        brains = self.context.Catalog(
-                    meta_type='Workitem',
-                    reportingdate={
-                        'query': DateTime - age,
-                        'range': 'min'},
-                    status=['active','inactive'],
-                    sort_on='reportingdate',
-                    sort_order='reverse')
+        query = {'meta_type': 'Workitem',
+                'status': ['active','inactive'],
+                'sort_on': 'reportingdate',
+                'sort_order': 'reverse'}
+
+        if age:
+            query['reportingdate'] = {
+                        'query': DateTime() - age,
+                        'range': 'min'}
+
+        if obligation:
+            query['dataflow_uris'] = self.get_obligations()[obligation]
+
+        brains = self.context.Catalog(**query)
+
+        workitems = []
+        tasks = set()
 
         for brain in brains:
             workitem = brain.getObject()
+
             if status and not workitem.status == status:
                 continue
-            if obligation and obligation not in workitem.dataflow_uris:
+
+            activity = workitem.getActivityDetails('title')
+
+
+            if activity == 'Draft' and workitem.status == 'inactive':
                 continue
-            # doc_time = doc.reportingdate
-            # if doc_time.greaterThan(now):
-            #     continue
-            # Filter inactive Drafts
-            if (workitem.getActivityDetails('title') == 'Draft'
-                and workitem.status == 'inactive'):
+
+            tasks.add(activity)
+            workitems.append(workitem)
+
+        return workitems, tasks
+
+
+    def auto_complete_envelopes(self):
+        ids = self.request.get('ids', [])
+        task = self.request.get('task', '')
+
+        for path in ids:
+            workitem = self.context.unrestrictedTraverse(path, None)
+            if task and workitem.getActivityDetails('title') != task:
                 continue
-            yield workitem
+
+            envelope = workitem.getParentNode()
+            workitem_id = workitem.getId()
+
+            # activate workitem
+            if workitem.status == 'inactive':
+                envelope.activateWorkitem(workitem_id)
+
+            # complete envelope
+            envelope.completeWorkitem(workitem_id, REQUEST=self.request)

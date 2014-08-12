@@ -25,10 +25,10 @@
                  tal:content="coll/country" />
             </td>
             <td>
-              <span tal:condition="not: env/topCountry">unspecified</span>
-              <a tal:condition="env/topCountry"
-                 tal:attributes="href env/topCountry"
-                 tal:content="env/topCountry" />
+              <span tal:condition="not: coll/topCountry">unspecified</span>
+              <a tal:condition="coll/topCountry"
+                 tal:attributes="href coll/topCountry"
+                 tal:content="coll/topCountry" />
             </td>
           </tr>
         </tbody>
