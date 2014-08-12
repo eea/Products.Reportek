@@ -23,6 +23,9 @@
   </p>
 
   <h1>Auto complete envelopes</h1>
+  <p class="info">
+    Searches the envelopes that have been in a given status for more than a given number of days and which are tagged with a certain obligation and allows Managers to complete the selected ones.
+  </p>
 
   <form action="" method="get">
 

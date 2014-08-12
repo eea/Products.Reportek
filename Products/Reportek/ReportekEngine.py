@@ -223,9 +223,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declareProtected('View', 'resultsxml')
     resultsxml = PageTemplateFile('zpt/engineResultsXml', globals())
 
-    security.declareProtected(view_management_screens, 'Assign_client_form')
-    Assign_client_form = PageTemplateFile('zpt/engineAssignClientForm', globals())
-
     security.declareProtected(view_management_screens, 'Build_collections_form')
     Build_collections_form = PageTemplateFile('zpt/engineBuildCollectionsForm', globals())
 
@@ -343,45 +340,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
             return json.dumps(resp, indent=4)
         return None
-
-    security.declareProtected('View', 'Assign_client')
-    def Assign_client(self, REQUEST=None, **kwargs):
-        if REQUEST:
-            kwargs.update(REQUEST.form)
-
-        crole = kwargs.get('crole','Client')
-        ccountries = kwargs.get('ccountries')
-        dataflow_uris = kwargs.get('cobligation', '')
-        fail_pattern = 'Unable to assign role %s to %s for %s.<br/>' \
-                       'No matching collection based on selected options.'
-        success_pattern = '%s assigned to %s<br/>' \
-                          'for the following collections:<br/>' \
-                          '%s<br/>'
-        users = kwargs.get('dns', [])
-        messages = self.response_messages(crole, users, ccountries,
-                                          dataflow_uris, fail_pattern,
-                                          success_pattern,
-                                          modifier=self.assign_roles)
-        return messages
-
-    security.declareProtected('View', 'Remove_client')
-    def Remove_client(self, REQUEST=None, **kwargs):
-        if REQUEST:
-            kwargs.update(REQUEST.form)
-
-        crole = kwargs.get('crole','Client')
-        ccountries = kwargs.get('ccountries')
-        dataflow_uris = kwargs.get('cobligation', '')
-        fail_pattern = 'Unable to remove role %s to %s for %s.<br/>' \
-                       'No matching collection based on selected options.'
-        success_pattern = '%s removed for %s<br/>' \
-                          'for the following collections:<br/>' \
-                          '%s<br/>'
-        users = kwargs.get('dns', [])
-        messages = self.response_messages(crole, users, ccountries,
-                                          dataflow_uris, fail_pattern,
-                                          success_pattern, modifier=self.remove_roles)
-        return messages
 
     @staticmethod
     def clean_pattern(pattern):
