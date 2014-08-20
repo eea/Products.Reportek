@@ -47,7 +47,9 @@ from blob import FileContainer, StorageError
 from constants import QAREPOSITORY_ID, ENGINE_ID
 from interfaces import IDocument
 from XMLInfoParser import detect_schema, SchemaError
+from zip_content import ZZipFile
 import RepUtils
+
 
 FLAT = 0
 SYNC_ZODB = 1
@@ -595,6 +597,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             return len(file_or_content)
         elif isinstance(file_or_content, StringIO):
             return file_or_content.len
+        elif isinstance(file_or_content, ZZipFile):
+            return file_or_content.tell()
         return 0
 
 
