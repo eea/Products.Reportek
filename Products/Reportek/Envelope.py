@@ -1018,6 +1018,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
     def getZipInfo(self, document):
         """ Lists the contents of a zip file """
         files = []
+        # FIXME Why is application/octet-stream here? this might fix a glitch, so we'll keep it for now
         if document.content_type in ['application/octet-stream', 'application/zip', 'application/x-compressed']:
             try:
                 data_file = document.data_file.open()
@@ -1026,7 +1027,9 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                     files.append(zipinfo.filename)
                 zf.close()
                 data_file.close()
-            except (BadZipfile, IOError):   # This version of Python reports IOError on empty files
+            # This version of Python reports IOError on empty files
+            # We might get Value error if the opened zip was not an actual zip
+            except (BadZipfile, IOError, ValueError):
                 pass
         return files
 
