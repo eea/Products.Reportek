@@ -196,11 +196,17 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
     @property
     def content_type(self):
+        old_ct = self.__dict__.get('content_type', None)
+        if old_ct:
+            return old_ct
         return self.data_file.content_type
 
     @content_type.setter
     def content_type(self, value):
-        self.data_file.content_type = value
+        if 'content_type' in self.__dict__:
+            self.__dict__['content_type'] = value
+        else:
+            self.data_file.content_type = value
 
     def __str__(self): return self.index_html()
 
@@ -499,8 +505,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
                             REQUEST=None):
         """ Manage the edited values """
         if content_type is not None:
-            #self.content_type = content_type
-            self.data_file.content_type = content_type
+            self.content_type = content_type
         if xml_schema_location is not None:
             self.xml_schema_location = xml_schema_location
         if self.title!=title:
