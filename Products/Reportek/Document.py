@@ -357,7 +357,10 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
     def getFeedbacksForDocument(self):
         """ Returns the Feedback objects associated with this document """
-        return [x for x in self.getParentNode().objectValues('Report Feedback') if x.document_id == self.id]
+        return [f.getObject() for f
+                in self.Catalog(meta_type='Report Feedback',
+                                document_id=self.id,
+                                path=self.getParentNode().absolute_url(1))]
 
     def getExtendedFeedbackForDocument(self):
         """ Returns the feedback relevant for a document - URL and title """

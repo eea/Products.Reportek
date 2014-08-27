@@ -106,58 +106,124 @@
         </ul>
       </fieldset>
 
-      <fieldset><legend i18n:translate="">Edit file properties</legend>
-      <form name="edit" id="edit" tal:attributes="action request/URL1" method="post">
-      <table cellspacing="5" cellpadding="0">
-        <tr>
-            <td><label for="title" class="question" i18n:translate="">Title</label></td>
-            <td tal:condition="canChangeFile">
-              <input type="text" name="title" id="title" size="50" tal:attributes="value context/title" />
+      <fieldset tal:condition="canChangeFile">
+        <legend i18n:translate="">Edit file properties</legend>
+        <form name="edit" id="edit"
+              tal:attributes="action request/URL1" method="post">
+        <table cellspacing="5" cellpadding="0">
+          <tr>
+            <td>
+              <label for="title" class="question" i18n:translate="">Title</label>
             </td>
-            <td tal:condition="not:canChangeFile" tal:content="context/title"></td>
-        </tr>
-        <tr tal:condition="python:context.content_type == 'text/xml'">
+            <td>
+              <input type="text" name="title" id="title"
+                     size="50"tal:attributes="value context/title" />
+            </td>
+          </tr>
+          <tr tal:condition="python:context.content_type == 'text/xml'">
             <td class="question" i18n:translate="">Schema location</td>
-            <td><span tal:replace="context/xml_schema_location"/>
+            <td>
+              <span tal:replace="context/xml_schema_location"/>
+            </td>
+          </tr>
+          <tr>
+            <td class="question" i18n:translate="">File size</td>
+            <td>
+              <span tal:content="context/size" />
+              <tal:block condition="python: context.rawsize() >= 1000">
+                <span i18n:translate="">
+                  (<span tal:replace="context/rawsize" i18n:name="bytes" />
+                   Bytes)
+                </span>
+              </tal:block>
+            </td>
+          </tr>
+          <tr>
+            <td class="question" i18n:translate="">Last uploaded</td>
+            <td tal:content="python: context.upload_time().strftime('%d %b %Y %H:%M')"></td>
+          </tr>
+          <tr tal:condition="
+              python:not getattr(context.ReportekEngine, 'globally_restricted_site', False)">
+            <td class="question" i18n:translate="">
+              Restricted from public view
+            </td>
+            <td>
+              <input type="checkbox" name="restricted"
+                     tal:attributes="checked isLimited" />
+            </td>
+          </tr>
+          <tr tal:condition="context/get_accept_time">
+            <td class="question" i18n:translate="">
+              Document accepted by the client
+            </td>
+            <td>
+              <img tal:condition="context/get_accept_time"
+                   src="misc_/Reportek/accepted"
+                   alt="Document accepted by the client" />
+              <span i18n:translate=""
+                    tal:condition="not:context/get_accept_time">
+                not yet
+              </span>
+            </td>
+          </tr>
+          <tr>
+            <td>
               <input type="hidden" name="xml_schema_location"
                      tal:attributes="value context/xml_schema_location"/>
+              <input type="hidden" name="applyRestriction" value="1" />
             </td>
-        </tr>
-        <tr>
+            <td>
+              <input type="submit" name="manage_editDocument:method"
+                     value="Change" i18n:attributes="value" />
+            </td>
+          </tr>
+        </table>
+      </form>
+      </fieldset>
+
+     <fieldset tal:condition="not:canChangeFile">
+        <legend i18n:translate="">File properties</legend>
+        <table cellspacing="5" cellpadding="0">
+          <tr>
+            <td class="question" i18n:translate="">Title</td>
+            <td tal:content="context/title" />
+          </tr>
+          <tr tal:condition="python:context.content_type == 'text/xml'">
+            <td class="question" i18n:translate="">Schema location</td>
+            <td tal:content="context/xml_schema_location"/>
+          </tr>
+          <tr>
             <td class="question" i18n:translate="">File size</td>
             <td>
                 <span tal:content="string:${context/size}"></span>
                 <span tal:condition="python: context.rawsize() >= 1000"
                       tal:content="string: (${context/rawsize} Bytes)"></span>
             </td>
-        </tr>
-        <tr>
+          </tr>
+          <tr>
             <td class="question" i18n:translate="">Last uploaded</td>
-            <td tal:content="python: context.upload_time().strftime('%d %b %Y %H:%M')"></td>
-        </tr>
-        <tr tal:condition="
-              python:not getattr(context.ReportekEngine, 'globally_restricted_site', False)">
-          <td class="question" i18n:translate="">Restricted from public view</td>
-          <td tal:condition="canChangeFile"><input type="hidden" name="applyRestriction" value="1" />
-              <input type="checkbox" name="restricted" tal:attributes="checked isLimited" />
-          </td>
-          <td tal:condition="not:canChangeFile">
-            <span tal:content="python:test(isLimited, 'Yes', 'No')"/>
-          </td>
-        </tr>
-        <tr tal:condition="context/get_accept_time">
-          <td class="question" i18n:translate="">Document accepted by the client</td>
-          <td>
-            <img tal:condition="context/get_accept_time" src="misc_/Reportek/accepted" alt="Document accepted by the client" />
-            <span tal:condition="not:context/get_accept_time" tal:replace="string:not yet"/>
-          </td>
-        </tr>
-        <tr tal:condition="canChangeFile">
-            <td> </td>
-            <td><input type="submit" name="manage_editDocument:method" value="Change" i18n:attributes="value" /></td>
-        </tr>
+            <td tal:content="python: context.upload_time().strftime('%d %b %Y %H:%M')" />
+          </tr>
+          <tr tal:condition="not: here/ReportekEngine/globally_restricted_site | nothing">
+            <td class="question" i18n:translate="">
+              Restricted from public view
+            </td>
+            <td tal:content="python:test(isLimited, 'Yes', 'No')"/>
+          </tr>
+          <tr tal:condition="context/get_accept_time">
+            <td class="question" i18n:translate="">
+              Document accepted by the client
+            </td>
+            <td>
+              <img tal:condition="context/get_accept_time"
+                   src="misc_/Reportek/accepted"
+                   alt="Document accepted by the client" />
+              <span i18n:translate="" tal:condition="not:context/get_accept_time">
+                not yet
+              </span>
+            </td>
+          </tr>
       </table>
-      </form>
       </fieldset>
 
       <fieldset tal:condition="not:context/released">
