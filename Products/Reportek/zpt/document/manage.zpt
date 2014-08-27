@@ -80,7 +80,7 @@
         <ul>
           <tal:block condition="context/isGML">
           <li tal:condition="can_view_or_edit_with_webq">
-            <a tal:attributes="href 
+            <a tal:attributes="href
                string:${beforeEditForm}?mode=edit&amp;language=En&amp;schema=${xml_schema_location}&amp;instance=${context/absolute_url}&amp;instance_title=${context/title_or_id}"
                i18n:translate="">Edit metadata with Web form</a>
           </li>
@@ -160,7 +160,8 @@
       </form>
       </fieldset>
 
-      <fieldset tal:condition="not:context/released"><legend i18n:translate="">Quality assessment</legend>
+      <fieldset tal:condition="not:context/released">
+        <legend i18n:translate="">Quality assessment</legend>
         <tal:block condition="python:context.getQAScripts().has_key(context.id)">
           <tal:block repeat="script_item python:context.getQAScripts()[context.id]">
             <tal:block condition="python:context.canHaveOnlineQA(script_item[3])">
@@ -182,7 +183,33 @@
         <tal:block condition="not:python:context.getQAScripts().has_key(context.id)">
           <p i18n:translate="">No quality assessment scripts available for this document.</p>
         </tal:block>
-
       </fieldset>
+
+      <fieldset>
+        <legend>Feedback posted for this file</legend>
+        <tal:block define="feedbacks here/getFeedbacksForDocument">
+          <ul>
+          <tal:block repeat="f feedbacks" condition="feedbacks">
+            <li>
+              <a title="View feedback" tal:attributes="href f/absolute_url"
+                 tal:content="f/title_or_id" />
+              <tal:block define="fdate python:f.releasedate.strftime('%d %b %Y')">
+                <i tal:condition="f/automatic">
+                  (Posted automatically on <span tal:replace="fdate" />)
+                </i>
+                <i tal:condition="not: f/automatic">
+                  (For the <span tal:replace="fdate"/> release)
+                </i>
+              </tal:block>
+            </li>
+          </tal:block>
+          </ul>
+
+          <span tal:condition="not:feedbacks">
+              No feedback available for this file.
+          </span>
+        </tal:block>
+      </fieldset>
+
   </tal:block>
 <span tal:replace="structure here/standard_html_footer" />
