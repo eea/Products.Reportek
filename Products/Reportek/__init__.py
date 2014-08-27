@@ -162,6 +162,7 @@ def create_reportek_indexes(catalog):
     add_index('status', catalog, 'FieldIndex')
     add_index('xml_schema_location', catalog, 'FieldIndex')
     add_index('years', catalog, 'KeywordIndex')
+    add_index('document_id', catalog, 'FieldIndex')
 
 
 class Empty:
