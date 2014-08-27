@@ -360,7 +360,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
 
     security.declareProtected('View', 'documents_management_section')
     documents_management_section = PageTemplateFile('zpt/envelope/documentsmanagement_section', globals())
-    
+
     security.declareProtected('View', 'feedback_section')
     feedback_section = PageTemplateFile('zpt/envelope/feedback_section', globals())
 
@@ -496,12 +496,17 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
 
     security.declareProtected('Release Envelopes', 'content_registry_ping')
     def content_registry_ping(self, delete=False, async=True):
-        """ Instruct ReportekEngine to ping CR
-            delete - don't ping for create+update but for delete
-            async - do it async or not; note that on delete, CR does not actually fetch envelope contents
-                from CDR thus we can make the CR calls async even in that case
-                when the envelope would not be available to the public anymore.
+        """ Instruct ReportekEngine to ping CR.
+
+            Delete argument instructs the envelope to don't ping CR on
+            create or update but for delete.
+            The second argument (async) tells it to do it async or not.
+
+            Note that on delete, CR does not actually fetch envelope contents
+            from CDR thus we can make the CR calls async even in that case
+            when the envelope would not be available to the public anymore.
         """
+
         engine = getattr(self, ENGINE_ID)
         crPingger = engine.contentRegistryPingger
         if not crPingger:
