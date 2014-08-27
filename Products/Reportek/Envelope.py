@@ -498,9 +498,9 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
     def content_registry_ping(self, delete=False, async=True):
         """ Instruct ReportekEngine to ping CR.
 
-            Delete argument instructs the envelope to don't ping CR on
+            `delete` instructs the envelope to don't ping CR on
             create or update but for delete.
-            The second argument (async) tells it to do it async or not.
+            `async` tells it to do it async or not.
 
             Note that on delete, CR does not actually fetch envelope contents
             from CDR thus we can make the CR calls async even in that case
