@@ -212,8 +212,6 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
         [feedback] = [item for item in self.envelope.objectValues()
                       if item.meta_type == 'Report Feedback']
         self.assertEqual('name with spaces.txt', feedback.document_id)
-        self.assertEqual(
-            [feedback], self.envelope['name with spaces.txt'].getFeedbacksForDocument())
 
 
 class BlockerFeedbackTest(unittest.TestCase):
