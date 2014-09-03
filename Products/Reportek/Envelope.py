@@ -1008,6 +1008,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             for name in zf.namelist():
                 zf.setcurrentfile(name)
                 self._add_file_from_zip(zf,name, restricted)
+                transaction.commit()
 
             if REQUEST is not None:
                 return self.messageDialog(
