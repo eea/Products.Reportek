@@ -33,6 +33,7 @@ __version__='$Revision$'[11:-2]
 import os, types, tempfile, string
 from path import path
 from zipfile import *
+from cStringIO import StringIO
 import Globals, OFS.SimpleItem, OFS.ObjectManager
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl.Permissions import view_management_screens
@@ -44,7 +45,14 @@ from zExceptions import Forbidden
 from DateTime import DateTime
 from DateTime.interfaces import SyntaxError
 from ZPublisher.Iterators import filestream_iterator
+from tempfile import NamedTemporaryFile
 import logging
+try:
+    import json
+except ImportError:
+    # Python 2.54 / Plone 3.3 use simplejson
+    # version > 2.3 < 3.0
+    import simplejson as json
 logger = logging.getLogger("Reportek")
 
 # Product specific imports
@@ -52,23 +60,63 @@ import RepUtils
 import Document
 import Hyperlink
 import Feedback
-from constants import WORKFLOW_ENGINE_ID, ENGINE_ID
+from async import Job
+from constants import WORKFLOW_ENGINE_ID, ENGINE_ID, MEMCACHED_MANAGER_ID
 from exceptions import InvalidPartOfYear
 from CountriesManager import CountriesManager
 from EnvelopeInstance import EnvelopeInstance
 from EnvelopeRemoteServicesManager import EnvelopeRemoteServicesManager
 from EnvelopeCustomDataflows import EnvelopeCustomDataflows
+from Toolz import FileUploadStatus, get_default_queue
 import zip_content
 from zope.interface import implements
 from interfaces import IEnvelope
 from paginator import DiggPaginator, EmptyPage, InvalidPage
 import transaction
 
-
 ZIP_CACHE_THRESHOLD = 100000000 # 100 MB
 
-
 manage_addEnvelopeForm = PageTemplateFile('zpt/envelope/add', globals())
+_decoratedFunctions = {}
+
+
+class _AsyncWrapper(object):
+    """Async job decorator
+
+    Tracks decorated function via a global mapping instead of storing
+    the function directly to remain pickleable.
+
+    """
+    _name = ''
+
+    def __init__(self, func):
+        self._key = (func.__module__, func.__name__)
+        global _decoratedFunctions
+        _decoratedFunctions[self._key] = func
+
+    @property
+    def func(self):
+        global _decoratedFunctions
+        return _decoratedFunctions[self._key]
+
+    def __repr__(self):
+        return '%s.%s' % (self._key)
+
+    def __call__(self, *args, **kw):
+        # Do pre-call stuff here
+        self.func(*args, **kw)
+        context = args[0]
+        # Discard the dummyrequest in order to avoid Can't pickle file objects
+        # error
+        if hasattr(context, 'REQUEST'):
+            if not isinstance(context.REQUEST, str):
+                del context.REQUEST
+
+
+def asyncWrapper(func):
+    """Decorator to enable multi-step batching"""
+    return _AsyncWrapper(func)
+
 
 def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
         REQUEST=None, previous_delivery=''):
@@ -138,6 +186,7 @@ def get_first_accept(req_dict):
     segs = s.split(',')
     firstseg = segs[0].split(';')
     return firstseg[0].strip()
+
 
 class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager, EnvelopeCustomDataflows):
     """ Envelopes are basic container objects that provide a standard
@@ -988,6 +1037,59 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         id = RepUtils.cleanup_id(id)
         self.manage_addDocument(id=id, title=id,file=zipfile, restricted=restricted)
 
+    @asyncWrapper
+    def _add_files_from_zip(self, **kwargs):
+        memcached_servers = None
+        zipfile = kwargs.get('zipfile')
+        restricted = kwargs.get('restricted')
+        engine = kwargs.get('engine')
+        site = kwargs.get('site')
+        self_path = kwargs.get('self_path')
+        zfname = zipfile.split('/')[-1].split('.')[0]
+
+        # Load the zipfile
+        with open(zipfile, 'r') as f:
+            read_data = StringIO(f.read())
+        f.close()
+        zf = zip_content.ZZipFile(read_data, allowZip64=True)
+
+        memcached = getattr(site, MEMCACHED_MANAGER_ID, None)
+        if memcached:
+            memcached_settings = memcached.getSettings()
+            memcached_servers = memcached_settings.get('servers')
+
+        upload_status = FileUploadStatus(servers=memcached_servers)
+        status = upload_status.get(self.getId())
+
+        def init_status(filename):
+            return {
+                'filename': filename,
+                'status': 'queued',
+                'message': 'File upload queued for processing',
+                'date': DateTime().ISO8601()
+            }
+
+        # Create the initial file upload status stored in memcached
+        status = dict((k, init_status(k)) for k in zf.namelist())
+        upload_status.set(zfname, status)
+        for name in zf.namelist():
+            zf.setcurrentfile(name)
+            id = name[max(string.rfind(name, '/'),
+                        string.rfind(name, '\\'),
+                        string.rfind(name, ':')
+                       ) + 1:]
+            id = RepUtils.cleanup_id(id)
+            self.manage_addDocument(id=id, title=id, file=zf,
+                                    restricted=restricted, engine=engine,
+                                    site=site, self_path=self_path,
+                                    zipfile=zfname)
+            # We need to discard the dummyrequest before commiting the
+            # transaction
+            if hasattr(self, 'REQUEST'):
+                if not isinstance(self.REQUEST, str):
+                    del self.REQUEST
+            transaction.commit()
+
     security.declareProtected('Add Envelopes', 'manage_addzipfile')
     def manage_addzipfile(self, file='', content_type='', restricted='', REQUEST=None):
         """ Expand a zipfile into a number of Documents.
@@ -995,8 +1097,10 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             self.manage_addProduct['Report Document'].manageaddDocument(id,...
         """
 
+        queue = get_default_queue(self)
         if type(file) is not type('') and hasattr(file,'filename'):
             # According to the zipfile.py ZipFile just needs a file-like object
+            # Save file to tmp
             zf = zip_content.ZZipFile(file)
             for name in zf.namelist():
                 # test that the archive is not hierarhical
@@ -1005,20 +1109,44 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                                     message="The zip file you specified is hierarchical. It contains folders.\nPlease upload a non-hierarchical structure of files.",
                                     action='./index_html')
 
-            for name in zf.namelist():
-                zf.setcurrentfile(name)
-                self._add_file_from_zip(zf,name, restricted)
-                transaction.commit()
+            f = NamedTemporaryFile(suffix='.zip', delete=False)
+            f_name = f.name
+            file.seek(0)
+            f.write(file.read())
+            f.close()
+            options = {
+                'site': self.getPhysicalRoot(),
+                'self_path': self.getPhysicalPath(),
+                'zipfile': f_name,
+                'restricted': restricted,
+                'engine': getattr(self.getPhysicalRoot(), ENGINE_ID, None),
+            }
+            job = Job(self._add_files_from_zip, self, **options)
+            queue.put(job)
+            key = f_name.split('/')[-1].split('.')[0]
 
             if REQUEST is not None:
-                return self.messageDialog(
-                                message="The file(s) were successfully created!",
-                                action='./manage_main')
+                return REQUEST.RESPONSE.redirect('upload_result?upload_id=%s' % key)
 
         elif REQUEST is not None:
             return self.messageDialog(
                             message="You must specify a file!",
                             action='./manage_main')
+
+    security.declareProtected('View', 'get_upload_status')
+    def get_upload_status(self, REQUEST, RESPONSE):
+        """ Return an overview with the status of asynchronously uploaded
+        files
+        """
+        upload_status = FileUploadStatus()
+        key = REQUEST.form.get('upload_id')
+        status = upload_status.get(key)
+        pretty = json.dumps(status, sort_keys=True, indent=4)
+        RESPONSE.setHeader("Content-type", "application/json")
+        return pretty
+
+    security.declareProtected('View', 'upload_result')
+    upload_result = PageTemplateFile('zpt/envelope/upload_result.zpt', globals())
 
     security.declareProtected('View', 'getZipInfo')
     def getZipInfo(self, document):

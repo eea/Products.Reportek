@@ -23,6 +23,8 @@
 __version__ = '$Rev$'[6:-2]
 
 from AccessControl import getSecurityManager, ClassSecurityInfo
+from ZPublisher.HTTPResponse import HTTPResponse
+from ZPublisher.HTTPRequest import HTTPRequest
 from DateTime import DateTime
 from Globals import package_home
 from OFS.SimpleItem import SimpleItem
@@ -40,13 +42,15 @@ import IconShow
 import os
 import requests
 import string
+import sys
 import transaction
 
 # Product imports
 from blob import FileContainer, StorageError
-from constants import QAREPOSITORY_ID, ENGINE_ID
+from constants import QAREPOSITORY_ID, ENGINE_ID, MEMCACHED_MANAGER_ID
 from interfaces import IDocument
 from XMLInfoParser import detect_schema, SchemaError
+from Toolz import FileUploadStatus, AsyncMockedAuthenticatedUser
 from zip_content import ZZipFile
 import RepUtils
 
@@ -67,14 +71,26 @@ UNDO_POLICY = BACKUP_ON_DELETE
 
 manage_addDocumentForm = PageTemplateFile('zpt/document/add', globals())
 
-def manage_addDocument(self, id='', title='',
-        file='', content_type='', restricted='', REQUEST=None):
+
+def manage_addDocument(self, id='', title='', file='', content_type='',
+                       restricted='', REQUEST=None, engine=None, site=None,
+                       self_path=None, zipfile=None):
     """Add a Document to a folder. The form can be called with two variables
        set in the session object: default_restricted and force_restricted.
        This will set the restricted flag in the form.
     """
-
     # content_type argument is probably not used anywhere.
+    # If the site and self_path are provided, get the context using traversal
+    # This way we'll have an acquisition chain available.
+    if site and self_path:
+        context = site.unrestrictedTraverse(self_path)
+    else:
+        context = self
+    if zipfile:
+        status_id = zipfile
+    else:
+        status_id = context.getId()
+    memcached_servers = None
     if id=='' and type(file) is not type('') and hasattr(file,'filename'):
         # generate id from filename and make sure, there are no spaces in the id
         id = file.filename
@@ -87,54 +103,93 @@ def manage_addDocument(self, id='', title='',
         id = id.strip()
         id = RepUtils.cleanup_id(id)
 
+        app = context.getPhysicalRoot()
+        memcached = getattr(app, MEMCACHED_MANAGER_ID, None)
+        if memcached:
+            memcached_settings = memcached.getSettings()
+            memcached_servers = memcached_settings.get('servers')
+
+        upload_status = FileUploadStatus(servers=memcached_servers)
+        status = upload_status.get(status_id)
+        original_id = id
+        status_changed = False
+
         # delete the previous file with the same id, if exists
-        if self.get(id) and isinstance(self.get(id), Document):
+        if context.get(id) and isinstance(context.get(id), Document):
             save_id = id
             id = id + '___tmp_%f'%time()
+        dummyrequest = None
+        # Provide a dummy request in case we do not have a REQUEST object on the
+        # context(async job)
+        if isinstance(getattr(context, 'REQUEST', ''), str):
+            response = HTTPResponse(stdout=sys.stdout)
+            env = {'SERVER_NAME': 'fake_server',
+                   'SERVER_PORT': '80',
+                   'REQUEST_METHOD': 'GET'}
+            dummyrequest = HTTPRequest(sys.stdin, env, response)
+
+            userid = getSecurityManager().getUser().getUserName()
+            dummyrequest.AUTHENTICATED_USER = AsyncMockedAuthenticatedUser(userid)
+            context.REQUEST = dummyrequest
 
         obj = Document(id, title)
-        self = self.this()
-        self._setObject(id, obj)
-        obj = self._getOb(id)
+        context = context.this()
+        context._setObject(id, obj)
+        obj = context._getOb(id)
         try:
-            obj.manage_file_upload(file, content_type)
+            obj.manage_file_upload(file, content_type, REQUEST=REQUEST)
         except SchemaError as e:
-            self.manage_delObjects(id)
-            if REQUEST:
-                return self.messageDialog(
+            context.manage_delObjects(id)
+            status[original_id] = {
+                'filename': id,
+                'status': 'failed',
+                'message': 'Invalid XML',
+                'date': DateTime().ISO8601()
+            }
+            if REQUEST and hasattr(context, 'messageDialog'):
+                return context.messageDialog(
                     message='The file is an invalid XML (reason: %s)'%str(e.args),
                     action='./manage_main')
             else:
                 return ''
         if save_id:
-            self.manage_delObjects(save_id)
-            transaction.commit()
-            self.manage_renameObject(id, save_id)
+            context.manage_delObjects(save_id)
+            # We need to discard of the dummyrequest when making a savepoint in
+            # the transaction in the case of async job.
+            if context.REQUEST == dummyrequest:
+                del context.REQUEST
+            transaction.savepoint(optimistic=True)
+            # We add the dummyrequest back
+            context.REQUEST = dummyrequest
+            try:
+                context.manage_renameObject(id, save_id)
+            except:
+                status[original_id] = {
+                    'filename': id,
+                    'status': 'warning',
+                    'message': 'Warning: Cannot rename object! Permission issues or locked?',
+                    'date': DateTime().ISO8601()
+                }
+                status_changed = True
             id = save_id
-        engine = getattr(self.getPhysicalRoot(), ENGINE_ID, None)
+        if not engine:
+            engine = getattr(context.getPhysicalRoot(), ENGINE_ID, None)
         globally_restricted_site = getattr(engine, 'globally_restricted_site', False)
         if restricted or globally_restricted_site:
             obj.manage_restrictDocument()
         obj.reindex_object()
-        if REQUEST is not None:
-            security=getSecurityManager()
-            if security.checkPermission('View management screens',self):
-                ppath = './manage_main'
-            else:
-                pobj = REQUEST.PARENTS[0]
-                ppath = string.join(pobj.getPhysicalPath(), '/')
-            return self.messageDialog(
-                            message='The file %s was successfully created!' % id,
-                            action=ppath)
-        else:
-            return id
-    else:
-        if REQUEST is not None:
-            return self.messageDialog(
-                            message='You must specify a file!',
-                            action='./manage_main')
-        else:
-            return ''
+        if not status_changed:
+            status[original_id] = {
+                'filename': id,
+                'status': 'success',
+                'message': 'File upload completed',
+                'date': DateTime().ISO8601()
+            }
+        context_id = context.getId()
+        if context_id:
+            # Write the status to memcached
+            upload_status.set(status_id, status)
+        return id
 
 
 class Document(CatalogAware, SimpleItem, IconShow.IconShow):
@@ -263,12 +318,14 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         """
         return self.getLDAPUserCanonicalName(self.getLDAPUser(self.getMyOwner()))
 
-    def logUpload(self):
+    def logUpload(self, REQUEST=None):
         """ Log file upload and any reuploads into the envelope history.
             The workitems' event logs are used since these are displayed
             on the envelope's history tab
         """
-        for l_w in self.getWorkitemsActiveForMe(self.REQUEST):
+        if REQUEST is None:
+            REQUEST = self.REQUEST
+        for l_w in self.getWorkitemsActiveForMe(REQUEST):
             l_w.addEvent('file upload', 'File: {0} ({1})'
                             .format(
                                 self.id,
@@ -554,11 +611,12 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             self.xml_schema_location = ''
 
         self.accept_time = None
+        # self.logUpload(REQUEST=REQUEST)
         self.logUpload()
         # update ZCatalog
         self._p_changed = 1
         self.reindex_object()
-        if REQUEST is not None:
+        if REQUEST is not None and hasattr(self, 'messageDialog'):
             return self.messageDialog(
                             message="The file was uploaded successfully!",
                             action=REQUEST['HTTP_REFERER'])

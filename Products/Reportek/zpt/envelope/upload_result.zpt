@@ -1,0 +1,114 @@
+<span tal:replace="structure context/standard_html_header"/>
+
+<script src="++resource++static/jquery-1.8.2.min.js"></script>
+<h1 i18n:translate="">Upload results</h1>
+
+<p>
+  <span i18n:translate="">The results of the upload process:</span>
+  <span id="processed_uploads"></span>
+</p>
+<table id="results">
+  <thead>
+    <tr>
+      <td class='upload_info' i18n:translate="">File</td>
+      <td class='upload_info' i18n:translate="">Filename</td>
+      <td class='upload_info' i18n:translate="">Details</td>
+      <td class='upload_info' i18n:translate="">Date</td>
+      <td class='upload_info' i18n:translate="">Status</td>      
+    </tr>
+  </thead>
+  <tbody id="upload_tbody" />
+</table>
+
+<script type="text/javascript" charset="utf-8">
+    var timer = 0;
+    function getQueryVariable(variable)
+    {
+           var query = window.location.search.substring(1);
+           var vars = query.split("&");
+           for (var i=0;i<vars.length;i++) {
+                   var pair = vars[i].split("=");
+                   if(pair[0] == variable){return pair[1];}
+           }
+           return(false);
+    }
+    function info_cell(key, value, anchor) {
+      var cell = $('<td>', {
+        'class': 'upload-status ' + key
+      });
+      if (!anchor) {
+        return cell.text(value);
+      } else {
+        var link = $('<a>', {
+          'href': value,
+          'text': value
+        });
+        link.appendTo(cell);
+        return cell;
+      }
+    }
+    function load() {
+      $('#processed_uploads').text('');
+      var upload_id = getQueryVariable('upload_id');
+      if (upload_id) {
+        url = 'get_upload_status?upload_id=' + upload_id; 
+      } else {
+        url = 'get_upload_status';
+      }
+      $.ajax({
+        url: url,
+        }).done(function(data) {
+          $('#upload_tbody').html('');
+          $.each(data, function(file, file_status) {
+            var row = $('<tr>');
+            var prop_list = ['file', 'filename', 'message', 'date', 'status'];
+
+            row.appendTo($('#upload_tbody'));
+            row.data('file', file);
+            row.data('status', file_status);
+
+            $.each(prop_list, function(idx, key){
+              var val;
+              var file = row.data('file');
+              var status = row.data('status');
+              var anchor = true ? key === 'filename' : false;
+
+              if (key === 'file') {
+                val = file;
+              } else {
+                val = status[key];
+              }
+
+              info_cell(key, val, anchor).appendTo(row);
+            });
+          });
+          var nr_files = $('#upload_tbody tr').length;
+          var queued = $(".status:contains('queued')").length;
+
+          if (nr_files) {
+            var info_processed = nr_files - queued + '/' + nr_files + ' processed. ';
+            $('#processed_uploads').text(info_processed);
+            if (queued === 0) {
+              var envelope_url = window.location.href.split('/upload_result')[0];
+              var envelope_link = $('<a>', {
+                'href': envelope_url,
+                'text': 'Return to envelope'
+              });
+              $('#processed_uploads').append(envelope_link);
+              window.clearTimeout(load);
+              timer = 0;
+            }
+          }
+        }).always(function () {
+          if (timer) {
+            window.setTimeout(load, 2000);
+          }
+        });
+    }
+    $(document).ready(function() {
+      load();
+      timer = 1;
+    });
+</script>
+
+<span tal:replace="structure context/standard_html_footer"/>

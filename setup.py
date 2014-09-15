@@ -14,5 +14,10 @@ setup(
         'path.py',
         'requests==1.2.3',
         'Zope2',
+        'zc.async',
+        'zope.app.keyreference',
+        'zope.app.appsetup',
+        'Products.MemcachedManager',
+        'python-memcached'
     ],
 )

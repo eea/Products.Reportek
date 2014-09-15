@@ -26,6 +26,23 @@ from collections import defaultdict
 from DateTime import DateTime
 import RepUtils
 from Products.PythonScripts.standard import html_quote
+from zc.async.interfaces import KEY as ZCASYNC_KEY
+import memcache
+
+
+class AsyncMockedAuthenticatedUser(object):
+
+    def __init__(self, username):
+        self.username = username
+
+    def getUserName(self):
+        return self.username
+
+
+def get_default_queue(context):
+    queues = context._p_jar.root()[ZCASYNC_KEY]
+    return queues['']
+
 
 class Toolz:
     """ Useful functions """
@@ -142,3 +159,40 @@ class Toolz:
         if len(text)<=80:
             return text
         return '%s ...' % text[:77]
+
+
+class FileUploadStatus():
+    """FileUploadStatus
+    """
+
+    def __init__(self, servers=None):
+        if not servers:
+            servers = ('127.0.0.1:11211',)
+        self.server = memcache.Client(servers)
+
+    def set(self, key, value, expiry=900):
+        """
+        This method is used to set a new value
+        in the memcache server.
+        """
+        self.server.set(key, value, expiry)
+
+    def get(self, key):
+        """
+        This method is used to retrieve a value
+        from the memcache server
+        """
+        if key:
+            result = self.server.get(key)
+            if not result:
+                result = {}
+            return result
+        else:
+            return {}
+
+    def delete(self, key):
+        """
+        This method is used to delete a value from the
+        memcached server. Lazy delete
+        """
+        self.server.delete(key)

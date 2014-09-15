@@ -31,6 +31,14 @@ CONVERTERS_ID = 'Converters'
 QAREPOSITORY_ID = 'QARepository'
 DATAFLOW_MAPPINGS = 'DataflowMappings'
 APPLICATIONS_FOLDER_ID = 'Applications'
+MEMCACHED_MANAGER_ID = 'MemcachedManager'
+MEMCACHED_MANAGER_SETTINGS = {
+    'request_vars': (),
+    'servers': ('127.0.0.1:11211',),
+    'mirrors': (),
+    'max_age': 43200,
+    'debug': 0,
+}
 
 # remote servers
 WEBQ_XML_REPOSITORY = 'http://cdr.eionet.europa.eu/xmlexports/groundwater/'

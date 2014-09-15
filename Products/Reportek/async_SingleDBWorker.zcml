@@ -1,0 +1,9 @@
+<configure xmlns='http://namespaces.zope.org/zope'>
+
+           <include package="zope.app.keyreference" />
+
+           <utility factory=".async.InitSingleDBWorker" />
+
+           <include package="zc.async" file="basic_dispatcher_policy.zcml" />
+
+</configure>

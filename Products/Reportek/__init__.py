@@ -32,6 +32,7 @@ import Zope2
 from App.ImageFile import ImageFile
 from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCTextIndex.ZCTextIndex import PLexicon
+from Products.MemcachedManager.MemcachedManager import MemcachedManager
 
 # Product imports
 import RepUtils
@@ -106,6 +107,16 @@ def create_reportek_objects(app):
     except AttributeError:
         catalog = ZCatalog(constants.DEFAULT_CATALOG, 'Reportek Catalog')
         app._setObject(constants.DEFAULT_CATALOG, catalog)
+
+    #Add MemcachedManager
+    try:
+        memcached_manager = getattr(app, constants.MEMCACHED_MANAGER_ID)
+    except AttributeError:
+        memcached_manager = MemcachedManager(constants.MEMCACHED_MANAGER_ID)
+        settings = constants.MEMCACHED_MANAGER_SETTINGS
+        title = 'Caching the XMLRPC requests (independent of userid)'
+        memcached_manager.manage_editProps(title, settings=settings)
+        app._setObject(constants.MEMCACHED_MANAGER_ID, memcached_manager)
 
 
 def add_index(name, catalog, meta_type, meta=False):
