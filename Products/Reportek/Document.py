@@ -47,10 +47,10 @@ import transaction
 
 # Product imports
 from blob import FileContainer, StorageError
-from constants import QAREPOSITORY_ID, ENGINE_ID, MEMCACHED_MANAGER_ID
+from constants import QAREPOSITORY_ID, ENGINE_ID
 from interfaces import IDocument
 from XMLInfoParser import detect_schema, SchemaError
-from Toolz import FileUploadStatus, AsyncMockedAuthenticatedUser
+from Toolz import AsyncMockedAuthenticatedUser
 from zip_content import ZZipFile
 import RepUtils
 
@@ -74,7 +74,7 @@ manage_addDocumentForm = PageTemplateFile('zpt/document/add', globals())
 
 def manage_addDocument(self, id='', title='', file='', content_type='',
                        restricted='', REQUEST=None, engine=None, site=None,
-                       self_path=None, zipfile=None):
+                       self_path=None, status=None):
     """Add a Document to a folder. The form can be called with two variables
        set in the session object: default_restricted and force_restricted.
        This will set the restricted flag in the form.
@@ -86,11 +86,7 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
         context = site.unrestrictedTraverse(self_path)
     else:
         context = self
-    if zipfile:
-        status_id = zipfile
-    else:
-        status_id = context.getId()
-    memcached_servers = None
+
     if id=='' and type(file) is not type('') and hasattr(file,'filename'):
         # generate id from filename and make sure, there are no spaces in the id
         id = file.filename
@@ -102,16 +98,6 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
                  )+1:]
         id = id.strip()
         id = RepUtils.cleanup_id(id)
-
-        app = context.getPhysicalRoot()
-        memcached = getattr(app, MEMCACHED_MANAGER_ID, None)
-        if memcached:
-            memcached_settings = memcached.getSettings()
-            memcached_servers = memcached_settings.get('servers')
-
-        upload_status = FileUploadStatus(servers=memcached_servers)
-        status = upload_status.get(status_id)
-        original_id = id
         status_changed = False
 
         # delete the previous file with the same id, if exists
@@ -136,16 +122,14 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
         context = context.this()
         context._setObject(id, obj)
         obj = context._getOb(id)
+
         try:
             obj.manage_file_upload(file, content_type, REQUEST=REQUEST)
         except SchemaError as e:
             context.manage_delObjects(id)
-            status[original_id] = {
-                'filename': id,
-                'status': 'failed',
-                'message': 'Invalid XML',
-                'date': DateTime().ISO8601()
-            }
+            if status:
+                status['status'] = 'failed'
+                status['message'] = 'Invalid XML'
             if REQUEST and hasattr(context, 'messageDialog'):
                 return context.messageDialog(
                     message='The file is an invalid XML (reason: %s)'%str(e.args),
@@ -163,32 +147,22 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
             context.REQUEST = dummyrequest
             try:
                 context.manage_renameObject(id, save_id)
+                id = save_id
             except:
-                status[original_id] = {
-                    'filename': id,
-                    'status': 'warning',
-                    'message': 'Warning: Cannot rename object! Permission issues or locked?',
-                    'date': DateTime().ISO8601()
-                }
-                status_changed = True
-            id = save_id
+                if status:
+                    status['status'] = 'warning'
+                    status['message'] = 'Warning: Cannot rename object! Permission issues or locked?'
+                    status_changed = True
         if not engine:
             engine = getattr(context.getPhysicalRoot(), ENGINE_ID, None)
         globally_restricted_site = getattr(engine, 'globally_restricted_site', False)
         if restricted or globally_restricted_site:
             obj.manage_restrictDocument()
         obj.reindex_object()
-        if not status_changed:
-            status[original_id] = {
-                'filename': id,
-                'status': 'success',
-                'message': 'File upload completed',
-                'date': DateTime().ISO8601()
-            }
-        context_id = context.getId()
-        if context_id:
-            # Write the status to memcached
-            upload_status.set(status_id, status)
+        if status and not status_changed:
+            status['status'] = 'success'
+            status['message'] = 'File upload complete'
+
         return id
 
 

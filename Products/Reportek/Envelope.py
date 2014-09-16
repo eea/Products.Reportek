@@ -1059,7 +1059,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             memcached_servers = memcached_settings.get('servers')
 
         upload_status = FileUploadStatus(servers=memcached_servers)
-        status = upload_status.get(self.getId())
+        # status = upload_status.get(self.getId())
 
         def init_status(filename):
             return {
@@ -1079,10 +1079,21 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                         string.rfind(name, ':')
                        ) + 1:]
             id = RepUtils.cleanup_id(id)
-            self.manage_addDocument(id=id, title=id, file=zf,
+            cur_status = status.get(name, {})
+            file_status = {
+                'status': cur_status.get('name'),
+                'message': cur_status.get('message')
+            }
+            file = self.manage_addDocument(id=id, title=id, file=zf,
                                     restricted=restricted, engine=engine,
                                     site=site, self_path=self_path,
-                                    zipfile=zfname)
+                                    status=file_status)
+            cur_status['filename'] = file
+            cur_status['status'] = file_status.get('status')
+            cur_status['message'] = file_status.get('message')
+            cur_status['date'] = DateTime().ISO8601()
+            upload_status.set(zfname, status)
+
             # We need to discard the dummyrequest before commiting the
             # transaction
             if hasattr(self, 'REQUEST'):
