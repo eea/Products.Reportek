@@ -120,7 +120,7 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
 
         obj = Document(id, title)
         context = context.this()
-        context._setObject(id, obj)
+        context._setObject(id, obj, suppress_events=True)
         obj = context._getOb(id)
 
         try:
@@ -158,7 +158,6 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
         globally_restricted_site = getattr(engine, 'globally_restricted_site', False)
         if restricted or globally_restricted_site:
             obj.manage_restrictDocument()
-        obj.reindex_object()
         if status and not status_changed:
             status['status'] = 'success'
             status['message'] = 'File upload complete'
@@ -237,7 +236,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         else:
             self.data_file.content_type = value
 
-    def __str__(self): return self.index_html()
+    # REMOVED THIS DUE TO ERRORS REQUIRING MORE ARGUMENTS FOR index_html() than provided
+    # def __str__(self): return self.index_html()
 
     def __len__(self): return 1
 
@@ -585,12 +585,11 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             self.xml_schema_location = ''
 
         self.accept_time = None
-        # self.logUpload(REQUEST=REQUEST)
         self.logUpload()
         # update ZCatalog
         self._p_changed = 1
-        self.reindex_object()
         if REQUEST is not None and hasattr(self, 'messageDialog'):
+            self.reindex_object()
             return self.messageDialog(
                             message="The file was uploaded successfully!",
                             action=REQUEST['HTTP_REFERER'])

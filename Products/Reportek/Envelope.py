@@ -30,23 +30,27 @@ $Id$"""
 __version__='$Revision$'[11:-2]
 
 
-import os, types, tempfile, string
-from path import path
-from zipfile import *
-from cStringIO import StringIO
-import Globals, OFS.SimpleItem, OFS.ObjectManager
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from AccessControl.Permissions import view_management_screens
-import AccessControl.Role
 from AccessControl import getSecurityManager, ClassSecurityInfo, Unauthorized
-from Products.Reportek import permission_manage_properties_envelopes
-from Products.PythonScripts.standard import url_quote
-from zExceptions import Forbidden
+from AccessControl.Permissions import view_management_screens
+from cStringIO import StringIO
 from DateTime import DateTime
 from DateTime.interfaces import SyntaxError
-from ZPublisher.Iterators import filestream_iterator
+from path import path
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.PythonScripts.standard import url_quote
+from Products.Reportek import permission_manage_properties_envelopes
 from tempfile import NamedTemporaryFile
+from Toolz import AsyncMockedAuthenticatedUser
+from zExceptions import Forbidden
+from zipfile import *
+from ZPublisher.HTTPRequest import HTTPRequest
+from ZPublisher.HTTPResponse import HTTPResponse
+from ZPublisher.Iterators import filestream_iterator
+import AccessControl.Role
+import Globals, OFS.SimpleItem, OFS.ObjectManager
 import logging
+import os, types, tempfile, string
+import sys
 try:
     import json
 except ImportError:
@@ -1037,6 +1041,36 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         id = RepUtils.cleanup_id(id)
         self.manage_addDocument(id=id, title=id,file=zipfile, restricted=restricted)
 
+    def manage_postprocess(self, *args):
+        queue = get_default_queue(self)
+        env_queue = self.getId() + '-reindex'
+        envelope_quota = (env_queue, )
+        if not env_queue in list(queue.quotas):
+            queue.quotas.create(env_queue)
+
+        for task in self.serial_postprocess:
+            job = Job(task[0].reindex_obj, task[0], **task[1])
+            job.quota_names = envelope_quota
+            queue.put(job)
+
+        self.serial_postprocess = []
+
+    @asyncWrapper
+    def reindex_obj(self, site=None, self_path=None):
+        if isinstance(getattr(self, 'REQUEST', ''), str):
+            response = HTTPResponse(stdout=sys.stdout)
+            env = {'SERVER_NAME': 'fake_server',
+                   'SERVER_PORT': '80',
+                   'REQUEST_METHOD': 'GET'}
+            dummyrequest = HTTPRequest(sys.stdin, env, response)
+
+            userid = getSecurityManager().getUser().getUserName()
+            dummyrequest.AUTHENTICATED_USER = AsyncMockedAuthenticatedUser(userid)
+            self.REQUEST = dummyrequest
+        obj = site.unrestrictedTraverse(self_path)
+        if obj:
+            obj.reindex_object()
+
     @asyncWrapper
     def _add_files_from_zip(self, **kwargs):
         memcached_servers = None
@@ -1059,8 +1093,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             memcached_servers = memcached_settings.get('servers')
 
         upload_status = FileUploadStatus(servers=memcached_servers)
-        # status = upload_status.get(self.getId())
-
+        self.serial_postprocess = []
         def init_status(filename):
             return {
                 'filename': filename,
@@ -1073,6 +1106,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         status = dict((k, init_status(k)) for k in zf.namelist())
         upload_status.set(zfname, status)
         for name in zf.namelist():
+            file_path = None
             zf.setcurrentfile(name)
             id = name[max(string.rfind(name, '/'),
                         string.rfind(name, '\\'),
@@ -1096,9 +1130,15 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
 
             # We need to discard the dummyrequest before commiting the
             # transaction
+            file_path = self_path + (file,)
+            options = {
+                'site': site,
+                'self_path': file_path,
+            }
             if hasattr(self, 'REQUEST'):
                 if not isinstance(self.REQUEST, str):
                     del self.REQUEST
+            self.serial_postprocess.append((self, options))
             transaction.commit()
 
     security.declareProtected('Add Envelopes', 'manage_addzipfile')
@@ -1133,6 +1173,11 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                 'engine': getattr(self.getPhysicalRoot(), ENGINE_ID, None),
             }
             job = Job(self._add_files_from_zip, self, **options)
+            envelope_quota = (self.getId(), )
+            if not self.getId() in list(queue.quotas):
+                queue.quotas.create(self.getId())
+            job.quota_names = envelope_quota
+            job.addCallback(self.manage_postprocess)
             queue.put(job)
             key = f_name.split('/')[-1].split('.')[0]
 
