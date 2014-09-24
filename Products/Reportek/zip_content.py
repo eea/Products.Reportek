@@ -20,12 +20,14 @@
 # Cornel Nitu, Finsiel Romania
 
 from datetime import datetime
+import struct
 import operator
 import urllib
 
 from AccessControl import getSecurityManager
 from AccessControl.Permissions import view
 from zipfile import *
+import zipfile
 
 import RepUtils
 
@@ -443,9 +445,11 @@ def get_readme_content(ob):
 #
 class ZZipFile(ZipFile):
 
+    # FIXME figgure out how to read only a few bytes
     def read(self,size=-1):
         if(self.hasbeenread == 0):
             self.hasbeenread = 1
+            # call open manually and then read from ZipExtFile
             return ZipFile.read(self,self.filename)
         else:
             return ""
@@ -465,3 +469,102 @@ class ZZipFile(ZipFile):
 
 def encode_zip_name(name, key):
     return urllib.quote('%s-%s' % (name, key), '')
+
+
+class ZZipFileRaw(ZZipFile):
+    """ This class extends the reading of zip files inside a zip archive
+    to support raw retrieving of data + necessary metadata for transplanting
+    a raw deflated content from zip container to other container, say gzip.
+    This is only for reading!
+    """
+    # setcurrentfile should be always called in advance
+    # FIXME make this more robust
+
+    def setcurrentfile(self, filename):
+        super(ZZipFileRaw, self).setcurrentfile(filename)
+        self.zinfo = self.getinfo(self.filename)
+        self.allowRaw = True
+        self.zef_file = None
+        self.should_close = False
+        if self.zinfo.compress_type != ZIP_DEFLATED:
+            self.allowRaw = False
+            return
+        # check if encrypted
+        if self.zinfo.flag_bits & 0x1:
+            self.allowRaw = False
+            return
+
+    @property
+    def compressed_size(self):
+        return self.zinfo.compress_size
+
+    @property
+    def orig_size(self):
+        return self.zinfo.file_size
+
+    @property
+    def CRC(self):
+        return self.zinfo.CRC
+
+    def seekRaw(self, pos=0):
+        # seek to the start of deflated data
+        try:
+            self.zef_file.seek(self.zinfo.header_offset, 0)
+
+            # Skip the file header:
+            fheader = self.zef_file.read(zipfile.sizeFileHeader)
+            if len(fheader) != zipfile.sizeFileHeader:
+                raise BadZipfile("Truncated file header")
+            fheader = struct.unpack(zipfile.structFileHeader, fheader)
+            if fheader[zipfile._FH_SIGNATURE] != zipfile.stringFileHeader:
+                raise BadZipfile("Bad magic number for file header")
+
+            fname = self.zef_file.read(fheader[zipfile._FH_FILENAME_LENGTH])
+            if fheader[zipfile._FH_EXTRA_FIELD_LENGTH]:
+                self.zef_file.read(fheader[zipfile._FH_EXTRA_FIELD_LENGTH])
+
+            if fname != self.zinfo.orig_filename:
+                raise BadZipfile, \
+                        'File name in directory "%s" and header "%s" differ.' % (
+                            self.zinfo.orig_filename, fname)
+            # TODO - implement seek at other positions in raw data
+        except:
+            if self.should_close:
+                self.zef_file.close()
+                self.zef_file = None
+            raise
+
+    def rewindRaw(self):
+        return self.seekRaw(0)
+
+    # only open for read
+    def openRaw(self):
+        ''' This is a nonstandard open.
+        It is only for read.
+        '''
+        # open raw
+        if not self.zef_file:
+            if self._filePassed:
+                zef_file = self.fp
+                self.should_close = False
+            else:
+                zef_file = open(self.filename, 'rb')
+                self.should_close = True
+
+        return zef_file
+
+    def close(self):
+        if self.should_close:
+            self.zef_file.close()
+
+    def read(self, nbytes=-1):
+        # TODO - or should we use a readRaw func or parameter?
+        if not self.allowRaw or (nbytes != -1 and nbytes < 1000):
+            return super(ZZipFileRaw, self).read(nbytes)
+
+        # else fetch the raw content
+        if not self.zef_file:
+            self.zef_file = self.openRaw()
+            self.rewindRaw()
+
+        return self.zef_file.read(self.zinfo.compress_size)

@@ -47,7 +47,7 @@ from blob import FileContainer, StorageError
 from constants import QAREPOSITORY_ID, ENGINE_ID
 from interfaces import IDocument
 from XMLInfoParser import detect_schema, SchemaError
-from zip_content import ZZipFile
+from zip_content import ZZipFile, ZZipFileRaw
 import RepUtils
 
 
@@ -542,9 +542,13 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         self.data_file.content_type = content_type
         orig_size = self._compute_uncompressed_size(file)
 
-        with self.data_file.open('wb', orig_size=orig_size) as data_file_handle:
+        skip_compress = False
+        if isinstance(file, ZZipFileRaw) and file.allowRaw:
+            skip_compress = True
+
+        with self.data_file.open('wb', orig_size=orig_size, skip_decompress=skip_compress, crc=file.CRC) as data_file_handle:
             if hasattr(file, 'filename'):
-                for chunk in RepUtils.iter_file_data(file):
+                for chunk in RepUtils.iter_file_data(file, 1000):
                     data_file_handle.write(chunk)
             else:
                 data_file_handle.write(file)
@@ -581,7 +585,10 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             name = file_or_content.filename
             headers = getattr(file_or_content, 'headers', None)
             body = file_or_content.read(100)
-            file_or_content.seek(0)
+            if isinstance(file, ZZipFileRaw) and file.allowRaw:
+                file_or_content.rewindRaw()
+            else:
+                file_or_content.seek(0)
         else:
             body = file_or_content[:100]
 
@@ -607,6 +614,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             return len(file_or_content)
         elif isinstance(file_or_content, StringIO):
             return file_or_content.len
+        elif isinstance(file_or_content, ZZipFileRaw):
+            return file_or_content.orig_size
         elif isinstance(file_or_content, ZZipFile):
             return file_or_content.tell()
         return 0

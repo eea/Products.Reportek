@@ -986,7 +986,10 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                   string.rfind(name,':')
                  )+1:]
         id = RepUtils.cleanup_id(id)
-        self.manage_addDocument(id=id, title=id,file=zipfile, restricted=restricted)
+        if id.endswith('.xml'):
+            import ipdb; ipdb.set_trace() ### XXX BREAKPOINT
+            i = 1
+        self.manage_addDocument(id=id, title=id, file=zipfile, restricted=restricted)
 
     security.declareProtected('Add Envelopes', 'manage_addzipfile')
     def manage_addzipfile(self, file='', content_type='', restricted='', REQUEST=None):
@@ -997,7 +1000,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
 
         if type(file) is not type('') and hasattr(file,'filename'):
             # According to the zipfile.py ZipFile just needs a file-like object
-            zf = zip_content.ZZipFile(file)
+            zf = zip_content.ZZipFileRaw(file)
             for name in zf.namelist():
                 # test that the archive is not hierarhical
                 if name[-1] == '/' or name[-1] == '\\':
