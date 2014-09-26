@@ -445,26 +445,58 @@ def get_readme_content(ob):
 #
 class ZZipFile(ZipFile):
 
-    # FIXME figgure out how to read only a few bytes
-    def read(self,size=-1):
-        if(self.hasbeenread == 0):
-            self.hasbeenread = 1
-            # call open manually and then read from ZipExtFile
-            return ZipFile.read(self,self.filename)
-        else:
-            return ""
+    # for the __del__ mechanics (? see python2.7/zipfile.py)
+    zef_file = None
 
-    def seek(self, start=0):
-        "Ignore since it is only used to figure out size."
-        self.hasbeenread = 0
-        return 0
+    def __init__(self, file, mode="r", compression=ZIP_STORED, allowZip64=False):
+        super(ZZipFile, self).__init__(file, mode=mode, compression=compression, allowZip64=allowZip64)
+        self.filename = None
+        self.zef_file = None
+        self.should_close = False
+
+    def __del__(self):
+        fp = self.zef_file
+        self.zef_file = None
+        if self.should_close:
+            fp.close()
+        super(ZZipFile, self).__del__()
+
+    def close(self):
+        try:
+            if self.should_close:
+                self.zef_file.close()
+        finally:
+            self.zef_file = None
+            self.should_close = False
+            super(ZZipFile, self).close()
+
+    def setcurrentfile(self, filename, pwd=None):
+        self.bytesRead = 0
+        self.filename = filename
+        self.pwd = pwd
+        # ZipFile does the open at read.
+        # Since we always expect setcurent file to be called prior to any other operation
+        # we call open/seek here
+        if not self.zef_file:
+            self.zef_file = self.open(self.filename, pwd=self.pwd)
+            self.should_close = True
+
+    def read(self, size=-1):
+        """ Read `size` number of compressed data and return them decompressed(!)"""
+        # read manually from ZipExtFile
+        # since the decompressor takes care of where the file inside the container ends
+        # (uses an intermediary _readbuffer) we don't care about reading 'too much'
+        return self.zef_file.read(size)
+
+
+    def seek(self, pos=0):
+        """ Use this only for rewind purposes, as the base class does not provide
+        a seek mechanism. Thus, `pos` should always be 0."""
+        self.zef_file.close()
+        self.zef_file = self.open(self.filename, pwd=self.pwd)
 
     def tell(self):
         return self.getinfo(self.filename).file_size
-
-    def setcurrentfile(self,filename):
-        self.hasbeenread = 0
-        self.filename=filename
 
 
 def encode_zip_name(name, key):
@@ -477,15 +509,30 @@ class ZZipFileRaw(ZZipFile):
     a raw deflated content from zip container to other container, say gzip.
     This is only for reading!
     """
-    # setcurrentfile should be always called in advance
-    # FIXME make this more robust
 
-    def setcurrentfile(self, filename):
-        super(ZZipFileRaw, self).setcurrentfile(filename)
+    zef_file_raw = None
+
+    def __init__(self, file, mode="r", compression=ZIP_STORED, allowZip64=False):
+        super(ZZipFileRaw, self).__init__(file, mode=mode, compression=compression, allowZip64=allowZip64)
+        self.bytesRead = 0
+        self.zef_file_raw = None
+        self.should_close_raw = False
+
+    def __del__(self):
+        fp = self.zef_file_raw
+        self.zef_file_raw = None
+        if self.should_close_raw:
+            fp.close()
+        super(ZZipFileRaw, self).__del__()
+
+    # setcurrentfile should be always called in advance
+    def setcurrentfile(self, filename, pwd=None):
+        super(ZZipFileRaw, self).setcurrentfile(filename, pwd)
         self.zinfo = self.getinfo(self.filename)
         self.allowRaw = True
-        self.zef_file = None
-        self.should_close = False
+        if not self.zef_file_raw:
+            self.zef_file_raw = self.openRaw()
+            self.rewindRaw()
         if self.zinfo.compress_type != ZIP_DEFLATED:
             self.allowRaw = False
             return
@@ -493,6 +540,31 @@ class ZZipFileRaw(ZZipFile):
         if self.zinfo.flag_bits & 0x1:
             self.allowRaw = False
             return
+
+    # only open for read
+    def openRaw(self):
+        ''' This is a nonstandard open.
+        It is only for read.
+        '''
+        # open raw
+        if not self.zef_file_raw:
+            if self._filePassed:
+                zef_file_raw = self.fp
+                self.should_close_raw = False
+            else:
+                zef_file_raw = open(self.filename, 'rb')
+                self.should_close_raw = True
+
+        return zef_file_raw
+
+    def close(self):
+        try:
+            if self.should_close_raw:
+                self.zef_file_raw.close()
+        finally:
+            self.zef_file_raw = None
+            self.should_close_raw = None
+            super(ZZipFileRaw, self).close()
 
     @property
     def compressed_size(self):
@@ -509,62 +581,54 @@ class ZZipFileRaw(ZZipFile):
     def seekRaw(self, pos=0):
         # seek to the start of deflated data
         try:
-            self.zef_file.seek(self.zinfo.header_offset, 0)
+            if not self.zef_file_raw:
+                self.zef_file_raw = self.openRaw()
+            self.zef_file_raw.seek(self.zinfo.header_offset, 0)
 
             # Skip the file header:
-            fheader = self.zef_file.read(zipfile.sizeFileHeader)
+            fheader = self.zef_file_raw.read(zipfile.sizeFileHeader)
             if len(fheader) != zipfile.sizeFileHeader:
                 raise BadZipfile("Truncated file header")
             fheader = struct.unpack(zipfile.structFileHeader, fheader)
             if fheader[zipfile._FH_SIGNATURE] != zipfile.stringFileHeader:
                 raise BadZipfile("Bad magic number for file header")
 
-            fname = self.zef_file.read(fheader[zipfile._FH_FILENAME_LENGTH])
+            fname = self.zef_file_raw.read(fheader[zipfile._FH_FILENAME_LENGTH])
             if fheader[zipfile._FH_EXTRA_FIELD_LENGTH]:
-                self.zef_file.read(fheader[zipfile._FH_EXTRA_FIELD_LENGTH])
+                self.zef_file_raw.read(fheader[zipfile._FH_EXTRA_FIELD_LENGTH])
 
             if fname != self.zinfo.orig_filename:
                 raise BadZipfile, \
                         'File name in directory "%s" and header "%s" differ.' % (
                             self.zinfo.orig_filename, fname)
-            # TODO - implement seek at other positions in raw data
+            if pos:
+                self.zef_file_raw.seek(pos, 1)
         except:
-            if self.should_close:
-                self.zef_file.close()
-                self.zef_file = None
+            if self.should_close_raw:
+                self.zef_file_raw.close()
+                self.zef_file_raw = None
+                self.should_close_raw = False
             raise
 
     def rewindRaw(self):
         return self.seekRaw(0)
 
-    # only open for read
-    def openRaw(self):
-        ''' This is a nonstandard open.
-        It is only for read.
-        '''
-        # open raw
-        if not self.zef_file:
-            if self._filePassed:
-                zef_file = self.fp
-                self.should_close = False
-            else:
-                zef_file = open(self.filename, 'rb')
-                self.should_close = True
-
-        return zef_file
-
-    def close(self):
-        if self.should_close:
-            self.zef_file.close()
-
-    def read(self, nbytes=-1):
-        # TODO - or should we use a readRaw func or parameter?
-        if not self.allowRaw or (nbytes != -1 and nbytes < 1000):
+    def read(self, nbytes=-1, skipRawThreshold=300):
+        """ Read `nbytes` from the zip file.
+        If the requestet chunk size is -1 then read the whole file.
+        If it is below `skipRawThreshold` (but not whole file, -1) then read those bytes uncompressed
+        (for peeking at a part of the file, see determining content type in Document.py)
+        The nbytes are decompressed buffer length
+        In all other cases read `nbytes` of compressed data.
+        If the file is not opened it will be opened for reading.
+        """
+        if not self.allowRaw or (0 < nbytes < skipRawThreshold):
             return super(ZZipFileRaw, self).read(nbytes)
 
         # else fetch the raw content
-        if not self.zef_file:
-            self.zef_file = self.openRaw()
-            self.rewindRaw()
-
-        return self.zef_file.read(self.zinfo.compress_size)
+        bytesLeft = self.compressed_size - self.bytesRead
+        nbytes = nbytes if nbytes < bytesLeft else bytesLeft
+        if not nbytes:
+            return ""
+        self.bytesRead += nbytes
+        return self.zef_file_raw.read(nbytes)

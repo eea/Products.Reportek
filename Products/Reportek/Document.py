@@ -585,7 +585,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             name = file_or_content.filename
             headers = getattr(file_or_content, 'headers', None)
             body = file_or_content.read(100)
-            if isinstance(file, ZZipFileRaw) and file.allowRaw:
+            if isinstance(file_or_content, ZZipFileRaw) and file_or_content.allowRaw:
                 file_or_content.rewindRaw()
             else:
                 file_or_content.seek(0)

@@ -986,9 +986,6 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                   string.rfind(name,':')
                  )+1:]
         id = RepUtils.cleanup_id(id)
-        if id.endswith('.xml'):
-            import ipdb; ipdb.set_trace() ### XXX BREAKPOINT
-            i = 1
         self.manage_addDocument(id=id, title=id, file=zipfile, restricted=restricted)
 
     security.declareProtected('Add Envelopes', 'manage_addzipfile')
