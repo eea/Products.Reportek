@@ -449,7 +449,7 @@ class ZZipFile(ZipFile):
     zef_file = None
 
     def __init__(self, file, mode="r", compression=ZIP_STORED, allowZip64=False):
-        super(ZZipFile, self).__init__(file, mode=mode, compression=compression, allowZip64=allowZip64)
+        ZipFile.__init__(self, file, mode=mode, compression=compression, allowZip64=allowZip64)
         self.filename = None
         self.zef_file = None
         self.should_close = False
@@ -459,7 +459,7 @@ class ZZipFile(ZipFile):
         self.zef_file = None
         if self.should_close:
             fp.close()
-        super(ZZipFile, self).__del__()
+        ZipFile.__del__(self)
 
     def close(self):
         try:
@@ -468,7 +468,7 @@ class ZZipFile(ZipFile):
         finally:
             self.zef_file = None
             self.should_close = False
-            super(ZZipFile, self).close()
+            ZipFile.close(self)
 
     def setcurrentfile(self, filename, pwd=None):
         self.bytesRead = 0
@@ -513,7 +513,7 @@ class ZZipFileRaw(ZZipFile):
     zef_file_raw = None
 
     def __init__(self, file, mode="r", compression=ZIP_STORED, allowZip64=False):
-        super(ZZipFileRaw, self).__init__(file, mode=mode, compression=compression, allowZip64=allowZip64)
+        ZZipFile.__init__(self, file, mode=mode, compression=compression, allowZip64=allowZip64)
         self.bytesRead = 0
         self.zef_file_raw = None
         self.should_close_raw = False
@@ -523,11 +523,11 @@ class ZZipFileRaw(ZZipFile):
         self.zef_file_raw = None
         if self.should_close_raw:
             fp.close()
-        super(ZZipFileRaw, self).__del__()
+        ZZipFile.__del__(self)
 
     # setcurrentfile should be always called in advance
     def setcurrentfile(self, filename, pwd=None):
-        super(ZZipFileRaw, self).setcurrentfile(filename, pwd)
+        ZZipFile.setcurrentfile(self, filename, pwd)
         self.zinfo = self.getinfo(self.filename)
         self.allowRaw = True
         if not self.zef_file_raw:
@@ -564,7 +564,7 @@ class ZZipFileRaw(ZZipFile):
         finally:
             self.zef_file_raw = None
             self.should_close_raw = None
-            super(ZZipFileRaw, self).close()
+            ZZipFile.close(self)
 
     @property
     def compressed_size(self):
@@ -623,7 +623,7 @@ class ZZipFileRaw(ZZipFile):
         If the file is not opened it will be opened for reading.
         """
         if not self.allowRaw or (0 < nbytes < skipRawThreshold):
-            return super(ZZipFileRaw, self).read(nbytes)
+            return ZZipFile.read(self, nbytes)
 
         # else fetch the raw content
         bytesLeft = self.compressed_size - self.bytesRead
