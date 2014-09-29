@@ -543,10 +543,12 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         orig_size = self._compute_uncompressed_size(file)
 
         skip_compress = False
+        crc = None
         if isinstance(file, ZZipFileRaw) and file.allowRaw:
             skip_compress = True
+            crc = file.CRC
 
-        with self.data_file.open('wb', orig_size=orig_size, skip_decompress=skip_compress, crc=file.CRC) as data_file_handle:
+        with self.data_file.open('wb', orig_size=orig_size, skip_decompress=skip_compress, crc=crc) as data_file_handle:
             if hasattr(file, 'filename'):
                 for chunk in RepUtils.iter_file_data(file, 1000):
                     data_file_handle.write(chunk)
