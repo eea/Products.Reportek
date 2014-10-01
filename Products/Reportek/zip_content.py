@@ -450,7 +450,7 @@ class ZZipFile(ZipFile):
 
     def __init__(self, file, mode="r", compression=ZIP_STORED, allowZip64=False):
         ZipFile.__init__(self, file, mode=mode, compression=compression, allowZip64=allowZip64)
-        self.filename = None
+        self.currentFilename = None
         self.zef_file = None
         self.should_close = False
 
@@ -458,6 +458,7 @@ class ZZipFile(ZipFile):
         fp = self.zef_file
         self.zef_file = None
         if self.should_close:
+            self.should_close = False
             fp.close()
         ZipFile.__del__(self)
 
@@ -472,17 +473,18 @@ class ZZipFile(ZipFile):
 
     def setcurrentfile(self, filename, pwd=None):
         self.bytesRead = 0
-        self.filename = filename
+        self.currentFilename = filename
         self.pwd = pwd
         # ZipFile does the open at read.
         # Since we always expect setcurent file to be called prior to any other operation
         # we call open/seek here
         if not self.zef_file:
-            self.zef_file = self.open(self.filename, pwd=self.pwd)
-            self.should_close = True
+            # zipfile always opens
+            self.zef_file = self.open(self.currentFilename, pwd=self.pwd)
+            if not self._filePassed:
+                self.should_close = True
 
     def read(self, size=-1):
-        """ Read `size` number of compressed data and return them decompressed(!)"""
         # read manually from ZipExtFile
         # since the decompressor takes care of where the file inside the container ends
         # (uses an intermediary _readbuffer) we don't care about reading 'too much'
@@ -492,11 +494,13 @@ class ZZipFile(ZipFile):
     def seek(self, pos=0):
         """ Use this only for rewind purposes, as the base class does not provide
         a seek mechanism. Thus, `pos` should always be 0."""
+        if pos != 0:
+            raise ValueError("(Z)ZipFile can only seek for start.")
         self.zef_file.close()
-        self.zef_file = self.open(self.filename, pwd=self.pwd)
+        self.zef_file = self.open(self.currentFilename, pwd=self.pwd)
 
     def tell(self):
-        return self.getinfo(self.filename).file_size
+        return self.getinfo(self.currentFilename).file_size
 
 
 def encode_zip_name(name, key):
@@ -522,13 +526,14 @@ class ZZipFileRaw(ZZipFile):
         fp = self.zef_file_raw
         self.zef_file_raw = None
         if self.should_close_raw:
+            self.should_close_raw = False
             fp.close()
         ZZipFile.__del__(self)
 
     # setcurrentfile should be always called in advance
     def setcurrentfile(self, filename, pwd=None):
         ZZipFile.setcurrentfile(self, filename, pwd)
-        self.zinfo = self.getinfo(self.filename)
+        self.zinfo = self.getinfo(self.currentFilename)
         self.allowRaw = True
         if not self.zef_file_raw:
             self.zef_file_raw = self.openRaw()
@@ -552,6 +557,7 @@ class ZZipFileRaw(ZZipFile):
                 zef_file_raw = self.fp
                 self.should_close_raw = False
             else:
+                # open the main filename (the one on file system)
                 zef_file_raw = open(self.filename, 'rb')
                 self.should_close_raw = True
 
