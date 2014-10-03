@@ -455,7 +455,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         tm = SimpleTreeMaker(tree_pre)
         tm.setChildAccess(filter=self.sitemap_filter)
         tm.setSkip('')
-        tree, rows = tm.cookieTree(tree_root)
+        try:
+            tree, rows = tm.cookieTree(tree_root)
+        except ValueError:
+            #invalid parameter; clear request and try again
+            tree_root.REQUEST.form.clear()
+            tree, rows = tm.cookieTree(tree_root)
         rows.pop(0)
         return {'root': tree, 'rows': rows}
 
