@@ -21,6 +21,7 @@ __all__ = [
     'permission_manage_properties_collections',
     'permission_manage_properties_envelopes',
     'LOCAL_CONVERTERS_PORT',
+    #'pingStoreLock',
 ]
 
 DEPLOYMENT_CDR = 'CDR'
@@ -35,3 +36,7 @@ if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
 elif REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
     permission_manage_properties_collections = 'Manage properties'
     permission_manage_properties_envelopes = 'Manage properties'
+
+#if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
+#    import threading
+#    pingStoreLock = threading.Lock()

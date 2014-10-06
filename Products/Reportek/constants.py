@@ -31,6 +31,7 @@ CONVERTERS_ID = 'Converters'
 QAREPOSITORY_ID = 'QARepository'
 DATAFLOW_MAPPINGS = 'DataflowMappings'
 APPLICATIONS_FOLDER_ID = 'Applications'
+PING_ENVELOPES_KEY = 'PingEnvelopesStore'
 
 # remote servers
 WEBQ_XML_REPOSITORY = 'http://cdr.eionet.europa.eu/xmlexports/groundwater/'

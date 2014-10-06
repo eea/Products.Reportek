@@ -72,6 +72,16 @@ def create_reportek_objects(app):
         repo_engine = ReportekEngine.ReportekEngine()
         app._setObject(constants.ENGINE_ID, repo_engine)
 
+    if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
+        import threading
+        crPingger = repo_engine.contentRegistryPingger
+        if crPingger:
+            pingger = threading.Thread(target=ping_remaining_envelopes,
+                        name='pingRemainingEnvelopes',
+                        args=(app, crPingger))
+            pingger.setDaemon(True)
+            pingger.start()
+
     #Add converters folder
     try:
         converters = getattr(app, constants.CONVERTERS_ID)
@@ -107,6 +117,22 @@ def create_reportek_objects(app):
         catalog = ZCatalog(constants.DEFAULT_CATALOG, 'Reportek Catalog')
         app._setObject(constants.DEFAULT_CATALOG, catalog)
 
+def ping_remaining_envelopes(app, crPingger):
+    import redis
+    import pickle
+    rs = redis.Redis()
+    envPathNames = rs.hgetkeys(constants.PING_ENVELOPES_KEY)
+    for envPathName in envPathNames:
+        # get this fresh on every iteration
+        envStatus = PING_STORE.hget(constants.PING_ENVELOPES_KEY, envPathName)
+        envStatus = pickle.loads(envStatus)
+        if not envStatus['op']:
+            continue
+        env = app.unrestrictedTraverse(envPathName)
+        uris = [ env.absolute_url() + '/rdf' ]
+        innerObjsByMetatype = env._getObjectsForContentRegistry()
+        uris.extend( o.absolute_url() for objs in innerObjsByMetatype.values() for o in objs )
+        crPingger.content_registry_ping(uris, ping_argument=envStatus['op'], envPathName=envPathName)
 
 def add_index(name, catalog, meta_type, meta=False):
     if name not in catalog.indexes():
