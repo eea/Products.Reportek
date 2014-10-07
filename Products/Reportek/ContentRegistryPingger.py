@@ -8,13 +8,13 @@ from config import *
 from constants import PING_ENVELOPES_KEY
 import pickle
 
-if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
-    import redis
-    PING_STORE = redis.Redis()
-else:
-    PING_STORE = None
-
 class ContentRegistryPingger(object):
+
+    if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
+        import redis
+        PING_STORE = redis.Redis()
+    else:
+        PING_STORE = None
 
     def __init__(self, api_url):
         self.api_url = api_url
@@ -39,16 +39,16 @@ class ContentRegistryPingger(object):
         allOk = True
         if not ping_argument:
             ping_argument = 'create'
-        if envPathName and PING_STORE:
+        if envPathName and self.PING_STORE:
             ts = self._start_ping(envPathName, op=ping_argument)
         for uri in uris:
             success, message = self._content_registry_ping(uri, ping_argument=ping_argument)
             self._log_ping(success, message, uri, ping_argument)
             allOk = allOk and success
-            if envPathName and PING_STORE and not self._check_ping(envPathName, ts):
+            if envPathName and self.PING_STORE and not self._check_ping(envPathName, ts):
                 allOk = False
                 break
-        if envPathName and PING_STORE:
+        if envPathName and self.PING_STORE:
             self._stop_ping(envPathName, ts)
         return allOk
 
@@ -98,20 +98,20 @@ class ContentRegistryPingger(object):
         val = {'op': op, 'ts': ts}
         val = pickle.dumps(val)
         # start no matter what. expect the other to stop when he sees dirty ts
-        PING_STORE.hset(PING_ENVELOPES_KEY, envPathName, val)
+        self.PING_STORE.hset(PING_ENVELOPES_KEY, envPathName, val)
         return ts
 
     def _check_ping(self, envPathName, ts):
-        envPingStatus = PING_STORE.hget(PING_ENVELOPES_KEY, envPathName)
+        envPingStatus = self.PING_STORE.hget(PING_ENVELOPES_KEY, envPathName)
         envPingStatus = pickle.loads(envPingStatus)
         # also check if a later task already finished and reset the ts
-        if envPingStatus['ts'] < ts or envPingStatus['ts'] == 0:
+        if envPingStatus['ts'] > ts or envPingStatus['ts'] == 0:
             # got dirty, somebody else started doing stuff on this envelope
             return False
         return True
 
     def _stop_ping(self, envPathName, ts):
-        envPingStatus = PING_STORE.hget(PING_ENVELOPES_KEY, envPathName)
+        envPingStatus = self.PING_STORE.hget(PING_ENVELOPES_KEY, envPathName)
         if envPingStatus:
             envPingStatus = pickle.loads(envPingStatus)
             # not us! don't reset
@@ -123,4 +123,4 @@ class ContentRegistryPingger(object):
         else:
             envPingStatus = {'op': None, 'ts': 0}
         envPingStatus = pickle.dumps(envPingStatus)
-        PING_STORE.hset(PING_ENVELOPES_KEY, envPathName, envPingStatus)
+        self.PING_STORE.hset(PING_ENVELOPES_KEY, envPathName, envPingStatus)
