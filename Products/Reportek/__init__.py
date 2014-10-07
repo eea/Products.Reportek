@@ -121,10 +121,10 @@ def ping_remaining_envelopes(app, crPingger):
     import redis
     import pickle
     rs = redis.Redis()
-    envPathNames = rs.hgetkeys(constants.PING_ENVELOPES_KEY)
+    envPathNames = rs.hkeys(constants.PING_ENVELOPES_KEY)
     for envPathName in envPathNames:
         # get this fresh on every iteration
-        envStatus = PING_STORE.hget(constants.PING_ENVELOPES_KEY, envPathName)
+        envStatus = rs.hget(constants.PING_ENVELOPES_KEY, envPathName)
         envStatus = pickle.loads(envStatus)
         if not envStatus['op']:
             continue
