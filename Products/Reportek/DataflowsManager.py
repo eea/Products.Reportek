@@ -32,16 +32,43 @@
 
 """
 
+from XMLRPCMethod import XMLRPCMethod
+
+
+class ServiceTemporarilyUnavailableException(Exception):
+    pass
+
+
 class DataflowsManager:
     """ Module that handles the dataflows(obligations) information: dataflow_table """
 
-    def dataflows_dict(self):
-        """ Converts the dataflow info into a dictionary """
-        dummy = {'uri': '', 'name': 'Unknown', 'iso': 'XX'}
-        l_ldict = {}
-        for l_item in self.localities_table():
-            l_ldict[l_item['uri']] = l_item
-        return l_ldict.get(country, dummy)
+    def __init__(self):
+        self.xmlrpc_method = XMLRPCMethod(
+            title='Get activities from ROD',
+            url='http://rod.eionet.europa.eu/rpcrouter',
+            method_name='WebRODService.getActivities',
+            timeout=10.0
+        )
+
+    def dataflow_rod(self):
+        return self.xmlrpc_method.call_method()
+
+    def dataflow_table(self):
+        def inline_replace(x):
+            x['uri'] = x['uri'].replace('eionet.eu.int', 'eionet.europa.eu')
+            return x
+
+        try:
+            return map(inline_replace, self.dataflow_rod())
+        except Exception:
+            raise ServiceTemporarilyUnavailableException, "Reporting Obligations Database is temporarily unavailable, please try again later"
+
+    def dataflow_dict(self):
+        """ Converts the dataflow table into a dictionary """
+        l_dfdict = {}
+        for l_item in self.dataflow_table():
+            l_dfdict[l_item['uri']] = l_item
+        return l_dfdict
 
     def getDataflowDict(self, dataflow_uri):
         """ returns all properties of a dataflow as dictionary given the uri """

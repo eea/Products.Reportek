@@ -106,7 +106,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     globally_restricted_site = False
     cr_api_url = 'http://cr.eionet.europa.eu/ping'
 
-    def all_meta_types( self, interfaces=None ):
+    def all_meta_types(self, interfaces=None):
         """
             What can you put inside me? Checks if the legal products are
             actually installed in Zope
@@ -121,6 +121,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     def __init__(self, webq_url=''):
         """ constructor """
+        DataflowsManager.__init__(self)
         self.id = constants.ENGINE_ID
         # UNS configuration parameters
         self.UNS_server = ''
