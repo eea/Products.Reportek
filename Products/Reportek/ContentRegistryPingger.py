@@ -12,7 +12,7 @@ class ContentRegistryPingger(object):
 
     if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
         import redis
-        PING_STORE = redis.Redis()
+        PING_STORE = redis.Redis(db=REDIS_DATABASE)
     else:
         PING_STORE = None
 
