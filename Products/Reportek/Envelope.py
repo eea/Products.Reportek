@@ -521,7 +521,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         uris.extend( o.absolute_url() for objs in innerObjsByMetatype.values() for o in objs )
         if async:
             crPingger.content_registry_ping_async(uris,
-                    ping_argument=ping_argument, envPathName=self.absolute_url(1))
+                    ping_argument=ping_argument, envPathName=self.absolute_url())
         else:
             crPingger.content_registry_ping(uris, ping_argument=ping_argument)
         return

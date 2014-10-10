@@ -117,6 +117,15 @@ def create_reportek_objects(app):
         catalog = ZCatalog(constants.DEFAULT_CATALOG, 'Reportek Catalog')
         app._setObject(constants.DEFAULT_CATALOG, catalog)
 
+def _strip_protocol_domain(full_url):
+    parts = full_url.split('/')
+    # domain.domain.domain.../abs/abs
+    i = 1
+    if full_url.startswith('http'):
+        # http...//domain.domain.domain.../abs/abs
+        i = 3
+    return '/'.join(parts[i:])
+
 def ping_remaining_envelopes(app, crPingger):
     import redis
     import pickle
@@ -128,7 +137,8 @@ def ping_remaining_envelopes(app, crPingger):
         envStatus = pickle.loads(envStatus)
         if not envStatus['op']:
             continue
-        env = app.unrestrictedTraverse(envPathName)
+        envPathOnly = _strip_protocol_domain(envPathName)
+        env = app.unrestrictedTraverse(envPathOnly)
         uris = [ env.absolute_url() + '/rdf' ]
         innerObjsByMetatype = env._getObjectsForContentRegistry()
         uris.extend( o.absolute_url() for objs in innerObjsByMetatype.values() for o in objs )

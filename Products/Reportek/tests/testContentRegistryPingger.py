@@ -88,7 +88,7 @@ class ContentRegistryPinggerTest(BaseTest, ConfigureReportek):
             <message>URL added to the urgent harvest queue: http://cdrtest.eionet.europa.eu/ro/colu0vgwa/colu0vgdq/envu0vgka/rdf</message>
             <flerror>0</flerror>
         </response>'''
-        envName = 'envelope'
+        envName = 'http://domain.co.co/envelope'
         uri1 = envName + '/some_uri1'
         uri2 = envName + '/some_uri2'
         self.pingger._content_registry_ping = Mock(return_value=(200, ok_message))
@@ -112,7 +112,7 @@ class ContentRegistryPinggerTest(BaseTest, ConfigureReportek):
             <message>URL added to the urgent harvest queue: http://cdrtest.eionet.europa.eu/ro/colu0vgwa/colu0vgdq/envu0vgka/rdf</message>
             <flerror>0</flerror>
         </response>'''
-        envName = 'envelope'
+        envName = 'http://domain.co.co/envelope'
         uri1 = envName + '/some_uri1'
         uri2 = envName + '/some_uri2'
         def collide(uri, ping_argument=None):
@@ -145,7 +145,7 @@ class ContentRegistryPinggerTest(BaseTest, ConfigureReportek):
             <message>URL added to the urgent harvest queue: http://cdrtest.eionet.europa.eu/ro/colu0vgwa/colu0vgdq/envu0vgka/rdf</message>
             <flerror>0</flerror>
         </response>'''
-        envName = 'envelope'
+        envName = 'http://domain.co.co/envelope'
         uri1 = envName + '/some_uri1'
         uri2 = envName + '/some_uri2'
         def collide(uri, ping_argument=None):
@@ -223,10 +223,10 @@ class InitCRTest(BaseTest, ConfigureReportek):
         from Products.Reportek import ping_remaining_envelopes
         val = {'op': None, 'ts': 0}
         val = pickle.dumps(val)
-        self.pingger.PING_STORE.hset(constants.PING_ENVELOPES_KEY, self.envelope.absolute_url(1), val)
+        self.pingger.PING_STORE.hset(constants.PING_ENVELOPES_KEY, self.envelope.absolute_url(), val)
         val = {'op': 'create', 'ts': 1}
         val = pickle.dumps(val)
-        self.pingger.PING_STORE.hset(constants.PING_ENVELOPES_KEY, self.second_envelope.absolute_url(1), val)
+        self.pingger.PING_STORE.hset(constants.PING_ENVELOPES_KEY, self.second_envelope.absolute_url(), val)
         ok_message = '''<?xml version="1.0"?>
         <response>
             <message>URL added to the urgent harvest queue: http://cdrtest.eionet.europa.eu/ro/colu0vgwa/colu0vgdq/envu0vgka/rdf</message>
