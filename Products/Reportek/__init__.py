@@ -120,7 +120,7 @@ def create_reportek_objects(app):
 def ping_remaining_envelopes(app, crPingger):
     import redis
     import pickle
-    rs = redis.Redis()
+    rs = redis.Redis(db=REDIS_DATABASE)
     envPathNames = rs.hkeys(constants.PING_ENVELOPES_KEY)
     for envPathName in envPathNames:
         # get this fresh on every iteration

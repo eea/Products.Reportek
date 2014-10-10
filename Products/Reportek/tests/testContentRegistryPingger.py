@@ -1,11 +1,14 @@
-from mock import Mock, call
+from mock import Mock, call, patch
 import time
 import pickle
 
 from Products.Reportek import ContentRegistryPingger
 from common import BaseTest, ConfigureReportek
-from utils import mysleep, MockRedis
+from utils import (mysleep, MockRedis, create_upload_file, simple_addEnvelope,
+                   add_hyperlink, add_document, add_feedback)
+from Products.Reportek import constants, Converters
 from Products.Reportek.constants import PING_ENVELOPES_KEY
+from AccessControl import getSecurityManager
 
 
 class ContentRegistryPinggerTest(BaseTest, ConfigureReportek):
@@ -85,9 +88,9 @@ class ContentRegistryPinggerTest(BaseTest, ConfigureReportek):
             <message>URL added to the urgent harvest queue: http://cdrtest.eionet.europa.eu/ro/colu0vgwa/colu0vgdq/envu0vgka/rdf</message>
             <flerror>0</flerror>
         </response>'''
-        envName = 'http://'
-        uri1 = 'http://some_uri1'
-        uri2 = 'http://some_uri2'
+        envName = 'envelope'
+        uri1 = envName + '/some_uri1'
+        uri2 = envName + '/some_uri2'
         self.pingger._content_registry_ping = Mock(return_value=(200, ok_message))
         self.pingger.content_registry_ping_async([uri1, uri2], ping_argument='create',
                                                  envPathName=envName)
@@ -109,9 +112,9 @@ class ContentRegistryPinggerTest(BaseTest, ConfigureReportek):
             <message>URL added to the urgent harvest queue: http://cdrtest.eionet.europa.eu/ro/colu0vgwa/colu0vgdq/envu0vgka/rdf</message>
             <flerror>0</flerror>
         </response>'''
-        envName = 'http://'
-        uri1 = 'http://some_uri1'
-        uri2 = 'http://some_uri2'
+        envName = 'envelope'
+        uri1 = envName + '/some_uri1'
+        uri2 = envName + '/some_uri2'
         def collide(uri, ping_argument=None):
             # stick a collision here
             if uri == uri1:
@@ -142,9 +145,9 @@ class ContentRegistryPinggerTest(BaseTest, ConfigureReportek):
             <message>URL added to the urgent harvest queue: http://cdrtest.eionet.europa.eu/ro/colu0vgwa/colu0vgdq/envu0vgka/rdf</message>
             <flerror>0</flerror>
         </response>'''
-        envName = 'http://'
-        uri1 = 'http://some_uri1'
-        uri2 = 'http://some_uri2'
+        envName = 'envelope'
+        uri1 = envName + '/some_uri1'
+        uri2 = envName + '/some_uri2'
         def collide(uri, ping_argument=None):
             # stick a collision here
             if uri == uri1:
@@ -168,3 +171,71 @@ class ContentRegistryPinggerTest(BaseTest, ConfigureReportek):
         self.assertEqual(envStats['op'], None)
         # the 'interrupting thread' behalves as it did finish
         self.assertEqual(envStats['ts'], 0)
+
+
+class InitCRTest(BaseTest, ConfigureReportek):
+
+    def afterSetUp(self):
+        super(InitCRTest, self).afterSetUp()
+        self.createStandardDependencies()
+        self.createStandardCollection()
+        self.assertTrue(hasattr(self.app, 'collection'),'Collection did not get created')
+        self.assertNotEqual(self.app.collection, None)
+        col = self.app.collection
+        self.login() # Login as test_user_1_
+        user = getSecurityManager().getUser()
+        self.app.REQUEST.AUTHENTICATED_USER = user
+        with patch('Products.Reportek.RepUtils.generate_id') as gen_id_mock:
+            gen_id_mock.side_effect = ['envId1', 'envId2']
+            self.envelope = simple_addEnvelope(col.manage_addProduct['Reportek'], '', '', '2003', '2004', '',
+                            'http://rod.eionet.eu.int/localities/1', REQUEST=None, previous_delivery='')
+            self.second_envelope = simple_addEnvelope(col.manage_addProduct['Reportek'], 'a second envelope', '', '2005', '2009', '',
+                            'http://rod.eionet.eu.int/localities/2', REQUEST=None, previous_delivery='')
+
+        self.engine.cr_api_url = 'http://none'
+        self.pingger = self.engine.contentRegistryPingger
+        self.assertTrue(bool(self.pingger))
+        # add subobjects of type document, feedback, hyperlink
+        content = 'test content for our document'
+        self.doc = add_document(self.envelope, create_upload_file(content, 'foo.txt'))
+
+        feedbacktext = 'feedback text'
+        setattr(
+            self.root.getPhysicalRoot(),
+            constants.CONVERTERS_ID,
+            Converters.Converters())
+        safe_html = Mock(convert=Mock(return_value=Mock(text=feedbacktext)))
+        getattr(self.root.getPhysicalRoot(),
+                                constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
+        self.feed = add_feedback(self.envelope, feedbacktext)
+        self.link = add_hyperlink(self.envelope, 'hyper/link')
+
+        self.engine.cr_api_url = 'http://none'
+        self.pingger = self.engine.contentRegistryPingger
+        self.assertTrue(bool(self.pingger))
+        ContentRegistryPingger.requests.get = Mock()
+        self.pingger.PING_STORE = MockRedis()
+
+
+    @patch('redis.Redis')
+    def test_ping_remaining_envelopes(self, redis_mock):
+        import pickle
+        from Products.Reportek import ping_remaining_envelopes
+        val = {'op': None, 'ts': 0}
+        val = pickle.dumps(val)
+        self.pingger.PING_STORE.hset(constants.PING_ENVELOPES_KEY, self.envelope.absolute_url(1), val)
+        val = {'op': 'create', 'ts': 1}
+        val = pickle.dumps(val)
+        self.pingger.PING_STORE.hset(constants.PING_ENVELOPES_KEY, self.second_envelope.absolute_url(1), val)
+        ok_message = '''<?xml version="1.0"?>
+        <response>
+            <message>URL added to the urgent harvest queue: http://cdrtest.eionet.europa.eu/ro/colu0vgwa/colu0vgdq/envu0vgka/rdf</message>
+            <flerror>0</flerror>
+        </response>'''
+        self.pingger._content_registry_ping = Mock(return_value=(200, ok_message))
+        redis_mock.return_value = self.pingger.PING_STORE
+
+        ping_remaining_envelopes(self.root, self.pingger)
+        call_args_list = self.pingger._content_registry_ping.call_args_list
+        self.assertIn(call(self.second_envelope.absolute_url()+'/rdf', ping_argument='create'), call_args_list)
+        self.assertNotIn(call(self.envelope.absolute_url()+'/rdf', ping_argument='create'), call_args_list)

@@ -403,6 +403,12 @@ class MockRedis(object):
         name[hkey] = hval
         return ret
 
+    def hkeys(self, hname):
+        name = self._store.get(hname)
+        if name is None:
+            return name
+        return name.keys()
+
 
 def break_document_data_file(doc):
     b = doc.data_file._blob
