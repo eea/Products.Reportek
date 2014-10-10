@@ -498,7 +498,7 @@ class ReportekEngineTest(BaseTest, ConfigureReportek):
         }
         self.engine.localities_dict = Mock(return_value=localities)
         self.root.localities_table = Mock(return_value=[])
-        self.root.dataflow_table = Mock(return_value=[])
+        self.engine.dataflow_table = Mock(return_value=[])
         self.root._setObject( 'at', Collection('at',
             'Austria', '', '', '',
             'http://spatial/3',
@@ -526,7 +526,7 @@ class ReportekEngineTest(BaseTest, ConfigureReportek):
         }
         self.engine.localities_dict = Mock(return_value=localities)
         self.root.localities_table = Mock(return_value=[])
-        self.root.dataflow_table = Mock(return_value=[])
+        self.engine.dataflow_table = Mock(return_value=[])
         self.root._setObject( 'at', Collection('at',
             'Austria', '', '', '',
             'http://spatial/3',
@@ -559,7 +559,7 @@ class ReportekEngineTest(BaseTest, ConfigureReportek):
         }
         self.engine.localities_dict = Mock(return_value=localities)
         self.root.localities_table = Mock(return_value=[])
-        self.root.dataflow_table = Mock(return_value=[])
+        self.engine.dataflow_table = Mock(return_value=[])
         self.root._setObject( 'iso1', Collection('iso1',
             'name1', '', '', '',
             'http://spatial/1',
@@ -599,7 +599,7 @@ class ReportekEngineTest(BaseTest, ConfigureReportek):
         }
         self.engine.localities_dict = Mock(return_value=localities)
         self.root.localities_table = Mock(return_value=[])
-        self.root.dataflow_table = Mock(return_value=[])
+        self.engine.dataflow_table = Mock(return_value=[])
         self.root._setObject( 'iso1', Collection('iso1',
             'name1', '', '', '',
             'http://spatial/1',
@@ -634,7 +634,7 @@ class ReportekEngineTest(BaseTest, ConfigureReportek):
         }
         self.engine.localities_dict = Mock(return_value=localities)
         self.root.localities_table = Mock(return_value=[])
-        self.root.dataflow_table = Mock(return_value=[])
+        self.engine.dataflow_table = Mock(return_value=[])
         self.engine.Build_collections(
             pattern = pattern,
             ccountries = ['http://spatial/1'],

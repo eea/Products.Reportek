@@ -21,6 +21,7 @@ from Products.Reportek.Envelope import Envelope
 from Products.Reportek.ReportekEngine import ReportekEngine
 
 from utils import makerequest
+from copy import deepcopy
 
 
 
@@ -65,6 +66,9 @@ class BaseTest(ZopeTestCase.ZopeTestCase):
     @staticmethod
     def create_reportek_engine(parent):
         ob = ReportekEngine()
+        ob.dataflow_rod = Mock(
+            return_value=deepcopy(ConfigureReportek.exampledataflows)
+        )
         parent._setObject(ob.id, ob)
         return parent[ob.id]
 
@@ -276,12 +280,6 @@ class ConfigureReportek:
         pyapp = getattr(self.app, 'localities_table')
         pyapp.ZPythonScript_edit(params='',
               body="""return %s""" % str(self.examplelocalities) )
-
-        # Create dataflow_table
-        self.app.manage_addProduct['PythonScripts'].manage_addPythonScript(id='dataflow_table')
-        pyapp = getattr(self.app, 'dataflow_table')
-        pyapp.ZPythonScript_edit(params='',
-              body="""return %s""" % str(self.exampledataflows) )
 
         # Assume the workflow engine was created automatically
         of = getattr(self.app, 'WorkflowEngine')

@@ -26,6 +26,8 @@ from collections import defaultdict
 from DateTime import DateTime
 import RepUtils
 from Products.PythonScripts.standard import html_quote
+from Products.Reportek import constants
+
 
 class Toolz:
     """ Useful functions """
@@ -89,7 +91,8 @@ class Toolz:
         # 'details_url', 'TITLE', 'uri', 'LAST_UPDATE', 'PK_SOURCE_ID'
         #we want to group items by given key, ascendent(desc=0) or descendent(desc=1)
         r = defaultdict(list)
-        for item in RepUtils.utSortListByAttr(self.dataflow_table(), key, desc):
+        for item in RepUtils.utSortListByAttr(
+                getattr(self, constants.ENGINE_ID).dataflow_table(), key, desc):
             r[item[key]].append(item)
         # unfortunetely, Zope framework seems not to handle just any Python code (like defaultdict), so ulglify this a little, the zope way...
         return sorted(r.keys(), reverse=desc), dict(r)
