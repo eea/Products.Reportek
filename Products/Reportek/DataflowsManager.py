@@ -51,9 +51,11 @@ class DataflowsManager:
         )
 
     def dataflow_rod(self):
+        """ """
         return self.xmlrpc_method.call_method()
 
     def dataflow_table(self):
+        """ """
         def inline_replace(x):
             x['uri'] = x['uri'].replace('eionet.eu.int', 'eionet.europa.eu')
             return x
@@ -61,7 +63,9 @@ class DataflowsManager:
         try:
             return map(inline_replace, self.dataflow_rod())
         except Exception:
-            raise ServiceTemporarilyUnavailableException, "Reporting Obligations Database is temporarily unavailable, please try again later"
+            msg = "Reporting Obligations Database is temporarily unavailable," \
+                  " please try again later"
+            raise ServiceTemporarilyUnavailableException, msg
 
     def dataflow_dict(self):
         """ Converts the dataflow table into a dictionary """
@@ -73,9 +77,10 @@ class DataflowsManager:
     def getDataflowDict(self, dataflow_uri):
         """ returns all properties of a dataflow as dictionary given the uri """
         try:
-            return [x for x in self.dataflow_table() if str(x['uri']) == dataflow_uri][0]
+            return [x for x in self.dataflow_table()
+                    if str(x['uri']) == dataflow_uri][0]
         except:
-            return {'SOURCE_TITLE':'Deleted', 'TITLE':'Unknown obligation'}
+            return {'SOURCE_TITLE': 'Deleted', 'TITLE': 'Unknown obligation'}
 
     # Getters for the dataflow
 

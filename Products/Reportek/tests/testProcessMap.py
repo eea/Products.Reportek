@@ -28,7 +28,10 @@ class OpenflowTestCase(BaseTest, ConfigureReportek):
 
     def test_getDataflows(self):
         """ Test that the dataflows were added correctly """
-        assert self.exampledataflows == self.wf.getDataflows()
+        def inline_replace(x):
+            x['uri'] = x['uri'].replace('eionet.eu.int', 'eionet.europa.eu')
+            return x
+        assert map(inline_replace, self.exampledataflows) == self.wf.getDataflows()
 
     def test_getCountries(self):
         """ Test that the countries were added correctly """

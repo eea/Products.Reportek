@@ -44,6 +44,7 @@ import constants
 import Referral
 
 from CountriesManager import CountriesManager
+from DataflowsManager import DataflowsManager
 from Toolz import Toolz
 
 manage_addCollectionForm=PageTemplateFile('zpt/collection/add', globals())
@@ -60,7 +61,7 @@ def manage_addCollection(self, title, descr,
     if REQUEST is not None:
         return self.manage_main(self, REQUEST, update_menu=1)
 
-class Collection(CatalogAware, Folder, CountriesManager, Toolz):
+class Collection(CatalogAware, Folder, CountriesManager, DataflowsManager, Toolz):
     """
     Collections are basic container objects that provide a standard
     interface for object management. Collection objects also implement
@@ -80,6 +81,7 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
     def __init__(self, id, title='', year='', endyear='', partofyear='', country='', locality='',
             descr='', dataflow_uris=[], allow_collections=0, allow_envelopes=0):
         """ constructor """
+        DataflowsManager.__init__(self)
         self.id = id
         self.title = title
         try: self.year = int(year)
@@ -295,13 +297,6 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
                 'terminated':'1',
                 'SOURCE_TITLE': 'Unknown obligations',
                 'PK_RA_ID': '0'}
-
-    def dataflow_dict(self):
-        """ Converts the dataflow table into a dictionary """
-        l_dfdict = {}
-        for l_item in self.dataflow_table():
-            l_dfdict[l_item['uri']] = l_item
-        return l_dfdict
 
     security.declareProtected(permission_manage_properties_collections, 'manage_editCollection')
     def manage_editCollection(self, title, descr,

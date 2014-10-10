@@ -29,7 +29,7 @@
 			<td><input type="radio" name="p_dataflows_all" value="0" <dtml-if "l_dataflows != ['*']">checked="checked"</dtml-if> />Pick</td>
 			<dtml-call "REQUEST.set('group',0)">
 			<td><select id="dataflows" size="20" multiple="multiple" name="p_dataflows" id="p_dataflows">
-			<dtml-in dataflow_table mapping sort=SOURCE_TITLE>
+			<dtml-in ReportekEngine.dataflow_table mapping sort=SOURCE_TITLE>
 				<dtml-if "group != SOURCE_TITLE">
 				<dtml-unless sequence-start></optgroup></dtml-unless>
 				<optgroup label="<dtml-var SOURCE_TITLE html_quote size=80>">
