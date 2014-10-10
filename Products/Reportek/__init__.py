@@ -118,13 +118,14 @@ def create_reportek_objects(app):
         app._setObject(constants.DEFAULT_CATALOG, catalog)
 
 def _strip_protocol_domain(full_url):
+    """ Take a full url and return a tuple of path part and protocol+domain part."""
     parts = full_url.split('/')
     # domain.domain.domain.../abs/abs
     i = 1
     if full_url.startswith('http'):
         # http...//domain.domain.domain.../abs/abs
         i = 3
-    return '/'.join(parts[i:])
+    return '/'.join(parts[i:]), '/'.join(parts[:i])
 
 def ping_remaining_envelopes(app, crPingger):
     import redis
@@ -137,11 +138,14 @@ def ping_remaining_envelopes(app, crPingger):
         envStatus = pickle.loads(envStatus)
         if not envStatus['op']:
             continue
-        envPathOnly = _strip_protocol_domain(envPathName)
+        envPathOnly, proto_domain = _strip_protocol_domain(envPathName)
         env = app.unrestrictedTraverse(envPathOnly)
-        uris = [ env.absolute_url() + '/rdf' ]
+        uris = [ envPathName + '/rdf' ]
         innerObjsByMetatype = env._getObjectsForContentRegistry()
-        uris.extend( o.absolute_url() for objs in innerObjsByMetatype.values() for o in objs )
+        # as we are not called from browser there is no domain part in the absolute_url
+        uris.extend( proto_domain +  '/' + o.absolute_url(1)
+                    for objs in innerObjsByMetatype.values()
+                        for o in objs )
         crPingger.content_registry_ping(uris, ping_argument=envStatus['op'], envPathName=envPathName)
 
 def add_index(name, catalog, meta_type, meta=False):
