@@ -285,19 +285,6 @@ class Collection(CatalogAware, Folder, CountriesManager, DataflowsManager, Toolz
                 amount += 1
         return amount
 
-    security.declarePublic('dataflow_lookup')
-    def dataflow_lookup(self, uri):
-        """ Lookup a dataflow on URI and return a dictionary of info """
-        try:
-            return self.dataflow_dict()[uri]
-        except KeyError:
-            return {'uri': uri,
-                'details_url': '',
-                'TITLE': 'Unknown/Deleted obligation',
-                'terminated':'1',
-                'SOURCE_TITLE': 'Unknown obligations',
-                'PK_RA_ID': '0'}
-
     security.declareProtected(permission_manage_properties_collections, 'manage_editCollection')
     def manage_editCollection(self, title, descr,
             year, endyear, partofyear, locality, country='',
