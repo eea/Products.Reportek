@@ -1,5 +1,6 @@
 3.6.18 (unreleased)
 -------------------
+* Task 21228 - Make CR ping robust towards concurrent pings for the same envelope and durable in case of zope restart
 
 3.6.17 (23-06-2014)
 -------------------

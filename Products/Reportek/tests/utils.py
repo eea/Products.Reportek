@@ -382,6 +382,34 @@ class MockDatabase(object):
         shutil.rmtree(self._blob_dir)
 
 
+class MockRedis(object):
+    def __init__(self):
+        self._store = {}
+
+    def hget(self, hname, hkey):
+        name = self._store.get(hname)
+        if name is None:
+            return name
+        return self._store[hname].get(hkey)
+
+    def hset(self, hname, hkey, hval):
+        ret = 0
+        if hname not in self._store:
+            self._store[hname] = {}
+            ret = 1
+        name = self._store[hname]
+        if hkey not in name:
+            ret = 1
+        name[hkey] = hval
+        return ret
+
+    def hkeys(self, hname):
+        name = self._store.get(hname)
+        if name is None:
+            return name
+        return name.keys()
+
+
 def break_document_data_file(doc):
     b = doc.data_file._blob
     b._p_activate()
