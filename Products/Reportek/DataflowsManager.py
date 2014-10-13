@@ -43,7 +43,7 @@ class DataflowsManager:
     """ Module that handles the dataflows(obligations) information: dataflow_table """
 
     def __init__(self):
-        self.xmlrpc_method = XMLRPCMethod(
+        self.xmlrpc_dataflow = XMLRPCMethod(
             title='Get activities from ROD',
             url='http://rod.eionet.europa.eu/rpcrouter',
             method_name='WebRODService.getActivities',
@@ -52,7 +52,7 @@ class DataflowsManager:
 
     def dataflow_rod(self):
         """ """
-        return self.xmlrpc_method.call_method()
+        return self.xmlrpc_dataflow.call_method()
 
     def dataflow_table(self):
         """ """
@@ -73,6 +73,18 @@ class DataflowsManager:
         for l_item in self.dataflow_table():
             l_dfdict[l_item['uri']] = l_item
         return l_dfdict
+
+    def dataflow_lookup(self, uri):
+        """ Lookup a dataflow on URI and return a dictionary of info """
+        try:
+            return self.dataflow_dict()[uri]
+        except KeyError:
+            return {'uri': uri,
+                'details_url': '',
+                'TITLE': 'Unknown/Deleted obligation',
+                'terminated':'1',
+                'SOURCE_TITLE': 'Unknown obligations',
+                'PK_RA_ID': '0'}
 
     def getDataflowDict(self, dataflow_uri):
         """ returns all properties of a dataflow as dictionary given the uri """
