@@ -31,19 +31,10 @@ CONVERTERS_ID = 'Converters'
 QAREPOSITORY_ID = 'QARepository'
 DATAFLOW_MAPPINGS = 'DataflowMappings'
 APPLICATIONS_FOLDER_ID = 'Applications'
+PING_ENVELOPES_KEY = 'PingEnvelopesStore'
 
 # remote servers
 WEBQ_XML_REPOSITORY = 'http://cdr.eionet.europa.eu/xmlexports/groundwater/'
-
-#Errors
-ERROR100 = ''
-
-#FIXME: Delete
-#Labels that appear on the Web pages
-# geographical coverage labels 
-COVERAGE_LABEL = 'Coverage'             # appears on the add/edit forms
-COVERAGE_NOTE_LABEL = 'Coverage note'   # appears on the add/edit forms
-COVERAGE_LOCATION_LABEL = 'Location'    # appears on the view forms
 
 CONTENT_TYPES = {'application/zip':'.zip',
                  'image/png':'.png',

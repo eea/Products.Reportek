@@ -21,6 +21,7 @@ __all__ = [
     'permission_manage_properties_collections',
     'permission_manage_properties_envelopes',
     'LOCAL_CONVERTERS_PORT',
+    'REDIS_DATABASE',
 ]
 
 DEPLOYMENT_CDR = 'CDR'
@@ -35,3 +36,6 @@ if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
 elif REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
     permission_manage_properties_collections = 'Manage properties'
     permission_manage_properties_envelopes = 'Manage properties'
+
+REDIS_DATABASE = os.environ.get('REDIS_DATABASE', '0')
+REDIS_DATABASE = int(REDIS_DATABASE)

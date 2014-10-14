@@ -72,6 +72,16 @@ def create_reportek_objects(app):
         repo_engine = ReportekEngine.ReportekEngine()
         app._setObject(constants.ENGINE_ID, repo_engine)
 
+    if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
+        import threading
+        crPingger = repo_engine.contentRegistryPingger
+        if crPingger:
+            pingger = threading.Thread(target=ping_remaining_envelopes,
+                        name='pingRemainingEnvelopes',
+                        args=(app, crPingger))
+            pingger.setDaemon(True)
+            pingger.start()
+
     #Add converters folder
     try:
         converters = getattr(app, constants.CONVERTERS_ID)
@@ -107,6 +117,36 @@ def create_reportek_objects(app):
         catalog = ZCatalog(constants.DEFAULT_CATALOG, 'Reportek Catalog')
         app._setObject(constants.DEFAULT_CATALOG, catalog)
 
+def _strip_protocol_domain(full_url):
+    """ Take a full url and return a tuple of path part and protocol+domain part."""
+    parts = full_url.split('/')
+    # domain.domain.domain.../abs/abs
+    i = 1
+    if full_url.startswith('http'):
+        # http...//domain.domain.domain.../abs/abs
+        i = 3
+    return '/'.join(parts[i:]), '/'.join(parts[:i])
+
+def ping_remaining_envelopes(app, crPingger):
+    import redis
+    import pickle
+    rs = redis.Redis(db=REDIS_DATABASE)
+    envPathNames = rs.hkeys(constants.PING_ENVELOPES_KEY)
+    for envPathName in envPathNames:
+        # get this fresh on every iteration
+        envStatus = rs.hget(constants.PING_ENVELOPES_KEY, envPathName)
+        envStatus = pickle.loads(envStatus)
+        if not envStatus['op']:
+            continue
+        envPathOnly, proto_domain = _strip_protocol_domain(envPathName)
+        env = app.unrestrictedTraverse(envPathOnly)
+        uris = [ envPathName + '/rdf' ]
+        innerObjsByMetatype = env._getObjectsForContentRegistry()
+        # as we are not called from browser there is no domain part in the absolute_url
+        uris.extend( proto_domain +  '/' + o.absolute_url(1)
+                    for objs in innerObjsByMetatype.values()
+                        for o in objs )
+        crPingger.content_registry_ping(uris, ping_argument=envStatus['op'], envPathName=envPathName)
 
 def add_index(name, catalog, meta_type, meta=False):
     if name not in catalog.indexes():

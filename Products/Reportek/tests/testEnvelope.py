@@ -1053,13 +1053,8 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         self.login() # Login as test_user_1_
         user = getSecurityManager().getUser()
         self.app.REQUEST.AUTHENTICATED_USER = user
-        simple_addEnvelope(col.manage_addProduct['Reportek'], '', '', '2003', '2004', '',
+        self.envelope = simple_addEnvelope(col.manage_addProduct['Reportek'], '', '', '2003', '2004', '',
                            'http://rod.eionet.eu.int/localities/1', REQUEST=None, previous_delivery='')
-        self.envelope = None
-        for env in col.objectValues('Report Envelope'):
-            self.envelope = env
-            break
-
         self.engine.cr_api_url = 'http://none'
         self.pingger = self.engine.contentRegistryPingger
         self.assertTrue(bool(self.pingger))
@@ -1106,7 +1101,7 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         uris = args[0]
         self.assertEqual(len(uris), 4)
         self.assertEqual(set(uris), expectedUris)
-        self.assertEqual(len(kwargs), 1)
+        self.assertEqual(len(kwargs), 2)
         ping_argument = kwargs.get('ping_argument')
         self.assertEqual(ping_argument, 'create')
 
@@ -1127,7 +1122,7 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         uris = args[0]
         self.assertEqual(len(uris), 4)
         self.assertEqual(set(uris), expectedUris)
-        self.assertEqual(len(kwargs), 1)
+        self.assertEqual(len(kwargs), 2)
         ping_argument = kwargs.get('ping_argument')
         self.assertEqual(ping_argument, 'delete')
 
