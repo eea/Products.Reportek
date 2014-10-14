@@ -165,7 +165,7 @@ class TestZZipFileRaw(unittest.TestCase):
 
         zf.close()
 
-    def test_raw_open_read(self):
+    def test_raw_read(self):
         zf = ZZipFileRaw(self.inputZipPath)
         for fileInZip in zf.namelist():
             # setcurrentfile will open it

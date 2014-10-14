@@ -587,6 +587,8 @@ class ZZipFileRaw(ZZipFile):
 
     def seekRaw(self, pos=0):
         # seek to the start of deflated data
+        if pos:
+            raise IOError('Can only seek at the begining of a file inside a zip archive (pos=0)')
         try:
             if not self.zef_file_raw:
                 self.zef_file_raw = self.openRaw()
@@ -608,8 +610,6 @@ class ZZipFileRaw(ZZipFile):
                 raise BadZipfile, \
                         'File name in directory "%s" and header "%s" differ.' % (
                             self.zinfo.orig_filename, fname)
-            if pos:
-                self.zef_file_raw.seek(pos, 1)
         except:
             if self.should_close_raw:
                 self.zef_file_raw.close()
