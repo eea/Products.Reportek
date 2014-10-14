@@ -162,7 +162,7 @@ def create_reportek_indexes(catalog):
     add_index('country', catalog, 'FieldIndex', meta=True)
     add_index('dataflow_uri', catalog, 'FieldIndex', meta=True)
     add_index('dataflow_uris', catalog, 'KeywordIndex', meta=True)
-    add_index('getCountryName', catalog, 'FieldIndex')
+    add_index('getCountryName', catalog, 'FieldIndex', meta=True)
     add_index('instance_id', catalog, 'FieldIndex')
     add_index('partofyear', catalog, 'FieldIndex')
     add_index('path', catalog, 'PathIndex')

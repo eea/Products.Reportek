@@ -21,6 +21,12 @@ class ManageRoles(BaseAdmin):
 
         return self.index()
 
+    def get_acl_users(self):
+        pas = getattr(self.context, 'acl_users')
+        if pas:
+            ldapmultiplugin = getattr(pas, 'ldapmultiplugin')
+            if ldapmultiplugin:
+                return getattr(ldapmultiplugin, 'acl_users')
 
     def get_user_localroles(self, username):
         results = []
@@ -42,7 +48,9 @@ class ManageRoles(BaseAdmin):
         role = self.request.get('role', '')
         for collection in collections:
             obj = self.context.unrestrictedTraverse(collection)
-            obj.manage_setLocalRoles(username, [role])
+            roles = list(obj.get_local_roles_for_userid(username))
+            roles.append(role)
+            obj.manage_setLocalRoles(username, roles)
             obj.reindex_object()
 
     def revoke_roles(self):
@@ -50,18 +58,22 @@ class ManageRoles(BaseAdmin):
         username = self.request.get('username', '')
         for collection in collections:
             obj = self.context.unrestrictedTraverse(collection)
-            obj.manage_delLocalRoles(userids=[username])
-            obj.reindex_object()
+            revoke_roles = self.request.get(collection.replace('/', '_'), [])
+            roles = list(obj.get_local_roles_for_userid(username))
 
+            for role in revoke_roles:
+                roles.pop(roles.index(role))
+
+            obj.manage_setLocalRoles(username, roles)
+            obj.reindex_object()
 
     def search_ldap_users(self):
         search_term = self.request.get('search_term')
         search_param = self.request.get('search_param')
 
-        users = (self.context
-                     .acl_users['ldapmultiplugin']['acl_users']
-                     .findUser(search_param=search_param,
-                               search_term=search_term))
+        users = (self.get_acl_users()
+                 .findUser(search_param=search_param,
+                           search_term=search_term))
 
         response = {'users': users}
 
@@ -71,8 +83,7 @@ class ManageRoles(BaseAdmin):
         return response
 
     def get_ldap_schema(self):
-        return (self.context
-                    .acl_users['ldapmultiplugin']['acl_users']
+        return (self.get_acl_users()
                     .getLDAPSchema())
 
     def display_confirmation(self):

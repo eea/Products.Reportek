@@ -69,7 +69,12 @@
                     <ul tal:condition="collection/roles"
                         tal:define="local_roles collection/roles">
                       <li tal:repeat="roles python:[local_roles[user] for user in local_roles.keys() if user == request.get('username', None)]">
-                        <span tal:replace="python:', '.join(roles)"/>
+                        <tal:rep tal:repeat="role roles">
+                          <input type="checkbox" class="local-roles"
+                            tal:attributes="name python: collection.get('path').replace('/', '_') + ':list';
+                                            value role;">
+                          <span tal:content="role"/>
+                        </tal:rep>
                       </li>
                     </ul>
                   </td>

@@ -6,7 +6,7 @@ from base_admin import BaseAdmin
 class WrongCountry(BaseAdmin):
 
     def _top_collections(self):
-        app = Zope2.bobo_application()
+        app = self.context.getPhysicalRoot()
         return app.objectValues('Report Collection')
 
     def _wrong_country(self, meta_type):

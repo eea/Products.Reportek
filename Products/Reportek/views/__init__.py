@@ -5,3 +5,4 @@ from manage_roles import ManageRoles
 from search_collections import SearchCollections
 from wrong_country import WrongCountry
 from envelope_utils import EnvelopeUtils
+from statistics import Statistics

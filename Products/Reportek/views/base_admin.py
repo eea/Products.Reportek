@@ -40,7 +40,7 @@ class BaseAdmin(BrowserView):
                 in self.context.dataflow_rod()}
 
     def get_roles(self):
-        app = Zope2.bobo_application()
+        app = self.context.getPhysicalRoot()
         return sorted(list(app.userdefined_roles()))
 
     def get_rod_obligations(self):
@@ -78,10 +78,11 @@ class BaseAdmin(BrowserView):
         username = self.request.get('username', '')
 
         records = []
-        for brain in self.search_catalog(obligation,
-                                         countries,
-                                         role='',
-                                         users=username):
+        brains = self.search_catalog(obligation,
+                                     countries,
+                                     role='',
+                                     users=username)
+        for brain in brains:
 
             obligations = []
             for uri in list(brain.dataflow_uris):

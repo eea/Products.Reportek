@@ -87,7 +87,12 @@ function initDataTable() {
     }
   });
 }
-
+function manage_role_cb(col_cb) {
+  sel_roles = $(col_cb).parents('tr').find('.local-roles');
+  if (sel_roles.length > 0) {
+    sel_roles.prop('checked', $(col_cb).prop('checked'));
+  }
+}
 $(function () {
   $("#role, #obligation, #countries").select2(
     {
@@ -105,10 +110,16 @@ $(function () {
       $("#toggleAllCB").prop('checked', false);
     }
   });
+  $(".toggledCB").change(function() {
+      manage_role_cb(this);
+  });
   $("#toggleAllCB").click(function() {
     var toggleAllBtn = $(this);
     var checkBoxes = $(".toggledCB");
     checkBoxes.prop('checked', toggleAllBtn.prop('checked'));
+    $.each(checkBoxes, function(index, cb){
+      manage_role_cb(cb);
+    });
   });
 });
 
