@@ -515,6 +515,7 @@ class ZZipFileRaw(ZZipFile):
     """
 
     zef_file_raw = None
+    ENCRYPTED_FLAG = 0x1
 
     def __init__(self, file, mode="r", compression=ZIP_STORED, allowZip64=False):
         ZZipFile.__init__(self, file, mode=mode, compression=compression, allowZip64=allowZip64)
@@ -537,12 +538,12 @@ class ZZipFileRaw(ZZipFile):
         self.allowRaw = True
         if not self.zef_file_raw:
             self.zef_file_raw = self.openRaw()
-            self.rewindRaw()
+        self.rewindRaw()
         if self.zinfo.compress_type != ZIP_DEFLATED:
             self.allowRaw = False
             return
         # check if encrypted
-        if self.zinfo.flag_bits & 0x1:
+        if self.zinfo.flag_bits & self.ENCRYPTED_FLAG:
             self.allowRaw = False
             return
 
