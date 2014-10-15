@@ -59,10 +59,21 @@ def update(app, outName='manual_feedbacks_with_emails.txt'):
             feed = brain.getObject()
             if feed.automatic:
                 continue
-            if '@' not in feed.feedbacktext:
-                continue
-            if mail_re.search(feed.feedbacktext):
+            if has_email(feed.feedbacktext):
                 out.write('cdr.eionet.europa.eu/' + feed.absolute_url(1) + '\r\n')
+            else:
+                for comment in feed.listComments():
+                    if has_email(comment.body):
+                        out.write('cdr.eionet.europa.eu/' + feed.absolute_url(1) + '\r\n')
+                        break
         except Exception as e:
             print "For: ", brain.getPath(), " . Error is: ", e.args
     out.close()
+
+
+def has_email(body):
+    if '@' in body:
+        # could add some filters here; some emails could not interest us
+        if mail_re.search(body):
+            return True
+    return False
