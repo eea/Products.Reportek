@@ -72,8 +72,8 @@ class ContentRegistryPinggerTest(BaseTest, ConfigureReportek):
 
         self.assertTrue(self.pingger._content_registry_ping.called)
         call_args_list = self.pingger._content_registry_ping.call_args_list
-        self.assertIn(call(uri1, 'create'), call_args_list)
-        self.assertIn(call(uri2, 'create'), call_args_list)
+        self.assertIn(call(uri1, ping_argument='create'), call_args_list)
+        self.assertIn(call(uri2, ping_argument='create'), call_args_list)
 
     def test_ping_many_async(self):
         ok_message = '''<?xml version="1.0"?>

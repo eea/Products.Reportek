@@ -51,14 +51,34 @@
 		</tr>
 		<tr>
 			<th align="left" i18n:translate="">File Size</th>
-			<td align="left"><span tal:replace="here/size" /> (<span tal:replace="here/rawsize" /> <tal:block i18n:translate="">Bytes</tal:block>)</td>
+            <td align="left">
+                <span tal:content="string:${context/size}"></span>
+                <span tal:condition="python: context.rawsize() >= 1000"
+                      tal:content="string: (${context/rawsize} Bytes)"></span>
+            </td>
 		</tr>
+        <tr>
+            <th align="left" i18n:translate="">Compressed size</th>
+            <tal:block condition="here/is_compressed">
+                <td align="left"
+                    tal:define="cSize_bytes_human here/compressed_size;
+                            cSize_bytes python: cSize_bytes_human[0];
+                            cSize_human python: cSize_bytes_human[1]">
+                    <span tal:content="cSize_human"></span>
+                    <span tal:condition="python: cSize_bytes >= 1024"
+                          tal:content="string: (${cSize_bytes} Bytes)"></span>
+                </td>
+            </tal:block>
+            <tal:block condition="not: here/is_compressed">
+                <td align="left">Not compressed</td>
+            </tal:block>
+        </tr>
 		<tr tal:condition="has_permission">
 			<th align="left" i18n:translate="">File path on server</th>
 			<td align="left" tal:content="here/blob_path">NOT OK</td>
 		</tr>
 		<tr>
-			<th i18n:translate="">Document accepted by the client</th>
+			<th align="left" i18n:translate="">Document accepted by the client</th>
 			<td>
 				<tal:block tal:condition="here/get_accept_time"><img src="misc_/Reportek/accepted" alt="Document accepted by the client" i18n:attributes="alt" /></tal:block>
 				<tal:block tal:condition="python:not here.get_accept_time()"><tal:block i18n:translate="">not yet</tal:block></tal:block>

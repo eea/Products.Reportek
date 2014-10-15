@@ -76,7 +76,7 @@ class BaseTest(ZopeTestCase.ZopeTestCase):
         return parent[ofe.id]
 
     @staticmethod
-    def create_envelope(col, mock_cr_ping=True, **kwargs):
+    def create_envelope(col, **kwargs):
         #obj.login() # Login as test_user_1_
         #user = getSecurityManager().getUser()
         #obj.app.REQUEST.AUTHENTICATED_USER = user
@@ -91,7 +91,7 @@ class BaseTest(ZopeTestCase.ZopeTestCase):
             endyear = '2004'
         return simple_addEnvelope(col, '', '', year, endyear, '',
             'http://rod.eionet.eu.int/localities/1', REQUEST=None,
-            previous_delivery='', mock_cr_ping=mock_cr_ping)
+            previous_delivery='')
 
     @staticmethod
     def create_mock_request():
@@ -103,6 +103,7 @@ class BaseTest(ZopeTestCase.ZopeTestCase):
         response.write = response._data.write
         request._headers = {}
         request.get_header = request._headers.get
+        request.getHeader = Mock(return_value='bla')
         return request
 
 
@@ -305,7 +306,7 @@ class ConfigureReportek:
         return self.app.collection
 
 
-    def createStandardEnvelope(self, mock_cr_ping=True):
+    def createStandardEnvelope(self):
         """ To create an envelope the following is needed:
             1) self.REQUEST.AUTHENTICATED_USER.getUserName() must return something
             2) There must exist a default workflow
@@ -320,7 +321,8 @@ class ConfigureReportek:
         #col.manage_addProduct['Reportek'].manage_addEnvelope('Envelope title', '', '2003', '2004', '',
         # 'http://rod.eionet.eu.int/spatial/2', REQUEST=None, previous_delivery='')
         # TODO why wrap it in a product dispatcher? what happens if not?
-        e = simple_addEnvelope(col.manage_addProduct['Reportek'], '', '', '2003', '2004', '',
-                           locality='http://rod.eionet.eu.int/spatial/2', REQUEST=None, previous_delivery=''
-                               , mock_cr_ping=mock_cr_ping)
+        e = simple_addEnvelope(col.manage_addProduct['Reportek'],
+                '', '', '2003', '2004', '',
+                locality='http://rod.eionet.eu.int/spatial/2',
+                REQUEST=None, previous_delivery='')
         return e

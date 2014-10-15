@@ -62,6 +62,7 @@ import zip_content
 from zope.interface import implements
 from interfaces import IEnvelope
 from paginator import DiggPaginator, EmptyPage, InvalidPage
+import transaction
 
 
 ZIP_CACHE_THRESHOLD = 100000000 # 100 MB
@@ -359,7 +360,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
 
     security.declareProtected('View', 'documents_management_section')
     documents_management_section = PageTemplateFile('zpt/envelope/documentsmanagement_section', globals())
-    
+
     security.declareProtected('View', 'feedback_section')
     feedback_section = PageTemplateFile('zpt/envelope/feedback_section', globals())
 
@@ -494,10 +495,18 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
 
 
     security.declareProtected('Release Envelopes', 'content_registry_ping')
-    def content_registry_ping(self, delete=False):
-        """Instruct ReportekEngine to ping CR
-        delete - don't ping for create+update but for delete
+    def content_registry_ping(self, delete=False, async=True):
+        """ Instruct ReportekEngine to ping CR.
+
+            `delete` instructs the envelope to don't ping CR on
+            create or update but for delete.
+            `async` tells it to do it async or not.
+
+            Note that on delete, CR does not actually fetch envelope contents
+            from CDR thus we can make the CR calls async even in that case
+            when the envelope would not be available to the public anymore.
         """
+
         engine = getattr(self, ENGINE_ID)
         crPingger = engine.contentRegistryPingger
         if not crPingger:
@@ -510,7 +519,10 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         innerObjsByMetatype = self._getObjectsForContentRegistry()
         # ping CR for inner uris
         uris.extend( o.absolute_url() for objs in innerObjsByMetatype.values() for o in objs )
-        crPingger.content_registry_ping_async(uris, ping_argument=ping_argument)
+        if async:
+            crPingger.content_registry_ping_async(uris, ping_argument=ping_argument)
+        else:
+            crPingger.content_registry_ping(uris, ping_argument=ping_argument)
         return
 
 
@@ -539,7 +551,11 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             # update ZCatalog
             self.reindex_object()
             self._invalidate_zip_cache()
-
+            # make this change visible right away (for the CR ping following this call for instance)
+            # otherwise the envelope will really be released only after the calling view
+            # of this function will finish, and ZPublisher will commit automatically
+            transaction.commit()
+            logger.debug("Releasing Envelope: %s" % self.absolute_url())
         if self.REQUEST is not None:
             return self.messageDialog(
                             message="The envelope has now been released to the public!",
@@ -563,6 +579,8 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             self.released = 0
             # update ZCatalog
             self.reindex_object()
+            transaction.commit()
+            logger.debug("UNReleasing Envelope: %s" % self.absolute_url())
         if self.REQUEST is not None:
             return self.messageDialog(
                             message="The envelope is no longer available to the public!",
@@ -588,6 +606,12 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             REQUEST=None):
         """ Manage the edited values
         """
+        if not dataflow_uris:
+            if REQUEST:
+                return self.messageDialog(
+                    "You must specify at least one obligation. Settings not saved!",
+                    action='./manage_prop')
+            return
         self.title=title
         try: self.year = int(year)
         except: self.year = ''
@@ -984,6 +1008,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             for name in zf.namelist():
                 zf.setcurrentfile(name)
                 self._add_file_from_zip(zf,name, restricted)
+                transaction.commit()
 
             if REQUEST is not None:
                 return self.messageDialog(
@@ -999,6 +1024,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
     def getZipInfo(self, document):
         """ Lists the contents of a zip file """
         files = []
+        # FIXME Why is application/octet-stream here? this might fix a glitch, so we'll keep it for now
         if document.content_type in ['application/octet-stream', 'application/zip', 'application/x-compressed']:
             try:
                 data_file = document.data_file.open()
@@ -1007,7 +1033,9 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                     files.append(zipinfo.filename)
                 zf.close()
                 data_file.close()
-            except (BadZipfile, IOError):   # This version of Python reports IOError on empty files
+            # This version of Python reports IOError on empty files
+            # We might get Value error if the opened zip was not an actual zip
+            except (BadZipfile, IOError, ValueError):
                 pass
         return files
 

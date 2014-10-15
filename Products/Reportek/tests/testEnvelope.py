@@ -102,7 +102,8 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
         r = self.envelope.getEndDate()
         self.assertEqual(r.strftime('%Y-%m-%d'),'2009-09-30')
 
-    def test_endDateMultipleYearsQuarter(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_endDateMultipleYearsQuarter(self, mock_commit):
         self.helpCreateEnvelope('2004', '2009', 'First Quarter')
         s = self.envelope.getStartDate()
         self.assertEqual(s.strftime('%Y-%m-%d'),'2004-01-01')
@@ -113,7 +114,8 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
         assert rdf.find('startOfPeriod') > -1
         assert rdf.find('endOfPeriod') > -1
 
-    def test_DateNoDates(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_DateNoDates(self, mock_commit):
         self.helpCreateEnvelope('', '', 'First Quarter')
         s = self.envelope.getStartDate()
         self.assertEqual(s, None)
@@ -1016,7 +1018,8 @@ class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
         }
         self.assertDictEqual(objsByType, expectedObjsByType)
 
-    def test_rdf(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_rdf(self, mock_commit):
         self.envelope.release_envelope()
         self.envelope.reportingdate = DateTime('2014/05/02 09:58:41 UTC')
         rdf = self.envelope.rdf(self.app.REQUEST)
@@ -1025,7 +1028,8 @@ class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
         f.close()
         self.assertEqual(str(rdf), expected)
 
-    def test_space_in_name(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_space_in_name(self, mock_commit):
         self.doc.id = 'another document id with space.txt'
         self.envelope.release_envelope()
         self.envelope.reportingdate = DateTime('2014/05/02 09:58:41 UTC')
@@ -1060,6 +1064,7 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         self.pingger = self.engine.contentRegistryPingger
         self.assertTrue(bool(self.pingger))
         ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async = Mock()
+        ContentRegistryPingger.ContentRegistryPingger.content_registry_ping = Mock()
         # add subobjects of type document, feedback, hyperlink
         content = 'test content for our document'
         self.doc = add_document(self.envelope, create_upload_file(content, 'foo.txt'))
@@ -1092,7 +1097,6 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
             self.link.absolute_url(),
         ])
         self.envelope.content_registry_ping()
-        mysleep(0.05)
 
         self.assertTrue(ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.called)
         call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.call_args
@@ -1114,7 +1118,6 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
             self.link.absolute_url(),
         ])
         self.envelope.content_registry_ping(delete=True)
-        mysleep(0.05)
 
         self.assertTrue(ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.called)
         call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.call_args
@@ -1127,3 +1130,24 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         self.assertEqual(len(kwargs), 1)
         ping_argument = kwargs.get('ping_argument')
         self.assertEqual(ping_argument, 'delete')
+
+    def test_ping_sync(self):
+        expectedUris = set([
+            self.envelope.absolute_url()+'/rdf',
+            self.doc.absolute_url(),
+            self.feed.absolute_url(),
+            self.link.absolute_url(),
+        ])
+        self.envelope.content_registry_ping(async=False)
+
+        self.assertTrue(ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called)
+        call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.call_args
+        args = call_args[0]
+        kwargs = call_args[1]
+        self.assertEqual(len(args), 1)
+        uris = args[0]
+        self.assertEqual(len(uris), 4)
+        self.assertEqual(set(uris), expectedUris)
+        self.assertEqual(len(kwargs), 1)
+        ping_argument = kwargs.get('ping_argument')
+        self.assertEqual(ping_argument, 'create')

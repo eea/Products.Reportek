@@ -119,8 +119,8 @@ FEEDBACK_HEADER = """<?xml version="1.0" encoding="UTF-8"?>
 	<title>$title</title>
 	<style type="text/css">
 	body {
-		font-family:arial, verdana, sans-serif; 
-		font-size:0.8em; 
+		font-family:arial, verdana, sans-serif;
+		font-size:0.8em;
 	}
 	h1 {
 		color:#8be;
@@ -167,12 +167,12 @@ def get_history_content(ob):
     """ Return the history associated with this envelope.
         Example:
         |   Log history for envelope Test Envelope
-        |   
+        |
         |   1. Activity: Draft
         |      Route: From Start To Draft
         |      Status: complete
         |      User:   johndoe
-        |      Eventlog: 
+        |      Eventlog:
         |               2005/02/24 - creation
         |               2005/02/24 - assigned to johndoe
         |               2005/02/24 - active
@@ -276,7 +276,7 @@ def get_metadata_content(ob):
             Coverage: Austria
             Reported: 2006-06-19 11:09:56
             Status: running
-            Files in this envelope: 
+            Files in this envelope:
             |   dummy.doc   uploaded on: 16 Jun 2006,    size: 99.7 KB
             |   ----
             |   [other files]
@@ -339,13 +339,13 @@ def get_feedback_content(ob):
 	  Subject: Feedback item
 	  Envelope release: 11 Sep 2008
 	  Attached files: file.doc
-	  
+
 	  [ Feedback text ]
     """
     parsed_template = RepUtils.parse_template
-    header = parsed_template(FEEDBACK_HEADER, 
+    header = parsed_template(FEEDBACK_HEADER,
                             {'title': 'Feedbacks for envelope %s' % ob.title})
-    footer = parsed_template(FEEDBACK_FOOTER, 
+    footer = parsed_template(FEEDBACK_FOOTER,
                             {})
     if ob.automatic:
         try:
@@ -450,13 +450,13 @@ class ZZipFile(ZipFile):
         else:
             return ""
 
-    def seek(self, start=0): 
+    def seek(self, start=0):
         "Ignore since it is only used to figure out size."
         self.hasbeenread = 0
         return 0
 
     def tell(self):
-        return self.getinfo(filename).file_size
+        return self.getinfo(self.filename).file_size
 
     def setcurrentfile(self,filename):
         self.hasbeenread = 0

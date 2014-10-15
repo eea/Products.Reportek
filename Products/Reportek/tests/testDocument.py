@@ -125,6 +125,7 @@ class HttpRequestTest(unittest.TestCase):
         self.zodb = MockDatabase()
         self.doc = Document('testdoc', "Document for Test")
         upload_file = FileUploadMock('file.txt', self.file_data)
+        self.doc.data_file._toCompress = 'no'
         with patch.object(self.doc, 'getWorkitemsActiveForMe',
                           Mock(return_value=[]), create=True):
             self.doc.manage_file_upload(upload_file)

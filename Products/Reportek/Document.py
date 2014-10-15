@@ -30,6 +30,7 @@ from os.path import join
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from time import time
+from StringIO import StringIO
 from webdav.common import rfc1123_date
 from zExceptions import Redirect
 from zope.contenttype import guess_content_type
@@ -46,7 +47,9 @@ from blob import FileContainer, StorageError
 from constants import QAREPOSITORY_ID, ENGINE_ID
 from interfaces import IDocument
 from XMLInfoParser import detect_schema, SchemaError
+from zip_content import ZZipFile
 import RepUtils
+
 
 FLAT = 0
 SYNC_ZODB = 1
@@ -180,14 +183,30 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         """
         self.id = id
         self.title = title
-        self.content_type = content_type
         self.xml_schema_location = '' #needed for XML files
         self.accept_time = None
-        self.data_file = FileContainer()
+        if content_type:
+            self.data_file = FileContainer(content_type)
+        else:
+            self.data_file = FileContainer()
 
     ################################
     # Public methods               #
     ################################
+
+    @property
+    def content_type(self):
+        old_ct = self.__dict__.get('content_type', None)
+        if old_ct:
+            return old_ct
+        return self.data_file.content_type
+
+    @content_type.setter
+    def content_type(self, value):
+        if 'content_type' in self.__dict__:
+            self.__dict__['content_type'] = value
+        else:
+            self.data_file.content_type = value
 
     def __str__(self): return self.index_html()
 
@@ -253,7 +272,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             l_w.addEvent('file upload', 'File: {0} ({1})'
                             .format(
                                 self.id,
-                                self._bytetostring(self.data_file.size)
+                                self.data_file.human_readable(self.data_file.size)
                             )
                         )
 
@@ -264,10 +283,23 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         if icon:
             return self.icon_gif(REQUEST, RESPONSE)
 
-        with self.data_file.open() as data_file_handle:
+        skip_decomp = False
+        ae = REQUEST.getHeader('Accept-Encoding')
+        # TODO also take weights into consideration (gzip;q=0,deflate;q=1)
+        if ae and ae.lower().startswith('gzip'):
+            skip_decomp = True
+        with self.data_file.open(skip_decompress=skip_decomp) as data_file_handle:
+            size = self.data_file.size
+            if skip_decomp and self.is_compressed():
+                # This is hackish. If the client asked for gzip compression first
+                # and we are storing the content compressed
+                # then instruct the FileContiner not to decompress the fetched content
+                # and tell the client that we are serving his content gzipped
+                RESPONSE.setHeader('content-encoding','gzip')
+                size = self.data_file.compressed_size
             RepUtils.http_response_with_file(
                 REQUEST, RESPONSE, data_file_handle,
-                self.content_type, self.data_file.size, self.data_file.mtime)
+                self.content_type, size, self.data_file.mtime)
 
     security.declarePublic('isGML')
     def isGML(self):
@@ -322,11 +354,13 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             return 0
 
     rawsize = get_size
-#   getSize = get_size
 
     def getFeedbacksForDocument(self):
         """ Returns the Feedback objects associated with this document """
-        return [x for x in self.getParentNode().objectValues('Report Feedback') if x.document_id == self.id]
+        return [f.getObject() for f
+                in self.Catalog(meta_type='Report Feedback',
+                                document_id=self.id,
+                                path=self.getParentNode().absolute_url(1))]
 
     def getExtendedFeedbackForDocument(self):
         """ Returns the feedback relevant for a document - URL and title """
@@ -339,7 +373,12 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
     def size(self):
         """ Returns a formatted stringified version of the file size """
-        return self._bytetostring(self.get_size())
+        return self.data_file.human_readable(self.get_size())
+
+    def compressed_size(self):
+        if self.data_file.compressed_safe:
+            return (self.data_file.compressed_size,
+                    self.data_file.human_readable(self.data_file.compressed_size) )
 
     security.declareProtected('View management screens', 'blob_path')
     def blob_path(self):
@@ -347,9 +386,9 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         inside the blob structure"""
         # Multilang unfriendly. But only tech staff debugging will use these...
         not_found = "file not found"
-        if getattr(self.data_file, 'fs_path', None) is None:
-            return not_found + " (upload failed?)"
         path = self.data_file.get_fs_path()
+        if not path:
+            return not_found + " (upload failed?)"
         if not os.path.isfile(path):
             return not_found + " (should have been: %s)" % path
 
@@ -363,7 +402,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         if not upper_limit:
             upper_limit = 4
 
-        if self.get_size() > float(upper_limit) * 1000 * 1024:  # it's bytes
+        # upper_limit is MB
+        if self.get_size() > float(upper_limit) * 1024 * 1024:
             return False
         return True
 
@@ -489,36 +529,29 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
                             message="The properties of %s have been changed!" % self.id,
                             action=REQUEST['HTTP_REFERER'])
 
-    def _setFileSchema(self, src):
-        """ If it is an XML file, then extract structure information.
-            The structure is the XML schema or the DTD.
-        """
-        if self.content_type == 'text/xml':
-            self.xml_schema_location = detect_schema(src)
-        else:
-            self.xml_schema_location = ''
-
-    # File upload Interface
-    manage_uploadForm = PageTemplateFile('zpt/document/upload', globals())
+    def is_compressed(self):
+        return self.data_file.compressed_safe
 
     def manage_file_upload(self, file='', content_type='', REQUEST=None):
         """ Upload file from local directory """
 
-        if hasattr(file, 'filename'):
-            with self.data_file.open('wb') as data_file_handle:
+        if not content_type:
+            content_type = self._get_content_type(file)
+        self.data_file.content_type = content_type
+        orig_size = self._compute_uncompressed_size(file)
+
+        with self.data_file.open('wb', orig_size=orig_size) as data_file_handle:
+            if hasattr(file, 'filename'):
                 for chunk in RepUtils.iter_file_data(file):
                     data_file_handle.write(chunk)
-
-        else:
-            with self.data_file.open('wb') as data_file_handle:
+            else:
                 data_file_handle.write(file)
 
-        with self.data_file.open('rb') as data_file_handle:
-            self.content_type = self._get_content_type(
-                    data_file_handle, data_file_handle.read(100),
-                    self.id, content_type or self.content_type)
-            data_file_handle.seek(0)
-            self._setFileSchema(data_file_handle)
+        if self.content_type == 'text/xml':
+            with self.data_file.open('rb') as data_file_handle:
+                self.xml_schema_location = detect_schema(data_file_handle)
+        else:
+            self.xml_schema_location = ''
 
         self.accept_time = None
         self.logUpload()
@@ -535,44 +568,46 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     # Private methods              #
     ################################
 
-    def _get_content_type(self, file, body, id, content_type=None):
-        """ Determine the mime-type """
-        if hasattr(file, 'filename'):
-            if file.filename[-4:] == '.gml':
-                return 'text/xml'
-            elif file.filename[-4:] == '.rar':
-                return 'application/x-rar-compressed'
-        elif id[-4:] == '.gml':
-            return 'text/xml'
-        headers = getattr(file, 'headers', None)
-        if headers and headers.has_key('content-type'):
-            content_type = headers['content-type']
+    def _get_content_type(self, file_or_content):
+        """ Determine the mime-type from metadata (file name, headers)
+        and eventually the actual content (Note that zope's guess_content_type does a poor
+        job detecting from content - it's main detection is based on name/ext
+        """
+        name = None
+        headers = None
+        if hasattr(file_or_content, 'filename'):
+            name = file_or_content.filename
+            headers = getattr(file_or_content, 'headers', None)
+            body = file_or_content.read(100)
+            file_or_content.seek(0)
         else:
-            if type(body) is not type(''): body = body.data
-            content_type, enc = guess_content_type(getattr(file,'filename',id),
-                                                   body, content_type)
+            body = file_or_content[:100]
+
+        if not name:
+            name = self.id.lower()
+        else:
+            name = name.lower()
+        if name.endswith('.gml'):
+            return 'text/xml'
+        elif name.endswith('.rar'):
+            return 'application/x-rar-compressed'
+
+        if headers and 'content-type' in headers:
+            return headers['content-type']
+
+        content_type, enc = guess_content_type(name, body)
         return content_type
 
-    def _bytetostring (self, value):
-        """ Convert an int-value (file-size in bytes) to an String
-            with the file-size in Byte, KB or MB
-        """
-        bytes = float(value)
-        if bytes >= 1000:
-            bytes = bytes/1024
-            typ = 'KB'
-            if bytes >= 1000:
-                bytes = bytes/1024
-                typ = 'MB'
-            strg = '%4.2f' % bytes
-            strg = strg[:4]
-            if strg[3] == '.':
-                strg = strg[:3]
-        else:
-            typ = 'Bytes'
-            strg = '%4.0f' % bytes
-        strg = strg + ' ' + typ
-        return strg
+    def _compute_uncompressed_size(self, file_or_content):
+        if hasattr(file_or_content, 'name'):
+            return os.path.getsize(file_or_content.name)
+        elif isinstance(file_or_content, basestring):
+            return len(file_or_content)
+        elif isinstance(file_or_content, StringIO):
+            return file_or_content.len
+        elif isinstance(file_or_content, ZZipFile):
+            return file_or_content.tell()
+        return 0
 
 
 Globals.InitializeClass(Document)

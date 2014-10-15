@@ -2,7 +2,7 @@ import time
 import unittest
 from StringIO import StringIO
 import zipfile
-from mock import Mock, patch
+from mock import Mock, patch, call
 import transaction
 from utils import (create_fake_root, makerequest,
                    create_upload_file, create_envelope,
@@ -14,8 +14,9 @@ from Products.Reportek import blob
 from common import BaseTest, ConfigureReportek
 
 
-def create_document_with_data(data):
+def create_document_with_data(data, compression='no'):
     doc = Document.Document('testdoc', "Document for Test")
+    doc.data_file._toCompress = compression
     with patch.object(doc, 'getWorkitemsActiveForMe',
                       Mock(return_value=[]), create=True):
         doc.manage_file_upload(create_upload_file(data))
@@ -65,8 +66,31 @@ class FileStorageTest(BaseTest):
         doc = root[doc_id]
 
         request = BaseTest.create_mock_request()
+        request.RESPONSE.setHeader = Mock()
         doc.index_html(request, request.RESPONSE)
         self.assertEqual(request.RESPONSE._data.getvalue(), data)
+        self.assertNotIn(call('content-encoding', 'gzip'), request.RESPONSE.setHeader.call_args_list)
+
+    def test_get_AE_gzip(self):
+        data = 'hello world, file for test!'
+
+        root = create_fake_root()
+        root.getWorkitemsActiveForMe = Mock(return_value=[])
+        root.REQUEST = BaseTest.create_mock_request()
+        root.REQUEST.physicalPathToVirtualPath = lambda x: x
+
+        doc_id = Document.manage_addDocument(root, file=create_upload_file(data))
+        self.assertEqual(doc_id, 'testfile.txt')
+        doc = root[doc_id]
+        compressed_size = doc.compressed_size()[0]
+
+        request = BaseTest.create_mock_request()
+        request.getHeader = Mock(return_value='gzip,bla')
+        request.RESPONSE.setHeader = Mock()
+        doc.index_html(request, request.RESPONSE)
+        self.assertEqual(len(request.RESPONSE._data.getvalue()), compressed_size)
+        self.assertTrue(request.RESPONSE.setHeader.called)
+        self.assertIn(call('content-encoding', 'gzip'), request.RESPONSE.setHeader.call_args_list)
 
     def test_get_zip_info(self):
         root = create_fake_root()
@@ -92,6 +116,60 @@ class FileStorageTest(BaseTest):
         doc = create_document_with_data(data)
         self.assertEqual(doc.get_size(), len(data))
         self.assertEqual(doc.rawsize(), len(data))
+
+    def test_compress_auto(self):
+        data = 'hello world, file for test!'
+        doc = create_document_with_data(data, compression='auto')
+        # rawsize must be the uncompressed size.
+        self.assertEqual(doc.rawsize(), len(data))
+        self.assertTrue(doc.is_compressed())
+        compressed_size = doc.compressed_size()[0]
+        self.assertTrue(compressed_size > 0)
+        # being such a small file the compressed version will be bigger. don't compare sizes.
+        self.assertTrue(compressed_size != doc.rawsize())
+        # test fetching the data back
+        read_data = doc.data_file.open('rb').read()
+        self.assertTrue(read_data == data)
+
+    def test_compress_auto_not(self):
+        from Products.Reportek.blob import FileContainer
+        data = 'hello world, file for test!'
+        FileContainer.COMPRESSIBLE_TYPES.discard('text/plain')
+        doc = create_document_with_data(data, compression='auto')
+        FileContainer.COMPRESSIBLE_TYPES.add('text/plain')
+
+        # rawsize must be the uncompressed size.
+        self.assertEqual(doc.rawsize(), len(data))
+        self.assertFalse(doc.is_compressed())
+
+    def test_compress_yes(self):
+        from Products.Reportek.blob import FileContainer
+        data = 'hello world, file for test!'
+        FileContainer.COMPRESSIBLE_TYPES.discard('text/plain')
+        doc = create_document_with_data(data, compression='yes')
+        FileContainer.COMPRESSIBLE_TYPES.add('text/plain')
+
+        # rawsize must be the uncompressed size.
+        self.assertEqual(doc.rawsize(), len(data))
+        self.assertTrue(doc.is_compressed())
+        compressed_size = doc.compressed_size()[0]
+        self.assertTrue(compressed_size > 0)
+        self.assertTrue(compressed_size != doc.rawsize())
+
+    def test_compress_keep_compressed(self):
+        data = 'hello world, file for test!'
+        doc = create_document_with_data(data, compression='auto')
+        # rawsize must be the uncompressed size.
+        self.assertEqual(doc.rawsize(), len(data))
+        self.assertTrue(doc.is_compressed())
+        compressed_size = doc.compressed_size()[0]
+        self.assertTrue(compressed_size > 0)
+        # being such a small file the compressed version will be bigger. don't compare sizes.
+        self.assertTrue(compressed_size != doc.rawsize())
+        # test fetching the data back
+        read_data = doc.data_file.open('rb', skip_decompress=True).read()
+        self.assertTrue(len(read_data) == compressed_size)
+
 
 
 class DataFileApiTest(unittest.TestCase):
@@ -217,7 +295,8 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         rv = download_envelope_zip(envelope)
         return zipfile.ZipFile(rv)
 
-    def test_one_document(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_one_document(self, mock_commit):
         data = 'hello world, file for test!'
         file_1 = create_upload_file(data)
         doc_id = Document.manage_addDocument(self.envelope, file=file_1)
@@ -228,8 +307,9 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         self.assertEqual(zip_download.read('testfile.txt'), data)
 
     @patch('Products.Reportek.Envelope.ZIP_CACHE_THRESHOLD', -1)
+    @patch('Products.Reportek.Envelope.transaction.commit')
     @patch('Products.Reportek.Envelope.ZipFile')
-    def test_cache_hit_on_2nd_download(self, mock_ZipFile):
+    def test_cache_hit_on_2nd_download(self, mock_ZipFile, mock_commit):
         import zipfile
         mock_ZipFile.side_effect = zipfile.ZipFile
 
@@ -247,7 +327,8 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         self.assertEqual(mock_ZipFile.call_count, 1)
 
     @patch('Products.Reportek.Envelope.ZIP_CACHE_THRESHOLD', -1)
-    def test_cache_invalidation_on_release(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_cache_invalidation_on_release(self, mock_commit):
         # zip cache is invalidated when the envelope is released (in case the
         # envelope had previously been released, unreleased and modified).
 
@@ -259,6 +340,7 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         zip_download = self.download_zip(self.envelope)
         self.assertEqual(zip_download.read('testfile.txt'), 'data one')
 
+        self.envelope.absolute_url = Mock(return_value='url')
         self.envelope.unrelease_envelope()
         doc.manage_file_upload(create_upload_file('data two'))
         self.envelope.release_envelope()
@@ -267,7 +349,8 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         self.assertEqual(zip_download.read('testfile.txt'), 'data two')
 
     @patch('Products.Reportek.Envelope.ZIP_CACHE_THRESHOLD', -1)
-    def test_cache_invalidation_on_feedback(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_cache_invalidation_on_feedback(self, mock_commit):
         self.root.getEngine = Mock()
 
         file_1 = create_upload_file('data one')
@@ -282,7 +365,8 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         zip_download = self.download_zip(self.envelope)
         self.assertTrue("good work" in zip_download.read('feedbacks.html'))
 
-    def test_feedback_content(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_feedback_content(self, mock_commit):
         self.root.getEngine = Mock()
         self.envelope.manage_addFeedback('feedback', title="good work")
         feedback = self.envelope['feedback']
@@ -295,7 +379,8 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         zip_download = self.download_zip(self.envelope)
         self.assertEqual(zip_download.read('opinion.txt'), data)
 
-    def test_large_feedback_content(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_large_feedback_content(self, mock_commit):
         self.root.getEngine = Mock()
         self.envelope.manage_addFeedback('feedback', title="good work")
         feedback = self.envelope['feedback']
@@ -308,7 +393,8 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         zip_download = self.download_zip(self.envelope)
         self.assertEqual(zip_download.read('opinion.txt'), data)
 
-    def test_missing_document_datafile(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_missing_document_datafile(self, mock_commit):
         file_1 = create_upload_file('asdf')
         doc_id = Document.manage_addDocument(self.envelope, file=file_1)
         doc = self.envelope[doc_id]
@@ -317,7 +403,8 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
 
         self.assertRaises(ValueError, download_envelope_zip, self.envelope)
 
-    def test_unauthorized(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_unauthorized(self, mock_commit):
         from AccessControl import Unauthorized
         self.envelope.release_envelope()
         self.envelope.canViewContent = Mock(return_value=False)
@@ -348,6 +435,9 @@ class FileContainerTest(unittest.TestCase):
         ob = blob.FileContainer()
         with ob.open() as f:
             self.assertEqual(f.read(), '')
+
+    def test_compression_ok(self):
+        blb = blob.FileContainer(compress='auto')
 
 
 class OfsBlobFileTest(unittest.TestCase):

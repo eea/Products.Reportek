@@ -66,7 +66,7 @@
     <tal:block condition="context/released">
     <tr>
       <th i18n:translate="">Reported</th>
-      <td tal:content="context/reportingdate"></td>
+      <td tal:content="python: context.reportingdate.strftime('%d %b %Y %H:%M')" />
     </tr>
     </tal:block>
     <tr>
@@ -102,7 +102,7 @@
   <div class="note-msg" tal:condition="context/uns_is_set">
     <strong i18n:translate="">Note</strong>
     <p i18n:translate="">
-      If you want to stay updated about events in this envelope 
+      If you want to stay updated about events in this envelope
       <span i18n:name="subscribe">
         <a href="ReportekEngine/subscriptions_html" i18n:translate="">
           Subscribe to receive notifications

@@ -175,6 +175,7 @@ def create_reportek_indexes(catalog):
     add_index('local_unique_roles', catalog, 'KeywordIndex')
     add_index('local_defined_users', catalog, 'KeywordIndex', meta=True)
     add_index('local_defined_roles', catalog, 'FieldIndex', meta=True)
+    add_index('document_id', catalog, 'FieldIndex')
 
 
 class Empty:

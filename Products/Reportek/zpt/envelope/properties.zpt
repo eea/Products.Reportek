@@ -75,7 +75,6 @@
                                    items python:data[1];
                                    dataflow_uri context/dataflow_uri | nothing"
                                    tal:attributes="size obligation_select_size">
-                <option></option>
                 <tal:block tal:repeat="group groups">
                     <optgroup tal:attributes="label python:context.ReportekEngine.truncate(group)">
                     <tal:block tal:repeat="item python:items[group]">

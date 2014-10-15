@@ -43,7 +43,8 @@ class CatalogTest(BaseTest, ConfigureReportek):
             results = self.root.Catalog(**query)
             self.assertEqual([b.getObject() for b in results], ok_results)
 
-    def test_envelope_indexes(self):
+    @patch('Products.Reportek.Envelope.transaction.commit')
+    def test_envelope_indexes(self, mock_commit):
         from Products.Reportek.Envelope import Envelope
 
         self.root.localities_table = Mock(return_value=[
