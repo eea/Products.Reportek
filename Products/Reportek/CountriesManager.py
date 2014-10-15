@@ -24,10 +24,29 @@
     'uri': string
     'name': string
 """
-
+from XMLRPCMethod import XMLRPCMethod
+from RepUtils import inline_replace
 
 class CountriesManager:
     """ Module that handles the countries/localities dictionary: localities_table """
+    def __init__(self):
+        self.xmlrpc_localities = XMLRPCMethod(
+            title='Get countries from ROD',
+            url='http://rod.eionet.europa.eu/rpcrouter',
+            method_name='WebRODService.getCountries',
+            timeout=5.0
+        )
+
+    def localities_rod(self):
+        """ """
+        return self.xmlrpc_localities.call_method()
+
+    def localities_table(self):
+        """ """
+        try:
+            return map(inline_replace, self.localities_rod())
+        except Exception:
+            return []
 
     def localities_dict(self, country=None):
         """ Converts the localities table into a dictionary """

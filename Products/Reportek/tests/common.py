@@ -69,6 +69,9 @@ class BaseTest(ZopeTestCase.ZopeTestCase):
         ob.dataflow_rod = Mock(
             return_value=deepcopy(ConfigureReportek.exampledataflows)
         )
+        ob.localities_rod = Mock(
+            return_value=deepcopy(ConfigureReportek.examplelocalities)
+        )
         parent._setObject(ob.id, ob)
         return parent[ob.id]
 
@@ -272,15 +275,9 @@ class ConfigureReportek:
         return catalog
 
     def createStandardDependencies(self):
-        """ Create localities_table, dataflow_table and a simple workflow process.
+        """ Create a simple workflow process.
             Then map process to all dataflows and all countries
         """
-        # Create localities_table
-        self.app.manage_addProduct['PythonScripts'].manage_addPythonScript(id='localities_table')
-        pyapp = getattr(self.app, 'localities_table')
-        pyapp.ZPythonScript_edit(params='',
-              body="""return %s""" % str(self.examplelocalities) )
-
         # Assume the workflow engine was created automatically
         of = getattr(self.app, 'WorkflowEngine')
 

@@ -451,4 +451,8 @@ def _load_json(name):
         return json.load(f)
 
 
+def inline_replace(x):
+    x['uri'] = x['uri'].replace('eionet.eu.int', 'eionet.europa.eu')
+    return x
+
 mime_types = _mime_types()

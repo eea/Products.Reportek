@@ -2,6 +2,7 @@ import os
 from Testing import ZopeTestCase
 from common import BaseTest, ConfigureReportek
 from Products.Reportek.exceptions import CannotPickProcess
+from Products.Reportek.RepUtils import inline_replace
 
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
@@ -28,14 +29,11 @@ class OpenflowTestCase(BaseTest, ConfigureReportek):
 
     def test_getDataflows(self):
         """ Test that the dataflows were added correctly """
-        def inline_replace(x):
-            x['uri'] = x['uri'].replace('eionet.eu.int', 'eionet.europa.eu')
-            return x
         assert map(inline_replace, self.exampledataflows) == self.wf.getDataflows()
 
     def test_getCountries(self):
         """ Test that the countries were added correctly """
-        assert self.examplelocalities == self.wf.getCountries()
+        assert map(inline_replace, self.examplelocalities) == self.wf.getCountries()
 
     def test_processmap(self):
         # A process called begin_end is already set up in createStandardDependencies()
