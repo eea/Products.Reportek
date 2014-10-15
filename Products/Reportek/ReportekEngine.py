@@ -122,6 +122,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     def __init__(self, webq_url=''):
         """ constructor """
         DataflowsManager.__init__(self)
+        CountriesManager.__init__(self)
         self.id = constants.ENGINE_ID
         # UNS configuration parameters
         self.UNS_server = ''

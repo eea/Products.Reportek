@@ -33,7 +33,7 @@
 """
 
 from XMLRPCMethod import XMLRPCMethod
-
+from RepUtils import inline_replace
 
 class ServiceTemporarilyUnavailableException(Exception):
     pass
@@ -56,10 +56,6 @@ class DataflowsManager:
 
     def dataflow_table(self):
         """ """
-        def inline_replace(x):
-            x['uri'] = x['uri'].replace('eionet.eu.int', 'eionet.europa.eu')
-            return x
-
         try:
             return map(inline_replace, self.dataflow_rod())
         except Exception:
