@@ -349,7 +349,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         ru_url = r_utilities.absolute_url()
         index_url = ru_url + '/index_html'
         self.browser.open(index_url)
-        self.assertTrue(self.browser.url == index_url)
+        self.assertEqual(self.browser.url, index_url)
 
         # Go to users that have access
         users_access_link = self.browser.getLink(text='Show where users have access')
@@ -371,10 +371,10 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
 
         # Filter
         self.browser.getControl(name='btnFilter').click()
-        expected_url = ('/get_users_by_path?'
+        expected_url = (ru_url + '/get_users_by_path?'
                         'obligation=8&role=&countries%3Alist=tc&'
                         'btnFilter=Filter')
-        self.assertTrue(expected_url in self.browser.url)
+        self.assertEqual(expected_url, self.browser.url)
 
         # We have an ajax call that we need to see the result of
         ajax_url = self.app.absolute_url() + '/api.get_users_by_path?obligation=8&role=&countries%5B%5D=tc'
