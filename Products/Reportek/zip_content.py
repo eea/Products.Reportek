@@ -478,11 +478,11 @@ class ZZipFile(ZipFile):
         # ZipFile does the open at read.
         # Since we always expect setcurent file to be called prior to any other operation
         # we call open/seek here
-        if not self.zef_file:
-            # zipfile always opens
-            self.zef_file = self.open(self.currentFilename, pwd=self.pwd)
-            if not self._filePassed:
-                self.should_close = True
+        # no need to close, every open just seeks in the same opened file. see (the bloody) zipfile.py
+        # zipfile always opens
+        self.zef_file = self.open(self.currentFilename, pwd=self.pwd)
+        if not self._filePassed:
+            self.should_close = True
 
     def read(self, size=-1):
         # read manually from ZipExtFile
