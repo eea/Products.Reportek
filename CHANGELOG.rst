@@ -9,6 +9,7 @@
     - Changed revoke_roles functionality to add the possibility of individually
       select which roles to revoke. [olimpiurob]
     - Added functional tests for ReportekUtilities [olimpiurob]
+* Task 20730 - Make zip upload much more faster by transplanting zipped content from zip container to gzip blob file [baragdan]
 
 3.7.0 (16-10-2014)
 -------------------

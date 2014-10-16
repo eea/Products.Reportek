@@ -47,7 +47,7 @@ from blob import FileContainer, StorageError
 from constants import QAREPOSITORY_ID, ENGINE_ID
 from interfaces import IDocument
 from XMLInfoParser import detect_schema, SchemaError
-from zip_content import ZZipFile
+from zip_content import ZZipFile, ZZipFileRaw
 import RepUtils
 
 
@@ -68,7 +68,7 @@ UNDO_POLICY = BACKUP_ON_DELETE
 manage_addDocumentForm = PageTemplateFile('zpt/document/add', globals())
 
 def manage_addDocument(self, id='', title='',
-        file='', content_type='', restricted='', REQUEST=None):
+        file='', content_type='', restricted='', REQUEST=None, deferred_compress=None):
     """Add a Document to a folder. The form can be called with two variables
        set in the session object: default_restricted and force_restricted.
        This will set the restricted flag in the form.
@@ -92,7 +92,7 @@ def manage_addDocument(self, id='', title='',
             save_id = id
             id = id + '___tmp_%f'%time()
 
-        obj = Document(id, title)
+        obj = Document(id, title, deferred_compress)
         self = self.this()
         self._setObject(id, obj)
         obj = self._getOb(id)
@@ -177,7 +177,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     # Init method                  #
     ################################
 
-    def __init__(self, id, title='', content_type=''):
+    def __init__(self, id, title='', content_type='', deferred_compress=None):
         """ Initialize a new instance of Document
             If a document is created through FTP, self.absolute_url doesn't work.
         """
@@ -185,10 +185,12 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         self.title = title
         self.xml_schema_location = '' #needed for XML files
         self.accept_time = None
+        ctor_kwargs = {}
         if content_type:
-            self.data_file = FileContainer(content_type)
-        else:
-            self.data_file = FileContainer()
+            ctor_kwargs['content_type'] = content_type
+        if deferred_compress:
+            ctor_kwargs['compress'] = 'deferred'
+        self.data_file = FileContainer(**ctor_kwargs)
 
     ################################
     # Public methods               #
@@ -540,9 +542,15 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         self.data_file.content_type = content_type
         orig_size = self._compute_uncompressed_size(file)
 
-        with self.data_file.open('wb', orig_size=orig_size) as data_file_handle:
+        skip_compress = False
+        crc = None
+        if isinstance(file, ZZipFileRaw) and file.allowRaw:
+            skip_compress = True
+            crc = file.CRC
+
+        with self.data_file.open('wb', orig_size=orig_size, skip_decompress=skip_compress, crc=crc) as data_file_handle:
             if hasattr(file, 'filename'):
-                for chunk in RepUtils.iter_file_data(file):
+                for chunk in RepUtils.iter_file_data(file, 1000):
                     data_file_handle.write(chunk)
             else:
                 data_file_handle.write(file)
@@ -579,7 +587,10 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             name = file_or_content.filename
             headers = getattr(file_or_content, 'headers', None)
             body = file_or_content.read(100)
-            file_or_content.seek(0)
+            if isinstance(file_or_content, ZZipFileRaw) and file_or_content.allowRaw:
+                file_or_content.rewindRaw()
+            else:
+                file_or_content.seek(0)
         else:
             body = file_or_content[:100]
 
@@ -605,6 +616,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             return len(file_or_content)
         elif isinstance(file_or_content, StringIO):
             return file_or_content.len
+        elif isinstance(file_or_content, ZZipFileRaw):
+            return file_or_content.orig_size
         elif isinstance(file_or_content, ZZipFile):
             return file_or_content.tell()
         return 0
