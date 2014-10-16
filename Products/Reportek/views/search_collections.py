@@ -1,5 +1,6 @@
 from base_admin import BaseAdmin
 
+
 class SearchCollections(BaseAdmin):
     """ SearchCollections view """
 

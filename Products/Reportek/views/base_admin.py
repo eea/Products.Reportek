@@ -1,9 +1,9 @@
 from collections import defaultdict
 from operator import itemgetter
 from Products.Five import BrowserView
-import Zope2
 
 from Products.Reportek import config
+
 
 class BaseAdmin(BrowserView):
     """ Base view for users administration """

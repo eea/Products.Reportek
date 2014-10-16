@@ -1,7 +1,6 @@
 import json
 from copy import copy
 from operator import itemgetter
-import Zope2
 
 from base_admin import BaseAdmin
 
@@ -20,9 +19,8 @@ class ListUsers(BaseAdmin):
 
             reporters = self.get_reporters(country)
 
-            return self.index(
-                    reporters=reporters,
-                    countries=countries)
+            return self.index(reporters=reporters,
+                              countries=countries)
 
         return self.index()
 

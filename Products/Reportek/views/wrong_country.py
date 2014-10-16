@@ -1,5 +1,4 @@
 from operator import itemgetter
-import Zope2
 from base_admin import BaseAdmin
 
 
