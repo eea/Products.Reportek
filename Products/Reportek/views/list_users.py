@@ -48,11 +48,12 @@ class ListUsers(BaseAdmin):
                 for user, roles in brain.local_defined_roles.items():
                     if role in roles:
                         user_ob = acl_users.getUserById(user)
-                        user_info = {
-                            'uid': user,
-                            'name': unicode(user_ob.cn, 'latin-1'),
-                            'email': user_ob.mail}
-                        users.append(user_info)
+                        if user_ob:
+                            user_info = {
+                                'uid': user,
+                                'name': unicode(user_ob.cn, 'latin-1'),
+                                'email': user_ob.mail}
+                            users.append(user_info)
 
             users.sort(key=itemgetter('name'))
             return sorted(users)
