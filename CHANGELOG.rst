@@ -1,6 +1,15 @@
-3.6.18 (unreleased)
+3.7.0 (16-10-2014)
 -------------------
-* Task 21228 - Make CR ping robust towards concurrent pings for the same envelope and durable in case of zope restart
+* Task 20730 - Add migration script to fix blob file sizes (requires migration) [baragdan]
+* Task 21228 - Make CR ping robust towards concurrent pings for the same envelope and durable in case of zope restart [baragdan]
+* Task 21377 - Make script for exporting all feedback urls that are manual and include email addresss [baragdan]
+* Task 20730 - Fixed getZipInfo method not to crash when fed non-zip file [baragdan]
+* Task 20561 - Fix the display of content_type for old, compression unaware Documents [baragdan]
+* Task 20537 - Prevent empty obligation from showing in enevelopes obligations [baragdan]
+* Task 19360 - Get rid of unreliable fs_path. Blobs can be  moved by zope so always compute the path (requires migration) [baragdan]
+* Task 20500 - fix pingCR for local roles [nituacor]
+* Task 19360 - Avoid decompressing and recompressing [baragdan]
+* Task 19323 - Eliminate the unreleased gap between the envelope release and CR ping [baragdan]
 
 3.6.17 (23-06-2014)
 -------------------
