@@ -50,7 +50,7 @@ class ListUsers(BaseAdmin):
                         user_ob = acl_users.getUserById(user)
                         user_info = {
                             'uid': user,
-                            'name': user_ob.cn,
+                            'name': unicode(user_ob.cn, 'latin-1'),
                             'email': user_ob.mail}
                         users.append(user_info)
 
