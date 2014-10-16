@@ -1,3 +1,15 @@
+3.7.1 (unreleased)
+-------------------
+* Task 20358:
+    - Minor changes to ReportekUtilities. [olimpiurob]
+    - Added statistics and envelopes.autocomplete browser pages in
+      views.zcml. [olimpiurob]
+    - Changed assign_role functionality to add the new role instead of
+      overwriting existing ones. [olimpiurob]
+    - Changed revoke_roles functionality to add the possibility of individually
+      select which roles to revoke. [olimpiurob]
+    - Added functional tests for ReportekUtilities [olimpiurob]
+
 3.7.0 (16-10-2014)
 -------------------
 * Task 20730 - Add migration script to fix blob file sizes (requires migration) [baragdan]

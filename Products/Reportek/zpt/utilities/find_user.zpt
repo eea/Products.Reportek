@@ -1,0 +1,69 @@
+<tal:block metal:define-macro="filters">
+  <form action="" method="get">
+    <h2>1. Search user</h2>
+    <div class="filters">
+      <label for="search_term">containing</label>
+      <input type="text" name="search_term" id="search_term" size="30"
+        tal:attributes="value request/search_term | string:">
+      <label for="search_param">matching criteria</label>
+      <select name="search_param" id="search_param">
+        <tal:block tal:repeat="item view/get_ldap_schema">
+          <option
+            tal:define="value python: item[0]; label python: item[1]"
+            tal:attributes="value value"
+            tal:content="string:${label} (${value})" />
+        </tal:block>
+      </select>
+      <input type="submit" name="btnFind" value="Search" />
+      <a tal:attributes="href string:${here/absolute_url}/${view/__name__}">clear</a>
+    </div>
+  </form>
+</tal:block>
+
+
+<tal:block metal:define-macro="users_table"
+            define="result view/search_ldap_users">
+
+  <p class="error-msg" tal:condition="result/errors | nothing">
+    <strong>LDAP ERROR:</strong>
+    Too few characters in 'containing'.
+  </p>
+
+
+  <tal:block condition="not: result/errors | nothing">
+    <h2>2. Select user</h2>
+    <table class="datatable" tal:condition="result/users">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Username</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>DN</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr tal:repeat="user result/users">
+          <td>
+            <input type="radio" name="username"
+              tal:attributes="value user/uid;
+                              checked python: user['uid'] == request.get('username')"/>
+          </td>
+          <td tal:content="user/uid" />
+          <td tal:define="cn user/cn"
+              tal:content="python:cn.decode('latin1')" />
+          <td>
+            <a tal:attributes="href string:mailto:${user/mail}"
+              tal:content="user/mail" />
+          </td>
+          <td tal:content="user/dn" />
+        </tr>
+      </tbody>
+    </table>
+
+    <p class="notfound-msg" tal:condition="not: result/users">
+      No users found for this criteria.
+    </p>
+
+  </tal:block>
+</tal:block>

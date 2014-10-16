@@ -1,0 +1,27 @@
+<tal:block metal:define-macro="users-page">
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+<metal:block fill-slot="head">
+  <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
+  <link href="++resource++static/style.css" rel="stylesheet"/>
+  <link href="++resource++static/fontawesome/font-awesome.min.css" rel="stylesheet"/>
+
+  <script type="text/javascript" charset="utf8" src="++resource++static/jquery-1.10.2.min.js"></script>
+  <script type="text/javascript" charset="utf8" src="++resource++static/datatables-1.10.1/media/js/jquery.dataTables.min.js"></script>
+  <script src="++resource++static/select2-3.5.0/select2.js"></script>
+  <script src="++resource++static/utils.js"></script>
+</metal:block>
+
+<metal:block fill-slot="content">
+
+  <h1>Get users local roles</h1>
+
+  <tal:block replace="structure here/filters" />
+
+  <metal:block define-slot="tabs" />
+  <metal:block define-slot="data-table" />
+
+</metal:block>
+
+</metal:block>
+</tal:block>

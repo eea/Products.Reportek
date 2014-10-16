@@ -47,6 +47,7 @@ import RemoteApplication
 import RemoteRESTApplication
 import DataflowMappings
 import ReportekEngine
+import ReportekUtilities
 
 import constants
 
@@ -116,6 +117,15 @@ def create_reportek_objects(app):
     except AttributeError:
         catalog = ZCatalog(constants.DEFAULT_CATALOG, 'Reportek Catalog')
         app._setObject(constants.DEFAULT_CATALOG, catalog)
+
+    #Add Reportek Utilities
+    try:
+        reportek_utilities = getattr(app, constants.REPORTEK_UTILITIES)
+    except AttributeError:
+        reportek_utilities = ReportekUtilities.ReportekUtilities(
+                                    constants.REPORTEK_UTILITIES,
+                                    'Reportek Utilities')
+        app._setObject(constants.REPORTEK_UTILITIES, reportek_utilities)
 
 def _strip_protocol_domain(full_url):
     """ Take a full url and return a tuple of path part and protocol+domain part."""
@@ -189,10 +199,10 @@ def create_reportek_indexes(catalog):
     add_index('activity_id', catalog, 'FieldIndex')
     add_index('actor', catalog, 'FieldIndex')
     add_index('content_type', catalog, 'FieldIndex')
-    add_index('country', catalog, 'FieldIndex')
-    add_index('dataflow_uri', catalog, 'FieldIndex')
-    add_index('dataflow_uris', catalog, 'KeywordIndex')
-    add_index('getCountryName', catalog, 'FieldIndex')
+    add_index('country', catalog, 'FieldIndex', meta=True)
+    add_index('dataflow_uri', catalog, 'FieldIndex', meta=True)
+    add_index('dataflow_uris', catalog, 'KeywordIndex', meta=True)
+    add_index('getCountryName', catalog, 'FieldIndex', meta=True)
     add_index('instance_id', catalog, 'FieldIndex')
     add_index('partofyear', catalog, 'FieldIndex')
     add_index('path', catalog, 'PathIndex')
@@ -202,6 +212,9 @@ def create_reportek_indexes(catalog):
     add_index('status', catalog, 'FieldIndex')
     add_index('xml_schema_location', catalog, 'FieldIndex')
     add_index('years', catalog, 'KeywordIndex')
+    add_index('local_unique_roles', catalog, 'KeywordIndex')
+    add_index('local_defined_users', catalog, 'KeywordIndex', meta=True)
+    add_index('local_defined_roles', catalog, 'FieldIndex', meta=True)
     add_index('document_id', catalog, 'FieldIndex')
 
 
@@ -215,6 +228,7 @@ def startup(context):
 
     create_reportek_objects(app)
     create_reportek_indexes(app[constants.DEFAULT_CATALOG])
+
     transaction.commit()
 
 

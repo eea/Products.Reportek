@@ -7,23 +7,14 @@
 	<dt><a href="/ReportekEngine/globalworklist">Global work list</a></dt>
 	<dd>The TODO list for all users of the website</dd>
 
-	<dt><a href="/ReportekEngine/countryreporters">Country reporters</a></dt>
-	<dd>Lists the users that have the local role of 'Reporter' in each country</dd>
-
 	<dt><a href="/ReportekEngine/manage_properties">manage_properties</a></dt>
 	<dd>ZMI page that sets various global properties, such as links to remote services</dd>
 
 	<dt><a href="/ReportekEngine/manage_properties">runAutomaticApplications</a></dt>
 	<dd>ZMI functionality available from the manage properties page that allows running automatic applications on the spot</dd>
 
-	<dt><a href="/ReportekEngine/envelopes_autocomplete">envelopes_autocomplete</a></dt>
-	<dd>Searches the envelopes that have been in a given status for more than a given number of days and which are tagged with a certain obligation and allows Managers to complete the selected ones.</dd>
-
 	<dt><a href="/ReportekEngine/Build_collections">Build_collections</a></dt>
 	<dd>Bulk creation of collections</dd>
-
-	<dt><a href="/ReportekEngine/Assign_client_form">Assign_client_form</a></dt>
-	<dd>Bulk assignment of roles</dd>
 
 	<dt><a href="/ReportekEngine/sitemap">sitemap</a></dt>
 	<dd>The collapsible site structure</dd>

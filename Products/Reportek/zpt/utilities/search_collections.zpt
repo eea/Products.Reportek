@@ -1,0 +1,85 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+<metal:block fill-slot="head">
+  <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
+  <link href="++resource++static/style.css" rel="stylesheet"/>
+
+  <script type="text/javascript" charset="utf8" src="++resource++static/jquery-1.10.2.min.js"></script>
+  <script src="++resource++static/select2-3.5.0/select2.js"></script>
+  <script src="++resource++static/utils.js"></script>
+</metal:block>
+
+<metal:block fill-slot="content">
+
+  <p class="important-msg" tal:condition="request/done | nothing">
+    Operations completed succesfully.
+  </p>
+
+
+  <h1>Search for collections with obligation</h1>
+  <form action="" method="get">
+
+    <h2>1. Search collections</h2>
+
+    <div class="filters">
+      <tal:block metal:use-macro="here/filters/macros/select-obligation" />
+      <div>
+        <input type="submit" name="btn.search" value="search" />
+      </div>
+    </div>
+  </form>
+
+  <form action="" method="post"
+        tal:condition="request/btn.search | nothing"
+        tal:define="collections view/get_collections">
+
+    <h2>1. Create envelopes</h2>
+
+    <div>
+      <p>You can use this form to create empty envelopes for collections below.</p>
+
+      <label for="title">Title of envelope</label>
+      <input type="text" name="title" id="title" />
+
+        <label for="year">Start year</label>
+        <input type="text" name="year:int" id="year" />
+
+        <input type="submit" name="btn.create" value="Create envelopes" />
+    </div>
+
+    <table class="dataTable" tal:condition="collections">
+      <thead>
+        <tr>
+          <th>
+            <input id="toggleAllCB" type="checkbox" checked="checked" />
+          </th>
+          <th>Country</th>
+          <th>Collection path</th>
+          <th>Collection title</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr tal:repeat="coll collections">
+          <td>
+            <input type="checkbox" name="collections:list"
+                   checked="checked" class="toggledCB"
+                   tal:attributes="value coll/path" />
+          </td>
+          <td tal:content="coll/country" />
+          <td>
+            <a tal:attributes="href coll/path"
+               tal:content="coll/path" />
+          </td>
+          <td tal:content="coll/title" />
+        </tr>
+      </tbody>
+    </table>
+
+    <strong tal:condition="not: collections">
+      No collections found
+    </strong>
+  </form>
+
+</metal:block>
+</metal:block>

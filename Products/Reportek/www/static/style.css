@@ -1,0 +1,186 @@
+.dataTable {
+  width: 100%;
+  clear: both;
+  border-collapse: collapse;
+}
+
+table.dataTable thead .sorting_asc,
+table.dataTable thead .sorting_desc,
+table.dataTable thead .sorting {
+  cursor: pointer;
+  *cursor: hand;
+}
+table.dataTable thead .sorting {
+  background-image: url("datatables-1.10.1/media/images/sort_both.png");
+  background-repeat: no-repeat;
+  background-position: center right;
+}
+table.dataTable thead .sorting_asc {
+  background-image: url("datatables-1.10.1/media/images/sort_asc.png");
+  background-repeat: no-repeat;
+  background-position: center right;
+}
+table.dataTable thead .sorting_desc {
+  background-image: url("datatables-1.10.1/media/images/sort_desc.png");
+  background-repeat: no-repeat;
+  background-position: center right;
+}
+table.dataTable thead .sorting_asc_disabled {
+  background-image: url("datatables-1.10.1/media/images/sort_asc_disabled.png");
+  background-repeat: no-repeat;
+  background-position: center right;
+}
+table.dataTable thead .sorting_desc_disabled {
+  background-image: url("datatables-1.10.1/media/images/sort_desc_disabled.png");
+  background-repeat: no-repeat;
+  background-position: center right;
+}
+table.dataTable tbody tr.selected {
+  background-color: #b0bed9;
+}
+
+table.dataTable thead th {
+  white-space: nowrap;
+}
+.dataTables_filter,
+.dataTables_length {
+  margin: .5em 0;
+}
+.dataTables_filter {
+  float: right;
+}
+.dataTables_length {
+  float: left;
+}
+
+.dataTables_paginate {
+  text-align: right;
+}
+.dataTables_paginate a {
+  display: inline-block;
+  margin: 0 3px;
+}
+.dataTables_paginate a:hover {
+  cursor: pointer;
+  color: blue;
+}
+
+table.dataTable tr.group td {
+  background: #EDF8FA;
+  font-weight: bold;
+  color: black;
+}
+
+.paginate_button.next:after {
+  content: " >";
+}
+.paginate_button.previous:before {
+  content: "< ";
+}
+
+.dataTables_processing {
+  padding: .5em;
+  float: right;
+  color: #428be1;
+}
+
+table.dataTable td.sorting_1 {
+  padding: .5em;
+}
+
+a.revoke-roles {
+  display: inline-block;
+  margin-left: 1px;
+  color: gray;
+  text-decoration: none;
+}
+a.revoke-roles:hover {
+  color: black;
+  text-decoration: none;
+}
+
+.filters {
+  margin-bottom: 2em;
+  padding: 1em;
+  border: 1px solid #B6B6B6;
+  background: #f2f2f2;
+}
+.filters h2,
+form h2 {
+  padding: 0!important;
+  background: none!important;
+  border: 0!important;
+}
+.filters input[type="text"],
+.filters select {
+  font-size: 13px;
+  line-height: 18px;
+  height: 24px;
+  padding: 3px;
+}
+.form-group:before,
+.form-group:after {
+  display: table;
+  content: "";
+}
+.form-group:after {
+  clear: both;
+}
+.form-group {
+  margin-bottom: 1em;
+  width: 100%;
+}
+.form-group label {
+  width: 92px;
+  padding-right: 12px;
+  float: left;
+  text-align: right;
+  line-height: 30px;
+}
+.form-group .select2-container {
+  width: 600px;
+  float: left;
+  margin: 0!important;
+}
+.select2-drop {
+  font-size: smaller;
+}
+.form-group .select2-container ul {
+  margin: 0!important;
+}
+.form-indent {
+  margin-left: 104px;
+}
+input[type="submit"] {
+  background: #3065a6;
+  background-image: none;
+  background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #428be1), color-stop(100%, #3065a6));
+  background-image: -webkit-linear-gradient(#428be1, #3065a6);
+  background-image: -moz-linear-gradient(#428be1, #3065a6);
+  background-image: -o-linear-gradient(#428be1, #3065a6);
+  background-image: linear-gradient(#428be1, #3065a6);
+  border: 1px solid #3065a6;
+  border-radius: 3px;
+  font-size: small;
+  color: #fff;
+  text-shadow: 0 -1px 0 #3065a6;
+}
+.filters .actions {
+  margin-left: 102px;
+}
+
+.filters-eu {
+  padding: .5em;
+  float: left;
+}
+
+.filters a,
+.filters-eu a{
+  text-decoration: underline;
+  color: #2a6495;
+}
+
+.filters a:hover,
+.filters-eu a:hover {
+  cursor: pointer;
+}

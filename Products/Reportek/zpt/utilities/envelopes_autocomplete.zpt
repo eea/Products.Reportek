@@ -1,0 +1,127 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+<metal:block fill-slot="head">
+  <script type="text/javascript" charset="utf8" src="++resource++static/jquery-1.10.2.min.js"></script>
+  <script src="++resource++static/select2-3.5.0/select2.js"></script>
+  <script src="++resource++static/utils.js"></script>
+  <script type="text/javascript">
+    $(function () {
+      $("#obligation").select2(
+        {
+          allowClear: true
+        });
+    });
+  </script>
+  <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
+  <link href="++resource++static/style.css" rel="stylesheet"/>
+</metal:block>
+
+<metal:block fill-slot="content">
+
+  <p class="important-msg" tal:condition="request/done | nothing">
+    Operations completed succesfully.
+  </p>
+
+  <h1>Auto complete envelopes</h1>
+  <p class="info">
+    Searches the envelopes that have been in a given status for more than a given number of days and which are tagged with a certain obligation and allows Managers to complete the selected ones.
+  </p>
+
+  <form action="" method="get">
+
+    <h2>1. Search envelopes</h2>
+
+    <div class="filters">
+
+      <tal:block metal:use-macro="here/filters/macros/select-obligation" />
+
+      <div class="form-indent">
+        <label for="status">that have been</label>
+        <select name="status" id="status">
+          <option></option>
+          <tal:block repeat="item view/get_envelope_status">
+            <option tal:content="item"
+                    tal:attributes="value item;
+                      selected python:request.get('status')==item" />
+          </tal:block>
+        </select>
+
+        <label for="age">for more than</label>
+        <input type="text" name="age:int" id="age" size="3"
+               tal:attributes="value request/age | string:0" /> days
+        <small>(0 for all)</small>
+      </div>
+
+      <div>
+        <input type="submit" name="btn.search" value="Search" />
+      </div>
+
+    </div>
+  </form>
+
+  <form action="" method="post" tal:condition="options/workitems | nothing">
+
+    <h2>1. Move forward the envelopes</h2>
+
+    <div class="filters">
+      <label for="task">From the list below, move forward selected envelopes having the task</label>
+      <select name="task" id="task">
+        <option></option>
+        <option tal:repeat="task options/tasks"
+                tal:attributes="value task"
+                tal:content="task" />
+      </select>
+
+      <input onclick="javascript:return window.confirm('Are you sure you want to move selected envelopes forward?')"
+              type="submit"
+              name="btn.autocomplete" value="Ok" />
+    </div>
+
+    <table class="datatable">
+      <thead>
+        <tr>
+          <th></th>
+          <th>Coverage</th>
+          <th>Envelope</th>
+          <th>Task</th>
+          <th>Status</th>
+          <th>User</th>
+          <th>Reported</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr tal:repeat="workitem options/workitems">
+          <td>
+            <input type="checkbox" name="ids:list" checked="checked"
+                   tal:attributes="value python:workitem.absolute_url(1)" />
+          </td>
+          <td tal:define="country workitem/getCountryName">
+            <span tal:replace="country" tal:condition="country" />
+            <span tal:condition="not: country">Unknown</span>
+          </td>
+          <td tal:define="envelope workitem/getParentNode">
+            <a tal:attributes="href envelope/absolute_url;
+                               title envelope/title_or_id"
+               tal:content="envelope/title_or_id" />
+          </td>
+          <td tal:content="python:workitem.getActivityDetails('title')" />
+          <td tal:content="workitem/status" />
+          <td tal:define="actor workitem/actor">
+            <span tal:replace="actor" tal:condition="actor" />
+            <span tal:condition="not: actor">Not assigned</span>
+          </td>
+          <td tal:content="python:workitem.reportingdate.strftime('%m/%d/%Y')" />
+        </tr>
+      </tbody>
+    </table>
+  </form>
+
+  <strong tal:condition="python: not options.get('workitems')
+                         and request.get('btn.search')">
+    No envelopes found.
+  </strong>
+
+</metal:block>
+
+</metal:block>

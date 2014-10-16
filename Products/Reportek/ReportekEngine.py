@@ -205,9 +205,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declareProtected('View', 'globalworklist')
     globalworklist = PageTemplateFile('zpt/engineGlobalWorklist', globals())
 
-    security.declareProtected(view_management_screens, 'countryreporters')
-    countryreporters = PageTemplateFile('zpt/engineCountryReporters', globals())
-
     security.declareProtected('View', 'searchfeedbacks')
     searchfeedbacks = PageTemplateFile('zpt/engineSearchFeedbacks', globals())
 
@@ -222,9 +219,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security.declareProtected('View', 'resultsxml')
     resultsxml = PageTemplateFile('zpt/engineResultsXml', globals())
-
-    security.declareProtected(view_management_screens, 'Assign_client_form')
-    Assign_client_form = PageTemplateFile('zpt/engineAssignClientForm', globals())
 
     security.declareProtected(view_management_screens, 'Build_collections_form')
     Build_collections_form = PageTemplateFile('zpt/engineBuildCollectionsForm', globals())
@@ -344,45 +338,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             return json.dumps(resp, indent=4)
         return None
 
-    security.declareProtected('View', 'Assign_client')
-    def Assign_client(self, REQUEST=None, **kwargs):
-        if REQUEST:
-            kwargs.update(REQUEST.form)
-
-        crole = kwargs.get('crole','Client')
-        ccountries = kwargs.get('ccountries')
-        dataflow_uris = kwargs.get('cobligation', '')
-        fail_pattern = 'Unable to assign role %s to %s for %s.<br/>' \
-                       'No matching collection based on selected options.'
-        success_pattern = '%s assigned to %s<br/>' \
-                          'for the following collections:<br/>' \
-                          '%s<br/>'
-        users = kwargs.get('dns', [])
-        messages = self.response_messages(crole, users, ccountries,
-                                          dataflow_uris, fail_pattern,
-                                          success_pattern,
-                                          modifier=self.assign_roles)
-        return messages
-
-    security.declareProtected('View', 'Remove_client')
-    def Remove_client(self, REQUEST=None, **kwargs):
-        if REQUEST:
-            kwargs.update(REQUEST.form)
-
-        crole = kwargs.get('crole','Client')
-        ccountries = kwargs.get('ccountries')
-        dataflow_uris = kwargs.get('cobligation', '')
-        fail_pattern = 'Unable to remove role %s to %s for %s.<br/>' \
-                       'No matching collection based on selected options.'
-        success_pattern = '%s removed for %s<br/>' \
-                          'for the following collections:<br/>' \
-                          '%s<br/>'
-        users = kwargs.get('dns', [])
-        messages = self.response_messages(crole, users, ccountries,
-                                          dataflow_uris, fail_pattern,
-                                          success_pattern, modifier=self.remove_roles)
-        return messages
-
     @staticmethod
     def clean_pattern(pattern):
         pattern = pattern.strip()
@@ -489,24 +444,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         l_countries = self.getParentNode().objectValues('Report Collection')
         return RepUtils.utSortByAttr(l_countries, 'title')
 
-    security.declareProtected('View', 'getCountryByTitle')
-    def getCountryByTitle(self, p_title):
-        """ """
-        for k in self.getCountriesList():
-            if k.title_or_id() == p_title: return k
-
-    security.declareProtected('View', 'getReportersByCountry')
-    def getReportersByCountry(self, p_context, p_role):
-        """ """
-        reporters = {}
-        try:    l_context = self.unrestrictedTraverse(p_context)
-        except: return reporters
-        for k in l_context.get_local_roles():
-            if p_role in k[1]: reporters[k[0]] = p_role
-        for k in l_context.objectValues('Report Collection'):
-            reporters.update(self.getReportersByCountry(k.absolute_url(1), p_role))
-        return reporters
-
     security.declarePrivate('sitemap_filter')
     def sitemap_filter(self, objs):
         return [x for x in objs if x.meta_type in ['Report Collection', 'Report Envelope', 'Repository Referral']]
@@ -518,7 +455,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         tm = SimpleTreeMaker(tree_pre)
         tm.setChildAccess(filter=self.sitemap_filter)
         tm.setSkip('')
-        tree, rows = tm.cookieTree(tree_root)
+        try:
+            tree, rows = tm.cookieTree(tree_root)
+        except ValueError:
+            #invalid parameter; clear request and try again
+            tree_root.REQUEST.form.clear()
+            tree, rows = tm.cookieTree(tree_root)
         rows.pop(0)
         return {'root': tree, 'rows': rows}
 
@@ -565,74 +507,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
             workitems.object_list = [ob.getObject() for ob in workitems.object_list]
             return workitems
-
-    security.declareProtected(view_management_screens, 'filterNotCompletedWorkitems')
-    def filterNotCompletedWorkitems(self, REQUEST=None, **kwargs):
-        """ Filter not completed workitems by given filters
-        """
-        if REQUEST:
-            kwargs.update(REQUEST.form)
-        status = kwargs.get('status', '')
-        obligation = kwargs.get('obligation', '')
-
-        catalog = getattr(self, DEFAULT_CATALOG, None)
-        if not catalog:
-            return
-        query = {
-            'meta_type':'Workitem',
-            'status':['active','inactive'],
-            'sort_on': 'reportingdate',
-            'sort_order': 'reverse',
-        }
-        brains = catalog(**query)
-        try:
-            age = int(kwargs.get('age', 0))
-        except (TypeError, ValueError):
-            age = 0
-        now = DateTime()
-        now = now - age
-        for brain in brains:
-            doc = brain.getObject()
-            # Filter by status
-            if status and not doc.status == status:
-                continue
-            # Filter by obligation
-            if obligation and obligation not in doc.dataflow_uris:
-                continue
-            # Filter by age
-            doc_time = doc.reportingdate
-            if doc_time.greaterThan(now):
-                continue
-            # Filter inactive Drafts
-            if doc.getActivityDetails('title') == 'Draft' and doc.status == 'inactive':
-                continue
-            yield doc
-
-    security.declareProtected(view_management_screens, 'autoCompleteEnvelopes')
-    def autoCompleteEnvelopes(self, REQUEST=None, **kwargs):
-        """ Run autocomplete process
-        """
-        if REQUEST:
-            kwargs.update(REQUEST.form)
-        ids = kwargs.get('ids', [])
-        task = kwargs.get('task', '')
-        for path in ids:
-            workitem = self.unrestrictedTraverse(path, None)
-            if not workitem:
-                continue
-            if task and workitem.getActivityDetails('title') != task:
-                continue
-            envelope = workitem.getParentNode()
-            workitem_id = workitem.getId()
-            # Activate inactive workitem
-            if workitem.status == 'inactive':
-                envelope.activateWorkitem(workitem_id)
-            # Complete envelope
-            envelope.completeWorkitem(workitem_id, REQUEST=REQUEST)
-            yield envelope
-
-    security.declareProtected(view_management_screens, 'envelopes_autocomplete')
-    envelopes_autocomplete = PageTemplateFile('zpt/envelopes_autocomplete', globals())
 
     def zipEnvelopes(self, envelopes=[], REQUEST=None, RESPONSE=None):
         """ Zip several envelopes together with the metadata """

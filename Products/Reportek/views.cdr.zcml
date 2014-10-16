@@ -1,0 +1,19 @@
+<configure
+  xmlns="http://namespaces.zope.org/zope"
+  xmlns:browser="http://namespaces.zope.org/browser"
+  xmlns:meta="http://namespaces.zope.org/meta"
+  xmlns:zcml="http://namespaces.zope.org/zcml">
+
+  <configure zcml:condition="not-have bdr_installation">
+
+    <meta:provides feature="cdr_installation" />
+
+    <browser:page
+      name="statistics"
+      for=".interfaces.IReportekUtilities"
+      permission="zope2.ViewManagementScreens"
+      class=".views.Statistics"
+      template="zpt/utilities/statistics.zpt"/>
+
+  </configure>
+</configure>

@@ -1,0 +1,51 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+<metal:block fill-slot="content">
+  <h1>Envelopes allocated to the wrong country</h1>
+
+  <tal:block define="envelopes view/envelopes">
+
+    <table tal:condition="envelopes" class="datatable">
+      <thead>
+        <tr>
+          <th>Collection</th>
+          <th>Current country</th>
+          <th>Correct country value</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr tal:repeat="env envelopes">
+          <td>
+            <a tal:condition="not: env/title"
+               tal:attributes="href string: ${env/url}/manage_prop">
+               no title
+            </a>
+            <a tal:condition="env/title"
+               tal:attributes="href string: ${env/url}/manage_prop"
+               tal:content="env/title" />
+          </td>
+          <td>
+            <span tal:condition="not: env/country">unspecified</span>
+            <a tal:condition="env/country"
+               tal:attributes="href env/country"
+               tal:content="env/country" />
+          </td>
+          <td>
+            <span tal:condition="not: env/topCountry">unspecified</span>
+            <a tal:condition="env/topCountry"
+               tal:attributes="href env/topCountry"
+               tal:content="env/topCountry" />
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p tal:condition="not: envelopes">
+        All the envelopes in this site have the correct country.
+    </p>
+
+  </tal:block>
+</metal:block>
+
+</metal:block>

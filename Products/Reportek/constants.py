@@ -32,6 +32,7 @@ QAREPOSITORY_ID = 'QARepository'
 DATAFLOW_MAPPINGS = 'DataflowMappings'
 APPLICATIONS_FOLDER_ID = 'Applications'
 PING_ENVELOPES_KEY = 'PingEnvelopesStore'
+REPORTEK_UTILITIES = 'ReportekUtilities'
 
 # remote servers
 WEBQ_XML_REPOSITORY = 'http://cdr.eionet.europa.eu/xmlexports/groundwater/'
