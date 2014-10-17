@@ -1,0 +1,42 @@
+<tal:block tal:define="admin_view nocall:context/@@index_html;
+ breadcrumbs admin_view/get_breadcrumbs">
+<tal:block define="dummy python:request.set('stopshort', 0)">
+    <tal:block on-error="python:request.set('stopshort', 1)"
+      tal:define="last_id python: breadcrumbs[0].get('name')">
+        <tal:block condition="
+            python:context.get('id') == 'index_html' or
+                   last_id == context.get('id') or
+                   last_id == request.getURL().split('/')[-1] or
+                   context.absolute_url(1) == ''">
+          <tal:block define="dummy python:request.set('stopshort',1)"/>
+        </tal:block>
+    </tal:block>
+
+    <div class="breadcrumbtrail">
+      <div class="breadcrumbhead">You are here:</div>
+      <div class="breadcrumbitem eionetaccronym">
+        <a href="http://www.eionet.europa.eu/">Eionet</a>
+      </div>
+      <tal:block
+            define="dummy python:breadcrumbs.reverse()"
+            repeat="item python:breadcrumbs">
+            <div class="breadcrumbitemlast"
+                 tal:condition="python:request['stopshort'] and item == breadcrumbs[-1]">
+              <span tal:replace="item/title" size=25></span>
+            </div>
+            <div class="breadcrumbitem"
+                 tal:condition="not:python:request['stopshort'] and item == breadcrumbs[-1]">
+              <a tal:attributes="href item/url|nothing">
+                <span tal:replace="item/title" size=25></span>
+              </a>
+            </div>
+      </tal:block>
+
+      <div tal:condition="not:request/stopshort" class="breadcrumbitemlast">
+        <span tal:replace="context/title_or_id" size=25></span>
+      </div>
+
+      <div class="breadcrumbtail"></div>
+    </div>
+    </tal:block>
+</tal:block>
