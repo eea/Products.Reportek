@@ -1,4 +1,7 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
+  <metal:block fill-slot="breadcrumbtrails">
+    <tal:block content="structure here/breadcrumbs_views"></tal:block>
+  </metal:block>
 <metal:block fill-slot="content">
     <h1>Statistics</h1>
     <ul tal:define="total view/totals_per_type">

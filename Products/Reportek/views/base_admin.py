@@ -110,3 +110,23 @@ class BaseAdmin(BrowserView):
 
         records.sort(key=itemgetter('country'))
         return records
+
+    def get_breadcrumbs(self):
+        breadcrumbs = []
+
+        for item in self.request.get('PARENTS'):
+            crumb = {
+                'title': item.title_or_id,
+                'url': item.absolute_url(),
+            }
+            breadcrumbs.append(crumb)
+
+        current = self.request.getURL()
+        crumb = {
+            'title': current.split('/')[-1],
+            'url': ''
+        }
+
+        breadcrumbs.insert(0, crumb)
+
+        return breadcrumbs
