@@ -25,6 +25,9 @@ __version__ = '$Rev$'[6:-2]
 
 from config import *
 import monitoring
+from traceback import format_exception_only
+import logging
+logger = logging.getLogger("Reportek")
 
 # Zope imports
 import Globals
@@ -140,8 +143,14 @@ def _strip_protocol_domain(full_url):
 def ping_remaining_envelopes(app, crPingger):
     import redis
     import pickle
-    rs = redis.Redis(db=REDIS_DATABASE)
-    envPathNames = rs.hkeys(constants.PING_ENVELOPES_KEY)
+    try:
+        rs = redis.Redis(db=REDIS_DATABASE)
+        envPathNames = rs.hkeys(constants.PING_ENVELOPES_KEY)
+    except Exception as e:
+        lines = format_exception_only(e.__class__, e)
+        lines.insert(0, "Could not get to redis server")
+        logger.warn('. '.join(lines))
+        return
     for envPathName in envPathNames:
         # get this fresh on every iteration
         envStatus = rs.hget(constants.PING_ENVELOPES_KEY, envPathName)
