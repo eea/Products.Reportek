@@ -8,7 +8,9 @@
   <script src="++resource++static/select2-3.5.0/select2.js"></script>
 </metal:block>
 
-
+  <metal:block fill-slot="breadcrumbtrails">
+    <tal:block content="structure here/breadcrumbs_views"></tal:block>
+  </metal:block>
 <metal:block fill-slot="content">
 
   <h1>Reporters by country</h1>

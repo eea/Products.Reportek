@@ -1,3 +1,4 @@
+from AccessControl.Permissions import view_management_screens
 from Products.Five import zcml
 from Products.Five.testbrowser import Browser
 from Products.PageTemplates.ZopePageTemplate import manage_addPageTemplate
@@ -156,6 +157,11 @@ TEMPLATES = [
         'template_id': 'standard_template.pt',
         'title': '',
         'filename': 'standard_template.pt'
+    },
+    {
+        'template_id': 'breadcrumbs_views',
+        'title': '',
+        'filename': 'breadcrumbs_views.pt'
     }
 ]
 
@@ -216,6 +222,10 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         create_reportek_objects(self.app)
         catalog = getattr(self.app, 'Catalog')
         create_reportek_indexes(catalog)
+        r_utilities = getattr(self.app, REPORTEK_UTILITIES)
+        r_utilities.manage_permission(view_management_screens,
+                                      roles=['Owner'])
+        r_utilities._p_changed = True
 
     def _setupDTMLS(self):
         for dtml in DTMLS:

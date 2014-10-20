@@ -1,3 +1,4 @@
+import Products
 from zope.interface import implementer
 from OFS.Folder import Folder
 from AccessControl import ClassSecurityInfo
@@ -15,4 +16,11 @@ class ReportekUtilities(Folder):
         self.title = title
 
     def all_meta_types(self):
-        return ['Script (Python)', 'Folder', 'Page Template']
+        types = ['Script (Python)', 'Folder', 'Page Template']
+        y = []
+
+        for x in Products.meta_types:
+            if x['name'] in types:
+                y.append(x)
+
+        return y

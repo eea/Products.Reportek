@@ -45,16 +45,21 @@ class BaseAdmin(BrowserView):
 
     def get_rod_obligations(self):
         """ Get activities from ROD """
-        data = sorted(self.context.dataflow_rod(),
-                      key=itemgetter('SOURCE_TITLE'))
+
+        dataflow_rod = self.context.dataflow_rod()
+        data = []
+
+        if dataflow_rod:
+            data = sorted(dataflow_rod, key=itemgetter('SOURCE_TITLE'))
 
         obligations = defaultdict(list)
         for obl in data:
             obligations[obl['SOURCE_TITLE']].append(obl)
 
-        return {'legal_instruments': sorted(obligations.keys()),
-                'obligations': obligations}
+        legal_instruments = sorted(obligations.keys())
 
+        return {'legal_instruments': legal_instruments,
+                'obligations': obligations}
 
     def search_catalog(self, obligation, countries, role, users=[]):
         country_codes = self.get_country_codes(countries)
@@ -105,3 +110,23 @@ class BaseAdmin(BrowserView):
 
         records.sort(key=itemgetter('country'))
         return records
+
+    def get_breadcrumbs(self):
+        breadcrumbs = []
+
+        for item in self.request.get('PARENTS'):
+            crumb = {
+                'title': item.title_or_id,
+                'url': item.absolute_url(),
+            }
+            breadcrumbs.append(crumb)
+
+        current = self.request.getURL()
+        crumb = {
+            'title': current.split('/')[-1],
+            'url': ''
+        }
+
+        breadcrumbs.insert(0, crumb)
+
+        return breadcrumbs
