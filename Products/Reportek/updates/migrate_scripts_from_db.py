@@ -54,3 +54,20 @@ def update(app):
 
     if getattr(app, 'dataflow_lookup', None):
         app._delObject("dataflow_lookup", suppress_events=True)
+        transaction.commit()
+
+    if getattr(app, 'localities_rod', None):
+        app._delObject('localities_rod', suppress_events=True)
+        transaction.commit()
+
+    if getattr(app, 'localities_dict', None):
+        app._delObject('localities_dict', suppress_events=True)
+        transaction.commit()
+
+    if getattr(app, 'localities_iso_dict', None):
+        app._delObject('localities_iso_dict', suppress_events=True)
+        transaction.commit()
+
+    if getattr(app, 'localities_table', None):
+        app._delObject('localities_table', suppress_events=True)
+        transaction.commit()
