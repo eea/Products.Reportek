@@ -3,7 +3,6 @@ from Products.Five import zcml
 from Products.Five.testbrowser import Browser
 from Products.PageTemplates.ZopePageTemplate import manage_addPageTemplate
 from Products.PythonScripts.PythonScript import manage_addPythonScript
-from Products.XMLRPCMethod import XMLRPCMethod
 from Testing import ZopeTestCase as ztc
 import os
 import Products.Five
@@ -15,6 +14,8 @@ from OFS.Image import manage_addFile
 from OFS.SimpleItem import SimpleItem
 from Products.Reportek import create_reportek_indexes, create_reportek_objects
 from Products.Reportek.constants import REPORTEK_UTILITIES
+from Products.Reportek.ReportekEngine import ReportekEngine
+
 
 ztc.installProduct('PluginIndexes')
 ztc.installProduct('PythonScripts')
@@ -165,48 +166,33 @@ TEMPLATES = [
     }
 ]
 
-XMLRPC_METHODS = [
-    {
-        'xmlrpc_id': 'dataflow_rod',
-        'title': 'Get activities from ROD',
-        'remoteurl': 'http://rod.eionet.europa.eu/rpcrouter',
-        'method_name': 'WebRODService.getActivities',
-        'timeout': '10',
-    },
-    {
-        'xmlrpc_id': 'localities_rod',
-        'title': 'Get activities from ROD',
-        'remoteurl': 'http://rod.eionet.europa.eu/rpcrouter',
-        'method_name': 'WebRODService.getCountries',
-        'timeout': '5',
-    },
-]
+
+def get_localities_rod(self):
+    return [
+        {
+            'iso': 'tc',
+            'name': 'Test Country',
+            'uri': 'http://nohost/spatial/1'
+        }
+    ]
 
 
-def get_xmlrpc_method_data(self, *args):
-    if self.function() == 'WebRODService.getActivities':
-        return [
-            {
-                'terminated': '0',
-                'PK_RA_ID': '8',
-                'SOURCE_TITLE': 'Fictive Convention',
-                'details_url': 'http://nohost/obligations/1',
-                'TITLE': 'Yearly report to the Fictive Convention',
-                'uri': 'http://nohost/obligations/1',
-                'LAST_UPDATE': '2009-12-15',
-                'PK_SOURCE_ID': '142'
-            }
-        ]
-    else:
-        return [
-            {
-                'iso': 'tc',
-                'name': 'Test Country',
-                'uri': 'http://nohost/spatial/1'
-            }
-        ]
+def get_dataflow_rod(self):
+    return [
+        {
+            'terminated': '0',
+            'PK_RA_ID': '8',
+            'SOURCE_TITLE': 'Fictive Convention',
+            'details_url': 'http://nohost/obligations/1',
+            'TITLE': 'Yearly report to the Fictive Convention',
+            'uri': 'http://nohost/obligations/1',
+            'LAST_UPDATE': '2009-12-15',
+            'PK_SOURCE_ID': '142'
+        }
+    ]
 
-XMLRPCMethod.XMLRPCMethod.__call__ = get_xmlrpc_method_data
+ReportekEngine.localities_rod = get_localities_rod
+ReportekEngine.dataflow_rod = get_dataflow_rod
 
 
 class BaseFunctionalTestCase(ztc.FunctionalTestCase):
@@ -269,12 +255,6 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
                                        title=tmpl.get('title'),
                                        text=tmpl_content)
 
-    def _setupXMLRPCMethods(self):
-        for xmlrpc in XMLRPC_METHODS:
-            XMLRPCMethod.manage_addXMLRPCMethod(self.app, xmlrpc.get('xmlrpc_id'),
-                                   xmlrpc.get('title'), xmlrpc.get('remoteurl'),
-                                   xmlrpc.get('method_name'), xmlrpc.get('timeout'))
-
     def _setup_users(self):
         local_roles = ['Reporter', 'Client']
         data = list(self.app.__ac_roles__)
@@ -331,7 +311,6 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         self._setupSCRIPTS()
         self._setupFILES()
         self._setupTMPLS()
-        self._setupXMLRPCMethods()
         self._setup_collections()
 
         # create wf process

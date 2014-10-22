@@ -40,7 +40,7 @@
     <div class="form-group">
       <label for="countries">Countries</label>
       <select id="countries" name="countries:list" multiple="multiple">
-        <option tal:repeat="country here/localities_rod"
+        <option tal:repeat="country view/localities_rod"
                 tal:content="country/name"
                 tal:attributes="value country/iso;
                   selected python:country['iso'] in request.get('countries', [])">

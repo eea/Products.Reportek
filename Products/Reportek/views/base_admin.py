@@ -2,22 +2,43 @@ from collections import defaultdict
 from operator import itemgetter
 from Products.Five import BrowserView
 
-from Products.Reportek import config
+from Products.Reportek import config, constants
 
 
 class BaseAdmin(BrowserView):
     """ Base view for users administration """
 
+    def __init__(self, *args, **kwargs):
+        super(BaseAdmin, self).__init__(*args, **kwargs)
+
+        self._localities_rod = None
+        self._dataflow_rod = None
+
     def __call__(self, *args, **kwargs):
         super(BaseAdmin, self).__call__(*args, **kwargs)
 
-        engine = self.context.ReportekEngine.getDeploymentType()
-        if engine == config.DEPLOYMENT_BDR:
+        engine = getattr(self.context, constants.ENGINE_ID)
+        deployment_type = engine.getDeploymentType()
+        if deployment_type == config.DEPLOYMENT_BDR:
             is_bdr = True
         else:
             is_bdr = False
 
         return self.index(is_bdr=is_bdr)
+
+    @property
+    def localities_rod(self):
+        if not self._localities_rod:
+            engine = getattr(self.context, constants.ENGINE_ID)
+            self._localities_rod = engine.localities_rod()
+        return self._localities_rod
+
+    @property
+    def dataflow_rod(self):
+        if not self._dataflow_rod:
+            engine = getattr(self.context, constants.ENGINE_ID)
+            self._dataflow_rod = engine.dataflow_rod()
+        return self._dataflow_rod
 
     def get_view(self, view_name):
         """Returns the view coresponding to the view_name"""
@@ -28,16 +49,16 @@ class BaseAdmin(BrowserView):
 
     def get_country_codes(self, countries):
         return [c['uri'] for c
-                in self.context.localities_rod()
+                in self.localities_rod
                 if c['iso'] in countries]
 
     def get_obligations(self):
         return {o['PK_RA_ID']: o['uri'] for o
-                in self.context.dataflow_rod()}
+                in self.dataflow_rod}
 
     def get_obligations_title(self):
-        return {o['uri']: o['TITLE'] for o
-                in self.context.dataflow_rod()}
+        dataflow_rod = self.dataflow_rod
+        return {o['uri']: o['TITLE'] for o in dataflow_rod}
 
     def get_roles(self):
         app = self.context.getPhysicalRoot()
@@ -46,7 +67,7 @@ class BaseAdmin(BrowserView):
     def get_rod_obligations(self):
         """ Get activities from ROD """
 
-        dataflow_rod = self.context.dataflow_rod()
+        dataflow_rod = self.dataflow_rod
         data = []
 
         if dataflow_rod:
