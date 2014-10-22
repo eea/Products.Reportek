@@ -14,8 +14,8 @@ if [ ! -d out.xlf ]; then
     mkdir out.xlf
 
     for zip in *.zip; do
-        page_name=`echo $zip | sed -e's:[0-9]\+ \(.\+\)\.zip:\1:'`
-        echo Creating $page_name
+        page_name=`echo $zip | sed -e's:\([0-9]\+\) \(.\+\)\.zip:\1_\2:'`
+        #echo Creating $page_name
         mkdir out.xlf/$page_name
         cd out.xlf/$page_name
         unzip "../../$zip"
@@ -26,43 +26,57 @@ if [ ! -d out.xlf ]; then
     cd out.xlf
 
     for page_dir in *; do
+        page_no=`echo $page_dir | sed -e's/\([0-9]\+\)_.*/\1/'`
         cd "$page_dir"
         for zip in *.ZIP; do
-            lang=`echo $zip | sed -e's/WEB[-0-9]\+\([A-Z]\{2,2\}\)-TRA-[0-9]\+.ZIP/\1/'`
+            #WEB-2013-01200-00-12-CS-TRA-00.ZIP
+            #WEB-2013-01200-00-12-00-EN-HR-00.ZIP
+            lang=`echo $zip | sed -e's/WEB[-0-9]\+\([A-Z]\{2,2\}\)-TRA-[0-9]\+\.ZIP/\1/I'`
+            if [ -z "$lang" ]; then
+                lang=`echo $zip | sed -e's/WEB[-0-9]\+-EN-\([A-Z]\{2,2\}\)-[0-9]\+\.ZIP/\1/I'`
+            fi
+            caseLang=$lang
             lang=`echo $lang | tr 'A-Z' 'a-z'`
+            zip_no=`echo $zip | sed -e's/WEB-[0-9]\+-[0-9]\+-[0-9]\+-\([0-9]\{2,2\}\)-.*\.ZIP/\1/I'`
+            if [ -f ../../updates/WEB-2013*-${page_no}*-${caseLang}-*.[Zz][Ii][Pp] ]; then
+                echo " ++ Found update ++"
+                rm WEB-2013*-${page_no}*-${caseLang}-*.[Zz][Ii][Pp]
+                cp ../../updates/WEB-2013*-${page_no}*-${caseLang}-*.[Zz][Ii][Pp] .
+                zip=$(basename `ls ../../updates/WEB-2013*-${page_no}*-${caseLang}-*.[Zz][Ii][Pp]`)
+            fi
             cartesian_id="${page_dir}_${lang}"
             echo " * $cartesian_id *"
             case "$cartesian_id" in
-                collection_index_hr ) ;&
-                documents_sk ) ;&
-                draft_envelope_page_sk ) ;&
-                envelope_overview_sk ) ;&
-                help_index_es ) ;&
-                help_index_sk ) ;&
-                registration_sk ) ;&
-                security.html_sk )
-                    echo " +++++++++++ SKIP ${cartesian_id} +++++++++++"
-                    ;;
+                #collection_index_hr ) ;&
+                #documents_sk ) ;&
+                #draft_envelope_page_sk ) ;&
+                #envelope_overview_sk ) ;&
+                #help_index_es ) ;&
+                #help_index_sk ) ;&
+                #registration_sk ) ;&
+                #security.html_sk )
+                #    echo " +++++++++++ SKIP ${cartesian_id} +++++++++++"
+                #    ;;
 
-                collection_index_el ) ;&
-                collection_index_pt ) ;&
-                collection_index_sk ) ;&
-                dataconfidentiality_pt ) ;&
-                dataconfidentiality_sk ) ;&
-                documents_el ) ;&
-                documents_pt ) ;&
-                draft_envelope_page_el ) ;&
-                draft_envelope_page_pt ) ;&
-                envelope_overview_pt ) ;&
-                feedbacks_ga ) ;&
-                help_index_el ) ;&
-                privacystatement_el ) ;&
-                privacystatement_sk ) ;&
-                registration_el ) ;&
-                registration_hr ) ;&
-                security.html_el )
-                    echo " +++++++++++ KNOWN ALL_DIRS ${cartesian_id} +++++++++++"
-                    ;;&
+                #collection_index_el ) ;&
+                #collection_index_pt ) ;&
+                #collection_index_sk ) ;&
+                #dataconfidentiality_pt ) ;&
+                #dataconfidentiality_sk ) ;&
+                #documents_el ) ;&
+                #documents_pt ) ;&
+                #draft_envelope_page_el ) ;&
+                #draft_envelope_page_pt ) ;&
+                #envelope_overview_pt ) ;&
+                #feedbacks_ga ) ;&
+                #help_index_el ) ;&
+                #privacystatement_el ) ;&
+                #privacystatement_sk ) ;&
+                #registration_el ) ;&
+                #registration_hr ) ;&
+                #security.html_el )
+                #    echo " +++++++++++ KNOWN ALL_DIRS ${cartesian_id} +++++++++++"
+                #    ;;&
                 * )
                     echo " +++++++++++ DEFAULT ${cartesian_id} +++++++++++"
                     mkdir tmp
@@ -90,6 +104,12 @@ if [ ! -d out.xlf ]; then
 
     cd ..
 fi
+
+#sed -i -e's/\<encoding="utf-8"?/encoding="windows-1255"?/' out.xlf/14_documents/et/LC_MESSAGES/default.xlf
+#sed -i -e's/\<encoding="utf-8"?/encoding="windows-1255"?/' out.xlf/18_help_index/et/LC_MESSAGES/default.xlf
+sed -i -e's/\<encoding="utf-8"?/encoding="ISO-8859-15"?/' out.xlf/14_documents/et/LC_MESSAGES/default.xlf
+sed -i -e's/\<encoding="utf-8"?/encoding="ISO-8859-15"?/' out.xlf/18_help_index/et/LC_MESSAGES/default.xlf
+sed -i -e's/\<encoding="utf-8"?/encoding="ISO-8859-15"?/' out.xlf/21_security.html/et/LC_MESSAGES/default.xlf
 
 if [ ! -d out.po ]; then
     mkdir out.po
