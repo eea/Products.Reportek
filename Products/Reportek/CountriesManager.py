@@ -24,8 +24,11 @@
     'uri': string
     'name': string
 """
-from XMLRPCMethod import XMLRPCMethod
+from plone.memoize import ram
 from RepUtils import inline_replace
+from time import time
+from XMLRPCMethod import XMLRPCMethod
+
 
 class CountriesManager:
     """ Module that handles the countries/localities dictionary: localities_table """
@@ -37,6 +40,7 @@ class CountriesManager:
             timeout=5.0
         )
 
+    @ram.cache(lambda *args:time() // (60*60*12))
     def localities_rod(self):
         """ """
         return self.xmlrpc_localities.call_method()

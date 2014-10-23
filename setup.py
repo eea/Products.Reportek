@@ -13,6 +13,7 @@ setup(
         'lxml',
         'path.py',
         'requests==1.2.3',
+        'plone.memoize',
         'Zope2',
     ],
 )

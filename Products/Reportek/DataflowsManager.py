@@ -32,8 +32,11 @@
 
 """
 
-from XMLRPCMethod import XMLRPCMethod
+from plone.memoize import ram
 from RepUtils import inline_replace
+from time import time
+from XMLRPCMethod import XMLRPCMethod
+
 
 class ServiceTemporarilyUnavailableException(Exception):
     pass
@@ -50,6 +53,7 @@ class DataflowsManager:
             timeout=10.0
         )
 
+    @ram.cache(lambda *args:time() // (60*60*12))
     def dataflow_rod(self):
         """ """
         return self.xmlrpc_dataflow.call_method()
