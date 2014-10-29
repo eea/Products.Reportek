@@ -58,6 +58,52 @@
     </p>
 </fieldset>
 <br />
+<fieldset>
+	<legend>Dataflows Manager XMLRPC Properties</legend>
+	<p class="form-help">
+        <label for='dfm_url'><strong>Dataflows Manager XMLRPC URL</strong></label>
+		<input type="text" size="50" id="dfm_url" name="dfm_url"
+               tal:attributes="value here/dfm_url" />
+        <br />
+    </p>
+	<p class="form-help">
+        <label for='dfm_method'><strong>Dataflows Manager XMLRPC method</strong></label>
+		<input type="text" size="50" id="dfm_method" name="dfm_method"
+               tal:attributes="value here/dfm_method" />
+        <br />
+    </p>
+	<p class="form-help">
+        <label for='dfm_timeout'><strong>Dataflows Manager XMLRPC timeout</strong></label>
+		<input type="text" size="50" id="dfm_timeout" name="dfm_timeout"
+               tal:attributes="value here/dfm_timeout" />
+        <br />
+        <span>(Dataflows Manager XMLRPC timeout in seconds)
+        <br />
+    </p>
+</fieldset>
+<fieldset>
+	<legend>Countries Manager XMLRPC Properties</legend>
+	<p class="form-help">
+        <label for='cm_url'><strong>Countries Manager XMLRPC URL</strong></label>
+		<input type="text" size="50" id="cm_url" name="cm_url"
+               tal:attributes="value here/cm_url" />
+        <br />
+    </p>
+	<p class="form-help">
+        <label for='cm_method'><strong>Countries Manager XMLRPC method</strong></label>
+		<input type="text" size="50" id="cm_method" name="cm_method"
+               tal:attributes="value here/cm_method" />
+        <br />
+    </p>
+	<p class="form-help">
+        <label for='cm_timeout'><strong>Countries Manager XMLRPC timeout</strong></label>
+		<input type="text" size="50" id="cm_timeout" name="cm_timeout"
+               tal:attributes="value here/cm_timeout" />
+        <br />
+        <span>(Countries Manager XMLRPC timeout in seconds)
+        <br />
+    </p>
+</fieldset>
 <input type="submit" value="Save changes" />
 </form>
 

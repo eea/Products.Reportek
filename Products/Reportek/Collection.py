@@ -61,7 +61,7 @@ def manage_addCollection(self, title, descr,
     if REQUEST is not None:
         return self.manage_main(self, REQUEST, update_menu=1)
 
-class Collection(CatalogAware, Folder, CountriesManager, DataflowsManager, Toolz):
+class Collection(CatalogAware, Folder, Toolz):
     """
     Collections are basic container objects that provide a standard
     interface for object management. Collection objects also implement
@@ -81,7 +81,6 @@ class Collection(CatalogAware, Folder, CountriesManager, DataflowsManager, Toolz
     def __init__(self, id, title='', year='', endyear='', partofyear='', country='', locality='',
             descr='', dataflow_uris=[], allow_collections=0, allow_envelopes=0):
         """ constructor """
-        DataflowsManager.__init__(self)
         self.id = id
         self.title = title
         try: self.year = int(year)
@@ -279,8 +278,9 @@ class Collection(CatalogAware, Folder, CountriesManager, DataflowsManager, Toolz
     def num_terminated_dataflows(self):
         """ Returns the number of terminated dataflows """
         amount = 0
+        engine = self.getEngine()
         for df in self.dataflow_uris:
-            dfobj = self.dataflow_lookup(df)
+            dfobj = engine.dataflow_lookup(df)
             if dfobj.get('terminated','0') == '1':
                 amount += 1
         return amount
@@ -432,6 +432,16 @@ class Collection(CatalogAware, Folder, CountriesManager, DataflowsManager, Toolz
             else:
                 l_query_array[p_parameter] = p_value
         return l_query_array
+
+    def localities_rod(self):
+        engine = self.getEngine()
+        if engine:
+            return engine.localities_rod()
+
+    def dataflow_rod(self):
+        engine = self.getEngine()
+        if engine:
+            return engine.dataflow_rod()
 
     security.declareProtected('View', 'messageDialog')
     def messageDialog(self, message='', action='./manage_main', REQUEST=None):

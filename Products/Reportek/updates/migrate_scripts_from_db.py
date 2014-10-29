@@ -29,16 +29,6 @@ def update(app):
         if not getattr(app.ReportekEngine, 'xmlrpc_localities', None):
             app.ReportekEngine.xmlrpc_localities = create_localities_rpc_call()
             transaction.commit()
-            
-    for brain in app.Catalog(meta_type=['Report Collection']):
-        obj = brain.getObject()
-
-        if not getattr(obj, 'xmlrpc_dataflow', None):
-            obj.xmlrpc_dataflow = create_dataflow_rpc_call()
-            transaction.commit()
-        if not getattr(obj, 'xmlrpc_localities', None):
-            obj.xmlrpc_localities = create_localities_rpc_call()
-            transaction.commit()
 
     if getattr(app, 'dataflow_rod', None):
         app._delObject("dataflow_rod", suppress_events=True)

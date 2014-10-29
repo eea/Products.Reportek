@@ -98,7 +98,7 @@
 
       <tr>
         <th i18n:translate="">Coverage</th>
-        <td>
+        <td tal:define="engine python:context.getEngine();">
           <select name="country">
             <option
               tal:define="
@@ -109,7 +109,7 @@
                   Unspecified
                 </option>"
             />
-            <tal:block repeat="item context/localities_table">
+            <tal:block repeat="item engine/localities_table">
               <option
                 tal:define="selected_condition python:item['uri'] == context.country;
                             selected python:test(selected_condition, 'selected=selected', '')"

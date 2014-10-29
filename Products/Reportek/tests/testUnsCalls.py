@@ -133,7 +133,7 @@ class UNSCallsTest(unittest.TestCase):
         e.country = mock_localities['es']['uri']
         e.localities_table = Mock(return_value=mock_localities.values())
         e.absolute_url = Mock(return_value=envelope_uri)
-        e.dataflow_lookup = Mock(return_value=mock_dataflow)
+        self.engine.dataflow_lookup = Mock(return_value=mock_dataflow)
         root._setObject(e.id, e)
         envelope = root[e.id]
 

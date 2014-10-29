@@ -13,7 +13,7 @@ from OFS.Folder import Folder
 from OFS.Image import manage_addFile
 from OFS.SimpleItem import SimpleItem
 from Products.Reportek import create_reportek_indexes, create_reportek_objects
-from Products.Reportek.constants import REPORTEK_UTILITIES
+from Products.Reportek import constants
 from Products.Reportek.ReportekEngine import ReportekEngine
 
 
@@ -132,16 +132,7 @@ SCRIPTS = [
     {
         'script_id': 'buttons_py',
         'filename': 'buttons_py.py'
-    },
-    {
-        'script_id': 'localities_table',
-        'filename': 'localities_table.py'
-    },
-    {
-        'script_id': 'localities_dict',
-        'filename': 'localities_dict.py'
-    },
-
+    }
 ]
 
 FILES = [
@@ -191,8 +182,8 @@ def get_dataflow_rod(self):
         }
     ]
 
-ReportekEngine.localities_rod = get_localities_rod
-ReportekEngine.dataflow_rod = get_dataflow_rod
+orig_localities_rod = ReportekEngine.localities_rod
+orig_dataflow_rod = ReportekEngine.dataflow_rod
 
 
 class BaseFunctionalTestCase(ztc.FunctionalTestCase):
@@ -208,7 +199,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         create_reportek_objects(self.app)
         catalog = getattr(self.app, 'Catalog')
         create_reportek_indexes(catalog)
-        r_utilities = getattr(self.app, REPORTEK_UTILITIES)
+        r_utilities = getattr(self.app, constants.REPORTEK_UTILITIES)
         r_utilities.manage_permission(view_management_screens,
                                       roles=['Owner'])
         r_utilities._p_changed = True
@@ -292,6 +283,15 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         collection.reindex_object()
         collection._p_changed = True
 
+    def setUp(self):
+        super(BaseFunctionalTestCase, self).setUp()
+        ReportekEngine.localities_rod = get_localities_rod
+        ReportekEngine.dataflow_rod = get_dataflow_rod
+
+    def tearDown(self):
+        ReportekEngine.localities_rod = orig_localities_rod
+        ReportekEngine.dataflow_rod = orig_dataflow_rod
+
     def afterSetUp(self):
         self.browser = Browser()
         self.browser.handleErrors = False
@@ -334,7 +334,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
 
     def test_reportek_utilities(self):
         # Go to ReportekUtilities index_html view
-        r_utilities = getattr(self.app, REPORTEK_UTILITIES)
+        r_utilities = getattr(self.app, constants.REPORTEK_UTILITIES)
         ru_url = r_utilities.absolute_url()
         index_url = ru_url + '/index_html'
         self.browser.open(index_url)

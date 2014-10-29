@@ -135,6 +135,55 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declareProtected(view_management_screens, 'index_html')
     index_html = PageTemplateFile('zpt/engine_index', globals())
 
+    # Setters for the XMLRPC Methods properties
+    @DataflowsManager.dfm_title.setter
+    def dfm_title(self, value):
+        xmlrpc_dataflow = getattr(self, 'xmlrpc_dataflow', None)
+        if xmlrpc_dataflow:
+            self.xmlrpc_dataflow.title = value
+
+    @DataflowsManager.dfm_url.setter
+    def dfm_url(self, value):
+        xmlrpc_dataflow = getattr(self, 'xmlrpc_dataflow', None)
+        if xmlrpc_dataflow:
+            self.xmlrpc_dataflow.url = value
+
+    @DataflowsManager.dfm_method.setter
+    def dfm_method(self, value):
+        xmlrpc_dataflow = getattr(self, 'xmlrpc_dataflow', None)
+        if xmlrpc_dataflow:
+            self.xmlrpc_dataflow.method_name = value
+
+    @DataflowsManager.dfm_timeout.setter
+    def dfm_timeout(self, value):
+        xmlrpc_dataflow = getattr(self, 'xmlrpc_dataflow', None)
+        if xmlrpc_dataflow:
+            self.xmlrpc_dataflow.timeout = float(value)
+
+    @CountriesManager.cm_title.setter
+    def cm_title(self, value):
+        xmlrpc_localities = getattr(self, 'xmlrpc_localities', None)
+        if xmlrpc_localities:
+            self.xmlrpc_localities.title = value
+
+    @CountriesManager.cm_url.setter
+    def cm_url(self, value):
+        xmlrpc_localities = getattr(self, 'xmlrpc_localities', None)
+        if xmlrpc_localities:
+            self.xmlrpc_localities.url = value
+
+    @CountriesManager.cm_method.setter
+    def cm_method(self, value):
+        xmlrpc_localities = getattr(self, 'xmlrpc_localities', None)
+        if xmlrpc_localities:
+            self.xmlrpc_localities.method_name = value
+
+    @CountriesManager.cm_timeout.setter
+    def cm_timeout(self, value):
+        xmlrpc_localities = getattr(self, 'xmlrpc_localities', None)
+        if xmlrpc_localities:
+            self.xmlrpc_localities.timeout = float(value)
+
     #security stuff
     security = ClassSecurityInfo()
 
@@ -157,6 +206,15 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.QA_application = self.REQUEST.get('QA_application', self.QA_application)
         self.globally_restricted_site = bool(self.REQUEST.get('globally_restricted_site',
                                                 self.globally_restricted_site))
+
+        self.dfm_url = self.REQUEST.get('dfm_url', self.dfm_url)
+        self.dfm_method = self.REQUEST.get('dfm_method', self.dfm_method)
+        self.dfm_timeout = self.REQUEST.get('dfm_timeout', self.dfm_timeout)
+
+        self.cm_url = self.REQUEST.get('cm_url', self.cm_url)
+        self.cm_method = self.REQUEST.get('cm_method', self.cm_method)
+        self.cm_timeout = self.REQUEST.get('cm_timeout', self.cm_timeout)
+
         self.cr_api_url = self.REQUEST.get('cr_api_url', self.cr_api_url)
         if self.cr_api_url:
             self.contentRegistryPingger.api_url = self.cr_api_url
@@ -812,7 +870,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             l_res.append([l_id, 'http://purl.org/dc/elements/1.1/identifier', envelope.absolute_url()])
             l_res.append([l_id, 'http://purl.org/dc/elements/1.1/date', strftime('%Y-%b-%d %H:%M:%S')])
             #l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#label', notification_label])
-            l_dataflows = [envelope.dataflow_lookup(x)['TITLE'] for x in envelope.dataflow_uris]
+            l_dataflows = [self.dataflow_lookup(x)['TITLE'] for x in envelope.dataflow_uris]
             for l_dataflow in l_dataflows:
                 l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#obligation', str(l_dataflow)])
             l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#locality', str(envelope.getCountryName())])

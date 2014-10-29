@@ -1,4 +1,5 @@
 from base_admin import BaseAdmin
+from Products.Reportek import constants
 
 
 class Statistics(BaseAdmin):
@@ -18,7 +19,9 @@ class Statistics(BaseAdmin):
         all_unique_country_fields = self.context.Catalog.uniqueValuesFor('country')
         country_urls = [ c for c in all_unique_country_fields
                    if c and c.startswith('http://rod.eionet.europa.eu/spatial') ]
-        localities = self.context.localities_dict()
+        app = self.context.getPhysicalRoot()
+        engine = getattr(app, constants.ENGINE_ID)
+        localities = engine.localities_dict()
         country_deliveries = []
         for country_url in country_urls:
             if country_url in localities:

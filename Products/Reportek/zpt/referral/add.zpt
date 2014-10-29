@@ -54,12 +54,12 @@
 				<input type="text" id="endyear" name="endyear" size="4" maxlength="4" value="" />
 			</td>
 		</tr>
-		<tr tal:define="default here/country | nothing">
+		<tr tal:define="default here/country | nothing; engine here/getEngine;">
 			<th><label for="country" i18n:translate="">Coverage</label></th>
 			<td>
 				<select name="country" id="country">
 					<option value="" i18n:translate="">Unspecified</option>
-					<option tal:repeat="item here/localities_table" tal:attributes="value item/uri; selected python:item['uri']==default" tal:content="item/name" />
+					<option tal:repeat="item engine/localities_table" tal:attributes="value item/uri; selected python:item['uri']==default" tal:content="item/name" />
 				</select>
 			</td>
 		</tr>

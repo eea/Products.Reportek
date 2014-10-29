@@ -53,6 +53,30 @@ class DataflowsManager:
             timeout=10.0
         )
 
+    @property
+    def dfm_title(self):
+        xmlrpc_dataflow = getattr(self, 'xmlrpc_dataflow', None)
+        if xmlrpc_dataflow:
+            return getattr(xmlrpc_dataflow, 'title', None)
+
+    @property
+    def dfm_url(self):
+        xmlrpc_dataflow = getattr(self, 'xmlrpc_dataflow', None)
+        if xmlrpc_dataflow:
+            return getattr(xmlrpc_dataflow, 'url', None)
+
+    @property
+    def dfm_method(self):
+        xmlrpc_dataflow = getattr(self, 'xmlrpc_dataflow', None)
+        if xmlrpc_dataflow:
+            return getattr(xmlrpc_dataflow, 'method_name', None)
+
+    @property
+    def dfm_timeout(self):
+        xmlrpc_dataflow = getattr(self, 'xmlrpc_dataflow', None)
+        if xmlrpc_dataflow:
+            return getattr(xmlrpc_dataflow, 'timeout', None)
+
     @ram.cache(lambda *args:time() // (60*60*12))
     def dataflow_rod(self):
         """ """

@@ -40,6 +40,30 @@ class CountriesManager:
             timeout=5.0
         )
 
+    @property
+    def cm_title(self):
+        xmlrpc_localities = getattr(self, 'xmlrpc_localities', None)
+        if xmlrpc_localities:
+            return getattr(xmlrpc_localities, 'title', None)
+
+    @property
+    def cm_url(self):
+        xmlrpc_localities = getattr(self, 'xmlrpc_localities', None)
+        if xmlrpc_localities:
+            return getattr(xmlrpc_localities, 'url', None)
+
+    @property
+    def cm_method(self):
+        xmlrpc_localities = getattr(self, 'xmlrpc_localities', None)
+        if xmlrpc_localities:
+            return getattr(xmlrpc_localities, 'method_name', None)
+
+    @property
+    def cm_timeout(self):
+        xmlrpc_localities = getattr(self, 'xmlrpc_localities', None)
+        if xmlrpc_localities:
+            return getattr(xmlrpc_localities, 'timeout', None)
+
     @ram.cache(lambda *args:time() // (60*60*12))
     def localities_rod(self):
         """ """

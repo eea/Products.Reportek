@@ -1,6 +1,11 @@
 3.7.1 (unreleased)
 -------------------
 * Task 20358:
+    - Added the possiblity of changing the properties of the ReportekEngine
+      xmlrpc methods from manage_properties view [olimpiurob]
+    - Removed inheritance DataflowsManager and CountriesManager inheritance in
+      the Collection class. The xmlrpc methods will be called from ReportekEngine [olimpiurob]
+    - Fixed tests after migration [olimpiurob]
     - Minor changes to ReportekUtilities. [olimpiurob]
     - Added statistics and envelopes.autocomplete browser pages in
       views.zcml. [olimpiurob]

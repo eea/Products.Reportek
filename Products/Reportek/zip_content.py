@@ -26,6 +26,7 @@ import urllib
 
 from AccessControl import getSecurityManager
 from AccessControl.Permissions import view
+from Products.Reportek import constants
 from zipfile import *
 import zipfile
 
@@ -229,10 +230,15 @@ def _get_descriptions(ob):
     else:
         return "n/a"
 
+def _get_engine(app):
+    return getattr(app, constants.ENGINE_ID)
+
 def _get_obligations(ob):
     res = []
+    app = ob.getPhysicalRoot()
+    engine = _get_engine(app)
     for uri in ob.dataflow_uris:
-        df = ob.dataflow_lookup(uri)
+        df = engine.dataflow_lookup(uri)
         if df.get('terminated','0') == '1':
             res.append("%s -- TERMINATED" % df['details_url'])
         else:
