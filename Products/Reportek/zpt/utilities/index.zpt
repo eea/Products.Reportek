@@ -27,6 +27,9 @@
       <li>
         <a href="envelopes.wrong_country">Envelopes allocated to the wrong country</a>
       </li>
+      <li>
+        <a href="obligation.recent_uploads">Recent uploads</a>
+      </li>
       <li tal:condition="not: options/is_bdr | nothing">
         <a href="statistics">Statistics</a>
       </li>

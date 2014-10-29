@@ -18,6 +18,17 @@ function generateRow(row, tableKey) {
   return result;
 }
 
+function initEnvelopesTable() {
+  $("#env-table").dataTable({
+    "order": [[0, "desc"]],
+    "aoColumnDefs": [
+      {'bSortable': false, 'aTargets': [5, 6]}
+    ],
+    "bAutoWidth": false
+  });
+
+}
+
 function initDataTable() {
   /* Init the datatable object */
 
@@ -94,6 +105,8 @@ function manage_role_cb(col_cb) {
   }
 }
 $(function () {
+  initEnvelopesTable()
+
   $("#role, #obligation, #countries").select2(
     {
       allowClear: true

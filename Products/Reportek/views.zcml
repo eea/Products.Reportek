@@ -109,6 +109,13 @@
     template="zpt/utilities/envelopes_wrong_country.zpt"/>
 
   <browser:page
+    name="obligation.recent_uploads"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.RecentUploads"
+    template="zpt/utilities/recent_uploads.zpt"/>
+
+  <browser:page
     name="statistics"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
