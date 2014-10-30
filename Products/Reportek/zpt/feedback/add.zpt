@@ -52,6 +52,10 @@
         <td><input type="file" name="file" size="25" value="" /></td>
       </tr>
       <tr>
+        <td></td>
+        <td><input type="submit" name="file_upload" value="Upload" i18n:attributes="value" /></td>
+      </tr>
+      <tr>
         <th align="left" i18n:translate="">Restricted from public view</th>
         <td align="left"><input type="checkbox" name="restricted" /></td>
       </tr>

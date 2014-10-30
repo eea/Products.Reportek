@@ -104,7 +104,10 @@ def manage_addFeedback(self, id ='', title='', feedbacktext='', file='', activit
         engine.sendNotificationToUNS(envelope, 'Feedback posted', 'Feedback was posted in the envelope %s (%s)' % (envelope.title_or_id(), obj.absolute_url()), self.REQUEST.AUTHENTICATED_USER.getUserName())
 
     if REQUEST is not None:
-        return self.messageDialog(message="The Feedback %s was successfully created!" % id)
+        if 'file_upload' in REQUEST.form:
+            REQUEST.RESPONSE.redirect('%s/manage_editFeedbackForm' % obj.absolute_url())
+        else:
+            return self.messageDialog(message="The Feedback %s was successfully created!" % id)
 
 class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, CommentsManager):
     """

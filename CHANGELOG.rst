@@ -1,5 +1,6 @@
 3.7.1 (unreleased)
 -------------------
+* Task 21521 - Simplified process of attaching multiple files to a feedback [olimpiurob]
 * Task 20358:
     - Added the possiblity of changing the properties of the ReportekEngine
       xmlrpc methods from manage_properties view [olimpiurob]
