@@ -508,6 +508,45 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
 
         self.browser.goBack(count=1)
 
+        # Go to Recent uploads view
+        self.browser.getLink(text='Recent uploads').click()
+
+        # Select our test country
+        c_controls = self.browser.getControl(name='countries:list').controls
+        for c_ctl in c_controls:
+            if c_ctl.optionValue == 'tc':
+                c_ctl.selected = True
+
+        # Select our test obligation
+        o_controls = self.browser.getControl(name='obligation').controls
+        for o_control in o_controls:
+            if o_control.optionValue == '8':
+                o_control.selected = True
+
+        # Test without start and end dates
+        self.browser.getControl(name='btn.search').click()
+        self.assertTrue('Test envelope' in self.browser.contents)
+        # Test with end date
+        self.browser.getControl(name='enddate').value = '2013-01-01'
+        self.browser.getControl(name='btn.search').click()
+        self.assertTrue('No envelopes.' in self.browser.contents)
+        # Test with start date
+        self.browser.getControl(name='startdate').value = '2013-01-01'
+        self.browser.getControl(name='btn.search').click()
+        self.assertTrue('Test envelope' in self.browser.contents)
+        # Test with start and end dates
+        self.browser.getControl(name='startdate').value = '2013-01-01'
+        self.browser.getControl(name='enddate').value = '2015-01-01'
+        self.browser.getControl(name='btn.search').click()
+        self.assertTrue('Test envelope' in self.browser.contents)
+        # Test with start and end dates
+        self.browser.getControl(name='startdate').value = '2013-01-01'
+        self.browser.getControl(name='enddate').value = '2014-01-01'
+        self.browser.getControl(name='btn.search').click()
+        self.assertTrue('No envelopes.' in self.browser.contents)
+
+        self.browser.goBack(count=6)
+
         # Go to statistics view
         self.browser.getLink(text='Statistics').click()
         self.assertTrue('<li>Number of envelopes: <span>1</span></li>' in

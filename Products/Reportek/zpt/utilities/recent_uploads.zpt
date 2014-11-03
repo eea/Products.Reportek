@@ -51,6 +51,7 @@
   </style>
   <div tal:condition="request/btn.search | nothing"
         tal:define="envelopes view/get_recent_uploads">
+    <span tal:condition="not: envelopes">No envelopes.</span>
     <table id="env-table" tal:condition="envelopes">
       <thead>
         <tr>
