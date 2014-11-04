@@ -35,6 +35,7 @@ from Products.ZCatalog.CatalogPathAwareness import CatalogAware
 from time import time
 from DateTime import DateTime
 import string
+from zope.event import notify
 
 # Product specific imports
 from expression import exprNamespace
@@ -48,6 +49,7 @@ except:
     from expression import Expression
 import RepUtils
 from constants import WORKFLOW_ENGINE_ID, WEBQ_XML_REPOSITORY, CONVERTERS_ID, APPLICATIONS_FOLDER_ID
+from events import StatusChangedEvent
 from workitem import workitem
 
 
@@ -209,6 +211,7 @@ class EnvelopeInstance(CatalogAware, Folder):
 
         self.status = status
         self.reindex_object()
+        notify(StatusChangedEvent(self))
 
     security.declareProtected('View','is_active_for_me')
     def is_active_for_me(self,REQUEST=None):

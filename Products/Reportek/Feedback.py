@@ -79,6 +79,8 @@ def manage_addFeedback(self, id ='', title='', feedbacktext='', file='', activit
     if file:
         filename = RepUtils.getFilename(file.filename)
         add_OfsBlobFile(ob, filename, file)
+        ob.restrictFileAttachment(filename)
+
     self._setObject(id, ob)
     obj = self._getOb(id)
 
@@ -218,6 +220,8 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
         if filename is None:
             filename = RepUtils.getFilename(file.filename)
         add_OfsBlobFile(self, filename, file)
+        self.restrictFileAttachment(filename)
+
         if REQUEST:
             REQUEST.RESPONSE.redirect('%s/manage_editFeedbackForm' % self.absolute_url())
 
@@ -260,6 +264,25 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
         """ returns the activity's description """
         l_process = self.unrestrictedTraverse(self.getParentNode().process_path)
         return getattr(getattr(l_process, self.activity_id), p_attribute)
+
+
+    def restrictFileAttachment(self, ids):
+        vr = list(self.valid_roles())
+        for item in ('Anonymous', 'Authenticated'):
+            try: vr.remove(item)
+            except: pass
+
+        self._set_file_restriction(ids, roles=vr, acquire=0, permission='View')
+
+    def unrestrictFileAttachment(self, ids):
+        self._set_file_restriction(ids, roles=[], acquire=1, permission='View')
+
+    def _set_file_restriction(self, ids, roles=[], acquire=0, permission='View'):
+        if type(ids) is type(''):
+            ids=[ids]
+        for id in ids:
+            ob=self._getOb(id)
+            ob.manage_permission(permission, roles=roles, acquire=acquire)
 
     security.declareProtected('View', 'get_owner')
     def get_owner(self, *args, **kwargs):

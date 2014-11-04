@@ -76,11 +76,16 @@
           <th scope="row" class="scope-row" i18n:translate="">Attached files: </th>
           <td>
             <tal:block repeat="file_item att_file">
-              <span tal:replace="file_item/getId"/> <a style="font-size: 0.8em"
-                                                       tal:attributes="href file_item/absolute_url"
-                                                       title="Download attached file"
-                                                       i18n:attributes="title download-attached-title"
-                                                       i18n:translate="">[download]</a><br />
+              <span tal:replace="file_item/getId"/>
+              <tal:block condition="not:python:SecurityManager.checkPermission('View', file_item)">
+                <tal:block define="dummy python:request.set('therearerestrictions',1)"></tal:block>
+                <img src="misc_/Reportek/lockicon_gif" alt="No access" style="width: 16px; height: 16px; vertical-align: bottom;" />
+              </tal:block>
+               <a style="font-size: 0.8em"
+                 tal:attributes="href file_item/absolute_url"
+                 title="Download attached file"
+                 i18n:attributes="title download-attached-title"
+                 i18n:translate="">[download]</a><br />
             </tal:block>
           </td>
         </tr>

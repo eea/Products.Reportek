@@ -65,6 +65,11 @@
     <subscriber for="zope.lifecycleevent.interfaces.IObjectMovedEvent"
             handler="Products.Reportek.OpenFlowEngine.handle_application_move_events" />
 
+    <subscriber for="Products.Reportek.EnvelopeInstance.EnvelopeInstance
+                    Products.Reportek.events.StatusChangedEvent"
+            handler=".subscribers.handle_env_status_changed"
+      />
+
     <i18n:registerTranslations directory="locales" />
 
 </configure>
