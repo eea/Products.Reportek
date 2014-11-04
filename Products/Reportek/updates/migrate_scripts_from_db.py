@@ -61,3 +61,8 @@ def update(app):
     if getattr(app, 'localities_table', None):
         app._delObject('localities_table', suppress_events=True)
         transaction.commit()
+
+    # migrate recent_etc
+    if getattr(app, 'recent_etc', None):
+        app._delObject('recent_etc', suppress_events=True)
+        transaction.commit()
