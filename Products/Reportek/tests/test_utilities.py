@@ -15,7 +15,7 @@ from OFS.SimpleItem import SimpleItem
 from Products.Reportek import create_reportek_indexes, create_reportek_objects
 from Products.Reportek import constants
 from Products.Reportek.ReportekEngine import ReportekEngine
-
+from datetime import date, timedelta
 
 ztc.installProduct('PluginIndexes')
 ztc.installProduct('PythonScripts')
@@ -523,28 +523,31 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             if o_control.optionValue == '8':
                 o_control.selected = True
 
+        min_date = date.today() - timedelta(days=3)
+        mid_date = date.today() - timedelta(days=1)
+        max_date = date.today() + timedelta(days=3)
+
         # Test without start and end dates
         self.browser.getControl(name='btn.search').click()
         self.assertTrue('Test envelope' in self.browser.contents)
         # Test with end date
-        self.browser.getControl(name='enddate').value = '2013-01-01'
+        self.browser.getControl(name='enddate').value = min_date.strftime('%Y-%m-%d')
         self.browser.getControl(name='btn.search').click()
         self.assertTrue('No envelopes.' in self.browser.contents)
         # Test with start date
-        self.browser.getControl(name='startdate').value = '2013-01-01'
+        self.browser.getControl(name='startdate').value = min_date.strftime('%Y-%m-%d')
         self.browser.getControl(name='btn.search').click()
         self.assertTrue('Test envelope' in self.browser.contents)
         # Test with start and end dates
-        self.browser.getControl(name='startdate').value = '2013-01-01'
-        self.browser.getControl(name='enddate').value = '2015-01-01'
+        self.browser.getControl(name='startdate').value = min_date.strftime('%Y-%m-%d')
+        self.browser.getControl(name='enddate').value = max_date.strftime('%Y-%m-%d')
         self.browser.getControl(name='btn.search').click()
         self.assertTrue('Test envelope' in self.browser.contents)
         # Test with start and end dates
-        self.browser.getControl(name='startdate').value = '2013-01-01'
-        self.browser.getControl(name='enddate').value = '2014-01-01'
+        self.browser.getControl(name='startdate').value = min_date.strftime('%Y-%m-%d')
+        self.browser.getControl(name='enddate').value = mid_date.strftime('%Y-%m-%d')
         self.browser.getControl(name='btn.search').click()
         self.assertTrue('No envelopes.' in self.browser.contents)
-
         self.browser.goBack(count=6)
 
         # Go to statistics view
