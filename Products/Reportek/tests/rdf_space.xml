@@ -20,6 +20,7 @@
 <hasFile rdf:resource="http://nohost/collection/envu2nsuq/file2"/>
 <cr:hasFeedback rdf:resource="http://nohost/collection/envu2nsuq/feedback1399024721"/>
 <cr:hasFeedback rdf:resource="http://nohost/collection/envu2nsuq/feedback1399024722"/>
+<blockedByQA rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</blockedByQA>
 </Delivery>
 <cr:Feedback rdf:about="http://nohost/collection/envu2nsuq/feedback1399024721">
 <rdfs:label>feedback1399024721</rdfs:label>
