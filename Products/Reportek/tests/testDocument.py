@@ -10,6 +10,7 @@ from utils import (create_temp_reposit, HtmlPage, MockDatabase,
                    break_document_data_file)
 from mock import Mock, patch
 import transaction
+import os
 
 
 class DocumentTestCase(BaseTest, ConfigureReportek):
@@ -32,14 +33,37 @@ class DocumentTestCase(BaseTest, ConfigureReportek):
     def beforeTearDown(self):
         self._cleanup_temp_reposit()
 
-    def create_text_document(self, id='documentid'):
+    def create_file(self, path, id, title):
+        file = FileUploadMock(path, 'content here')
+        self.envelope.manage_addProduct['Reportek'].manage_addDocument(id, title, file)
+
+    def test_upload_nothing_without_id(self):
+        r = self.envelope.manage_addProduct['Reportek'].manage_addDocument('', '', None)
+        self.assertEquals(r, '')
+
+    def test_upload_nothing_with_id(self):
+        r = self.envelope.manage_addProduct['Reportek'].manage_addDocument('f.txt', '', None)
+        self.assertEquals(r, '')
+
+    def test_upload_file_without_id(self):
+        self.create_file('C:\\TEMP\\testfile.txt', '', '')
+        self.assertEquals(hasattr(self.envelope, 'testfile.txt'), True)
+
+    def test_upload_file_with_id_without_extension(self):
+        self.create_file('C:\\TEMP\\testfile.txt', 'file', '')
+        self.assertEquals(hasattr(self.envelope, 'file.txt'), True)
+
+    def test_upload_file_with_id_with_extension(self):
+        self.create_file('C:\\TEMP\\testfile.txt', 'file.xls', '')
+        self.assertEquals(hasattr(self.envelope, 'file.xls'), True)
+
+    def create_text_document(self, id='documentid.txt'):
         """ Supporting method
             Create a text document in the envelope
             Verify the content_type is text/plain
         """
-        myfile = FileUploadMock('C:\\TEMP\\testfile.txt','content here')
-        self.envelope.manage_addProduct['Reportek'].manage_addDocument(id, 'Title', myfile)
-        self.document = self.envelope.documentid
+        self.create_file('C:\\TEMP\\testfile.txt', id, 'Title')
+        self.document = getattr(self.envelope, id)
         self.assertEquals('text/plain', self.document.content_type)
 
     def test_create_xml_document(self):
@@ -52,8 +76,8 @@ class DocumentTestCase(BaseTest, ConfigureReportek):
          </report>''')
         self.envelope.manage_addProduct['Reportek'].manage_addDocument('documentid',
           'Title', myfile)
-        self.assertTrue(hasattr(self.envelope, 'documentid'),'Document did not get created')
-        document = self.envelope.documentid
+        self.assertTrue(hasattr(self.envelope, 'documentid.xml'), 'Document did not get created')
+        document = getattr(self.envelope, 'documentid.xml')
         self.assertEquals('text/xml', document.content_type)
         self.assertEquals('http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd', document.xml_schema_location)
 
@@ -80,10 +104,11 @@ xmlns:gml="http://www.opengis.net/gml"
 xmlns:met="http://biodiversity.eionet.europa.eu/schemas/dir9243eec">
 </gml:FeatureCollection>'''
 
-        myfile = FileUploadMock(filename,content)
+        myfile = FileUploadMock(filename, content)
         self.envelope.manage_addProduct['Reportek'].manage_addDocument('documentid',
           'Title', myfile)
-        document = self.envelope.documentid
+        _, ext = os.path.splitext(filename)
+        document = getattr(self.envelope, 'documentid' + ext)
         self.assertEquals('text/xml', document.content_type)
         self.assertEquals('http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd',
             document.xml_schema_location)
@@ -101,9 +126,9 @@ xmlns:met="http://biodiversity.eionet.europa.eu/schemas/dir9243eec">
 
         page = HtmlPage(self.document.documents_section())
         self.assertEqual(page.select('.filessection legend').text(),
-                        'Files in this envelope')
+                         'Files in this envelope')
         self.assertEqual(page.select('.filessection table tr td a').text(),
-                        'documentid')
+                         'documentid.txt')
 
     def test_view_image_or_file_exception(self):
         self.create_text_document()

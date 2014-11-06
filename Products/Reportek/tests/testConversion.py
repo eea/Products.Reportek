@@ -52,10 +52,10 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
             Create a text document in the envelope
             Verify the content_type is text/plain
         """
-        myfile = FileUploadMock('C:\\TEMP\\testfile.txt','content here')
+        myfile = FileUploadMock('C:\\TEMP\\testfile.txt', 'content here')
         self.envelope.manage_addProduct['Reportek'].manage_addDocument('documentid',
           'Title', myfile)
-        self.document = self.envelope.documentid
+        self.document = getattr(self.envelope, 'documentid.txt')
         self.assertEquals('text/plain', self.document.content_type)
 
     @patch.object(Converters, '_http_params')

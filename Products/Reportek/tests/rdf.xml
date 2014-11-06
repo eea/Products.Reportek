@@ -17,7 +17,7 @@
 <endOfPeriod rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2004-12-31</endOfPeriod>
 <obligation rdf:resource="http://rod.eionet.europa.eu/obligations/8"/>
 <hasFile rdf:resource="http://nohost/collection/envu2nsuq/foo.txt"/>
-<hasFile rdf:resource="http://nohost/collection/envu2nsuq/file2"/>
+<hasFile rdf:resource="http://nohost/collection/envu2nsuq/file2.txt"/>
 <cr:hasFeedback rdf:resource="http://nohost/collection/envu2nsuq/feedback1399024721"/>
 <cr:hasFeedback rdf:resource="http://nohost/collection/envu2nsuq/feedback1399024722"/>
 <blockedByQA rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</blockedByQA>
@@ -46,9 +46,9 @@
 <cr:mediaType>text/plain</cr:mediaType>
 <restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</restricted>
 </File>
-<File rdf:about="http://nohost/collection/envu2nsuq/file2">
-<rdfs:label>file2</rdfs:label>
-<dct:title>file2</dct:title>
+<File rdf:about="http://nohost/collection/envu2nsuq/file2.txt">
+<rdfs:label>file2.txt</rdfs:label>
+<dct:title>file2.txt</dct:title>
 <dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:42Z</dct:issued>
 <dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:42Z</dct:date>
 <cr:mediaType>text/plain</cr:mediaType>

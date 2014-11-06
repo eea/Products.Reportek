@@ -74,9 +74,18 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
        set in the session object: default_restricted and force_restricted.
        This will set the restricted flag in the form.
     """
-    if hasattr(file, 'filename') and file.filename:
+    if hasattr(file, 'filename'):
         if not id:
             id = file.filename
+        else:
+            _, ext = os.path.splitext(id)
+            if not ext and hasattr(file, 'filename') and file.filename:
+                _, ext = os.path.splitext(file.filename)
+                id += ext
+
+    if file and id:
+        # if not id and hasattr(file, 'filename') and file.filename:
+        #     id = file.filename
 
         save_id = None
         id = id[max(string.rfind(id, '/'),
@@ -85,11 +94,6 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
                     ) + 1:]
         id = id.strip()
         id = RepUtils.cleanup_id(id)
-
-        filename, ext = os.path.splitext(id)
-        if not ext:
-            filename, ext = os.path.splitext(file.filename)
-            id += ext
 
         # delete the previous file with the same id, if exists
         if self.get(id) and isinstance(self.get(id), Document):
