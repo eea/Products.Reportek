@@ -84,9 +84,6 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
                 id += ext
 
     if file and id:
-        # if not id and hasattr(file, 'filename') and file.filename:
-        #     id = file.filename
-
         save_id = None
         id = id[max(string.rfind(id, '/'),
                     string.rfind(id, '\\'),
