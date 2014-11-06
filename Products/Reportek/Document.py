@@ -74,16 +74,19 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
        set in the session object: default_restricted and force_restricted.
        This will set the restricted flag in the form.
     """
-    if hasattr(file, 'filename'):
+    is_object = hasattr(file, 'filename') and file.filename
+    is_str = file and type(file) == str
+
+    if is_object:
         if not id:
             id = file.filename
         else:
             _, ext = os.path.splitext(id)
-            if not ext and hasattr(file, 'filename') and file.filename:
+            if not ext:
                 _, ext = os.path.splitext(file.filename)
                 id += ext
 
-    if file and id:
+    if (is_str or is_object) and id:
         save_id = None
         id = id[max(string.rfind(id, '/'),
                     string.rfind(id, '\\'),
