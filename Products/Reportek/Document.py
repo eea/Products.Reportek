@@ -67,30 +67,34 @@ UNDO_POLICY = BACKUP_ON_DELETE
 
 manage_addDocumentForm = PageTemplateFile('zpt/document/add', globals())
 
-def manage_addDocument(self, id='', title='',
-        file='', content_type='', restricted='', REQUEST=None, deferred_compress=None):
+
+def manage_addDocument(self, id='', title='', file='', content_type='',
+                       restricted='', REQUEST=None, deferred_compress=None):
     """Add a Document to a folder. The form can be called with two variables
        set in the session object: default_restricted and force_restricted.
        This will set the restricted flag in the form.
     """
+    if hasattr(file, 'filename') and file.filename:
+        if not id:
+            id = file.filename
 
-    # content_type argument is probably not used anywhere.
-    if id=='' and type(file) is not type('') and hasattr(file,'filename'):
-        # generate id from filename and make sure, there are no spaces in the id
-        id = file.filename
-    if id:
         save_id = None
-        id = id[max(string.rfind(id,'/'),
-                  string.rfind(id,'\\'),
-                  string.rfind(id,':')
-                 )+1:]
+        id = id[max(string.rfind(id, '/'),
+                    string.rfind(id, '\\'),
+                    string.rfind(id, ':')
+                    ) + 1:]
         id = id.strip()
         id = RepUtils.cleanup_id(id)
+
+        filename, ext = os.path.splitext(id)
+        if not ext:
+            filename, ext = os.path.splitext(file.filename)
+            id += ext
 
         # delete the previous file with the same id, if exists
         if self.get(id) and isinstance(self.get(id), Document):
             save_id = id
-            id = id + '___tmp_%f'%time()
+            id += '___tmp_%f' % time()
 
         obj = Document(id, title, deferred_compress)
         self = self.this()
@@ -102,7 +106,7 @@ def manage_addDocument(self, id='', title='',
             self.manage_delObjects(id)
             if REQUEST:
                 return self.messageDialog(
-                    message='The file is an invalid XML (reason: %s)'%str(e.args),
+                    message='The file is an invalid XML (reason: %s)' % str(e.args),
                     action='./manage_main')
             else:
                 return ''
@@ -118,21 +122,21 @@ def manage_addDocument(self, id='', title='',
         obj.reindex_object()
         if REQUEST is not None:
             security=getSecurityManager()
-            if security.checkPermission('View management screens',self):
+            if security.checkPermission('View management screens', self):
                 ppath = './manage_main'
             else:
                 pobj = REQUEST.PARENTS[0]
                 ppath = string.join(pobj.getPhysicalPath(), '/')
             return self.messageDialog(
-                            message='The file %s was successfully created!' % id,
-                            action=ppath)
+                message='The file %s was successfully created!' % id,
+                action=ppath)
         else:
             return id
     else:
         if REQUEST is not None:
             return self.messageDialog(
-                            message='You must specify a file!',
-                            action='./manage_main')
+                message='You must specify a file!',
+                action='./manage_main')
         else:
             return ''
 
