@@ -40,47 +40,47 @@ class DocumentTestCase(BaseTest, ConfigureReportek):
 
     def test_upload_nothing_without_id(self):
         r = self.create_file('', '', '')
-        self.assertEquals(r, '')
+        self.assertEqual(r, '')
 
     def test_upload_nothing_with_id_without_ext(self):
         r = self.create_file('', 'id', '')
-        self.assertEquals(r, '')
+        self.assertEqual(r, '')
 
     def test_upload_nothing_with_id_with_ext(self):
         r = self.create_file('', 'f.txt', '')
-        self.assertEquals(r, '')
+        self.assertEqual(r, '')
 
     def test_upload_file_without_id(self):
         self.create_file('C:\\TEMP\\testfile.txt', '', '')
-        self.assertEquals(hasattr(self.envelope, 'testfile.txt'), True)
+        self.assertEqual(hasattr(self.envelope, 'testfile.txt'), True)
 
     def test_upload_file_with_id_without_extension(self):
         self.create_file('/TEMP/testfile.txt', 'file', '')
-        self.assertEquals(hasattr(self.envelope, 'file.txt'), True)
+        self.assertEqual(hasattr(self.envelope, 'file.txt'), True)
 
     def test_upload_file_with_id_with_extension(self):
         self.create_file('C:\\TEMP\\testfile.txt', 'file.xls', '')
-        self.assertEquals(hasattr(self.envelope, 'file.xls'), True)
+        self.assertEqual(hasattr(self.envelope, 'file.xls'), True)
 
     def test_upload_raw_content_without_id(self):
         add_doc = self.envelope.manage_addProduct['Reportek'].manage_addDocument
         r = add_doc('', 'Title', 'Some content')
-        self.assertEquals(r, '')
+        self.assertEqual(r, '')
 
     def test_upload_raw_content_with_id(self):
         add_doc = self.envelope.manage_addProduct['Reportek'].manage_addDocument
         r = add_doc('file', 'Title', 'Some content')
-        self.assertEquals(r, 'file')
+        self.assertEqual(r, 'file')
 
     def test_upload_empty_content_with_id(self):
         add_doc = self.envelope.manage_addProduct['Reportek'].manage_addDocument
         r = add_doc('file', 'Title', '')
-        self.assertEquals(r, '')
+        self.assertEqual(r, '')
 
     def test_upload_empty_content_without_id(self):
         add_doc = self.envelope.manage_addProduct['Reportek'].manage_addDocument
         r = add_doc('', 'Title', '')
-        self.assertEquals(r, '')
+        self.assertEqual(r, '')
 
     def create_text_document(self, id='documentid.txt'):
         """ Supporting method

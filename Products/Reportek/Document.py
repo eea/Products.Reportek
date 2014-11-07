@@ -75,7 +75,7 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
        This will set the restricted flag in the form.
     """
     is_object = hasattr(file, 'filename') and file.filename
-    is_str = file and type(file) == str
+    is_str = file and isinstance(file, basestring)
 
     if is_object:
         if not id:
