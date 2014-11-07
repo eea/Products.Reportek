@@ -558,7 +558,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
         with self.data_file.open('wb', orig_size=orig_size, skip_decompress=skip_compress, crc=crc) as data_file_handle:
             if hasattr(file, 'filename'):
-                for chunk in RepUtils.iter_file_data(file, 1000):
+                for chunk in RepUtils.iter_file_data(file):
                     data_file_handle.write(chunk)
             else:
                 data_file_handle.write(file)
