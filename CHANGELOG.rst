@@ -1,5 +1,8 @@
 3.7.1 (unreleased)
 -------------------
+* Task 3324 
+    - Fixed file upload in envelope [vitaliemaldur]
+    - Fixed the id generation for the file [vitaliemaldur]
 * Task 21521 - Simplified process of attaching multiple files to a feedback [olimpiurob]
 * Task 20358:
     - Added the possiblity of changing the properties of the ReportekEngine
