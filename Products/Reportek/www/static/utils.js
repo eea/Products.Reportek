@@ -26,7 +26,21 @@ function initEnvelopesTable() {
     ],
     "bAutoWidth": false
   });
+}
 
+function initCompaniesTable() {
+  $("#comp-table").dataTable({
+    "autowidth": false,
+    "columns": [
+      { "width": "5%%" },
+      { "width": "25%" },
+      { "width": "15%" },
+      { "width": "13%" },
+      { "width": "15%" },
+      { "width": "12%" },
+      { "width": "15%" }
+    ]
+  });
 }
 
 function initDataTable() {
@@ -105,7 +119,8 @@ function manage_role_cb(col_cb) {
   }
 }
 $(function () {
-  initEnvelopesTable()
+  initEnvelopesTable();
+  initCompaniesTable();
 
   $("#role, #obligation, #countries").select2(
     {

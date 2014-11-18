@@ -123,10 +123,12 @@
     template="zpt/utilities/statistics.zpt"/>
 
   <browser:page
-    name="envelopes.autocomplete"
-    for=".interfaces.IReportekUtilities"
+    name="index_html"
+    for=".interfaces.IRegistryManagement"
     permission="zope2.ViewManagementScreens"
-    class=".views.EnvelopeUtils"
-    template="zpt/utilities/envelopes_autocomplete.zpt"/>
+    class=".views.BaseAdmin"
+    template="zpt/registry/index.zpt"/>
+
+  <include package="." file="views.bdr.zcml" />
 
 </configure>

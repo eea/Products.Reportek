@@ -15,5 +15,20 @@
       class=".views.EnvelopeUtils"
       template="zpt/utilities/envelopes_autocomplete.zpt"/>
 
+    <browser:page
+      name="registry_management"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      template="zpt/registry/registry_management.zpt"/>
+
+    <browser:page
+      name="company_details"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      template="zpt/registry/company_details.zpt"/>
+
+
   </configure>
 </configure>

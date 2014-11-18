@@ -1,0 +1,109 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+  <metal:block fill-slot="head">
+    <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
+    <link href="++resource++static/style.css" rel="stylesheet"/>
+
+    <script type="text/javascript" charset="utf8"
+          src="++resource++static/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" charset="utf8"
+          src="++resource++static/datatables-1.10.1/media/js/jquery.dataTables.min.js"></script>
+    <script src="++resource++static/select2-3.5.0/select2.js"></script>
+    <script src="++resource++static/utils.js"></script>
+  </metal:block>
+
+  <metal:block fill-slot="breadcrumbtrails">
+    <tal:block content="structure here/breadcrumbs_views"></tal:block>
+  </metal:block>
+
+  <metal:block fill-slot="content">
+    <tal:block define="company view/get_company_details">
+      <h1>Company details</h1>
+      <div>
+        <table tal:condition="company">
+          <tbody>
+            <tr>
+              <th>Company name</th>
+              <td tal:content="company/name"></td>
+            </tr>
+            <tr>
+              <th>Date registered</th>
+              <td tal:content="company/date_created"></td>
+            </tr>
+            <tr>
+              <th>Status</th>
+              <td tal:content="company/status"></td>
+            </tr>
+            <tr>
+              <th>Street and number</th>
+              <td tal:content="string:${company/address/street} ${company/address/number}"></td>
+            </tr>
+            <tr>
+              <th>Municipality</th>
+              <td tal:content="company/address/city"></td>
+            </tr>
+            <tr>
+              <th>Postal code</th>
+              <td tal:content="company/address/zipcode"></td>
+            </tr>
+            <tr>
+              <th>EORI number</th>
+              <td></td>
+            </tr>
+            <tr>
+              <th>VAT number</th>
+              <td tal:content="company/vat"></td>
+            </tr>
+            <tr>
+              <th>Country</th>
+              <td tal:content="company/address/country/name"></td>
+            </tr>
+            <tr>
+              <th>Obligation</th>
+              <td tal:content="company/domain"></td>
+            </tr>
+            <tr>
+              <th>Account</th>
+              <td>
+                <tal:block tal:repeat="user company/users">
+                  <a tal:content="user/username"></a>
+                </tal:block>
+              </td>
+            </tr>
+            <tr>
+              <th>Website</th>
+              <td tal:content="company/website"></td>
+            </tr>
+            </tbody>
+        </table>
+        <h3 tal:condition="not: company">No information about this company</h3>
+      </div>
+
+      <a name="persons"><h1>Persons</h1></a>
+      <div>
+        <table tal:condition="company">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Username</th>
+              <th>First name</th>
+              <th>Last name</th>
+              <th>Email</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr tal:repeat="user company/users">
+              <td tal:content="user/id"></td>
+              <td tal:content="user/username"></td>
+              <td tal:content="user/first_name"></td>
+              <td tal:content="user/last_name"></td>
+              <td tal:content="user/email"></td>
+            </tr>
+          </tbody>
+        </table>
+        <h3 tal:condition="not: company">No information about this company</h3>
+      </div>
+    </tal:block>
+  </metal:block>
+
+</metal:block>
