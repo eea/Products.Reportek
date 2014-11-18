@@ -51,6 +51,7 @@ import RemoteRESTApplication
 import DataflowMappings
 import ReportekEngine
 import ReportekUtilities
+import RegistryManagement
 
 import constants
 
@@ -129,6 +130,16 @@ def create_reportek_objects(app):
                                     constants.REPORTEK_UTILITIES,
                                     'Reportek Utilities')
         app._setObject(constants.REPORTEK_UTILITIES, reportek_utilities)
+
+    #Add Registry Management
+    if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+        try:
+            registry_management = getattr(app, constants.REGISTRY_MANAGEMENT)
+        except AttributeError:
+            registry_management = RegistryManagement.RegistryManagement(
+                                        constants.REGISTRY_MANAGEMENT,
+                                        'Registry Management')
+            app._setObject(constants.REGISTRY_MANAGEMENT, registry_management)
 
 def _strip_protocol_domain(full_url):
     """ Take a full url and return a tuple of path part and protocol+domain part."""
