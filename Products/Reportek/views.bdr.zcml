@@ -16,6 +16,13 @@
       template="zpt/utilities/envelopes_autocomplete.zpt"/>
 
     <browser:page
+      name="index_html"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.BaseAdmin"
+      template="zpt/registry/index.zpt"/>
+
+    <browser:page
       name="registry_management"
       for=".interfaces.IRegistryManagement"
       permission="zope2.ViewManagementScreens"
@@ -29,6 +36,12 @@
       class=".views.SatelliteRegistryManagement"
       template="zpt/registry/company_details.zpt"/>
 
+    <browser:page
+      name="company_details_xml"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      template="zpt/registry/company_details_xml.zpt"/>
 
   </configure>
 </configure>

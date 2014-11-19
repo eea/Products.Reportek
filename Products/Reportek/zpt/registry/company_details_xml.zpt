@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<tal:xml xmlns:tal="http://xml.zope.org/namespaces/tal"
+  xmlns:metal="http://xml.zope.org/namespaces/metal">
+  <organisations>
+    <organisation tal:define="company view/get_company_details" tal:condition="company">
+      <pk tal:content="company/id" />
+      <name tal:content="company/name" />
+      <addr_street tal:content="company/address/street" />
+      <addr_postalcode tal:content="company/address/zipcode" />
+      <vat_number tal:content="company/vat" />
+      <addr_place tal:content="company/address/city" />
+      <obligation tal:content="company/domain" />
+      <country tal:content="company/address/country/name" />
+      <tal:block tal:repeat="user company/users">
+        <person>
+          <name tal:content="string:${user/first_name} ${user/last_name}" />
+          <email tal:content="user/email" />
+        </person>
+      </tal:block>
+    </organisation>
+  </organisations>
+</tal:xml>
