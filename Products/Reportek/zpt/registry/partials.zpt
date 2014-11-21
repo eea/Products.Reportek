@@ -1,0 +1,99 @@
+<tal:block metal:define-macro="old_company_details">
+  <h3>Candidate details</h3>
+  <table tal:condition="candidate">
+    <tbody>
+      <tr>
+        <th>Company name</th>
+        <td tal:content="candidate/name"></td>
+      </tr>
+      <tr>
+        <th>Date registered</th>
+        <td tal:content="candidate/date_registered"></td>
+      </tr>
+      <tr>
+        <th>EORI number</th>
+        <td tal:content="candidate/eori" />
+      </tr>
+      <tr>
+        <th>VAT number</th>
+        <td tal:content="candidate/vat_number"></td>
+      </tr>
+      <tr>
+        <th>Account</th>
+        <td tal:content="candidate/account"></td>
+      </tr>
+      <tr>
+        <th>Country Code</th>
+        <td tal:content="candidate/country_code"></td>
+      </tr>
+      <tr>
+        <th>Website</th>
+        <td tal:content="candidate/website"></td>
+      </tr>
+      </tbody>
+  </table>
+  <h3 tal:condition="not: candidate">No information about this candidate</h3>
+</tal:block>
+
+<tal:block metal:define-macro="company_details">
+  <h1>Company details</h1>
+  <div>
+    <table tal:condition="company">
+      <tbody>
+        <tr>
+          <th>Company name</th>
+          <td tal:content="company/name"></td>
+        </tr>
+        <tr>
+          <th>Date registered</th>
+          <td tal:content="company/date_created"></td>
+        </tr>
+        <tr>
+          <th>Status</th>
+          <td tal:content="company/status"></td>
+        </tr>
+        <tr>
+          <th>Street and number</th>
+          <td tal:content="string:${company/address/street} ${company/address/number}"></td>
+        </tr>
+        <tr>
+          <th>Municipality</th>
+          <td tal:content="company/address/city"></td>
+        </tr>
+        <tr>
+          <th>Postal code</th>
+          <td tal:content="company/address/zipcode"></td>
+        </tr>
+        <tr>
+          <th>EORI number</th>
+          <td></td>
+        </tr>
+        <tr>
+          <th>VAT number</th>
+          <td tal:content="company/vat"></td>
+        </tr>
+        <tr>
+          <th>Country</th>
+          <td tal:content="company/address/country/name"></td>
+        </tr>
+        <tr>
+          <th>Obligation</th>
+          <td tal:content="company/domain"></td>
+        </tr>
+        <tr>
+          <th>Account</th>
+          <td>
+            <tal:block tal:repeat="user company/users">
+              <a tal:content="user/username"></a>
+            </tal:block>
+          </td>
+        </tr>
+        <tr>
+          <th>Website</th>
+          <td tal:content="company/website"></td>
+        </tr>
+        </tbody>
+    </table>
+    <h3 tal:condition="not: company">No information about this company</h3>
+  </div>
+</tal:block>

@@ -1,0 +1,32 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+  <metal:block fill-slot="breadcrumbtrails">
+    <tal:block content="structure here/breadcrumbs_views"></tal:block>
+  </metal:block>
+
+  <metal:block fill-slot="content">
+    <h1>Matching Companies</h1>
+    <tal:block define="candidates view/get_candidates">
+      <table width="100%" border="1">
+        <thead>
+          <tr>
+            <th>Company name</th>
+            <th>Candidates</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr tal:repeat="cand candidates">
+            <td>
+              <a tal:content="cand/undertaking/name" tal:attributes="href string:/RegistryManagement/verify_companies?id=${cand/undertaking/external_id}" />
+            </td>
+            <td>
+              <tal:block tal:repeat="link cand/links">
+                <span tal:content="link/name" /><br/>
+              </tal:block>
+            <td>
+          </tr>
+        </tbody>
+      </table>
+    </tal:block>
+  </metal:block>
+</metal:block>

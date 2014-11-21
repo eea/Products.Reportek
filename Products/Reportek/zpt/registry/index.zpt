@@ -9,5 +9,8 @@
     <ul>
       <li><a href="registry_management">All companies</a></li>
     </ul>
+        <ul>
+      <li><a href="matching_companies">Matching companies</a></li>
+    </ul>
   </metal:block>
 </metal:block>
