@@ -37,11 +37,32 @@
       template="zpt/registry/company_details.zpt"/>
 
     <browser:page
-      name="company_details_xml"
+      name="organisation"
       for=".interfaces.IRegistryManagement"
       permission="zope2.ViewManagementScreens"
       class=".views.SatelliteRegistryManagement"
-      template="zpt/registry/company_details_xml.zpt"/>
+      attribute="get_company_alldetails"/>
+
+    <browser:page
+      name="partials"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      template="zpt/registry/partials.zpt"/>
+
+    <browser:page
+      name="verify_companies"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      template="zpt/registry/verify_companies.zpt"/>
+
+    <browser:page
+      name="matching_companies"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      template="zpt/registry/matching_companies.zpt"/>
 
   </configure>
 </configure>
