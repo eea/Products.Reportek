@@ -16,7 +16,7 @@
         <tal:block tal:condition="company/candidates" repeat="candidate company/candidates">
           <tal:block metal:use-macro="here/partials/macros/old_company_details" />
         </tal:block>
-        <input type="hidden" name="fid" tal:attributes="value string:${company/id}">
+        <input type="hidden" name="fid" tal:attributes="value string:${company/company_id}">
         <hr/>
         <input type="submit" name="verify.btn" value="Submit">
       </form>

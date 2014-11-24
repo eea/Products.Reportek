@@ -1,5 +1,6 @@
 from base_admin import BaseAdmin
 from Products.Reportek.constants import ENGINE_ID
+import json
 
 
 class SatelliteRegistryManagement(BaseAdmin):
@@ -21,13 +22,13 @@ class SatelliteRegistryManagement(BaseAdmin):
         return api.getCompanies()
 
     def get_company_alldetails(self):
-        return None
-    #    if self.request.get('id'):
-    #        id = self.request.get('id')
-    #        response = requests.get("http://localhost:5000/undertaking/full-detail/%s" % id, verify=False)
-    #        if response.status_code == requests.codes.ok:
-    #            return json.dumps(response.json(), indent=2)
-    #    return {}
+        self.request.response.setHeader('Content-Type', 'application/json')
+        if self.request.get('id'):
+            api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi.authMiddlewareApi
+            companyId = self.request.get('id')
+            details = api.getCompanyDetails(companyId)
+            return json.dumps(details, indent=2)
+        return json.dumps({})
 
     def get_company_details(self):
         if self.request.get('id'):

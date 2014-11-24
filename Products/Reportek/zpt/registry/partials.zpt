@@ -1,7 +1,7 @@
 <tal:block metal:define-macro="old_company_details">
   <div class="company-header clearfix">
-    <label class="btn btn-default pull-left" tal:attributes="for string:id_${candidate/id}">
-      <input type="radio" name="cid" tal:attributes="value string:${candidate/id}; id string:id_${candidate/id}">
+    <label class="btn btn-default pull-left" tal:attributes="for string:id_${candidate/company_id}">
+      <input type="radio" name="cid" tal:attributes="value string:${candidate/company_id}; id string:id_${candidate/company_id}">
       Verify
     </label>
     <h3 tal:content="candidate/name"/>
@@ -28,8 +28,6 @@
   <div class="company">
     <h1 tal:content="company/name" />
     <dl class="details clearfix" tal:condition="company">
-      <dt>Date registered</dt>
-      <dd tal:content="company/date_created"></dd>
       <dt>Status</dt>
       <dd tal:content="company/status"></dd>
       <dt>Street and number</dt>

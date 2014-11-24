@@ -55,7 +55,7 @@ class AuthMiddlewareApi(object):
 
 
     def getCompanyDetails(self, companyId):
-        response = requests.get(self.baseUrl + "/undertaking/detail/%s" % companyId,
+        response = requests.get(self.baseUrl + "/undertaking/%s/details" % companyId,
                                 timeout=self.TIMEOUT, verify=False)
         if not response or response.status_code != requests.codes.ok:
             return None

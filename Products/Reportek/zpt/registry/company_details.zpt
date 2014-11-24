@@ -26,7 +26,6 @@
         <table tal:condition="company" class="simple_table">
           <thead>
             <tr>
-              <th>ID</th>
               <th>Username</th>
               <th>First name</th>
               <th>Last name</th>
@@ -35,7 +34,6 @@
           </thead>
           <tbody>
             <tr tal:repeat="user company/users">
-              <td tal:content="user/id"></td>
               <td tal:content="user/username"></td>
               <td tal:content="user/first_name"></td>
               <td tal:content="user/last_name"></td>
