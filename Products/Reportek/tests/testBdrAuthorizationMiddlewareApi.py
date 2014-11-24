@@ -1,18 +1,19 @@
 # -*- coding: utf-8 -*-
 
 from mock import patch, Mock
+import json
 from Testing import ZopeTestCase
 from Products.Reportek.BdrAuthorizationMiddlewareApi import AuthMiddlewareApi
 
 
 class AuthMiddlewareApiTest(ZopeTestCase.ZopeTestCase):
     userDetailInput = u"""
-    [{"external_id": 1234,
+    [{"company_id": 1234,
       "name": "Blă Brul",
       "country": "RO",
       "domain": "FGAS",
       "collection_id": "fgas30001"},
-     {"external_id": 12345,
+     {"company_id": 12345,
       "name": "Blâ Brul",
       "country": "RO",
       "domain": "ODS",
@@ -28,6 +29,7 @@ class AuthMiddlewareApiTest(ZopeTestCase.ZopeTestCase):
         req_mock.return_value = rsp
         rsp.status_code = 200
         rsp.text = self.userDetailInput
+        rsp.json = Mock(return_value=json.loads(rsp.text))
 
         username = 'vasile'
         expectedPaths = [u'fgases/ro/fgas30001', u'ods/ro/12345']
