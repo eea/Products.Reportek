@@ -23,7 +23,7 @@
 
       <a name="persons"><h1>Persons</h1></a>
       <div>
-        <table tal:condition="company">
+        <table tal:condition="company" class="simple_table">
           <thead>
             <tr>
               <th>ID</th>

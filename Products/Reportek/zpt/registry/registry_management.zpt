@@ -39,14 +39,14 @@
         </thead>
         <tbody>
           <tr tal:repeat="comp companies">
-            <td tal:content="comp/external_id"/>
+            <td tal:content="comp/company_id"/>
             <td>
-              <a tal:content="comp/name" tal:attributes="href string:/RegistryManagement/company_details?id=${comp/external_id}"></a>
+              <a tal:content="comp/name" tal:attributes="href string:/RegistryManagement/company_details?id=${comp/company_id}"></a>
             </td>
             <td tal:content="comp/domain"/>
             <td>
               <tal:block tal:repeat="user comp/users">
-                <a tal:attributes="href string:/RegistryManagement/company_details?id=${comp/external_id}#persons" tal:content="user/username"></a><br/>
+                <a tal:attributes="href string:/RegistryManagement/company_details?id=${comp/company_id}#persons" tal:content="user/username"></a><br/>
               </tal:block>
             </td>
             <td tal:content="comp/address/country/name"/>

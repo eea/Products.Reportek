@@ -1,5 +1,9 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
 
+  <metal:block fill-slot="head">
+    <link href="++resource++static/style.css" rel="stylesheet"/>
+  </metal:block>
+
   <metal:block fill-slot="breadcrumbtrails">
     <tal:block content="structure here/breadcrumbs_views"></tal:block>
   </metal:block>
@@ -7,10 +11,10 @@
   <metal:block fill-slot="content">
     <tal:block define="company view/get_company_details">
       <tal:block metal:use-macro="here/partials/macros/company_details" />
+      <h1>Candidates</h1>
       <form method="post" tal:condition="company">
         <tal:block tal:condition="company/candidates" repeat="candidate company/candidates">
           <tal:block metal:use-macro="here/partials/macros/old_company_details" />
-          <input type="radio" name="cid" tal:attributes="value string:${candidate/id}">Verify
         </tal:block>
         <input type="hidden" name="fid" tal:attributes="value string:${company/id}">
         <hr/>
