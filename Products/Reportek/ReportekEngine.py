@@ -50,6 +50,7 @@ from copy import copy
 import constants
 from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.Reportek.ContentRegistryPingger import ContentRegistryPingger
+from Products.Reportek.BdrAuthorizationMiddleware import BdrAuthorizationMiddleware
 import RepUtils
 from Toolz import Toolz
 from DataflowsManager import DataflowsManager
@@ -105,6 +106,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     QA_application = ''
     globally_restricted_site = False
     cr_api_url = 'http://cr.eionet.europa.eu/ping'
+    auth_middleware_url = ''
+    auth_middleware_recheck_interval = 300
 
     def all_meta_types(self, interfaces=None):
         """
@@ -219,6 +222,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if self.cr_api_url:
             self.contentRegistryPingger.api_url = self.cr_api_url
 
+        self.auth_middleware_url = self.REQUEST.get('auth_middleware_url', self.auth_middleware_url)
+        if self.auth_middleware_url:
+            self.auth_middleware_recheck_interval = int(self.REQUEST.get('auth_middleware_recheck_interval', self.auth_middleware_recheck_interval))
+            self.authMiddlewareApi.setServiceRecheckInterval(self.auth_middleware_recheck_interval)
+
         # don't send the completed from back, the values set on self must be used
         return self._manage_properties(manage_tabs_message="Properties changed")
 
@@ -237,6 +245,17 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         else:
             self._contentRegistryPingger = ContentRegistryPingger(self.cr_api_url)
             return self._contentRegistryPingger
+
+    @property
+    def authMiddlewareApi(self):
+        if not self.auth_middleware_url:
+            return None
+        api = getattr(self, '_authMiddlewareApi', None)
+        if api:
+            return api
+        else:
+            self._authMiddlewareApi = BdrAuthorizationMiddleware(self.auth_middleware_url)
+            return self._authMiddlewareApi
 
     security.declarePublic('getPartsOfYear')
     def getPartsOfYear(self):
