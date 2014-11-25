@@ -456,3 +456,63 @@ def inline_replace(x):
     return x
 
 mime_types = _mime_types()
+
+
+def replace_keys(replace_items, obj):
+    """
+    Replace keys of a dict
+    :param replace_items: dict with keys and replacements
+    :param obj: dict where to replace
+    :return: modified dict
+    """
+    for key, replacement in replace_items.iteritems():
+        obj[replacement] = obj.pop(key)
+    return obj
+
+
+def fix_json_format(obj):
+    """
+    Replace keys from json to set the right json format, used in SatelliteRegistryManagement class
+    :param obj: python dict
+    :return: the dict in the corect format
+    """
+    # Delete unused keys
+    for key in ['businessprofile', 'candidates', 'collection_id']:
+        obj.pop(key, None)
+
+    # Replace keys to set the right json format
+    obj = replace_keys({
+        'oldcompany_id': 'Former_Company_no_2007-2010',
+        'company_id': 'id',
+        'representative': 'euLegalRepresentativeCompany',
+        'users': 'contactPersons'
+    }, obj)
+
+    # Replace legal representative format
+    obj['euLegalRepresentativeCompany'] = replace_keys({
+        'vatnumber': 'vatNumber',
+        'contact_last_name': 'contactPersonLastName',
+        'contact_first_name': 'contactPersonFirstName',
+        'contact_email': 'contactPersonEmailAddress'
+    }, obj['euLegalRepresentativeCompany'])
+
+    # Replace legal representative address format
+    obj['euLegalRepresentativeCompany']['address'] = replace_keys({
+        'zipcode': 'zipCode'
+    }, obj['euLegalRepresentativeCompany']['address'])
+
+    # Replace address format
+    obj['address'] = replace_keys({
+        'zipcode': 'zipCode'
+    }, obj['address'])
+
+    # Replace contact persons format
+    for person in obj['contactPersons']:
+        replace_keys({
+            'username': 'userName',
+            'first_name': 'firstName',
+            'last_name': 'lastName',
+            'email': 'emailAddress'
+        }, person)
+
+    return obj

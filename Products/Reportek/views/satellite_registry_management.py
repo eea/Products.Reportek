@@ -1,5 +1,6 @@
 from base_admin import BaseAdmin
 from Products.Reportek.constants import ENGINE_ID
+from Products.Reportek.RepUtils import fix_json_format
 import json
 
 
@@ -33,7 +34,7 @@ class SatelliteRegistryManagement(BaseAdmin):
             api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi.authMiddlewareApi
             companyId = self.request.get('id')
             details = api.getCompanyDetails(companyId)
-            return json.dumps(details, indent=2)
+            return json.dumps(fix_json_format(details), indent=2)
         return json.dumps({})
 
     def get_company_details(self):
@@ -44,7 +45,7 @@ class SatelliteRegistryManagement(BaseAdmin):
             api = api.authMiddlewareApi
             companyId = self.request.get('id')
             return api.getCompanyDetails(companyId)
-
+        return None
 
     def get_candidates(self):
         api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi
