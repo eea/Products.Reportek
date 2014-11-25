@@ -31,6 +31,7 @@ function initEnvelopesTable() {
 function initCompaniesTable() {
   $("#comp-table").dataTable({
     "autowidth": false,
+    "order": [[ 0, "desc" ]],
     "columns": [
       { "width": "5%%" },
       { "width": "25%" },
