@@ -13,10 +13,11 @@ class SatelliteRegistryManagement(BaseAdmin):
             if not api:
                 return None
             api = api.authMiddlewareApi
-            candidateId = self.request.get("cid")
-            newId = self.request.get("fid")
-            if candidateId and newId:
-                isForMatch = api.verifyCandidate(newId, candidateId)
+            candidateId = self.request.form.get("cid")
+            newId = self.request.form.get("fid")
+            userId = self.request.form.get("user")
+            if candidateId and newId and userId:
+                isForMatch = api.verifyCandidate(newId, candidateId, userId)
                 if isForMatch:
                     return self.request.response.redirect("matching_companies")
         return self.index()

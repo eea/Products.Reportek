@@ -9,7 +9,7 @@ class AuthMiddlewareApi(object):
         'FGAS': 'fgases',
         'ODS': 'ods',
     }
-    TIMEOUT = 2
+    TIMEOUT = 20
     def __init__(self, url):
         self.baseUrl = url
 
@@ -39,9 +39,12 @@ class AuthMiddlewareApi(object):
             return None
         return response.json()
 
-    def verifyCandidate(self, newId, candidateId):
-        response = requests.get(self.baseUrl + "/candidate/verify/{0}/{1}".format(newId, candidateId),
-                                timeout=self.TIMEOUT, verify=False)
+    def verifyCandidate(self, newId, candidateId, userId):
+        api_url = "/candidate/verify/{0}/{1}/".format(newId, candidateId)
+        response = requests.post(self.baseUrl + api_url,
+                                data={'user': userId},
+                                timeout=self.TIMEOUT,
+                                verify=False)
         if response and response.status_code == requests.codes.ok:
             return True
         else:
