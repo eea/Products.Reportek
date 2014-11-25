@@ -251,7 +251,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if not self.auth_middleware_url:
             return None
         api = getattr(self, '_authMiddlewareApi', None)
-        if api:
+        if api and api.baseUrl == self.auth_middleware_url:
             return api
         else:
             self._authMiddlewareApi = BdrAuthorizationMiddleware(self.auth_middleware_url)
