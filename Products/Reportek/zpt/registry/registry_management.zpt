@@ -18,6 +18,8 @@
 
 
   <metal:block fill-slot="content">
+    <h1>Company listing</h1>
+    <p>All companies with status "VALID" that report under 'FGASES' obligation. Click any company for details and accredited reporters.</p>
     <div tal:define="companies view/get_companies">
       <style>
         table {

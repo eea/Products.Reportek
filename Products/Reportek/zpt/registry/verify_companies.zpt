@@ -10,16 +10,30 @@
 
   <metal:block fill-slot="content">
     <tal:block define="company view/get_company_details">
-      <tal:block metal:use-macro="here/partials/macros/company_details" />
-      <h1>Candidates</h1>
+      <a tal:attributes="href string:./RegistryManagement/matching_companies"><small>Back</small></a>
+      <h1>Company matching</h1>
+      <hr/>
+
+      <h2 tal:content="company/name" />
+      <div class="details">
+        <tal:block metal:use-macro="here/partials/macros/company_details" />
+      </div>
+
+      <h2>Company candidates</h2>
+      <p>Please choose one of the following companies to match.</p>
+
       <form method="post" tal:condition="company">
-        <tal:block tal:condition="company/candidates" repeat="candidate company/candidates">
-          <tal:block metal:use-macro="here/partials/macros/old_company_details" />
+        <tal:block condition="company/candidates"
+                   repeat="candidate company/candidates">
+          <tal:block metal:use-macro="here/partials/macros/short_company_details" />
         </tal:block>
-        <input type="hidden" name="fid" tal:attributes="value string:${company/company_id}">
+        <input type="hidden" name="fid"
+               tal:attributes="value string:${company/company_id}">
         <hr/>
-        <input type="submit" name="verify.btn" value="Submit">
+        <input type="hidden" name="user" tal:attributes="value request/AUTHENTICATED_USER" />
+        <input type="submit" name="verify.btn" value="Save changes" />
       </form>
+
     </tal:block>
   </metal:block>
 </metal:block>

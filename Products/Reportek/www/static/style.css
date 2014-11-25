@@ -1,3 +1,9 @@
+.dataTables_wrapper:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
 .dataTable {
   width: 100%;
   clear: both;
@@ -56,9 +62,11 @@ table.dataTable thead th {
 .dataTables_length {
   float: left;
 }
-
+.dataTables_info {
+  float: left;
+}
 .dataTables_paginate {
-  text-align: right;
+  float: right;
 }
 .dataTables_paginate a {
   display: inline-block;
@@ -211,6 +219,7 @@ input[type="submit"] {
 }
 
 /* TABLE */
+
 .table {
     border-collapse: collapse;
     width: 100%;
@@ -223,8 +232,13 @@ input[type="submit"] {
 .simple_table {
   border-collapse: collapse;
   width: 100%;
-  font-size: 14px;
+  font-size: inherit;
   background-color: transparent!important;
+}
+.simple_table th {
+  font-weight: normal;
+  font-size: smaller;
+  color: gray;
 }
 .simple_table td,
 .simple_table th {
@@ -239,6 +253,57 @@ input[type="submit"] {
   border-bottom: 1px solid #bbb;
   background-color: transparent;
 }
+/* hr */
+hr {
+  margin: 12px 0;
+  border: 0;
+  height: 1px;
+  background: #ddd;
+}
+
+/* TABLE LIST */
+  .table-list {
+    font-size: inherit;
+    background-color: transparent!important;
+    margin: 12px 0;
+    border-collapse: collapse;
+    text-align: left;
+  }
+  .table-list caption {
+    text-align: left;
+  }
+  /* Add tbody td first, last separator */
+  .table-list > tbody > tr {
+    border-bottom: 1px dotted #ddd;
+  }
+  .table-list > tbody > tr:last-child {
+    border-bottom: 0;
+  }
+  .table-list th,
+  .table-list td {
+    border-right: 0!important; /* override screen.css */
+    border-left: 0!important;
+    padding: 6px 6px;
+    vertical-align: top;
+  }
+  .table-list th:first-child,
+  .table-list td:first-child {
+    padding-left: 12px;
+  }
+  .table-list th:last-child,
+  .table-list td:last-child {
+    padding-right: 12px;
+  }
+  .table-list tbody th {
+    color: #666;
+    text-align: right;
+    font-size: smaller;
+    font-weight: normal;
+  }
+  .table-list tbody td {
+    font-weight: bold;
+  }
+
 
 /* BUTTON */
 .btn {
@@ -299,4 +364,7 @@ input[type="submit"] {
 .details dd {
     margin-left: 10em;
     margin-bottom: .5em;
+}
+.details dd, .details dt {
+  line-height: inherit;
 }

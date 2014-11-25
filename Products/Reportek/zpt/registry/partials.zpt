@@ -1,59 +1,97 @@
-<tal:block metal:define-macro="old_company_details">
+<tal:block metal:define-macro="short_company_details">
   <div class="company-header clearfix">
     <label class="btn btn-default pull-left" tal:attributes="for string:id_${candidate/company_id}">
       <input type="radio" name="cid" tal:attributes="value string:${candidate/company_id}; id string:id_${candidate/company_id}">
-      Verify
+      Match
     </label>
     <h3 tal:content="candidate/name"/>
   </div>
-  <dl class="details clearfix" tal:condition="candidate">
-    <dt>Date registered</dt>
-    <dd tal:content="candidate/date_registered"></dd>
-    <dt>EORI number</dt>
-    <dd tal:content="candidate/eori" />
-    <dt>VAT number</dt>
-    <dd tal:content="candidate/vat_number"></dd>
-    <dt>Account</dt>
-    <dd tal:content="candidate/account"></dd>
-    <dt>Country Code</dt>
-    <dd tal:content="candidate/country_code"></dd>
-    <dt>Website</dt>
-    <dd tal:content="candidate/website"></dd>
-  </dl>
+  <table class="table-list" tal:condition="candidate">
+    <tbody>
+      <tr>
+        <th>Date registered</th>
+        <td tal:content="candidate/date_registered" />
+      </tr>
+      <tr>
+        <th>VAT number</th>
+        <td tal:content="candidate/vat_number" />
+      </tr>
+      <tr>
+        <th>Reporting folder</th>
+        <td>
+          <a tal:condition="candidate/account"
+            tal:define="coll_path string:/fgases/${candidate/country_code}/${candidate/account}"
+             tal:attributes="href coll_path"
+             tal:content="coll_path" />
+        </td>
+      </tr>
+      <tr>
+        <th>Country</th>
+        <td tal:content="candidate/country" />
+      </tr>
+      <tr>
+        <th>Website</th>
+        <td>
+          <a href="candidate/website"
+             tal:condition="candidate/website"
+             tal:content="candidate/website" />
+        </td>
+      </tr>
+    </tbody>
+  </table>
 
   <h3 tal:condition="not: candidate">No information about this candidate</h3>
 </tal:block>
 
 <tal:block metal:define-macro="company_details">
-  <div class="company">
-    <h1 tal:content="company/name" />
-    <dl class="details clearfix" tal:condition="company">
-      <dt>Status</dt>
-      <dd tal:content="company/status"></dd>
-      <dt>Street and number</dt>
-      <dd tal:content="string:${company/address/street} ${company/address/number}"></dd>
-      <dt>Municipality</dt>
-      <dd tal:content="company/address/city"></dd>
-      <dt>Postal code</dt>
-      <dd tal:content="company/address/zipcode"></dd>
-      <dt>EORI number</dt>
-      <dd>TO DO</dd>
-      <dt>VAT number</dt>
-      <dd tal:content="company/vat"></dd>
-      <dt>Country</dt>
-      <dd tal:content="company/address/country/name"></dd>
-      <dt>Obligation</dt>
-      <dd tal:content="company/domain"></dd>
-      <dt>Account</dt>
-      <dd>
-        <tal:block tal:repeat="user company/users">
-          <!-- Add user URL -->
-          <a tal:content="user/username"></a>
-        </tal:block>
-      </dd>
-      <dt>Website</dt>
-      <dd tal:content="company/website"></dd>
-    </dl>
-  </div>
-  <h3 tal:condition="not: company">No information about this company</h3>
+  <table class="table-list">
+    <tr>
+      <th>Company name</th>
+      <td tal:content="company/name" />
+    </tr>
+
+    <tr>
+      <th>Status</th>
+      <td tal:content="company/status" />
+    </tr>
+
+    <tr>
+      <th>Street and number</th>
+       <td tal:content="string:${company/address/street} ${company/address/number}" />
+    </tr>
+
+    <tr>
+      <th>Municipality</th>
+      <td tal:content="company/address/city" />
+    </tr>
+
+    <tr>
+      <th>Postal code</th>
+      <td tal:content="company/address/zipcode" />
+    </tr>
+
+    <tr>
+      <th>VAT number</th>
+      <td tal:content="company/vat" />
+    </tr>
+
+    <tr>
+      <th>Country</th>
+      <td tal:content="company/address/country/name" />
+    </tr>
+
+    <tr>
+      <th>Obligation</th>
+      <td tal:content="company/domain" />
+    </tr>
+
+    <tr>
+      <th>Website</th>
+      <td>
+        <a href="company/website"
+           tal:condition="company/website"
+           tal:content="company/website" />
+      </td>
+    </tr>
+  </table>
 </tal:block>

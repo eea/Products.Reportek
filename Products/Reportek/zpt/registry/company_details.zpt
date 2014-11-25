@@ -19,29 +19,38 @@
   <metal:block fill-slot="content">
     <tal:block define="company view/get_company_details">
 
-      <tal:block metal:use-macro="here/partials/macros/company_details" />
-
-      <a name="persons"><h1>Persons</h1></a>
-      <div>
-        <table tal:condition="company" class="simple_table">
-          <thead>
-            <tr>
-              <th>Username</th>
-              <th>First name</th>
-              <th>Last name</th>
-              <th>Email</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr tal:repeat="user company/users">
-              <td tal:content="user/username"></td>
-              <td tal:content="user/first_name"></td>
-              <td tal:content="user/last_name"></td>
-              <td tal:content="user/email"></td>
-            </tr>
-          </tbody>
-        </table>
-        <h3 tal:condition="not: company">No information about this company</h3>
+      <a tal:attributes="href string:../RegistryManagement/registry_management"><small>Back</small></a>
+      <tal:block condition="company">
+        <h1 tal:content="company/name" />
+        <hr>
+        <tal:block metal:use-macro="here/partials/macros/company_details" />
+        <h2 id="persons">Persons</h2>
+        <div>
+          <table class="simple_table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>First name</th>
+                <th>Last name</th>
+                <th>Email</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr tal:repeat="user company/users">
+                <td tal:content="user/username"></td>
+                <td tal:content="user/first_name"></td>
+                <td tal:content="user/last_name"></td>
+                <td>
+                  <a tal:attributes="href string:mailto:${user/email}"
+                     tal:content="user/email" /></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </tal:block>
+      <div class="warning-msg" tal:condition="not: company">
+        <strong>Error</strong>
+        <p>No company found.</p>
       </div>
     </tal:block>
   </metal:block>
