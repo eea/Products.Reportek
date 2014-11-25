@@ -226,6 +226,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if self.auth_middleware_url:
             self.auth_middleware_recheck_interval = int(self.REQUEST.get('auth_middleware_recheck_interval', self.auth_middleware_recheck_interval))
             self.authMiddlewareApi.setServiceRecheckInterval(self.auth_middleware_recheck_interval)
+            self.authMiddlewareApi.setServiceUrl(self.auth_middleware_url)
 
         # don't send the completed from back, the values set on self must be used
         return self._manage_properties(manage_tabs_message="Properties changed")
@@ -251,11 +252,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if not self.auth_middleware_url:
             return None
         api = getattr(self, '_authMiddlewareApi', None)
-        #if api and api.baseUrl == self.auth_middleware_url:
-        #    return api
-        #else:
-        self._authMiddlewareApi = BdrAuthorizationMiddleware(self.auth_middleware_url)
-        return self._authMiddlewareApi
+        if api:
+            return api
+        else:
+            self._authMiddlewareApi = BdrAuthorizationMiddleware(self.auth_middleware_url)
+            return self._authMiddlewareApi
 
     security.declarePublic('getPartsOfYear')
     def getPartsOfYear(self):
