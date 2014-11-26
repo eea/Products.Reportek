@@ -61,6 +61,8 @@ class BdrAuthorizationMiddleware(Cacheable):
         # it's own cache guardian. Thus we will not get here unless that upper cache entry
         # expires. This makes sense only if we set recheck_interval to more that the upper one
         # I have no ideea what the expiration value of the upper one is and there may be that no mortal knows...
+        # Additionally, we don't have an cache manager set yet;
+        # we might need to redo this object so we can manage it form ZMI and add the ramcachemanager
         interval = now - self.ZCacheable_get(view_name, default=0)
         if interval < self.recheck_interval:
             return

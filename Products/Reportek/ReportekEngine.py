@@ -295,7 +295,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
         resp = {'status': 'fail',
                 'message': ''}
-        country_id = country_id.lower()
         coll_path = self.authMiddlewareApi.authMiddlewareApi.buildCollectionPath(
                 domain, country, company_id, old_collection_id)
         path_parts = coll_path.split('/')
@@ -319,6 +318,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             try:
                 coll = getattr(country_folder, old_collection_id)
                 coll.company_id = company_id
+                coll.reindex_object()
             except:
                 msg = "Cannot update collection %s Old style collection not found" % coll_path
                 logger.warning(msg)
@@ -341,6 +341,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     descr='', locality='', partofyear='', year='', endyear='')
                 coll = getattr(country_folder, company_id)
             coll.company_id = company_id
+            coll.reindex_object()
         resp['status'] = 'success'
         resp['message'] = 'Collection %s updated/created succesfully' % coll_path
         return json.dumps(resp)
