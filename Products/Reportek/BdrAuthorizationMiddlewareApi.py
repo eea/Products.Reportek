@@ -23,10 +23,8 @@ class AuthMiddlewareApi(object):
         paths = []
         for c in companies:
             try:
-                obligation_folder = self.DOMAIN_TO_OBLIGATION_FOLDER[c['domain']]
-                country_folder = c['country'].lower()
-                collection_folder = c['collection_id'] if c['collection_id'] else str(c['company_id'])
-                path = '/'.join([obligation_folder, country_folder, collection_folder])
+                path = self.buildCollectionPath(c['domain'], c['country'],
+                                    str(c['company_id']), c['collection_id'])
                 paths.append(path)
             except Exception as e:
                 logger.warning("Error in company data received from SatelliteRegistry: %s" % repr(e))
@@ -56,10 +54,16 @@ class AuthMiddlewareApi(object):
             return None
         return response.json()
 
-
     def getCompanyDetails(self, companyId):
         response = requests.get(self.baseUrl + "/undertaking/%s/details" % companyId,
                                 timeout=self.TIMEOUT, verify=False)
         if not response or response.status_code != requests.codes.ok:
             return None
         return response.json()
+
+    @classmethod
+    def buildCollectionPath(cls, domain, country_code, company_id, old_collection_id=None):
+        obligation_folder = cls.DOMAIN_TO_OBLIGATION_FOLDER[domain]
+        country_folder = country_code.lower()
+        collection_folder = old_collection_id if old_collection_id else company_id
+        return '/'.join([obligation_folder, country_folder, collection_folder])

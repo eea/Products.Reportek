@@ -57,6 +57,10 @@ class BdrAuthorizationMiddleware(Cacheable):
     def updateLocalRoles(self, user):
         view_name = createViewName('_updateLocalRoles', user)
         now = time.time()
+        # FIXME This is called from PluggableAuthService:_extractUserIds that has
+        # it's own cache guardian. Thus we will not get here unless that upper cache entry
+        # expires. This makes sense only if we set recheck_interval to more that the upper one
+        # I have no ideea what the expiration value of the upper one is and there may be that no mortal knows...
         interval = now - self.ZCacheable_get(view_name, default=0)
         if interval < self.recheck_interval:
             return

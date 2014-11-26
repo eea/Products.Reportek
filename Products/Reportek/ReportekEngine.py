@@ -26,12 +26,12 @@ __doc__ = """
       Added in the Root folder by product's __init__
 """
 
-
 from path import path
 import tempfile
 import os
 from zipfile import *
 from urlparse import urlparse
+import json
 
 # Zope imports
 from OFS.Folder import Folder
@@ -61,6 +61,8 @@ from interfaces import IReportekEngine
 from zope.i18n.negotiator import normalize_lang
 from zope.i18n.interfaces import II18nAware, INegotiator
 from zope.component import getUtility
+import logging
+logger = logging.getLogger("Reportek")
 
 class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     """ Stores generic attributes for Reportek """
@@ -278,6 +280,69 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 obj.changeOwnership(wrapped_user)   #change ownership
                 obj.manage_delLocalRoles(owners)    #delete the old owner
                 obj.manage_setLocalRoles(wrapped_user.getId(),['Owner',])   #set local role to the new user
+
+    security.declareProtected(view_management_screens, 'update_company_collection')
+    def update_company_collection(self, company_id, domain, country,
+                                  name, old_collection_id=None):
+        """Update information on an existing old-type collection (say, 'fgas30001')
+        mainly setting it's `company_id` (the id internal to Fgas Portal for instance)
+        If the no `old_collection_id` is provided then a new collection will be created with
+        id=company_id=provided `company_id`.
+        If `old_collection_id` is provided, the the collection must exist in the expected path
+        deducted from the domain/country/old_collection_id. It's company_id will be updated.
+        If `old_collection_id` does not exist at the expected location nothing will happen."""
+        # form path, make sure it is not absolute, else change the code below to match
+        self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+        resp = {'status': 'fail',
+                'message': ''}
+        coll_path = self.authMiddlewareApi.authMiddlewareApi.buildCollectionPath(
+                domain, country, company_id, old_collection_id)
+        path_parts = coll_path.split('/')
+        obligation_id= path_parts[0]
+        country_id = path_parts[1]
+        coll_id = path_parts[2]
+        root = self.restrictedTraverse('/')
+        try:
+            obligation_folder = getattr(root, obligation_id)
+            country_folder = getattr(obligation_folder, country_id)
+        except:
+            msg = "Cannot update collection %s. Path to collection does not exist" % coll_path
+            logger.warning(msg)
+            # return 404
+            self.REQUEST.RESPONSE.setStatus(404)
+            resp['message'] = msg
+            return json.dumps(resp)
+
+        # old type of collection
+        if old_collection_id:
+            try:
+                coll = getattr(country_folder, old_collection_id)
+                coll.company_id = company_id
+            except:
+                msg = "Cannot update collection %s Old style collection not found" % coll_path
+                logger.warning(msg)
+                # return failure (404) to the service calling us
+                self.REQUEST.RESPONSE.setStatus(404)
+                resp['message'] = msg
+                return json.dumps(resp)
+        else:
+            try:
+                coll = getattr(country_folder, coll_id)
+            except:
+                # not there, create it
+                dataflow_uris = obligation_folder.dataflow_uris
+                country_uri = country_folder.country
+                country_folder.manage_addCollection(dataflow_uris=dataflow_uris,
+                    country=country_uri,
+                    id=company_id,
+                    title=name,
+                    allow_collections=0, allow_envelopes=1,
+                    descr='', locality='', partofyear='', year='', endyear='')
+                coll = getattr(country_folder, company_id)
+            coll.company_id = company_id
+        resp['status'] = 'success'
+        resp['message'] = 'Collection %s updated/created succesfully' % coll_path
+        return json.dumps(resp)
 
     security.declareProtected('View', 'macros')
     macros = PageTemplateFile('zpt/engineMacros', globals()).macros
