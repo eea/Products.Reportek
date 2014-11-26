@@ -10,6 +10,7 @@
 
   <metal:block fill-slot="content">
     <h1>Matching Companies</h1>
+
     <tal:block define="candidates view/get_candidates">
       <table class="table simple_table">
         <thead>
@@ -21,7 +22,8 @@
         <tbody>
           <tr tal:repeat="cand candidates">
             <td>
-              <a tal:content="cand/undertaking/name" tal:attributes="href string:/RegistryManagement/verify_companies?id=${cand/undertaking/company_id}" />
+              <a tal:content="cand/undertaking/name"
+                 tal:attributes="href string:${here/absolute_url}/verify_companies?id=${cand/undertaking/company_id}" />
             </td>
             <td>
               <tal:block tal:repeat="link cand/links">

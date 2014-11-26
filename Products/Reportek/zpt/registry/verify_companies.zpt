@@ -10,7 +10,9 @@
 
   <metal:block fill-slot="content">
     <tal:block define="company view/get_company_details">
-      <a tal:attributes="href string:./RegistryManagement/matching_companies"><small>Back</small></a>
+      <a tal:attributes="href string:${here/absolute_url}/matching_companies">
+        <small>Back</small>
+      </a>
       <h1>Company matching</h1>
       <hr/>
 
