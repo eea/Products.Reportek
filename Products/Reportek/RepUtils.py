@@ -478,7 +478,8 @@ def fix_json_format(obj):
     :return: the dict in the corect format
     """
     # Delete unused keys
-    for key in ['businessprofile', 'candidates', 'collection_id']:
+    unused = ['businessprofile', 'candidates', 'collection_id', 'oldcompany_verified', 'oldcompany_extid', 'oldcompany_account']
+    for key in unused:
         obj.pop(key, None)
 
     # Replace keys to set the right json format
