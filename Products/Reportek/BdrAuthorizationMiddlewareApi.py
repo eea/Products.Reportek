@@ -54,12 +54,20 @@ class AuthMiddlewareApi(object):
             return None
         return response.json()
 
-    def getCompanyDetails(self, companyId):
-        response = requests.get(self.baseUrl + "/undertaking/%s/details" % companyId,
+    def getCompanyDetailsById(self, companyId):
+        response = requests.get(self.baseUrl + "/undertaking/{0}/details".format(companyId),
                                 timeout=self.TIMEOUT, verify=False)
         if not response or response.status_code != requests.codes.ok:
             return None
         return response.json()
+
+    def getCompanyDetailsByVat(self, companyVat):
+        response = requests.get(self.baseUrl + "/undertaking/list_by_vat/{0}".format(companyVat),
+                                timeout=self.TIMEOUT, verify=False)
+        if not response or response.status_code != requests.codes.ok:
+            return None
+        return response.json()
+
 
     @classmethod
     def buildCollectionPath(cls, domain, country_code, company_id, old_collection_id=None):

@@ -31,11 +31,22 @@ class SatelliteRegistryManagement(BaseAdmin):
 
     def get_company_alldetails(self):
         self.request.response.setHeader('Content-Type', 'application/json')
-        if self.request.get('id'):
+
+        if self.request.get('id') and not self.request.get('vat'):
             api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi.authMiddlewareApi
             companyId = self.request.get('id')
-            details = api.getCompanyDetails(companyId)
+            details = api.getCompanyDetailsById(companyId)
             return json.dumps(fix_json_format(details), indent=2)
+
+        if self.request.get('vat') and not self.request.get('id'):
+            api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi.authMiddlewareApi
+            companyVat = self.request.get('vat')
+            details = api.getCompanyDetailsByVat(companyVat)
+            for obj in details:
+                if obj.get('company_id'):
+                    obj['id'] = obj.pop('company_id')
+            return json.dumps(details, indent=2)
+
         return json.dumps({})
 
     def get_company_details(self):
@@ -45,7 +56,7 @@ class SatelliteRegistryManagement(BaseAdmin):
                 return None
             api = api.authMiddlewareApi
             companyId = self.request.get('id')
-            return api.getCompanyDetails(companyId)
+            return api.getCompanyDetailsById(companyId)
         return None
 
     def get_candidates(self):
