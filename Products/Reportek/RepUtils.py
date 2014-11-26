@@ -465,8 +465,9 @@ def replace_keys(replace_items, obj):
     :param obj: dict where to replace
     :return: modified dict
     """
-    for key, replacement in replace_items.iteritems():
-        obj[replacement] = obj.pop(key)
+    if obj:
+        for key, replacement in replace_items.iteritems():
+            obj[replacement] = obj.pop(key)
     return obj
 
 
@@ -489,17 +490,19 @@ def fix_json_format(obj):
     }, obj)
 
     # Replace legal representative format
-    obj['euLegalRepresentativeCompany'] = replace_keys({
-        'vatnumber': 'vatNumber',
-        'contact_last_name': 'contactPersonLastName',
-        'contact_first_name': 'contactPersonFirstName',
-        'contact_email': 'contactPersonEmailAddress'
-    }, obj['euLegalRepresentativeCompany'])
+    if obj['euLegalRepresentativeCompany']:
+        obj['euLegalRepresentativeCompany'] = replace_keys({
+            'vatnumber': 'vatNumber',
+            'contact_last_name': 'contactPersonLastName',
+            'contact_first_name': 'contactPersonFirstName',
+            'contact_email': 'contactPersonEmailAddress'
+        }, obj['euLegalRepresentativeCompany'])
 
     # Replace legal representative address format
-    obj['euLegalRepresentativeCompany']['address'] = replace_keys({
-        'zipcode': 'zipCode'
-    }, obj['euLegalRepresentativeCompany']['address'])
+    if obj['euLegalRepresentativeCompany']:
+        obj['euLegalRepresentativeCompany']['address'] = replace_keys({
+            'zipcode': 'zipCode'
+        }, obj['euLegalRepresentativeCompany']['address'])
 
     # Replace address format
     obj['address'] = replace_keys({
