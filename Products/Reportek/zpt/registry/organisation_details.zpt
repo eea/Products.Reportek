@@ -19,13 +19,13 @@
   <metal:block fill-slot="content">
     <tal:block define="company view/get_company_details">
 
-      <a tal:attributes="href string:${here/absolute_url}/registry_management">
+      <a tal:attributes="href string:${here/absolute_url}/organisation_listing">
         <small>Back</small>
       </a>
       <tal:block condition="company">
         <h1 tal:content="company/name" />
         <hr>
-        <tal:block metal:use-macro="here/partials/macros/company_details" />
+        <tal:block metal:use-macro="here/partials/macros/organisation_details" />
         <h2 id="persons">Persons</h2>
         <div>
           <table class="simple_table">

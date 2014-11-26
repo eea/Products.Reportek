@@ -1,4 +1,4 @@
-<tal:block metal:define-macro="short_company_details">
+<tal:block metal:define-macro="short_organisation_details">
   <div class="company-header clearfix">
     <label class="btn btn-default pull-left" tal:attributes="for string:id_${candidate/company_id}">
       <input type="radio" name="cid" tal:attributes="value string:${candidate/company_id}; id string:id_${candidate/company_id}">
@@ -43,7 +43,7 @@
   <h3 tal:condition="not: candidate">No information about this candidate</h3>
 </tal:block>
 
-<tal:block metal:define-macro="company_details">
+<tal:block metal:define-macro="organisation_details">
   <table class="table-list">
     <tr>
       <th>Company name</th>

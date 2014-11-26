@@ -19,7 +19,7 @@ class SatelliteRegistryManagement(BaseAdmin):
             if candidateId and newId and userId:
                 isForMatch = api.verifyCandidate(newId, candidateId, userId)
                 if isForMatch:
-                    return self.request.response.redirect("matching_companies")
+                    return self.request.response.redirect("organisation_matching")
         return self.index()
 
     def get_companies(self):

@@ -10,7 +10,7 @@
 
   <metal:block fill-slot="content">
     <tal:block define="company view/get_company_details">
-      <a tal:attributes="href string:${here/absolute_url}/matching_companies">
+      <a tal:attributes="href string:${here/absolute_url}/organisation_matching">
         <small>Back</small>
       </a>
       <h1>Company matching</h1>
@@ -18,7 +18,7 @@
 
       <h2 tal:content="company/name" />
       <div class="details">
-        <tal:block metal:use-macro="here/partials/macros/company_details" />
+        <tal:block metal:use-macro="here/partials/macros/organisation_details" />
       </div>
 
       <h2>Company candidates</h2>
@@ -27,7 +27,7 @@
       <form method="post" tal:condition="company">
         <tal:block condition="company/candidates"
                    repeat="candidate company/candidates">
-          <tal:block metal:use-macro="here/partials/macros/short_company_details" />
+          <tal:block metal:use-macro="here/partials/macros/short_organisation_details" />
         </tal:block>
         <input type="hidden" name="fid"
                tal:attributes="value string:${company/company_id}">
