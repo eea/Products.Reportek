@@ -295,6 +295,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
         resp = {'status': 'fail',
                 'message': ''}
+        country_id = country_id.lower()
         coll_path = self.authMiddlewareApi.authMiddlewareApi.buildCollectionPath(
                 domain, country, company_id, old_collection_id)
         path_parts = coll_path.split('/')
