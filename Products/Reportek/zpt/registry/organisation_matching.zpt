@@ -9,6 +9,10 @@
   </metal:block>
 
   <metal:block fill-slot="content">
+    <p class="important-msg" tal:condition="request/done | nothing">
+      Operations completed succesfully.
+    </p>
+
     <h1>Matching Companies</h1>
 
     <tal:block define="candidates view/get_candidates">
