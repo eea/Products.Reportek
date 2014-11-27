@@ -16,6 +16,7 @@
       <h1>Company matching</h1>
       <hr/>
 
+      <tal:block condition="company">
       <h2 tal:content="company/name" />
       <div class="details">
         <tal:block metal:use-macro="here/partials/macros/organisation_details" />
@@ -24,7 +25,7 @@
       <h2>Company candidates</h2>
       <p>Please choose one of the following companies to match.</p>
 
-      <form method="post" tal:condition="company">
+      <form method="post">
         <tal:block condition="company/candidates"
                    repeat="candidate company/candidates">
           <tal:block metal:use-macro="here/partials/macros/short_organisation_details" />
@@ -35,6 +36,12 @@
         <input type="hidden" name="user" tal:attributes="value request/AUTHENTICATED_USER" />
         <input type="submit" name="verify.btn" value="Save changes" />
       </form>
+      </tal:block>
+
+      <div class="warning-msg" tal:condition="not: company">
+        <strong>Error</strong>
+        <p>No company found.</p>
+      </div>
 
     </tal:block>
   </metal:block>

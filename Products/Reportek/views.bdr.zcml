@@ -41,7 +41,7 @@
       for=".interfaces.IRegistryManagement"
       permission="zope2.ViewManagementScreens"
       class=".views.SatelliteRegistryManagement"
-      attribute="get_company_alldetails"/>
+      attribute="get_company_json"/>
 
     <browser:page
       name="partials"

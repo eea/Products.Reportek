@@ -1,6 +1,6 @@
 from base_admin import BaseAdmin
 from Products.Reportek.constants import ENGINE_ID
-from Products.Reportek.RepUtils import fix_json_format
+from Products.Reportek.RepUtils import fix_json_from_id, fix_json_from_vat
 import json
 
 
@@ -29,25 +29,23 @@ class SatelliteRegistryManagement(BaseAdmin):
         api = api.authMiddlewareApi
         return api.getCompanies()
 
-    def get_company_alldetails(self):
+    def get_company_json(self):
         self.request.response.setHeader('Content-Type', 'application/json')
+        api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi.authMiddlewareApi
 
-        if self.request.get('id') and not self.request.get('vat'):
-            api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi.authMiddlewareApi
-            companyId = self.request.get('id')
-            details = api.getCompanyDetailsById(companyId)
-            return json.dumps(fix_json_format(details), indent=2)
+        details = {}
+        if api:
+            if self.request.get('id') and not self.request.get('vat'):
+                companyId = self.request.get('id')
+                details = api.getCompanyDetailsById(companyId)
+                details = fix_json_from_id(details)
 
-        if self.request.get('vat') and not self.request.get('id'):
-            api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi.authMiddlewareApi
-            companyVat = self.request.get('vat')
-            details = api.getCompanyDetailsByVat(companyVat)
-            for obj in details:
-                if obj.get('company_id'):
-                    obj['id'] = obj.pop('company_id')
-            return json.dumps(details, indent=2)
+            if self.request.get('vat') and not self.request.get('id'):
+                companyVat = self.request.get('vat')
+                details = api.getCompanyDetailsByVat(companyVat)
+                details = fix_json_from_vat(details)
 
-        return json.dumps({})
+        return json.dumps(details, indent=2)
 
     def get_company_details(self):
         if self.request.get('id'):
