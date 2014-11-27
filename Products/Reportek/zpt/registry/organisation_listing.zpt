@@ -33,7 +33,7 @@
             <th>ID</th>
             <th>Company name</th>
             <th>Obligation</th>
-            <th>Account</th>
+            <th>Reporters</th>
             <th>Country</th>
             <th>VAT number</th>
             <th>Date registered</th>

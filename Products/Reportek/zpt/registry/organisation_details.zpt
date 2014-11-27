@@ -26,7 +26,7 @@
         <h1 tal:content="company/name" />
         <hr>
         <tal:block metal:use-macro="here/partials/macros/organisation_details" />
-        <h2 id="persons">Persons</h2>
+        <h2 id="persons">Reporters</h2>
         <div>
           <table class="simple_table">
             <thead>
