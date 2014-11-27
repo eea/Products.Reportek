@@ -37,16 +37,20 @@ class AuthMiddlewareApi(object):
             return None
         return response.json()
 
-    def verifyCandidate(self, newId, candidateId, userId):
-        api_url = "/candidate/verify/{0}/{1}/".format(newId, candidateId)
+    def verifyCandidate(self, companyId, candidateId, userId):
+        # use the right pattern for Api url
+        api_url = "/candidate/verify-none/{0}/"
+        if candidateId:
+            api_url = "/candidate/verify/{0}/{1}/"
+
+        api_url = api_url.format(companyId, candidateId)
         response = requests.post(self.baseUrl + api_url,
-                                data={'user': userId},
-                                timeout=self.TIMEOUT,
-                                verify=False)
+                                 data={'user': userId},
+                                 timeout=self.TIMEOUT,
+                                 verify=False)
         if response and response.status_code == requests.codes.ok:
             return True
-        else:
-            return False
+        return False
 
     def getCandidates(self):
         response = requests.get(self.baseUrl + "/candidate/list", timeout=self.TIMEOUT, verify=False)
