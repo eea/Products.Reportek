@@ -26,6 +26,11 @@
         <h1 tal:content="company/name" />
         <hr>
         <tal:block metal:use-macro="here/partials/macros/organisation_details" />
+        <hr>
+        <tal:block condition="company/representative" define="representative company/representative">
+          <h2>Representative</h2>
+          <tal:block metal:use-macro="here/partials/macros/representative_details" />
+        </tal:block>
         <h2 id="persons">Reporters</h2>
         <div>
           <table class="simple_table">
@@ -44,7 +49,8 @@
                 <td tal:content="user/last_name"></td>
                 <td>
                   <a tal:attributes="href string:mailto:${user/email}"
-                     tal:content="user/email" /></td>
+                     tal:content="user/email" />
+                </td>
               </tr>
             </tbody>
           </table>

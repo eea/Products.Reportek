@@ -95,3 +95,56 @@
     </tr>
   </table>
 </tal:block>
+
+<tal:block metal:define-macro="representative_details">
+  <table class="table-list">
+    <tr>
+      <th>Company name</th>
+      <td tal:content="representative/name" />
+    </tr>
+
+    <tr>
+      <th>Street and number</th>
+       <td tal:content="string:${representative/address/street} ${representative/address/number}" />
+    </tr>
+
+    <tr>
+      <th>Municipality</th>
+      <td tal:content="representative/address/city" />
+    </tr>
+
+    <tr>
+      <th>Postal code</th>
+      <td tal:content="representative/address/zipcode" />
+    </tr>
+
+    <tr>
+      <th>VAT number</th>
+      <td tal:content="representative/vatnumber" />
+    </tr>
+
+    <tr>
+      <th>Country</th>
+      <td tal:content="representative/address/country/name" />
+    </tr>
+
+    <tr>
+      <th>Contact First Name</th>
+      <td tal:content="representative/contact_first_name" />
+    </tr>
+
+    <tr>
+      <th>Contact Last Name</th>
+      <td tal:content="representative/contact_last_name" />
+    </tr>
+
+    <tr>
+      <th>Contact Email Name</th>
+      <td>
+        <a tal:attributes="href string:mailto:${representative/contact_email}"
+           tal:content="representative/contact_email" />
+      </td>
+    </tr>
+  </table>
+</tal:block>
+
