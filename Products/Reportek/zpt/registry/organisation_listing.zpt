@@ -18,47 +18,49 @@
 
 
   <metal:block fill-slot="content">
-    <h1>Company listing</h1>
-    <p>All companies with status "VALID" that report under 'FGASES' obligation. Click any company for details and accredited reporters.</p>
+    <style>
+      table {
+        font-size:0.9em;
+        line-height:normal;
+      }
+    </style>
     <div tal:define="companies view/get_companies">
-      <style>
-        table {
-          font-size:0.9em;
-          line-height:normal;
-        }
-      </style>
-      <table id="comp-table" width="100%" tal:condition="companies">
-        <thead>
-          <tr>
-            <th>ID</th>
-            <th>Company name</th>
-            <th>Obligation</th>
-            <th>Reporters</th>
-            <th>Country</th>
-            <th>VAT number</th>
-            <th>Date registered</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr tal:repeat="comp companies">
-            <td tal:content="comp/company_id"/>
-            <td>
-              <a tal:content="comp/name"
-                 tal:attributes="href string:${here/absolute_url}/organisation_details?id=${comp/company_id}"></a>
-            </td>
-            <td tal:content="comp/domain"/>
-            <td>
-              <tal:block tal:repeat="user comp/users">
-                <a tal:attributes="href string:${here/absolute_url}/organisation_details?id=${comp/company_id}#persons"
-                   tal:content="user/username"></a><br/>
-              </tal:block>
-            </td>
-            <td tal:content="comp/address/country/name"/>
-            <td tal:content="comp/vat"/>
-            <td tal:content="comp/date_created"/>
-          </tr>
-        </tbody>
-      </table>
+      <tal:block condition="companies">
+        <h1>Company listing</h1>
+        <p>All companies with status "VALID" that report under 'FGASES' obligation. Click any company for details and accredited reporters.</p>
+        <table id="comp-table" width="100%" tal:condition="companies">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Company name</th>
+              <th>Obligation</th>
+              <th>Reporters</th>
+              <th>Country</th>
+              <th>VAT number</th>
+              <th>Date registered</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr tal:repeat="comp companies">
+              <td tal:content="comp/company_id"/>
+              <td>
+                <a tal:content="comp/name"
+                   tal:attributes="href string:${here/absolute_url}/organisation_details?id=${comp/company_id}"></a>
+              </td>
+              <td tal:content="comp/domain"/>
+              <td>
+                <tal:block tal:repeat="user comp/users">
+                  <a tal:attributes="href string:${here/absolute_url}/organisation_details?id=${comp/company_id}#persons"
+                     tal:content="user/username"></a><br/>
+                </tal:block>
+              </td>
+              <td tal:content="comp/address/country/name"/>
+              <td tal:content="comp/vat"/>
+              <td tal:content="comp/date_created"/>
+            </tr>
+          </tbody>
+        </table>
+      </tal:block>
       <h1 tal:condition="not: companies">No companies</h1>
     </div>
   </metal:block>
