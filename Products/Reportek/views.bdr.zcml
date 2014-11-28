@@ -71,5 +71,12 @@
       class=".views.SatelliteRegistryManagement"
       template="zpt/registry/matching_log.zpt"/>
 
+    <browser:page
+      name="data_sync_log"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      template="zpt/registry/data_sync_log.zpt"/>
+
   </configure>
 </configure>

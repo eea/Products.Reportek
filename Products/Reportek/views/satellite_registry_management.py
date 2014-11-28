@@ -74,3 +74,10 @@ class SatelliteRegistryManagement(BaseAdmin):
             return None
         api = api.authMiddlewareApi
         return api.getMatchingLog()
+
+    def get_datasync_log(self):
+        api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi
+        if not api:
+            return None
+        api = api.authMiddlewareApi
+        return api.getDataSyncLog()

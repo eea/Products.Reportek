@@ -78,6 +78,12 @@ class AuthMiddlewareApi(object):
             return None
         return response.json()
 
+    def getDataSyncLog(self):
+        response = requests.get(self.baseUrl + "/data_sync_log", timeout=self.TIMEOUT, verify=False)
+        if not response or response.status_code != requests.codes.ok:
+            return None
+        return response.json()
+
 
     @classmethod
     def buildCollectionPath(cls, domain, country_code, company_id, old_collection_id=None):
