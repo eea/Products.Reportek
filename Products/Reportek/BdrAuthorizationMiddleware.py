@@ -91,7 +91,7 @@ class BdrAuthorizationMiddleware(Cacheable):
             # for accessible paths add user as owner
             for toOwn in accessiblePaths:
                 try:
-                    coll = app.unrestrictedTraverse(toOwn)
+                    coll = app.unrestrictedTraverse(str(toOwn))
                 except:
                     logger.info("Collection %s is not created yet" % toOwn)
                     continue

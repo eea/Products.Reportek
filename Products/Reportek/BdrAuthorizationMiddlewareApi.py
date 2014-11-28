@@ -14,7 +14,7 @@ class AuthMiddlewareApi(object):
         self.baseUrl = url
 
     def getCollectionPaths(self, username):
-        url = self.baseUrl + '/user/detail/' + username
+        url = self.baseUrl + '/user/'  + username + '/companies'
         # use a short timeout here to not keep the user waiting at auth time
         response = requests.get(url, timeout=self.TIMEOUT)
         if not response or response.status_code != requests.codes.ok:
