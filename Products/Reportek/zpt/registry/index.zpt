@@ -9,7 +9,7 @@
     <ul>
       <li><a href="organisation_listing">All organisations</a></li>
     </ul>
-        <ul>
+    <ul>
       <li><a href="organisation_matching">Matching organisations</a></li>
     </ul>
   </metal:block>

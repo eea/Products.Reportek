@@ -64,5 +64,12 @@
       class=".views.SatelliteRegistryManagement"
       template="zpt/registry/organisation_matching.zpt"/>
 
+    <browser:page
+      name="organisation_matching_log"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      template="zpt/registry/matching_log.zpt"/>
+
   </configure>
 </configure>

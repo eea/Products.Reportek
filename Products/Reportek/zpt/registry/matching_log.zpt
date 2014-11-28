@@ -1,0 +1,46 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+  <metal:block fill-slot="head">
+    <link href="++resource++static/style.css" rel="stylesheet"/>
+  </metal:block>
+
+  <metal:block fill-slot="breadcrumbtrails">
+    <tal:block content="structure here/breadcrumbs_views"></tal:block>
+  </metal:block>
+
+  <metal:block fill-slot="content">
+
+    <tal:block define="records view/get_matching_log">
+      <tal:block condition="records">
+        <h1>Matching logs</h1>
+        <table class="table simple_table">
+          <thead>
+            <tr>
+              <th>Company ID</th>
+              <th>Old company ID</th>
+              <th>Verified</th>
+              <th>User</th>
+              <th>Timestamp</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr tal:repeat="record records">
+              <td>
+                <a tal:content="record/company_id"
+                   tal:attributes="href string:${here/absolute_url}/organisation_details?id=${record/company_id}"></a>
+              </td>
+              <td>
+                <tal:block condition="record/oldcompany_id" content="record/oldcompany_id" />
+                <tal:block condition="not: record/oldcompany_id" content="string: None" />
+              </td>
+              <td tal:content="record/verified " />
+              <td tal:content="record/user "/>
+              <td tal:content="record/timestamp "/>
+            </tr>
+          </tbody>
+        </table>
+      </tal:block>
+      <h1 tal:condition="not: records">No organisation matching logs</h1>
+    </tal:block>
+  </metal:block>
+</metal:block>
