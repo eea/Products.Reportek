@@ -39,19 +39,21 @@ class BdrAuthorizationMiddleware(Cacheable):
         else:
             coll.manage_delLocalRoles([user])
         # FIXME due to a bug in zope, this method cannot be called outside of a request
-        # FIXME but not calling it will render out algorithm wrong
+        # FIXME but not calling it will render our algorithm wrong
         coll.reindex_object()
 
     @classmethod
     def assignRole(cls, coll, user, role='Owner'):
         local_roles = coll.local_defined_roles()
+
+        coll.reindex_object()
         if user in local_roles and role in local_roles[user]:
             return
         roles = list(coll.get_local_roles_for_userid(user))
         roles.append(role)
         coll.manage_setLocalRoles(user, roles)
         # FIXME due to a bug in zope, this method cannot be called outside of a request
-        # FIXME but not calling it will render out algorithm wrong
+        # FIXME but not calling it will render our algorithm wrong
         coll.reindex_object()
 
     def updateLocalRoles(self, user):

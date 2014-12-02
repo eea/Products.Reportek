@@ -331,7 +331,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 coll = getattr(country_folder, coll_id)
             except:
                 # not there, create it
-                dataflow_uris = obligation_folder.dataflow_uris
+                #dataflow_uris = obligation_folder.dataflow_uris
+                dataflow_uris = [ self.authMiddlewareApi.authMiddlewareApi.DOMAIN_TO_OBLIGATION[domain] ]
                 country_uri = country_folder.country
                 country_folder.manage_addCollection(dataflow_uris=dataflow_uris,
                     country=country_uri,

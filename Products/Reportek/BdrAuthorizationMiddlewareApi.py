@@ -9,6 +9,10 @@ class AuthMiddlewareApi(object):
         'FGAS': 'fgases',
         'ODS': 'ods',
     }
+    DOMAIN_TO_OBLIGATION = {
+        'FGAS': 'http://rod.eionet.europa.eu/obligations/713',
+        'ODS': ''
+    }
     TIMEOUT = 20
     def __init__(self, url):
         self.baseUrl = url
