@@ -84,6 +84,13 @@ class AuthMiddlewareApi(object):
             return None
         return response.json()
 
+    def unverifyCompany(self, companyId, userId):
+        response = requests.post(self.baseUrl + "/candidate/unverify/{0}/".format(companyId),
+                                 data={'user': userId}, timeout=self.TIMEOUT, verify=False)
+        if not response or response.status_code != requests.codes.ok:
+            return None
+        return response.json()
+
 
     @classmethod
     def buildCollectionPath(cls, domain, country_code, company_id, old_collection_id=None):
