@@ -30,9 +30,10 @@
                    tal:attributes="href string:${here/absolute_url}/organisation_verification?id=${cand/undertaking/company_id}" />
               </td>
               <td>
-                <tal:block tal:repeat="link cand/links">
+                <tal:block tal:condition="cand/links" tal:repeat="link cand/links">
                   <span tal:content="link/name" /><br/>
                 </tal:block>
+                <span tal:condition="not: cand/links"><i>No candidates</i></span>
               </td>
             </tr>
           </tbody>

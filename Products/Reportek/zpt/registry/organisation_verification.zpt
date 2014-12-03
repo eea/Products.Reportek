@@ -23,7 +23,8 @@
         </div>
 
         <h2>Company candidates</h2>
-        <p>Please choose one of the following companies to match.</p>
+        <p tal:condition="company/candidates">Please choose one of the following companies to match.</p>
+        <p tal:condition="not: company/candidates">This company has no candidates.</p>
 
         <form method="post">
           <tal:block condition="company/candidates"
@@ -31,9 +32,9 @@
             <tal:block metal:use-macro="here/partials/macros/short_organisation_details" />
           </tal:block>
           <div class="company-header clearfix">
-            <label class="btn btn-default pull-left" for="none"}">
+            <label class="btn btn-default pull-left" for="none">
               <input type="radio" name="cid" value="none" id="none">
-              None of the above
+              No company match
             </label>
           </div>
           <input type="hidden" name="fid"
