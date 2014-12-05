@@ -22,6 +22,7 @@ __all__ = [
     'permission_manage_properties_envelopes',
     'LOCAL_CONVERTERS_PORT',
     'REDIS_DATABASE',
+    'SATELLITE_REGISTRY_STICKY_USERS',
 ]
 
 DEPLOYMENT_CDR = 'CDR'
@@ -39,3 +40,19 @@ elif REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
 
 REDIS_DATABASE = os.environ.get('REDIS_DATABASE', '0')
 REDIS_DATABASE = int(REDIS_DATABASE)
+
+# TODO: this should be set on the fly from web, not require zope restart
+if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
+    SATELLITE_REGISTRY_STICKY_USERS = {}
+elif REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+    # do not reset permissions of this users even if they login from eCas
+    # and are not present in Satellite Registry cache. Normally, if a user is not
+    # bound to a company anymore, then it's permission on that company will be revoked.
+    # If this list contains some collection paths, then don't reset permissions
+    # only for those. Otherwise, protect all 'Owner' local role occurrances of that user.
+    # paths here should be as returned by absolute_url(1) - that is with not starting '/'
+    SATELLITE_REGISTRY_STICKY_USERS = {
+        'baragdan': [],
+        'bulanmir': [],
+        'nituacor': [],
+    }
