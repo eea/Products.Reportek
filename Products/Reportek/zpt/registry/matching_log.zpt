@@ -30,8 +30,8 @@
                    tal:attributes="href string:${here/absolute_url}/organisation_details?id=${record/company_id}"></a>
               </td>
               <td>
-                <tal:block condition="record/oldcompany_id" content="record/oldcompany_id" />
-                <tal:block condition="not: record/oldcompany_id" content="string: None" />
+                <tal:block condition="record/oldcompany_account" content="record/oldcompany_account" />
+                <tal:block condition="not: record/oldcompany_account" content="string: None" />
               </td>
               <td tal:content="record/verified " />
               <td tal:content="record/user "/>
