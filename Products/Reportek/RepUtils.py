@@ -495,13 +495,13 @@ def fix_json_from_id(obj):
         return {}
 
     # Delete unused keys
-    unused = ['businessprofile', 'candidates', 'collection_id', 'oldcompany_verified', 'oldcompany_extid', 'oldcompany_account']
+    unused = ['businessprofile', 'candidates', 'collection_id', 'oldcompany_verified', 'oldcompany_extid', 'oldcompany_id']
     for key in unused:
         obj.pop(key, None)
 
     # Replace keys to set the right json format
     obj = replace_keys({
-        'oldcompany_id': 'Former_Company_no_2007-2010',
+        'oldcompany_account': 'Former_Company_no_2007-2010',
         'company_id': 'id',
         'representative': 'euLegalRepresentativeCompany',
         'users': 'contactPersons'
