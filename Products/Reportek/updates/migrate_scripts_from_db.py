@@ -12,6 +12,7 @@ def create_dataflow_rpc_call():
         timeout=10.0
     )
 
+
 def create_localities_rpc_call():
     return XMLRPCMethod(
         title='Get countries from ROD',
@@ -19,6 +20,13 @@ def create_localities_rpc_call():
         method_name='WebRODService.getCountries',
         timeout=5.0
     )
+
+
+def delete_objects(app, objects):
+    for obj in objects:
+        if getattr(app, obj, None):
+            app._delObject(obj, suppress_events=True)
+            transaction.commit()
 
 
 def update(app):
@@ -30,39 +38,6 @@ def update(app):
             app.ReportekEngine.xmlrpc_localities = create_localities_rpc_call()
             transaction.commit()
 
-    if getattr(app, 'dataflow_rod', None):
-        app._delObject("dataflow_rod", suppress_events=True)
-        transaction.commit()
-
-    if getattr(app, 'dataflow_dict', None):
-        app._delObject("dataflow_dict", suppress_events=True)
-        transaction.commit()
-
-    if getattr(app, 'dataflow_table', None):
-        app._delObject("dataflow_table", suppress_events=True)
-        transaction.commit()
-
-    if getattr(app, 'dataflow_lookup', None):
-        app._delObject("dataflow_lookup", suppress_events=True)
-        transaction.commit()
-
-    if getattr(app, 'localities_rod', None):
-        app._delObject('localities_rod', suppress_events=True)
-        transaction.commit()
-
-    if getattr(app, 'localities_dict', None):
-        app._delObject('localities_dict', suppress_events=True)
-        transaction.commit()
-
-    if getattr(app, 'localities_iso_dict', None):
-        app._delObject('localities_iso_dict', suppress_events=True)
-        transaction.commit()
-
-    if getattr(app, 'localities_table', None):
-        app._delObject('localities_table', suppress_events=True)
-        transaction.commit()
-
-    # migrate recent_etc
-    if getattr(app, 'recent_etc', None):
-        app._delObject('recent_etc', suppress_events=True)
-        transaction.commit()
+    objects_to_delete = ['dataflow_rod', 'dataflow_dict', 'dataflow_table', 'dataflow_lookup', 'localities_rod',
+                         'localities_dict', 'localities_iso_dict', 'localities_table', 'recent_etc']
+    delete_objects(app, objects_to_delete)
