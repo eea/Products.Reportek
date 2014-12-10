@@ -36,6 +36,12 @@
       <li>
         <a href="envelopes.autocomplete">Auto complete envelopes</a>
       </li>
+      <li>
+        <a href="/ReportekEngine/Build_collections">Build collections</a>
+      </li>
+      <li>
+        <a href="/ReportekEngine/sitemap">Sitemap</a>
+      </li>
     </ul>
 
   </metal:block>
