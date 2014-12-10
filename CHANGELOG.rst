@@ -1,4 +1,7 @@
-3.7.1 (unreleased)
+3.7.2 (unreleased)
+-------------------
+
+3.7.1 (10-12-2014)
 -------------------
 * Task 3324 
     - Fixed file upload in envelope [vitaliemaldur]
