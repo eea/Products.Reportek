@@ -33,7 +33,7 @@
       <li tal:condition="not: options/is_bdr | nothing">
         <a href="statistics">Statistics</a>
       </li>
-      <li tal:condition="options/is_bdr | nothing">
+      <li>
         <a href="envelopes.autocomplete">Auto complete envelopes</a>
       </li>
     </ul>
