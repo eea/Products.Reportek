@@ -8,12 +8,6 @@
 
     <meta:provides feature="bdr_installation" />
 
-    <browser:page
-      name="envelopes.autocomplete"
-      for=".interfaces.IReportekUtilities"
-      permission="zope2.ViewManagementScreens"
-      class=".views.EnvelopeUtils"
-      template="zpt/utilities/envelopes_autocomplete.zpt"/>
 
   </configure>
 </configure>

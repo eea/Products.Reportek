@@ -116,17 +116,13 @@
     template="zpt/utilities/recent_uploads.zpt"/>
 
   <browser:page
-    name="statistics"
-    for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
-    class=".views.Statistics"
-    template="zpt/utilities/statistics.zpt"/>
-
-  <browser:page
     name="envelopes.autocomplete"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.EnvelopeUtils"
     template="zpt/utilities/envelopes_autocomplete.zpt"/>
+
+  <include file="views.cdr.zcml" />
+  <include file="views.bdr.zcml" />
 
 </configure>
