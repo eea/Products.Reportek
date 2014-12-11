@@ -27,7 +27,11 @@
     <div tal:define="companies view/get_companies">
       <tal:block condition="companies">
         <h1>Company listing</h1>
-        <p>All companies with status "VALID" that report under 'FGASES' obligation. Click any company for details and accredited reporters.</p>
+        <p>
+        All companies with status "VALID" that report under 'FGASES' obligation.
+        Click any company for details and accredited reporters. If you want to
+        export all information in excel format <a href="organisations_excel">click here</a>.
+        </p>
         <table id="comp-table" width="100%" tal:condition="companies">
           <thead>
             <tr>

@@ -85,5 +85,12 @@
       class=".views.SatelliteRegistryManagement"
       template="zpt/registry/data_sync_log.zpt"/>
 
+    <browser:page
+      name="organisations_excel"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      attribute="get_companies_excel"/>
+
   </configure>
 </configure>

@@ -36,7 +36,8 @@ class AuthMiddlewareApi(object):
         return paths
 
     def getCompanies(self):
-        response = requests.get(self.baseUrl + "/undertaking/list", timeout=self.TIMEOUT, verify=False)
+        response = requests.get(self.baseUrl + "/undertaking/list",
+                                timeout=self.TIMEOUT, verify=False)
         if not response or response.status_code != requests.codes.ok:
             return None
         return response.json()
@@ -57,7 +58,8 @@ class AuthMiddlewareApi(object):
         return False
 
     def getCandidates(self):
-        response = requests.get(self.baseUrl + "/candidate/list", timeout=self.TIMEOUT, verify=False)
+        response = requests.get(self.baseUrl + "/candidate/list",
+                                timeout=self.TIMEOUT, verify=False)
         if not response or response.status_code != requests.codes.ok:
             return None
         return response.json()
@@ -77,13 +79,15 @@ class AuthMiddlewareApi(object):
         return response.json()
 
     def getMatchingLog(self):
-        response = requests.get(self.baseUrl + "/matching_log", timeout=self.TIMEOUT, verify=False)
+        response = requests.get(self.baseUrl + "/matching_log",
+                                timeout=self.TIMEOUT, verify=False)
         if not response or response.status_code != requests.codes.ok:
             return None
         return response.json()
 
     def getDataSyncLog(self):
-        response = requests.get(self.baseUrl + "/data_sync_log", timeout=self.TIMEOUT, verify=False)
+        response = requests.get(self.baseUrl + "/data_sync_log",
+                                timeout=self.TIMEOUT, verify=False)
         if not response or response.status_code != requests.codes.ok:
             return None
         return response.json()
@@ -95,6 +99,12 @@ class AuthMiddlewareApi(object):
             return None
         return response.json()
 
+    def getCompaniesExcelExport(self):
+        response = requests.get(self.baseUrl + "/undertaking/list/export",
+                                 timeout=self.TIMEOUT, verify=False)
+        if not response or response.status_code != requests.codes.ok:
+            return None
+        return response
 
     @classmethod
     def buildCollectionPath(cls, domain, country_code, company_id, old_collection_id=None):

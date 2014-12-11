@@ -91,3 +91,14 @@ class SatelliteRegistryManagement(BaseAdmin):
                 companyId = self.request.get('id')
                 details = api.unverifyCompany(companyId, self.request.AUTHENTICATED_USER.getUserName())
         return json.dumps(details, indent=2)
+
+    def get_companies_excel(self):
+        self.request.response.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        self.request.response.setHeader('Content-Disposition',
+                             'attachment; filename=companies_list.xlsx')
+        api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi
+        if not api:
+            return None
+        api = api.authMiddlewareApi
+        response = api.getCompaniesExcelExport()
+        return response.content
