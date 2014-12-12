@@ -60,11 +60,11 @@ class ManageRoles(BaseAdmin):
             obj = self.context.unrestrictedTraverse(collection)
             revoke_roles = self.request.get(collection.replace('/', '_'), [])
             roles = list(obj.get_local_roles_for_userid(username))
-
             for role in revoke_roles:
-                roles.pop(roles.index(role))
-
-            obj.manage_setLocalRoles(username, roles)
+                roles.remove(role)
+            obj.manage_delLocalRoles([username])
+            if roles:
+                obj.manage_setLocalRoles(username, roles)
             obj.reindex_object()
 
     def search_ldap_users(self):

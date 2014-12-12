@@ -103,6 +103,9 @@ class BaseAdmin(BrowserView):
         countries = self.request.get('countries', [])
         username = self.request.get('username', '')
 
+        if self.request.get('btn.find_collections', False):
+            username = ''
+
         records = []
         brains = self.search_catalog(obligation,
                                      countries,
