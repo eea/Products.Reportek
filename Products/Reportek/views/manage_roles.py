@@ -48,8 +48,8 @@ class ManageRoles(BaseAdmin):
         role = self.request.get('role', '')
         for collection in collections:
             obj = self.context.unrestrictedTraverse(collection)
-            roles = list(obj.get_local_roles_for_userid(username))
-            roles.append(role)
+            roles = set(obj.get_local_roles_for_userid(username))
+            roles.add(role)
             obj.manage_setLocalRoles(username, roles)
             obj.reindex_object()
 
@@ -59,7 +59,7 @@ class ManageRoles(BaseAdmin):
         for collection in collections:
             obj = self.context.unrestrictedTraverse(collection)
             revoke_roles = self.request.get(collection.replace('/', '_'), [])
-            roles = list(obj.get_local_roles_for_userid(username))
+            roles = set(obj.get_local_roles_for_userid(username))
             for role in revoke_roles:
                 roles.remove(role)
             obj.manage_delLocalRoles([username])
