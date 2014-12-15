@@ -53,6 +53,9 @@ import ReportekEngine
 import ReportekUtilities
 import RegistryManagement
 
+import BdrAuthorizationMiddleware
+from AccessControl.Permissions import manage_users as ManageUsers
+
 import constants
 
 from zope.i18nmessageid import MessageFactory
@@ -252,6 +255,10 @@ def startup(context):
     transaction.commit()
 
 
+from Products.PluggableAuthService.PluggableAuthService import registerMultiPlugin
+registerMultiPlugin(BdrAuthorizationMiddleware.BdrUserFactoryPlugin.meta_type)
+
+
 def initialize(context):
     """ Reportek initializer """
 
@@ -284,6 +291,17 @@ def initialize(context):
             blob.manage_addOfsBlobFile),
        icon = 'www/blobfile.png'
        )
+
+
+    context.registerClass(
+        BdrAuthorizationMiddleware.BdrUserFactoryPlugin,
+        permission=ManageUsers,
+        constructors=(
+            BdrAuthorizationMiddleware.manage_addBdrUserFactoryPluginForm,
+            BdrAuthorizationMiddleware.addBdrUserFactoryPlugin),
+        visibility=None,
+        icon='www/openflowEngine.gif'
+    )
 
     ###########################################
     #   Registration of other classes

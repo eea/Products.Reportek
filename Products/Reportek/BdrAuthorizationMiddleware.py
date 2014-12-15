@@ -118,3 +118,79 @@ class BdrAuthorizationMiddleware(Cacheable):
             logger.warning("Failed to refresh authorizations for user %s (%s)" % (user, repr(e)))
             transaction.abort()
             raise
+
+
+from AccessControl import ClassSecurityInfo
+from App.class_init import InitializeClass
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.PluggableAuthService.interfaces.plugins import IUserFactoryPlugin
+from Products.PluggableAuthService.plugins.BasePlugin import BasePlugin
+from zope.interface import implements
+from Products.PluggableAuthService.PropertiedUser import PropertiedUser
+
+
+class BdrUserProperties(PropertiedUser):
+
+    def _lineage(self, obj):
+        parent = obj
+        parents = [obj]
+        while hasattr(parent, 'aq_parent'):
+            parent = parent.aq_parent
+            parents.append(parent)
+
+        return parents
+
+    def get_roles_for_user_in_context(self, object, user_id):
+        for parent in self._lineage(object):
+            if parent.getId() == 'my-' + user_id:
+                return ['Owner']
+
+    def allowed(self, object, object_roles=None):
+        basic = super(BdrUserProperties, self).allowed(object, object_roles)
+        if basic:
+            return 1
+
+        user_id = self.getId()
+        local_roles = self.get_roles_for_user_in_context(object, user_id) or []
+        for role in object_roles:
+            if role in local_roles:
+                if self._check_context(object):
+                    return 1
+                return None
+
+
+class BdrUserFactoryPlugin(BasePlugin):
+    implements(IUserFactoryPlugin)
+
+    meta_type = 'BDR User Factory Plugin'
+    security = ClassSecurityInfo()
+
+    def __init__( self, id, title=None ):
+        self._setId( id )
+        self.title = title
+
+    security.declarePrivate('createUser')
+    def createUser(self, user_id, name ):
+        # here we can check if this user has information in the middleware
+        # this is not strictely needed, we can skip this if we want
+
+        return BdrUserProperties(id=user_id, login=name)
+
+
+manage_addBdrUserFactoryPluginForm = PageTemplateFile(
+    'www/bdrufAdd', globals(), __name__='manage_addBdrUserFactoryPluginForm' )
+
+def addBdrUserFactoryPlugin( dispatcher, id, title='', RESPONSE=None ):
+    """ Add a Local Role Plugin to 'dispatcher'.
+    """
+
+    plugin = BdrUserFactoryPlugin( id, title )
+    dispatcher._setObject( id, plugin )
+
+    if RESPONSE is not None:
+        RESPONSE.redirect( '%s/manage_main?manage_tabs_message=%s' %
+                           ( dispatcher.absolute_url()
+                           , 'BdrUserFactory+added.' ) )
+
+
+InitializeClass(BdrUserFactoryPlugin)
