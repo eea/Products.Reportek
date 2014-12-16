@@ -21,7 +21,9 @@ class AuthMiddlewareApi(object):
         url = self.baseUrl + '/user/'  + username + '/companies'
         # use a short timeout here to not keep the user waiting at auth time
         response = requests.get(url, timeout=self.TIMEOUT)
-        if not response or response.status_code != requests.codes.ok:
+        if response.status_code == 404:
+            return []
+        if response.status_code != requests.codes.ok:
             return None
         companies = response.json()
         paths = []
