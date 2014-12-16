@@ -1047,4 +1047,14 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             self.REQUEST.RESPONSE.setCookie('reportek_language', new_lang, path='/')
             self.REQUEST.RESPONSE.redirect(self.REQUEST['HTTP_REFERER'])
 
+    # make it accessible from browser
+    security.declarePublic('getMiddlewareUserCollections')
+    def getMiddlewareUserCollections(self):
+        if not getattr(self, 'REQUEST', None):
+            return []
+        username = self.REQUEST['AUTHENTICATED_USER'].getUserName()
+        return [ self.unrestrictedTraverse('/'+str(colPath))
+                for colPath in self.authMiddlewareApi.getUserCollectionPaths(username) ]
+
+
 Globals.InitializeClass(ReportekEngine)

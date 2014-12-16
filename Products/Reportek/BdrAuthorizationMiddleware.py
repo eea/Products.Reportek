@@ -4,6 +4,7 @@ import constants
 from OFS.Cache import Cacheable
 from Products.PluggableAuthService.utils import createViewName
 from config import SATELLITE_REGISTRY_STICKY_USERS
+from AccessControl import ClassSecurityInfo
 
 from BdrAuthorizationMiddlewareApi import AuthMiddlewareApi
 
@@ -67,6 +68,7 @@ class BdrAuthorizationMiddleware(Cacheable):
         return False
 
     def updateLocalRoles(self, user):
+        raise NotImplementedError("Don't use updateLocalRoles!")
         view_name = createViewName('_updateLocalRoles', user)
         now = time.time()
         # FIXME This is called from PluggableAuthService:_extractUserIds that has
@@ -119,8 +121,16 @@ class BdrAuthorizationMiddleware(Cacheable):
             transaction.abort()
             raise
 
+    def getUserCollectionPaths(self, username):
+        # TODO: cache this call
+        accessiblePaths = self.authMiddlewareApi.getCollectionPaths(username)
+        return accessiblePaths
 
-from AccessControl import ClassSecurityInfo
+    def authorizedUser(self, username, path):
+        accessiblePaths = self.getUserCollectionPaths(username)
+        return path in accessiblePaths
+
+
 from App.class_init import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.PluggableAuthService.interfaces.plugins import IUserFactoryPlugin
@@ -131,19 +141,18 @@ from Products.PluggableAuthService.PropertiedUser import PropertiedUser
 
 class BdrUserProperties(PropertiedUser):
 
-    def _lineage(self, obj):
-        parent = obj
-        parents = [obj]
-        while hasattr(parent, 'aq_parent'):
-            parent = parent.aq_parent
-            parents.append(parent)
+    def get_roles_for_user_in_context(self, obj, user_id):
+        # path of form 'fagses/ro/collection_id/some_deeper_path'
+        if not hasattr(obj, 'absolute_url'):
+            obj = obj.im_self
+        current_path_parts = obj.absolute_url(1).split('/')
+        if len(current_path_parts) < 3:
+            return []
 
-        return parents
-
-    def get_roles_for_user_in_context(self, object, user_id):
-        for parent in self._lineage(object):
-            if parent.getId() == 'my-' + user_id:
-                return ['Owner']
+        col_path = '/'.join(current_path_parts[:3])
+        if self.get_middleware_authorization(user_id, col_path):
+            return ['Owner']
+        return []
 
     def allowed(self, object, object_roles=None):
         basic = super(BdrUserProperties, self).allowed(object, object_roles)
@@ -151,12 +160,20 @@ class BdrUserProperties(PropertiedUser):
             return 1
 
         user_id = self.getId()
-        local_roles = self.get_roles_for_user_in_context(object, user_id) or []
+        local_roles = self.get_roles_for_user_in_context(object, user_id)
         for role in object_roles:
             if role in local_roles:
                 if self._check_context(object):
                     return 1
                 return None
+
+    def get_middleware_authorization(self, user_id, base_path):
+        engine = self.unrestrictedTraverse('/ReportekEngine')
+        authMiddleware = engine.authMiddlewareApi
+        if authMiddleware:
+            return authMiddleware.authorizedUser(user_id, base_path)
+        return False
+
 
 
 class BdrUserFactoryPlugin(BasePlugin):
