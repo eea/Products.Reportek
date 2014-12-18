@@ -92,5 +92,19 @@
       class=".views.SatelliteRegistryManagement"
       attribute="get_companies_excel"/>
 
+    <browser:page
+      name="organisations_json"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      attribute="get_companies_json"/>
+
+     <browser:page
+      name="users_json"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      attribute="get_users_excel"/>
+
   </configure>
 </configure>

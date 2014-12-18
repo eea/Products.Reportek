@@ -42,12 +42,12 @@ class SatelliteRegistryManagement(BaseAdmin):
             if self.request.get('id') and not self.request.get('vat'):
                 companyId = self.request.get('id')
                 details = api.getCompanyDetailsById(companyId)
-                details = fix_json_from_id(details)
+                fix_json_from_id(details)
 
             if self.request.get('vat') and not self.request.get('id'):
                 companyVat = self.request.get('vat')
                 details = api.getCompanyDetailsByVat(companyVat)
-                details = fix_json_from_vat(details)
+                fix_json_from_vat(details)
 
         return json.dumps(details, indent=2)
 
@@ -93,12 +93,42 @@ class SatelliteRegistryManagement(BaseAdmin):
         return json.dumps(details, indent=2)
 
     def get_companies_excel(self):
-        self.request.response.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
-        self.request.response.setHeader('Content-Disposition',
-                             'attachment; filename=companies_list.xlsx')
+        headers = {
+            'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition': 'attachment; filename=companies_list.xlsx'
+        }
+        for key, value in headers.iteritems():
+            self.request.response.setHeader(key, value)
+
         api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi
         if not api:
             return None
         api = api.authMiddlewareApi
         response = api.getCompaniesExcelExport()
+        return response.content
+
+    def get_companies_json(self):
+        companies = self.get_companies()
+        if companies is None:
+            companies = []
+
+        for company in companies:
+            fix_json_from_id(company)
+
+        self.request.response.setHeader('Content-Type', 'application/json')
+        return json.dumps(companies, indent=2)
+
+    def get_users_excel(self):
+        headers = {
+            'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition': 'attachment; filename=user_list.xlsx'
+        }
+        for key, value in headers.iteritems():
+            self.request.response.setHeader(key, value)
+
+        api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi
+        if not api:
+            return None
+        api = api.authMiddlewareApi
+        response = api.getUsersExcelExport()
         return response.content

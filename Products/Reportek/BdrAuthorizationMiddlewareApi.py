@@ -103,7 +103,14 @@ class AuthMiddlewareApi(object):
 
     def getCompaniesExcelExport(self):
         response = requests.get(self.baseUrl + "/misc/undertaking/export",
-                                 timeout=self.TIMEOUT, verify=False)
+                                timeout=self.TIMEOUT, verify=False)
+        if not response or response.status_code != requests.codes.ok:
+            return None
+        return response
+
+    def getUsersExcelExport(self):
+        response = requests.get(self.baseUrl + "/misc/user/export",
+                                timeout=self.TIMEOUT, verify=False)
         if not response or response.status_code != requests.codes.ok:
             return None
         return response
