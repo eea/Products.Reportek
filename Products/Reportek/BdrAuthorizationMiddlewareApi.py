@@ -40,7 +40,7 @@ class AuthMiddlewareApi(object):
     def getCompanies(self):
         response = requests.get(self.baseUrl + "/undertaking/list",
                                 timeout=self.TIMEOUT, verify=False)
-        if not response or response.status_code != requests.codes.ok:
+        if response.status_code != requests.codes.ok:
             return None
         return response.json()
 
@@ -55,63 +55,63 @@ class AuthMiddlewareApi(object):
                                  data={'user': userId},
                                  timeout=self.TIMEOUT,
                                  verify=False)
-        if response and response.status_code == requests.codes.ok:
+        if response.status_code == requests.codes.ok:
             return True
         return False
 
     def getCandidates(self):
         response = requests.get(self.baseUrl + "/candidate/list",
                                 timeout=self.TIMEOUT, verify=False)
-        if not response or response.status_code != requests.codes.ok:
+        if response.status_code != requests.codes.ok:
             return None
         return response.json()
 
     def getCompanyDetailsById(self, companyId):
         response = requests.get(self.baseUrl + "/undertaking/{0}/details".format(companyId),
                                 timeout=self.TIMEOUT, verify=False)
-        if not response or response.status_code != requests.codes.ok:
+        if response.status_code != requests.codes.ok:
             return None
         return response.json()
 
     def getCompanyDetailsByVat(self, companyVat):
         response = requests.get(self.baseUrl + "/undertaking/details_by_vat/{0}".format(companyVat),
                                 timeout=self.TIMEOUT, verify=False)
-        if not response or response.status_code != requests.codes.ok:
+        if response.status_code != requests.codes.ok:
             return None
         return response.json()
 
     def getMatchingLog(self):
         response = requests.get(self.baseUrl + "/matching_log",
                                 timeout=self.TIMEOUT, verify=False)
-        if not response or response.status_code != requests.codes.ok:
+        if response.status_code != requests.codes.ok:
             return None
         return response.json()
 
     def getDataSyncLog(self):
         response = requests.get(self.baseUrl + "/data_sync_log",
                                 timeout=self.TIMEOUT, verify=False)
-        if not response or response.status_code != requests.codes.ok:
+        if response.status_code != requests.codes.ok:
             return None
         return response.json()
 
     def unverifyCompany(self, companyId, userId):
         response = requests.post(self.baseUrl + "/candidate/unverify/{0}/".format(companyId),
                                  data={'user': userId}, timeout=self.TIMEOUT, verify=False)
-        if not response or response.status_code != requests.codes.ok:
+        if response.status_code != requests.codes.ok:
             return None
         return response.json()
 
     def getCompaniesExcelExport(self):
         response = requests.get(self.baseUrl + "/misc/undertaking/export",
                                 timeout=self.TIMEOUT, verify=False)
-        if not response or response.status_code != requests.codes.ok:
+        if response.status_code != requests.codes.ok:
             return None
         return response
 
     def getUsersExcelExport(self):
         response = requests.get(self.baseUrl + "/misc/user/export",
                                 timeout=self.TIMEOUT, verify=False)
-        if not response or response.status_code != requests.codes.ok:
+        if response.status_code != requests.codes.ok:
             return None
         return response
 
