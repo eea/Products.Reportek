@@ -471,20 +471,6 @@ def replace_keys(replace_items, obj):
     return obj
 
 
-def fix_json_from_vat(obj):
-    """
-    Replace keys from json to set the right json format, used in SatelliteRegistryManagement class
-    :param obj: python dict
-    :return: the dict in the corect format
-    """
-    if not obj:
-        return []
-
-    for o in obj:
-        replace_keys({'company_id': 'id'}, o)
-
-    return obj
-
 def fix_json_from_id(obj):
     """
     Replace keys from json to set the right json format, used in SatelliteRegistryManagement class

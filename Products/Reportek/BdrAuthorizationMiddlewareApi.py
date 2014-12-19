@@ -74,7 +74,7 @@ class AuthMiddlewareApi(object):
         return response.json()
 
     def getCompanyDetailsByVat(self, companyVat):
-        response = requests.get(self.baseUrl + "/undertaking/list_by_vat/{0}".format(companyVat),
+        response = requests.get(self.baseUrl + "/undertaking/details_by_vat/{0}".format(companyVat),
                                 timeout=self.TIMEOUT, verify=False)
         if not response or response.status_code != requests.codes.ok:
             return None

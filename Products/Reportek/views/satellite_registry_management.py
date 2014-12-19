@@ -1,6 +1,6 @@
 from base_admin import BaseAdmin
 from Products.Reportek.constants import ENGINE_ID
-from Products.Reportek.RepUtils import fix_json_from_id, fix_json_from_vat
+from Products.Reportek.RepUtils import fix_json_from_id
 import json
 
 
@@ -47,7 +47,7 @@ class SatelliteRegistryManagement(BaseAdmin):
             if self.request.get('vat') and not self.request.get('id'):
                 companyVat = self.request.get('vat')
                 details = api.getCompanyDetailsByVat(companyVat)
-                fix_json_from_vat(details)
+                fix_json_from_id(details)
 
         return json.dumps(details, indent=2)
 
