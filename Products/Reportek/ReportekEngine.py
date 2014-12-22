@@ -1065,13 +1065,18 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             self.REQUEST.RESPONSE.redirect(self.REQUEST['HTTP_REFERER'])
 
     # make it accessible from browser
-    security.declarePublic('getMiddlewareUserCollections')
-    def getMiddlewareUserCollections(self):
+    security.declarePublic('getReporterCollections')
+    def getReporterCollections(self):
         if not getattr(self, 'REQUEST', None):
             return []
         username = self.REQUEST['AUTHENTICATED_USER'].getUserName()
-        return [ self.unrestrictedTraverse('/'+str(colPath))
+        # these are disjunct, so it is safe to add them all together
+        # normally only one of the lists will have results, but they could be all empty too
+        middleware_collections = [ self.unrestrictedTraverse('/'+str(colPath))
                 for colPath in self.authMiddlewareApi.getUserCollectionPaths(username) ]
+        catalog = getattr(self, constants.DEFAULT_CATALOG)
+        old_style_collections = [ br.getObject() for br in catalog(id=username) ]
+        return middleware_collections + old_style_collections
 
 
 Globals.InitializeClass(ReportekEngine)
