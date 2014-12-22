@@ -7,11 +7,10 @@ logger = logging.getLogger("Reportek")
 class AuthMiddlewareApi(object):
     DOMAIN_TO_OBLIGATION_FOLDER = {
         'FGAS': 'fgases',
-        'ODS': 'ods',
     }
+    # TODO: obtain those dynamically rather than hardcode them here
     DOMAIN_TO_OBLIGATION = {
         'FGAS': 'http://rod.eionet.europa.eu/obligations/713',
-        'ODS': ''
     }
     TIMEOUT = 20
     def __init__(self, url):
@@ -31,6 +30,8 @@ class AuthMiddlewareApi(object):
             try:
                 path = self.buildCollectionPath(c['domain'], c['country'],
                                     str(c['company_id']), c['collection_id'])
+                if not path:
+                    raise ValueError("Cannot form path with company data: %s" % str(c))
                 paths.append(path)
             except Exception as e:
                 logger.warning("Error in company data received from SatelliteRegistry: %s" % repr(e))
@@ -117,7 +118,9 @@ class AuthMiddlewareApi(object):
 
     @classmethod
     def buildCollectionPath(cls, domain, country_code, company_id, old_collection_id=None):
-        obligation_folder = cls.DOMAIN_TO_OBLIGATION_FOLDER[domain]
+        obligation_folder = cls.DOMAIN_TO_OBLIGATION_FOLDER.get(domain)
+        if not obligation_folder:
+            return None
         country_folder = country_code.lower()
         collection_folder = old_collection_id if old_collection_id else company_id
         return '/'.join([obligation_folder, country_folder, collection_folder])

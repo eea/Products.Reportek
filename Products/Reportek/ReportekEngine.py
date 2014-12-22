@@ -297,6 +297,16 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 'message': ''}
         coll_path = self.authMiddlewareApi.authMiddlewareApi.buildCollectionPath(
                 domain, country, company_id, old_collection_id)
+        if not coll_path:
+            msg = ("Cannot form path to collection, with details domain:"
+                   " %s, country: %s, company_id: %s, old_collection_id: %s.") % (
+                   domain, country, company_id, old_collection_id)
+            logger.warning(msg)
+            # return failure (404) to the service calling us
+            self.REQUEST.RESPONSE.setStatus(404)
+            resp['message'] = msg
+            return json.dumps(resp)
+
         path_parts = coll_path.split('/')
         obligation_id= path_parts[0]
         country_id = path_parts[1]
@@ -322,7 +332,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             except:
                 msg = "Cannot update collection %s Old style collection not found" % coll_path
                 logger.warning(msg)
-                # return failure (404) to the service calling us
                 self.REQUEST.RESPONSE.setStatus(404)
                 resp['message'] = msg
                 return json.dumps(resp)
@@ -331,16 +340,24 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 coll = getattr(country_folder, coll_id)
             except:
                 # not there, create it
-                #dataflow_uris = obligation_folder.dataflow_uris
-                dataflow_uris = [ self.authMiddlewareApi.authMiddlewareApi.DOMAIN_TO_OBLIGATION[domain] ]
-                country_uri = country_folder.country
-                country_folder.manage_addCollection(dataflow_uris=dataflow_uris,
-                    country=country_uri,
-                    id=company_id,
-                    title=name,
-                    allow_collections=0, allow_envelopes=1,
-                    descr='', locality='', partofyear='', year='', endyear='')
-                coll = getattr(country_folder, company_id)
+                # Don't take obligation from parent as it can be a terminated obligation
+                try:
+                    dataflow_uris = [ self.authMiddlewareApi.authMiddlewareApi.DOMAIN_TO_OBLIGATION[domain] ]
+                    country_uri = country_folder.country
+                    country_folder.manage_addCollection(dataflow_uris=dataflow_uris,
+                        country=country_uri,
+                        id=company_id,
+                        title=name,
+                        allow_collections=0, allow_envelopes=1,
+                        descr='', locality='', partofyear='', year='', endyear='')
+                    coll = getattr(country_folder, company_id)
+                except Exception as e:
+                    msg = "Cannot create collection %s. " % coll_path
+                    logger.warning(msg + str(e))
+                    # return failure (404) to the service calling us
+                    self.REQUEST.RESPONSE.setStatus(404)
+                    resp['message'] = msg
+                    return json.dumps(resp)
             coll.company_id = company_id
             coll.reindex_object()
         resp['status'] = 'success'
