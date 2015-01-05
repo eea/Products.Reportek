@@ -289,7 +289,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                                     name, old_collection_id=None):
             """Update information on an existing old-type collection (say, 'fgas30001')
             mainly setting it's `company_id` (the id internal to Fgas Portal for instance)
-            If the no `old_collection_id` is provided then a new collection will be created with
+            If no `old_collection_id` is provided then a new collection will be created with
             id=company_id=provided `company_id`.
             If `old_collection_id` is provided, the the collection must exist in the expected path
             deducted from the domain/country/old_collection_id. It's company_id will be updated.
