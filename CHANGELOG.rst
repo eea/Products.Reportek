@@ -1,5 +1,9 @@
-3.7.2 (unreleased)
+3.7.2-dev (05-01-2015)
 -------------------
+* Task 19360 - add 'deferred mode' to the compression of Report Documents [baragdan]
+- better separation of deployments [baragdan]
+- fixes for ReportekUtilities [malduvit]
+
 
 3.7.1 (10-12-2014)
 -------------------
