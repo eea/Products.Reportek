@@ -25,12 +25,12 @@ __all__ = [
 
 DEPLOYMENT_CDR = 'CDR'
 DEPLOYMENT_BDR = 'BDR'
-DEPOLYMENT_MDR = 'MDR'
+DEPLOYMENT_MDR = 'MDR'
 
 REPORTEK_DEPLOYMENT = os.environ.get('REPORTEK_DEPLOYMENT', DEPLOYMENT_CDR)
 LOCAL_CONVERTERS_PORT = os.environ.get('LOCAL_CONVERTERS_PORT', '5000')
 
-if REPORTEK_DEPLOYMENT in (DEPLOYMENT_CDR, DEPOLYMENT_MDR):
+if REPORTEK_DEPLOYMENT in (DEPLOYMENT_CDR, DEPLOYMENT_MDR):
     permission_manage_properties_collections = 'Change Collections'
     permission_manage_properties_envelopes = 'Change Envelopes'
 elif REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
