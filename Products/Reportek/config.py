@@ -15,6 +15,7 @@
 import os
 
 __all__ = [
+    'REPORTEK_DEPLOYMENT',
     'DEPLOYMENT_BDR',
     'DEPLOYMENT_CDR',
     'DEPLOYMENT_MDR',
