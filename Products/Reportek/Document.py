@@ -100,7 +100,7 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
             save_id = id
             id += '___tmp_%f' % time()
 
-        obj = Document(id, title, deferred_compress)
+        obj = Document(id, title=title, deferred_compress=deferred_compress)
         self = self.this()
         self._setObject(id, obj)
         obj = self._getOb(id)

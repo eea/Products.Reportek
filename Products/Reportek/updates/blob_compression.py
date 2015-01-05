@@ -58,6 +58,14 @@ def update(app, outName='blob_compression.log'):
                 skipped_FileContainer = True
                 out.write("Reactivating new type object %s \n" % ob.absolute_url())
 
+            # new type of objects that were set to deferred compression
+            if (not old_FileContainer
+                and ob.meta_type == 'Report Document'
+                and data_file._toCompress == 'deferred'):
+                data_file._toCompress = 'auto'
+                skipped_FileContainer = True
+                out.write("Setting deferred new type object to auto-compress %s \n" % ob.absolute_url())
+
             # keep changes so far
             transaction.commit()
 
