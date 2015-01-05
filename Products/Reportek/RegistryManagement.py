@@ -17,10 +17,4 @@ class RegistryManagement(Folder):
 
     def all_meta_types(self):
         types = ['Script (Python)', 'Folder', 'Page Template']
-        y = []
-
-        for x in Products.meta_types:
-            if x['name'] in types:
-                y.append(x)
-
-        return y
+        return [ t for t in Products.meta_types if t['name'] in types ]

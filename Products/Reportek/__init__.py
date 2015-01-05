@@ -30,14 +30,12 @@ import logging
 logger = logging.getLogger("Reportek")
 
 # Zope imports
-import Globals
 import Zope2
 from App.ImageFile import ImageFile
 from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCTextIndex.ZCTextIndex import PLexicon
 
 # Product imports
-import RepUtils
 
 import QARepository
 import QAScript
@@ -51,9 +49,7 @@ import RemoteRESTApplication
 import DataflowMappings
 import ReportekEngine
 import ReportekUtilities
-import RegistryManagement
 
-import BdrAuthorizationMiddleware
 from AccessControl.Permissions import manage_users as ManageUsers
 
 import constants
@@ -136,6 +132,7 @@ def create_reportek_objects(app):
 
     #Add Registry Management
     if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+        import RegistryManagement
         try:
             registry_management = getattr(app, constants.REGISTRY_MANAGEMENT)
         except AttributeError:
@@ -255,8 +252,11 @@ def startup(context):
     transaction.commit()
 
 
-from Products.PluggableAuthService.PluggableAuthService import registerMultiPlugin
-registerMultiPlugin(BdrAuthorizationMiddleware.BdrUserFactoryPlugin.meta_type)
+
+if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+    import BdrAuthorizationMiddleware
+    from Products.PluggableAuthService.PluggableAuthService import registerMultiPlugin
+    registerMultiPlugin(BdrAuthorizationMiddleware.BdrUserFactoryPlugin.meta_type)
 
 
 def initialize(context):
@@ -293,15 +293,16 @@ def initialize(context):
        )
 
 
-    context.registerClass(
-        BdrAuthorizationMiddleware.BdrUserFactoryPlugin,
-        permission=ManageUsers,
-        constructors=(
-            BdrAuthorizationMiddleware.manage_addBdrUserFactoryPluginForm,
-            BdrAuthorizationMiddleware.addBdrUserFactoryPlugin),
-        visibility=None,
-        icon='www/openflowEngine.gif'
-    )
+    if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+        context.registerClass(
+            BdrAuthorizationMiddleware.BdrUserFactoryPlugin,
+            permission=ManageUsers,
+            constructors=(
+                BdrAuthorizationMiddleware.manage_addBdrUserFactoryPluginForm,
+                BdrAuthorizationMiddleware.addBdrUserFactoryPlugin),
+            visibility=None,
+            icon='www/openflowEngine.gif'
+        )
 
     ###########################################
     #   Registration of other classes
