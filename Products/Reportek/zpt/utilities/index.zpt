@@ -4,6 +4,8 @@
     <tal:block content="structure here/breadcrumbs_views"></tal:block>
   </metal:block>
 
+  <tal:block define="global isCdrDeployment python: here.ReportekEngine.getDeploymentType() == 'CDR'"/>
+
   <metal:block fill-slot="content">
 
     <h2>User management</h2>
@@ -33,7 +35,7 @@
 
     <ul>
       <li><a href="obligation.recent_uploads">Recent uploads</a></li>
-      <li tal:condition="not: options/is_bdr | nothing">
+      <li tal:condition="isCdrDeployment | nothing">
         <a href="statistics">Statistics</a>
       </li>
       <li><a href="/ReportekEngine/sitemap">Sitemap</a></li>

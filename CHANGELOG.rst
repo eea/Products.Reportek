@@ -1,5 +1,10 @@
+3.7.2-dev1 (06-01-2015)
+-----------------------
+* Task #22312
+    - Add more categories to ReportekUtilities 
+
 3.7.2-dev (05-01-2015)
--------------------
+----------------------
 * Task 19360 - add 'deferred mode' to the compression of Report Documents [baragdan]
 - better separation of deployments [baragdan]
 - fixes for ReportekUtilities [malduvit]
