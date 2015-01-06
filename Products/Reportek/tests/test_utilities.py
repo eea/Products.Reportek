@@ -435,7 +435,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             if r_control.optionValue == 'Client':
                 r_control.selected = True
         self.browser.getControl(name='btn.find_collections').click()
-        self.assertTrue('(Owner, Reporter, Client)' in self.browser.contents)
+        self.assertTrue('(Owner, Client, Reporter)' in self.browser.contents)
 
         # Go to ReportekUtilities
         self.browser.goBack(count=6)
@@ -480,7 +480,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         self.browser.goBack(count=6)
 
         # Go to search Search for collection with obligation view
-        self.browser.getLink(text='Search for collections with obligation').click()
+        self.browser.getLink(text='Create envelopes').click()
         self.browser.getControl(name='obligation').controls[0].selected = True
         self.browser.getControl(name='btn.search').click()
         self.assertTrue('Test Country' in self.browser.contents)
