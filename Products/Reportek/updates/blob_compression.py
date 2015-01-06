@@ -89,5 +89,5 @@ def update(app, outName='blob_compression.log'):
             out.write(repr(e) + '\n' + '(%s: %s)\n' % (str(e), str(e.args)))
             transaction.abort()
     if outName:
-        out.write(" --- End log (%s) ---" % strftime("%a, %d %b %Y %H:%M:%S"))
+        out.write(" --- End log (%s) ---\n" % strftime("%a, %d %b %Y %H:%M:%S"))
         out.close()
