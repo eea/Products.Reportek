@@ -1,10 +1,10 @@
+<tal:block define="global isCdrDeployment python: here.ReportekEngine.getDeploymentType() == 'CDR'"/>
 <metal:block use-macro="container/standard_template.pt/macros/page">
 
   <metal:block fill-slot="breadcrumbtrails">
     <tal:block content="structure here/breadcrumbs_views"></tal:block>
   </metal:block>
 
-  <tal:block define="global isCdrDeployment python: here.ReportekEngine.getDeploymentType() == 'CDR'"/>
 
   <metal:block fill-slot="content">
 
