@@ -48,7 +48,15 @@ class BdrUserProperties(PropertiedUser):
 
     def get_roles_for_user_in_context(self, obj, user_id):
         # path of form 'fagses/ro/collection_id/some_deeper_path'
+
+        # when creating objects in a parent, we don't have an absolute_url yet
+        # look for the parent
         if not hasattr(obj, 'absolute_url'):
+            # when accessing ZMI specific objects we don't have im_self either
+            # if the classical authorization failed then fail this one too
+            # because this is not a FGAS Portal case
+            if not hasattr(obj, 'im_self'):
+                return []
             obj = obj.im_self
         current_path_parts = obj.absolute_url(1).split('/')
         if len(current_path_parts) < 3:
