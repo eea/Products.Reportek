@@ -39,6 +39,7 @@ from AccessControl import getSecurityManager, ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens, view
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from App.config import getConfiguration
+from config import *
 import Globals
 import Products
 import xmlrpclib
