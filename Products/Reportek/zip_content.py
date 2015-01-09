@@ -522,6 +522,7 @@ class ZZipFileRaw(ZZipFile):
 
     zef_file_raw = None
     ENCRYPTED_FLAG = 0x1
+    SKIP_RAW_THRESHOLD = 300
 
     def __init__(self, file, mode="r", compression=ZIP_STORED, allowZip64=False):
         ZZipFile.__init__(self, file, mode=mode, compression=compression, allowZip64=allowZip64)
@@ -626,7 +627,7 @@ class ZZipFileRaw(ZZipFile):
     def rewindRaw(self):
         return self.seekRaw(0)
 
-    def read(self, nbytes=-1, skipRawThreshold=300):
+    def read(self, nbytes=-1, skipRawThreshold=SKIP_RAW_THRESHOLD):
         """ Read `nbytes` from the zip file.
         If the requestet chunk size is -1 then read the whole file.
         If it is below `skipRawThreshold` (but not whole file, -1) then read those bytes uncompressed
