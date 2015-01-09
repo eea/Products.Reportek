@@ -595,6 +595,9 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         if headers and 'content-type' in headers:
             return headers['content-type']
 
+        # This will discard only utf8 BOM in case it is there
+        # zope mime type guessing fails if BOM present
+        body = RepUtils.discard_utf8_bom(body)
         content_type, enc = guess_content_type(name, body)
         return content_type
 

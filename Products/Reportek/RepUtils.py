@@ -452,3 +452,10 @@ def _load_json(name):
 
 
 mime_types = _mime_types()
+
+def discard_utf8_bom(body):
+    bom = '\xef\xbb\xbf'
+    if body.startswith(bom):
+        return body[3:]
+    else:
+        return body
