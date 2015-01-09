@@ -7,3 +7,4 @@ from wrong_country import WrongCountry
 from envelope_utils import EnvelopeUtils
 from statistics import Statistics
 from recent_uploads import RecentUploads
+from build_collections import BuildCollections

@@ -116,6 +116,13 @@
     template="zpt/utilities/recent_uploads.zpt"/>
 
   <browser:page
+    name="collections.build"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.BuildCollections"
+    template="zpt/utilities/build_collections.zpt"/>
+
+  <browser:page
     name="envelopes.autocomplete"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
