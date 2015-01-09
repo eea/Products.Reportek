@@ -467,7 +467,8 @@ def replace_keys(replace_items, obj):
     """
     if obj:
         for key, replacement in replace_items.iteritems():
-            obj[replacement] = obj.pop(key)
+            if key in obj:
+                obj[replacement] = obj.pop(key)
     return obj
 
 
@@ -494,17 +495,14 @@ def fix_json_from_id(obj):
     if not obj:
         return {}
 
-    # Delete unused keys
-    unused = ['businessprofile', 'candidates', 'collection_id', 'oldcompany_verified', 'oldcompany_extid', 'oldcompany_id']
-    for key in unused:
-        obj.pop(key, None)
-
     # Replace keys to set the right json format
     obj = replace_keys({
         'oldcompany_account': 'Former_Company_no_2007-2010',
         'company_id': 'id',
         'representative': 'euLegalRepresentativeCompany',
-        'users': 'contactPersons'
+        'users': 'contactPersons',
+        'businessprofile': 'businessProfile',
+        'undertaking_type': '@type'
     }, obj)
 
     # Replace legal representative format
@@ -535,5 +533,16 @@ def fix_json_from_id(obj):
             'last_name': 'lastName',
             'email': 'emailAddress'
         }, person)
+
+    # Replace businessProfile
+    obj['businessProfile'] = replace_keys({
+        'highleveluses': 'highLevelUses'
+    }, obj['businessProfile'])
+
+    # Delete unused keys
+    unused = ['country_code', 'date_created', 'date_updated', 'candidates', 'collection_id',
+              'oldcompany_verified', 'oldcompany_extid', 'oldcompany_id']
+    for key in unused:
+        obj.pop(key, None)
 
     return obj
