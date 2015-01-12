@@ -3,6 +3,7 @@ from operator import itemgetter
 from collections import defaultdict
 from Products.Reportek.constants import ENGINE_ID
 
+
 class BuildCollections(BaseAdmin):
     """ View for build collections page"""
     def __init__(self, *args, **kwargs):
@@ -14,20 +15,26 @@ class BuildCollections(BaseAdmin):
         if self.request.method == 'GET':
             return self.index(messages=messages)
 
+        # get form params
         pattern = self.request.form.pop('pattern', '')
         countries = self.request.form.pop('countries', None)
         title = self.request.form.pop('ctitle', '')
-        obligation = self.request.form.pop('obligation', [])
-        if not isinstance(obligation, list):
-            obligation = [obligation]
+        obl = self.request.form.pop('obligation', [])
+
         collection_id = self.request.form.pop('cid', '')
         allow_collections = int(self.request.form.pop('allow_collections', 0))
         allow_envelopes = int(self.request.form.pop('allow_envelopes', 1))
 
+        # adjust obligation to expected format
+        if not isinstance(obl, list):
+            obl = filter(lambda c: c.get('PK_RA_ID') == obl, self.dataflow_rod)[0]
+            obl = [obl['uri']]
+
+        # get ReportekEngine object
         engine = self.context.unrestrictedTraverse('/'+ENGINE_ID)
 
         for iso in countries:
-            import pdb; pdb.set_trace()
+            # get country uri
             country = filter(lambda c: c.get('iso') == iso, self.localities_rod)[0]
             if country:
                 target_path = country['iso'].lower()
@@ -35,17 +42,18 @@ class BuildCollections(BaseAdmin):
                     if pattern:
                         pattern = engine.clean_pattern(pattern)
                         target_path = '/'.join([country['iso'].lower(), pattern])
+
                     target = engine.getPhysicalRoot().restrictedTraverse(target_path)
                     target.manage_addCollection(
-                        title, '', '', '', '', country['uri'], '',
-                        obligation,
+                        title, '', '', '', '', country['uri'], '', obl,
                         allow_collections=allow_collections,
                         allow_envelopes=allow_envelopes,
                         id=collection_id
                     )
                     messages['success'].append(country['name'])
                 except KeyError:
-                    err = "{0}: the specified path does not exist [{1}]".format(country['name'], target_path)
+                    err = "{0}: the specified path does not exist [{1}]".format(
+                        country['name'], target_path)
                     messages['fail'].append(err)
         return self.index(messages=messages)
 
@@ -67,5 +75,7 @@ class BuildCollections(BaseAdmin):
 
         legal_instruments = sorted(obligations.keys())
 
-        return {'legal_instruments': legal_instruments,
-                'obligations': obligations}
+        return {
+            'legal_instruments': legal_instruments,
+            'obligations': obligations
+        }
