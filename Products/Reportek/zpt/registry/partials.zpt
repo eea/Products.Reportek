@@ -93,15 +93,6 @@
            tal:content="company/website" />
       </td>
     </tr>
-
-    <tr>
-      <th>Reporting folder</th>
-      <td>
-        <a tal:attributes="href company/path"
-          tal:condition="company/path"
-           tal:content="company/path" />
-      </td>
-    </tr>
   </table>
 </tal:block>
 

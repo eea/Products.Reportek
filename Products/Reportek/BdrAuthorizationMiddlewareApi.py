@@ -57,7 +57,9 @@ class AuthMiddlewareApi(object):
                                  timeout=self.TIMEOUT,
                                  verify=False)
         if response.status_code == requests.codes.ok:
-            return True
+            data = response.json()
+            if data['verified']:
+                return True
         return False
 
     def getCandidates(self):
