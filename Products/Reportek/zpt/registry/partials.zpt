@@ -32,9 +32,9 @@
       <tr>
         <th>Website</th>
         <td>
-          <a href="candidate/website"
-             tal:condition="candidate/website"
-             tal:content="candidate/website" />
+          <a tal:attributes="href company/website"
+           tal:condition="company/website"
+           tal:content="company/website" />
         </td>
       </tr>
     </tbody>
