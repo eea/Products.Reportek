@@ -88,9 +88,18 @@
     <tr>
       <th>Website</th>
       <td>
-        <a href="company/website"
+        <a tal:attributes="href company/website"
            tal:condition="company/website"
            tal:content="company/website" />
+      </td>
+    </tr>
+
+    <tr>
+      <th>Reporting folder</th>
+      <td>
+        <a tal:attributes="href company/path"
+          tal:condition="company/path"
+           tal:content="company/path" />
       </td>
     </tr>
   </table>

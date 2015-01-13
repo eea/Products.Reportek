@@ -72,7 +72,20 @@ class AuthMiddlewareApi(object):
                                 timeout=self.TIMEOUT, verify=False)
         if response.status_code != requests.codes.ok:
             return None
-        return response.json()
+
+        details = response.json()
+
+        keysToVerify = ['domain', 'address', 'company_id', 'collection_id']
+        if reduce(lambda i, x: i and x in details, keysToVerify, True):
+            path = self.buildCollectionPath(
+                details['domain'],
+                details['address']['country']['code'],
+                str(details['company_id']),
+                details['collection_id']
+            )
+            details['path'] = '/' + path
+
+        return details
 
     def getCompanyDetailsByVat(self, companyVat):
         response = requests.get(self.baseUrl + "/undertaking/list_by_vat/{0}".format(companyVat),
