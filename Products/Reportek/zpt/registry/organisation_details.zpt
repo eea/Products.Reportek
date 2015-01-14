@@ -23,15 +23,17 @@
         <small>Back</small>
       </a>
       <tal:block condition="company">
-        <div>
-          <h1 tal:content="company/name" />
-          <a tal:attributes="href company/path" tal:condition="company/path">
-            <small>reporting folder</small>
-          </a>
-        </div>
+        <h1 tal:content="company/name" />
         <hr>
         <tal:block metal:use-macro="here/partials/macros/organisation_details" />
         <hr>
+        <h2>Reporting folder</h2>
+        <span>
+          You can access your reporting folder here
+          <a tal:attributes="href company/path"
+          tal:condition="company/path"
+          tal:content="company/path" />
+        </span>
         <tal:block condition="company/representative" define="representative company/representative">
           <h2>Representative</h2>
           <tal:block metal:use-macro="here/partials/macros/representative_details" />

@@ -23,8 +23,9 @@ class SatelliteRegistryManagement(BaseAdmin):
                 if isForMatch:
                     return self.request.response.redirect('{0}/{1}?done=1'.format(
                         self.context.absolute_url(), "organisation_matching"))
+                return self.index(error=True)
 
-        return self.index()
+        return self.index(error=False)
 
     def get_companies(self):
         api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi

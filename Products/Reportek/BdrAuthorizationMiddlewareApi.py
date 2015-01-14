@@ -58,7 +58,7 @@ class AuthMiddlewareApi(object):
                                  verify=False)
         if response.status_code == requests.codes.ok:
             data = response.json()
-            if data['verified']:
+            if 'verified' in data and data['verified']:
                 return True
         return False
 
