@@ -1,4 +1,4 @@
-3.7.2-dev2 (unreleased)
+3.7.2-dev2 (14-01-2015)
 -----------------------
 * Task #22404 - Workaround zope's inabillity to detect mime type while utf8 BOM present [baragdan]
 * Task #22436 - Fix seek(0) on raw zip handler when normal, non raw read is used
