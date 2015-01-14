@@ -49,28 +49,32 @@
 
       <h2>3. Collection details</h2>
 
-      <div>
-        <label class="question">Collection id</label>
-        <input type="text" name="cid" size="10" />
+      <div class="form-group">
+        <label class="question" for="cid">Collection id</label>
+        <input type="text" name="cid" size="10" id="cid" />
       </div>
 
-      <div>
-        <label class="question">Title</label>
-        <input type="text" name="ctitle" size="50"/>
+      <div class="form-group">
+        <label class="question" for="ctitle">Title</label>
+        <input type="text" name="ctitle" size="50" id="ctitle" />
       </div>
 
-      <div>
-        <label class="question">Target path</label>
-        <input type="text" name="pattern" size="10" /> <span>e.g.: eea/noise<span><br/>
+      <div class="form-group">
+        <label class="question" for="pattern">Target path</label>
+        <input type="text" name="pattern" size="10" id="pattern" />
+        <span>e.g.: eea/noise<span><br/>
       </div>
 
-      <div>
-        <label class="question">Subobjects</label>
+      <div class="form-group">
+        <label for="subobjects" class="question">Subobjects</label>
+      </div>
 
-        <input type="checkbox" value="1" name="allow_envelopes" id="allow_envelopes" checked="checked"/>
+      <div class="form-indent">
         <label for="allow_envelopes">Envelopes</label>
-        <input type="checkbox" value="1" name="allow_collections" id="allow_collections"/>
+        <input type="checkbox" value="1" name="allow_envelopes" id="allow_envelopes" checked="checked"/>
+
         <label for="allow_collections">Collections</label>
+        <input type="checkbox" value="1" name="allow_collections" id="allow_collections"/>
       </div>
 
       <div>
