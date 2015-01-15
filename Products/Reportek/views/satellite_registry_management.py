@@ -40,7 +40,10 @@ class SatelliteRegistryManagement(BaseAdmin):
 
         for param in get_params:
             if self.request.get(param):
-                params[param] = self.request.get(param)
+                if param == 'countrycode':
+                    params[param] = self.request.get(param).upper()
+                else:
+                    params[param] = self.request.get(param)
 
         api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi.authMiddlewareApi
         self.request.response.setHeader('Content-Type', 'application/json')
