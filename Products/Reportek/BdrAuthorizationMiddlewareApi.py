@@ -118,13 +118,6 @@ class AuthMiddlewareApi(object):
             return None
         return response.json()
 
-    def unverifyCompany(self, companyId, userId):
-        response = requests.post(self.baseUrl + "/candidate/unverify/{0}/".format(companyId),
-                                 data={'user': userId}, timeout=self.TIMEOUT, verify=False)
-        if response.status_code != requests.codes.ok:
-            return None
-        return response.json()
-
     def getCompaniesExcelExport(self):
         response = requests.get(self.baseUrl + "/misc/undertaking/export",
                                 timeout=self.TIMEOUT, verify=False)
