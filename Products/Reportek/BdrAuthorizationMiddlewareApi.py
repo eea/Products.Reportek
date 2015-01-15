@@ -17,7 +17,7 @@ class AuthMiddlewareApi(object):
         self.baseUrl = url
 
     def getCollectionPaths(self, username):
-        url = self.baseUrl + '/user/'  + username + '/companies'
+        url = self.baseUrl + '/user/' + username + '/companies'
         # use a short timeout here to not keep the user waiting at auth time
         response = requests.get(url, timeout=self.TIMEOUT)
         if response.status_code == 404:
@@ -41,6 +41,14 @@ class AuthMiddlewareApi(object):
     def getCompanies(self):
         response = requests.get(self.baseUrl + "/undertaking/list",
                                 timeout=self.TIMEOUT, verify=False)
+        if response.status_code != requests.codes.ok:
+            return None
+        return response.json()
+
+    def existsCompany(self, params):
+        response = requests.get(self.baseUrl + "/undertaking/filter/",
+                                timeout=self.TIMEOUT, verify=False,
+                                params=params)
         if response.status_code != requests.codes.ok:
             return None
         return response.json()

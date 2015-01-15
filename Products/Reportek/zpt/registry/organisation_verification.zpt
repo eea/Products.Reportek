@@ -12,7 +12,7 @@
     <tal:block define="company view/get_company_details">
       <tal:block tal:condition="python: company and not company['oldcompany_verified']">
         <p class="error-msg" tal:condition="options/error | nothing">
-          Operations didn't succeeded.
+          Operations didn't succeed.
         </p>
 
         <a tal:attributes="href string:${here/absolute_url}/organisation_matching">

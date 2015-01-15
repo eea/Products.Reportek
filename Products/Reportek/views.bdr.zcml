@@ -99,6 +99,13 @@
       class=".views.SatelliteRegistryManagement"
       attribute="get_companies_json"/>
 
+    <browser:page
+      name="organisation_exists"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      attribute="get_companies_api"/>
+
      <browser:page
       name="users_json"
       for=".interfaces.IRegistryManagement"

@@ -34,6 +34,18 @@ class SatelliteRegistryManagement(BaseAdmin):
         api = api.authMiddlewareApi
         return api.getCompanies()
 
+    def get_companies_api(self):
+        get_params = ['id', 'vat', 'name', 'countrycode', 'OR_vat', 'OR_name']
+        params = {}
+
+        for param in get_params:
+            if self.request.get(param):
+                params[param] = self.request.get(param)
+
+        api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi.authMiddlewareApi
+        self.request.response.setHeader('Content-Type', 'application/json')
+        return json.dumps(api.existsCompany(params), indent=2)
+
     def get_company_json(self):
         self.request.response.setHeader('Content-Type', 'application/json')
         api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi.authMiddlewareApi
