@@ -97,13 +97,6 @@ class AuthMiddlewareApi(object):
 
         return details
 
-    def getCompanyDetailsByVat(self, companyVat):
-        response = requests.get(self.baseUrl + "/undertaking/list_by_vat/{0}".format(companyVat),
-                                timeout=self.TIMEOUT, verify=False)
-        if response.status_code != requests.codes.ok:
-            return None
-        return response.json()
-
     def getMatchingLog(self):
         response = requests.get(self.baseUrl + "/matching_log",
                                 timeout=self.TIMEOUT, verify=False)
