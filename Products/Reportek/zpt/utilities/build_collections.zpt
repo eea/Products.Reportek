@@ -39,7 +39,7 @@
 
   <form method="post"  name="objectItems">
     <div class="filters">
-      <h1>Recent uploads</h1>
+      <h1>Build collections</h1>
 
       <h2>1. Select one or more countries</h2>
       <tal:block metal:use-macro="here/filters/macros/countries" />

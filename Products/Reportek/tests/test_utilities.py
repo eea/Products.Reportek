@@ -265,7 +265,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
     def _setup_collections(self):
         collection = self.addObject(self.app,
                                     name='Collection',
-                                    id='test_country',
+                                    id='tc',
                                     title='Test Country',
                                     descr='',
                                     year=None,
@@ -332,6 +332,56 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         mock_user.mail = 'test_user_1_@test.com'
         acl_users._setObject('test_user_1_', mock_user)
 
+    def test_build_collections(self):
+        # Go to ReportekUtilities index_html view
+        r_utilities = getattr(self.app, constants.REPORTEK_UTILITIES)
+        ru_url = r_utilities.absolute_url()
+        index_url = ru_url + '/index_html'
+        self.browser.open(index_url)
+        self.assertEqual(self.browser.url, index_url)
+
+        # Go to build collections
+        users_access_link = self.browser.getLink(text='Build collections')
+        users_access_link.click()
+        self.assertTrue('Build collections' in self.browser.contents)
+
+        # Select test obligation
+        o_controls = self.browser.getControl(name='obligation').controls
+        for o_control in o_controls:
+            if o_control.optionValue == '8':
+                o_control.selected = True
+
+        # Select test country
+        c_controls = self.browser.getControl(name='countries:list').controls
+        for c_ctl in c_controls:
+            if c_ctl.optionValue == 'tc':
+                c_ctl.selected = True
+
+        self.browser.getControl(name='cid').value = 'test'
+        self.browser.getControl(name='btn.submit').click()
+        self.assertTrue('Successfully created collection for' in self.browser.contents)
+        self.assertTrue('Test Country' in self.browser.contents)
+
+        # Select test obligation
+        o_controls = self.browser.getControl(name='obligation').controls
+        for o_control in o_controls:
+            if o_control.optionValue == '8':
+                o_control.selected = True
+
+        # Select test country
+        c_controls = self.browser.getControl(name='countries:list').controls
+        for c_ctl in c_controls:
+            if c_ctl.optionValue == 'tc':
+                c_ctl.selected = True
+
+        self.browser.getControl(name='cid').value = 'test1'
+        self.browser.getControl(name='pattern').value = 'eea'
+        self.browser.getControl(name='btn.submit').click()
+        self.assertTrue('the specified path does not exist' in self.browser.contents)
+        self.assertTrue('Test Country' in self.browser.contents)
+
+
+
     def test_reportek_utilities(self):
         # Go to ReportekUtilities index_html view
         r_utilities = getattr(self.app, constants.REPORTEK_UTILITIES)
@@ -371,7 +421,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         expected_result = ('{"data": [{"obligations": ['
                            '["http://nohost/obligations/1",'
                            ' "Yearly report to the Fictive Convention"]],'
-                           ' "path": ["/test_country", "Test Country"], '
+                           ' "path": ["/tc", "Test Country"], '
                            '"users": ["test_user_1_"]}]}')
         self.assertEqual(expected_result, self.browser.contents)
 
@@ -417,7 +467,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         # Get available collections
         self.browser.getControl(name='btn.find_collections').click()
         col_controls = self.browser.getControl(name='collections:list').controls
-        self.assertEqual(col_controls[0].optionValue, '/test_country')
+        self.assertEqual(col_controls[0].optionValue, '/tc')
         self.assertTrue('(Owner, Reporter)' in self.browser.contents)
         col_controls[0].selected = True
 
@@ -458,10 +508,11 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         self.browser.getControl(name='collections:list').controls[0].selected = True
 
         # We need to explicitly select the role to be removed here
-        r_controls = self.browser.getControl(name='_test_country:list').controls
+        r_controls = self.browser.getControl(name='_tc:list').controls
         for r_ctl in r_controls:
             if r_ctl.optionValue == 'Client':
                 r_ctl.selected = True
+
         self.browser.getControl(name='btn.revoke').click()
         self.assertTrue('Operations completed succesfully.' in
                         self.browser.contents)
@@ -474,7 +525,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         # Select our test user
         self.browser.getControl(name='username').controls[0].selected = True
         self.browser.getControl(name='btn.find_roles').click()
-        roles = self.browser.getControl(name='_test_country:list').controls
+        roles = self.browser.getControl(name='_tc:list').controls
         self.assertEqual(len(roles), 2)
 
         self.browser.goBack(count=6)
