@@ -1,6 +1,7 @@
 from OFS.Cache import Cacheable
 from AccessControl import ClassSecurityInfo
 
+from Products.Reportek.constants import ENGINE_ID, ECAS_ID
 from BdrAuthorizationMiddlewareApi import AuthMiddlewareApi
 
 import logging
@@ -28,6 +29,7 @@ class BdrAuthorizationMiddleware(Cacheable):
 
     def getUserCollectionPaths(self, username):
         # TODO: cache this call
+        print " -------- get path from middleware for ecas user", username
         accessiblePaths = self.authMiddlewareApi.getCollectionPaths(username)
         return accessiblePaths
 
@@ -81,10 +83,15 @@ class BdrUserProperties(PropertiedUser):
                 return None
 
     def get_middleware_authorization(self, user_id, base_path):
-        engine = self.unrestrictedTraverse('/ReportekEngine')
+        engine = self.unrestrictedTraverse('/'+ENGINE_ID)
         authMiddleware = engine.authMiddlewareApi
+        ecas = self.unrestrictedTraverse('/acl_users/'+ECAS_ID)
+        ecas_user_id = ecas.getEcasUserId(user_id)
+        if not ecas_user_id:
+            ecas_user_id = user_id
+        print " *** interogate middleware in allowed resolvation with user", ecas_user_id
         if authMiddleware:
-            return authMiddleware.authorizedUser(user_id, base_path)
+            return authMiddleware.authorizedUser(ecas_user_id, base_path)
         return False
 
 

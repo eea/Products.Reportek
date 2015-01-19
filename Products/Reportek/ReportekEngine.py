@@ -1080,10 +1080,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             if not getattr(self, 'REQUEST', None):
                 return []
             username = self.REQUEST['AUTHENTICATED_USER'].getUserName()
+            ecas = self.unrestrictedTraverse('/acl_users/'+constants.ECAS_ID)
+            ecas_user_id = ecas.getEcasUserId(username)
             # these are disjunct, so it is safe to add them all together
             # normally only one of the lists will have results, but they could be all empty too
             middleware_collections = []
-            for colPath in self.authMiddlewareApi.getUserCollectionPaths(username):
+            for colPath in self.authMiddlewareApi.getUserCollectionPaths(ecas_user_id):
                 try:
                     middleware_collections.append(self.unrestrictedTraverse('/'+str(colPath)))
                 except:

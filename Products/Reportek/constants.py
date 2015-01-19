@@ -34,6 +34,7 @@ APPLICATIONS_FOLDER_ID = 'Applications'
 PING_ENVELOPES_KEY = 'PingEnvelopesStore'
 REPORTEK_UTILITIES = 'ReportekUtilities'
 REGISTRY_MANAGEMENT = 'fgases_registry'
+ECAS_ID = 'eCas'
 
 # remote servers
 WEBQ_XML_REPOSITORY = 'http://cdr.eionet.europa.eu/xmlexports/groundwater/'
