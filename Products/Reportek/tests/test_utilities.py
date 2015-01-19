@@ -164,6 +164,11 @@ def get_localities_rod(self):
             'iso': 'tc',
             'name': 'Test Country',
             'uri': 'http://nohost/spatial/1'
+        },
+        {
+            'iso': 'oc',
+            'name': 'Other Country',
+            'uri': 'http://nohost/spatial/2'
         }
     ]
 
@@ -283,6 +288,66 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         collection.reindex_object()
         collection._p_changed = True
 
+        collection = self.addObject(self.app,
+                                    name='Collection',
+                                    id='oc',
+                                    title='Other Country',
+                                    descr='',
+                                    year=None,
+                                    endyear=None,
+                                    partofyear='Whole Year',
+                                    country='http://nohost/spatial/2',
+                                    locality='',
+                                    dataflow_uris=['http://nohost/obligations/1'],
+                                    allow_collections=1,
+                                    allow_envelopes=1)
+        dict = collection.__ac_local_roles__
+        local_roles = list(dict.get(user_name, []))
+        local_roles.append('Reporter')
+        dict[user_name] = local_roles
+        collection.reindex_object()
+        collection._p_changed = True
+
+        collection = self.addObject(collection,
+                                    name='Collection',
+                                    id='eea',
+                                    title='EEA Folder',
+                                    descr='',
+                                    year=None,
+                                    endyear=None,
+                                    partofyear='Whole Year',
+                                    country='http://nohost/spatial/2',
+                                    locality='',
+                                    dataflow_uris=['http://nohost/obligations/1'],
+                                    allow_collections=1,
+                                    allow_envelopes=1)
+        dict = collection.__ac_local_roles__
+        local_roles = list(dict.get(user_name, []))
+        local_roles.append('Reporter')
+        dict[user_name] = local_roles
+        collection.reindex_object()
+        collection._p_changed = True
+
+        collection = self.addObject(collection,
+                                    name='Collection',
+                                    id='requests',
+                                    title='Requests Folder',
+                                    descr='',
+                                    year=None,
+                                    endyear=None,
+                                    partofyear='Whole Year',
+                                    country='http://nohost/spatial/2',
+                                    locality='',
+                                    dataflow_uris=['http://nohost/obligations/1'],
+                                    allow_collections=1,
+                                    allow_envelopes=1)
+        dict = collection.__ac_local_roles__
+        local_roles = list(dict.get(user_name, []))
+        local_roles.append('Reporter')
+        dict[user_name] = local_roles
+        collection.reindex_object()
+        collection._p_changed = True
+
     def setUp(self):
         super(BaseFunctionalTestCase, self).setUp()
         ReportekEngine.localities_rod = get_localities_rod
@@ -316,7 +381,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         # create wf process
         wf_engine = getattr(self.app, 'WorkflowEngine')
         p_dataflows = ['http://nohost/obligations/1']
-        p_countries = ['http://nohost/spatial/1']
+        p_countries = ['http://nohost/spatial/1', 'http://nohost/spatial/2']
         wf_engine.manage_addProcess('process', BeginEnd=1)
         wf_engine.setProcessMappings('process', '1', '1', p_dataflows,
                                      p_countries)
@@ -340,6 +405,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         self.browser.open(index_url)
         self.assertEqual(self.browser.url, index_url)
 
+        # Test with one country
         # Go to build collections
         users_access_link = self.browser.getLink(text='Build collections')
         users_access_link.click()
@@ -362,6 +428,25 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         self.assertTrue('Successfully created collection for' in self.browser.contents)
         self.assertTrue('Test Country' in self.browser.contents)
 
+        # Test with multiple countries
+        # Select test obligation
+        o_controls = self.browser.getControl(name='obligation').controls
+        for o_control in o_controls:
+            if o_control.optionValue == '8':
+                o_control.selected = True
+
+        # Select test country
+        c_controls = self.browser.getControl(name='countries:list').controls
+        for c_ctl in c_controls:
+            c_ctl.selected = True
+
+        self.browser.getControl(name='cid').value = 'test1'
+        self.browser.getControl(name='btn.submit').click()
+        self.assertTrue('Successfully created collection for' in self.browser.contents)
+        self.assertTrue('Test Country' in self.browser.contents)
+        self.assertTrue('Other Country' in self.browser.contents)
+
+        # Test inexistent path
         # Select test obligation
         o_controls = self.browser.getControl(name='obligation').controls
         for o_control in o_controls:
@@ -374,13 +459,87 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             if c_ctl.optionValue == 'tc':
                 c_ctl.selected = True
 
-        self.browser.getControl(name='cid').value = 'test1'
+        self.browser.getControl(name='cid').value = 'test2'
         self.browser.getControl(name='pattern').value = 'eea'
         self.browser.getControl(name='btn.submit').click()
         self.assertTrue('the specified path does not exist' in self.browser.contents)
         self.assertTrue('Test Country' in self.browser.contents)
 
+        # Test existent path
+        # Select test obligation
+        o_controls = self.browser.getControl(name='obligation').controls
+        for o_control in o_controls:
+            if o_control.optionValue == '8':
+                o_control.selected = True
 
+        # Select test country
+        c_controls = self.browser.getControl(name='countries:list').controls
+        for c_ctl in c_controls:
+            if c_ctl.optionValue == 'oc':
+                c_ctl.selected = True
+
+        self.browser.getControl(name='cid').value = 'test2'
+        self.browser.getControl(name='pattern').value = 'eea'
+        self.browser.getControl(name='btn.submit').click()
+        self.assertTrue('Successfully created collection for' in self.browser.contents)
+        self.assertTrue('Other Country' in self.browser.contents)
+
+        # Test existent multilevel path
+        # Select test obligation
+        o_controls = self.browser.getControl(name='obligation').controls
+        for o_control in o_controls:
+            if o_control.optionValue == '8':
+                o_control.selected = True
+
+        # Select test country
+        c_controls = self.browser.getControl(name='countries:list').controls
+        for c_ctl in c_controls:
+            if c_ctl.optionValue == 'oc':
+                c_ctl.selected = True
+
+        self.browser.getControl(name='cid').value = 'test3'
+        self.browser.getControl(name='pattern').value = 'eea/requests'
+        self.browser.getControl(name='btn.submit').click()
+        self.assertTrue('Successfully created collection for' in self.browser.contents)
+        self.assertTrue('Other Country' in self.browser.contents)
+
+        # Test existent path with leading slash
+        # Select test obligation
+        o_controls = self.browser.getControl(name='obligation').controls
+        for o_control in o_controls:
+            if o_control.optionValue == '8':
+                o_control.selected = True
+
+        # Select test country
+        c_controls = self.browser.getControl(name='countries:list').controls
+        for c_ctl in c_controls:
+            if c_ctl.optionValue == 'oc':
+                c_ctl.selected = True
+
+        self.browser.getControl(name='cid').value = 'test4'
+        self.browser.getControl(name='pattern').value = '/eea'
+        self.browser.getControl(name='btn.submit').click()
+        self.assertTrue('Successfully created collection for' in self.browser.contents)
+        self.assertTrue('Other Country' in self.browser.contents)
+
+        # Test existent path with backslash
+        # Select test obligation
+        o_controls = self.browser.getControl(name='obligation').controls
+        for o_control in o_controls:
+            if o_control.optionValue == '8':
+                o_control.selected = True
+
+        # Select test country
+        c_controls = self.browser.getControl(name='countries:list').controls
+        for c_ctl in c_controls:
+            if c_ctl.optionValue == 'oc':
+                c_ctl.selected = True
+
+        self.browser.getControl(name='cid').value = 'test5'
+        self.browser.getControl(name='pattern').value = '\eea'
+        self.browser.getControl(name='btn.submit').click()
+        self.assertTrue('Successfully created collection for' in self.browser.contents)
+        self.assertTrue('Other Country' in self.browser.contents)
 
     def test_reportek_utilities(self):
         # Go to ReportekUtilities index_html view
@@ -505,7 +664,10 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         self.browser.getControl(name='btn.find_roles').click()
 
         # Select previously added role
-        self.browser.getControl(name='collections:list').controls[0].selected = True
+        r_controls = self.browser.getControl(name='collections:list').controls
+        for r_ctl in r_controls:
+            if r_ctl.optionValue == '/tc':
+                r_ctl.selected = True
 
         # We need to explicitly select the role to be removed here
         r_controls = self.browser.getControl(name='_tc:list').controls
@@ -603,7 +765,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
 
         # Go to statistics view
         self.browser.getLink(text='Statistics').click()
-        self.assertTrue('<li>Number of envelopes: <span>1</span></li>' in
+        self.assertTrue('<li>Number of envelopes: <span>4</span></li>' in
                         self.browser.contents)
 
         # Go to evenlopes.autocomplete view

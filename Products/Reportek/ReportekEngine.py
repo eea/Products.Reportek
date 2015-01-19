@@ -280,9 +280,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declareProtected('View', 'resultsxml')
     resultsxml = PageTemplateFile('zpt/engineResultsXml', globals())
 
-    security.declareProtected(view_management_screens, 'Build_collections_form')
-    Build_collections_form = PageTemplateFile('zpt/engineBuildCollectionsForm', globals())
-
     security.declarePublic('languages_box')
     languages_box = PageTemplateFile('zpt/languages_box', globals())
 
@@ -405,60 +402,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         dirs = [item for item in pattern.split('/') if item]
         pattern = '/'.join(dirs)
         return pattern
-
-    security.declareProtected('View', 'Build_collections')
-    def Build_collections(self, REQUEST=None, **kwargs):
-        """Bulk creation of collections, e.g.::
-
-            Build_collections(
-                  pattern = 'eea/noise',
-                  ccountries = ['http://spatial/1'],
-                  ctitle='Test collection',
-                  dataflow_uris= ['http://dataflow/1'],
-                  cid='test_id',
-                  REQUEST=self.root.REQUEST
-              )
-
-        If a pattern is not provided it will create a collection in the root of
-        the country.
-        If a pattern is provided it will be interpreted as a path to where the
-        collection should be created.
-        e.g.: in the example above if **at** is the iso of the country
-        the following collection will be created **<root>/at/eea/noise/test_id**
-        """
-        messages = {'success': [], 'fail': []}
-        if REQUEST.method == 'GET':
-            return self.Build_collections_form(REQUEST, messages=messages)
-        pattern = kwargs.get('pattern', REQUEST.get('pattern', ''))
-        countries = kwargs.get('ccountries', REQUEST.get('ccountries', None))
-        title = kwargs.get('ctitle', REQUEST.get('ctitle', ''))
-        obligation = kwargs.get('dataflow_uris', REQUEST.get('dataflow_uris', []))
-        if not isinstance(obligation, list):
-            obligation = [obligation]
-        collection_id = kwargs.get('cid', REQUEST.get('cid', ''))
-        allow_collections = int(kwargs.get('allow_collections', REQUEST.get('allow_collections', 0)))
-        allow_envelopes = int(kwargs.get('allow_envelopes', REQUEST.get('allow_envelopes', 1)))
-        for spatial_uri in countries:
-            country = self.localities_dict().get(spatial_uri)
-            if country:
-                target_path =  country['iso'].lower()
-                try:
-                    if pattern:
-                        pattern = self.clean_pattern(pattern)
-                        target_path = '/'.join([country['iso'].lower(), pattern])
-                    target = self.getPhysicalRoot().restrictedTraverse(target_path)
-                    target.manage_addCollection(
-                        title, '', '', '', '', spatial_uri, '',
-                        obligation,
-                        allow_collections=allow_collections,
-                        allow_envelopes=allow_envelopes,
-                        id=collection_id
-                    )
-                    messages['success'].append(country['name'])
-                except KeyError:
-                    err = "{0}: the specified path does not exist [{1}]".format     (country['name'], target_path)
-                    messages['fail'].append(err)
-        return self.Build_collections_form(REQUEST, messages=messages)
 
     def response_messages(self, crole, users, ccountries, dataflow_uris,
                           fail_pattern, success_pattern, modifier):

@@ -13,9 +13,6 @@
 	<dt><a href="/ReportekEngine/manage_properties">runAutomaticApplications</a></dt>
 	<dd>ZMI functionality available from the manage properties page that allows running automatic applications on the spot</dd>
 
-	<dt><a href="/ReportekEngine/Build_collections">Build_collections</a></dt>
-	<dd>Bulk creation of collections</dd>
-
 	<dt><a href="/ReportekEngine/sitemap">sitemap</a></dt>
 	<dd>The collapsible site structure</dd>
 </dl>
