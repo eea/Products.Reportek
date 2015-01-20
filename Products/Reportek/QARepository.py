@@ -88,9 +88,9 @@ class QARepository(Folder):
                           x.xml_schema == p_schema)]
         elif p_schema and dataflow_uris and content_type_in:
             return [x for x in self.objectValues('QAScript')
-                      if ((getattr(x, 'workflow', None) in dataflow_uris and
-                          content_type_in == getattr(x, 'content_type_in', None)) or
-                          x.xml_schema == p_schema)]
+                      if (getattr(x, 'workflow', None) in dataflow_uris and
+                          content_type_in == getattr(x, 'content_type_in', None)) and
+                          x.xml_schema == p_schema]
         elif dataflow_uris and content_type_in:
             return [x for x in self.objectValues('QAScript')
                       if (getattr(x, 'workflow', None) in dataflow_uris and
