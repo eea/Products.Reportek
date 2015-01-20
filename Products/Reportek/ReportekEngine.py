@@ -1087,7 +1087,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             middleware_collections = []
             logger.debug("Attempt to interrogate middleware for authorizations for user:id %s:%s" % (username, ecas_user_id))
             if ecas_user_id:
-                for colPath in self.authMiddlewareApi.getUserCollectionPaths(ecas_user_id):
+                for colPath in self.authMiddlewareApi.getUserCollectionPaths(ecas_user_id,
+                            recheck_interval=self.authMiddlewareApi.recheck_interval):
                     try:
                         middleware_collections.append(self.unrestrictedTraverse('/'+str(colPath)))
                     except:

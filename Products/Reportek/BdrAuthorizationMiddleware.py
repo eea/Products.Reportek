@@ -1,5 +1,7 @@
-from OFS.Cache import Cacheable
+from time import time
+
 from AccessControl import ClassSecurityInfo
+from plone.memoize import ram
 
 from Products.Reportek.constants import ENGINE_ID, ECAS_ID
 from BdrAuthorizationMiddlewareApi import AuthMiddlewareApi
@@ -15,7 +17,9 @@ __all__ = [
     ]
 
 
-class BdrAuthorizationMiddleware(Cacheable):
+class BdrAuthorizationMiddleware(object):
+
+    recheck_interval = 300
 
     def __init__(self, url):
         self.authMiddlewareApi = AuthMiddlewareApi(url)
@@ -27,14 +31,14 @@ class BdrAuthorizationMiddleware(Cacheable):
     def setServiceRecheckInterval(self, seconds):
         self.recheck_interval = seconds
 
-    def getUserCollectionPaths(self, username):
-        # TODO: cache this call
+    @ram.cache(lambda *args, **kwargs: args[2] + str(time() // kwargs['recheck_interval']))
+    def getUserCollectionPaths(self, username, recheck_interval=recheck_interval):
         logger.debug("Get companies from middleware for ecas user: %s" % username)
         accessiblePaths = self.authMiddlewareApi.getCollectionPaths(username)
         return accessiblePaths
 
     def authorizedUser(self, username, path):
-        accessiblePaths = self.getUserCollectionPaths(username)
+        accessiblePaths = self.getUserCollectionPaths(username, recheck_interval=self.recheck_interval)
         return path in accessiblePaths
 
 
