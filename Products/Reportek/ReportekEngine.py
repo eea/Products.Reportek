@@ -1085,11 +1085,13 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             # these are disjunct, so it is safe to add them all together
             # normally only one of the lists will have results, but they could be all empty too
             middleware_collections = []
-            for colPath in self.authMiddlewareApi.getUserCollectionPaths(ecas_user_id):
-                try:
-                    middleware_collections.append(self.unrestrictedTraverse('/'+str(colPath)))
-                except:
-                    logger.warning("Cannot traverse path: %s" % '/'+str(colPath))
+            logger.debug("Attempt to interrogate middleware for authorizations for user:id %s:%s" % (username, ecas_user_id))
+            if ecas_user_id:
+                for colPath in self.authMiddlewareApi.getUserCollectionPaths(ecas_user_id):
+                    try:
+                        middleware_collections.append(self.unrestrictedTraverse('/'+str(colPath)))
+                    except:
+                        logger.warning("Cannot traverse path: %s" % ('/'+str(colPath)))
             catalog = getattr(self, constants.DEFAULT_CATALOG)
             old_style_collections = [ br.getObject() for br in catalog(id=username) ]
             return middleware_collections + old_style_collections
