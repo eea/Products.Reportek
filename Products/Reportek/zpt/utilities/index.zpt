@@ -21,7 +21,9 @@
 
     <ul>
       <li><a href="collections.wrong_country">Collections allocated to the wrong country</a></li>
-      <li><a href="collections.build">Build collections</a></li>
+      <li tal:condition="not: is_bdr | nothing">
+        <a href="collections.build">Build collections</a>
+      </li>
     </ul>
 
     <h2>Envelopes</h2>

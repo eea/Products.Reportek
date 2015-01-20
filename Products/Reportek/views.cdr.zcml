@@ -15,5 +15,12 @@
       class=".views.Statistics"
       template="zpt/utilities/statistics.zpt"/>
 
+      <browser:page
+        name="collections.build"
+        for=".interfaces.IReportekUtilities"
+        permission="zope2.ViewManagementScreens"
+        class=".views.BuildCollections"
+        template="zpt/utilities/build_collections.zpt"/>
+
   </configure>
 </configure>
