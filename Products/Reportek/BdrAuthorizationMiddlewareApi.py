@@ -24,7 +24,7 @@ class AuthMiddlewareApi(object):
         except Exception as e:
             logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
             return []
-        if response.status_code == 404:
+        if response.status_code in (404, 400):
             return []
         if response.status_code != requests.codes.ok:
             return None

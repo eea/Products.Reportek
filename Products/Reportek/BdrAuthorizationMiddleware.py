@@ -91,7 +91,8 @@ class BdrUserProperties(PropertiedUser):
         authMiddleware = engine.authMiddlewareApi
         ecas = self.unrestrictedTraverse('/acl_users/'+ECAS_ID)
         ecas_user_id = ecas.getEcasUserId(user_id)
-        logger.debug("Attempt to interrogate middleware for authorizations for user:id %s:%s" % (username, ecas_user_id))
+        logger.debug(("Attempt to interrogate middleware for authorizations "
+                      "for user:id %s:%s") % (user_id, ecas_user_id))
         if not ecas_user_id:
             return False
         if authMiddleware:
