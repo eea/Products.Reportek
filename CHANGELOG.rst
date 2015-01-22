@@ -1,12 +1,14 @@
-(Unreleased)
+3.7.2-dev3 (22-01-2015)
 -----------------------
-* Task #22376 - Moved build collections form from ReporekEngine to ReportekUtilities
+* Task #20076 - Fgas Portal integration [baragdan] (BDR only) {setup it in Data.fs}
+* Task #20006 - Add support for CAS/eCAS auth for whoever needs it [baragdan] (BDR) {needs setup of Data.fs objects OR benign if unconfigured}
+* Task #22376 - Moved build collections form from ReporekEngine to ReportekUtilities [malduvit]
 
 
 3.7.2-dev2 (14-01-2015)
 -----------------------
 * Task #22404 - Workaround zope's inabillity to detect mime type while utf8 BOM present [baragdan]
-* Task #22436 - Fix seek(0) on raw zip handler when normal, non raw read is used
+* Task #22436 - Fix seek(0) on raw zip handler when normal, non raw read is used [baragdan]
 
 3.7.2-dev1 (06-01-2015)
 -----------------------
