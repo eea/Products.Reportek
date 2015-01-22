@@ -1,4 +1,5 @@
 <tal:block define="global isCdrDeployment python: here.ReportekEngine.getDeploymentType() == 'CDR'"/>
+<tal:block define="global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'"/>
 <metal:block use-macro="container/standard_template.pt/macros/page">
 
   <metal:block fill-slot="breadcrumbtrails">
@@ -20,8 +21,10 @@
     <h2>Collections</h2>
 
     <ul>
-      <li><a href="/ReportekEngine/Build_collections">Create collections</a></li>
       <li><a href="collections.wrong_country">Collections allocated to the wrong country</a></li>
+      <li tal:condition="not: isBdrDeployment | nothing">
+        <a href="collections.build">Build collections</a>
+      </li>
     </ul>
 
     <h2>Envelopes</h2>
