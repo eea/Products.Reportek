@@ -1,3 +1,7 @@
+3.7.2-dev4 (22-01-2015)
+-----------------------
+* Refs #21874 - ReportekAPI with get all released envelopes and other methods
+
 3.7.2-dev3 (22-01-2015)
 -----------------------
 * Task #20076 - Fgas Portal integration [baragdan] (BDR only) {setup it in Data.fs}
