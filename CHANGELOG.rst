@@ -1,3 +1,8 @@
+(Unreleased)
+-----------------------
+* Task #22376 - Moved build collections form from ReporekEngine to ReportekUtilities
+
+
 3.7.2-dev2 (14-01-2015)
 -----------------------
 * Task #22404 - Workaround zope's inabillity to detect mime type while utf8 BOM present [baragdan]
