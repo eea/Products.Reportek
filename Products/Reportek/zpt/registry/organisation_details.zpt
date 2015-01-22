@@ -1,0 +1,73 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+  <metal:block fill-slot="head">
+    <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
+    <link href="++resource++static/style.css" rel="stylesheet"/>
+
+    <script type="text/javascript" charset="utf8"
+          src="++resource++static/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" charset="utf8"
+          src="++resource++static/datatables-1.10.1/media/js/jquery.dataTables.min.js"></script>
+    <script src="++resource++static/select2-3.5.0/select2.js"></script>
+    <script src="++resource++static/utils.js"></script>
+  </metal:block>
+
+  <metal:block fill-slot="breadcrumbtrails">
+    <tal:block content="structure here/breadcrumbs_views"></tal:block>
+  </metal:block>
+
+  <metal:block fill-slot="content">
+    <tal:block define="company view/get_company_details">
+
+      <a tal:attributes="href string:${here/absolute_url}/organisation_listing">
+        <small>Back</small>
+      </a>
+      <tal:block condition="company">
+        <h1 tal:content="company/name" />
+        <hr>
+        <tal:block metal:use-macro="here/partials/macros/organisation_details" />
+        <hr>
+        <h2>Reporting folder</h2>
+        <span>
+          You can access your reporting folder here
+          <a tal:attributes="href company/path"
+          tal:condition="company/path"
+          tal:content="company/path" />
+        </span>
+        <tal:block condition="company/representative" define="representative company/representative">
+          <h2>Representative</h2>
+          <tal:block metal:use-macro="here/partials/macros/representative_details" />
+        </tal:block>
+        <h2 id="persons">Reporters</h2>
+        <div>
+          <table class="simple_table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>First name</th>
+                <th>Last name</th>
+                <th>Email</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr tal:repeat="user company/users">
+                <td tal:content="user/username"></td>
+                <td tal:content="user/first_name"></td>
+                <td tal:content="user/last_name"></td>
+                <td>
+                  <a tal:attributes="href string:mailto:${user/email}"
+                     tal:content="user/email" />
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </tal:block>
+      <div class="warning-msg" tal:condition="not: company">
+        <strong>Error</strong>
+        <p>No company found.</p>
+      </div>
+    </tal:block>
+  </metal:block>
+
+</metal:block>

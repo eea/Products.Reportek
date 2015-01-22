@@ -1,0 +1,16 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+  <metal:block fill-slot="breadcrumbtrails">
+    <tal:block content="structure here/breadcrumbs_views"></tal:block>
+  </metal:block>
+
+  <metal:block fill-slot="content">
+    <h2>Registry management</h2>
+    <ul>
+      <li><a href="organisation_listing">All organisations</a></li>
+    </ul>
+    <ul>
+      <li><a href="organisation_matching">Matching organisations</a></li>
+    </ul>
+  </metal:block>
+</metal:block>

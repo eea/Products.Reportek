@@ -1,0 +1,75 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+  <metal:block fill-slot="head">
+    <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
+    <link href="++resource++static/style.css" rel="stylesheet"/>
+
+    <script type="text/javascript" charset="utf8"
+          src="++resource++static/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" charset="utf8"
+          src="++resource++static/datatables-1.10.1/media/js/jquery.dataTables.min.js"></script>
+    <script src="++resource++static/select2-3.5.0/select2.js"></script>
+    <script src="++resource++static/utils.js"></script>
+  </metal:block>
+
+  <metal:block fill-slot="breadcrumbtrails">
+    <tal:block content="structure here/breadcrumbs_views"></tal:block>
+  </metal:block>
+
+
+  <metal:block fill-slot="content">
+    <style>
+      table {
+        font-size:0.9em;
+        line-height:normal;
+      }
+    </style>
+    <div tal:define="companies view/get_companies">
+      <tal:block condition="companies">
+        <h1>Company listing</h1>
+        <p>
+        All companies with status "VALID" that report under 'FGASES' obligation.
+        Click any company for details and accredited reporters. If you want to
+        export all information in Excel format <a href="organisations_excel">
+        click here</a> or in JSON format <a href="organisations_json">
+        click here</a>. You can access all contact persons in Excel format
+        <a href="users_json">here</a>.
+        </p>
+        <table id="comp-table" width="100%" tal:condition="companies">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Company name</th>
+              <th>Obligation</th>
+              <th>Reporters</th>
+              <th>Country</th>
+              <th>VAT number</th>
+              <th>Date registered</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr tal:repeat="comp companies">
+              <td tal:content="comp/company_id"/>
+              <td>
+                <a tal:content="comp/name"
+                   tal:attributes="href string:${here/absolute_url}/organisation_details?id=${comp/company_id}"></a>
+              </td>
+              <td tal:content="comp/domain"/>
+              <td>
+                <tal:block tal:repeat="user comp/users">
+                  <a tal:attributes="href string:${here/absolute_url}/organisation_details?id=${comp/company_id}#persons"
+                     tal:content="user/username"></a><br/>
+                </tal:block>
+              </td>
+              <td tal:content="comp/address/country/name"/>
+              <td tal:content="comp/vat"/>
+              <td tal:content="comp/date_created"/>
+            </tr>
+          </tbody>
+        </table>
+      </tal:block>
+      <h1 tal:condition="not: companies">No companies</h1>
+    </div>
+  </metal:block>
+
+</metal:block>

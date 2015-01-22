@@ -4,5 +4,102 @@
   xmlns:meta="http://namespaces.zope.org/meta"
   xmlns:zcml="http://namespaces.zope.org/zcml">
 
-
+  <browser:page
+      name="envelopes.autocomplete"
+      for=".interfaces.IReportekUtilities"
+      permission="zope2.ViewManagementScreens"
+      class=".views.EnvelopeUtils"
+      template="zpt/utilities/envelopes_autocomplete.zpt"/>
+  
+  <browser:page
+      name="index_html"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.BaseAdmin"
+      template="zpt/registry/index.zpt"/>
+  
+  <browser:page
+      name="organisation_listing"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      template="zpt/registry/organisation_listing.zpt"/>
+  
+  <browser:page
+      name="organisation_details"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      template="zpt/registry/organisation_details.zpt"/>
+  
+  <browser:page
+      name="organisation"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      attribute="get_company_json"/>
+  
+  <browser:page
+      name="partials"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      template="zpt/registry/partials.zpt"/>
+  
+  <browser:page
+      name="organisation_verification"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      template="zpt/registry/organisation_verification.zpt"/>
+  
+  <browser:page
+      name="organisation_matching"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      template="zpt/registry/organisation_matching.zpt"/>
+  
+  <browser:page
+      name="organisation_matching_log"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      template="zpt/registry/matching_log.zpt"/>
+  
+  <browser:page
+      name="data_sync_log"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      template="zpt/registry/data_sync_log.zpt"/>
+  
+  <browser:page
+      name="organisations_excel"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      attribute="get_companies_excel"/>
+  
+  <browser:page
+      name="organisations_json"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      attribute="get_companies_json"/>
+  
+  <browser:page
+      name="organisation_exists"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      attribute="get_companies_api"/>
+  
+  <browser:page
+      name="users_json"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      attribute="get_users_excel"/>
+  
 </configure>

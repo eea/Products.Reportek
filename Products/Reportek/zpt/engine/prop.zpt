@@ -1,3 +1,5 @@
+<tal:block define="global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR';
+                   global isCdrDeployment python: here.ReportekEngine.getDeploymentType() == 'CDR'"/>
 <span tal:replace="structure context/manage_page_header" />
 <span tal:replace="structure python:context.manage_tabs(management_view='Properties')" />
 
@@ -46,7 +48,7 @@
 		Check this box if the content from this site needs to be fully restricted from public view (e.g. BDR). By enabling this option, all Report Documents will be restricted, and users will not be able to change their status.
 	</p>
 </fieldset>
-<fieldset>
+<fieldset tal:condition="isCdrDeployment">
 	<legend>Content Registry</legend>
 	<p class="form-help">
         <label for='cr_api_url'><strong>Content Registry API URL</strong></label>
@@ -104,6 +106,24 @@
         <br />
     </p>
 </fieldset>
+<br/>
+<fieldset tal:condition="isBdrDeployment">
+	<legend>Bdr Authorization Api</legend>
+	<p class="form-help">
+        <label for='auth_middleware_url'><strong>BDR Authorization Middleware API URL</strong></label>
+		<input type="text" size="50" id="auth_middleware_url" name="auth_middleware_url"
+               tal:attributes="value here/auth_middleware_url" />
+        <br />
+        <span>(leave it empty if Bdr Authorization API is not to be used)
+        <br />
+    </p>
+	<p class="form-help">
+        <label for='auth_middleware_recheck_interval'><strong>Authorization recheck interval</strong></label>
+		<input type="text" size="50" id="auth_middleware_recheck_interval" name="auth_middleware_recheck_interval"
+               tal:attributes="value here/auth_middleware_recheck_interval" />
+    </p>
+</fieldset>
+<br/>
 <input type="submit" value="Save changes" />
 </form>
 

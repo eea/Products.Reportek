@@ -1,0 +1,45 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+  <metal:block fill-slot="head">
+    <link href="++resource++static/style.css" rel="stylesheet"/>
+  </metal:block>
+
+  <metal:block fill-slot="breadcrumbtrails">
+    <tal:block content="structure here/breadcrumbs_views"></tal:block>
+  </metal:block>
+
+  <metal:block fill-slot="content">
+    <p class="important-msg" tal:condition="request/done | nothing">
+      Operations completed succesfully.
+    </p>
+
+    <tal:block define="candidates view/get_candidates">
+      <tal:block condition="candidates">
+        <h1>Matching Companies</h1>
+        <table class="table simple_table">
+          <thead>
+            <tr>
+              <th>Company name</th>
+              <th>Candidates</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr tal:repeat="cand candidates">
+              <td>
+                <a tal:content="cand/undertaking/name"
+                   tal:attributes="href string:${here/absolute_url}/organisation_verification?id=${cand/undertaking/company_id}" />
+              </td>
+              <td>
+                <tal:block tal:condition="cand/links" tal:repeat="link cand/links">
+                  <span tal:content="link/name" /><br/>
+                </tal:block>
+                <span tal:condition="not: cand/links"><i>No candidates</i></span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </tal:block>
+      <h1 tal:condition="not: candidates">No organisation matching</h1>
+    </tal:block>
+  </metal:block>
+</metal:block>

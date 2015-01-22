@@ -30,14 +30,12 @@ import logging
 logger = logging.getLogger("Reportek")
 
 # Zope imports
-import Globals
 import Zope2
 from App.ImageFile import ImageFile
 from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCTextIndex.ZCTextIndex import PLexicon
 
 # Product imports
-import RepUtils
 
 import QARepository
 import QAScript
@@ -51,6 +49,8 @@ import RemoteRESTApplication
 import DataflowMappings
 import ReportekEngine
 import ReportekUtilities
+
+from AccessControl.Permissions import manage_users as ManageUsers
 
 import constants
 
@@ -129,6 +129,17 @@ def create_reportek_objects(app):
                                     constants.REPORTEK_UTILITIES,
                                     'Reportek Utilities')
         app._setObject(constants.REPORTEK_UTILITIES, reportek_utilities)
+
+    #Add Registry Management
+    if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+        import RegistryManagement
+        try:
+            registry_management = getattr(app, constants.REGISTRY_MANAGEMENT)
+        except AttributeError:
+            registry_management = RegistryManagement.RegistryManagement(
+                                        constants.REGISTRY_MANAGEMENT,
+                                        'Fgases Registry')
+            app._setObject(constants.REGISTRY_MANAGEMENT, registry_management)
 
 def _strip_protocol_domain(full_url):
     """ Take a full url and return a tuple of path part and protocol+domain part."""
@@ -241,6 +252,13 @@ def startup(context):
     transaction.commit()
 
 
+
+if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+    import BdrAuthorizationMiddleware
+    from Products.PluggableAuthService.PluggableAuthService import registerMultiPlugin
+    registerMultiPlugin(BdrAuthorizationMiddleware.BdrUserFactoryPlugin.meta_type)
+
+
 def initialize(context):
     """ Reportek initializer """
 
@@ -273,6 +291,18 @@ def initialize(context):
             blob.manage_addOfsBlobFile),
        icon = 'www/blobfile.png'
        )
+
+
+    if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+        context.registerClass(
+            BdrAuthorizationMiddleware.BdrUserFactoryPlugin,
+            permission=ManageUsers,
+            constructors=(
+                BdrAuthorizationMiddleware.manage_addBdrUserFactoryPluginForm,
+                BdrAuthorizationMiddleware.addBdrUserFactoryPlugin),
+            visibility=None,
+            icon='www/openflowEngine.gif'
+        )
 
     ###########################################
     #   Registration of other classes

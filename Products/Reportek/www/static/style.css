@@ -1,7 +1,17 @@
+.dataTables_wrapper:after {
+  content: "";
+  display: table;
+  clear: both;
+}
+
 .dataTable {
   width: 100%;
   clear: both;
   border-collapse: collapse;
+}
+
+.dataTable a {
+    text-decoration: none!important;
 }
 
 table.dataTable thead .sorting_asc,
@@ -52,9 +62,11 @@ table.dataTable thead th {
 .dataTables_length {
   float: left;
 }
-
+.dataTables_info {
+  float: left;
+}
 .dataTables_paginate {
-  text-align: right;
+  float: right;
 }
 .dataTables_paginate a {
   display: inline-block;
@@ -82,6 +94,10 @@ table.dataTable tr.group td {
   padding: .5em;
   float: right;
   color: #428be1;
+}
+
+.dataTable td {
+    border-bottom: 1px solid #ddd;
 }
 
 table.dataTable td.sorting_1 {
@@ -183,4 +199,172 @@ input[type="submit"] {
 .filters a:hover,
 .filters-eu a:hover {
   cursor: pointer;
+}
+
+/* NEW STUFF */
+
+/* CLEARFIX */
+.clearfix:after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+/* HELPERS */
+.pull-left {
+    float: left;
+}
+.pull-right {
+    float: right;
+}
+
+/* TABLE */
+
+.table {
+    border-collapse: collapse;
+    width: 100%;
+}
+.table a {
+    text-decoration: none!important;
+}
+
+/* SIMPLE TABLE */
+.simple_table {
+  border-collapse: collapse;
+  width: 100%;
+  font-size: inherit;
+  background-color: transparent!important;
+}
+.simple_table th {
+  font-weight: normal;
+  font-size: smaller;
+  color: gray;
+}
+.simple_table td,
+.simple_table th {
+  border-right: 0;
+  padding: 5px 2px;
+  text-align: left;
+  vertical-align: top;
+}
+.simple_table tbody td,
+.simple_table tbody th {
+  border-top: 1px solid #bbb;
+  border-bottom: 1px solid #bbb;
+  background-color: transparent;
+}
+/* hr */
+hr {
+  margin: 12px 0;
+  border: 0;
+  height: 1px;
+  background: #ddd;
+}
+
+/* TABLE LIST */
+  .table-list {
+    font-size: inherit;
+    background-color: transparent!important;
+    margin: 12px 0;
+    border-collapse: collapse;
+    text-align: left;
+  }
+  .table-list caption {
+    text-align: left;
+  }
+  /* Add tbody td first, last separator */
+  .table-list > tbody > tr {
+    border-bottom: 1px dotted #ddd;
+  }
+  .table-list > tbody > tr:last-child {
+    border-bottom: 0;
+  }
+  .table-list th,
+  .table-list td {
+    border-right: 0!important; /* override screen.css */
+    border-left: 0!important;
+    padding: 6px 6px;
+    vertical-align: top;
+  }
+  .table-list th:first-child,
+  .table-list td:first-child {
+    padding-left: 12px;
+  }
+  .table-list th:last-child,
+  .table-list td:last-child {
+    padding-right: 12px;
+  }
+  .table-list tbody th {
+    color: #666;
+    text-align: right;
+    font-size: smaller;
+    font-weight: normal;
+  }
+  .table-list tbody td {
+    font-weight: bold;
+  }
+
+
+/* BUTTON */
+.btn {
+    display: inline-block;
+    line-height: 1;
+    padding: 2px 4px;
+    border: 1px solid;
+    vertical-align: baseline;
+    border-radius: 3px;
+}
+.btn input {
+    margin-left: 0;
+}
+.btn:hover {
+    cursor: pointer;
+}
+
+.btn-default {
+    border-color: #ccc;
+    background-color: #ddd;
+    background-image: linear-gradient(#eee, #ddd);
+}
+
+/* COMPANY */
+.company {
+    padding: 1em;
+    background: #FFF9DF;
+    border: 1px solid #ffcf6c;
+    margin-bottom: 1em;
+}
+.company-header {
+    margin-top: 1em;
+    padding-top: 1em;
+    border-top: 1px solid #ddd;
+}
+.company-header h3 {
+    margin: 0;
+    padding: 0!important;
+    border: 0!important;
+    background: transparent!important;
+}
+.company-header .btn {
+    margin-right: .5em;
+}
+
+/* DL details */
+.details dt {
+    float: left;
+    clear: left;
+    width: 9em;
+    font-weight: normal;
+    color: gray;
+    text-align: right;
+}
+.details dt:after {
+    content: ":";
+}
+.details dd {
+    margin-left: 10em;
+    margin-bottom: .5em;
+}
+.details dd, .details dt {
+  line-height: inherit;
 }
