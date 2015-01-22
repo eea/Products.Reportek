@@ -29,6 +29,10 @@ class IReportekUtilities(Interface):
     """ Reportek Utilities
     """
 
+class IReportekAPI(Interface):
+    """ Reportek API
+    """
+
 class IRegistryManagement(Interface):
     """ Registry Management
     """

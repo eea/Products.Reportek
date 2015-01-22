@@ -49,6 +49,7 @@ import RemoteRESTApplication
 import DataflowMappings
 import ReportekEngine
 import ReportekUtilities
+import ReportekAPI
 
 from AccessControl.Permissions import manage_users as ManageUsers
 
@@ -129,6 +130,15 @@ def create_reportek_objects(app):
                                     constants.REPORTEK_UTILITIES,
                                     'Reportek Utilities')
         app._setObject(constants.REPORTEK_UTILITIES, reportek_utilities)
+
+    #Add Reportek API
+    try:
+        reportek_api = getattr(app, constants.REPORTEK_API)
+    except AttributeError:
+        reportek_api = ReportekAPI.ReportekAPI(
+                        constants.REPORTEK_API,
+                        'Reportek API')
+        app._setObject(constants.REPORTEK_API, reportek_api)
 
     #Add Registry Management
     if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
