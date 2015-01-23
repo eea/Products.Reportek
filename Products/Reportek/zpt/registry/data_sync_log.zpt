@@ -35,7 +35,7 @@
           </tbody>
         </table>
       </tal:block>
-      <h3 tal:condition="not: records">No data synchronisation log</h3>
+      <p class="system-msg" tal:condition="not: records">No data synchronisation log</p>
     </tal:block>
   </metal:block>
 </metal:block>

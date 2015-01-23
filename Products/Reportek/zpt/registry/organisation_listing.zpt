@@ -68,7 +68,7 @@
           </tbody>
         </table>
       </tal:block>
-      <h3 tal:condition="not: companies">No companies to display</h3>
+      <p class="system-msg" tal:condition="not: companies">No companies to display</p>
     </div>
   </metal:block>
 

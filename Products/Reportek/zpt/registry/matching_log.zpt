@@ -48,7 +48,7 @@
           </tbody>
         </table>
       </tal:block>
-      <h3 tal:condition="not: records">No company approval history</h3>
+      <p class="system-msg" tal:condition="not: records">No company approval history</p>
 
     </tal:block>
   </metal:block>
