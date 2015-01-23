@@ -14,13 +14,41 @@
     </p>
 
     <tal:block define="candidates view/get_candidates">
+      <h1>Pending Companies</h1>
+
+      <p>
+        In this page you can view the companies registered in the
+        <a href="https://webgate.acceptance.ec.europa.eu/ods2">FGAS portal</a>
+        and match them with old records taken from
+        <a href="https://bdr-test.eionet.europa.eu/registry/management/companies">
+        BDR-Registry</a>, based on suggestions (candidates) made by the system.
+        Please click on the company name to view the suggestions and approve the company.
+      </p>
+
+      <p>
+        If you want to revert a change please contact
+        <a href="mailto:BDR.helpdesk@eea.europa.eu">helpdesk</a>.
+      </p>
+
+      <p tal:condition="view/auto_matching | nothing"><strong>
+        Please be aware that companies without candidates are automatically
+        approved by the system. Please contact BDR
+        <a href="mailto:BDR.helpdesk@eea.europa.eu">helpdesk</a>, if you want
+        to change this behavior.
+      </strong></p>
+
+      <p tal:condition="not: view/auto_matching | nothing"><strong>
+        You must manually approve companies without candidates. Please contact
+        BDR <a href="mailto:BDR.helpdesk@eea.europa.eu">helpdesk</a>, if you
+        want to have them automatically approved by the system.
+      </strong></p>
+
       <tal:block condition="candidates">
-        <h1>Matching Companies</h1>
         <table class="table simple_table">
           <thead>
             <tr>
-              <th>Company name</th>
-              <th>Candidates</th>
+              <th>Companies (as registered in FGAS Portal)</th>
+              <th>Candidates (from BDR-Registry)</th>
             </tr>
           </thead>
           <tbody>
@@ -39,7 +67,7 @@
           </tbody>
         </table>
       </tal:block>
-      <h1 tal:condition="not: candidates">No organisation matching</h1>
+      <h3 tal:condition="not: candidates">No pending companies to display</h3>
     </tal:block>
   </metal:block>
 </metal:block>

@@ -132,3 +132,10 @@ class SatelliteRegistryManagement(BaseAdmin):
         api = api.authMiddlewareApi
         response = api.getUsersExcelExport()
         return response.content
+
+    def auto_matching(self):
+        api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi
+        if not api:
+            return None
+        api = api.authMiddlewareApi
+        return api.autoMatching()

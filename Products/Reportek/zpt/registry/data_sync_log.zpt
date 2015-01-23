@@ -11,14 +11,19 @@
   <metal:block fill-slot="content">
 
     <tal:block define="records view/get_datasync_log">
+      <h1>Data synchronisation logs</h1>
+      <p>
+        This page contains latest 100 syncronisation jobs made against
+        FGAS portal and the number of companies fetched.
+      </p>
+
       <tal:block condition="records">
-        <h1>Data synchronisation logs</h1>
         <table class="table simple_table">
           <thead>
             <tr>
-              <th>Execution time</th>
-              <th>Nr. of organisations</th>
-              <th>Using last update</th>
+              <th>Date</th>
+              <th>Companies</th>
+              <th>Updated since</th>
             </tr>
           </thead>
           <tbody>
@@ -30,7 +35,7 @@
           </tbody>
         </table>
       </tal:block>
-      <h1 tal:condition="not: records">No data synchronisation logs</h1>
+      <h3 tal:condition="not: records">No data synchronisation log</h3>
     </tal:block>
   </metal:block>
 </metal:block>

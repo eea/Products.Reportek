@@ -148,8 +148,12 @@ class AuthMiddlewareApi(object):
         return response.json()
 
     def getCompaniesExcelExport(self):
-        response = requests.get(self.baseUrl + "/misc/undertaking/export",
+        try:
+            response = requests.get(self.baseUrl + "/misc/undertaking/export",
                                 timeout=self.TIMEOUT, verify=False)
+        except Exception as e:
+            logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
+            return None
         if response.status_code != requests.codes.ok:
             return None
         return response
@@ -157,6 +161,17 @@ class AuthMiddlewareApi(object):
     def getUsersExcelExport(self):
         try:
             response = requests.get(self.baseUrl + "/misc/user/export",
+                                timeout=self.TIMEOUT, verify=False)
+        except Exception as e:
+            logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
+            return None
+        if response.status_code != requests.codes.ok:
+            return None
+        return response
+
+    def autoMatching(self):
+        try:
+            response = requests.get(self.baseUrl + "/organisation_matching",
                                 timeout=self.TIMEOUT, verify=False)
         except Exception as e:
             logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))

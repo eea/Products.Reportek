@@ -5,12 +5,18 @@
   </metal:block>
 
   <metal:block fill-slot="content">
-    <h2>Registry management</h2>
+    <h2>FGases registry management</h2>
     <ul>
-      <li><a href="organisation_listing">All organisations</a></li>
+      <li><a href="organisation_listing">Companies</a></li>
     </ul>
     <ul>
-      <li><a href="organisation_matching">Matching organisations</a></li>
+      <li><a href="organisation_matching">Pending companies</a></li>
+    </ul>
+    <ul>
+      <li><a href="organisation_matching_log">Approval log</a></li>
+    </ul>
+    <ul>
+      <li><a href="data_sync_log">Synchronisation history</a></li>
     </ul>
   </metal:block>
 </metal:block>

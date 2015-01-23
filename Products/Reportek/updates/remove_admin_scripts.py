@@ -15,5 +15,5 @@ def update(app):
             app.ReportekEngine.xmlrpc_localities = create_localities_rpc_call()
             transaction.commit()
 
-    objects_to_delete = ['admin']
+    objects_to_delete = ['admin', 'fgases_registry']
     delete_objects(app, objects_to_delete)

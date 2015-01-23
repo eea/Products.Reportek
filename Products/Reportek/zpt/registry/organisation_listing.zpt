@@ -25,16 +25,16 @@
       }
     </style>
     <div tal:define="companies view/get_companies">
+      <h1>Companies</h1>
+      <p>
+      This page contains the list of companies registered in FGAS Portal and
+      approved in BDR. You can see the company details and reporters by
+      clicking on the company name. You can export them in <a href="organisations_excel">Excel</a>
+      or <a href="organisations_json">JSON</a> format. Alternatively you can
+      export all reporters in <a href="users_json">Excel</a> format.
+      </p>
+
       <tal:block condition="companies">
-        <h1>Company listing</h1>
-        <p>
-        All companies with status "VALID" that report under 'FGASES' obligation.
-        Click any company for details and accredited reporters. If you want to
-        export all information in Excel format <a href="organisations_excel">
-        click here</a> or in JSON format <a href="organisations_json">
-        click here</a>. You can access all contact persons in Excel format
-        <a href="users_json">here</a>.
-        </p>
         <table id="comp-table" width="100%" tal:condition="companies">
           <thead>
             <tr>
@@ -68,7 +68,7 @@
           </tbody>
         </table>
       </tal:block>
-      <h1 tal:condition="not: companies">No companies</h1>
+      <h3 tal:condition="not: companies">No companies to display</h3>
     </div>
   </metal:block>
 

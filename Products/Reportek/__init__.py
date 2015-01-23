@@ -148,7 +148,7 @@ def create_reportek_objects(app):
         except AttributeError:
             registry_management = RegistryManagement.RegistryManagement(
                                         constants.REGISTRY_MANAGEMENT,
-                                        'Fgases Registry')
+                                        'FGases registry')
             app._setObject(constants.REGISTRY_MANAGEMENT, registry_management)
 
 def _strip_protocol_domain(full_url):

@@ -11,16 +11,24 @@
   <metal:block fill-slot="content">
 
     <tal:block define="records view/get_matching_log">
+      <h1>Approval log</h1>
+      <p>
+        This page contains the company approval history order by timestamp.
+        You can see the details of an approved company by clicking on the
+        company id.
+
+        The companies automatically approved by the system have the user “SYSTEM”.
+      </p>
+
       <tal:block condition="records">
-        <h1>Matching logs</h1>
         <table class="table simple_table">
           <thead>
             <tr>
-              <th>Company ID</th>
-              <th>Old company ID</th>
-              <th>Verified</th>
+              <th>Company (FGAS Portal)</th>
+              <th>Old record (BDR registry)</th>
+              <th>Approval success</th>
               <th>User</th>
-              <th>Timestamp</th>
+              <th>Date</th>
             </tr>
           </thead>
           <tbody>
@@ -31,7 +39,7 @@
               </td>
               <td>
                 <tal:block condition="record/oldcompany_account" content="record/oldcompany_account" />
-                <tal:block condition="not: record/oldcompany_account" content="string: None" />
+                <tal:block condition="not: record/oldcompany_account" content="string: New company" />
               </td>
               <td tal:content="record/verified " />
               <td tal:content="record/user "/>
@@ -40,7 +48,8 @@
           </tbody>
         </table>
       </tal:block>
-      <h1 tal:condition="not: records">No organisation matching logs</h1>
+      <h3 tal:condition="not: records">No company approval history</h3>
+
     </tal:block>
   </metal:block>
 </metal:block>
