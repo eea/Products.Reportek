@@ -1,3 +1,7 @@
+3.7.2-dev7 (23-01-2015)
+-----------------------
+* Task #22646 - fix original size of value 0
+
 3.7.2-dev6 (23-01-2015)
 -----------------------
 * Minor interface changes
