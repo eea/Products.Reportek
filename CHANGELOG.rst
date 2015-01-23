@@ -1,3 +1,8 @@
+3.7.2-dev5 (23-01-2015)
+-----------------------
+* Task #20076 - Translate fgas portal country codes to bdr country folders
+* Imporve BDR messages content on pages involving Fgas Portal
+
 3.7.2-dev4 (22-01-2015)
 -----------------------
 * Refs #21874 - ReportekAPI with get all released envelopes and other methods
