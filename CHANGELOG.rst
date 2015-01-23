@@ -1,3 +1,7 @@
+3.7.2-dev6 (23-01-2015)
+-----------------------
+* Minor interface changes
+
 3.7.2-dev5 (23-01-2015)
 -----------------------
 * Task #20076 - Translate fgas portal country codes to bdr country folders
