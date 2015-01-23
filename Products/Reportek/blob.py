@@ -137,6 +137,8 @@ class FileContainer(Persistent):
         self.size = orig_size if orig_size else os.path.getsize(fs_path)
         if self.compressed_safe:
             self.compressed_size = os.path.getsize(fs_path)
+            if orig_size == 0:
+                raise RuntimeError("Original size cannot be 0 for compressed files!")
 
 
     def _shouldCompress(self):
