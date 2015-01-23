@@ -38,7 +38,7 @@
 
         <p>
           If you want to revert a change please contact
-          <a href="mailto:BDR.helpdesk@eea.europa.eu">helpdesk</a>.
+          <a href="mailto:BDR.helpdesk@eea.europa.eu">BDR Helpdesk</a>.
         </p>
 
         <tal:block condition="company">

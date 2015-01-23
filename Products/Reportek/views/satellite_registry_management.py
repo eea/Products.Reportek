@@ -138,4 +138,9 @@ class SatelliteRegistryManagement(BaseAdmin):
         if not api:
             return None
         api = api.authMiddlewareApi
-        return api.autoMatching()
+
+        auto = api.autoMatching()
+        if auto and auto.content == 'true':
+            return True
+        else:
+            return False

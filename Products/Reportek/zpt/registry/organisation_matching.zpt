@@ -27,19 +27,19 @@
 
       <p>
         If you want to revert a change please contact
-        <a href="mailto:BDR.helpdesk@eea.europa.eu">helpdesk</a>.
+        <a href="mailto:BDR.helpdesk@eea.europa.eu">BDR Helpdesk</a>.
       </p>
 
       <p tal:condition="view/auto_matching | nothing"><strong>
         Please be aware that companies without candidates are automatically
-        approved by the system. Please contact BDR
-        <a href="mailto:BDR.helpdesk@eea.europa.eu">helpdesk</a>, if you want
+        approved by the system. Please contact
+        <a href="mailto:BDR.helpdesk@eea.europa.eu">BDR Helpdesk</a>, if you want
         to change this behavior.
       </strong></p>
 
       <p tal:condition="not: view/auto_matching | nothing"><strong>
         You must manually approve companies without candidates. Please contact
-        BDR <a href="mailto:BDR.helpdesk@eea.europa.eu">helpdesk</a>, if you
+        <a href="mailto:BDR.helpdesk@eea.europa.eu">BDR Helpdesk</a>, if you
         want to have them automatically approved by the system.
       </strong></p>
 
