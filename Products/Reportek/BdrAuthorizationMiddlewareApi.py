@@ -12,6 +12,10 @@ class AuthMiddlewareApi(object):
     DOMAIN_TO_OBLIGATION = {
         'FGAS': 'http://rod.eionet.europa.eu/obligations/713',
     }
+    COUNTRY_TO_FOLDER = {
+        'uk': 'gb',
+        'el': 'gr'
+    }
     TIMEOUT = 20
     def __init__(self, url):
         self.baseUrl = url
@@ -162,10 +166,15 @@ class AuthMiddlewareApi(object):
         return response
 
     @classmethod
+    def getCountryFolder(cls, country_code):
+        country_code = country_code.lower()
+        return cls.COUNTRY_TO_FOLDER.get(country_code, country_code)
+
+    @classmethod
     def buildCollectionPath(cls, domain, country_code, company_id, old_collection_id=None):
         obligation_folder = cls.DOMAIN_TO_OBLIGATION_FOLDER.get(domain)
         if not obligation_folder:
             return None
-        country_folder = country_code.lower()
+        country_folder = cls.getCountryFolder(country_code)
         collection_folder = old_collection_id if old_collection_id else company_id
         return '/'.join([obligation_folder, country_folder, collection_folder])
