@@ -1,5 +1,5 @@
 import transaction
-from Products.Reportek.updates.migrate_scripts_from_db import (
+from Products.Reportek.updates.migrate_rod_scripts_from_db import (
     create_dataflow_rpc_call, create_localities_rpc_call, delete_objects,
 )
 
