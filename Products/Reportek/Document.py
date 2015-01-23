@@ -22,6 +22,7 @@
 
 __version__ = '$Rev$'[6:-2]
 
+from ZPublisher.HTTPRequest import FileUpload
 from AccessControl import getSecurityManager, ClassSecurityInfo
 from DateTime import DateTime
 from Globals import package_home
@@ -625,8 +626,12 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         return content_type
 
     def _compute_uncompressed_size(self, file_or_content):
-        if hasattr(file_or_content, 'name'):
-            return os.path.getsize(file_or_content.name)
+        if isinstance(file_or_content, FileUpload):
+            pos = file_or_content.tell()
+            file_or_content.seek(0, 2)
+            size = file_or_content.tell()
+            file_or_content.seek(pos)
+            return size
         elif isinstance(file_or_content, basestring):
             return len(file_or_content)
         elif isinstance(file_or_content, StringIO):
