@@ -68,7 +68,15 @@ class SatelliteRegistryManagement(BaseAdmin):
                 return None
             api = api.authMiddlewareApi
             companyId = self.request.get('id')
-            return api.getCompanyDetailsById(companyId)
+            data = api.getCompanyDetailsById(companyId)
+            data['warning'] = False
+            for user in data['users']:
+                if user['username'] == user['email']:
+                    user['warning'] = True
+                    data['warning'] = True
+                else:
+                    user['warning'] = False
+            return data
         return None
 
     def get_candidates(self):

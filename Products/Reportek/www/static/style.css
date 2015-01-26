@@ -368,3 +368,47 @@ hr {
 .details dd, .details dt {
   line-height: inherit;
 }
+
+.temp-warning {
+ color: #954549;
+}
+.temp-warning a {
+    color: #954549;
+}
+/* LEGEND */
+.legend {
+  margin: 1em 0;
+}
+.legend dl {
+  margin: 0;
+  padding: 0;
+}
+.legend dt,
+.legend dd {
+  float: left;
+}
+.legend dt {
+  margin: 0;
+}
+.legend dd {
+  margin: 0 18px 0 6px;
+}
+.legend strong {
+  display: block;
+  margin-right: 18px;
+  float: left;
+}
+.legend strong:after{
+  content: ":";
+}
+.badge {
+    display: inline-block;
+    width: 1em;
+    height: 1em;
+    border-radius: 3px;
+    vertical-align: middle;
+
+}
+.match {
+    background-color: #954549
+}

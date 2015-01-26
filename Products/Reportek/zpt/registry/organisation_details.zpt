@@ -44,7 +44,20 @@
           <tal:block metal:use-macro="here/partials/macros/representative_details" />
         </tal:block>
         <h2 id="persons">Reporters</h2>
+
         <div>
+          <div tal:condition="company/warning" class="legend clearfix">
+            <strong>Legend</strong>
+            <dl>
+              <dt class="badge match">
+              </dt>
+              <dd>
+                User can not report yet, because he/she never logged in
+                <a href="https://webgate.acceptance.ec.europa.eu/ods2">FGAS portal</a>.
+              </dd>
+            </dl>
+          </div>
+
           <table class="simple_table">
             <thead>
               <tr>
@@ -55,15 +68,17 @@
               </tr>
             </thead>
             <tbody>
-              <tr tal:repeat="user company/users">
-                <td tal:content="user/username"></td>
-                <td tal:content="user/first_name"></td>
-                <td tal:content="user/last_name"></td>
-                <td>
-                  <a tal:attributes="href string:mailto:${user/email}"
-                     tal:content="user/email" />
-                </td>
-              </tr>
+              <tal:block repeat="user company/users">
+                <tr tal:attributes="class python: 'temp-warning' if user['warning'] else '' ">
+                  <td tal:content="user/username"></td>
+                  <td tal:content="user/first_name"></td>
+                  <td tal:content="user/last_name"></td>
+                  <td>
+                    <a tal:attributes="href string:mailto:${user/email}"
+                       tal:content="user/email" />
+                  </td>
+                </tr>
+              </tal:block>
             </tbody>
           </table>
         </div>
