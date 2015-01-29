@@ -21,6 +21,7 @@
 ## RemoteApplication
 ##
 
+from threading import Thread
 import tempfile
 import logging
 from Products.ZCatalog.CatalogAwareness import CatalogAware
@@ -177,7 +178,8 @@ class RemoteApplication(SimpleItem):
             self.__finishApplication(workitem_id, REQUEST)
             return 1
 
-        self.runAutomaticLocalApps(l_workitem)
+        localQA_thread = Thread(target=self.runAutomaticLocalApps, name="LocalQAThread", args=(l_workitem,))
+        localQA_thread.start()
         # test if getResult should be called
         l_files_success = {}
         l_files_failed = {}
@@ -210,7 +212,11 @@ class RemoteApplication(SimpleItem):
             # needs to run again, do not complete
             else:
                 l_complete = 0
-        # TODO also collect the result from the thread
+
+        localQA_thread.join(timeout=600)
+        if localQA_thread.isAlive():
+            # kill thread? otherwise we leak
+            feedback_log.error("Local Feedback thread timedout on envelope %s" % self.aq_parent.absolute_url(1))
         if l_complete:
             # write to log the list of file that failed
             if l_files_failed:
@@ -228,10 +234,6 @@ class RemoteApplication(SimpleItem):
         # call this from a thread
         for file_id, result, script_id in self._runLocalQAScripts():
             self._addFeedback(file_id, result, workitem, script_id)
-        # mark the workitem as complete, something similar with the below, but no collisions with remote
-        # this is actually tricky: we need both remote and local to finish before marking it as done...
-        # this marking should be done in the caller after joining this thread
-        # self.__finishApplication(workitem_id, REQUEST)
 
     def _addFeedback(self, file_id, result, workitem, script_name):
         envelope = self.aq_parent
