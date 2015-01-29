@@ -1,3 +1,4 @@
+import json
 from Products.Five import BrowserView
 
 class ReportekApi(BrowserView):
@@ -39,18 +40,23 @@ class ReportekApi(BrowserView):
                     accepttime = doc.get_accept_time().HTML4()
                 else: accepttime = ''
 
-                documents.append((doc.id,
-                                doc.content_type,
-                                doc.xml_schema_location,
-                                doc.title,
-                                doc.upload_time().HTML4(),
-                                accepttime))
+                doc_properties = {
+                    'id': doc.id,
+                    'title': doc.title,
+                    'content_type': doc.content_type,
+                    'xml_schema': doc.xml_schema_location,
+                    'upload_time': doc.upload_time().HTML4(),
+                    'accept_time': accepttime,
+                }
+
+                documents.append(doc_properties)
+
             envelope_properties['files'] = documents
 
             if (rejected is True and env.is_blocked) or rejected is False:
                 results.append(envelope_properties)
 
-        return results
+        return json.dumps(results, indent=4)
 
 
     def get_released_envelopes(self, obligation):
