@@ -34,6 +34,7 @@ import xmlrpclib
 import string
 import urllib
 from Products.PythonScripts.standard import html_quote
+from Document import Document
 
 
 feedback_log = logging.getLogger(__name__ + '.feedback')
@@ -176,6 +177,7 @@ class RemoteApplication(SimpleItem):
             self.__finishApplication(workitem_id, REQUEST)
             return 1
 
+        self.runAutomaticLocalApps(l_workitem)
         # test if getResult should be called
         l_files_success = {}
         l_files_failed = {}
@@ -208,6 +210,7 @@ class RemoteApplication(SimpleItem):
             # needs to run again, do not complete
             else:
                 l_complete = 0
+        # TODO also collect the result from the thread
         if l_complete:
             # write to log the list of file that failed
             if l_files_failed:
@@ -220,6 +223,50 @@ class RemoteApplication(SimpleItem):
                 REQUEST.set('actor', 'openflow_engine')
             self.__finishApplication(workitem_id, REQUEST)
         return 1
+
+    def runAutomaticLocalApps(self, workitem):
+        # call this from a thread
+        for file_id, result, script_id in self._runLocalQAScripts():
+            self._addFeedback(file_id, result, workitem, script_id)
+        # mark the workitem as complete, something similar with the below, but no collisions with remote
+        # this is actually tricky: we need both remote and local to finish before marking it as done...
+        # this marking should be done in the caller after joining this thread
+        # self.__finishApplication(workitem_id, REQUEST)
+
+    def _addFeedback(self, file_id, result, workitem, script_name):
+        envelope = self.aq_parent
+        feedback_id = '_'.join(( self.app_name, script_name, file_id, str(int(DateTime())) ))
+        envelope.manage_addFeedback(id=feedback_id,
+                title= feedback_id,
+                activity_id=workitem.activity_id,
+                automatic=1)
+        feedback_ob = envelope[feedback_id]
+        content = result[1].data
+        content_type = result[0]
+        if len(content) > FEEDBACKTEXT_LIMIT:
+            with tempfile.TemporaryFile() as tmp:
+                tmp.write(content.encode('utf-8'))
+                tmp.seek(0)
+                feedback_ob.manage_uploadFeedback(tmp, filename='qa-output')
+            feedback_attach = feedback_ob.objectValues()[0]
+            feedback_attach.data_file.content_type = content_type
+            feedback_ob.feedbacktext = (
+                'Feedback too large for inline display; '
+                '<a href="qa-output/view">see attachment</a>.')
+            feedback_ob.content_type = 'text/html'
+
+        else:
+            feedback_ob.feedbacktext = content
+            feedback_ob.content_type = content_type
+
+
+
+    def _runLocalQAScripts(self):
+        qa_repo = self.QARepository
+        for xml in ( x for x in self.aq_parent.objectValues(Document.meta_type) if x.content_type == 'text/xml' ):
+            for script in qa_repo._get_local_qa_scripts(xml.xml_schema_location):
+                file_id, result = qa_repo._runQAScript(xml.absolute_url(1), 'loc_%s' % script.id)
+                yield file_id, result, script.id
 
     ##############################################
     #   XQuery calls
