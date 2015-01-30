@@ -21,6 +21,7 @@
 ## RemoteApplication
 ##
 
+from collections import defaultdict
 from threading import Thread
 import tempfile
 import logging
@@ -36,6 +37,7 @@ import string
 import urllib
 from Products.PythonScripts.standard import html_quote
 from Document import Document
+import transaction
 
 
 feedback_log = logging.getLogger(__name__ + '.feedback')
@@ -171,7 +173,7 @@ class RemoteApplication(SimpleItem):
         if l_wk_prop['analyze']['code'] == 0:
             self.__analyzeDocuments(workitem_id, l_dict)
         # see if it's any point to go on
-        elif l_wk_prop['analyze']['code'] == -2:
+        elif l_wk_prop['analyze']['code'] == -2 and self._local_scripts_done(l_wk_prop.get('localQA')):
             if REQUEST is not None:
                 REQUEST.set('RemoteApplicationSucceded', 0)
                 REQUEST.set('actor', 'openflow_engine')
@@ -217,6 +219,14 @@ class RemoteApplication(SimpleItem):
         if localQA_thread.isAlive():
             # kill thread? otherwise we leak
             feedback_log.error("Local Feedback thread timedout on envelope %s" % self.aq_parent.absolute_url(1))
+        else:
+            # log the results from local QA
+            for filename, scripts in l_wk_prop['localQA'].items():
+                for script, status in scripts.items():
+                    if status == 'done':
+                        l_files_success[filename] = l_files_success.get(filename, '') + ', #%s'%script
+                    else:
+                        l_files_failed[filename] = l_files_failed.get(filename, '') + ', #%s'%script
         if l_complete:
             # write to log the list of file that failed
             if l_files_failed:
@@ -232,8 +242,12 @@ class RemoteApplication(SimpleItem):
 
     def runAutomaticLocalApps(self, workitem):
         # call this from a thread
-        for file_id, result, script_id in self._runLocalQAScripts():
+        for file_id, result, script_id in self._runLocalQAScripts(workitem):
+            wk_status = getattr(workitem, self.app_name)
             self._addFeedback(file_id, result, workitem, script_id)
+            # mark script for file as done
+            wk_status['localQA'][file_id][script_id] = 'done'
+            transaction.commit()
 
     def _addFeedback(self, file_id, result, workitem, script_name):
         envelope = self.aq_parent
@@ -263,12 +277,36 @@ class RemoteApplication(SimpleItem):
 
 
 
-    def _runLocalQAScripts(self):
+    def _runLocalQAScripts(self, workitem):
+        # 'localQA': {'file_name':{'script_name': 'status',
+        #                          'script_name2': 'status'},
+        #             'file_name2': {'script_name2': 'status',
+        #                            'script_name3': 'status'}
         qa_repo = self.QARepository
+        wk_status = getattr(workitem, self.app_name)
+        if 'localQA' not in wk_status:
+            wk_status['localQA'] = defaultdict(dict)
+        localQA = wk_status['localQA']
         for xml in ( x for x in self.aq_parent.objectValues(Document.meta_type) if x.content_type == 'text/xml' ):
+            resultsForXml = localQA[xml.id]
             for script in qa_repo._get_local_qa_scripts(xml.xml_schema_location):
-                file_id, result = qa_repo._runQAScript(xml.absolute_url(1), 'loc_%s' % script.id)
-                yield file_id, result, script.id
+                if script.id not in resultsForXml or resultsForXml[script.id] == 'failed':
+                    resultsForXml[script.id] = 'in progress'
+                    transaction.commit()
+                    file_id, result = qa_repo._runQAScript(xml.absolute_url(1), 'loc_%s' % script.id)
+                    yield file_id, result, script.id
+                    # else, don't yield - nothing will happen in parent's loop
+
+    def _local_scripts_done(self, localQA):
+        # not ran yet
+        if not localQA:
+            return False
+        for script_results in localQA.values():
+            # any bad status present?
+            if any( ( bad_status for bad_status in script_results.values() if bad_status != 'done' ) ):
+                return False
+        # truly no bad statuses (including no script -> status pairs) because we check this after join
+        return True
 
     ##############################################
     #   XQuery calls
