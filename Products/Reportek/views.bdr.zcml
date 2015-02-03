@@ -103,6 +103,20 @@
       attribute="get_users_excel"/>
 
   <browser:page
+      name="lockDownCompany"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      attribute="lockDownCompany"/>
+
+  <browser:page
+      name="unlockCompany"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      attribute="unlockCompany"/>
+
+  <browser:page
       name="released_envelopes"
       for=".interfaces.IReportekAPI"
       class=".views.ReportekApi"

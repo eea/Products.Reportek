@@ -1,5 +1,7 @@
 from time import time
 
+import ExtensionClass
+from ZODB.PersistentMapping import PersistentMapping
 from AccessControl import ClassSecurityInfo
 from plone.memoize import ram
 
@@ -17,13 +19,14 @@ __all__ = [
     ]
 
 
-class BdrAuthorizationMiddleware(object):
+class BdrAuthorizationMiddleware(ExtensionClass.Base):
 
     recheck_interval = 300
 
     def __init__(self, url):
         self.authMiddlewareApi = AuthMiddlewareApi(url)
         self.recheck_interval = 300
+        self.lockedDownCollections = PersistentMapping()
 
     def setServiceUrl(self, url):
         self.authMiddlewareApi.baseUrl = url
@@ -38,8 +41,30 @@ class BdrAuthorizationMiddleware(object):
         return accessiblePaths
 
     def authorizedUser(self, username, path):
+        if path in self.lockedDownCollections:
+            logger.warning("This collection is locked down: %s!" % path)
+            return False
         accessiblePaths = self.getUserCollectionPaths(username, recheck_interval=self.recheck_interval)
         return path in accessiblePaths
+
+    def lockDownCollection(self, path, user):
+        if path not in self.lockedDownCollections:
+            self.lockedDownCollections[path] = None
+        self.lockedDownCollections[path] = {'state': 'locked',
+                                            'ts': time(),
+                                            'user': user}
+
+    def unlockCollection(self, path, user):
+        if path not in self.lockedDownCollections:
+            # log unlock without lock
+            self.lockedDownCollections[path] = None
+        self.lockedDownCollections[path] = {'state': 'unlocked',
+                                            'ts': time(),
+                                            'user': user}
+
+    def lockedCollection(self, path):
+        lockedItem = self.lockedDownCollections.get(path)
+        return lockedItem and lockedItem['state'] == 'locked'
 
 
 from App.class_init import InitializeClass

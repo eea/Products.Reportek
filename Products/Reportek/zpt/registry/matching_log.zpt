@@ -29,6 +29,7 @@
               <th>Approval success</th>
               <th>User</th>
               <th>Date</th>
+              <th>Lockdown</th>
             </tr>
           </thead>
           <tbody>
@@ -44,6 +45,10 @@
               <td tal:content="record/verified " />
               <td tal:content="record/user "/>
               <td tal:content="record/timestamp "/>
+              <td tal:define="locked python: view.lockedCompany(record['company_id'], record['oldcompany_account'], record['country_code'], record['domain'])">
+                  <a class="test_button" tal:content="python: 'Unlock' if locked else 'Lockdown'"
+                     tal:attributes="href python: 'unlockCompany?company_id=%s&old_collection_id=%s&country_code=%s&domain=%s&user=%s' % (record['company_id'], record['oldcompany_account'], record['country_code'], record['domain'], record['user']) if locked else 'lockDownCompany?company_id=%s&old_collection_id=%s&country_code=%s&domain=%s&user=%s' % (record['company_id'], record['oldcompany_account'], record['country_code'], record['domain'], record['user'])"></a>
+              </td>
             </tr>
           </tbody>
         </table>

@@ -4,7 +4,9 @@ import requests
 import logging
 logger = logging.getLogger("Reportek")
 
-class AuthMiddlewareApi(object):
+import Acquisition
+
+class AuthMiddlewareApi(Acquisition.Implicit):
     DOMAIN_TO_OBLIGATION_FOLDER = {
         'FGAS': 'fgases',
     }
@@ -179,6 +181,23 @@ class AuthMiddlewareApi(object):
         if response.status_code != requests.codes.ok:
             return None
         return response
+
+    def lockDownCompany(self, company_id, old_collection_id, country_code, domain, user):
+        path = self.buildCollectionPath(domain, country_code, str(company_id), old_collection_id)
+        bdrAuth = self.aq_parent
+        bdrAuth.lockDownCollection(path, user)
+        # send mail
+
+    def unlockCompany(self, company_id, old_collection_id, country_code, domain, user):
+        path = self.buildCollectionPath(domain, country_code, str(company_id), old_collection_id)
+        bdrAuth = self.aq_parent
+        bdrAuth.unlockCollection(path, user)
+        # send mail
+
+    def lockedCompany(self, company_id, old_collection_id, country_code, domain):
+        path = self.buildCollectionPath(domain, country_code, str(company_id), old_collection_id)
+        bdrAuth = self.aq_parent
+        return bdrAuth.lockedCollection(path)
 
     @classmethod
     def getCountryFolder(cls, country_code):
