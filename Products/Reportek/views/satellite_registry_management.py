@@ -32,7 +32,9 @@ class SatelliteRegistryManagement(BaseAdmin):
         if not api:
             return None
         api = api.authMiddlewareApi
-        return api.getCompanies()
+        companies = api.getCompaniesAjax()
+        self.request.response.setHeader('Content-Type', 'application/json')
+        return json.dumps(companies, indent=2)
 
     def get_companies_api(self):
         get_params = ['id', 'vat', 'name', 'countrycode', 'OR_vat', 'OR_name']
@@ -119,7 +121,12 @@ class SatelliteRegistryManagement(BaseAdmin):
         return response.content
 
     def get_companies_json(self):
-        companies = self.get_companies()
+        api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi
+        if not api:
+            return None
+        api = api.authMiddlewareApi
+
+        companies = api.getCompanies()
         if companies is None:
             companies = []
 

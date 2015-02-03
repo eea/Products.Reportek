@@ -24,56 +24,37 @@
         line-height:normal;
       }
     </style>
-    <div tal:define="companies view/get_companies">
-      <h1>Companies</h1>
-      <p>
-      This page contains the list of companies registered in
-      <a href="https://webgate.acceptance.ec.europa.eu/ods2">FGAS portal</a>
-      and approved in BDR. You can see the company details and reporters by
-      clicking on the company name.
-        <tal:block condition="companies">
-          You can export them in <a href="organisations_excel">Excel</a>
-          or <a href="organisations_json">JSON</a> format. Alternatively you can
-          export all reporters in <a href="users_json">Excel</a> format.
-        </taL:block>
-      </p>
 
-      <tal:block condition="companies">
-        <table id="comp-table" width="100%" tal:condition="companies">
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Company name</th>
-              <th>Obligation</th>
-              <th>Reporters</th>
-              <th>Country</th>
-              <th>VAT number</th>
-              <th>Date registered</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr tal:repeat="comp companies">
-              <td tal:content="comp/company_id"/>
-              <td>
-                <a tal:content="comp/name"
-                   tal:attributes="href string:${here/absolute_url}/organisation_details?id=${comp/company_id}"></a>
-              </td>
-              <td tal:content="comp/domain"/>
-              <td>
-                <tal:block tal:repeat="user comp/users">
-                  <a tal:attributes="href string:${here/absolute_url}/organisation_details?id=${comp/company_id}#persons"
-                     tal:content="user/username"></a><br/>
-                </tal:block>
-              </td>
-              <td tal:content="comp/address/country/name"/>
-              <td tal:content="comp/vat"/>
-              <td tal:content="comp/date_created"/>
-            </tr>
-          </tbody>
-        </table>
-      </tal:block>
-      <p class="system-msg" tal:condition="not: companies">No companies to display</p>
-    </div>
+    <h1>Companies</h1>
+    <p>
+    This page contains the list of companies registered in
+    <a href="https://webgate.acceptance.ec.europa.eu/ods2">FGAS portal</a>
+    and approved in BDR. You can see the company details and reporters by
+    clicking on the company name.
+      <tal:block>
+        You can export them in <a href="organisations_excel">Excel</a>
+        or <a href="organisations_json">JSON</a> format. Alternatively you can
+        export all reporters in <a href="users_json">Excel</a> format.
+      </taL:block>
+    </p>
+
+   <table id="comp-table" width="100%">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Company name</th>
+          <th>Obligation</th>
+          <th>Reporters</th>
+          <th>Country</th>
+          <th>VAT number</th>
+          <th>Date registered</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+
+
   </metal:block>
 
 </metal:block>

@@ -48,6 +48,17 @@ class AuthMiddlewareApi(Acquisition.Implicit):
 
         return paths
 
+    def getCompaniesAjax(self):
+        try:
+            response = requests.get(self.baseUrl + "/undertaking/list-small",
+                                timeout=self.TIMEOUT, verify=False)
+        except Exception as e:
+            logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
+            return None
+        if response.status_code != requests.codes.ok:
+            return None
+        return response.json()
+
     def getCompanies(self):
         try:
             response = requests.get(self.baseUrl + "/undertaking/list",

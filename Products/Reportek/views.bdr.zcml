@@ -39,12 +39,20 @@
       class=".views.SatelliteRegistryManagement"
       attribute="get_company_json"/>
 
-   <browser:page
+  <browser:page
       name="get_candidates"
       for=".interfaces.IRegistryManagement"
       permission="zope2.ViewManagementScreens"
       class=".views.SatelliteRegistryManagement"
       attribute="get_candidates"/>
+
+  <browser:page
+      name="get_companies"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      attribute="get_companies"/>
+
 
   <browser:page
       name="partials"

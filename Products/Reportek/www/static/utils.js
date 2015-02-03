@@ -30,6 +30,9 @@ function initEnvelopesTable() {
 
 function initCompaniesTable() {
   $("#comp-table").dataTable({
+    "iDisplayLength": 20,
+    "sAjaxSource": "/fgases_registry/get_companies",
+    "sAjaxDataProp" : "",
     "autowidth": false,
     "order": [[ 0, "desc" ]],
     "columns": [
@@ -40,13 +43,46 @@ function initCompaniesTable() {
       { "width": "15%" },
       { "width": "12%" },
       { "width": "15%" }
+    ],
+    "aoColumns": [
+      { "mData": "company_id" },  // for User Detail
+      { "mData": "name" },
+      { "mData": "domain" },
+      { "mData": "users" },
+      { "mData": "address.country.name" },
+      { "mData": "vat" },
+      { "mData": "date_created" }
+    ],
+    "columnDefs": [
+      {
+        "width": "25%",
+        "targets": 1,
+        "data": "name",
+        "render": function (data, type, full, meta) {
+          return '<a href="/fgases_registry/organisation_details?'
+            + full.company_id + '">' + data + '</a>';
+        }
+      },
+      {
+        "width": "13%",
+        "targets": 3,
+        "data": "users",
+        "render": function (data, type, full, meta) {
+          result = '';
+          for (var i = 0; i < data.length; i++) {
+            result += '<a href="/fgases_registry/organisation_details?'
+            + full.company_id + '">' + data[i].username + '</a><br/>';
+          }
+          return result;
+        }
+      },
     ]
   });
 }
 
 function initMatchingTable() {
   $('#matching-table').dataTable({
-    iDisplayLength: 20,
+    "iDisplayLength": 20,
     "sAjaxSource": "/fgases_registry/get_candidates",
     "sAjaxDataProp" : "",
     "aoColumns": [
@@ -168,6 +204,7 @@ $(function () {
   $("#role, #obligation, #countries").select2({
     allowClear: true
   });
+
   if ($("#datatable").length !== 0)
     initDataTable();
   $(".toggledCB").click(function() {
