@@ -2,6 +2,11 @@
 
   <metal:block fill-slot="head">
     <link href="++resource++static/style.css" rel="stylesheet"/>
+    <script type="text/javascript" charset="utf8"
+          src="++resource++static/jquery-1.10.2.min.js"></script>
+    <script type="text/javascript" charset="utf8"
+          src="++resource++static/datatables-1.10.1/media/js/jquery.dataTables.min.js"></script>
+    <script src="++resource++static/utils.js"></script>
   </metal:block>
 
   <metal:block fill-slot="breadcrumbtrails">
@@ -13,61 +18,46 @@
       Operations completed succesfully.
     </p>
 
-    <tal:block define="candidates view/get_candidates">
-      <h1>Pending Companies</h1>
+    <h1>Pending Companies</h1>
 
-      <p>
-        In this page you can view the companies registered in the
-        <a href="https://webgate.acceptance.ec.europa.eu/ods2">FGAS portal</a>
-        and match them with old records taken from
-        <a href="https://bdr-test.eionet.europa.eu/registry/management/companies">
-        BDR-Registry</a>, based on suggestions (candidates) made by the system.
-        Please click on the company name to view the suggestions and approve the company.
-      </p>
+    <p>
+      In this page you can view the companies registered in the
+      <a href="https://webgate.acceptance.ec.europa.eu/ods2">FGAS portal</a>
+      and match them with old records taken from
+      <a href="https://bdr-test.eionet.europa.eu/registry/management/companies">
+      BDR-Registry</a>, based on suggestions (candidates) made by the system.
+      Please click on the company name to view the suggestions and approve the company.
+    </p>
 
-      <p>
-        If you want to revert a change please contact
-        <a href="mailto:BDR.helpdesk@eea.europa.eu">BDR Helpdesk</a>.
-      </p>
+    <p>
+      If you want to revert a change please contact
+      <a href="mailto:BDR.helpdesk@eea.europa.eu">BDR Helpdesk</a>.
+    </p>
 
-      <p tal:condition="view/auto_matching | nothing"><strong>
-        Please be aware that companies without candidates are automatically
-        approved by the system. Please contact
-        <a href="mailto:BDR.helpdesk@eea.europa.eu">BDR Helpdesk</a>, if you want
-        to change this behavior.
-      </strong></p>
+    <p tal:condition="view/auto_matching | nothing"><strong>
+      Please be aware that companies without candidates are automatically
+      approved by the system. Please contact
+      <a href="mailto:BDR.helpdesk@eea.europa.eu">BDR Helpdesk</a>, if you want
+      to change this behavior.
+    </strong></p>
 
-      <p tal:condition="not: view/auto_matching | nothing"><strong>
-        You must manually approve companies without candidates. Please contact
-        <a href="mailto:BDR.helpdesk@eea.europa.eu">BDR Helpdesk</a>, if you
-        want to have them automatically approved by the system.
-      </strong></p>
+    <p tal:condition="not: view/auto_matching | nothing"><strong>
+      You must manually approve companies without candidates. Please contact
+      <a href="mailto:BDR.helpdesk@eea.europa.eu">BDR Helpdesk</a>, if you
+      want to have them automatically approved by the system.
+    </strong></p>
 
-      <tal:block condition="candidates">
-        <table class="table simple_table">
-          <thead>
-            <tr>
-              <th>Companies (as registered in FGAS Portal)</th>
-              <th>Candidates (from BDR-Registry)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr tal:repeat="cand candidates">
-              <td>
-                <a tal:content="cand/undertaking/name"
-                   tal:attributes="href string:${here/absolute_url}/organisation_verification?id=${cand/undertaking/company_id}" />
-              </td>
-              <td>
-                <tal:block tal:condition="cand/links" tal:repeat="link cand/links">
-                  <span tal:content="link/name" /><br/>
-                </tal:block>
-                <span tal:condition="not: cand/links"><i>No candidates</i></span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </tal:block>
-      <p class="system-msg" tal:condition="not: candidates">No pending companies to display</p>
-    </tal:block>
+    <table class="table simple_table" id="matching-table">
+      <thead>
+        <tr>
+          <th>Companies (as registered in FGAS Portal)</th>
+          <th>Candidates (from BDR-Registry)</th>
+        </tr>
+      </thead>
+      <tbody>
+
+      </tbody>
+    </table>
+
   </metal:block>
 </metal:block>

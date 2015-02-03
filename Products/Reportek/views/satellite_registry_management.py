@@ -84,7 +84,10 @@ class SatelliteRegistryManagement(BaseAdmin):
         if not api:
             return None
         api = api.authMiddlewareApi
-        return api.getCandidates()
+
+        candidates = api.getCandidates()
+        self.request.response.setHeader('Content-Type', 'application/json')
+        return json.dumps(candidates, indent=2)
 
     def get_matching_log(self):
         api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi

@@ -44,6 +44,45 @@ function initCompaniesTable() {
   });
 }
 
+function initMatchingTable() {
+  $('#matching-table').dataTable({
+    iDisplayLength: 20,
+    "sAjaxSource": "/fgases_registry/get_candidates",
+    "sAjaxDataProp" : "",
+    "aoColumns": [
+      { "mData": "undertaking" },  // for User Detail
+      { "mData": "links" }
+    ],
+    "columnDefs": [
+      {
+        "targets": 0,
+        "data": "undertaking",
+        "render": function (data, type, full, meta) {
+          return '<a href="/fgases_registry/organisation_verification?id='+
+            data.company_id + '">' + data.name + '</a>';
+        }
+      },
+      {
+        "targets": 1,
+        "bSortable": false,
+        "data": "links",
+        "render": function (data, type, full, meta) {
+          if (data.length == 0) {
+            return "<i>No candidates</i>";
+          } else {
+            var candidates = "";
+            for (var i = 0; i < data.length; i++) {
+              candidates += "<span>" + data[i].name + "<span/><br/>";
+            }
+            return candidates;
+          }
+        }
+      }
+    ],
+    "order": [[ 0, "asc" ]]
+  });
+}
+
 function initDataTable() {
   /* Init the datatable object */
 
@@ -113,20 +152,22 @@ function initDataTable() {
     }
   });
 }
+
 function manage_role_cb(col_cb) {
   sel_roles = $(col_cb).parents('tr').find('.local-roles');
   if (sel_roles.length > 0) {
     sel_roles.prop('checked', $(col_cb).prop('checked'));
   }
 }
+
 $(function () {
   initEnvelopesTable();
   initCompaniesTable();
+  initMatchingTable();
 
-  $("#role, #obligation, #countries").select2(
-    {
-      allowClear: true
-    });
+  $("#role, #obligation, #countries").select2({
+    allowClear: true
+  });
   if ($("#datatable").length !== 0)
     initDataTable();
   $(".toggledCB").click(function() {
