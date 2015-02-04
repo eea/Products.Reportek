@@ -59,7 +59,7 @@ function initCompaniesTable() {
         "targets": 1,
         "data": "name",
         "render": function (data, type, full, meta) {
-          return '<a href="/fgases_registry/organisation_details?'
+          return '<a href="/fgases_registry/organisation_details?id='
             + full.company_id + '">' + data + '</a>';
         }
       },
@@ -70,7 +70,7 @@ function initCompaniesTable() {
         "render": function (data, type, full, meta) {
           result = '';
           for (var i = 0; i < data.length; i++) {
-            result += '<a href="/fgases_registry/organisation_details?'
+            result += '<a href="/fgases_registry/organisation_details?id='
             + full.company_id + '">' + data[i].username + '</a><br/>';
           }
           return result;
