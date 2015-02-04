@@ -173,22 +173,26 @@ class SatelliteRegistryManagement(BaseAdmin):
         return api.lockedCompany(str(company_id), old_collection_id,
                                  country_code, domain)
 
-    def lockDownCompany(self, company_id, old_collection_id, country_code, domain, user):
+    def lockDownCompany(self, company_id, old_collection_id, country_code, domain, user, came_from):
         api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi
         if not api:
             return None
         api = api.authMiddlewareApi
         if old_collection_id == 'None':
             old_collection_id = None
-        return api.lockDownCompany(str(company_id), old_collection_id,
+        api.lockDownCompany(str(company_id), old_collection_id,
                                  country_code, domain, user)
+        if came_from:
+            return self.request.response.redirect(came_from)
 
-    def unlockCompany(self, company_id, old_collection_id, country_code, domain, user):
+    def unlockCompany(self, company_id, old_collection_id, country_code, domain, user, came_from):
         api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi
         if not api:
             return None
         api = api.authMiddlewareApi
         if old_collection_id == 'None':
             old_collection_id = None
-        return api.unlockCompany(str(company_id), old_collection_id,
+        api.unlockCompany(str(company_id), old_collection_id,
                                  country_code, domain, user)
+        if came_from:
+            return self.request.response.redirect(came_from)

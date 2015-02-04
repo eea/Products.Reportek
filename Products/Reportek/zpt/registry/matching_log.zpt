@@ -47,7 +47,7 @@
               <td tal:content="record/timestamp "/>
               <td tal:define="locked python: view.lockedCompany(record['company_id'], record['oldcompany_account'], record['country_code'], record['domain'])">
                   <a class="test_button" tal:content="python: 'Unlock' if locked else 'Lockdown'"
-                     tal:attributes="href python: 'unlockCompany?company_id=%s&old_collection_id=%s&country_code=%s&domain=%s&user=%s' % (record['company_id'], record['oldcompany_account'], record['country_code'], record['domain'], record['user']) if locked else 'lockDownCompany?company_id=%s&old_collection_id=%s&country_code=%s&domain=%s&user=%s' % (record['company_id'], record['oldcompany_account'], record['country_code'], record['domain'], record['user'])"></a>
+                     tal:attributes="href python: 'unlockCompany?company_id=%s&old_collection_id=%s&country_code=%s&domain=%s&user=%s&came_from=%s' % (record['company_id'], record['oldcompany_account'], record['country_code'], record['domain'], record['user'], request['ACTUAL_URL']) if locked else 'lockDownCompany?company_id=%s&old_collection_id=%s&country_code=%s&domain=%s&user=%s&came_from=%s' % (record['company_id'], record['oldcompany_account'], record['country_code'], record['domain'], record['user'], request['ACTUAL_URL'])"></a>
               </td>
             </tr>
           </tbody>
