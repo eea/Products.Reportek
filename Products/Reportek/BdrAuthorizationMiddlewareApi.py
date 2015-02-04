@@ -182,16 +182,16 @@ class AuthMiddlewareApi(Acquisition.Implicit):
             return None
         return response
 
-    def autoMatching(self):
+    def getSettings(self):
         try:
-            response = requests.get(self.baseUrl + "/organisation_matching",
+            response = requests.get(self.baseUrl + "/misc/settings",
                                 timeout=self.TIMEOUT, verify=False)
         except Exception as e:
             logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
             return None
         if response.status_code != requests.codes.ok:
             return None
-        return response
+        return response.json()
 
     def lockDownCompany(self, company_id, old_collection_id, country_code, domain, user):
         path = self.buildCollectionPath(domain, country_code, str(company_id), old_collection_id)

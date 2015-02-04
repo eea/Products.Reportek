@@ -22,7 +22,7 @@
 
     <p>
       In this page you can view the companies registered in the
-      <a href="https://webgate.acceptance.ec.europa.eu/ods2">FGAS portal</a>
+      <a tal:attributes="href view/get_url">FGAS portal</a>
       and match them with old records taken from
       <a href="https://bdr-test.eionet.europa.eu/registry/management/companies">
       BDR-Registry</a>, based on suggestions (candidates) made by the system.

@@ -157,11 +157,18 @@ class SatelliteRegistryManagement(BaseAdmin):
             return None
         api = api.authMiddlewareApi
 
-        auto = api.autoMatching()
-        if auto and auto.content == 'true':
-            return True
-        else:
-            return False
+        settings = api.getSettings()
+        return settings["AUTO_VERIFY_COMPANIES"]
+
+    def get_url(self):
+        api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi
+        if not api:
+            return None
+        api = api.authMiddlewareApi
+
+        settings = api.getSettings()
+        return settings["BASE_URL"]
+
 
     def lockedCompany(self, company_id, old_collection_id, country_code, domain):
         api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi
