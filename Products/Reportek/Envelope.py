@@ -1245,7 +1245,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     def getCountryName(self, country_uri=None):
         """ Returns country name from the country uri
         """
-        dummycounty = {'name':'Unknown', 'iso': 'Unknown'}
+        dummycounty = {'name':'Unknown', 'iso': 'xx'}
         eng = getattr(self, ENGINE_ID)
         if country_uri:
             try:
@@ -1257,7 +1257,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     def getCountryCode(self, country_uri=None):
         """ Returns country ISO code from the country uri
         """
-        dummycounty = {'name':'Unknown', 'iso': 'Unknown'}
+        dummycounty = {'name':'Unknown', 'iso': 'xx'}
         eng = getattr(self, ENGINE_ID)
         if country_uri:
             try:

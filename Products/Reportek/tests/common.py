@@ -96,9 +96,12 @@ class BaseTest(ZopeTestCase.ZopeTestCase):
             endyear = kwargs['endyear']
         else:
             endyear = '2004'
-        return simple_addEnvelope(col, '', '', year, endyear, '',
+        env = simple_addEnvelope(col, '', '', year, endyear, '',
             'http://rod.eionet.eu.int/localities/1', REQUEST=None,
             previous_delivery='')
+        env.getCountryName = Mock(return_value='Unknown')
+        env.getCountryCode = Mock(return_value='xx')
+        return env
 
     @staticmethod
     def create_mock_request():
