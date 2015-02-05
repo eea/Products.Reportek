@@ -54,7 +54,6 @@ import Hyperlink
 import Feedback
 from constants import WORKFLOW_ENGINE_ID, ENGINE_ID
 from exceptions import InvalidPartOfYear
-from CountriesManager import CountriesManager
 from EnvelopeInstance import EnvelopeInstance
 from EnvelopeRemoteServicesManager import EnvelopeRemoteServicesManager
 from EnvelopeCustomDataflows import EnvelopeCustomDataflows
@@ -139,7 +138,7 @@ def get_first_accept(req_dict):
     firstseg = segs[0].split(';')
     return firstseg[0].strip()
 
-class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager, EnvelopeCustomDataflows):
+class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDataflows):
     """ Envelopes are basic container objects that provide a standard
         interface for object management. Envelope objects also implement
         a management interface
@@ -1253,7 +1252,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                 return str([x['name'] for x in eng.localities_table() if str(x['uri']) == country_uri][0])
             except:
                 return dummycounty['name']
-        return str(self.localities_dict().get(self.country, dummycounty)['name'])
+        return str(eng.localities_dict().get(self.country, dummycounty)['name'])
 
     def getCountryCode(self, country_uri=None):
         """ Returns country ISO code from the country uri
@@ -1265,7 +1264,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                 return str([x['iso'] for x in eng.localities_table() if str(x['uri']) == country_uri][0])
             except:
                 return dummycounty['iso']
-        return str(self.localities_dict().get(self.country, dummycounty)['iso'])
+        return str(eng.localities_dict().get(self.country, dummycounty)['iso'])
 
 # Initialize the class in order the security assertions be taken into account
 Globals.InitializeClass(Envelope)
