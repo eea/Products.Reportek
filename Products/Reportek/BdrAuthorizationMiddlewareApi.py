@@ -193,6 +193,48 @@ class AuthMiddlewareApi(Acquisition.Implicit):
             return None
         return response.json()
 
+    def getAllEmails(self):
+        try:
+            response = requests.get(self.baseUrl + "/misc/mail/list",
+                                timeout=self.TIMEOUT, verify=False)
+        except Exception as e:
+            logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
+            return None
+        if response.status_code != requests.codes.ok:
+            return None
+        return response.json()
+
+    def addEmail(self, first_name, last_name, email):
+        try:
+            response = requests.post(self.baseUrl + "/misc/mail/add",
+                                     data={
+                                         'mail': email,
+                                         'first_name': first_name,
+                                         'last_name': last_name
+                                     },
+                                     timeout=self.TIMEOUT,
+                                     verify=False)
+        except Exception as e:
+            logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
+            return None
+
+        if response.status_code != requests.codes.ok:
+            return False
+        return response.json()
+
+    def delEmail(self, email):
+        try:
+            response = requests.post(self.baseUrl + "/misc/mail/delete",
+                                     data={'mail': email},
+                                     timeout=self.TIMEOUT,
+                                     verify=False)
+        except Exception as e:
+            logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
+            return None
+        if response.status_code != requests.codes.ok:
+            return False
+        return response.json()
+
     def lockDownCompany(self, company_id, old_collection_id, country_code, domain, user):
         path = self.buildCollectionPath(domain, country_code, str(company_id), old_collection_id)
         bdrAuth = self.aq_parent

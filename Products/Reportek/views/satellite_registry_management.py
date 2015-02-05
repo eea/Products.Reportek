@@ -8,22 +8,48 @@ class SatelliteRegistryManagement(BaseAdmin):
     """ RegistryManagement view """
     def __call__(self, *args, **kwargs):
         super(SatelliteRegistryManagement, self).__call__(*args, **kwargs)
-        if self.request.method == "POST" and self.request.get("verify.btn"):
+
+        api = None
+        if self.request.method == "POST":
             api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi
             if not api:
                 return None
             api = api.authMiddlewareApi
+
+        if self.request.method == "POST" and self.request.get("verify.btn"):
             candidateId = self.request.form.get("cid")
             newId = self.request.form.get("fid")
             userId = self.request.form.get("user")
             if candidateId and newId and userId:
                 if candidateId == "none":
                     candidateId = None
-                isForMatch = api.verifyCandidate(newId, candidateId, userId)
-                if isForMatch:
+                if api.verifyCandidate(newId, candidateId, userId):
                     return self.request.response.redirect('{0}/{1}?done=1'.format(
                         self.context.absolute_url(), "organisation_matching"))
-                return self.index(error=True)
+
+            return self.index(error=True)
+
+        if self.request.method == "POST" and self.request.get("add.btn"):
+            fname = self.request.form.get("fname")
+            lname = self.request.form.get("lname")
+            email = self.request.form.get("email")
+
+            if fname and lname and email:
+                if api.addEmail(fname, lname, email):
+                    return self.request.response.redirect('{0}/{1}?done=1'.format(
+                            self.context.absolute_url(), "notifications_settings"))
+
+            return self.index(error=True)
+
+        if self.request.method == "POST" and self.request.get("del.btn"):
+            email = self.request.form.get("email")
+
+            if email:
+                if api.delEmail(email):
+                    return self.request.response.redirect('{0}/{1}?done=1'.format(
+                            self.context.absolute_url(), "notifications_settings"))
+
+            return self.index(error=True)
 
         return self.index(error=False)
 
@@ -169,6 +195,13 @@ class SatelliteRegistryManagement(BaseAdmin):
         settings = api.getSettings()
         return settings["BASE_URL"]
 
+    def get_emails(self):
+        api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi
+        if not api:
+            return None
+        api = api.authMiddlewareApi
+
+        return api.getAllEmails()
 
     def lockedCompany(self, company_id, old_collection_id, country_code, domain):
         api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi

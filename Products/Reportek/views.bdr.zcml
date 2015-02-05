@@ -90,6 +90,13 @@
       template="zpt/registry/data_sync_log.zpt"/>
 
   <browser:page
+      name="notifications_settings"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      template="zpt/registry/notifications_settings.zpt"/>
+
+  <browser:page
       name="organisations_excel"
       for=".interfaces.IRegistryManagement"
       permission="zope2.ViewManagementScreens"
