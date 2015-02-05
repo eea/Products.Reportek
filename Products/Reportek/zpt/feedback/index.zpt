@@ -1,5 +1,5 @@
-<metal:block use-macro="context/layout/macros/layout">
-  <metal:block fill-slot="workarea">
+<metal:block use-macro="container/standard_template.pt/macros/page">
+  <metal:block fill-slot="content">
     <tal:block define="SecurityManager
                        modules/AccessControl/getSecurityManager;
                        permission_condition
@@ -121,7 +121,7 @@
             If you want to be notified when other feedback is added to this envelope or comments are posted on feedback items,
             you need to <a href="ReportekEngine/subscriptions_html"
                            i18n:name="subscribe-notifications-link"
-                           i18n:translate="">subscribe to receive notifications</a> 
+                           i18n:translate="">subscribe to receive notifications</a>
           </p>
         </div>
         <span tal:replace="structure context/comments_box" />
