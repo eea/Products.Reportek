@@ -1243,6 +1243,30 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
     def has_permission(self, *args, **kwargs):
         return self.acquiredRolesAreUsedBy(*args, **kwargs)
 
+    def getCountryName(self, country_uri=None):
+        """ Returns country name from the country uri
+        """
+        dummycounty = {'name':'Unknown', 'iso': 'Unknown'}
+        eng = getattr(self, ENGINE_ID)
+        if country_uri:
+            try:
+                return str([x['name'] for x in eng.localities_table() if str(x['uri']) == country_uri][0])
+            except:
+                return dummycounty['name']
+        return str(self.localities_dict().get(self.country, dummycounty)['name'])
+
+    def getCountryCode(self, country_uri=None):
+        """ Returns country ISO code from the country uri
+        """
+        dummycounty = {'name':'Unknown', 'iso': 'Unknown'}
+        eng = getattr(self, ENGINE_ID)
+        if country_uri:
+            try:
+                return str([x['iso'] for x in eng.localities_table() if str(x['uri']) == country_uri][0])
+            except:
+                return dummycounty['iso']
+        return str(self.localities_dict().get(self.country, dummycounty)['iso'])
+
 # Initialize the class in order the security assertions be taken into account
 Globals.InitializeClass(Envelope)
 

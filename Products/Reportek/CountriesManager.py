@@ -86,27 +86,4 @@ class CountriesManager:
             return l_ldict.get(country, dummy)
         return l_ldict
 
-    def getCountryName(self, country_uri=None):
-        """ Returns country name from the country uri
-        """
-        dummycounty = {'name':'Unknown'}
-        if hasattr(self, 'country'):
-            if self.country:
-                return str(self.localities_dict().get(self.country, dummycounty)['name'])
-            else:
-                return ''
-        else:
-            try:
-                return str([x['name'] for x in self.localities_table() if str(x['uri']) == country_uri][0])
-            except:
-                return ''
 
-    def getCountryCode(self, country_uri=None):
-        """ Returns country ISO code from the country uri
-        """
-        if hasattr(self, 'country'):
-            if self.country:
-                return str(self.localities_dict()[self.country]['iso'])
-            return ''
-        else:
-            return str([x['iso'] for x in self.localities_table() if str(x['uri']) == country_uri][0])
