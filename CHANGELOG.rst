@@ -1,3 +1,14 @@
+3.7.2-dev8 (05-02-2015)
+-----------------------
+* Task #22904 - Add missing functionality to Envelope [baragdan]
+* Task #22820 - Notification settings [malduvit]
+* Task #22817 - Fix url for fgas portal [malduvit]
+* Task #22819 - Ajax loading for companies table [malduvit]
+* Task #22874 - Ajax loading for pending companies [malduvit]
+* Task #22445 - implement Lockdown (TODO: send mails) [baragdan]
+* Task #22664 - Run local QA on "Run Full QA" [baragdan]
+* Task #21874 - bugfix: invalid json [nituacor]
+
 3.7.2-dev7 (23-01-2015)
 -----------------------
 * Task #22646 - fix original size of value 0
