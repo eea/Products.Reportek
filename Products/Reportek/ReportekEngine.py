@@ -332,6 +332,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 try:
                     coll = getattr(country_folder, old_collection_id)
                     coll.company_id = company_id
+                    coll.dataflow_uris = [ self.authMiddlewareApi.authMiddlewareApi.DOMAIN_TO_OBLIGATION[domain] ]
                     coll.reindex_object()
                 except:
                     msg = "Cannot update collection %s Old style collection not found" % coll_path
