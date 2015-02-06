@@ -2,6 +2,7 @@ from base_admin import BaseAdmin
 from Products.Reportek.constants import ENGINE_ID
 from Products.Reportek.RepUtils import fix_json_from_id
 import json
+import re
 
 
 class SatelliteRegistryManagement(BaseAdmin):
@@ -35,21 +36,31 @@ class SatelliteRegistryManagement(BaseAdmin):
             email = self.request.form.get("email")
 
             if fname and lname and email:
-                if api.addEmail(fname, lname, email):
+
+                if not re.match('[\.\w]{1,}[@]\w+[.]\w+', email):
+                    return self.index(error="Please use a valid email address.")
+
+                response = api.addEmail(fname, lname, email)
+                if response['success']:
                     return self.request.response.redirect('{0}/{1}?done=1'.format(
                             self.context.absolute_url(), "notifications_settings"))
+                else:
+                    return self.index(error=response['message'])
 
-            return self.index(error=True)
+            return self.index(error="Please complete all fields.")
 
         if self.request.method == "POST" and self.request.get("del.btn"):
             email = self.request.form.get("email")
 
             if email:
-                if api.delEmail(email):
+                response = api.delEmail(email)
+                if response['success']:
                     return self.request.response.redirect('{0}/{1}?done=1'.format(
                             self.context.absolute_url(), "notifications_settings"))
+                else:
+                    return self.index(error=response['message'])
 
-            return self.index(error=True)
+            return self.index(error='Specify an email address.')
 
         return self.index(error=False)
 
