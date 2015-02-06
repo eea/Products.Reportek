@@ -160,6 +160,41 @@ class AuthMiddlewareApi(Acquisition.Implicit):
             return None
         return response.json()
 
+    def unverifyCompany(self, companyId, userId):
+        co = self.getCompanyDetailsById(companyId)
+        try:
+            response = requests.post(self.baseUrl + "/candidate/unverify/{0}/".format(companyId),
+                                 data={'user': userId}, timeout=self.TIMEOUT, verify=False)
+        except Exception as e:
+            logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
+            return None
+        if response.status_code != requests.codes.ok:
+            return None
+        unverifyResponse = response.json()
+        if not unverifyResponse:
+            return None
+        # unverify succeeded; proceed with unLock an email alerts
+        path = self._unlockCompany(str(companyId), co['oldcompany_account'],
+                                   co['country_code'], co['domain'], userId)
+        email_sending_failed = False
+        try:
+            response = requests.post(self.baseUrl + '/misc/alert_lockdown/unmatch',
+                                     data={'company_id': companyId,
+                                           'user': userId,
+                                           'oldcompany_id': co['oldcompany_id'],
+                                           'oldcollection_path': path},
+                                     timeout=self.TIMEOUT, verify=False)
+        except Exception as e:
+            logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
+            email_sending_failed = True
+        if response.status_code != requests.codes.ok or not response.json():
+            email_sending_failed = True
+        if email_sending_failed:
+            logger.warning("Lockdown notification emails of %s not sent" % path)
+
+        return unverifyResponse
+
+
     def getCompaniesExcelExport(self):
         try:
             response = requests.get(self.baseUrl + "/misc/undertaking/export",
@@ -239,13 +274,44 @@ class AuthMiddlewareApi(Acquisition.Implicit):
         path = self.buildCollectionPath(domain, country_code, str(company_id), old_collection_id)
         bdrAuth = self.aq_parent
         bdrAuth.lockDownCollection(path, user)
-        # send mail
+        email_sending_failed = False
+        try:
+            response = requests.post(self.baseUrl + '/misc/alert_lockdown/wrong_match',
+                                     data={'company_id': company_id,
+                                           'user': user},
+                                     timeout=self.TIMEOUT, verify=False)
+        except Exception as e:
+            logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
+            email_sending_failed = True
+        if response.status_code != requests.codes.ok or not response.json():
+            email_sending_failed = True
+        if email_sending_failed:
+            logger.warning("Lockdown notification emails of %s not sent" % path)
 
-    def unlockCompany(self, company_id, old_collection_id, country_code, domain, user):
+
+    def _unlockCompany(self, company_id, old_collection_id, country_code, domain, user):
         path = self.buildCollectionPath(domain, country_code, str(company_id), old_collection_id)
         bdrAuth = self.aq_parent
         bdrAuth.unlockCollection(path, user)
-        # send mail
+        return path
+
+    def unlockCompany(self, company_id, old_collection_id, country_code, domain, user):
+        path = self._unlockCompany(company_id, old_collection_id, country_code, domain, user)
+
+        email_sending_failed = False
+        try:
+            response = requests.post(self.baseUrl + '/misc/alert_lockdown/wrong_lockdown',
+                                     data={'company_id': company_id,
+                                           'user': user},
+                                     timeout=self.TIMEOUT, verify=False)
+        except Exception as e:
+            logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
+            email_sending_failed = True
+        if response.status_code != requests.codes.ok or not response.json():
+            email_sending_failed = True
+        if email_sending_failed:
+            logger.warning("Lockdown notification emails of %s not sent" % path)
+
 
     def lockedCompany(self, company_id, old_collection_id, country_code, domain):
         path = self.buildCollectionPath(domain, country_code, str(company_id), old_collection_id)

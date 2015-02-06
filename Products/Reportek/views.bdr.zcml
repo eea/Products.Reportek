@@ -53,6 +53,12 @@
       class=".views.SatelliteRegistryManagement"
       attribute="get_companies"/>
 
+  <browser:page
+      name="organisation_unverify"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ViewManagementScreens"
+      class=".views.SatelliteRegistryManagement"
+      attribute="unverify"/>
 
   <browser:page
       name="partials"

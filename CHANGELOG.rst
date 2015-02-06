@@ -1,3 +1,7 @@
+unreleased
+-----------------------
+* Task #22445 - Lockdown: unmatch companies case + sending emails
+
 3.7.2-dev8 (05-02-2015)
 -----------------------
 * Task #22904 - Add missing functionality to Envelope [baragdan]
