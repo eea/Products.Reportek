@@ -1,3 +1,6 @@
+3.7.2-dev11 (10-02-2015)
+-----------------------
+
 3.7.2-dev10 (10-02-2015)
 -----------------------
 * Task #22993 - add migration to migration tracking support. Create migration decorator [baragdan] (needs migration)
