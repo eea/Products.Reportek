@@ -36,6 +36,7 @@ REPORTEK_UTILITIES = 'ReportekUtilities'
 REGISTRY_MANAGEMENT = 'fgases_registry'
 REPORTEK_API = 'api'
 ECAS_ID = 'eCas'
+MIGRATION_ID = 'Migrations'
 
 # remote servers
 WEBQ_XML_REPOSITORY = 'http://cdr.eionet.europa.eu/xmlexports/groundwater/'
