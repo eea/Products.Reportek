@@ -31,7 +31,7 @@
           In this page you can view the company details (as registered in the
           <a tal:attributes="href view/get_url">FGAS portal</a>)
           and match it with the old record from
-          <a href="https://bdr-test.eionet.europa.eu/registry/management/companies">
+          <a href="/registry">
           BDR-Registry</a>, based on suggestions (candidates) made by the system.
           If no record matches, please select “New company”.
         </p>
