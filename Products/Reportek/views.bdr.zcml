@@ -4,6 +4,8 @@
   xmlns:meta="http://namespaces.zope.org/meta"
   xmlns:zcml="http://namespaces.zope.org/zcml">
 
+  <include file="permissions.zcml" />
+
   <browser:page
       name="envelopes.autocomplete"
       for=".interfaces.IReportekUtilities"
@@ -14,133 +16,133 @@
   <browser:page
       name="index_html"
       for=".interfaces.IRegistryManagement"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       class=".views.BaseAdmin"
       template="zpt/registry/index.zpt"/>
 
   <browser:page
       name="organisation_listing"
       for=".interfaces.IRegistryManagement"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"
       template="zpt/registry/organisation_listing.zpt"/>
 
   <browser:page
       name="organisation_details"
       for=".interfaces.IRegistryManagement"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"
       template="zpt/registry/organisation_details.zpt"/>
 
   <browser:page
       name="organisation"
       for=".interfaces.IRegistryManagement"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"
       attribute="get_company_json"/>
 
   <browser:page
       name="get_candidates"
       for=".interfaces.IRegistryManagement"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"
       attribute="get_candidates"/>
 
   <browser:page
       name="get_companies"
       for=".interfaces.IRegistryManagement"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"
       attribute="get_companies"/>
 
   <browser:page
       name="organisation_unverify"
       for=".interfaces.IRegistryManagement"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"
       attribute="unverify"/>
 
   <browser:page
       name="partials"
       for=".interfaces.IRegistryManagement"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"
       template="zpt/registry/partials.zpt"/>
 
   <browser:page
       name="organisation_verification"
       for=".interfaces.IRegistryManagement"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"
       template="zpt/registry/organisation_verification.zpt"/>
 
   <browser:page
       name="organisation_matching"
       for=".interfaces.IRegistryManagement"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"
       template="zpt/registry/organisation_matching.zpt"/>
 
   <browser:page
       name="organisation_matching_log"
       for=".interfaces.IRegistryManagement"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"
       template="zpt/registry/matching_log.zpt"/>
 
   <browser:page
       name="data_sync_log"
       for=".interfaces.IRegistryManagement"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"
       template="zpt/registry/data_sync_log.zpt"/>
 
   <browser:page
       name="notifications_settings"
       for=".interfaces.IRegistryManagement"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"
       template="zpt/registry/notifications_settings.zpt"/>
 
   <browser:page
       name="organisations_excel"
       for=".interfaces.IRegistryManagement"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"
       attribute="get_companies_excel"/>
 
   <browser:page
       name="organisations_json"
       for=".interfaces.IRegistryManagement"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"
       attribute="get_companies_json"/>
 
   <browser:page
       name="organisation_exists"
       for=".interfaces.IRegistryManagement"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"
       attribute="get_companies_api"/>
 
   <browser:page
       name="users_json"
       for=".interfaces.IRegistryManagement"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"
       attribute="get_users_excel"/>
 
   <browser:page
       name="lockDownCompany"
       for=".interfaces.IRegistryManagement"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"
       attribute="lockDownCompany"/>
 
   <browser:page
       name="unlockCompany"
       for=".interfaces.IRegistryManagement"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"
       attribute="unlockCompany"/>
 
@@ -148,21 +150,21 @@
       name="released_envelopes"
       for=".interfaces.IReportekAPI"
       class=".views.ReportekApi"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       attribute="get_released_envelopes"/>
 
   <browser:page
       name="unreleased_envelopes"
       for=".interfaces.IReportekAPI"
       class=".views.ReportekApi"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       attribute="get_unreleased_envelopes"/>
 
   <browser:page
       name="rejected_envelopes"
       for=".interfaces.IReportekAPI"
       class=".views.ReportekApi"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       attribute="get_rejected_envelopes"/>
 
 </configure>
