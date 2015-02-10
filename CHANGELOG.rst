@@ -1,6 +1,8 @@
-unreleased
+3.7.2-dev10 (10-02-2015)
 -----------------------
-* Task #22445 - Lockdown: unmatch companies case + sending emails
+* Task #22993 - add migration to migration tracking support. Create migration decorator [baragdan] (needs migration)
+* Task #22445 - Lockdown: unmatch companies case + sending emails [baragdan]
+* Task #22989 - Fix datatable error on IE [malduvit]
 
 3.7.2-dev8 (05-02-2015)
 -----------------------

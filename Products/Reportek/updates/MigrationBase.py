@@ -5,7 +5,6 @@
 
 
 import time
-#from functools import wraps
 import inspect
 
 import transaction
@@ -18,7 +17,6 @@ def checkMigration(module_name):
     is kept. but can be any name, just keep in mind that only the last part after '.' will be kept.
     """
     def checkMigrationDec(migrationFunc):
-        #@wraps(migrationFunc)
         def wrapper(app, *args, **kwargs):
             """
             `version` should be passed to the function being decorated.
