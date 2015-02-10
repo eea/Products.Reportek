@@ -7,7 +7,7 @@
   <script type="text/javascript" charset="utf8"
           src="++resource++static/jquery-1.10.2.min.js"></script>
   <script type="text/javascript" charset="utf8"
-          src="++resource++static/datatables-1.10.1/media/js/jquery.dataTables.min.js"></script>
+          src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.min.js"></script>
   <script src="++resource++static/select2-3.5.0/select2.js"></script>
   <script src="++resource++static/utils.js"></script>
 </metal:block>

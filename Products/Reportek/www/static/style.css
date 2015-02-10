@@ -21,27 +21,27 @@ table.dataTable thead .sorting {
   *cursor: hand;
 }
 table.dataTable thead .sorting {
-  background-image: url("datatables-1.10.1/media/images/sort_both.png");
+  background-image: url("datatables-1.10.4/media/images/sort_both.png");
   background-repeat: no-repeat;
   background-position: center right;
 }
 table.dataTable thead .sorting_asc {
-  background-image: url("datatables-1.10.1/media/images/sort_asc.png");
+  background-image: url("datatables-1.10.4/media/images/sort_asc.png");
   background-repeat: no-repeat;
   background-position: center right;
 }
 table.dataTable thead .sorting_desc {
-  background-image: url("datatables-1.10.1/media/images/sort_desc.png");
+  background-image: url("datatables-1.10.4/media/images/sort_desc.png");
   background-repeat: no-repeat;
   background-position: center right;
 }
 table.dataTable thead .sorting_asc_disabled {
-  background-image: url("datatables-1.10.1/media/images/sort_asc_disabled.png");
+  background-image: url("datatables-1.10.4/media/images/sort_asc_disabled.png");
   background-repeat: no-repeat;
   background-position: center right;
 }
 table.dataTable thead .sorting_desc_disabled {
-  background-image: url("datatables-1.10.1/media/images/sort_desc_disabled.png");
+  background-image: url("datatables-1.10.4/media/images/sort_desc_disabled.png");
   background-repeat: no-repeat;
   background-position: center right;
 }
