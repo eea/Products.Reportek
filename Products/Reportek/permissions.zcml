@@ -7,4 +7,9 @@
   title="FGases Registry Administration"
 />
 
+<permission
+  id="zope2.BDRRegistryRegistration"
+  title="BDR Registry Registration"
+/>
+
 </configure>
