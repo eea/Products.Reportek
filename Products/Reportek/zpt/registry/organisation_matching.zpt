@@ -6,7 +6,6 @@
           src="++resource++static/jquery-1.11.2.min.js"></script>
     <script type="text/javascript" charset="utf8"
           src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.min.js"></script>
-    <script src="++resource++static/utils.js"></script>
   </metal:block>
 
   <metal:block fill-slot="breadcrumbtrails">
@@ -59,5 +58,45 @@
       </tbody>
     </table>
 
+    <script>
+        $(function() {
+            $('#matching-table').dataTable({
+                "iDisplayLength": 20,
+                "sAjaxSource": "/fgases_registry/get_candidates",
+                "sAjaxDataProp" : "",
+                "aoColumns": [
+                  { "mData": "undertaking" },  // for User Detail
+                  { "mData": "links" }
+                ],
+                "columnDefs": [
+                  {
+                    "targets": 0,
+                    "data": "undertaking",
+                    "render": function (data, type, full, meta) {
+                      return '<a href="/fgases_registry/organisation_verification?id='+
+                        data.company_id + '">' + data.name + '</a>';
+                    }
+                  },
+                  {
+                    "targets": 1,
+                    "bSortable": false,
+                    "data": "links",
+                    "render": function (data, type, full, meta) {
+                      if (data.length == 0) {
+                        return "<i>No candidates</i>";
+                      } else {
+                        var candidates = "";
+                        for (var i = 0; i < data.length; i++) {
+                          candidates += "<span>" + data[i].name + "<span/><br/>";
+                        }
+                        return candidates;
+                      }
+                    }
+                  }
+                ],
+                "order": [[ 0, "asc" ]]
+            });
+        });
+    </script>
   </metal:block>
 </metal:block>
