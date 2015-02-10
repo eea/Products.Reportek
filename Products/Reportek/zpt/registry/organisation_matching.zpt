@@ -3,7 +3,7 @@
   <metal:block fill-slot="head">
     <link href="++resource++static/style.css" rel="stylesheet"/>
     <script type="text/javascript" charset="utf8"
-          src="++resource++static/jquery-1.10.2.min.js"></script>
+          src="++resource++static/jquery-1.11.2.min.js"></script>
     <script type="text/javascript" charset="utf8"
           src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.min.js"></script>
     <script src="++resource++static/utils.js"></script>
