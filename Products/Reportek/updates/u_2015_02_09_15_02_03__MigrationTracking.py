@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # This places a Persistent Mapping in the Data.fs to keep track of the executed updates
 # It also contains the boilerplate to use when naming and running scripts
 # 1. Name your scripts starting with `date -u '+u_%Y_%m_%d_%H_%M_%S__'` followed by a meaningfull name
