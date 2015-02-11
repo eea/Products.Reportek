@@ -13,7 +13,7 @@ from ZODB.PersistentMapping import PersistentMapping
 VERSION = 1
 
 @MigrationBase.checkMigration(__name__)
-def update(app, version=VERSION, skipMigrationCheck=True):
+def update(app, skipMigrationCheck=True):
     """    Create the mapping holding the migration history on ReportekEngine object in Data.fs
     this should be run with skipMigrationCheck=True since we can fairly assume
     that there is no migration tracking object yet.
