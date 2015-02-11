@@ -31,9 +31,11 @@
 # Contributor(s):
 #
 
-import time
-import inspect
+from datetime import datetime
 import importlib
+import inspect
+import pytz
+import time
 
 import transaction
 
@@ -133,8 +135,17 @@ def checkMigration(module_name):
 
 
 class MigrationEntry(object):
+    DATETIME_FMT = "%Y-%m-%d %H:%M:%S %Z"
+
     def __init__(self, name, version):
         self.name = name
         self.version = version
         self.first_ts = time.time()
         self.current_ts = self.first_ts
+
+    def __repr__(self):
+        return "<%s, name: %s, version: %d, created: %s, updated: %s>" % (
+            self.__class__.__name__, self.name, self.version,
+            datetime.fromtimestamp(self.first_ts, pytz.utc).strftime(self.DATETIME_FMT),
+            datetime.fromtimestamp(self.current_ts, pytz.utc).strftime(self.DATETIME_FMT),
+        )
