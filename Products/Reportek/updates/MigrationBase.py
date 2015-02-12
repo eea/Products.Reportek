@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 # It also contains the boilerplate to use when naming and running scripts
-# 1. Name your scripts starting with `date -u '+u_%Y_%m_%d_%H_%M_%S__'` followed by a meaningfull name
+# 1. Name your scripts starting with `date -u '+u%Y%m%d_'` followed by a meaningfull name
 # 2. Run them from within debug mode like so:
-#  >>> from Products.Reportek.updates import u_2015_02_09_15_02_03__<meaningfulName>; u_2015_02_09_15_02_03__<meaningfulName>.update(app)
+#  >>> from Products.Reportek.updates import u20150209_<meaningfulName>; u20150209_<meaningfulName>.update(app)
 
 # One only needs to provide module level VERSION integer variable
 # and to decorate the update function with the module level __name__
