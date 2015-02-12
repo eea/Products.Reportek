@@ -14,6 +14,7 @@ from OFS.Image import manage_addFile
 from OFS.SimpleItem import SimpleItem
 from Products.Reportek import create_reportek_indexes, create_reportek_objects
 from Products.Reportek import constants
+from Products.Reportek.config import *
 from Products.Reportek.ReportekEngine import ReportekEngine
 from datetime import date, timedelta
 
@@ -397,149 +398,150 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         mock_user.mail = 'test_user_1_@test.com'
         acl_users._setObject('test_user_1_', mock_user)
 
-    def test_build_collections(self):
-        # Go to ReportekUtilities index_html view
-        r_utilities = getattr(self.app, constants.REPORTEK_UTILITIES)
-        ru_url = r_utilities.absolute_url()
-        index_url = ru_url + '/index_html'
-        self.browser.open(index_url)
-        self.assertEqual(self.browser.url, index_url)
+    if REPORTEK_DEPLOYMENT != DEPLOYMENT_BDR:
+        def test_build_collections(self):
+            # Go to ReportekUtilities index_html view
+            r_utilities = getattr(self.app, constants.REPORTEK_UTILITIES)
+            ru_url = r_utilities.absolute_url()
+            index_url = ru_url + '/index_html'
+            self.browser.open(index_url)
+            self.assertEqual(self.browser.url, index_url)
 
-        # Test with one country
-        # Go to build collections
-        users_access_link = self.browser.getLink(text='Build collections')
-        users_access_link.click()
-        self.assertTrue('Build collections' in self.browser.contents)
+            # Test with one country
+            # Go to build collections
+            users_access_link = self.browser.getLink(text='Build collections')
+            users_access_link.click()
+            self.assertTrue('Build collections' in self.browser.contents)
 
-        # Select test obligation
-        o_controls = self.browser.getControl(name='obligation').controls
-        for o_control in o_controls:
-            if o_control.optionValue == '8':
-                o_control.selected = True
+            # Select test obligation
+            o_controls = self.browser.getControl(name='obligation').controls
+            for o_control in o_controls:
+                if o_control.optionValue == '8':
+                    o_control.selected = True
 
-        # Select test country
-        c_controls = self.browser.getControl(name='countries:list').controls
-        for c_ctl in c_controls:
-            if c_ctl.optionValue == 'tc':
+            # Select test country
+            c_controls = self.browser.getControl(name='countries:list').controls
+            for c_ctl in c_controls:
+                if c_ctl.optionValue == 'tc':
+                    c_ctl.selected = True
+
+            self.browser.getControl(name='cid').value = 'test'
+            self.browser.getControl(name='btn.submit').click()
+            self.assertTrue('Successfully created collection for' in self.browser.contents)
+            self.assertTrue('Test Country' in self.browser.contents)
+
+            # Test with multiple countries
+            # Select test obligation
+            o_controls = self.browser.getControl(name='obligation').controls
+            for o_control in o_controls:
+                if o_control.optionValue == '8':
+                    o_control.selected = True
+
+            # Select test country
+            c_controls = self.browser.getControl(name='countries:list').controls
+            for c_ctl in c_controls:
                 c_ctl.selected = True
 
-        self.browser.getControl(name='cid').value = 'test'
-        self.browser.getControl(name='btn.submit').click()
-        self.assertTrue('Successfully created collection for' in self.browser.contents)
-        self.assertTrue('Test Country' in self.browser.contents)
+            self.browser.getControl(name='cid').value = 'test1'
+            self.browser.getControl(name='btn.submit').click()
+            self.assertTrue('Successfully created collection for' in self.browser.contents)
+            self.assertTrue('Test Country' in self.browser.contents)
+            self.assertTrue('Other Country' in self.browser.contents)
 
-        # Test with multiple countries
-        # Select test obligation
-        o_controls = self.browser.getControl(name='obligation').controls
-        for o_control in o_controls:
-            if o_control.optionValue == '8':
-                o_control.selected = True
+            # Test inexistent path
+            # Select test obligation
+            o_controls = self.browser.getControl(name='obligation').controls
+            for o_control in o_controls:
+                if o_control.optionValue == '8':
+                    o_control.selected = True
 
-        # Select test country
-        c_controls = self.browser.getControl(name='countries:list').controls
-        for c_ctl in c_controls:
-            c_ctl.selected = True
+            # Select test country
+            c_controls = self.browser.getControl(name='countries:list').controls
+            for c_ctl in c_controls:
+                if c_ctl.optionValue == 'tc':
+                    c_ctl.selected = True
 
-        self.browser.getControl(name='cid').value = 'test1'
-        self.browser.getControl(name='btn.submit').click()
-        self.assertTrue('Successfully created collection for' in self.browser.contents)
-        self.assertTrue('Test Country' in self.browser.contents)
-        self.assertTrue('Other Country' in self.browser.contents)
+            self.browser.getControl(name='cid').value = 'test2'
+            self.browser.getControl(name='pattern').value = 'eea'
+            self.browser.getControl(name='btn.submit').click()
+            self.assertTrue('the specified path does not exist' in self.browser.contents)
+            self.assertTrue('Test Country' in self.browser.contents)
 
-        # Test inexistent path
-        # Select test obligation
-        o_controls = self.browser.getControl(name='obligation').controls
-        for o_control in o_controls:
-            if o_control.optionValue == '8':
-                o_control.selected = True
+            # Test existent path
+            # Select test obligation
+            o_controls = self.browser.getControl(name='obligation').controls
+            for o_control in o_controls:
+                if o_control.optionValue == '8':
+                    o_control.selected = True
 
-        # Select test country
-        c_controls = self.browser.getControl(name='countries:list').controls
-        for c_ctl in c_controls:
-            if c_ctl.optionValue == 'tc':
-                c_ctl.selected = True
+            # Select test country
+            c_controls = self.browser.getControl(name='countries:list').controls
+            for c_ctl in c_controls:
+                if c_ctl.optionValue == 'oc':
+                    c_ctl.selected = True
 
-        self.browser.getControl(name='cid').value = 'test2'
-        self.browser.getControl(name='pattern').value = 'eea'
-        self.browser.getControl(name='btn.submit').click()
-        self.assertTrue('the specified path does not exist' in self.browser.contents)
-        self.assertTrue('Test Country' in self.browser.contents)
+            self.browser.getControl(name='cid').value = 'test2'
+            self.browser.getControl(name='pattern').value = 'eea'
+            self.browser.getControl(name='btn.submit').click()
+            self.assertTrue('Successfully created collection for' in self.browser.contents)
+            self.assertTrue('Other Country' in self.browser.contents)
 
-        # Test existent path
-        # Select test obligation
-        o_controls = self.browser.getControl(name='obligation').controls
-        for o_control in o_controls:
-            if o_control.optionValue == '8':
-                o_control.selected = True
+            # Test existent multilevel path
+            # Select test obligation
+            o_controls = self.browser.getControl(name='obligation').controls
+            for o_control in o_controls:
+                if o_control.optionValue == '8':
+                    o_control.selected = True
 
-        # Select test country
-        c_controls = self.browser.getControl(name='countries:list').controls
-        for c_ctl in c_controls:
-            if c_ctl.optionValue == 'oc':
-                c_ctl.selected = True
+            # Select test country
+            c_controls = self.browser.getControl(name='countries:list').controls
+            for c_ctl in c_controls:
+                if c_ctl.optionValue == 'oc':
+                    c_ctl.selected = True
 
-        self.browser.getControl(name='cid').value = 'test2'
-        self.browser.getControl(name='pattern').value = 'eea'
-        self.browser.getControl(name='btn.submit').click()
-        self.assertTrue('Successfully created collection for' in self.browser.contents)
-        self.assertTrue('Other Country' in self.browser.contents)
+            self.browser.getControl(name='cid').value = 'test3'
+            self.browser.getControl(name='pattern').value = 'eea/requests'
+            self.browser.getControl(name='btn.submit').click()
+            self.assertTrue('Successfully created collection for' in self.browser.contents)
+            self.assertTrue('Other Country' in self.browser.contents)
 
-        # Test existent multilevel path
-        # Select test obligation
-        o_controls = self.browser.getControl(name='obligation').controls
-        for o_control in o_controls:
-            if o_control.optionValue == '8':
-                o_control.selected = True
+            # Test existent path with leading slash
+            # Select test obligation
+            o_controls = self.browser.getControl(name='obligation').controls
+            for o_control in o_controls:
+                if o_control.optionValue == '8':
+                    o_control.selected = True
 
-        # Select test country
-        c_controls = self.browser.getControl(name='countries:list').controls
-        for c_ctl in c_controls:
-            if c_ctl.optionValue == 'oc':
-                c_ctl.selected = True
+            # Select test country
+            c_controls = self.browser.getControl(name='countries:list').controls
+            for c_ctl in c_controls:
+                if c_ctl.optionValue == 'oc':
+                    c_ctl.selected = True
 
-        self.browser.getControl(name='cid').value = 'test3'
-        self.browser.getControl(name='pattern').value = 'eea/requests'
-        self.browser.getControl(name='btn.submit').click()
-        self.assertTrue('Successfully created collection for' in self.browser.contents)
-        self.assertTrue('Other Country' in self.browser.contents)
+            self.browser.getControl(name='cid').value = 'test4'
+            self.browser.getControl(name='pattern').value = '/eea'
+            self.browser.getControl(name='btn.submit').click()
+            self.assertTrue('Successfully created collection for' in self.browser.contents)
+            self.assertTrue('Other Country' in self.browser.contents)
 
-        # Test existent path with leading slash
-        # Select test obligation
-        o_controls = self.browser.getControl(name='obligation').controls
-        for o_control in o_controls:
-            if o_control.optionValue == '8':
-                o_control.selected = True
+            # Test existent path with backslash
+            # Select test obligation
+            o_controls = self.browser.getControl(name='obligation').controls
+            for o_control in o_controls:
+                if o_control.optionValue == '8':
+                    o_control.selected = True
 
-        # Select test country
-        c_controls = self.browser.getControl(name='countries:list').controls
-        for c_ctl in c_controls:
-            if c_ctl.optionValue == 'oc':
-                c_ctl.selected = True
+            # Select test country
+            c_controls = self.browser.getControl(name='countries:list').controls
+            for c_ctl in c_controls:
+                if c_ctl.optionValue == 'oc':
+                    c_ctl.selected = True
 
-        self.browser.getControl(name='cid').value = 'test4'
-        self.browser.getControl(name='pattern').value = '/eea'
-        self.browser.getControl(name='btn.submit').click()
-        self.assertTrue('Successfully created collection for' in self.browser.contents)
-        self.assertTrue('Other Country' in self.browser.contents)
-
-        # Test existent path with backslash
-        # Select test obligation
-        o_controls = self.browser.getControl(name='obligation').controls
-        for o_control in o_controls:
-            if o_control.optionValue == '8':
-                o_control.selected = True
-
-        # Select test country
-        c_controls = self.browser.getControl(name='countries:list').controls
-        for c_ctl in c_controls:
-            if c_ctl.optionValue == 'oc':
-                c_ctl.selected = True
-
-        self.browser.getControl(name='cid').value = 'test5'
-        self.browser.getControl(name='pattern').value = '\eea'
-        self.browser.getControl(name='btn.submit').click()
-        self.assertTrue('Successfully created collection for' in self.browser.contents)
-        self.assertTrue('Other Country' in self.browser.contents)
+            self.browser.getControl(name='cid').value = 'test5'
+            self.browser.getControl(name='pattern').value = '\eea'
+            self.browser.getControl(name='btn.submit').click()
+            self.assertTrue('Successfully created collection for' in self.browser.contents)
+            self.assertTrue('Other Country' in self.browser.contents)
 
     def test_reportek_utilities(self):
         # Go to ReportekUtilities index_html view
@@ -763,10 +765,11 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         self.assertTrue('No envelopes.' in self.browser.contents)
         self.browser.goBack(count=6)
 
-        # Go to statistics view
-        self.browser.getLink(text='Statistics').click()
-        self.assertTrue('<li>Number of envelopes: <span>4</span></li>' in
-                        self.browser.contents)
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
+            # Go to statistics view
+            self.browser.getLink(text='Statistics').click()
+            self.assertTrue('<li>Number of envelopes: <span>4</span></li>' in
+                            self.browser.contents)
 
         # Go to evenlopes.autocomplete view
         self.browser.open(ru_url + '/envelopes.autocomplete')

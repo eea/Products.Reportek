@@ -16,7 +16,7 @@ class AuthMiddlewareApiTest(ZopeTestCase.ZopeTestCase):
      {"company_id": 12345,
       "name": "Blâ Brul",
       "country": "RO",
-      "domain": "ODS",
+      "domain": "FGAS",
       "collection_id": null}
     ]
     """
@@ -32,8 +32,8 @@ class AuthMiddlewareApiTest(ZopeTestCase.ZopeTestCase):
         rsp.json = Mock(return_value=json.loads(rsp.text))
 
         username = 'vasile'
-        expectedPaths = [u'fgases/ro/fgas30001', u'ods/ro/12345']
+        expectedPaths = [u'fgases/ro/fgas30001', u'fgases/ro/12345']
 
         paths = self.api.getCollectionPaths(username)
-        self.assertEqual(req_mock.call_args[0][0], self.api.baseUrl + '/user/detail/' + username)
+        self.assertEqual(req_mock.call_args[0][0], self.api.baseUrl + '/user/' + username + '/companies')
         self.assertEqual(paths, expectedPaths)
