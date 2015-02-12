@@ -73,10 +73,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security = ClassSecurityInfo()
 
-    manage_options = ( ({'label':'View', 'action': 'index_html'}, ) +\
-        ({'label':'Properties', 'action': 'manage_properties'}, ) +\
-        ({'label':'UNS settings', 'action': 'uns_settings'}, ) +\
-        Folder.manage_options[3:-1]
+    manage_options = ( (
+        {'label':'View', 'action': 'index_html'},
+        {'label':'Properties', 'action': 'manage_properties'},
+        {'label':'UNS settings', 'action': 'uns_settings'},
+        {'label':'Migrations', 'action': 'migration_table'},
+        ) + Folder.manage_options[3:]
     )
 
     _properties = ({'id':'title', 'type':'string', 'mode':'w', 'label':'Title'},
@@ -821,6 +823,24 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security.declareProtected('View', 'uns_settings')
     uns_settings = PageTemplateFile('zpt/engine/unsinterface', globals())
+
+    _migration_table = PageTemplateFile('zpt/engine/migration_table', globals())
+
+    security.declareProtected('View', 'migration_table')
+    def migration_table(self):
+        """List all migrations applied to this deployment and their details"""
+        migs = getattr(self, constants.MIGRATION_ID)
+        migs = sorted(migs.values(), key=lambda o: o.current_ts, reverse=True)
+        rows = []
+        for migrationOb in migs:
+            migrationItem = {
+                'name': migrationOb.name,
+                'version': migrationOb.version,
+                'first': migrationOb.toDate(migrationOb.first_ts),
+                'current': migrationOb.toDate(migrationOb.current_ts),
+            }
+            rows.append(migrationItem)
+        return self._migration_table(migrationRows=rows)
 
     security.declareProtected('View management screens', 'manage_editUNSInterface')
     def manage_editUNSInterface(self, UNS_server, UNS_username, UNS_password, UNS_password_confirmation, UNS_channel_id, UNS_notification_types, REQUEST=None):

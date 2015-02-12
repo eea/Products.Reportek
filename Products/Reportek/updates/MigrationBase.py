@@ -143,9 +143,12 @@ class MigrationEntry(object):
         self.first_ts = time.time()
         self.current_ts = self.first_ts
 
+    @classmethod
+    def toDate(cls, ts):
+        return datetime.fromtimestamp(ts, pytz.utc).strftime(cls.DATETIME_FMT)
+
     def __repr__(self):
         return "<%s, name: %s, version: %d, created: %s, updated: %s>" % (
             self.__class__.__name__, self.name, self.version,
-            datetime.fromtimestamp(self.first_ts, pytz.utc).strftime(self.DATETIME_FMT),
-            datetime.fromtimestamp(self.current_ts, pytz.utc).strftime(self.DATETIME_FMT),
+            self.toDate(self.first_ts), self.toDate(self.current_ts),
         )
