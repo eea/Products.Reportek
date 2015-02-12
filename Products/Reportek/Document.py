@@ -543,6 +543,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     def is_compressed(self):
         return self.data_file.compressed_safe
 
+    manage_uploadForm = PageTemplateFile('zpt/document/upload', globals())
     def manage_file_upload(self, file='', content_type='', REQUEST=None):
         """ Upload file from local directory """
 
