@@ -9,7 +9,7 @@
     <tr>
         <th style="text-align: center;">Name</th>
         <th style="text-align: center;">Update Version</th>
-        <th style="text-align: center;">Crteated</th>
+        <th style="text-align: center;">Created</th>
         <th style="text-align: center;">Updated</th>
     </tr>
     <tal:block repeat="row options/migrationRows">
