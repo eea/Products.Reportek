@@ -130,7 +130,7 @@ class AuthMiddlewareApi(Acquisition.Implicit):
         if reduce(lambda i, x: i and x in details, keysToVerify, True):
             path = self.buildCollectionPath(
                 details['domain'],
-                details['address']['country']['code'],
+                details['country_code'],
                 str(details['company_id']),
                 details['collection_id']
             )
