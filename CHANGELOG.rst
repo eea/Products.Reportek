@@ -1,6 +1,7 @@
-unreleased
+3.7.2-dev12 (13-02-2015)
 -----------------------
 * Task #22993 - Add a tab to ReportekEngine management where we can see migrations
+* Fix organisation_details link to reporting folder for non-ue types
 
 3.7.2-dev11 (10-02-2015)
 -----------------------
