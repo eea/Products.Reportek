@@ -40,21 +40,21 @@
             class=".ReportekUtilities.ReportekUtilities"
             meta_type="Reportek Utilities"
             icon="reportek_tools.gif"
-            permission="zope2.ViewManagementScreens" />
+            permission="zope2.ViewManagementScreens"
             global="False"/>
 
     <five:registerClass
             class=".RegistryManagement.RegistryManagement"
             meta_type="Registry Management"
             icon="reportek_tools.gif"
-            permission="zope2.ViewManagementScreens" />
+            permission="zope2.ViewManagementScreens"
             global="False"/>
 
     <five:registerClass
             class=".ReportekAPI.ReportekAPI"
             meta_type="Reportek API"
             icon="reportek_tools.gif"
-            permission="zope2.ViewManagementScreens" />
+            permission="zope2.ViewManagementScreens"
             global="False"/>
 
     <include file="dataflow_mappings.zcml" />
