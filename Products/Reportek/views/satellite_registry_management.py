@@ -101,22 +101,27 @@ class SatelliteRegistryManagement(BaseAdmin):
         return json.dumps(details, indent=2)
 
     def get_company_details(self):
-        if self.request.get('id'):
-            api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi
-            if not api:
-                return None
-            api = api.authMiddlewareApi
-            companyId = self.request.get('id')
-            data = api.getCompanyDetailsById(companyId)
-            data['warning'] = False
-            for user in data['users']:
-                if user['username'] == user['email']:
-                    user['warning'] = True
-                    data['warning'] = True
-                else:
-                    user['warning'] = False
-            return data
-        return None
+        if 'id' not in self.request:
+            return None
+
+        api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi
+        if not api:
+            return None
+
+        api = api.authMiddlewareApi
+        companyId = self.request.get('id')
+        data = api.getCompanyDetailsById(companyId)
+        if not data:
+            return None
+
+        data['warning'] = False
+        for user in data['users']:
+            if user['username'] == user['email']:
+                user['warning'] = True
+                data['warning'] = True
+            else:
+                user['warning'] = False
+        return data
 
     def get_candidates(self):
         api = self.context.unrestrictedTraverse('/'+ENGINE_ID).authMiddlewareApi
