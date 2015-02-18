@@ -67,6 +67,20 @@
     template="zpt/utilities/find_user.zpt"/>
 
   <browser:page
+    name="search_dataflow"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.View"
+    class=".views.SearchDataflow"
+    template="zpt/utilities/search_dataflow.zpt"/>
+
+  <browser:page
+    name="search_dataflow_url"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.View"
+    class=".views.SearchDataflow"
+    attribute="search_dataflow"/>
+
+  <browser:page
     name="roles_template"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"

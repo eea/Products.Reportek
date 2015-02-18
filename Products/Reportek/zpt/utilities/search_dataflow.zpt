@@ -1,0 +1,321 @@
+<tal:block define="global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'"/>
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+<metal:block fill-slot="head">
+  <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
+  <link href="++resource++static/style.css" rel="stylesheet"/>
+  <link href="++resource++static/fontawesome/font-awesome.min.css" rel="stylesheet"/>
+
+  <script type="text/javascript" charset="utf8" src="++resource++static/jquery-1.11.2.min.js"></script>
+  <script type="text/javascript" charset="utf8" src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.min.js"></script>
+  <script src="++resource++static/select2-3.5.0/select2.js"></script>
+  <script src="++resource++static/utils.js"></script>
+</metal:block>
+  <metal:block fill-slot="breadcrumbtrails">
+    <tal:block content="structure here/breadcrumbs_views"></tal:block>
+  </metal:block>
+<metal:block fill-slot="content">
+
+<script type="text/javascript">
+    // <![CDATA[
+    g_isSelected = false;
+
+    function toggleSelect() {
+      frm = document.getElementById("frmZip");
+      if (g_isSelected == false) {
+        for (i = 0; i < frm.length; i++) {
+          frm.elements[i].checked = true ;
+        }
+        g_isSelected = true;
+        frm.selectAll.value = "Deselect All";
+        return g_isSelected;
+      } else {
+        for (i = 0; i < frm.length; i++) {
+          frm.elements[i].checked = false;
+        }
+        g_isSelected = false;
+        frm.selectAll.value = "Select All";
+        return g_isSelected;
+      }
+    }
+    // ]]>
+</script>
+
+
+  <style>
+      table {
+        font-size:0.9em;
+        line-height:normal;
+      }
+  </style>
+
+  <form method="get" id="search-dataflow-form" action="" name="objectItems">
+    <div class="filters">
+      <h1>Search dataflow</h1>
+
+      <h2>1. Select obligation</h2>
+      <tal:block metal:use-macro="here/filters/macros/select-obligation" />
+
+      <h2>2. Select one or more countries</h2>
+      <tal:block metal:use-macro="here/filters/macros/countries" />
+
+      <div class="form">
+        <label class="question" for="search_years">Covering year</label>
+        <input type="text" id="search_years" name="years:int:ignore_empty"
+                           size="4" maxlength="4" value="" />
+
+        <label for="partofyear" class="question">Part of year</label>
+        <select id="partofyear" name="partofyear">
+            <option value="">Any part of year</option>
+            <option tal:define="options python:('Whole Year', 'First Half',
+                                            'Second Half', 'First Quarter',
+                                            'Second Quarter', 'Third Quarter',
+                                            'Fourth Quarter', 'January',
+                                            'February', 'March', 'April', 'May',
+                                            'June', 'July','August','September',
+                                            'October','November','December')"
+                tal:repeat="value options"
+                tal:attributes="value value"
+                tal:content="value">
+            </option>
+        </select>
+      </div>
+
+      <div class="form">
+        <label for="search_reportingdate_start" class="question">Reported after</label>
+        <input type="text" id="search_reportingdate_start"
+                           name="reportingdate_start:date:ignore_empty"
+                           size="12" maxlength="12"
+                           value=""/>
+
+        <label for="search_reportingdate_end" class="question">but before</label>
+        <input type="text" id="search_reportingdate_end"
+                           name="reportingdate_end:date:ignore_empty" size="12"
+                           maxlength="12"
+                           value=""/>
+        (YYYY/MM/DD)
+      </div>
+
+      <div class="form">
+        <label class="question" for="cid">Status</label>
+        <input type="radio" checked="true" name="release_status" value="anystatus"/>
+        <label>Any status</label>
+        <input type="radio" name="release_status" value="released"/>
+        <label>Released</label>
+        <input type="radio" name="release_status" value="notreleased"/>
+        <label>Not released</label>
+      </div>
+
+      <div>
+        <input type="submit" name="btn.submit" value="Submit" />
+      </div>
+    </div>
+  </form>
+
+  <form action="ReportekEngine/zipEnvelopes" method="post" id="frmZip">
+    <table id="dataflow-table" class="dataTable">
+        <thead>
+            <tr>
+                <th tal:content=" "/>
+                <th tal:content="string: Country"/>
+                <th tal:condition="isBdrDeployment"
+                    tal:content="string: Company"/>
+                <th tal:condition="isBdrDeployment"
+                    tal:content="string: User ID"/>
+                <th tal:content="string: Title"/>
+                <th tal:content="string: Years"/>
+                <th tal:content="string: Obligation"/>
+                <th tal:content="string: Reported"/>
+                <th tal:condition="isBdrDeployment"
+                    tal:content="string: Files"/>
+                <th tal:condition="isBdrDeployment"
+                    tal:content="string: Accepted"/>
+            </tr>
+        </thead>
+        <tbody>
+
+        </tbody>
+    </table>
+    <p>(Envelopes with no checkbox are still in draft mode)<br/>
+      <input type="button" name="selectAll" value="Select All"
+               onclick="toggleSelect(); return false"/>
+      <input type="submit" value="Zip envelopes"/>
+    </p>
+  </form>
+
+<script tal:condition="isBdrDeployment">
+    function dataflowTable(url) {
+      return $("#dataflow-table").DataTable({
+        "iDisplayLength": 10,
+        "bProcessing": true,
+        "sAjaxSource": url,
+        "sAjaxDataProp" : "",
+        "bAutoWidth": false,
+        "order": [[ 1, "asc" ]],
+        "aoColumns": [
+          { "width": "5%" },
+          { "width": "10%" },
+          { "width": "10%" },
+          { "width": "10%" },
+          { "width": "10%" },
+          { "width": "10%" },
+          { "width": "10%" },
+          { "width": "10%" },
+          { "width": "20%" },
+          { "width": "5%" }
+        ],
+        "aoColumns": [
+          { "mData": "" },
+          { "mData": "country" },
+          { "mData": "company" },
+          { "mData": "userid" },
+          { "mData": "title" },
+          { "mData": "years" },
+          { "mData": "obligation" },
+          { "mData": "reportingdate" },
+          { "mData": "files" },
+          { "mData": "accepted" }
+        ],
+        "columnDefs": [
+          {
+            /*"width": "25%",*/
+            "targets": 0,
+            "render": function (data, type, full, meta) {
+              if (full.released) {
+                return '<input type="checkbox" name="envelopes" value="' + full.path + '" />'
+              }
+              return '';
+            }
+          },
+          {
+            "targets": 4,
+            "render": function (data, type, full, meta) {
+              return '<a href="' + full.path + '">' + data + '</a>';
+            }
+          },
+          {
+            "targets": 5,
+            "render": function (data, type, full, meta) {
+              var result = ''
+              if (data.start)
+                result += data.start;
+              if (data.end)
+                if (data.start)
+                  result += ' - '
+                result += data.end;
+              return result;
+            }
+          },
+          {
+            "targets": 8,
+            "render": function (data, type, full, meta) {
+              var result = '';
+              for (var i = 0; i < data.length; i++) {
+                result = '<div>' + data[i].filename + '</div>';
+              }
+              return result;
+            }
+          },
+          {
+            "targets": 9,
+            "render": function (data, type, full, meta) {
+              if (full.released == 1) {
+                if (data) {
+                  return "Yes";
+                }
+
+                return "No";
+              }
+              return "Not released";
+            }
+          }
+        ]
+      });
+    }
+
+    $(function() {
+        var table = dataflowTable("/ReportekUtilities/search_dataflow_url");
+
+        $('#search-dataflow-form').submit(function(event) {
+            event.preventDefault();
+            var params = $('#search-dataflow-form').serialize();
+            var url = "/ReportekUtilities/search_dataflow_url?" + params;
+            table.ajax.url(url).load();
+        });
+    });
+</script>
+
+<script tal:condition="not: isBdrDeployment">
+    function dataflowTable(url) {
+      return $("#dataflow-table").DataTable({
+        "iDisplayLength": 10,
+        "bProcessing": true,
+        "sAjaxSource": url,
+        "sAjaxDataProp" : "",
+        "bAutoWidth": false,
+        "order": [[ 1, "asc" ]],
+        "aoColumns": [
+          { "width": "5%" },
+          { "width": "10%" },
+          { "width": "20%" },
+          { "width": "15%" },
+          { "width": "35%" },
+          { "width": "15%" }
+        ],
+        "aoColumns": [
+          { "mData": "" },
+          { "mData": "country" },
+          { "mData": "title" },
+          { "mData": "years" },
+          { "mData": "obligation" },
+          { "mData": "reportingdate" }
+        ],
+        "columnDefs": [
+          {
+            /*"width": "25%",*/
+            "targets": 0,
+            "render": function (data, type, full, meta) {
+              if (full.released) {
+                return '<input type="checkbox" name="envelopes" value="' + full.path + '" />'
+              }
+              return '';
+            }
+          },
+          {
+            "targets": 2,
+            "render": function (data, type, full, meta) {
+              return '<a href="' + full.path + '">' + data + '</a>';
+            }
+          },
+          {
+            "targets": 3,
+            "render": function (data, type, full, meta) {
+              var result = ''
+              if (data.start)
+                result += data.start;
+              if (data.end)
+                if (data.start)
+                  result += ' - '
+                result += data.end;
+              return result;
+            }
+          }
+        ]
+      });
+    }
+
+    $(function() {
+        var table = dataflowTable("/ReportekUtilities/search_dataflow_url");
+
+        $('#search-dataflow-form').submit(function(event) {
+            event.preventDefault();
+            var params = $('#search-dataflow-form').serialize();
+            var url = "/ReportekUtilities/search_dataflow_url?" + params;
+            table.ajax.url(url).load();
+        });
+    });
+</script>
+
+</metal:block>
+
+</metal:block>

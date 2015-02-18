@@ -10,3 +10,4 @@ from recent_uploads import RecentUploads
 from build_collections import BuildCollections
 from satellite_registry_management import SatelliteRegistryManagement
 from api import ReportekApi
+from search_dataflow import SearchDataflow
