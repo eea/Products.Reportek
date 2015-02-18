@@ -248,6 +248,17 @@ class EnvelopeRemoteServicesManager:
     # WebQ integration functions
     ##################################################
 
+    security.declareProtected('Change Envelopes', 'webqKeepAlive')
+    def webqKeepAlive(self):
+        """This is used by webq to keep user logged in.
+        Webq has all the browser request context we have, because the webq link
+        is part of the same domain as BDR. Apache forwards the call to webq domain, keeping
+        all the context (cookies). When webq calls this api, with the BDR specific cookies attached
+        a login check will be made by PAS, refreshing the ZCacheable TTL for this user
+        if he is logged in. 302 will be returned otherwise (to the login page).
+        """
+        return ''
+
     # Protected by the same permission as for adding Report Documents
     security.declareProtected('Change Envelopes', 'saveXML')
     def saveXML(self, file_id, file, schema_url='', title='', applyRestriction='', restricted='', REQUEST=''):
