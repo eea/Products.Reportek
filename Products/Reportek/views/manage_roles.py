@@ -68,12 +68,14 @@ class ManageRoles(BaseAdmin):
             obj.reindex_object()
 
     def search_ldap_users(self):
-        search_term = self.request.get('search_term')
-        search_param = self.request.get('search_param')
+        term = self.request.get('search_term')
 
-        users = (self.get_acl_users()
-                 .findUser(search_param=search_param,
-                           search_term=search_term))
+        params = [name for name, value in self.get_ldap_schema()]
+        acl_users = self.get_acl_users()
+
+        users = [acl_users.findUser(p, term) for p in params]
+        users = reduce(lambda x, y: x + y, users)
+        users = {user['uid']: user for user in users}.values()
 
         response = {'users': users}
 

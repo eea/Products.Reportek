@@ -26,10 +26,7 @@
           <tal:block metal:use-macro="here/filters/macros/role" />
 
           <input type="hidden" name="search_term"
-                 tal:attributes="value request/search_term">
-
-          <input type="hidden" name="search_param"
-                 tal:attributes="value request/search_param">
+                 tal:attributes="value request/search_term" />
 
           <div>
             <input type="submit" name="btn.find_collections"
