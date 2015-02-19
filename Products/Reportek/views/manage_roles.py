@@ -73,7 +73,7 @@ class ManageRoles(BaseAdmin):
         params = [name for name, value in self.get_ldap_schema()]
         acl_users = self.get_acl_users()
 
-        users = [acl_users.findUser(p, term) for p in params]
+        users = [acl_users.findUser(search_param=p, search_term=term) for p in params]
         users = reduce(lambda x, y: x + y, users)
         users = {user['uid']: user for user in users}.values()
 
