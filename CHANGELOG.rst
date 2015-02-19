@@ -1,7 +1,14 @@
+unreleased
+-----------------------
+* Task #23228 - Authentication lost on BDR. add webqKeepAlive [baragdan]
+* Task #22974 - Search dataflow functionality in ReportekUtilities [malduvit]
+* Task #23217 - nicely inform user that no company was found when no company was found [baragdan]
+* Task #23215 - keep GET query arguments when login redirects [baragdan]
+
 3.7.2-dev12 (13-02-2015)
 -----------------------
 * Task #22993 - Add a tab to ReportekEngine management where we can see migrations
-* Fix organisation_details link to reporting folder for non-ue types
+* Task #23236 - Fix organisation_details link to reporting folder for non-ue types
 
 3.7.2-dev11 (10-02-2015)
 -----------------------
