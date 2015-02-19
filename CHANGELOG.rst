@@ -1,4 +1,4 @@
-unreleased
+3.7.2-dev13 (19-02-2015)
 -----------------------
 * Task #23228 - Authentication lost on BDR. add webqKeepAlive [baragdan]
 * Task #22974 - Search dataflow functionality in ReportekUtilities [malduvit]
