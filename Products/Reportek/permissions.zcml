@@ -8,8 +8,8 @@
 />
 
 <permission
-  id="zope2.BDRRegistryRegistration"
-  title="BDR Registry Registration"
+  id="zope2.BDRRegistryAdministration"
+  title="BDR Registry Administration"
 />
 
 </configure>
