@@ -1,3 +1,6 @@
+3.7.2-dev14 (20-02-2015)
+-----------------------
+
 3.7.2-dev13 (19-02-2015)
 -----------------------
 * Task #23228 - Authentication lost on BDR. add webqKeepAlive [baragdan]
