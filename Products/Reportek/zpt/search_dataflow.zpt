@@ -47,101 +47,114 @@
         font-size:0.9em;
         line-height:normal;
       }
+
+      .form {
+        padding-bottom: 6px;
+      }
   </style>
 
-  <form method="get" id="search-dataflow-form" action="" name="objectItems">
-    <div class="filters">
-      <h1>Search dataflow</h1>
+    <form method="get" id="search-dataflow-form" action="" name="objectItems">
+        <div class="filters">
+            <h1>Search dataflow</h1>
 
-      <h2>1. Select obligation</h2>
-      <tal:block metal:use-macro="here/filters/macros/select-obligation" />
+            <tal:block define="view nocall:here/ReportekUtilities/filters">
+                <h2>1. Select obligation</h2>
+                <tal:block metal:use-macro="view/macros/select-obligation"/>
 
-      <h2>2. Select one or more countries</h2>
-      <tal:block metal:use-macro="here/filters/macros/countries" />
+                <h2>2. Select one or more countries</h2>
+                <tal:block metal:use-macro="view/macros/countries"/>
+            </tal:block>
 
-      <div class="form">
-        <label class="question" for="search_years">Covering year</label>
-        <input type="text" id="search_years" name="years:int:ignore_empty"
-                           size="4" maxlength="4" value="" />
+            <div class="form">
+                <label class="question" for="search_years">Covering year</label>
+                <input type="text" id="search_years"
+                       name="years:int:ignore_empty"
+                       size="4" maxlength="4" value=""/>
 
-        <label for="partofyear" class="question">Part of year</label>
-        <select id="partofyear" name="partofyear">
-            <option value="">Any part of year</option>
-            <option tal:define="options python:('Whole Year', 'First Half',
+                <label for="partofyear" class="question">Part of year</label>
+                <select id="partofyear" name="partofyear">
+                    <option value="">Any part of year</option>
+                    <option tal:define="options python:('Whole Year', 'First Half',
                                             'Second Half', 'First Quarter',
                                             'Second Quarter', 'Third Quarter',
                                             'Fourth Quarter', 'January',
                                             'February', 'March', 'April', 'May',
                                             'June', 'July','August','September',
                                             'October','November','December')"
-                tal:repeat="value options"
-                tal:attributes="value value"
-                tal:content="value">
-            </option>
-        </select>
-      </div>
+                            tal:repeat="value options"
+                            tal:attributes="value value"
+                            tal:content="value">
+                    </option>
+                </select>
+            </div>
 
-      <div class="form">
-        <label for="search_reportingdate_start" class="question">Reported after</label>
-        <input type="text" id="search_reportingdate_start"
-                           name="reportingdate_start:date:ignore_empty"
-                           size="12" maxlength="12"
-                           value=""/>
+            <div class="form">
+                <label for="search_reportingdate_start" class="question">
+                    Reported after
+                </label>
+                <input type="text" id="search_reportingdate_start"
+                       name="reportingdate_start:date:ignore_empty"
+                       size="12" maxlength="12"
+                       value=""/>
 
-        <label for="search_reportingdate_end" class="question">but before</label>
-        <input type="text" id="search_reportingdate_end"
-                           name="reportingdate_end:date:ignore_empty" size="12"
-                           maxlength="12"
-                           value=""/>
-        (YYYY/MM/DD)
-      </div>
+                <label for="search_reportingdate_end" class="question">but
+                    before
+                </label>
+                <input type="text" id="search_reportingdate_end"
+                       name="reportingdate_end:date:ignore_empty" size="12"
+                       maxlength="12"
+                       value=""/>
+                (YYYY/MM/DD)
+            </div>
 
-      <div class="form">
-        <label class="question" for="cid">Status</label>
-        <input type="radio" checked="true" name="release_status" value="anystatus"/>
-        <label>Any status</label>
-        <input type="radio" name="release_status" value="released"/>
-        <label>Released</label>
-        <input type="radio" name="release_status" value="notreleased"/>
-        <label>Not released</label>
-      </div>
+            <div class="form">
+                <label class="question" for="cid">Status</label>
+                <input type="radio" checked="true" name="release_status"
+                       value="anystatus"/>
+                <label>Any status</label>
+                <input type="radio" name="release_status" value="released"/>
+                <label>Released</label>
+                <input type="radio" name="release_status" value="notreleased"/>
+                <label>Not released</label>
+            </div>
 
-      <div>
-        <input type="submit" name="btn.submit" value="Submit" />
-      </div>
-    </div>
-  </form>
+            <div>
+                <input type="submit" name="btn.submit" value="Submit"/>
+            </div>
+        </div>
+    </form>
 
-  <form action="ReportekEngine/zipEnvelopes" method="post" id="frmZip">
-    <table id="dataflow-table" class="dataTable">
-        <thead>
-            <tr>
-                <th tal:content=" "/>
-                <th tal:content="string: Country"/>
-                <th tal:condition="isBdrDeployment"
-                    tal:content="string: Company"/>
-                <th tal:condition="isBdrDeployment"
-                    tal:content="string: User ID"/>
-                <th tal:content="string: Title"/>
-                <th tal:content="string: Years"/>
-                <th tal:content="string: Obligation"/>
-                <th tal:content="string: Reported"/>
-                <th tal:condition="isBdrDeployment"
-                    tal:content="string: Files"/>
-                <th tal:condition="isBdrDeployment"
-                    tal:content="string: Accepted"/>
-            </tr>
-        </thead>
-        <tbody>
+    <form action="ReportekEngine/zipEnvelopes" method="post" id="frmZip">
+        <table id="dataflow-table" class="dataTable">
+            <thead>
+                <tr>
+                    <th tal:content=" "/>
+                    <th tal:content="string: Country"/>
+                    <th tal:condition="isBdrDeployment"
+                        tal:content="string: Company"/>
+                    <th tal:condition="isBdrDeployment"
+                        tal:content="string: User ID"/>
+                    <th tal:content="string: Title"/>
+                    <th tal:content="string: Years"/>
+                    <th tal:content="string: Obligation"/>
+                    <th tal:content="string: Reported"/>
+                    <th tal:condition="isBdrDeployment"
+                        tal:content="string: Files"/>
+                    <th tal:condition="isBdrDeployment"
+                        tal:content="string: Accepted"/>
+                </tr>
+            </thead>
+            <tbody>
 
-        </tbody>
-    </table>
-    <p>(Envelopes with no checkbox are still in draft mode)<br/>
-      <input type="button" name="selectAll" value="Select All"
-               onclick="toggleSelect(); return false"/>
-      <input type="submit" value="Zip envelopes"/>
-    </p>
-  </form>
+            </tbody>
+        </table>
+        <p>(Envelopes with no checkbox are still in draft mode)
+            <br/>
+            <input type="button" name="selectAll" value="Select All"
+                   onclick="toggleSelect(); return false"/>
+            <input type="submit" value="Zip envelopes"/>
+        </p>
+    </form>
 
 <script tal:condition="isBdrDeployment">
     function dataflowTable(url) {
@@ -234,12 +247,12 @@
     }
 
     $(function() {
-        var table = dataflowTable("/ReportekUtilities/search_dataflow_url");
+        var table = dataflowTable("/ReportekEngine/search_dataflow_url");
 
         $('#search-dataflow-form').submit(function(event) {
             event.preventDefault();
             var params = $('#search-dataflow-form').serialize();
-            var url = "/ReportekUtilities/search_dataflow_url?" + params;
+            var url = "/ReportekEngine/search_dataflow_url?" + params;
             table.ajax.url(url).load();
         });
     });
@@ -305,12 +318,12 @@
     }
 
     $(function() {
-        var table = dataflowTable("/ReportekUtilities/search_dataflow_url");
+        var table = dataflowTable("/ReportekEngine/search_dataflow_url");
 
         $('#search-dataflow-form').submit(function(event) {
             event.preventDefault();
             var params = $('#search-dataflow-form').serialize();
-            var url = "/ReportekUtilities/search_dataflow_url?" + params;
+            var url = "/ReportekEngine/search_dataflow_url?" + params;
             table.ajax.url(url).load();
         });
     });

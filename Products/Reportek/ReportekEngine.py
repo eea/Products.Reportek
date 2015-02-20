@@ -402,6 +402,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     _searchdataflow = PageTemplateFile('zpt/searchdataflow', globals())
 
+    security.declareProtected('View', 'search_dataflow')
+    search_dataflow = PageTemplateFile('zpt/search_dataflow', globals())
+
     security.declareProtected('View', 'searchdataflow')
     def searchdataflow(self):
         """Search the ZCatalog for Report Envelopes,
@@ -464,6 +467,94 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             if getSecurityManager().checkPermission('View', o):
                 envelopeObjects.append(o)
         return self._searchdataflow(results=envelopeObjects, **self.REQUEST.form)
+
+    security.declareProtected('View', 'search_dataflow_url')
+    def search_dataflow_url(self):
+        """Search the ZCatalog for Report Envelopes,
+        show results and keep displaying the form """
+
+        catalog_args = {
+            'meta_type': 'Report Envelope',
+        }
+
+        status = self.REQUEST.get('release_status')
+        if status == 'anystatus':
+            catalog_args.pop('released', None)
+        elif status == 'released':
+            catalog_args['released'] = 1
+        elif status == 'notreleased':
+            catalog_args['released'] = 0
+        else:
+            return json.dumps([])
+
+        if self.REQUEST.get('query_start'):
+            catalog_args['start'] = self.REQUEST['query_start']
+        if self.REQUEST.get('obligation'):
+            obl = self.REQUEST.get('obligation')
+            obl = filter(lambda c: c.get('PK_RA_ID') == obl, self.dataflow_rod)[0]
+            catalog_args['dataflow_uris'] = [obl['uri']]
+        if self.REQUEST.get('countries'):
+            isos = self.REQUEST.get('countries')
+            countries = filter(lambda c: c.get('iso') in isos, self.localities_rod)
+            catalog_args['country'] = [country['uri'] for country in countries]
+        if self.REQUEST.get('years'):
+            catalog_args['years'] = self.REQUEST['years']
+        if self.REQUEST.get('partofyear'):
+            catalog_args['partofyear'] = self.REQUEST['partofyear']
+
+        reportingdate_start = self.REQUEST.get('reportingdate_start')
+        reportingdate_end = self.REQUEST.get('reportingdate_end')
+        dateRangeQuery = {}
+        if reportingdate_start and reportingdate_end:
+            dateRangeQuery['range'] = 'min:max'
+            dateRangeQuery['query'] = [reportingdate_start, reportingdate_end]
+        elif reportingdate_start:
+            dateRangeQuery['range'] = 'min'
+            dateRangeQuery['query'] = reportingdate_start
+        elif reportingdate_end:
+            dateRangeQuery['range'] = 'max'
+            dateRangeQuery['query'] = reportingdate_end
+        if dateRangeQuery:
+            catalog_args['reportingdate'] = dateRangeQuery
+
+        envelopes = self.Catalog(**catalog_args)
+        envelopeObjects = []
+        for eBrain in envelopes:
+            env = eBrain.getObject()
+            if getSecurityManager().checkPermission('View', env):
+                files = []
+                for fileObj in env.objectValues('Report Document'):
+                    files.append({
+                        "filename": fileObj.id,
+                        "title": str(fileObj.absolute_url_path()),
+                        "url": str(fileObj.absolute_url_path()) + "/manage_document"
+                    })
+
+                accepted = True
+                for fileObj in env.objectValues('Report Feedback'):
+                    if fileObj.title in ("Data delivery was not acceptable", "Non-acceptance of F-gas report"):
+                        accepted = False
+
+                obligations = []
+                for uri in env.dataflow_uris:
+                    obligations.append(self.dataflow_lookup(uri)['TITLE'])
+
+                envelopeObjects.append({
+                    'released': env.released,
+                    'path': env.absolute_url_path(),
+                    'country': env.getCountryName(),
+                    'company': env.aq_parent.title,
+                    'userid': env.aq_parent.id,
+                    'title': env.title,
+                    'years': {"start": env.year, "end": env.endyear},
+                    'end_year': env.endyear,
+                    'reportingdate': env.reportingdate.strftime('%Y-%m-%d'),
+                    'files': files,
+                    'obligation': obligations[0],
+                    'accepted': accepted
+                })
+
+        return json.dumps(envelopeObjects)
 
     def assign_roles(self, user, role, local_roles, doc):
         local_roles.append(role)
