@@ -491,11 +491,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             catalog_args['start'] = self.REQUEST['query_start']
         if self.REQUEST.get('obligation'):
             obl = self.REQUEST.get('obligation')
-            obl = filter(lambda c: c.get('PK_RA_ID') == obl, self.dataflow_rod)[0]
+            obl = filter(lambda c: c.get('PK_RA_ID') == obl, self.dataflow_rod())[0]
             catalog_args['dataflow_uris'] = [obl['uri']]
         if self.REQUEST.get('countries'):
             isos = self.REQUEST.get('countries')
-            countries = filter(lambda c: c.get('iso') in isos, self.localities_rod)
+            countries = filter(lambda c: c.get('iso') in isos, self.localities_rod())
             catalog_args['country'] = [country['uri'] for country in countries]
         if self.REQUEST.get('years'):
             catalog_args['years'] = self.REQUEST['years']
