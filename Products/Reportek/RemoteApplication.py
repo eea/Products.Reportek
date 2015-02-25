@@ -48,7 +48,7 @@ FEEDBACKTEXT_LIMIT = 1024 * 16 # 16KB
 manage_addRemoteApplicationForm = PageTemplateFile('zpt/remote/application_add', globals())
 
 def manage_addRemoteApplication(self, id='', title='', RemoteServer='', RemoteService='', app_name='', REQUEST=None):
-    """ Generic application that calls a remote service 
+    """ Generic application that calls a remote service
     """
 
     ob = RemoteApplication(id, title, RemoteServer, RemoteService, app_name)
@@ -65,11 +65,11 @@ class RemoteApplication(SimpleItem):
         as an additional property - app_name - contaning a dictionary like::
 
           {
-            'analyze':      {code, retries_left, last_error, next_run}, 
+            'analyze':      {code, retries_left, last_error, next_run},
             'getResult':    {jobID: {code, retries_left, last_error, next_run, fileURL}}
           }
 
-        First, a call is made to the 'analyze' function from the remote service which retireves 
+        First, a call is made to the 'analyze' function from the remote service which retireves
         the list of files that will be analyzed along with their jobIDs
 
         Second, the 'getResult' remote service function is called for every job
@@ -251,7 +251,7 @@ class RemoteApplication(SimpleItem):
 
     def _addFeedback(self, file_id, result, workitem, script_name):
         envelope = self.aq_parent
-        feedback_id = '_'.join(( self.app_name, script_name, file_id, str(int(DateTime())) ))
+        feedback_id = '{0}_{1}_{2}'.format(self.app_name, script_name, file_id)
         envelope.manage_addFeedback(id=feedback_id,
                 title= feedback_id,
                 activity_id=workitem.activity_id,
@@ -313,7 +313,7 @@ class RemoteApplication(SimpleItem):
     ##############################################
 
     def __analyzeDocuments(self, p_workitem_id, p_files_dict):
-        """ Makes an XML/RPC call to the 'analyzeXMLFiles' function from the XQuery service 
+        """ Makes an XML/RPC call to the 'analyzeXMLFiles' function from the XQuery service
         """
         l_workitem = getattr(self, p_workitem_id)
         # get the property of the workitem which keeps all the instance data for this operation
@@ -351,39 +351,39 @@ class RemoteApplication(SimpleItem):
             l_nRetries = int(l_wk_prop['analyze']['retries_left'])
             if l_nRetries == 0:
                 l_workitem.addEvent('Error in sending files to %s: %s' % (self.app_name, str(l_fault.faultString)))
-                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, 
+                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                         p_analyze={'code':-2, 'last_error':'Code: ' + str(l_fault.faultCode) + '\nDescription: ' + str(l_fault.faultString)})
             else:
-                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, 
+                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                         p_analyze={'code':0, 'last_error':'Code: ' + str(l_fault.faultCode) + '\nDescription: ' + str(l_fault.faultString), 'retries_left':l_nRetries - 1, 'next_run':l_wk_prop['analyze']['next_run'] + self.retryFrequency})
         # An HTTP protocol error - retry later
         except xmlrpclib.ProtocolError, l_protocol:
             l_nRetries = int(l_wk_prop['analyze']['retries_left'])
             if l_nRetries == 0:
                 l_workitem.addEvent('Error in sending files to %s: %s' % (self.app_name, str(l_protocol.errmsg)))
-                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, 
+                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                         p_analyze={'code':-2, 'last_error':'Code: ' + str(l_protocol.errcode) + '\nDescription: ' + str(l_protocol.errmsg)})
             else:
-                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, 
+                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                         p_analyze={'code':0, 'last_error':'Code: ' + str(l_protocol.errcode) + '\nDescription: ' + str(l_protocol.errmsg), 'retries_left':l_nRetries - 1, 'next_run':l_wk_prop['analyze']['next_run'] + self.retryFrequency})
         # A broken response package - critical, do not retry
         except xmlrpclib.ResponseError, l_response:
             l_workitem.addEvent('Error in sending files to %s: %s' % (self.app_name, str(l_response)))
-            self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, 
+            self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                      p_analyze={'code':-2, 'last_error':'Response error\nDescription: ' + str(l_response)})
         # Generic client error - critical, do not retry
         except xmlrpclib.Error, err:
             l_workitem.addEvent('Error in sending files to %s: %s' % (self.app_name, str(err)))
-            self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, 
+            self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                      p_analyze={'code':-2, 'last_error':str(err)})
         except Exception, err:
             l_workitem.addEvent('Error in sending files to %s: %s' % (self.app_name, str(err)))
-            self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, 
+            self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                      p_analyze={'code':-2, 'last_error':str(err)})
         return 1
 
     def __getResult4XQueryServiceJob(self, p_workitem_id, p_jobID):
-        """ Makes an XML/RPC call to the 'getResult' function from the remote service 
+        """ Makes an XML/RPC call to the 'getResult' function from the remote service
             for an existing job
         """
         l_workitem = getattr(self, p_workitem_id)
@@ -404,11 +404,11 @@ class RemoteApplication(SimpleItem):
                 else:
                     l_filename = ' result for file %s: ' % l_file_id
                 envelope = self.aq_parent
-                feedback_id = self.app_name + '_' + str(p_jobID) + '_' + str(int(DateTime()))
-                envelope.manage_addFeedback(id=feedback_id, 
-                        title= self.app_name + l_filename + l_ret['SCRIPT_TITLE'], 
+                feedback_id = '{0}_{1}'.format(self.app_name, p_jobID)
+                envelope.manage_addFeedback(id=feedback_id,
+                        title= self.app_name + l_filename + l_ret['SCRIPT_TITLE'],
                         activity_id=l_workitem.activity_id,
-                        automatic=1, 
+                        automatic=1,
                         document_id=l_file_id)
                 feedback_ob = envelope[feedback_id]
 
@@ -477,11 +477,11 @@ class RemoteApplication(SimpleItem):
         eval('l_workitem.' + self.app_name)['getResult'] = {}
 
     def __manageAutomaticProperty(self, p_workitem_id, p_analyze={}, p_getResult={}):
-        """ 
+        """
         The instance data for the RemoteApplication is stored in the workitem
         as an additional property - app_name - contaning a dictionary like:
         {
-            'analyze':      {code, retries_left, last_error, next_run}, 
+            'analyze':      {code, retries_left, last_error, next_run},
             'getResult':    {jobID: {code, retries_left, last_error, next_run, fileURL}}
         }
         Possible codes for app_name['analyze']:
