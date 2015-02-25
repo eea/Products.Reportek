@@ -258,7 +258,7 @@ class RemoteApplication(SimpleItem):
         feedback_title= '{0} result for file {1}: {2}'.format(self.app_name, file_id, script_title)
 
         envelope.manage_addFeedback(id=feedback_id,
-                title= feedback_id,
+                title= feedback_title,
                 activity_id=workitem.activity_id,
                 automatic=1)
 
