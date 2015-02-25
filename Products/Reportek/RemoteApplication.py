@@ -249,13 +249,19 @@ class RemoteApplication(SimpleItem):
             wk_status['localQA'][file_id][script_id] = 'done'
             transaction.commit()
 
-    def _addFeedback(self, file_id, result, workitem, script_name):
+    def _addFeedback(self, file_id, result, workitem, script_id):
         envelope = self.aq_parent
-        feedback_id = '{0}_{1}_{2}'.format(self.app_name, script_name, file_id)
+        qa_repo = self.QARepository
+        script_title = qa_repo[script_id].title
+
+        feedback_id = '{0}_{1}_{2}'.format(self.app_name, script_id, file_id)
+        feedback_title= '{0} result for file {1}: {2}'.format(self.app_name, file_id, script_title)
+
         envelope.manage_addFeedback(id=feedback_id,
                 title= feedback_id,
                 activity_id=workitem.activity_id,
                 automatic=1)
+
         feedback_ob = envelope[feedback_id]
         content = result[1].data
         content_type = result[0]
