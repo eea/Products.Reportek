@@ -29,7 +29,7 @@ class ReportekApi(BrowserView):
                 'is_blocked': env.is_blocked
             }
 
-            if getattr(env, 'company_id'):
+            if hasattr(env, 'company_id'):
                 envelope_properties['id'] = env.company_id
             else:
                 envelope_properties['id'] = env.id
