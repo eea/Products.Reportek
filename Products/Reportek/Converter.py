@@ -198,7 +198,8 @@ class RemoteConverter(Converter):
             #
             # result.headers is a case insensitive dict
             #
-            result.headers.pop('transfer-encoding')
+            if result.headers.get('transfer-encoding'):
+                result.headers.pop('transfer-encoding')
             self.REQUEST.RESPONSE.headers.update(result.headers)
             for chunk in result.iter_content(chunk_size=64*1024):
                 self.REQUEST.RESPONSE.write(chunk)
