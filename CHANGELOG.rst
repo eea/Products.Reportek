@@ -1,5 +1,6 @@
 3.7.2-dev16 (26-02-2015)
 -----------------------
+* Task #23412 - Conversion of XML file to XLS gives an error
 * Task #23463 - overridden PropertiedUser.getRolesInContext() to check middleware too
 
 3.7.2-dev15 (26-02-2015)
