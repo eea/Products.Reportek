@@ -98,6 +98,12 @@ class BdrUserProperties(PropertiedUser):
             return ['Owner']
         return []
 
+    def getRolesInContext( self, object ):
+        basic_roles = super(BdrUserProperties, self).getRolesInContext(object)
+        user_id = self.getId()
+        middleware_roles = self.get_roles_for_user_in_context(object, user_id)
+        return list(set(basic_roles) | set(middleware_roles))
+
     def allowed(self, object, object_roles=None):
         basic = super(BdrUserProperties, self).allowed(object, object_roles)
         if basic:
