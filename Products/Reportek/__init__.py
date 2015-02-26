@@ -25,16 +25,17 @@ __version__ = '$Rev$'[6:-2]
 
 from config import *
 import monitoring
+from traceback import format_exception_only
+import logging
+logger = logging.getLogger("Reportek")
 
 # Zope imports
-import Globals
 import Zope2
 from App.ImageFile import ImageFile
 from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCTextIndex.ZCTextIndex import PLexicon
 
 # Product imports
-import RepUtils
 
 import QARepository
 import QAScript
@@ -47,6 +48,10 @@ import RemoteApplication
 import RemoteRESTApplication
 import DataflowMappings
 import ReportekEngine
+import ReportekUtilities
+import ReportekAPI
+
+from AccessControl.Permissions import manage_users as ManageUsers
 
 import constants
 
@@ -117,6 +122,35 @@ def create_reportek_objects(app):
         catalog = ZCatalog(constants.DEFAULT_CATALOG, 'Reportek Catalog')
         app._setObject(constants.DEFAULT_CATALOG, catalog)
 
+    #Add Reportek Utilities
+    try:
+        reportek_utilities = getattr(app, constants.REPORTEK_UTILITIES)
+    except AttributeError:
+        reportek_utilities = ReportekUtilities.ReportekUtilities(
+                                    constants.REPORTEK_UTILITIES,
+                                    'Reportek Utilities')
+        app._setObject(constants.REPORTEK_UTILITIES, reportek_utilities)
+
+    #Add Reportek API
+    try:
+        reportek_api = getattr(app, constants.REPORTEK_API)
+    except AttributeError:
+        reportek_api = ReportekAPI.ReportekAPI(
+                        constants.REPORTEK_API,
+                        'Reportek API')
+        app._setObject(constants.REPORTEK_API, reportek_api)
+
+    #Add Registry Management
+    if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+        import RegistryManagement
+        try:
+            registry_management = getattr(app, constants.REGISTRY_MANAGEMENT)
+        except AttributeError:
+            registry_management = RegistryManagement.RegistryManagement(
+                                        constants.REGISTRY_MANAGEMENT,
+                                        'FGases registry')
+            app._setObject(constants.REGISTRY_MANAGEMENT, registry_management)
+
 def _strip_protocol_domain(full_url):
     """ Take a full url and return a tuple of path part and protocol+domain part."""
     parts = full_url.split('/')
@@ -130,8 +164,14 @@ def _strip_protocol_domain(full_url):
 def ping_remaining_envelopes(app, crPingger):
     import redis
     import pickle
-    rs = redis.Redis(db=REDIS_DATABASE)
-    envPathNames = rs.hkeys(constants.PING_ENVELOPES_KEY)
+    try:
+        rs = redis.Redis(db=REDIS_DATABASE)
+        envPathNames = rs.hkeys(constants.PING_ENVELOPES_KEY)
+    except Exception as e:
+        lines = format_exception_only(e.__class__, e)
+        lines.insert(0, "Could not get to redis server")
+        logger.warn('. '.join(lines))
+        return
     for envPathName in envPathNames:
         # get this fresh on every iteration
         envStatus = rs.hget(constants.PING_ENVELOPES_KEY, envPathName)
@@ -189,10 +229,10 @@ def create_reportek_indexes(catalog):
     add_index('activity_id', catalog, 'FieldIndex')
     add_index('actor', catalog, 'FieldIndex')
     add_index('content_type', catalog, 'FieldIndex')
-    add_index('country', catalog, 'FieldIndex')
-    add_index('dataflow_uri', catalog, 'FieldIndex')
-    add_index('dataflow_uris', catalog, 'KeywordIndex')
-    add_index('getCountryName', catalog, 'FieldIndex')
+    add_index('country', catalog, 'FieldIndex', meta=True)
+    add_index('dataflow_uri', catalog, 'FieldIndex', meta=True)
+    add_index('dataflow_uris', catalog, 'KeywordIndex', meta=True)
+    add_index('getCountryName', catalog, 'FieldIndex', meta=True)
     add_index('instance_id', catalog, 'FieldIndex')
     add_index('partofyear', catalog, 'FieldIndex')
     add_index('path', catalog, 'PathIndex')
@@ -202,6 +242,9 @@ def create_reportek_indexes(catalog):
     add_index('status', catalog, 'FieldIndex')
     add_index('xml_schema_location', catalog, 'FieldIndex')
     add_index('years', catalog, 'KeywordIndex')
+    add_index('local_unique_roles', catalog, 'KeywordIndex')
+    add_index('local_defined_users', catalog, 'KeywordIndex', meta=True)
+    add_index('local_defined_roles', catalog, 'FieldIndex', meta=True)
     add_index('document_id', catalog, 'FieldIndex')
 
 
@@ -215,7 +258,15 @@ def startup(context):
 
     create_reportek_objects(app)
     create_reportek_indexes(app[constants.DEFAULT_CATALOG])
+
     transaction.commit()
+
+
+
+if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+    import BdrAuthorizationMiddleware
+    from Products.PluggableAuthService.PluggableAuthService import registerMultiPlugin
+    registerMultiPlugin(BdrAuthorizationMiddleware.BdrUserFactoryPlugin.meta_type)
 
 
 def initialize(context):
@@ -250,6 +301,18 @@ def initialize(context):
             blob.manage_addOfsBlobFile),
        icon = 'www/blobfile.png'
        )
+
+
+    if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+        context.registerClass(
+            BdrAuthorizationMiddleware.BdrUserFactoryPlugin,
+            permission=ManageUsers,
+            constructors=(
+                BdrAuthorizationMiddleware.manage_addBdrUserFactoryPluginForm,
+                BdrAuthorizationMiddleware.addBdrUserFactoryPlugin),
+            visibility=None,
+            icon='www/openflowEngine.gif'
+        )
 
     ###########################################
     #   Registration of other classes

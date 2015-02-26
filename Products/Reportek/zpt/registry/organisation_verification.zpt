@@ -1,0 +1,96 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+  <metal:block fill-slot="head">
+    <link href="++resource++static/style.css" rel="stylesheet"/>
+    <script src="++resource++static/jquery-1.8.2.min.js"></script>
+  </metal:block>
+
+  <metal:block fill-slot="breadcrumbtrails">
+    <tal:block content="structure here/breadcrumbs_views"></tal:block>
+  </metal:block>
+
+  <metal:block fill-slot="content">
+    <tal:block define="company view/get_company_details">
+      <tal:block tal:condition="python: company and not company['oldcompany_verified']">
+        <p class="error-msg" tal:condition="options/error | nothing">
+          Operation didn't succeed.
+        </p>
+
+        <div id="operations">
+          <ul>
+            <li>
+              <a tal:attributes="href string:${here/absolute_url}/organisation_matching">Back</a>
+            </li>
+          </ul>
+        </div>
+
+        <h1>Company matching</h1>
+        <hr/>
+
+        <p>
+          In this page you can view the company details (as registered in the
+          <a tal:attributes="href view/get_url">FGAS portal</a>)
+          and match it with the old record from
+          <a href="/registry">
+          BDR-Registry</a>, based on suggestions (candidates) made by the system.
+          If no record matches, please select “New company”.
+        </p>
+
+        <p>
+          If you want to revert a change please contact
+          <a href="mailto:BDR.helpdesk@eea.europa.eu">BDR Helpdesk</a>.
+        </p>
+
+        <tal:block condition="company">
+          <h2 tal:content="company/name" />
+          <div class="details">
+            <tal:block metal:use-macro="here/partials/macros/organisation_details" />
+          </div>
+
+          <h2>
+            Company candidates (taken from BDR Registry)
+          </h2>
+
+          <p tal:condition="company/candidates">Please choose one of the following companies to match.</p>
+          <p tal:condition="not: company/candidates">This company has no candidates.</p>
+
+          <form id="company-verification" method="post">
+            <tal:block condition="company/candidates"
+                       repeat="candidate company/candidates">
+              <tal:block metal:use-macro="here/partials/macros/short_organisation_details" />
+            </tal:block>
+            <div class="company-header clearfix">
+              <label class="btn btn-default pull-left" for="none">
+                <input type="radio" name="cid" value="none" id="none">
+                New company
+              </label>
+            </div>
+            <input type="hidden" name="fid"
+                   tal:attributes="value string:${company/company_id}">
+            <hr/>
+            <input type="hidden" name="user" tal:attributes="value request/AUTHENTICATED_USER" />
+            <input type="submit" name="verify.btn" value="Approve company" />
+          </form>
+        </tal:block>
+
+        <script>
+          $('#company-verification').on('submit', function(e){
+            e.preventDefault();
+
+            var cid = $('input[name=cid]:checked', '#company-verification').val()
+            if(cid && confirm("Are you sure do you want to approve this company?")) {
+              this.submit();
+            }
+          });
+        </script>
+
+      </tal:block>
+
+      <div class="warning-msg" tal:condition="python: not company or company['oldcompany_verified']">
+        <strong>Error</strong>
+        <p>No company found.</p>
+      </div>
+
+    </tal:block>
+  </metal:block>
+</metal:block>

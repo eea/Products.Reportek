@@ -1,0 +1,25 @@
+<span tal:replace="structure context/manage_page_header" />
+<span tal:replace="structure python:context.manage_tabs(management_view='Migrations')" />
+<link href="++resource++static/style.css" rel="stylesheet"/>
+
+<h4>Migration status</h4>
+<p>This page shows each applied migration for this deployment.</p>
+
+<table class="table simple_table" tal:condition="options/migrationRows">
+    <tr>
+        <th style="text-align: center;">Name</th>
+        <th style="text-align: center;">Update Version</th>
+        <th style="text-align: center;">Created</th>
+        <th style="text-align: center;">Updated</th>
+    </tr>
+    <tal:block repeat="row options/migrationRows">
+    <tr>
+        <td tal:content="row/name"></td>
+        <td style="text-align: center;" tal:content="row/version"></td>
+        <td style="text-align: center;" tal:content="row/first"></td>
+        <td style="text-align: center;" tal:content="row/current"></td>
+    </tr>
+    </tal:block>
+</table>
+
+<span tal:replace="structure here/manage_page_footer" />

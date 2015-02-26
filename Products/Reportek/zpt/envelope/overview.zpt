@@ -28,9 +28,9 @@
     </tr>
     <tr>
       <th i18n:translate="">Obligations</th>
-      <td>
+      <td tal:define="engine context/getEngine">
         <tal:block condition="python:context.dataflow_uris" repeat="uri python:context.dataflow_uris">
-          <tal:block define="df python:context.dataflow_lookup(uri)">
+          <tal:block define="df python:engine.dataflow_lookup(uri)">
             <a tal:attributes="href python:df['details_url']"
                tal:content="python:df['TITLE']"></a>
             <tal:block condition="python:df.get('terminated', '0') == '1'">

@@ -1,0 +1,102 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+  <metal:block fill-slot="head">
+    <link href="++resource++static/style.css" rel="stylesheet"/>
+    <script type="text/javascript" charset="utf8"
+          src="++resource++static/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" charset="utf8"
+          src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.min.js"></script>
+  </metal:block>
+
+  <metal:block fill-slot="breadcrumbtrails">
+    <tal:block content="structure here/breadcrumbs_views"></tal:block>
+  </metal:block>
+
+  <metal:block fill-slot="content">
+    <p class="important-msg" tal:condition="request/done | nothing">
+      Operations completed succesfully.
+    </p>
+
+    <h1>Pending Companies</h1>
+
+    <p>
+      In this page you can view the companies registered in the
+      <a tal:attributes="href view/get_url">FGAS portal</a>
+      and match them with old records taken from
+      <a href="/registry">
+      BDR-Registry</a>, based on suggestions (candidates) made by the system.
+      Please click on the company name to view the suggestions and approve the company.
+    </p>
+
+    <p>
+      If you want to revert a change please contact
+      <a href="mailto:BDR.helpdesk@eea.europa.eu">BDR Helpdesk</a>.
+    </p>
+
+    <p tal:condition="view/auto_matching | nothing"><strong>
+      Please be aware that companies without candidates are automatically
+      approved by the system. Please contact
+      <a href="mailto:BDR.helpdesk@eea.europa.eu">BDR Helpdesk</a>, if you want
+      to change this behavior.
+    </strong></p>
+
+    <p tal:condition="not: view/auto_matching | nothing"><strong>
+      You must manually approve companies without candidates. Please contact
+      <a href="mailto:BDR.helpdesk@eea.europa.eu">BDR Helpdesk</a>, if you
+      want to have them automatically approved by the system.
+    </strong></p>
+
+    <table class="table simple_table" id="matching-table">
+      <thead>
+        <tr>
+          <th>Companies (as registered in FGAS Portal)</th>
+          <th>Candidates (from BDR-Registry)</th>
+        </tr>
+      </thead>
+      <tbody>
+
+      </tbody>
+    </table>
+
+    <script>
+        $(function() {
+            $('#matching-table').dataTable({
+                "iDisplayLength": 20,
+                "sAjaxSource": "/fgases_registry/get_candidates",
+                "sAjaxDataProp" : "",
+                "aoColumns": [
+                  { "mData": "undertaking" },  // for User Detail
+                  { "mData": "links" }
+                ],
+                "columnDefs": [
+                  {
+                    "targets": 0,
+                    "data": "undertaking",
+                    "render": function (data, type, full, meta) {
+                      return '<a href="/fgases_registry/organisation_verification?id='+
+                        data.company_id + '">' + data.name + '</a>';
+                    }
+                  },
+                  {
+                    "targets": 1,
+                    "bSortable": false,
+                    "data": "links",
+                    "render": function (data, type, full, meta) {
+                      if (data.length == 0) {
+                        return "<i>No candidates</i>";
+                      } else {
+                        var candidates = "";
+                        for (var i = 0; i < data.length; i++) {
+                          candidates += "<span>" + data[i].name + "<span/><br/>";
+                        }
+                        return candidates;
+                      }
+                    }
+                  }
+                ],
+                "order": [[ 0, "asc" ]]
+            });
+        });
+    </script>
+  </metal:block>
+</metal:block>

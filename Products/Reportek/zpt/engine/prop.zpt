@@ -1,3 +1,5 @@
+<tal:block define="global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR';
+                   global isCdrDeployment python: here.ReportekEngine.getDeploymentType() == 'CDR'"/>
 <span tal:replace="structure context/manage_page_header" />
 <span tal:replace="structure python:context.manage_tabs(management_view='Properties')" />
 
@@ -46,7 +48,7 @@
 		Check this box if the content from this site needs to be fully restricted from public view (e.g. BDR). By enabling this option, all Report Documents will be restricted, and users will not be able to change their status.
 	</p>
 </fieldset>
-<fieldset>
+<fieldset tal:condition="isCdrDeployment">
 	<legend>Content Registry</legend>
 	<p class="form-help">
         <label for='cr_api_url'><strong>Content Registry API URL</strong></label>
@@ -58,6 +60,70 @@
     </p>
 </fieldset>
 <br />
+<fieldset>
+	<legend>Dataflows Manager XMLRPC Properties</legend>
+	<p class="form-help">
+        <label for='dfm_url'><strong>Dataflows Manager XMLRPC URL</strong></label>
+		<input type="text" size="50" id="dfm_url" name="dfm_url"
+               tal:attributes="value here/dfm_url" />
+        <br />
+    </p>
+	<p class="form-help">
+        <label for='dfm_method'><strong>Dataflows Manager XMLRPC method</strong></label>
+		<input type="text" size="50" id="dfm_method" name="dfm_method"
+               tal:attributes="value here/dfm_method" />
+        <br />
+    </p>
+	<p class="form-help">
+        <label for='dfm_timeout'><strong>Dataflows Manager XMLRPC timeout</strong></label>
+		<input type="text" size="50" id="dfm_timeout" name="dfm_timeout"
+               tal:attributes="value here/dfm_timeout" />
+        <br />
+        <span>(Dataflows Manager XMLRPC timeout in seconds)
+        <br />
+    </p>
+</fieldset>
+<fieldset>
+	<legend>Countries Manager XMLRPC Properties</legend>
+	<p class="form-help">
+        <label for='cm_url'><strong>Countries Manager XMLRPC URL</strong></label>
+		<input type="text" size="50" id="cm_url" name="cm_url"
+               tal:attributes="value here/cm_url" />
+        <br />
+    </p>
+	<p class="form-help">
+        <label for='cm_method'><strong>Countries Manager XMLRPC method</strong></label>
+		<input type="text" size="50" id="cm_method" name="cm_method"
+               tal:attributes="value here/cm_method" />
+        <br />
+    </p>
+	<p class="form-help">
+        <label for='cm_timeout'><strong>Countries Manager XMLRPC timeout</strong></label>
+		<input type="text" size="50" id="cm_timeout" name="cm_timeout"
+               tal:attributes="value here/cm_timeout" />
+        <br />
+        <span>(Countries Manager XMLRPC timeout in seconds)
+        <br />
+    </p>
+</fieldset>
+<br/>
+<fieldset tal:condition="isBdrDeployment">
+	<legend>Bdr Authorization Api</legend>
+	<p class="form-help">
+        <label for='auth_middleware_url'><strong>BDR Authorization Middleware API URL</strong></label>
+		<input type="text" size="50" id="auth_middleware_url" name="auth_middleware_url"
+               tal:attributes="value here/auth_middleware_url" />
+        <br />
+        <span>(leave it empty if Bdr Authorization API is not to be used)
+        <br />
+    </p>
+	<p class="form-help">
+        <label for='auth_middleware_recheck_interval'><strong>Authorization recheck interval</strong></label>
+		<input type="text" size="50" id="auth_middleware_recheck_interval" name="auth_middleware_recheck_interval"
+               tal:attributes="value here/auth_middleware_recheck_interval" />
+    </p>
+</fieldset>
+<br/>
 <input type="submit" value="Save changes" />
 </form>
 

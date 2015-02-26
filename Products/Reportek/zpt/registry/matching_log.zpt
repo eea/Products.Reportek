@@ -1,0 +1,65 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+  <metal:block fill-slot="head">
+    <link href="++resource++static/style.css" rel="stylesheet"/>
+  </metal:block>
+
+  <metal:block fill-slot="breadcrumbtrails">
+    <tal:block content="structure here/breadcrumbs_views"></tal:block>
+  </metal:block>
+
+  <metal:block fill-slot="content">
+
+    <tal:block define="records view/get_matching_log">
+      <h1>Approval log</h1>
+      <p>
+        This page contains the company approval history order by timestamp.
+        You can see the details of an approved company by clicking on the
+        company id.
+
+        The companies automatically approved by the system have the user “SYSTEM”.
+      </p>
+
+      <tal:block condition="records">
+        <table class="table simple_table">
+          <thead>
+            <tr>
+              <th>Company (FGAS Portal)</th>
+              <th>Old record (BDR registry)</th>
+              <th>Approval success</th>
+              <th>User</th>
+              <th>Date</th>
+              <th>Lockdown</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr tal:repeat="record records">
+              <td>
+                <a tal:content="record/company_id"
+                   tal:attributes="href string:${here/absolute_url}/organisation_details?id=${record/company_id}"></a>
+              </td>
+              <td>
+                <tal:block condition="record/oldcompany_account" content="record/oldcompany_account" />
+                <tal:block condition="not: record/oldcompany_account" content="string: New company" />
+              </td>
+              <td tal:content="record/verified " />
+              <td tal:content="record/user "/>
+              <td tal:content="record/timestamp "/>
+              <tal:block condition="record/oldcompany_account">
+                <td tal:define="locked python: view.lockedCompany(record['company_id'], record['oldcompany_account'], record['country_code'], record['domain'])">
+                    <a class="test_button" tal:content="python: 'Unlock' if locked else 'Lockdown'"
+                        tal:attributes="href python: 'unlockCompany?company_id=%s&old_collection_id=%s&country_code=%s&domain=%s&user=%s&came_from=%s' % (record['company_id'], record['oldcompany_account'], record['country_code'], record['domain'], record['user'], request['ACTUAL_URL']) if locked else 'lockDownCompany?company_id=%s&old_collection_id=%s&country_code=%s&domain=%s&user=%s&came_from=%s' % (record['company_id'], record['oldcompany_account'], record['country_code'], record['domain'], record['user'], request['ACTUAL_URL'])"></a>
+                </td>
+              </tal:block>
+              <tal:block condition="not: record/oldcompany_account">
+                <td>N/A</td>
+              </tal:block>
+            </tr>
+          </tbody>
+        </table>
+      </tal:block>
+      <p class="system-msg" tal:condition="not: records">No company approval history</p>
+
+    </tal:block>
+  </metal:block>
+</metal:block>

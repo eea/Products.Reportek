@@ -451,6 +451,10 @@ def _load_json(name):
         return json.load(f)
 
 
+def inline_replace(x):
+    x['uri'] = x['uri'].replace('eionet.eu.int', 'eionet.europa.eu')
+    return x
+
 mime_types = _mime_types()
 
 def discard_utf8_bom(body):
@@ -459,3 +463,78 @@ def discard_utf8_bom(body):
         return body[3:]
     else:
         return body
+
+def replace_keys(replace_items, obj):
+    """
+    Replace keys of a dict
+    :param replace_items: dict with keys and replacements
+    :param obj: dict where to replace
+    :return: modified dict
+    """
+    if obj:
+        for key, replacement in replace_items.iteritems():
+            if key in obj:
+                obj[replacement] = obj.pop(key)
+    return obj
+
+
+def fix_json_from_id(obj):
+    """
+    Replace keys from json to set the right json format, used in SatelliteRegistryManagement class
+    :param obj: python dict
+    :return: the dict in the corect format
+    """
+    if not obj:
+        return {}
+
+    # Replace keys to set the right json format
+    obj = replace_keys({
+        'oldcompany_account': 'Former_Company_no_2007-2010',
+        'company_id': 'id',
+        'representative': 'euLegalRepresentativeCompany',
+        'users': 'contactPersons',
+        'businessprofile': 'businessProfile',
+        'undertaking_type': '@type'
+    }, obj)
+
+    # Replace legal representative format
+    if obj['euLegalRepresentativeCompany']:
+        obj['euLegalRepresentativeCompany'] = replace_keys({
+            'vatnumber': 'vatNumber',
+            'contact_last_name': 'contactPersonLastName',
+            'contact_first_name': 'contactPersonFirstName',
+            'contact_email': 'contactPersonEmailAddress'
+        }, obj['euLegalRepresentativeCompany'])
+
+    # Replace legal representative address format
+    if obj['euLegalRepresentativeCompany']:
+        obj['euLegalRepresentativeCompany']['address'] = replace_keys({
+            'zipcode': 'zipCode'
+        }, obj['euLegalRepresentativeCompany']['address'])
+
+    # Replace address format
+    obj['address'] = replace_keys({
+        'zipcode': 'zipCode'
+    }, obj['address'])
+
+    # Replace contact persons format
+    for person in obj['contactPersons']:
+        replace_keys({
+            'username': 'userName',
+            'first_name': 'firstName',
+            'last_name': 'lastName',
+            'email': 'emailAddress'
+        }, person)
+
+    # Replace businessProfile
+    obj['businessProfile'] = replace_keys({
+        'highleveluses': 'highLevelUses'
+    }, obj['businessProfile'])
+
+    # Delete unused keys
+    unused = ['country_code', 'date_created', 'date_updated', 'candidates', 'collection_id',
+              'oldcompany_verified', 'oldcompany_extid', 'oldcompany_id']
+    for key in unused:
+        obj.pop(key, None)
+
+    return obj

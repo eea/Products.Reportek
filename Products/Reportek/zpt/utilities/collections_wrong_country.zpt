@@ -1,0 +1,44 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+  <metal:block fill-slot="breadcrumbtrails">
+    <tal:block content="structure here/breadcrumbs_views"></tal:block>
+  </metal:block>
+<metal:block fill-slot="content">
+    <h1>Collections allocated to the wrong country</h1>
+
+    <tal:block define="colections view/collections">
+      <table tal:condition="colections" class="datatable">
+        <thead>
+          <tr>
+            <th>Collection</th>
+            <th>Current country</th>
+            <th>Correct country value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr tal:repeat="coll colections">
+            <td>
+              <a tal:attributes="href string: ${coll/url}/manage_prop"
+                   tal:content="coll/title" />
+            </td>
+            <td>
+              <span tal:condition="not: coll/country">unspecified</span>
+              <a tal:condition="coll/country"
+                 tal:attributes="href coll/country"
+                 tal:content="coll/country" />
+            </td>
+            <td>
+              <span tal:condition="not: coll/topCountry">unspecified</span>
+              <a tal:condition="coll/topCountry"
+                 tal:attributes="href coll/topCountry"
+                 tal:content="coll/topCountry" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <p tal:condition="not: colections">
+          All the collections in this site have the correct country.
+      </p>
+    </tal:block>
+</metal:block>
+
+</metal:block>

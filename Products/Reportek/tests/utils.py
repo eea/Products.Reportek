@@ -314,6 +314,8 @@ def create_envelope(parent, id='envelope'):
     parent._setObject(id, e)
     e.dataflow_uris = []
 
+    e.getCountryName = Mock(return_value='Unknown')
+    e.getCountryCode = Mock(return_value='xx')
     return parent[id]
 
 

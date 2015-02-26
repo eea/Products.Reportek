@@ -44,6 +44,7 @@ import constants
 import Referral
 
 from CountriesManager import CountriesManager
+from DataflowsManager import DataflowsManager
 from Toolz import Toolz
 
 manage_addCollectionForm=PageTemplateFile('zpt/collection/add', globals())
@@ -60,7 +61,7 @@ def manage_addCollection(self, title, descr,
     if REQUEST is not None:
         return self.manage_main(self, REQUEST, update_menu=1)
 
-class Collection(CatalogAware, Folder, CountriesManager, Toolz):
+class Collection(CatalogAware, Folder, Toolz):
     """
     Collections are basic container objects that provide a standard
     interface for object management. Collection objects also implement
@@ -77,7 +78,7 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
             {'label':'List of reporters', 'action':'get_users_list'},
         ) + Folder.manage_options[3:]
 
-    def __init__(self, id, title='', year='', endyear='', partofyear='', country='', locality='', 
+    def __init__(self, id, title='', year='', endyear='', partofyear='', country='', locality='',
             descr='', dataflow_uris=[], allow_collections=0, allow_envelopes=0):
         """ constructor """
         self.id = id
@@ -199,10 +200,22 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
 
     _get_users_list = PageTemplateFile('zpt/collection/users', globals())
 
+    def local_defined_roles(self):
+        return self.__ac_local_roles__
+
+    def local_defined_users(self):
+        if isinstance(self.__ac_local_roles__, dict):
+            return self.__ac_local_roles__.keys()
+
+    def local_unique_roles(self):
+        return set(role for roles
+                in self.__ac_local_roles__.values()
+                for role in roles)
+
     security.declareProtected(manage_users, 'get_users_list')
     def get_users_list(self, REQUEST):
         """ List accounts with the reporter and client roles for current folder and subfolders """
-        from ldap.dn import explode_dn 
+        from ldap.dn import explode_dn
         role_param = REQUEST.get('role', '')
         users = {}
         global_users = {}
@@ -265,31 +278,12 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
     def num_terminated_dataflows(self):
         """ Returns the number of terminated dataflows """
         amount = 0
+        engine = self.getEngine()
         for df in self.dataflow_uris:
-            dfobj = self.dataflow_lookup(df)
+            dfobj = engine.dataflow_lookup(df)
             if dfobj.get('terminated','0') == '1':
                 amount += 1
         return amount
-
-    security.declarePublic('dataflow_lookup')
-    def dataflow_lookup(self, uri):
-        """ Lookup a dataflow on URI and return a dictionary of info """
-        try:
-            return self.dataflow_dict()[uri]
-        except KeyError:
-            return {'uri': uri,
-                'details_url': '',
-                'TITLE': 'Unknown/Deleted obligation',
-                'terminated':'1',
-                'SOURCE_TITLE': 'Unknown obligations',
-                'PK_RA_ID': '0'}
-
-    def dataflow_dict(self):
-        """ Converts the dataflow table into a dictionary """
-        l_dfdict = {}
-        for l_item in self.dataflow_table():
-            l_dfdict[l_item['uri']] = l_item
-        return l_dfdict
 
     security.declareProtected(permission_manage_properties_collections, 'manage_editCollection')
     def manage_editCollection(self, title, descr,
@@ -379,7 +373,7 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
         return p_ret
 
     def changeQueryString(self, p_query_string, p_parameter, p_value):
-        """ given the QUERY_STRING part of an URL, the function searches for the 
+        """ given the QUERY_STRING part of an URL, the function searches for the
             parameter p_parameter and gives it the value p_value
         """
         l_ret = ''
@@ -429,7 +423,7 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
                 else:
                     l_query_array[i] = l_input_array[i]
         else:
-            
+
             if p_value == None:
                 try:
                     del(l_query_array[p_parameter])
@@ -439,7 +433,15 @@ class Collection(CatalogAware, Folder, CountriesManager, Toolz):
                 l_query_array[p_parameter] = p_value
         return l_query_array
 
+    def localities_rod(self):
+        engine = self.getEngine()
+        if engine:
+            return engine.localities_rod()
 
+    def dataflow_rod(self):
+        engine = self.getEngine()
+        if engine:
+            return engine.dataflow_rod()
 
     security.declareProtected('View', 'messageDialog')
     def messageDialog(self, message='', action='./manage_main', REQUEST=None):

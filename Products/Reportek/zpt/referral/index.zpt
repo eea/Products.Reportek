@@ -22,7 +22,7 @@
 		<tr>
 			<th valign="top" i18n:translate="">Obligation(s)</th>
 			<td>
-				<tal:block tal:condition="has_dataflow_uris"><tal:block tal:repeat="item here/dataflow_uris"><tal:block tal:define="item_df python:here.dataflow_lookup(item)"><a tal:attributes="href item_df/details_url" tal:content="item_df/TITLE" /><em tal:condition="python:item_df.get('terminated', '0')=='1'" i18n:translate="">Terminated</em><br tal:condition="python:not path('repeat/item/end')" /></tal:block></tal:block></tal:block>
+				<tal:block tal:condition="has_dataflow_uris" tal:define="engine here/getEngine"><tal:block tal:repeat="item here/dataflow_uris"><tal:block tal:define="item_df python:engine.dataflow_lookup(item)"><a tal:attributes="href item_df/details_url" tal:content="item_df/TITLE" /><em tal:condition="python:item_df.get('terminated', '0')=='1'" i18n:translate="">Terminated</em><br tal:condition="python:not path('repeat/item/end')" /></tal:block></tal:block></tal:block>
 				<tal:block tal:condition="python:not has_dataflow_uris"><span style="color:maroon;font-weight:bold" title="The obligation tag makes it possible for the requesters to find the delivery" i18n:attributes="title" i18n:translate="">Notice: this referral has no obligation tag</span></tal:block>
 			</td>
 		</tr>

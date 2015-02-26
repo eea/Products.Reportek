@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='Products.Reportek',
-    version='3.7.0',
+    version='3.7.2-dev15',
     author='Eau de Web',
     author_email='office@eaudeweb.ro',
     url='https://github.com/eea/Products.Reportek',
@@ -13,6 +13,7 @@ setup(
         'lxml',
         'path.py',
         'requests==1.2.3',
+        'plone.memoize',
         'Zope2',
     ],
 )

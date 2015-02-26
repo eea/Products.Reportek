@@ -1,0 +1,150 @@
+<tal:block metal:define-macro="short_organisation_details">
+  <div class="company-header clearfix">
+    <label class="btn btn-default pull-left" tal:attributes="for string:id_${candidate/company_id}">
+      <input type="radio" name="cid" tal:attributes="value string:${candidate/company_id}; id string:id_${candidate/company_id}">
+      Match
+    </label>
+    <h3 tal:content="candidate/name"/>
+  </div>
+  <table class="table-list" tal:condition="candidate">
+    <tbody>
+      <tr>
+        <th>Date registered</th>
+        <td tal:content="candidate/date_registered" />
+      </tr>
+      <tr>
+        <th>VAT number</th>
+        <td tal:content="candidate/vat_number" />
+      </tr>
+      <tr>
+        <th>Reporting folder</th>
+        <td>
+          <a tal:condition="candidate/account"
+            tal:define="coll_path string:/fgases/${candidate/country_code}/${candidate/account}"
+             tal:attributes="href coll_path"
+             tal:content="coll_path" />
+        </td>
+      </tr>
+      <tr>
+        <th>Country</th>
+        <td tal:content="candidate/country" />
+      </tr>
+      <tr>
+        <th>Website</th>
+        <td>
+          <a tal:attributes="href python: company['website'] if company['website'].startswith('http') else 'http://' + company['website']"
+           tal:condition="company/website"
+           tal:content="company/website" />
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3 tal:condition="not: candidate">No information about this candidate</h3>
+</tal:block>
+
+<tal:block metal:define-macro="organisation_details">
+  <table class="table-list">
+    <tr>
+      <th>Company name</th>
+      <td tal:content="company/name" />
+    </tr>
+
+    <tr>
+      <th>Status</th>
+      <td tal:content="company/status" />
+    </tr>
+
+    <tr>
+      <th>Street and number</th>
+       <td tal:content="string:${company/address/street} ${company/address/number}" />
+    </tr>
+
+    <tr>
+      <th>Municipality</th>
+      <td tal:content="company/address/city" />
+    </tr>
+
+    <tr>
+      <th>Postal code</th>
+      <td tal:content="company/address/zipcode" />
+    </tr>
+
+    <tr>
+      <th>VAT number</th>
+      <td tal:content="company/vat" />
+    </tr>
+
+    <tr>
+      <th>Country</th>
+      <td tal:content="company/address/country/name" />
+    </tr>
+
+    <tr>
+      <th>Obligation</th>
+      <td tal:content="company/domain" />
+    </tr>
+
+    <tr>
+      <th>Website</th>
+      <td>
+        <a tal:attributes="href python: company['website'] if company['website'].startswith('http') else 'http://' + company['website']"
+           tal:condition="company/website"
+           tal:content="company/website" />
+      </td>
+    </tr>
+  </table>
+</tal:block>
+
+<tal:block metal:define-macro="representative_details">
+  <table class="table-list">
+    <tr>
+      <th>Company name</th>
+      <td tal:content="representative/name" />
+    </tr>
+
+    <tr>
+      <th>Street and number</th>
+       <td tal:content="string:${representative/address/street} ${representative/address/number}" />
+    </tr>
+
+    <tr>
+      <th>Municipality</th>
+      <td tal:content="representative/address/city" />
+    </tr>
+
+    <tr>
+      <th>Postal code</th>
+      <td tal:content="representative/address/zipcode" />
+    </tr>
+
+    <tr>
+      <th>VAT number</th>
+      <td tal:content="representative/vatnumber" />
+    </tr>
+
+    <tr>
+      <th>Country</th>
+      <td tal:content="representative/address/country/name" />
+    </tr>
+
+    <tr>
+      <th>Contact First Name</th>
+      <td tal:content="representative/contact_first_name" />
+    </tr>
+
+    <tr>
+      <th>Contact Last Name</th>
+      <td tal:content="representative/contact_last_name" />
+    </tr>
+
+    <tr>
+      <th>Contact Email Name</th>
+      <td>
+        <a tal:attributes="href string:mailto:${representative/contact_email}"
+           tal:content="representative/contact_email" />
+      </td>
+    </tr>
+  </table>
+</tal:block>
+

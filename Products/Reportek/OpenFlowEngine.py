@@ -698,15 +698,14 @@ class OpenFlowEngine(Folder, Toolz):
 
     security.declarePublic('getDataflows')
     def getDataflows(self):
-        """ dataflow_table is acquired from root of ZODB and is
-            currently a python script """
-        return self.dataflow_table()
+        """ dataflow_table is acquired from ReportekEngine"""
+        return getattr(self, constants.ENGINE_ID).dataflow_table()
 
     security.declarePublic('getCountries')
     def getCountries(self):
         """ countries table is aquired from root of ZODB 
         """
-        return self.localities_table()
+        return getattr(self, constants.ENGINE_ID).localities_table()
 
 
     security.declareProtected('Manage OpenFlow', 'workflow_map_processes')

@@ -54,7 +54,6 @@ import Hyperlink
 import Feedback
 from constants import WORKFLOW_ENGINE_ID, ENGINE_ID
 from exceptions import InvalidPartOfYear
-from CountriesManager import CountriesManager
 from EnvelopeInstance import EnvelopeInstance
 from EnvelopeRemoteServicesManager import EnvelopeRemoteServicesManager
 from EnvelopeCustomDataflows import EnvelopeCustomDataflows
@@ -139,7 +138,7 @@ def get_first_accept(req_dict):
     firstseg = segs[0].split(';')
     return firstseg[0].strip()
 
-class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager, EnvelopeCustomDataflows):
+class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDataflows):
     """ Envelopes are basic container objects that provide a standard
         interface for object management. Envelope objects also implement
         a management interface
@@ -930,7 +929,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
         tmpfile = tempfile.NamedTemporaryFile(suffix='.temp', dir=zip_cache)
 
         try:
-            outzd = ZipFile(tmpfile, "w", allowZip64=True)
+            outzd = ZipFile(tmpfile, "w", compression=ZIP_DEFLATED, allowZip64=True)
 
             for doc in public_docs:
                 outzd.writestr(doc.getId(), doc.data_file.open().read())
@@ -987,7 +986,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
                   string.rfind(name,':')
                  )+1:]
         id = RepUtils.cleanup_id(id)
-        self.manage_addDocument(id=id, title=id,file=zipfile, restricted=restricted)
+        self.manage_addDocument(id=id, title=id, file=zipfile, restricted=restricted)
 
     security.declareProtected('Add Envelopes', 'manage_addzipfile')
     def manage_addzipfile(self, file='', content_type='', restricted='', REQUEST=None):
@@ -998,7 +997,7 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
 
         if type(file) is not type('') and hasattr(file,'filename'):
             # According to the zipfile.py ZipFile just needs a file-like object
-            zf = zip_content.ZZipFile(file)
+            zf = zip_content.ZZipFileRaw(file)
             for name in zf.namelist():
                 # test that the archive is not hierarhical
                 if name[-1] == '/' or name[-1] == '\\':
@@ -1119,8 +1118,9 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
             res.append('<hasFile rdf:resource="%s"/>' % RepUtils.xmlEncode(o.absolute_url()) )
         for o in objsByType.get('Report Feedback', []):
             res.append('<cr:hasFeedback rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(self.absolute_url()), o.id))
+        # In wich tag should we include this information??
+        res.append('<blockedByQA rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</blockedByQA>' % repr(self.is_blocked).lower())
         res.append('</Delivery>')
-
         for metatype, objs in objsByType.items():
             for o in objs:
                 xmlChunk = []
@@ -1241,6 +1241,30 @@ class Envelope(EnvelopeInstance, CountriesManager, EnvelopeRemoteServicesManager
     security.declareProtected('View', 'has_permission')
     def has_permission(self, *args, **kwargs):
         return self.acquiredRolesAreUsedBy(*args, **kwargs)
+
+    def getCountryName(self, country_uri=None):
+        """ Returns country name from the country uri
+        """
+        dummycounty = {'name':'Unknown', 'iso': 'xx'}
+        eng = getattr(self, ENGINE_ID)
+        if country_uri:
+            try:
+                return str([x['name'] for x in eng.localities_table() if str(x['uri']) == country_uri][0])
+            except:
+                return dummycounty['name']
+        return str(eng.localities_dict().get(self.country, dummycounty)['name'])
+
+    def getCountryCode(self, country_uri=None):
+        """ Returns country ISO code from the country uri
+        """
+        dummycounty = {'name':'Unknown', 'iso': 'xx'}
+        eng = getattr(self, ENGINE_ID)
+        if country_uri:
+            try:
+                return str([x['iso'] for x in eng.localities_table() if str(x['uri']) == country_uri][0])
+            except:
+                return dummycounty['iso']
+        return str(eng.localities_dict().get(self.country, dummycounty)['iso'])
 
 # Initialize the class in order the security assertions be taken into account
 Globals.InitializeClass(Envelope)

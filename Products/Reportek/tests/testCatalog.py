@@ -47,18 +47,6 @@ class CatalogTest(BaseTest, ConfigureReportek):
     def test_envelope_indexes(self, mock_commit):
         from Products.Reportek.Envelope import Envelope
 
-        self.root.localities_table = Mock(return_value=[
-                    {
-                        'iso': 'FC',
-                        'name': 'FirstCountry',
-                        'uri': 'http://example.com/country/1'
-                    },
-                    {
-                        'iso': 'SC',
-                        'name': 'SecondCountry',
-                        'uri': 'http://example.com/country/2'
-                    }])
-
         process = Mock()
         process.absolute_url = Mock(return_value='/ProcessURL')
         first_envelope = Envelope(process=process,
@@ -70,7 +58,7 @@ class CatalogTest(BaseTest, ConfigureReportek):
                             country='http://example.com/country/1',
                             locality='TestLocality',
                             descr='TestDescription')
-
+        first_envelope.getCountryName = Mock(return_value="FirstCountry")
         first_envelope._content_registry_ping = Mock()
         self.engine.messageDialog = Mock()
         first_envelope.id = 'first_envelope'

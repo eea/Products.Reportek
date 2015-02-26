@@ -1,0 +1,105 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+<metal:block fill-slot="head">
+  <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
+  <link href="++resource++static/style.css" rel="stylesheet"/>
+
+  <script type="text/javascript" charset="utf8"
+          src="++resource++static/jquery-1.11.2.min.js"></script>
+  <script type="text/javascript" charset="utf8"
+          src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.min.js"></script>
+  <script src="++resource++static/select2-3.5.0/select2.js"></script>
+  <script src="++resource++static/utils.js"></script>
+</metal:block>
+  <metal:block fill-slot="breadcrumbtrails">
+    <tal:block content="structure here/breadcrumbs_views"></tal:block>
+  </metal:block>
+<metal:block fill-slot="content">
+
+  <form action="" method="get">
+    <div class="filters">
+      <h1>Recent uploads</h1>
+
+      <h2>1. Select obligation</h2>
+      <tal:block metal:use-macro="here/filters/macros/select-obligation" />
+
+      <h2>2. Select one or more countries</h2>
+      <tal:block metal:use-macro="here/filters/macros/countries" />
+
+      <div>
+        <label for="start-date">Start date</label>
+        <input type="date" id="start-date" name="startdate"/>
+
+        <label for="end-date">End date</label>
+        <input type="date" id="end-date" name="enddate"/>
+      </div>
+
+      <div>
+        <input type="submit" name="btn.search" value="Search" />
+      </div>
+    </div>
+  </form>
+  <style>
+    table {
+      font-size:0.9em;
+      line-height:normal;
+    }
+
+    .break-all {
+        word-break: break-all;
+    }
+  </style>
+  <div tal:condition="request/btn.search | nothing"
+        tal:define="envelopes view/get_recent_uploads">
+    <span tal:condition="not: envelopes">No envelopes.</span>
+    <table id="env-table" tal:condition="envelopes">
+      <thead>
+        <tr>
+          <th width="10%">Reported</th>
+          <th width="10%">Country</th>
+          <th width="20%">Title</th>
+          <th width="10%">Activity</th>
+          <th width="10%">Status</th>
+          <th width="15%">Feedback</th>
+          <th width="25%">Files</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr tal:repeat="env envelopes" class="zebraeven">
+          <td tal:content="env/reportingdate"/>
+          <td tal:content="env/country"/>
+          <td>
+            <a class="break-all" tal:attributes="href env/link" tal:content="env/title" title="Link to envelope"/>
+          </td>
+          <td>
+            <a tal:condition="python: env['activity'] == 'End'" tal:attributes="href string: ${env/link}/envelope_zip" tal:content="env/activity" title="Zip envelope and download"></a>
+            <span tal:condition="python: env['activity'] != 'End'" tal:content="env/activity"></span>
+          </td>
+          <td tal:content="env/status"></td>
+          <td>
+            <tal:block tal:condition="env/feedbacks" tal:repeat="feedback env/feedbacks">
+              <a class="break-all" tal:content="python: feedback.id[:16]" tal:attributes="href feedback/absolute_url; title feedback/absolute_url"></a><br/>
+            </tal:block>
+            <span tal:condition="not: env/feedbacks">No feedback posted</span>
+          </td>
+          <td tal:condition="env/files" >
+            <tal:block repeat="file env/files">
+              <tal:block tal:condition="python: file.id.endswith('.shp')">
+                  <a tal:attributes="href string:${file/absolute_url}/manage_document; title file/absolute_url" tal:content="file/id"></a><br/>
+              </tal:block>
+              <tal:block tal:condition="not: python: file.id.endswith('.shp')">
+                  <div class="break-all" tal:condition="not: python: file.id.endswith('.shp')" tal:content="file/id"></div>
+              </tal:block>
+            </tal:block>
+          </td>
+          <td tal:condition="not: env/files">
+            <span>No files uploaded</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+</metal:block>
+
+</metal:block>

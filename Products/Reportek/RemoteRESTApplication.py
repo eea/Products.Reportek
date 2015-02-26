@@ -11,7 +11,7 @@
 # The Original Code is Reportek version 1.0.
 #
 # The Initial Developer of the Original Code is European Environment
-# Agency (EEA). Portions created by Eau de Web are 
+# Agency (EEA). Portions created by Eau de Web are
 # Copyright (C) European Environment Agency.  All
 # Rights Reserved.
 #
@@ -224,7 +224,7 @@ class RemoteRESTApplication(SimpleItem):
 
     def __post_feedback(self, workitem, jobid, messages, attach=None):
         envelope = self.aq_parent
-        feedback_id = self.app_name + '_' + str(jobid) + '_' + str(int(DateTime()))
+        feedback_id = '{0}_{1}'.format(self.app_name, jobid)
         envelope.manage_addFeedback(
                 id=feedback_id,
                 file=attach,

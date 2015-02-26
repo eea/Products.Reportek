@@ -209,11 +209,10 @@ class QAScriptTest(unittest.TestCase):
         #assert filtered by workflow and content type
         local_scripts = qa_repository._get_local_qa_scripts(
             p_schema='xml.schema',
-            dataflow_uris=['dataflow/uri'],
+            dataflow_uris=[None],
             content_type_in='application/msaccess')
         self.assertEqual(
-            [qa_repository.schema_qascript,
-             qa_repository.mdb_workflow_qascript],
+            [qa_repository.schema_qascript],
             local_scripts)
 
     def test_workflow_scripts_are_found_by_content_type(self):
@@ -240,11 +239,10 @@ class QAScriptTest(unittest.TestCase):
         #assert filtered by schema, workflow and content type
         local_scripts = qa_repository._get_local_qa_scripts(
             p_schema='xml.schema',
-            dataflow_uris=['dataflow/uri'],
+            dataflow_uris=[None],
             content_type_in='application/msaccess')
         self.assertEqual(
-            [qa_repository.schema_qascript,
-             qa_repository.mdb_workflow_qascript],
+            [qa_repository.schema_qascript],
             local_scripts)
 
         mock_dm_container = Mock(getSchemasForDataflows=Mock(return_value=[]))

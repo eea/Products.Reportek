@@ -1,0 +1,57 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+  <metal:block fill-slot="head">
+    <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
+    <link href="++resource++static/style.css" rel="stylesheet"/>
+
+    <script type="text/javascript" charset="utf8"
+          src="++resource++static/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" charset="utf8"
+          src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.min.js"></script>
+    <script src="++resource++static/select2-3.5.0/select2.js"></script>
+    <script src="++resource++static/utils.js"></script>
+  </metal:block>
+
+  <metal:block fill-slot="breadcrumbtrails">
+    <tal:block content="structure here/breadcrumbs_views"></tal:block>
+  </metal:block>
+
+
+  <metal:block fill-slot="content">
+    <style>
+      table {
+        font-size:0.9em;
+        line-height:normal;
+      }
+    </style>
+
+    <h1>Companies</h1>
+    <p>
+    This page contains the list of companies registered in
+    <a tal:attributes="href view/get_url">FGAS portal</a>
+    and approved in BDR. You can see the company details and reporters by
+    clicking on the company name. You can export them in <a href="organisations_excel">
+    Excel</a> or <a href="organisations_json">JSON </a> format. Alternatively you
+    can export all reporters in <a href="users_json">Excel</a> format.
+    </p>
+
+   <table id="comp-table" width="100%">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Company name</th>
+          <th>Obligation</th>
+          <th>Reporters</th>
+          <th>Country</th>
+          <th>VAT number</th>
+          <th>Date registered</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+
+
+  </metal:block>
+
+</metal:block>

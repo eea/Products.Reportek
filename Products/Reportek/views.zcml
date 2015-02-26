@@ -1,0 +1,125 @@
+<configure
+  xmlns="http://namespaces.zope.org/zope"
+  xmlns:browser="http://namespaces.zope.org/browser"
+  xmlns:five="http://namespaces.zope.org/five">
+
+  <browser:page
+    name="index_html"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.BaseAdmin"
+    template="zpt/utilities/index.zpt"/>
+
+  <browser:page
+    name="users_template"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.BaseAdmin"
+    template="zpt/utilities/users_template.zpt"/>
+
+  <browser:page
+    name="filters"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.BaseAdmin"
+    template="zpt/utilities/filters.zpt"/>
+
+  <browser:page
+    name="get_users_by_path"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.ListUsers"
+    template="zpt/utilities/get_users_by_path.zpt"/>
+
+  <browser:page
+    name="api.get_users_by_path"
+    for="*"
+    permission="zope2.ViewManagementScreens"
+    class=".views.ListUsers"
+    attribute="getUsersByPath" />
+
+  <browser:page
+    name="get_users"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.ListUsers"
+    template="zpt/utilities/get_users.zpt"/>
+
+  <browser:page
+    name="api.get_users"
+    for="*"
+    permission="zope2.ViewManagementScreens"
+    class=".views.ListUsers"
+    attribute="getUsers" />
+
+  <browser:page
+    name="country.reporters"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.ListUsers"
+    template="zpt/utilities/get_country_reporters.zpt" />
+
+  <browser:page
+    name="find_user"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.ManageRoles"
+    template="zpt/utilities/find_user.zpt"/>
+
+  <browser:page
+    name="roles_template"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.ManageRoles"
+    template="zpt/utilities/roles_template.zpt"/>
+
+  <browser:page
+    name="revoke_roles"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.ManageRoles"
+    template="zpt/utilities/revoke_roles.zpt"/>
+
+  <browser:page
+    name="assign_role"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.ManageRoles"
+    template="zpt/utilities/assign_role.zpt"/>
+
+  <browser:page
+    name="collections.search"
+    for=".ReportekUtilities.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.SearchCollections"
+    template="zpt/utilities/search_collections.zpt"/>
+
+  <browser:page
+    name="collections.wrong_country"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.WrongCountry"
+    template="zpt/utilities/collections_wrong_country.zpt"/>
+
+  <browser:page
+    name="envelopes.wrong_country"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.WrongCountry"
+    template="zpt/utilities/envelopes_wrong_country.zpt"/>
+
+  <browser:page
+    name="obligation.recent_uploads"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.RecentUploads"
+    template="zpt/utilities/recent_uploads.zpt"/>
+
+  <browser:page
+    name="envelopes.autocomplete"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.EnvelopeUtils"
+    template="zpt/utilities/envelopes_autocomplete.zpt"/>
+
+</configure>

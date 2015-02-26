@@ -497,7 +497,7 @@ class EnvelopeCustomDataflows:
                 if w.actor != 'openflow_engine' and w.actor not in actors:
                     actors.append(w.actor)
             filters = []
-            country_name = str(self.localities_dict().get(self.country, {'name':'Unknown'})['name'])
+            country_name = str(engine.localities_dict().get(self.country, {'name':'Unknown'})['name'])
             for df in self.dataflow_uris:
                 if event_type:
                     filters.append({'http://rod.eionet.europa.eu/schema.rdf#locality': country_name, 'http://rod.eionet.europa.eu/schema.rdf#obligation': engine.getDataflowTitle(df),

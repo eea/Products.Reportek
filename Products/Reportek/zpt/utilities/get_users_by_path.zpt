@@ -1,0 +1,33 @@
+<metal:block use-macro="here/users_template/macros/users-page">
+
+  <metal:block fill-slot="tabs">
+    <div id="tabbedmenu">
+      <ul>
+        <li id="currenttab">
+          <span>Grouped by path</span>
+        </li>
+        <li>
+          <a tal:attributes="href python:view.get_view('get_users')">
+            Grouped by person
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div id="tabbedmenuend"></div>
+  </metal:block>
+
+  <metal:block fill-slot="data-table">
+    <table class="datatable" id="datatable" data-table-key="by_path">
+      <thead>
+        <tr>
+          <th>Collection</th>
+          <th>Obligations</th>
+          <th>Users</th>
+        </tr>
+      </thead>
+      <tbody>
+      </tbody>
+    </table>
+  </metal:block>
+
+</metal:block>

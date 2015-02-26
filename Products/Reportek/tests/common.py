@@ -21,6 +21,7 @@ from Products.Reportek.Envelope import Envelope
 from Products.Reportek.ReportekEngine import ReportekEngine
 
 from utils import makerequest
+from copy import deepcopy
 
 
 
@@ -65,6 +66,12 @@ class BaseTest(ZopeTestCase.ZopeTestCase):
     @staticmethod
     def create_reportek_engine(parent):
         ob = ReportekEngine()
+        ob.dataflow_rod = Mock(
+            return_value=deepcopy(ConfigureReportek.exampledataflows)
+        )
+        ob.localities_rod = Mock(
+            return_value=deepcopy(ConfigureReportek.examplelocalities)
+        )
         parent._setObject(ob.id, ob)
         return parent[ob.id]
 
@@ -89,9 +96,12 @@ class BaseTest(ZopeTestCase.ZopeTestCase):
             endyear = kwargs['endyear']
         else:
             endyear = '2004'
-        return simple_addEnvelope(col, '', '', year, endyear, '',
+        env = simple_addEnvelope(col, '', '', year, endyear, '',
             'http://rod.eionet.eu.int/localities/1', REQUEST=None,
             previous_delivery='')
+        env.getCountryName = Mock(return_value='Unknown')
+        env.getCountryCode = Mock(return_value='xx')
+        return env
 
     @staticmethod
     def create_mock_request():
@@ -268,21 +278,9 @@ class ConfigureReportek:
         return catalog
 
     def createStandardDependencies(self):
-        """ Create localities_table, dataflow_table and a simple workflow process.
+        """ Create a simple workflow process.
             Then map process to all dataflows and all countries
         """
-        # Create localities_table
-        self.app.manage_addProduct['PythonScripts'].manage_addPythonScript(id='localities_table')
-        pyapp = getattr(self.app, 'localities_table')
-        pyapp.ZPythonScript_edit(params='',
-              body="""return %s""" % str(self.examplelocalities) )
-
-        # Create dataflow_table
-        self.app.manage_addProduct['PythonScripts'].manage_addPythonScript(id='dataflow_table')
-        pyapp = getattr(self.app, 'dataflow_table')
-        pyapp.ZPythonScript_edit(params='',
-              body="""return %s""" % str(self.exampledataflows) )
-
         # Assume the workflow engine was created automatically
         of = getattr(self.app, 'WorkflowEngine')
 

@@ -104,7 +104,10 @@ def manage_addFeedback(self, id ='', title='', feedbacktext='', file='', activit
         engine.sendNotificationToUNS(envelope, 'Feedback posted', 'Feedback was posted in the envelope %s (%s)' % (envelope.title_or_id(), obj.absolute_url()), self.REQUEST.AUTHENTICATED_USER.getUserName())
 
     if REQUEST is not None:
-        return self.messageDialog(message="The Feedback %s was successfully created!" % id)
+        if 'file_upload' in REQUEST.form:
+            REQUEST.RESPONSE.redirect('%s/manage_editFeedbackForm' % obj.absolute_url())
+        else:
+            return self.messageDialog(message="The Feedback %s was successfully created!" % id)
 
 class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, CommentsManager):
     """
@@ -298,5 +301,30 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
 
     security.declareProtected('Change Feedback', 'manage_deleteAttFeedbackForm')
     manage_deleteAttFeedbackForm = PageTemplateFile('zpt/feedback/deleteatt', globals())
+
+    security.declareProtected('View', 'rdf')
+    def rdf(self, REQUEST):
+        """ Returns the feedback data in RDF format.
+            This will include parsing the XHTML reply from XMLCONV.
+            Note that the metadata is already provided by then envelope rdf.
+            If feedback is restricted the 'View' permission flag is removed.
+        """
+        REQUEST.RESPONSE.setHeader('content-type', 'application/rdf+xml; charset=utf-8')
+        #if not self.canViewContent():
+        #    raise Unauthorized, "Envelope is not available"
+
+        res = []
+
+        res.append('<?xml version="1.0" encoding="utf-8"?>')
+        res.append('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"')
+        res.append(' xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"')
+        res.append(' xmlns:dct="http://purl.org/dc/terms/"')
+        res.append(' xmlns:cr="http://cr.eionet.europa.eu/ontologies/contreg.rdf#"')
+        res.append(' xmlns="http://rod.eionet.europa.eu/schema.rdf#">')
+
+        res.append('<rdf:Description rdf:about="%s">' % RepUtils.xmlEncode(self.absolute_url()))
+        res.append('</rdf:Description>')
+        res.append('</rdf:RDF>')
+        return '\n'.join(res)
 
 InitializeClass(ReportFeedback)

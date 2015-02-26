@@ -3,6 +3,7 @@ import time
 import pickle
 
 from Products.Reportek import ContentRegistryPingger
+from Products.Reportek.config import *
 from common import BaseTest, ConfigureReportek
 from utils import (mysleep, MockRedis, create_upload_file, simple_addEnvelope,
                    add_hyperlink, add_document, add_feedback)
@@ -217,28 +218,29 @@ class InitCRTest(BaseTest, ConfigureReportek):
         self.pingger.PING_STORE = MockRedis()
 
 
-    @patch('redis.Redis')
-    def test_ping_remaining_envelopes(self, redis_mock):
-        import pickle
-        from Products.Reportek import ping_remaining_envelopes
-        val = {'op': 'create', 'ts': 1}
-        val = pickle.dumps(val)
-        self.pingger.PING_STORE.hset(constants.PING_ENVELOPES_KEY, self.envelope.absolute_url(), val)
-        val = {'op': None, 'ts': 0}
-        val = pickle.dumps(val)
-        self.pingger.PING_STORE.hset(constants.PING_ENVELOPES_KEY, self.second_envelope.absolute_url(), val)
-        ok_message = '''<?xml version="1.0"?>
-        <response>
-            <message>URL added to the urgent harvest queue: http://cdrtest.eionet.europa.eu/ro/colu0vgwa/colu0vgdq/envu0vgka/rdf</message>
-            <flerror>0</flerror>
-        </response>'''
-        self.pingger._content_registry_ping = Mock(return_value=(200, ok_message))
-        redis_mock.return_value = self.pingger.PING_STORE
+    if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
+        @patch('redis.Redis')
+        def test_ping_remaining_envelopes(self, redis_mock):
+            import pickle
+            from Products.Reportek import ping_remaining_envelopes
+            val = {'op': 'create', 'ts': 1}
+            val = pickle.dumps(val)
+            self.pingger.PING_STORE.hset(constants.PING_ENVELOPES_KEY, self.envelope.absolute_url(), val)
+            val = {'op': None, 'ts': 0}
+            val = pickle.dumps(val)
+            self.pingger.PING_STORE.hset(constants.PING_ENVELOPES_KEY, self.second_envelope.absolute_url(), val)
+            ok_message = '''<?xml version="1.0"?>
+            <response>
+                <message>URL added to the urgent harvest queue: http://cdrtest.eionet.europa.eu/ro/colu0vgwa/colu0vgdq/envu0vgka/rdf</message>
+                <flerror>0</flerror>
+            </response>'''
+            self.pingger._content_registry_ping = Mock(return_value=(200, ok_message))
+            redis_mock.return_value = self.pingger.PING_STORE
 
-        ping_remaining_envelopes(self.root, self.pingger)
-        call_args_list = self.pingger._content_registry_ping.call_args_list
-        # skip the feedback - it is random name
-        self.assertIn(call(self.envelope.absolute_url()+'/rdf', ping_argument='create'), call_args_list)
-        self.assertIn(call(self.envelope.absolute_url()+'/link', ping_argument='create'), call_args_list)
-        self.assertIn(call(self.envelope.absolute_url()+'/foo.txt', ping_argument='create'), call_args_list)
-        self.assertNotIn(call(self.second_envelope.absolute_url()+'/rdf', ping_argument='create'), call_args_list)
+            ping_remaining_envelopes(self.root, self.pingger)
+            call_args_list = self.pingger._content_registry_ping.call_args_list
+            # skip the feedback - it is random name
+            self.assertIn(call(self.envelope.absolute_url()+'/rdf', ping_argument='create'), call_args_list)
+            self.assertIn(call(self.envelope.absolute_url()+'/link', ping_argument='create'), call_args_list)
+            self.assertIn(call(self.envelope.absolute_url()+'/foo.txt', ping_argument='create'), call_args_list)
+            self.assertNotIn(call(self.second_envelope.absolute_url()+'/rdf', ping_argument='create'), call_args_list)

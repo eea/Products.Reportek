@@ -32,13 +32,20 @@ QAREPOSITORY_ID = 'QARepository'
 DATAFLOW_MAPPINGS = 'DataflowMappings'
 APPLICATIONS_FOLDER_ID = 'Applications'
 PING_ENVELOPES_KEY = 'PingEnvelopesStore'
+REPORTEK_UTILITIES = 'ReportekUtilities'
+REGISTRY_MANAGEMENT = 'fgases_registry'
+REPORTEK_API = 'api'
+ECAS_ID = 'eCas'
+MIGRATION_ID = 'Migrations'
 
 # remote servers
 WEBQ_XML_REPOSITORY = 'http://cdr.eionet.europa.eu/xmlexports/groundwater/'
 
-CONTENT_TYPES = {'application/zip':'.zip',
-                 'image/png':'.png',
-                 'application/vnd.google-earth.kml+xml':'.kml'}
+CONTENT_TYPES = {
+    'application/zip': '.zip',
+    'image/png': '.png',
+    'application/vnd.google-earth.kml+xml': '.kml'
+}
 
 #Mime-types ignored by sentry logger
 IGNORED_MIME_TYPES = [

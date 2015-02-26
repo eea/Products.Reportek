@@ -1,0 +1,41 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+  <metal:block fill-slot="head">
+    <link href="++resource++static/style.css" rel="stylesheet"/>
+  </metal:block>
+
+  <metal:block fill-slot="breadcrumbtrails">
+    <tal:block content="structure here/breadcrumbs_views"></tal:block>
+  </metal:block>
+
+  <metal:block fill-slot="content">
+
+    <tal:block define="records view/get_datasync_log">
+      <h1>Data synchronisation logs</h1>
+      <p>
+        This page contains latest 100 syncronisation jobs made against
+        FGAS portal and the number of companies fetched.
+      </p>
+
+      <tal:block condition="records">
+        <table class="table simple_table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Companies</th>
+              <th>Updated since</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr tal:repeat="record records">
+              <td tal:content="record/execution_time" />
+              <td tal:content="record/organizations"/>
+              <td tal:content="record/using_last_update"/>
+            </tr>
+          </tbody>
+        </table>
+      </tal:block>
+      <p class="system-msg" tal:condition="not: records">No data synchronisation log</p>
+    </tal:block>
+  </metal:block>
+</metal:block>

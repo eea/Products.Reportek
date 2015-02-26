@@ -1,0 +1,15 @@
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    i18n_domain="zope">
+
+<permission
+  id="zope2.FgasesRegistryAdministration"
+  title="FGases Registry Administration"
+/>
+
+<permission
+  id="zope2.BDRRegistryAdministration"
+  title="BDR Registry Administration"
+/>
+
+</configure>

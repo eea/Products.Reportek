@@ -32,23 +32,91 @@
 
 """
 
+from plone.memoize import ram
+from RepUtils import inline_replace
+from time import time
+from XMLRPCMethod import XMLRPCMethod
+
+
+class ServiceTemporarilyUnavailableException(Exception):
+    pass
+
+
 class DataflowsManager:
     """ Module that handles the dataflows(obligations) information: dataflow_table """
 
-    def dataflows_dict(self):
-        """ Converts the dataflow info into a dictionary """
-        dummy = {'uri': '', 'name': 'Unknown', 'iso': 'XX'}
-        l_ldict = {}
-        for l_item in self.localities_table():
-            l_ldict[l_item['uri']] = l_item
-        return l_ldict.get(country, dummy)
+    def __init__(self):
+        self.xmlrpc_dataflow = XMLRPCMethod(
+            title='Get activities from ROD',
+            url='http://rod.eionet.europa.eu/rpcrouter',
+            method_name='WebRODService.getActivities',
+            timeout=10.0
+        )
+
+    @property
+    def dfm_title(self):
+        xmlrpc_dataflow = getattr(self, 'xmlrpc_dataflow', None)
+        if xmlrpc_dataflow:
+            return getattr(xmlrpc_dataflow, 'title', None)
+
+    @property
+    def dfm_url(self):
+        xmlrpc_dataflow = getattr(self, 'xmlrpc_dataflow', None)
+        if xmlrpc_dataflow:
+            return getattr(xmlrpc_dataflow, 'url', None)
+
+    @property
+    def dfm_method(self):
+        xmlrpc_dataflow = getattr(self, 'xmlrpc_dataflow', None)
+        if xmlrpc_dataflow:
+            return getattr(xmlrpc_dataflow, 'method_name', None)
+
+    @property
+    def dfm_timeout(self):
+        xmlrpc_dataflow = getattr(self, 'xmlrpc_dataflow', None)
+        if xmlrpc_dataflow:
+            return getattr(xmlrpc_dataflow, 'timeout', None)
+
+    @ram.cache(lambda *args:time() // (60*60*12))
+    def dataflow_rod(self):
+        """ """
+        return self.xmlrpc_dataflow.call_method()
+
+    def dataflow_table(self):
+        """ """
+        try:
+            return map(inline_replace, self.dataflow_rod())
+        except Exception:
+            msg = "Reporting Obligations Database is temporarily unavailable," \
+                  " please try again later"
+            raise ServiceTemporarilyUnavailableException, msg
+
+    def dataflow_dict(self):
+        """ Converts the dataflow table into a dictionary """
+        l_dfdict = {}
+        for l_item in self.dataflow_table():
+            l_dfdict[l_item['uri']] = l_item
+        return l_dfdict
+
+    def dataflow_lookup(self, uri):
+        """ Lookup a dataflow on URI and return a dictionary of info """
+        try:
+            return self.dataflow_dict()[uri]
+        except KeyError:
+            return {'uri': uri,
+                'details_url': '',
+                'TITLE': 'Unknown/Deleted obligation',
+                'terminated':'1',
+                'SOURCE_TITLE': 'Unknown obligations',
+                'PK_RA_ID': '0'}
 
     def getDataflowDict(self, dataflow_uri):
         """ returns all properties of a dataflow as dictionary given the uri """
         try:
-            return [x for x in self.dataflow_table() if str(x['uri']) == dataflow_uri][0]
+            return [x for x in self.dataflow_table()
+                    if str(x['uri']) == dataflow_uri][0]
         except:
-            return {'SOURCE_TITLE':'Deleted', 'TITLE':'Unknown obligation'}
+            return {'SOURCE_TITLE': 'Deleted', 'TITLE': 'Unknown obligation'}
 
     # Getters for the dataflow
 

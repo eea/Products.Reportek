@@ -88,9 +88,9 @@ class QARepository(Folder):
                           x.xml_schema == p_schema)]
         elif p_schema and dataflow_uris and content_type_in:
             return [x for x in self.objectValues('QAScript')
-                      if ((getattr(x, 'workflow', None) in dataflow_uris and
-                          content_type_in == getattr(x, 'content_type_in', None)) or
-                          x.xml_schema == p_schema)]
+                      if (getattr(x, 'workflow', None) in dataflow_uris and
+                          content_type_in == getattr(x, 'content_type_in', None)) and
+                          x.xml_schema == p_schema]
         elif dataflow_uris and content_type_in:
             return [x for x in self.objectValues('QAScript')
                       if (getattr(x, 'workflow', None) in dataflow_uris and
@@ -169,6 +169,17 @@ class QARepository(Folder):
             if ((l_file.xml_schema_location and
                 (l_file.xml_schema_location in l_valid_schemas or not l_valid_schemas)) or
                 self._get_local_qa_scripts(dataflow_uris=l_file.dataflow_uris)):
+                #remote scripts
+                if l_qa_app:
+                    try:
+                        l_server = xmlrpclib.ServerProxy(l_server_url)
+                        l_tmp = eval('l_server.%s.listQAScripts(\'%s\')'
+                                     %(l_remote_server,
+                                       l_file.xml_schema_location))
+                        if len(l_tmp):
+                            l_ret[l_file.id] = l_tmp
+                    except:
+                        pass
                 #local scripts
                 l_buff = [
                     ['loc_%s' % y.id, y.title, y.bobobase_modification_time(),
@@ -179,22 +190,12 @@ class QARepository(Folder):
                             content_type_in=l_file.content_type)
                 ]
                 if len(l_buff):
-                    l_ret[l_file.id] = l_buff
-                #remote scripts
-                if l_qa_app:
-                    try:
-                        l_server = xmlrpclib.ServerProxy(l_server_url)
-                        l_tmp = eval('l_server.%s.listQAScripts(\'%s\')'
-                                     %(l_remote_server,
-                                       l_file.xml_schema_location))
-                        if len(l_tmp) > 0:
-                            # take just the script id and title
-                            if l_ret.has_key(l_file.id):
-                                l_ret[l_file.id].extend(l_tmp)
-                            else:
-                                l_ret[l_file.id] = l_tmp
-                    except:
-                        pass
+                    if l_ret.has_key(l_file.id):
+                        l_ret[l_file.id].extend(l_buff)
+                    else:
+                        l_ret[l_file.id] = l_buff
+
+
         return l_ret
 
     def _runQAScript(self, p_file_url, p_script_id):

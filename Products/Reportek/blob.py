@@ -1,5 +1,6 @@
 import os.path
 from gzip import GzipFile
+from gzipraw import GzipFileRaw
 from time import time, strftime, localtime
 from ZODB.blob import Blob, POSKeyError
 from App.config import getConfiguration
@@ -78,7 +79,7 @@ class FileContainer(Persistent):
             self.compressed = value
     ## Remove this after migration is complete
 
-    def open(self, mode='rb', orig_size=0, preserve_mtime=False, skip_decompress=False):
+    def open(self, mode='rb', orig_size=0, preserve_mtime=False, skip_decompress=False, crc=None):
         '''
         Opens and returns a file-like object with Blob's __enter__ and __exit__
         thus 'with FileContainer.open() as x' will work ok.
@@ -111,10 +112,15 @@ class FileContainer(Persistent):
                 # because the user that called open should also handle close...
                 orig_close = file_handle.close
                 zip_close = None
+                # The buffer is already compressed, avoid double compression
+                if skip_decompress:
+                    file_handle = GzipFileRaw(mode='w', fileobj=file_handle, crc=crc, orig_size=orig_size)
+                    zip_close = file_handle.close
+                    self.compressed_safe = True
                 # The file could have been compressed but we excluded it
                 # from COMPRESSIBLE_TYPES. So if it shouldn't be compressed no more
                 # then it shall become uncompressed on this write
-                if self._shouldCompress():
+                elif self._shouldCompress():
                     file_handle = GzipFile(fileobj=file_handle)
                     zip_close = file_handle.close
                     self.compressed_safe = True

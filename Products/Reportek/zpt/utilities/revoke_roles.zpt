@@ -1,0 +1,99 @@
+<metal:block use-macro="here/roles_template/macros/roles-page">
+
+    <metal:block fill-slot="page-header">
+      <h1>Remove role from Eionet user</h1>
+    </metal:block>
+
+    <metal:block fill-slot="messages">
+      <p class="important-msg" tal:condition="request/done | nothing">
+        Operations completed succesfully.
+      </p>
+    </metal:block>
+
+    <metal:block fill-slot="data-table">
+      <tal:block condition="request/search_term | nothing">
+        <form action="" method="get">
+
+          <tal:block metal:use-macro="here/find_user/macros/users_table" />
+
+          <input type="hidden" name="search_term"
+                 tal:attributes="value request/search_term" />
+
+          <div>
+            <input type="submit" name="btn.find_roles" value="Find user roles" />
+          </div>
+
+          <p tal:condition="not: request/search_term | nothing">
+            <strong>Please enter a search term</strong>
+          </p>
+
+          <tal:block condition="request/btn.find_roles | nothing">
+            <tal:block condition="python:request.get('username', None)">
+            <h2>3. Revoke roles</h2>
+            <table class="datatable"
+                   tal:define="collections view/get_collections">
+              <thead>
+                <tr>
+                  <th><input id="toggleAllCB" type="checkbox" /></th>
+                  <th>Country</th>
+                  <th>Path</th>
+                  <th>Obligations</th>
+                  <th>Roles</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr tal:repeat="collection collections">
+                  <td>
+                    <input type="checkbox" name="collections:list" class="toggledCB"
+                           tal:attributes="value collection/path">
+                  </td>
+                  <td tal:content="collection/country" />
+                  <td>
+                    <a tal:attributes="href collection/path"
+                       tal:content="collection/path"/>
+                  </td>
+                  <td>
+                    <ul>
+                      <tal:block repeat="obl collection/obligations">
+                        <li>
+                          <a tal:attributes="href obl/uri"
+                             tal:content="obl/title" />
+                        </li>
+                      </tal:block>
+                    </ul>
+                  </td>
+                  <td style="white-space: nowrap;">
+                    <ul tal:condition="collection/roles"
+                        tal:define="local_roles collection/roles">
+                      <li tal:repeat="roles python:[local_roles[user] for user in local_roles.keys() if user == request.get('username', None)]">
+                        <tal:rep tal:repeat="role roles">
+                          <input type="checkbox" class="local-roles"
+                            tal:attributes="name python: collection.get('path').replace('/', '_') + ':list';
+                                            value role;">
+                          <span tal:content="role"/>
+                        </tal:rep>
+                      </li>
+                    </ul>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div>
+              <input type="submit" name="btn.revoke" value="Revoke roles" />
+            </div>
+            </tal:block>
+
+
+            <p class="error-msg"
+               tal:condition="python:not request.get('username', None)">
+              User is mandatory.
+            </p>
+
+          </tal:block>
+        </form>
+      </tal:block>
+
+    </metal:block>
+
+</metal:block>

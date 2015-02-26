@@ -48,7 +48,7 @@ from blob import FileContainer, StorageError
 from constants import QAREPOSITORY_ID, ENGINE_ID
 from interfaces import IDocument
 from XMLInfoParser import detect_schema, SchemaError
-from zip_content import ZZipFile
+from zip_content import ZZipFile, ZZipFileRaw
 import RepUtils
 
 
@@ -68,32 +68,40 @@ UNDO_POLICY = BACKUP_ON_DELETE
 
 manage_addDocumentForm = PageTemplateFile('zpt/document/add', globals())
 
-def manage_addDocument(self, id='', title='',
-        file='', content_type='', restricted='', REQUEST=None):
+
+def manage_addDocument(self, id='', title='', file='', content_type='',
+                       restricted='', REQUEST=None, deferred_compress=None):
     """Add a Document to a folder. The form can be called with two variables
        set in the session object: default_restricted and force_restricted.
        This will set the restricted flag in the form.
     """
+    is_object = hasattr(file, 'filename') and file.filename
+    is_str = file and isinstance(file, basestring)
 
-    # content_type argument is probably not used anywhere.
-    if id=='' and type(file) is not type('') and hasattr(file,'filename'):
-        # generate id from filename and make sure, there are no spaces in the id
-        id = file.filename
-    if id:
+    if is_object:
+        if not id:
+            id = file.filename
+        else:
+            _, ext = os.path.splitext(id)
+            if not ext:
+                _, ext = os.path.splitext(file.filename)
+                id += ext
+
+    if (is_str or is_object) and id:
         save_id = None
-        id = id[max(string.rfind(id,'/'),
-                  string.rfind(id,'\\'),
-                  string.rfind(id,':')
-                 )+1:]
+        id = id[max(string.rfind(id, '/'),
+                    string.rfind(id, '\\'),
+                    string.rfind(id, ':')
+                    ) + 1:]
         id = id.strip()
         id = RepUtils.cleanup_id(id)
 
         # delete the previous file with the same id, if exists
         if self.get(id) and isinstance(self.get(id), Document):
             save_id = id
-            id = id + '___tmp_%f'%time()
+            id += '___tmp_%f' % time()
 
-        obj = Document(id, title)
+        obj = Document(id, title=title, deferred_compress=deferred_compress)
         self = self.this()
         self._setObject(id, obj)
         obj = self._getOb(id)
@@ -103,7 +111,7 @@ def manage_addDocument(self, id='', title='',
             self.manage_delObjects(id)
             if REQUEST:
                 return self.messageDialog(
-                    message='The file is an invalid XML (reason: %s)'%str(e.args),
+                    message='The file is an invalid XML (reason: %s)' % str(e.args),
                     action='./manage_main')
             else:
                 return ''
@@ -119,21 +127,21 @@ def manage_addDocument(self, id='', title='',
         obj.reindex_object()
         if REQUEST is not None:
             security=getSecurityManager()
-            if security.checkPermission('View management screens',self):
+            if security.checkPermission('View management screens', self):
                 ppath = './manage_main'
             else:
                 pobj = REQUEST.PARENTS[0]
                 ppath = string.join(pobj.getPhysicalPath(), '/')
             return self.messageDialog(
-                            message='The file %s was successfully created!' % id,
-                            action=ppath)
+                message='The file %s was successfully created!' % id,
+                action=ppath)
         else:
             return id
     else:
         if REQUEST is not None:
             return self.messageDialog(
-                            message='You must specify a file!',
-                            action='./manage_main')
+                message='You must specify a file!',
+                action='./manage_main')
         else:
             return ''
 
@@ -178,7 +186,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     # Init method                  #
     ################################
 
-    def __init__(self, id, title='', content_type=''):
+    def __init__(self, id, title='', content_type='', deferred_compress=None):
         """ Initialize a new instance of Document
             If a document is created through FTP, self.absolute_url doesn't work.
         """
@@ -186,10 +194,12 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         self.title = title
         self.xml_schema_location = '' #needed for XML files
         self.accept_time = None
+        ctor_kwargs = {}
         if content_type:
-            self.data_file = FileContainer(content_type)
-        else:
-            self.data_file = FileContainer()
+            ctor_kwargs['content_type'] = content_type
+        if deferred_compress:
+            ctor_kwargs['compress'] = 'deferred'
+        self.data_file = FileContainer(**ctor_kwargs)
 
     ################################
     # Public methods               #
@@ -533,6 +543,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     def is_compressed(self):
         return self.data_file.compressed_safe
 
+    manage_uploadForm = PageTemplateFile('zpt/document/upload', globals())
     def manage_file_upload(self, file='', content_type='', REQUEST=None):
         """ Upload file from local directory """
 
@@ -541,7 +552,13 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         self.data_file.content_type = content_type
         orig_size = self._compute_uncompressed_size(file)
 
-        with self.data_file.open('wb', orig_size=orig_size) as data_file_handle:
+        skip_compress = False
+        crc = None
+        if isinstance(file, ZZipFileRaw) and file.allowRaw:
+            skip_compress = True
+            crc = file.CRC
+
+        with self.data_file.open('wb', orig_size=orig_size, skip_decompress=skip_compress, crc=crc) as data_file_handle:
             if hasattr(file, 'filename'):
                 for chunk in RepUtils.iter_file_data(file):
                     data_file_handle.write(chunk)
@@ -579,8 +596,15 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         if hasattr(file_or_content, 'filename'):
             name = file_or_content.filename
             headers = getattr(file_or_content, 'headers', None)
-            body = file_or_content.read(100)
-            file_or_content.seek(0)
+            readCount = 100
+            body = file_or_content.read(readCount)
+            if ( isinstance(file_or_content, ZZipFileRaw)\
+                 and file_or_content.allowRaw
+                 and ( readCount < 0
+                       or readCount >= ZZipFileRaw.SKIP_RAW_THRESHOLD ) ):
+                file_or_content.rewindRaw()
+            else:
+                file_or_content.seek(0)
         else:
             body = file_or_content[:100]
 
@@ -613,6 +637,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             return len(file_or_content)
         elif isinstance(file_or_content, StringIO):
             return file_or_content.len
+        elif isinstance(file_or_content, ZZipFileRaw):
+            return file_or_content.orig_size
         elif isinstance(file_or_content, ZZipFile):
             return file_or_content.tell()
         return 0

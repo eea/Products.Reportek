@@ -125,16 +125,16 @@ class UNSCallsTest(unittest.TestCase):
         mock_strftime.return_value = '2012-May-28 18:06:30'
 
         root = create_fake_root()
-        root.localities_table = Mock(return_value=mock_localities.values())
-
         process = Mock()
         e = Envelope(process, '', '', '', '', '', '', '', '')
         e._content_registry_ping = Mock()
         e.id = 'envelope'
         e.dataflow_uris = [mock_dataflow['uri']]
         e.country = mock_localities['es']['uri']
+        e.localities_table = Mock(return_value=mock_localities.values())
         e.absolute_url = Mock(return_value=envelope_uri)
-        e.dataflow_lookup = Mock(return_value=mock_dataflow)
+        e.getCountryName = Mock(return_value=mock_localities['es']['name'])
+        self.engine.dataflow_lookup = Mock(return_value=mock_dataflow)
         root._setObject(e.id, e)
         envelope = root[e.id]
 

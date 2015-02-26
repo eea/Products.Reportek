@@ -1,3 +1,111 @@
+3.7.2-dev16 (26-02-2015)
+-----------------------
+* Task #23463 - overridden PropertiedUser.getRolesInContext() to check middleware too
+
+3.7.2-dev15 (26-02-2015)
+-----------------------
+* Task #23451 - AttributeError company_id
+* Task #22656 - use script title in feedback id
+* Task #22974 - minor fix
+
+3.7.2-dev14 (20-02-2015)
+-----------------------
+
+3.7.2-dev13 (19-02-2015)
+-----------------------
+* Task #23228 - Authentication lost on BDR. add webqKeepAlive [baragdan]
+* Task #22974 - Search dataflow functionality in ReportekUtilities [malduvit]
+* Task #23217 - nicely inform user that no company was found when no company was found [baragdan]
+* Task #23215 - keep GET query arguments when login redirects [baragdan]
+
+3.7.2-dev12 (13-02-2015)
+-----------------------
+* Task #22993 - Add a tab to ReportekEngine management where we can see migrations
+* Task #23236 - Fix organisation_details link to reporting folder for non-ue types
+
+3.7.2-dev11 (10-02-2015)
+-----------------------
+
+3.7.2-dev10 (10-02-2015)
+-----------------------
+* Task #22993 - add migration to migration tracking support. Create migration decorator [baragdan] (needs migration)
+* Task #22445 - Lockdown: unmatch companies case + sending emails [baragdan]
+* Task #22989 - Fix datatable error on IE [malduvit]
+
+3.7.2-dev8 (05-02-2015)
+-----------------------
+* Task #22904 - Add missing functionality to Envelope [baragdan]
+* Task #22820 - Notification settings [malduvit]
+* Task #22817 - Fix url for fgas portal [malduvit]
+* Task #22819 - Ajax loading for companies table [malduvit]
+* Task #22874 - Ajax loading for pending companies [malduvit]
+* Task #22445 - implement Lockdown (TODO: send mails) [baragdan]
+* Task #22664 - Run local QA on "Run Full QA" [baragdan]
+* Task #21874 - bugfix: invalid json [nituacor]
+
+3.7.2-dev7 (23-01-2015)
+-----------------------
+* Task #22646 - fix original size of value 0
+
+3.7.2-dev6 (23-01-2015)
+-----------------------
+* Minor interface changes
+
+3.7.2-dev5 (23-01-2015)
+-----------------------
+* Task #20076 - Translate fgas portal country codes to bdr country folders
+* Imporve BDR messages content on pages involving Fgas Portal
+
+3.7.2-dev4 (22-01-2015)
+-----------------------
+* Refs #21874 - ReportekAPI with get all released envelopes and other methods
+
+3.7.2-dev3 (22-01-2015)
+-----------------------
+* Task #20076 - Fgas Portal integration [baragdan] (BDR only) {setup it in Data.fs}
+* Task #20006 - Add support for CAS/eCAS auth for whoever needs it [baragdan] (BDR) {needs setup of Data.fs objects OR benign if unconfigured}
+* Task #22376 - Moved build collections form from ReporekEngine to ReportekUtilities [malduvit]
+
+
+3.7.2-dev2 (14-01-2015)
+-----------------------
+* Task #22404 - Workaround zope's inabillity to detect mime type while utf8 BOM present [baragdan]
+* Task #22436 - Fix seek(0) on raw zip handler when normal, non raw read is used [baragdan]
+
+3.7.2-dev1 (06-01-2015)
+-----------------------
+* Task #22312
+    - Add more categories to ReportekUtilities 
+
+3.7.2-dev (05-01-2015)
+----------------------
+* Task 19360 - add 'deferred mode' to the compression of Report Documents [baragdan]
+- better separation of deployments [baragdan]
+- fixes for ReportekUtilities [malduvit]
+
+
+3.7.1 (10-12-2014)
+-------------------
+* Task 3324 
+    - Fixed file upload in envelope [vitaliemaldur]
+    - Fixed the id generation for the file [vitaliemaldur]
+* Task 21521 - Simplified process of attaching multiple files to a feedback [olimpiurob]
+* Task 20358:
+    - Added the possiblity of changing the properties of the ReportekEngine
+      xmlrpc methods from manage_properties view [olimpiurob]
+    - Removed inheritance DataflowsManager and CountriesManager inheritance in
+      the Collection class. The xmlrpc methods will be called from ReportekEngine [olimpiurob]
+    - Fixed tests after migration [olimpiurob]
+    - Minor changes to ReportekUtilities. [olimpiurob]
+    - Added statistics and envelopes.autocomplete browser pages in
+      views.zcml. [olimpiurob]
+    - Changed assign_role functionality to add the new role instead of
+      overwriting existing ones. [olimpiurob]
+    - Changed revoke_roles functionality to add the possibility of individually
+      select which roles to revoke. [olimpiurob]
+    - Added functional tests for ReportekUtilities [olimpiurob]
+* Task 20730 - Make zip upload much more faster by transplanting zipped content from zip container to gzip blob file [baragdan]
+
 3.7.0 (16-10-2014)
 -------------------
 * Task 20730 - Add migration script to fix blob file sizes (requires migration) [baragdan]

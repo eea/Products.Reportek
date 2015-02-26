@@ -1,0 +1,92 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+  <metal:block fill-slot="head">
+    <link href="++resource++static/style.css" rel="stylesheet"/>
+    <script type="text/javascript" charset="utf8"
+          src="++resource++static/jquery-1.11.2.min.js"></script>
+  </metal:block>
+
+  <metal:block fill-slot="breadcrumbtrails">
+    <tal:block content="structure here/breadcrumbs_views"></tal:block>
+  </metal:block>
+
+  <metal:block fill-slot="content">
+
+    <p class="error-msg" tal:condition="options/error | nothing" tal:content="options/error" />
+
+    <tal:block condition="not: options/error | nothing">
+      <p class="important-msg" tal:condition="request/done | nothing">
+        Email added succesfully.
+      </p>
+    </tal:block>
+
+    <h1>Notifications settings</h1>
+
+    <h2>Add email</h2>
+    <form method="post" id="add-email-form">
+      <div class="form-group">
+        <label class="question" for="fname">First name *</label>
+        <input id="fname" type="text" name="fname" size="35" >
+      </div>
+
+      <div class="form-group">
+        <label class="question" for="lname">Last name *</label>
+        <input id="lname" type="text" name="lname" size="35" >
+      </div>
+
+      <div class="form-group">
+        <label class="question" for="email">Email *</label>
+        <input id="email" type="text" name="email" size="35" >
+      </div>
+
+      <input type="submit" name="add.btn" value="Add email" />
+
+    </form>
+
+    <script>
+      $('#add-email-form').on('submit', function(e){
+        e.preventDefault();
+
+        var fname = $('input[name=fname]', '#add-email-form').val()
+        var lname = $('input[name=lname]', '#add-email-form').val()
+        var email = $('input[name=email]', '#add-email-form').val()
+
+        if(fname && lname && email) {
+          this.submit();
+        }
+      });
+    </script>
+
+    <h2>Existing emails</h2>
+    <tal:block define="users view/get_emails">
+      <table tal:condition="users" class="table simple_table">
+        <thead>
+          <tr>
+            <th>First name</th>
+            <th>Last name</th>
+            <th>Email</th>
+            <th>Delete</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr tal:repeat="user users">
+            <td tal:content="user/first_name"/>
+            <td tal:content="user/last_name"/>
+            <td>
+              <a tal:attributes="href string:mailto:${user/mail}" tal:content="user/mail" />
+            </td>
+            <td>
+              <form method="post">
+                <input type="hidden" name="email" tal:attributes="value user/mail" />
+                <input type="submit" name="del.btn" value="Delete" />
+              </form>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="system-msg" tal:condition="not: users">No emails configured.</p>
+    </tal:block>
+
+  </metal:block>
+</metal:block>

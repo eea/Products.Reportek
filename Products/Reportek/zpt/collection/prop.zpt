@@ -60,9 +60,9 @@
 		<tr>
 			<th><label for="country" i18n:translate="">Coverage</label></th>
 			<td>
-				<select name="country" id="country">
+				<select name="country" id="country" tal:define="engine here/getEngine">
 					<option value="" i18n:translate="">Unspecified</option>
-					<option tal:repeat="item here/localities_table" tal:attributes="value item/uri; selected python:item['uri']==here.country" tal:content="item/name" />
+					<option tal:repeat="item engine/localities_table" tal:attributes="value item/uri; selected python:item['uri']==here.country" tal:content="item/name" />
 				</select>
 			</td>
 		</tr>
