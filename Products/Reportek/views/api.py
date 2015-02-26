@@ -28,11 +28,7 @@ class ReportekApi(BrowserView):
                 'partofyear': env.partofyear,
                 'is_blocked': env.is_blocked
             }
-
-            if hasattr(env, 'company_id'):
-                envelope_properties['id'] = env.company_id
-            else:
-                envelope_properties['id'] = env.id
+            envelope_properties['id'] = getattr(env, 'company_id', env.id)
 
             documents = []
             for doc in env.objectValues('Report Document'):

@@ -1,3 +1,10 @@
+3.7.2-dev15 (26-02-2015)
+-----------------------
+* Task #23451 - AttributeError company_id
+* Task #22656 - use script title in feedback id
+* Task #22974 - minor fix
+
+
 3.7.2-dev14 (20-02-2015)
 -----------------------
 
