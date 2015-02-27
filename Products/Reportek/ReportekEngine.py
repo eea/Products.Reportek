@@ -474,7 +474,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         show results and keep displaying the form """
 
         catalog_args = {
-            'meta_type': 'Report Envelope',
+            'meta_type': ['Report Envelope', 'Repository Referral'],
         }
 
         status = self.REQUEST.get('release_status')
@@ -520,10 +520,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         envelopes = self.Catalog(**catalog_args)
         envelopeObjects = []
         for eBrain in envelopes:
-            env = eBrain.getObject()
-            if getSecurityManager().checkPermission('View', env):
+            obj = eBrain.getObject()
+            if getSecurityManager().checkPermission('View', obj):
                 files = []
-                for fileObj in env.objectValues('Report Document'):
+                for fileObj in obj.objectValues('Report Document'):
                     files.append({
                         "filename": fileObj.id,
                         "title": str(fileObj.absolute_url_path()),
@@ -531,27 +531,40 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     })
 
                 accepted = True
-                for fileObj in env.objectValues('Report Feedback'):
+                for fileObj in obj.objectValues('Report Feedback'):
                     if fileObj.title in ("Data delivery was not acceptable", "Non-acceptance of F-gas report"):
                         accepted = False
 
                 obligations = []
-                for uri in env.dataflow_uris:
+                for uri in obj.dataflow_uris:
                     obligations.append(self.dataflow_lookup(uri)['TITLE'])
 
+                countryName = ''
+                if obj.meta_type == 'Report Envelope':
+                    countryName = obj.getCountryName()
+                else:
+                    try:
+                        countryName = obj.localities_dict()[obj.country]['name']
+                    except KeyError:
+                        countryName = "Unknowm"
+
+                reported = obj.bobobase_modification_time()
+                if obj.meta_type == 'Report Envelope':
+                    reported = obj.reportingdate
+
                 envelopeObjects.append({
-                    'released': env.released,
-                    'path': env.absolute_url_path(),
-                    'country': env.getCountryName(),
-                    'company': env.aq_parent.title,
-                    'userid': env.aq_parent.id,
-                    'title': env.title,
-                    'id': env.id,
-                    'years': {"start": env.year, "end": env.endyear},
-                    'end_year': env.endyear,
-                    'reportingdate': env.reportingdate.strftime('%Y-%m-%d'),
+                    'released': obj.released,
+                    'path': obj.absolute_url_path(),
+                    'country': countryName,
+                    'company': obj.aq_parent.title,
+                    'userid': obj.aq_parent.id,
+                    'title': obj.title,
+                    'id': obj.id,
+                    'years': {"start": obj.year, "end": obj.endyear},
+                    'end_year': obj.endyear,
+                    'reportingdate': reported.strftime('%Y-%m-%d'),
                     'files': files,
-                    'obligation': obligations[0],
+                    'obligation': obligations[0] if obligations else "Unknown",
                     'accepted': accepted
                 })
 
