@@ -17,7 +17,7 @@
 </thead>
 <tbody>
 	<tal:block tal:repeat="item python:here.objectValues(['Process'])">
-	<tr tal:define="l_mappings item/getProcessMappings; l_dataflows python:l_mappings[item.id]['dataflows']; l_countries python:l_mappings[item.id]['countries']">
+	<tr tal:define="l_mappings item/getProcessMappings; l_dataflows python:l_mappings[item.id]['dataflows']; countries python:l_mappings[item.id]['countries']">
 		<td><div class="list-item"><a tal:attributes="href string:${item/absolute_url}/" tal:content="item/title_or_id" /></div></td>
 		<td>
 			<ul class="menu">
@@ -31,11 +31,12 @@
 		</td>
 		<td>
 			<ul class="menu">
-				<li tal:condition="python:l_countries==['*']">All</li>
-				<li tal:repeat="c l_countries" tal:attributes="class python:test(path('repeat/c/odd'), 'row-hilite', None)">
-					<tal:block tal:replace="python:here.ReportekEngine.localities_dict(c)['name']" />
-				</li>
-				<li tal:condition="python:len(l_countries)==0">None</li>
+				<li tal:condition="python:countries==['*']">All</li>
+				<tal:block tal:condition="python:countries!=['*']" tal:repeat="country countries">
+				<li tal:attributes="class python:test(path('repeat/country/odd'), 'row-hilite', None)"
+				    tal:content="python:here.ReportekEngine.localities_dict(country)['name']" />
+				</tal:block>
+				<li tal:condition="not:countries">None</li>
 			</ul>
 		</td>
 		<td>
