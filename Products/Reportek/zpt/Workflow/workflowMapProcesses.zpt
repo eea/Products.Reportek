@@ -33,7 +33,7 @@
 			<ul class="menu">
 				<li tal:condition="python:l_countries==['*']">All</li>
 				<li tal:repeat="c l_countries" tal:attributes="class python:test(path('repeat/c/odd'), 'row-hilite', None)">
-					<tal:block tal:replace="python:here.ReportekEngine.getCountryName(c)" />
+					<tal:block tal:replace="python:here.ReportekEngine.localities_dict(c)['name']" />
 				</li>
 				<li tal:condition="python:len(l_countries)==0">None</li>
 			</ul>
