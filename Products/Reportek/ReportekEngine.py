@@ -546,6 +546,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     'company': env.aq_parent.title,
                     'userid': env.aq_parent.id,
                     'title': env.title,
+                    'id': env.id,
                     'years': {"start": env.year, "end": env.endyear},
                     'end_year': env.endyear,
                     'reportingdate': env.reportingdate.strftime('%Y-%m-%d'),
