@@ -147,11 +147,26 @@ class EnvelopeCustomDataflows:
         transaction.commit()
         l_doc = getattr(self, l_id)
 
+        # XML/RPC call to the converter
+        l_server_name = getattr(self, CONVERTERS_ID).remote_converter
+        l_url = self.absolute_url() + '/' + l_id
+        method_name = 'convertDD_XML_split'
         try:
-            # XML/RPC call to the converter
-            l_server_name = getattr(self, CONVERTERS_ID).remote_converter
-            l_url = self.absolute_url() + '/' + l_id
-            l_ret_list = invoke_conversion_service(l_server_name, 'convertDD_XML_split', l_url)
+            l_ret_list = invoke_conversion_service(l_server_name, method_name, l_url)
+        except Exception as e:
+            if REQUEST is not None:
+                conversion_log.error(
+                    "Error while calling remote {} for xmlrpc method {}. ({})".format(
+                    l_server_name, method_name, str(e)))
+                return self.messageDialog(
+                        message=('The file was successfully uploaded in the '
+                                 'envelope, but not converted into an '
+                                 'XML delivery because of a system error: %s') % str(e),
+                        action='index_html')
+            else:
+                return 0
+
+        try:
 
             # the result is a dictionary with the following elements:
             #   resultCode (String): 0 – success; 1- converted with validation errors; 2- system error; 3 – schema not found or expired error

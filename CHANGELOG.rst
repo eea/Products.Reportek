@@ -1,3 +1,7 @@
+3.8.0 (27-02-2015)
+-----------------------
+proper production egg
+
 3.7.2-dev16 (26-02-2015)
 -----------------------
 * Task #23412 - Conversion of XML file to XLS gives an error
