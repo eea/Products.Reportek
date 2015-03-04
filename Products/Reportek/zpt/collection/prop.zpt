@@ -1,4 +1,6 @@
-<tal:block define="SecurityManager modules/AccessControl/getSecurityManager; has_permission python:SecurityManager.checkPermission('View management screens', template)">
+<tal:block define="SecurityManager modules/AccessControl/getSecurityManager;
+                   has_permission python:SecurityManager.checkPermission('View management screens', template);
+                   global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'">
 
 	<tal:block condition="has_permission">
 		<span tal:replace="structure context/manage_page_header" />
@@ -70,6 +72,10 @@
 			<th><label for="locality" i18n:translate="">Coverage note</label></th>
 			<td><input type="text" name="locality" id="locality" size="30" tal:attributes="value here/locality" /></td>
 		</tr>
+        <tr tal:condition="python: isBdrDeployment and getattr(here, 'company_id', None)">
+            <th><label for="companyId" i18n:translate="">Company Id</label></th>
+            <td><input type="text" name="companyId" id="companyId" readonly tal:attributes="value here/company_id"/></td>
+        </tr>
 		<tr><td></td><td><input type="submit" name="manage_editCollection:method" value="Change" i18n:attributes="value" /></td></tr> 
 	</form>
 
