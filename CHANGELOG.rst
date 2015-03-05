@@ -1,3 +1,7 @@
+unreleased
+-----------------------
+* Task #23650 - show comapny id in collections ZMI->settings [baragadan]
+
 3.8.0 (27-02-2015)
 -----------------------
 proper production egg
