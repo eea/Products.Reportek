@@ -263,8 +263,6 @@ class RemoteApplication(SimpleItem):
         wk_status['localQARunning'] = True
         workitem._p_changed = True
         transaction.commit()
-        from time import sleep
-        sleep(7)
         for file_id, result, script_id in self._runLocalQAScripts(workitem):
             wk_status = getattr(workitem, self.app_name)
             self._addFeedback(file_id, result, workitem, script_id)
