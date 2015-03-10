@@ -21,7 +21,6 @@
 ## RemoteApplication
 ##
 
-from collections import defaultdict
 from threading import Thread
 import tempfile
 import logging
@@ -180,8 +179,10 @@ class RemoteApplication(SimpleItem):
             self.__finishApplication(workitem_id, REQUEST)
             return 1
 
-        localQA_thread = Thread(target=self.runAutomaticLocalApps, name="LocalQAThread", args=(l_workitem,))
-        localQA_thread.start()
+        localQARunning = l_wk_prop.get('localQARunning', False)
+        if not localQARunning:
+            localQA_thread = Thread(target=self.runAutomaticLocalApps, name="LocalQAThread", args=(l_workitem,))
+            localQA_thread.start()
         # test if getResult should be called
         l_files_success = {}
         l_files_failed = {}
@@ -195,6 +196,34 @@ class RemoteApplication(SimpleItem):
                 else:
                     if l_files_failed.has_key(l_fn): l_files_failed[l_fn] += ', #%s' % l_jobID
                     else: l_files_failed[l_fn] = '#%s' % l_jobID
+        # it means that we started it above
+        if not localQARunning:
+            localQA_thread.join(timeout=600)
+            if localQA_thread.isAlive():
+                # kill thread? otherwise we leak
+                feedback_log.error("Local Feedback thread timedout on envelope %s" % self.aq_parent.absolute_url(1))
+            else:
+                # log the results from local QA
+                for filename, scripts in l_wk_prop['localQA'].items():
+                    success = []
+                    fail = []
+                    for script, status in scripts.items():
+                        if status == 'done':
+                            success.append("#"+script)
+                        else:
+                            fail.append('#'+script)
+                    success = ', '.join(success)
+                    fail = ', '.join(fail)
+                    # if we have some stuff logged from above
+                    if filename in l_files_success and success:
+                        success = ', ' + success
+                    if filename in l_files_failed and fail:
+                        fail = ', ' + fail
+                    if success:
+                        l_files_success[filename] = l_files_success.get(filename, '') + success
+                    if fail:
+                        l_files_failed[filename] = l_files_failed.get(filename, '') + fail
+
         # write to log the list of file that succeded
         if l_files_success:
             l_filenames_jobs = ''
@@ -215,18 +244,6 @@ class RemoteApplication(SimpleItem):
             else:
                 l_complete = 0
 
-        localQA_thread.join(timeout=600)
-        if localQA_thread.isAlive():
-            # kill thread? otherwise we leak
-            feedback_log.error("Local Feedback thread timedout on envelope %s" % self.aq_parent.absolute_url(1))
-        else:
-            # log the results from local QA
-            for filename, scripts in l_wk_prop['localQA'].items():
-                for script, status in scripts.items():
-                    if status == 'done':
-                        l_files_success[filename] = l_files_success.get(filename, '') + ', #%s'%script
-                    else:
-                        l_files_failed[filename] = l_files_failed.get(filename, '') + ', #%s'%script
         if l_complete:
             # write to log the list of file that failed
             if l_files_failed:
@@ -242,6 +259,12 @@ class RemoteApplication(SimpleItem):
 
     def runAutomaticLocalApps(self, workitem):
         # call this from a thread
+        wk_status = getattr(workitem, self.app_name)
+        wk_status['localQARunning'] = True
+        workitem._p_changed = True
+        transaction.commit()
+        from time import sleep
+        sleep(7)
         for file_id, result, script_id in self._runLocalQAScripts(workitem):
             wk_status = getattr(workitem, self.app_name)
             self._addFeedback(file_id, result, workitem, script_id)
@@ -291,9 +314,11 @@ class RemoteApplication(SimpleItem):
         qa_repo = self.QARepository
         wk_status = getattr(workitem, self.app_name)
         if 'localQA' not in wk_status:
-            wk_status['localQA'] = defaultdict(dict)
+            wk_status['localQA'] = {}
         localQA = wk_status['localQA']
         for xml in ( x for x in self.aq_parent.objectValues(Document.meta_type) if x.content_type == 'text/xml' ):
+            if xml.id not in localQA:
+                localQA[xml.id] = {}
             resultsForXml = localQA[xml.id]
             for script in qa_repo._get_local_qa_scripts(xml.xml_schema_location):
                 if script.id not in resultsForXml or resultsForXml[script.id] == 'failed':
