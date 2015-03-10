@@ -274,6 +274,34 @@ class Collection(CatalogAware, Folder, Toolz):
         """ """
         return getattr(self, constants.DATAFLOW_MAPPINGS)
 
+    def getCountryName(self, country_uri=None):
+        """ Returns country name from the country uri
+        """
+        dummycounty = {'name':'Unknown', 'iso': 'xx'}
+        engine = self.getEngine()
+        if country_uri:
+            try:
+                return str([x['name'] for
+                            x in engine.localities_table()
+                            if str(x['uri']) == country_uri][0])
+            except:
+                return dummycounty['name']
+        return str(engine.localities_dict().get(self.country, dummycounty)['name'])
+
+    def getCountryCode(self, country_uri=None):
+        """ Returns country ISO code from the country uri
+        """
+        dummycounty = {'name':'Unknown', 'iso': 'xx'}
+        engine = self.getEngine()
+        if country_uri:
+            try:
+                return str([x['iso'] for
+                            x in engine.localities_table()
+                            if str(x['uri']) == country_uri][0])
+            except:
+                return dummycounty['iso']
+        return str(engine.localities_dict().get(self.country, dummycounty)['iso'])
+
     security.declarePublic('num_terminated_dataflows')
     def num_terminated_dataflows(self):
         """ Returns the number of terminated dataflows """
