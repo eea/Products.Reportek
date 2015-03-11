@@ -1,3 +1,9 @@
+3.8.1 (11-03-2015)
+-----------------------
+ move getCountryName and getCountryCode to Reportek Collection
+Refs #23650 show comapny id in collections ZMI->settings [baragdan]
+Refs #21879 - improve threaded localQA [baragdan]
+
 3.8.0 (27-02-2015)
 -----------------------
 proper production egg
