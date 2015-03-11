@@ -179,10 +179,27 @@ class RemoteApplication(SimpleItem):
             self.__finishApplication(workitem_id, REQUEST)
             return 1
 
-        localQARunning = l_wk_prop.get('localQARunning', False)
-        if not localQARunning:
-            localQA_thread = Thread(target=self.runAutomaticLocalApps, name="LocalQAThread", args=(l_workitem,))
-            localQA_thread.start()
+        # TODO fix this if you want parallel threads
+        #Exception in thread LocalQAThread:
+        #Traceback (most recent call last):
+        #File "/usr/local/Python-2.7.3/lib/python2.7/threading.py", line 551, in __bootstrap_inner
+        #    self.run()
+        #File "/usr/local/Python-2.7.3/lib/python2.7/threading.py", line 504, in run
+        #    self.__target(*self.__args, **self.__kwargs)
+        #File "/var/local/cdr/src/Products.Reportek.git/Products/Reportek/RemoteApplication.py", line 265, in runAutomaticLocalApps
+        #    wk_status['localQARunning'] = True
+        #File "/var/local/common/eggs/transaction-1.1.1-py2.7.egg/transaction/_manager.py", line 89, in commit
+        #    return self.get().commit()
+        #File "/var/local/common/eggs/transaction-1.1.1-py2.7.egg/transaction/_transaction.py", line 329, in commit
+        #    self._commitResources()
+        #File "/var/local/common/eggs/transaction-1.1.1-py2.7.egg/transaction/_transaction.py", line 443, in _commitResources
+        #    rm.commit(self)
+        #File "/var/local/common/eggs/ZODB3-3.10.5-py2.7-linux-x86_64.egg/ZODB/Connection.py", line 567, in commit
+        #    self._commit(transaction)
+        #File "/var/local/common/eggs/ZODB3-3.10.5-py2.7-linux-x86_64.egg/ZODB/Connection.py", line 615, in _commit
+        #    raise ConflictError(object=obj)
+        #ConflictError: database conflict error (oid 0xed0305, class Products.Reportek.workitem.workitem)
+        self.runAutomaticLocalApps(l_workitem)
         # test if getResult should be called
         l_files_success = {}
         l_files_failed = {}
@@ -196,35 +213,26 @@ class RemoteApplication(SimpleItem):
                 else:
                     if l_files_failed.has_key(l_fn): l_files_failed[l_fn] += ', #%s' % l_jobID
                     else: l_files_failed[l_fn] = '#%s' % l_jobID
-        # it means that we started it above
-        if not localQARunning:
-            localQA_thread.join(timeout=600)
-            if localQA_thread.isAlive():
-                # kill thread? otherwise we leak
-                feedback_log.error("Local Feedback thread timedout on envelope %s" % self.aq_parent.absolute_url(1))
-            else:
-                # log the results from local QA
-                for filename, scripts in l_wk_prop['localQA'].items():
-                    success = []
-                    fail = []
-                    for script, status in scripts.items():
-                        if status == 'done':
-                            success.append("#"+script)
-                        else:
-                            fail.append('#'+script)
-                    success = ', '.join(success)
-                    fail = ', '.join(fail)
-                    # if we have some stuff logged from above
-                    if filename in l_files_success and success:
-                        success = ', ' + success
-                    if filename in l_files_failed and fail:
-                        fail = ', ' + fail
-                    if success:
-                        l_files_success[filename] = l_files_success.get(filename, '') + success
-                    if fail:
-                        l_files_failed[filename] = l_files_failed.get(filename, '') + fail
-                # for later investigations, it would be consistent to update this property too
-                l_wk_prop['localQARunning'] = False
+        # log the results from local QA
+        for filename, scripts in l_wk_prop['localQA'].items():
+            success = []
+            fail = []
+            for script, status in scripts.items():
+                if status == 'done':
+                    success.append("#"+script)
+                else:
+                    fail.append('#'+script)
+            success = ', '.join(success)
+            fail = ', '.join(fail)
+            # if we have some stuff logged from above
+            if filename in l_files_success and success:
+                success = ', ' + success
+            if filename in l_files_failed and fail:
+                fail = ', ' + fail
+            if success:
+                l_files_success[filename] = l_files_success.get(filename, '') + success
+            if fail:
+                l_files_failed[filename] = l_files_failed.get(filename, '') + fail
 
         # write to log the list of file that succeded
         if l_files_success:
@@ -260,11 +268,8 @@ class RemoteApplication(SimpleItem):
         return 1
 
     def runAutomaticLocalApps(self, workitem):
-        # call this from a thread
+        # call this from a thread (or no)
         wk_status = getattr(workitem, self.app_name)
-        wk_status['localQARunning'] = True
-        workitem._p_changed = True
-        transaction.commit()
         for file_id, result, script_id in self._runLocalQAScripts(workitem):
             wk_status = getattr(workitem, self.app_name)
             self._addFeedback(file_id, result, workitem, script_id)
