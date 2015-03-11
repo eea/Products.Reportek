@@ -223,6 +223,8 @@ class RemoteApplication(SimpleItem):
                         l_files_success[filename] = l_files_success.get(filename, '') + success
                     if fail:
                         l_files_failed[filename] = l_files_failed.get(filename, '') + fail
+                # for later investigations, it would be consistent to update this property too
+                l_wk_prop['localQARunning'] = False
 
         # write to log the list of file that succeded
         if l_files_success:
