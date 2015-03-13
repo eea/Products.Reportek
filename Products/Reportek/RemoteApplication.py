@@ -321,7 +321,9 @@ class RemoteApplication(SimpleItem):
         if 'localQA' not in wk_status:
             wk_status['localQA'] = {}
         localQA = wk_status['localQA']
-        for xml in ( x for x in self.aq_parent.objectValues(Document.meta_type) if x.content_type == 'text/xml' ):
+        for xml in ( x for x in self.aq_parent.objectValues(Document.meta_type)
+                     if x.content_type == 'text/xml'
+                        and x.xml_schema_location ):
             if xml.id not in localQA:
                 localQA[xml.id] = {}
             resultsForXml = localQA[xml.id]

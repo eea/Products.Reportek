@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='Products.Reportek',
-    version='3.8.0',
+    version='3.8.1',
     author='Eau de Web',
     author_email='office@eaudeweb.ro',
     url='https://github.com/eea/Products.Reportek',
