@@ -166,7 +166,7 @@ def ping_remaining_envelopes(app, crPingger):
     import pickle
     try:
         rs = redis.Redis(db=REDIS_DATABASE)
-        envPathNames = rs.hkeys(constants.PING_ENVELOPES_KEY)
+        envPathNames = rs.hkeys(constants.PING_ENVELOPES_REDIS_KEY)
     except Exception as e:
         lines = format_exception_only(e.__class__, e)
         lines.insert(0, "Could not get to redis server")
@@ -174,7 +174,7 @@ def ping_remaining_envelopes(app, crPingger):
         return
     for envPathName in envPathNames:
         # get this fresh on every iteration
-        envStatus = rs.hget(constants.PING_ENVELOPES_KEY, envPathName)
+        envStatus = rs.hget(constants.PING_ENVELOPES_REDIS_KEY, envPathName)
         envStatus = pickle.loads(envStatus)
         if not envStatus['op']:
             continue

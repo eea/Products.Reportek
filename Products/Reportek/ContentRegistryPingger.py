@@ -5,7 +5,7 @@ import requests
 import threading
 import time
 from config import *
-from constants import PING_ENVELOPES_KEY
+from constants import PING_ENVELOPES_REDIS_KEY
 import pickle
 
 class ContentRegistryPingger(object):
@@ -98,11 +98,11 @@ class ContentRegistryPingger(object):
         val = {'op': op, 'ts': ts}
         val = pickle.dumps(val)
         # start no matter what. expect the other to stop when he sees dirty ts
-        self.PING_STORE.hset(PING_ENVELOPES_KEY, envPathName, val)
+        self.PING_STORE.hset(PING_ENVELOPES_REDIS_KEY, envPathName, val)
         return ts
 
     def _check_ping(self, envPathName, ts):
-        envPingStatus = self.PING_STORE.hget(PING_ENVELOPES_KEY, envPathName)
+        envPingStatus = self.PING_STORE.hget(PING_ENVELOPES_REDIS_KEY, envPathName)
         envPingStatus = pickle.loads(envPingStatus)
         # also check if a later task already finished and reset the ts
         if envPingStatus['ts'] > ts or envPingStatus['ts'] == 0:
@@ -111,7 +111,7 @@ class ContentRegistryPingger(object):
         return True
 
     def _stop_ping(self, envPathName, ts):
-        envPingStatus = self.PING_STORE.hget(PING_ENVELOPES_KEY, envPathName)
+        envPingStatus = self.PING_STORE.hget(PING_ENVELOPES_REDIS_KEY, envPathName)
         if envPingStatus:
             envPingStatus = pickle.loads(envPingStatus)
             # not us! don't reset
@@ -123,4 +123,4 @@ class ContentRegistryPingger(object):
         else:
             envPingStatus = {'op': None, 'ts': 0}
         envPingStatus = pickle.dumps(envPingStatus)
-        self.PING_STORE.hset(PING_ENVELOPES_KEY, envPathName, envPingStatus)
+        self.PING_STORE.hset(PING_ENVELOPES_REDIS_KEY, envPathName, envPingStatus)

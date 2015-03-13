@@ -8,7 +8,7 @@ from common import BaseTest, ConfigureReportek
 from utils import (mysleep, MockRedis, create_upload_file, simple_addEnvelope,
                    add_hyperlink, add_document, add_feedback)
 from Products.Reportek import constants, Converters
-from Products.Reportek.constants import PING_ENVELOPES_KEY
+from Products.Reportek.constants import PING_ENVELOPES_REDIS_KEY
 from AccessControl import getSecurityManager
 
 
@@ -101,7 +101,7 @@ class ContentRegistryPinggerTest(BaseTest, ConfigureReportek):
         call_args_list = self.pingger._content_registry_ping.call_args_list
         self.assertIn(call(uri1, ping_argument='create'), call_args_list)
         self.assertIn(call(uri2, ping_argument='create'), call_args_list)
-        envStats = self.pingger.PING_STORE.hget(PING_ENVELOPES_KEY, envName)
+        envStats = self.pingger.PING_STORE.hget(PING_ENVELOPES_REDIS_KEY, envName)
         envStats = pickle.loads(envStats)
         # check that the finished thread cleaned after itself
         self.assertEqual(envStats['op'], None)
@@ -121,7 +121,7 @@ class ContentRegistryPinggerTest(BaseTest, ConfigureReportek):
             if uri == uri1:
                 val = {'op': 'delete', 'ts': time.time()}
                 val = pickle.dumps(val)
-                self.pingger.PING_STORE.hset(PING_ENVELOPES_KEY, envName, val)
+                self.pingger.PING_STORE.hset(PING_ENVELOPES_REDIS_KEY, envName, val)
             return 200, ok_message
 
         self.pingger._content_registry_ping = Mock(return_value=(200, ok_message), side_effect=collide)
@@ -133,7 +133,7 @@ class ContentRegistryPinggerTest(BaseTest, ConfigureReportek):
         call_args_list = self.pingger._content_registry_ping.call_args_list
         self.assertIn(call(uri1, ping_argument='create'), call_args_list)
         self.assertNotIn(call(uri2, ping_argument='create'), call_args_list)
-        envStats = self.pingger.PING_STORE.hget(PING_ENVELOPES_KEY, envName)
+        envStats = self.pingger.PING_STORE.hget(PING_ENVELOPES_REDIS_KEY, envName)
         envStats = pickle.loads(envStats)
         # check that the interrupted thread did not chenged status
         self.assertEqual(envStats['op'], 'delete')
@@ -154,7 +154,7 @@ class ContentRegistryPinggerTest(BaseTest, ConfigureReportek):
             if uri == uri1:
                 val = {'op': None, 'ts': 0}
                 val = pickle.dumps(val)
-                self.pingger.PING_STORE.hset(PING_ENVELOPES_KEY, envName, val)
+                self.pingger.PING_STORE.hset(PING_ENVELOPES_REDIS_KEY, envName, val)
             return 200, ok_message
 
         self.pingger._content_registry_ping = Mock(return_value=(200, ok_message), side_effect=collide)
@@ -166,7 +166,7 @@ class ContentRegistryPinggerTest(BaseTest, ConfigureReportek):
         call_args_list = self.pingger._content_registry_ping.call_args_list
         self.assertIn(call(uri1, ping_argument='create'), call_args_list)
         self.assertNotIn(call(uri2, ping_argument='create'), call_args_list)
-        envStats = self.pingger.PING_STORE.hget(PING_ENVELOPES_KEY, envName)
+        envStats = self.pingger.PING_STORE.hget(PING_ENVELOPES_REDIS_KEY, envName)
         envStats = pickle.loads(envStats)
         # check that the interrupted thread did not chenged status
         self.assertEqual(envStats['op'], None)
@@ -225,10 +225,10 @@ class InitCRTest(BaseTest, ConfigureReportek):
             from Products.Reportek import ping_remaining_envelopes
             val = {'op': 'create', 'ts': 1}
             val = pickle.dumps(val)
-            self.pingger.PING_STORE.hset(constants.PING_ENVELOPES_KEY, self.envelope.absolute_url(), val)
+            self.pingger.PING_STORE.hset(constants.PING_ENVELOPES_REDIS_KEY, self.envelope.absolute_url(), val)
             val = {'op': None, 'ts': 0}
             val = pickle.dumps(val)
-            self.pingger.PING_STORE.hset(constants.PING_ENVELOPES_KEY, self.second_envelope.absolute_url(), val)
+            self.pingger.PING_STORE.hset(constants.PING_ENVELOPES_REDIS_KEY, self.second_envelope.absolute_url(), val)
             ok_message = '''<?xml version="1.0"?>
             <response>
                 <message>URL added to the urgent harvest queue: http://cdrtest.eionet.europa.eu/ro/colu0vgwa/colu0vgdq/envu0vgka/rdf</message>
