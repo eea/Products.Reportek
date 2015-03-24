@@ -21,7 +21,12 @@
     </tal:block>
 
     <h1>Notifications settings</h1>
-
+    <p>
+        Each time an F-gases company is validated in BDR, an email is sent to the
+        addresses from the list below. By <em>validated</em>, we mean companies
+        registered in the FGAS portal and matched with old records from the
+        BDR-Registry.
+    </p>
     <h2>Add email</h2>
     <form method="post" id="add-email-form">
       <div class="form-group">
