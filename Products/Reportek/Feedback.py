@@ -56,7 +56,7 @@ from Products.Reportek import constants
 
 manage_addFeedbackForm = PageTemplateFile('zpt/feedback/add', globals())
 
-def manage_addFeedback(self, id ='', title='', feedbacktext='', file='', activity_id='', automatic=0,
+def manage_addFeedback(self, id ='', title='', feedbacktext='', file=None, activity_id='', automatic=0,
         content_type='text/plain', document_id=None, script_url=None, restricted='', REQUEST=None):
     """Adds feedback as a file to a folder."""
 
@@ -77,8 +77,13 @@ def manage_addFeedback(self, id ='', title='', feedbacktext='', file='', activit
             id, releasedate, title, feedbacktext, activity_id,
             automatic, content_type, document_id)
     if file:
-        filename = RepUtils.getFilename(file.filename)
-        add_OfsBlobFile(ob, filename, file)
+        if type(file) != list:  # one file object
+            file = [file]
+
+        for f in file:
+            filename = RepUtils.getFilename(f.filename)
+            add_OfsBlobFile(ob, filename, f)
+
     self._setObject(id, ob)
     obj = self._getOb(id)
 

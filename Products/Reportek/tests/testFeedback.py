@@ -97,6 +97,22 @@ class FeedbackTestCase(BaseTest, ConfigureReportek):
         with feedback['testfile.txt'].data_file.open() as f:
             self.assertEqual(f.read(), 'content here')
 
+    def test_add_feedback_with_attached_multiple_files(self):
+        files = []
+        files.append(FileUploadMock('testfile1.txt', 'content here'))
+        files.append(FileUploadMock('testfile2.txt', 'content here'))
+        adder = self.envelope.manage_addProduct['Reportek']
+        adder.manage_addFeedback('feedbackid', 'Title',
+                                 'Feedback text', files,
+                                 'WorkflowEngine/begin_end', 1)
+        feedback = self.envelope.feedbackid
+        for f in files:
+            self.assertTrue(hasattr(feedback, f.filename),
+                            'File {0} did not get created'.format(f.filename))
+        for fmock in files:
+            with feedback[fmock.filename].data_file.open() as f:
+                self.assertEqual(f.read(), 'content here')
+
     def test_AttFeedback(self):
         """ Test the manage_uploadAttFeedback method
             Replace the content of an existing file with manage_uploadAttFeedback
