@@ -1,3 +1,8 @@
+unreleased
+-----------------------
+Task #21521 - Adding support for uploading multiple files on feedback [malduvit]
+Task #22820 - Added an explanatory text [malduvit]
+
 3.8.1 (11-03-2015)
 -----------------------
  move getCountryName and getCountryCode to Reportek Collection
