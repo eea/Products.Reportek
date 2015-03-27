@@ -49,7 +49,10 @@
       </tr>
       <tr>
         <th style="width: 15%" i18n:translate="">Attach file</th>
-        <td><input type="file" name="file" size="25" value="" /></td>
+        <td>
+            <input type="file" name="file" size="25" multiple="true" value="" />
+            (You can attach multiple files from the same directory)
+        </td>
       </tr>
       <tr>
         <td></td>
