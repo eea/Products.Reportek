@@ -1,4 +1,4 @@
-unreleased
+3.8.2 (27-03-2015)
 -----------------------
 Task #21521 - Adding support for uploading multiple files on feedback [malduvit]
 Task #22820 - Added an explanatory text [malduvit]
