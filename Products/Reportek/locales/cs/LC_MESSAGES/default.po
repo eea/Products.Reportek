@@ -1,7 +1,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
-"POT-Creation-Date: 2014-03-17 11:01+0000\n"
+"POT-Creation-Date: 2014-02-17 15:04+0000\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI +ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -13,3063 +13,2190 @@ msgstr ""
 "Language-Name: English\n"
 "Preferred-Encodings: utf-8 latin1\n"
 "Domain: DOMAIN\n"
+"Report-Msgid-Bugs-To: \n"
+"X-Generator: Translate Toolkit 1.11.0\n"
 
-#. Default: "ok"
-#: Reportek/zpt/message_dialog.zpt:16
-msgid "   ok   "
-msgstr ""
-
-#. Default: "Change"
-#: Reportek/zpt/document/edit.zpt:65
-msgid " Change "
-msgstr ""
-
-#: Reportek/zpt/feedback/index.zpt:106
-msgid "${read-feedback-link} (this will open in another window)."
-msgstr ""
-
-#: Reportek/zpt/feedback/index.zpt:67
-msgid "(File was deleted from the envelope)"
-msgstr ""
-
-#: Reportek/zpt/envelope/documents_section.zpt:62
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:29
-#: Reportek/zpt/envelope/statuses_section.zpt:68
 msgid "(Limited)"
-msgstr ""
+msgstr "(Limited)"
 
 #: Reportek/zpt/envelope/feedback_section.zpt:66
 msgid "(Next ${n})"
-msgstr ""
-
-#: Reportek/zpt/referral/index.zpt:19
-msgid "(No description)"
-msgstr ""
+msgstr "(Next ${n})"
 
 #: Reportek/zpt/envelope/feedback_section.zpt:33
 msgid "(Posted automatically on ${postingdate})"
-msgstr ""
+msgstr "(Posted automatically on ${postingdate})"
 
 #: Reportek/zpt/envelope/feedback_section.zpt:60
 msgid "(Previous ${n})"
-msgstr ""
-
-#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:41
-msgid "(optional)"
-msgstr ""
-
-#: Reportek/zpt/envelope/macros.zpt:14
-msgid "(user: ${username})"
-msgstr ""
+msgstr "(Previous ${n})"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:187
 msgid "-empty-"
-msgstr ""
+msgstr "-empty-"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:188
 msgid "-missing-"
-msgstr ""
-
-#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:29
-msgid "1) Your first step is to upload an XML file into this envelope. You can always interrupt your work and continue your contribution at a later time without losing data. As a minimum, manufacturers should provide the vehicle identification numbers (VINs) that they assigned to light commercial vehicles sold in the preceding calendar year or for which a warrant was issued in that year. Manufacturers should moreover provide the detailed data related to those vehicles (according to the MS schema provided). In order to take those data into account for the calculation of the provisional targets, manufacturers should provide their data to the Commission and the EEA at the same time as the annual data submission of the Member States."
-msgstr ""
+msgstr "-missing-"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:18
 msgid "1. Purpose(s) of the processing"
-msgstr ""
+msgstr "1. Účel zpracování"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:198
 msgid "1. Reporting undertaking"
-msgstr ""
+msgstr "1. Podnik vykazující údaje"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:76
 msgid "10. Data retention"
-msgstr ""
+msgstr "10. Uchovávání údajů"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:207
 msgid "10. Placing on the EU market during the reporting year (sales etc.)"
-msgstr ""
+msgstr "10. Uvádění na trh EU během vykazovaného roku (prodej atd.)"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:208
 msgid "11. Exports to countries and territories outside EU"
-msgstr ""
+msgstr "11. Vývoz do zemí a území mimo EU"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:80
 msgid "11. Right to appeal"
-msgstr ""
+msgstr "11. Právo na odvolání"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:209
 msgid "12. Feedstock and process agent use within the reporting undertaking"
-msgstr ""
+msgstr "12. Použito jako vstupní surovina nebo technologické činidlo v rámci vykazujícího podniku"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:210
 msgid "13. Use within the reporting undertaking other than process agent or feedstock uses"
-msgstr ""
+msgstr "13. 13. Jiná použití v daném podniku než použití jako vstupní surovina nebo jako technologické činidlo"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:211
 msgid "14. Quantities destroyed in your facility"
-msgstr ""
+msgstr "14. Množství zneškodněná ve vašem zařízení."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:212
 msgid "15. Accounting Framework"
-msgstr ""
-
-#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:39
-msgid "2) Once you are satisfied with the contribution, you choose <em>Release envelope</em> and your delivery will be realised."
-msgstr ""
+msgstr "15. Účetní rámec"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:199
 msgid "2. Definition of substances"
-msgstr ""
+msgstr "2. Definice látek"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:22
 msgid "2. Recipients of the data processed"
-msgstr ""
+msgstr "2. Příjemci zpracovávaných údajů "
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:33
 msgid "3. Personal data concerned"
-msgstr ""
+msgstr "3. Dotčené osobní údaje"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:200
 msgid "3. Total production"
-msgstr ""
+msgstr "3. Výroba celkem"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:37
 msgid "4. Obligatory or optional data"
-msgstr ""
+msgstr "4. Povinné a nepovinné údaje"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:201
 msgid "4. Production under industrial rationalisation"
-msgstr ""
+msgstr "4. Výroba v rámci průmyslové racionalizace"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:41
 msgid "5. Categories of data processed"
-msgstr ""
+msgstr "5. Kategorie zpracovávaných údajů"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:202
 msgid "5. Recycling and reclamation by producers"
-msgstr ""
+msgstr "5. Recyklace nebo regenerace ze strany výrobců"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:49
 msgid "6. Modalities for the processing operation"
-msgstr ""
+msgstr "6. Způsoby zpracování"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:203
 msgid "6. Quantities received from undertakings in the EU (e.g. purchases)"
-msgstr ""
+msgstr "6. Množství získaná od podniků v EU (například nákupem)"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:54
 msgid "7. Safeguarding of data processed"
-msgstr ""
+msgstr "7. Zabezpečení zpracovávaných údajů"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:204
 msgid "7. Total imports from countries or territories outside EU."
-msgstr ""
+msgstr "7. Celkový dovoz ze zemí či území mimo EU."
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:58
 msgid "8. Right of access and rectification"
-msgstr ""
+msgstr "8. Právo na přístup a na opravu"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:205
 msgid "8. Total stocks"
-msgstr ""
+msgstr "8. Zásoby celkem"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:67
 msgid "9. Legality of processing"
-msgstr ""
+msgstr "9. Právní kontext zpracování"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:206
 msgid "9. Stocks for selected uses held by producers"
-msgstr ""
+msgstr "9. Zásoby pro vybraná použití skladované výrobci"
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:60
 msgid "<em>Add and edit</em> a <a href=\"${DYNAMIC_CONTENT}\">${DYNAMIC_CONTENT}</a> questionnaire"
-msgstr ""
+msgstr "<em>Add and edit</em> a <a href=\"${DYNAMIC_CONTENT}\">${DYNAMIC_CONTENT}</a> questionnaire"
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:59
 msgid "<em>Modify</em> the <a href=\"${DYNAMIC_CONTENT}\">${DYNAMIC_CONTENT}</a> questionnaire"
-msgstr ""
+msgstr "<em>Modify</em> the <a href=\"${DYNAMIC_CONTENT}\">${DYNAMIC_CONTENT}</a> questionnaire"
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:68
 msgid "<em>Note: You are advised to print this page in order to be able to follow the process</em>"
-msgstr ""
-
-#: Reportek/zpt/collection/worklist.zpt:9
-msgid "<strong>Note:</strong> remember the first task reporters have to do in order to start the delivery on this website is to create the envelope. Such tasks do not appear in the list below."
-msgstr ""
+msgstr "<em>Poznámka: Doporučujeme vám, abyste si tuto stránku vytiskli. Usnadní vám to přesně dodržet postup</em>"
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:69
 msgid "<strong>Step 1:</strong>"
-msgstr ""
+msgstr "<strong>Krok 1:</strong>"
 
 #: Reportek/zpt/document/manage.zpt:73
 msgid "<strong>Warning:</strong> this file is empty so viewing it in different formats might not work as expected!"
-msgstr ""
+msgstr "<strong>Pozor:</strong> Tento soubor je prázdný, takže  zobrazování v různých formátech nemusí fungovat dle očekávání!"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:37
 msgid "A"
-msgstr ""
+msgstr "A"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:249
 msgid "A NIL report cannot be combined with any of the other activities."
-msgstr ""
+msgstr "Nulový zpráva nemůže být sdružena s žádnými jinými činnostmi."
 
 #: ../../../extras/zodb_scripts/help/security.html.zpt:7
 msgid "A collection administrator, who maintain the hierarchial structure, but who doesn't upload any reports."
-msgstr ""
-
-#: Reportek/zpt/collection/add.zpt:12
-msgid "A collection is an organisation of envelopes. Some fields you fill out will show up as default values for all envelopes and collections you subsequently create in this collection."
-msgstr ""
-
-#: Reportek/zpt/feedback/add.zpt:30
-msgid "A manual feedback already exists for this envelope!"
-msgstr ""
+msgstr "Administrátor kolekce – dohlíží na hierarchickou strukturu, ale sám nenahrává žádné zprávy."
 
 #: ../../../extras/zodb_scripts/help/security.html.zpt:9
 msgid "A release-coordinator, who releases an envelope to the public. The public must be confident that they are not downloading an incomplete report, so a release/-revocation is logged in the activity log. Once a report is released, it is no longer possible to upload files. If a mistake is found then the release-status can be revoked."
-msgstr ""
+msgstr "Koordinátor přístupu – zpřístupňuje obálku pro veřejnost. Uživatelé musejí mít jistotu, že si stahují zprávy v dokončené podobě, takže zpřístupnění zprávy veřejnosti i zrušení přístupu se automaticky zaznamenává do protokolu. Poté, co je zpráva dokončena, již není možné nahrávat další soubory. Pokud se přijde na chybu, je možné status „Zpřístupněno“ zrušit."
 
 #: ../../../extras/zodb_scripts/help/security.html.zpt:14
 msgid "A reporter, who creates the actual reports. A reporter can request a report to be released when he is finished."
-msgstr ""
+msgstr "Osoba pověřená vykazováním – odpovídá za samotné sestavování zpráv. Po dokončení zprávy žádá o její zpřístupnění."
 
 #: ../../../extras/zodb_scripts/help/security.html.zpt:20
 msgid "A user can be one, more or all of these roles at the same time."
-msgstr ""
+msgstr "Jeden uživatel může vykonávat jednu i několik výše uvedených rolí současně."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:67
 msgid "A+B-C+D+E-F+G+H-I-K-L"
-msgstr ""
+msgstr "A+B-C+D+E-F+G+H-I-K-L"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:65
 msgid "A+B-C+D+E-F+G+H-I-K-L-M"
-msgstr ""
+msgstr "A+B-C+D+E-F+G+H-I-K-L-M"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:66
 msgid "A-B+C+D-E-F-G-H"
-msgstr ""
+msgstr "A-B+C+D-E-F-G-H"
 
 #: ../../../extras/zodb_scripts/help/index_html.zpt:14
 msgid "ANNEX I - ODS Reporting"
-msgstr ""
+msgstr "PŘÍLOHA I – Vykazování látek poškozujících ozonovou vrstvu"
 
 #: ../../../extras/zodb_scripts/help/index_html.zpt:15
 msgid "ANNEX II - F-Gases Reporting"
-msgstr ""
+msgstr "PŘÍLOHA II – Vykazování fluorovaných skleníkových plynů"
 
 #: templates/organisation_update.html:68
 #: templates/self_register.html:62
 msgid "About EORI number"
-msgstr ""
+msgstr "O čísle EORI"
 
-#: Reportek/zpt/envelope/statusesbulk.zpt:22
-msgid "Accept"
-msgstr ""
-
-#: Reportek/zpt/envelope/statusesbulk.zpt:13
-msgid "Accept/unaccept files"
-msgstr ""
-
-#: Reportek/zpt/envelope/statuses_section.zpt:24
-msgid "Accepted"
-msgstr ""
+#: Reportek/zpt/envelope/overview.zpt:89
+msgid "Acceptability status"
+msgstr "Status akceptability"
 
 #: Reportek/zpt/envelope/documents_section.zpt:88
 msgid "Access limitations may apply for files, which are not (yet) released for public view. Files marked with ${lock-icon} are unavailable. You must log in to get access."
-msgstr ""
+msgstr "Je možné, že u některých souborů, které (zatím) nejsou určeny  veřejnosti, bude omezen přístup. Soubory označené ${lock-icon} nejsou k dispozici. Přístup získáte až po přihlášení."
 
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:102
-#: Reportek/zpt/envelope/statuses_section.zpt:113
 msgid "Access limitations may apply for files, which are not (yet) released for public view. Files marked with <img src=\"misc_/Reportek/lockicon_gif\" alt=\"Padlock\" width=\"16\" height=\"16\" /> are unavailable. You must log in to get access."
-msgstr ""
+msgstr "Je možné, že u některých souborů, které (zatím) nejsou určeny  veřejnosti, bude omezen přístup. Soubory označené <img src=\"misc_/Reportek/lockicon_gif\" alt=\"Padlock\" width=\"16\" height=\"16\" /> nejsou k dispozici. Přístup získáte až po přihlášení."
 
 #: templates/organisation_update.html:88
 msgid "Account name"
-msgstr ""
+msgstr "Název účtu"
 
-#: Reportek/zpt/envelope/statusesbulk.zpt:21
-msgid "Action"
-msgstr ""
-
-#: Reportek/zpt/envelope/operations.zpt:12
-msgid "Activate task"
-msgstr ""
-
-#: Reportek/zpt/envelope/macros.zpt:37
-msgid "Activate task: ${title}"
-msgstr ""
-
-#: Reportek/zpt/collection/add.zpt:74
 #: Reportek/zpt/document/add.zpt:57
-#: Reportek/zpt/envelope/add.zpt:62
+#: Reportek/zpt/envelope/add_zip.zpt:33
 msgid "Add"
-msgstr ""
-
-#: Reportek/zpt/collection/add.zpt:9
-msgid "Add Collection"
-msgstr ""
+msgstr "Přidat"
 
 #: ../../../extras/zodb_scripts/help/security.html.zpt:26
 msgid "Add Collections, which is given to the collection administrator"
-msgstr ""
+msgstr "„Přidávání kolekci“ – smí provádět „Administrátor kolekce“."
 
 #: Reportek/zpt/document/add.zpt:17
 msgid "Add Document"
-msgstr ""
-
-#: Reportek/zpt/envelope/add.zpt:9
-msgid "Add Envelope"
-msgstr ""
+msgstr "Přidat dokument"
 
 #: ../../../extras/zodb_scripts/help/security.html.zpt:29
 msgid "Add Envelopes, which is given to the \"reporter\". This allows people to create envelopes. If you have the right to create an envelope you also have the right to add files into it. If there are certain parts of the hierarchy that a reporter should be restricted to, then give him the permission as a local role, or create a user folder on that level."
-msgstr ""
+msgstr "„Přidávání složek“ – smí provádět „Osoba pověřená vykazováním“. V rámci tohoto kroku uživatelé  vytvářejí nové složky. Pokud vám bylo toto uživatelské právo přiděleno, smíte též do složky přidávat soubory. Pokud by se osoba pověřená vykazováním měla pohybovat jen v některých částech hierarchie, přidělte jí lokální roli nebo na dané úrovni vytvořte pro uživatele zvláštní složku."
 
-#: Reportek/zpt/feedback/add.zpt:12
-msgid "Add Feedback"
-msgstr ""
-
-#: Reportek/zpt/hyperlink/add.zpt:9
-msgid "Add Hyperlink"
-msgstr ""
-
-#: Reportek/zpt/referral/add.zpt:9
-msgid "Add Referral"
-msgstr ""
-
-#: Reportek/zpt/feedback/index.zpt:15
-msgid "Add comment"
-msgstr ""
-
-#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:10
 #: Reportek/zpt/envelope/overview.zpt:9
 msgid "Add feedback"
-msgstr ""
-
-#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:12
-#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:14
-msgid "Add file"
-msgstr ""
-
-#: Reportek/zpt/hyperlink/add.zpt:34
-msgid "Add hyperlink"
-msgstr ""
+msgstr "Přidat zpětnou vazbu"
 
 #: templates/organisation_add_person.html:6
 msgid "Add person"
-msgstr ""
+msgstr "Přidat osobu"
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:12
 msgid "Add supporting file"
-msgstr ""
+msgstr "Připojit související soubor"
 
 #: ../../../extras/zodb_scripts/help/security.html.zpt:21
 msgid "Additionally, a user can only delete objects he himself have created. And in the case of files, only if the envelope is not released."
-msgstr ""
+msgstr "Uživatelé smí mazat pouze ty položky, které sami vytvořili. Soubory mohou navíc mazat pouze tehdy, dokud nebyla daná složka zpřístupněna."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:144
 msgid "Aerosols"
-msgstr ""
+msgstr "Aerosoly"
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:74
 msgid "After saving a draft delivery, you can evaluate the quality of the data you have reported. To do so click on the button \"Run QA\" next to the reported file in the envelope. If any of the tests detect errors in the data, it is necessary that you correct them by modifying your questionnaire before submitting the delivery."
-msgstr ""
-
-#: Reportek/zpt/envelope/statusesbulk.zpt:19
-msgid "All documents in the envelope are already listed"
-msgstr ""
-
-#: Reportek/zpt/envelope/statuses_section.zpt:15
-msgid "Alternately you can access the"
-msgstr ""
+msgstr "Poté uložení konceptu zásilky můžete zkontrolovat kvalitu údajů, které předkládáte. U daného souboru ve složce stačí kliknout na tlačítko „Spustit kontrolu chyb“. Pokud některý z testů odhalí chyby, bude je třeba před předložením zásilky opravit."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:138
 msgid "Amount destroyed by your company (on-site)"
-msgstr ""
+msgstr "Množství zlikvidované vaší společností (přímo v prostorách vašich provozů)"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:139
 msgid "Amount destroyed on your behalf (off-site within the Community)"
-msgstr ""
+msgstr "Množství zlikvidované za vás (mimo vaše provozy, v rámci Společenství)"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:130
 msgid "Amount exported for sale outside the Community"
-msgstr ""
+msgstr "Množství vyvezené za účelem prodeje mimo Společenství"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:129
 msgid "Amount imported into the Community"
-msgstr ""
+msgstr "Množství dovezené do Společenství"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:134
 msgid "Amount purchased from other Community sources"
-msgstr ""
+msgstr "Množství zakoupené od jiných zdrojů ve Společenství"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:137
 msgid "Amount reclaimed by your company"
-msgstr ""
+msgstr "Množství zlikvidované vaší společností"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:140
 msgid "Amount used as a feedstock by your company"
-msgstr ""
+msgstr "Množství, které vaše společnost použila jako vstupní surovinu"
 
 #: ../../../extras/zodb_scripts/help/security.html.zpt:16
 msgid "And then there still is the Zope Manager, who can fix everything if/when the security paradigme doesn't cut it."
-msgstr ""
+msgstr "Pokud ani bezpečnostní zásady nezabrání chybám, může vždy zasáhnout Zope Manager."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:158
 msgid "Annual total exported from the European Community"
-msgstr ""
-
-#: Reportek/zpt/envelope/statusesbulk.zpt:24
-msgid "Apply"
-msgstr ""
-
-#: Reportek/zpt/feedback/delete.zpt:12
-#: Reportek/zpt/feedback/deleteatt.zpt:12
-msgid "Are you sure you want to delete"
-msgstr ""
+msgstr "Roční celkový vývoz z Evropského společenství"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:292
 msgid "Argon plasma arc (all controlled substances except BCM, HBFC, MB)"
-msgstr ""
+msgstr "Argonový plazmový oblouk (všechny regulované látky s výjimkou BCM, HBFC, MB)"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:237
 msgid "At 01 January customs bondage"
-msgstr ""
+msgstr "K 1.lednu – uskladněno v celním skladu"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:239
 msgid "At 01 January destruction"
-msgstr ""
+msgstr "K 1.lednu – likvidace"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:235
 msgid "At 01 January free release"
-msgstr ""
+msgstr "K 1.lednu – propuštěno do volného oběhu"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:233
 msgid "At 01 January total"
-msgstr ""
+msgstr "K 1.lednu – celkem"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:238
 msgid "At 31 December customs bondage"
-msgstr ""
+msgstr "K 31.prosinci – uskladněno v celním skladu"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:240
 msgid "At 31 December destruction"
-msgstr ""
+msgstr "K 31. prosinci – likvidace"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:236
 msgid "At 31 December free release"
-msgstr ""
+msgstr "K 31. prosinci – propuštěno do volného oběhu"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:234
 msgid "At 31 December total"
-msgstr ""
+msgstr "K 31. prosinci – celkem"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:99
 msgid "At least one activity must be selected."
-msgstr ""
-
-#: Reportek/zpt/feedback/add.zpt:51
-msgid "Attach file"
-msgstr ""
-
-#: Reportek/zpt/feedback/edit.zpt:46
-msgid "Attached files"
-msgstr ""
-
-#: Reportek/zpt/feedback/index.zpt:75
-msgid "Attached files:"
-msgstr ""
-
-#: Reportek/zpt/feedback/index.zpt:45
-msgid "Author"
-msgstr ""
+msgstr "Musíte vybrat alespoň jednu činnost."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:38
 msgid "B"
-msgstr ""
+msgstr "B"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:74
 msgid "B+J"
-msgstr ""
+msgstr "B+J"
 
 #: ../../../extras/zodb_scripts/help/index_html.zpt:13
 msgid "BDR manual"
-msgstr ""
+msgstr "Příručka k BDR"
 
 #: templates/organisation_add_person.html:33
 #: templates/person_update.html:33
 msgid "Back"
-msgstr ""
-
-#: Reportek/zpt/envelope/add.zpt:23
-msgid "Back to collection"
-msgstr ""
+msgstr "Zpět"
 
 #: ../../../extras/zodb_scripts/copyFilesFromPreviousDeliveryForm.zpt:5
-#: Reportek/zpt/document/edit.zpt:28
-#: Reportek/zpt/document/flashview.zpt:10
+#: Reportek/zpt/document/manage.zpt:14
 msgid "Back to envelope"
-msgstr ""
-
-#: Reportek/zpt/feedback/uploadatt.zpt:7
-msgid "Back to feedback"
-msgstr ""
-
-#: Reportek/zpt/document/flashview.zpt:9
-msgid "Back to file"
-msgstr ""
+msgstr "Zpět do složky"
 
 #: templates/organisation_update.html:14
 msgid "Back to reporting"
-msgstr ""
+msgstr "Zpět ke zprávám"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:77
 msgid "Blocking errors:"
-msgstr ""
-
-#: ../../../extras/zodb_scripts/index_html.zpt:20
-msgid "Browse by obligation"
-msgstr ""
-
-#: Reportek/zpt/envelope/statuses_section.zpt:15
-msgid "Bulk set status"
-msgstr ""
-
-#: ../../../extras/zodb_scripts/index_html.zpt:31
-msgid "By obligation or country"
-msgstr ""
-
-#: Reportek/zpt/document/edit.zpt:54
-msgid "Bytes"
-msgstr ""
+msgstr "Zásadní chyby:"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:39
 msgid "C"
-msgstr ""
+msgstr "C"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:75
 msgid "C+F+M"
-msgstr ""
+msgstr "C+F+M"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:73
 msgid "C+F+N"
-msgstr ""
+msgstr "C+F+N"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:141
 msgid "Calculated total"
-msgstr ""
-
-#: Reportek/zpt/feedback/deleteatt.zpt:17
-msgid "Cancel"
-msgstr ""
+msgstr "Celková vypočtená částka"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:287
 msgid "Cement kilns (all controlled substances except BCM, Halons, HBFC, HCFC, MB)"
-msgstr ""
+msgstr "Cementářské pece (všechny regulované látky s výjimkou BCM, HCFC, halonů, HBFC, MB)"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:11
 msgid "Certified"
-msgstr ""
+msgstr "Ověřeno"
 
-#: Reportek/zpt/collection/prop.zpt:73
 #: Reportek/zpt/document/manage.zpt:153
-#: Reportek/zpt/feedback/edit.zpt:40
 msgid "Change"
-msgstr ""
+msgstr "Změnit"
 
 #: ../../../extras/zodb_scripts/help/security.html.zpt:27
 msgid "Change Collections, which is given to \"owner\". Thereby the collection administrator can only modify the collections he has created."
-msgstr ""
+msgstr "„Úprava kolekci“ – smí provádět „Majitel“. Administrátor kolekce smí provádět změny pouze v těch kolekcích, které sám vytvořil."
 
 #: ../../../extras/zodb_scripts/help/security.html.zpt:34
 msgid "Change Envelopes. Give this permission to \"owner\" to let a \"reporter\" fill his own envelopes or give the permission to \"reporter\" to let all reporters modify all envelopes."
-msgstr ""
+msgstr "„Úprava složek“ – toto právo udělte „Majiteli“, aby mohl „Osobu pověřenou vykazováním“ nechat vyplnit složky. Případně můžete právo přidělit „Osobě pověřené vykazováním“ – všechny osoby pověřené vykazováním pak budou moci provádět úpravy ve všech složkách."
 
 #: Reportek/zpt/document/manage.zpt:79
 msgid "Change file"
-msgstr ""
+msgstr "Změnit soubor"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:169
 msgid "Check contents of delivery"
-msgstr ""
+msgstr "Kontrola – obsah dodávky"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:267
 msgid "Check licence"
-msgstr ""
+msgstr "Kontrola – licence"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:278
 msgid "Check quantity"
-msgstr ""
+msgstr "Kontrola – množství"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:215
 msgid "Check sum (Total Available - Total Sales/Use/Destruction)"
-msgstr ""
+msgstr "Kontrolní součet (celkem k dispozici – celkový prodej/použití/likvidace)"
 
 #: ../../../extras/zodb_scripts/copyFilesFromPreviousDeliveryForm.zpt:8
 msgid "Choose previous delivery"
-msgstr ""
-
-#: ../../../extras/zodb_scripts/index_html.zpt:9
-msgid "Click on the link below to start the reporting"
-msgstr ""
+msgstr "Vybrat předchozí zásilku"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:120
 msgid "Co-Producer Form 1, 2 (only for producers)"
-msgstr ""
+msgstr "Formulář 1 a 2 „Spoluvýrobce“ (pouze pro výrobce)"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:125
 msgid "Co-Producer Form: PFCs"
-msgstr ""
+msgstr "Formulář „Spoluvýrobce“: PFC"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:123
 msgid "Co-Producer Form: SF6"
-msgstr ""
+msgstr "Formulář „Spoluvýrobce“: SF6"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:230
 msgid "Code"
-msgstr ""
+msgstr "Kód"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:73
 msgid "Code of Good Administrative Behaviour (Commission decision 2000/633/EC, ECSC, Euratom);"
-msgstr ""
+msgstr "Kodex řádné správní praxe (rozhodnutí Komise 2000/633/ES, ESUO, Euratom);"
 
 #: Reportek/zpt/collection/index.zpt:46
 msgid "Collection"
-msgstr ""
-
-#: Reportek/zpt/collection/prop.zpt:10
-msgid "Collection Properties"
-msgstr ""
-
-#: Reportek/zpt/collection/add.zpt:23
-#: Reportek/zpt/collection/prop.zpt:26
-msgid "Collections"
-msgstr ""
+msgstr "Kolekce"
 
 #: Reportek/zpt/collection/index.zpt:14
 msgid "Collections are folders that define the structure for the Data Repository, grouping Envelopes by country and by the reporting obligations they respond to."
-msgstr ""
+msgstr "Kolekce jsou fascikly, které určují strukturu databáze BDR, seskupování složek podle zemí a podle oznamovacích povinností."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:216
 msgid "Comments"
-msgstr ""
+msgstr "Poznámka"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:9
 msgid "Company Information"
-msgstr ""
+msgstr "Informace o společnosti"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:231
 msgid "Company activities:"
-msgstr ""
+msgstr "Činnost společnosti:"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:117
 msgid "Company contact information"
-msgstr ""
+msgstr "Kontaktní údaje společnosti"
 
 #: templates/organisation_update.html:23
 #: templates/self_register.html:37
 msgid "Company details"
-msgstr ""
+msgstr "Údaje o společnosti"
 
 #: models.py:95
 #: templates/organisation_update.html:34
 msgid "Company name"
-msgstr ""
+msgstr "Název podniku"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:5
 msgid "Company name/(metric tonnes)"
-msgstr ""
-
-#: Reportek/zpt/envelope/operations.zpt:28
-msgid "Complete"
-msgstr ""
-
-#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:13
-msgid "Complete delivery"
-msgstr ""
+msgstr "Název společnosti / (v metrických tunách)"
 
 #: ../../../extras/zodb_scripts/help/dataconfidentiality.zpt:4
 msgid "Confidentiality requirements apply to data reported under both the ODS and the F-Gas Regulation. Article 27.8 and Article 6.3 respectively stipulate \"The Commission shall take appropriate steps to protect the confidentiality of the information submitted to it.\" The European Environment Agency, who is the key actor in the compilation of the company-reports, will use the following approach to protect the data confidentiality:"
-msgstr ""
+msgstr "Požadavky na zachování důvěrnosti platí pro údaje vykazované podle nařízení o látkách poškozujících ozonovou vrstvu i pro údaje vykazované podle nařízení o fluorovaných skleníkových plynech. Čl. 27 odst. 8  a čl. 6 odst 3 stanoví, že „Komise přijme vhodná opatření na ochranu důvěrné povahy informací získaných na základě tohoto článku.“ Evropská agentura pro životní prostředí, která hraje při shromažďování výkazů klíčovou úlohu, bude k zachování důvěrnosti údajů používat následující přístup:"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:47
 msgid "Contact details (company and department, postal address, country of residence, business telephone number, mobile telephone number, fax number, e-mail address, internet address)."
-msgstr ""
-
-#: Reportek/zpt/document/edit.zpt:45
-msgid "Content Type"
-msgstr ""
+msgstr "Kontaktní údaje (název společnosti a oddělení, poštovní adresa, bydliště, telefon do práce, číslo mobilního telefonu, faxové číslo, e-mailová adresa, internetová adresa)."
 
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:87
 msgid "Copy"
-msgstr ""
+msgstr "Kopírovat"
 
 #: ../../../extras/zodb_scripts/copyFilesFromPreviousDeliveryForm.zpt:21
-#: Reportek/zpt/envelope/earlierreleases.zpt:20
 msgid "Copy files"
-msgstr ""
-
-#: Reportek/zpt/envelope/earlierreleases.zpt:31
-msgid "Copy files from this delivery"
-msgstr ""
+msgstr "Kopírovat soubory"
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:15
 msgid "Copy previous delivery"
-msgstr ""
+msgstr "Kopírovat předchozí zásilku"
 
 #: templates/organisation_update.html:78
 msgid "Country"
-msgstr ""
+msgstr "Země"
 
-#: Reportek/zpt/collection/add.zpt:62
-#: Reportek/zpt/collection/prop.zpt:61
-#: Reportek/zpt/collection/worklist.zpt:18
+#: Reportek/zpt/envelope/overview.zpt:61
 msgid "Coverage"
-msgstr ""
-
-#: Reportek/zpt/collection/add.zpt:71
-#: Reportek/zpt/collection/prop.zpt:70
-#: Reportek/zpt/envelope/add.zpt:57
-msgid "Coverage note"
-msgstr ""
+msgstr "Území"
 
 #: Reportek/zpt/collection/index.zpt:13
 msgid "Create a new Referral if a certain delivery data is not stored on this system, in which case specify another location for it."
-msgstr ""
+msgstr "Pokud určitá data nejsou v tomto systému uložena, vytvořte nový odkaz. V tom případě uveďte jiné umístění."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:232
 msgid "Current Facility activities:"
-msgstr ""
+msgstr "Aktuální činnost zařízení:"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:221
 msgid "Customs procedure"
-msgstr ""
+msgstr "Celní režim"
 
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:86
 msgid "Cut"
-msgstr ""
+msgstr "Vyjmout"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:40
 msgid "D"
-msgstr ""
+msgstr "D"
 
 #: ../../../extras/zodb_scripts/help/dataconfidentiality.zpt:3
 msgid "Data Confidentiality"
-msgstr ""
+msgstr "Důvěrnost údajů"
 
 #: ../../../extras/zodb_scripts/help/dataconfidentiality.zpt:19
 msgid "Data Protection Rules"
-msgstr ""
+msgstr "Pravidla ochrany údajů"
 
 #: ../../../extras/zodb_scripts/help/dataconfidentiality.zpt:2
-#: ../../../extras/zodb_scripts/help/index_html.zpt:18
 msgid "Data confidentiality and protection"
-msgstr ""
+msgstr "Důvěrnost a ochrana údajů"
 
 msgid "Data delivery was not acceptable!"
-msgstr ""
+msgstr "Zásilka údajů nebyla přijata!"
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:28
-#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:18
-#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:20
 msgid "Deactivate task"
-msgstr ""
+msgstr "Deaktivovat úkol"
 
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:91
-#: Reportek/zpt/envelope/feedback_section.zpt:45
-#: Reportek/zpt/feedback/delete.zpt:16
 msgid "Delete"
-msgstr ""
+msgstr "Odstranit"
 
 #: ../../../extras/zodb_scripts/help/security.html.zpt:37
 msgid "Delete Objects. Typically give this permission to \"owner\" and mayby \"release-coordinator\" or \"collection administrator\"."
-msgstr ""
+msgstr "„Odstraňování položek“ – toto právo má obvykle „Majitel“ a někdy „Koordinátor přístupu“ případně „Administrátor kolekce“."
 
-#: Reportek/zpt/feedback/edit.zpt:54
-msgid "Delete attached file"
-msgstr ""
-
-#: Reportek/zpt/feedback/delete.zpt:11
-msgid "Delete feedback"
-msgstr ""
-
-#: Reportek/zpt/collection/add.zpt:28
 #: Reportek/zpt/collection/index.zpt:24
-#: Reportek/zpt/collection/prop.zpt:20
 msgid "Description"
-msgstr ""
+msgstr "Popis"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:29
 msgid "Designated Member States' staff members (access will be restricted to the data relevant for the specific Member State). No personal data is shared with third parties for direct marketing purposes."
-msgstr ""
+msgstr "Pověření pracovníci z členských států (přístup omezeno´na údaje relevantní pro konkrétní členský stát). Žádné osobní údaje nejsou poskytovány třetím stranám pro účely přímého marketingu."
 
 #: templates/self_register.html:73
 msgid "Designated company reporter nr 1"
-msgstr ""
+msgstr "1. osoba pověřená v rámci podniku vykazováním zpráv"
 
-#. Default: "Reporterii desemnați de o întreprindere, care trebuie să raporteze în conformitate cu articolul 6 din Regulamentul F-gaz sau cu articolul 27 din regulamentul de ODS, ar trebui să se înregistreze pentru a fi în măsură să raporteze."
 #: templates/self_register.html:11
 msgid "Designated reporters of an undertaking, who have to report in accordance with Article 6 of the F-Gas Regulation or Article 27 of the ODS Regulation, should register in order to be able to report."
-msgstr ""
+msgstr "Osoby pověřené předkládáním zpráv v rámci podniků, kterým tuto povinnost ukládá článek 6 nařízení o F-plynech nebo článek 27 nařízení o látkách, které poškozují ozonovou vrstvu, se musí pro tyto účely zaregistrovat."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:226
 msgid "Destination Country"
-msgstr ""
+msgstr "Země určení"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:161
 msgid "Destruction"
-msgstr ""
+msgstr "Likvidace"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:228
 msgid "Destruction technology"
-msgstr ""
+msgstr "Technologie likvidace"
 
-#: Reportek/zpt/document/edit.zpt:57
 #: Reportek/zpt/document/manage.zpt:145
-#: Reportek/zpt/envelope/documentsmanagement_section.zpt:35
 msgid "Document accepted by the client"
-msgstr ""
-
-#: ../../../extras/zodb_scripts/translatable_footer.zpt:1
-msgid "Document last modified"
-msgstr ""
-
-#: Reportek/zpt/feedback/edit.zpt:52
-msgid "Download file"
-msgstr ""
+msgstr "Dokument klientem akceptován"
 
 #: Reportek/zpt/envelope/overview.zpt:13
 msgid "Download zipped envelope with available files"
-msgstr ""
-
-#: Reportek/zpt/document/edit.zpt:27
-msgid "Download/View"
-msgstr ""
-
-#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:27
-msgid "Draft"
-msgstr ""
+msgstr "Stáhnout zazipovanou složku s dostupnými soubory"
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:35
 msgid "Draft delivery"
-msgstr ""
+msgstr "Koncept zásilky"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:41
 msgid "E"
-msgstr ""
+msgstr "E"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:27
 msgid "EEA staff as well as designated external experts or contractors who work on behalf of the EEA for the purpose of data management and compilation, quality assessment, and evaluation;"
-msgstr ""
+msgstr "Zaměstnanci EEA a pověření externí odborníci nebo smluvní partneři, kteří pracují jménem EEA na správě údajů a jejich zpracovávání, kontrolách kvality a vyhodnocování;"
 
 #: models.py:103
 msgid "EORI number"
-msgstr ""
+msgstr "Číslo EORI"
 
 #: models.py:93
 msgid "Economic Operators Registration and Identification number (EORI)"
-msgstr ""
+msgstr "Registrační a identifikační číslo hospodářských subjektů (EORI)"
 
 #: Reportek/zpt/envelope/feedback_section.zpt:43
 msgid "Edit"
-msgstr ""
-
-#: Reportek/zpt/feedback/edit.zpt:10
-msgid "Edit Feedback"
-msgstr ""
-
-#: Reportek/zpt/hyperlink/edit.zpt:17
-msgid "Edit Hyperlink"
-msgstr ""
-
-#: Reportek/zpt/document/edit.zpt:22
-msgid "Edit Properties"
-msgstr ""
-
-#: Reportek/zpt/feedback/edit.zpt:53
-msgid "Edit attached file"
-msgstr ""
-
-#: Reportek/zpt/document/edit.zpt:36
-msgid "Edit file"
-msgstr ""
+msgstr "Upravit"
 
 #: Reportek/zpt/document/manage.zpt:109
 msgid "Edit file properties"
-msgstr ""
+msgstr "Upravit vlastnosti souboru"
 
 #: Reportek/zpt/document/manage.zpt:83
 msgid "Edit metadata with Web form"
-msgstr ""
+msgstr "Upravit metadata s internetovým formulářem"
 
 #: Reportek/zpt/collection/tabs.zpt:8
-#: Reportek/zpt/document/upload.zpt:12
-#: Reportek/zpt/envelope/tabs.zpt:36
 msgid "Edit properties"
-msgstr ""
+msgstr "Upravit vlastnosti"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:152
 msgid "Electrical equipment"
-msgstr ""
+msgstr "Elektrická zařízení"
 
 #: models.py:155
 msgid "Email address"
-msgstr ""
+msgstr "E-mailová adresa"
 
 #: models.py:156
 msgid "Email address 2"
-msgstr ""
+msgstr "E-mailová adresa 2"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:244
 msgid "Emission"
-msgstr ""
+msgstr "Emise"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:264
 msgid "Emissions resulting from feedstock or process agent use are higher than zero and are more than 0,1% of the make-up."
-msgstr ""
-
-#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:24
-msgid "Enter feedback to accept or reject the delivery"
-msgstr ""
+msgstr "Emise vzniklé při použití jako vstupní surovina nebo technologické činidlo jsou vyšší než nula a přesahují 0,1 % upraveného množství."
 
 #: Reportek/zpt/collection/index.zpt:52
-#: Reportek/zpt/collection/worklist.zpt:27
 msgid "Envelope"
-msgstr ""
-
-#: Reportek/zpt/envelope/properties.zpt:16
-msgid "Envelope Properties"
-msgstr ""
+msgstr "Složka"
 
 #: Reportek/zpt/envelope/overview.zpt:77
 msgid "Envelope is ${status}"
-msgstr ""
+msgstr "Složka má status ${status}"
 
-#: Reportek/zpt/feedback/index.zpt:37
-msgid "Envelope release:"
-msgstr ""
-
+#: ../../../extras/zodb_scripts/copyFilesFromPreviousDeliveryForm.zpt:16
 msgid "Envelope:"
-msgstr ""
-
-#: Reportek/zpt/collection/add.zpt:24
-#: Reportek/zpt/collection/prop.zpt:27
-msgid "Envelopes"
-msgstr ""
+msgstr "Složka:"
 
 #: Reportek/zpt/collection/index.zpt:37
 msgid "Envelopes and subcollections"
-msgstr ""
+msgstr "Složky a subkolekce"
 
 #: Reportek/zpt/collection/index.zpt:15
 msgid "Envelopes store all the information about a delivery"
-msgstr ""
-
-#: Reportek/zpt/envelope/statusesbulk.zpt:38
-msgid "Errors:"
-msgstr ""
+msgstr "Ve složce jsou uloženy všechny informace týkající se zásilky."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:191
 msgid "Exporter"
-msgstr ""
+msgstr "Vývozce"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:126
 msgid "Exporter Form (all fluorinated greenhouse gas types)"
-msgstr ""
+msgstr "Formulář pro vývozce (všechny druhy fluorovaných skleníkových plynů)"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:42
 msgid "F"
-msgstr ""
+msgstr "F"
 
 #: models.py:152
 msgid "Family name"
-msgstr ""
+msgstr "Příjmení"
 
 #: models.py:164
 msgid "Fax"
-msgstr ""
-
-#: Reportek/zpt/feedback/add.zpt:45
-msgid "Feedback content (plain text)"
-msgstr ""
+msgstr "Fax"
 
 #: Reportek/zpt/envelope/feedback_section.zpt:1
 msgid "Feedback for this envelope"
-msgstr ""
-
-#: Reportek/zpt/feedback/edit.zpt:20
-msgid "Feedback text"
-msgstr ""
-
-#: Reportek/zpt/feedback/index.zpt:20
-msgid "Feedback: ${title}"
-msgstr ""
+msgstr "Zpětná vazba k této složce"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:147
 msgid "Feedstock"
-msgstr ""
+msgstr "Vstupní surovina"
 
 #: Reportek/zpt/document/add.zpt:36
-#: Reportek/zpt/document/flashview.zpt:14
-#: Reportek/zpt/document/upload.zpt:23
 msgid "File"
-msgstr ""
-
-#: Reportek/zpt/document/edit.zpt:53
-msgid "File Size"
-msgstr ""
-
-#: Reportek/zpt/envelope/statuses_section.zpt:65
-msgid "File operations: [View file in different formats], [File properties], [View the feedback posted it (if any)]"
-msgstr ""
+msgstr "Soubor"
 
 #: Reportek/zpt/document/manage.zpt:127
 msgid "File size"
-msgstr ""
+msgstr "Velikost souboru"
 
 #: Reportek/zpt/document/manage.zpt:173
 msgid "File too large to run the ${qa-script} quality assessment script directly. Use the feedback generated by the <em>automatic quality assessment</em> to view the results."
-msgstr ""
+msgstr "Soubor je příliš velký, a ${qa-script} automatickou kontrolou chyb proto nelze spustit přímo. Výsledky zobrazte použitím zpětné vazby vygenerované při <em>automatické kontrole</em>."
 
 #: Reportek/zpt/document/manage.zpt:22
 msgid "File: ${file-id}"
-msgstr ""
+msgstr "Soubor: ${file-id}"
 
-#: Reportek/zpt/envelope/statusesbulk.zpt:18
-msgid "Filename list (one per line)"
-msgstr ""
-
-#: Reportek/zpt/envelope/documents_section.zpt:9
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:12
 msgid "Files in this envelope"
-msgstr ""
-
-#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:22
-msgid "Files with the same filename as ones already existing in the envelope will be overwritten."
-msgstr ""
+msgstr "Soubory v této složce"
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:70
 msgid "Fill in data using the on-line questionnaire. The system will automatically store your data in this envelope after clicking the \"Save\" button on the questionnaire. You can always interrupt your work and continue your contribution at a later time without losing data."
-msgstr ""
-
-#: Reportek/zpt/envelope/add.zpt:28
-msgid "Fill out the fields in this report profile and click <em>Add</em>. This will create an <em>envelope</em> into which you make the delivery."
-msgstr ""
-
-#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/RetireRoute.zpt:16
-msgid "Finish or go back to drafting?"
-msgstr ""
+msgstr "Vyplňte údaje pomocí online dotazníku. Po kliknutí na tlačítko „Uložit“ (na dotazníku) systém vaše data automaticky uloží do této složky. Vyplňování tak můžete kdykoli přerušit a pokračovat později, aniž by došlo ke ztrátě údajů."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:143
 msgid "Fire protection"
-msgstr ""
+msgstr "Protipožární ochrana"
 
 #: models.py:153
 msgid "First name"
-msgstr ""
+msgstr "Jméno"
 
 #: ../../../extras/zodb_scripts/help/index_html.zpt:32
 msgid "Fluorinated Gases (F-gases)"
-msgstr ""
+msgstr "Fluorované plyny (F-plyny)"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:15
 msgid "Fluorinated greenhouse gas transaction(s)"
-msgstr ""
+msgstr "Transakce s fluorovanými skleníkovými plyny"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:157
 msgid "Fluorinated greenhouse gas type"
-msgstr ""
+msgstr "Fluorované skleníkové plyny"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:146
 msgid "Foams"
-msgstr ""
+msgstr "Pěny"
 
 #: templates/self_register_done.html:10
 msgid "For questions please contact the %(helpdesk_email)s."
-msgstr ""
+msgstr "V případě dotazů kontaktujte % (helpdesk_email S)."
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:23
 msgid "For the purpose detailed above, access to your personal data is given to the following persons, without prejudice to a possible transmission to the bodies in charge of monitoring or inspection task in accordance with European Union law:"
-msgstr ""
+msgstr "Pro výše uvedené účely je přístup k vašim osobním údajům udělován těmto osobám – přitom není dotčena možnost předat údaje orgánům pověřeným kontrolou nebo dohledem v souladu s právními předpisy Evropské unie:"
 
-#. Default: "Pentru întreprinderile de raportare, pentru prima dată, cererea de cont vor fi evaluate și vor fi furnizate de conectare și parola."
 #: templates/self_register.html:30
 msgid "For undertakings reporting for the first time, the account request will be evaluated and login and password will be provided."
-msgstr ""
+msgstr "U podniků, které předkládají zprávu poprvé, bude žádost o účet posouzena a budou přiděleny přihlašovací údaje a heslo."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:177
 msgid "For your convenience, you can use the \"Copy previous delivery\" button in the new envelope to copy existing xml-files from the current (submitted but rejected) envelope."
-msgstr ""
-
-#: Reportek/zpt/envelope/operations.zpt:44
-msgid "Forward"
-msgstr ""
+msgstr "V nové složce můžete použít tlačítko „Kopírovat předchozí zásilku“. Zkopírujete tak soubory xml ze stávající (předložené ale zamítnuté) složky."
 
 #: ../../../extras/zodb_scripts/help/security.html.zpt:3
 msgid "Four (Five) types of user roles are foreseen:"
-msgstr ""
+msgstr "Uživatelům se v rámci systému přiděluje 4–5 uživatelských rolí:"
 
-#: ../../../extras/zodb_scripts/help/faq/index_html.zpt:3
 #: ../../../extras/zodb_scripts/help/index_html.zpt:30
 msgid "Frequently Asked Questions"
-msgstr ""
+msgstr "Časté otázky"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:43
 msgid "G"
-msgstr ""
+msgstr "G"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:296
 msgid "Gas phase catalytic dehalogenation (all controlled substances except BCM, Halons, HBFC, MB)"
-msgstr ""
+msgstr "Katalytická dehalogenace v plynné fázi (všechny regulované látky s výjimkou BCM, halonů, HBFC, MB)"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:289
 msgid "Gaseous/fume oxidation (all contolled substances except BCM, HBFC, MB)"
-msgstr ""
-
-#: Reportek/zpt/document/edit.zpt:81
-#: Reportek/zpt/envelope/earlierreleases.zpt:31
-#: Reportek/zpt/hyperlink/add.zpt:14
-msgid "Go"
-msgstr ""
-
-#: Reportek/zpt/document/flashview.zpt:10
-#: Reportek/zpt/envelope/note.zpt:18
-msgid "Go back to envelope"
-msgstr ""
-
-#: Reportek/zpt/envelope/note.zpt:15
-msgid "Go back to file"
-msgstr ""
-
-#: Reportek/zpt/hyperlink/index.zpt:5
-msgid "Go back to the envelope that contains this hyperlink"
-msgstr ""
-
-#: Reportek/zpt/document/flashview.zpt:9
-msgid "Go back to this file operations page"
-msgstr ""
+msgstr "Plynná/parní oxidace (všechny regulované látky s výjimkou BCM, HBFC, MB)"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:44
 msgid "H"
-msgstr ""
+msgstr "H"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:162
 msgid "HFC"
-msgstr ""
+msgstr "HFC"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:19
 msgid "HFC Import"
-msgstr ""
+msgstr "Dovoz HFC"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:16
 msgid "HFC Production"
-msgstr ""
+msgstr "Výroba HFC"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:165
 msgid "HFC preparations*"
-msgstr ""
+msgstr "Přípravky HFC*"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:164
 msgid "HFCs"
-msgstr ""
+msgstr "HFC"
 
 #: ../../../extras/zodb_scripts/help/index_html.zpt:2
 msgid "Help: How to use the Business Data Repository (BDR)"
-msgstr ""
+msgstr "Nápověda: Jak se s databází BDR zachází"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:31
 msgid "Hide details"
-msgstr ""
+msgstr "Skrýt podrobnosti"
 
 #: Reportek/zpt/envelope/tabs.zpt:57
 msgid "History"
-msgstr ""
-
-#: Reportek/zpt/envelope/history.zpt:5
-msgid "History of ${title}"
-msgstr ""
+msgstr "Historie"
 
 #: templates/organisation_name_history.html:9
 msgid "Home"
-msgstr ""
+msgstr "Úvodní stránka"
 
 #: ../../../extras/zodb_scripts/help/index_html.zpt:15
-msgid "How to upload a report"
-msgstr ""
+msgid "How to upload a report <ul> <li><a href=\"/help/BDR_Reporting_manual_2013-v2.0.pdf\">x</a></li> <li><a href=\"/help/BDR_Manual_Version2_Annex_I-ODS.pdf\">x</a></li> <li><a href=\"/help/BDR_Manual_Version2_Annex_II-F-gases.pdf\">x</a></li> </ul>"
+msgstr "Jak zprávu nahrát <ul> <li><a href=\"/help/BDR_Reporting_manual_2013-v2.0.pdf\">x</a></li> <li><a href=\"/help/BDR_Manual_Version2_Annex_I-ODS.pdf\">x</a></li> <li><a href=\"/help/BDR_Manual_Version2_Annex_II-F-gases.pdf\">x</a></li> </ul>"
 
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:62
-#: Reportek/zpt/hyperlink/index.zpt:9
 msgid "Hyperlink"
-msgstr ""
-
-#: Reportek/zpt/hyperlink/edit.zpt:26
-msgid "Hyperlink URL"
-msgstr ""
+msgstr "Hyperlink"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:45
 msgid "I"
-msgstr ""
-
-#: Reportek/zpt/envelope/statuses_section.zpt:36
-#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:38
-msgid "Id"
-msgstr ""
-
-#: Reportek/zpt/hyperlink/add.zpt:29
-msgid "Identifier"
-msgstr ""
+msgstr "I"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:100
 msgid "If NIL report is selected, then no other activities can be selected."
-msgstr ""
-
-#: Reportek/zpt/referral/add.zpt:12
-msgid "If a certain delivery data is not stored on this system, specify another location for it."
-msgstr ""
+msgstr "Pokud zvolíte nulovou zprávu, nelze vybrat žádní nebudou žádné další činnosti."
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:86
 msgid "If the feedback \"<em>Data delivery was not acceptable</em>\" is shown in the Feedback section, then some important checks have failed. In this case, a list of errors will also be found in the Feedback report. Additionally, a new envelope will be created and all the reported data/submitted files will be copied to this envelope, so that you can correct the errors in the questionnaire and submit again using the same process as in Step 2. Please note that, in order to do so, you first need to re-activate the task in this newly created envelope."
-msgstr ""
+msgstr "Pokud se vám v části s výsledky zobrazí zpráva \"<em>Chybná data v zásilce</em>\", data neprošla kontorlou. V tom případě se též zobrazí seznam chyb. Kromě toho se automaticky vytvoří nová složka, do které budou nakopírovány všechny vykazované údaje a soubory. Můžete tak v dotazníku snadno opravit chyby  a údaje předložit znovu podle stejného postupu jako v kroku 2. Upozorňujeme, že je třeba nejprve v nově vytvořené složce tento úkol znovu aktivovat."
 
 #: Reportek/zpt/document/add.zpt:22
 msgid "If the filename already exists in the envelope, the existing file will be overwritten."
-msgstr ""
-
-#: ../../../extras/zodb_scripts/index_html.zpt:46
-msgid "If you need to change the people with reporting rights for your company or the details of your company account please Login first."
-msgstr ""
-
-#: Reportek/zpt/feedback/add.zpt:18
-msgid "If you want to be notified when other feedback is added to this envelope or comments are posted on feedback items, you need to ${subscribe-link}"
-msgstr ""
-
-#: Reportek/zpt/feedback/index.zpt:118
-msgid "If you want to be notified when other feedback is added to this envelope or comments are posted on feedback items, you need to ${subscribe-notifications-link}"
-msgstr ""
-
-#: Reportek/zpt/envelope/earlierreleases.zpt:12
-msgid "If you want to copy the files from a previous delivery, choose the delivery and click <em>Go</em>:"
-msgstr ""
+msgstr "Pokud soubor s daným názvem již v rámci složky existuje, stávající soubor bude přepsán."
 
 #: Reportek/zpt/envelope/overview.zpt:106
 msgid "If you want to stay updated about events in this envelope ${subscribe} for this country and the current dataflow(s)."
-msgstr ""
-
-#: ../../../extras/zodb_scripts/index_html.zpt:38
-msgid "If your company already has an account, please login here using the username and password provided to you by the BDR via email:"
-msgstr ""
-
-#: ../../../extras/zodb_scripts/index_html.zpt:42
-msgid "If your company does not yet own a login account please register here:"
-msgstr ""
-
-#: Reportek/zpt/feedback/add.zpt:15
-#: Reportek/zpt/feedback/index.zpt:115
-msgid "Important notice"
-msgstr ""
+msgstr "Chcete-li dostávat zprávy o změnách obsahu této složky, ${přihlaste se k odběru zpráv} o této zemi a o aktuálních datech."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:190
 msgid "Importer"
-msgstr ""
+msgstr "Dovozce"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:121
 msgid "Importer Form 3: HFC preparations*"
-msgstr ""
+msgstr "Formulář 3 pro dovozce: Přípravky HFC*"
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:83
 msgid "In case all the quality checks have been successful, a positive confirmation receipt will be created under the envelope and your company has successfully reported the required information to DG CLIMA."
-msgstr ""
+msgstr "Pokud kontrola kvality proběhne úspěšně, vygeneruje se u složky potvrzení a váš podnik tímto úspěšně odeslal požadované informace na GŘ CLIMA."
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:49
 msgid "In case you are not obliged to report (see FAQs under the \"Help\" Section), please add and edit a NIL reporting questionnaire."
-msgstr ""
+msgstr "Pokud se na vás oznamovací povinnost nevztahuje (viz Časté otázky v části „Nápověda“), přidejte a upravte nulovou zprávu."
 
 #: ../../../extras/zodb_scripts/help/index_html.zpt:35
 msgid "In case you need further help, please contact the BDR helpdesk: <a href=\"mailto:BDR.helpdesk@eea.europa.eu\">BDR.helpdesk@eea.europa.eu</a>."
-msgstr ""
+msgstr "Pokud potřebujete pomoc, kontaktujte prosím asistenční službu BDR: <a href=\"mailto:BDR.helpdesk@eea.europa.eu\">BDR.helpdesk@eea.europa.eu</a>."
 
-#. Default: "În cazul în care tu sau o altă persoană în compania dumneavoastră deja au primit un nume de utilizator și o parolă, dar au uitat sau, în cazul în care aveți nevoie de asistență suplimentară logare, vă rugăm să contactați biroul de asistență la: %(helpdesk_email)s."
 #: templates/self_register.html:16
 msgid "In case you or another person in your company already have received a username and password but have forgotten it or in case you need further assistance logging in, please contact the helpdesk at: %(helpdesk_email)s."
-msgstr ""
+msgstr "Pokud jste vy nebo někdo jiný z vašeho podniku zapomněli uživatelské jméno či přístupové heslo nebo pokud potřebujete pomoc s přihlášením, kontaktujte pracovníky asistenční služby: %(helpdesk_email)s."
 
-#. Default: "În cazul în care întreprinderea este un reporter prima dată și, prin urmare, nu a primit încă un nume de utilizator și parolă, vă rugăm să treceți la "
 #: templates/self_register.html:20
 msgid "In case your undertaking is a first time reporter and has therefore not yet received a username and password, please proceed to the"
-msgstr ""
-
-#: Reportek/zpt/document/flashview.zpt:166
-msgid "In order to access this page, Javascript needs to be enabled on your brwoser. Please enable it and refresh the page."
-msgstr ""
+msgstr "Pokud váš podnik předkládá zprávu poprvé a nemá tudíž přihlašovací údaje ani heslo, přejděte na část"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:12
 msgid "In progress"
-msgstr ""
+msgstr "Rozpracováno"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:101
 msgid "In the tab 'Company information' you ticked that you are a producer in this gas group but in the tab referring to this gas group you did not report any production quantities. Please report the produced quantities or un-tick the producer box for this gas group."
-msgstr ""
+msgstr "Na kartě „Informace o společnosti“, jste zaškrtli, že jste výrobcem této skupiny plynů, ale na kartě s údaji o této skupině jste nenahlásili žádné vyrobené množství. Uveďte vyrobené množství nebo  u této skupiny plynů zrušte zaškrtnutí výroby."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:102
 msgid "In the tab 'Company information' you ticked to be an importer in this gas group but in the tab referring to this gas group you did not report any imported quantities. Please check the imported quantities or un-tick the importer box for this gas group."
-msgstr ""
+msgstr "Na kartě „Informace o společnosti“, jste zaškrtli, že jste dovozcem této skupiny plynů, ale na kartě s údaji o této skupině jste nenahlásili žádné dovezené množství. Uveďte dovezené množství nebo  u této skupiny plynů zrušte zaškrtnutí dovozu."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:114
 msgid "In your last year's submission you reported on 31 December stocks of the gases listed above. That's why these gases were expected in your present report as well. In case you are still an importer or producer in the respective gas group(s) (HFCs/PFCs/SF6), please add these gases to your selection and complete the reporting."
-msgstr ""
+msgstr "Ve zprávě z minulého roku jste k 31. prosinci uvedli zásoby výše uvedených plynů. Proto musí být tyto plyny zahrnuty i do vaší aktuální zprávy. Pokud jste stále dovozcem nebo výrobcem příslušné skupiny plynů  (HFC/PFC/SF6), doplňte tyto plyny do vašeho výběru a pokračujte v předložení zprávy."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:293
 msgid "Inductively coupled radio frequency plasma (all controlled substances except BCM, HBFC, MB)"
-msgstr ""
-
-#: Reportek/zpt/envelope/statusesbulk.zpt:28
-msgid "Information"
-msgstr ""
+msgstr "Vysokofrekvenční indukčně vázané plazma (všechny regulované látky s výjimkou BCM, HBFC, MB)"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:269
 msgid "Invalid data"
-msgstr ""
+msgstr "Neplatné údaje"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:259
 msgid "Invalid process"
-msgstr ""
+msgstr "Neplatný postup"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:253
 msgid "Invalid value"
-msgstr ""
+msgstr "Neplatná hodnota"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:35
 msgid "It is necessary that you correct the blocking errors found by changing your questionnaire before finalizing the delivery!"
-msgstr ""
+msgstr "Před dokončením zásilky je třeba zásadní chyby v dotazníku opravit."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:46
 msgid "J"
-msgstr ""
+msgstr "J"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:47
 msgid "K"
-msgstr ""
+msgstr "K"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:70
 msgid "K+L+M+N+O+P+Q"
-msgstr ""
+msgstr "K+L+M+N+O+P+Q"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:48
 msgid "L"
-msgstr ""
-
-#: Reportek/zpt/envelope/statuses_section.zpt:57
-msgid "Last Update"
-msgstr ""
+msgstr "L"
 
 #: Reportek/zpt/document/manage.zpt:131
 msgid "Last uploaded"
-msgstr ""
+msgstr "Poslední upload"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:288
 msgid "Liquid injection incineration (all controlled substances except BCM, HBFC, MB)"
-msgstr ""
+msgstr "Spalování pomocí kapalného vstřikování (všechny regulované látky s výjimkou BCM, HBFC, MB)"
 
 msgid "List of files:"
-msgstr ""
+msgstr "Seznam souborů"
 
 #: Reportek/zpt/collection/tabs.zpt:11
 msgid "List of reporters"
-msgstr ""
-
-#: Reportek/zpt/document/edit.zpt:76
-msgid "Local converters"
-msgstr ""
-
-#: Reportek/zpt/document/upload.zpt:21
-msgid "Local upload"
-msgstr ""
+msgstr "Seznam osob sestavujících zprávu"
 
 #: Reportek/zpt/document/manage.zpt:101
 msgid "Local upload: ${file-input} ${submit-button}"
-msgstr ""
+msgstr "Místní upload: ${file-input} ${submit-button}"
 
 msgid "Location:"
-msgstr ""
+msgstr "Umístění:"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:49
 msgid "M"
-msgstr ""
+msgstr "M"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:153
 msgid "Magnesium die casting operations"
-msgstr ""
+msgstr "Tlakové odlévání hořčíku"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:243
 msgid "Make-up"
-msgstr ""
+msgstr "Upravené množství"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:250
 msgid "Mandatory values must be entered."
-msgstr ""
+msgstr "Je třeba zadat povinné hodnoty."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:294
 msgid "Microwave plasma (all controlled substances except BCM, Halons, HBFC, MB)"
-msgstr ""
+msgstr "Mikrovlnné plazma (všechny regulované látky s výjimkou BCM, halonů, HBFC, MB)"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:256
 msgid "Missing description"
-msgstr ""
+msgstr "Chybí popis"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:25
 msgid "Missing gases"
-msgstr ""
+msgstr "Chybí plyny"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:251
 msgid "Missing value"
-msgstr ""
+msgstr "Chybí hodnoty"
 
 #: ../../../extras/zodb_scripts/help/index_html.zpt:9
 msgid "More information"
-msgstr ""
+msgstr "Další informace"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:50
 msgid "N"
-msgstr ""
+msgstr "N"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:71
 msgid "N+O+P"
-msgstr ""
+msgstr "N+O+P"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:72
 msgid "N+O+P+Q"
-msgstr ""
+msgstr "N+O+P+Q"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:22
 msgid "NIL report"
-msgstr ""
+msgstr "Nulová zpráva"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:46
 msgid "Name (title, first name, surname) and function;"
-msgstr ""
+msgstr "Jméno (titul, křestní jméno, příjmení) a funkce;"
 
 #: Reportek/zpt/collection/index.zpt:14
 msgid "New collection"
-msgstr ""
+msgstr "Nová kolekce"
 
 #: Reportek/zpt/collection/index.zpt:15
 msgid "New envelope"
-msgstr ""
+msgstr "Nová složka"
 
 #: templates/organisation_update.html:127
 msgid "New person"
-msgstr ""
+msgstr "Nová osoba"
 
 #: Reportek/zpt/collection/index.zpt:13
 msgid "New referral"
-msgstr ""
+msgstr "Nový odkaz"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:295
 msgid "Nitrogen plasma arc (all controlled substances except BCM, Halons, HBFC, MB)"
-msgstr ""
+msgstr "Dusíkový plazmový oblouk (všechny regulované látky s výjimkou BCM, halonů, HBFC, MB)"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:261
 msgid "No Total production"
-msgstr ""
+msgstr "Žádná Výroba celkem"
 
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:33
-#: Reportek/zpt/envelope/statuses_section.zpt:72
 msgid "No access"
-msgstr ""
+msgstr "Nepřístupné"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:79
 msgid "No blocking errors have been found."
-msgstr ""
+msgstr "Žádné zásadní chyby nebyly zjištěny."
 
 #: Reportek/zpt/envelope/feedback_section.zpt:52
 msgid "No feedback posted in this envelope"
-msgstr ""
+msgstr "Tato složka neobsahuje žádnou zpětnou vazbu"
 
-#: Reportek/zpt/envelope/documents_section.zpt:77
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:78
-#: Reportek/zpt/envelope/statuses_section.zpt:81
 msgid "No files uploaded"
-msgstr ""
+msgstr "Nebyly nahrány žádné soubory"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:109
 msgid "No potential errors have been found."
-msgstr ""
-
-#: Reportek/zpt/envelope/earlierreleases.zpt:38
-msgid "No previous deliveries have been made."
-msgstr ""
+msgstr "Žádné potenciální chyby nebyly zjištěny."
 
 #: Reportek/zpt/document/manage.zpt:179
 msgid "No quality assessment scripts available for this document."
-msgstr ""
+msgstr "U tohoto dokumentu není k dispozici žádný skript pro kontrolu kvality."
 
-#: Reportek/zpt/collection/worklist.zpt:69
-msgid "No task is in progress or waiting to be assigned in this collection."
-msgstr ""
-
-#: Reportek/zpt/collection/worklist.zpt:61
-msgid "Not assigned"
-msgstr ""
-
-#: Reportek/zpt/document/flashview.zpt:173
 #: Reportek/zpt/envelope/overview.zpt:128
 msgid "Not available"
-msgstr ""
+msgstr "Není k dispozici"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:282
 msgid "Not zero"
-msgstr ""
+msgstr "Nenulová"
 
 #: ../../../extras/zodb_scripts/copyFilesFromPreviousDeliveryForm.zpt:26
-#: ../../../extras/zodb_scripts/index_html.zpt:37
-#: Reportek/zpt/envelope/overview.zpt:103
 msgid "Note"
-msgstr ""
+msgstr "Poznámka"
 
 #: Reportek/zpt/envelope/overview.zpt:43
 msgid "Notice: this envelope has no obligation tag"
-msgstr ""
-
-#: Reportek/zpt/referral/index.zpt:26
-msgid "Notice: this referral has no obligation tag"
-msgstr ""
+msgstr "Upozornění: Tato složka má tag bez povinnosti"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:51
 msgid "O"
-msgstr ""
+msgstr "O"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:69
 msgid "O+P+Q+R+S+T+U"
-msgstr ""
+msgstr "O+P+Q+R+S+T+U"
 
 #: templates/organisation_update.html:98
 msgid "Obligation"
-msgstr ""
+msgstr "Povinnost"
 
 #: Reportek/zpt/collection/index.zpt:28
-#: Reportek/zpt/referral/index.zpt:23
 msgid "Obligation(s)"
-msgstr ""
+msgstr "Povinnost(i)"
 
-#: Reportek/zpt/collection/add.zpt:33
-#: Reportek/zpt/collection/prop.zpt:32
 #: Reportek/zpt/envelope/overview.zpt:30
 msgid "Obligations"
-msgstr ""
+msgstr "Povinnosti"
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:79
 msgid "Once you are satisfied that your company report is correct, you must certify the correctness of your report and click on <em>\"Submit the delivery to DG CLIMA and EEA\"</em>. No changes in the reported data in the envelope can be performed afterwards. The system will automatically evaluate the quality of your data, running the same tests as in step 2. This process may take a few minutes. The results will be provided in the Feedback report in the envelope."
-msgstr ""
+msgstr "Až zprávu za váš podnik dokončíte, je třeba potvrdit správnost zadaných údajů a kliknout na  <em>\"Odeslat GŘ CLIMA/EEA\"</em>. Poté již v údajích nelze provádět žádné změny. Systém automaticky údaje prověří stejnými kontrolami jako v kroku 2. To může trvat několik minut. Výsledky se zobrazí v obálce v části se zpětnou vazbou."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:258
 msgid "Only process agent users can report PAU processes and Feedstock users can report FDST processes."
-msgstr ""
+msgstr "Postupy PAU mohou vykazovat pouze uživatelé technologických činidel a FDST postupy mohou vykazovat pouze uživatelé vstupních surovin."
 
-#: Reportek/zpt/document/edit.zpt:75
 #: Reportek/zpt/document/manage.zpt:34
 msgid "Original"
-msgstr ""
+msgstr "Originál"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:131
 msgid "Other amounts collected for reclamation or destruction from within the Community"
-msgstr ""
+msgstr "Ostatní množství shromážděná pro účely regenerace či likvidace v rámci Společenství"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:298
 msgid "Other destruction technology (only BCM, HBFC, MB) (specify in comments field)"
-msgstr ""
+msgstr "Jiné technologie likvidace (pouze BCM, HBFC, MB) (uveďte v části Poznámka)"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:148
 msgid "Other or unknown"
-msgstr ""
+msgstr "Jiné či neznámé"
 
 #: Reportek/zpt/collection/tabs.zpt:3
-#: Reportek/zpt/document/edit.zpt:21
-#: Reportek/zpt/envelope/tabs.zpt:10
 msgid "Overview"
-msgstr ""
+msgstr "Přehled"
 
 #: ../../../extras/zodb_scripts/help/index_html.zpt:33
 msgid "Ozone Depleting Substances (ODS)"
-msgstr ""
+msgstr "Látky poškozující ozonovou vrstvu"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:52
 msgid "P"
-msgstr ""
+msgstr "P"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:20
 msgid "PFC Import"
-msgstr ""
+msgstr "Dovoz PFC"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:17
 msgid "PFC Production"
-msgstr ""
+msgstr "Výroba PFC"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:166
 msgid "PFCs/PFC preparations"
-msgstr ""
+msgstr "Přípravky PFC"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:3
 msgid "PRIVACY STATEMENT"
-msgstr ""
+msgstr "PROHLÁŠENÍ O OCHRANĚ SOUKROMÍ"
 
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:89
 msgid "Paste"
-msgstr ""
+msgstr "Vložit"
 
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:89
 msgid "Paste previously selected files to this envelope"
-msgstr ""
+msgstr "Vložit předtím vybrané soubory do této složky"
 
 #: templates/organisation_update.html:113
 msgid "People"
-msgstr ""
+msgstr "Osoby"
 
-#: Reportek/zpt/envelope/earlierreleases.zpt:18
 #: Reportek/zpt/envelope/overview.zpt:52
-#: Reportek/zpt/referral/index.zpt:30
 msgid "Period"
-msgstr ""
+msgstr "Období"
 
 #: ../../../extras/zodb_scripts/help/security.html.zpt:22
 msgid "Permissions"
-msgstr ""
+msgstr "Uživatelská práva"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:42
 msgid "Personal data collected and further processed concern the designated company reporter. Information can relate to all or some of the following data:"
-msgstr ""
+msgstr "Osobní údaje, které se shromažďují a dále zpracovávají, se týkají osob pověřených v rámci podniků vykazováním údajů. Informace se mohou týkat některých nebo všech následujících údajů:"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:50
 msgid "Personal data is provided by submission of an online request for user registration. This is an automated processing operation whereby you input the data directly in the form which is then stored in a database. Personal data may be processed manually for the purpose of management of replies or queries to you."
-msgstr ""
+msgstr "Osobní údaje jsou shromažďovány z přijatých online žádostí o registraci uživatele. Jedná se automatizovaný proces zpracování, kterým jsou údaje, jež uživatelé zadají do formuláře, přímo ukládána do databáze. Osobní údaje mohou být zpracovávány i manuálně při zpracovávání dotazů nebo odpovědí."
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:12
 msgid "Personal data provided by the designated company reporter are processed in accordance with Regulation (EC) No 45/2001 of the European Parliament and of the Council of 18 December 2000 on the protection of individuals with regard to the processing of personal data by the Community institutions and bodies and on the free movement of such data."
-msgstr ""
+msgstr "Osobní údaje poskytnuté osobami pověřenými v rámci podniků vykazováním údajů jsou zpracovávány v souladu s nařízením (ES) Evropského parlamentu a Rady  č. 45/2001 ze dne 18. prosince 2000 o ochraně fyzických osob v souvislosti se zpracováním osobních údajů orgány a institucemi Společenství a o volném pohybu těchto údajů."
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:77
 msgid "Personal information will be kept as long as follow-up actions by the EEA or European Commission concerning the reporting of the legally-required data and information may be necessary."
-msgstr ""
+msgstr "Osobní údaje jsou uchovávány po dobu nutnou k případným následným opatřením ze strany EEA nebo Evropské komise týkajícím se údajů, jejich vykazování příslušná legislativa vyžaduje."
 
 #: models.py:99
 msgid "Place 1 / Municipality"
-msgstr ""
+msgstr "Adresa 1 / Obec"
 
 #: models.py:101
 msgid "Place 2 / Region"
-msgstr ""
+msgstr "Adresa 2 / Region"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:83
 msgid "Please check the total amounts exported for recycling, reclamation and /or destruction. It must be smaller than or equal to the exported totals of the respective gas."
-msgstr ""
+msgstr "Zkontrolujte prosím celková množství vyvezené za účelem recyklace, regenerace a/nebo likvidace. Musí být menší nebo rovno celkovému vyvezenému množství příslušného plynu."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:97
 msgid "Please click the 'Certify correctness' button in the sheet 'finish' before submitting."
-msgstr ""
+msgstr "Před odesláním klikněte na tlačítko „Potvrzuji správnost“."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:88
 msgid "Please complete the name of Co-producer."
-msgstr ""
+msgstr "Vyplňte jméno spoluvýrobce."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:176
 msgid "Please create a new envelope and re-submit using only the correct xml file. Note that if you wish to report for more than one reporting year you have to use separate envelopes."
-msgstr ""
+msgstr "Vytvořte novou složku údaje opětovně odešlete (pouze bezchybný soubor XML). Chcete-li odeslat informace za více než jeden rok, je třeba použít samostatné složky."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:171
 msgid "Please create a new envelope, fill in the online questionnaire and re-submit."
-msgstr ""
+msgstr "Vytvořte novou složku, vyplňte online dotazník a znovu odešlete."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:174
 msgid "Please delete the file(s) you don't want to keep and then retry to submit to DG CLIMA/EEA."
-msgstr ""
+msgstr "Vymažte soubor(y), jež nechcete zachovat, a znovu odešlete na GŘ CLIMA/EEA."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:110
 msgid "Please do not use more than three decimal places for your entry in metric tons."
-msgstr ""
+msgstr "U metrických tun nepoužívejte prosím více než tři desetinná místa."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:104
 msgid "Please enter only plain figures into the cells."
-msgstr ""
+msgstr "Do kolonek zadávejte pouze čísla."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:105
 msgid "Please enter only positive figures into the cells."
-msgstr ""
+msgstr "Do kolonek zadávejte pouze kladná čísla."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:255
 msgid "Please make sure that when you select 'other' as use, this is specified in the text box."
-msgstr ""
+msgstr "Pokud jste vybrali u použití „Jiné“, je třeba jej v rámečku upřesnit."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:246
 msgid "Please make sure that you press the 'certify correctness' button in the finish page of the webform, before submitting the report."
-msgstr ""
+msgstr "Před odesláním je na poslední straně formuláře třeba kliknout na tlačítko „Potvrzuji správnost“."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:248
 msgid "Please make sure to select at least one activity. If you have nothing to report, please select NIL report."
-msgstr ""
+msgstr "Je třeba vybrat alespoň jednu činnost. Pokud nemáte co vykazovat, použijte nulovou zprávu."
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:64
 msgid "Please note that depending upon circumstances modifications to existing data may only be made if supported by valid justifying documents."
-msgstr ""
+msgstr "V závislosti na okolnostech je provádění změn již uložených údajů možné provádět pouze na základě platných zdůvodňujících dokumentů."
 
-#. Default: "Vă rugăm să rețineți că acest formular de înregistrare ar trebui să fie utilizat numai în cazul în care societatea dumneavoastră nu a primit încă un nume de utilizator și o parolă. În cazul în care un nume de uitat sau parola sau în cazul unei schimbări de detalii reporter, vă rugăm să contactați biroul de asistență la: %(helpdesk_email)s."
 #: templates/self_register.html:26
 msgid "Please note that this registration form should only be used if your company has not yet received a login and a password. In the case of a forgotten login or password or in the case of a change of reporter details, please contact the helpdesk at: %(helpdesk_email)s."
-msgstr ""
+msgstr "Tento registrační formulář používejte pouze v případě, že vašemu podniku nebylo doposud uživatelské jméno ani heslo přiděleno. Pokud jste některé z nich zapomněli nebo pokud chcete změnit údaje o osobě pověřené vykazováním, kontaktujte pracovníky asistenční služby: %(helpdesk_email)s."
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:55
 msgid "Please use one of the following links to add or update your questionnaire."
-msgstr ""
+msgstr "K přidání nebo aktualizaci vašeho dotazníku použijte následující odkazy."
 
 msgid "Please use this newly created envelope to correct your data and make a re-submission to DG Clima and EEA."
-msgstr ""
+msgstr "K opravě údajů použijte tuto nově vytvořenou složku a odešlete ji na GŘ CLIMA/EEA."
 
 #: Reportek/zpt/envelope/overview.zpt:9
 msgid "Post feedback for this release"
-msgstr ""
+msgstr "Přidat zpětnou vazbu"
 
 #: models.py:100
 msgid "Postal code"
-msgstr ""
-
-#: Reportek/zpt/feedback/index.zpt:31
-msgid "Posted automatically on:"
-msgstr ""
-
-#: Reportek/zpt/feedback/index.zpt:41
-msgid "Posted on:"
-msgstr ""
+msgstr "PSČ"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:107
 msgid "Potential errors:"
-msgstr ""
-
-#: Reportek/zpt/envelope/earlierreleases.zpt:10
-msgid "Previous deliveries"
-msgstr ""
+msgstr "Potenciální chyby:"
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:67
 msgid "Process: Step by Step"
-msgstr ""
+msgstr "Postup: Jednotlivé kroky"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:192
 msgid "ProcessAgent"
-msgstr ""
+msgstr "ProcessAgent"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:227
 msgid "Processes"
-msgstr ""
+msgstr "Postupy"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:15
 msgid "Processing operations are under the responsibility of the Procurement Officer in the Legal services group acting as Data Controller, regarding the collection and processing of personal data."
-msgstr ""
+msgstr "Pokud jde o sběr a zpracování osobních údajů, zpracování probíhá pod dohledem úředníka (Procurement Officer) z právní služby, který vykonává roli správce údajů."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:189
 msgid "Producer"
-msgstr ""
+msgstr "Výrobce"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:8
 msgid "Producer And Importer Form"
-msgstr ""
+msgstr "Formulář pro výrobce a dovozce"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:119
 msgid "Producer and Importer Form 1 &amp; 2: HFCs"
-msgstr ""
+msgstr "Formulář pro výrobce a dovozce 1 &amp; 2: HFC"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:124
 msgid "Producer and Importer Form: PFCs"
-msgstr ""
+msgstr "Formulář pro výrobce a dovozce PFC"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:122
 msgid "Producer and Importer Form: SF6"
-msgstr ""
+msgstr "Formulář pro výrobce a dovozce SF6"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:6
 msgid "Purchases from Community co-producers"
-msgstr ""
+msgstr "Nákupy od spoluvýrobců v rámci Společenství"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:53
 msgid "Q"
-msgstr ""
+msgstr "Q"
 
 #: Reportek/zpt/document/manage.zpt:159
 msgid "Quality assessment"
-msgstr ""
+msgstr "Kontrola kvality"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:262
 msgid "Quantities reported in Table 9 (Stocks for selected uses) have to be equal or less than the stock at the end of the year in table 8. Please note that in Table 9 only stocks resulting from production in the reporting year should be included"
-msgstr ""
+msgstr "Množství uvedená v tabulce 9 (Zásoby pro vybraná použití skladované výrobci) musí být rovna nebo menší než stav zásob na konci roku v tabulce 8. Do tabulce 9 zadávejte pouze množství zásob pocházejících z výroby ve vykazovaném roce."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:54
 msgid "R"
-msgstr ""
+msgstr "R"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:290
 msgid "Reactor cracking (all controlled substances except Halons, BCM, HBFC, MB)"
-msgstr ""
-
-#: Reportek/zpt/feedback/index.zpt:106
-msgid "Read this feedback"
-msgstr ""
+msgstr "Štěpné reaktory (všechny regulované látky s výjimkou halonů, BCM, HBFC, MB)"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:225
 msgid "Recipient"
-msgstr ""
+msgstr "Příjemce"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:160
 msgid "Reclamation"
-msgstr ""
+msgstr "Regenerace"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:159
 msgid "Recycling"
-msgstr ""
+msgstr "Recyklace"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:219
 msgid "Recycling and reclamation (for any uses inside or outside EU)"
-msgstr ""
-
-#: Reportek/zpt/referral/index.zpt:41
-msgid "Referral"
-msgstr ""
-
-#: Reportek/zpt/referral/add.zpt:21
-#: Reportek/zpt/referral/prop.zpt:20
-msgid "Referral URL"
-msgstr ""
-
-#: Reportek/zpt/feedback/index.zpt:59
-msgid "Referred file:"
-msgstr ""
+msgstr "Recyklace nebo regenerace (pro veškerá použití v rámci či mimo EU)"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:142
 msgid "Refrigeration and air-conditioning"
-msgstr ""
+msgstr "Chlazení a klimatizace"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:9
 msgid "Regulation (EC) No 1005/2009 of the European Parliament and of the Council of 16 September 2009 on substances that deplete the ozone layer (ODS Regulation) and"
-msgstr ""
+msgstr "Nařízení Evropského parlamentu a Rady č. 1005/2009 (ES) ze dne 16. září 2009 o látkách, které poškozují ozonovou vrstvu (nařízení ODS) a"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:74
 msgid "Regulation (EC) No 1367/2006 of the European Parliament and of the Council of 6 September 2006 on the application of the provisions of the Aarhus Convention on Access to Information, Public Participation in Decision-making and Access to Justice in Environmental Matters to Community institutions and bodies."
-msgstr ""
+msgstr "Nařízení (ES) č. 1367/2006 Evropského parlamentu a Rady ze dne 6. září 2006 o použití ustanovení Aarhuské úmluvy o přístupu k informacím, účasti veřejnosti na rozhodování a přístupu k právní ochraně v záležitostech životního prostředí na orgány a subjekty Společenství."
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:72
 msgid "Regulation (EC) No 401/2009 of the European Parliament and of the Council on the European Environment Agency and on the European Environment Information and Observation Network;"
-msgstr ""
+msgstr "Nařízení (ES) č. 401/2009 Evropského parlamentu a Rady o Evropské agentuře pro životní prostředí a Evropské informační a pozorovací síti pro životní prostředí;"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:10
 msgid "Regulation (EC) No 842/2006 of the European Parliament and of the Council of 17 May 2006 on certain fluorinated greenhouse gases (F-Gas Regulation)"
-msgstr ""
-
-#: Reportek/zpt/collection/add.zpt:51
-#: Reportek/zpt/collection/prop.zpt:50
-#: Reportek/zpt/envelope/add.zpt:39
-msgid "Relating to which year"
-msgstr ""
+msgstr "Nařízení Evropského parlamentu a Rady č. 842/2006 (ES) ze dne 17. května 2006 o některých fluorovaných skleníkových plynech (nařízení o F-plynech)"
 
 #: ../../../extras/zodb_scripts/help/security.html.zpt:39
 msgid "Release Envelopes. Can be given to \"owner\", \"reporter\" or some other class of users."
-msgstr ""
-
-#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:15
-msgid "Release envelope"
-msgstr ""
-
-#: Reportek/zpt/envelope/earlierreleases.zpt:19
-msgid "Released"
-msgstr ""
+msgstr "Zpřístupňování složek“ – může být uděleno „Majiteli“, „Osobě pověřené vykazováním“ nebo dalším kategoriím uživatelů."
 
 #: Reportek/zpt/envelope/overview.zpt:120
 msgid "Remember to release the envelope when you have uploaded all files"
-msgstr ""
-
-#: Reportek/zpt/document/edit.zpt:78
-msgid "Remote converters"
-msgstr ""
+msgstr "Nezapomeňte složku po nahrání souborů uvolnit"
 
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:85
 msgid "Rename"
-msgstr ""
-
-#: Reportek/zpt/document/edit.zpt:29
-msgid "Replace file"
-msgstr ""
+msgstr "Přejmenovat"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:196
 msgid "Report activities"
-msgstr ""
+msgstr "Zpráva – činnosti"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:10
 msgid "Report status"
-msgstr ""
+msgstr "Zpráva – status"
 
 #: Reportek/zpt/envelope/overview.zpt:68
 msgid "Reported"
-msgstr ""
+msgstr "Nahlášeno"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:118
 msgid "Reporting HFC production and import data"
-msgstr ""
-
-#: Reportek/zpt/collection/worklist.zpt:43
-msgid "Reporting date"
-msgstr ""
+msgstr "Vykazování výroby a dovozu HFC"
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:51
 msgid "Reporting is required for any company that has produced, imported and/or exported more than one metric tonne of fluorinated greenhouse gases, or preparations containing fluorinated greenhouse gases during the reporting year."
-msgstr ""
+msgstr "Povinnost předkládat zprávy se vztahuje na všechny podniky, které  během vykazovaného roku vyrobily, dovezly a /nebo vyvezly více než jednu metrickou tunu fluorovaných skleníkových plynů či přípravků fluorované skleníkové plyny obsahujících."
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:48
 msgid "Reporting is required for any company that has produced, imported, exported, destroyed and/or used ozone-depleting substances as feedstock or process agent."
-msgstr ""
+msgstr "Povinnost předkládat zprávy se vztahuje na všechny podniky, které  vyrobily, dovezly, vyvezly, likvidovaly látky poškozující ozonovou vrstvu a/nebo je použily jako vstupní surovinu nebo jako technologické činidlo."
 
 #: templates/self_register.html:8
 msgid "Reporting undertakings"
-msgstr ""
+msgstr "Podniky předkládající zprávy"
 
 #: Reportek/zpt/collection/index.zpt:58
 msgid "Repository Referral"
-msgstr ""
-
-#: Reportek/zpt/referral/prop.zpt:10
-msgid "Repository Referral Properties"
-msgstr ""
+msgstr "Odkaz databáze"
 
 #: templates/self_register.html:102
 msgid "Request account"
-msgstr ""
+msgstr "Zažádat o účet"
 
-#: Reportek/zpt/envelope/add_zip.zpt:38
+#: Reportek/zpt/envelope/add_zip.zpt:22
 msgid "Restrict all contained files from public view"
-msgstr ""
-
-#: Reportek/zpt/document/upload.zpt:27
-msgid "Restrict file from public view"
-msgstr ""
+msgstr "Vyjmout všechny obsažené soubory z veřejného obsahu"
 
 #: Reportek/zpt/document/add.zpt:46
 #: Reportek/zpt/document/manage.zpt:136
-#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:44
 msgid "Restricted from public view"
-msgstr ""
+msgstr "Vyjmuto z veřejného obsahu"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:291
 msgid "Rotary kiln incineration (all controlled substances except BCM, HBFC, MB)"
-msgstr ""
+msgstr "Spalování v rotačních pecích (všechny regulované látky s výjimkou BCM, HBFC, MB)"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:55
 msgid "S"
-msgstr ""
+msgstr "S"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:163
 msgid "SF6"
-msgstr ""
+msgstr "SF6"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:21
 msgid "SF6 Import"
-msgstr ""
+msgstr "Dovoz SF6"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:18
 msgid "SF6 Production"
-msgstr ""
+msgstr "Výroba SF6 "
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:7
 msgid "Sales to Community co-producers"
-msgstr ""
+msgstr "Prodej spoluvýrobcům v rámci Společenství"
 
 #: templates/organisation_add_person.html:31
 #: templates/organisation_update.html:108
 #: templates/person_update.html:31
 msgid "Save"
-msgstr ""
+msgstr "Uložit"
 
-#: Reportek/zpt/document/edit.zpt:49
 #: Reportek/zpt/document/manage.zpt:120
 msgid "Schema location"
-msgstr ""
-
-#: ../../../extras/zodb_scripts/index_html.zpt:29
-msgid "Search deliveries"
-msgstr ""
+msgstr "Schéma – umístění"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:155
 msgid "Section 1. Export totals (metric tonnes)"
-msgstr ""
+msgstr "Část 1. Vývoz celkem (v metrických tunách)"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:156
 msgid "Section 2. Total amount exported for recycling, reclamation and/or destruction (metric tonnes)"
-msgstr ""
+msgstr "Část 2. Celkové množství vyvezené za účelem recyklace, regenerace a/nebo likvidace (v metrických tunách)"
 
 #: ../../../extras/zodb_scripts/help/security.html.zpt:2
 msgid "Security Principles"
-msgstr ""
+msgstr "BEZPEČNOSTNÍ PRINCIPY"
 
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:87
 msgid "Select some files to copy them"
-msgstr ""
+msgstr "Vyberte soubory ke kopírování"
 
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:86
 msgid "Select some files to cut them"
-msgstr ""
+msgstr "Vyberte soubory k vyjmutí"
 
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:91
 msgid "Select some files to delete them"
-msgstr ""
+msgstr "Vyberte soubory k odstranění"
 
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:85
 msgid "Select some files to rename them"
-msgstr ""
-
-#: Reportek/zpt/envelope/statuses_section.zpt:14
-msgid "Select the files you want to accept from the list below and click <em>Set accepted status</em>. In order to revoke the accepted status of files just uncheck the corresponding option and click on the same button."
-msgstr ""
+msgstr "Vyberte soubory k přejmenování"
 
 #: templates/self_register.html:7
 #: templates/self_register_done.html:6
 msgid "Self registration"
-msgstr ""
-
-#: ../../../extras/zodb_scripts/index_html.zpt:44
-msgid "Self-registration"
-msgstr ""
+msgstr "Autoregistrace"
 
 #: templates/self_register.html:24
 msgid "Self-registration form"
-msgstr ""
+msgstr "Formulář autoregistrace"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:154
 msgid "Semiconductor manufacture"
-msgstr ""
-
-#: ../../../extras/zodb_scripts/translatable_header.zpt:51
-msgid "Services"
-msgstr ""
-
-#: Reportek/zpt/envelope/statuses_section.zpt:13
-msgid "Set accepted status"
-msgstr ""
-
-#: Reportek/zpt/envelope/statuses_section.zpt:108
-msgid "Set accepted status for files"
-msgstr ""
+msgstr "Výroba polovodičů"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:32
 msgid "Show details"
-msgstr ""
+msgstr "Zobrazit podrobnosti"
 
 #: ../../../extras/zodb_scripts/help/dataconfidentiality.zpt:20
 msgid "Since the EEA is an official EU body, Regulation (EC) No 45/2001 of the European Parliament and of the Council of 18 December 2000 on the protection of individuals with regard to the processing of personal data by the Community institutions and bodies and on the free movement of such data (Regulation on Data Protection), applies to it."
-msgstr ""
-
-#: Reportek/zpt/engine/sitemap.zpt:3
-msgid "Sitemap for the Data Repository"
-msgstr ""
-
-#: Reportek/zpt/envelope/statuses_section.zpt:58
-msgid "Size"
-msgstr ""
+msgstr "Jelikož je Evropská agentura pro životní prostředí agenturou EU, vztahuje se na ní nařízení (ES) Evropského parlamentu a Rady  č. 45/2001 ze dne 18. prosince 2000 o ochraně fyzických osob v souvislosti se zpracováním osobních údajů orgány a institucemi Společenství a o volném pohybu těchto údajů (nařízení o ochraně údajů)."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:145
 msgid "Solvents"
-msgstr ""
-
-#: Reportek/zpt/collection/worklist.zpt:43
-msgid "Sort A..Z by last reporting date - Click to reverse"
-msgstr ""
-
-#: Reportek/zpt/collection/worklist.zpt:46
-msgid "Sort Z..A by last reporting date - Click to reverse"
-msgstr ""
-
-#: Reportek/zpt/collection/worklist.zpt:25
-#: Reportek/zpt/envelope/statuses_section.zpt:31
-msgid "Sortable"
-msgstr ""
-
-#: Reportek/zpt/collection/worklist.zpt:18
-msgid "Sorted A..Z by coverage - Click to reverse"
-msgstr ""
-
-#: Reportek/zpt/collection/worklist.zpt:32
-#: Reportek/zpt/envelope/statuses_section.zpt:24
-msgid "Sorted A..Z by user - Click to reverse"
-msgstr ""
-
-#: Reportek/zpt/collection/worklist.zpt:21
-msgid "Sorted Z..A by coverage - Click to reverse"
-msgstr ""
-
-#: Reportek/zpt/collection/worklist.zpt:35
-#: Reportek/zpt/envelope/statuses_section.zpt:27
-msgid "Sorted Z..A by user - Click to reverse"
-msgstr ""
+msgstr "Rozpouštědla"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:223
 msgid "Source country"
-msgstr ""
+msgstr "Země původu"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:4
 msgid "Statement on personal data protection within the framework of reporting by undertakings (company-based reporting) with the Reportnet Business Data Repository (BDR) for:"
-msgstr ""
+msgstr "Prohlášení o ochraně osobních údajů v rámci vykazování údajů podniky pomocí databáze obchodních údajů (BDR) pro:"
 
-#: Reportek/zpt/collection/worklist.zpt:29
 #: Reportek/zpt/envelope/overview.zpt:73
 msgid "Status"
-msgstr ""
+msgstr "Status"
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:73
 msgid "Step 2:"
-msgstr ""
+msgstr "Krok 2:"
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:78
 msgid "Step 3:"
-msgstr ""
+msgstr "Krok 3:"
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:82
 msgid "Step 4:"
-msgstr ""
+msgstr "Krok 4:"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:279
 msgid "Stock at the beginning of the year has to match with the stock at the end of previous year indicated in brackets."
-msgstr ""
+msgstr "Zásoby na začátku roku musí odpovídat množství zásob na konci předchozího (uvedeno v závorkách)."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:280
 msgid "Stock mismatch"
-msgstr ""
+msgstr "Chyba u zásob"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:135
 msgid "Stocks held at 1 January"
-msgstr ""
+msgstr "Zásoby k 1. lednu"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:136
 msgid "Stocks held at 31 December"
-msgstr ""
+msgstr "Zásoby k 31. prosinci"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:224
 msgid "Stocks reported in table 8 resulting from production in the reporting year:"
-msgstr ""
+msgstr "Stavy zásob vykázané v tabulce 8 vyplývající z produkce za vykazovaný rok:"
 
 #: models.py:98
 msgid "Street and nr"
-msgstr ""
-
-#: Reportek/zpt/feedback/add.zpt:41
-msgid "Subject"
-msgstr ""
-
-#: Reportek/zpt/feedback/index.zpt:26
-msgid "Subject:"
-msgstr ""
+msgstr "Ulice a číslo"
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:23
 msgid "Submit to DG CLIMA/EEA"
-msgstr ""
-
-#: Reportek/zpt/collection/add.zpt:21
-#: Reportek/zpt/collection/prop.zpt:24
-msgid "Subobjects"
-msgstr ""
+msgstr "Předložit GŘ CLIMA/EEP"
 
 #: Reportek/zpt/envelope/overview.zpt:107
 msgid "Subscribe to receive notifications"
-msgstr ""
+msgstr "Přihlásit se k odběru zpráv"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:229
 msgid "Substance"
-msgstr ""
+msgstr "Látka"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:297
 msgid "Superheated stream reactor (all controlled substances except BCM, Halons HBFC, MB)"
-msgstr ""
+msgstr "Reaktor na regulaci přehřáté páry (všechny regulované látky s výjimkou BCM, halonů, HBFC, MB)"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:220
 msgid "Supplier"
-msgstr ""
+msgstr "Dodavatel"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:257
 msgid "Suppliers and/or recipients of substances have been fully identified (undertaking name, address and country)."
-msgstr ""
+msgstr "Dodavatelé a/nebo příjemci látek byly dostatečně identifikováni (název, adresa a země)."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:265
 msgid "Suspicious Emission"
-msgstr ""
+msgstr "Podezřelé údaje o emisích"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:263
 msgid "Suspicious Quantity"
-msgstr ""
+msgstr "Podezřelé údaje o množství"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:56
 msgid "T"
-msgstr ""
+msgstr "T"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:260
 msgid "Table 5 (recycling and reclamation) should only be filled in if you are an ODS producer. Quantities received from companies for recycling and reclamation need to be reported in Table 6 (quantities received from EU Companies)."
-msgstr ""
+msgstr "Tabulku 5 (recyklace a regenerace) vyplňujte pouze tehdy, jste-li výrobcem látky poškozující ozonovou vrstvu. Množství obdržená od společností pro účely recyklace a regenerace je třeba uvádět v tabulce 6 (množství obdržená od společností z EU)."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:276
 msgid "Table cannot be filled if 'Not obliged to report' is selected."
-msgstr ""
-
-#: Reportek/zpt/collection/worklist.zpt:28
-msgid "Task"
-msgstr ""
+msgstr "Pokud jste předtím vybrali „Povinnost podání zprávy nevznikla“, tuto tabulku nevyplňuj!"
 
 #: Reportek/zpt/collection/tabs.zpt:5
 msgid "Task list"
-msgstr ""
-
-#: Reportek/zpt/collection/worklist.zpt:5
-msgid "Task list for"
-msgstr ""
-
-#: Reportek/zpt/envelope/macros.zpt:3
-msgid "Task(s) in progress:"
-msgstr ""
-
-#: Reportek/zpt/envelope/macros.zpt:20
-msgid "Task(s) waiting to be assigned:"
-msgstr ""
-
-#: Reportek/zpt/feedback/index.zpt:50
-msgid "Task:"
-msgstr ""
+msgstr "Seznam úkonů"
 
 #: models.py:158
 msgid "Telephone"
-msgstr ""
+msgstr "Telefonní číslo"
 
 #: models.py:159
 msgid "Telephone 2"
-msgstr ""
+msgstr "Telefonní číslo 2"
 
 #: models.py:161
 msgid "Telephone 3"
-msgstr ""
+msgstr "Telefonní číslo 3"
 
 #: Reportek/zpt/collection/index.zpt:29
-#: Reportek/zpt/envelope/overview.zpt:37
-#: Reportek/zpt/referral/index.zpt:25
 msgid "Terminated"
-msgstr ""
-
-#: Reportek/zpt/envelope/statusesbulk.zpt:40
-msgid "The"
-msgstr ""
-
-#: ../../../extras/zodb_scripts/index_html.zpt:53
-msgid "The <a href=\"/help/\"><strong>On-line BDR help</strong></a> provides guidance on how to use the BDR for the reporting obligation. In addition the <a href=\"/help/faq\">Frequently Asked Questions (FAQ)</a> also include answers to problems often encountered by users. If you still have problems please contact the BDR Helpdesk using the following email: <a href=\"mailto:BDR.helpdesk@eea.europa.eu\">BDR.helpdesk@eea.europa.eu</a>. The BDR helpdesk will provide assistance on: upload access for new companies, password problem, difficulties during upload procedure, download problems."
-msgstr ""
-
-#: ../../../extras/zodb_scripts/index_html.zpt:5
-msgid "The Business Data Repository is like a bookshelf, with data reports on the environment as submitted by companies to the European Union. The Business Data Repository is part of the Reportnet architecture maintained by EEA."
-msgstr ""
-
-#: Reportek/zpt/document/flashview.zpt:15
-msgid "The GIS viewer was created using Macromedia Flash 8. If you do not see it properly install the necessary plugin from the <a href=\"http://www.macromedia.com/go/getflashplayer\">Macromedia website</a>."
-msgstr ""
+msgstr "Ukončeno"
 
 #: ../../../extras/zodb_scripts/help/dataconfidentiality.zpt:30
 msgid "The Specific Privacy Statement related to the processing of this personal data is available <a href=\"/privacystatement\">here</a>."
-msgstr ""
+msgstr "Specifické prohlášení o ochraně soukromí týkající se zpracování těchto osobních údajů jsou k dispozici  <a href=\"/privacystatement\">here</a>."
 
 #: Reportek/zpt/document/manage.zpt:25
 msgid "The access to this file is limited, meaning it is not (yet) released for public view."
-msgstr ""
+msgstr "Přístup k tomuto souboru je omezen, tzn. že (zatím) není zařazen do veřejného obsahu."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:283
 msgid "The accounting framework should be zero. Quantities received, imported, produced and in stock at 1 January of the reporting year should equal quantities placed on the market, exported, used, destroyed and in stock at the end of the year. (Explanation provided)."
-msgstr ""
+msgstr "Účetní rámec by měl být nula. Množství získaná, dovezená, vyrobená nebo skladovaná k 1. lednu vykazovaného roku se musí rovnat množství uvedenému na trh, vyvezenému, použitému, zlikvidovanému nebo skladovanému na konci roku. (Podáno vysvětlení)."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:281
 msgid "The accounting framework should be zero. Quantities received, imported, produced and in stock at 1 January of the reporting year should equal quantities placed on the market, exported, used, destroyed and in stock at the end of the year. If the reported quantities are correct but the accounting framework is not zero please provide an explanation in the comment box (on table 'finish')."
-msgstr ""
+msgstr "Účetní rámec by měl být nula. Množství získaná, dovezená, vyrobená nebo skladovaná k 1. lednu vykazovaného roku se musí rovnat množství uvedenému na trh, vyvezenému, použitému, zlikvidovanému nebo skladovanému na konci roku. Pokud jsou uvedená množství správná, ale účetní rámec není nula, podejte prosím vysvětlení v poli Poznámka  (karta „Dokončení“)."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:98
 msgid "The allowed range of years is 2007 until current year."
-msgstr ""
+msgstr "Povolené rozmezí je od roku 2007 do současnosti."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:84
 msgid "The amount reported for export of this gas in the 'Exporter Form' does not match the amount reported for export of this gas in the respective 'Producer/Importer Form'. Please, modify your data where appropriate in order to ensure that both amounts are equal."
-msgstr ""
+msgstr "Množství uvedené u vývozu tohoto plynu ve formuláři pro vývozce neodpovídá množství uvedenému u vývozu tohoto plynu ve formuláři „Výrobce/dovozce“. Údaje opravte tak, aby si množství odpovídala."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:85
 msgid "The amount reported for export of this gas in this form does not match the amount reported for total export of this gas in the 'Exporter Form'. Please, modify your data where appropriate in order to ensure that both amounts are equal."
-msgstr ""
+msgstr "Množství uvedené u vývozu tohoto plynu v tomto formuláři neodpovídá množství uvedenému u celkového vývozu tohoto plynu ve formuláři „Vývozce“. Údaje opravte tak, aby si množství odpovídala."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:111
 msgid "The amounts of the reported gas as stocks 1 January in your present report is not consistent with the amounts reported as stocks 31 December in your previous year's report. (Explanation provided)"
-msgstr ""
+msgstr "Množství plynu vykazované ve vaší aktuální zprávě jako skladované k 1. lednu se neshoduje s množstvím skladovaným k 31. prosinci uvedeným ve vaší zprávě za předchozí rok. (Podáno vysvětlení)."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:92
 msgid "The amounts of the reported gas as stocks 1 January in your present report should be consistent with the amounts reported as stocks 31 December in your previous year's report. Please note that you should not report on your full stocks but only on that share that was previously imported by your own company. Please change your reported data accordingly or provide an explanation why your reported data is in fact plausible."
-msgstr ""
+msgstr "Množství plynu vykazované ve vaší aktuální zprávě jako skladované k 1. lednu se musí shodovat s množstvím skladovaným k 31. prosinci uvedeným ve vaší zprávě za předchozí rok. Připomínáme, abyste nevykazovali veškerá skladovaná množství, nýbrž pouze tu část, která byla předtím vaší vlastní společností dovezena. Upravte vykazované údaje nebo podejte vysvětlení."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:91
 msgid "The amounts of the reported gas as stocks on the 1 January in your present report should be consistent with the amounts reported as stocks on the 31 December in your previous year's report. Please change your reported data accordingly or provide an explanation (in the comment field below the reported data under relevant tab of the questionnaire) for the difference in the reported stock amounts."
-msgstr ""
+msgstr "Množství plynu vykazované ve vaší aktuální zprávě jako skladované k 1. lednu se musí shodovat s množstvím skladovaným k 31. prosinci uvedeným ve vaší zprávě za předchozí rok. Upravte vykazované údaje nebo nebo připojte vysvětlení (na příslušné kartě dotazníku v rámečku pro poznámku pod vykazovanými údaji ) rozdílu ve vykazovaných množstvích."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:82
 msgid "The check has calculated the sum across all gases of 'Amount exported for sale outside the Community' and has found it to be above one tonne. In such a case you must report as an exporter. Please tick on the exporter box under the tab 'company information', else change your reported data, as appropriate."
-msgstr ""
+msgstr "Kontrolně byl proveden součet všech plynů z kategorie „Množství vyvezené za účelem prodeje mimo Společenství“ a bylo zjištěno, že přesahuje jednu tunu. V takovém případě musíte podat zprávu jako vývozce. Na kartě „Informace o společnosti“ zaškrtněte vývozce nebo upravte vykazované údaje."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:81
 msgid "The check has calculated the sum across all gases of 'Amount imported into the Community' and has found it to be above one tonne. In such a case you must report as an importer. Please tick on the importer box for your respective gas group(s) under the tab 'Company information', else change your reported data as appropriate."
-msgstr ""
+msgstr "Kontrolně byl proveden součet všech plynů z kategorie „Množství dovezené za účelem prodeje do Společenství“ a bylo zjištěno, že přesahuje jednu tunu. V takovém případě musíte podat zprávu jako dovozce. Na kartě „Informace o společnosti“ zaškrtněte u příslušných skupin plynů dovozce nebo upravte vykazované údaje."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:80
 msgid "The check has calculated the sum across all gases of 'Total new production from your facility/ies' as reported in the questionnaire and has found it to be above one tonne. In such a case your company must report as a producer. If the reported data are correct,please tick on the producer box for your respective gas group(s) under the tab 'Company Information', else change your reported data as appropriate."
-msgstr ""
+msgstr "Kontrolně byl proveden součet všech plynů z kategorie „Celkové množství nově vyrobené ve vašich zařízeních“ a bylo zjištěno, že přesahuje jednu tunu. V takovém případě musíte podat zprávu jako výrobce. Na kartě „Informace o společnosti“ zaškrtněte u příslušných skupin plynů výrobce nebo upravte vykazované údaje."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:254
 msgid "The codes must exist in the corresponding code list."
-msgstr ""
+msgstr "Kód musí existovat v příslušném seznamu kódů."
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:68
 msgid "The collection, storing and processing of personal data is necessary for the performance and support of tasks performed by EEA as mandated by:"
-msgstr ""
+msgstr "Shromažďování, uchovávání a zpracovávání osobních údajů je nezbytné k plnění úkolů včetně podpůrné činnosti, které EEA provádí na základě:"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:28
 msgid "The competent European Commission staff members as well as contractors who work on behalf of the European Commission;"
-msgstr ""
-
-#: Reportek/zpt/referral/index.zpt:10
-msgid "The data you are looking for are not stored on this system. Please continue your search on"
-msgstr ""
+msgstr "Příslušní zaměstnanci Evropské komise a smluvní zaměstnanci, kteří pracují jménem Evropské komise;"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:28
 msgid "The delivery is acceptable but some of the information has to be checked. Please see the QA output."
-msgstr ""
+msgstr "Zásilku lze přijmout, ale některé informace musíte ještě zkontorlovat. Viz výstup z kontroly chyb."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:29
 msgid "The delivery is acceptable."
-msgstr ""
+msgstr "Zásilku lze přijmout."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:27
 msgid "The delivery is not acceptable. Please see the QA output."
-msgstr ""
+msgstr "Zásilku nelze přijmout. Viz výstup z kontroly chyb."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:30
 msgid "The delivery status is unknown."
-msgstr ""
-
-#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/RetireRoute.zpt:18
-msgid "The envelope is currently released and the requester may have uploaded some feedback to it. If you want to change your delivery as a reaction to the feedback, then you must click on \"Back to drafting\" to revoke the release. If you are sure you will never need to revoke then you click on \"Finish\"."
-msgstr ""
-
-#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:26
-msgid "The envelope is currently released and your task is to inspect the delivery. If you have found some issues you tell the reporter via the feedback button. The feedback should make it clear to the Reporters if the delivery is accepted or not. Reporters will then have to create a new envelope if the feedback rejects the delivery and they need to update the data."
-msgstr ""
+msgstr "Status zásilky není známý."
 
 #: Reportek/zpt/envelope/overview.zpt:43
-#: Reportek/zpt/referral/index.zpt:26
 msgid "The obligation tag makes it possible for the requesters to find the delivery"
-msgstr ""
+msgstr "Tag povinností umožňuje žadatelům zásilku najít "
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:38
 msgid "The obligatory fields concern the company name, company address, your family name, your first name, your email address, your telephone number, the data reporting obligation for which you have registered, and the country for which the delivery of information or data pertains. The other fields in the enquiry form are optional; if you decide to fill them in, the information will only be used for the above purpose of getting in contact with you."
-msgstr ""
+msgstr "Povinné je vyplněni polí název firmy, adresa společnosti, příjmení, jméno, e-mailová adresa, telefonní číslo, oznamovací povinnost, kvůli níž se daná osoba zaregistrovala, a země, jíž se poskytované informace týkají. Vyplnění ostatních kolonek formuláře není povinné. Pokud se je rozhodnete vyplnit, informace budou použity pouze k výše uvedeným kontaktním účelům."
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:34
 msgid "The only personal data collected and further processed is the information you encode yourself in the on-line form. EEA needs your personal data to contact you to provide you with feedback concerning the information and data you have submitted, and/or to contact you with queries in relation to it."
-msgstr ""
+msgstr "Veškeré údaje, které se  shromažďují a dále zpracovávají, zadáváte sami v online formuláři. EEA potřebuje vaše osobní údaje k tomu, aby vás mohla kontaktovat ohledně údajů, které jste ve zprávě uvedli – buď aby vám poskytla zpětnou vazbu nebo položila dotaz."
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:55
 msgid "The personal data collected upon receipt of the user registration application are stored in an electronic database. Access to the collected personal data is only available to a limited number of designated EEA staff members (see point 2 above) with a valid Username and Password."
-msgstr ""
+msgstr "Osobní údaje, které se shromažďují poté, co je doručena žádost uživatele o registraci, se ukládají v elektronické databázi. Přístup k shromážděným osobním údajům je k dispozici pouze omezenému počtu pověřených zaměstnanců EEA (viz bod 2 výše) na základě platného uživatelského jména a hesla."
 
 #: ../../../extras/zodb_scripts/help/index_html.zpt:3
 msgid "The purpose of this website is to make it easy for companies to fulfil a number of mandatory reporting obligations. BDR also allows to store the reports and can therefore be used as the single repository which can be consulted at European level by the European Commission and the European Environment Agency and on a country level by the designated responsible from the Competent Authority."
-msgstr ""
+msgstr "Účelem těchto internetových stránek je usnadnit podnikům plnění povinností souvisejících s vykazováním údajů. Databáze BDR kromě jiného umožňuje uchovávat zasílané výkazy a používá se proto jako centralizované datové úložiště, do kterého mají přístup subjekty na evropské úrovni (Evropská komise a Evropská agentura pro životní prostředí) a příslušné orgány na úrovni jednotlivých států."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:78
 msgid "The quality check found important inconsistencies and/or errors in the reported data which need to be fixed."
-msgstr ""
+msgstr "Při kontrole byly zjištěny důležité nesrovnalosti nebo chyby v nahlášených údajích. Takové chyby je třeba před dokončením zásilky opravit!"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:36
 msgid "The quality check found some issues that may need to be followed-up with your company at a later stage. You don''t have to change your data at present."
-msgstr ""
+msgstr "Při kontrole kvality byly zjištěny hodnoty, kterým byste možná později měli věnovat pozornost. V této chvíli údaje měnit nemusíte."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:108
 msgid "The quality check found some issues that may need to be followed-up with your company at a later stage. You don't have to change your data at present."
-msgstr ""
+msgstr "Při kontrole kvality byly zjištěny hodnoty, kterým byste možná později měli věnovat pozornost. V této chvíli údaje měnit nemusíte."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:266
 msgid "The quantities do not correspond with the license database (value indicated in brackets)."
-msgstr ""
+msgstr "Množství neodpovídají databázi licencí (hodnota uvedena v závorkách)."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:13
 msgid "The report is not yet certified"
-msgstr ""
+msgstr "Zpráva zatím není potvrzena"
 
 msgid "The reported data have successfully passed all the important quality checks and therefore is accepted."
-msgstr ""
+msgstr "Vykazované údaje úspěšně prošly kontrolou kvality a jsou tak přijaty."
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:46
 msgid "The reporting of your company data should be done by using an on-line questionnaire developed to guide you through this process."
-msgstr ""
+msgstr "K vykazování údajů za váš podnik použijte online dotazník, který vás provede jednotlivými kroky."
 
 #: templates/self_register_done.html:8
 msgid "The request for registration was completed successfully. An email was sent to your account with the registration details. The BDR team will review your request and take the appropriate actions."
-msgstr ""
+msgstr "Žádosti o registraci bylo vyhověno. Na váš účet byly zaslány registrační údaje. Tým BDR vaši žádost prověří a přijme podle toho odpovídající opatření."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:172
 msgid "The submission cannot be accepted as an envelope can contain either a F-gases questionnaire, not both."
-msgstr ""
+msgstr "Zásilku nelze přijmout – složka smí obsahovat buď jen dotazník o fluorovaných plynech nebo druhý, nikoli obojí."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:173
 msgid "The submission cannot be accepted as an envelope can contain either a ODS questionnaire, not both."
-msgstr ""
+msgstr "Zásilku nelze přijmout – složka smí obsahovat buď jen dotazník o  látky poškozující ozonovou vrstvu nebo druhý, nikoli obojí."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:26
 msgid "The validation is passed successfully."
-msgstr ""
+msgstr "Ověření proběhlo úspěšně."
 
 #: ../../../extras/zodb_scripts/help/security.html.zpt:6
 msgid "The visitor, who can browse released reports and download the files."
-msgstr ""
+msgstr "Návštěvník – smí procházet zveřejněné zprávy a stahovat soubory."
 
-#: Reportek/zpt/envelope/add_zip.zpt:20
+#: Reportek/zpt/envelope/add_zip.zpt:5
 msgid "The zipfile upload makes it possible for you to add a large number of files in one upload. The zipfile will be uploaded and unwrapped."
-msgstr ""
+msgstr "Upload zipové složky umožňuje připojit velký počet souborů najednou. Zazipovaná složka se nahraje a obsažené soubory rozbalí."
 
 #: ../../../extras/zodb_scripts/help/security.html.zpt:23
 msgid "There are six permissions:"
-msgstr ""
+msgstr "Existuje 6 úrovní uživatelských práv:"
 
 #: ../../../extras/zodb_scripts/copyFilesFromPreviousDeliveryForm.zpt:27
 msgid "There is no previous delivery for the same time period in this collection!"
-msgstr ""
+msgstr "V této kolekci neexistuje za dané období žádná předchozí zásilka!"
 
 msgid "This confirmation letter is electronically generated by the Reportnet system and therefore not signed."
-msgstr ""
+msgstr "Toto potvrzení bylo vygenerováno a odesláno automaticky informačním systémem, a není proto opatřeno podpisem."
 
 #: Reportek/zpt/envelope/overview.zpt:129
 msgid "This envelope is not yet available for public view. Work is still in progress."
-msgstr ""
+msgstr "Tato složka ještě nebyla zveřejněna. Rozpracováno"
 
 #: ../../../extras/zodb_scripts/help/dataconfidentiality.zpt:26
 msgid "This implies that EEA has to apply data protection rules when processing personal data such as the contact details of the reporters under the ODS and F-Gas Regulation."
-msgstr ""
+msgstr "To znamená, že agentura musí uplatňovat pravidla ochrany údajů při zpracování osobních údajů, jako jsou kontaktní údaje osob sestavujících výkazy podle nařízení o látkách poškozujících ozonovou vrstvu a nařízení o fluorovaných plynech."
 
 msgid "This is a confirmation of receipt for data submissions by an undertaking under the European Reporting Obligation:"
-msgstr ""
-
-#: Reportek/zpt/collection/worklist.zpt:7
-msgid "This page contains the TODO list for all users working in this collection. First, this gives you an overview of what tasks you can work on next: If there is no user assigned to an envelope, click on the envelope's link and activate the task which is awaiting assignment. Secondly, if you've already started work in an envelope by activating a task, look for your username in the list below to find the link to the envelope."
-msgstr ""
-
-#: Reportek/zpt/envelope/history.zpt:10
-msgid "This page displays all the history of tasks that have executed in this envelope. If you want to see more details about a task, just expand the ${plus-icon} icon next to it."
-msgstr ""
+msgstr "Toto je potvrzení o doručení zásilky údajů předložených subjektem v rámci evropské ohlašovací povinnosti:"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:273
 msgid "This table can be filled in by producers, importers, exporters, feedstock users and process agent users"
-msgstr ""
+msgstr "Tuto tabulku smí vyplňovat výrobci, dovozci, vývozci, uživatelé vstupní suroviny nebo technologického činidla."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:274
 msgid "This table can be filled only by producers, importers or exporters."
-msgstr ""
+msgstr "Tuto tabulku smí vyplňovat pouze výrobci, dovozci nebo vývozci."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:271
 msgid "This table can only be filled in by exporters."
-msgstr ""
+msgstr "Tuto tabulku smí vyplňovat pouze vývozci."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:270
 msgid "This table can only be filled in by importers."
-msgstr ""
+msgstr "Tato tabulku smí vyplňovat pouze dovozci."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:272
 msgid "This table can only be filled in by process agent users (only PAU processes) and feedstock users (only FDST processes)."
-msgstr ""
+msgstr "Tuto tabulku smí vyplňovat pouze uživatelé technologická činidla (PAU) a vstupních surovin (FDST)."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:268
 msgid "This table can only be filled in by producers."
-msgstr ""
+msgstr "Tuto tabulku smí vyplňovat pouze výrobci."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:275
 msgid "This table can only be filled in by undertakings destroying substances in their own facility."
-msgstr ""
+msgstr "Tato tabulku smí vyplňovat pouze podniky, které provádějí likvidaci látek ve vlastních zařízeních."
 
-#: Reportek/zpt/envelope/note.zpt:32
-msgid "Tip:"
-msgstr ""
-
-#: Reportek/zpt/collection/add.zpt:17
-#: Reportek/zpt/collection/prop.zpt:16
 #: Reportek/zpt/document/add.zpt:32
+#: Reportek/zpt/document/manage.zpt:113
 msgid "Title"
-msgstr ""
+msgstr "Název"
 
 msgid "To Whom It May Concern"
-msgstr ""
+msgstr "Dobrý den"
 
 msgid "To facilitate your re-submission a new envelope has been created at the following link and all the reported data/submitted files have been copied there:"
-msgstr ""
+msgstr "K usnadnění opětovného odeslání zásilky byla vytvořena nová složka, do níž byly zkopírovány původní údaje a soubory. Najdete ji zde:"
 
 #: templates/organisation_update.html:40
 msgid "To modify company name, please contact"
-msgstr ""
+msgstr "Chcete-li změnit název podniku, obraťte se prosím na"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:151
 msgid "Total"
-msgstr ""
+msgstr "Celkem"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:214
 msgid "Total Sales / Use / Destruction: Table10 + Table11 + Table12 + Table13 + Table14 + Table8 (at 31 Dec total)"
-msgstr ""
+msgstr "Celkem prodej / použití / likvidace: Tabulka 10 + Tabulka 11 + Tabulka 12 + Tabulka 13 + Tabulka 14 + Tabulka 8 (celkem k 31. prosinci)"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:149
 msgid "Total amount placed on the Community market"
-msgstr ""
+msgstr "Celkové množství uvedené na trh Společenství"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:242
 msgid "Total emission"
-msgstr ""
+msgstr "Emise celkem"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:241
 msgid "Total make-up"
-msgstr ""
+msgstr "Upravené množství celkem"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:128
 msgid "Total new production from your facility/ies"
-msgstr ""
+msgstr "Celková nová výroba ve vašich zařízeních"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:213
 msgid "Total quantity available: Table3 (total) + Table6 (total) + Table7 (total) + Table8 (at 1 Jan total)"
-msgstr ""
+msgstr "Celkové množství k dispozici: Tabulka 3 (celkem) + Tabulka 6 (celkem) + Tabulka 7 (celkem) + Tabulka 8 (celkem k 1. lednu)"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:150
 msgid "Total sold"
-msgstr ""
+msgstr "Celkové prodané množství"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:222
 msgid "Total stocks at the beginning / end of reporting year"
-msgstr ""
+msgstr "Celkový objem zásob na začátku / konci vykazovaného roku"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:14
 msgid "Transaction year"
-msgstr ""
+msgstr "Rok transakce"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:127
 msgid "Transactions/(metric tonnes)"
-msgstr ""
+msgstr "Transakce / (v metrických tunách)"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:218
 msgid "Transferring undertaking"
-msgstr ""
+msgstr "Převádějící podnik"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:57
 msgid "U"
-msgstr ""
-
-#: Reportek/zpt/hyperlink/add.zpt:25
-#: Reportek/zpt/hyperlink/index.zpt:17
-msgid "URL"
-msgstr ""
-
-#: Reportek/zpt/envelope/statusesbulk.zpt:23
-msgid "Unaccept"
-msgstr ""
-
-#: Reportek/zpt/collection/add.zpt:65
-#: Reportek/zpt/collection/prop.zpt:64
-#: Reportek/zpt/envelope/add.zpt:52
-msgid "Unspecified"
-msgstr ""
+msgstr "U"
 
 #: templates/organisation_update.html:20
 msgid "Update organisation"
-msgstr ""
+msgstr "Aktualizovat údaje o organizaci"
 
 #: templates/person_update.html:6
 msgid "Update person details"
-msgstr ""
-
-#: Reportek/zpt/document/upload.zpt:11
-#: Reportek/zpt/feedback/edit.zpt:68
-#: Reportek/zpt/feedback/uploadatt.zpt:16
-msgid "Upload"
-msgstr ""
+msgstr "Aktualizovat údaje o osobě"
 
 #: Reportek/zpt/document/manage.zpt:87
 msgid "Upload ESRI"
-msgstr ""
-
-#: Reportek/zpt/document/upload.zpt:17
-msgid "Upload file"
-msgstr ""
-
-#: Reportek/zpt/feedback/edit.zpt:63
-msgid "Upload new file"
-msgstr ""
-
-#: Reportek/zpt/feedback/uploadatt.zpt:11
-msgid "Upload new file for"
-msgstr ""
+msgstr "Nahrát ESRI"
 
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:18
 msgid "Upload zipfile"
-msgstr ""
+msgstr "Nahrát ZIP"
 
-#: Reportek/zpt/envelope/add_zip.zpt:17
+#: Reportek/zpt/envelope/add_zip.zpt:3
 msgid "Upload zipfile archive"
-msgstr ""
+msgstr "Nahrát složku ZIP"
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:19
 msgid "Upon reception of your submitted information by EEA, your personal data is collected and further processed for the purpose of the management and administration of the Business Data Repository (BDR). It will also be used by the EEA or its delegated representatives to contact you with queries or feedback concerning information or data submitted to the BDR, or to contact you when such information or data has previously been reported by you to the BDR or the European Commission."
-msgstr ""
+msgstr "Poté, co EEA od uživatelů obdrží registrační údaje, shromažďuje a dále zpracovává v nich obsažené osobní údaje pro účely řízení a správy databáze obchodních údajů BDR. EEA a jí pověření zástupci je dále využívají v situacích, kdy uživatele potřebují kontaktovat a poskytnout zpětnou vazbu či klást dotazy ohledně údajů do BDR aktuálně odeslaných nebo ohledně údajů, jež byly Evropské komisi nebo přes BDR poskytnuty dříve."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:217
 msgid "Use"
-msgstr ""
-
-#: Reportek/zpt/feedback/add.zpt:33
-msgid "Use the form to submit feedback to this delivery. You can attach one file to this feedback now and add othe files later by editing the feedback."
-msgstr ""
-
-#: Reportek/zpt/hyperlink/add.zpt:17
-msgid "Use the form to submit hyperlink to this delivery."
-msgstr ""
-
-#: Reportek/zpt/envelope/statusesbulk.zpt:15
-msgid "Use this form to copy and paste lists of files you want to accept/unaccept, select the corresponding operation and click the <em>Apply</em> button."
-msgstr ""
-
-#: Reportek/zpt/collection/worklist.zpt:32
-msgid "User"
-msgstr ""
+msgstr "Použití"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:58
 msgid "V"
-msgstr ""
+msgstr "V"
 
 #: models.py:105
 msgid "VAT number"
-msgstr ""
+msgstr "DIČ"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:4
 msgid "Validation report for F-Gases compliance checks"
-msgstr ""
+msgstr "Zpráva o ověření pro kontrolu shody u fluorovaných plynů"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:186
 msgid "Validation report for Ozone-Depleting Substances compliance checks"
-msgstr ""
+msgstr "Zpráva o ověření pro kontrolu shody u látek poškozující ozonovou vrstvu"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:252
 msgid "Values should be higher than or equal to zero. Decimal signs are not allowed and quantities should always be rounded-up."
-msgstr ""
+msgstr "Hodnoty musí být vyšší nebo rovny nule. Desetinné čárky nejsou povoleny – množství je vždy třeba zaokrouhlit."
 
-#: Reportek/zpt/collection/add.zpt:31
-#: Reportek/zpt/collection/prop.zpt:30
-msgid "Values used for inheritance"
-msgstr ""
-
-#: Reportek/zpt/document/edit.zpt:72
 #: Reportek/zpt/document/manage.zpt:32
 msgid "View file as"
-msgstr ""
+msgstr "Zobrazit soubor jako"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:59
 msgid "W"
-msgstr ""
+msgstr "W"
 
 #: Reportek/zpt/document/add.zpt:21
-#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:21
 msgid "Warning:"
-msgstr ""
-
-#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:32
-msgid "When the feedback is added, you should <em>complete the delivery</em>."
-msgstr ""
+msgstr "Pozor:"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:247
 msgid "Wrong status"
-msgstr ""
+msgstr "Chybný status"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:60
 msgid "X"
-msgstr ""
+msgstr "X"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:61
 msgid "Y"
-msgstr ""
-
-#: Reportek/zpt/envelope/properties.zpt:38
-msgid "Year"
-msgstr ""
+msgstr "Y"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:90
 msgid "You added a new preparation. The new preparation is identical with another preparation on the list. Please, select the preparation from the drop-down list."
-msgstr ""
+msgstr "Přidali jste nový přípravek. Nový přípravek je totožný s jiným přípravkem ze seznamu. Vyberte přípravek ze seznamu."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:89
 msgid "You added a new preparation. The sum of the percentages does not equal 100 %. Please correct the figures."
-msgstr ""
+msgstr "Přidali jste nový přípravek. Suma procentuálních hodnot se nerovná 100 %. Proveďte prosím opravu číselných údajů."
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:81
 msgid "You are entitled to have recourse at any time to the European Data Protection Supervisor (<a href=\"http://www.edps.europa.eu\">http://www.edps.europa.eu</a>; <a href=\"mailto:EDPS@edps.europa.eu\">EDPS@edps.europa.eu</a>) if you consider that your rights under Regulation (EC) No 45/2001 have been infringed as a result of the processing of your personal data by the EEA."
-msgstr ""
-
-#: ../../../extras/zodb_scripts/breadcrumb.zpt:12
-#: ../../../extras/zodb_scripts/translatable_header.zpt:31
-msgid "You are here:"
-msgstr ""
-
-#: Reportek/zpt/document/flashview.zpt:174
-msgid "You are trying to access a file from an envelope which is not yet available for public view. Work is still in progress."
-msgstr ""
-
-#: Reportek/zpt/hyperlink/add.zpt:13
-msgid "You can not add hyperlink in an envelope when it is released!"
-msgstr ""
-
-#: Reportek/zpt/feedback/add.zpt:27
-msgid "You can only add feedback in an envelope when it is released!"
-msgstr ""
-
-#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:16
-msgid "You can upload one single file or a non-hierarchical <em>.zip</em> archive. The zip archive will be unpacked and its content uploaded into the envelope."
-msgstr ""
-
-#: Reportek/zpt/envelope/add.zpt:15
-msgid "You cannot create envelopes for terminated obligations, you need to change the list of obligations associated to this collection and remove the following:"
-msgstr ""
+msgstr "Kdykoli se můžete obrátit na evropského inspektora ochrany údajů (<a href=\"http://www.edps.europa.eu\">http://www.edps.europa.eu</a>; <a href=\"mailto:EDPS@edps.europa.eu\">EDPS@edps.europa.eu</a>), pokud se domníváte, že byla zpracováním vašich osobních údajů agenturou EEA porušena vaše práva podle nařízení (ES) č. 45/2001."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:86
 msgid "You did not tick to be a producer in this gas group under the tab 'Company Information'. Thus you cannot report on production. If you want to report on production, please first revisit the 'Company Information' tab and modify your settings on your production activities there."
-msgstr ""
+msgstr "Na kartě „Informace o společnosti“ jste nezaškrtli, že jste u této skupiny plynů výrobcem. Nemůžete tak vykazovat údaje o výrobě. Chcete-li vykazovat výrobu, musíte nejprve na kartě „Informace o společnosti“ pozměnit výběr činností."
 
 msgid "You either did not upload any files in this envelope or your delivery did not pass the automatic quality assessment. Please correct the errors by modifying the questionnaire before submitting your delivery. The list of errors can be found from the Feedback report attached to the envelope.. Please go back to draft mode and fix these errors."
-msgstr ""
+msgstr "Buď jste do této složky nenahráli žádné soubory nebo zásilka neprošla úspěšně automatickou kontrolou chyb. Opravte chyby v dotazníku a zásilku odešlete. Seznam chyb najdete připojený je složce v souboru se zpětnou vazbou. Vraťte se do režimu „Koncept“ a chyby opravte."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:182
 msgid "You have added NIL reporting questionnaire but the report is not certified or the data is invalid on the report. Please revise your report and fix the errors."
-msgstr ""
+msgstr "Přidali jste dotazník nulové zprávy ale zpráva buď neprošla ověřením nebo jsou údaje v ní obsažené neplatné. Ověřte zprávu a opravte chyby."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:178
 msgid "You have made a submission using the online questionnaire correctly. Your data report (xml-file stored in this envelope) is accepted."
-msgstr ""
+msgstr "Podání prostřednictvím online dotazníku bylo provedeno správně. Zpráva s vašimi údaji (soubor XML v této složce) byla přijata."
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:59
 msgid "You have no direct access to the data stored. If you wish to modify or delete any of your personal data, you should address your request in writing to the BDR Helpdesk (<a href=\"mailto:BDR.helpdesk@eea.europa.eu\">BDR.helpdesk@eea.europa.eu</a>) or by post to European Environment Agency, Kongens Nytorv 6, 1050 Copenhagen K, Denmark."
-msgstr ""
+msgstr "K údajům údajům nemáte přímý přístup. Pokud chcete osobní údaje pozměnit či nechat vymazat, obracejte se písemně na asistenční službu BDR (<a href=\"mailto:BDR.helpdesk@eea.europa.eu\">BDR.helpdesk@eea.europa.eu</a>) nebo dopisem na adresu European Environment Agency, Kongens Nytorv 6, 1050 Copenhagen K, Dánsko."
 
 #: ../../../extras/zodb_scripts/privacystatement.zpt:87
 msgid "You may also contact the EEA's Data Protection Officer (DPO) in case of any difficulties or for any questions relating to the processing of your personal data at the following e-mail address: <a href=\"mailto:Data.ProtectionOfficer@eea.europa.eu\">Data.ProtectionOfficer@eea.europa.eu</a>."
-msgstr ""
+msgstr "Narazíte-li na problémy nebo budete-li mít dotazy týkající se zpracování vašich osobních údajů, můžete rovněž kontaktovat inspektora ochrany údajů EEA na adrese: <a href=\"mailto:Data.ProtectionOfficer@eea.europa.eu\">Data.ProtectionOfficer@eea.europa.eu</a>."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:284
 msgid "You need to provide an EORI code if you are going to report activities related to imports/exports!"
-msgstr ""
+msgstr "Hodláte-li zadávat údaje související s dovozem či vývozem, bude třeba zadat kód EORI."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:87
 msgid "You report on \"other or unknown\" intended applications. Please, provide an explanation in this box."
-msgstr ""
+msgstr "Uvádíte „Jiné či neznámé“ určené použití. Uveďte prosím připojte vysvětlení."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:103
 msgid "You ticked to be an exporter in the sheet 'company information' but no amount of export is considered. Please check the data or untick the export box."
-msgstr ""
+msgstr "V části „Informace o společnosti“ jste zaškrtli vývozce, ale nezadali jste žádné údaje o vývozu. Zkontrolujte údaje nebo zrušte zatržení políčka „Vývoz“."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:96
 msgid "Your 'Calculated total' for this gas differs from the 'Total amount placed on the EU market'. It should be equal to the total amount placed on the market. Please change your reported primary data accordingly to make both sums fit."
-msgstr ""
+msgstr "Celková vypočtená částka se u tohoto plynu se liší od „Celkového množství uvedeného na trh Společenství“. Hodnoty by si měly odpovídat. Opravte zadané údaje."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:95
 msgid "Your 'Calculated total' for this gas is lower than the 'Total amount placed on the EU market'. It should be higher or equal to the total amount placed on the market. Please change your reported primary data to make both sums fit accordingly."
-msgstr ""
+msgstr "Celková vypočtená částka je u tohoto plynu nižší než „Celkové množství uvedené na trh Společenství“. Měla by být vyšší nebo se rovnat. Opravte zadané údaje."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:181
 msgid "Your data report has been completed correctly using the online questionnaire."
-msgstr ""
+msgstr "Zpráva byla prostřednictvím online dotazníku sestavena správně."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:170
 msgid "Your delivery cannot be accepted as you did not complete the online questionnaire as instructed in the BDR user manual."
-msgstr ""
+msgstr "Vaši zásilku nelze přijmout, protože jste internetový dotazník nevyplnili podle příručky k BDR."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:175
 msgid "Your delivery cannot be accepted as you have provided more than one xml files (you have completed more than one online questionnaires)."
-msgstr ""
+msgstr "Vaši zásilku nelze přijmout, protože obsahuje více než jeden soubor XML (vyplnili jste více online dotazníků najednou)."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:34
 msgid "Your delivery did not pass some important checks. In the following sections you will find more information on these errors."
-msgstr ""
+msgstr "Vaše zásilka neprošla úspěšně některou důležitou kontrolou. Další informace těchto chybách najdete v následujících částech."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:112
 msgid "Your stock increase between 1 January and 31 December for the gas appears to be implausibly high. It should be smaller than or equal to the sum of Production, Import, Collection for reclamation and destruction, Purchases from Co-producers and Other EU purchases. (Explanation provided)"
-msgstr ""
+msgstr "Nárůst skladovaného množství mezi 1. lednem a 31. prosincem se u tohoto plynu zdá být nepravděpodobně vysoký. Hodnota by měla být menší nebo rovna sumě výroby, dovozu, zachycování k regeneraci a zneškodnění, nákupů od spoluvýrobců a ostatních nákupů v EU. (Podáno vysvětlení)."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:93
 msgid "Your stock increase between 1 January and 31 December for the gas appears to be implausibly high. It should be smaller than or equal to the sum of Production, Import, Collection for reclamation and destruction, Purchases from Co-producers and Other EU purchases. Please change your reported data accordingly or provide an explanation (in the comment field below the reported data in the webform) why your reported data is in fact plausible."
-msgstr ""
+msgstr "Nárůst skladovaného množství mezi 1. lednem a 31. prosincem se u tohoto plynu zdá být nepravděpodobně vysoký. Hodnota by měla být menší nebo rovna sumě výroby, dovozu, zachycování k regeneraci a zneškodnění, nákupů od spoluvýrobců a ostatních nákupů v EU. Upravte vykazované údaje nebo nebo připojte vysvětlení (v rámečku pro poznámku pod vykazovanými údaji )."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:113
 msgid "Your stock increase between 1 January and 31 December for the gas appears to be implausibly high. It should be smaller than or equal to your Imports. Please note that you as a non-producing company should report only only those stockpiled quantitites which were previously imported by your company. (Explanation provided)"
-msgstr ""
+msgstr "Nárůst skladovaného množství mezi 1. lednem a 31. prosincem se u tohoto plynu zdá být nepravděpodobně vysoký. Hodnota musí být menší nebo rovna vašim dovozům. Jakožto nevyrábějící společnost vykazujte pouze ta uskladněná množství, která byla předtím vaší společností dovezena. (Podáno vysvětlení)."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:94
 msgid "Your stock increase between 1 January and 31 December for the gas appears to be implausibly high. It should be smaller than or equal to your Imports. Please note that you as a non-producing company should report only only those stockpiled quantitites which were previously imported by your company. Please change your reported data accordingly or provide an explanation (in the comment field below the reported data in the webform) why your reported data is in fact plausible."
-msgstr ""
+msgstr "Nárůst skladovaného množství mezi 1. lednem a 31. prosincem se u tohoto plynu zdá být nepravděpodobně vysoký. Hodnota musí být menší nebo rovna vašim dovozům. Jako nevyrábějící společnost nemůžete podávat zprávy pouze pouze ty uskladněných množství, které bylo předtím dovezeno vaší společností. Upravte vykazované údaje nebo nebo připojte vysvětlení (v rámečku pro poznámku pod vykazovanými údaji )."
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:62
 msgid "Z"
-msgstr ""
+msgstr "Z"
 
-#: Reportek/zpt/envelope/add_zip.zpt:30
+#: Reportek/zpt/envelope/add_zip.zpt:14
 msgid "Zip file"
-msgstr ""
+msgstr "Složka ZIP"
 
 #: Reportek/zpt/envelope/overview.zpt:13
 msgid "Zip&nbsp;Envelope"
-msgstr ""
-
-#: Reportek/zpt/feedback/index.zpt:78
-msgid "[download]"
-msgstr ""
-
-#. Default: "Add"
-#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:49
-msgid "add-button"
-msgstr ""
-
-#. Default: "Post feedback for this release"
-#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:10
-msgid "add-feedback"
-msgstr ""
-
-#: Reportek/zpt/hyperlink/add.zpt:14
-msgid "back"
-msgstr ""
+msgstr "Zip&nbsp;Složka"
 
 #: templates/self_register.html:20
 msgid "below"
-msgstr ""
-
-#: Reportek/zpt/envelope/statuses_section.zpt:15
-msgid "bulk status form"
-msgstr ""
-
-#. Default: "Add feedback"
-#: Reportek/zpt/feedback/add.zpt:62
-msgid "button-add-feedback"
-msgstr ""
-
-#. Default: "Change language"
-#: Reportek/zpt/languages_box.zpt:3
-msgid "change-language"
-msgstr ""
-
-#. Default: "Complete the envelope, after which no action will be possible on this delivery"
-#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:13
-msgid "complete-delivery"
-msgstr ""
+msgstr "níže"
 
 #. Default: "Copy files from previous delivery"
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:15
 msgid "copy-delivery"
-msgstr ""
+msgstr "copy-delivery"
 
 #. Default: "Deactivation keeps the work already done, and makes it possible for someone else to take over the task"
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:28
-#: ../../../extras/zodb_scripts/Applications/Common/EnvelopeManualFeedback.zpt:18
-#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:20
 msgid "deactivate-task-title"
-msgstr ""
+msgstr "deactivate-task-title"
 
 #. Default: "Document accepted by the client"
 #: Reportek/zpt/envelope/documents_section.zpt:41
 msgid "document-accepted"
-msgstr ""
-
-#. Default: "Download attached file"
-#: Reportek/zpt/feedback/index.zpt:78
-msgid "download-attached-title"
-msgstr ""
+msgstr "document-accepted"
 
 #. Default: "Please note that the quality of any additional files included in your delivery will not be evaluated automatically. In case you wish to have an additional evaluation of this data please contact the Reporting Obligation support team (${helpdesk-email-address}), providing the link to the current submission (copy and paste the url address of the present webpage)."
 #: ../../../extras/i18n-fgases-ods-qa.zpt:180
 msgid "feedback-additional-files-evaluation-note"
-msgstr ""
+msgstr "feedback-additional-files-evaluation-note"
 
 #. Default: "The following delivery has been submitted for ${feedback-company-name} and was finalized on ${release-date}."
 msgid "feedback-delivery-submmited-for"
-msgstr ""
+msgstr "feedback-delivery-submmited-for"
 
 #. Default: "files contained inside the ${feedback-env-title} archive:"
 msgid "feedback-envelope-files"
-msgstr ""
+msgstr "feedback-envelope-files"
 
 #. Default: "Could not execute the script because the source XML is not available: ${xml-url}"
 #: ../../../extras/i18n-fgases-ods-qa.zpt:33
 msgid "feedback-err-src-xml"
-msgstr ""
+msgstr "feedback-err-src-xml"
 
 #. Default: "The above-mentioned files were submitted by: ${feedback-submitter-name} (user name: ${feedback-submitter-username})"
 msgid "feedback-files-submitted"
-msgstr ""
+msgstr "feedback-files-submitted"
 
 #. Default: "not acceptable"
 msgid "feedback-not-acceptable"
-msgstr ""
+msgstr "feedback-not-acceptable"
 
 #. Default: "The reported data failed to pass some important quality checks and therefore is ${feedback-not-acceptable}.A list of errors can be found in the Feedback report of your submitted envelope. You need to make a new delivery after fixing these errors."
 msgid "feedback-reject"
-msgstr ""
-
-#: Reportek/zpt/envelope/statusesbulk.zpt:40
-msgid "file could not be found in this envelope."
-msgstr ""
-
-#: Reportek/zpt/envelope/statuses_section.zpt:99
-msgid "files"
-msgstr ""
+msgstr "feedback-reject"
 
 #. Default: "Go back to envelope"
 #: Reportek/zpt/document/manage.zpt:14
-#: Reportek/zpt/envelope/upload_doc_or_zip.zpt:5
-#: Reportek/zpt/feedback/add.zpt:5
 msgid "go-back-title"
-msgstr ""
+msgstr "go-back-title"
 
 #: templates/organisation_update.html:41
 msgid "helpdesk"
-msgstr ""
+msgstr "asistenční službu"
 
 #: Reportek/zpt/envelope/documentsmanagement_section.zpt:22
 msgid "icon"
-msgstr ""
+msgstr "icon"
 
 #: ../../../extras/zodb_scripts/help/dataconfidentiality.zpt:14
 msgid "if the information submitted on a specific substance or use is based only on two reports or less than two reports, the respective quantity will not be divulged, in order to avoid that an undertaking could determine the content of the report of its competitor(s). This practise has not been laid down in an official procedure but it mirrors the \"three company rule\" applied by industry."
-msgstr ""
-
-#: Reportek/zpt/envelope/statuses_section.zpt:15
-msgid "in order to copy and paste the list of files you want to accept/unaccept and execute the operation upon all files at once"
-msgstr ""
-
-#: Reportek/zpt/envelope/documents_pagination.zpt:32
-msgid "items"
-msgstr ""
-
-#: Reportek/zpt/envelope/documents_pagination.zpt:27
-#: Reportek/zpt/envelope/statuses_section.zpt:95
-msgid "next"
-msgstr ""
+msgstr "pokud předložené informace týkající se určité látky nebo použití pochází pouze dvou či méně zpráv, příslušná množství nebudou zveřejněna, aby se zabránilo tomu, že by tak podniky mohly vydedukovat údaje o svých konkurentech. Tato praxe není zakotvena v žádném oficiálním postupu, ale odráží pravidlo známé jako „3-company confidentiality rule“ uplatňované v odvětví."
 
 #: ../../../extras/zodb_scripts/help/dataconfidentiality.zpt:13
 msgid "no information on the content of the report submitted by an individual producer, importer or exporter will be divulged;"
-msgstr ""
+msgstr "nejsou sdělovány žádné informace o obsahu zprávy předložené jednotlivými výrobci, dovozci ani vývozci;"
 
 #. Default: "No access"
 #: Reportek/zpt/envelope/documents_section.zpt:65
 msgid "no-access"
-msgstr ""
+msgstr "no-access"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:24
 msgid "not selected"
-msgstr ""
-
-#: Reportek/zpt/document/edit.zpt:60
-msgid "not yet"
-msgstr ""
-
-#: Reportek/zpt/envelope/documents_pagination.zpt:32
-#: Reportek/zpt/envelope/statuses_section.zpt:99
-msgid "of"
-msgstr ""
+msgstr "not selected"
 
 #: Reportek/zpt/envelope/feedback_section.zpt:71
 msgid "of ${total_number} feedbacks"
-msgstr ""
+msgstr "of ${total_number} feedbacks"
 
 #: ../../../extras/zodb_scripts/help/dataconfidentiality.zpt:12
 msgid "only aggregated data will be published, which also contain information on specific substances and uses;"
-msgstr ""
-
-#: Reportek/zpt/hyperlink/add.zpt:30
-msgid "optional"
-msgstr ""
-
-#: Reportek/zpt/envelope/documents_pagination.zpt:24
-#: Reportek/zpt/envelope/statuses_section.zpt:92
-msgid "previous"
-msgstr ""
+msgstr "jsou zveřejňovány pouze souhrnné údaje, které rovněž obsahují informace o konkrétních látkách a jejich použití;"
 
 #. Default: "When you have finished your uploads, you must state that you have completed the task"
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:23
-#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:15
 msgid "release-title"
-msgstr ""
+msgstr "release-title"
 
 #: ../../../extras/i18n-fgases-ods-qa.zpt:23
 msgid "selected"
-msgstr ""
+msgstr "selected"
 
 #: templates/self_register.html:20
 msgid "self-registration form"
-msgstr ""
-
-#: Reportek/zpt/envelope/statusesbulk.zpt:33
-msgid "status set to accepted."
-msgstr ""
-
-#: Reportek/zpt/envelope/statusesbulk.zpt:34
-msgid "status set to unaccepted."
-msgstr ""
-
-#: Reportek/zpt/feedback/add.zpt:18
-#: Reportek/zpt/feedback/index.zpt:118
-msgid "subscribe to receive notifications"
-msgstr ""
+msgstr "formulář autoregistrace"
 
 #. Default: "Edit the properties on the envelope"
 #: Reportek/zpt/envelope/tabs.zpt:36
 msgid "tab-edit-title"
-msgstr ""
+msgstr "tab-edit-title"
 
 #. Default: "Workflow history and operations"
 #: Reportek/zpt/envelope/tabs.zpt:57
 msgid "tab-history-title"
-msgstr ""
+msgstr "tab-history-title"
 
 #. Default: "Information about the envelope and change of status"
 #: Reportek/zpt/envelope/tabs.zpt:10
 msgid "tab-overview-title"
-msgstr ""
-
-#. Default: "Activation means you accept responsibility for this task. Only the person who has activated the task can work on it. Afterwards you can click on [Deactivate] or [Complete]"
-#: Reportek/zpt/envelope/macros.zpt:29
-msgid "task-activate-title"
-msgstr ""
-
-#: Reportek/zpt/collection/add.zpt:42
-#: Reportek/zpt/collection/prop.zpt:41
-#: Reportek/zpt/referral/add.zpt:38
-msgid "terminated"
-msgstr ""
+msgstr "tab-overview-title"
 
 #. Default: "File operations: [View file in different formats], [File properties], [View the feedback posted it (if any)]"
 #: Reportek/zpt/envelope/documents_section.zpt:22
 msgid "title-documents-section"
-msgstr ""
-
-#: Reportek/zpt/collection/add.zpt:57
-#: Reportek/zpt/collection/prop.zpt:56
-#: Reportek/zpt/envelope/add.zpt:45
-msgid "to"
-msgstr ""
+msgstr "title-documents-section"
 
 #. Default: "Upload"
 #: Reportek/zpt/document/manage.zpt:101
 msgid "upload-button"
-msgstr ""
+msgstr "upload-tlačítko"
 
 #. Default: "Upload multiple files packed into a zip archive. The zip cannot contain a folder structure."
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:18
 msgid "upload-zip"
-msgstr ""
+msgstr "upload-zip"
 
 #. Default: "Upload single file"
 #: ../../../extras/zodb_scripts/Applications/Common/EnvelopeDraftWebForm.zpt:12
-#: ../../../extras/zodb_scripts/Applications/light_commercial_vehicles/Draft.zpt:12
 msgid "uploade-single-title"
-msgstr ""
+msgstr "uploade-single-title"
 
