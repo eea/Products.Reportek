@@ -2,17 +2,18 @@
 # You need translate-toolkit for this script to work
 # pip install translate-toolkit, or place it in buildout
 
-# create topic dirs
-# unzip
-# create ln dirs
-# unzip xlf
-# xliff2po
-# i18ndude trmerge
+if [ -z "$1" ]; then
+    echo -e "Provide the full path to i18ndude as first argument.\n(and run in the directory where the translations zip is stored in)"
+    exit 1
+fi
 
+i18ndude_path=$1
 
 if [ ! -d out.xlf ]; then
+    echo "Extracting xlf from zips"
     mkdir out.xlf
 
+    # create topic dirs and unzip
     for zip in *.zip; do
         page_name=`echo $zip | sed -e's:\([0-9]\+\) \(.\+\)\.zip:\1_\2:'`
         #echo Creating $page_name
@@ -55,7 +56,7 @@ if [ ! -d out.xlf ]; then
                 #help_index_sk ) ;&
                 #registration_sk ) ;&
                 #security.html_sk )
-                #    echo " +++++++++++ SKIP ${cartesian_id} +++++++++++"
+                #    echo " +++ SKIP ${cartesian_id} +++"
                 #    ;;
 
                 #collection_index_el ) ;&
@@ -75,14 +76,15 @@ if [ ! -d out.xlf ]; then
                 #registration_el ) ;&
                 #registration_hr ) ;&
                 #security.html_el )
-                #    echo " +++++++++++ KNOWN ALL_DIRS ${cartesian_id} +++++++++++"
+                #    echo " +++ KNOWN ALL_DIRS ${cartesian_id} +++"
                 #    ;;&
                 * )
-                    echo " +++++++++++ DEFAULT ${cartesian_id} +++++++++++"
+                    echo " +++ DEFAULT ${cartesian_id} +++"
                     mkdir tmp
                     cd tmp
                     unzip "../$zip"
                     if [ $? -gt 1 ]; then exit 1; fi
+                    # create language dirs
                     if [ -d $lang ]; then
                         mv $lang ..
                     else
@@ -103,16 +105,53 @@ if [ ! -d out.xlf ]; then
     done
 
     cd ..
+else
+    echo "out.xlf dir present. Skipping xlf extraction from zip"
 fi
 
+echo "Correcting declared encoding"
 #sed -i -e's/\<encoding="utf-8"?/encoding="windows-1255"?/' out.xlf/14_documents/et/LC_MESSAGES/default.xlf
 #sed -i -e's/\<encoding="utf-8"?/encoding="windows-1255"?/' out.xlf/18_help_index/et/LC_MESSAGES/default.xlf
 sed -i -e's/\<encoding="utf-8"?/encoding="ISO-8859-15"?/' out.xlf/14_documents/et/LC_MESSAGES/default.xlf
 sed -i -e's/\<encoding="utf-8"?/encoding="ISO-8859-15"?/' out.xlf/18_help_index/et/LC_MESSAGES/default.xlf
 sed -i -e's/\<encoding="utf-8"?/encoding="ISO-8859-15"?/' out.xlf/21_security.html/et/LC_MESSAGES/default.xlf
 
+# xliff2po
 if [ ! -d out.po ]; then
+    echo "Converting from xlf to po"
     mkdir out.po
     xliff2po out.xlf out.po
-    # do trmerge
+else
+    echo "out.po dir present. Skipping Converting from xlf to po"
+fi
+
+# remove the fuzzy marker - i18ndude trmerge will ignore all the messages that are fuzzy
+if [ ! -d out.nofuzzy.po ]; then
+    echo "Clearing all fuzzy flags"
+    cp -r out.po out.nofuzzy.po
+    find out.nofuzzy.po -name '*.po' -type f -exec sed -i -e's/#, fuzzy//' {} \;
+else
+    echo " out.nofuzzy.po dir present. Skipping Clearing all fuzzy flags"
+fi
+
+# i18ndude trmerge
+if [ ! -d out.merged.po ]; then
+    echo "Merging all page specific po into one per language"
+    mkdir out.merged.po
+    merged_dir=`pwd`/out.merged.po
+    for page_dir in out.nofuzzy.po/*; do
+        cd $page_dir
+        for lang_dir in *; do
+            current_output_lang_dir=$merged_dir/$lang_dir/LC_MESSAGES
+            if [ ! -d $current_output_lang_dir ]; then
+                mkdir -p $current_output_lang_dir
+                cp $lang_dir/LC_MESSAGES/default.po $current_output_lang_dir/
+            else
+                $i18ndude_path trmerge $current_output_lang_dir/default.po $lang_dir/LC_MESSAGES/default.po > /tmp/default.po && mv /tmp/default.po $current_output_lang_dir/default.po
+            fi
+        done
+        cd -
+    done
+else
+    echo "out.merged.po dir present. Skipping Merging all page specific po into one per language"
 fi
