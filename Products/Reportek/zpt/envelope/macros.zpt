@@ -4,8 +4,12 @@
     <tal:block repeat="item activeW">
       <tal:block condition="python:item.actor == 'openflow_engine'"><img style="vertical-align: middle" src="/misc_/Reportek/work_in_process" alt="Work in progress for this activity" />
       </tal:block>
-      <strong tal:content="python:item.getActivityDetails('title')"></strong>
-      (<span tal:replace="python:item.getActivityDetails('description')"></span>)
+      <tal:block tal:define="title python: item.getActivityDetails('title');
+                            description python:item.getActivityDetails('description')">
+      <strong tal:condition="title" tal:content="title"></strong>
+      <strong tal:condition="not: title" tal:content="python: item.process_path.split('/')[-1]"></strong>
+      (<span tal:condition="description" tal:replace="description"></span><span tal:condition="not: description" i18n:translate="">Workflow missing</span>)
+      </tal:block>
       <tal:block condition="python:item.actor == 'openflow_engine'">
         <tal:block define="dummy_var python:request.RESPONSE.setHeader('Refresh','60')" />
       </tal:block>
@@ -16,34 +20,40 @@
       <span tal:condition="not:repeat/item/last">,</span>
     </tal:block>
   </tal:block>
-  <tal:block condition="python:inactiveW">
+  <tal:block condition="python:inactiveW"
+    tal:define="OFEngine python:context.getOpenFlowEngine()">
     <span i18n:translate="">Task(s) waiting to be assigned:</span>
     <tal:block repeat="item inactiveW">
-      <tal:block define="canPull python:context.getOpenFlowEngine().canPullActivity(
-                                     item.activity_id,
-                                     request.AUTHENTICATED_USER.getRolesInContext(context),
-                                     item.getInstanceProcessId())">
-        <tal:block condition="canPull">
+      <tal:block tal:condition="not: OFEngine">
+        <span style="color: red;">A workflow related error occured. Unable to determine the next task</span>
+      </tal:block>
+      <tal:block tal:condition="OFEngine">
+        <tal:block define="canPull python:OFEngine.canPullActivity(
+                                       item.activity_id,
+                                       request.AUTHENTICATED_USER.getRolesInContext(context),
+                                       item.getInstanceProcessId())">
+          <tal:block condition="canPull">
 
-          <strong>
-            <a tal:define="w_id item/id;
-                           dest_url python:context.getMySelf().absolute_url()"
-               tal:attributes="href string:activateWorkitem?workitem_id=${w_id}&DestinationURL=${dest_url}"
-               title="Activation means you accept responsibility for this task.
-                      Only the person who has activated the task can work on it.
-                      Afterwards you can click on [Deactivate] or
-                      [Complete]"
-               i18n:attributes="title task-activate-title"
-               i18n:translate="">Activate task: <em i18n:name="title">
-               <span tal:replace="python:item.getActivityDetails('title')"></span></em>
-            </a>
-          </strong>
-          (<span tal:replace="python:item.getActivityDetails('description')"></span>)
-          <span tal:condition="not:repeat/item/last">, </span>
-        </tal:block>
-        <tal:block condition="not:canPull">
-          <strong><span tal:replace="python:item.getActivityDetails('title')"></span></strong>
-          <span tal:condition="not:repeat/item/last">, </span>
+            <strong>
+              <a tal:define="w_id item/id;
+                             dest_url python:context.getMySelf().absolute_url()"
+                 tal:attributes="href string:activateWorkitem?workitem_id=${w_id}&DestinationURL=${dest_url}"
+                 title="Activation means you accept responsibility for this task.
+                        Only the person who has activated the task can work on it.
+                        Afterwards you can click on [Deactivate] or
+                        [Complete]"
+                 i18n:attributes="title task-activate-title"
+                 i18n:translate="">Activate task: <em i18n:name="title">
+                 <span tal:replace="python:item.getActivityDetails('title')"></span></em>
+              </a>
+            </strong>
+            (<span tal:replace="python:item.getActivityDetails('description')"></span>)
+            <span tal:condition="not:repeat/item/last">, </span>
+          </tal:block>
+          <tal:block condition="not:canPull">
+            <strong><span tal:replace="python:item.getActivityDetails('title')"></span></strong>
+            <span tal:condition="not:repeat/item/last">, </span>
+          </tal:block>
         </tal:block>
       </tal:block>
     </tal:block>

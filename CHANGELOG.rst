@@ -1,3 +1,7 @@
+unreleased
+----------
+Task #20536 - Treat case when an envelope's workflow does not exist anymore [olimpiurob]
+
 3.8.2 (27-03-2015)
 -----------------------
 Task #21521 - Adding support for uploading multiple files on feedback [malduvit]

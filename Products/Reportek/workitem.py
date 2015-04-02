@@ -236,7 +236,7 @@ class workitem(CatalogAware, SimpleItem, PropertyManager):
 
     def getActivityDetails(self, p_attribute):
         """ returns the activity's description """
-        l_process = self.unrestrictedTraverse(self.process_path)
+        l_process = self.unrestrictedTraverse(self.process_path, None)
         try:
             return getattr(getattr(l_process, self.activity_id), p_attribute)
         except:
@@ -245,7 +245,7 @@ class workitem(CatalogAware, SimpleItem, PropertyManager):
     def getActivityAttribute(self, attr):
         """Returns activity attr attribute if activity is found.
         Otherwise returns None. Caller must consider both return cases."""
-        process = self.unrestrictedTraverse(self.process_path)
+        process = self.unrestrictedTraverse(self.process_path, None)
         try:
             return getattr(getattr(process, self.activity_id), attr)
         except:
