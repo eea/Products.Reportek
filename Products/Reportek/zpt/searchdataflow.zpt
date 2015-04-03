@@ -155,7 +155,7 @@ function toggleSelect() {
     </td>
     <td>
         <a tal:attributes="href python:obj.absolute_url_path()"
-            tal:content="python:obj.title">
+            tal:content="python:obj.title_or_id()">
             title_link
         </a>
     </td>
