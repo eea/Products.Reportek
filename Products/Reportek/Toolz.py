@@ -66,9 +66,12 @@ class Toolz:
     #LDAP users info
     def getLDAPUser(self, uid):
         ldap_user_folder = self.getPhysicalRoot().acl_users['ldapmultiplugin']['acl_users']
-        res = ldap_user_folder.findUser(search_param='uid', search_term=uid)
-        if len(res)>0:
+        res = ldap_user_folder.findUser(search_param='uid',
+                                        search_term=uid,
+                                        exact_match=True)
+        if len(res) > 0:
             return res[0]
+
         return {}
 
     def getLDAPUserFirstName(self, dn):
