@@ -1,5 +1,7 @@
 unreleased
 ----------
+Task #23435 - Display the envelope's id if there's no title in searchdsearchdataflow results [olimpiurob]
+Task #23434 - Url quote reportingdate_start and reportingdate_end in engineMacros template [olimpiurob]
 Task #20536 - Treat case when an envelope's workflow does not exist anymore [olimpiurob]
 
 3.8.2 (27-03-2015)
