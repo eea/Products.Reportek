@@ -105,6 +105,7 @@ function toggleSelect() {
 </form>
 <br/>
 <tal:block condition="options/results | nothing">
+<span i18n:translate="">In the case of Repository Referrals items it is not possible to add them to the zip archive</span>
 <form action="ReportekEngine/zipEnvelopes" method="post" id="frmZip"
       tal:define="query_start python:request.get('query_start') or 0;
                   Batch python:modules['ZTUtils'].Batch;
@@ -143,7 +144,7 @@ function toggleSelect() {
     <metal:block fill-slot="resultsTableRowFormat">
     <td>
         <input type="checkbox" name="envelopes"
-        tal:condition="python:obj.released"
+        tal:condition="python:obj.released and not obj.meta_type == 'Repository Referral'"
         tal:attributes="value python:obj.absolute_url_path()"/>
     </td>
     <td tal:content="python:obj.getCountryName()">country name</td>
@@ -154,6 +155,9 @@ function toggleSelect() {
         tal:content="python:obj.aq_parent.id">user id ?
     </td>
     <td>
+        <img tal:attributes="src obj/icon;
+                             alt obj/meta_type"
+          style="width: 16px; height: 16px" />
         <a tal:attributes="href python:obj.absolute_url_path()"
             tal:content="python:obj.title_or_id()">
             title_link

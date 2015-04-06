@@ -93,6 +93,11 @@ class Referral(CatalogAware, SimpleItem, CountriesManager):
         SimpleItem.manage_options
         )
 
+    def get_reportingdate(self):
+        return self.bobobase_modification_time()
+
+    reportingdate = property(get_reportingdate)
+
     def __setstate__(self,state):
         Referral.inheritedAttribute('__setstate__')(self, state)
         if type(self.year) is types.StringType and self.year != '':

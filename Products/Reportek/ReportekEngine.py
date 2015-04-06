@@ -416,9 +416,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         # make sure fields you are not searching for are not included
         # in the query, not even with '' or None values
         catalog_args = {
-            'meta_type': 'Report Envelope',
+            'meta_type': ['Report Envelope', 'Repository Referral']
         }
-
         status = self.REQUEST.get('release_status')
         if status == 'anystatus':
             catalog_args.pop('released', None)
