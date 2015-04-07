@@ -105,7 +105,7 @@ function toggleSelect() {
 </form>
 <br/>
 <tal:block condition="options/results | nothing">
-<span i18n:translate="">In the case of Repository Referrals items it is not possible to add them to the zip archive</span>
+<span i18n:translate="">Repository Referral items can not be added to a zip archive</span>
 <form action="ReportekEngine/zipEnvelopes" method="post" id="frmZip"
       tal:define="query_start python:request.get('query_start') or 0;
                   Batch python:modules['ZTUtils'].Batch;

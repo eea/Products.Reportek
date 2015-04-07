@@ -1,3 +1,7 @@
+unreleased
+----------
+* Task #21032 - Include Repository Referrals in obligation search on CDR [olimpiurob]
+
 3.8.3 (06-04-2015)
 ------------------
 * Task #24025 - Drop fuzzy search and use exact_match for ldap_user_folder.findUser [olimpiurob]
