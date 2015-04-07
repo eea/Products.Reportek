@@ -1,57 +1,56 @@
 3.8.3 (06-04-2015)
------------------------
-Task #24025 - Drop fuzzy search and use exact_match for ldap_user_folder.findUser [olimpiurob]
-Task #23435 - Display the envelope's id if there's no title in searchdsearchdataflow results [olimpiurob]
-Task #23434 - Url quote reportingdate_start and reportingdate_end in engineMacros template [olimpiurob]
-Task #20536 - Treat case when an envelope's workflow does not exist anymore [olimpiurob]
+------------------
+* Task #24025 - Drop fuzzy search and use exact_match for ldap_user_folder.findUser [olimpiurob]
+* Task #23435 - Display the envelope's id if there's no title in searchdsearchdataflow results [olimpiurob]
+* Task #23434 - Url quote reportingdate_start and reportingdate_end in engineMacros template [olimpiurob]
+* Task #20536 - Treat case when an envelope's workflow does not exist anymore [olimpiurob]
 
 3.8.2 (27-03-2015)
------------------------
-Task #21521 - Adding support for uploading multiple files on feedback [malduvit]
-Task #22820 - Added an explanatory text [malduvit]
+------------------
+* Task #21521 - Adding support for uploading multiple files on feedback [malduvit]
+* Task #22820 - Added an explanatory text [malduvit]
 
 3.8.1 (11-03-2015)
------------------------
-move getCountryName and getCountryCode to Reportek Collection
-Refs #23650 show comapny id in collections ZMI->settings [baragdan]
-Refs #21879 - improve threaded localQA [baragdan]
+------------------
+* move getCountryName and getCountryCode to Reportek Collection
+* Refs #23650 show comapny id in collections ZMI->settings [baragdan]
+* Refs #21879 - improve threaded localQA [baragdan]
 
->>>>>>> production
 3.8.0 (27-02-2015)
------------------------
-proper production egg
+------------------
+* proper production egg
 
 3.7.2-dev16 (26-02-2015)
------------------------
+------------------------
 * Task #23412 - Conversion of XML file to XLS gives an error
 * Task #23463 - overridden PropertiedUser.getRolesInContext() to check middleware too
 
 3.7.2-dev15 (26-02-2015)
------------------------
+------------------------
 * Task #23451 - AttributeError company_id
 * Task #22656 - use script title in feedback id
 * Task #22974 - minor fix
 
 3.7.2-dev14 (20-02-2015)
------------------------
+------------------------
 
 3.7.2-dev13 (19-02-2015)
------------------------
+------------------------
 * Task #23228 - Authentication lost on BDR. add webqKeepAlive [baragdan]
 * Task #22974 - Search dataflow functionality in ReportekUtilities [malduvit]
 * Task #23217 - nicely inform user that no company was found when no company was found [baragdan]
 * Task #23215 - keep GET query arguments when login redirects [baragdan]
 
 3.7.2-dev12 (13-02-2015)
------------------------
+------------------------
 * Task #22993 - Add a tab to ReportekEngine management where we can see migrations
 * Task #23236 - Fix organisation_details link to reporting folder for non-ue types
 
 3.7.2-dev11 (10-02-2015)
------------------------
+------------------------
 
 3.7.2-dev10 (10-02-2015)
------------------------
+------------------------
 * Task #22993 - add migration to migration tracking support. Create migration decorator [baragdan] (needs migration)
 * Task #22445 - Lockdown: unmatch companies case + sending emails [baragdan]
 * Task #22989 - Fix datatable error on IE [malduvit]
@@ -104,8 +103,8 @@ proper production egg
 3.7.2-dev (05-01-2015)
 ----------------------
 * Task 19360 - add 'deferred mode' to the compression of Report Documents [baragdan]
-- better separation of deployments [baragdan]
-- fixes for ReportekUtilities [malduvit]
+* better separation of deployments [baragdan]
+* fixes for ReportekUtilities [malduvit]
 
 
 3.7.1 (10-12-2014)
