@@ -1,5 +1,6 @@
 unreleased
 ----------
+* Task #21032 - Added referrals migration extension script [olimpiurob]
 * Task #21032 - Include Repository Referrals in obligation search on CDR [olimpiurob]
 
 3.8.3 (06-04-2015)
