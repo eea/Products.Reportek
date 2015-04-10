@@ -148,7 +148,7 @@ function toggleSelect() {
         tal:condition="python:obj.released and not obj.meta_type == 'Repository Referral'"
         tal:attributes="value python:obj.absolute_url_path()"/>
     </td>
-    <td tal:condition="isBdrDeployment" tal:content="python:obj.company_id">
+    <td tal:condition="isBdrDeployment">
         <tal:block tal:condition="python:hasattr(obj.aq_parent, 'company_id')"
                 tal:content="python:obj.aq_parent.company_id">
         </tal:block>
