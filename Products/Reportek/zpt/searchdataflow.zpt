@@ -117,6 +117,7 @@ function toggleSelect() {
     <tal:block condition="isBdrDeployment"
         content="structure python:context.sortable_table((
         {'id': 'zip', 'title': '', 'sortable':0},
+        {'id': 'company_id', 'title': 'Company ID', 'sortable':0},
         {'id':'getCountryName','title':'Country','sortable':1},
         {'id':'company','title':'Company','sortable':0},
         {'id':'userid','title':'User ID','sortable':0},
@@ -146,6 +147,13 @@ function toggleSelect() {
         <input type="checkbox" name="envelopes"
         tal:condition="python:obj.released and not obj.meta_type == 'Repository Referral'"
         tal:attributes="value python:obj.absolute_url_path()"/>
+    </td>
+    <td tal:condition="isBdrDeployment" tal:content="python:obj.company_id">
+        <tal:block tal:condition="python:hasattr(obj.aq_parent, 'company_id')"
+                tal:content="python:obj.aq_parent.company_id">
+        </tal:block>
+        <tal:block tal:condition="not: python:hasattr(obj.aq_parent, 'company_id')" tal:content="string:-">
+        </tal:block>
     </td>
     <td tal:content="python:obj.getCountryName()">country name</td>
     <td tal:condition="isBdrDeployment"

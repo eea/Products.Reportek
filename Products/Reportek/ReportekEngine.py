@@ -551,7 +551,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 if obj.meta_type == 'Report Envelope':
                     reported = obj.reportingdate
 
+                company_id = '-'
+                if (hasattr(obj.aq_parent, 'company_id')):
+                    company_id = obj.aq_parent.company_id
+
                 envelopeObjects.append({
+                    'company_id': company_id,
                     'released': obj.released,
                     'path': obj.absolute_url_path(),
                     'country': countryName,
