@@ -1,3 +1,7 @@
+3.8.5-dev (10-04-2015)
+----------------------
+* Task #24661 - Added company id to search results table [vitaliemaldur]
+
 3.8.4 (09-04-2015)
 ------------------
 * Task #21032 - Added referrals migration extension script [olimpiurob]
