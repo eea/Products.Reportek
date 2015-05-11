@@ -9,41 +9,52 @@
 
   <metal:block fill-slot="content">
 
-    <h2>User management</h2>
+    <div class="utils-user-mgmt">
+      <h2>User management</h2>
 
-    <ul>
-      <li><a href="get_users_by_path">Show where users have access</a></li>
-      <li><a href="country.reporters">List country reporters</a></li>
-      <li><a href="assign_role">Assign roles by obligation</a></li>
-      <li><a href="revoke_roles">Revoke roles</a></li>
-    </ul>
+      <ul>
+        <li>
+          <a tal:condition="not: isBdrDeployment" href="get_users_by_path">Show where users have access</a>
+          <a tal:condition="isBdrDeployment" href="get_users_by_path">Show where users have 'Client' roles</a>
+        </li>
+        <li tal:condition="not: isBdrDeployment"><a href="country.reporters">List country reporters</a></li>
+        <li><a href="assign_role">Assign roles by obligation</a></li>
+        <li><a href="revoke_roles">Revoke roles</a></li>
+      </ul>
+    </div>
 
-    <h2>Collections</h2>
+    <div class="utils-collections" tal:condition="not: isBdrDeployment">
+      <h2>Collections</h2>
 
-    <ul>
-      <li><a href="collections.wrong_country">Collections allocated to the wrong country</a></li>
-      <li tal:condition="not: isBdrDeployment | nothing">
-        <a href="collections.build">Build collections</a>
-      </li>
-    </ul>
+      <ul>
+        <li><a href="collections.wrong_country">Collections allocated to the wrong country</a></li>
+        <li tal:condition="not: isBdrDeployment | nothing">
+          <a href="collections.build">Build collections</a>
+        </li>
+      </ul>
+    </div>
 
-    <h2>Envelopes</h2>
-    <ul>
-      <li><a href="collections.search">Create envelopes</a></li>
-      <li><a href="envelopes.autocomplete">Auto complete envelopes</a></li>
-      <li><a href="envelopes.wrong_country">Envelopes allocated to the wrong country</a></li>
-    </ul>
+    <div class="utils-envelopes" tal:condition="not: isBdrDeployment">
+      <h2>Envelopes</h2>
+      <ul>
+        <li><a href="collections.search">Create envelopes</a></li>
+        <li><a href="envelopes.autocomplete">Auto complete envelopes</a></li>
+        <li><a href="envelopes.wrong_country">Envelopes allocated to the wrong country</a></li>
+      </ul>
+    </div>
 
-    <h2>Generic</h2>
+    <div class="utils-generic">
+      <h2>Generic</h2>
 
-    <ul>
-      <li><a href="search_dataflow">Search dataflow</a></li>
-      <li><a href="obligation.recent_uploads">Recent uploads</a></li>
-      <li tal:condition="isCdrDeployment | nothing">
-        <a href="statistics">Statistics</a>
-      </li>
-      <li><a href="/ReportekEngine/sitemap">Sitemap</a></li>
-    </ul>
+      <ul>
+        <li><a href="search_dataflow">Search dataflow</a></li>
+        <li><a href="obligation.recent_uploads">Recent uploads</a></li>
+        <li tal:condition="isCdrDeployment | nothing">
+          <a href="statistics">Statistics</a>
+        </li>
+        <li><a href="/ReportekEngine/sitemap">Sitemap</a></li>
+      </ul>
+    <div>
 
   </metal:block>
 </metal:block>

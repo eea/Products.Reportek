@@ -1,6 +1,7 @@
 import json
 from copy import copy
 from operator import itemgetter
+from Products.Reportek.constants import ENGINE_ID
 
 from base_admin import BaseAdmin
 
@@ -57,6 +58,15 @@ class ListUsers(BaseAdmin):
             return sorted(users)
         return []
 
+    def get_middleware(self):
+        engine = self.context.unrestrictedTraverse('/'+ENGINE_ID)
+        return engine.authMiddlewareApi
+
+    def get_ecas_users(self):
+        middleware = self.get_middleware()
+        authMiddlewareAPI = middleware.authMiddlewareApi
+
+        return authMiddlewareAPI.getUsers()
 
     def get_records(self, REQUEST):
 
@@ -87,6 +97,17 @@ class ListUsers(BaseAdmin):
 
             if not users:
                 continue
+
+            elif 'bdr_folder_agent' in users:
+                ecas_users = self.get_ecas_users()
+                users.remove('bdr_folder_agent')
+
+                middleware = self.get_middleware()
+
+                for user in ecas_users:
+                    username = user.get('username')
+                    if middleware.authorizedUser(username, brain.getPath()):
+                        users.append(user.get('username'))
 
             yield {
                 'path': [brain.getPath(), brain.title],
