@@ -10,12 +10,16 @@ function generateRow(row, tableKey) {
   if (tableKey === 'by_path')
     result.push(
       renderAsUL($.map(row.users, function (user) {
-        return renderAsLink(getUserUrl(user), user)
+        return renderUsersLI(user);
       })));
   else if (tableKey === 'by_person')
     result.push(row.user);
 
   return result;
+}
+
+function renderUsersLI(user) {
+  return renderAsLink(getUserUrl(user.uid), user.uid) + renderAsUL(['Type: ' + user.type, 'Role: ' + user.role]);
 }
 
 function initEnvelopesTable() {
@@ -80,6 +84,40 @@ function initCompaniesTable() {
   });
 }
 
+function datatable_loading(action) {
+  var target = $("#datatable");
+  var t_parent = target.parent();
+  var t_length = $("#datatable_length");
+  var t_filter = $("#datatable_filter");
+  var t_paginate = $("#datatable_paginate");
+  var t_info = $("#datatable_info");
+  var img_container = $(".spinner-container");
+  if (img_container.length <= 0 ) {
+    var img_container = $("<div />", {'class': 'spinner-container'});
+    var img = $("<img />", {
+                  'src': '++resource++static/ajax-loader.gif',
+                  'class': 'ajax-spinner'
+                });
+    img_container.append(img);
+    t_parent.prepend(img_container);
+  }
+
+  if (action === 'hide') {
+    target.hide();
+    t_length.hide();
+    t_filter.hide();
+    t_paginate.hide();
+    t_info.hide();
+  } else {
+    target.show();
+    t_length.show();
+    t_filter.show();
+    t_paginate.show();
+    t_info.show();
+    img_container.hide();
+  }
+}
+
 function initDataTable() {
   /* Init the datatable object */
 
@@ -133,6 +171,9 @@ function initDataTable() {
     by_path: '/api.get_users_by_path',
     by_person: '/api.get_users'
   };
+
+  datatable_loading('hide');
+  // $('.placeholder', result).html(img);
   $.ajax({
     url: dataSources[tableKey],
     data: {
@@ -145,6 +186,7 @@ function initDataTable() {
       $.each(rows, function(idx, row) {
         dataTable.row.add(generateRow(row, tableKey));
       });
+      datatable_loading('show');
       dataTable.draw();
     }
   });

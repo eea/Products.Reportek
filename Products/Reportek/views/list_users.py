@@ -1,7 +1,8 @@
 import json
+from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
 from copy import copy
 from operator import itemgetter
-from Products.Reportek.constants import ENGINE_ID
+from Products.Reportek.constants import ENGINE_ID, ECAS_ID
 
 from base_admin import BaseAdmin
 
@@ -63,10 +64,10 @@ class ListUsers(BaseAdmin):
         return engine.authMiddlewareApi
 
     def get_ecas_users(self):
-        middleware = self.get_middleware()
-        authMiddlewareAPI = middleware.authMiddlewareApi
+        ecas_path = '/'+ENGINE_ID+'/acl_users/'+ECAS_ID
+        ecas = self.context.unrestrictedTraverse(ecas_path)
 
-        return authMiddlewareAPI.getUsers()
+        return ecas._user2ecas_id.keys()
 
     def get_records(self, REQUEST):
 
@@ -77,9 +78,14 @@ class ListUsers(BaseAdmin):
         if not isinstance(countries, list):
             countries = [countries]
 
+        use_role = role
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            if role == 'ClientFG':
+                use_role = ''
 
-        for brain in self.search_catalog(obligation, countries, role):
+        brains = self.search_catalog(obligation, countries, use_role)
 
+        for brain in brains:
             obligations = []
             for uri in list(brain.dataflow_uris):
                 try:
@@ -89,36 +95,54 @@ class ListUsers(BaseAdmin):
                 obligations.append((uri, title))
 
             if role:
-                users = [user for user, roles
-                         in brain.local_defined_roles.iteritems()
-                         if role in roles]
+                users = dict((user, {'uid': user,
+                                     'role': role,
+                                     'type': 'Local/LDAP'
+                                     }) for user, roles
+                             in brain.local_defined_roles.iteritems()
+                             if role in roles)
             else:
-                users = brain.local_defined_users
+                if brain.local_defined_users:
+                    users = dict((user, {'uid': user,
+                                         'role': brain.local_defined_roles.get(user),
+                                         'type': 'Local/LDAP'
+                                         })
+                                 for user in brain.local_defined_users
+                                 if brain.local_defined_users)
+
+            if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+                ecas_users = self.get_ecas_users()
+                middleware = self.get_middleware()
+                ecas = self.context.unrestrictedTraverse('/acl_users/'+ECAS_ID)
+
+                for user in ecas_users:
+                    ecas_user_id = ecas.getEcasUserId(user)
+
+                    # Normalize path object path
+                    obj_path = brain.getPath()
+                    if obj_path.startswith('/'):
+                        obj_path = obj_path[1:]
+
+                    if middleware.authorizedUser(ecas_user_id, obj_path):
+                        users[user] = {
+                            'uid': user,
+                            'type': 'ECAS',
+                            'role': 'ClientFG'
+                        }
 
             if not users:
                 continue
-
-            elif 'bdr_folder_agent' in users:
-                ecas_users = self.get_ecas_users()
-                users.remove('bdr_folder_agent')
-
-                middleware = self.get_middleware()
-
-                for user in ecas_users:
-                    username = user.get('username')
-                    if middleware.authorizedUser(username, brain.getPath()):
-                        users.append(user.get('username'))
 
             yield {
                 'path': [brain.getPath(), brain.title],
                 'obligations': obligations,
                 'users':  users}
 
-
     def getUsers(self, REQUEST):
 
         records = []
-        for record in self.get_records(REQUEST):
+        recs = self.get_records(REQUEST)
+        for record in recs:
             res = copy(record)
             del res['users']
             for user in record['users']:
@@ -130,11 +154,5 @@ class ListUsers(BaseAdmin):
         records.sort(key=itemgetter('user'))
         return json.dumps({"data": records})
 
-
     def getUsersByPath(self, REQUEST):
-
-        records = []
-        for record in self.get_records(REQUEST):
-            records.append(record)
-
-        return json.dumps({"data": records})
+        return json.dumps({"data": list(self.get_records(REQUEST))})
