@@ -165,6 +165,13 @@ function initDataTable() {
 
   var tableKey = target.data("table-key");
   $.extend(dtConfig, generalSettings[tableKey]);
+  if (target.hasClass('bdr-datatable') && tableKey === 'by_path') {
+    dtConfig.columns = [
+      {"width": "25%"},
+      {"width": "30%"},
+      null
+    ];
+  }
   var dataTable = target.DataTable(dtConfig);
 
   var dataSources = {
