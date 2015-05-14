@@ -14,8 +14,10 @@
 
       <ul>
         <li>
-          <a tal:condition="not: isBdrDeployment" href="get_users_by_path">Show where users have access</a>
-          <a tal:condition="isBdrDeployment" href="get_users_by_path">Show where users have 'Client' roles</a>
+          <a href="get_users_by_path" id="user-roles">
+            <span tal:condition="not: isBdrDeployment" tal:omit-tag="">Show where users have access</span>
+            <span tal:condition="isBdrDeployment" tal:omit-tag="">Show where users have 'Client' roles</span>
+            </a>
         </li>
         <li tal:condition="not: isBdrDeployment"><a href="country.reporters">List country reporters</a></li>
         <li><a href="assign_role">Assign roles by obligation</a></li>

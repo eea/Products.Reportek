@@ -553,7 +553,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         self.assertEqual(self.browser.url, index_url)
 
         # Go to users that have access
-        users_access_link = self.browser.getLink(text='Show where users have access')
+        users_access_link = self.browser.getLink(id='user-roles')
         users_access_link.click()
         self.assertTrue('Yearly report to the Fictive Convention' in
                         self.browser.contents)
@@ -574,7 +574,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         self.browser.getControl(name='btnFilter').click()
         expected_url = (ru_url + '/get_users_by_path?'
                         'obligation=8&role=&countries%3Alist=tc&'
-                        'btnFilter=Filter')
+                        'btnFilter=Search')
         self.assertEqual(expected_url, self.browser.url)
 
         # We have an ajax call that we need to see the result of
@@ -584,73 +584,173 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
                            '["http://nohost/obligations/1",'
                            ' "Yearly report to the Fictive Convention"]],'
                            ' "path": ["/tc", "Test Country"], '
-                           '"users": ["test_user_1_"]}]}')
+                           '"users": {"test_user_1_": {"type": "Local/LDAP",'
+                           ' "role": ["Owner", "Reporter"], '
+                           '"uid": "test_user_1_"}}}]}')
         self.assertEqual(expected_result, self.browser.contents)
 
         # Go back to ReportekUtilities index_html
         self.browser.goBack(count=3)
-        # Click on the list country reporters
-        self.browser.getLink(text='List country reporters').click()
-        self.browser.getControl(label='Show reporters').click()
-        # test_user_1_ should come up in the reporters list
-        self.assertTrue('test_user_1_@test.com' in self.browser.contents)
 
-        self.browser.goBack(count=2)
-        self.browser.getLink(text='Assign roles by obligation').click()
-        self.assertEqual(ru_url + '/assign_role', self.browser.url)
-        search_term_ctl = self.browser.getControl(name='search_term')
-        search_term_ctl.value = 'test_user_1_'
-        self.browser.getControl(name='btnFind').click()
+        if REPORTEK_DEPLOYMENT != DEPLOYMENT_BDR:
+            # Click on the list country reporters
+            self.browser.getLink(text='List country reporters').click()
+            self.browser.getControl(label='Show reporters').click()
+            # test_user_1_ should come up in the reporters list
+            self.assertTrue('test_user_1_@test.com' in self.browser.contents)
 
-        # Select our test user
-        username_ctl = self.browser.getControl(name='username')
-        for ctl in username_ctl.controls:
-            if ctl.optionValue == 'test_user_1_':
-                ctl.selected = True
+            self.browser.goBack(count=2)
+            self.browser.getLink(text='Assign roles by obligation').click()
+            self.assertEqual(ru_url + '/assign_role', self.browser.url)
+            search_term_ctl = self.browser.getControl(name='search_term')
+            search_term_ctl.value = 'test_user_1_'
+            self.browser.getControl(name='btnFind').click()
 
-        # Select our test country
-        c_controls = self.browser.getControl(name='countries:list').controls
-        for c_ctl in c_controls:
-            if c_ctl.optionValue == 'tc':
-                c_ctl.selected = True
+            # Select our test user
+            username_ctl = self.browser.getControl(name='username')
+            for ctl in username_ctl.controls:
+                if ctl.optionValue == 'test_user_1_':
+                    ctl.selected = True
 
-        # Select our test obligation
-        o_controls = self.browser.getControl(name='obligation').controls
-        for o_control in o_controls:
-            if o_control.optionValue == '8':
-                o_control.selected = True
+            # Select our test country
+            c_controls = self.browser.getControl(name='countries:list').controls
+            for c_ctl in c_controls:
+                if c_ctl.optionValue == 'tc':
+                    c_ctl.selected = True
 
-        # Set role to 'Client'
-        r_controls = self.browser.getControl(name='role').controls
-        for r_control in r_controls:
-            if r_control.optionValue == 'Client':
-                r_control.selected = True
+            # Select our test obligation
+            o_controls = self.browser.getControl(name='obligation').controls
+            for o_control in o_controls:
+                if o_control.optionValue == '8':
+                    o_control.selected = True
 
-        # Get available collections
-        self.browser.getControl(name='btn.find_collections').click()
-        col_controls = self.browser.getControl(name='collections:list').controls
-        self.assertEqual(col_controls[0].optionValue, '/tc')
-        self.assertTrue('(Owner, Reporter)' in self.browser.contents)
-        col_controls[0].selected = True
+            # Set role to 'Client'
+            r_controls = self.browser.getControl(name='role').controls
+            for r_control in r_controls:
+                if r_control.optionValue == 'Client':
+                    r_control.selected = True
 
-        # Assign new role
-        self.browser.getControl(name='btn.assign').click()
-        self.assertTrue('Operations completed succesfully.' in self.browser.contents)
-        search_term_ctl = self.browser.getControl(name='search_term')
-        search_term_ctl.value = 'test_user_1_'
-        self.browser.getControl(name='btnFind').click()
-        self.browser.getControl(name='username').controls[0].selected = True
-        self.browser.getControl(name='countries:list').controls[0].selected = True
-        self.browser.getControl(name='obligation').controls[1].selected = True
-        r_controls = self.browser.getControl(name='role').controls
-        for r_control in r_controls:
-            if r_control.optionValue == 'Client':
-                r_control.selected = True
-        self.browser.getControl(name='btn.find_collections').click()
-        self.assertTrue('(Owner, Client, Reporter)' in self.browser.contents)
+            # Get available collections
+            self.browser.getControl(name='btn.find_collections').click()
+            col_controls = self.browser.getControl(name='collections:list').controls
+            self.assertEqual(col_controls[0].optionValue, '/tc')
+            self.assertTrue('(Owner, Reporter)' in self.browser.contents)
+            col_controls[0].selected = True
 
-        # Go to ReportekUtilities
-        self.browser.goBack(count=6)
+            # Assign new role
+            self.browser.getControl(name='btn.assign').click()
+            self.assertTrue('Operations completed succesfully.' in self.browser.contents)
+            search_term_ctl = self.browser.getControl(name='search_term')
+            search_term_ctl.value = 'test_user_1_'
+            self.browser.getControl(name='btnFind').click()
+            self.browser.getControl(name='username').controls[0].selected = True
+            self.browser.getControl(name='countries:list').controls[0].selected = True
+            self.browser.getControl(name='obligation').controls[1].selected = True
+            r_controls = self.browser.getControl(name='role').controls
+            for r_control in r_controls:
+                if r_control.optionValue == 'Client':
+                    r_control.selected = True
+            self.browser.getControl(name='btn.find_collections').click()
+            self.assertTrue('(Owner, Client, Reporter)' in self.browser.contents)
+
+            # Go to ReportekUtilities
+            self.browser.goBack(count=6)
+
+            # Go to search Search for collection with obligation view
+            self.browser.getLink(text='Create envelopes').click()
+            self.browser.getControl(name='obligation').controls[0].selected = True
+            self.browser.getControl(name='btn.search').click()
+            self.assertTrue('Test Country' in self.browser.contents)
+
+            # Create test empty envelope
+            self.browser.getControl(name='title').value = 'Test envelope'
+            self.browser.getControl(name='year:int').value = '2014'
+            self.browser.getControl(name='btn.create').click()
+            self.assertTrue('Operations completed succesfully.' in
+                            self.browser.contents)
+
+            self.browser.goBack(count=3)
+
+            # Go the Collections allocated to the wrong country view
+            self.browser.getLink(text='Collections allocated to the wrong country').click()
+            self.assertTrue('All the collections in this site have the correct country.' in
+                            self.browser.contents)
+
+            self.browser.goBack(count=1)
+
+            # Go to Envelopes allocated to the wrong country view
+            self.browser.getLink(text='Envelopes allocated to the wrong country').click()
+            self.assertTrue('All the envelopes in this site have the correct country.' in
+                            self.browser.contents)
+
+            self.browser.goBack(count=1)
+
+            # Go to Recent uploads view
+            self.browser.getLink(text='Recent uploads').click()
+
+            # Select our test country
+            c_controls = self.browser.getControl(name='countries:list').controls
+            for c_ctl in c_controls:
+                if c_ctl.optionValue == 'tc':
+                    c_ctl.selected = True
+
+            # Select our test obligation
+            o_controls = self.browser.getControl(name='obligation').controls
+            for o_control in o_controls:
+                if o_control.optionValue == '8':
+                    o_control.selected = True
+
+            min_date = date.today() - timedelta(days=3)
+            mid_date = date.today() - timedelta(days=1)
+            max_date = date.today() + timedelta(days=3)
+
+            # Test without start and end dates
+            self.browser.getControl(name='btn.search').click()
+            self.assertTrue('Test envelope' in self.browser.contents)
+            # Test with end date
+            self.browser.getControl(name='enddate').value = min_date.strftime('%Y-%m-%d')
+            self.browser.getControl(name='btn.search').click()
+            self.assertTrue('No envelopes.' in self.browser.contents)
+            # Test with start date
+            self.browser.getControl(name='startdate').value = min_date.strftime('%Y-%m-%d')
+            self.browser.getControl(name='btn.search').click()
+            self.assertTrue('Test envelope' in self.browser.contents)
+            # Test with start and end dates
+            self.browser.getControl(name='startdate').value = min_date.strftime('%Y-%m-%d')
+            self.browser.getControl(name='enddate').value = max_date.strftime('%Y-%m-%d')
+            self.browser.getControl(name='btn.search').click()
+            self.assertTrue('Test envelope' in self.browser.contents)
+            # Test with start and end dates
+            self.browser.getControl(name='startdate').value = min_date.strftime('%Y-%m-%d')
+            self.browser.getControl(name='enddate').value = mid_date.strftime('%Y-%m-%d')
+            self.browser.getControl(name='btn.search').click()
+            self.assertTrue('No envelopes.' in self.browser.contents)
+            self.browser.goBack(count=6)
+
+            # FIXME test config does not include views.cdr.zcml
+            #if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
+            #    # Go to statistics view
+            #    self.browser.getLink(text='Statistics').click()
+            #    self.assertTrue('<li>Number of envelopes: <span>4</span></li>' in
+            #                    self.browser.contents)
+
+            # Go to evenlopes.autocomplete view
+            self.browser.open(ru_url + '/envelopes.autocomplete')
+
+            # Search our inactive test envelope
+            self.browser.getControl(name='obligation').controls[0].selected = True
+            status = self.browser.getControl(name='status').controls
+            for status_ctl in status:
+                if status_ctl.optionValue == 'Inactive':
+                    status_ctl.selected = True
+
+            self.browser.getControl(name='btn.search').click()
+            self.assertTrue('Test envelope' in self.browser.contents)
+
+            # Move forward our envelope
+            self.browser.getControl(name='btn.autocomplete').click()
+            self.assertTrue('Operations completed succesfully.' in
+                            self.browser.contents)
 
         # Go to revoke roles view
         self.browser.getLink(text='Revoke roles').click()
@@ -693,100 +793,4 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         roles = self.browser.getControl(name='_tc:list').controls
         self.assertEqual(len(roles), 2)
 
-        self.browser.goBack(count=6)
-
-        # Go to search Search for collection with obligation view
-        self.browser.getLink(text='Create envelopes').click()
-        self.browser.getControl(name='obligation').controls[0].selected = True
-        self.browser.getControl(name='btn.search').click()
-        self.assertTrue('Test Country' in self.browser.contents)
-
-        # Create test empty envelope
-        self.browser.getControl(name='title').value = 'Test envelope'
-        self.browser.getControl(name='year:int').value = '2014'
-        self.browser.getControl(name='btn.create').click()
-        self.assertTrue('Operations completed succesfully.' in
-                        self.browser.contents)
-
-        self.browser.goBack(count=3)
-
-        # Go the Collections allocated to the wrong country view
-        self.browser.getLink(text='Collections allocated to the wrong country').click()
-        self.assertTrue('All the collections in this site have the correct country.' in
-                        self.browser.contents)
-
-        self.browser.goBack(count=1)
-
-        # Go to Envelopes allocated to the wrong country view
-        self.browser.getLink(text='Envelopes allocated to the wrong country').click()
-        self.assertTrue('All the envelopes in this site have the correct country.' in
-                        self.browser.contents)
-
-        self.browser.goBack(count=1)
-
-        # Go to Recent uploads view
-        self.browser.getLink(text='Recent uploads').click()
-
-        # Select our test country
-        c_controls = self.browser.getControl(name='countries:list').controls
-        for c_ctl in c_controls:
-            if c_ctl.optionValue == 'tc':
-                c_ctl.selected = True
-
-        # Select our test obligation
-        o_controls = self.browser.getControl(name='obligation').controls
-        for o_control in o_controls:
-            if o_control.optionValue == '8':
-                o_control.selected = True
-
-        min_date = date.today() - timedelta(days=3)
-        mid_date = date.today() - timedelta(days=1)
-        max_date = date.today() + timedelta(days=3)
-
-        # Test without start and end dates
-        self.browser.getControl(name='btn.search').click()
-        self.assertTrue('Test envelope' in self.browser.contents)
-        # Test with end date
-        self.browser.getControl(name='enddate').value = min_date.strftime('%Y-%m-%d')
-        self.browser.getControl(name='btn.search').click()
-        self.assertTrue('No envelopes.' in self.browser.contents)
-        # Test with start date
-        self.browser.getControl(name='startdate').value = min_date.strftime('%Y-%m-%d')
-        self.browser.getControl(name='btn.search').click()
-        self.assertTrue('Test envelope' in self.browser.contents)
-        # Test with start and end dates
-        self.browser.getControl(name='startdate').value = min_date.strftime('%Y-%m-%d')
-        self.browser.getControl(name='enddate').value = max_date.strftime('%Y-%m-%d')
-        self.browser.getControl(name='btn.search').click()
-        self.assertTrue('Test envelope' in self.browser.contents)
-        # Test with start and end dates
-        self.browser.getControl(name='startdate').value = min_date.strftime('%Y-%m-%d')
-        self.browser.getControl(name='enddate').value = mid_date.strftime('%Y-%m-%d')
-        self.browser.getControl(name='btn.search').click()
-        self.assertTrue('No envelopes.' in self.browser.contents)
-        self.browser.goBack(count=6)
-
-        # FIXME test config does not include views.cdr.zcml
-        #if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
-        #    # Go to statistics view
-        #    self.browser.getLink(text='Statistics').click()
-        #    self.assertTrue('<li>Number of envelopes: <span>4</span></li>' in
-        #                    self.browser.contents)
-
-        # Go to evenlopes.autocomplete view
-        self.browser.open(ru_url + '/envelopes.autocomplete')
-
-        # Search our inactive test envelope
-        self.browser.getControl(name='obligation').controls[0].selected = True
-        status = self.browser.getControl(name='status').controls
-        for status_ctl in status:
-            if status_ctl.optionValue == 'Inactive':
-                status_ctl.selected = True
-
-        self.browser.getControl(name='btn.search').click()
-        self.assertTrue('Test envelope' in self.browser.contents)
-
-        # Move forward our envelope
-        self.browser.getControl(name='btn.autocomplete').click()
-        self.assertTrue('Operations completed succesfully.' in
-                        self.browser.contents)
+        # self.browser.goBack(count=6)

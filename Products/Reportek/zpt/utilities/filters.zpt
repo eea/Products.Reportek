@@ -55,7 +55,7 @@
   </tal:block>
 
     <div class="actions">
-      <input type="submit" name="btnFilter" value="Filter" />
+      <input type="submit" name="btnFilter" value="Search" />
       <a onclick="clear_filters()">Clear filters</a>
     </div>
 

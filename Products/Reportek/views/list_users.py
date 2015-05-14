@@ -65,9 +65,10 @@ class ListUsers(BaseAdmin):
 
     def get_ecas_users(self):
         ecas_path = '/'+ENGINE_ID+'/acl_users/'+ECAS_ID
-        ecas = self.context.unrestrictedTraverse(ecas_path)
+        ecas = self.context.unrestrictedTraverse(ecas_path, None)
 
-        return ecas._user2ecas_id.keys()
+        if ecas:
+            return ecas._user2ecas_id.keys()
 
     def get_records(self, REQUEST):
 
@@ -119,22 +120,24 @@ class ListUsers(BaseAdmin):
 
                 ecas_users = self.get_ecas_users()
                 middleware = self.get_middleware()
-                ecas = self.context.unrestrictedTraverse('/acl_users/'+ECAS_ID)
+                ecas_path = '/acl_users/' + ECAS_ID
+                ecas = self.context.unrestrictedTraverse(ecas_path, None)
 
-                for user in ecas_users:
-                    ecas_user_id = ecas.getEcasUserId(user)
+                if ecas:
+                    for user in ecas_users:
+                        ecas_user_id = ecas.getEcasUserId(user)
 
-                    # Normalize path object path
-                    obj_path = brain.getPath()
-                    if obj_path.startswith('/'):
-                        obj_path = obj_path[1:]
+                        # Normalize path object path
+                        obj_path = brain.getPath()
+                        if obj_path.startswith('/'):
+                            obj_path = obj_path[1:]
 
-                    if middleware.authorizedUser(ecas_user_id, obj_path):
-                        users[user] = {
-                            'uid': user,
-                            'type': 'ECAS',
-                            'role': 'ClientFG'
-                        }
+                        if middleware.authorizedUser(ecas_user_id, obj_path):
+                            users[user] = {
+                                'uid': user,
+                                'type': 'ECAS',
+                                'role': 'ClientFG'
+                            }
 
             if not users:
                 continue
