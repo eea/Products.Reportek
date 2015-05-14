@@ -1,3 +1,6 @@
+<tal:block define="global isCdrDeployment python: here.ReportekEngine.getDeploymentType() == 'CDR'"/>
+<tal:block define="global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'"/>
+
 <metal:block use-macro="here/users_template/macros/users-page">
 
   <metal:block fill-slot="tabs">
@@ -14,6 +17,12 @@
       </ul>
     </div>
     <div id="tabbedmenuend"></div>
+  </metal:block>
+
+  <metal:block fill-slot="info-message">
+    <div class="info-message">
+      <span tal:condition="isBdrDeployment" i18n:translate="">Internal user results are hidden</span>
+    </div>
   </metal:block>
 
   <metal:block fill-slot="data-table">

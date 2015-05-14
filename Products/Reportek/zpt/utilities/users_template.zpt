@@ -21,6 +21,7 @@
   <tal:block replace="structure here/filters" />
 
   <metal:block define-slot="tabs" />
+  <metal:block define-slot="info-message" />
   <metal:block define-slot="data-table" />
 
 </metal:block>

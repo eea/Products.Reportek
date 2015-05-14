@@ -80,6 +80,8 @@ class ListUsers(BaseAdmin):
 
         use_role = role
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            # ClientFG role users come from ECAS in BDR, this is why we need
+            # all the collections
             if role == 'ClientFG':
                 use_role = ''
 
@@ -111,6 +113,10 @@ class ListUsers(BaseAdmin):
                                  if brain.local_defined_users)
 
             if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+                # Hide our internal user agent from search results
+                if 'bdr_folder_agent' in users.keys():
+                    del users['bdr_folder_agent']
+
                 ecas_users = self.get_ecas_users()
                 middleware = self.get_middleware()
                 ecas = self.context.unrestrictedTraverse('/acl_users/'+ECAS_ID)
