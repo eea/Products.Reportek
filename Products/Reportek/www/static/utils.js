@@ -173,7 +173,7 @@ function initDataTable() {
     ];
   }
   var dataTable = target.DataTable(dtConfig);
-
+  $(".dataTables_filter input").attr('placeholder', 'Filter by...');
   var dataSources = {
     by_path: '/api.get_users_by_path',
     by_person: '/api.get_users'
