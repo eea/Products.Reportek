@@ -60,8 +60,9 @@ class ListUsers(BaseAdmin):
         return []
 
     def get_middleware(self):
-        engine = self.context.unrestrictedTraverse('/'+ENGINE_ID)
-        return engine.authMiddlewareApi
+        engine = self.context.unrestrictedTraverse('/'+ENGINE_ID, None)
+        if engine:
+            return engine.authMiddlewareApi
 
     def get_ecas_users(self):
         ecas_path = '/'+ENGINE_ID+'/acl_users/'+ECAS_ID

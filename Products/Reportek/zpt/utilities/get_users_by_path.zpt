@@ -1,45 +1,47 @@
 <tal:block define="global deployment python: here.ReportekEngine.getDeploymentType();
                    global isCdrDeployment python: deployment == 'CDR';
-                   global isBdrDeployment python: deployment == 'BDR'"
+                   global isBdrDeployment python: deployment == 'BDR';
+                   global filtered python:request.get('btnFilter')"
                    />
 
 <metal:block use-macro="here/users_template/macros/users-page">
 
-  <metal:block fill-slot="tabs">
-    <div id="tabbedmenu">
-      <ul>
-        <li id="currenttab">
-          <span>Grouped by path</span>
-        </li>
-        <li>
-          <a tal:attributes="href python:view.get_view('get_users')">
-            Grouped by person
-          </a>
-        </li>
-      </ul>
-    </div>
-    <div id="tabbedmenuend"></div>
-  </metal:block>
+    <metal:block fill-slot="tabs">
+      <div id="tabbedmenu" tal:condition="filtered">
+        <ul>
+          <li id="currenttab">
+            <span>Grouped by path</span>
+          </li>
+          <li>
+            <a tal:attributes="href python:view.get_view('get_users')">
+              Grouped by person
+            </a>
+          </li>
+        </ul>
+      </div>
+      <div id="tabbedmenuend"></div>
+    </metal:block>
 
-  <metal:block fill-slot="info-message">
-    <div class="info-message">
-      <span tal:condition="isBdrDeployment" i18n:translate="">Results related only to our internal user are hidden</span>
-    </div>
-  </metal:block>
+    <metal:block fill-slot="info-message">
+      <div class="info-message" tal:condition="filtered">
+        <span tal:condition="isBdrDeployment" i18n:translate="">Results related only to our internal user are hidden</span>
+      </div>
+    </metal:block>
 
-  <metal:block fill-slot="data-table">
-    <table id="datatable" data-table-key="by_path"
-          tal:attributes="class python: 'datatable ' + {'CDR': 'cdr-datatable', 'BDR': 'bdr-datatable'}.get(deployment)">
-      <thead>
-        <tr>
-          <th>Collection</th>
-          <th>Obligations</th>
-          <th>Users</th>
-        </tr>
-      </thead>
-      <tbody>
-      </tbody>
-    </table>
-  </metal:block>
+    <metal:block fill-slot="data-table">
+      <table id="datatable" data-table-key="by_path"
+            tal:condition="filtered"
+            tal:attributes="class python: 'datatable ' + {'CDR': 'cdr-datatable', 'BDR': 'bdr-datatable'}.get(deployment)">
+        <thead>
+          <tr>
+            <th>Collection</th>
+            <th>Obligations</th>
+            <th>Users</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </metal:block>
 
 </metal:block>
