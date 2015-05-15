@@ -211,6 +211,7 @@ $(function () {
   initCompaniesTable();
 
   $("#role, #obligation, #countries").select2({
+    placeholder: "All",
     allowClear: true
   });
 
