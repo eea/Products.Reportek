@@ -1,4 +1,6 @@
 from base_admin import BaseAdmin
+from Products.Reportek.constants import ENGINE_ID, ECAS_ID
+from Products.Reportek.config import *
 
 
 class ManageRoles(BaseAdmin):
@@ -67,20 +69,56 @@ class ManageRoles(BaseAdmin):
                 obj.manage_setLocalRoles(username, list(roles))
             obj.reindex_object()
 
-    def search_ldap_users(self):
-        term = self.request.get('search_term')
-
+    def search_ldap_users(self, term):
         params = [name for name, value in self.get_ldap_schema()]
         acl_users = self.get_acl_users()
 
         users = [acl_users.findUser(search_param=p, search_term=term) for p in params]
         users = reduce(lambda x, y: x + y, users)
-        users = {user['uid']: user for user in users}.values()
+        users = {user.get('uid'): user for user in users}.values()
 
-        response = {'users': users}
+        return users
 
-        if (users and users[0]['sn'] == 'Error'):
+    def search_ecas_users(self, term):
+        ecas = self.context.unrestrictedTraverse('/'+ENGINE_ID+'/acl_users/'+ECAS_ID)
+        ecas_db = getattr(ecas, '_ecas_id', None)
+        users = []
+        if ecas_db:
+            for user in ecas_db.values():
+                if user.username:
+                    if term in user.username:
+                        result = {
+                            'uid': user.username,
+                            'mail': user.email
+                        }
+                        users.append(result)
+                        continue
+                if user.email:
+                    if term in user.email:
+                        username = user.username
+                        if not username:
+                            username = user.email
+                        result = {
+                            'uid': username,
+                            'mail': user.email
+                        }
+                        users.append(result)
+
+        return users
+
+    def search_users(self):
+        term = self.request.get('search_term')
+        response = {}
+        ldap_users = self.search_ldap_users(term)
+        ecas_users = []
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            ecas_users = self.search_ecas_users(term)
+
+        if (ldap_users and ldap_users[0]['sn'] == 'Error'):
             response['errors'] = True
+
+        users = ecas_users + ldap_users
+        response['users'] = users
 
         return response
 

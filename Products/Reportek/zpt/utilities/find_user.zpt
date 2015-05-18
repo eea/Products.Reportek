@@ -13,20 +13,21 @@
 
 
 <tal:block metal:define-macro="users_table"
-            define="result view/search_ldap_users">
+            define="result view/search_users">
 
   <p class="error-msg" tal:condition="result/errors | nothing">
     <strong>LDAP ERROR:</strong>
     Too few characters in search box.
   </p>
 
-
+  
   <tal:block condition="not: result/errors | nothing">
     <h2>2. Select user</h2>
     <table class="datatable" tal:condition="result/users">
       <thead>
         <tr>
           <th></th>
+          <th>Type</th>
           <th>Username</th>
           <th>Name</th>
           <th>Email</th>
@@ -35,19 +36,32 @@
       </thead>
       <tbody>
         <tr tal:repeat="user result/users">
-          <td>
-            <input type="radio" name="username"
-              tal:attributes="value user/uid;
-                              checked python: user['uid'] == request.get('username')"/>
-          </td>
-          <td tal:content="user/uid" />
-          <td tal:define="cn user/cn"
-              tal:content="python:cn.decode('latin1')" />
-          <td>
-            <a tal:attributes="href string:mailto:${user/mail}"
-              tal:content="user/mail" />
-          </td>
-          <td tal:content="user/dn" />
+          <tal:block tal:define="dn user/dn|nothing">
+            <td>
+              <input type="radio" name="username"
+                tal:attributes="value user/uid;
+                                checked python: user.get('uid') == request.get('username')"/>
+            </td>
+            <td>
+              <span tal:condition="dn" tal:omit-tag="">Local/LDAP</span>
+              <span tal:condition="not: dn" tal:omit-tag="">ECAS</span>
+            </td>
+            <td tal:content="user/uid" />
+            <tal:block tal:define="cn user/cn|nothing">
+              <td>
+                <span tal:condition="cn"
+                  tal:content="python:cn.decode('latin1')"
+                  tal:omit-tag=""/>
+              </td>
+            </tal:block>
+            <td>
+              <a tal:attributes="href string:mailto:${user/mail}"
+                tal:content="user/mail" />
+            </td>
+            <td>
+              <span tal:content="dn" tal:omit-tag="" />
+            </td>
+          </tal:block>
         </tr>
       </tbody>
     </table>
