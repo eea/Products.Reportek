@@ -209,11 +209,21 @@ function manage_role_cb(col_cb) {
 $(function () {
   initEnvelopesTable();
   initCompaniesTable();
+  var placeholder = '';
+  var selects_ids = ["#role", "#obligation", "#countries"];
 
-  $("#role, #obligation, #countries").select2({
-    placeholder: "All",
-    allowClear: true
-  });
+  for (var i=0; i<=selects_ids.length; i++) {
+    var select = $(selects_ids[i]);
+    if (select.length > 0) {
+      if (select.hasClass('placeholder-enabled')) {
+        placeholder = 'All';
+      }
+      select.select2({
+        placeholder: placeholder,
+        allowClear: true
+      });
+    }
+  }
 
   if ($("#datatable").length !== 0)
     initDataTable();

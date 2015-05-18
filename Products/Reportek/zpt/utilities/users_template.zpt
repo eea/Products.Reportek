@@ -17,9 +17,9 @@
 <metal:block fill-slot="content">
 
   <h1>Get users local roles</h1>
-
-  <tal:block replace="structure here/filters" />
-
+  <tal:block tal:define="placeholder python: True">
+    <metal:block use-macro="here/filters/macros/users-form"/>
+  </tal:block>
   <metal:block define-slot="tabs" />
   <metal:block define-slot="info-message" />
   <metal:block define-slot="data-table" />
