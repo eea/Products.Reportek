@@ -36,7 +36,8 @@
       </thead>
       <tbody>
         <tr tal:repeat="user result/users">
-          <tal:block tal:define="dn user/dn|nothing">
+          <tal:block tal:define="dn user/dn|nothing;
+                                 mail user/mail|nothing">
             <td>
               <input type="radio" name="username"
                 tal:attributes="value user/uid;
@@ -55,8 +56,8 @@
               </td>
             </tal:block>
             <td>
-              <a tal:attributes="href string:mailto:${user/mail}"
-                tal:content="user/mail" />
+              <a tal:condition="mail" tal:attributes="href string:mailto:${mail}"
+                tal:content="mail" />
             </td>
             <td>
               <span tal:content="dn" tal:omit-tag="" />

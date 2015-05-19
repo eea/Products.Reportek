@@ -114,8 +114,11 @@ class ManageRoles(BaseAdmin):
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             ecas_users = self.search_ecas_users(term)
 
-        if (ldap_users and ldap_users[0]['sn'] == 'Error'):
-            response['errors'] = True
+        if ldap_users:
+            err_users = [user for user in ldap_users
+                         if user.get('sn') == 'Error']
+            if err_users:
+                response['errors'] = True
 
         users = ecas_users + ldap_users
         response['users'] = users
