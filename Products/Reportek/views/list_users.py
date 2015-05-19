@@ -64,20 +64,28 @@ class ListUsers(BaseAdmin):
         if engine:
             return engine.authMiddlewareApi
 
-    def get_ecas_users(self):
-        ecas_path = '/'+ENGINE_ID+'/acl_users/'+ECAS_ID
-        ecas = self.context.unrestrictedTraverse(ecas_path, None)
+    def get_user_type(self, username):
+        acl_users = self.context.acl_users
+        if (hasattr(acl_users, 'ldapmultiplugin')):
+            acl_users = acl_users.ldapmultiplugin.acl_users
+            user_ob = acl_users.getUserById(username)
+            if user_ob:
+                return 'LDAP'
 
-        if ecas:
-            return ecas._user2ecas_id.keys()
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            ecas_path = '/acl_users/' + ECAS_ID
+            ecas = self.context.unrestrictedTraverse(ecas_path, None)
+            if ecas:
+                if ecas.getEcasUserId(username):
+                    return 'ECAS'
+
+        return 'LOCAL'
 
     def get_records(self, REQUEST):
 
         obligation = REQUEST.get('obligation', '')
         countries = REQUEST.get('countries[]', [])
         role = REQUEST.get('role', '')
-
-        users = {}
 
         if not isinstance(countries, list):
             countries = [countries]
@@ -92,6 +100,7 @@ class ListUsers(BaseAdmin):
         brains = self.search_catalog(obligation, countries, use_role)
 
         for brain in brains:
+            users = {}
             obligations = []
             for uri in list(brain.dataflow_uris):
                 try:
@@ -103,7 +112,7 @@ class ListUsers(BaseAdmin):
             if role:
                 users = dict((user, {'uid': user,
                                      'role': role,
-                                     'type': 'Local/LDAP'
+                                     'type': self.get_user_type(user)
                                      }) for user, roles
                              in brain.local_defined_roles.iteritems()
                              if role in roles)
@@ -111,24 +120,22 @@ class ListUsers(BaseAdmin):
                 if brain.local_defined_users:
                     users = dict((user, {'uid': user,
                                          'role': brain.local_defined_roles.get(user),
-                                         'type': 'Local/LDAP'
+                                         'type': self.get_user_type(user)
                                          })
                                  for user in brain.local_defined_users
                                  if brain.local_defined_users)
-
             if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
                 # Hide our internal user agent from search results
                 if 'bdr_folder_agent' in users.keys():
                     del users['bdr_folder_agent']
 
-                ecas_users = self.get_ecas_users()
                 middleware = self.get_middleware()
                 ecas_path = '/acl_users/' + ECAS_ID
                 ecas = self.context.unrestrictedTraverse(ecas_path, None)
 
                 if ecas:
-                    for user in ecas_users:
-                        ecas_user_id = ecas.getEcasUserId(user)
+                    ecas_users = getattr(ecas, '_ecas_id', {})
+                    for ecas_user_id, user in ecas_users.iteritems():
 
                         # Normalize path object path
                         obj_path = brain.getPath()
@@ -136,8 +143,13 @@ class ListUsers(BaseAdmin):
                             obj_path = obj_path[1:]
 
                         if middleware.authorizedUser(ecas_user_id, obj_path):
-                            users[user] = {
-                                'uid': user,
+                            username = getattr(user, 'username', None)
+                            if username:
+                                uid = username
+                            else:
+                                uid = getattr(user, 'email', None)
+                            users[uid] = {
+                                'uid': uid,
                                 'type': 'ECAS',
                                 'role': 'ClientFG'
                             }
