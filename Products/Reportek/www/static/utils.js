@@ -19,7 +19,7 @@ function generateRow(row, tableKey) {
 }
 
 function renderUsersLI(user) {
-  return renderAsLink(getUserUrl(user.uid), user.uid) + renderAsUL(['Type: ' + user.type, 'Role: ' + user.role]);
+  return '<span class="user-id">' + user.uid + '</span>' + renderAsUL(['Type: ' + user.type, 'Role: ' + user.role]);
 }
 
 function initEnvelopesTable() {

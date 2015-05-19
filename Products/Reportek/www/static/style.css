@@ -14,6 +14,10 @@
   border-collapse: collapse;
 }
 
+.datatable .user-id {
+  font-weight: bold;
+}
+
 .dataTable a {
     text-decoration: none!important;
 }
