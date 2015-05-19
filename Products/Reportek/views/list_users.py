@@ -77,6 +77,8 @@ class ListUsers(BaseAdmin):
         countries = REQUEST.get('countries[]', [])
         role = REQUEST.get('role', '')
 
+        users = {}
+
         if not isinstance(countries, list):
             countries = [countries]
 
