@@ -14,7 +14,7 @@
     <tal:block content="structure here/breadcrumbs_views"></tal:block>
   </metal:block>
 <metal:block fill-slot="content">
-
+  <metal:block use-macro="here/util_controls/macros/utilities-controls" />
   <p class="important-msg" tal:condition="request/done | nothing">
     Operations completed succesfully.
   </p>

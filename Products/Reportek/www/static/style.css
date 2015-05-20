@@ -420,3 +420,7 @@ hr {
 .match {
     background-color: #954549
 }
+
+.utilities-controls {
+  text-align: right;
+}

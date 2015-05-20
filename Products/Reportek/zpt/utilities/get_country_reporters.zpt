@@ -12,7 +12,7 @@
     <tal:block content="structure here/breadcrumbs_views"></tal:block>
   </metal:block>
 <metal:block fill-slot="content">
-
+  <metal:block use-macro="here/util_controls/macros/utilities-controls" />
   <h1>Reporters by country</h1>
   <p class="info">
     This page lists the users that have the local role of

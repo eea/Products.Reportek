@@ -15,7 +15,7 @@
     <tal:block content="structure here/breadcrumbs_views"></tal:block>
   </metal:block>
 <metal:block fill-slot="content">
-
+  <metal:block use-macro="here/util_controls/macros/utilities-controls" />
   <form action="" method="get">
     <div class="filters">
       <h1>Recent uploads</h1>

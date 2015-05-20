@@ -11,6 +11,12 @@
     template="zpt/utilities/index.zpt"/>
 
   <browser:page
+    name="util_controls"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    template="zpt/utilities/util_controls.zpt"/>
+
+  <browser:page
     name="users_template"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
