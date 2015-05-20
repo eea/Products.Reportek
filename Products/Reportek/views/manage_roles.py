@@ -80,7 +80,8 @@ class ManageRoles(BaseAdmin):
         return users
 
     def search_ecas_users(self, term):
-        ecas = self.context.unrestrictedTraverse('/'+ENGINE_ID+'/acl_users/'+ECAS_ID)
+        ecas_path = '/' + ENGINE_ID + '/acl_users/' + ECAS_ID
+        ecas = self.context.unrestrictedTraverse(ecas_path, None)
         ecas_db = getattr(ecas, '_ecas_id', None)
         users = []
         if ecas_db:
