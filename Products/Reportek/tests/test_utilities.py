@@ -544,6 +544,9 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             self.assertTrue('Successfully created collection for' in self.browser.contents)
             self.assertTrue('Other Country' in self.browser.contents)
 
+    def _check_controls(self, contents):
+        self.assertTrue('Back to utilities' in contents)
+
     def test_reportek_utilities(self):
         # Go to ReportekUtilities index_html view
         r_utilities = getattr(self.app, constants.REPORTEK_UTILITIES)
@@ -555,6 +558,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         # Go to users that have access
         users_access_link = self.browser.getLink(id='user-roles')
         users_access_link.click()
+        self._check_controls(self.browser.contents)
         self.assertTrue('Yearly report to the Fictive Convention' in
                         self.browser.contents)
 
@@ -572,6 +576,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
 
         # Filter
         self.browser.getControl(name='btnFilter').click()
+        self._check_controls(self.browser.contents)
         expected_url = (ru_url + '/get_users_by_path?'
                         'obligation=8&role=&countries%3Alist=tc&'
                         'btnFilter=Search')
@@ -595,12 +600,15 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         if REPORTEK_DEPLOYMENT != DEPLOYMENT_BDR:
             # Click on the list country reporters
             self.browser.getLink(text='List country reporters').click()
+            self._check_controls(self.browser.contents)
             self.browser.getControl(label='Show reporters').click()
+            self._check_controls(self.browser.contents)
             # test_user_1_ should come up in the reporters list
             self.assertTrue('test_user_1_@test.com' in self.browser.contents)
 
             self.browser.goBack(count=2)
             self.browser.getLink(text='Assign roles by obligation').click()
+            self._check_controls(self.browser.contents)
             self.assertEqual(ru_url + '/assign_role', self.browser.url)
             search_term_ctl = self.browser.getControl(name='search_term')
             search_term_ctl.value = 'test_user_1_'
@@ -639,6 +647,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
 
             # Assign new role
             self.browser.getControl(name='btn.assign').click()
+            self._check_controls(self.browser.contents)
             self.assertTrue('Operations completed succesfully.' in self.browser.contents)
             search_term_ctl = self.browser.getControl(name='search_term')
             search_term_ctl.value = 'test_user_1_'
@@ -658,6 +667,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
 
             # Go to search Search for collection with obligation view
             self.browser.getLink(text='Create envelopes').click()
+            self._check_controls(self.browser.contents)
             self.browser.getControl(name='obligation').controls[0].selected = True
             self.browser.getControl(name='btn.search').click()
             self.assertTrue('Test Country' in self.browser.contents)
@@ -666,6 +676,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             self.browser.getControl(name='title').value = 'Test envelope'
             self.browser.getControl(name='year:int').value = '2014'
             self.browser.getControl(name='btn.create').click()
+            self._check_controls(self.browser.contents)
             self.assertTrue('Operations completed succesfully.' in
                             self.browser.contents)
 
@@ -673,6 +684,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
 
             # Go the Collections allocated to the wrong country view
             self.browser.getLink(text='Collections allocated to the wrong country').click()
+            self._check_controls(self.browser.contents)
             self.assertTrue('All the collections in this site have the correct country.' in
                             self.browser.contents)
 
@@ -687,6 +699,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
 
             # Go to Recent uploads view
             self.browser.getLink(text='Recent uploads').click()
+            self._check_controls(self.browser.contents)
 
             # Select our test country
             c_controls = self.browser.getControl(name='countries:list').controls
@@ -736,6 +749,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
 
             # Go to evenlopes.autocomplete view
             self.browser.open(ru_url + '/envelopes.autocomplete')
+            self._check_controls(self.browser.contents)
 
             # Search our inactive test envelope
             self.browser.getControl(name='obligation').controls[0].selected = True
@@ -756,6 +770,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
 
         # Go to revoke roles view
         self.browser.getLink(text='Revoke roles').click()
+        self._check_controls(self.browser.contents)
         self.assertEqual(ru_url + '/revoke_roles',
                          self.browser.url)
 
@@ -781,6 +796,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
                 r_ctl.selected = True
 
         self.browser.getControl(name='btn.revoke').click()
+        self._check_controls(self.browser.contents)
         self.assertTrue('Operations completed succesfully.' in
                         self.browser.contents)
 
