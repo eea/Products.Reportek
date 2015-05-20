@@ -752,6 +752,8 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             self.assertTrue('Operations completed succesfully.' in
                             self.browser.contents)
 
+            self.browser.goBack(count=3)
+
         # Go to revoke roles view
         self.browser.getLink(text='Revoke roles').click()
         self.assertEqual(ru_url + '/revoke_roles',
