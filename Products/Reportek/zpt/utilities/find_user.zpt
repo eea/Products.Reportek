@@ -35,19 +35,22 @@
       </thead>
       <tbody>
         <tr tal:repeat="user result/users">
-          <td>
-            <input type="radio" name="username"
-              tal:attributes="value user/uid;
-                              checked python: user['uid'] == request.get('username')"/>
-          </td>
-          <td tal:content="user/uid" />
-          <td tal:define="cn user/cn"
-              tal:content="python:cn.decode('latin1')" />
-          <td>
-            <a tal:attributes="href string:mailto:${user/mail}"
-              tal:content="user/mail" />
-          </td>
-          <td tal:content="user/dn" />
+          <tal:block tal:define="dn user/dn|nothing;
+                                 mail user/mail|nothing">
+            <td>
+              <input type="radio" name="username"
+                tal:attributes="value user/uid;
+                                checked python: user['uid'] == request.get('username')"/>
+            </td>
+            <td tal:content="user/uid" />
+            <td tal:define="cn user/cn"
+                tal:content="python:cn.decode('latin1')" />
+            <td>
+              <a tal:condition="mail" tal:attributes="href string:mailto:${mail}"
+                tal:content="mail" />
+            </td>
+            <td tal:content="dn" />
+          </tal:block>            
         </tr>
       </tbody>
     </table>
