@@ -75,6 +75,9 @@ class MockedLDAPUser(SimpleItem):
     def __getitem__(self, name):
         return getattr(self, name, None)
 
+    def getProperty(self, prop, default=''):
+        return getattr(self, prop, default)
+
     @property
     def cn(self):
         return self._cn
