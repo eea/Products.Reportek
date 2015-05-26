@@ -43,8 +43,11 @@
                                 checked python: user['uid'] == request.get('username')"/>
             </td>
             <td tal:content="user/uid" />
-            <td tal:define="cn user/cn"
-                tal:content="python:cn.decode('latin1')" />
+            <td tal:define="cn user/cn|nothing">
+              <span tal:condition="cn"
+                    tal:content="python:cn.decode('latin1')"
+                    tal:omit-tag="" />
+            </td>
             <td>
               <a tal:condition="mail" tal:attributes="href string:mailto:${mail}"
                 tal:content="mail" />

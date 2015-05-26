@@ -49,8 +49,9 @@ class ListUsers(BaseAdmin):
                         if user_ob:
                             user_info = {
                                 'uid': user,
-                                'name': unicode(user_ob.cn, 'latin-1'),
-                                'email': user_ob.mail}
+                                'name': unicode(user_ob.getProperty('cn'),
+                                                'latin-1'),
+                                'email': user_ob.getProperty('mail')}
                             users.append(user_info)
 
             users.sort(key=itemgetter('name'))
