@@ -205,23 +205,35 @@ function clear_filters() {
    $("#role").select2("val", "");
 }
 
-function toggleSelectCountries(eu) {
+function toggleSelectCountries(ckey) {
   /* action can be select or deselect */
-  var eu_keys = {'eu25': ['AT', 'BE', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES',
-                          'FI', 'FR', 'GB', 'GR', 'HU', 'IE', 'IT', 'LT',
-                          'LU', 'LV', 'MT', 'NL', 'PL', 'PT', 'SE', 'SI',
-                          'SK'],
-                 'eu27': ['AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES',
-                          'FI','FR','GB','GR','HR', 'HU', 'IE', 'IT', 'LT',
-                          'LU','LV','MT','NL', 'PL', 'PT', 'RO', 'SE', 'SI',
-                          'SK'],
-                 'eu31': ['AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES',
-                          'FI', 'FR', 'GB', 'GR', 'HU', 'IE', 'IS', 'IT', 'LI',
-                          'LT', 'LU', 'LV', 'MT', 'NO','NL', 'PL', 'PT', 'RO',
-                          'SE', 'SI', 'SK', 'TR']};
+  var country_options = $("#countries").find('option');
+  var c_len = country_options.length;
+  var all_countries = [];
 
+  for (var i=0; i<c_len; i++) {
+    country_iso = $(country_options[i]).attr("value");
+    all_countries.push(country_iso);
+  }
 
-  $("#s2id_countries").select2("val", eu_keys[eu]);
+  var countries_keys = {'eu28': ['AT', 'BE', 'BG', 'HR', 'CY', 'CZ', 'DE',
+                                 'DK', 'EE', 'ES', 'FI', 'FR', 'GB', 'GR',
+                                 'HR', 'HU', 'IE', 'IT', 'LT', 'LU', 'LV',
+                                 'MT', 'NL', 'PL', 'PT', 'RO', 'SE', 'SI',
+                                 'SK'],
+                        'eea33': ['AT', 'BE', 'BG', 'CH', 'CY', 'CZ', 'DE',
+                                  'DK', 'EE', 'ES', 'FI', 'FR', 'GB', 'GR',
+                                  'HR', 'HR', 'HU', 'IE', 'IS', 'IT', 'LI',
+                                  'LT', 'LU', 'LV', 'MT', 'NL', 'NO', 'PL',
+                                  'PT', 'RO', 'SE', 'SI', 'SK', 'TR'],
+                        'eionet39': ['AL', 'AT', 'BA', 'BE', 'BG', 'CH', 'CY',
+                                     'CZ', 'DE', 'DK', 'EE', 'ES', 'FI', 'FR',
+                                     'GB', 'GR', 'HR', 'HR', 'HU', 'IE', 'IS',
+                                     'IT', 'LI', 'LT', 'LU', 'LV', 'ME', 'MK',
+                                     'MT', 'NL', 'NO', 'PL', 'PT', 'RO', 'RS',
+                                     'SE', 'SI', 'SK', 'TR', 'XK'],
+                        'all': all_countries};
+  $("#s2id_countries").select2("val", countries_keys[ckey]);
 }
 
 function renderAsLink(href, display, title) {

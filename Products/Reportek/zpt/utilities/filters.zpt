@@ -47,9 +47,10 @@
         </option>
       </select>
     <div class="filters-eu">
-      <a onclick="toggleSelectCountries(this.id);" id="eu25">EU25</a>
-      <a onclick="toggleSelectCountries(this.id);" id="eu27">EU27</a>
-      <a onclick="toggleSelectCountries(this.id);" id="eu31">EU31</a>
+      <a onclick="toggleSelectCountries(this.id);" id="all">All</a>
+      <a onclick="toggleSelectCountries(this.id);" id="eu28">EU28</a>
+      <a onclick="toggleSelectCountries(this.id);" id="eea33">EEA33</a>
+      <a onclick="toggleSelectCountries(this.id);" id="eionet39">Eionet39</a>
     </div>
     </div>
   </tal:block>
