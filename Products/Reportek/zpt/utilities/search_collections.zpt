@@ -34,55 +34,56 @@
   </form>
 
   <form action="" method="post"
-        tal:condition="request/btn.search | nothing"
-        tal:define="collections view/get_collections">
+        tal:condition="request/btn.search | nothing">
+    
+    <tal:def tal:define="collections view/get_collections">
+      <h2>2. Create envelopes</h2>
 
-    <h2>2. Create envelopes</h2>
+      <div>
+        <p>You can use this form to create empty envelopes for collections below.</p>
 
-    <div>
-      <p>You can use this form to create empty envelopes for collections below.</p>
+        <label for="title">Title of envelope</label>
+        <input type="text" name="title" id="title" />
 
-      <label for="title">Title of envelope</label>
-      <input type="text" name="title" id="title" />
+          <label for="year">Start year</label>
+          <input type="text" name="year:int" id="year" />
 
-        <label for="year">Start year</label>
-        <input type="text" name="year:int" id="year" />
+          <input type="submit" name="btn.create" value="Create envelopes" />
+      </div>
 
-        <input type="submit" name="btn.create" value="Create envelopes" />
-    </div>
+      <table class="dataTable" tal:condition="collections">
+        <thead>
+          <tr>
+            <th>
+              <input id="toggleAllCB" type="checkbox" checked="checked" />
+            </th>
+            <th>Country</th>
+            <th>Collection path</th>
+            <th>Collection title</th>
+          </tr>
+        </thead>
 
-    <table class="dataTable" tal:condition="collections">
-      <thead>
-        <tr>
-          <th>
-            <input id="toggleAllCB" type="checkbox" checked="checked" />
-          </th>
-          <th>Country</th>
-          <th>Collection path</th>
-          <th>Collection title</th>
-        </tr>
-      </thead>
+        <tbody>
+          <tr tal:repeat="coll collections">
+            <td>
+              <input type="checkbox" name="collections:list"
+                     checked="checked" class="toggledCB"
+                     tal:attributes="value coll/path" />
+            </td>
+            <td tal:content="coll/country" />
+            <td>
+              <a tal:attributes="href coll/path"
+                 tal:content="coll/path" />
+            </td>
+            <td tal:content="coll/title" />
+          </tr>
+        </tbody>
+      </table>
 
-      <tbody>
-        <tr tal:repeat="coll collections">
-          <td>
-            <input type="checkbox" name="collections:list"
-                   checked="checked" class="toggledCB"
-                   tal:attributes="value coll/path" />
-          </td>
-          <td tal:content="coll/country" />
-          <td>
-            <a tal:attributes="href coll/path"
-               tal:content="coll/path" />
-          </td>
-          <td tal:content="coll/title" />
-        </tr>
-      </tbody>
-    </table>
-
-    <strong tal:condition="not: collections">
-      No collections found
-    </strong>
+      <strong tal:condition="not: collections">
+        No collections found
+      </strong>
+    </tal:def>
   </form>
 
 </metal:block>
