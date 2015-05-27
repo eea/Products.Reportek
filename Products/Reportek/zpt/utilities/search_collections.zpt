@@ -37,7 +37,7 @@
         tal:condition="request/btn.search | nothing"
         tal:define="collections view/get_collections">
 
-    <h2>1. Create envelopes</h2>
+    <h2>2. Create envelopes</h2>
 
     <div>
       <p>You can use this form to create empty envelopes for collections below.</p>
