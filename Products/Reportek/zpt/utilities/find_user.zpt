@@ -16,8 +16,8 @@
             define="result view/search_ldap_users">
 
   <p class="error-msg" tal:condition="result/errors | nothing">
-    <strong>LDAP ERROR:</strong>
-    Too few characters in search box.
+    <strong>ERROR:</strong>
+    <span tal:content="result/errors"/>
   </p>
 
 
