@@ -40,22 +40,26 @@ class ListUsers(BaseAdmin):
                 'local_unique_roles': role,
                 'path': '/{0}'.format(country)}
 
-            users = []
+            users = {}
             brains = self.context.Catalog(query)
             for brain in brains:
                 for user, roles in brain.local_defined_roles.items():
                     if role in roles:
                         user_ob = acl_users.getUserById(user)
                         if user_ob:
-                            user_info = {
-                                'uid': user,
-                                'name': unicode(user_ob.getProperty('cn'),
-                                                'latin-1'),
-                                'email': user_ob.getProperty('mail')}
-                            users.append(user_info)
-
-            users.sort(key=itemgetter('name'))
-            return sorted(users)
+                            if users.get(user):
+                                users[user].get('paths', []).append(brain.getURL())
+                            else:
+                                user_info = {
+                                    'uid': user,
+                                    'name': unicode(user_ob.getProperty('cn'),
+                                                    'latin-1'),
+                                    'email': user_ob.getProperty('mail'),
+                                    'paths': [brain.getURL()]}
+                                users[user] = user_info
+            user_list = users.values()
+            user_list.sort(key=itemgetter('name'))
+            return sorted(user_list)
         return []
 
 

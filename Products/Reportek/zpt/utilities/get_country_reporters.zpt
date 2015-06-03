@@ -40,6 +40,7 @@
         <th>User</th>
         <th>Name</th>
         <th>Email</th>
+        <th>Path</th>
       </tr>
     </thead>
     <tbody>
@@ -50,6 +51,14 @@
           <a tal:condition="reporter/email"
              tal:attributes="href string:mailto:${reporter/email}"
              tal:content="reporter/email" />
+        </td>
+        <td>
+          <ul tal:condition="reporter/paths">
+            <li tal:repeat="path reporter/paths">
+              <a tal:attributes="href string:${path}"
+               tal:content="path" />
+             </li>
+          </ul>
         </td>
       </tr>
     </tbody>
