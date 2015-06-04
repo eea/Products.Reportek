@@ -48,7 +48,9 @@ class ListUsers(BaseAdmin):
                         user_ob = acl_users.getUserById(user)
                         if user_ob:
                             if users.get(user):
-                                users[user].get('paths', []).append(brain.getURL())
+                                paths = users[user].get('paths', [])
+                                paths.append(brain.getURL())
+                                paths.sort()
                             else:
                                 user_info = {
                                     'uid': user,
@@ -58,8 +60,10 @@ class ListUsers(BaseAdmin):
                                     'paths': [brain.getURL()]}
                                 users[user] = user_info
             user_list = users.values()
-            user_list.sort(key=itemgetter('name'))
-            return sorted(user_list)
+
+            user_list.sort(key=itemgetter('uid'))
+            return user_list
+
         return []
 
 
