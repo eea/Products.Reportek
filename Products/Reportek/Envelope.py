@@ -250,6 +250,13 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         """ Used to retrieve the envelope object from the workitem """
         return self
 
+    security.declarePublic('getActorDraft')
+    def getActorDraft():
+        """ Used to retrieve draft Actor """
+        latestDraftWokitem = [wi for wi in context.getListOfWorkitems()
+                              if wi.activity_id == 'Draft'][-1]
+        return getattr(latestDraftWokitem, 'actor', '')
+
     security.declarePublic('getEnvelopeOwner')
     def getEnvelopeOwner(self):
         """ """
