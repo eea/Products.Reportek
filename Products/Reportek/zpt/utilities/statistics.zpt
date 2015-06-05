@@ -13,7 +13,7 @@
         <li>Number of referrals: <span tal:content="total/referrals"></span></li>
     </ul>
 
-    <iframe width='900' height='700' frameBorder="0" src='http://daviz.eionet.europa.eu/visualisations/reportnet-deliveries-per-year-in-totals/embed-chart?chart=chart_1&chartWidth=800&chartHeight=600&customStyle=.googlechart_view{margin-left:0px%3B}'></iframe>
+    <iframe width='900' height='700' frameBorder="0" src='http://www.eea.europa.eu/data-and-maps/daviz/reportnet-deliveries-per-year-in-totals-1/embed-chart?chart=chart_1&chartWidth=800&chartHeight=600&customStyle=.googlechart_view{margin-left:0px%3B}'></iframe>
 
     <h2>Total deliveries per country per year</h2>
 
