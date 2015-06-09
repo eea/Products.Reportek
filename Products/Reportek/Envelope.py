@@ -250,6 +250,26 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         """ Used to retrieve the envelope object from the workitem """
         return self
 
+    security.declarePublic('getActorDraft')
+    def getActorDraft(self):
+        """ Used to retrieve draft Actor """
+        latestDraftWokitem = [wi for wi in self.getListOfWorkitems()
+                              if wi.activity_id == 'Draft'][-1]
+
+        return latestDraftWokitem.actor
+
+    security.declareProtected('View', 'getObligations')
+    def getObligations(self):
+        lookup = self.ReportekEngine.dataflow_lookup
+        return [(lookup(obl)['TITLE'], obl) for obl in self.dataflow_uris]
+
+    security.declareProtected('View', 'getSubmittedDocs')
+    def getSubmittedDocs(self):
+        documents_list = self.objectValues(['Report Document',
+                                            'Report Hyperlink'])
+        documents_list.sort(key=lambda ob: ob.getId().lower())
+        return documents_list
+
     security.declarePublic('getEnvelopeOwner')
     def getEnvelopeOwner(self):
         """ """
