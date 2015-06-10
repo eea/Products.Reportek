@@ -253,10 +253,10 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     security.declarePublic('getActorDraft')
     def getActorDraft(self):
         """ Used to retrieve draft Actor """
-        latestDraftWokitem = [wi for wi in self.getListOfWorkitems()
+        latestDraftWorkitem = [wi for wi in self.getListOfWorkitems()
                               if wi.activity_id == 'Draft'][-1]
 
-        return latestDraftWokitem.actor
+        return latestDraftWorkitem.actor
 
     security.declareProtected('View', 'getObligations')
     def getObligations(self):
