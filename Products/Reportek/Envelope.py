@@ -254,7 +254,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     def getActorDraft(self):
         """ Used to retrieve draft Actor """
         latestDraftWorkitem = [wi for wi in self.getListOfWorkitems()
-                              if wi.activity_id == 'Draft'][-1]
+                               if wi.activity_id == 'Draft'][-1]
 
         return latestDraftWorkitem.actor
 
