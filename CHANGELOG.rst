@@ -1,5 +1,11 @@
-3.8.5-dev (10-04-2015)
+3.8.5-dev (unreleased)
 ----------------------
+* Bug fix #25904
+   - Added overrides for manage_setLocalRoles, manage_delLocalRoles and
+     manage_addLocalRoles in order to reindex the collection after changes
+     are made [olimpiurob]
+   - Removed 'local_defined_roles' FieldIndex and add it as metadata column
+     [olimpiurob]
 * Task #24661 - Added company id to search results table [vitaliemaldur]
 
 3.8.4 (09-04-2015)
