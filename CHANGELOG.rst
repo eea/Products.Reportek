@@ -1,5 +1,6 @@
 3.8.5-dev (unreleased)
 ----------------------
+* Task #24882 - Moved logic from ReceiptConfirmation scripts to Envelope class [olimpiurob]
 * Bug fix #25904
    - Reindex object for manage_setLocalRoles, manage_delLocalRoles
      and manage_addLocalRoles only when we have a Request object. This is to
