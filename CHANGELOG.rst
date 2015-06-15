@@ -1,6 +1,7 @@
 3.8.5-dev (unreleased)
 ----------------------
 * Bug fix #25904
+   - Added migration script for local_defined_roles metadata [olimpiurob]
    - Added overrides for manage_setLocalRoles, manage_delLocalRoles and
      manage_addLocalRoles in order to reindex the collection after changes
      are made [olimpiurob]
