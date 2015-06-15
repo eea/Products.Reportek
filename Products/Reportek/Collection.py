@@ -485,9 +485,9 @@ class Collection(CatalogAware, Folder, Toolz):
     @requestmethod('POST')
     def manage_addLocalRoles(self, userid, roles, REQUEST=None):
         super(Collection, self).manage_addLocalRoles(userid, roles)
-        if hasattr(self, 'reindex_object'):
-            self.reindex_object()
         if REQUEST is not None:
+            if hasattr(self, 'reindex_object'):
+                self.reindex_object()
             stat='Your changes have been saved.'
             return self.manage_listLocalRoles(self, REQUEST, stat=stat)
 
@@ -495,9 +495,9 @@ class Collection(CatalogAware, Folder, Toolz):
     @requestmethod('POST')
     def manage_setLocalRoles(self, userid, roles, REQUEST=None):
         super(Collection, self).manage_setLocalRoles(userid, roles)
-        if hasattr(self, 'reindex_object'):
-            self.reindex_object()
         if REQUEST is not None:
+            if hasattr(self, 'reindex_object'):
+                self.reindex_object()
             stat='Your changes have been saved.'
             return self.manage_listLocalRoles(self, REQUEST, stat=stat)
 
@@ -505,9 +505,9 @@ class Collection(CatalogAware, Folder, Toolz):
     def manage_delLocalRoles(self, userids, REQUEST=None):
         """Remove all local roles for a user."""
         super(Collection, self).manage_delLocalRoles(userids)
-        if hasattr(self, 'reindex_object'):
-            self.reindex_object()
         if REQUEST is not None:
+            if hasattr(self, 'reindex_object'):
+                self.reindex_object()
             stat='Your changes have been saved.'
             return self.manage_listLocalRoles(self, REQUEST, stat=stat)
 
