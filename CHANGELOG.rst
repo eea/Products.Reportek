@@ -1,6 +1,10 @@
 3.8.5-dev (unreleased)
 ----------------------
 * Bug fix #25904
+   - Reindex object for manage_setLocalRoles, manage_delLocalRoles
+     and manage_addLocalRoles only when we have a Request object. This is to
+     avoid uncatalog errors when adding a new collection because
+     manage_setLocalRoles is called before manage_afterAdd [olimpiurob]
    - Added migration script for local_defined_roles metadata [olimpiurob]
    - Added overrides for manage_setLocalRoles, manage_delLocalRoles and
      manage_addLocalRoles in order to reindex the collection after changes
