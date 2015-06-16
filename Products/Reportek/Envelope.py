@@ -253,10 +253,12 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     security.declarePublic('getActorDraft')
     def getActorDraft(self):
         """ Used to retrieve draft Actor """
-        latestDraftWorkitem = [wi for wi in self.getListOfWorkitems()
-                               if wi.activity_id == 'Draft'][-1]
+        draft_workitems = [wi for wi in self.getListOfWorkitems()
+                           if wi.activity_id == 'Draft']
+        if draft_workitems:
+            latestDraftWorkitem = draft_workitems[-1]
 
-        return latestDraftWorkitem.actor
+            return latestDraftWorkitem.actor
 
     security.declareProtected('View', 'getObligations')
     def getObligations(self):
@@ -1096,6 +1098,9 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
         objsByType = self._getObjectsForContentRegistry()
         res = []
+        creator = self.getActorDraft()
+        if not creator:
+            creator = self.customer
 
         res.append('<?xml version="1.0" encoding="utf-8"?>')
         res.append('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"')
@@ -1107,7 +1112,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         res.append('<Delivery rdf:about="%s">' % RepUtils.xmlEncode(self.absolute_url()))
         res.append('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(self.title_or_id()))
         res.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(self.title_or_id()))
-        res.append('<dct:creator>%s</dct:creator>' %RepUtils.xmlEncode(self.customer))
+        res.append('<dct:creator>%s</dct:creator>' % RepUtils.xmlEncode(creator))
         if self.descr:
              res.append('<dct:description>%s</dct:description>' % RepUtils.xmlEncode(self.descr))
 
