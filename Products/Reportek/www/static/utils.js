@@ -1,3 +1,6 @@
+/*global $ */
+"use strict";
+
 function generateRow(row, tableKey) {
 
   var result = [
@@ -7,12 +10,12 @@ function generateRow(row, tableKey) {
       }))
     ];
 
-  if (tableKey === 'by_path')
+  if (tableKey === "by_path")
     result.push(
       renderAsUL($.map(row.users, function (user) {
         return renderUsersLI(user);
       })));
-  else if (tableKey === 'by_person')
+  else if (tableKey === "by_person")
     result.push(row.user);
 
   return result;
@@ -26,7 +29,7 @@ function initEnvelopesTable() {
   $("#env-table").dataTable({
     "order": [[0, "desc"]],
     "aoColumnDefs": [
-      {'bSortable': false, 'aTargets': [5, 6]}
+      {"bSortable": false, "aTargets": [5, 6]}
     ],
     "bAutoWidth": false
   });
@@ -63,8 +66,8 @@ function initCompaniesTable() {
         "targets": 1,
         "data": "name",
         "render": function (data, type, full, meta) {
-          return '<a href="/fgases_registry/organisation_details?id='
-            + full.company_id + '">' + data + '</a>';
+          return "<a href='/fgases_registry/organisation_details?id=" +
+                  full.company_id + "'>" + data + "</a>";
         }
       },
       {
@@ -72,10 +75,10 @@ function initCompaniesTable() {
         "targets": 3,
         "data": "users",
         "render": function (data, type, full, meta) {
-          result = '';
+          var result = "";
           for (var i = 0; i < data.length; i++) {
-            result += '<a href="/fgases_registry/organisation_details?id='
-            + full.company_id + '">' + data[i].username + '</a><br/>';
+            result += "<a href='/fgases_registry/organisation_details?id=" +
+                      full.company_id + "'>" + data[i].username + "</a><br/>";
           }
           return result;
         }
@@ -134,20 +137,20 @@ function initDataTable() {
       "ordering": false,
       "drawCallback": function (settings) {
         var api = this.api();
-        var rows = api.rows({page: 'current'}).nodes();
+        var rows = api.rows({page: "current"}).nodes();
         var last = null;
 
-        api.column(2, {page:'current'}).data().each(function(group, i) {
+        api.column(2, {page:"current"}).data().each(function(group, i) {
           if (last !== group) {
             $(rows).eq(i).before(
-              '<tr class="group"><td colspan="2">' + group + '</td></tr>'
+              "<tr class='group'><td colspan='2'>" + group + "</td></tr>"
             );
             last = group;
           }
         });
       },
       columnDefs: [
-        {'visible': false, 'targets': 2}
+        {"visible": false, "targets": 2}
       ],
       "columns": [
         {"width": "20%"},
@@ -175,8 +178,8 @@ function initDataTable() {
   var dataTable = target.DataTable(dtConfig);
   $(".dataTables_filter input").attr('placeholder', 'Filter by...');
   var dataSources = {
-    by_path: '/api.get_users_by_path',
-    by_person: '/api.get_users'
+    by_path: "/api.get_users_by_path",
+    by_person: "/api.get_users"
   };
 
   datatable_loading('hide');
@@ -184,9 +187,9 @@ function initDataTable() {
   $.ajax({
     url: dataSources[tableKey],
     data: {
-      obligation: $('#obligation').val(),
-      role: $('#role').val(),
-      countries: $('#countries').val()
+      obligation: $("#obligation").val(),
+      role: $("#role").val(),
+      countries: $("#countries").val()
     },
     success: function(result) {
       var rows = $.parseJSON(result).data;
@@ -200,9 +203,9 @@ function initDataTable() {
 }
 
 function manage_role_cb(col_cb) {
-  sel_roles = $(col_cb).parents('tr').find('.local-roles');
+  var sel_roles = $(col_cb).parents("tr").find(".local-roles");
   if (sel_roles.length > 0) {
-    sel_roles.prop('checked', $(col_cb).prop('checked'));
+    sel_roles.prop("checked", $(col_cb).prop("checked"));
   }
 }
 
@@ -229,12 +232,12 @@ $(function () {
     initDataTable();
   $(".toggledCB").click(function() {
     var checkedElems = $(".toggledCB").filter(function(index, element) {
-      return $(element).prop('checked') === true;
+      return $(element).prop("checked") === true;
     });
     if (checkedElems.length === $(".toggledCB").length) {
-      $("#toggleAllCB").prop('checked', true);
+      $("#toggleAllCB").prop("checked", true);
     } else {
-      $("#toggleAllCB").prop('checked', false);
+      $("#toggleAllCB").prop("checked", false);
     }
   });
   $(".toggledCB").change(function() {
@@ -243,7 +246,7 @@ $(function () {
   $("#toggleAllCB").click(function() {
     var toggleAllBtn = $(this);
     var checkBoxes = $(".toggledCB");
-    checkBoxes.prop('checked', toggleAllBtn.prop('checked'));
+    checkBoxes.prop("checked", toggleAllBtn.prop("checked"));
     $.each(checkBoxes, function(index, cb){
       manage_role_cb(cb);
     });
@@ -251,12 +254,12 @@ $(function () {
 });
 
 function renderAsUL(li_items) {
-  var result_html = '';
+  var result_html = "";
 
   $.each(li_items, function(index, li_item) {
-    result_html += '<li>' + li_item + '</li>';
+    result_html += "<li>" + li_item + "</li>";
   });
-  return '<ul>' + result_html + '</ul>';
+  return "<ul>" + result_html + "</ul>";
 }
 
 function clear_filters() {
@@ -265,30 +268,47 @@ function clear_filters() {
    $("#role").select2("val", "");
 }
 
-function toggleSelectCountries(eu) {
+function toggleSelectCountries(ckey) {
   /* action can be select or deselect */
-  var eu_keys = {'eu25': ['AT', 'BE', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES',
-                          'FI', 'FR', 'GB', 'GR', 'HU', 'IE', 'IT', 'LT',
-                          'LU', 'LV', 'MT', 'NL', 'PL', 'PT', 'SE', 'SI',
-                          'SK'],
-                 'eu27': ['AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES',
-                          'FI','FR','GB','GR','HR', 'HU', 'IE', 'IT', 'LT',
-                          'LU','LV','MT','NL', 'PL', 'PT', 'RO', 'SE', 'SI',
-                          'SK'],
-                 'eu31': ['AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES',
-                          'FI', 'FR', 'GB', 'GR', 'HU', 'IE', 'IS', 'IT', 'LI',
-                          'LT', 'LU', 'LV', 'MT', 'NO','NL', 'PL', 'PT', 'RO',
-                          'SE', 'SI', 'SK', 'TR']};
+  var country_options = $("#countries").find("option");
+  var c_len = country_options.length;
+  var all_countries = [];
+  var country_iso;
 
+  for (var i=0; i<c_len; i++) {
+    country_iso = $(country_options[i]).attr("value");
+    all_countries.push(country_iso);
+  }
 
-  $("#s2id_countries").select2("val", eu_keys[eu]);
+  var countries_keys = {"eu28": ["AT", "BE", "BG", "CY", "CZ", "DE", "DK", 
+                                 "EE", "ES", "FI", "FR", "GB", "GR", "HR",
+                                 "HU", "IE", "IT", "LT", "LU", "LV", "MT",
+                                 "NL", "PL", "PT", "RO", "SE", "SI", "SK"],
+                        "eea33": ["AT", "BE", "BG", "CH", "CY", "CZ", "DE",
+                                  "DK", "EE", "ES", "FI", "FR", "GB", "GR",
+                                  "HR", "HU", "IE", "IS", "IT", "LI", "LT",
+                                  "LU", "LV", "MT", "NL", "NO", "PL", "PT",
+                                  "RO", "SE", "SI", "SK", "TR"],
+                        "eionet39": ["AL", "AT", "BA", "BE", "BG", "CH", "CY",
+                                     "CZ", "DE", "DK", "EE", "ES", "FI", "FR",
+                                     "GB", "GR", "HR", "HU", "IE", "IS", "IT",
+                                     "LI", "LT", "LU", "LV", "ME", "MK", "MT",
+                                     "NL", "NO", "PL", "PT", "RO", "RS", "SE",
+                                     "SI", "SK", "TR", "XK"],
+                        "all": all_countries};
+  var values = $("#s2id_countries").select2("val");
+  if (JSON.stringify(values.sort()) === JSON.stringify(countries_keys[ckey].sort())) {
+    $("#s2id_countries").select2("val", [])  ;
+  } else {
+    $("#s2id_countries").select2("val", countries_keys[ckey]);
+  }
 }
 
 function renderAsLink(href, display, title) {
-  var title_attribute = title ? ' title="' + title + '"' : '';
-  return '<a href="' + href + '"' + title_attribute + '>' + display + '</a>';
+  var title_attribute = title ? " title='" + title + "'" : "";
+  return "<a href='" + href + "'" + title_attribute + ">" + display + "</a>";
 }
 
 function getUserUrl(user) {
-  return 'http://www.eionet.europa.eu/directory/user?uid=' + user;
+  return "http://www.eionet.europa.eu/directory/user?uid=" + user;
 }

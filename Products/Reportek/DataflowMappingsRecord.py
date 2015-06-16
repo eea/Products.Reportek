@@ -51,7 +51,7 @@ class AddForm(BrowserView):
                 [record] = existing_records
                 raise Exception(
                             'A record with this dataflow already exists: {0}'
-                            .format(record.absolute_url())
+                            .format(record.getURL())
                         )
             return self.add()
         return self.index(context=self.parent)

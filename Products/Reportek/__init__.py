@@ -244,7 +244,8 @@ def create_reportek_indexes(catalog):
     add_index('years', catalog, 'KeywordIndex')
     add_index('local_unique_roles', catalog, 'KeywordIndex')
     add_index('local_defined_users', catalog, 'KeywordIndex', meta=True)
-    add_index('local_defined_roles', catalog, 'FieldIndex', meta=True)
+    if 'local_defined_roles' not in catalog.schema():
+        catalog.addColumn('local_defined_roles')
     add_index('document_id', catalog, 'FieldIndex')
 
 

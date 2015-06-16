@@ -16,8 +16,8 @@
             define="result view/search_users">
 
   <p class="error-msg" tal:condition="result/errors | nothing">
-    <strong>LDAP ERROR:</strong>
-    Too few characters in search box.
+    <strong>ERROR:</strong>
+    <span tal:content="result/errors"/>
   </p>
 
   
@@ -59,10 +59,8 @@
               <a tal:condition="mail" tal:attributes="href string:mailto:${mail}"
                 tal:content="mail" />
             </td>
-            <td>
-              <span tal:content="dn" tal:omit-tag="" />
-            </td>
-          </tal:block>
+            <td tal:content="dn" />
+          </tal:block>            
         </tr>
       </tbody>
     </table>

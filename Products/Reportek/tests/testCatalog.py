@@ -136,8 +136,10 @@ class CatalogTest(BaseTest, ConfigureReportek):
 
         self.root.Catalog.manage_catalogClear()
         catalog_rebuild(self.root)
-        # ZopeTestCase setsup a test_folder_1_ too, hence 4 objects
-        self.assertEqual(len(self.root.Catalog), 4)
+
+        # ZopeTestCase setsup a test_folder_1_ too and we have the
+        # WorkflowEngine as well, hence 5 objects
+        self.assertEqual(len(self.root.Catalog), 5)
 
         definitions = [
             ({'meta_type': 'Report Collection'}, [collection]),

@@ -73,7 +73,8 @@ class ManageRoles(BaseAdmin):
         params = [name for name, value in self.get_ldap_schema()]
         acl_users = self.get_acl_users()
 
-        users = [acl_users.findUser(search_param=p, search_term=term) for p in params]
+        users = [acl_users.findUser(search_param=p, search_term=term)
+                 for p in params]
         users = reduce(lambda x, y: x + y, users)
         users = {user.get('uid'): user for user in users}.values()
 
@@ -132,6 +133,5 @@ class ManageRoles(BaseAdmin):
 
     def display_confirmation(self):
         return (self.request.get('username', None) and
-               self.request.get('countries', []) and
-               self.request.get('role', None))
-
+                self.request.get('countries', []) and
+                self.request.get('role', None))

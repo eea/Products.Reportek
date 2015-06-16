@@ -42,21 +42,30 @@ class ListUsers(BaseAdmin):
                 'local_unique_roles': role,
                 'path': '/{0}'.format(country)}
 
-            users = []
+            users = {}
             brains = self.context.Catalog(query)
             for brain in brains:
                 for user, roles in brain.local_defined_roles.items():
                     if role in roles:
                         user_ob = acl_users.getUserById(user)
                         if user_ob:
-                            user_info = {
-                                'uid': user,
-                                'name': unicode(user_ob.cn, 'latin-1'),
-                                'email': user_ob.mail}
-                            users.append(user_info)
+                            if users.get(user):
+                                paths = users[user].get('paths', [])
+                                paths.append(brain.getURL())
+                                paths.sort()
+                            else:
+                                user_info = {
+                                    'uid': user,
+                                    'name': unicode(user_ob.getProperty('cn'),
+                                                    'latin-1'),
+                                    'email': user_ob.getProperty('mail'),
+                                    'paths': [brain.getURL()]}
+                                users[user] = user_info
+            user_list = users.values()
 
-            users.sort(key=itemgetter('name'))
-            return sorted(users)
+            user_list.sort(key=itemgetter('uid'))
+            return user_list
+
         return []
 
     def get_middleware(self):

@@ -31,8 +31,10 @@ from Products.ZCatalog.CatalogAwareness import CatalogAware
 import Globals
 import AccessControl.Role, webdav.Collection
 from AccessControl.Permissions import manage_users
+from AccessControl.requestmethod import requestmethod
 from Products.Reportek import permission_manage_properties_collections
 from AccessControl import getSecurityManager, ClassSecurityInfo
+from AccessControl.Permissions import change_permissions
 from OFS.Folder import Folder
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from DateTime import DateTime
@@ -477,5 +479,36 @@ class Collection(CatalogAware, Folder, Toolz):
         return self.message_dialog(message=message, action=action)
 
     message_dialog = PageTemplateFile('zpt/message_dialog', globals())
+
+
+    security.declareProtected(change_permissions, 'manage_addLocalRoles')
+    @requestmethod('POST')
+    def manage_addLocalRoles(self, userid, roles, REQUEST=None):
+        super(Collection, self).manage_addLocalRoles(userid, roles)
+        if REQUEST is not None:
+            if hasattr(self, 'reindex_object'):
+                self.reindex_object()
+            stat='Your changes have been saved.'
+            return self.manage_listLocalRoles(self, REQUEST, stat=stat)
+
+    security.declareProtected(change_permissions, 'manage_setLocalRoles')
+    @requestmethod('POST')
+    def manage_setLocalRoles(self, userid, roles, REQUEST=None):
+        super(Collection, self).manage_setLocalRoles(userid, roles)
+        if REQUEST is not None:
+            if hasattr(self, 'reindex_object'):
+                self.reindex_object()
+            stat='Your changes have been saved.'
+            return self.manage_listLocalRoles(self, REQUEST, stat=stat)
+
+    security.declareProtected(change_permissions, 'manage_delLocalRoles')
+    def manage_delLocalRoles(self, userids, REQUEST=None):
+        """Remove all local roles for a user."""
+        super(Collection, self).manage_delLocalRoles(userids)
+        if REQUEST is not None:
+            if hasattr(self, 'reindex_object'):
+                self.reindex_object()
+            stat='Your changes have been saved.'
+            return self.manage_listLocalRoles(self, REQUEST, stat=stat)
 
 Globals.InitializeClass(Collection)
