@@ -1,5 +1,22 @@
 3.8.5-dev (unreleased)
 ----------------------
+* Feature #18887
+   - Added ReportekUtilities specifics for BDR [olimpiurob]
+   - Added back button to ReportekUtilities [olimpiurob]
+   - Added support for info messages in ReportekUtilities [olimpiurob]
+   - Added info message for assign_roles and revoke roles for ecas users [olimpiurob]
+   - Hiding results from our internal user: "bdr_folder_agent" in get_users and get_users_path
+     [olimpiurob]
+   - Skip loading results when accesing the page without pressing the search button in get_users and get_users_path
+     [olimpiurob]
+   - Added possibility of styling the result table based on deployment type and customize the bdr table layout in get_users and get_users_path
+     [olimpiurob]
+   - Added placeholder for the datatable search input box in get_users and get_users_path
+     [olimpiurob]
+   - Added an "All" placeholder to all inputs in the filters form [olimpiurob]
+   - Improved ECAS user mapping system [olimpiurob]
+   - Added support for ECAS users in ReportekUtilities assign_roles and revoke_roles
+     [olimpiurob]
 * Bug fix #25904
    - Reindex object for manage_setLocalRoles, manage_delLocalRoles
      and manage_addLocalRoles only when we have a Request object. This is to

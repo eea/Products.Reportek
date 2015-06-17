@@ -17,6 +17,12 @@
     template="zpt/utilities/util_controls.zpt"/>
 
   <browser:page
+    name="info_message"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    template="zpt/utilities/info_message_template.zpt"/>
+
+  <browser:page
     name="users_template"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"

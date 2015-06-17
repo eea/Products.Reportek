@@ -251,6 +251,8 @@ $(function () {
       manage_role_cb(cb);
     });
   });
+
+  manageInfoMessages();
 });
 
 function renderAsUL(li_items) {
@@ -311,4 +313,65 @@ function renderAsLink(href, display, title) {
 
 function getUserUrl(user) {
   return "http://www.eionet.europa.eu/directory/user?uid=" + user;
+}
+
+function toggleInfoMessage(elem) {
+  var im_msg = elem.find('.im-message');
+  var open_ctl = elem.find('.im-open');
+  var close_ctl = elem.find('.im-close');
+  if ((im_msg).is(":visible")) {
+    elem.removeClass('bg-visible bg-info');
+    im_msg.hide();
+    close_ctl.hide();
+    open_ctl.show();
+  } else {
+    elem.addClass('bg-visible bg-info');
+    im_msg.show();
+    open_ctl.hide();
+    close_ctl.show();
+  }
+}
+function setCookie(elem) {
+  var data_info = elem.find('.im-message').attr('data-info');
+
+  if (data_info.length > 0) {
+    // Set expire time as per https://developer.mozilla.org/en-US/docs/Web/API/document/cookie
+    var cookie = data_info + "=true; ; expires=Fri, 31 Dec 9999 23:59:59 GMT;";
+    document.cookie = cookie;
+  }
+}
+
+function bindIMControl(elem) {
+  var open_ctl = elem.find('.im-open');
+  var close_ctl = elem.find('.im-close');
+  open_ctl.on('click', function(evt){
+    toggleInfoMessage(elem);
+    evt.preventDefault();
+  });
+  close_ctl.on('click', function(evt){
+    toggleInfoMessage(elem);
+    setCookie(elem);
+    evt.preventDefault();
+  });
+}
+
+function manageInfoMessages() {
+  var info_messages = $(".im-message");
+  var data_info, elem;
+
+  for (var i=0; i<info_messages.length; i++) {
+    var elem = $(info_messages[i]);
+    var parent = elem.parent();
+    bindIMControl(elem.parent());
+    var data_info = elem.attr('data-info');
+    var open_ctl = parent.find('.im-open');
+    open_ctl.hide();
+    if (data_info.length > 0) {
+      if (document.cookie.indexOf(data_info) >= 0) {
+        toggleInfoMessage(parent);
+      } else {
+        parent.addClass('bg-visible bg-info');
+      }
+    }
+  }
 }
