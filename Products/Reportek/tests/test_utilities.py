@@ -592,8 +592,8 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
                            '["http://nohost/obligations/1",'
                            ' "Yearly report to the Fictive Convention"]],'
                            ' "path": ["/tc", "Test Country"], '
-                           '"users": {"test_user_1_": {"type": "LDAP",'
-                           ' "role": ["Owner", "Reporter"], '
+                           '"users": {"test_user_1_": {'
+                           '"role": ["Owner", "Reporter"], '
                            '"uid": "test_user_1_"}}}]}')
         self.assertEqual(expected_result, self.browser.contents)
 

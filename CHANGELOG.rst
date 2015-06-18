@@ -1,6 +1,9 @@
 3.8.5-dev (unreleased)
 ----------------------
 * Feature #18887
+   - Improved user type detection [olimpiurob]
+   - Get user type on get_users_by_path view with ajax calls on datatable.draw
+     [olimpiurob]
    - Added ReportekUtilities specifics for BDR [olimpiurob]
    - Added back button to ReportekUtilities [olimpiurob]
    - Added support for info messages in ReportekUtilities [olimpiurob]

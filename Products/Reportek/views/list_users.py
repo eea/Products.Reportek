@@ -73,22 +73,42 @@ class ListUsers(BaseAdmin):
         if engine:
             return engine.authMiddlewareApi
 
-    def get_user_type(self, username):
+    def is_ldap_user(self, username):
         acl_users = self.context.acl_users
         if (hasattr(acl_users, 'ldapmultiplugin')):
-            acl_users = acl_users.ldapmultiplugin.acl_users
-            user_ob = acl_users.getUserById(username)
+            ldap_users = acl_users.ldapmultiplugin.acl_users
+            user_ob = ldap_users.getUserById(username)
             if user_ob:
-                return 'LDAP'
+                return True
 
+    def is_ecas_user(self, username):
+        ecas_path = '/acl_users/' + ECAS_ID
+        ecas = self.context.unrestrictedTraverse(ecas_path, None)
+        if ecas:
+            if ecas.getEcasUserId(username):
+                return True
+
+    def is_local_user(self, username):
+        acl_users = self.context.acl_users
+        if acl_users.getUserById(username):
+            return True
+
+    def get_user_type(self, username):
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-            ecas_path = '/acl_users/' + ECAS_ID
-            ecas = self.context.unrestrictedTraverse(ecas_path, None)
-            if ecas:
-                if ecas.getEcasUserId(username):
-                    return 'ECAS'
+            if self.is_ecas_user:
+                return 'ECAS'
+        if self.is_ldap_user(username):
+            return 'LDAP'
+        elif self.is_local_user(username):
+            return 'LOCAL'
 
-        return 'LOCAL'
+        return 'N/A'
+
+    def api_get_user_type(self, REQUEST):
+        username = REQUEST.get('username')
+
+        return json.dumps({"username": username,
+                           "utype": self.get_user_type(username)})
 
     def get_records(self, REQUEST):
 
@@ -121,7 +141,6 @@ class ListUsers(BaseAdmin):
             if role:
                 users = dict((user, {'uid': user,
                                      'role': role,
-                                     'type': self.get_user_type(user)
                                      }) for user, roles
                              in brain.local_defined_roles.iteritems()
                              if role in roles)
@@ -129,10 +148,8 @@ class ListUsers(BaseAdmin):
                 if brain.local_defined_users:
                     users = dict((user, {'uid': user,
                                          'role': brain.local_defined_roles.get(user),
-                                         'type': self.get_user_type(user)
                                          })
-                                 for user in brain.local_defined_users
-                                 if brain.local_defined_users)
+                                 for user in brain.local_defined_users)
             if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
                 # Hide our internal user agent from search results
                 if 'bdr_folder_agent' in users.keys():
@@ -159,10 +176,8 @@ class ListUsers(BaseAdmin):
                                 uid = getattr(user, 'email', None)
                             users[uid] = {
                                 'uid': uid,
-                                'type': 'ECAS',
                                 'role': 'ClientFG'
                             }
-
             if not users:
                 continue
 

@@ -51,6 +51,13 @@
     attribute="getUsersByPath" />
 
   <browser:page
+    name="api.get_user_type"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.ListUsers"
+    attribute="api_get_user_type" />
+
+  <browser:page
     name="get_users"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"

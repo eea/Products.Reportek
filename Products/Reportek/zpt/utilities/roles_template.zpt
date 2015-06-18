@@ -17,8 +17,8 @@
     <tal:block content="structure here/breadcrumbs_views"></tal:block>
   </metal:block>
 <metal:block fill-slot="content">
-  <metal:block use-macro="here/info_message/macros/info-message">
-    <tal:block tal:condition="isBdrDeployment">
+  <tal:block tal:condition="isBdrDeployment">
+    <metal:block use-macro="here/info_message/macros/info-message">
       <div metal:fill-slot="info-message-controls">
         <a id="im-close" href="#" class="im-control im-close">
           <span class="icon-remove"></span>
@@ -32,8 +32,8 @@
           In order to be able to assign or revoke roles to or from an ECAS user, the ECAS user must first login to BDR.
         </div>
       </div>
-    </tal:block>
-  </metal:block>
+    </metal:block>
+  </tal:block>
   <metal:block use-macro="here/util_controls/macros/utilities-controls" />
   <metal:block define-slot="page-header"></metal:block>
 

@@ -22,7 +22,12 @@ function generateRow(row, tableKey) {
 }
 
 function renderUsersLI(user) {
-  return '<span class="user-id">' + user.uid + '</span>' + renderAsUL(['Type: ' + user.type, 'Role: ' + user.role]);
+  var getUserType = $('<a/>', {'class': 'user-type',
+                               'id': user.uid + '-user-type',
+                               'href': 'api.get_user_type?username=' + user.uid,
+                               'text': 'Get user type'});
+
+  return '<span class="user-id">' + user.uid + '</span>' + renderAsUL([getUserType.prop('outerHTML'), 'Role: ' + user.role]);
 }
 
 function initEnvelopesTable() {
@@ -121,6 +126,43 @@ function datatable_loading(action) {
   }
 }
 
+function updateUserType(data) {
+  var userdata = JSON.parse(data);
+  var elem_id = userdata.username + "-user-type";
+  var text = "Type: " + userdata.utype;
+  var li = $("#" + elem_id).parent();
+  li.html(text);
+}
+
+function getUserType(elem) {
+  var url = $(elem).attr('href');
+  $.ajax({
+    url: url,
+  }).success(updateUserType);
+}
+
+function getCurrentUserTypes() {
+  bindGetUserTypes();
+  var trows = $("#datatable tbody tr");
+  $.each(trows, function(idx, elem){
+    var user_type = $(elem).find('.user-type');
+    $.each(user_type, function(i, user) {
+      getUserType(user);
+    });
+  });
+}
+
+function bindGetUserTypes() {
+  var trows = $("#datatable tbody tr");
+  $.each(trows, function(idx, elem){
+    var user_type = $(elem).find('.user-type');
+    $(user_type).on("click", function(evt, elem) {
+      evt.preventDefault();
+      getUserType(this);
+    });
+  });
+}
+
 function initDataTable() {
   /* Init the datatable object */
 
@@ -184,6 +226,7 @@ function initDataTable() {
 
   datatable_loading('hide');
   // $('.placeholder', result).html(img);
+  dataTable.on('draw.dt', getCurrentUserTypes);
   $.ajax({
     url: dataSources[tableKey],
     data: {
@@ -251,7 +294,6 @@ $(function () {
       manage_role_cb(cb);
     });
   });
-
   manageInfoMessages();
 });
 
