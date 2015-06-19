@@ -95,7 +95,7 @@ class ListUsers(BaseAdmin):
 
     def get_user_type(self, username):
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-            if self.is_ecas_user:
+            if self.is_ecas_user(username):
                 return 'ECAS'
         if self.is_ldap_user(username):
             return 'LDAP'
