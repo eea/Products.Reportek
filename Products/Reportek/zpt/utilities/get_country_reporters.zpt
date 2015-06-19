@@ -2,6 +2,7 @@
 
 <metal:block fill-slot="head">
   <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
+  <link href="++resource++static/fontawesome/font-awesome.min.css" rel="stylesheet"/>
   <link href="++resource++static/style.css" rel="stylesheet"/>
 
   <script type="text/javascript" charset="utf8" src="++resource++static/jquery-1.11.2.min.js"></script>

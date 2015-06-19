@@ -1,6 +1,11 @@
 3.8.5-dev (unreleased)
 ----------------------
 * Feature #18887
+   - Refactored utils.js for more readibility and ease of maintenance [olimpiurob]
+   - Improved get_user_type ajax calls, it will now create a user mapping 
+     to avoid multiple calls for the same user [olimpiurob]
+   - Fixed Back to utilities link not including the arrow icon for some views [olimpiurob]
+   - Fixed jslint errors on utils.js [olimpiurob]
    - Improved user type detection [olimpiurob]
    - Get user type on get_users_by_path view with ajax calls on datatable.draw
      [olimpiurob]

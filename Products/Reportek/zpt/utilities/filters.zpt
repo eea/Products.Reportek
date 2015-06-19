@@ -48,17 +48,17 @@
         </option>
       </select>
     <div class="filters-eu">
-      <a onclick="toggleSelectCountries(this.id);" id="all">All</a>
-      <a onclick="toggleSelectCountries(this.id);" id="eu28">EU28</a>
-      <a onclick="toggleSelectCountries(this.id);" id="eea33">EEA33</a>
-      <a onclick="toggleSelectCountries(this.id);" id="eionet39">Eionet39</a>
+      <a onclick="reportek.utils.toggleSelectCountries(this.id);" id="all">All</a>
+      <a onclick="reportek.utils.toggleSelectCountries(this.id);" id="eu28">EU28</a>
+      <a onclick="reportek.utils.toggleSelectCountries(this.id);" id="eea33">EEA33</a>
+      <a onclick="reportek.utils.toggleSelectCountries(this.id);" id="eionet39">Eionet39</a>
     </div>
     </div>
   </tal:block>
 
     <div class="actions">
       <input type="submit" name="btnFilter" value="Search" />
-      <a onclick="clear_filters()">Clear filters</a>
+      <a onclick="reportek.utils.clear_filters()">Clear filters</a>
     </div>
 
   </div>
