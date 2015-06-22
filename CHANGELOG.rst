@@ -1,10 +1,5 @@
 3.8.6-dev (unreleased)
 ----------------------
-
-3.8.5 (22-06-2015)
-------------------
-* Feature #26312 - Changed dct:creator on envelope rdf export [olimpiurob]
-* Task #24882 - Moved logic from ReceiptConfirmation scripts to Envelope class [olimpiurob]
 * Feature #18887
    - Refactored utils.js for more readibility and ease of maintenance [olimpiurob]
    - Improved get_user_type ajax calls, it will now create a user mapping 
@@ -30,6 +25,11 @@
    - Improved ECAS user mapping system [olimpiurob]
    - Added support for ECAS users in ReportekUtilities assign_roles and revoke_roles
      [olimpiurob]
+
+3.8.5 (22-06-2015)
+------------------
+* Feature #26312 - Changed dct:creator on envelope rdf export [olimpiurob]
+* Task #24882 - Moved logic from ReceiptConfirmation scripts to Envelope class [olimpiurob]
 * Bug fix #25904
    - Reindex object for manage_setLocalRoles, manage_delLocalRoles
      and manage_addLocalRoles only when we have a Request object. This is to
