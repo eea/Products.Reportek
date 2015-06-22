@@ -114,6 +114,17 @@ class AuthMiddlewareApi(Acquisition.Implicit):
             return None
         return response.json()
 
+    def getUsers(self):
+        try:
+            response = requests.get(self.baseUrl + "/user/list",
+                                    timeout=self.TIMEOUT, verify=False)
+        except Exception as e:
+            logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
+            return None
+        if response.status_code != requests.codes.ok:
+            return None
+        return response.json()
+
     def getCompanyDetailsById(self, companyId):
         try:
             response = requests.get(self.baseUrl + "/undertaking/{0}/details".format(companyId),

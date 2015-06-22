@@ -1,10 +1,11 @@
+<metal:def define-macro="users-form">
 <form method="get" action="">
   <div class="filters">
-
   <tal:block metal:define-macro="select-obligation">
-    <div class="form-group">
+
+    <div class="form-group" tal:define="placeholder placeholder|nothing;">
       <label for="obligation">Obligation</label>
-      <select id="obligation" name="obligation">
+      <select id="obligation" name="obligation" tal:attributes="class python: 'placeholder-enabled' if placeholder else ''">
         <option value=""></option>
         <tal:block define="req_obl request/obligation | string:;
                            rod_data view/get_rod_obligations"
@@ -24,9 +25,9 @@
   </tal:block>
 
   <tal:block metal:define-macro="role">
-    <div class="form-group">
+    <div class="form-group" tal:define="placeholder placeholder|nothing;">
       <label for="role">Role</label>
-      <select id="role" name="role" style="width: 200px;">
+      <select id="role" name="role" style="width: 200px;" tal:attributes="class python: 'placeholder-enabled' if placeholder else ''">
         <option></option>
         <option tal:repeat="role view/get_roles"
                 tal:content="role"
@@ -37,9 +38,9 @@
   </tal:block>
 
   <tal:block metal:define-macro="countries">
-    <div class="form-group">
+    <div class="form-group" tal:define="placeholder placeholder|nothing;">
       <label for="countries">Countries</label>
-      <select id="countries" name="countries:list" multiple="multiple">
+      <select id="countries" name="countries:list" multiple="multiple" tal:attributes="class python: 'placeholder-enabled' if placeholder else ''">
         <option tal:repeat="country view/localities_rod"
                 tal:content="country/name"
                 tal:attributes="value country/iso;
@@ -47,18 +48,19 @@
         </option>
       </select>
     <div class="filters-eu">
-      <a onclick="toggleSelectCountries(this.id);" id="all">All</a>
-      <a onclick="toggleSelectCountries(this.id);" id="eu28">EU28</a>
-      <a onclick="toggleSelectCountries(this.id);" id="eea33">EEA33</a>
-      <a onclick="toggleSelectCountries(this.id);" id="eionet39">Eionet39</a>
+      <a onclick="reportek.utils.toggleSelectCountries(this.id);" id="all">All</a>
+      <a onclick="reportek.utils.toggleSelectCountries(this.id);" id="eu28">EU28</a>
+      <a onclick="reportek.utils.toggleSelectCountries(this.id);" id="eea33">EEA33</a>
+      <a onclick="reportek.utils.toggleSelectCountries(this.id);" id="eionet39">Eionet39</a>
     </div>
     </div>
   </tal:block>
 
     <div class="actions">
-      <input type="submit" name="btnFilter" value="Filter" />
-      <a onclick="clear_filters()">Clear filters</a>
+      <input type="submit" name="btnFilter" value="Search" />
+      <a onclick="reportek.utils.clear_filters()">Clear filters</a>
     </div>
 
   </div>
 </form>
+</metal:def>

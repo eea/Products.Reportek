@@ -13,20 +13,21 @@
 
 
 <tal:block metal:define-macro="users_table"
-            define="result view/search_ldap_users">
+            define="result view/search_users">
 
   <p class="error-msg" tal:condition="result/errors | nothing">
     <strong>ERROR:</strong>
     <span tal:content="result/errors"/>
   </p>
 
-
+  
   <tal:block condition="not: result/errors | nothing">
     <h2>2. Select user</h2>
     <table class="datatable" tal:condition="result/users">
       <thead>
         <tr>
           <th></th>
+          <th>Type</th>
           <th>Username</th>
           <th>Name</th>
           <th>Email</th>
@@ -40,14 +41,20 @@
             <td>
               <input type="radio" name="username"
                 tal:attributes="value user/uid;
-                                checked python: user['uid'] == request.get('username')"/>
+                                checked python: user.get('uid') == request.get('username')"/>
+            </td>
+            <td>
+              <span tal:condition="dn" tal:omit-tag="">Local/LDAP</span>
+              <span tal:condition="not: dn" tal:omit-tag="">ECAS</span>
             </td>
             <td tal:content="user/uid" />
-            <td tal:define="cn user/cn|nothing">
-              <span tal:condition="cn"
-                    tal:content="python:cn.decode('latin1')"
-                    tal:omit-tag="" />
-            </td>
+            <tal:block tal:define="cn user/cn|nothing">
+              <td>
+                <span tal:condition="cn"
+                  tal:content="python:cn.decode('latin1')"
+                  tal:omit-tag=""/>
+              </td>
+            </tal:block>
             <td>
               <a tal:condition="mail" tal:attributes="href string:mailto:${mail}"
                 tal:content="mail" />

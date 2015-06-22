@@ -1,6 +1,8 @@
 import json
+from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
 from copy import copy
 from operator import itemgetter
+from Products.Reportek.constants import ENGINE_ID, ECAS_ID
 
 from base_admin import BaseAdmin
 
@@ -66,6 +68,47 @@ class ListUsers(BaseAdmin):
 
         return []
 
+    def get_middleware(self):
+        engine = self.context.unrestrictedTraverse('/'+ENGINE_ID, None)
+        if engine:
+            return engine.authMiddlewareApi
+
+    def is_ldap_user(self, username):
+        acl_users = self.context.acl_users
+        if (hasattr(acl_users, 'ldapmultiplugin')):
+            ldap_users = acl_users.ldapmultiplugin.acl_users
+            user_ob = ldap_users.getUserById(username)
+            if user_ob:
+                return True
+
+    def is_ecas_user(self, username):
+        ecas_path = '/acl_users/' + ECAS_ID
+        ecas = self.context.unrestrictedTraverse(ecas_path, None)
+        if ecas:
+            if ecas.getEcasUserId(username):
+                return True
+
+    def is_local_user(self, username):
+        acl_users = self.context.acl_users
+        if acl_users.getUserById(username):
+            return True
+
+    def get_user_type(self, username):
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            if self.is_ecas_user(username):
+                return 'ECAS'
+        if self.is_ldap_user(username):
+            return 'LDAP'
+        elif self.is_local_user(username):
+            return 'LOCAL'
+
+        return 'N/A'
+
+    def api_get_user_type(self, REQUEST):
+        username = REQUEST.get('username')
+
+        return json.dumps({"username": username,
+                           "utype": self.get_user_type(username)})
 
     def get_records(self, REQUEST):
 
@@ -76,9 +119,17 @@ class ListUsers(BaseAdmin):
         if not isinstance(countries, list):
             countries = [countries]
 
+        use_role = role
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            # ClientFG role users come from ECAS in BDR, this is why we need
+            # all the collections
+            if role == 'ClientFG':
+                use_role = ''
 
-        for brain in self.search_catalog(obligation, countries, role):
+        brains = self.search_catalog(obligation, countries, use_role)
 
+        for brain in brains:
+            users = {}
             obligations = []
             for uri in list(brain.dataflow_uris):
                 try:
@@ -88,12 +139,45 @@ class ListUsers(BaseAdmin):
                 obligations.append((uri, title))
 
             if role:
-                users = [user for user, roles
-                         in brain.local_defined_roles.iteritems()
-                         if role in roles]
+                users = dict((user, {'uid': user,
+                                     'role': role,
+                                     }) for user, roles
+                             in brain.local_defined_roles.iteritems()
+                             if role in roles)
             else:
-                users = brain.local_defined_users
+                if brain.local_defined_users:
+                    users = dict((user, {'uid': user,
+                                         'role': brain.local_defined_roles.get(user),
+                                         })
+                                 for user in brain.local_defined_users)
+            if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+                # Hide our internal user agent from search results
+                if 'bdr_folder_agent' in users.keys():
+                    del users['bdr_folder_agent']
 
+                middleware = self.get_middleware()
+                ecas_path = '/acl_users/' + ECAS_ID
+                ecas = self.context.unrestrictedTraverse(ecas_path, None)
+
+                if ecas:
+                    ecas_users = getattr(ecas, '_ecas_id', {})
+                    for ecas_user_id, user in ecas_users.iteritems():
+
+                        # Normalize path object path
+                        obj_path = brain.getPath()
+                        if obj_path.startswith('/'):
+                            obj_path = obj_path[1:]
+
+                        if middleware.authorizedUser(ecas_user_id, obj_path):
+                            username = getattr(user, 'username', None)
+                            if username:
+                                uid = username
+                            else:
+                                uid = getattr(user, 'email', None)
+                            users[uid] = {
+                                'uid': uid,
+                                'role': 'ClientFG'
+                            }
             if not users:
                 continue
 
@@ -102,11 +186,11 @@ class ListUsers(BaseAdmin):
                 'obligations': obligations,
                 'users':  users}
 
-
     def getUsers(self, REQUEST):
 
         records = []
-        for record in self.get_records(REQUEST):
+        recs = self.get_records(REQUEST)
+        for record in recs:
             res = copy(record)
             del res['users']
             for user in record['users']:
@@ -118,11 +202,5 @@ class ListUsers(BaseAdmin):
         records.sort(key=itemgetter('user'))
         return json.dumps({"data": records})
 
-
     def getUsersByPath(self, REQUEST):
-
-        records = []
-        for record in self.get_records(REQUEST):
-            records.append(record)
-
-        return json.dumps({"data": records})
+        return json.dumps({"data": list(self.get_records(REQUEST))})

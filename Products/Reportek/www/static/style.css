@@ -4,10 +4,18 @@
   clear: both;
 }
 
+.spinner-container img {
+  display: block;
+  margin: 10px auto 10px auto;
+}
 .dataTable {
   width: 100%;
   clear: both;
   border-collapse: collapse;
+}
+
+.datatable .user-id {
+  font-weight: bold;
 }
 
 .dataTable a {
@@ -411,4 +419,42 @@ hr {
 }
 .match {
     background-color: #954549
+}
+
+.utilities-controls {
+  text-align: right;
+}
+
+.utilities-controls a {
+  text-decoration: none;
+}
+
+.info-message {
+  overflow: hidden;
+  padding: 10px 0 0 0;
+}
+
+.im-message {
+  margin-left: 10px;
+  float: left;
+}
+
+.im-controls {
+  float: left;
+}
+
+.im-control {
+  text-decoration: none;
+}
+
+.im-open {
+  position: absolute;
+}
+
+.bg-visible {
+  padding: 10px 10px 10px 0;
+}
+
+.bg-info {
+  background-color: #d9edf7;
 }

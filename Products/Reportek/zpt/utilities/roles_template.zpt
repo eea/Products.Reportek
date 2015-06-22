@@ -1,4 +1,5 @@
-<tal:block metal:define-macro="roles-page">
+<tal:block metal:define-macro="roles-page"
+  define="global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'">
 <metal:block use-macro="container/standard_template.pt/macros/page">
 
   <metal:block fill-slot="head">
@@ -16,7 +17,24 @@
     <tal:block content="structure here/breadcrumbs_views"></tal:block>
   </metal:block>
 <metal:block fill-slot="content">
-
+  <tal:block tal:condition="isBdrDeployment">
+    <metal:block use-macro="here/info_message/macros/info-message">
+      <div metal:fill-slot="info-message-controls">
+        <a id="im-close" href="#" class="im-control im-close">
+          <span class="icon-remove"></span>
+        </a>
+        <a id="im-open" href="#" class="im-control im-open">
+          <span class="icon-info-sign"></span>
+        </a>
+      </div>
+      <div metal:fill-slot="im-message" class="im-message" data-info="ecas-login-ack">
+        <div class="info-message-content">
+          In order to be able to assign or revoke roles to or from an ECAS user, the ECAS user must first login to BDR.
+        </div>
+      </div>
+    </metal:block>
+  </tal:block>
+  <metal:block use-macro="here/util_controls/macros/utilities-controls" />
   <metal:block define-slot="page-header"></metal:block>
 
   <metal:block define-slot="messages"></metal:block>

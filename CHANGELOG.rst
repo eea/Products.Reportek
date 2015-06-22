@@ -2,6 +2,31 @@
 ----------------------
 * Feature #26312 - Changed dct:creator on envelope rdf export [olimpiurob]
 * Task #24882 - Moved logic from ReceiptConfirmation scripts to Envelope class [olimpiurob]
+* Feature #18887
+   - Refactored utils.js for more readibility and ease of maintenance [olimpiurob]
+   - Improved get_user_type ajax calls, it will now create a user mapping 
+     to avoid multiple calls for the same user [olimpiurob]
+   - Fixed Back to utilities link not including the arrow icon for some views [olimpiurob]
+   - Fixed jslint errors on utils.js [olimpiurob]
+   - Improved user type detection [olimpiurob]
+   - Get user type on get_users_by_path view with ajax calls on datatable.draw
+     [olimpiurob]
+   - Added ReportekUtilities specifics for BDR [olimpiurob]
+   - Added back button to ReportekUtilities [olimpiurob]
+   - Added support for info messages in ReportekUtilities [olimpiurob]
+   - Added info message for assign_roles and revoke roles for ecas users [olimpiurob]
+   - Hiding results from our internal user: "bdr_folder_agent" in get_users and get_users_path
+     [olimpiurob]
+   - Skip loading results when accesing the page without pressing the search button in get_users and get_users_path
+     [olimpiurob]
+   - Added possibility of styling the result table based on deployment type and customize the bdr table layout in get_users and get_users_path
+     [olimpiurob]
+   - Added placeholder for the datatable search input box in get_users and get_users_path
+     [olimpiurob]
+   - Added an "All" placeholder to all inputs in the filters form [olimpiurob]
+   - Improved ECAS user mapping system [olimpiurob]
+   - Added support for ECAS users in ReportekUtilities assign_roles and revoke_roles
+     [olimpiurob]
 * Bug fix #25904
    - Reindex object for manage_setLocalRoles, manage_delLocalRoles
      and manage_addLocalRoles only when we have a Request object. This is to
