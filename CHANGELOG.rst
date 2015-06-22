@@ -1,5 +1,8 @@
-3.8.5-dev (unreleased)
+3.8.6-dev (unreleased)
 ----------------------
+
+3.8.5 (22-06-2015)
+------------------
 * Feature #26312 - Changed dct:creator on envelope rdf export [olimpiurob]
 * Task #24882 - Moved logic from ReceiptConfirmation scripts to Envelope class [olimpiurob]
 * Feature #18887
