@@ -1,5 +1,7 @@
 3.8.6-dev (unreleased)
 ----------------------
+* Bug fix #26311
+    - Fixed content_type guessing for zip archived files [olimpiurob]
 * Feature #18887
    - Refactored utils.js for more readibility and ease of maintenance [olimpiurob]
    - Improved get_user_type ajax calls, it will now create a user mapping 
