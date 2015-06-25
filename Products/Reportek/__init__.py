@@ -50,6 +50,10 @@ import DataflowMappings
 import ReportekEngine
 import ReportekUtilities
 import ReportekAPI
+from Products.Reportek.ReportekUserFactoryPlugin import ReportekUserFactoryPlugin
+from Products.Reportek.ReportekUserFactoryPlugin import addReportekUserFactoryPlugin
+from Products.Reportek.ReportekUserFactoryPlugin import manage_addReportekUserFactoryPluginForm
+from Products.PluggableAuthService.PluggableAuthService import registerMultiPlugin
 
 from AccessControl.Permissions import manage_users as ManageUsers
 
@@ -262,12 +266,7 @@ def startup(context):
 
     transaction.commit()
 
-
-
-if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-    import BdrAuthorizationMiddleware
-    from Products.PluggableAuthService.PluggableAuthService import registerMultiPlugin
-    registerMultiPlugin(BdrAuthorizationMiddleware.BdrUserFactoryPlugin.meta_type)
+registerMultiPlugin(ReportekUserFactoryPlugin.meta_type)
 
 
 def initialize(context):
@@ -303,17 +302,15 @@ def initialize(context):
        icon = 'www/blobfile.png'
        )
 
-
-    if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-        context.registerClass(
-            BdrAuthorizationMiddleware.BdrUserFactoryPlugin,
-            permission=ManageUsers,
-            constructors=(
-                BdrAuthorizationMiddleware.manage_addBdrUserFactoryPluginForm,
-                BdrAuthorizationMiddleware.addBdrUserFactoryPlugin),
-            visibility=None,
-            icon='www/openflowEngine.gif'
-        )
+    context.registerClass(
+        ReportekUserFactoryPlugin,
+        permission=ManageUsers,
+        constructors=(
+            manage_addReportekUserFactoryPluginForm,
+            addReportekUserFactoryPlugin),
+        visibility=None,
+        icon='www/openflowEngine.gif'
+    )
 
     ###########################################
     #   Registration of other classes

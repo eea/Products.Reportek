@@ -1,5 +1,8 @@
 3.8.6-dev (unreleased)
 ----------------------
+* Feature #23931
+    - Added support for assigning local roles to LDAP groups [olimpiurob]
+
 * Bug fix #26311
     - Fixed content_type guessing for zip archived files [olimpiurob]
 * Feature #18887

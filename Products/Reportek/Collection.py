@@ -170,7 +170,7 @@ class Collection(CatalogAware, Folder, Toolz):
     security.declareProtected('View', 'manage_main')
     def manage_main(self,*args,**kw):
         """ Define manage main to be context aware """
-
+        import pdb; pdb.set_trace( )
         if getSecurityManager().checkPermission('View management screens',self):
             return apply(self.manage_main_inh,(self,)+ args,kw)
         else:
