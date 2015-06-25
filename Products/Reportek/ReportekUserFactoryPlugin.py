@@ -32,7 +32,7 @@ class ReportekUserFactoryPlugin(BasePlugin):
 
 
 manage_addReportekUserFactoryPluginForm = PageTemplateFile(
-    'zpt/bdrufAdd', globals(), __name__='manage_addReportekUserFactoryPluginForm' )
+    'zpt/reportekufAdd', globals(), __name__='manage_addReportekUserFactoryPluginForm' )
 
 
 def addReportekUserFactoryPlugin( dispatcher, id, title='', RESPONSE=None ):
