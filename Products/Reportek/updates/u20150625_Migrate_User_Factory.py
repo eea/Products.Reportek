@@ -27,8 +27,46 @@ def update(app, skipMigrationCheck=False):
         # Now we need to activate it
         plugins = acl_users._getOb('plugins')
         plugins.activatePlugin(IUserFactoryPlugin, 'reportek-user-factory')
+        ldapplugins = acl_users.objectIds('LDAP Multi Plugin')
+
+        for plugin_id in ldapplugins:
+            plugin = acl_users[plugin_id]
+            ldapfolder = getattr(plugin, 'acl_users')
+
+            if ldapfolder:
+                # Let's set the Group to LDAP server
+                ldapfolder._setProperty('_local_groups', False)
+                # Set groups_base to ou=Roles
+                ldapfolder._setProperty('groups_base', 'ou=Roles,o=EIONET,l=Europe')
+                local_users = ldapfolder.getLocalUsers()
+                for user in local_users:
+                    success = doMigrateLocalUser(acl_users, user)
+                    if not success:
+                        print 'Unable to migrate user: %s' % str(user)
+                    else:
+                        print 'Migrated user: %s' % str(user)
+
         trans.commit()
         print "All done!"
     except:
         trans.abort()
         raise
+
+
+def doMigrateLocalUser(acl_users, user_data):
+    user_roles = user_data[1]
+    user_id = user_data[0].split('=')[1].split(',')[0]
+    role_mgr = acl_users.get('roles')
+
+    if role_mgr:
+        for role in user_roles:
+            if (user_id not in role_mgr.listAssignedPrincipals(role) and
+               role_mgr.listAvailablePrincipals(role, user_id)):
+                if role not in list(role_mgr.listRoleIds()):
+                    role_mgr.addRole(role)
+                if role_mgr.assignRoleToPrincipal(role, user_id):
+                    print 'Added user: %s to role: %s' % (user_id, role)
+                else:
+                    return False
+
+        return True
