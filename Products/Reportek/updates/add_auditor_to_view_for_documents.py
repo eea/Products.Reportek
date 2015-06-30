@@ -9,7 +9,6 @@ from AccessControl.Permission import Permission
 def update(app):
     catalog = getattr(app, 'Catalog')
     brains = catalog(meta_type='Report Document')
-    # trans = transaction.begin()
 
     for brain in brains:
         doc = brain.getObject()
@@ -27,8 +26,8 @@ def update(app):
                         roles = tuple(roles)
                         try:
                             p.setRoles(roles)
-                            transaction.commit()
                             print "Added Auditor to View permission for %s" % doc.absolute_url()
                         except:
-                            import pdb; pdb.set_trace( )
                             print "Failed"
+
+    transaction.commit()
