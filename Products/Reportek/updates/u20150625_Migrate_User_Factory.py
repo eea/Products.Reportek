@@ -59,16 +59,17 @@ def doMigrateLocalUser(acl_users, user_data):
     role_mgr = acl_users.get('roles')
 
     if role_mgr:
-        if user_id != 'bdr_folder_agent':
-            for role in user_roles:
-                if (user_id not in role_mgr.listAssignedPrincipals(role) and
-                   role_mgr.listAvailablePrincipals(role, user_id)):
-                    if role not in list(role_mgr.listRoleIds()):
-                        role_mgr.addRole(role)
-                    if role_mgr.assignRoleToPrincipal(role, user_id):
-                        print 'Added user: %s to role: %s' % (user_id, role)
-                    else:
-                        return False
+        for role in user_roles:
+            assigned = role_mgr.listAssignedPrincipals(role)
+
+            if (user_id not in [principal[0] for principal in assigned] and
+               role_mgr.listAvailablePrincipals(role, user_id)):
+                if role not in list(role_mgr.listRoleIds()):
+                    role_mgr.addRole(role)
+                if role_mgr.assignRoleToPrincipal(role, user_id):
+                    print 'Added user: %s to role: %s' % (user_id, role)
+                else:
+                    return False
 
         return True
 
