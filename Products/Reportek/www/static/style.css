@@ -128,6 +128,7 @@ a.revoke-roles:hover {
   padding: 1em;
   border: 1px solid #B6B6B6;
   background: #f2f2f2;
+  overflow: hidden;
 }
 .filters h2,
 form h2 {
@@ -457,4 +458,17 @@ hr {
 
 .bg-info {
   background-color: #d9edf7;
+}
+
+.search-type-controls {
+  float: left;
+}
+
+.search-box {
+  float:left;
+  margin: 8px 0 0 50px;
+}
+
+.search-radios {
+  font-size: 13px;
 }

@@ -29,6 +29,7 @@ reportek.utils = {
     var self = reportek.utils;
     self.initEnvelopesTable();
     self.initCompaniesTable();
+    self.bindSearchRadios();
     var placeholder = "";
     var selects_ids = ["#role", "#obligation", "#countries"];
 
@@ -466,7 +467,18 @@ reportek.utils = {
         }
       ]
     });
+  },
+
+  bindSearchRadios: function() {
+    var radio_placeholders = {
+      "users": "You can search on First name, Surname, Userid and Email",
+      "groups": "You can search on LDAP Groups"
+    }
+    $(".search-radios input").on("click", function(){
+      $(".search-box input").attr("placeholder", radio_placeholders[$(this).attr("value")]);
+      });
   }
+
 };
 
 window.jQuery(document).ready(function () {

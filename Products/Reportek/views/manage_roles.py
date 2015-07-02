@@ -5,7 +5,6 @@ from Products.Reportek.config import *
 
 class ManageRoles(BaseAdmin):
 
-
     def __call__(self, *args, **kwargs):
         super(ManageRoles, self).__call__(*args, **kwargs)
 
@@ -46,27 +45,36 @@ class ManageRoles(BaseAdmin):
 
     def assign_role(self):
         collections = self.request.get('collections', [])
-        username = self.request.get('username', '')
         role = self.request.get('role', '')
+
+        search_type = self.request.get('search_type')
+        entity = self.request.get('username', '')
+        if search_type == 'groups':
+            entity = self.request.get('groupsname', '')
+
         for collection in collections:
             obj = self.context.unrestrictedTraverse(collection)
-            roles = set(obj.get_local_roles_for_userid(username))
+            roles = set(obj.get_local_roles_for_userid(entity))
             roles.add(role)
-            obj.manage_setLocalRoles(username, list(roles))
+            obj.manage_setLocalRoles(entity, list(roles))
             obj.reindex_object()
 
     def revoke_roles(self):
         collections = self.request.get('collections', [])
-        username = self.request.get('username', '')
+        search_type = self.request.get('search_type')
+        entity = self.request.get('username', '')
+        if search_type == 'groups':
+            entity = self.request.get('groupsname', '')
+
         for collection in collections:
             obj = self.context.unrestrictedTraverse(collection)
             revoke_roles = self.request.get(collection.replace('/', '_'), [])
-            roles = set(obj.get_local_roles_for_userid(username))
+            roles = set(obj.get_local_roles_for_userid(entity))
             for role in revoke_roles:
                 roles.remove(role)
-            obj.manage_delLocalRoles([username])
+            obj.manage_delLocalRoles([entity])
             if roles:
-                obj.manage_setLocalRoles(username, list(roles))
+                obj.manage_setLocalRoles(entity, list(roles))
             obj.reindex_object()
 
     def search_ldap_users(self, term):
@@ -79,6 +87,13 @@ class ManageRoles(BaseAdmin):
         users = {user.get('uid'): user for user in users}.values()
 
         return users
+
+    def search_ldap_groups(self, term):
+        acl_users = self.get_acl_users()
+        groups = acl_users.searchGroups(cn=term)
+
+        if groups:
+            return {group.get('cn'): group for group in groups}.values()
 
     def search_ecas_users(self, term):
         ecas_path = '/' + ENGINE_ID + '/acl_users/' + ECAS_ID
@@ -108,22 +123,27 @@ class ManageRoles(BaseAdmin):
 
         return users
 
-    def search_users(self):
+    def search_entities(self):
         term = self.request.get('search_term')
+        s_type = self.request.get('search_type')
         response = {}
-        ldap_users = self.search_ldap_users(term)
-        ecas_users = []
-        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-            ecas_users = self.search_ecas_users(term)
+        if s_type == 'groups':
+            groups = self.search_ldap_groups(term)
+            response['groups'] = groups
+        else:
+            ldap_users = self.search_ldap_users(term)
+            ecas_users = []
+            if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+                ecas_users = self.search_ecas_users(term)
 
-        if ldap_users:
-            err_users = [user for user in ldap_users
-                         if user.get('sn') == 'Error']
-            if err_users:
-                response['errors'] = True
+            if ldap_users:
+                err_users = [user for user in ldap_users
+                             if user.get('sn') == 'Error']
+                if err_users:
+                    response['errors'] = True
 
-        users = ecas_users + ldap_users
-        response['users'] = users
+            users = ecas_users + ldap_users
+            response['users'] = users
 
         return response
 
@@ -132,6 +152,7 @@ class ManageRoles(BaseAdmin):
                     .getLDAPSchema())
 
     def display_confirmation(self):
-        return (self.request.get('username', None) and
+        return ((self.request.get('username', None) or
+                 self.request.get('groupsname', None)) and
                 self.request.get('countries', []) and
                 self.request.get('role', None))

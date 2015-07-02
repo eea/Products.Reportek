@@ -101,16 +101,20 @@ class BaseAdmin(BrowserView):
     def get_collections(self):
         obligation = self.request.get('obligation', '')
         countries = self.request.get('countries', [])
-        username = self.request.get('username', '')
+        search_type = self.request.get('search_type')
+        entity = self.request.get('username', '')
+
+        if search_type == 'groups':
+            entity = self.request.get('groupsname')
 
         if self.request.get('btn.find_collections', False):
-            username = ''
+            entity = ''
 
         records = []
         brains = self.search_catalog(obligation,
                                      countries,
                                      role='',
-                                     users=username)
+                                     users=entity)
         for brain in brains:
 
             obligations = []

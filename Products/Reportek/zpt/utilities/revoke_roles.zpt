@@ -11,16 +11,23 @@
     </metal:block>
 
     <metal:block fill-slot="data-table">
-      <tal:block condition="request/search_term | nothing">
-        <form action="" method="get">
+      <tal:block condition="request/search_term | nothing"
+        tal:define="user python:request.get('username', None);
+                  group python: request.get('groupsname', None);
+                  entity python: user or group">
+
+        <form action="" method="POST">
 
           <tal:block metal:use-macro="here/find_user/macros/users_table" />
 
           <input type="hidden" name="search_term"
                  tal:attributes="value request/search_term" />
 
+          <input type="hidden" name="search_type"
+                 tal:attributes="value request/search_type" />
+
           <div>
-            <input type="submit" name="btn.find_roles" value="Find user roles" />
+            <input type="submit" name="btn.find_roles" value="Find user/group roles" />
           </div>
 
           <p tal:condition="not: request/search_term | nothing">
@@ -28,7 +35,7 @@
           </p>
 
           <tal:block condition="request/btn.find_roles | nothing">
-            <tal:block condition="python:request.get('username', None)">
+            <tal:block condition="entity">
             <h2>3. Revoke roles</h2>
             <table class="datatable"
                    tal:define="collections view/get_collections">
@@ -64,8 +71,10 @@
                   </td>
                   <td style="white-space: nowrap;">
                     <ul tal:condition="collection/roles"
-                        tal:define="local_roles collection/roles">
-                      <li tal:repeat="roles python:[local_roles[user] for user in local_roles.keys() if user == request.get('username', None)]">
+                        tal:define="local_roles collection/roles;
+                                    entity_roles python:[local_roles[user] for user in local_roles.keys()
+                                                  if user == entity];">
+                      <li tal:repeat="roles entity_roles">
                         <tal:rep tal:repeat="role roles">
                           <input type="checkbox" class="local-roles"
                             tal:attributes="name python: collection.get('path').replace('/', '_') + ':list';
@@ -86,8 +95,8 @@
 
 
             <p class="error-msg"
-               tal:condition="python:not request.get('username', None)">
-              User is mandatory.
+               tal:condition="not: entity">
+              User or group is mandatory.
             </p>
 
           </tal:block>

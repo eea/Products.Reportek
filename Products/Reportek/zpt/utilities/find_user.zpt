@@ -1,19 +1,37 @@
 <tal:block metal:define-macro="filters">
-  <form action="" method="get">
-    <h2>1. Search user</h2>
+  <span tal:content="python:request.get('search_type')"/>
+  <form action="" method="POST">
+    <h2>1. Search users or groups</h2>
     <div class="filters">
-      <label for="search_term">Search</label>
-      <input type="text" name="search_term" id="search_term" size="30"
-        tal:attributes="value request/search_term | string:" />
-      <input type="submit" name="btnFind" value="Search" />
-      <label>(You can search on First name, Surname, Userid and Email address.)</label>
+      <div class="search-type-controls">
+        <div class="search-radios">
+          <label>
+            <input type="radio" name="search_type" value="users"
+             tal:attributes="checked python: 'users' == request.get('search_type', 'users')"/>
+            Users
+          </label>
+        </div>
+        <div class="search-radios">
+          <label>
+            <input type="radio" name="search_type" value="groups"
+              tal:attributes="checked python: 'groups' == request.get('search_type')" />
+            LDAP Groups
+          </label>
+        </div>
+      </div>
+      <div class="search-box">
+        <input type="text" name="search_term" id="search_term" size="55"
+          tal:attributes="value request/search_term | string:"
+          placeholder="You can search on First name, Surname, Userid and Email" />
+        <input type="submit" name="btnFind" value="Search"/>
+      </div>
     </div>
   </form>
 </tal:block>
 
 
 <tal:block metal:define-macro="users_table"
-            define="result view/search_users">
+            define="result view/search_entities">
 
   <p class="error-msg" tal:condition="result/errors | nothing">
     <strong>ERROR:</strong>
@@ -21,53 +39,95 @@
   </p>
 
   
-  <tal:block condition="not: result/errors | nothing">
-    <h2>2. Select user</h2>
-    <table class="datatable" tal:condition="result/users">
-      <thead>
-        <tr>
-          <th></th>
-          <th>Type</th>
-          <th>Username</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>DN</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr tal:repeat="user result/users">
-          <tal:block tal:define="dn user/dn|nothing;
-                                 mail user/mail|nothing">
-            <td>
-              <input type="radio" name="username"
-                tal:attributes="value user/uid;
-                                checked python: user.get('uid') == request.get('username')"/>
-            </td>
-            <td>
-              <span tal:condition="dn" tal:omit-tag="">Local/LDAP</span>
-              <span tal:condition="not: dn" tal:omit-tag="">ECAS</span>
-            </td>
-            <td tal:content="user/uid" />
-            <tal:block tal:define="cn user/cn|nothing">
+  <tal:block condition="not: result/errors | nothing"
+    tal:define="users result/users | nothing;
+                groups result/groups | nothing">
+    <tal:block tal:condition="users">
+      <h2>2. Select user</h2>
+      <table class="datatable">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Type</th>
+            <th>Username</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>DN</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr tal:repeat="user users">
+            <tal:block tal:define="dn user/dn|nothing;
+                                   mail user/mail|nothing">
               <td>
-                <span tal:condition="cn"
-                  tal:content="python:cn.decode('latin1')"
-                  tal:omit-tag=""/>
+                <input type="radio" name="username"
+                  tal:attributes="value user/uid;
+                                  checked python: user.get('uid') == request.get('username')"/>
               </td>
+              <td>
+                <span tal:condition="dn" tal:omit-tag="">Local/LDAP</span>
+                <span tal:condition="not: dn" tal:omit-tag="">ECAS</span>
+              </td>
+              <td tal:content="user/uid" />
+              <tal:block tal:define="cn user/cn|nothing">
+                <td>
+                  <span tal:condition="cn"
+                    tal:content="python:cn.decode('latin1')"
+                    tal:omit-tag=""/>
+                </td>
+              </tal:block>
+              <td>
+                <a tal:condition="mail" tal:attributes="href string:mailto:${mail}"
+                  tal:content="mail" />
+              </td>
+              <td tal:content="dn" />
+            </tal:block>            
+          </tr>
+        </tbody>
+      </table>
+
+      <p class="notfound-msg" tal:condition="not: users">
+        No users found for this criteria.
+      </p>
+    </tal:block>
+
+    <tal:block tal:condition="groups">
+      <h2>2. Select groups</h2>
+      <table class="datatable">
+        <thead>
+          <tr>
+            <th></th>
+            <th>Group name</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr tal:repeat="group groups">
+            <tal:block tal:define="dn group/dn|nothing;
+                                   description group/description|nothing">
+              <td>
+                <input type="radio" name="groupsname"
+                  tal:attributes="value group/cn;
+                                  checked python: group.get('cn') == request.get('groupsname')"/>
+              </td>
+              <tal:block tal:define="cn group/cn|nothing">
+                <td>
+                  <span tal:condition="cn"
+                    tal:content="python:cn.decode('latin1')"
+                    tal:omit-tag=""/>
+                </td>
+              </tal:block>
+              <td tal:condition="description"
+                tal:content="python:description.decode('latin1')" />
+              <!-- <td tal:content="dn" /> -->
             </tal:block>
-            <td>
-              <a tal:condition="mail" tal:attributes="href string:mailto:${mail}"
-                tal:content="mail" />
-            </td>
-            <td tal:content="dn" />
-          </tal:block>            
-        </tr>
-      </tbody>
-    </table>
+          </tr>
+        </tbody>
+      </table>
 
-    <p class="notfound-msg" tal:condition="not: result/users">
-      No users found for this criteria.
-    </p>
-
+      <p class="notfound-msg" tal:condition="not: groups">
+        No groups found for this criteria.
+      </p>
+    </tal:block>
   </tal:block>
 </tal:block>

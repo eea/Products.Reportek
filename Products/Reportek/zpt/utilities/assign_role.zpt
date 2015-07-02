@@ -12,7 +12,7 @@
 
     <metal:block fill-slot="data-table">
       <tal:block condition="request/search_term | nothing">
-        <form action="#preview" method="get">
+        <form action="#preview" method="POST">
 
           <tal:block metal:use-macro="here/find_user/macros/users_table" />
 
@@ -27,6 +27,9 @@
 
           <input type="hidden" name="search_term"
                  tal:attributes="value request/search_term" />
+          
+          <input type="hidden" name="search_type"
+                 tal:attributes="value request/search_type" />
 
           <div>
             <input type="submit" name="btn.find_collections"
@@ -94,7 +97,7 @@
           </tal:block>
 
           <p class="error-msg" tal:condition="not: view/display_confirmation">
-            User, country and role are mandatory fields.
+            User or Group, country and role are mandatory fields.
           </p>
 
         </tal:block>
