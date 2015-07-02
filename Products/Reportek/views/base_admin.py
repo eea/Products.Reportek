@@ -83,7 +83,10 @@ class BaseAdmin(BrowserView):
                 'obligations': obligations}
 
     def search_catalog(self, obligation, countries, role, users=[]):
-        country_codes = self.get_country_codes(countries)
+        if len(countries) == len(self.localities_rod):
+            country_codes = None
+        else:
+            country_codes = self.get_country_codes(countries)
 
         query = {'meta_type': 'Report Collection'}
 
@@ -111,6 +114,7 @@ class BaseAdmin(BrowserView):
                                      countries,
                                      role='',
                                      users=username)
+
         for brain in brains:
 
             obligations = []
@@ -132,7 +136,7 @@ class BaseAdmin(BrowserView):
                 'title': brain.title
             })
 
-        records.sort(key=itemgetter('country'))
+        records.sort(key=itemgetter('path'))
         return records
 
     def get_breadcrumbs(self):
