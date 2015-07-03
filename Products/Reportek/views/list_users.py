@@ -42,29 +42,43 @@ class ListUsers(BaseAdmin):
                 'local_unique_roles': role,
                 'path': '/{0}'.format(country)}
 
-            users = {}
+            entities = {}
             brains = self.context.Catalog(query)
             for brain in brains:
-                for user, roles in brain.local_defined_roles.items():
+                for entity, roles in brain.local_defined_roles.items():
                     if role in roles:
-                        user_ob = acl_users.getUserById(user)
+                        user_ob = acl_users.getUserById(entity)
                         if user_ob:
-                            if users.get(user):
-                                paths = users[user].get('paths', [])
+                            if entities.get(entity):
+                                paths = entities[entity].get('paths', [])
                                 paths.append(brain.getURL())
                                 paths.sort()
                             else:
                                 user_info = {
-                                    'uid': user,
+                                    'uid': entity,
+                                    'type': 'User',
                                     'name': unicode(user_ob.getProperty('cn'),
                                                     'latin-1'),
                                     'email': user_ob.getProperty('mail'),
                                     'paths': [brain.getURL()]}
-                                users[user] = user_info
-            user_list = users.values()
+                                entities[entity] = user_info
+                        else:
+                            groups = self.search_ldap_groups(entity)
+                            if groups:
+                                # Use only the first result
+                                group = groups[0]
+                                entities[entity] = {
+                                    'uid': entity,
+                                    'type': 'LDAP Group',
+                                    'name': group.get('description'),
+                                    'email': None,
+                                    'paths': [brain.getURL()]
+                                }
 
-            user_list.sort(key=itemgetter('uid'))
-            return user_list
+            entity_list = entities.values()
+
+            entity_list.sort(key=itemgetter('uid'))
+            return entity_list
 
         return []
 

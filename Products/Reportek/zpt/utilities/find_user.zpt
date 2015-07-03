@@ -1,5 +1,4 @@
 <tal:block metal:define-macro="filters">
-  <span tal:content="python:request.get('search_type')"/>
   <form action="" method="POST">
     <h2>1. Search users or groups</h2>
     <div class="filters">
@@ -81,7 +80,7 @@
                   tal:content="mail" />
               </td>
               <td tal:content="dn" />
-            </tal:block>            
+            </tal:block>
           </tr>
         </tbody>
       </table>

@@ -22,13 +22,6 @@ class ManageRoles(BaseAdmin):
 
         return self.index()
 
-    def get_acl_users(self):
-        pas = getattr(self.context, 'acl_users')
-        if pas:
-            ldapmultiplugin = getattr(pas, 'ldapmultiplugin')
-            if ldapmultiplugin:
-                return getattr(ldapmultiplugin, 'acl_users')
-
     def get_user_localroles(self, username):
         results = []
         for brain in self.context.Catalog(meta_type='Report Collection'):
@@ -87,13 +80,6 @@ class ManageRoles(BaseAdmin):
         users = {user.get('uid'): user for user in users}.values()
 
         return users
-
-    def search_ldap_groups(self, term):
-        acl_users = self.get_acl_users()
-        groups = acl_users.searchGroups(cn=term)
-
-        if groups:
-            return {group.get('cn'): group for group in groups}.values()
 
     def search_ecas_users(self, term):
         ecas_path = '/' + ENGINE_ID + '/acl_users/' + ECAS_ID

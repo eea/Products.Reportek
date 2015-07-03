@@ -20,7 +20,7 @@
     <em>Reporter</em> for the selected country.
   </p>
 
-  <form method="get" action="">
+  <form method="POST" action="">
     <div class="filters">
       <div class="form-indent">
          <label for="country">Country</label>
@@ -38,7 +38,8 @@
   <table class="datatable" tal:condition="options/reporters | nothing">
     <thead>
       <tr>
-        <th>User</th>
+        <th>Reporter</th>
+        <th>Type</th>
         <th>Name</th>
         <th>Email</th>
         <th>Path</th>
@@ -47,6 +48,7 @@
     <tbody>
       <tr tal:repeat="reporter options/reporters">
         <td tal:content="reporter/uid" />
+        <td tal:content="reporter/type" />
         <td tal:content="reporter/name" />
         <td>
           <a tal:condition="reporter/email"

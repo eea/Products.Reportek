@@ -158,3 +158,19 @@ class BaseAdmin(BrowserView):
         breadcrumbs.insert(0, crumb)
 
         return breadcrumbs
+
+    def get_acl_users(self):
+        pas = getattr(self.context, 'acl_users')
+        if pas:
+            ldapmultiplugin = getattr(pas, 'ldapmultiplugin')
+            if ldapmultiplugin:
+                return getattr(ldapmultiplugin, 'acl_users')
+
+    def search_ldap_groups(self, term):
+        acl_users = self.get_acl_users()
+        groups = acl_users.searchGroups(cn=term)
+
+        if groups:
+            group_list = {group.get('cn'): group for group in groups}.values()
+            group_list.sort(key=itemgetter('cn'))
+            return group_list
