@@ -44,6 +44,7 @@
                     <tr>
                       <th><input id="toggleAllCB" type="checkbox" /></th>
                       <th>Country</th>
+                      <th tal:condition="python: request.get('use-subgroups')">LDAP Groups</th>
                       <th>Path</th>
                       <th>Obligations</th>
                       <th>Roles</th>
@@ -51,40 +52,44 @@
                   </thead>
                   <tbody>
                     <tr tal:repeat="collection collections">
-                      <td>
-                        <input type="checkbox" name="collections:list" class="toggledCB"
-                               tal:attributes="value collection/path">
-                      </td>
-                      <td tal:content="collection/country" />
-                      <td>
-                        <a tal:attributes="href collection/path"
-                           tal:content="collection/path"/>
-                      </td>
-                      <td>
-                        <ul>
-                          <tal:block repeat="obl collection/obligations">
-                            <li>
-                              <a tal:attributes="href obl/uri"
-                                 tal:content="obl/title" />
+                      <tal:def tal:define="matched_group python: collection.get('matched_group','')">
+                        <td>
+                          <input type="checkbox" name="collections:list" class="toggledCB"
+                                 tal:attributes="value python: ','.join([collection.get('path'), matched_group])">
+                        </td>
+                        <td tal:content="collection/country" />
+                        <td tal:condition="matched_group" tal:content="matched_group" />
+                        <td>
+                          <a tal:attributes="href collection/path"
+                             tal:content="collection/path"/>
+                        </td>
+                        <td>
+                          <ul>
+                            <tal:block repeat="obl collection/obligations">
+                              <li>
+                                <a tal:attributes="href obl/uri"
+                                   tal:content="obl/title" />
+                              </li>
+                            </tal:block>
+                          </ul>
+                        </td>
+                        <td style="white-space: nowrap;">
+                          <ul tal:condition="collection/roles"
+                              tal:define="local_roles collection/roles;
+                                          entity python: matched_group if matched_group else entity;
+                                          entity_roles python:[local_roles[user] for user in local_roles.keys()
+                                                        if user == entity];">
+                            <li tal:repeat="roles entity_roles">
+                              <tal:rep tal:repeat="role roles">
+                                <input type="checkbox" class="local-roles"
+                                  tal:attributes="name python: collection.get('path').replace('/', '_') + ':list';
+                                                  value role;">
+                                <span tal:content="role"/>
+                              </tal:rep>
                             </li>
-                          </tal:block>
-                        </ul>
-                      </td>
-                      <td style="white-space: nowrap;">
-                        <ul tal:condition="collection/roles"
-                            tal:define="local_roles collection/roles;
-                                        entity_roles python:[local_roles[user] for user in local_roles.keys()
-                                                      if user == entity];">
-                          <li tal:repeat="roles entity_roles">
-                            <tal:rep tal:repeat="role roles">
-                              <input type="checkbox" class="local-roles"
-                                tal:attributes="name python: collection.get('path').replace('/', '_') + ':list';
-                                                value role;">
-                              <span tal:content="role"/>
-                            </tal:rep>
-                          </li>
-                        </ul>
-                      </td>
+                          </ul>
+                        </td>
+                      </tal:def>
                     </tr>
                   </tbody>
                 </table>

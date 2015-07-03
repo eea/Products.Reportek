@@ -53,8 +53,10 @@ class BaseAdmin(BrowserView):
                 if c['iso'] in countries]
 
     def get_country_code(self, countryname):
-        return [c.get('iso') for c in self.localities_rod
-                if c['name'] == countryname][-1]
+        c_codes = [c.get('iso') for c in self.localities_rod
+                   if c['name'] == countryname]
+        if c_codes:
+            return c_codes[-1]
 
     def get_obligations(self):
         return {o['PK_RA_ID']: o['uri'] for o
@@ -113,6 +115,8 @@ class BaseAdmin(BrowserView):
             entity = self.request.get('groupsname')
             use_subgroups = self.request.get('use-subgroups', '')
             match_groups = use_subgroups.split(',')
+            if match_groups:
+                entity = match_groups
 
         if self.request.get('btn.find_collections', False):
             entity = ''
@@ -134,7 +138,7 @@ class BaseAdmin(BrowserView):
                     'uri': uri,
                     'title': title
                 })
-            c_code = self.get_country_code(brain.getCountryName).lower()
+
             collection = {
                 'path': brain.getPath(),
                 'country': brain.getCountryName,
@@ -144,6 +148,7 @@ class BaseAdmin(BrowserView):
             }
 
             if match_groups:
+                c_code = self.get_country_code(brain.getCountryName).lower()
                 group = self.request.get('groupsname') + '-' + c_code
                 if group in match_groups:
                     collection['matched_group'] = group
