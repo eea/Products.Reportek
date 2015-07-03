@@ -32,7 +32,6 @@ class ListUsers(BaseAdmin):
         countries = app.objectValues('Report Collection')
         return sorted(countries, key=lambda x: x.title)
 
-
     def get_reporters(self, country, role='Reporter'):
         acl_users = self.context.acl_users
         if (hasattr(acl_users, 'ldapmultiplugin')):

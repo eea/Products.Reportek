@@ -52,6 +52,10 @@ class BaseAdmin(BrowserView):
                 in self.localities_rod
                 if c['iso'] in countries]
 
+    def get_country_code(self, countryname):
+        return [c.get('iso') for c in self.localities_rod
+                if c['name'] == countryname][-1]
+
     def get_obligations(self):
         return {o['PK_RA_ID']: o['uri'] for o
                 in self.dataflow_rod}
@@ -103,9 +107,12 @@ class BaseAdmin(BrowserView):
         countries = self.request.get('countries', [])
         search_type = self.request.get('search_type')
         entity = self.request.get('username', '')
+        match_groups = []
 
         if search_type == 'groups':
             entity = self.request.get('groupsname')
+            use_subgroups = self.request.get('use-subgroups', '')
+            match_groups = use_subgroups.split(',')
 
         if self.request.get('btn.find_collections', False):
             entity = ''
@@ -127,16 +134,23 @@ class BaseAdmin(BrowserView):
                     'uri': uri,
                     'title': title
                 })
-
-            records.append({
+            c_code = self.get_country_code(brain.getCountryName).lower()
+            collection = {
                 'path': brain.getPath(),
                 'country': brain.getCountryName,
                 'obligations': obligations,
                 'roles': brain.local_defined_roles,
                 'title': brain.title
-            })
+            }
 
-        records.sort(key=itemgetter('country'))
+            if match_groups:
+                group = self.request.get('groupsname') + '-' + c_code
+                if group in match_groups:
+                    collection['matched_group'] = group
+
+            records.append(collection)
+
+        records.sort(key=itemgetter('path'))
         return records
 
     def get_breadcrumbs(self):

@@ -46,50 +46,56 @@
 
             <h2>6. Assign role</h2>
 
-            <table class="datatable"
-                   tal:define="collections view/get_collections">
-              <thead>
-                <tr>
-                  <th><input id="toggleAllCB" type="checkbox" /></th>
-                  <th>Country</th>
-                  <th>Path</th>
-                  <th>Obligations</th>
-                  <th>Existing users</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr tal:repeat="collection collections">
-                  <td>
-                    <input type="checkbox" class="toggledCB" name="collections:list"
-                           tal:attributes="value collection/path">
-                  </td>
-                  <td tal:content="collection/country" />
-                  <td>
-                    <a tal:attributes="href collection/path"
-                       tal:content="collection/path"/>
-                  </td>
-                  <td>
-                    <ul>
-                      <tal:block repeat="obl collection/obligations">
-                        <li>
-                          <a tal:attributes="href obl/uri"
-                             tal:content="obl/title" />
-                        </li>
-                      </tal:block>
-                    </ul>
-                  </td>
-                  <td>
-                    <ul tal:condition="collection/roles"
-                        tal:define="local_roles collection/roles">
-                      <li tal:repeat="user local_roles/keys">
-                        <span tal:replace="user"/>
-                        (<span tal:replace="python:', '.join(local_roles[user])"/>)
-                      </li>
-                    </ul>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <tal:def tal:define="collections view/get_collections">
+              <table class="datatable"
+                     tal:condition="collections">
+                <thead>
+                  <tr>
+                    <th><input id="toggleAllCB" type="checkbox" /></th>
+                    <th>Country</th>
+                    <th tal:condition="python: request.get('use-subgroups')">LDAP Groups</th>
+                    <th>Path</th>
+                    <th>Obligations</th>
+                    <th>Existing users</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr tal:repeat="collection collections">
+                    <tal:def tal:define="matched_group python: collection.get('matched_group','')">
+                      <td>
+                        <input type="checkbox" class="toggledCB" name="collections:list"
+                               tal:attributes="value python: ','.join([collection.get('path'), matched_group])">
+                      </td>
+                      <td tal:content="collection/country" />
+                      <td tal:condition="matched_group" tal:content="matched_group" />
+                      <td>
+                        <a tal:attributes="href collection/path"
+                           tal:content="collection/path"/>
+                      </td>
+                      <td>
+                        <ul>
+                          <tal:block repeat="obl collection/obligations">
+                            <li>
+                              <a tal:attributes="href obl/uri"
+                                 tal:content="obl/title" />
+                            </li>
+                          </tal:block>
+                        </ul>
+                      </td>
+                      <td>
+                        <ul tal:condition="collection/roles"
+                            tal:define="local_roles collection/roles">
+                          <li tal:repeat="user local_roles/keys">
+                            <span tal:replace="user"/>
+                            (<span tal:replace="python:', '.join(local_roles[user])"/>)
+                          </li>
+                        </ul>
+                      </td>
+                    </tal:def>
+                  </tr>
+                </tbody>
+              </table>
+            </tal:def>
 
             <div>
                 <input type="submit" name="btn.assign" value="Assign role" />

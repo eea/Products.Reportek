@@ -98,27 +98,40 @@
             <th></th>
             <th>Group name</th>
             <th>Description</th>
+            <th></th>
           </tr>
         </thead>
-        <tbody>
+        <tbody tal:define="country_codes view/get_all_country_codes">
           <tr tal:repeat="group groups">
-            <tal:block tal:define="dn group/dn|nothing;
-                                   description group/description|nothing">
+            <tal:block tal:define="dn python: group.get('dn', '');
+                                   description group/description | nothing;
+                                   cn python: group.get('cn', '');
+                                   suffix python: cn.split('-')[-1];
+                                   potential_c python: [cn + '-' + code.lower() for code in country_codes]"
+                                   >
               <td>
                 <input type="radio" name="groupsname"
                   tal:attributes="value group/cn;
                                   checked python: group.get('cn') == request.get('groupsname')"/>
               </td>
-              <tal:block tal:define="cn group/cn|nothing">
                 <td>
                   <span tal:condition="cn"
                     tal:content="python:cn.decode('latin1')"
                     tal:omit-tag=""/>
                 </td>
-              </tal:block>
               <td tal:condition="description"
                 tal:content="python:description.decode('latin1')" />
-              <!-- <td tal:content="dn" /> -->
+              <tal:def tal:define="children python: [child.get('cn') for child in groups
+                                  if child.get('cn') in potential_c]">
+                <td tal:condition="children">
+                  <label>
+                    <input type="radio" name="use-subgroups"
+                     tal:attributes="value python: ','.join(children);
+                                     checked python: ','.join(children) == request.get('use-subgroups')" />
+                    Use country codes of sub-group
+                  </label>
+                </td>
+              </tal:def>
             </tal:block>
           </tr>
         </tbody>

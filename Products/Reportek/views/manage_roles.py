@@ -22,6 +22,9 @@ class ManageRoles(BaseAdmin):
 
         return self.index()
 
+    def get_all_country_codes(self):
+        return [c.get('iso') for c in self.localities_rod]
+
     def get_user_localroles(self, username):
         results = []
         for brain in self.context.Catalog(meta_type='Report Collection'):
@@ -42,11 +45,20 @@ class ManageRoles(BaseAdmin):
 
         search_type = self.request.get('search_type')
         entity = self.request.get('username', '')
+        match_groups = []
         if search_type == 'groups':
             entity = self.request.get('groupsname', '')
+            use_subgroups = self.request.get('use-subgroups', '')
+            match_groups = use_subgroups.split(',')
 
         for collection in collections:
-            obj = self.context.unrestrictedTraverse(collection)
+            path, matched = collection.split(',')
+            obj = self.context.unrestrictedTraverse(path)
+
+            if match_groups and matched:
+                if matched in match_groups:
+                    entity = matched
+
             roles = set(obj.get_local_roles_for_userid(entity))
             roles.add(role)
             obj.manage_setLocalRoles(entity, list(roles))
@@ -109,12 +121,28 @@ class ManageRoles(BaseAdmin):
 
         return users
 
+    def isLDAPSubGroup(self, subgroup, groupname):
+        if subgroup.get('cn') != groupname:
+            if groupname in subgroup.get('dn'):
+                return True
+
+    def processLDAPGroupHierarchy(self, groups, term):
+        cns = [group.get('cn') for group in groups]
+        for group in groups:
+            parent = term
+            cn = group.get('cn')
+            dn = group.get('dn')
+
+            import pdb; pdb.set_trace( )
+
+
     def search_entities(self):
         term = self.request.get('search_term')
         s_type = self.request.get('search_type')
         response = {}
         if s_type == 'groups':
             groups = self.search_ldap_groups(term)
+            # groups = self.processLDAPGroupHierarchy(groups, term)
             response['groups'] = groups
         else:
             ldap_users = self.search_ldap_users(term)
