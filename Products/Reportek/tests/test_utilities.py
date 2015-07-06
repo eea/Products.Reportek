@@ -644,7 +644,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             # Get available collections
             self.browser.getControl(name='btn.find_collections').click()
             col_controls = self.browser.getControl(name='collections:list').controls
-            self.assertEqual(col_controls[0].optionValue, '/tc')
+            self.assertEqual(col_controls[0].optionValue, '/tc,')
             self.assertTrue('(Owner, Reporter)' in self.browser.contents)
             col_controls[0].selected = True
 
@@ -789,7 +789,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         # Select previously added role
         r_controls = self.browser.getControl(name='collections:list').controls
         for r_ctl in r_controls:
-            if r_ctl.optionValue == '/tc':
+            if r_ctl.optionValue == '/tc,':
                 r_ctl.selected = True
 
         # We need to explicitly select the role to be removed here
