@@ -113,9 +113,9 @@ class BaseAdmin(BrowserView):
 
         if search_type == 'groups':
             entity = self.request.get('groupsname')
-            use_subgroups = self.request.get('use-subgroups', '')
-            match_groups = use_subgroups.split(',')
-            if match_groups:
+            use_subgroups = self.request.get('use-subgroups')
+            if use_subgroups:
+                match_groups = use_subgroups.split(',')
                 entity = match_groups
 
         if self.request.get('btn.find_collections', False):
