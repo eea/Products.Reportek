@@ -1,7 +1,7 @@
 <metal:block use-macro="here/roles_template/macros/roles-page">
 
     <metal:block fill-slot="page-header">
-      <h1>Remove role from Eionet user</h1>
+      <h1>Remove role</h1>
     </metal:block>
 
     <metal:block fill-slot="messages">

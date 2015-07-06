@@ -61,13 +61,21 @@
                 </thead>
                 <tbody>
                   <tr tal:repeat="collection collections">
-                    <tal:def tal:define="matched_group python: collection.get('matched_group','')">
+                    <tal:def tal:define="matched_group python: collection.get('matched_group','');
+                                         use_subgroups python: request.get('use-subgroups')">
                       <td>
-                        <input type="checkbox" class="toggledCB" name="collections:list"
-                               tal:attributes="value python: ','.join([collection.get('path'), matched_group])">
+                        <tal:block tal:condition="python: not use_subgroups or (use_subgroups and matched_group)">
+                          <input type="checkbox" class="toggledCB" name="collections:list"
+                                 tal:attributes="value python: ','.join([collection.get('path'), matched_group])">
+                        </tal:block>
                       </td>
                       <td tal:content="collection/country" />
-                      <td tal:condition="matched_group" tal:content="matched_group" />
+                      <td tal:condition="use_subgroups">
+                        <span tal:condition="matched_group" tal:content="matched_group" tal:omit-tag=""/>
+                        <span tal:condition="not: matched_group" tal:omit-tag="" i18n:translate="">
+                          N/A
+                        </span>
+                      </td>
                       <td>
                         <a tal:attributes="href collection/path"
                            tal:content="collection/path"/>

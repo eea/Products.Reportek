@@ -26,7 +26,6 @@ class ListUsers(BaseAdmin):
 
         return self.index()
 
-
     def get_available_countries(self):
         app = self.context.getPhysicalRoot()
         countries = app.objectValues('Report Collection')

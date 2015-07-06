@@ -46,22 +46,28 @@ class ManageRoles(BaseAdmin):
         search_type = self.request.get('search_type')
         entity = self.request.get('username', '')
         match_groups = []
+        groups = False
+
         if search_type == 'groups':
             entity = self.request.get('groupsname', '')
-            use_subgroups = self.request.get('use-subgroups', '')
-            match_groups = use_subgroups.split(',')
+            use_subgroups = self.request.get('use-subgroups')
+            if use_subgroups:
+                match_groups = use_subgroups.split(',')
+                groups = True
 
         for collection in collections:
+            cur_entity = entity
             path, matched = collection.split(',')
             obj = self.context.unrestrictedTraverse(path)
 
-            if match_groups and matched:
-                if matched in match_groups:
-                    entity = matched
+            if groups and (matched in match_groups):
+                cur_entity = matched
+            elif groups and not (matched in match_groups):
+                continue
 
-            roles = set(obj.get_local_roles_for_userid(entity))
+            roles = set(obj.get_local_roles_for_userid(cur_entity))
             roles.add(role)
-            obj.manage_setLocalRoles(entity, list(roles))
+            obj.manage_setLocalRoles(cur_entity, list(roles))
             obj.reindex_object()
 
     def revoke_roles(self):
