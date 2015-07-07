@@ -136,28 +136,12 @@ class ManageRoles(BaseAdmin):
 
         return users
 
-    def isLDAPSubGroup(self, subgroup, groupname):
-        if subgroup.get('cn') != groupname:
-            if groupname in subgroup.get('dn'):
-                return True
-
-    def processLDAPGroupHierarchy(self, groups, term):
-        cns = [group.get('cn') for group in groups]
-        for group in groups:
-            parent = term
-            cn = group.get('cn')
-            dn = group.get('dn')
-
-            import pdb; pdb.set_trace( )
-
-
     def search_entities(self):
         term = self.request.get('search_term')
         s_type = self.request.get('search_type')
         response = {}
         if s_type == 'groups':
             groups = self.search_ldap_groups(term)
-            # groups = self.processLDAPGroupHierarchy(groups, term)
             response['groups'] = groups
         else:
             ldap_users = self.search_ldap_users(term)
