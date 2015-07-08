@@ -27,7 +27,7 @@
                  tal:attributes="value request/search_term" />
 
           <input type="hidden" name="search_type"
-                 tal:attributes="value request/search_type" />
+                 tal:attributes="value request/search_type|nothing" />
 
           <div>
             <input type="submit" name="btn.find_roles" value="Find user/group roles" />
