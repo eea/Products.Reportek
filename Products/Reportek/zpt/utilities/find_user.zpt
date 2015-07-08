@@ -1,28 +1,34 @@
+<tal:block define="global deployment python: here.ReportekEngine.getDeploymentType();
+                   global isCdrDeployment python: deployment == 'CDR';"
+                   />
 <tal:block metal:define-macro="filters">
   <form action="" method="POST">
-    <h2>1. Search users or groups</h2>
+    <h2 tal:condition="isCdrDeployment">1. Search users or groups</h2>
+    <h2 tal:condition="not: isCdrDeployment">1. Search users</h2>
     <div class="filters">
-      <div class="search-type-controls">
-        <div class="search-radios">
-          <label>
-            <input type="radio" name="search_type" value="users"
-             tal:attributes="checked python: 'users' == request.get('search_type', 'users')"/>
-            Users
-          </label>
+      <div class="filters-content">
+        <div class="search-type-controls" tal:condition="isCdrDeployment">
+          <div class="search-radios">
+            <label>
+              <input type="radio" name="search_type" value="users"
+               tal:attributes="checked python: 'users' == request.get('search_type', 'users')"/>
+              Users
+            </label>
+          </div>
+          <div class="search-radios">
+            <label>
+              <input type="radio" name="search_type" value="groups"
+                tal:attributes="checked python: 'groups' == request.get('search_type')" />
+              LDAP Groups
+            </label>
+          </div>
         </div>
-        <div class="search-radios">
-          <label>
-            <input type="radio" name="search_type" value="groups"
-              tal:attributes="checked python: 'groups' == request.get('search_type')" />
-            LDAP Groups
-          </label>
+        <div class="search-box">
+          <input type="text" name="search_term" id="search_term" size="55"
+            tal:attributes="value request/search_term | string:"
+            placeholder="You can search on First name, Surname, Userid and Email" />
+          <input type="submit" name="btnFind" value="Search"/>
         </div>
-      </div>
-      <div class="search-box">
-        <input type="text" name="search_term" id="search_term" size="55"
-          tal:attributes="value request/search_term | string:"
-          placeholder="You can search on First name, Surname, Userid and Email" />
-        <input type="submit" name="btnFind" value="Search"/>
       </div>
     </div>
   </form>
@@ -119,17 +125,21 @@
                     tal:content="python:cn.decode('latin1')"
                     tal:omit-tag=""/>
                 </td>
-              <td tal:condition="description"
-                tal:content="python:description.decode('latin1')" />
+              <td>
+                <span tal:condition="description"
+                  tal:content="python:description.decode('latin1')" tal:omit-tag=""/>
+              </td>
               <tal:def tal:define="children python: [child.get('cn') for child in groups
                                   if child.get('cn') in potential_c]">
-                <td tal:condition="children">
-                  <label>
-                    <input type="radio" name="use-subgroups"
-                     tal:attributes="value python: ','.join(children);
-                                     checked python: ','.join(children) == request.get('use-subgroups')" />
-                    Use country codes of sub-group
-                  </label>
+                <td>
+                  <tal:block tal:condition="children">
+                    <label>
+                      <input type="radio" name="use-subgroups"
+                       tal:attributes="value python: ','.join(children);
+                                       checked python: ','.join(children) == request.get('use-subgroups')" />
+                      Use country codes of sub-group
+                    </label>
+                  </tal:block>
                 </td>
               </tal:def>
             </tal:block>

@@ -1,5 +1,8 @@
 from Products.PluggableAuthService.PropertiedUser import PropertiedUser
 from Products.Reportek.constants import ENGINE_ID, ECAS_ID
+from Products.Reportek.config import REPORTEK_DEPLOYMENT
+from Products.Reportek.config import DEPLOYMENT_CDR as CDR
+
 import logging
 logger = logging.getLogger("Reportek")
 
@@ -10,8 +13,10 @@ class ReportekPropertiedUser(PropertiedUser):
         """ Also return LDAP groups if applicable
         """
         local_groups = super(ReportekPropertiedUser, self).getGroups()
+        if REPORTEK_DEPLOYMENT == CDR:
+            return list(set(local_groups) | set(self.get_ldap_groups()))
 
-        return list(set(local_groups) | set(self.get_ldap_groups()))
+        return local_groups
 
     def get_roles_for_user_in_context(self, obj, user_id):
         # path of form 'fagses/ro/collection_id/some_deeper_path'

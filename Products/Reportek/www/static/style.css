@@ -460,15 +460,22 @@ hr {
   background-color: #d9edf7;
 }
 
+.filters-content {
+  display: table;
+  margin: 0 auto;
+}
+
 .search-type-controls {
-  float: left;
+  display: table-cell;
+  margin-right: 20px;
 }
 
 .search-box {
-  float:left;
-  margin: 8px 0 0 50px;
+  display: table-cell;
+  vertical-align: middle;
 }
 
 .search-radios {
   font-size: 13px;
+  margin-right: 20px;
 }

@@ -5,6 +5,10 @@
 
 from Products.Reportek.updates import MigrationBase
 from Products.Reportek.ReportekUserFactoryPlugin import addReportekUserFactoryPlugin
+from Products.Reportek.config import REPORTEK_DEPLOYMENT
+from Products.Reportek.config import DEPLOYMENT_CDR as CDR
+from Products.Reportek.config import DEPLOYMENT_MDR as MDR
+
 from Products.PluggableAuthService.interfaces.plugins import IUserFactoryPlugin
 import transaction
 
@@ -24,27 +28,31 @@ def update(app, skipMigrationCheck=False):
             del acl_users['bdr-ecas-user-factory']
         # Let's add the new plugin
         addReportekUserFactoryPlugin(acl_users, 'reportek-user-factory')
-        # Now we need to activate it
+        # Now we need to activate it for CDR and BDR
         plugins = acl_users._getOb('plugins')
-        plugins.activatePlugin(IUserFactoryPlugin, 'reportek-user-factory')
-        ldapplugins = acl_users.objectIds('LDAP Multi Plugin')
+        if REPORTEK_DEPLOYMENT != MDR:
+            plugins.activatePlugin(IUserFactoryPlugin, 'reportek-user-factory')
 
-        for plugin_id in ldapplugins:
-            plugin = acl_users[plugin_id]
-            ldapfolder = getattr(plugin, 'acl_users')
+        # Migrate local users for CDR
+        if REPORTEK_DEPLOYMENT == CDR:
+            ldapplugins = acl_users.objectIds('LDAP Multi Plugin')
 
-            if ldapfolder:
-                # Let's set the Group to LDAP server
-                ldapfolder._setProperty('_local_groups', False)
-                # Set groups_base to ou=Roles
-                ldapfolder._setProperty('groups_base', 'ou=Roles,o=EIONET,l=Europe')
-                local_users = ldapfolder.getLocalUsers()
-                for user in local_users:
-                    success = doMigrateLocalUser(acl_users, user)
-                    if not success:
-                        print 'Unable to migrate user: %s' % str(user)
-                    else:
-                        print 'Migrated user: %s' % str(user)
+            for plugin_id in ldapplugins:
+                plugin = acl_users[plugin_id]
+                ldapfolder = getattr(plugin, 'acl_users')
+
+                if ldapfolder:
+                    # Let's set the Group to LDAP server
+                    ldapfolder._setProperty('_local_groups', False)
+                    # Set groups_base to ou=Roles
+                    ldapfolder._setProperty('groups_base', 'ou=Roles,o=EIONET,l=Europe')
+                    local_users = ldapfolder.getLocalUsers()
+                    for user in local_users:
+                        success = doMigrateLocalUser(acl_users, user)
+                        if not success:
+                            print 'Unable to migrate user: %s' % str(user)
+                        else:
+                            print 'Migrated user: %s' % str(user)
 
         trans.commit()
         print "All done!"

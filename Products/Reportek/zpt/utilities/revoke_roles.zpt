@@ -1,3 +1,6 @@
+<tal:block define="global deployment python: here.ReportekEngine.getDeploymentType();
+                   global isCdrDeployment python: deployment == 'CDR'"
+                   />
 <metal:block use-macro="here/roles_template/macros/roles-page">
 
     <metal:block fill-slot="page-header">
