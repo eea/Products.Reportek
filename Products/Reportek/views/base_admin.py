@@ -152,9 +152,17 @@ class BaseAdmin(BrowserView):
 
             if match_groups:
                 c_code = self.get_country_code(brain.getCountryName).lower()
-                group = self.request.get('groupsname') + '-' + c_code
-                if group in match_groups:
-                    collection['matched_group'] = group
+                c_codes = [c_code]
+                c_exc = {'gb': 'uk',
+                         'gr': 'el'}.get(c_code)
+                if c_exc:
+                    c_codes.append(c_exc)
+
+                for code in c_codes:
+                    group = self.request.get('groupsname') + '-' + code
+                    if group in match_groups:
+                        collection['matched_group'] = group
+                        break
 
             records.append(collection)
 

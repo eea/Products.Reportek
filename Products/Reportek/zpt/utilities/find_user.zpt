@@ -107,14 +107,15 @@
             <th></th>
           </tr>
         </thead>
-        <tbody tal:define="country_codes view/get_all_country_codes">
+        <tbody tal:define="country_codes view/get_all_country_codes;
+                           com_exceptions python: ['uk', 'el'];
+                           all_country_codes python: country_codes + com_exceptions">
           <tr tal:repeat="group groups">
             <tal:block tal:define="dn python: group.get('dn', '');
                                    description group/description | nothing;
                                    cn python: group.get('cn', '');
                                    suffix python: cn.split('-')[-1];
-                                   potential_c python: [cn + '-' + code.lower() for code in country_codes]"
-                                   >
+                                   potential_c python: [cn + '-' + code.lower() for code in all_country_codes]">
               <td>
                 <input type="radio" name="groupsname"
                   tal:attributes="value group/cn;
