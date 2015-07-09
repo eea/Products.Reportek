@@ -31,7 +31,7 @@
     <metal:block fill-slot="data-table">
       <table id="datatable" data-table-key="by_path"
             tal:condition="filtered"
-            tal:attributes="class python: 'datatable ' + {'CDR': 'cdr-datatable', 'BDR': 'bdr-datatable'}.get(deployment)">
+            tal:attributes="class python: 'datatable ' + {'CDR': 'cdr-datatable', 'BDR': 'bdr-datatable'}.get(deployment, 'CDR')">
         <thead>
           <tr>
             <th>Collection</th>
