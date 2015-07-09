@@ -1,4 +1,5 @@
 from base_admin import BaseAdmin
+from operator import itemgetter
 from Products.Reportek.constants import ENGINE_ID, ECAS_ID
 from Products.Reportek.config import *
 
@@ -156,6 +157,7 @@ class ManageRoles(BaseAdmin):
                     response['errors'] = True
 
             users = ecas_users + ldap_users
+            users.sort(key=itemgetter('uid'))
             response['users'] = users
 
         return response
