@@ -84,8 +84,8 @@
                            tal:content="collection/path"/>
                       </td>
                       <td>
-                        <ul>
-                          <tal:block repeat="obl collection/obligations">
+                        <ul tal:define="obligations collection/obligations">
+                          <tal:block repeat="obl obligations">
                             <li>
                               <a tal:attributes="href obl/uri"
                                  tal:content="obl/title" />
@@ -96,7 +96,7 @@
                       <td>
                         <ul tal:condition="collection/roles"
                             tal:define="local_roles collection/roles">
-                          <li tal:repeat="user local_roles/keys">
+                          <li tal:repeat="user python: sorted(local_roles.keys())">
                             <span tal:replace="user"/>
                             (<span tal:replace="python:', '.join(local_roles[user])"/>)
                           </li>

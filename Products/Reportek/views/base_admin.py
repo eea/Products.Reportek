@@ -141,7 +141,7 @@ class BaseAdmin(BrowserView):
                     'uri': uri,
                     'title': title
                 })
-
+            obligations.sort(key=itemgetter('title'))
             collection = {
                 'path': brain.getPath(),
                 'country': brain.getCountryName,
