@@ -343,17 +343,31 @@ reportek.utils = {
     return "http://www.eionet.europa.eu/directory/user?uid=" + user;
   },
 
+  getIMBGClass: function(elem) {
+    var bg_class = {
+      "msg-info": "bg-info",
+      "msg-warning": "bg-warning",
+      "msg-danger": "bg-danger",
+      "msg-success": "bg-success"
+    };
+    var elem_classes = elem.attr("class").split(" ");
+    return bg_class[elem_classes[elem_classes.length-1]];
+  },
+
   toggleInfoMessage: function(elem) {
+    var self = reportek.utils;
     var im_msg = elem.find(".im-message");
     var open_ctl = elem.find(".im-open");
     var close_ctl = elem.find(".im-close");
     if ((im_msg).is(":visible")) {
-      elem.removeClass("bg-visible bg-info");
+      elem.removeClass("bg-visible");
+      elem.removeClass(self.getIMBGClass(im_msg));
       im_msg.hide();
       close_ctl.hide();
       open_ctl.show();
     } else {
-      elem.addClass("bg-visible bg-info");
+      elem.addClass("bg-visible");
+      elem.addClass(self.getIMBGClass(im_msg));
       im_msg.show();
       open_ctl.hide();
       close_ctl.show();
@@ -374,13 +388,16 @@ reportek.utils = {
     var self = reportek.utils;
     var open_ctl = elem.find(".im-open");
     var close_ctl = elem.find(".im-close");
+    var data_info = elem.find(".im-message").attr("data-info");
     open_ctl.on("click", function(evt){
       self.toggleInfoMessage(elem);
       evt.preventDefault();
     });
     close_ctl.on("click", function(evt){
       self.toggleInfoMessage(elem);
-      self.setCookie(elem);
+      if (data_info !== undefined) {
+        self.setCookie(elem);
+      }
       evt.preventDefault();
     });
   },
@@ -397,11 +414,13 @@ reportek.utils = {
       data_info = elem.attr("data-info");
       var open_ctl = parent.find(".im-open");
       open_ctl.hide();
-      if (data_info.length > 0) {
-        if (document.cookie.indexOf(data_info) >= 0) {
-          self.toggleInfoMessage(parent);
-        } else {
-          parent.addClass("bg-visible bg-info");
+      parent.addClass("bg-visible");
+      parent.addClass(self.getIMBGClass(elem));
+      if (data_info !== undefined) {
+        if (data_info.length > 0) {
+          if (document.cookie.indexOf(data_info) >= 0) {
+            self.toggleInfoMessage(parent);
+          }
         }
       }
     }
@@ -473,7 +492,7 @@ reportek.utils = {
     var radio_placeholders = {
       "users": "You can search on First name, Surname, Userid and Email",
       "groups": "You can search on LDAP Groups"
-    }
+    };
     $(".search-radios input").on("click", function(){
       $(".search-box input").attr("placeholder", radio_placeholders[$(this).attr("value")]);
       });

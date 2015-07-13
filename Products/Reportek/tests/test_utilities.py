@@ -651,7 +651,8 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             # Assign new role
             self.browser.getControl(name='btn.assign').click()
             self._check_controls(self.browser.contents)
-            self.assertTrue('Operations completed succesfully.' in self.browser.contents)
+            self.assertTrue('Roles assigned: ' in self.browser.contents)
+
             search_term_ctl = self.browser.getControl(name='search_term')
             search_term_ctl.value = 'test_user_1_'
             self.browser.getControl(name='btnFind').click()
@@ -800,7 +801,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
 
         self.browser.getControl(name='btn.revoke').click()
         self._check_controls(self.browser.contents)
-        self.assertTrue('Operations completed succesfully.' in
+        self.assertTrue('Roles removed: ' in
                         self.browser.contents)
 
         # Search for our test user

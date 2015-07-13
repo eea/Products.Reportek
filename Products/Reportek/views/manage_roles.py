@@ -12,14 +12,10 @@ class ManageRoles(BaseAdmin):
         if self.__name__ == 'assign_role':
             if self.request.get('btn.assign'):
                 self.assign_role()
-                return self.request.response.redirect('%s/%s?done=1' % (
-                        self.context.absolute_url(), self.__name__))
 
         elif self.__name__ == 'revoke_roles':
             if self.request.get('btn.revoke'):
                 self.revoke_roles()
-                return self.request.response.redirect('%s/%s?done=1' % (
-                        self.context.absolute_url(), self.__name__))
 
         return self.index()
 
@@ -49,6 +45,8 @@ class ManageRoles(BaseAdmin):
         match_groups = []
         groups = False
 
+        results = []
+
         if search_type == 'groups':
             entity = self.request.get('groupsname', '')
             use_subgroups = self.request.get('use-subgroups')
@@ -70,12 +68,24 @@ class ManageRoles(BaseAdmin):
             roles.add(role)
             obj.manage_setLocalRoles(cur_entity, list(roles))
             obj.reindex_object()
+            results.append({
+                'entity': cur_entity,
+                'path': path,
+                'role': role
+                })
+
+        if results:
+            results.sort(key=itemgetter('path'))
+            self.request['search_term'] = ''
+        self.request['op_results'] = results
+
 
     def revoke_roles(self):
         collections = self.request.get('collections', [])
         search_type = self.request.get('search_type')
         entity = self.request.get('username', '')
         match_groups = []
+        results = []
         if search_type == 'groups':
             entity = self.request.get('groupsname', '')
             use_subgroups = self.request.get('use-subgroups', '')
@@ -97,6 +107,16 @@ class ManageRoles(BaseAdmin):
             if roles:
                 obj.manage_setLocalRoles(entity, list(roles))
             obj.reindex_object()
+            results.append({
+                'entity': entity,
+                'path': path,
+                'role': role
+                })
+
+        if results:
+            results.sort(key=itemgetter('path'))
+            self.request['search_term'] = ''
+        self.request['op_results'] = results
 
     def search_ldap_users(self, term):
         params = [name for name, value in self.get_ldap_schema()]

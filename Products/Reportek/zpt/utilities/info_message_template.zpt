@@ -1,9 +1,10 @@
 <metal:macro metal:define-macro="info-message">
-  <div class="info-message">
-    <div class="im-controls">
+  <div metal:define-slot="info-message-container" class="info-message">
+    <div metal:define-slot="info-message-controls-container" class="im-controls im-controls-left">
       <div metal:define-slot="info-message-controls" />
     </div>
     <div class="im-message" metal:define-slot="im-message">
       <div metal:define-slot="info-message-content" />
     </div>
+  </div>
 </metal:macro>
