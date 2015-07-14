@@ -21,8 +21,8 @@
     <div class="filters">
       <h1>Recent uploads</h1>
 
-      <h2>1. Select obligation</h2>
-      <tal:block metal:use-macro="here/filters/macros/select-obligation" />
+      <h2>1. Select obligations</h2>
+      <tal:block metal:use-macro="here/filters/macros/select-obligations" />
 
       <h2>2. Select one or more countries</h2>
       <tal:block metal:use-macro="here/filters/macros/countries" />

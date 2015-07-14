@@ -7,7 +7,7 @@
   <script src="++resource++static/utils.js"></script>
   <script type="text/javascript">
     $(function () {
-      $("#obligation").select2(
+      $("#obligations").select2(
         {
           allowClear: true
         });
@@ -37,7 +37,7 @@
 
     <div class="filters">
 
-      <tal:block metal:use-macro="here/filters/macros/select-obligation" />
+      <tal:block metal:use-macro="here/filters/macros/select-obligations" />
 
       <div class="form-indent">
         <label for="status">that have been</label>

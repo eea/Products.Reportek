@@ -44,8 +44,8 @@
       <h2>1. Select one or more countries</h2>
       <tal:block metal:use-macro="here/filters/macros/countries" />
 
-      <h2>2. Select obligation</h2>
-      <tal:block metal:use-macro="here/filters/macros/select-obligation" />
+      <h2>2. Select obligations</h2>
+      <tal:block metal:use-macro="here/filters/macros/select-obligations" />
 
       <h2>3. Collection details</h2>
 

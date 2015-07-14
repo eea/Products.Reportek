@@ -418,7 +418,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             self.assertTrue('Build collections' in self.browser.contents)
 
             # Select test obligation
-            o_controls = self.browser.getControl(name='obligation').controls
+            o_controls = self.browser.getControl(name='obligations:list').controls
             for o_control in o_controls:
                 if o_control.optionValue == '8':
                     o_control.selected = True
@@ -436,7 +436,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
 
             # Test with multiple countries
             # Select test obligation
-            o_controls = self.browser.getControl(name='obligation').controls
+            o_controls = self.browser.getControl(name='obligations:list').controls
             for o_control in o_controls:
                 if o_control.optionValue == '8':
                     o_control.selected = True
@@ -454,7 +454,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
 
             # Test inexistent path
             # Select test obligation
-            o_controls = self.browser.getControl(name='obligation').controls
+            o_controls = self.browser.getControl(name='obligations:list').controls
             for o_control in o_controls:
                 if o_control.optionValue == '8':
                     o_control.selected = True
@@ -473,7 +473,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
 
             # Test existent path
             # Select test obligation
-            o_controls = self.browser.getControl(name='obligation').controls
+            o_controls = self.browser.getControl(name='obligations:list').controls
             for o_control in o_controls:
                 if o_control.optionValue == '8':
                     o_control.selected = True
@@ -492,7 +492,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
 
             # Test existent multilevel path
             # Select test obligation
-            o_controls = self.browser.getControl(name='obligation').controls
+            o_controls = self.browser.getControl(name='obligations:list').controls
             for o_control in o_controls:
                 if o_control.optionValue == '8':
                     o_control.selected = True
@@ -511,7 +511,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
 
             # Test existent path with leading slash
             # Select test obligation
-            o_controls = self.browser.getControl(name='obligation').controls
+            o_controls = self.browser.getControl(name='obligations:list').controls
             for o_control in o_controls:
                 if o_control.optionValue == '8':
                     o_control.selected = True
@@ -530,7 +530,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
 
             # Test existent path with backslash
             # Select test obligation
-            o_controls = self.browser.getControl(name='obligation').controls
+            o_controls = self.browser.getControl(name='obligations:list').controls
             for o_control in o_controls:
                 if o_control.optionValue == '8':
                     o_control.selected = True
@@ -566,7 +566,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
                         self.browser.contents)
 
         # Select test obligation
-        o_controls = self.browser.getControl(name='obligation').controls
+        o_controls = self.browser.getControl(name='obligations:list').controls
         for o_control in o_controls:
             if o_control.optionValue == '8':
                 o_control.selected = True
@@ -581,7 +581,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         self.browser.getControl(name='btnFilter').click()
         self._check_controls(self.browser.contents)
         expected_url = (ru_url + '/get_users_by_path?'
-                        'obligation=8&role=&countries%3Alist=tc&'
+                        'obligations%3Alist=8&role=&countries%3Alist=tc&'
                         'btnFilter=Search')
         self.assertEqual(expected_url, self.browser.url)
 
@@ -630,7 +630,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
                     c_ctl.selected = True
 
             # Select our test obligation
-            o_controls = self.browser.getControl(name='obligation').controls
+            o_controls = self.browser.getControl(name='obligations:list').controls
             for o_control in o_controls:
                 if o_control.optionValue == '8':
                     o_control.selected = True
@@ -658,7 +658,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             self.browser.getControl(name='btnFind').click()
             self.browser.getControl(name='username').controls[0].selected = True
             self.browser.getControl(name='countries:list').controls[0].selected = True
-            self.browser.getControl(name='obligation').controls[1].selected = True
+            self.browser.getControl(name='obligations:list').controls[0].selected = True
             r_controls = self.browser.getControl(name='role').controls
             for r_control in r_controls:
                 if r_control.optionValue == 'Client':
@@ -672,7 +672,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             # Go to search Search for collection with obligation view
             self.browser.getLink(text='Create envelopes').click()
             self._check_controls(self.browser.contents)
-            self.browser.getControl(name='obligation').controls[0].selected = True
+            self.browser.getControl(name='obligations:list').controls[0].selected = True
             self.browser.getControl(name='btn.search').click()
             self.assertTrue('Test Country' in self.browser.contents)
 
@@ -712,7 +712,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
                     c_ctl.selected = True
 
             # Select our test obligation
-            o_controls = self.browser.getControl(name='obligation').controls
+            o_controls = self.browser.getControl(name='obligations:list').controls
             for o_control in o_controls:
                 if o_control.optionValue == '8':
                     o_control.selected = True
@@ -756,7 +756,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             self._check_controls(self.browser.contents)
 
             # Search our inactive test envelope
-            self.browser.getControl(name='obligation').controls[0].selected = True
+            self.browser.getControl(name='obligations:list').controls[0].selected = True
             status = self.browser.getControl(name='status').controls
             for status_ctl in status:
                 if status_ctl.optionValue == 'Inactive':

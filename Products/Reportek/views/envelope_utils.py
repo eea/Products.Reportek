@@ -18,30 +18,31 @@ class EnvelopeUtils(BaseAdmin):
 
         return self.index()
 
-
     def get_envelope_status(self):
         ignore_list = ['complete', 'fallout', 'running']
         status = self.context.Catalog.uniqueValuesFor('status')
         return [s for s in status if s not in ignore_list]
 
-
     def get_not_completed_workitems(self):
         status = self.request.get('status', '')
         age = self.request.get('age', 0)
-        obligation = self.request.get('obligation', '')
+        obligations = self.request.get('obligations', [])
 
         query = {'meta_type': 'Workitem',
-                'status': ['active','inactive'],
-                'sort_on': 'reportingdate',
-                'sort_order': 'reverse'}
+                 'status': ['active', 'inactive'],
+                 'sort_on': 'reportingdate',
+                 'sort_order': 'reverse'}
 
         if age:
             query['reportingdate'] = {
                         'query': DateTime() - age,
                         'range': 'min'}
 
-        if obligation:
-            query['dataflow_uris'] = self.get_obligations()[obligation]
+        if obligations:
+            if not isinstance(obligations, list):
+                obligations = [obligations]
+            df_uris = [self.get_obligations()[obl] for obl in obligations]
+            query['dataflow_uris'] = df_uris
 
         brains = self.context.Catalog(**query)
 
@@ -56,7 +57,6 @@ class EnvelopeUtils(BaseAdmin):
 
             activity = workitem.getActivityDetails('title')
 
-
             if activity == 'Draft' and workitem.status == 'inactive':
                 continue
 
@@ -64,7 +64,6 @@ class EnvelopeUtils(BaseAdmin):
             workitems.append(workitem)
 
         return workitems, tasks
-
 
     def auto_complete_envelopes(self):
         ids = self.request.get('ids', [])

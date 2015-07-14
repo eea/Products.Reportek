@@ -26,7 +26,7 @@
     <h2>1. Search collections</h2>
 
     <div class="filters">
-      <tal:block metal:use-macro="here/filters/macros/select-obligation" />
+      <tal:block metal:use-macro="here/filters/macros/select-obligations" />
       <div>
         <input type="submit" name="btn.search" value="search" />
       </div>

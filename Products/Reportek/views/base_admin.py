@@ -88,7 +88,7 @@ class BaseAdmin(BrowserView):
         return {'legal_instruments': legal_instruments,
                 'obligations': obligations}
 
-    def search_catalog(self, obligation, countries, role, users=[]):
+    def search_catalog(self, obligations, countries, role, users=[]):
         if len(countries) == len(self.localities_rod):
             country_codes = None
         else:
@@ -100,15 +100,18 @@ class BaseAdmin(BrowserView):
             query['local_unique_roles'] = role
         if country_codes:
             query['country'] = country_codes
-        if obligation:
-            query['dataflow_uris'] = self.get_obligations()[obligation]
+        if obligations:
+            if not isinstance(obligations, list):
+                obligations = [obligations]
+            df_uris = [self.get_obligations()[obl] for obl in obligations]
+            query['dataflow_uris'] = df_uris
         if users:
             query['local_defined_users'] = users
 
         return self.context.Catalog(query)
 
     def get_collections(self):
-        obligation = self.request.get('obligation', '')
+        obligations = self.request.get('obligations', [])
         countries = self.request.get('countries', [])
         search_type = self.request.get('search_type')
         entity = self.request.get('username', '')
@@ -125,27 +128,27 @@ class BaseAdmin(BrowserView):
             entity = ''
 
         records = []
-        brains = self.search_catalog(obligation,
+        brains = self.search_catalog(obligations,
                                      countries,
                                      role='',
                                      users=entity)
         for brain in brains:
 
-            obligations = []
+            col_obligations = []
             for uri in list(brain.dataflow_uris):
                 try:
                     title = self.get_obligations_title()[uri]
                 except KeyError:
                     title = 'Unknown/Deleted obligation'
-                obligations.append({
+                col_obligations.append({
                     'uri': uri,
                     'title': title
                 })
-            obligations.sort(key=itemgetter('title'))
+            col_obligations.sort(key=itemgetter('title'))
             collection = {
                 'path': brain.getPath(),
                 'country': brain.getCountryName,
-                'obligations': obligations,
+                'obligations': col_obligations,
                 'roles': brain.local_defined_roles,
                 'title': brain.title
             }

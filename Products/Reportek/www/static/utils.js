@@ -31,7 +31,7 @@ reportek.utils = {
     self.initCompaniesTable();
     self.bindSearchRadios();
     var placeholder = "";
-    var selects_ids = ["#role", "#obligation", "#countries"];
+    var selects_ids = ["#role", "#obligations", "#countries"];
 
     for (var i=0; i<=selects_ids.length; i++) {
       var select = $(selects_ids[i]);
@@ -274,7 +274,7 @@ reportek.utils = {
     $.ajax({
       url: dataSources[tableKey],
       data: {
-        obligation: $("#obligation").val(),
+        obligations: $("#obligations").val(),
         role: $("#role").val(),
         countries: $("#countries").val()
       },
@@ -306,7 +306,7 @@ reportek.utils = {
 
   clear_filters: function() {
     $("#countries").select2("val", "");
-    $("#obligation").select2("val", "");
+    $("#obligations").select2("val", "");
     $("#role").select2("val", "");
   },
 

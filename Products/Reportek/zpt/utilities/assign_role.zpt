@@ -49,8 +49,8 @@
           <h2>3. Select one or more countries</h2>
           <tal:block metal:use-macro="here/filters/macros/countries" />
 
-          <h2>4. Select obligation</h2>
-          <tal:block metal:use-macro="here/filters/macros/select-obligation" />
+          <h2>4. Select obligations</h2>
+          <tal:block metal:use-macro="here/filters/macros/select-obligations" />
 
           <h2>5. Select role</h2>
           <tal:block metal:use-macro="here/filters/macros/role" />
@@ -111,8 +111,8 @@
                            tal:content="collection/path"/>
                       </td>
                       <td>
-                        <ul tal:define="obligations collection/obligations">
-                          <tal:block repeat="obl obligations">
+                        <ul tal:define="col_obligations collection/obligations">
+                          <tal:block repeat="obl col_obligations">
                             <li>
                               <a tal:attributes="href obl/uri"
                                  tal:content="obl/title" />

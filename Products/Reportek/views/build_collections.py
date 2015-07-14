@@ -19,16 +19,17 @@ class BuildCollections(BaseAdmin):
         pattern = self.request.form.pop('pattern', '')
         countries = self.request.form.pop('countries', None)
         title = self.request.form.pop('ctitle', '')
-        obl = self.request.form.pop('obligation', [])
+        obl = self.request.form.pop('obligations', [])
 
         collection_id = self.request.form.pop('cid', '')
         allow_collections = int(self.request.form.pop('allow_collections', 0))
         allow_envelopes = int(self.request.form.pop('allow_envelopes', 1))
 
+        obligations = []
         # adjust obligation to expected format
-        if not isinstance(obl, list):
-            obl = filter(lambda c: c.get('PK_RA_ID') == obl, self.dataflow_rod)[0]
-            obl = [obl['uri']]
+        for ob in obl:
+            ob = filter(lambda c: c.get('PK_RA_ID') == ob, self.dataflow_rod)[0]
+            obligations.append(ob.get('uri'))
 
         # get ReportekEngine object
         engine = self.context.unrestrictedTraverse('/'+ENGINE_ID)
@@ -45,7 +46,7 @@ class BuildCollections(BaseAdmin):
 
                     target = engine.getPhysicalRoot().restrictedTraverse(target_path)
                     target.manage_addCollection(
-                        title, '', '', '', '', country['uri'], '', obl,
+                        title, '', '', '', '', country['uri'], '', obligations,
                         allow_collections=allow_collections,
                         allow_envelopes=allow_envelopes,
                         id=collection_id
