@@ -42,7 +42,7 @@
 
     <metal:block fill-slot="data-table">
       <tal:block condition="request/search_term | nothing">
-        <form action="#preview" method="POST">
+        <form action="#preview" method="POST" id="assign-roles-form">
 
           <tal:block metal:use-macro="here/find_user/macros/users_table" />
 

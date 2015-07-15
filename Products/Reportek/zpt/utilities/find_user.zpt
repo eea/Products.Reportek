@@ -61,7 +61,8 @@
           </tr>
         </thead>
         <tbody>
-          <tr tal:repeat="user users">
+          <tr tal:repeat="user users"
+            tal:attributes="class python: {'disabled': 'user-disabled'}.get(user.get('employeeType', ''))">
             <tal:block tal:define="dn user/dn|nothing;
                                    mail user/mail|nothing">
               <td>

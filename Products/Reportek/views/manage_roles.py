@@ -79,7 +79,6 @@ class ManageRoles(BaseAdmin):
             self.request['search_term'] = ''
         self.request['op_results'] = results
 
-
     def revoke_roles(self):
         collections = self.request.get('collections', [])
         search_type = self.request.get('search_type')

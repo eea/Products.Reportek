@@ -496,3 +496,15 @@ hr {
   font-size: 13px;
   margin-right: 20px;
 }
+
+#revoke-roles-form tr.user-disabled {
+  /* Modern Browsers */
+  opacity: 0.5;
+  /*IE*/
+  -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)"; // IE8
+  filter: alpha(opacity=50); // IE 5-7
+}
+
+#assign-roles-form tr.user-disabled {
+  display: none;
+}

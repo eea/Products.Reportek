@@ -46,7 +46,7 @@
                   group python: request.get('groupsname', None);
                   entity python: user or group">
 
-        <form action="" method="POST">
+        <form action="" method="POST" id="revoke-roles-form">
 
           <tal:block metal:use-macro="here/find_user/macros/users_table" />
 
