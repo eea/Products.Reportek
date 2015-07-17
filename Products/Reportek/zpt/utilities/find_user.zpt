@@ -134,7 +134,7 @@
               <tal:def tal:define="children python: [child.get('cn') for child in groups
                                   if child.get('cn') in potential_c]">
                 <td>
-                  <tal:block tal:condition="children">
+                  <tal:block tal:condition="python: len(children) > 1">
                     <label>
                       <input type="radio" name="use-subgroups"
                        tal:attributes="value python: ','.join(children);
