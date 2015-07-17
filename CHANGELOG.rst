@@ -1,5 +1,6 @@
 3.8.6-dev (unreleased)
 ----------------------
+* Feature #27205 - Added view for DataflowMappings [olimpiurob]
 * Feature #23931
     - Added support for assigning local roles to LDAP groups [olimpiurob]
 
