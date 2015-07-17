@@ -6,7 +6,7 @@
             valid_schemas context/getValidXMLSchemas;
             beforeEditForm context/getWebQ_BeforeEditForm_URL;
             can_view_or_edit_with_webq
-            python:context.getWebQ_BeforeEditForm_URL and context.xml_schema_location in context.getValidXMLSchemas()">
+            python:context.getWebQ_BeforeEditForm_URL() and context.xml_schema_location in context.getValidXMLSchemas(web_form_only=True)">
 
     <div id="operations">
       <ul>

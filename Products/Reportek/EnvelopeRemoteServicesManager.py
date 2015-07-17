@@ -342,11 +342,13 @@ class EnvelopeRemoteServicesManager:
         return l_dict.keys()
 
     security.declarePublic('getValidXMLSchemas')
-    def getValidXMLSchemas(self):
+    def getValidXMLSchemas(self, web_form_only=False):
         """ The purpose is to know if to put an edit button and a record in 'view as...' select
             next to XML files
         """
-        return self.getDataflowMappingsContainer().getSchemasForDataflows(self.dataflow_uris)
+        mappings_c = self.getDataflowMappingsContainer()
+        return mappings_c.getSchemasForDataflows(self.dataflow_uris,
+                                                 web_form_only=web_form_only)
 
     def getWebQ_BeforeEditForm_URL(self):
         """ Retrieves the URL to the edit for of the XML file - if any """
