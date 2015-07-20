@@ -57,26 +57,3 @@ class BuildCollections(BaseAdmin):
                         country['name'], target_path)
                     messages['fail'].append(err)
         return self.index(messages=messages)
-
-    def get_rod_obligations(self):
-        """ Get activities from ROD """
-        engine = self.context.unrestrictedTraverse('/'+ENGINE_ID)
-        unique_uris = engine.getUniqueValuesFor('dataflow_uris')
-
-        dataflow_rod = self.dataflow_rod
-        data = []
-
-        if dataflow_rod:
-            data = sorted(dataflow_rod, key=itemgetter('SOURCE_TITLE'))
-
-        obligations = defaultdict(list)
-        for obl in data:
-            if obl.get('uri') in unique_uris:
-                obligations[obl['SOURCE_TITLE']].append(obl)
-
-        legal_instruments = sorted(obligations.keys())
-
-        return {
-            'legal_instruments': legal_instruments,
-            'obligations': obligations
-        }
