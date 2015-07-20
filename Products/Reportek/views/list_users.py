@@ -124,7 +124,7 @@ class ListUsers(BaseAdmin):
 
     def get_records(self, REQUEST):
 
-        obligation = REQUEST.get('obligation', '')
+        obligations = REQUEST.get('obligations[]', [])
         countries = REQUEST.get('countries[]', [])
         role = REQUEST.get('role', '')
 
@@ -138,17 +138,17 @@ class ListUsers(BaseAdmin):
             if role == 'ClientFG':
                 use_role = ''
 
-        brains = self.search_catalog(obligation, countries, use_role)
+        brains = self.search_catalog(obligations, countries, use_role)
 
         for brain in brains:
             users = {}
-            obligations = []
+            col_obligations = []
             for uri in list(brain.dataflow_uris):
                 try:
                     title = self.get_obligations_title()[uri]
                 except KeyError:
                     title = 'Unknown/Deleted obligation'
-                obligations.append((uri, title))
+                col_obligations.append((uri, title))
 
             if role:
                 users = dict((user, {'uid': user,
@@ -195,7 +195,7 @@ class ListUsers(BaseAdmin):
 
             yield {
                 'path': [brain.getPath(), brain.title],
-                'obligations': obligations,
+                'obligations': col_obligations,
                 'users':  users}
 
     def getUsers(self, REQUEST):
