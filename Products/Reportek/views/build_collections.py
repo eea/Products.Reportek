@@ -23,7 +23,7 @@ class BuildCollections(BaseAdmin):
 
         collection_id = self.request.form.pop('cid', '')
         allow_collections = int(self.request.form.pop('allow_collections', 0))
-        allow_envelopes = int(self.request.form.pop('allow_envelopes', 1))
+        allow_envelopes = int(self.request.form.pop('allow_envelopes', 0))
 
         obligations = []
         # adjust obligation to expected format
