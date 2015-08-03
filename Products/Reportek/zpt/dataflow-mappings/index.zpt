@@ -1,13 +1,17 @@
-<span tal:replace="structure here/standard_html_header" />
+<tal:block content="structure context/manage_page_header" />
+<tal:block content="structure context/manage_tabs" />
 
-<table class="datatable">
-  <thead>
+<h1>Dataflow mappings in this Data Repository</h1>
+
+<table class="datatable" cellpadding="2" cellpadding="0">
+  <thead class="list-header">
     <th>Dataflow Mapping</th>
     <th>Obligations</th>
     <th style="width: 45%;">Schemas</th>
   </thead>
   <tbody>
-    <tr tal:repeat="mapping python: context.objectValues('Dataflow Mappings Record')">
+    <tr tal:repeat="mapping python: context.objectValues('Dataflow Mappings Record')"
+      tal:attributes="class python:test(path('repeat/mapping/odd'), 'row-hilite', None)">
       <td>
         <a href=""
           tal:attributes="href python: mapping.absolute_url() + '/manage_workspace'"
@@ -26,8 +30,9 @@
             <tr tal:repeat="schema schemas">
               <td>
                 <a href="#" tal:attributes="href python: schema.get('url')">
-                  <span tal:content="python: schema.get('name')"/>
-                </a>
+                  <span tal:content="python: schema.get('url')"/>
+                </a> - 
+                <span tal:content="python:schema.get('name')" />
               </td>
               <td style="width: 90px;">
                 <label>
@@ -45,5 +50,4 @@
     </tr>
   </tbody>
 </table>
-
-<span tal:replace="structure here/standard_html_footer" />
+<tal:block content="structure context/manage_page_footer" />
