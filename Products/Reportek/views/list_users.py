@@ -45,33 +45,31 @@ class ListUsers(BaseAdmin):
             for brain in brains:
                 for entity, roles in brain.local_defined_roles.items():
                     if role in roles:
-                        user_ob = acl_users.getUserById(entity)
-                        if user_ob:
-                            if entities.get(entity):
-                                paths = entities[entity].get('paths', [])
-                                paths.append(brain.getURL())
-                                paths.sort()
-                            else:
-                                user_info = {
-                                    'uid': entity,
-                                    'type': 'User',
-                                    'name': unicode(user_ob.getProperty('cn'),
-                                                    'latin-1'),
-                                    'email': user_ob.getProperty('mail'),
-                                    'paths': [brain.getURL()]}
-                                entities[entity] = user_info
+                        if entities.get(entity):
+                            paths = entities[entity].get('paths', [])
+                            paths.append(brain.getURL())
+                            paths.sort()
                         else:
-                            groups = self.search_ldap_groups(entity)
-                            if groups:
-                                # Use only the first result
-                                group = groups[0]
-                                entities[entity] = {
-                                    'uid': entity,
-                                    'type': 'LDAP Group',
-                                    'name': group.get('description'),
-                                    'email': None,
-                                    'paths': [brain.getURL()]
-                                }
+                            e_info = {
+                                'uid': entity,
+                            }
+                            user_ob = acl_users.getUserById(entity)
+                            if user_ob:
+                                e_info['type'] = 'User'
+                                e_info['name'] = unicode(user_ob.getProperty('cn'),
+                                                         'latin-1')
+                                e_info['email'] = user_ob.getProperty('mail')
+                                e_info['paths'] = [brain.getURL()]
+                            else:
+                                groups = self.search_ldap_groups(entity)
+                                if groups:
+                                    # Use only the first result
+                                    group = groups[0]
+                                    e_info['type'] = 'LDAP Group'
+                                    e_info['name'] = group.get('description')
+                                    e_info['email'] = None
+                                    e_info['paths'] = [brain.getURL()]
+                            entities[entity] = e_info
 
             entity_list = entities.values()
 
