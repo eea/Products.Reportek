@@ -35,41 +35,43 @@
     </div>
   </form>
 
-  <table class="datatable" tal:condition="options/reporters | nothing">
-    <thead>
-      <tr>
-        <th>Reporter</th>
-        <th>Type</th>
-        <th>Name</th>
-        <th>Email</th>
-        <th>Path</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr tal:repeat="reporter options/reporters">
-        <td tal:content="reporter/uid" />
-        <td tal:content="reporter/type" />
-        <td tal:content="reporter/name" />
-        <td>
-          <a tal:condition="reporter/email"
-             tal:attributes="href string:mailto:${reporter/email}"
-             tal:content="reporter/email" />
-        </td>
-        <td>
-          <ul tal:condition="reporter/paths">
-            <li tal:repeat="path reporter/paths">
-              <a tal:attributes="href string:${path}"
-               tal:content="path" />
-             </li>
-          </ul>
-        </td>
-      </tr>
-    </tbody>
-  </table>
+  <div class="results-table">
+    <table class="datatable" tal:condition="options/reporters | nothing">
+      <thead>
+        <tr>
+          <th>Reporter</th>
+          <th>Type</th>
+          <th>Name</th>
+          <th>Email</th>
+          <th>Path</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr tal:repeat="reporter options/reporters">
+          <td tal:content="reporter/uid" />
+          <td tal:content="reporter/type" />
+          <td tal:content="reporter/name" />
+          <td>
+            <a tal:condition="reporter/email"
+               tal:attributes="href string:mailto:${reporter/email}"
+               tal:content="reporter/email" />
+          </td>
+          <td>
+            <ul tal:condition="reporter/paths">
+              <li tal:repeat="path reporter/paths">
+                <a tal:attributes="href string:${path}"
+                 tal:content="path" />
+               </li>
+            </ul>
+          </td>
+        </tr>
+      </tbody>
+    </table>
 
-  <strong tal:condition="not: options/reporters | nothing">
-    No reporters found for the selected country.
-  </strong>
+    <strong tal:condition="not: options/reporters | nothing">
+      No reporters found for the selected country.
+    </strong>
+  </div>
 
 </metal:block>
 

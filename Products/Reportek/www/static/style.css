@@ -508,3 +508,7 @@ hr {
 #assign-roles-form tr.user-disabled {
   display: none;
 }
+
+.results-table {
+  overflow: auto;
+}
