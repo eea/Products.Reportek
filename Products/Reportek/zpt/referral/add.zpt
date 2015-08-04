@@ -1,77 +1,92 @@
 <tal:block define="SecurityManager modules/AccessControl/getSecurityManager; has_permission python:SecurityManager.checkPermission('View management screens', template)">
 
-	<tal:block condition="has_permission">
-		<span tal:replace="structure context/manage_page_header" />
-		<span tal:replace="structure python:context.manage_form_title(template, context, form_title='Add Referral', help_product='Reportek', help_topic='Referral_Add.stx')" />
-	</tal:block>
-	<tal:block condition="python:not has_permission">
-		<span tal:replace="structure context/standard_html_header" />
-		<h1 i18n:translate="">Add Referral</h1>
-	</tal:block>
+  <tal:block condition="has_permission">
+      <span tal:replace="structure context/manage_page_header" />
+      <span tal:replace="structure python:context.manage_form_title(template, context, form_title='Add Referral', help_product='Reportek', help_topic='Referral_Add.stx')" />
+  </tal:block>
 
-	<p class="form-help" i18n:translate="">If a certain delivery data is not stored on this system, specify another location for it.</p>
+  <tal:block condition="python:not has_permission">
+      <span tal:replace="structure context/standard_html_header" />
+      <h1 i18n:translate="">Add Referral</h1>
+  </tal:block>
 
-	<form action="manage_addReferral" method="post" name="form">
-	<table border="0" cellspacing="5" cellpadding="0">
-		<tr>
-			<th><label for="title" i18n:translate="">Title</label></th>
-			<td><input type="text" id="title" name="title" size="50" value="" /></td>
-		</tr>
-		<tr>
-			<th><label for="referral_url" i18n:translate="">Referral URL</label></th>
-			<td><input type="text" id="referral_url" name="referral_url" size="50" value="" /></td>
-		</tr>
-		<tr>
-			<th valign="top"><label for="descr" i18n:translate="">Description</label></th>
-			<td><textarea cols="50" rows="6" name="descr" id="descr"></textarea></td>
-		</tr>
-		<tr tal:define="default here/dataflow_uris | python:[]">
-			<th valign="top"><label for="dataflow_uris" i18n:translate="">Obligations</label></th>
-			<td tal:define="data here/dataflow_table_grouped; groups python:data[0]; items python:data[1]">
-				<select id="dataflow_uris" size="15" name="dataflow_uris:list" multiple="multiple">
-					<tal:block tal:repeat="group groups">
-						<optgroup tal:attributes="label python:test(len(group)<=80, group, '%s ...' % group[:77])">
-							<tal:block tal:repeat="item python:items[group]">
-							<option tal:define="terminated python:item.has_key('terminated') and item['terminated']=='1'" tal:attributes="value item/uri; class python:test(terminated, 'terminated', None); selected python:item['uri'] in default">
-								[<span tal:replace="python:' '.join(item['SOURCE_TITLE'].split()[0:2])" />]
-								<span tal:replace="python:test(len(item['TITLE'])<=80, item['TITLE'], '%s ...' % item['TITLE'][:77])" />
-								<tal:block tal:condition="terminated"> (<tal:block i18n:translate="">terminated</tal:block>)</tal:block>
-							</option>
-							</tal:block>
-						</optgroup>
-					</tal:block>
-				</select>
-			</td>
-		</tr>
-		<tr tal:define="default here/partofyear | nothing">
-			<th><label for="year" i18n:translate="">Relating to which year</label></th>
-			<td>
-				<input type="text" name="year" id="year" size="4" maxlength="4" tal:attributes="value here/year | nothing" />
-				<select name="partofyear" id="partofyear">
-					<option tal:repeat="item here/partofyear_table" tal:attributes="value item; selected python:item==default" tal:content="item" i18n:translate="" />
-				</select>
-				<label for="endyear" class="form-optional" i18n:translate="">to</label>
-				<input type="text" id="endyear" name="endyear" size="4" maxlength="4" value="" />
-			</td>
-		</tr>
-		<tr tal:define="default here/country | nothing; engine here/getEngine;">
-			<th><label for="country" i18n:translate="">Coverage</label></th>
-			<td>
-				<select name="country" id="country">
-					<option value="" i18n:translate="">Unspecified</option>
-					<option tal:repeat="item engine/localities_table" tal:attributes="value item/uri; selected python:item['uri']==default" tal:content="item/name" />
-				</select>
-			</td>
-		</tr>
-		<tr tal:define="default here/locality | nothing">
-			<th><label for="locality" i18n:translate="">Coverage note</label></th>
-			<td><input type="text" name="locality" id="locality" size="30" tal:attributes="value default" /></td>
-		</tr>
-		<tr><td></td><td><input type="submit" value="Add" i18n:attributes="value" /></td></tr>
-	</table>
-	</form>
+  <tal:block tal:define="canCreateReferral python:here.num_terminated_dataflows()<1; engine here/getEngine;">
+    <tal:block tal:condition="python:not canCreateReferral">
+        <p i18n:translate="">You cannot create referrals for terminated obligations, you need to change the list of obligations associated to this collection and remove the following:</p>
+        <ul>
+            <tal:block tal:repeat="item here/dataflow_uris">
+                <tal:block tal:define="df python:engine.dataflow_lookup(item)">
+                    <li tal:condition="python:df.get('terminated', '0')=='1'"><a tal:attributes="href df/details_url" tal:content="df/TITLE" /></li>
+                </tal:block>
+            </tal:block>
+        </ul>
+        <p><a tal:attributes="href string:${here/absolute_url}/" i18n:translate="">Back to collection</a></p>
+    </tal:block>
 
-	<span tal:condition="has_permission" tal:replace="structure context/manage_page_footer" />
-	<span tal:condition="not:has_permission" tal:replace="structure context/standard_html_footer" />
+    <tal:block tal:condition="canCreateReferral">
+      <p class="form-help" i18n:translate="">If a certain delivery data is not stored on this system, specify another location for it.</p>
+      <form action="manage_addReferral" method="post" name="form">
+        <table border="0" cellspacing="5" cellpadding="0">
+          <tr>
+            <th><label for="title" i18n:translate="">Title</label></th>
+            <td><input type="text" id="title" name="title" size="50" value="" /></td>
+          </tr>
+          <tr>
+            <th><label for="referral_url" i18n:translate="">Referral URL</label></th>
+            <td><input type="text" id="referral_url" name="referral_url" size="50" value="" /></td>
+          </tr>
+          <tr>
+            <th valign="top"><label for="descr" i18n:translate="">Description</label></th>
+            <td><textarea cols="50" rows="6" name="descr" id="descr"></textarea></td>
+          </tr>
+          <tr tal:define="default here/dataflow_uris | python:[]">
+            <th valign="top"><label for="dataflow_uris" i18n:translate="">Obligations</label></th>
+            <td tal:define="data here/dataflow_table_grouped; groups python:data[0]; items python:data[1]">
+              <select id="dataflow_uris" size="15" name="dataflow_uris:list" multiple="multiple">
+                <tal:block tal:repeat="group groups">
+                  <optgroup tal:attributes="label python:test(len(group)<=80, group, '%s ...' % group[:77])">
+                    <tal:block tal:repeat="item python:items[group]">
+                      <option tal:define="terminated python:item.has_key('terminated') and item['terminated']=='1'" tal:attributes="value item/uri; class python:test(terminated, 'terminated', None); selected python:item['uri'] in default">
+                          [<span tal:replace="python:' '.join(item['SOURCE_TITLE'].split()[0:2])" />]
+                          <span tal:replace="python:test(len(item['TITLE'])<=80, item['TITLE'], '%s ...' % item['TITLE'][:77])" />
+                          <tal:block tal:condition="terminated"> (<tal:block i18n:translate="">terminated</tal:block>)</tal:block>
+                      </option>
+                    </tal:block>
+                  </optgroup>
+                </tal:block>
+              </select>
+            </td>
+          </tr>
+          <tr tal:define="default here/partofyear | nothing">
+            <th><label for="year" i18n:translate="">Relating to which year</label></th>
+            <td>
+                <input type="text" name="year" id="year" size="4" maxlength="4" tal:attributes="value here/year | nothing" />
+                <select name="partofyear" id="partofyear">
+                    <option tal:repeat="item here/partofyear_table" tal:attributes="value item; selected python:item==default" tal:content="item" i18n:translate="" />
+                </select>
+                <label for="endyear" class="form-optional" i18n:translate="">to</label>
+                <input type="text" id="endyear" name="endyear" size="4" maxlength="4" value="" />
+            </td>
+          </tr>
+          <tr tal:define="default here/country | nothing; engine here/getEngine;">
+            <th><label for="country" i18n:translate="">Coverage</label></th>
+            <td>
+              <select name="country" id="country">
+                <option value="" i18n:translate="">Unspecified</option>
+                <option tal:repeat="item engine/localities_table" tal:attributes="value item/uri; selected python:item['uri']==default" tal:content="item/name" />
+              </select>
+            </td>
+          </tr>
+          <tr tal:define="default here/locality | nothing">
+            <th><label for="locality" i18n:translate="">Coverage note</label></th>
+            <td><input type="text" name="locality" id="locality" size="30" tal:attributes="value default" /></td>
+          </tr>
+          <tr><td></td><td><input type="submit" value="Add" i18n:attributes="value" /></td></tr>
+        </table>
+      </form>
+    </tal:block>
+  </tal:block>
+  <span tal:condition="has_permission" tal:replace="structure context/manage_page_footer" />
+  <span tal:condition="not:has_permission" tal:replace="structure context/standard_html_footer" />
 
 </tal:block>
