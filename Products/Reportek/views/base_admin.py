@@ -70,15 +70,20 @@ class BaseAdmin(BrowserView):
         app = self.context.getPhysicalRoot()
         return sorted(list(app.userdefined_roles()))
 
-    def get_rod_obligations(self):
-        """ Get activities from ROD """
-
+    def get_raw_rod_obligations(self):
+        """ Returns a sorted list of obligations from ROD
+        """
         dataflow_rod = self.dataflow_rod
         data = []
 
         if dataflow_rod:
             data = sorted(dataflow_rod, key=itemgetter('SOURCE_TITLE'))
 
+        return data
+
+    def get_rod_obligations(self):
+        """ Get all activities from ROD """
+        data = self.get_raw_rod_obligations()
         obligations = defaultdict(list)
         for obl in data:
             obligations[obl['SOURCE_TITLE']].append(obl)
@@ -87,6 +92,26 @@ class BaseAdmin(BrowserView):
 
         return {'legal_instruments': legal_instruments,
                 'obligations': obligations}
+
+    def get_assigned_rod_obligations(self):
+        """ Returns activities that have already been assigned to collections or
+            envelopes and that exist in ROD
+        """
+        data = self.get_raw_rod_obligations()
+        obligations = defaultdict(list)
+        engine = getattr(self.context, constants.ENGINE_ID)
+        unique_uris = engine.getUniqueValuesFor('dataflow_uris')
+        obligations = defaultdict(list)
+        for obl in data:
+            if obl.get('uri') in unique_uris:
+                obligations[obl['SOURCE_TITLE']].append(obl)
+
+        legal_instruments = sorted(obligations.keys())
+
+        return {
+            'legal_instruments': legal_instruments,
+            'obligations': obligations
+        }
 
     def search_catalog(self, obligations, countries, role, users=[]):
         if len(countries) == len(self.localities_rod):

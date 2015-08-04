@@ -38,7 +38,7 @@
   </div>
 
   <form method="post"  name="objectItems">
-    <div class="filters">
+    <div class="filters" tal:define="rod_data view/get_rod_obligations">
       <h1>Build collections</h1>
 
       <h2>1. Select one or more countries</h2>
