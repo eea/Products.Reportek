@@ -512,3 +512,57 @@ hr {
 .results-table {
   overflow: auto;
 }
+
+.tabbedmenu {
+  float: left;
+  width: 100%;
+  background: url("https://www.eionet.europa.eu/styles/eionet2007/tab_bg.png") bottom repeat-x;
+  font-size: 0.9em;
+  line-height: normal;
+}
+
+.tabbedmenu .currenttab {
+  background-image: url("https://www.eionet.europa.eu/styles/eionet2007/tab_left_on.png");
+  border-bottom: 3px solid #cedc32;
+}
+
+.tabbedmenu li {
+  float: left;
+  background: url("https://www.eionet.europa.eu/styles/eionet2007/tab_left.png") no-repeat left top;
+  border-bottom: 3px solid #315076;
+  margin: 0;
+  padding: 0 0 0 6px;
+  white-space: nowrap;
+}
+
+.tabbedmenu ul {
+  margin: 0;
+  padding: 0px 10px 0 10px;
+  list-style: none;
+}
+
+.tabbedmenu .currenttab span,
+.tabbedmenu .currenttab a {
+    display: block;
+    text-decoration: none;
+    font-weight: bold;
+    background: url("https://www.eionet.europa.eu/styles/eionet2007/tab_right_on.png") no-repeat right top;
+    padding: 3px 8px 2px 0px;
+}
+
+.tabbedmenu a {
+    display: block;
+    text-decoration: none;
+    font-weight: bold;
+    color: black;
+    background: url("https://www.eionet.europa.eu/styles/eionet2007/tab_right.png") no-repeat right top;
+    padding: 3px 8px 2px 0px;
+}
+
+.tabbedmenuend {
+  clear: left;
+}
+
+.hidden-content {
+  display: none;
+}

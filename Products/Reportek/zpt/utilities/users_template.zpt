@@ -1,33 +1,73 @@
 <tal:block define="global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'"/>
 
 <tal:block metal:define-macro="users-page">
-<metal:block use-macro="container/standard_template.pt/macros/page">
+  <metal:block use-macro="container/standard_template.pt/macros/page">
 
-<metal:block fill-slot="head">
-  <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
-  <link href="++resource++static/style.css" rel="stylesheet"/>
-  <link href="++resource++static/fontawesome/font-awesome.min.css" rel="stylesheet"/>
+    <metal:block fill-slot="head">
+      <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
+      <link href="++resource++static/style.css" rel="stylesheet"/>
+      <link href="++resource++static/fontawesome/font-awesome.min.css" rel="stylesheet"/>
 
-  <script type="text/javascript" charset="utf8" src="++resource++static/jquery-1.11.2.min.js"></script>
-  <script type="text/javascript" charset="utf8" src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.min.js"></script>
-  <script src="++resource++static/select2-3.5.0/select2.js"></script>
-  <script src="++resource++static/utils.js"></script>
-</metal:block>
-  <metal:block fill-slot="breadcrumbtrails">
-    <tal:block content="structure here/breadcrumbs_views"></tal:block>
+      <script type="text/javascript" charset="utf8" src="++resource++static/jquery-1.11.2.min.js"></script>
+      <script type="text/javascript" charset="utf8" src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.min.js"></script>
+      <script src="++resource++static/select2-3.5.0/select2.js"></script>
+      <script src="++resource++static/utils.js"></script>
+    </metal:block>
+
+    <metal:block fill-slot="breadcrumbtrails">
+      <tal:block content="structure here/breadcrumbs_views"></tal:block>
+    </metal:block>
+
+    <metal:block fill-slot="content">
+      <metal:block use-macro="here/util_controls/macros/utilities-controls" />
+        <div class="ajaxtabsmenu tabbedmenu">
+          <ul>
+            <li class="tabbed-elem currenttab">
+              <a class="" href="#users-roles">
+                Show where users have roles
+              </a>
+            </li>
+            <li class="tabbed-elem">
+              <a class="" href="#search-user">
+                Search user
+              </a>
+            </li>
+          </ul>
+        </div>
+        <div class="tabbedmenuend"></div>
+
+      <div class="filter-form">
+        <div id="users-roles" class="tabbed-content">
+          <h1>Show where users have roles</h1>
+          
+          <tal:block tal:define="placeholder python: True">
+            <metal:block use-macro="here/filters/macros/users-form"/>
+          </tal:block>
+        </div>
+        <div id="search-user" class="tabbed-content hidden-content">
+          <tal:block metal:use-macro="here/find_user/macros/filters" />
+        </div>
+      </div>
+      <div id="results">
+        <metal:block define-slot="tabs" />
+        <metal:block define-slot="info-message" />
+        <metal:block define-slot="data-table" />
+      </div>
+      <div id="ajax-results" class="hidden-content">
+<!--         <table class="datatable hidden-content">
+          <thead>
+            <tr>
+              <th>Country</th>
+              <th tal:condition="python: request.get('use-subgroups')">LDAP Groups</th>
+              <th>Path</th>
+              <th>Obligations</th>
+              <th>Roles</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table> -->
+      </div>
+    </metal:block>
   </metal:block>
-<metal:block fill-slot="content">
-  <metal:block use-macro="here/util_controls/macros/utilities-controls" />
-  <h1>Show where users have roles</h1>
-  
-  <tal:block tal:define="placeholder python: True">
-    <metal:block use-macro="here/filters/macros/users-form"/>
-  </tal:block>
-  <metal:block define-slot="tabs" />
-  <metal:block define-slot="info-message" />
-  <metal:block define-slot="data-table" />
-
-</metal:block>
-
-</metal:block>
 </tal:block>

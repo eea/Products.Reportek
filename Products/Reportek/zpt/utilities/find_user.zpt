@@ -2,7 +2,7 @@
                    global isCdrDeployment python: deployment == 'CDR';"
                    />
 <tal:block metal:define-macro="filters">
-  <form action="" method="POST">
+  <form id="find-user-form" action="" method="POST">
     <h2 tal:condition="isCdrDeployment">1. Search users or groups</h2>
     <h2 tal:condition="not: isCdrDeployment">1. Search users</h2>
     <div class="filters">

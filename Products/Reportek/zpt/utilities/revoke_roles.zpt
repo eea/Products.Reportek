@@ -65,7 +65,7 @@
           </p>
 
           <tal:block condition="request/btn.find_roles | nothing">
-            <tal:block condition="entity">
+            <tal:block tal:condition="entity">
             <tal:def tal:define="collections view/get_collections">
               <tal:block tal:condition="collections">
                 <h2>3. Revoke roles</h2>

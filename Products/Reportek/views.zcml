@@ -58,6 +58,13 @@
     attribute="api_get_user_type" />
 
   <browser:page
+    name="api.get_collections"
+    for="*"
+    permission="zope2.ViewManagementScreens"
+    class=".views.BaseAdmin"
+    attribute="api_get_collections" />
+
+  <browser:page
     name="get_users"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"

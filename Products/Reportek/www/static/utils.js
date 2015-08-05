@@ -1,4 +1,4 @@
-/*global $ */
+/*global $, jQuery*/
 "use strict";
 if (window.reportek === undefined) {
     var reportek = {
@@ -30,6 +30,7 @@ reportek.utils = {
     self.initEnvelopesTable();
     self.initCompaniesTable();
     self.bindSearchRadios();
+    self.initTabbedMenu();
     var placeholder = "";
     var selects_ids = ["#role", "#obligations", "#countries"];
 
@@ -496,10 +497,143 @@ reportek.utils = {
     $(".search-radios input").on("click", function(){
       $(".search-box input").attr("placeholder", radio_placeholders[$(this).attr("value")]);
       });
+  },
+
+  populateUserRolesTable: function(data) {
+    var json_data = JSON.parse(data);
+    var dtable = $("#ajax-results > .datatable");
+    dtable.removeClass("hidden-content");
+    dtable.dataTable({
+      "data": json_data.data,
+      "columnDefs": [ {
+          "targets": 0,
+          "data": function ( row, type ) {
+            if (type === "display" || type === "filter") {
+              return row.country;
+            }
+          },
+          "defaultContent": ""
+          },{
+          "targets": 1,
+          "defaultContent": "",
+          "data": function ( row, type ) {
+            if(type === "display" || type === "filter") {
+              var path = $("<a>", {
+                "href": row.path,
+                "text": row.path
+                });
+              return path.outerHTML();
+            }
+          }
+          }, {
+          "targets": 2,
+          "defaultContent": "",
+          "data": function ( row, type ) {
+            if(type === "display" || type === "filter") {
+              var ulist = $("<ul>");
+              var li_elem, link;
+              for (var i=0; i<row.obligations.length; i++){
+                li_elem = $("<li>");
+                link = $("<a>", {
+                  "href": row.obligations[i].uri,
+                  "text": row.obligations[i].title
+                  }).appendTo(li_elem);
+                li_elem.appendTo(ulist);
+              }
+              return ulist.outerHTML();
+            }
+          }
+          }, {
+          "targets": 3,
+          "defaultContent": "",
+          "data": function ( row, type ) {
+            if(type === "display" || type === "filter") {
+              var entity = $("input[name='username']:checked").attr("value");
+              return row.roles[entity];
+            }
+          }
+      }]
+      });
+  },
+
+  handleSearchUser: function(data) {
+    var results = $("ajax-results");
+    $("#coll-form").remove();
+    $("#ajax-results > .dataTable").addClass("hidden-content");
+    var coll_form = $("<form>", {
+      "id": "coll-form",
+      });
+    results.html("");
+    $(data).filter(".datatable").appendTo(coll_form);
+
+    $("<input>", {
+      "type": "submit",
+      "name": "btn.find_roles",
+      "value": "Find user/group roles"
+      }).appendTo(coll_form);
+    $("#ajax-results").removeClass("hidden-content");
+    $("#ajax-results").prepend(coll_form);
+    $("#coll-form").submit(function(evt){
+      evt.preventDefault();
+      $.ajax({
+          url: "api.get_collections",
+          data: $("#coll-form").serialize()
+        }).success(function(data){
+          $("#coll-table_wrapper").remove();
+          reportek.utils.addCollectionDataTable($("#ajax-results"));
+          reportek.utils.populateUserRolesTable(data);
+        });
+      });
+  },
+
+  addCollectionDataTable: function(parent_el) {
+    var theading = ["Country", "Path", "Obligations", "Roles"];
+    var dtable = $("<table>", {
+        "id": "coll-table",
+        "class": "datatable"
+      }).appendTo(parent_el);
+    var dthead = $("<thead>").appendTo(dtable);
+    var headrow = $("<tr>").appendTo(dthead);
+    for (var i=0; i<theading.length; i++) {
+      headrow.append($("<th>", {
+        "text": theading[i]
+        }));
+    }
+  },
+
+  initTabbedMenu: function() {
+    $(".ajaxtabsmenu a").on("click", function(evt) {
+      var tab = $(this);
+
+      $(".tabbed-content").addClass("hidden-content");
+      $(".tabbed-elem").removeClass("currenttab");
+
+      $(tab.attr("href")).removeClass("hidden-content");
+      tab.parent().addClass("currenttab");
+
+      $("#results").empty();
+      $("#ajax-results").empty();
+
+      evt.preventDefault();
+    });
+
+    $(".filter-form #find-user-form").submit(function(evt) {
+      evt.preventDefault();
+      $.ajax({
+          url: "find_user",
+          data: $("#find-user-form").serialize()
+        }).success(function(data){
+          $("#coll-table_wrapper").remove();
+          reportek.utils.handleSearchUser(data);
+        });
+    });
   }
 
 };
 
 window.jQuery(document).ready(function () {
+    jQuery.fn.outerHTML = function(s) {
+      return s ? this.before(s).remove() : jQuery("<p>").append(this.eq(0).clone()).html();
+    };
     reportek.utils.load();
 });

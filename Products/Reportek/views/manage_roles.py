@@ -160,24 +160,28 @@ class ManageRoles(BaseAdmin):
         term = self.request.get('search_term')
         s_type = self.request.get('search_type')
         response = {}
-        if s_type == 'groups':
-            groups = self.search_ldap_groups(term)
-            response['groups'] = groups
-        else:
-            ldap_users = self.search_ldap_users(term)
-            ecas_users = []
-            if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-                ecas_users = self.search_ecas_users(term)
+        if term:
+            if s_type == 'groups':
+                groups = self.search_ldap_groups(term)
+                response['groups'] = groups
+            else:
+                ldap_users = self.search_ldap_users(term)
+                ecas_users = []
+                if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+                    ecas_users = self.search_ecas_users(term)
 
-            if ldap_users:
-                err_users = [user for user in ldap_users
-                             if user.get('sn') == 'Error']
-                if err_users:
-                    response['errors'] = True
+                if ldap_users:
+                    err_users = [user for user in ldap_users
+                                 if user.get('sn') == 'Error']
+                    if err_users:
+                        response['errors'] = True
 
-            users = ecas_users + ldap_users
-            users.sort(key=itemgetter('uid'))
-            response['users'] = users
+                users = ecas_users + ldap_users
+
+                if users:
+                    users.sort(key=itemgetter('uid'))
+
+                response['users'] = users
 
         return response
 

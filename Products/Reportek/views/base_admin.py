@@ -1,3 +1,4 @@
+import json
 from collections import defaultdict
 from operator import itemgetter
 from Products.Five import BrowserView
@@ -158,7 +159,6 @@ class BaseAdmin(BrowserView):
                                      role='',
                                      users=entity)
         for brain in brains:
-
             col_obligations = []
             for uri in list(brain.dataflow_uris):
                 try:
@@ -196,6 +196,10 @@ class BaseAdmin(BrowserView):
 
         records.sort(key=itemgetter('path'))
         return records
+
+    def api_get_collections(self):
+
+        return json.dumps({"data": list(self.get_collections())})
 
     def get_breadcrumbs(self):
         breadcrumbs = []
