@@ -28,8 +28,8 @@
               </a>
             </li>
             <li class="tabbed-elem">
-              <a class="" href="#search-user">
-                Search user
+              <a class="" href="#search-member">
+                Search member
               </a>
             </li>
           </ul>
@@ -44,7 +44,7 @@
             <metal:block use-macro="here/filters/macros/users-form"/>
           </tal:block>
         </div>
-        <div id="search-user" class="tabbed-content hidden-content">
+        <div id="search-member" class="tabbed-content hidden-content">
           <tal:block metal:use-macro="here/find_user/macros/filters" />
         </div>
       </div>
