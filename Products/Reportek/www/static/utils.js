@@ -503,18 +503,16 @@ reportek.utils = {
     var json_data = JSON.parse(data);
     var dtable = $("#ajax-results > .datatable");
     dtable.removeClass("hidden-content");
-    dtable.dataTable({
-      "data": json_data.data,
-      "columnDefs": [ {
-          "targets": 0,
+    var columnDefs = [ {
+          "targets": "dt-country",
           "data": function ( row, type ) {
             if (type === "display" || type === "filter") {
               return row.country;
             }
           },
           "defaultContent": ""
-          },{
-          "targets": 1,
+          }, {
+          "targets": "dt-path",
           "defaultContent": "",
           "data": function ( row, type ) {
             if(type === "display" || type === "filter") {
@@ -526,7 +524,7 @@ reportek.utils = {
             }
           }
           }, {
-          "targets": 2,
+          "targets": "dt-obligations",
           "defaultContent": "",
           "data": function ( row, type ) {
             if(type === "display" || type === "filter") {
@@ -544,15 +542,42 @@ reportek.utils = {
             }
           }
           }, {
-          "targets": 3,
+          "targets": "dt-roles",
           "defaultContent": "",
           "data": function ( row, type ) {
             if(type === "display" || type === "filter") {
-              var entity = $("input[name='username']:checked").attr("value");
-              return row.roles[entity];
+              var username = $("input[name='username']:checked").attr("value");
+              var groupsname = $("input[name='groupsname']:checked").attr("value");
+              var entity = username ? username : groupsname;
+              entity = row.matched_group ? row.matched_group : entity;
+              var ulist = $("<ul>");
+              var li_elem, link;
+              for (var i=0; i<row.roles[entity].length; i++){
+                li_elem = $("<li>", {
+                  "text": row.roles[entity][i]
+                  });
+                li_elem.appendTo(ulist);
+              }
+              return ulist.outerHTML();
             }
           }
-      }]
+      }];
+    var use_subgroups = $("input[name='use-subgroups']:checked").attr("value");
+    if (use_subgroups !== undefined) {
+      var ldapg_coldef = {
+          "targets": "dt-ldap-groups",
+          "defaultContent": "",
+          "data": function ( row, type ) {
+            if(type === "display" || type === "filter") {
+              return row.matched_group;
+            }
+          }
+      }
+      columnDefs.splice(1, 0, ldapg_coldef);
+    }
+    dtable.dataTable({
+      "data": json_data.data,
+      "columnDefs": columnDefs
       });
   },
 
@@ -565,6 +590,24 @@ reportek.utils = {
       });
     results.html("");
     $(data).filter(".datatable").appendTo(coll_form);
+    var search_type = $("input[name='search_type']:checked").attr("value");
+    if (search_type !== undefined) {
+      var hidden_search_type = $("<input>", {
+        "type": "hidden",
+        "name": "search_type",
+        "value": search_type
+        });
+      hidden_search_type.appendTo(coll_form);
+      var use_subgroups = $("input[name='use-subgroups']:checked").attr("value");
+      if (use_subgroups !== undefined) {
+        var hidden_use_subgroups = $("<input>", {
+        "type": "hidden",
+        "name": "use-subgroups",
+        "value": use_subgroups
+        });
+        hidden_use_subgroups.appendTo(coll_form);
+      }
+    }
 
     $("<input>", {
       "type": "submit",
@@ -587,7 +630,16 @@ reportek.utils = {
   },
 
   addCollectionDataTable: function(parent_el) {
-    var theading = ["Country", "Path", "Obligations", "Roles"];
+    var theading = [
+      ["Country", "dt-country"],
+      ["Path", "dt-path"],
+      ["Obligations", "dt-obligations"],
+      ["Roles", "dt-roles"]
+    ];
+    var use_subgroups = $("input[name='use-subgroups']:checked").attr("value");
+    if (use_subgroups !== undefined) {
+      theading.splice(1, 0, ["LDAP Groups", "dt-ldap-groups"]);
+    }
     var dtable = $("<table>", {
         "id": "coll-table",
         "class": "datatable"
@@ -596,7 +648,8 @@ reportek.utils = {
     var headrow = $("<tr>").appendTo(dthead);
     for (var i=0; i<theading.length; i++) {
       headrow.append($("<th>", {
-        "text": theading[i]
+        "text": theading[i][0],
+        "class": theading[i][1]
         }));
     }
   },
