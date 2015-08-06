@@ -497,7 +497,7 @@ hr {
   margin-right: 20px;
 }
 
-#revoke-roles-form tr.user-disabled {
+tr.user-disabled {
   /* Modern Browsers */
   opacity: 0.5;
   /*IE*/

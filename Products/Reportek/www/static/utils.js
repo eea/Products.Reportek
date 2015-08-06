@@ -103,14 +103,8 @@ reportek.utils = {
     return "<span class='user-id'>" + user.uid + "</span>" + self.renderAsUL([getUserType.prop("outerHTML"), "Role: " + user.role]);
   },
 
-  datatable_loading: function(action) {
-    var target = $("#datatable");
-    var t_parent = target.parent();
-    var t_length = $("#datatable_length");
-    var t_filter = $("#datatable_filter");
-    var t_paginate = $("#datatable_paginate");
-    var t_info = $("#datatable_info");
-    var img_container = $(".spinner-container");
+  do_spinner: function(container) {
+    var img_container = container.find($(".spinner-container"));
     if (img_container.length <= 0 ) {
       img_container = $("<div />", {"class": "spinner-container"});
       var img = $("<img />", {
@@ -118,8 +112,20 @@ reportek.utils = {
                     "class": "ajax-spinner"
                   });
       img_container.append(img);
-      t_parent.prepend(img_container);
+      container.append(img_container);
     }
+    return img_container;
+  },
+
+  datatable_loading: function(target, action) {
+    var self = reportek.utils;
+    var t_parent = target.parent();
+    var t_id = target.attr("id");
+    var t_length = $("#" + t_id+ "_length");
+    var t_filter = $("#" + t_id+ "_filter");
+    var t_paginate = $("#" + t_id+ "_paginate");
+    var t_info = $("#" + t_id+ "_info");
+    var spinner = self.do_spinner(t_parent);
 
     if (action === "hide") {
       target.hide();
@@ -133,7 +139,7 @@ reportek.utils = {
       t_filter.show();
       t_paginate.show();
       t_info.show();
-      img_container.hide();
+      spinner.remove();
     }
   },
 
@@ -268,9 +274,7 @@ reportek.utils = {
       by_path: "/api.get_users_by_path",
       by_person: "/api.get_users"
     };
-
-    self.datatable_loading("hide");
-    // $(".placeholder", result).html(img);
+    self.datatable_loading(target, "hide");
     dataTable.on("draw.dt", self.getCurrentUserTypes);
     $.ajax({
       url: dataSources[tableKey],
@@ -284,7 +288,7 @@ reportek.utils = {
         $.each(rows, function(idx, row) {
           dataTable.row.add(self.generateRow(row, tableKey));
         });
-        self.datatable_loading("show");
+        self.datatable_loading(target, "show");
         dataTable.draw();
       }
     });
@@ -502,7 +506,7 @@ reportek.utils = {
   populateUserRolesTable: function(data) {
     var json_data = JSON.parse(data);
     var dtable = $("#ajax-results > .datatable");
-    dtable.removeClass("hidden-content");
+
     var columnDefs = [ {
           "targets": "dt-country",
           "data": function ( row, type ) {
@@ -582,9 +586,9 @@ reportek.utils = {
   },
 
   handleSearchUser: function(data) {
-    var results = $("ajax-results");
-    $("#coll-form").remove();
-    $("#ajax-results > .dataTable").addClass("hidden-content");
+    var self = reportek.utils;
+    var results = $("#ajax-results");
+
     var coll_form = $("<form>", {
       "id": "coll-form",
       });
@@ -614,17 +618,18 @@ reportek.utils = {
       "name": "btn.find_roles",
       "value": "Find user/group roles"
       }).appendTo(coll_form);
-    $("#ajax-results").removeClass("hidden-content");
     $("#ajax-results").prepend(coll_form);
     $("#coll-form").submit(function(evt){
       evt.preventDefault();
+      self.addCollectionDataTable($("#ajax-results"));
+      self.datatable_loading($("#ajax-results > .datatable"), "hide");
       $.ajax({
           url: "api.get_collections",
           data: $("#coll-form").serialize()
         }).success(function(data){
           $("#coll-table_wrapper").remove();
-          reportek.utils.addCollectionDataTable($("#ajax-results"));
-          reportek.utils.populateUserRolesTable(data);
+          self.datatable_loading($("#ajax-results > .datatable"), "show");
+          self.populateUserRolesTable(data);
         });
       });
   },
@@ -655,6 +660,7 @@ reportek.utils = {
   },
 
   initTabbedMenu: function() {
+    var self = reportek.utils;
     $(".ajaxtabsmenu a").on("click", function(evt) {
       var tab = $(this);
 
@@ -672,11 +678,13 @@ reportek.utils = {
 
     $(".filter-form #find-user-form").submit(function(evt) {
       evt.preventDefault();
+      $("#ajax-results").empty();
+      var spinner = self.do_spinner($("#ajax-results"));
       $.ajax({
           url: "find_user",
           data: $("#find-user-form").serialize()
         }).success(function(data){
-          $("#coll-table_wrapper").remove();
+          spinner.remove();
           reportek.utils.handleSearchUser(data);
         });
     });

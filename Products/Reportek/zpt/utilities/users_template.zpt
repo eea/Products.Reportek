@@ -48,13 +48,16 @@
           <tal:block metal:use-macro="here/find_user/macros/filters" />
         </div>
       </div>
+
       <div id="results">
         <metal:block define-slot="tabs" />
         <metal:block define-slot="info-message" />
         <metal:block define-slot="data-table" />
       </div>
-      <div id="ajax-results" class="hidden-content">
+
+      <div id="ajax-results">
       </div>
+
     </metal:block>
   </metal:block>
 </tal:block>
