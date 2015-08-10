@@ -10,11 +10,11 @@ import pickle
 
 class ContentRegistryPingger(object):
 
-    if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
+    PING_STORE = None
+
+    if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR and REDIS_DATABASE:
         import redis
         PING_STORE = redis.Redis(db=REDIS_DATABASE)
-    else:
-        PING_STORE = None
 
     def __init__(self, api_url):
         self.api_url = api_url
