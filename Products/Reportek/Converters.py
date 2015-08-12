@@ -48,6 +48,9 @@ import Converter
 import RepUtils
 import constants
 from Products.Reportek.exceptions import LocalConversionException
+from Products.Reportek import LOCAL_CONVERTERS_SCHEME
+from Products.Reportek import LOCAL_CONVERTERS_HOST
+from Products.Reportek import LOCAL_CONVERTERS_PORT
 
 detection_log = logging.getLogger(__name__ + '.detection')
 
@@ -124,7 +127,9 @@ class Converters(Folder):
             return self.manage_converters_html(self,REQUEST,manage_tabs_message=message)
 
     def get_local_http_converters_url(self):
-        return 'http://localhost:%s/' % Products.Reportek.LOCAL_CONVERTERS_PORT
+        return "%s://%s:%s/" % (LOCAL_CONVERTERS_SCHEME,
+                                LOCAL_CONVERTERS_HOST,
+                                LOCAL_CONVERTERS_PORT)
 
     def _http_params(self):
         url = self.get_local_http_converters_url() + 'params'

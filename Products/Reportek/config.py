@@ -22,6 +22,8 @@ __all__ = [
     'permission_manage_properties_collections',
     'permission_manage_properties_envelopes',
     'LOCAL_CONVERTERS_PORT',
+    'LOCAL_CONVERTERS_HOST',
+    'LOCAL_CONVERTERS_SCHEME',
 ]
 
 DEPLOYMENT_CDR = 'CDR'
@@ -30,6 +32,8 @@ DEPLOYMENT_MDR = 'MDR'
 
 REPORTEK_DEPLOYMENT = os.environ.get('REPORTEK_DEPLOYMENT', DEPLOYMENT_MDR)
 LOCAL_CONVERTERS_PORT = os.environ.get('LOCAL_CONVERTERS_PORT', '5000')
+LOCAL_CONVERTERS_HOST = os.environ.get('LOCAL_CONVERTERS_HOST', 'localhost')
+LOCAL_CONVERTERS_SCHEME = os.environ.get('LOCAL_CONVERTERS_SCHEME', 'http')
 
 if REPORTEK_DEPLOYMENT in (DEPLOYMENT_CDR, DEPLOYMENT_MDR):
     permission_manage_properties_collections = 'Change Collections'
