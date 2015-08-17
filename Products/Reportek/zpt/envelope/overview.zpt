@@ -83,6 +83,17 @@
           <metal:block use-macro="here/macros/tasks_in_progress">
           </metal:block>
         </tal:block>
+        <tal:block tal:condition="context/is_blocked"
+          tal:define="w_items python:[wi for wi in context.getListOfWorkitems()];
+                      last python: w_items[-1].activity_id if w_items else None;">
+          <tal:block tal:condition="python: last == 'Draft'">
+            <div class="envelope-blocked-status">
+              <strong style="color: red;">
+                <span i18n:translate="">The last AutomaticQA run has flagged this envelope as unfit for release.</span>
+              </strong>
+            </div>
+          </tal:block>
+        </tal:block>
       </td>
     </tr>
     <tr tal:condition="isBdrDeployment">

@@ -1,13 +1,4 @@
 <tal:block metal:define-macro="tasks_in_progress">
-  <tal:block tal:condition="context/is_blocked"
-    tal:define="w_items python:[wi for wi in context.getListOfWorkitems()];
-                last python: w_items[-1].activity_id if w_items else None;">
-    <tal:block tal:condition="python: last == 'Draft'">
-      <strong style="color: red;">
-        [<span i18n:translate="">Envelope is blocked</span>]
-      </strong>
-    </tal:block>
-  </tal:block>
   <tal:block condition="python:activeW">
     <span i18n:translate="">Task(s) in progress:</span>
     <tal:block repeat="item activeW">
