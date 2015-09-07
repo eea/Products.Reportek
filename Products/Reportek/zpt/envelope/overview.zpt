@@ -2,7 +2,8 @@
 <span tal:replace="structure here/standard_html_header" />
 <script src="++resource++static/jquery-1.8.2.min.js"></script>
 <script type="text/javascript" charset="utf-8">
-    function slide_toggle(){
+    function slide_toggle(evt){
+        evt.preventDefault();
         var collapsed_text = 'Show more...';
         var expanded_text = 'Show less...';
         var collapsible=$('#detailed-qa');
@@ -121,6 +122,38 @@
                 <span i18n:translate="">The last AutomaticQA run has flagged this envelope as unfit for release.</span>
               </strong>
               <a id="toggle-detailed-qa" href="#" i18n:translate="">Show more...</a>
+              <div tal:define="fb_objs context/getFeedbackObjects;
+                               feedbacks python: [fb for fb in fb_objs if fb.message and fb.automatic];
+                               env_fbs python: [fb for fb in feedbacks if fb.document_id == 'xml']"
+                  id="detailed-qa" class="error-box">
+                <fieldset>
+                  <legend i18n:translate="">Detailed AutomaticQA Status</legend>
+                  <ul tal:condition="python: len(feedbacks) > len(env_fbs)">
+                    <tal:rep tal:repeat="feedback feedbacks">
+                      <li tal:condition="python: feedback.document_id != 'xml'">
+                        <strong>Document <a href="#" tal:attributes="href python: feedback.document_id" tal:content="python:feedback.document_id"/>
+                          has the following blocker issues:
+                        </strong>
+                        <ul>
+                          <li>
+                            <a href="#" tal:attributes="href feedback/absolute_url" tal:content="feedback/absolute_url"/>
+                            <span style="color: red;" tal:content="python:feedback.message"/>
+                          </li>
+                        </ul>
+                      </li>
+                    </tal:rep>
+                  </ul>
+                  <tal:block tal:condition="env_fbs">
+                    <strong>The following blocker issues were encountered at envelope level:</strong>
+                    <ul>
+                      <li tal:repeat="feedback env_fbs">
+                        <a href="#" tal:attributes="href feedback/absolute_url" tal:content="feedback/absolute_url"/>
+                        <span style="color: red;" tal:content="python:feedback.message"/>
+                      </li>
+                    </ul>
+                  </tal:block>
+                </fieldset>
+              </div>
             </div>
           </tal:block>
         </tal:block>
@@ -151,38 +184,7 @@
       </span> for this country and the current dataflow(s).
     </p>
   </div>
-  <div tal:define="fb_objs context/getFeedbackObjects;
-                   feedbacks python: [fb for fb in fb_objs if fb.message and fb.automatic];
-                   env_fbs python: [fb for fb in feedbacks if fb.document_id == 'xml']"
-      id="detailed-qa" class="error-box">
-    <fieldset>
-      <legend i18n:translate="">Detailed AutomaticQA Status</legend>
-      <ul tal:condition="python: len(feedbacks) > len(env_fbs)">
-        <tal:rep tal:repeat="feedback feedbacks">
-          <li tal:condition="python: feedback.document_id != 'xml'">
-            <strong>Document <a href="#" tal:attributes="href python: feedback.document_id" tal:content="python:feedback.document_id"/>
-              has the following blocker issues:
-            </strong>
-            <ul>
-              <li>
-                <a href="#" tal:attributes="href feedback/absolute_url" tal:content="feedback/absolute_url"/>
-                <span style="color: red;" tal:content="python:feedback.message"/>
-              </li>
-            </ul>
-          </li>
-        </tal:rep>
-      </ul>
-      <tal:block tal:condition="env_fbs">
-        <strong>The following blocker issues were encountered at envelope level:</strong>
-        <ul>
-          <li tal:repeat="feedback env_fbs">
-            <a href="#" tal:attributes="href feedback/absolute_url" tal:content="feedback/absolute_url"/>
-            <span style="color: red;" tal:content="python:feedback.message"/>
-          </li>
-        </ul>
-      </tal:block>
-    </fieldset>
-  </div>
+
   <form id="objectItems" method="post"
         tal:define="action_url python:context.absolute_url()"
         tal:attributes="action string:${action_url}/">
