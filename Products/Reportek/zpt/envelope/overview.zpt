@@ -1,5 +1,34 @@
 <tal:block define="global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'"/>
 <span tal:replace="structure here/standard_html_header" />
+<script src="++resource++static/jquery-1.8.2.min.js"></script>
+<script type="text/javascript" charset="utf-8">
+    function slide_toggle(){
+        var collapsed_text = 'Show more...';
+        var expanded_text = 'Show less...';
+        var collapsible=$('#detailed-qa');
+        if($(collapsible).attr('collapsed')=='false'){
+            $(collapsible).slideUp();
+            $(collapsible).attr('collapsed', 'true');
+            $(this).html(collapsed_text);
+        }
+        else{
+            $(collapsible).slideDown();
+            $(collapsible).attr('collapsed', 'false');
+            $(this).html(expanded_text);
+        }
+    }
+    $(document).ready(function() {
+            var start_hidden = true;
+            var collapsed_text = 'Show more...';
+            var expanded_text = 'Show less...';
+            var collapsible=$('#detailed-qa');
+            var button=$('#toggle-detailed-qa');
+            $(button).bind('click', slide_toggle);
+            $(collapsible).slideUp(0);
+            $(collapsible).attr('collapsed', 'true');
+            $(button).html(collapsed_text);
+    });
+</script>
 <tal:block condition="python:context.canViewContent()">
   <div tal:replace="structure python:context.envelope_tabs(tab='overview')"/>
 
@@ -91,6 +120,7 @@
               <strong style="color: red;">
                 <span i18n:translate="">The last AutomaticQA run has flagged this envelope as unfit for release.</span>
               </strong>
+              <a id="toggle-detailed-qa" href="#" i18n:translate="">Show more...</a>
             </div>
           </tal:block>
         </tal:block>
@@ -120,6 +150,38 @@
         </a>
       </span> for this country and the current dataflow(s).
     </p>
+  </div>
+  <div tal:define="fb_objs context/getFeedbackObjects;
+                   feedbacks python: [fb for fb in fb_objs if fb.message and fb.automatic];
+                   env_fbs python: [fb for fb in feedbacks if fb.document_id == 'xml']"
+      id="detailed-qa" class="error-box">
+    <fieldset>
+      <legend i18n:translate="">Detailed AutomaticQA Status</legend>
+      <ul tal:condition="python: len(feedbacks) > len(env_fbs)">
+        <tal:rep tal:repeat="feedback feedbacks">
+          <li tal:condition="python: feedback.document_id != 'xml'">
+            <strong>Document <a href="#" tal:attributes="href python: feedback.document_id" tal:content="python:feedback.document_id"/>
+              has the following blocker issues:
+            </strong>
+            <ul>
+              <li>
+                <a href="#" tal:attributes="href feedback/absolute_url" tal:content="feedback/absolute_url"/>
+                <span style="color: red;" tal:content="python:feedback.message"/>
+              </li>
+            </ul>
+          </li>
+        </tal:rep>
+      </ul>
+      <tal:block tal:condition="env_fbs">
+        <strong>The following blocker issues were encountered at envelope level:</strong>
+        <ul>
+          <li tal:repeat="feedback env_fbs">
+            <a href="#" tal:attributes="href feedback/absolute_url" tal:content="feedback/absolute_url"/>
+            <span style="color: red;" tal:content="python:feedback.message"/>
+          </li>
+        </ul>
+      </tal:block>
+    </fieldset>
   </div>
   <form id="objectItems" method="post"
         tal:define="action_url python:context.absolute_url()"
