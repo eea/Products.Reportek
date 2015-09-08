@@ -643,7 +643,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             return file_or_content.orig_size
         elif isinstance(file_or_content, ZZipFile):
             return file_or_content.tell()
-        return 0
+        else:
+            raise RuntimeError("Unable to compute uncompressed size")
 
 
 Globals.InitializeClass(Document)
