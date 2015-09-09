@@ -629,11 +629,15 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         """ Manage the edited values
         """
         if not dataflow_uris:
-            if REQUEST:
-                return self.messageDialog(
-                    "You must specify at least one obligation. Settings not saved!",
-                    action='./manage_prop')
-            return
+            if not self.dataflow_uris:
+                if REQUEST:
+                    return self.messageDialog(
+                        "You must specify at least one obligation. Settings not saved!",
+                        action='./manage_prop')
+                return
+        else:
+            self.dataflow_uris = dataflow_uris
+
         self.title=title
         try: self.year = int(year)
         except: self.year = ''
@@ -644,7 +648,6 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         self.country=country
         self.locality=locality
         self.descr=descr
-        self.dataflow_uris = dataflow_uris
         # update ZCatalog
         self.reindex_object()
         if REQUEST is not None:
