@@ -394,6 +394,9 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     security.declareProtected('Change Envelopes', 'envelope_previous')
     envelope_previous = PageTemplateFile('zpt/envelope/earlierreleases', globals())
 
+    security.declareProtected('View', 'data_quality')
+    data_quality = PageTemplateFile('zpt/envelope/data_quality', globals())
+
     ##################################################
     # Manage period
     ##################################################

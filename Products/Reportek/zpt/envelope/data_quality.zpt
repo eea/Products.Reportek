@@ -1,0 +1,6 @@
+<span tal:replace="structure here/standard_html_header" />
+
+<div tal:replace="structure python:context.envelope_tabs(tab='data_quality')"/>
+<h1 i18n:translate="">Results of automatic data quality checks</h1>
+<p>This page displays summary information from all automatic data quality checks for this envelope. If you want to see more detailed results, just follow the "Show more.." links to the individual feedback items.</p>
+<span tal:replace="structure here/standard_html_footer" />
