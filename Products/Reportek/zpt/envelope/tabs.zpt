@@ -59,6 +59,15 @@
            i18n:translate="">History</a>
       <tal:block replace="structure string:</li>"/>
 
+      <tal:block condition="python:request.get('tab') == 'data_quality'"
+                 replace="structure string:<li id='currenttab'>"/>
+      <tal:block condition="not:python:request.get('tab') == 'data_quality'"
+                 replace="structure string:<li>"/>
+        <a href="data_quality" title="Results of automatic data quality checks"
+           i18n:attributes="title tab-data-quality-title"
+           i18n:translate="">Data quality</a>
+      <tal:block replace="structure string:</li>"/>
+
     </ul>
 </div>
 
