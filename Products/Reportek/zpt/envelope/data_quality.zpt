@@ -9,7 +9,8 @@
 <div id="detailed-qa"
   tal:define="fb_objs context/getFeedbackObjects;
               feedbacks python: [fb for fb in fb_objs if getattr(fb, 'message', None) and getattr(fb, 'automatic', False)];
-              env_fbs python: [fb for fb in feedbacks if getattr(fb, 'document_id', '') == 'xml']">
+              env_fbs python: [fb for fb in feedbacks if getattr(fb, 'document_id', '') == 'xml'];
+              fb_classes python: {'INFO': 'fb-info', 'WARNING': 'fb-warning', 'ERROR': 'fb-error', 'BLOCKER': 'fb-blocker'}">
 
   <ul tal:condition="python: len(feedbacks) > len(env_fbs)" class="fb-listing">
     <tal:rep tal:repeat="feedback feedbacks">
@@ -18,7 +19,11 @@
         </strong>
         <ul>
           <li>
-            <span tal:content="python: getattr(feedback, 'message', '')"/>
+            <span tal:define="fb_status python: getattr(feedback, 'feedback_status', '')"
+                  tal:attributes="class python: fb_classes.get(fb_status)">
+              <span class="fb-status" tal:content="fb_status"/>:
+              <span tal:content="python: getattr(feedback, 'message', '')"/>
+            </span>
             <a href="#" tal:attributes="href feedback/absolute_url">Show more...</a>
           </li>
         </ul>
@@ -27,7 +32,7 @@
   </ul>
   <tal:block tal:condition="env_fbs">
     <strong>Envelope test</strong>
-    <ul tal:define="fb_classes python: {'INFO': 'fb-info', 'WARNING': 'fb-warning', 'ERROR': 'fb-error', 'BLOCKER': 'fb-blocker'}">
+    <ul>
       <li tal:repeat="feedback env_fbs">
         <span tal:define="fb_status python: getattr(feedback, 'feedback_status', '')"
               tal:attributes="class python: fb_classes.get(fb_status)">
