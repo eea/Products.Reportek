@@ -13,7 +13,11 @@
 			<td style="width:34px">
 				<img src="/misc_/Reportek/feedback_gif" alt="Feedback icon" />
 			</td>
-			<td tal:define="SecurityManager modules/AccessControl/getSecurityManager">
+			<td tal:define="SecurityManager modules/AccessControl/getSecurityManager;
+                      fb_status python: getattr(feedb_item, 'feedback_status', None)">
+        <tal:block tal:condition="python: fb_status == 'BLOCKER'">
+          [<span tal:content="fb_status" />]
+        </tal:block>
         <a title="View feedback"
            tal:attributes="href feedb_item/id"
            tal:content="feedb_item/title_or_id">title_or_id</a>
