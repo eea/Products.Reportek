@@ -9,16 +9,19 @@
 <div id="detailed-qa"
   tal:define="fb_objs context/getFeedbackObjects;
               feedbacks python: [fb for fb in fb_objs if getattr(fb, 'message', None) and getattr(fb, 'automatic', False)];
+              fb_files python: [getattr(fb, 'document_id', '') for fb in feedbacks];
+              seen python: {};
+              u_fb_files python: [seen.setdefault(x, x) for x in fb_files if x not in seen];
               env_fbs python: [fb for fb in feedbacks if getattr(fb, 'document_id', '') == 'xml'];
               fb_classes python: {'INFO': 'fb-info', 'WARNING': 'fb-warning', 'ERROR': 'fb-error', 'BLOCKER': 'fb-blocker'}">
 
   <ul tal:condition="python: len(feedbacks) > len(env_fbs)" class="fb-listing">
-    <tal:rep tal:repeat="feedback feedbacks">
-      <li tal:condition="python: getattr(feedback, 'document_id', '') != 'xml'">
-        <strong><span tal:content="python: getattr(feedback, 'document_id', '')" />
+    <tal:rep tal:repeat="fb_file u_fb_files">
+      <li tal:condition="python: fb_file != 'xml'">
+        <strong><span tal:content="python: fb_file" />
         </strong>
         <ul>
-          <li>
+          <li tal:repeat="feedback python: [fb for fb in feedbacks if getattr(fb, 'document_id', '') == fb_file]">
             <span tal:define="fb_status python: getattr(feedback, 'feedback_status', '')"
                   tal:attributes="class python: fb_classes.get(fb_status)">
               <span class="fb-status" tal:content="fb_status"/>:
