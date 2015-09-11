@@ -568,7 +568,7 @@ tr.user-disabled {
 }
 
 .fb-info {
-  color: blue;
+  color: deepskyblue;
 }
 
 .fb-blocker {
@@ -581,7 +581,7 @@ tr.user-disabled {
 }
 
 .fb-warning {
-  color: yellow;
+  color: orange;
 }
 
 .fb-status {
