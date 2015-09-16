@@ -177,6 +177,12 @@ class BaseAdmin(BrowserView):
                     'title': title
                 })
             col_obligations.sort(key=itemgetter('title'))
+            l_roles = brain.local_defined_roles
+            if config.REPORTEK_DEPLOYMENT == config.DEPLOYMENT_BDR:
+                # For BDR, Reporters actually have local 'Owner' Roles
+                for user in l_roles.keys():
+                    l_roles[user] = ['Reporter (Owner)' if role == 'Owner'
+                                     else role for role in l_roles[user]]
             collection = {
                 'path': brain.getPath(),
                 'country': brain.getCountryName,
