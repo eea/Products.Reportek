@@ -69,7 +69,14 @@ class BaseAdmin(BrowserView):
 
     def get_roles(self):
         app = self.context.getPhysicalRoot()
-        return sorted(list(app.userdefined_roles()))
+        engine = getattr(self.context, constants.ENGINE_ID)
+        deployment_type = engine.getDeploymentType()
+        l_roles = sorted(list(app.userdefined_roles()))
+        if deployment_type == config.DEPLOYMENT_BDR:
+            # For BDR, Reporters actually have local 'Owner' Roles
+            l_roles = ['Reporter (Owner)' if role == 'Reporter' else role
+                       for role in l_roles]
+        return l_roles
 
     def get_raw_rod_obligations(self):
         """ Returns a sorted list of obligations from ROD

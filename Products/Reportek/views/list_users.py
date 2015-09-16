@@ -131,10 +131,8 @@ class ListUsers(BaseAdmin):
 
         use_role = role
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-            # ClientFG role users come from ECAS in BDR, this is why we need
-            # all the collections
-            if role == 'ClientFG':
-                use_role = ''
+            if role == 'Reporter (Owner)':
+                use_role = 'Owner'
 
         brains = self.search_catalog(obligations, countries, use_role)
 
@@ -148,12 +146,12 @@ class ListUsers(BaseAdmin):
                     title = 'Unknown/Deleted obligation'
                 col_obligations.append((uri, title))
 
-            if role:
+            if use_role:
                 users = dict((user, {'uid': user,
                                      'role': role,
                                      }) for user, roles
                              in brain.local_defined_roles.iteritems()
-                             if role in roles)
+                             if use_role in roles)
             else:
                 if brain.local_defined_users:
                     users = dict((user, {'uid': user,
@@ -186,7 +184,7 @@ class ListUsers(BaseAdmin):
                                 uid = getattr(user, 'email', None)
                             users[uid] = {
                                 'uid': uid,
-                                'role': 'ClientFG'
+                                'role': 'Reporter (Owner)'
                             }
             if not users:
                 continue
