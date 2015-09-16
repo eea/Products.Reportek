@@ -40,6 +40,10 @@ class ManageRoles(BaseAdmin):
         collections = self.request.get('collections', [])
         role = self.request.get('role', '')
 
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            if role == 'Reporter (Owner)':
+                role = 'Owner'
+
         search_type = self.request.get('search_type')
         entity = self.request.get('username', '')
         match_groups = []
@@ -85,6 +89,11 @@ class ManageRoles(BaseAdmin):
         entity = self.request.get('username', '')
         match_groups = []
         results = []
+
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            if role == 'Reporter (Owner)':
+                role = 'Owner'
+
         if search_type == 'groups':
             entity = self.request.get('groupsname', '')
             use_subgroups = self.request.get('use-subgroups', '')
