@@ -169,7 +169,9 @@ def ping_remaining_envelopes(app, crPingger):
     import redis
     import pickle
     try:
-        rs = redis.Redis(db=REDIS_DATABASE)
+        rs = redis.Redis(host=REDIS_HOSTNAME,
+                         port=REDIS_PORT,
+                         db=REDIS_DATABASE)
         envPathNames = rs.hkeys(constants.PING_ENVELOPES_REDIS_KEY)
     except Exception as e:
         lines = format_exception_only(e.__class__, e)
