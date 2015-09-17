@@ -44,4 +44,6 @@ elif REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
 
 if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
     REDIS_DATABASE = int(os.environ.get('REDIS_DATABASE'))
-    __all__.append('REDIS_DATABASE')
+    REDIS_HOSTNAME = os.environ.get('REDIS_HOSTNAME', 'localhost')
+    REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
+    __all__.extend(['REDIS_DATABASE', 'REDIS_HOSTNAME', 'REDIS_PORT'])
