@@ -144,22 +144,30 @@ class ManageRoles(BaseAdmin):
         users = []
         if ecas_db:
             for user in ecas_db.values():
-                if user.username:
-                    if term in user.username:
+                username = user.username
+                email = user.email
+                if isinstance(username, unicode):
+                    username = username.encode('utf-8')
+                if isinstance(email, unicode):
+                    email = email.encode('utf-8')
+                if username:
+                    if isinstance(username, unicode):
+                        username = username.encode('utf-8')
+                    if term in username:
                         result = {
-                            'uid': user.username,
-                            'mail': user.email
+                            'uid': username,
+                            'mail': email
                         }
                         users.append(result)
                         continue
-                if user.email:
-                    if term in user.email:
-                        username = user.username
-                        if not username:
-                            username = user.email
+                if email:
+                    if term in email:
+                        entity = username
+                        if not entity:
+                            entity = email
                         result = {
-                            'uid': username,
-                            'mail': user.email
+                            'uid': entity,
+                            'mail': email
                         }
                         users.append(result)
 
