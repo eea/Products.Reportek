@@ -78,7 +78,7 @@
               <tal:block tal:define="cn user/cn|nothing">
                 <td>
                   <span tal:condition="cn"
-                    tal:content="python:cn.decode('latin1')"
+                    tal:content="python:cn.decode('utf-8')"
                     tal:omit-tag=""/>
                 </td>
               </tal:block>
@@ -124,12 +124,12 @@
               </td>
                 <td>
                   <span tal:condition="cn"
-                    tal:content="python:cn.decode('latin1')"
+                    tal:content="python:cn.decode('utf-8')"
                     tal:omit-tag=""/>
                 </td>
               <td>
                 <span tal:condition="description"
-                  tal:content="python:description.decode('latin1')" tal:omit-tag=""/>
+                  tal:content="python:description.decode('utf-8')" tal:omit-tag=""/>
               </td>
               <tal:def tal:define="children python: [child.get('cn') for child in groups
                                   if child.get('cn') in potential_c]">
