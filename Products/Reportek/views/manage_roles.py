@@ -87,6 +87,7 @@ class ManageRoles(BaseAdmin):
         collections = self.request.get('collections', [])
         search_type = self.request.get('search_type')
         entity = self.request.get('username', '')
+        role = self.request.get('role', '')
         match_groups = []
         results = []
 
