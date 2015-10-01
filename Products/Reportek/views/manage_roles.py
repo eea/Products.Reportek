@@ -210,5 +210,4 @@ class ManageRoles(BaseAdmin):
     def display_confirmation(self):
         return ((self.request.get('username', None) or
                  self.request.get('groupsname', None)) and
-                self.request.get('countries', []) and
                 self.request.get('role', None))

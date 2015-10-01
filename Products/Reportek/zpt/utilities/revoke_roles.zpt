@@ -69,6 +69,7 @@
             <tal:def tal:define="collections view/get_collections">
               <tal:block tal:condition="collections">
                 <h2>3. Revoke roles</h2>
+                <h5 i18n:translate="" tal:condition="python: deployment == 'BDR'">"The Auditors will have read-only access for country folders and will be country representatives, while Clients (ClientODS, ClientCARS and ClientFG, etc.) have an overview for the entire obligation's collection."</h5>
                 <table class="datatable">
                   <thead>
                     <tr>
