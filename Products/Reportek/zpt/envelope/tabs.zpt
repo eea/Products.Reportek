@@ -60,7 +60,8 @@
       <tal:block replace="structure string:</li>"/>
 
       <tal:block tal:condition="python: [fb for fb in context.getFeedbackObjects()
-                                         if getattr(fb, 'feedback_status', None)]">
+                                         if getattr(fb, 'feedback_status', None) and
+                                         getattr(fb, 'feedback_status', None) != 'UNKNOWN']">
         <tal:block condition="python:request.get('tab') == 'data_quality'"
                    replace="structure string:<li id='currenttab'>"/>
         <tal:block condition="not:python:request.get('tab') == 'data_quality'"
