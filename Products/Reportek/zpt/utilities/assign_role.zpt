@@ -144,7 +144,15 @@
           </tal:block>
 
           <p class="error-msg" tal:condition="not: view/display_confirmation">
-            User or Group and role are mandatory fields.
+            <span
+              tal:condition="isCdrDeployment"
+              i18n:translate="">User or Group and role are mandatory fields.
+            </span>
+            <span
+              tal:condition="not: isCdrDeployment"
+              i18n:translate="">
+              User and role are mandatory fields.
+            </span>
           </p>
 
         </tal:block>
