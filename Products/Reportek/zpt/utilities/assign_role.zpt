@@ -150,8 +150,7 @@
             </span>
             <span
               tal:condition="not: isCdrDeployment"
-              i18n:translate="">
-              User and role are mandatory fields.
+              i18n:translate="">User and role are mandatory fields.
             </span>
           </p>
 
