@@ -69,7 +69,14 @@ class BaseAdmin(BrowserView):
 
     def get_roles(self):
         app = self.context.getPhysicalRoot()
-        return sorted(list(app.userdefined_roles()))
+        engine = getattr(self.context, constants.ENGINE_ID)
+        deployment_type = engine.getDeploymentType()
+        l_roles = sorted(list(app.userdefined_roles()))
+        if deployment_type == config.DEPLOYMENT_BDR:
+            # For BDR, Reporters actually have local 'Owner' Roles
+            l_roles = ['Reporter (Owner)' if role == 'Reporter' else role
+                       for role in l_roles]
+        return l_roles
 
     def get_raw_rod_obligations(self):
         """ Returns a sorted list of obligations from ROD
@@ -170,6 +177,12 @@ class BaseAdmin(BrowserView):
                     'title': title
                 })
             col_obligations.sort(key=itemgetter('title'))
+            l_roles = brain.local_defined_roles
+            if config.REPORTEK_DEPLOYMENT == config.DEPLOYMENT_BDR:
+                # For BDR, Reporters actually have local 'Owner' Roles
+                for user in l_roles.keys():
+                    l_roles[user] = ['Reporter (Owner)' if role == 'Owner'
+                                     else role for role in l_roles[user]]
             collection = {
                 'path': brain.getPath(),
                 'country': brain.getCountryName,

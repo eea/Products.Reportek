@@ -1148,10 +1148,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
         # make it accessible from browser
-        security.declarePublic('getReporterCollections')
-        def getReporterCollections(self):
+        security.declarePublic('getUserCollections')
+        def getUserCollections(self):
             if not getattr(self, 'REQUEST', None):
                 return []
+            collections = {}
             username = self.REQUEST['AUTHENTICATED_USER'].getUserName()
             ecas = self.unrestrictedTraverse('/acl_users/'+constants.ECAS_ID)
             ecas_user_id = ecas.getEcasUserId(username)
@@ -1168,10 +1169,31 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                         logger.warning("Cannot traverse path: %s" % ('/'+str(colPath)))
             catalog = getattr(self, constants.DEFAULT_CATALOG)
             old_style_collections = [ br.getObject() for br in catalog(id=username) ]
-            return middleware_collections + old_style_collections
+            collections['Reporter'] = middleware_collections + old_style_collections
+            local_roles = ['Auditor', 'ClientFG', 'ClientODS', 'ClientCARS']
+            local_r_col = catalog(meta_type='Report Collection',
+                                  local_unique_roles=local_roles)
+
+            auditor = [br.getObject() for br in local_r_col
+                       if 'Auditor' in br.local_defined_roles.get(username, [])
+                       and len(br.getPath().split('/')) == 3]
+
+            def is_client(l_roles):
+                c_roles = ['ClientFG', 'ClientODS', 'ClientCARS']
+                return [role for role in l_roles if role in c_roles]
+
+            client = [br.getObject() for br in local_r_col
+                      if is_client(br.local_defined_roles.get(username, []))
+                      and len(br.getPath().split('/')) == 3]
+
+            collections['Auditor'] = auditor
+            collections['Client'] = client
+
+            return collections
     else:
-        security.declarePublic('getReporterCollections')
-        def getReporterCollections(self):
+        security.declarePublic('getUserCollections')
+
+        def getUserCollections(self):
             raise RuntimeError('Method not allowed on this distribution.')
 
 

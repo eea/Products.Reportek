@@ -40,6 +40,10 @@ class ManageRoles(BaseAdmin):
         collections = self.request.get('collections', [])
         role = self.request.get('role', '')
 
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            if role == 'Reporter (Owner)':
+                role = 'Owner'
+
         search_type = self.request.get('search_type')
         entity = self.request.get('username', '')
         match_groups = []
@@ -83,8 +87,14 @@ class ManageRoles(BaseAdmin):
         collections = self.request.get('collections', [])
         search_type = self.request.get('search_type')
         entity = self.request.get('username', '')
+        role = self.request.get('role', '')
         match_groups = []
         results = []
+
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            if role == 'Reporter (Owner)':
+                role = 'Owner'
+
         if search_type == 'groups':
             entity = self.request.get('groupsname', '')
             use_subgroups = self.request.get('use-subgroups', '')
@@ -200,5 +210,4 @@ class ManageRoles(BaseAdmin):
     def display_confirmation(self):
         return ((self.request.get('username', None) or
                  self.request.get('groupsname', None)) and
-                self.request.get('countries', []) and
                 self.request.get('role', None))
