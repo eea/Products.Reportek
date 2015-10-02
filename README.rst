@@ -17,7 +17,7 @@ Reportek depends on two lists that it must get from somewhere:
 * a list of obligations 
 * a list of localities
 
-You can either get the list from http://ROD.eionet.eu.int with XML-RPC or you can use the ``SmallObligations`` product to roll your own obligations and/or localities. See the file ``HINTS.txt`` for information.
+You can either get the list from http://ROD.eionet.europa.eu with XML-RPC or you can use the ``SmallObligations`` product to roll your own obligations and/or localities. See the file ``HINTS.txt`` for information.
 
 Python dependencies
 ~~~~~~~~~~~~~~~~~~~
