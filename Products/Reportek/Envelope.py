@@ -1190,6 +1190,8 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                         xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.releasedate.HTML4())
                         xmlChunk.append('<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</released>' % o.releasedate.HTML4())
                         xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(self.absolute_url()))
+                        xmlChunk.append('<cr:feedbackStatus>%s</cr:feedbackStatus>' % RepUtils.xmlEncode(o.feedback_status))
+                        xmlChunk.append('<cr:feedbackMessage>%s</cr:feedbackMessage>' % RepUtils.xmlEncode(o.message))
                         xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % o.content_type)
                         xmlChunk.append('<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>' % repr(o.isRestricted()).lower())
                         if o.document_id not in [None, 'xml']:

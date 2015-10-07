@@ -28,6 +28,8 @@
 <dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:41Z</dct:issued>
 <released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:41Z</released>
 <dct:isPartOf rdf:resource="http://nohost/collection/envu2nsuq"/>
+<cr:feedbackStatus></cr:feedbackStatus>
+<cr:feedbackMessage></cr:feedbackMessage>
 <cr:mediaType>text/plain</cr:mediaType>
 <restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</restricted>
 </cr:Feedback>
@@ -37,6 +39,8 @@
 <dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:41Z</dct:issued>
 <released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:41Z</released>
 <dct:isPartOf rdf:resource="http://nohost/collection/envu2nsuq"/>
+<cr:feedbackStatus></cr:feedbackStatus>
+<cr:feedbackMessage></cr:feedbackMessage>
 <cr:mediaType>text/plain</cr:mediaType>
 <restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</restricted>
 </cr:Feedback>
