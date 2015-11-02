@@ -116,29 +116,31 @@ class EnvelopeInstance(CatalogAware, Folder):
 
     def getOpenFlowEngine(self):
         """ Returns the Collection object, parent of the process """
-        process = self.unrestrictedTraverse(self.process_path)
-        return process.aq_parent
+        process = self.unrestrictedTraverse(self.process_path, None)
+        if process:
+            return process.aq_parent
 
     def getActivity(self, workitem_id):
         """ Returns the activity of a workitem """
         workitem = getattr(self, workitem_id)
         activity_id = workitem.activity_id
-        process = self.unrestrictedTraverse(self.process_path)
-        return getattr(process, activity_id)
+        process = self.unrestrictedTraverse(self.process_path, None)
+        return getattr(process, activity_id, None)
 
     security.declareProtected('Use OpenFlow', 'getApplicationUrl')
     def getApplicationUrl(self, workitem_id):
         """ Return application definition URL relative to instance and workitem """
         activity = self.getActivity(workitem_id)
-        return activity.mapped_application_details()['path']
+        if activity:
+            return activity.mapped_application_details()['path']
 
     def getEnvironment(self, workitem_id):
         """ Returns the engine, the workitem object, the current process and activity """
         workitem = getattr(self, workitem_id)
         activity_id = workitem.activity_id
         wfengine = self.getOpenFlowEngine()
-        process = getattr(wfengine, self.process_path.split('/')[-1])
-        activity = getattr(process, activity_id)
+        process = getattr(wfengine, self.process_path.split('/')[-1], None)
+        activity = getattr(process, activity_id, None)
         return wfengine, workitem, process, activity
 
     def getInstanceProcessId(self):
@@ -147,7 +149,7 @@ class EnvelopeInstance(CatalogAware, Folder):
 
     def getProcess(self):
         """ Returns the process as an object"""
-        return self.unrestrictedTraverse(self.process_path)
+        return self.unrestrictedTraverse(self.process_path, None)
 
     security.declareProtected('View management screens','setProcess')
     def setProcess(self, process_path):

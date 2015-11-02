@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='Products.Reportek',
-    version='3.8.2',
+    version='3.8.4',
     author='Eau de Web',
     author_email='office@eaudeweb.ro',
     url='https://github.com/eea/Products.Reportek',
@@ -15,5 +15,6 @@ setup(
         'requests==1.2.3',
         'plone.memoize',
         'Zope2',
+        'collective.monkeypatcher'
     ],
 )

@@ -10,11 +10,13 @@ import pickle
 
 class ContentRegistryPingger(object):
 
-    if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
+    PING_STORE = None
+
+    if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR and REDIS_DATABASE:
         import redis
-        PING_STORE = redis.Redis(db=REDIS_DATABASE)
-    else:
-        PING_STORE = None
+        PING_STORE = redis.Redis(host=REDIS_HOSTNAME,
+                                 port=REDIS_PORT,
+                                 db=REDIS_DATABASE)
 
     def __init__(self, api_url):
         self.api_url = api_url
@@ -36,12 +38,23 @@ class ContentRegistryPingger(object):
         """ Pings the Content Registry to harvest a new envelope almost immediately after the envelope is released or revoked
             with the name of the envelope's RDF output
         """
+        def parse_uri(uri):
+            """ Use only http uris for CDR
+            """
+            if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
+                new_uri = uri.replace('https://', 'http://')
+                logger.info("Original uri: %s has been replaced with uri: %s"
+                            % (uri, new_uri))
+                uri = new_uri
+            return uri
+
         allOk = True
         if not ping_argument:
             ping_argument = 'create'
         if envPathName and self.PING_STORE:
             ts = self._start_ping(envPathName, op=ping_argument)
         for uri in uris:
+            uri = parse_uri(uri)
             success, message = self._content_registry_ping(uri, ping_argument=ping_argument)
             self._log_ping(success, message, uri, ping_argument)
             allOk = allOk and success

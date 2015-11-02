@@ -1,50 +1,112 @@
+3.8.6-dev (unreleased)
+----------------------
+* Feature #27205 - Added view for DataflowMappings [olimpiurob]
+* Feature #23931
+    - Added support for assigning local roles to LDAP groups [olimpiurob]
+
+* Bug fix #26311
+    - Fixed content_type guessing for zip archived files [olimpiurob]
+* Feature #18887
+   - Refactored utils.js for more readibility and ease of maintenance [olimpiurob]
+   - Improved get_user_type ajax calls, it will now create a user mapping 
+     to avoid multiple calls for the same user [olimpiurob]
+   - Fixed Back to utilities link not including the arrow icon for some views [olimpiurob]
+   - Fixed jslint errors on utils.js [olimpiurob]
+   - Improved user type detection [olimpiurob]
+   - Get user type on get_users_by_path view with ajax calls on datatable.draw
+     [olimpiurob]
+   - Added ReportekUtilities specifics for BDR [olimpiurob]
+   - Added back button to ReportekUtilities [olimpiurob]
+   - Added support for info messages in ReportekUtilities [olimpiurob]
+   - Added info message for assign_roles and revoke roles for ecas users [olimpiurob]
+   - Hiding results from our internal user: "bdr_folder_agent" in get_users and get_users_path
+     [olimpiurob]
+   - Skip loading results when accesing the page without pressing the search button in get_users and get_users_path
+     [olimpiurob]
+   - Added possibility of styling the result table based on deployment type and customize the bdr table layout in get_users and get_users_path
+     [olimpiurob]
+   - Added placeholder for the datatable search input box in get_users and get_users_path
+     [olimpiurob]
+   - Added an "All" placeholder to all inputs in the filters form [olimpiurob]
+   - Improved ECAS user mapping system [olimpiurob]
+   - Added support for ECAS users in ReportekUtilities assign_roles and revoke_roles
+     [olimpiurob]
+
+3.8.5 (22-06-2015)
+------------------
+* Feature #26312 - Changed dct:creator on envelope rdf export [olimpiurob]
+* Task #24882 - Moved logic from ReceiptConfirmation scripts to Envelope class [olimpiurob]
+* Bug fix #25904
+   - Reindex object for manage_setLocalRoles, manage_delLocalRoles
+     and manage_addLocalRoles only when we have a Request object. This is to
+     avoid uncatalog errors when adding a new collection because
+     manage_setLocalRoles is called before manage_afterAdd [olimpiurob]
+   - Added migration script for local_defined_roles metadata [olimpiurob]
+   - Added overrides for manage_setLocalRoles, manage_delLocalRoles and
+     manage_addLocalRoles in order to reindex the collection after changes
+     are made [olimpiurob]
+   - Removed 'local_defined_roles' FieldIndex and add it as metadata column
+     [olimpiurob]
+* Task #24661 - Added company id to search results table [vitaliemaldur]
+
+3.8.4 (09-04-2015)
+------------------
+* Task #21032 - Added referrals migration extension script [olimpiurob]
+* Task #21032 - Include Repository Referrals in obligation search on CDR [olimpiurob]
+
+3.8.3 (06-04-2015)
+------------------
+* Task #24025 - Drop fuzzy search and use exact_match for ldap_user_folder.findUser [olimpiurob]
+* Task #23435 - Display the envelope's id if there's no title in searchdsearchdataflow results [olimpiurob]
+* Task #23434 - Url quote reportingdate_start and reportingdate_end in engineMacros template [olimpiurob]
+* Task #20536 - Treat case when an envelope's workflow does not exist anymore [olimpiurob]
+
 3.8.2 (27-03-2015)
------------------------
-Task #21521 - Adding support for uploading multiple files on feedback [malduvit]
-Task #22820 - Added an explanatory text [malduvit]
+------------------
+* Task #21521 - Adding support for uploading multiple files on feedback [malduvit]
+* Task #22820 - Added an explanatory text [malduvit]
 
 3.8.1 (11-03-2015)
------------------------
- move getCountryName and getCountryCode to Reportek Collection
-Refs #23650 show comapny id in collections ZMI->settings [baragdan]
-Refs #21879 - improve threaded localQA [baragdan]
+------------------
+* move getCountryName and getCountryCode to Reportek Collection
+* Refs #23650 show comapny id in collections ZMI->settings [baragdan]
+* Refs #21879 - improve threaded localQA [baragdan]
 
->>>>>>> production
 3.8.0 (27-02-2015)
------------------------
-proper production egg
+------------------
+* proper production egg
 
 3.7.2-dev16 (26-02-2015)
------------------------
+------------------------
 * Task #23412 - Conversion of XML file to XLS gives an error
 * Task #23463 - overridden PropertiedUser.getRolesInContext() to check middleware too
 
 3.7.2-dev15 (26-02-2015)
------------------------
+------------------------
 * Task #23451 - AttributeError company_id
 * Task #22656 - use script title in feedback id
 * Task #22974 - minor fix
 
 3.7.2-dev14 (20-02-2015)
------------------------
+------------------------
 
 3.7.2-dev13 (19-02-2015)
------------------------
+------------------------
 * Task #23228 - Authentication lost on BDR. add webqKeepAlive [baragdan]
 * Task #22974 - Search dataflow functionality in ReportekUtilities [malduvit]
 * Task #23217 - nicely inform user that no company was found when no company was found [baragdan]
 * Task #23215 - keep GET query arguments when login redirects [baragdan]
 
 3.7.2-dev12 (13-02-2015)
------------------------
+------------------------
 * Task #22993 - Add a tab to ReportekEngine management where we can see migrations
 * Task #23236 - Fix organisation_details link to reporting folder for non-ue types
 
 3.7.2-dev11 (10-02-2015)
------------------------
+------------------------
 
 3.7.2-dev10 (10-02-2015)
------------------------
+------------------------
 * Task #22993 - add migration to migration tracking support. Create migration decorator [baragdan] (needs migration)
 * Task #22445 - Lockdown: unmatch companies case + sending emails [baragdan]
 * Task #22989 - Fix datatable error on IE [malduvit]
@@ -97,8 +159,8 @@ proper production egg
 3.7.2-dev (05-01-2015)
 ----------------------
 * Task 19360 - add 'deferred mode' to the compression of Report Documents [baragdan]
-- better separation of deployments [baragdan]
-- fixes for ReportekUtilities [malduvit]
+* better separation of deployments [baragdan]
+* fixes for ReportekUtilities [malduvit]
 
 
 3.7.1 (10-12-2014)

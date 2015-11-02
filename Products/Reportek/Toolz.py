@@ -24,9 +24,11 @@
 """
 from collections import defaultdict
 from DateTime import DateTime
-import RepUtils
+from plone.memoize import ram
 from Products.PythonScripts.standard import html_quote
 from Products.Reportek import constants
+from time import time
+import RepUtils
 
 
 class Toolz:
@@ -66,9 +68,12 @@ class Toolz:
     #LDAP users info
     def getLDAPUser(self, uid):
         ldap_user_folder = self.getPhysicalRoot().acl_users['ldapmultiplugin']['acl_users']
-        res = ldap_user_folder.findUser(search_param='uid', search_term=uid)
-        if len(res)>0:
+        res = ldap_user_folder.findUser(search_param='uid',
+                                        search_term=uid,
+                                        exact_match=True)
+        if len(res) > 0:
             return res[0]
+
         return {}
 
     def getLDAPUserFirstName(self, dn):
@@ -82,6 +87,16 @@ class Toolz:
 
     def getLDAPUserEmail(self, dn):
         return unicode(dn.get('mail', ''), 'iso-8859-1').encode('utf-8')
+
+    @ram.cache(lambda *args: time() // (60*60*12))
+    def getLDAPGroups(self):
+        """ Return a list of LDAP group ids
+        """
+        ldap_user_folder = self.getPhysicalRoot().acl_users['ldapmultiplugin']['acl_users']
+        groups = ldap_user_folder.getGroups()
+        group_ids = [group[0] for group in groups if group[0]]
+
+        return group_ids
 
     #collection related - must be globals to be able
     #to call them in any context (ROOT or collection)

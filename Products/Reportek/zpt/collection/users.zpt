@@ -3,8 +3,8 @@
 
 <h1>List of reporters for <span tal:replace="here/title_or_id" /></h1>
 
-<tal:block define="global users options/users;
-					global global_users options/global_users;
+<tal:block define="global members options/members;
+					global global_members options/global_members;
 					global role  python:request.get('role', '');" />
 
 <div class="quickjumps">
@@ -21,27 +21,34 @@
 		</li>
 	</ul>
 
-	<tal:block condition="python:len(users.keys()) > 10">
+	<tal:block condition="python:len(members.keys()) > 10">
 	<h2>Jump to</h2>
-	<a href="#toplevel">Top-level users</a>
+	<a href="#toplevel">Top-level members</a>
 	</tal:block>
 </div>
-
+<strong tal:condition="not:options/groups">Unable to retrieve LDAP groups. Group type members will not be correctly identified.</strong>
 <a id="local"></a>
 <p>Accounts having the <em>Reporter</em> and <em>Client</em> roles for current collection and subcollections</p>
-<table class="sortable" tal:condition="users/keys">
+<table class="sortable" tal:condition="members/keys">
 	<thead>
 		<tr>
-			<th scope="col">Username</th>
+			<th scope="col">Member</th>
 			<th scope="col">Role(s)</th>
 		</tr>
 	</thead>
 	<tbody>
-		<tal:block repeat="user_info users/items">
-		<tr tal:define="user python:user_info[0]; roles python:user_info[1];">
+		<tal:block repeat="member_data members/items">
+		<tr tal:define="member python:member_data[0];
+						member_info python: member_data[1];
+						roles python:member_info.get('roles');
+						member_type python: member_info.get('type');">
 				<td>
-					<a tal:attributes="href string:http://www.eionet.europa.eu/directory/user?uid=${user}" 
-						tal:content="user"/>
+					<a tal:condition="python: member_type == 'user'"
+						tal:attributes="href string:http://www.eionet.europa.eu/directory/user?uid=${member}" 
+						tal:content="member"/>
+					<a tal:condition="python: member_type == 'group'"
+						tal:attributes="href string:http://www.eionet.europa.eu/ldap-roles?role_id=${member}" 
+						tal:content="member"/>
 				</td>
 				<td>
 					<ul>
@@ -59,9 +66,9 @@
 		</tal:block>
 	</tbody>
 </table>
-<strong tal:condition="not:users/keys">No such local accounts defined</strong>
+<strong tal:condition="not:members/keys">No such local accounts defined</strong>
 
-<div class="quickjumps" tal:condition="python:len(users.keys()) > 10">
+<div class="quickjumps" tal:condition="python:len(members.keys()) > 10">
 	<h3>Filter by role:</h3>
 	<ul>
 		<li tal:attributes="style python:test(role=='', 'background-color: #F0F4F5', '')">
@@ -76,7 +83,7 @@
 	</ul>
 
 	<h2>Jump to</h2>
-	<a href="">Local users</a>
+	<a href="">Local members</a>
 </div>
 
 <a id="toplevel"></a>
@@ -84,16 +91,19 @@
 <table class="sortable">
 	<thead>
 		<tr>
-			<th scope="col">Username</th>
+			<th scope="col">Member</th>
 			<th scope="col">Role(s)</th>
 		</tr>
 	</thead>
 	<tbody>
-		<tal:block repeat="user_info global_users/items">
-			<tr tal:define="user python:user_info[0]; roles python:user_info[1];">
+		<tal:block repeat="member_data global_members/items">
+			<tr tal:define="member python:member_data[0];
+							member_info python: member_data[1];
+							roles python:member_info.get('roles');
+							member_type python: member_info.get('type');">
 				<td>
-					<a tal:attributes="href string:http://www.eionet.europa.eu/directory/user?uid=${user}" 
-						tal:content="user"/>
+					<a tal:attributes="href string:http://www.eionet.europa.eu/directory/user?uid=${member}"
+						tal:content="member"/>
 				</td>
 				<td>
 					<ul>

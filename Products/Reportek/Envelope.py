@@ -250,6 +250,28 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         """ Used to retrieve the envelope object from the workitem """
         return self
 
+    security.declarePublic('getActorDraft')
+    def getActorDraft(self):
+        """ Used to retrieve draft Actor """
+        draft_workitems = [wi for wi in self.getListOfWorkitems()
+                           if wi.activity_id == 'Draft']
+        if draft_workitems:
+            latestDraftWorkitem = draft_workitems[-1]
+
+            return latestDraftWorkitem.actor
+
+    security.declareProtected('View', 'getObligations')
+    def getObligations(self):
+        lookup = self.ReportekEngine.dataflow_lookup
+        return [(lookup(obl)['TITLE'], obl) for obl in self.dataflow_uris]
+
+    security.declareProtected('View', 'getSubmittedDocs')
+    def getSubmittedDocs(self):
+        documents_list = self.objectValues(['Report Document',
+                                            'Report Hyperlink'])
+        documents_list.sort(key=lambda ob: ob.getId().lower())
+        return documents_list
+
     security.declarePublic('getEnvelopeOwner')
     def getEnvelopeOwner(self):
         """ """
@@ -371,6 +393,9 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
     security.declareProtected('Change Envelopes', 'envelope_previous')
     envelope_previous = PageTemplateFile('zpt/envelope/earlierreleases', globals())
+
+    security.declareProtected('View', 'data_quality')
+    data_quality = PageTemplateFile('zpt/envelope/data_quality', globals())
 
     ##################################################
     # Manage period
@@ -607,11 +632,15 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         """ Manage the edited values
         """
         if not dataflow_uris:
-            if REQUEST:
-                return self.messageDialog(
-                    "You must specify at least one obligation. Settings not saved!",
-                    action='./manage_prop')
-            return
+            if not self.dataflow_uris:
+                if REQUEST:
+                    return self.messageDialog(
+                        "You must specify at least one obligation. Settings not saved!",
+                        action='./manage_prop')
+                return
+        else:
+            self.dataflow_uris = dataflow_uris
+
         self.title=title
         try: self.year = int(year)
         except: self.year = ''
@@ -622,7 +651,6 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         self.country=country
         self.locality=locality
         self.descr=descr
-        self.dataflow_uris = dataflow_uris
         # update ZCatalog
         self.reindex_object()
         if REQUEST is not None:
@@ -1076,6 +1104,9 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
         objsByType = self._getObjectsForContentRegistry()
         res = []
+        creator = self.getActorDraft()
+        if not creator:
+            creator = self.customer
 
         res.append('<?xml version="1.0" encoding="utf-8"?>')
         res.append('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"')
@@ -1087,7 +1118,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         res.append('<Delivery rdf:about="%s">' % RepUtils.xmlEncode(self.absolute_url()))
         res.append('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(self.title_or_id()))
         res.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(self.title_or_id()))
-        res.append('<dct:creator>%s</dct:creator>' %RepUtils.xmlEncode(self.customer))
+        res.append('<dct:creator>%s</dct:creator>' % RepUtils.xmlEncode(creator))
         if self.descr:
              res.append('<dct:description>%s</dct:description>' % RepUtils.xmlEncode(self.descr))
 
@@ -1131,6 +1162,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                         xmlChunk.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(o.title_or_id()))
                         xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.upload_time().HTML4())
                         xmlChunk.append('<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>' % o.upload_time().HTML4())
+                        xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(self.absolute_url()))
                         xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % o.content_type)
                         xmlChunk.append('<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>' % repr(o.isRestricted()).lower())
                         if o.content_type == "text/xml":
@@ -1146,6 +1178,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                         xmlChunk.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(o.title_or_id()))
                         xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.upload_time().HTML4())
                         xmlChunk.append('<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>' % o.upload_time().HTML4())
+                        xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(self.absolute_url()))
                         xmlChunk.append('</File>')
                     except:
                         xmlChunk = []
@@ -1156,6 +1189,9 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                         xmlChunk.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(o.title_or_id()))
                         xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.releasedate.HTML4())
                         xmlChunk.append('<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</released>' % o.releasedate.HTML4())
+                        xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(self.absolute_url()))
+                        xmlChunk.append('<cr:feedbackStatus>%s</cr:feedbackStatus>' % RepUtils.xmlEncode(o.feedback_status))
+                        xmlChunk.append('<cr:feedbackMessage>%s</cr:feedbackMessage>' % RepUtils.xmlEncode(o.message))
                         xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % o.content_type)
                         xmlChunk.append('<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>' % repr(o.isRestricted()).lower())
                         if o.document_id not in [None, 'xml']:

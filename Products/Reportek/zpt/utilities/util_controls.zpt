@@ -1,0 +1,8 @@
+<tal:block metal:define-macro="utilities-controls">
+    <div class="utilities-controls">
+        <a class="" href="" tal:attributes="href python: context.absolute_url()">
+            <span class="back-link-icon icon-circle-arrow-left"></span>
+            <span class="back-link-text">Back to utilities</span>
+        </a>
+    </div>
+</tal:block>

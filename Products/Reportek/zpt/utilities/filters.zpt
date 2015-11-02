@@ -1,63 +1,64 @@
-<form method="get" action="">
-  <div class="filters">
-
-  <tal:block metal:define-macro="select-obligation">
-    <div class="form-group">
-      <label for="obligation">Obligation</label>
-      <select id="obligation" name="obligation">
-        <option value=""></option>
-        <tal:block define="req_obl request/obligation | string:;
-                           rod_data view/get_rod_obligations"
-                   repeat="instrument rod_data/legal_instruments">
-          <optgroup tal:attributes="label instrument">
-            <tal:block repeat="obl python:rod_data['obligations'][instrument]">
-              <option tal:attributes="value obl/PK_RA_ID;
-                        class python:'terminated' if obl['terminated'] == '1' else nothing;
-                        selected python:obl['PK_RA_ID'] == req_obl"
-                      tal:content="obl/TITLE">
-              </option>
+<metal:def define-macro="users-form">
+  <form method="get" action="">
+    <div class="filters">
+      <tal:block metal:define-macro="select-obligations">
+        <div class="form-group" tal:define="placeholder placeholder|nothing;">
+          <label for="obligations">Obligations</label>
+          <select id="obligations" name="obligations:list" multiple="multiple" tal:attributes="class python: 'placeholder-enabled' if placeholder else ''">
+            <tal:block define="req_obl request/obligations | string:;
+                               rod_data rod_data | view/get_assigned_rod_obligations"
+                       repeat="instrument rod_data/legal_instruments">
+              <optgroup tal:attributes="label instrument">
+                <tal:block repeat="obl python:rod_data['obligations'][instrument]">
+                  <option tal:attributes="value obl/PK_RA_ID;
+                            class python:'terminated' if obl['terminated'] == '1' else nothing;
+                            selected python:obl['PK_RA_ID'] in req_obl"
+                          tal:content="obl/TITLE">
+                  </option>
+                </tal:block>
+              </optgroup>
             </tal:block>
-          </optgroup>
-        </tal:block>
-      </select>
-    </div>
-  </tal:block>
+          </select>
+        </div>
+      </tal:block>
 
-  <tal:block metal:define-macro="role">
-    <div class="form-group">
-      <label for="role">Role</label>
-      <select id="role" name="role" style="width: 200px;">
-        <option></option>
-        <option tal:repeat="role view/get_roles"
-                tal:content="role"
-                tal:attributes="selected python:request.get('role', '') == role">
-        </option>
-      </select>
-    </div>
-  </tal:block>
+      <tal:block metal:define-macro="role">
+        <div class="form-group" tal:define="placeholder placeholder|nothing;">
+          <label for="role">Role</label>
+          <select id="role" name="role" style="width: 200px;" tal:attributes="class python: 'placeholder-enabled' if placeholder else ''">
+            <option></option>
+            <option tal:repeat="role view/get_roles"
+                    tal:content="role"
+                    tal:attributes="selected python:request.get('role', '') == role">
+            </option>
+          </select>
+        </div>
+      </tal:block>
 
-  <tal:block metal:define-macro="countries">
-    <div class="form-group">
-      <label for="countries">Countries</label>
-      <select id="countries" name="countries:list" multiple="multiple">
-        <option tal:repeat="country view/localities_rod"
-                tal:content="country/name"
-                tal:attributes="value country/iso;
-                  selected python:country['iso'] in request.get('countries', [])">
-        </option>
-      </select>
-    <div class="filters-eu">
-      <a onclick="toggleSelectCountries(this.id);" id="eu25">EU25</a>
-      <a onclick="toggleSelectCountries(this.id);" id="eu27">EU27</a>
-      <a onclick="toggleSelectCountries(this.id);" id="eu31">EU31</a>
-    </div>
-    </div>
-  </tal:block>
+      <tal:block metal:define-macro="countries">
+        <div class="form-group" tal:define="placeholder placeholder|nothing;">
+          <label for="countries">Countries</label>
+          <select id="countries" name="countries:list" multiple="multiple" tal:attributes="class python: 'placeholder-enabled' if placeholder else ''">
+            <option tal:repeat="country view/localities_rod"
+                    tal:content="country/name"
+                    tal:attributes="value country/iso;
+                      selected python:country['iso'] in request.get('countries', [])">
+            </option>
+          </select>
+        <div class="filters-eu">
+          <a onclick="reportek.utils.toggleSelectCountries(this.id);" id="all">All</a>
+          <a onclick="reportek.utils.toggleSelectCountries(this.id);" id="eu28">EU28</a>
+          <a onclick="reportek.utils.toggleSelectCountries(this.id);" id="eea33">EEA33</a>
+          <a onclick="reportek.utils.toggleSelectCountries(this.id);" id="eionet39">Eionet39</a>
+        </div>
+        </div>
+      </tal:block>
 
-    <div class="actions">
-      <input type="submit" name="btnFilter" value="Filter" />
-      <a onclick="clear_filters()">Clear filters</a>
-    </div>
+      <div class="actions">
+        <input type="submit" name="btnFilter" value="Search" />
+        <a onclick="reportek.utils.clear_filters()">Clear filters</a>
+      </div>
 
-  </div>
-</form>
+    </div>
+  </form>
+</metal:def>

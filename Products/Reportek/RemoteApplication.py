@@ -443,11 +443,13 @@ class RemoteApplication(SimpleItem):
                     l_filename = ' result for file %s: ' % l_file_id
                 envelope = self.aq_parent
                 feedback_id = '{0}_{1}'.format(self.app_name, p_jobID)
+
                 envelope.manage_addFeedback(id=feedback_id,
                         title= self.app_name + l_filename + l_ret['SCRIPT_TITLE'],
                         activity_id=l_workitem.activity_id,
                         automatic=1,
-                        document_id=l_file_id)
+                        document_id=l_file_id,
+                        feedback_status=l_ret.get('FEEDBACK_STATUS', 'NOGO'))
                 feedback_ob = envelope[feedback_id]
 
                 content = l_ret['VALUE']
@@ -469,9 +471,13 @@ class RemoteApplication(SimpleItem):
                     feedback_ob.feedbacktext = content
                     feedback_ob.content_type = content_type
 
+                # l_workitem.feedback_status = l_ret['FEEDBACK_STATUS']
+                feedback_ob.message = l_ret.get('FEEDBACK_MESSAGE', '')
+
                 if l_ret['FEEDBACK_STATUS'] == 'BLOCKER':
                     l_workitem.blocker = True
-                    feedback_ob.message=l_ret.get('FEEDBACK_MESSAGE', '')
+
+                feedback_ob.message = l_ret.get('FEEDBACK_MESSAGE', '')
 
                 l_getResultDict = {p_jobID: {'code':1, 'fileURL':l_file_url}}
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_getResult=l_getResultDict)

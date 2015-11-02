@@ -1,15 +1,15 @@
 <h1 tal:replace="structure here/manage_page_header">Header</h1>
 <h1 tal:replace="structure here/manage_tabs">Tabs</h1>
 
-<h2 tal:define="form_title string:Add a BDR User Folder Plugin"
+<h2 tal:define="form_title string:Add a Reportek User Folder Plugin"
     tal:replace="structure here/manage_form_title">Form Title</h2>
 
 
 <p class="form-help">
-    A BDR UserFolder Plugin enables context-aware local roles
+    A Reportek UserFolder Plugin enables context-aware local roles
 </p>
 
-<form action="addBdrUserFactoryPlugin" method="post"
+<form action="addReportekUserFactoryPlugin" method="post"
  enctype="multipart/form-data">
 <table cellspacing="0" cellpadding="2" border="0">
   <tr>
@@ -19,7 +19,7 @@
     </div>
     </td>
     <td align="left" valign="top">
-    <input type="text" name="id" size="40" value='bdr-user-factory' />
+    <input type="text" name="id" size="40" value='reportek-user-factory' />
     </td>
   </tr>
   <tr>

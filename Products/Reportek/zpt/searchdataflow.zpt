@@ -105,6 +105,7 @@ function toggleSelect() {
 </form>
 <br/>
 <tal:block condition="options/results | nothing">
+<p><tal:block i18n:translate="">Note: </tal:block><em i18n:translate="">Repository Referrals</em> <tal:block i18n:translate="">will not be added to zip archives, since their documents are located outside this system.</tal:block></p>
 <form action="ReportekEngine/zipEnvelopes" method="post" id="frmZip"
       tal:define="query_start python:request.get('query_start') or 0;
                   Batch python:modules['ZTUtils'].Batch;
@@ -116,6 +117,7 @@ function toggleSelect() {
     <tal:block condition="isBdrDeployment"
         content="structure python:context.sortable_table((
         {'id': 'zip', 'title': '', 'sortable':0},
+        {'id': 'company_id', 'title': 'Company ID', 'sortable':0},
         {'id':'getCountryName','title':'Country','sortable':1},
         {'id':'company','title':'Company','sortable':0},
         {'id':'userid','title':'User ID','sortable':0},
@@ -143,8 +145,15 @@ function toggleSelect() {
     <metal:block fill-slot="resultsTableRowFormat">
     <td>
         <input type="checkbox" name="envelopes"
-        tal:condition="python:obj.released"
+        tal:condition="python:obj.released and not obj.meta_type == 'Repository Referral'"
         tal:attributes="value python:obj.absolute_url_path()"/>
+    </td>
+    <td tal:condition="isBdrDeployment">
+        <tal:block tal:condition="python:hasattr(obj.aq_parent, 'company_id')"
+                tal:content="python:obj.aq_parent.company_id">
+        </tal:block>
+        <tal:block tal:condition="not: python:hasattr(obj.aq_parent, 'company_id')" tal:content="string:-">
+        </tal:block>
     </td>
     <td tal:content="python:obj.getCountryName()">country name</td>
     <td tal:condition="isBdrDeployment"
@@ -154,8 +163,11 @@ function toggleSelect() {
         tal:content="python:obj.aq_parent.id">user id ?
     </td>
     <td>
+        <img tal:attributes="src obj/icon;
+                             alt obj/meta_type"
+          style="width: 16px; height: 16px" />
         <a tal:attributes="href python:obj.absolute_url_path()"
-            tal:content="python:obj.title">
+            tal:content="python:obj.title_or_id()">
             title_link
         </a>
     </td>

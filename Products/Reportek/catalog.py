@@ -37,7 +37,8 @@ REPORTEK_META_TYPES = [
         'Image',
         'Page Template',
         'Script (Python)',
-        'XMLRPC Method']
+        'XMLRPC Method',
+        'Workflow Engine']
 
 def catalog_rebuild(root):
     import transaction

@@ -1,26 +1,63 @@
+<tal:block define="global deployment python: here.ReportekEngine.getDeploymentType();
+                   global isCdrDeployment python: deployment == 'CDR'"
+                   />
 <metal:block use-macro="here/roles_template/macros/roles-page">
 
     <metal:block fill-slot="page-header">
-      <h1>Remove role from Eionet user</h1>
+      <h1>Remove role</h1>
     </metal:block>
 
     <metal:block fill-slot="messages">
-      <p class="important-msg" tal:condition="request/done | nothing">
-        Operations completed succesfully.
-      </p>
+      <tal:block tal:condition="python: request.get('op_results', 'Not set') != 'Not set'"
+       tal:define="results python: request.get('op_results')">
+
+        <metal:block use-macro="here/info_message/macros/info-message">
+          <div metal:fill-slot="info-message-container" class="info-message info-message-info">
+            <div class="im-controls im-controls-right">
+              <a id="im-close" href="#" class="im-control im-close">
+                <span class="icon-remove"></span>
+              </a>
+            </div>
+            <div class="im-message msg-warning" tal:condition="python: len(results) == 0">
+              Nothing ticked in the previous screen
+            </div>
+            <div class="im-message msg-success" tal:condition="python: len(results) > 0">
+              <div class="info-message-content">
+                Roles removed: 
+                <ul>
+                  <li tal:repeat="res results">
+                    <a tal:define="href python: res.get('path')"
+                      tal:attributes="href href"
+                      tal:content="python: res.get('path')"/>
+                    <span tal:content="python: res.get('entity')"/>
+                    <span tal:content="python: res.get('role')"/>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>
+        </metal:block>
+      </tal:block>
     </metal:block>
 
     <metal:block fill-slot="data-table">
-      <tal:block condition="request/search_term | nothing">
-        <form action="" method="get">
+      <tal:block condition="request/search_term | nothing"
+        tal:define="user python:request.get('username', None);
+                  group python: request.get('groupsname', None);
+                  entity python: user or group">
+
+        <form action="" method="POST" id="revoke-roles-form">
 
           <tal:block metal:use-macro="here/find_user/macros/users_table" />
 
           <input type="hidden" name="search_term"
                  tal:attributes="value request/search_term" />
 
+          <input type="hidden" name="search_type"
+                 tal:attributes="value request/search_type|nothing" />
+
           <div>
-            <input type="submit" name="btn.find_roles" value="Find user roles" />
+            <input type="submit" name="btn.find_roles" value="Find user/group roles" />
           </div>
 
           <p tal:condition="not: request/search_term | nothing">
@@ -28,66 +65,89 @@
           </p>
 
           <tal:block condition="request/btn.find_roles | nothing">
-            <tal:block condition="python:request.get('username', None)">
-            <h2>3. Revoke roles</h2>
-            <table class="datatable"
-                   tal:define="collections view/get_collections">
-              <thead>
-                <tr>
-                  <th><input id="toggleAllCB" type="checkbox" /></th>
-                  <th>Country</th>
-                  <th>Path</th>
-                  <th>Obligations</th>
-                  <th>Roles</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr tal:repeat="collection collections">
-                  <td>
-                    <input type="checkbox" name="collections:list" class="toggledCB"
-                           tal:attributes="value collection/path">
-                  </td>
-                  <td tal:content="collection/country" />
-                  <td>
-                    <a tal:attributes="href collection/path"
-                       tal:content="collection/path"/>
-                  </td>
-                  <td>
-                    <ul>
-                      <tal:block repeat="obl collection/obligations">
-                        <li>
-                          <a tal:attributes="href obl/uri"
-                             tal:content="obl/title" />
-                        </li>
-                      </tal:block>
-                    </ul>
-                  </td>
-                  <td style="white-space: nowrap;">
-                    <ul tal:condition="collection/roles"
-                        tal:define="local_roles collection/roles">
-                      <li tal:repeat="roles python:[local_roles[user] for user in local_roles.keys() if user == request.get('username', None)]">
-                        <tal:rep tal:repeat="role roles">
-                          <input type="checkbox" class="local-roles"
-                            tal:attributes="name python: collection.get('path').replace('/', '_') + ':list';
-                                            value role;">
-                          <span tal:content="role"/>
-                        </tal:rep>
-                      </li>
-                    </ul>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <tal:block tal:condition="entity">
+            <tal:def tal:define="collections view/get_collections">
+              <tal:block tal:condition="collections">
+                <h2>3. Revoke roles</h2>
+                <h5 i18n:translate="" tal:condition="python: deployment == 'BDR'">The Auditors will have read-only access for country folders and will be country representatives, while Clients (ClientODS, ClientCARS and ClientFG, etc.) have an overview for the entire obligation's collection.</h5>
+                <table class="datatable">
+                  <thead>
+                    <tr>
+                      <th><input id="toggleAllCB" type="checkbox" /></th>
+                      <th>Country</th>
+                      <th tal:condition="python: request.get('use-subgroups')">LDAP Groups</th>
+                      <th>Path</th>
+                      <th>Obligations</th>
+                      <th>Roles</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr tal:repeat="collection collections">
+                      <tal:def tal:define="matched_group python: collection.get('matched_group','');
+                                           use_subgroups python: request.get('use-subgroups')">
+                        <td>
+                          <tal:block tal:condition="python: not use_subgroups or (use_subgroups and matched_group)">
+                            <input type="checkbox" name="collections:list" class="toggledCB"
+                                 tal:attributes="value python: ','.join([collection.get('path'), matched_group])">
+                          </tal:block>
+                        </td>
+                        <td tal:content="collection/country" />
+                        <td tal:condition="use_subgroups">
+                          <span tal:condition="matched_group" tal:content="matched_group" tal:omit-tag=""/>
+                          <span tal:condition="not: matched_group" tal:omit-tag="" i18n:translate="">
+                            N/A
+                          </span>
+                        </td>
+                        <td>
+                          <a tal:attributes="href collection/path"
+                             tal:content="collection/path"/>
+                        </td>
+                        <td>
+                          <ul>
+                            <tal:block repeat="obl collection/obligations">
+                              <li>
+                                <a tal:attributes="href obl/uri"
+                                   tal:content="obl/title" />
+                              </li>
+                            </tal:block>
+                          </ul>
+                        </td>
+                        <td style="white-space: nowrap;">
+                          <ul tal:condition="collection/roles"
+                              tal:define="local_roles collection/roles;
+                                          entity python: matched_group if matched_group else entity;
+                                          entity_roles python:[local_roles[user] for user in local_roles.keys()
+                                                        if user == entity];">
+                            <li tal:repeat="roles entity_roles">
+                              <tal:rep tal:repeat="role roles">
+                                <input type="checkbox" class="local-roles"
+                                  tal:attributes="name python: collection.get('path').replace('/', '_') + ':list';
+                                                  value role;">
+                                <span tal:content="role"/>
+                              </tal:rep>
+                            </li>
+                          </ul>
+                        </td>
+                      </tal:def>
+                    </tr>
+                  </tbody>
+                </table>
+                <div>
+                  <input type="submit" name="btn.revoke" value="Revoke roles" />
+                </div>
 
-            <div>
-              <input type="submit" name="btn.revoke" value="Revoke roles" />
-            </div>
+              </tal:block>
+              <tal:block tal:condition="not: collections">
+                <h2 i18n:translate="">There were no results matching this query</h2>
+              </tal:block>
+            </tal:def>
+
             </tal:block>
 
 
             <p class="error-msg"
-               tal:condition="python:not request.get('username', None)">
-              User is mandatory.
+               tal:condition="not: entity">
+              User or group is mandatory.
             </p>
 
           </tal:block>

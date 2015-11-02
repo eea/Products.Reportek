@@ -598,10 +598,12 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             headers = getattr(file_or_content, 'headers', None)
             readCount = 100
             body = file_or_content.read(readCount)
-            if ( isinstance(file_or_content, ZZipFileRaw)\
-                 and file_or_content.allowRaw
-                 and ( readCount < 0
-                       or readCount >= ZZipFileRaw.SKIP_RAW_THRESHOLD ) ):
+            is_ZipRaw = isinstance(file_or_content, ZZipFileRaw)
+            if is_ZipRaw:
+                name = getattr(file_or_content, 'currentFilename', name)
+            if (is_ZipRaw and file_or_content.allowRaw and
+               (readCount < 0 or
+                    readCount >= ZZipFileRaw.SKIP_RAW_THRESHOLD)):
                 file_or_content.rewindRaw()
             else:
                 file_or_content.seek(0)
@@ -641,7 +643,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             return file_or_content.orig_size
         elif isinstance(file_or_content, ZZipFile):
             return file_or_content.tell()
-        return 0
+        else:
+            raise RuntimeError("Unable to compute uncompressed size")
 
 
 Globals.InitializeClass(Document)

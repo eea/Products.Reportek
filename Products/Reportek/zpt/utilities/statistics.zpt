@@ -1,8 +1,13 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
+  <metal:block fill-slot="head">
+    <link href="++resource++static/style.css" rel="stylesheet"/>
+    <link href="++resource++static/fontawesome/font-awesome.min.css" rel="stylesheet"/>
+  </metal:block>
   <metal:block fill-slot="breadcrumbtrails">
     <tal:block content="structure here/breadcrumbs_views"></tal:block>
   </metal:block>
 <metal:block fill-slot="content">
+    <metal:block use-macro="here/util_controls/macros/utilities-controls" />
     <h1>Statistics</h1>
     <ul tal:define="total view/totals_per_type">
         <li>Number of envelopes: <span tal:content="total/envelopes"></span></li>
@@ -13,7 +18,7 @@
         <li>Number of referrals: <span tal:content="total/referrals"></span></li>
     </ul>
 
-    <iframe width='900' height='700' frameBorder="0" src='http://daviz.eionet.europa.eu/visualisations/reportnet-deliveries-per-year-in-totals/embed-chart?chart=chart_1&chartWidth=800&chartHeight=600&customStyle=.googlechart_view{margin-left:0px%3B}'></iframe>
+    <iframe width='900' height='700' frameBorder="0" src='http://www.eea.europa.eu/data-and-maps/daviz/reportnet-deliveries-per-year-in-totals-1/embed-chart?chart=chart_1&chartWidth=800&chartHeight=600&customStyle=.googlechart_view{margin-left:0px%3B}'></iframe>
 
     <h2>Total deliveries per country per year</h2>
 

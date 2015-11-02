@@ -1,0 +1,52 @@
+<span tal:replace="structure here/standard_html_header" />
+
+<link href="++resource++static/style.css" rel="stylesheet"/>
+
+<div tal:replace="structure python:context.envelope_tabs(tab='data_quality')"/>
+<h1 i18n:translate="">Results of automatic data quality checks</h1>
+<p>This page displays summary information from all automatic data quality checks for this envelope. If you want to see more detailed results, just follow the "Show more.." links to the individual feedback items.</p>
+
+<div id="detailed-qa"
+  tal:define="fb_objs context/getFeedbackObjects;
+              feedbacks python: [fb for fb in fb_objs if getattr(fb, 'message', None) and getattr(fb, 'automatic', False)];
+              fb_files python: [getattr(fb, 'document_id', '') for fb in feedbacks];
+              seen python: {};
+              u_fb_files python: [seen.setdefault(x, x) for x in fb_files if x not in seen];
+              env_fbs python: [fb for fb in feedbacks if getattr(fb, 'document_id', '') == 'xml'];
+              fb_classes python: {'INFO': 'fb-info', 'WARNING': 'fb-warning', 'ERROR': 'fb-error', 'BLOCKER': 'fb-blocker'}">
+
+  <ul tal:condition="python: len(feedbacks) > len(env_fbs)" class="fb-listing">
+    <tal:rep tal:repeat="fb_file u_fb_files">
+      <li tal:condition="python: fb_file != 'xml'">
+        <strong><span tal:content="python: fb_file" />
+        </strong>
+        <ul>
+          <li tal:repeat="feedback python: [fb for fb in feedbacks if getattr(fb, 'document_id', '') == fb_file]">
+            <span tal:define="fb_status python: getattr(feedback, 'feedback_status', '')"
+                  tal:attributes="class python: fb_classes.get(fb_status)">
+              <span class="fb-status" tal:content="fb_status"/>:
+              <span tal:content="python: getattr(feedback, 'message', '')"/>
+            </span>
+            <a href="#" tal:attributes="href feedback/absolute_url">Show more...</a>
+          </li>
+        </ul>
+      </li>
+    </tal:rep>
+  </ul>
+  <tal:block tal:condition="env_fbs">
+    <strong>Envelope test</strong>
+    <ul>
+      <li tal:repeat="feedback env_fbs">
+        <span tal:define="fb_status python: getattr(feedback, 'feedback_status', '')"
+              tal:attributes="class python: fb_classes.get(fb_status)">
+          <span class="fb-status" tal:content="fb_status"/>:
+          <span tal:content="python: getattr(feedback, 'message', '')"/>
+        </span>
+        <a href="#" tal:attributes="href feedback/absolute_url">Show more...</a>
+      </li>
+    </ul>
+  
+  </tal:block>
+</div>
+
+<span tal:replace="structure here/standard_html_footer" />

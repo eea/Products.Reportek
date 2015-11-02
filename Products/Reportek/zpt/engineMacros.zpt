@@ -88,10 +88,11 @@
 </metal:block>
 
 
-<metal:block define-macro="resultsTable">
+<metal:block define-macro="resultsTable"
+  tal:define="std modules/Products.PythonScripts.standard;
+              url_quote nocall: std/url_quote;">
 
 <metal:block define-slot="previous_link">
-
 <a href="previousbatch" tal:define="p batch/previous"
                         tal:condition="p"
                         tal:attributes="href python:'?query_start=%s&'
@@ -115,8 +116,8 @@
                                                           request.get('sort_on'),
                                                           request.get('sort_order'),
                                                           request.get('release_status', ''),
-                                                          request.get('reportingdate_start', ''),
-                                                          request.get('reportingdate_end', ''),
+                                                          url_quote(request.get('reportingdate_start', '')),
+                                                          url_quote(request.get('reportingdate_end', '')),
                                                           )">
     (Previous <span tal:replace="p/length">n</span> results)
 </a>
@@ -169,8 +170,8 @@
                                                           request.get('sort_on', ''),
                                                           request.get('sort_order', ''),
                                                           request.get('release_status', ''),
-                                                          request.get('reportingdate_start', ''),
-                                                          request.get('reportingdate_end', ''),
+                                                          url_quote(request.get('reportingdate_start', '')),
+                                                          url_quote(request.get('reportingdate_end', '')),
                                                           )">
          (Next <span tal:replace="n/length">n</span> results)
     </a>

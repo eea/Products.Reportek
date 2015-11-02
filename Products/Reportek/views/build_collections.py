@@ -19,16 +19,17 @@ class BuildCollections(BaseAdmin):
         pattern = self.request.form.pop('pattern', '')
         countries = self.request.form.pop('countries', None)
         title = self.request.form.pop('ctitle', '')
-        obl = self.request.form.pop('obligation', [])
+        obl = self.request.form.pop('obligations', [])
 
         collection_id = self.request.form.pop('cid', '')
         allow_collections = int(self.request.form.pop('allow_collections', 0))
-        allow_envelopes = int(self.request.form.pop('allow_envelopes', 1))
+        allow_envelopes = int(self.request.form.pop('allow_envelopes', 0))
 
+        obligations = []
         # adjust obligation to expected format
-        if not isinstance(obl, list):
-            obl = filter(lambda c: c.get('PK_RA_ID') == obl, self.dataflow_rod)[0]
-            obl = [obl['uri']]
+        for ob in obl:
+            ob = filter(lambda c: c.get('PK_RA_ID') == ob, self.dataflow_rod)[0]
+            obligations.append(ob.get('uri'))
 
         # get ReportekEngine object
         engine = self.context.unrestrictedTraverse('/'+ENGINE_ID)
@@ -45,7 +46,7 @@ class BuildCollections(BaseAdmin):
 
                     target = engine.getPhysicalRoot().restrictedTraverse(target_path)
                     target.manage_addCollection(
-                        title, '', '', '', '', country['uri'], '', obl,
+                        title, '', '', '', '', country['uri'], '', obligations,
                         allow_collections=allow_collections,
                         allow_envelopes=allow_envelopes,
                         id=collection_id
@@ -56,26 +57,3 @@ class BuildCollections(BaseAdmin):
                         country['name'], target_path)
                     messages['fail'].append(err)
         return self.index(messages=messages)
-
-    def get_rod_obligations(self):
-        """ Get activities from ROD """
-        engine = self.context.unrestrictedTraverse('/'+ENGINE_ID)
-        unique_uris = engine.getUniqueValuesFor('dataflow_uris')
-
-        dataflow_rod = self.dataflow_rod
-        data = []
-
-        if dataflow_rod:
-            data = sorted(dataflow_rod, key=itemgetter('SOURCE_TITLE'))
-
-        obligations = defaultdict(list)
-        for obl in data:
-            if obl.get('uri') in unique_uris:
-                obligations[obl['SOURCE_TITLE']].append(obl)
-
-        legal_instruments = sorted(obligations.keys())
-
-        return {
-            'legal_instruments': legal_instruments,
-            'obligations': obligations
-        }

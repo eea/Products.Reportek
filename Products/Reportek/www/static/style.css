@@ -4,10 +4,18 @@
   clear: both;
 }
 
+.spinner-container img {
+  display: block;
+  margin: 10px auto 10px auto;
+}
 .dataTable {
   width: 100%;
   clear: both;
   border-collapse: collapse;
+}
+
+.datatable .user-id {
+  font-weight: bold;
 }
 
 .dataTable a {
@@ -120,6 +128,7 @@ a.revoke-roles:hover {
   padding: 1em;
   border: 1px solid #B6B6B6;
   background: #f2f2f2;
+  overflow: hidden;
 }
 .filters h2,
 form h2 {
@@ -411,4 +420,177 @@ hr {
 }
 .match {
     background-color: #954549
+}
+
+.utilities-controls {
+  text-align: right;
+}
+
+.utilities-controls a {
+  text-decoration: none;
+}
+
+.info-message {
+  overflow: hidden;
+  padding: 10px 0 0 0;
+}
+
+.im-message {
+  margin-left: 10px;
+  float: left;
+}
+
+.im-controls-left {
+  float: left;
+}
+
+.im-controls-right {
+  float: right;
+}
+
+.im-control {
+  text-decoration: none;
+}
+
+.im-open {
+  position: absolute;
+}
+
+.bg-visible {
+  padding: 10px 10px 10px 0;
+  border: 1px solid #B6B6B6;
+}
+
+.bg-info {
+  background-color: #d9edf7;
+}
+
+.bg-success {
+  background-color: #dff0d8;
+}
+
+.bg-warning {
+  background-color: #fcf8e3;
+}
+
+.bg-danger {
+  background-color: #f2dede;
+}
+
+.filters-content {
+  display: table;
+  margin: 0 auto;
+}
+
+.search-type-controls {
+  display: table-cell;
+  margin-right: 20px;
+}
+
+.search-box {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.search-radios {
+  font-size: 13px;
+  margin-right: 20px;
+}
+
+tr.user-disabled {
+  /* Modern Browsers */
+  opacity: 0.5;
+  /*IE*/
+  -ms-filter:"progid:DXImageTransform.Microsoft.Alpha(Opacity=50)"; // IE8
+  filter: alpha(opacity=50); // IE 5-7
+}
+
+#assign-roles-form tr.user-disabled {
+  display: none;
+}
+
+.results-table {
+  overflow: auto;
+}
+
+.tabbedmenu {
+  float: left;
+  width: 100%;
+  background: url("https://www.eionet.europa.eu/styles/eionet2007/tab_bg.png") bottom repeat-x;
+  font-size: 0.9em;
+  line-height: normal;
+}
+
+.tabbedmenu .currenttab {
+  background-image: url("https://www.eionet.europa.eu/styles/eionet2007/tab_left_on.png");
+  border-bottom: 3px solid #cedc32;
+}
+
+.tabbedmenu li {
+  float: left;
+  background: url("https://www.eionet.europa.eu/styles/eionet2007/tab_left.png") no-repeat left top;
+  border-bottom: 3px solid #315076;
+  margin: 0;
+  padding: 0 0 0 6px;
+  white-space: nowrap;
+}
+
+.tabbedmenu ul {
+  margin: 0;
+  padding: 0px 10px 0 10px;
+  list-style: none;
+}
+
+.tabbedmenu .currenttab span,
+.tabbedmenu .currenttab a {
+    display: block;
+    text-decoration: none;
+    font-weight: bold;
+    background: url("https://www.eionet.europa.eu/styles/eionet2007/tab_right_on.png") no-repeat right top;
+    padding: 3px 8px 2px 0px;
+}
+
+.tabbedmenu a {
+    display: block;
+    text-decoration: none;
+    font-weight: bold;
+    color: black;
+    background: url("https://www.eionet.europa.eu/styles/eionet2007/tab_right.png") no-repeat right top;
+    padding: 3px 8px 2px 0px;
+}
+
+.tabbedmenuend {
+  clear: left;
+}
+
+.hidden-content {
+  display: none;
+}
+
+.fb-info {
+  color: deepskyblue;
+}
+
+.fb-blocker {
+  color: red;
+  font-weight: bold;
+}
+
+.fb-error {
+  color: red;
+}
+
+.fb-warning {
+  color: orange;
+}
+
+.fb-status {
+  font-weight: bold;
+}
+
+#detailed-qa .fb-listing {
+  list-style-type: none;
+  list-style-image: none;
+  margin-left: 0;
+  margin-bottom: 0.5em;
 }

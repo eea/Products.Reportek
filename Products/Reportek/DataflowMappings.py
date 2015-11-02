@@ -16,7 +16,7 @@ class DataflowMappings(Folder):
 
     manage_options = (
             Folder.manage_options[0],
-            {'label':'View', 'action':'dataflowsMappingsView'}
+            {'label': 'View', 'action': 'index_html'}
             ) + Folder.manage_options[2:]
 
     meta_type = 'Dataflow Mappings'
@@ -79,11 +79,13 @@ class DataflowMappings(Folder):
         schemaObjects = self.getSchemaObjectsForDataflows(dataflow_uris, web_form_only)
         return [ schema['url'] for schema in schemaObjects ]
 
-
     security.declarePublic('dataflows_select')
     dataflows_select = PageTemplateFile(
             'zpt/dataflow-mappings/dataflows_select',
             globals())
 
+
+    security.declareProtected('View management screens', 'index_html')
+    index_html = PageTemplateFile('zpt/dataflow-mappings/index', globals())
 
 InitializeClass(DataflowMappings)

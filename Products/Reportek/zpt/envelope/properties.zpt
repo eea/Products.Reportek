@@ -68,7 +68,8 @@
       <tr>
         <th i18n:translate="">Obligations</th>
         <td>
-          <select id="dataflows" size="15" name="dataflow_uris:list" multiple="multiple">
+          <select id="dataflows" size="15" name="dataflow_uris:list" multiple="multiple"
+           tal:attributes="disabled not: permission_condition">
             <tal:block tal:define="obligation_select_size python:'1' if isBdrDeployment else '15';
                                    data context/ReportekEngine/dataflow_table_grouped;
                                    groups python:data[0];

@@ -1,7 +1,13 @@
-<metal:block use-macro="here/users_template/macros/users-page">
+<tal:block define="global deployment python: here.ReportekEngine.getDeploymentType();
+                   global isCdrDeployment python: deployment == 'CDR';
+                   global isBdrDeployment python: deployment == 'BDR';
+                   global filtered python:request.get('btnFilter')"
+                   />
 
+<metal:block use-macro="here/users_template/macros/users-page">
   <metal:block fill-slot="tabs">
-    <div  id="tabbedmenu">
+    <h5 i18n:translate="" tal:condition="python: deployment == 'BDR'">The Auditors will have read-only access for country folders and will be country representatives, while Clients (ClientODS, ClientCARS and ClientFG, etc.) have an overview for the entire obligation's collection.</h5>
+    <div  id="tabbedmenu" tal:condition="filtered">
       <ul>
         <li>
           <a tal:attributes="href python:view.get_view('get_users_by_path')">
@@ -16,8 +22,14 @@
     <div id="tabbedmenuend"></div>
   </metal:block>
 
+  <metal:block fill-slot="info-message">
+    <div class="info-message" tal:condition="filtered">
+      <span tal:condition="isBdrDeployment" i18n:translate="">Internal user results are hidden</span>
+    </div>
+  </metal:block>
+
   <metal:block fill-slot="data-table">
-    <table class="datatable" id="datatable" data-table-key="by_person">
+    <table class="datatable" id="datatable" data-table-key="by_person" tal:condition="filtered">
       <thead>
         <tr>
           <th>Path</th>
@@ -30,5 +42,4 @@
     </table>
 
   </metal:block>
-
 </metal:block>

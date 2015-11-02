@@ -63,7 +63,7 @@ def manage_addReferral(self, title, descr, referral_url,
     ob.country = country
     ob.locality = locality
     ob.descr = descr
-    ob.released = 0
+    ob.released = 1
     ob.dataflow_uris = dataflow_uris
     self._setObject(id, ob)
     ob=self._getOb(id)
@@ -92,6 +92,11 @@ class Referral(CatalogAware, SimpleItem, CountriesManager):
         AccessControl.Role.RoleManager.manage_options+
         SimpleItem.manage_options
         )
+
+    def get_reportingdate(self):
+        return self.bobobase_modification_time()
+
+    reportingdate = property(get_reportingdate)
 
     def __setstate__(self,state):
         Referral.inheritedAttribute('__setstate__')(self, state)

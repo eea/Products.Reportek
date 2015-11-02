@@ -1,234 +1,700 @@
-function generateRow(row, tableKey) {
-
-  var result = [
-      renderAsLink(row.path[0], row.path[0], row.path[1]),
-      renderAsUL($.map(row.obligations, function (obligation) {
-        return renderAsLink(obligation[0], obligation[1]);
-      }))
-    ];
-
-  if (tableKey === 'by_path')
-    result.push(
-      renderAsUL($.map(row.users, function (user) {
-        return renderAsLink(getUserUrl(user), user)
-      })));
-  else if (tableKey === 'by_person')
-    result.push(row.user);
-
-  return result;
+/*global $, jQuery*/
+"use strict";
+if (window.reportek === undefined) {
+    var reportek = {
+        version: "1.0"
+    };
 }
 
-function initEnvelopesTable() {
-  $("#env-table").dataTable({
-    "order": [[0, "desc"]],
-    "aoColumnDefs": [
-      {'bSortable': false, 'aTargets': [5, 6]}
-    ],
-    "bAutoWidth": false
-  });
-}
+reportek.utils = {
+  users: {},
+  countries_keys: {"eu28": ["AT", "BE", "BG", "CY", "CZ", "DE", "DK", 
+                             "EE", "ES", "FI", "FR", "GB", "GR", "HR",
+                             "HU", "IE", "IT", "LT", "LU", "LV", "MT",
+                             "NL", "PL", "PT", "RO", "SE", "SI", "SK"],
+                    "eea33": ["AT", "BE", "BG", "CH", "CY", "CZ", "DE",
+                              "DK", "EE", "ES", "FI", "FR", "GB", "GR",
+                              "HR", "HU", "IE", "IS", "IT", "LI", "LT",
+                              "LU", "LV", "MT", "NL", "NO", "PL", "PT",
+                              "RO", "SE", "SI", "SK", "TR"],
+                    "eionet39": ["AL", "AT", "BA", "BE", "BG", "CH", "CY",
+                                 "CZ", "DE", "DK", "EE", "ES", "FI", "FR",
+                                 "GB", "GR", "HR", "HU", "IE", "IS", "IT",
+                                 "LI", "LT", "LU", "LV", "ME", "MK", "MT",
+                                 "NL", "NO", "PL", "PT", "RO", "RS", "SE",
+                                 "SI", "SK", "TR", "XK"],
+                    "all": []},
 
-function initCompaniesTable() {
-  $("#comp-table").dataTable({
-    "iDisplayLength": 20,
-    "sAjaxSource": "/fgases_registry/get_companies",
-    "sAjaxDataProp" : "",
-    "autowidth": false,
-    "order": [[ 0, "desc" ]],
-    "columns": [
-      { "width": "5%%" },
-      { "width": "25%" },
-      { "width": "15%" },
-      { "width": "13%" },
-      { "width": "15%" },
-      { "width": "12%" },
-      { "width": "15%" }
-    ],
-    "aoColumns": [
-      { "mData": "company_id" },  // for User Detail
-      { "mData": "name" },
-      { "mData": "domain" },
-      { "mData": "users" },
-      { "mData": "address.country.name" },
-      { "mData": "vat" },
-      { "mData": "date_created" }
-    ],
-    "columnDefs": [
-      {
-        "width": "25%",
-        "targets": 1,
-        "data": "name",
-        "render": function (data, type, full, meta) {
-          return '<a href="/fgases_registry/organisation_details?id='
-            + full.company_id + '">' + data + '</a>';
+  load: function() {
+    var self = reportek.utils;
+    self.initEnvelopesTable();
+    self.initCompaniesTable();
+    self.bindSearchRadios();
+    self.initTabbedMenu();
+    var placeholder = "";
+    var selects_ids = ["#role", "#obligations", "#countries"];
+
+    for (var i=0; i<=selects_ids.length; i++) {
+      var select = $(selects_ids[i]);
+      if (select.length > 0) {
+        if (select.hasClass("placeholder-enabled")) {
+          placeholder = "All";
         }
+        select.select2({
+          placeholder: placeholder,
+          allowClear: true
+        });
+      }
+    }
+
+    if ($("#datatable").length !== 0)
+      self.initDataTable();
+    $(".toggledCB").click(function() {
+      var checkedElems = $(".toggledCB").filter(function(index, element) {
+        return $(element).prop("checked") === true;
+      });
+      if (checkedElems.length === $(".toggledCB").length) {
+        $("#toggleAllCB").prop("checked", true);
+      } else {
+        $("#toggleAllCB").prop("checked", false);
+      }
+    });
+    $(".toggledCB").change(function() {
+        self.manage_role_cb(this);
+    });
+    $("#toggleAllCB").click(function() {
+      var toggleAllBtn = $(this);
+      var checkBoxes = $(".toggledCB");
+      checkBoxes.prop("checked", toggleAllBtn.prop("checked"));
+      $.each(checkBoxes, function(index, cb){
+        self.manage_role_cb(cb);
+      });
+    });
+    self.manageInfoMessages();
+  },
+
+  generateRow: function(row, tableKey) {
+    var self = reportek.utils;
+    var result = [
+        self.renderAsLink(row.path[0], row.path[0], row.path[1]),
+        self.renderAsUL($.map(row.obligations, function (obligation) {
+          return self.renderAsLink(obligation[0], obligation[1]);
+        }))
+      ];
+
+    if (tableKey === "by_path")
+      result.push(
+        self.renderAsUL($.map(row.users, function (user) {
+          return self.renderUsersLI(user);
+        })));
+    else if (tableKey === "by_person")
+      result.push(row.user);
+
+    return result;
+  },
+
+  renderUsersLI: function(user) {
+    var self = reportek.utils;
+    var getUserType = $("<a/>", {"class": "user-type",
+                                 "data-uid": user.uid,
+                                 "href": "api.get_user_type?username=" + user.uid,
+                                 "text": "Get user type"});
+
+    return "<span class='user-id'>" + user.uid + "</span>" + self.renderAsUL([getUserType.prop("outerHTML"), "Role: " + user.role]);
+  },
+
+  do_spinner: function(container) {
+    var img_container = container.find($(".spinner-container"));
+    if (img_container.length <= 0 ) {
+      img_container = $("<div />", {"class": "spinner-container"});
+      var img = $("<img />", {
+                    "src": "++resource++static/ajax-loader.gif",
+                    "class": "ajax-spinner"
+                  });
+      img_container.append(img);
+      container.append(img_container);
+    }
+    return img_container;
+  },
+
+  datatable_loading: function(target, action) {
+    var self = reportek.utils;
+    var t_parent = target.parent();
+    var t_id = target.attr("id");
+    var t_length = $("#" + t_id+ "_length");
+    var t_filter = $("#" + t_id+ "_filter");
+    var t_paginate = $("#" + t_id+ "_paginate");
+    var t_info = $("#" + t_id+ "_info");
+    var spinner = self.do_spinner(t_parent);
+
+    if (action === "hide") {
+      target.hide();
+      t_length.hide();
+      t_filter.hide();
+      t_paginate.hide();
+      t_info.hide();
+    } else {
+      target.show();
+      t_length.show();
+      t_filter.show();
+      t_paginate.show();
+      t_info.show();
+      spinner.remove();
+    }
+  },
+
+  createUserTypeMapping: function() {
+    var self = reportek.utils;
+    var username;
+    $.each($(".user-type"), function(idx, elem) {
+      username = $(elem).attr("data-uid");
+      if (self.users[username] === undefined) {
+        self.users[username] = {"checked": false, "utype": "N/A"};
+      }
+    });
+  },
+
+  updateUserTypeMapping: function(data) {
+    var self = reportek.utils;
+    var user = JSON.parse(data);
+    self.users[user.username].username = user.username;
+    self.users[user.username].checked = true;
+    self.users[user.username].utype = user.utype;
+    self.updateUserType(user.username, user.utype);
+  },
+
+  updateUserType: function(user, utype) {
+    var text = "Type: " + utype;
+    var links = $("[data-uid='" + user + "']");
+    var li = links.parent();
+    li.html(text);
+  },
+
+  getUserType: function(elem) {
+    var self = reportek.utils;
+    var url = $(elem).attr("href");
+    var user = $(elem).attr("data-uid");
+    if (self.users[user].checked === true) {
+      self.updateUserType(user, self.users[user].utype);
+    } else {
+      $.ajax({
+        url: url,
+      }).success(self.updateUserTypeMapping);
+    }
+  },
+
+  getCurrentUserTypes: function() {
+    var self = reportek.utils;
+    self.bindGetUserTypes();
+    var trows = $("#datatable tbody tr");
+    $.each(trows, function(idx, row){
+      self.current_row = row;
+      var user_type = $(row).find(".user-type");
+      var user;
+      $.each(user_type, function(i, elem) {
+        user = $(elem).attr("data-uid");
+        if (self.users[user] === undefined) {
+          self.users[user] = {"username": user, "checked": false, "utype": "N/A"};
+        }
+        self.getUserType(elem);
+      });
+    });
+  },
+
+  bindGetUserTypes: function() {
+    var self = reportek.utils;
+    var trows = $("#datatable tbody tr");
+    $.each(trows, function(idx, elem){
+      var user_type = $(elem).find(".user-type");
+      $(user_type).on("click", function(evt) {
+        evt.preventDefault();
+        self.getUserType(this);
+      });
+    });
+  },
+
+  initDataTable: function() {
+    /* Init the datatable object */
+
+    var self = reportek.utils;
+    var target = $("#datatable");
+
+    var generalSettings = {
+      by_path: {
+        "columns": [
+          {"width": "25%"},
+          null,
+          {"width": "15%"}
+        ]},
+      by_person: {
+        "ordering": false,
+        "drawCallback": function () {
+          var api = this.api();
+          var rows = api.rows({page: "current"}).nodes();
+          var last = null;
+
+          api.column(2, {page:"current"}).data().each(function(group, i) {
+            if (last !== group) {
+              $(rows).eq(i).before(
+                "<tr class='group'><td colspan='2'>" + group + "</td></tr>"
+              );
+              last = group;
+            }
+          });
+        },
+        columnDefs: [
+          {"visible": false, "targets": 2}
+        ],
+        "columns": [
+          {"width": "20%"},
+          null
+        ]
+      }
+    };
+
+    var dtConfig = {
+      pagingType: "simple",
+      serverSide: false,
+      processing: true,
+      pageLength: 100
+    };
+
+    var tableKey = target.data("table-key");
+    $.extend(dtConfig, generalSettings[tableKey]);
+    if (target.hasClass("bdr-datatable") && tableKey === "by_path") {
+      dtConfig.columns = [
+        {"width": "25%"},
+        {"width": "30%"},
+        null
+      ];
+    }
+    var dataTable = target.DataTable(dtConfig);
+    $(".dataTables_filter input").attr("placeholder", "Filter by...");
+    var dataSources = {
+      by_path: "/api.get_users_by_path",
+      by_person: "/api.get_users"
+    };
+    self.datatable_loading(target, "hide");
+    dataTable.on("draw.dt", self.getCurrentUserTypes);
+    $.ajax({
+      url: dataSources[tableKey],
+      data: {
+        obligations: $("#obligations").val(),
+        role: $("#role").val(),
+        countries: $("#countries").val()
       },
-      {
-        "width": "13%",
-        "targets": 3,
-        "data": "users",
-        "render": function (data, type, full, meta) {
-          result = '';
-          for (var i = 0; i < data.length; i++) {
-            result += '<a href="/fgases_registry/organisation_details?id='
-            + full.company_id + '">' + data[i].username + '</a><br/>';
+      success: function(result) {
+        var rows = $.parseJSON(result).data;
+        $.each(rows, function(idx, row) {
+          dataTable.row.add(self.generateRow(row, tableKey));
+        });
+        self.datatable_loading(target, "show");
+        dataTable.draw();
+      }
+    });
+  },
+
+  manage_role_cb: function(col_cb) {
+    var sel_roles = $(col_cb).parents("tr").find(".local-roles");
+    if (sel_roles.length > 0) {
+      sel_roles.prop("checked", $(col_cb).prop("checked"));
+    }
+  },
+
+  renderAsUL: function(li_items) {
+    var result_html = "";
+    $.each(li_items, function(index, li_item) {
+      result_html += "<li>" + li_item + "</li>";
+    });
+    return "<ul>" + result_html + "</ul>";
+  },
+
+  clear_filters: function() {
+    $("#countries").select2("val", "");
+    $("#obligations").select2("val", "");
+    $("#role").select2("val", "");
+  },
+
+  toggleSelectCountries: function(ckey) {
+    /* action can be select or deselect */
+    var self = reportek.utils;
+    var country_options = $("#countries").find("option");
+    var c_len = country_options.length;
+    var country_iso;
+
+    if (self.countries_keys.all.length <= 0) {
+      var all_countries = [];
+      for (var i=0; i<c_len; i++) {
+        country_iso = $(country_options[i]).attr("value");
+        all_countries.push(country_iso);
+        self.countries_keys.all = all_countries;
+      }
+    }
+
+    var values = $("#s2id_countries").select2("val");
+    if (JSON.stringify(values.sort()) === JSON.stringify(self.countries_keys[ckey].sort())) {
+      $("#s2id_countries").select2("val", [])  ;
+    } else {
+      $("#s2id_countries").select2("val", self.countries_keys[ckey]);
+    }
+  },
+
+  renderAsLink: function(href, display, title) {
+    var title_attribute = title ? " title='" + title + "'" : "";
+    return "<a href='" + href + "'" + title_attribute + ">" + display + "</a>";
+  },
+
+  getUserUrl: function(user) {
+    return "http://www.eionet.europa.eu/directory/user?uid=" + user;
+  },
+
+  getIMBGClass: function(elem) {
+    var bg_class = {
+      "msg-info": "bg-info",
+      "msg-warning": "bg-warning",
+      "msg-danger": "bg-danger",
+      "msg-success": "bg-success"
+    };
+    var elem_classes = elem.attr("class").split(" ");
+    return bg_class[elem_classes[elem_classes.length-1]];
+  },
+
+  toggleInfoMessage: function(elem) {
+    var self = reportek.utils;
+    var im_msg = elem.find(".im-message");
+    var open_ctl = elem.find(".im-open");
+    var close_ctl = elem.find(".im-close");
+    if ((im_msg).is(":visible")) {
+      elem.removeClass("bg-visible");
+      elem.removeClass(self.getIMBGClass(im_msg));
+      im_msg.hide();
+      close_ctl.hide();
+      open_ctl.show();
+    } else {
+      elem.addClass("bg-visible");
+      elem.addClass(self.getIMBGClass(im_msg));
+      im_msg.show();
+      open_ctl.hide();
+      close_ctl.show();
+    }
+  },
+
+  setCookie: function(elem) {
+    var data_info = elem.find(".im-message").attr("data-info");
+
+    if (data_info.length > 0) {
+      // Set expire time as per https://developer.mozilla.org/en-US/docs/Web/API/document/cookie
+      var cookie = data_info + "=true; ; expires=Fri, 31 Dec 9999 23:59:59 GMT;";
+      document.cookie = cookie;
+    }
+  },
+
+  bindIMControl: function(elem) {
+    var self = reportek.utils;
+    var open_ctl = elem.find(".im-open");
+    var close_ctl = elem.find(".im-close");
+    var data_info = elem.find(".im-message").attr("data-info");
+    open_ctl.on("click", function(evt){
+      self.toggleInfoMessage(elem);
+      evt.preventDefault();
+    });
+    close_ctl.on("click", function(evt){
+      self.toggleInfoMessage(elem);
+      if (data_info !== undefined) {
+        self.setCookie(elem);
+      }
+      evt.preventDefault();
+    });
+  },
+
+  manageInfoMessages: function() {
+    var self = reportek.utils;
+    var info_messages = $(".im-message");
+    var data_info, elem;
+
+    for (var i=0; i<info_messages.length; i++) {
+      elem = $(info_messages[i]);
+      var parent = elem.parent();
+      self.bindIMControl(parent);
+      data_info = elem.attr("data-info");
+      var open_ctl = parent.find(".im-open");
+      open_ctl.hide();
+      parent.addClass("bg-visible");
+      parent.addClass(self.getIMBGClass(elem));
+      if (data_info !== undefined) {
+        if (data_info.length > 0) {
+          if (document.cookie.indexOf(data_info) >= 0) {
+            self.toggleInfoMessage(parent);
           }
-          return result;
         }
       }
-    ]
-  });
-}
+    }
+  },
 
-function initDataTable() {
-  /* Init the datatable object */
-
-  var target = $("#datatable");
-
-  var generalSettings = {
-    by_path: {
-      "columns": [
-        {"width": "25%"},
-        null,
-        {"width": "15%"}
-      ]},
-    by_person: {
-      "ordering": false,
-      "drawCallback": function (settings) {
-        var api = this.api();
-        var rows = api.rows({page: 'current'}).nodes();
-        var last = null;
-
-        api.column(2, {page:'current'}).data().each(function(group, i) {
-          if (last !== group) {
-            $(rows).eq(i).before(
-              '<tr class="group"><td colspan="2">' + group + '</td></tr>'
-            );
-            last = group;
-          }
-        });
-      },
-      columnDefs: [
-        {'visible': false, 'targets': 2}
+  initEnvelopesTable: function() {
+    $("#env-table").dataTable({
+      "order": [[0, "desc"]],
+      "aoColumnDefs": [
+        {"bSortable": false, "aTargets": [5, 6]}
       ],
+      "bAutoWidth": false
+    });
+  },
+
+  initCompaniesTable: function() {
+    $("#comp-table").dataTable({
+      "iDisplayLength": 20,
+      "sAjaxSource": "/fgases_registry/get_companies",
+      "sAjaxDataProp" : "",
+      "autowidth": false,
+      "order": [[ 0, "desc" ]],
       "columns": [
-        {"width": "20%"},
-        null
+        { "width": "5%%" },
+        { "width": "25%" },
+        { "width": "15%" },
+        { "width": "13%" },
+        { "width": "15%" },
+        { "width": "12%" },
+        { "width": "15%" }
+      ],
+      "aoColumns": [
+        { "mData": "company_id" },  // for User Detail
+        { "mData": "name" },
+        { "mData": "domain" },
+        { "mData": "users" },
+        { "mData": "address.country.name" },
+        { "mData": "vat" },
+        { "mData": "date_created" }
+      ],
+      "columnDefs": [
+        {
+          "width": "25%",
+          "targets": 1,
+          "data": "name",
+          "render": function (data, type, full) {
+            return "<a href='/fgases_registry/organisation_details?id=" +
+                    full.company_id + "'>" + data + "</a>";
+          }
+        },
+        {
+          "width": "13%",
+          "targets": 3,
+          "data": "users",
+          "render": function (data, type, full) {
+            var result = "";
+            for (var i = 0; i < data.length; i++) {
+              result += "<a href='/fgases_registry/organisation_details?id=" +
+                        full.company_id + "'>" + data[i].username + "</a><br/>";
+            }
+            return result;
+          }
+        }
       ]
-    }
-  };
+    });
+  },
 
-  var dtConfig = {
-    pagingType: "simple",
-    serverSide: false,
-    processing: true,
-    pageLength: 100
-  };
-
-  var tableKey = target.data("table-key");
-  $.extend(dtConfig, generalSettings[tableKey]);
-  var dataTable = target.DataTable(dtConfig);
-
-  var dataSources = {
-    by_path: '/api.get_users_by_path',
-    by_person: '/api.get_users'
-  };
-  $.ajax({
-    url: dataSources[tableKey],
-    data: {
-      obligation: $('#obligation').val(),
-      role: $('#role').val(),
-      countries: $('#countries').val()
-    },
-    success: function(result) {
-      var rows = $.parseJSON(result).data;
-      $.each(rows, function(idx, row) {
-        dataTable.row.add(generateRow(row, tableKey));
+  bindSearchRadios: function() {
+    var radio_placeholders = {
+      "users": "You can search on First name, Surname, Userid and Email",
+      "groups": "You can search on LDAP Groups"
+    };
+    $(".search-radios input").on("click", function(){
+      $(".search-box input").attr("placeholder", radio_placeholders[$(this).attr("value")]);
       });
-      dataTable.draw();
-    }
-  });
-}
+  },
 
-function manage_role_cb(col_cb) {
-  sel_roles = $(col_cb).parents('tr').find('.local-roles');
-  if (sel_roles.length > 0) {
-    sel_roles.prop('checked', $(col_cb).prop('checked'));
+  populateUserRolesTable: function(data) {
+    var json_data = JSON.parse(data);
+    var dtable = $("#ajax-results > .datatable");
+
+    var columnDefs = [ {
+          "targets": "dt-country",
+          "data": function ( row, type ) {
+            if (type === "display" || type === "filter") {
+              return row.country;
+            }
+          },
+          "defaultContent": ""
+          }, {
+          "targets": "dt-path",
+          "defaultContent": "",
+          "data": function ( row, type ) {
+            if(type === "display" || type === "filter") {
+              var path = $("<a>", {
+                "href": row.path,
+                "text": row.path
+                });
+              return path.outerHTML();
+            }
+          }
+          }, {
+          "targets": "dt-obligations",
+          "defaultContent": "",
+          "data": function ( row, type ) {
+            if(type === "display" || type === "filter") {
+              var ulist = $("<ul>");
+              var li_elem, link;
+              for (var i=0; i<row.obligations.length; i++){
+                li_elem = $("<li>");
+                link = $("<a>", {
+                  "href": row.obligations[i].uri,
+                  "text": row.obligations[i].title
+                  }).appendTo(li_elem);
+                li_elem.appendTo(ulist);
+              }
+              return ulist.outerHTML();
+            }
+          }
+          }, {
+          "targets": "dt-roles",
+          "defaultContent": "",
+          "data": function ( row, type ) {
+            if(type === "display" || type === "filter") {
+              var username = $("input[name='username']:checked").attr("value");
+              var groupsname = $("input[name='groupsname']:checked").attr("value");
+              var entity = username ? username : groupsname;
+              entity = row.matched_group ? row.matched_group : entity;
+              var ulist = $("<ul>");
+              var li_elem, link;
+              for (var i=0; i<row.roles[entity].length; i++){
+                li_elem = $("<li>", {
+                  "text": row.roles[entity][i]
+                  });
+                li_elem.appendTo(ulist);
+              }
+              return ulist.outerHTML();
+            }
+          }
+      }];
+    var use_subgroups = $("input[name='use-subgroups']:checked").attr("value");
+    if (use_subgroups !== undefined) {
+      var ldapg_coldef = {
+          "targets": "dt-ldap-groups",
+          "defaultContent": "",
+          "data": function ( row, type ) {
+            if(type === "display" || type === "filter") {
+              return row.matched_group;
+            }
+          }
+      }
+      columnDefs.splice(1, 0, ldapg_coldef);
+    }
+    dtable.dataTable({
+      "data": json_data.data,
+      "columnDefs": columnDefs
+      });
+  },
+
+  handleSearchUser: function(data) {
+    var self = reportek.utils;
+    var results = $("#ajax-results");
+
+    var coll_form = $("<form>", {
+      "id": "coll-form",
+      });
+    results.html("");
+    $(data).filter(".datatable").appendTo(coll_form);
+    var search_type = $("input[name='search_type']:checked").attr("value");
+    if (search_type !== undefined) {
+      var hidden_search_type = $("<input>", {
+        "type": "hidden",
+        "name": "search_type",
+        "value": search_type
+        });
+      hidden_search_type.appendTo(coll_form);
+      var use_subgroups = $("input[name='use-subgroups']:checked").attr("value");
+      if (use_subgroups !== undefined) {
+        var hidden_use_subgroups = $("<input>", {
+        "type": "hidden",
+        "name": "use-subgroups",
+        "value": use_subgroups
+        });
+        hidden_use_subgroups.appendTo(coll_form);
+      }
+    }
+
+    $("<input>", {
+      "type": "submit",
+      "name": "btn.find_roles",
+      "value": "Find user/group roles"
+      }).appendTo(coll_form);
+    $("#ajax-results").prepend(coll_form);
+    $("#coll-form").submit(function(evt){
+      evt.preventDefault();
+      self.addCollectionDataTable($("#ajax-results"));
+      self.datatable_loading($("#ajax-results > .datatable"), "hide");
+      $.ajax({
+          url: "api.get_collections",
+          data: $("#coll-form").serialize()
+        }).success(function(data){
+          $("#coll-table_wrapper").remove();
+          self.datatable_loading($("#ajax-results > .datatable"), "show");
+          self.populateUserRolesTable(data);
+        });
+      });
+  },
+
+  addCollectionDataTable: function(parent_el) {
+    var theading = [
+      ["Country", "dt-country"],
+      ["Path", "dt-path"],
+      ["Obligations", "dt-obligations"],
+      ["Roles", "dt-roles"]
+    ];
+    var use_subgroups = $("input[name='use-subgroups']:checked").attr("value");
+    if (use_subgroups !== undefined) {
+      theading.splice(1, 0, ["LDAP Groups", "dt-ldap-groups"]);
+    }
+    var dtable = $("<table>", {
+        "id": "coll-table",
+        "class": "datatable"
+      }).appendTo(parent_el);
+    var dthead = $("<thead>").appendTo(dtable);
+    var headrow = $("<tr>").appendTo(dthead);
+    for (var i=0; i<theading.length; i++) {
+      headrow.append($("<th>", {
+        "text": theading[i][0],
+        "class": theading[i][1]
+        }));
+    }
+  },
+
+  initTabbedMenu: function() {
+    var self = reportek.utils;
+    $(".ajaxtabsmenu a").on("click", function(evt) {
+      var tab = $(this);
+
+      $(".tabbed-content").addClass("hidden-content");
+      $(".tabbed-elem").removeClass("currenttab");
+
+      $(tab.attr("href")).removeClass("hidden-content");
+      tab.parent().addClass("currenttab");
+
+      $("#results").empty();
+      $("#ajax-results").empty();
+
+      evt.preventDefault();
+    });
+
+    $(".filter-form #find-user-form").submit(function(evt) {
+      evt.preventDefault();
+      $("#ajax-results").empty();
+      var spinner = self.do_spinner($("#ajax-results"));
+      $.ajax({
+          url: "find_user",
+          data: $("#find-user-form").serialize()
+        }).success(function(data){
+          spinner.remove();
+          reportek.utils.handleSearchUser(data);
+        });
+    });
   }
-}
 
-$(function () {
-  initEnvelopesTable();
-  initCompaniesTable();
+};
 
-  $("#role, #obligation, #countries").select2({
-    allowClear: true
-  });
-
-  if ($("#datatable").length !== 0)
-    initDataTable();
-  $(".toggledCB").click(function() {
-    var checkedElems = $(".toggledCB").filter(function(index, element) {
-      return $(element).prop('checked') === true;
-    });
-    if (checkedElems.length === $(".toggledCB").length) {
-      $("#toggleAllCB").prop('checked', true);
-    } else {
-      $("#toggleAllCB").prop('checked', false);
-    }
-  });
-  $(".toggledCB").change(function() {
-      manage_role_cb(this);
-  });
-  $("#toggleAllCB").click(function() {
-    var toggleAllBtn = $(this);
-    var checkBoxes = $(".toggledCB");
-    checkBoxes.prop('checked', toggleAllBtn.prop('checked'));
-    $.each(checkBoxes, function(index, cb){
-      manage_role_cb(cb);
-    });
-  });
+window.jQuery(document).ready(function () {
+    jQuery.fn.outerHTML = function(s) {
+      return s ? this.before(s).remove() : jQuery("<p>").append(this.eq(0).clone()).html();
+    };
+    reportek.utils.load();
 });
-
-function renderAsUL(li_items) {
-  var result_html = '';
-
-  $.each(li_items, function(index, li_item) {
-    result_html += '<li>' + li_item + '</li>';
-  });
-  return '<ul>' + result_html + '</ul>';
-}
-
-function clear_filters() {
-   $("#countries").select2("val", "");
-   $("#obligation").select2("val", "");
-   $("#role").select2("val", "");
-}
-
-function toggleSelectCountries(eu) {
-  /* action can be select or deselect */
-  var eu_keys = {'eu25': ['AT', 'BE', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES',
-                          'FI', 'FR', 'GB', 'GR', 'HU', 'IE', 'IT', 'LT',
-                          'LU', 'LV', 'MT', 'NL', 'PL', 'PT', 'SE', 'SI',
-                          'SK'],
-                 'eu27': ['AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES',
-                          'FI','FR','GB','GR','HR', 'HU', 'IE', 'IT', 'LT',
-                          'LU','LV','MT','NL', 'PL', 'PT', 'RO', 'SE', 'SI',
-                          'SK'],
-                 'eu31': ['AT', 'BE', 'BG', 'CY', 'CZ', 'DE', 'DK', 'EE', 'ES',
-                          'FI', 'FR', 'GB', 'GR', 'HU', 'IE', 'IS', 'IT', 'LI',
-                          'LT', 'LU', 'LV', 'MT', 'NO','NL', 'PL', 'PT', 'RO',
-                          'SE', 'SI', 'SK', 'TR']};
-
-
-  $("#s2id_countries").select2("val", eu_keys[eu]);
-}
-
-function renderAsLink(href, display, title) {
-  var title_attribute = title ? ' title="' + title + '"' : '';
-  return '<a href="' + href + '"' + title_attribute + '>' + display + '</a>';
-}
-
-function getUserUrl(user) {
-  return 'http://www.eionet.europa.eu/directory/user?uid=' + user;
-}
