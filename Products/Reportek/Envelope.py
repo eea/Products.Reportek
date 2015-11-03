@@ -1187,7 +1187,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                         xmlChunk.append('<cr:Feedback rdf:about="%s">' % o.absolute_url())
                         xmlChunk.append('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(o.title_or_id()))
                         xmlChunk.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(o.title_or_id()))
-                        xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.releasedate.HTML4())
+                        xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.postingdate.HTML4())
                         xmlChunk.append('<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</released>' % o.releasedate.HTML4())
                         xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(self.absolute_url()))
                         xmlChunk.append('<cr:feedbackStatus>%s</cr:feedbackStatus>' % RepUtils.xmlEncode(o.feedback_status))

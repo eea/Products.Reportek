@@ -1006,6 +1006,9 @@ class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
         self.feed = add_feedback(self.envelope, feedbacktext, feedbackId='feedback1399024721')
         self.feed2 = add_feedback(self.envelope, feedbacktext, feedbackId='feedback1399024722',
                                   restricted=True, idx=1)
+        postingdate = DateTime('2014/05/02 09:58:41 UTC')
+        self.feed.postingdate = postingdate
+        self.feed2.postingdate = postingdate
         self.link = add_hyperlink(self.envelope, 'hyper/link')
         self.envelope._content_registry_ping = Mock()
 
