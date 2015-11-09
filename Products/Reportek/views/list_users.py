@@ -212,27 +212,3 @@ class ListUsers(BaseAdmin):
 
     def getUsersByPath(self, REQUEST):
         return json.dumps({"data": list(self.get_records(REQUEST))})
-
-    def get_assigned_disabled_members(self):
-        disabled_uids = []
-        query = {'meta_type': ['Report Collection']}
-        result = {}
-        acl_users = self.get_acl_users()
-        disabled_users = acl_users.findUser(search_param='employeeType',
-                                            search_term='disabled',
-                                            exact_match='1')
-        disabled_uids = [user.get('uid') for user in disabled_users]
-        brains = self.context.Catalog(**query)
-        for brain in brains:
-            local_defined_users = brain.local_defined_users
-            for entity in local_defined_users:
-                if entity in disabled_uids:
-                    if entity not in result:
-                        result[entity] = {
-                            "type": "users",
-                            "paths": [brain.getURL()]
-                        }
-                    else:
-                        result[entity]['paths'].append(brain.getURL())
-
-        return result

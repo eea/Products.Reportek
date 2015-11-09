@@ -54,7 +54,7 @@
     name="disabled_members"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
-    class=".views.ListUsers"
+    class=".views.ManageRoles"
     template="zpt/utilities/disabled_members.zpt" />
 
   <browser:page

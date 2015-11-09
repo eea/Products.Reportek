@@ -8,6 +8,7 @@
     <script type="text/javascript" charset="utf8" src="++resource++static/jquery-1.11.2.min.js"></script>
     <script type="text/javascript" charset="utf8" src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.min.js"></script>
     <script src="++resource++static/select2-3.5.0/select2.js"></script>
+    <script src="++resource++static/utils.js"></script>
 
   </metal:block>
 
@@ -17,45 +18,92 @@
 
   <metal:block fill-slot="content">
     <metal:block use-macro="here/util_controls/macros/utilities-controls" />
-    <h1> Disabled members with assigned roles </h1>
-    <div tal:define="results view/get_assigned_disabled_members">
-      <table class="datatable" id="datatable">
-        <thead>
-          <tr>
-            <th>Member</th>
-            <th>Type</th>
-            <th>Path</th>
-          </tr>
-        </thead>
 
-        <tbody>
-          <tr tal:repeat="res results">
-            <tal:block
-              tal:define="val python: results.get(res);
-                          search_type python: val.get('type');
-                          paths python: val.get('paths');
-                          users_href string:revoke_roles?search_term=${res}&search_type=${search_type}&username=${res};
-                          groups_href string:revoke_roles?search_term=${res}&search_type=${search_type}&groupsname=${res};
-                          href python: {'users': users_href,
-                                        'groups': groups_href
-                                       }.get(search_type);">
-              <td>
-                <a tal:attributes="href href"
-                  tal:content="python: res" />
-              </td>
-              <td tal:content="search_type"/>
-              <td>
+  <h1> Disabled members with assigned roles </h1>
+
+  <metal:block use-macro="here/info_message/macros/info-message">
+    <metal:block fill-slot="info-message-controls">
+      <tal:block tal:condition="python: request.get('op_results', 'Not set') != 'Not set'"
+       tal:define="op_results python: request.get('op_results')">
+
+        <metal:block use-macro="here/info_message/macros/info-message">
+          <div metal:fill-slot="info-message-container" class="info-message info-message-info">
+            <div class="im-controls im-controls-right">
+              <a id="im-close" href="#" class="im-control im-close">
+                <span class="icon-remove"></span>
+              </a>
+            </div>
+            <div class="im-message msg-warning" tal:condition="python: len(op_results) == 0">
+              Nothing ticked in the previous screen
+            </div>
+            <div class="im-message msg-success" tal:condition="python: len(op_results) > 0">
+              <div class="info-message-content">
+                All roles removed from:
                 <ul>
-                  <li tal:repeat="path paths">
-                    <a tal:attributes="href path" tal:content="path" />
+                  <li tal:repeat="res op_results">
+                    <a tal:define="href python: res.get('path')"
+                      tal:attributes="href href"
+                      tal:content="python: res.get('path')"/>
+                    <span tal:content="python: res.get('entity')"/>
                   </li>
                 </ul>
-              </td>
-            </tal:block>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+              </div>
+            </div>
+          </div>
+        </metal:block>
+      </tal:block>
+    </metal:block>
+  </metal:block>
+
+    <form method="POST">
+      <div tal:define="results view/get_assigned_disabled_members">
+        <table class="datatable">
+          <thead>
+            <tr>
+              <th>
+                <input id="toggleAllCB" type="checkbox">
+              </th>
+              <th>Member</th>
+              <th>Type</th>
+              <th>Path</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr tal:repeat="res results">
+              <tal:block
+                tal:define="val python: results.get(res);
+                            search_type python: val.get('type');
+                            paths python: val.get('paths');
+                            users_href string:revoke_roles?search_term=${res}&search_type=${search_type}&username=${res}&btn.find_roles;
+                            groups_href string:revoke_roles?search_term=${res}&search_type=${search_type}&groupsname=${res}&btn.find_roles;
+                            href python: {'users': users_href,
+                                          'groups': groups_href
+                                         }.get(search_type);">
+                <td>
+                  <input type="checkbox" name="members:list" class="toggledCB"
+                     tal:attributes="value res">
+                </td>
+                <td>
+                  <a tal:attributes="href href"
+                    tal:content="python: res" />
+                </td>
+                <td tal:content="search_type"/>
+                <td>
+                  <input type="hidden" tal:attributes="name res; value python: ','.join(paths)" />
+                  <ul>
+                    <li tal:repeat="path paths">
+                      <a tal:attributes="href path" tal:content="path" />
+                    </li>
+                  </ul>
+                </td>
+              </tal:block>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <input type="submit" name="btn.bulkrevoke" value="Revoke roles" />
+    </form>
 
   </metal:block>
 </metal:block>

@@ -17,6 +17,10 @@ class ManageRoles(BaseAdmin):
             if self.request.get('btn.revoke'):
                 self.revoke_roles()
 
+        elif self.__name__ == 'disabled_members':
+            if self.request.get('btn.bulkrevoke'):
+                self.bulk_revoke_roles()
+
         return self.index()
 
     def get_all_country_codes(self):
@@ -211,3 +215,58 @@ class ManageRoles(BaseAdmin):
         return ((self.request.get('username', None) or
                  self.request.get('groupsname', None)) and
                 self.request.get('role', None))
+
+    def get_assigned_disabled_members(self):
+        disabled_uids = []
+        query = {'meta_type': ['Report Collection']}
+        result = {}
+        acl_users = self.get_acl_users()
+        disabled_users = acl_users.findUser(search_param='employeeType',
+                                            search_term='disabled',
+                                            exact_match='1')
+        disabled_uids = [user.get('uid') for user in disabled_users]
+        groups = acl_users.getGroups()
+        groups = [group[0] for group in groups]
+        group_prefixes = tuple({group.split('-')[0] for group in groups})
+
+        brains = self.context.Catalog(**query)
+        for brain in brains:
+            local_defined_users = brain.local_defined_users
+            for entity in local_defined_users:
+                if entity in disabled_uids:
+                    if entity not in result:
+                        result[entity] = {
+                            "type": "users",
+                            "paths": [brain.getPath()]
+                        }
+                    else:
+                        result[entity]['paths'].append(brain.getPath())
+                elif entity.startswith(group_prefixes):
+                    if entity not in groups:
+                        if entity not in result:
+                            result[entity] = {
+                                "type": "groups",
+                                "paths": [brain.getPath()]
+                            }
+                        else:
+                            result[entity]['paths'].append(brain.getPath())
+
+        return result
+
+    def bulk_revoke_roles(self):
+        members = self.request.get('members', [])
+        results = []
+        for member in members:
+            colls = self.request.get(member).split(',')
+            for path in colls:
+                obj = self.context.unrestrictedTraverse(path)
+                obj.manage_delLocalRoles([member])
+                obj.reindex_object()
+                results.append({
+                    'entity': member,
+                    'path': path,
+                    })
+
+        if results:
+            results.sort(key=itemgetter('path'))
+        self.request['op_results'] = results
