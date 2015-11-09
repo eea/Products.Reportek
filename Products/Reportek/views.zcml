@@ -51,6 +51,13 @@
     attribute="getUsersByPath" />
 
   <browser:page
+    name="disabled_members"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.ListUsers"
+    template="zpt/utilities/disabled_members.zpt" />
+
+  <browser:page
     name="api.get_user_type"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"

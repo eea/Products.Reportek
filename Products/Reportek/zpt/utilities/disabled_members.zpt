@@ -1,0 +1,61 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+  <metal:block fill-slot="head">
+    <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
+    <link href="++resource++static/style.css" rel="stylesheet"/>
+    <link href="++resource++static/fontawesome/font-awesome.min.css" rel="stylesheet"/>
+
+    <script type="text/javascript" charset="utf8" src="++resource++static/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.min.js"></script>
+    <script src="++resource++static/select2-3.5.0/select2.js"></script>
+
+  </metal:block>
+
+  <metal:block fill-slot="breadcrumbtrails">
+    <tal:block content="structure here/breadcrumbs_views"></tal:block>
+  </metal:block>
+
+  <metal:block fill-slot="content">
+    <metal:block use-macro="here/util_controls/macros/utilities-controls" />
+    <h1> Disabled members with assigned roles </h1>
+    <div tal:define="results view/get_assigned_disabled_members">
+      <table class="datatable" id="datatable">
+        <thead>
+          <tr>
+            <th>Member</th>
+            <th>Type</th>
+            <th>Path</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr tal:repeat="res results">
+            <tal:block
+              tal:define="val python: results.get(res);
+                          search_type python: val.get('type');
+                          paths python: val.get('paths');
+                          users_href string:revoke_roles?search_term=${res}&search_type=${search_type}&username=${res};
+                          groups_href string:revoke_roles?search_term=${res}&search_type=${search_type}&groupsname=${res};
+                          href python: {'users': users_href,
+                                        'groups': groups_href
+                                       }.get(search_type);">
+              <td>
+                <a tal:attributes="href href"
+                  tal:content="python: res" />
+              </td>
+              <td tal:content="search_type"/>
+              <td>
+                <ul>
+                  <li tal:repeat="path paths">
+                    <a tal:attributes="href path" tal:content="path" />
+                  </li>
+                </ul>
+              </td>
+            </tal:block>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+  </metal:block>
+</metal:block>
