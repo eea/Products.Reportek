@@ -21,39 +21,35 @@
 
   <h1> Disabled members with assigned roles </h1>
 
-  <metal:block use-macro="here/info_message/macros/info-message">
-    <metal:block fill-slot="info-message-controls">
-      <tal:block tal:condition="python: request.get('op_results', 'Not set') != 'Not set'"
-       tal:define="op_results python: request.get('op_results')">
+    <tal:block tal:condition="python: request.get('op_results', 'Not set') != 'Not set'"
+     tal:define="op_results python: request.get('op_results')">
 
-        <metal:block use-macro="here/info_message/macros/info-message">
-          <div metal:fill-slot="info-message-container" class="info-message info-message-info">
-            <div class="im-controls im-controls-right">
-              <a id="im-close" href="#" class="im-control im-close">
-                <span class="icon-remove"></span>
-              </a>
-            </div>
-            <div class="im-message msg-warning" tal:condition="python: len(op_results) == 0">
-              Nothing ticked in the previous screen
-            </div>
-            <div class="im-message msg-success" tal:condition="python: len(op_results) > 0">
-              <div class="info-message-content">
-                All roles removed from:
-                <ul>
-                  <li tal:repeat="res op_results">
-                    <a tal:define="href python: res.get('path')"
-                      tal:attributes="href href"
-                      tal:content="python: res.get('path')"/>
-                    <span tal:content="python: res.get('entity')"/>
-                  </li>
-                </ul>
-              </div>
+      <metal:block use-macro="here/info_message/macros/info-message">
+        <div metal:fill-slot="info-message-container" class="info-message info-message-info">
+          <div class="im-controls im-controls-right">
+            <a id="im-close" href="#" class="im-control im-close">
+              <span class="icon-remove"></span>
+            </a>
+          </div>
+          <div class="im-message msg-warning" tal:condition="python: len(op_results) == 0">
+            Nothing ticked in the previous screen
+          </div>
+          <div class="im-message msg-success" tal:condition="python: len(op_results) > 0">
+            <div class="info-message-content">
+              All roles removed from:
+              <ul>
+                <li tal:repeat="res op_results">
+                  <a tal:define="href python: res.get('path')"
+                    tal:attributes="href href"
+                    tal:content="python: res.get('path')"/>
+                  <span tal:content="python: res.get('entity')"/>
+                </li>
+              </ul>
             </div>
           </div>
-        </metal:block>
-      </tal:block>
-    </metal:block>
-  </metal:block>
+        </div>
+      </metal:block>
+    </tal:block>
 
     <form method="POST">
       <div tal:define="results view/get_assigned_disabled_members">
