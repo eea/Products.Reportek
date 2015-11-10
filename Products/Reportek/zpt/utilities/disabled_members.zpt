@@ -89,8 +89,7 @@
                        tal:attributes="value res">
                   </td>
                   <td>
-                    <a tal:attributes="href href"
-                      tal:content="python: res" />
+                    <span tal:content="res" />
                   </td>
                   <td tal:content="search_type"/>
                   <td>
