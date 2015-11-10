@@ -233,23 +233,27 @@ class ManageRoles(BaseAdmin):
         for brain in brains:
             local_defined_users = brain.local_defined_users
             for entity in local_defined_users:
+                entry = (brain.getPath(),
+                         brain.local_defined_roles.get(entity))
                 if entity in disabled_uids:
                     if entity not in result:
                         result[entity] = {
                             "type": "User",
-                            "paths": [brain.getPath()]
+                            "paths": [entry]
                         }
                     else:
-                        result[entity]['paths'].append(brain.getPath())
+                        result[entity]['paths'].append(entry)
                 elif entity.startswith(group_prefixes):
                     if entity not in groups:
                         if entity not in result:
                             result[entity] = {
                                 "type": "Group",
-                                "paths": [brain.getPath()]
+                                "paths": [entry]
                             }
                         else:
-                            result[entity]['paths'].append(brain.getPath())
+                            result[entity]['paths'].append(entry)
+                if result.get(entity):
+                    result[entity]['paths'].sort(key=itemgetter(0))
 
         return result
 

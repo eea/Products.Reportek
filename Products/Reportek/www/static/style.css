@@ -598,3 +598,7 @@ tr.user-disabled {
 .checkbox-column {
   width: 20px;
 }
+
+#workarea .disabled_members ul {
+  margin: 0 0 0 1.5em;
+}

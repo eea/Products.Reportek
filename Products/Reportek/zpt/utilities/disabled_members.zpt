@@ -61,7 +61,7 @@
           <p tal:condition="isCdrDeployment" i18n:translate="">The following LDAP members have either been disabled or, in the case of LDAP groups, been deleted or renamed from the LDAP server. They still have local roles on the following collections:</p>
           <p tal:condition="not: isCdrDeployment" i18n:translate="">The following LDAP members have been disabled on the LDAP server. They still have local roles on the following collections:</p>
 
-          <table class="datatable">
+          <table class="datatable disabled_members">
             <thead>
               <tr>
                 <th class="checkbox-column">
@@ -70,6 +70,7 @@
                 <th>Member</th>
                 <th>Type</th>
                 <th>Path</th>
+                <th>Roles</th>
               </tr>
             </thead>
 
@@ -93,12 +94,18 @@
                   </td>
                   <td tal:content="search_type"/>
                   <td>
-                    <input type="hidden" tal:attributes="name res; value python: ','.join(paths)" />
+                    <input type="hidden" tal:attributes="name res; value python: ','.join([path[0] for path in paths])" />
                     <ul>
                       <li tal:repeat="path paths">
-                        <a tal:attributes="href path" tal:content="path" />
+                        <a tal:attributes="href python: path[0]" tal:content="python: path[0]" />
                       </li>
                     </ul>
+                  </td>
+                  <td>
+                    <ul>
+                      <li tal:repeat="path paths">
+                        <span tal:content="python: ','.join(path[1])" />
+                      </li>
                   </td>
                 </tal:block>
               </tr>
