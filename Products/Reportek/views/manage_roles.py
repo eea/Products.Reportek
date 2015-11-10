@@ -236,7 +236,7 @@ class ManageRoles(BaseAdmin):
                 if entity in disabled_uids:
                     if entity not in result:
                         result[entity] = {
-                            "type": "users",
+                            "type": "User",
                             "paths": [brain.getPath()]
                         }
                     else:
@@ -245,7 +245,7 @@ class ManageRoles(BaseAdmin):
                     if entity not in groups:
                         if entity not in result:
                             result[entity] = {
-                                "type": "groups",
+                                "type": "Group",
                                 "paths": [brain.getPath()]
                             }
                         else:

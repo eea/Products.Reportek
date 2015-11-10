@@ -594,3 +594,7 @@ tr.user-disabled {
   margin-left: 0;
   margin-bottom: 0.5em;
 }
+
+.checkbox-column {
+  width: 20px;
+}

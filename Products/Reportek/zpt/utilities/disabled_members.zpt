@@ -1,3 +1,4 @@
+<tal:block define="global isCdrDeployment python: here.ReportekEngine.getDeploymentType() == 'CDR'"/>
 <metal:block use-macro="container/standard_template.pt/macros/page">
 
   <metal:block fill-slot="head">
@@ -19,8 +20,7 @@
   <metal:block fill-slot="content">
     <metal:block use-macro="here/util_controls/macros/utilities-controls" />
 
-  <h1> Disabled members with assigned roles </h1>
-
+    <h1 i18n:translate="">Disabled members with assigned roles</h1>
     <tal:block tal:condition="python: request.get('op_results', 'Not set') != 'Not set'"
      tal:define="op_results python: request.get('op_results')">
 
@@ -53,52 +53,61 @@
 
     <form method="POST">
       <div tal:define="results view/get_assigned_disabled_members">
-        <table class="datatable">
-          <thead>
-            <tr>
-              <th>
-                <input id="toggleAllCB" type="checkbox">
-              </th>
-              <th>Member</th>
-              <th>Type</th>
-              <th>Path</th>
-            </tr>
-          </thead>
+        <tal:block tal:condition="not: results">
+          <p i18n:translate="">There are currently no local roles assigned to disabled LDAP members.</p>
+        </tal:block>
 
-          <tbody>
-            <tr tal:repeat="res results">
-              <tal:block
-                tal:define="val python: results.get(res);
-                            search_type python: val.get('type');
-                            paths python: val.get('paths');
-                            users_href string:revoke_roles?search_term=${res}&search_type=${search_type}&username=${res}&btn.find_roles;
-                            groups_href string:revoke_roles?search_term=${res}&search_type=${search_type}&groupsname=${res}&btn.find_roles;
-                            href python: {'users': users_href,
-                                          'groups': groups_href
-                                         }.get(search_type);">
-                <td>
-                  <input type="checkbox" name="members:list" class="toggledCB"
-                     tal:attributes="value res">
-                </td>
-                <td>
-                  <a tal:attributes="href href"
-                    tal:content="python: res" />
-                </td>
-                <td tal:content="search_type"/>
-                <td>
-                  <input type="hidden" tal:attributes="name res; value python: ','.join(paths)" />
-                  <ul>
-                    <li tal:repeat="path paths">
-                      <a tal:attributes="href path" tal:content="path" />
-                    </li>
-                  </ul>
-                </td>
-              </tal:block>
-            </tr>
-          </tbody>
-        </table>
+        <tal:block tal:condition="results">
+          <p tal:condition="isCdrDeployment" i18n:translate="">The following LDAP members have either been disabled or, in the case of LDAP groups, been deleted or renamed from the LDAP server. They still have local roles on the following collections:</p>
+          <p tal:condition="not: isCdrDeployment" i18n:translate="">The following LDAP members have been disabled on the LDAP server. They still have local roles on the following collections:</p>
+
+          <table class="datatable">
+            <thead>
+              <tr>
+                <th class="checkbox-column">
+                  <input id="toggleAllCB" type="checkbox">
+                </th>
+                <th>Member</th>
+                <th>Type</th>
+                <th>Path</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr tal:repeat="res results">
+                <tal:block
+                  tal:define="val python: results.get(res);
+                              search_type python: val.get('type');
+                              paths python: val.get('paths');
+                              users_href string:revoke_roles?search_term=${res}&search_type=${search_type}&username=${res}&btn.find_roles;
+                              groups_href string:revoke_roles?search_term=${res}&search_type=${search_type}&groupsname=${res}&btn.find_roles;
+                              href python: {'users': users_href,
+                                            'groups': groups_href
+                                           }.get(search_type);">
+                  <td class="checkbox-column">
+                    <input type="checkbox" name="members:list" class="toggledCB"
+                       tal:attributes="value res">
+                  </td>
+                  <td>
+                    <a tal:attributes="href href"
+                      tal:content="python: res" />
+                  </td>
+                  <td tal:content="search_type"/>
+                  <td>
+                    <input type="hidden" tal:attributes="name res; value python: ','.join(paths)" />
+                    <ul>
+                      <li tal:repeat="path paths">
+                        <a tal:attributes="href path" tal:content="path" />
+                      </li>
+                    </ul>
+                  </td>
+                </tal:block>
+              </tr>
+            </tbody>
+          </table>
+          <input type="submit" name="btn.bulkrevoke" value="Revoke roles" />
+        </tal:block>
       </div>
-      <input type="submit" name="btn.bulkrevoke" value="Revoke roles" />
     </form>
 
   </metal:block>
