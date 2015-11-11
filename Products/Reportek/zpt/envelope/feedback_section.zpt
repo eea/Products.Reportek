@@ -2,7 +2,6 @@
 <table cellspacing="2" cellpadding="2" style="width: 100%">
   <tbody tal:define="feedbacks context/getFeedbackObjects;
                      total_number python:len(feedbacks);
-                     dummy python:feedbacks.sort();
                      query_start python:request.get('fs') or 0;
                      Batch python:modules['ZTUtils'].Batch;
                      global batch python:Batch(feedbacks, 20, int(query_start), orphan=1)">
