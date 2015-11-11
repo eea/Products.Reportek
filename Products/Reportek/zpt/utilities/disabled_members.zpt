@@ -60,7 +60,7 @@
         <tal:block tal:condition="results">
           <tal:block tal:condition="isCdrDeployment">
             <p i18n:translate="">The following LDAP members have either been disabled or, in the case of LDAP groups, been deleted or renamed from the LDAP server. The listed members still have local roles on the following collections:</p>
-            <p i18n:translate="">The "Type" column may contain "Group" for LDAP Groups and "User" for LDAP Users. </p>
+            <p i18n:translate="">The "Type" column can contain "Group" for LDAP Groups and "User" for LDAP Users. </p>
           </tal:block>
           <p tal:condition="not: isCdrDeployment" i18n:translate="">The following LDAP members have been disabled on the LDAP server. They still have local roles on the following collections:</p>
 
