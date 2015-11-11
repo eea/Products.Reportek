@@ -74,8 +74,8 @@
               </tr>
             </thead>
 
-            <tbody>
-              <tr tal:repeat="res results">
+            <tbody tal:define="usernames python: sorted(results.keys())">
+              <tr tal:repeat="res usernames">
                 <tal:block
                   tal:define="val python: results.get(res);
                               search_type python: val.get('type');
