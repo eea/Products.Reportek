@@ -32,6 +32,7 @@ import json
 from types import FunctionType
 from urllib import FancyURLopener
 from webdav.common import rfc1123_date
+from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
 
 def formatException(self, error):
@@ -538,3 +539,11 @@ def fix_json_from_id(obj):
         obj.pop(key, None)
 
     return obj
+
+
+def computed_attribute_decorator(level=0):
+    """ Decorator for marking as Acquisition aware property
+    """
+    def computed_attribute_wrapper(func):
+        return ComputedAttribute(func, level)
+    return computed_attribute_wrapper

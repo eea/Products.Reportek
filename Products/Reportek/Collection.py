@@ -25,19 +25,20 @@ $Id$"""
 
 __version__='$Revision$'[11:-2]
 
-import time, types, os, string
-import Products
-from Products.ZCatalog.CatalogAwareness import CatalogAware
-import Globals
-import AccessControl.Role, webdav.Collection
-from AccessControl.Permissions import manage_users
-from AccessControl.requestmethod import requestmethod
-from Products.Reportek import permission_manage_properties_collections
 from AccessControl import getSecurityManager, ClassSecurityInfo
 from AccessControl.Permissions import change_permissions
+from AccessControl.Permissions import manage_users
+from AccessControl.requestmethod import requestmethod
+from ComputedAttribute import ComputedAttribute
+from DateTime import DateTime
 from OFS.Folder import Folder
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from DateTime import DateTime
+from Products.Reportek import permission_manage_properties_collections
+from Products.ZCatalog.CatalogAwareness import CatalogAware
+import AccessControl.Role, webdav.Collection
+import Globals
+import Products
+import time, types, os, string
 
 # product imports
 import Envelope
@@ -47,21 +48,26 @@ import Referral
 
 from CountriesManager import CountriesManager
 from DataflowsManager import DataflowsManager
+from Products.Reportek import REPORTEK_DEPLOYMENT
+from Products.Reportek import DEPLOYMENT_BDR
 from Toolz import Toolz
 
-manage_addCollectionForm=PageTemplateFile('zpt/collection/add', globals())
+manage_addCollectionForm = PageTemplateFile('zpt/collection/add', globals())
 
-def manage_addCollection(self, title, descr,
-            year, endyear, partofyear, country, locality, dataflow_uris,
-            allow_collections=0, allow_envelopes=0, id='',
-            REQUEST=None):
+
+def manage_addCollection(self, title, descr, year, endyear, partofyear,
+                         country, locality, dataflow_uris, allow_collections=0,
+                         allow_envelopes=0, id='', REQUEST=None):
     """Add a new Collection object
     """
-    if id == '': id = RepUtils.generate_id('col')
-    ob = Collection(id, title, year, endyear, partofyear, country, locality, descr, dataflow_uris, allow_collections, allow_envelopes)
+    if id == '':
+        id = RepUtils.generate_id('col')
+    ob = Collection(id, title, year, endyear, partofyear, country, locality,
+                    descr, dataflow_uris, allow_collections, allow_envelopes)
     self._setObject(id, ob)
     if REQUEST is not None:
         return self.manage_main(self, REQUEST, update_menu=1)
+
 
 class Collection(CatalogAware, Folder, Toolz):
     """
@@ -70,25 +76,31 @@ class Collection(CatalogAware, Folder, Toolz):
     a management interface and can have arbitrary properties.
     """
 
-    meta_type='Report Collection'
+    meta_type = 'Report Collection'
 
     security = ClassSecurityInfo()
 
     manage_options = Folder.manage_options[:3] + \
         (
-            {'label':'Settings', 'action':'manage_prop', 'help':('Reportek','Collection_Properties.stx')},
-            {'label':'List of reporters', 'action':'get_users_list'},
+            {'label': 'Settings', 'action': 'manage_prop',
+             'help': ('Reportek', 'Collection_Properties.stx')},
+            {'label': 'List of reporters', 'action': 'get_users_list'},
         ) + Folder.manage_options[3:]
 
-    def __init__(self, id, title='', year='', endyear='', partofyear='', country='', locality='',
-            descr='', dataflow_uris=[], allow_collections=0, allow_envelopes=0):
+    def __init__(self, id, title='', year='', endyear='', partofyear='',
+                 country='', locality='', descr='', dataflow_uris=[],
+                 allow_collections=0, allow_envelopes=0):
         """ constructor """
         self.id = id
         self.title = title
-        try: self.year = int(year)
-        except: self.year = ''
-        try: self.endyear = int(endyear)
-        except: self.endyear = ''
+        try:
+            self.year = int(year)
+        except:
+            self.year = ''
+        try:
+            self.endyear = int(endyear)
+        except:
+            self.endyear = ''
         if self.year == '' and self.endyear != '':
             self.year = self.endyear
         self.partofyear = partofyear
@@ -107,7 +119,7 @@ class Collection(CatalogAware, Folder, Toolz):
     security.declareProtected('Change Collections', 'manage_renameObject')
     security.declareProtected('Change Collections', 'manage_renameObjects')
 
-    def __setstate__(self,state):
+    def __setstate__(self, state):
         Collection.inheritedAttribute('__setstate__')(self, state)
         if type(self.year) is types.StringType and self.year != '':
             try:
@@ -531,5 +543,31 @@ class Collection(CatalogAware, Folder, Toolz):
                 self.reindex_object()
             stat='Your changes have been saved.'
             return self.manage_listLocalRoles(self, REQUEST, stat=stat)
+
+    security.declareProtected('Add Envelopes', 'company_status')
+    def get_company_data(self):
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            engine = self.getEngine()
+            api = engine.authMiddlewareApi
+            if not api:
+                return None
+
+            api = api.authMiddlewareApi
+            data = api.getCompanyDetailsById(self.company_id)
+            return data
+
+    security.declareProtected('Add Envelopes', 'company_status')
+    @RepUtils.computed_attribute_decorator(level=1)
+    def company_status(self):
+        data = self.get_company_data()
+        if data:
+            return data.get('status')
+
+    def allowed_envelopes(self):
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            if self.company_status.lower() == 'disabled':
+                return False
+
+        return self.allow_envelopes
 
 Globals.InitializeClass(Collection)
