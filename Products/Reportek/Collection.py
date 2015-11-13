@@ -85,6 +85,7 @@ class Collection(CatalogAware, Folder, Toolz):
             {'label': 'Settings', 'action': 'manage_prop',
              'help': ('Reportek', 'Collection_Properties.stx')},
             {'label': 'List of reporters', 'action': 'get_users_list'},
+            {'label': 'Company details', 'action': 'company_details'}
         ) + Folder.manage_options[3:]
 
     def __init__(self, id, title='', year='', endyear='', partofyear='',
@@ -212,6 +213,8 @@ class Collection(CatalogAware, Folder, Toolz):
     manage_prop = PageTemplateFile('zpt/collection/prop', globals())
 
     _get_users_list = PageTemplateFile('zpt/collection/users', globals())
+
+    company_details = PageTemplateFile('zpt/collection/company_details', globals())
 
     def local_defined_roles(self):
         return self.__ac_local_roles__
@@ -544,7 +547,7 @@ class Collection(CatalogAware, Folder, Toolz):
             stat='Your changes have been saved.'
             return self.manage_listLocalRoles(self, REQUEST, stat=stat)
 
-    security.declareProtected('Add Envelopes', 'company_status')
+    security.declareProtected('Add Envelopes', 'get_company_data')
     def get_company_data(self):
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             engine = self.getEngine()
@@ -553,8 +556,11 @@ class Collection(CatalogAware, Folder, Toolz):
                 return None
 
             api = api.authMiddlewareApi
-            data = api.getCompanyDetailsById(self.company_id)
-            return data
+            company_id = getattr(self, 'company_id', None)
+
+            if company_id:
+                data = api.getCompanyDetailsById(company_id)
+                return data
 
     security.declareProtected('Add Envelopes', 'company_status')
     @RepUtils.computed_attribute_decorator(level=1)
@@ -565,9 +571,14 @@ class Collection(CatalogAware, Folder, Toolz):
 
     def allowed_envelopes(self):
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-            if self.company_status.lower() == 'disabled':
-                return False
+            if self.company_status:
+                if self.company_status.lower() == 'disabled':
+                    return False
 
         return self.allow_envelopes
+
+    security.declareProtected('Add Envelopes', 'get_company_details')
+    def get_company_details(self):
+        return self.get_company_data()
 
 Globals.InitializeClass(Collection)
