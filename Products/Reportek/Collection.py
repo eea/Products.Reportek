@@ -563,7 +563,6 @@ class Collection(CatalogAware, Folder, Toolz):
                 return data
 
     security.declareProtected('Add Envelopes', 'company_status')
-    @RepUtils.computed_attribute_decorator(level=1)
     def company_status(self):
         data = self.get_company_data()
         if data:
@@ -572,7 +571,7 @@ class Collection(CatalogAware, Folder, Toolz):
     def allowed_envelopes(self):
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             if self.company_status:
-                if self.company_status.lower() == 'disabled':
+                if self.company_status().lower() == 'disabled':
                     return False
 
         return self.allow_envelopes

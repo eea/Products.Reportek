@@ -539,11 +539,3 @@ def fix_json_from_id(obj):
         obj.pop(key, None)
 
     return obj
-
-
-def computed_attribute_decorator(level=0):
-    """ Decorator for marking as Acquisition aware property
-    """
-    def computed_attribute_wrapper(func):
-        return ComputedAttribute(func, level)
-    return computed_attribute_wrapper
