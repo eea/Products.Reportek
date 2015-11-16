@@ -570,8 +570,9 @@ class Collection(CatalogAware, Folder, Toolz):
 
     def allowed_envelopes(self):
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-            if self.company_status:
-                if self.company_status().lower() == 'disabled':
+            company_status = self.company_status()
+            if company_status:
+                if company_status.lower() == 'disabled':
                     return False
 
         return self.allow_envelopes
