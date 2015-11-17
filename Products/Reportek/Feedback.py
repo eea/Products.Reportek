@@ -57,7 +57,7 @@ from Products.Reportek import constants
 manage_addFeedbackForm = PageTemplateFile('zpt/feedback/add', globals())
 
 def manage_addFeedback(self, id ='', title='', feedbacktext='', file=None, activity_id='', automatic=0,
-        content_type='text/plain', document_id=None, script_url=None, restricted='', REQUEST=None):
+        content_type='text/plain', document_id=None, script_url=None, restricted='', feedback_status='', REQUEST=None):
     """Adds feedback as a file to a folder."""
 
     # get the release date of the envelope
@@ -75,7 +75,7 @@ def manage_addFeedback(self, id ='', title='', feedbacktext='', file=None, activ
 
     ob = ReportFeedback(
             id, releasedate, title, feedbacktext, activity_id,
-            automatic, content_type, document_id)
+            automatic, content_type, document_id, feedback_status=feedback_status)
     if file:
         if type(file) != list:  # one file object
             file = [file]
@@ -149,7 +149,7 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
     security = ClassSecurityInfo()
 
     def __init__(self, id, releasedate, title='', feedbacktext='', activity_id='', automatic=0,
-            content_type='text/plain', document_id=None, message=''):
+            content_type='text/plain', document_id=None, message='', feedback_status=''):
         """ Initialize a new Feedback instance
         """
         self.id = id
@@ -161,7 +161,8 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
         self.activity_id = activity_id
         self.document_id = document_id
         self.postingdate = DateTime()
-        self.message=message
+        self.message = message
+        self.feedback_status = feedback_status
 
     def __setstate__(self,state):
         ReportFeedback.inheritedAttribute('__setstate__')(self, state)

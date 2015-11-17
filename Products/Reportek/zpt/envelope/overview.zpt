@@ -121,6 +121,7 @@
       </span> for this country and the current dataflow(s).
     </p>
   </div>
+
   <form id="objectItems" method="post"
         tal:define="action_url python:context.absolute_url()"
         tal:attributes="action string:${action_url}/">

@@ -27,6 +27,9 @@
 <dct:title>feedback1399024721</dct:title>
 <dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:41Z</dct:issued>
 <released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:41Z</released>
+<dct:isPartOf rdf:resource="http://nohost/collection/envu2nsuq"/>
+<cr:feedbackStatus></cr:feedbackStatus>
+<cr:feedbackMessage></cr:feedbackMessage>
 <cr:mediaType>text/plain</cr:mediaType>
 <restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</restricted>
 </cr:Feedback>
@@ -35,6 +38,9 @@
 <dct:title>feedback1399024722</dct:title>
 <dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:41Z</dct:issued>
 <released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:41Z</released>
+<dct:isPartOf rdf:resource="http://nohost/collection/envu2nsuq"/>
+<cr:feedbackStatus></cr:feedbackStatus>
+<cr:feedbackMessage></cr:feedbackMessage>
 <cr:mediaType>text/plain</cr:mediaType>
 <restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</restricted>
 </cr:Feedback>
@@ -43,6 +49,7 @@
 <dct:title>foo.txt</dct:title>
 <dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:41Z</dct:issued>
 <dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:41Z</dct:date>
+<dct:isPartOf rdf:resource="http://nohost/collection/envu2nsuq"/>
 <cr:mediaType>text/plain</cr:mediaType>
 <restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">false</restricted>
 </File>
@@ -51,6 +58,7 @@
 <dct:title>file2.txt</dct:title>
 <dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:42Z</dct:issued>
 <dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:42Z</dct:date>
+<dct:isPartOf rdf:resource="http://nohost/collection/envu2nsuq"/>
 <cr:mediaType>text/plain</cr:mediaType>
 <restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</restricted>
 </File>

@@ -7,6 +7,8 @@
 <metal:block use-macro="here/users_template/macros/users-page">
 
     <metal:block fill-slot="tabs">
+      <h5 i18n:translate=""
+       tal:condition="python: deployment == 'BDR' and filtered">The Auditors will have read-only access for country folders and will be country representatives, while Clients (ClientODS, ClientCARS and ClientFG, etc.) have an overview for the entire obligation's collection.</h5>
       <div id="tabbedmenu" tal:condition="filtered">
         <ul>
           <li id="currenttab">

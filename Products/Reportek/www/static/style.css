@@ -566,3 +566,31 @@ tr.user-disabled {
 .hidden-content {
   display: none;
 }
+
+.fb-info {
+  color: deepskyblue;
+}
+
+.fb-blocker {
+  color: red;
+  font-weight: bold;
+}
+
+.fb-error {
+  color: red;
+}
+
+.fb-warning {
+  color: orange;
+}
+
+.fb-status {
+  font-weight: bold;
+}
+
+#detailed-qa .fb-listing {
+  list-style-type: none;
+  list-style-image: none;
+  margin-left: 0;
+  margin-bottom: 0.5em;
+}
