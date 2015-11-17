@@ -142,9 +142,7 @@ class RemoteRESTApplication(SimpleItem):
                                        % (self.app_name, jobid, envelope_url))
                     try:
                         result_url = data['results']['ResultZip']['paramUrl']
-                        resp = requests.get(
-                                self.ServiceCheckURL + '%s/%s' %(str(jobid), result_url),
-                                params=params)
+                        resp = requests.get(self.ServiceCheckURL + '%s/%s' %(str(jobid), result_url), params=params)
                         if resp.status_code == 200:
                             zip_url = re.sub('(/)*\\\\', '/', resp.json()['value'])
                             resp = requests.get(zip_url)

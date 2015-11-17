@@ -216,7 +216,11 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         return self.is_blocked
 
     def is_acceptable(self):
-        """ Returns acceptability status """
+        """ Returns acceptability status: 
+            True: definitly blocked
+            False: definitely not blocked
+            None: no completed AutomaticQA activity established if the envelope is blocked or not 
+        """
         if self.is_blocked:
             return False
         completed_automaticQA_workitems = [
