@@ -551,15 +551,11 @@ class Collection(CatalogAware, Folder, Toolz):
     def get_company_data(self):
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             engine = self.getEngine()
-            api = engine.authMiddlewareApi
-            if not api:
-                return None
-
-            api = api.authMiddlewareApi
-            company_id = getattr(self, 'company_id', None)
+            registry = engine.get_registry(self.dataflow_uris)
+            company_id = getattr(self, 'company_id', self.getId())
 
             if company_id:
-                data = api.getCompanyDetailsById(company_id)
+                data = registry.get_company_details(company_id)
                 return data
 
     security.declareProtected('Add Envelopes', 'company_status')

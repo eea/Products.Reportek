@@ -123,6 +123,42 @@
                tal:attributes="value here/auth_middleware_recheck_interval" />
     </p>
 </fieldset>
+<fieldset tal:condition="isBdrDeployment">
+    <legend>Bdr Registry Api</legend>
+    <p class="form-help">
+        <label for='bdr_registry_url'><strong>BDR Registry API URL</strong></label>
+        <input type="text" size="50" id="bdr_registry_url" name="bdr_registry_url"
+               tal:attributes="value here/bdr_registry_url" />
+        <br />
+        <span>(leave it empty if Bdr Registry API is not to be used)
+        <br />
+    </p>
+    <p class="form-help">
+        <label for='bdr_registry_username'><strong>BDR Registry username</strong></label>
+        <input type="text" size="50" id="bdr_registry_username" name="bdr_registry_username" tal:attributes="value here/bdr_registry_username" />
+    </p>
+    <p class="form-help">
+        <label for='bdr_registry_password'><strong>BDR Registry password</strong></label>
+        <input type="password" size="50" id="bdr_registry_password" name="bdr_registry_password"
+               tal:attributes="value here/bdr_registry_password" />
+    </p>
+</fieldset>
+<fieldset tal:condition="isBdrDeployment">
+    <legend>FGAS Registry Cache Api</legend>
+    <p class="form-help">
+        <label for='fgas_registry_url'><strong>FGAS Cache Registry API URL</strong></label>
+        <input type="text" size="50" id="fgas_registry_url" name="fgas_registry_url"
+               tal:attributes="value here/fgas_registry_url" />
+        <br />
+        <span>(leave it empty if FGAS Cache Registry API is not to be used)
+        <br />
+    </p>
+<!--     <p class="form-help">
+        <label for='auth_middleware_recheck_interval'><strong>Authorization recheck interval</strong></label>
+        <input type="text" size="50" id="auth_middleware_recheck_interval" name="auth_middleware_recheck_interval"
+               tal:attributes="value here/auth_middleware_recheck_interval" />
+    </p> -->
+</fieldset>
 <br/>
 <input type="submit" value="Save changes" />
 </form>

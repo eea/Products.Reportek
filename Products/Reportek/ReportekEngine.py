@@ -51,6 +51,9 @@ from copy import copy
 import constants
 from Products.Reportek.ContentRegistryPingger import ContentRegistryPingger
 from Products.Reportek.BdrAuthorizationMiddleware import BdrAuthorizationMiddleware
+from Products.Reportek.RegistryManagement import BaseRegistryAPI
+from Products.Reportek.RegistryManagement import BDRRegistryAPI
+from Products.Reportek.RegistryManagement import FGASRegistryAPI
 import RepUtils
 from Toolz import Toolz
 from DataflowsManager import DataflowsManager
@@ -114,6 +117,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     else:
         cr_api_url = ''
     auth_middleware_url = ''
+    bdr_registry_url = ''
+    bdr_registry_username = ''
+    bdr_registry_password = ''
+    fgas_registry_url = ''
     auth_middleware_recheck_interval = 300
 
     def all_meta_types(self, interfaces=None):
@@ -234,6 +241,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             self.auth_middleware_recheck_interval = int(self.REQUEST.get('auth_middleware_recheck_interval', self.auth_middleware_recheck_interval))
             self.authMiddlewareApi.setServiceRecheckInterval(self.auth_middleware_recheck_interval)
             self.authMiddlewareApi.setServiceUrl(self.auth_middleware_url)
+        self.bdr_registry_url = self.REQUEST.get('bdr_registry_url', self.bdr_registry_url)
+        self.bdr_registry_username = self.REQUEST.get('bdr_registry_username', self.bdr_registry_username)
+        self.bdr_registry_password = self.REQUEST.get('bdr_registry_password', self.bdr_registry_password)
+        self.fgas_registry_url = self.REQUEST.get('fgas_registry_url', self.fgas_registry_url)
 
         # don't send the completed from back, the values set on self must be used
         return self._manage_properties(manage_tabs_message="Properties changed")
@@ -264,6 +275,28 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         else:
             self._authMiddlewareApi = BdrAuthorizationMiddleware(self.auth_middleware_url)
             return self._authMiddlewareApi
+
+    @property
+    def FGASRegistryAPI(self):
+        if not getattr(self, '_FGASRegistryAPI', None):
+            self._FGASRegistryAPI = FGASRegistryAPI(self.fgas_registry_url)
+        return self._FGASRegistryAPI
+
+    @property
+    def BDRRegistryAPI(self):
+        if not getattr(self, '_BDRRegistryAPI', None):
+            self._BDRRegistryAPI = BDRRegistryAPI(self.bdr_registry_url)
+        return self._BDRRegistryAPI
+
+    def get_registry(self, dataflow_uris):
+        uris = {
+        'http://rod.eionet.europa.eu/obligations/713': 'FGASRegistryAPI',
+        'http://rod.eionet.europa.eu/obligations/213': 'BDRRegistryAPI'
+        }
+
+        if dataflow_uris:
+            registry = uris.get(dataflow_uris[0])
+            return getattr(self, registry, None)
 
     security.declarePublic('getPartsOfYear')
     def getPartsOfYear(self):
