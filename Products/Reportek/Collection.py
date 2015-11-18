@@ -187,10 +187,10 @@ class Collection(CatalogAware, Folder, Toolz):
     security.declareProtected('Add Envelopes', 'manage_addEnvelope')
     manage_addEnvelope = Envelope.manage_addEnvelope
 
-    security.declareProtected('Add Collections', 'manage_addReferralForm')
+    security.declareProtected('Add Envelopes', 'manage_addReferralForm')
     manage_addReferralForm = Referral.manage_addReferralForm
 
-    security.declareProtected('Add Collections', 'manage_addReferral')
+    security.declareProtected('Add Envelopes', 'manage_addReferral')
     manage_addReferral = Referral.manage_addReferral
 
     security.declareProtected('View', 'index_html')
