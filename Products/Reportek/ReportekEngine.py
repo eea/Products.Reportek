@@ -29,8 +29,9 @@ __doc__ = """
 from path import path
 import tempfile
 import os
-from zipfile import *
+from operator import itemgetter
 from urlparse import urlparse
+from zipfile import *
 import json
 
 # Zope imports
@@ -120,6 +121,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     bdr_registry_url = ''
     bdr_registry_username = ''
     bdr_registry_password = ''
+    bdr_registry_obligations = []
+    fgas_registry_obligations = []
     fgas_registry_url = ''
     auth_middleware_recheck_interval = 300
 
@@ -208,6 +211,17 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     def getDeploymentType(self):
         return Products.Reportek.REPORTEK_DEPLOYMENT
 
+    security.declareProtected(view_management_screens, 'manage_properties')
+    def get_rod_obligations(self):
+        """ Returns a sorted list of obligations from ROD
+        """
+        obligations = [(o.get('uri'), o.get('TITLE')) for o in self.dataflow_rod()]
+        data = []
+
+        if obligations:
+            data = sorted(obligations, key=itemgetter(1))
+        return data
+
     _manage_properties = PageTemplateFile('zpt/engine/prop', globals())
 
     security.declareProtected(view_management_screens, 'manage_properties')
@@ -244,7 +258,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.bdr_registry_url = self.REQUEST.get('bdr_registry_url', self.bdr_registry_url)
         self.bdr_registry_username = self.REQUEST.get('bdr_registry_username', self.bdr_registry_username)
         self.bdr_registry_password = self.REQUEST.get('bdr_registry_password', self.bdr_registry_password)
+        self.bdr_registry_obligations = self.REQUEST.get('bdr_registry_obligations', self.bdr_registry_obligations)
         self.fgas_registry_url = self.REQUEST.get('fgas_registry_url', self.fgas_registry_url)
+        self.fgas_registry_obligations = self.REQUEST.get('fgas_registry_obligations', self.fgas_registry_obligations)
 
         # don't send the completed from back, the values set on self must be used
         return self._manage_properties(manage_tabs_message="Properties changed")
@@ -289,14 +305,13 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return self._BDRRegistryAPI
 
     def get_registry(self, dataflow_uris):
-        uris = {
-        'http://rod.eionet.europa.eu/obligations/713': 'FGASRegistryAPI',
-        'http://rod.eionet.europa.eu/obligations/213': 'BDRRegistryAPI'
-        }
-
+        registry = ''
         if dataflow_uris:
-            registry = uris.get(dataflow_uris[0])
-            return getattr(self, registry, None)
+            if dataflow_uris[0] in self.bdr_registry_obligations:
+                registry = 'BDRRegistryAPI'
+            elif dataflow_uris[0] in self.fgas_registry_obligations:
+                registry = 'FGASRegistryAPI'
+        return getattr(self, registry, None)
 
     security.declarePublic('getPartsOfYear')
     def getPartsOfYear(self):

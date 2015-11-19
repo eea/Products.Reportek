@@ -554,7 +554,7 @@ class Collection(CatalogAware, Folder, Toolz):
             registry = engine.get_registry(self.dataflow_uris)
             company_id = getattr(self, 'company_id', self.getId())
 
-            if company_id:
+            if company_id and registry:
                 data = registry.get_company_details(company_id)
                 return data
 
