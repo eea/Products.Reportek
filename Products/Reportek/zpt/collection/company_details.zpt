@@ -1,3 +1,2 @@
-xxx
 <span tal:content="here/company_status"/>
 <span tal:content="python:here.get_company_details()"/>
