@@ -560,9 +560,14 @@ class Collection(CatalogAware, Folder, Toolz):
 
     security.declareProtected('Add Envelopes', 'company_status')
     def company_status(self):
+        status = 'DISABLED'
         data = self.get_company_data()
         if data:
-            return data.get('status')
+            status = data.get('status')
+            if not status:
+                if data.get('active'):
+                    status = 'VALID'
+        return status
 
     def allowed_envelopes(self):
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
