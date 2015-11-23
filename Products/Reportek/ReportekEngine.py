@@ -253,8 +253,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.auth_middleware_url = self.REQUEST.get('auth_middleware_url', self.auth_middleware_url)
         if self.auth_middleware_url:
             self.auth_middleware_recheck_interval = int(self.REQUEST.get('auth_middleware_recheck_interval', self.auth_middleware_recheck_interval))
-            self.authMiddlewareApi.setServiceRecheckInterval(self.auth_middleware_recheck_interval)
-            self.authMiddlewareApi.setServiceUrl(self.auth_middleware_url)
+            self.authMiddleware.setServiceRecheckInterval(self.auth_middleware_recheck_interval)
         self.bdr_registry_url = self.REQUEST.get('bdr_registry_url', self.bdr_registry_url)
         self.bdr_registry_username = self.REQUEST.get('bdr_registry_username', self.bdr_registry_username)
         self.bdr_registry_password = self.REQUEST.get('bdr_registry_password', self.bdr_registry_password)
@@ -282,19 +281,21 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             return self._contentRegistryPingger
 
     @property
-    def authMiddlewareApi(self):
+    def authMiddleware(self):
         if not self.auth_middleware_url:
             return None
-        api = getattr(self, '_authMiddlewareApi', None)
+        api = getattr(self, '_authMiddleware', None)
         if api:
             return api
         else:
-            self._authMiddlewareApi = BdrAuthorizationMiddleware(self.auth_middleware_url)
-            return self._authMiddlewareApi
+            self._authMiddleware = BdrAuthorizationMiddleware(self.auth_middleware_url)
+            return self._authMiddleware
 
     @property
     def FGASRegistryAPI(self):
         if not getattr(self, '_FGASRegistryAPI', None):
+            fgas_registry_api = FGASRegistryAPI(self.fgas_registry_url)
+
             self._FGASRegistryAPI = FGASRegistryAPI(self.fgas_registry_url)
         return self._FGASRegistryAPI
 
@@ -349,7 +350,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
             resp = {'status': 'fail',
                     'message': ''}
-            coll_path = self.authMiddlewareApi.authMiddlewareApi.buildCollectionPath(
+            coll_path = self.FGASRegistryAPI.buildCollectionPath(
                     domain, country, company_id, old_collection_id)
             if not coll_path:
                 msg = ("Cannot form path to collection, with details domain:"
@@ -382,7 +383,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 try:
                     coll = getattr(country_folder, old_collection_id)
                     coll.company_id = company_id
-                    coll.dataflow_uris = [ self.authMiddlewareApi.authMiddlewareApi.DOMAIN_TO_OBLIGATION[domain] ]
+                    coll.dataflow_uris = [ self.FGASRegistryAPI.DOMAIN_TO_OBLIGATION[domain] ]
                     coll.reindex_object()
                 except:
                     msg = "Cannot update collection %s Old style collection not found" % coll_path
@@ -397,7 +398,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     # not there, create it
                     # Don't take obligation from parent as it can be a terminated obligation
                     try:
-                        dataflow_uris = [ self.authMiddlewareApi.authMiddlewareApi.DOMAIN_TO_OBLIGATION[domain] ]
+                        dataflow_uris = [ self.FGASRegistryAPI.DOMAIN_TO_OBLIGATION[domain] ]
                         country_uri = country_folder.country
                         country_folder.manage_addCollection(dataflow_uris=dataflow_uris,
                             country=country_uri,
@@ -1209,8 +1210,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             middleware_collections = []
             logger.debug("Attempt to interrogate middleware for authorizations for user:id %s:%s" % (username, ecas_user_id))
             if ecas_user_id:
-                for colPath in self.authMiddlewareApi.getUserCollectionPaths(ecas_user_id,
-                            recheck_interval=self.authMiddlewareApi.recheck_interval):
+                for colPath in self.authMiddleware.getUserCollectionPaths(ecas_user_id,
+                            recheck_interval=self.authMiddleware.recheck_interval):
                     try:
                         middleware_collections.append(self.unrestrictedTraverse('/'+str(colPath)))
                     except:
