@@ -1,2 +1,37 @@
-<span tal:content="here/company_status"/>
-<span tal:content="python:here.get_company_details()"/>
+<tal:block content="structure here/standard_html_header" />
+<tal:block content="structure python:here.collection_tabs(tab='company_details')" />
+<h1 i18n:translate="">Company details</h1>
+<div tal:define="company python: here.get_company_details()">
+  <table class="table-list" tal:condition="company">
+    <tr>
+      <th i18n:translate="">Company name</th>
+      <td tal:content="company/name" />
+    </tr>
+
+    <tr>
+      <th i18n:translate="">Status</th>
+      <td tal:content="company/status" />
+    </tr>
+
+    <tr>
+      <th i18n:translate="">Street and number</th>
+       <td tal:content="company/address/street" />
+    </tr>
+
+    <tr>
+      <th i18n:translate="">City</th>
+      <td tal:content="company/address/city" />
+    </tr>
+
+    <tr>
+      <th i18n:translate="">Country</th>
+      <td tal:content="company/country" />
+    </tr>
+
+    <tr>
+      <th i18n:translate="">VAT number</th>
+      <td tal:content="company/vat" />
+    </tr>
+
+  </table>
+</div>

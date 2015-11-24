@@ -580,6 +580,29 @@ class Collection(CatalogAware, Folder, Toolz):
 
     security.declareProtected('Add Envelopes', 'get_company_details')
     def get_company_details(self):
-        return self.get_company_data()
+        data = {}
+        raw_data = self.get_company_data()
+        if raw_data:
+            alt_address = raw_data.get('address', {})
+            alt_street = ' '.join([alt_address.get('street', ''),
+                                   alt_address.get('number', '')])
+            street = raw_data.get('addr_street', alt_street)
+            city = raw_data.get('addr_place1',
+                                raw_data.get('address', {}).get('city'))
+            country = raw_data.get('country',
+                                   raw_data.get('country_code'))
+
+            data = {
+                'name': raw_data.get('name'),
+                'status': self.company_status(),
+                'address': {
+                    'city': city,
+                    'street': street
+                },
+                'country': country.upper(),
+                'vat': raw_data.get('vat_number', raw_data.get('vat'))
+            }
+
+        return data
 
 Globals.InitializeClass(Collection)
