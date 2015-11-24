@@ -549,6 +549,9 @@ class Collection(CatalogAware, Folder, Toolz):
 
     security.declareProtected('Add Envelopes', 'get_company_data')
     def get_company_data(self):
+        """ Retrieve company data by interrogating the appropriate registry
+            based on the collection's obligations
+        """
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             engine = self.getEngine()
             registry = engine.get_registry(self.dataflow_uris)
@@ -560,6 +563,8 @@ class Collection(CatalogAware, Folder, Toolz):
 
     security.declareProtected('Add Envelopes', 'company_status')
     def company_status(self):
+        """ Retrieve the status of the collection's associated company
+        """
         status = 'DISABLED'
         data = self.get_company_data()
         if data:
@@ -570,6 +575,8 @@ class Collection(CatalogAware, Folder, Toolz):
         return status
 
     def allowed_envelopes(self):
+        """ Return False if the collection's associated company is disabled
+        """
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             company_status = self.company_status()
             if company_status:
@@ -580,6 +587,8 @@ class Collection(CatalogAware, Folder, Toolz):
 
     security.declareProtected('Add Envelopes', 'get_company_details')
     def get_company_details(self):
+        """ Company details tab view
+        """
         data = {}
         raw_data = self.get_company_data()
         if raw_data:
