@@ -16,6 +16,5 @@ setup(
         'plone.memoize',
         'Zope2',
         'collective.monkeypatcher',
-        'eventlet'
     ],
 )

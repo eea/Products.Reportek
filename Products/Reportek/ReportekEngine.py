@@ -321,6 +321,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
            'First Quarter', 'Second Quarter', 'Third Quarter', 'Fourth Quarter',
            'January','February','March','April', 'May','June','July','August','September','October','November','December']
 
+    security.declareProtected(view_management_screens, 'update_company_collection')
 
     security.declareProtected(view_management_screens, 'change_ownership')
     def change_ownership(self, obj, newuser, deluser):
@@ -335,23 +336,31 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 obj.manage_delLocalRoles(owners)    #delete the old owner
                 obj.manage_setLocalRoles(wrapped_user.getId(),['Owner',])   #set local role to the new user
 
-    if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-        security.declareProtected(view_management_screens, 'update_company_collection')
-        def update_company_collection(self, company_id, domain, country,
-                                    name, old_collection_id=None):
-            """Update information on an existing old-type collection (say, 'fgas30001')
-            mainly setting it's `company_id` (the id internal to Fgas Portal for instance)
-            If no `old_collection_id` is provided then a new collection will be created with
-            id=company_id=provided `company_id`.
-            If `old_collection_id` is provided, the the collection must exist in the expected path
-            deducted from the domain/country/old_collection_id. It's company_id will be updated.
-            If `old_collection_id` does not exist at the expected location nothing will happen."""
-            # form path, make sure it is not absolute, else change the code below to match
+    def update_company_collection(self, company_id, domain, country,
+                                name, date_created=None, old_collection_id=None):
+        """Update information on an existing old-type collection (say, 'fgas30001')
+        mainly setting it's `company_id` (the id internal to Fgas Portal for instance)
+        If no `old_collection_id` is provided then a new collection will be created with
+        id=company_id=provided `company_id`.
+        If `old_collection_id` is provided, the the collection must exist in the expected path
+        deducted from the domain/country/old_collection_id. It's company_id will be updated.
+        If `old_collection_id` does not exist at the expected location nothing will happen."""
+        # form path, make sure it is not absolute, else change the code below to match
+
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
             resp = {'status': 'fail',
                     'message': ''}
+
+            if date_created:
+                try:
+                    portal_registration_date = DateTime(date_created)
+                except:
+                    portal_registration_date = None
+
             coll_path = self.FGASRegistryAPI.buildCollectionPath(
                     domain, country, company_id, old_collection_id)
+
             if not coll_path:
                 msg = ("Cannot form path to collection, with details domain:"
                     " %s, country: %s, company_id: %s, old_collection_id: %s.") % (
@@ -363,14 +372,13 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 return json.dumps(resp)
 
             path_parts = coll_path.split('/')
-            obligation_id= path_parts[0]
+            obligation_id = path_parts[0]
             country_id = path_parts[1]
             coll_id = path_parts[2]
-            root = self.restrictedTraverse('/')
             try:
-                obligation_folder = getattr(root, obligation_id)
-                country_folder = getattr(obligation_folder, country_id)
-            except:
+                country_folder_path = '/'.join([obligation_id, country_id])
+                country_folder = self.restrictedTraverse(country_folder_path)
+            except KeyError:
                 msg = "Cannot update collection %s. Path to collection does not exist" % coll_path
                 logger.warning(msg)
                 # return 404
@@ -380,23 +388,22 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
             # old type of collection
             if old_collection_id:
-                try:
-                    coll = getattr(country_folder, old_collection_id)
+                coll = getattr(country_folder, old_collection_id, None)
+                if coll:
                     coll.company_id = company_id
+                    coll.old_company_id = old_collection_id
+                    coll.portal_registration_date = portal_registration_date
                     coll.dataflow_uris = [ self.FGASRegistryAPI.DOMAIN_TO_OBLIGATION[domain] ]
                     coll.reindex_object()
-                except:
+                else:
                     msg = "Cannot update collection %s Old style collection not found" % coll_path
                     logger.warning(msg)
                     self.REQUEST.RESPONSE.setStatus(404)
                     resp['message'] = msg
                     return json.dumps(resp)
             else:
-                try:
-                    coll = getattr(country_folder, coll_id)
-                except:
-                    # not there, create it
-                    # Don't take obligation from parent as it can be a terminated obligation
+                coll = getattr(country_folder, coll_id, None)
+                if not coll:
                     try:
                         dataflow_uris = [ self.FGASRegistryAPI.DOMAIN_TO_OBLIGATION[domain] ]
                         country_uri = country_folder.country
@@ -415,14 +422,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                         resp['message'] = msg
                         return json.dumps(resp)
                 coll.company_id = company_id
+                coll.portal_registration_date = portal_registration_date
                 coll.reindex_object()
             resp['status'] = 'success'
             resp['message'] = 'Collection %s updated/created succesfully' % coll_path
             return json.dumps(resp)
-    else:
-        security.declareProtected(view_management_screens, 'update_company_collection')
-        def update_company_collection(self, company_id, domain, country,
-                                  name, old_collection_id=None):
+        else:
             pass
 
     security.declareProtected('View', 'macros')

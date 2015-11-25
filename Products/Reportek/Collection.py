@@ -509,6 +509,17 @@ class Collection(CatalogAware, Folder, Toolz):
         if engine:
             return engine.dataflow_rod()
 
+    @property
+    def company_id(self):
+        company_id = getattr(self, '_company_id', None)
+        if not company_id:
+            company_id = getattr(self, 'old_company_id', None)
+        return company_id
+
+    @company_id.setter
+    def company_id(self, value):
+        self._company_id = value
+
     security.declareProtected('View', 'messageDialog')
     def messageDialog(self, message='', action='./manage_main', REQUEST=None):
         """ displays a message dialog """

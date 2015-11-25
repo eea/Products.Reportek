@@ -3,14 +3,11 @@ from interfaces import IRegistryManagement
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
 from zope.interface import implementer
-import eventlet
 import logging
 import Products
 import requests
 
 logger = logging.getLogger("Reportek")
-eventlet.monkey_patch()
-
 
 @implementer(IRegistryManagement)
 class RegistryManagement(Folder):
@@ -35,22 +32,21 @@ class BaseRegistryAPI(SimpleItem):
 
     def do_api_request(self, url, method='get', data=None, cookies=None, headers=None, params=None):
         api_req = requests.get
-        if type == 'post':
+        if method == 'post':
             api_req = requests.post
 
-        with eventlet.Timeout(self.TIMEOUT, False):
-            try:
-                response = api_req(url, data=data, cookies=cookies, headers=headers, params=params, verify=False)
-            except eventlet.Timeout as e:
-                logger.warning("Timeout while retrieving data from Registry (%s)" % str(e))
-                return None
-            except Exception as e:
-                logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
-                return None
-            if response.status_code != requests.codes.ok:
-                return None
+        try:
+            response = api_req(url, data=data, cookies=cookies, headers=headers, params=params, verify=False)
+        except eventlet.Timeout as e:
+            logger.warning("Timeout while retrieving data from Registry (%s)" % str(e))
+            return None
+        except Exception as e:
+            logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
+            return None
+        if response.status_code != requests.codes.ok:
+            return None
 
-            return response
+        return response
 
 
 class FGASRegistryAPI(BaseRegistryAPI):
@@ -124,9 +120,9 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
     def verifyCandidate(self, companyId, candidateId, userId):
         # use the right pattern for Api url
-        api_url = "/candidate/verify-none/{0}/"
+        api_url = self.baseUrl + "/candidate/verify-none/{0}/"
         if candidateId:
-            api_url = "/candidate/verify/{0}/{1}/"
+            api_url = self.baseUrl + "/candidate/verify/{0}/{1}/"
 
         api_url = api_url.format(companyId, candidateId)
         response = self.do_api_request(api_url,

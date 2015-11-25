@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Add employeeType property to LDAP Schema
+# Migrate authMiddlewareApi (BDR Only)
 # Run them from within debug mode like so:
 #  >>> from Products.Reportek.updates import u20151123_Migrate_AuthMiddlewareApi; u20151123_Migrate_AuthMiddlewareApi.update(app)
 
