@@ -11,7 +11,7 @@
         <tal:block  tal:condition="python:SecurityManager.checkPermission('Manage users', here)">
             <li tal:attributes="id python:test(tab=='get_users_list', 'currenttab', None)"><a href="get_users_list" i18n:translate="">List of reporters</a></li>
         </tal:block>
-        <tal:block  tal:condition="python: isBdrDeployment and SecurityManager.checkPermission('Add envelopes', here)">
+        <tal:block  tal:condition="python: isBdrDeployment and SecurityManager.checkPermission('Add envelopes', here) and here.company_id">
             <li tal:attributes="id python:test(tab=='company_details', 'currenttab', None)"><a href="company_details" i18n:translate="">Company details</a></li>
         </tal:block>
     </ul>

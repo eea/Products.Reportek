@@ -30,16 +30,15 @@ class BaseRegistryAPI(SimpleItem):
     def __init__(self, url):
         self.baseUrl = url
 
-    def do_api_request(self, url, method='get', data=None, cookies=None, headers=None, params=None):
+    def do_api_request(self, url, method='get', data=None, cookies=None,
+                       headers=None, params=None):
         api_req = requests.get
         if method == 'post':
             api_req = requests.post
 
         try:
-            response = api_req(url, data=data, cookies=cookies, headers=headers, params=params, verify=False)
-        except eventlet.Timeout as e:
-            logger.warning("Timeout while retrieving data from Registry (%s)" % str(e))
-            return None
+            response = api_req(url, data=data, cookies=cookies, headers=headers,
+                               params=params, verify=False, timeout=self.TIMEOUT)
         except Exception as e:
             logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
             return None
