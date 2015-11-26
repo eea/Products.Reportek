@@ -582,10 +582,12 @@ class Collection(CatalogAware, Folder, Toolz):
         status = 'DISABLED'
         data = self.get_company_data()
         if data:
-            status = data.get('status')
-            if not status:
+            if not data.get('status'):
                 if data.get('active'):
                     status = 'VALID'
+            else:
+                status = data.get('status')
+
         return status
 
     security.declareProtected('View', 'portal_registration_date')
@@ -607,6 +609,7 @@ class Collection(CatalogAware, Folder, Toolz):
         """
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             company_status = self.company_status()
+
             if company_status:
                 if company_status.lower() == 'disabled':
                     return False
