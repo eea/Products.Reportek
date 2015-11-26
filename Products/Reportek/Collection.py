@@ -575,7 +575,7 @@ class Collection(CatalogAware, Folder, Toolz):
                 data = registry.get_company_details(self.company_id)
                 return data
 
-    security.declareProtected('Add Envelopes', 'company_status')
+    security.declareProtected('View', 'company_status')
     def company_status(self):
         """ Retrieve the status of the collection's associated company
         """
@@ -588,7 +588,7 @@ class Collection(CatalogAware, Folder, Toolz):
                     status = 'VALID'
         return status
 
-    security.declareProtected('Add Envelopes', 'company_status')
+    security.declareProtected('View', 'portal_registration_date')
     def portal_registration_date(self):
         data = self.get_company_data()
         if data:
