@@ -2,6 +2,8 @@ from AccessControl import ClassSecurityInfo
 from interfaces import IRegistryManagement
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
+from plone.memoize import ram
+from time import time
 from zope.interface import implementer
 import logging
 import Products
@@ -72,6 +74,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if response:
             return response.json()
 
+    @ram.cache(lambda *args, **kwargs: args[2] + str(time() // (60 * 60)))
     def get_company_details(self, company_id):
         url = self.baseUrl + '/undertaking/{0}/details'.format(company_id)
         response = self.do_api_request(url)
@@ -347,6 +350,7 @@ class BDRRegistryAPI(BaseRegistryAPI):
         if response:
             return response.json()
 
+    @ram.cache(lambda *args, **kwargs: args[2] + str(time() // (60 * 60)))
     def get_company_details(self, company_id):
         """ Get company details from Registry
         """

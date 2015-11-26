@@ -57,13 +57,17 @@ manage_addCollectionForm = PageTemplateFile('zpt/collection/add', globals())
 
 def manage_addCollection(self, title, descr, year, endyear, partofyear,
                          country, locality, dataflow_uris, allow_collections=0,
-                         allow_envelopes=0, id='', REQUEST=None):
+                         allow_envelopes=0, id='', REQUEST=None,
+                         old_company_id=None):
     """Add a new Collection object
     """
     if id == '':
         id = RepUtils.generate_id('col')
     ob = Collection(id, title, year, endyear, partofyear, country, locality,
                     descr, dataflow_uris, allow_collections, allow_envelopes)
+    if old_company_id:
+        ob.old_company_id = old_company_id
+
     self._setObject(id, ob)
     if REQUEST is not None:
         return self.manage_main(self, REQUEST, update_menu=1)
@@ -566,10 +570,9 @@ class Collection(CatalogAware, Folder, Toolz):
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             engine = self.getEngine()
             registry = engine.get_registry(self.dataflow_uris)
-            company_id = getattr(self, 'company_id', self.getId())
 
-            if company_id and registry:
-                data = registry.get_company_details(company_id)
+            if self.company_id and registry:
+                data = registry.get_company_details(self.company_id)
                 return data
 
     security.declareProtected('Add Envelopes', 'company_status')
@@ -584,6 +587,20 @@ class Collection(CatalogAware, Folder, Toolz):
                 if data.get('active'):
                     status = 'VALID'
         return status
+
+    security.declareProtected('Add Envelopes', 'company_status')
+    def portal_registration_date(self):
+        data = self.get_company_data()
+        if data:
+            reg_date = data.get('date_registered')
+            if not reg_date:
+                reg_date = data.get('date_created')
+            try:
+                portal_registration_date = DateTime(reg_date)
+            except:
+                portal_registration_date = None
+
+            return portal_registration_date
 
     def allowed_envelopes(self):
         """ Return False if the collection's associated company is disabled
@@ -604,8 +621,14 @@ class Collection(CatalogAware, Folder, Toolz):
         raw_data = self.get_company_data()
         if raw_data:
             alt_address = raw_data.get('address', {})
-            alt_street = ' '.join([alt_address.get('street', ''),
-                                   alt_address.get('number', '')])
+            alt_street_name = alt_address.get('street', '')
+            alt_street_no = alt_address.get('number', '')
+            alt_street = ''
+            if alt_street_name:
+                alt_street += alt_street_name
+            if alt_street_no:
+                alt_street = alt_street + ' ' + alt_street_no
+
             street = raw_data.get('addr_street', alt_street)
             city = raw_data.get('addr_place1',
                                 raw_data.get('address', {}).get('city'))
@@ -620,7 +643,8 @@ class Collection(CatalogAware, Folder, Toolz):
                     'street': street
                 },
                 'country': country.upper(),
-                'vat': raw_data.get('vat_number', raw_data.get('vat'))
+                'vat': raw_data.get('vat_number', raw_data.get('vat')),
+                'portal_registration_date': self.portal_registration_date()
             }
 
         return data

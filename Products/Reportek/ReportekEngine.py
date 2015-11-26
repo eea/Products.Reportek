@@ -312,6 +312,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 registry = 'BDRRegistryAPI'
             elif dataflow_uris[0] in self.fgas_registry_obligations:
                 registry = 'FGASRegistryAPI'
+                if not getattr(self, '_company_id', None) and getattr(self, 'old_company_id', None):
+                    registry = 'BDRRegistryAPI'
         return getattr(self, registry, None)
 
     security.declarePublic('getPartsOfYear')
@@ -337,7 +339,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 obj.manage_setLocalRoles(wrapped_user.getId(),['Owner',])   #set local role to the new user
 
     def update_company_collection(self, company_id, domain, country,
-                                name, date_created=None, old_collection_id=None):
+                                name, old_collection_id=None):
         """Update information on an existing old-type collection (say, 'fgas30001')
         mainly setting it's `company_id` (the id internal to Fgas Portal for instance)
         If no `old_collection_id` is provided then a new collection will be created with
@@ -351,12 +353,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
             resp = {'status': 'fail',
                     'message': ''}
-
-            if date_created:
-                try:
-                    portal_registration_date = DateTime(date_created)
-                except:
-                    portal_registration_date = None
 
             coll_path = self.FGASRegistryAPI.buildCollectionPath(
                     domain, country, company_id, old_collection_id)
@@ -392,7 +388,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 if coll:
                     coll.company_id = company_id
                     coll.old_company_id = old_collection_id
-                    coll.portal_registration_date = portal_registration_date
                     coll.dataflow_uris = [ self.FGASRegistryAPI.DOMAIN_TO_OBLIGATION[domain] ]
                     coll.reindex_object()
                 else:
@@ -422,7 +417,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                         resp['message'] = msg
                         return json.dumps(resp)
                 coll.company_id = company_id
-                coll.portal_registration_date = portal_registration_date
                 coll.reindex_object()
             resp['status'] = 'success'
             resp['message'] = 'Collection %s updated/created succesfully' % coll_path
