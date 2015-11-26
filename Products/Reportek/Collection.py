@@ -586,12 +586,16 @@ class Collection(CatalogAware, Folder, Toolz):
                 if data.get('active'):
                     status = 'VALID'
             else:
-                status = data.get('status')
+                if data.get('status') == 'VALID':
+                    status = 'VALID'
 
         return status
 
     security.declareProtected('View', 'portal_registration_date')
     def portal_registration_date(self):
+        """ Retrieve the portal_registration_date of the collection's associated
+            company
+        """
         data = self.get_company_data()
         if data:
             reg_date = data.get('date_registered')
@@ -604,15 +608,24 @@ class Collection(CatalogAware, Folder, Toolz):
 
             return portal_registration_date
 
-    def allowed_envelopes(self):
-        """ Return False if the collection's associated company is disabled
+    def is_valid(self):
+        """ Return False if BDR deployment and associated company status is
+            disabled, otherwise True
         """
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             company_status = self.company_status()
 
             if company_status:
-                if company_status.lower() == 'disabled':
+                if company_status == 'DISABLED':
                     return False
+
+        return True
+
+    def allowed_envelopes(self):
+        """ Return False if the collection's associated company is disabled
+        """
+        if not self.is_valid():
+            return False
 
         return self.allow_envelopes
 
