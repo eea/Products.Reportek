@@ -573,6 +573,9 @@ class Collection(CatalogAware, Folder, Toolz):
 
             if self.company_id and registry:
                 data = registry.get_company_details(self.company_id)
+                if data:
+                    data['registry'] = getattr(registry, 'registry_name', None)
+
                 return data
 
     security.declareProtected('View', 'company_status')
@@ -660,7 +663,8 @@ class Collection(CatalogAware, Folder, Toolz):
                 },
                 'country': country.upper(),
                 'vat': raw_data.get('vat_number', raw_data.get('vat')),
-                'portal_registration_date': self.portal_registration_date()
+                'portal_registration_date': self.portal_registration_date(),
+                'registry': raw_data.get('registry')
             }
 
         return data

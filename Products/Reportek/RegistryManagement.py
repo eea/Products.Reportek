@@ -29,7 +29,8 @@ class BaseRegistryAPI(SimpleItem):
 
     TIMEOUT = 20
 
-    def __init__(self, url):
+    def __init__(self, registry_name, url):
+        self.registry_name = registry_name
         self.baseUrl = url
 
     def do_api_request(self, url, method='get', data=None, cookies=None,

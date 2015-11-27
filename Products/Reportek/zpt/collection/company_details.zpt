@@ -3,6 +3,12 @@
 <h1 i18n:translate="">Company details</h1>
 <div tal:define="company python: here.get_company_details()">
   <table class="table-list" tal:condition="company">
+
+    <tr>
+      <th i18n:translate="">Registry</th>
+      <td tal:content="company/registry" />
+    </tr>
+
     <tr>
       <th i18n:translate="">Company name</th>
       <td tal:content="company/name" />

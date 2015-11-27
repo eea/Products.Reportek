@@ -294,15 +294,13 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     @property
     def FGASRegistryAPI(self):
         if not getattr(self, '_FGASRegistryAPI', None):
-            fgas_registry_api = FGASRegistryAPI(self.fgas_registry_url)
-
-            self._FGASRegistryAPI = FGASRegistryAPI(self.fgas_registry_url)
+            self._FGASRegistryAPI = FGASRegistryAPI('FGAS Registry', self.fgas_registry_url)
         return self._FGASRegistryAPI
 
     @property
     def BDRRegistryAPI(self):
         if not getattr(self, '_BDRRegistryAPI', None):
-            self._BDRRegistryAPI = BDRRegistryAPI(self.bdr_registry_url)
+            self._BDRRegistryAPI = BDRRegistryAPI('BDR Registry', self.bdr_registry_url)
         return self._BDRRegistryAPI
 
     def get_registry(self, dataflow_uris):
