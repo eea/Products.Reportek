@@ -158,7 +158,6 @@
         <legend>FGAS Registry Cache Api</legend>
         <p class="form-help">
             <label for='fgas_registry_url'><strong>FGAS Cache Registry API URL</strong></label>
-            <br />
             <input type="text" size="50" id="fgas_registry_url" name="fgas_registry_url"
                    tal:attributes="value here/fgas_registry_url" />
             <br />
@@ -167,6 +166,7 @@
         </p>
         <p class="form-help">
             <label for='fgas_registry_obligations'><strong>FGAS Registry obligations</strong></label>
+            <br />
             <select name="fgas_registry_obligations:list" size="5" multiple="">
                 <option tal:repeat="fgas_o python: obligations"
                     tal:attributes="value python: fgas_o[0];
