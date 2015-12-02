@@ -305,7 +305,7 @@ class BDRRegistryAPI(BaseRegistryAPI):
 
         client = requests.session()
 
-        csrf = client.get(url).cookies['csrftoken']
+        csrf = client.get(url).cookies.get('csrftoken')
         engine = self.getEngine()
 
         data = {
