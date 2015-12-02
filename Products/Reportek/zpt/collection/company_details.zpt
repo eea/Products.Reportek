@@ -2,6 +2,9 @@
 <tal:block content="structure python:here.collection_tabs(tab='company_details')" />
 <h1 i18n:translate="">Company details</h1>
 <div tal:define="company python: here.get_company_details()">
+  <div tal:condition="not: company">
+    <p i18n:translate="">Unable to retrieve data</p>
+  </div>
   <table class="table-list" tal:condition="company">
 
     <tr>
