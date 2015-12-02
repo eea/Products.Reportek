@@ -43,7 +43,7 @@
     </tr>
 
     <tr tal:define="r_date company/portal_registration_date|nothing">
-      <th i18n:translate="">Portal registration date</th>
+      <th i18n:translate="">Portal registration date (YYYY/MM/DD)</th>
       <td tal:condition="r_date"
         tal:content="python: r_date.strftime('%Y-%m-%d')" />
     </tr>
