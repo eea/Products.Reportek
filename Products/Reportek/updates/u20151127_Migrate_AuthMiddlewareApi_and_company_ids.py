@@ -23,7 +23,7 @@ def migrate_AuthMiddleWareApi(app):
 
 def add_company_id_to_collections(app):
     catalog = getattr(app, 'Catalog')
-    paths = ['fgases', '/ods', '/cars', '/vans']
+    paths = ['/fgases', '/ods', '/cars', '/vans']
     for path in paths:
         brains = catalog({'path': path,
                           'meta_type': 'Report Collection'})
