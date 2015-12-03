@@ -25,19 +25,20 @@ $Id$"""
 
 __version__='$Revision$'[11:-2]
 
-import time, types, os, string
-import Products
-from Products.ZCatalog.CatalogAwareness import CatalogAware
-import Globals
-import AccessControl.Role, webdav.Collection
-from AccessControl.Permissions import manage_users
-from AccessControl.requestmethod import requestmethod
-from Products.Reportek import permission_manage_properties_collections
 from AccessControl import getSecurityManager, ClassSecurityInfo
 from AccessControl.Permissions import change_permissions
+from AccessControl.Permissions import manage_users
+from AccessControl.requestmethod import requestmethod
+from ComputedAttribute import ComputedAttribute
+from DateTime import DateTime
 from OFS.Folder import Folder
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from DateTime import DateTime
+from Products.Reportek import permission_manage_properties_collections
+from Products.ZCatalog.CatalogAwareness import CatalogAware
+import AccessControl.Role, webdav.Collection
+import Globals
+import Products
+import time, types, os, string
 
 # product imports
 import Envelope
@@ -47,21 +48,30 @@ import Referral
 
 from CountriesManager import CountriesManager
 from DataflowsManager import DataflowsManager
+from Products.Reportek import REPORTEK_DEPLOYMENT
+from Products.Reportek import DEPLOYMENT_BDR
 from Toolz import Toolz
 
-manage_addCollectionForm=PageTemplateFile('zpt/collection/add', globals())
+manage_addCollectionForm = PageTemplateFile('zpt/collection/add', globals())
 
-def manage_addCollection(self, title, descr,
-            year, endyear, partofyear, country, locality, dataflow_uris,
-            allow_collections=0, allow_envelopes=0, id='',
-            REQUEST=None):
+
+def manage_addCollection(self, title, descr, year, endyear, partofyear,
+                         country, locality, dataflow_uris, allow_collections=0,
+                         allow_envelopes=0, id='', REQUEST=None,
+                         old_company_id=None):
     """Add a new Collection object
     """
-    if id == '': id = RepUtils.generate_id('col')
-    ob = Collection(id, title, year, endyear, partofyear, country, locality, descr, dataflow_uris, allow_collections, allow_envelopes)
+    if id == '':
+        id = RepUtils.generate_id('col')
+    ob = Collection(id, title, year, endyear, partofyear, country, locality,
+                    descr, dataflow_uris, allow_collections, allow_envelopes)
+    if old_company_id:
+        ob.old_company_id = old_company_id
+
     self._setObject(id, ob)
     if REQUEST is not None:
         return self.manage_main(self, REQUEST, update_menu=1)
+
 
 class Collection(CatalogAware, Folder, Toolz):
     """
@@ -70,25 +80,32 @@ class Collection(CatalogAware, Folder, Toolz):
     a management interface and can have arbitrary properties.
     """
 
-    meta_type='Report Collection'
+    meta_type = 'Report Collection'
 
     security = ClassSecurityInfo()
 
     manage_options = Folder.manage_options[:3] + \
         (
-            {'label':'Settings', 'action':'manage_prop', 'help':('Reportek','Collection_Properties.stx')},
-            {'label':'List of reporters', 'action':'get_users_list'},
+            {'label': 'Settings', 'action': 'manage_prop',
+             'help': ('Reportek', 'Collection_Properties.stx')},
+            {'label': 'List of reporters', 'action': 'get_users_list'},
+            {'label': 'Company details', 'action': 'company_details'}
         ) + Folder.manage_options[3:]
 
-    def __init__(self, id, title='', year='', endyear='', partofyear='', country='', locality='',
-            descr='', dataflow_uris=[], allow_collections=0, allow_envelopes=0):
+    def __init__(self, id, title='', year='', endyear='', partofyear='',
+                 country='', locality='', descr='', dataflow_uris=[],
+                 allow_collections=0, allow_envelopes=0):
         """ constructor """
         self.id = id
         self.title = title
-        try: self.year = int(year)
-        except: self.year = ''
-        try: self.endyear = int(endyear)
-        except: self.endyear = ''
+        try:
+            self.year = int(year)
+        except:
+            self.year = ''
+        try:
+            self.endyear = int(endyear)
+        except:
+            self.endyear = ''
         if self.year == '' and self.endyear != '':
             self.year = self.endyear
         self.partofyear = partofyear
@@ -107,7 +124,7 @@ class Collection(CatalogAware, Folder, Toolz):
     security.declareProtected('Change Collections', 'manage_renameObject')
     security.declareProtected('Change Collections', 'manage_renameObjects')
 
-    def __setstate__(self,state):
+    def __setstate__(self, state):
         Collection.inheritedAttribute('__setstate__')(self, state)
         if type(self.year) is types.StringType and self.year != '':
             try:
@@ -200,6 +217,8 @@ class Collection(CatalogAware, Folder, Toolz):
     manage_prop = PageTemplateFile('zpt/collection/prop', globals())
 
     _get_users_list = PageTemplateFile('zpt/collection/users', globals())
+
+    company_details = PageTemplateFile('zpt/collection/company_details', globals())
 
     def local_defined_roles(self):
         return self.__ac_local_roles__
@@ -494,6 +513,17 @@ class Collection(CatalogAware, Folder, Toolz):
         if engine:
             return engine.dataflow_rod()
 
+    @property
+    def company_id(self):
+        company_id = getattr(self, '_company_id', None)
+        if not company_id:
+            company_id = getattr(self, 'old_company_id', None)
+        return company_id
+
+    @company_id.setter
+    def company_id(self, value):
+        self._company_id = value
+
     security.declareProtected('View', 'messageDialog')
     def messageDialog(self, message='', action='./manage_main', REQUEST=None):
         """ displays a message dialog """
@@ -531,5 +561,112 @@ class Collection(CatalogAware, Folder, Toolz):
                 self.reindex_object()
             stat='Your changes have been saved.'
             return self.manage_listLocalRoles(self, REQUEST, stat=stat)
+
+    security.declareProtected('Add Envelopes', 'get_company_data')
+    def get_company_data(self):
+        """ Retrieve company data by interrogating the appropriate registry
+            based on the collection's obligations
+        """
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            engine = self.getEngine()
+            registry = engine.get_registry(self.dataflow_uris)
+
+            if self.company_id and registry:
+                data = registry.get_company_details(self.company_id)
+                if data:
+                    data['registry'] = getattr(registry, 'registry_name', None)
+
+                return data
+
+    security.declareProtected('View', 'company_status')
+    def company_status(self):
+        """ Retrieve the status of the collection's associated company
+        """
+        status = 'DISABLED'
+        data = self.get_company_data()
+        if data:
+            if not data.get('status'):
+                if data.get('active'):
+                    status = 'VALID'
+            else:
+                if data.get('status') == 'VALID':
+                    status = 'VALID'
+
+        return status
+
+    security.declareProtected('View', 'portal_registration_date')
+    def portal_registration_date(self):
+        """ Retrieve the portal_registration_date of the collection's associated
+            company
+        """
+        data = self.get_company_data()
+        if data:
+            reg_date = data.get('date_registered')
+            if not reg_date:
+                reg_date = data.get('date_created')
+            try:
+                portal_registration_date = DateTime(reg_date)
+            except:
+                portal_registration_date = None
+
+            return portal_registration_date
+
+    def is_valid(self):
+        """ Return False if BDR deployment and associated company status is
+            disabled, otherwise True
+        """
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            company_status = self.company_status()
+
+            if company_status:
+                if company_status == 'DISABLED':
+                    return False
+
+        return True
+
+    def allowed_envelopes(self):
+        """ Return False if the collection's associated company is disabled
+        """
+        if not self.is_valid():
+            return False
+
+        return self.allow_envelopes
+
+    security.declareProtected('Add Envelopes', 'get_company_details')
+    def get_company_details(self):
+        """ Company details tab view
+        """
+        data = {}
+        raw_data = self.get_company_data()
+        if raw_data:
+            alt_address = raw_data.get('address', {})
+            alt_street_name = alt_address.get('street', '')
+            alt_street_no = alt_address.get('number', '')
+            alt_street = ''
+            if alt_street_name:
+                alt_street += alt_street_name
+            if alt_street_no:
+                alt_street = alt_street + ' ' + alt_street_no
+
+            street = raw_data.get('addr_street', alt_street)
+            city = raw_data.get('addr_place1',
+                                raw_data.get('address', {}).get('city'))
+            country = raw_data.get('country',
+                                   raw_data.get('country_code'))
+
+            data = {
+                'name': raw_data.get('name'),
+                'status': self.company_status(),
+                'address': {
+                    'city': city,
+                    'street': street
+                },
+                'country': country.upper(),
+                'vat': raw_data.get('vat_number', raw_data.get('vat')),
+                'portal_registration_date': self.portal_registration_date(),
+                'registry': raw_data.get('registry')
+            }
+
+        return data
 
 Globals.InitializeClass(Collection)

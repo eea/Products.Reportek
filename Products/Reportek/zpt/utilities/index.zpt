@@ -19,6 +19,7 @@
         <li tal:condition="not: isBdrDeployment"><a href="country.reporters">List country reporters</a></li>
         <li><a href="assign_role">Assign roles by obligation</a></li>
         <li><a href="revoke_roles">Revoke roles</a></li>
+        <li><a href="disabled_members">Disabled members</a></li>
       </ul>
     </div>
 

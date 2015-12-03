@@ -123,6 +123,60 @@
                tal:attributes="value here/auth_middleware_recheck_interval" />
     </p>
 </fieldset>
+<tal:block tal:condition="isBdrDeployment" tal:define="obligations here/get_rod_obligations">
+    <fieldset>
+        <legend>Bdr Registry Api</legend>
+        <p class="form-help">
+            <label for='bdr_registry_url'><strong>BDR Registry API URL</strong></label>
+            <input type="text" size="50" id="bdr_registry_url" name="bdr_registry_url"
+                   tal:attributes="value here/bdr_registry_url" />
+            <br />
+            <span>(leave it empty if Bdr Registry API is not to be used)
+            <br />
+        </p>
+        <p class="form-help">
+            <label for='bdr_registry_obligations'><strong>BDR Registry obligations</strong></label>
+            <br />
+            <select name="bdr_registry_obligations:list" size="5" multiple="">
+                <option tal:repeat="bdr_o python: obligations"
+                 tal:attributes="value python: bdr_o[0];
+                                 selected python: bdr_o[0] in here.bdr_registry_obligations"
+                 tal:content="python: bdr_o[1]" />
+            </select>
+        </p>
+        <p class="form-help">
+            <label for='bdr_registry_username'><strong>BDR Registry username</strong></label>
+            <input type="text" size="50" id="bdr_registry_username" name="bdr_registry_username" tal:attributes="value here/bdr_registry_username" />
+        </p>
+        <p class="form-help">
+            <label for='bdr_registry_password'><strong>BDR Registry password</strong></label>
+            <input type="password" size="50" id="bdr_registry_password" name="bdr_registry_password"
+                   tal:attributes="value here/bdr_registry_password" />
+        </p>
+    </fieldset>
+    <fieldset>
+        <legend>FGAS Registry Cache Api</legend>
+        <p class="form-help">
+            <label for='fgas_registry_url'><strong>FGAS Cache Registry API URL</strong></label>
+            <input type="text" size="50" id="fgas_registry_url" name="fgas_registry_url"
+                   tal:attributes="value here/fgas_registry_url" />
+            <br />
+            <span>(leave it empty if FGAS Cache Registry API is not to be used)
+            <br />
+        </p>
+        <p class="form-help">
+            <label for='fgas_registry_obligations'><strong>FGAS Registry obligations</strong></label>
+            <br />
+            <select name="fgas_registry_obligations:list" size="5" multiple="">
+                <option tal:repeat="fgas_o python: obligations"
+                    tal:attributes="value python: fgas_o[0];
+                                    selected python: fgas_o[0] in here.fgas_registry_obligations"
+                    tal:content="python: fgas_o[1]" />
+            </select>
+
+        </p>
+    </fieldset>
+</tal:block>
 <br/>
 <input type="submit" value="Save changes" />
 </form>

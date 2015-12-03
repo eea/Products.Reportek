@@ -1,11 +1,8 @@
 from time import time
 
-import ExtensionClass
 from ZODB.PersistentMapping import PersistentMapping
-
+from OFS.SimpleItem import SimpleItem
 from plone.memoize import ram
-
-from BdrAuthorizationMiddlewareApi import AuthMiddlewareApi
 
 import logging
 logger = logging.getLogger("Reportek")
@@ -15,17 +12,13 @@ __all__ = [
     ]
 
 
-class BdrAuthorizationMiddleware(ExtensionClass.Base):
+class BdrAuthorizationMiddleware(SimpleItem):
 
     recheck_interval = 300
 
     def __init__(self, url):
-        self.authMiddlewareApi = AuthMiddlewareApi(url)
         self.recheck_interval = 300
         self.lockedDownCollections = PersistentMapping()
-
-    def setServiceUrl(self, url):
-        self.authMiddlewareApi.baseUrl = url
 
     def setServiceRecheckInterval(self, seconds):
         self.recheck_interval = seconds
@@ -33,7 +26,7 @@ class BdrAuthorizationMiddleware(ExtensionClass.Base):
     @ram.cache(lambda *args, **kwargs: args[2] + str(time() // kwargs['recheck_interval']))
     def getUserCollectionPaths(self, username, recheck_interval=recheck_interval):
         logger.debug("Get companies from middleware for ecas user: %s" % username)
-        accessiblePaths = self.authMiddlewareApi.getCollectionPaths(username)
+        accessiblePaths = self.FGASRegistryAPI.getCollectionPaths(username)
         return accessiblePaths
 
     def authorizedUser(self, username, path):

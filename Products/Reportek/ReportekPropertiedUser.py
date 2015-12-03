@@ -94,7 +94,7 @@ class ReportekPropertiedUser(PropertiedUser):
 
     def get_middleware_authorization(self, user_id, base_path):
         engine = self.unrestrictedTraverse('/'+ENGINE_ID)
-        authMiddleware = engine.authMiddlewareApi
+        authMiddleware = engine.authMiddleware
         ecas = self.unrestrictedTraverse('/acl_users/' + ECAS_ID, None)
         if ecas:
             ecas_user_id = ecas.getEcasUserId(user_id)

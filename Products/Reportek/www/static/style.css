@@ -191,7 +191,7 @@ input[type="submit"] {
   text-shadow: 0 -1px 0 #3065a6;
 }
 .filters .actions {
-  margin-left: 102px;
+  margin: 15px 0 0 102px;
 }
 
 .filters-eu {
@@ -593,4 +593,12 @@ tr.user-disabled {
   list-style-image: none;
   margin-left: 0;
   margin-bottom: 0.5em;
+}
+
+.checkbox-column {
+  width: 20px;
+}
+
+#workarea .disabled_members ul {
+  margin: 0 0 0 1.5em;
 }

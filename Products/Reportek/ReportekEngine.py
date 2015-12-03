@@ -29,8 +29,9 @@ __doc__ = """
 from path import path
 import tempfile
 import os
-from zipfile import *
+from operator import itemgetter
 from urlparse import urlparse
+from zipfile import *
 import json
 
 # Zope imports
@@ -51,6 +52,9 @@ from copy import copy
 import constants
 from Products.Reportek.ContentRegistryPingger import ContentRegistryPingger
 from Products.Reportek.BdrAuthorizationMiddleware import BdrAuthorizationMiddleware
+from Products.Reportek.RegistryManagement import BaseRegistryAPI
+from Products.Reportek.RegistryManagement import BDRRegistryAPI
+from Products.Reportek.RegistryManagement import FGASRegistryAPI
 import RepUtils
 from Toolz import Toolz
 from DataflowsManager import DataflowsManager
@@ -114,6 +118,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     else:
         cr_api_url = ''
     auth_middleware_url = ''
+    bdr_registry_url = ''
+    bdr_registry_username = ''
+    bdr_registry_password = ''
+    bdr_registry_obligations = []
+    fgas_registry_obligations = []
+    fgas_registry_url = ''
     auth_middleware_recheck_interval = 300
 
     def all_meta_types(self, interfaces=None):
@@ -201,6 +211,17 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     def getDeploymentType(self):
         return Products.Reportek.REPORTEK_DEPLOYMENT
 
+    security.declareProtected(view_management_screens, 'manage_properties')
+    def get_rod_obligations(self):
+        """ Returns a sorted list of obligations from ROD
+        """
+        obligations = [(o.get('uri'), o.get('TITLE')) for o in self.dataflow_rod()]
+        data = []
+
+        if obligations:
+            data = sorted(obligations, key=itemgetter(1))
+        return data
+
     _manage_properties = PageTemplateFile('zpt/engine/prop', globals())
 
     security.declareProtected(view_management_screens, 'manage_properties')
@@ -232,8 +253,13 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.auth_middleware_url = self.REQUEST.get('auth_middleware_url', self.auth_middleware_url)
         if self.auth_middleware_url:
             self.auth_middleware_recheck_interval = int(self.REQUEST.get('auth_middleware_recheck_interval', self.auth_middleware_recheck_interval))
-            self.authMiddlewareApi.setServiceRecheckInterval(self.auth_middleware_recheck_interval)
-            self.authMiddlewareApi.setServiceUrl(self.auth_middleware_url)
+            self.authMiddleware.setServiceRecheckInterval(self.auth_middleware_recheck_interval)
+        self.bdr_registry_url = self.REQUEST.get('bdr_registry_url', self.bdr_registry_url)
+        self.bdr_registry_username = self.REQUEST.get('bdr_registry_username', self.bdr_registry_username)
+        self.bdr_registry_password = self.REQUEST.get('bdr_registry_password', self.bdr_registry_password)
+        self.bdr_registry_obligations = self.REQUEST.get('bdr_registry_obligations', self.bdr_registry_obligations)
+        self.fgas_registry_url = self.REQUEST.get('fgas_registry_url', self.fgas_registry_url)
+        self.fgas_registry_obligations = self.REQUEST.get('fgas_registry_obligations', self.fgas_registry_obligations)
 
         # don't send the completed from back, the values set on self must be used
         return self._manage_properties(manage_tabs_message="Properties changed")
@@ -255,15 +281,38 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             return self._contentRegistryPingger
 
     @property
-    def authMiddlewareApi(self):
+    def authMiddleware(self):
         if not self.auth_middleware_url:
             return None
-        api = getattr(self, '_authMiddlewareApi', None)
+        api = getattr(self, '_authMiddleware', None)
         if api:
             return api
         else:
-            self._authMiddlewareApi = BdrAuthorizationMiddleware(self.auth_middleware_url)
-            return self._authMiddlewareApi
+            self._authMiddleware = BdrAuthorizationMiddleware(self.auth_middleware_url)
+            return self._authMiddleware
+
+    @property
+    def FGASRegistryAPI(self):
+        if not getattr(self, '_FGASRegistryAPI', None):
+            self._FGASRegistryAPI = FGASRegistryAPI('FGAS Registry', self.fgas_registry_url)
+        return self._FGASRegistryAPI
+
+    @property
+    def BDRRegistryAPI(self):
+        if not getattr(self, '_BDRRegistryAPI', None):
+            self._BDRRegistryAPI = BDRRegistryAPI('BDR Registry', self.bdr_registry_url)
+        return self._BDRRegistryAPI
+
+    def get_registry(self, dataflow_uris):
+        registry = ''
+        if dataflow_uris:
+            if dataflow_uris[0] in self.bdr_registry_obligations:
+                registry = 'BDRRegistryAPI'
+            elif dataflow_uris[0] in self.fgas_registry_obligations:
+                registry = 'FGASRegistryAPI'
+                if not getattr(self, '_company_id', None) and getattr(self, 'old_company_id', None):
+                    registry = 'BDRRegistryAPI'
+        return getattr(self, registry, None)
 
     security.declarePublic('getPartsOfYear')
     def getPartsOfYear(self):
@@ -272,6 +321,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
            'First Quarter', 'Second Quarter', 'Third Quarter', 'Fourth Quarter',
            'January','February','March','April', 'May','June','July','August','September','October','November','December']
 
+    security.declareProtected(view_management_screens, 'update_company_collection')
 
     security.declareProtected(view_management_screens, 'change_ownership')
     def change_ownership(self, obj, newuser, deluser):
@@ -286,23 +336,25 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 obj.manage_delLocalRoles(owners)    #delete the old owner
                 obj.manage_setLocalRoles(wrapped_user.getId(),['Owner',])   #set local role to the new user
 
-    if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-        security.declareProtected(view_management_screens, 'update_company_collection')
-        def update_company_collection(self, company_id, domain, country,
-                                    name, old_collection_id=None):
-            """Update information on an existing old-type collection (say, 'fgas30001')
-            mainly setting it's `company_id` (the id internal to Fgas Portal for instance)
-            If no `old_collection_id` is provided then a new collection will be created with
-            id=company_id=provided `company_id`.
-            If `old_collection_id` is provided, the the collection must exist in the expected path
-            deducted from the domain/country/old_collection_id. It's company_id will be updated.
-            If `old_collection_id` does not exist at the expected location nothing will happen."""
-            # form path, make sure it is not absolute, else change the code below to match
+    def update_company_collection(self, company_id, domain, country,
+                                name, old_collection_id=None):
+        """Update information on an existing old-type collection (say, 'fgas30001')
+        mainly setting it's `company_id` (the id internal to Fgas Portal for instance)
+        If no `old_collection_id` is provided then a new collection will be created with
+        id=company_id=provided `company_id`.
+        If `old_collection_id` is provided, the the collection must exist in the expected path
+        deducted from the domain/country/old_collection_id. It's company_id will be updated.
+        If `old_collection_id` does not exist at the expected location nothing will happen."""
+        # form path, make sure it is not absolute, else change the code below to match
+
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
             resp = {'status': 'fail',
                     'message': ''}
-            coll_path = self.authMiddlewareApi.authMiddlewareApi.buildCollectionPath(
+
+            coll_path = self.FGASRegistryAPI.buildCollectionPath(
                     domain, country, company_id, old_collection_id)
+
             if not coll_path:
                 msg = ("Cannot form path to collection, with details domain:"
                     " %s, country: %s, company_id: %s, old_collection_id: %s.") % (
@@ -314,14 +366,13 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 return json.dumps(resp)
 
             path_parts = coll_path.split('/')
-            obligation_id= path_parts[0]
+            obligation_id = path_parts[0]
             country_id = path_parts[1]
             coll_id = path_parts[2]
-            root = self.restrictedTraverse('/')
             try:
-                obligation_folder = getattr(root, obligation_id)
-                country_folder = getattr(obligation_folder, country_id)
-            except:
+                country_folder_path = '/'.join([obligation_id, country_id])
+                country_folder = self.restrictedTraverse(country_folder_path)
+            except KeyError:
                 msg = "Cannot update collection %s. Path to collection does not exist" % coll_path
                 logger.warning(msg)
                 # return 404
@@ -331,25 +382,23 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
             # old type of collection
             if old_collection_id:
-                try:
-                    coll = getattr(country_folder, old_collection_id)
+                coll = getattr(country_folder, old_collection_id, None)
+                if coll:
                     coll.company_id = company_id
-                    coll.dataflow_uris = [ self.authMiddlewareApi.authMiddlewareApi.DOMAIN_TO_OBLIGATION[domain] ]
+                    coll.old_company_id = old_collection_id
+                    coll.dataflow_uris = [ self.FGASRegistryAPI.DOMAIN_TO_OBLIGATION[domain] ]
                     coll.reindex_object()
-                except:
+                else:
                     msg = "Cannot update collection %s Old style collection not found" % coll_path
                     logger.warning(msg)
                     self.REQUEST.RESPONSE.setStatus(404)
                     resp['message'] = msg
                     return json.dumps(resp)
             else:
-                try:
-                    coll = getattr(country_folder, coll_id)
-                except:
-                    # not there, create it
-                    # Don't take obligation from parent as it can be a terminated obligation
+                coll = getattr(country_folder, coll_id, None)
+                if not coll:
                     try:
-                        dataflow_uris = [ self.authMiddlewareApi.authMiddlewareApi.DOMAIN_TO_OBLIGATION[domain] ]
+                        dataflow_uris = [ self.FGASRegistryAPI.DOMAIN_TO_OBLIGATION[domain] ]
                         country_uri = country_folder.country
                         country_folder.manage_addCollection(dataflow_uris=dataflow_uris,
                             country=country_uri,
@@ -370,10 +419,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             resp['status'] = 'success'
             resp['message'] = 'Collection %s updated/created succesfully' % coll_path
             return json.dumps(resp)
-    else:
-        security.declareProtected(view_management_screens, 'update_company_collection')
-        def update_company_collection(self, company_id, domain, country,
-                                  name, old_collection_id=None):
+        else:
             pass
 
     security.declareProtected('View', 'macros')
@@ -1161,8 +1207,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             middleware_collections = []
             logger.debug("Attempt to interrogate middleware for authorizations for user:id %s:%s" % (username, ecas_user_id))
             if ecas_user_id:
-                for colPath in self.authMiddlewareApi.getUserCollectionPaths(ecas_user_id,
-                            recheck_interval=self.authMiddlewareApi.recheck_interval):
+                for colPath in self.authMiddleware.getUserCollectionPaths(ecas_user_id,
+                            recheck_interval=self.authMiddleware.recheck_interval):
                     try:
                         middleware_collections.append(self.unrestrictedTraverse('/'+str(colPath)))
                     except:
