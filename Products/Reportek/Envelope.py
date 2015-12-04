@@ -796,7 +796,16 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     def canAddFeedback(self):
         """ Determine whether or not the current user can add manual feedback """
         hasThisPermission = getSecurityManager().checkPermission
-        return hasThisPermission('Add Feedback', self) and self.released
+
+        request = getattr(self, 'REQUEST', None)
+        can_add_fb = False
+        if request:
+            session = getattr(request, 'SESSION', None)
+            if session:
+                can_add_fb = getattr(session, 'can_add_feeback_before_release',
+                                     False)
+
+        return hasThisPermission('Add Feedback', self) and (self.released or can_add_fb)
 
     security.declarePublic('canEditFeedback')
     def canEditFeedback(self):
