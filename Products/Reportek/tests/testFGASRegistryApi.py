@@ -21,7 +21,7 @@ class FGASRegistryAPITest(ZopeTestCase.ZopeTestCase):
     ]
     """
     def setUp(self):
-        self.api = FGASRegistryAPI(url='http://localhost:5000')
+        self.api = FGASRegistryAPI('FGASRegistryAPI', 'http://localhost:5000')
 
     @patch('requests.get')
     def test_getCollectionPaths(self, req_mock):
