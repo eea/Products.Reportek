@@ -32,6 +32,7 @@ import json
 from types import FunctionType
 from urllib import FancyURLopener
 from webdav.common import rfc1123_date
+from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
 
 def formatException(self, error):

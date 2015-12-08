@@ -15,6 +15,6 @@ setup(
         'requests==1.2.3',
         'plone.memoize',
         'Zope2',
-        'collective.monkeypatcher'
+        'collective.monkeypatcher',
     ],
 )

@@ -3,10 +3,10 @@
 from mock import patch, Mock
 import json
 from Testing import ZopeTestCase
-from Products.Reportek.BdrAuthorizationMiddlewareApi import AuthMiddlewareApi
+from Products.Reportek.RegistryManagement import FGASRegistryAPI
 
 
-class AuthMiddlewareApiTest(ZopeTestCase.ZopeTestCase):
+class FGASRegistryAPITest(ZopeTestCase.ZopeTestCase):
     userDetailInput = u"""
     [{"company_id": 1234,
       "name": "Blă Brul",
@@ -21,7 +21,7 @@ class AuthMiddlewareApiTest(ZopeTestCase.ZopeTestCase):
     ]
     """
     def setUp(self):
-        self.api = AuthMiddlewareApi(url='http://localhost:5000')
+        self.api = FGASRegistryAPI('FGASRegistryAPI', 'http://localhost:5000')
 
     @patch('requests.get')
     def test_getCollectionPaths(self, req_mock):

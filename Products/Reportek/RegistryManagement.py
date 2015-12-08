@@ -1,10 +1,15 @@
-import Products
-from zope.interface import implementer
-from OFS.Folder import Folder
 from AccessControl import ClassSecurityInfo
-
 from interfaces import IRegistryManagement
+from OFS.Folder import Folder
+from OFS.SimpleItem import SimpleItem
+from plone.memoize import ram
+from time import time
+from zope.interface import implementer
+import logging
+import Products
+import requests
 
+logger = logging.getLogger("Reportek")
 
 @implementer(IRegistryManagement)
 class RegistryManagement(Folder):
@@ -17,4 +22,341 @@ class RegistryManagement(Folder):
 
     def all_meta_types(self):
         types = ['Script (Python)', 'Folder', 'Page Template']
-        return [ t for t in Products.meta_types if t['name'] in types ]
+        return [t for t in Products.meta_types if t['name'] in types]
+
+
+class BaseRegistryAPI(SimpleItem):
+
+    TIMEOUT = 20
+
+    def __init__(self, registry_name, url):
+        self.registry_name = registry_name
+        self.baseUrl = url
+
+    def do_api_request(self, url, method='get', data=None, cookies=None,
+                       headers=None, params=None):
+        api_req = requests.get
+        if method == 'post':
+            api_req = requests.post
+
+        try:
+            response = api_req(url, data=data, cookies=cookies, headers=headers,
+                               params=params, verify=False, timeout=self.TIMEOUT)
+        except Exception as e:
+            logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
+            return None
+        if response.status_code != requests.codes.ok:
+            return None
+
+        return response
+
+
+class FGASRegistryAPI(BaseRegistryAPI):
+    DOMAIN_TO_OBLIGATION_FOLDER = {
+        'FGAS': 'fgases',
+    }
+    # TODO: obtain those dynamically rather than hardcode them here
+    DOMAIN_TO_OBLIGATION = {
+        'FGAS': 'http://rod.eionet.europa.eu/obligations/713',
+    }
+    COUNTRY_TO_FOLDER = {
+        'uk': 'gb',
+        'el': 'gr'
+    }
+
+    def get_registry_companies(self, detailed=False):
+        page = 'list-small'
+        if detailed:
+            page = 'list'
+        url_prefix = self.baseUrl + '/undertaking/'
+        url = url_prefix + page
+        response = self.do_api_request(url)
+
+        if response:
+            return response.json()
+
+    @ram.cache(lambda *args, **kwargs: args[2] + str(time() // (60 * 60)))
+    def get_company_details(self, company_id):
+        url = self.baseUrl + '/undertaking/{0}/details'.format(company_id)
+        response = self.do_api_request(url)
+        if response:
+            return response.json()
+
+    def getCompanyDetailsById(self, companyId):
+        details = self.get_company_details(companyId)
+
+        keysToVerify = ['domain', 'address', 'company_id', 'collection_id']
+        if reduce(lambda i, x: i and x in details, keysToVerify, True):
+            path = self.buildCollectionPath(
+                details['domain'],
+                details['country_code'],
+                str(details['company_id']),
+                details['collection_id']
+            )
+            details['path'] = '/' + path
+
+        return details
+
+    def getCollectionPaths(self, username):
+        url = self.baseUrl + '/user/' + username + '/companies'
+        response = self.do_api_request(url)
+        paths = []
+        if response:
+            companies = response.json()
+            for c in companies:
+                try:
+                    path = self.buildCollectionPath(c['domain'], c['country'],
+                                        str(c['company_id']), c['collection_id'])
+                    if not path:
+                        raise ValueError("Cannot form path with company data: %s" % str(c))
+                    paths.append(path)
+                except Exception as e:
+                    logger.warning("Error in company data received from SatelliteRegistry: %s" % repr(e))
+
+        return paths
+
+    def existsCompany(self, params):
+        url = self.baseUrl + '/undertaking/filter/'
+        response = self.do_api_request(url, params=params)
+        if response:
+            return response.json()
+
+    def verifyCandidate(self, companyId, candidateId, userId):
+        # use the right pattern for Api url
+        api_url = self.baseUrl + "/candidate/verify-none/{0}/"
+        if candidateId:
+            api_url = self.baseUrl + "/candidate/verify/{0}/{1}/"
+
+        api_url = api_url.format(companyId, candidateId)
+        response = self.do_api_request(api_url,
+                                       data={'user': userId},
+                                       method="post")
+        if response:
+            if response.status_code == requests.codes.ok:
+                data = response.json()
+                if 'verified' in data and data['verified']:
+                    return True
+            return False
+
+    def getCandidates(self):
+        url = self.baseUrl + '/candidate/list'
+        response = self.do_api_request(url)
+        if response:
+            return response.json()
+
+    def getUsers(self):
+        url = self.baseUrl + '/user/list'
+        response = self.do_api_request(url)
+        if response:
+            return response.json()
+
+    def getMatchingLog(self):
+        url = self.baseUrl + '/matching_log'
+        response = self.do_api_request(url)
+        if response:
+            return response.json()
+
+    def getDataSyncLog(self):
+        url = self.baseUrl + '/data_sync_log'
+        response = self.do_api_request(url)
+        if response:
+            return response.json()
+
+    def unverifyCompany(self, companyId, userId):
+        co = self.get_company_details(companyId)
+        if co:
+            url = self.baseUrl + '/candidate/unverify/{0}/'.format(companyId)
+            data = {'user': userId}
+            response = self.do_api_request(url, data=data, method="post")
+            if response:
+                unverifyResponse = response.json()
+                if not unverifyResponse:
+                    return None
+                # unverify succeeded; proceed with unLock an email alerts
+                path = self._unlockCompany(str(companyId), co['oldcompany_account'],
+                                           co['country_code'], co['domain'], userId)
+                email_sending_failed = False
+                url = self.baseUrl + '/misc/alert_lockdown/unmatch'
+                data = {
+                    'company_id': companyId,
+                    'user': userId,
+                    'oldcompany_id': co['oldcompany_id'],
+                    'oldcollection_path': path
+                }
+                response = self.do_api_request(url, data=data, method="post")
+                if not response:
+                    email_sending_failed = True
+                if email_sending_failed:
+                    logger.warning("Lockdown notification emails of %s not sent" % path)
+
+                return unverifyResponse
+
+    def getCompaniesExcelExport(self):
+        url = self.baseUrl + '/misc/undertaking/export'
+        response = self.do_api_request(url)
+
+        return response
+
+    def getUsersExcelExport(self):
+        url = self.baseUrl + '/misc/user/export'
+        response = self.do_api_request(url)
+
+        return response
+
+    def getSettings(self):
+        url = self.baseUrl + '/misc/settings'
+        response = self.do_api_request(url)
+        if response:
+            return response.json()
+
+    def getAllEmails(self):
+        url = self.baseUrl + '/misc/mail/list'
+        response = self.do_api_request(url)
+        if response:
+            return response.json()
+
+    def addEmail(self, first_name, last_name, email):
+        url = self.baseUrl + '/misc/mail/add'
+        data = {
+            'mail': email,
+            'first_name': first_name,
+            'last_name': last_name
+        }
+        response = self.do_api_request(url, data=data, method='post')
+        if response:
+            return response.json()
+
+    def delEmail(self, email):
+        url = self.baseUrl + '/misc/mail/delete'
+        data = {
+            'mail': email
+        }
+        response = self.do_api_request(url, data=data, method='post')
+        if response:
+            return response.json()
+
+    def lockDownCompany(self, company_id, old_collection_id, country_code, domain, user):
+        path = self.buildCollectionPath(domain, country_code, str(company_id), old_collection_id)
+        bdrAuth = self.authMiddleware
+        bdrAuth.lockDownCollection(path, user)
+        email_sending_failed = False
+        url = self.baseUrl + '/misc/alert_lockdown/wrong_match'
+        data = {
+            'company_id': company_id,
+            'user': user
+        }
+        response = self.do_api_request(url, data=data, method='post')
+        if not response:
+            email_sending_failed = True
+        if email_sending_failed:
+            logger.warning("Lockdown notification emails of %s not sent" % path)
+
+
+    def _unlockCompany(self, company_id, old_collection_id, country_code, domain, user):
+        path = self.buildCollectionPath(domain, country_code, str(company_id), old_collection_id)
+        bdrAuth = self.authMiddleware
+        bdrAuth.unlockCollection(path, user)
+        return path
+
+    def unlockCompany(self, company_id, old_collection_id, country_code, domain, user):
+        path = self._unlockCompany(company_id, old_collection_id, country_code, domain, user)
+
+        email_sending_failed = False
+        url = self.baseUrl + '/misc/alert_lockdown/wrong_lockdown'
+        data = {
+            'company_id': company_id,
+            'user': user
+        }
+        response = self.do_api_request(url, data=data, method='post')
+        if not response:
+            email_sending_failed = True
+
+        if email_sending_failed:
+            logger.warning("Lockdown notification emails of %s not sent" % path)
+
+
+    def lockedCompany(self, company_id, old_collection_id, country_code, domain):
+        path = self.buildCollectionPath(domain, country_code, str(company_id), old_collection_id)
+        bdrAuth = self.authMiddleware
+        return bdrAuth.lockedCollection(path)
+
+    @classmethod
+    def getCountryFolder(cls, country_code):
+        country_code = country_code.lower()
+        return cls.COUNTRY_TO_FOLDER.get(country_code, country_code)
+
+    @classmethod
+    def buildCollectionPath(cls, domain, country_code, company_id, old_collection_id=None):
+        obligation_folder = cls.DOMAIN_TO_OBLIGATION_FOLDER.get(domain)
+        if not obligation_folder:
+            return None
+        country_folder = cls.getCountryFolder(country_code)
+        collection_folder = old_collection_id if old_collection_id else company_id
+        return '/'.join([obligation_folder, country_folder, collection_folder])
+
+
+class BDRRegistryAPI(BaseRegistryAPI):
+
+    def do_login(self):
+        """ Login to BDR Registry. Credentials come from
+            ReportekEngine properties
+        """
+        url = self.baseUrl + '/accounts/login'
+
+        client = requests.session()
+
+        csrf = client.get(url).cookies.get('csrftoken')
+        engine = self.getEngine()
+
+        data = {
+            'username': getattr(engine, 'bdr_registry_username', ''),
+            'password': getattr(engine, 'bdr_registry_password', ''),
+            'csrfmiddlewaretoken': csrf,
+            'next': '/'
+        }
+        resp = client.post(url, data=data, headers=dict(Referer=url))
+        if resp:
+            if resp.status_code == 200:
+                # I see no other way of getting the sessionid
+                cookies = resp.request.headers.get('Cookie').split(';')
+                for cookie in cookies:
+                    cookie = cookie.strip()
+                    session = cookie.split('sessionid=')
+                    if len(session) == 2:
+                        sessionid = session[-1]
+                        self.cookies = dict(sessionid=sessionid)
+                        return self.cookies
+
+
+    def do_api_request(self, url, method='get', data=None, cookies=None, headers=None, params=None):
+        """ Do login to BDR Registry before api calls
+        """
+        if not cookies:
+            cookies = self.do_login()
+
+        return super(BDRRegistryAPI, self).do_api_request(url,
+                                                          method=method,
+                                                          data=data,
+                                                          cookies=cookies,
+                                                          headers=headers,
+                                                          params=params
+                                                          )
+
+    def get_registry_companies(self):
+        """ Get the list of companies from the Registry
+        """
+        url = self.baseUrl + '/management/companies/export/json'
+
+        response = self.do_api_request(url)
+        if response:
+            return response.json()
+
+    @ram.cache(lambda *args, **kwargs: args[2] + str(time() // (60 * 60)))
+    def get_company_details(self, company_id):
+        """ Get company details from Registry
+        """
+        url = self.baseUrl + '/management/companies/account/{0}'.format(company_id)
+        response = self.do_api_request(url)
+
+        if response:
+            return response.json()

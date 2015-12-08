@@ -81,7 +81,7 @@ class ListUsers(BaseAdmin):
     def get_middleware(self):
         engine = self.context.unrestrictedTraverse('/'+ENGINE_ID, None)
         if engine:
-            return engine.authMiddlewareApi
+            return engine.authMiddleware
 
     def is_ldap_user(self, username):
         acl_users = self.context.acl_users
@@ -89,7 +89,7 @@ class ListUsers(BaseAdmin):
             ldap_users = acl_users.ldapmultiplugin.acl_users
             user_ob = ldap_users.getUserById(username)
             if user_ob:
-                return True
+                return user_ob
 
     def is_ecas_user(self, username):
         ecas_path = '/acl_users/' + ECAS_ID
