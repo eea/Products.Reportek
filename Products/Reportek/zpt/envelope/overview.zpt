@@ -12,7 +12,7 @@
       </tal:block>
         <li><a href="envelope_zip" rel="nofollow" title="Download zipped envelope with available files"
                i18n:attributes="title"
-               i18n:translate="">Zip&nbsp;Envelope</a></li>
+               i18n:translate="">Zip envelope</a></li>
       <div tal:replace="structure python:context.activity_operations(REQUEST=context.REQUEST)"/>
     </ul>
   </div>

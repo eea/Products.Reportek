@@ -152,11 +152,9 @@ class Collection(CatalogAware, Folder, Toolz):
 
         if self.allow_collections:
             y.append({'name': 'Report Collection', 'action': 'manage_addCollectionForm', 'permission': 'Add Collections'})
-            types.append('Repository Referral')
         if self.allow_envelopes:
-            y.append({'name': 'Report Envelope', 'action': 'manage_addEnvelopeForm', 'permission': 'Add Envelopes'})
-            if not self.allow_collections:
-                types.append('Repository Referral')
+            y.append({'name': 'Report Envelope', 'action': 'manage_addEnvelopeForm', 'permission': 'Add Envelopes'},
+                {'name': 'Repository Referral', 'action': 'manage_addReferralForm', 'permission': 'Add Envelopes'})
 
         for x in Products.meta_types:
             if x['name'] in types:
