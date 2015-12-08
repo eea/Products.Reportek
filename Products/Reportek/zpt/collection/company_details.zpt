@@ -50,3 +50,4 @@
 
   </table>
 </div>
+<tal:block content="structure here/standard_html_footer" />
