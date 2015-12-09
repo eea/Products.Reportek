@@ -261,6 +261,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.fgas_registry_url = self.REQUEST.get('fgas_registry_url', self.fgas_registry_url)
         self.fgas_registry_obligations = self.REQUEST.get('fgas_registry_obligations', self.fgas_registry_obligations)
 
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            self.BDRRegistryAPI.set_base_url(self.bdr_registry_url)
+            self.FGASRegistryAPI.set_base_url(self.fgas_registry_url)
+
         # don't send the completed from back, the values set on self must be used
         return self._manage_properties(manage_tabs_message="Properties changed")
 
