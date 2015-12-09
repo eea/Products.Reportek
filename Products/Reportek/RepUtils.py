@@ -532,9 +532,12 @@ def fix_json_from_id(obj):
         'highleveluses': 'highLevelUses'
     }, obj['businessProfile'])
 
+    obj['portal_registration_date'] = obj.get('date_created')
+
     # Delete unused keys
-    unused = ['country_code', 'date_created', 'date_updated', 'candidates', 'collection_id',
-              'oldcompany_verified', 'oldcompany_extid', 'oldcompany_id']
+    unused = ['country_code', 'date_created', 'date_updated', 'candidates',
+              'collection_id', 'oldcompany_verified', 'oldcompany_extid',
+              'oldcompany_id']
     for key in unused:
         obj.pop(key, None)
 
