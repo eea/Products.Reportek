@@ -31,6 +31,7 @@ from AccessControl.Permissions import manage_users
 from AccessControl.requestmethod import requestmethod
 from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
+from datetime import datetime
 from OFS.Folder import Folder
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import permission_manage_properties_collections
@@ -598,16 +599,20 @@ class Collection(CatalogAware, Folder, Toolz):
             company
         """
         data = self.get_company_data()
+
         if data:
             reg_date = data.get('date_registered')
+            strftime = '%Y-%m-%d %H:%M:%S'
             if not reg_date:
                 reg_date = data.get('date_created')
-            try:
-                portal_registration_date = DateTime(reg_date)
-            except:
-                portal_registration_date = None
+                strftime = '%d/%m/%Y'
 
-            return portal_registration_date
+            try:
+                pr_date = DateTime(datetime.strptime(reg_date, strftime))
+            except ValueError:
+                pr_date = None
+
+            return pr_date
 
     def is_valid(self):
         """ Return False if BDR deployment and associated company status is

@@ -33,6 +33,9 @@ class BaseRegistryAPI(SimpleItem):
         self.registry_name = registry_name
         self.baseUrl = url
 
+    def set_base_url(self, url):
+        self.baseUrl = url
+
     def do_api_request(self, url, method='get', data=None, cookies=None,
                        headers=None, params=None):
         api_req = requests.get

@@ -449,7 +449,7 @@ class RemoteApplication(SimpleItem):
                         activity_id=l_workitem.activity_id,
                         automatic=1,
                         document_id=l_file_id,
-                        feedback_status=l_ret.get('FEEDBACK_STATUS', 'NOGO'))
+                        feedback_status=l_ret.get('FEEDBACK_STATUS', ''))
                 feedback_ob = envelope[feedback_id]
 
                 content = l_ret['VALUE']

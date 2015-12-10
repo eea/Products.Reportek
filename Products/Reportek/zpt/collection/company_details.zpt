@@ -18,6 +18,11 @@
     </tr>
 
     <tr>
+      <th i18n:translate="">Company ID</th>
+      <td tal:content="here/company_id" />
+    </tr>
+
+    <tr>
       <th i18n:translate="">Status</th>
       <td tal:content="company/status" />
     </tr>

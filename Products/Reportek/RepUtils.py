@@ -34,6 +34,8 @@ from urllib import FancyURLopener
 from webdav.common import rfc1123_date
 from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
+from datetime import datetime
+
 
 def formatException(self, error):
      """
@@ -532,9 +534,19 @@ def fix_json_from_id(obj):
         'highleveluses': 'highLevelUses'
     }, obj['businessProfile'])
 
+    date_created = obj.get('date_created')
+    if date_created:
+        try:
+            pr_date = datetime.strptime(date_created, '%d/%m/%Y').isoformat()
+        except ValueError:
+            pr_date = None
+
+        obj['portal_registration_date'] = pr_date
+
     # Delete unused keys
-    unused = ['country_code', 'date_created', 'date_updated', 'candidates', 'collection_id',
-              'oldcompany_verified', 'oldcompany_extid', 'oldcompany_id']
+    unused = ['country_code', 'date_created', 'date_updated', 'candidates',
+              'collection_id', 'oldcompany_verified', 'oldcompany_extid',
+              'oldcompany_id']
     for key in unused:
         obj.pop(key, None)
 
