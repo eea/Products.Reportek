@@ -57,8 +57,8 @@
             <h1>Search dataflow</h1>
 
             <tal:block define="view nocall:here/ReportekUtilities/filters">
-                <h2>1. Select obligation</h2>
-                <tal:block metal:use-macro="view/macros/select-obligation"/>
+                <h2>1. Select obligations</h2>
+                <tal:block metal:use-macro="view/macros/select-obligations"/>
 
                 <h2>2. Select one or more countries</h2>
                 <tal:block metal:use-macro="view/macros/countries"/>
