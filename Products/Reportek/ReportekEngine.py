@@ -43,6 +43,7 @@ from App.config import getConfiguration
 from config import *
 import Globals
 import Products
+import xlwt
 import xmlrpclib
 from DateTime import DateTime
 from time import time, strftime
@@ -517,55 +518,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 envelopeObjects.append(o)
         return self._searchdataflow(results=envelopeObjects, **self.REQUEST.form)
 
-    security.declareProtected('View', 'search_dataflow_url')
-    def search_dataflow_url(self):
-        """Search the ZCatalog for Report Envelopes,
-        show results and keep displaying the form """
-
-        catalog_args = {
-            'meta_type': ['Report Envelope', 'Repository Referral'],
-        }
-
-        status = self.REQUEST.get('release_status')
-        if status == 'anystatus':
-            catalog_args.pop('released', None)
-        elif status == 'released':
-            catalog_args['released'] = 1
-        elif status == 'notreleased':
-            catalog_args['released'] = 0
-        else:
-            return json.dumps([])
-
-        if self.REQUEST.get('query_start'):
-            catalog_args['start'] = self.REQUEST['query_start']
-        if self.REQUEST.get('obligation'):
-            obl = self.REQUEST.get('obligation')
-            obl = filter(lambda c: c.get('PK_RA_ID') == obl, self.dataflow_rod())[0]
-            catalog_args['dataflow_uris'] = [obl['uri']]
-        if self.REQUEST.get('countries'):
-            isos = self.REQUEST.get('countries')
-            countries = filter(lambda c: c.get('iso') in isos, self.localities_rod())
-            catalog_args['country'] = [country['uri'] for country in countries]
-        if self.REQUEST.get('years'):
-            catalog_args['years'] = self.REQUEST['years']
-        if self.REQUEST.get('partofyear'):
-            catalog_args['partofyear'] = self.REQUEST['partofyear']
-
-        reportingdate_start = self.REQUEST.get('reportingdate_start')
-        reportingdate_end = self.REQUEST.get('reportingdate_end')
-        dateRangeQuery = {}
-        if reportingdate_start and reportingdate_end:
-            dateRangeQuery['range'] = 'min:max'
-            dateRangeQuery['query'] = [reportingdate_start, reportingdate_end]
-        elif reportingdate_start:
-            dateRangeQuery['range'] = 'min'
-            dateRangeQuery['query'] = reportingdate_start
-        elif reportingdate_end:
-            dateRangeQuery['range'] = 'max'
-            dateRangeQuery['query'] = reportingdate_end
-        if dateRangeQuery:
-            catalog_args['reportingdate'] = dateRangeQuery
-
+    security.declareProtected('View', 'get_envelopes')
+    def get_envelopes(self, catalog_args):
         envelopes = self.Catalog(**catalog_args)
         envelopeObjects = []
         for eBrain in envelopes:
@@ -622,7 +576,58 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     'accepted': accepted
                 })
 
-        return json.dumps(envelopeObjects)
+        return envelopeObjects
+
+    security.declareProtected('View', 'search_dataflow_url')
+    def search_dataflow_url(self):
+        """Search the ZCatalog for Report Envelopes,
+        show results and keep displaying the form """
+
+        catalog_args = {
+            'meta_type': ['Report Envelope', 'Repository Referral'],
+        }
+
+        status = self.REQUEST.get('release_status')
+        if status == 'anystatus':
+            catalog_args.pop('released', None)
+        elif status == 'released':
+            catalog_args['released'] = 1
+        elif status == 'notreleased':
+            catalog_args['released'] = 0
+        else:
+            return json.dumps([])
+
+        if self.REQUEST.get('query_start'):
+            catalog_args['start'] = self.REQUEST['query_start']
+        if self.REQUEST.get('obligation'):
+            obl = self.REQUEST.get('obligation')
+            obl = filter(lambda c: c.get('PK_RA_ID') == obl, self.dataflow_rod())[0]
+            catalog_args['dataflow_uris'] = [obl['uri']]
+        if self.REQUEST.get('countries'):
+            isos = self.REQUEST.get('countries')
+            countries = filter(lambda c: c.get('iso') in isos, self.localities_rod())
+            catalog_args['country'] = [country['uri'] for country in countries]
+        if self.REQUEST.get('years'):
+            catalog_args['years'] = self.REQUEST['years']
+        if self.REQUEST.get('partofyear'):
+            catalog_args['partofyear'] = self.REQUEST['partofyear']
+
+        reportingdate_start = self.REQUEST.get('reportingdate_start')
+        reportingdate_end = self.REQUEST.get('reportingdate_end')
+        dateRangeQuery = {}
+        if reportingdate_start and reportingdate_end:
+            dateRangeQuery['range'] = 'min:max'
+            dateRangeQuery['query'] = [reportingdate_start, reportingdate_end]
+        elif reportingdate_start:
+            dateRangeQuery['range'] = 'min'
+            dateRangeQuery['query'] = reportingdate_start
+        elif reportingdate_end:
+            dateRangeQuery['range'] = 'max'
+            dateRangeQuery['query'] = reportingdate_end
+        if dateRangeQuery:
+            catalog_args['reportingdate'] = dateRangeQuery
+
+        return json.dumps(self.get_envelopes(catalog_args))
 
     def assign_roles(self, user, role, local_roles, doc):
         local_roles.append(role)
@@ -1246,5 +1251,74 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         def getUserCollections(self):
             raise RuntimeError('Method not allowed on this distribution.')
 
+    def xls_export(self, catalog_args=None):
+        """ TODO
+        """
+        if not catalog_args:
+            catalog_args = {
+                'meta_type': ['Report Envelope', 'Repository Referral'],
+            }
+
+            status = self.REQUEST.get('release_status')
+            if status == 'anystatus':
+                catalog_args.pop('released', None)
+            elif status == 'released':
+                catalog_args['released'] = 1
+            elif status == 'notreleased':
+                catalog_args['released'] = 0
+            else:
+                return json.dumps([])
+
+            if self.REQUEST.get('query_start'):
+                catalog_args['start'] = self.REQUEST['query_start']
+            if self.REQUEST.get('obligation'):
+                obl = self.REQUEST.get('obligation')
+                obl = filter(lambda c: c.get('PK_RA_ID') == obl, self.dataflow_rod())[0]
+                catalog_args['dataflow_uris'] = [obl['uri']]
+            if self.REQUEST.get('countries'):
+                isos = self.REQUEST.get('countries')
+                countries = filter(lambda c: c.get('iso') in isos, self.localities_rod())
+                catalog_args['country'] = [country['uri'] for country in countries]
+            if self.REQUEST.get('years'):
+                catalog_args['years'] = self.REQUEST['years']
+            if self.REQUEST.get('partofyear'):
+                catalog_args['partofyear'] = self.REQUEST['partofyear']
+
+            reportingdate_start = self.REQUEST.get('reportingdate_start')
+            reportingdate_end = self.REQUEST.get('reportingdate_end')
+            dateRangeQuery = {}
+            if reportingdate_start and reportingdate_end:
+                dateRangeQuery['range'] = 'min:max'
+                dateRangeQuery['query'] = [reportingdate_start, reportingdate_end]
+            elif reportingdate_start:
+                dateRangeQuery['range'] = 'min'
+                dateRangeQuery['query'] = reportingdate_start
+            elif reportingdate_end:
+                dateRangeQuery['range'] = 'max'
+                dateRangeQuery['query'] = reportingdate_end
+            if dateRangeQuery:
+                catalog_args['reportingdate'] = dateRangeQuery
+
+        envelopeObjects = self.get_envelopes(catalog_args)
+        if envelopeObjects:
+            wk = xlwt.Workbook()
+            sheet = wk.add_sheet('Search results')
+            for obj in envelopeObjects:
+                idx = envelopeObjects.index(obj)
+                keys = obj.keys()
+                # FIXME
+                for key in keys:
+                    if idx == 0:
+                        sheet.write(idx, keys.index(key), key)
+                    else:
+                        try:
+                            sheet.write(idx, keys.index(key), obj.get(key).encode('utf-8'))
+                        except:
+                            pass
+
+            self.REQUEST.response.setHeader('Content-Type', 'application/vnd.ms-excel')
+            self.REQUEST.response.setHeader('Content-Disposition',' attachment; filename=search_results.xls')
+            wk.save(self.REQUEST.response)
+            return self.REQUEST.response
 
 Globals.InitializeClass(ReportekEngine)
