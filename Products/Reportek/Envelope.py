@@ -43,8 +43,10 @@ from Products.PythonScripts.standard import url_quote
 from zExceptions import Forbidden
 from DateTime import DateTime
 from DateTime.interfaces import SyntaxError
+from StringIO import StringIO
 from ZPublisher.Iterators import filestream_iterator
 import logging
+import xlwt
 logger = logging.getLogger("Reportek")
 
 # Product specific imports
@@ -61,6 +63,7 @@ import zip_content
 from zope.interface import implements
 from interfaces import IEnvelope
 from paginator import DiggPaginator, EmptyPage, InvalidPage
+from Products.Reportek.config import XLS_HEADINGS
 import transaction
 
 
@@ -1227,6 +1230,101 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         res.append('</rdf:RDF>')
         return '\n'.join(res)
 
+    security.declareProtected('View', 'get_files_info')
+    def get_files_info(self):
+        files = []
+        for fileObj in self.objectValues('Report Document'):
+            files.append(fileObj.absolute_url_path())
+
+        return files
+
+    security.declareProtected('View', 'get_export_data')
+    def get_export_data(self, format='xls'):
+        """ Return data for export
+        """
+        env_data = {}
+        if format == 'xls':
+            accepted = True
+            for fileObj in self.objectValues('Report Feedback'):
+                no_delivery_msgs = ("Data delivery was not acceptable",
+                                    "Non-acceptance of F-gas report")
+                if fileObj.title in no_delivery_msgs:
+                    accepted = False
+
+            company_id = '-'
+            if (hasattr(self.aq_parent, 'company_id')):
+                company_id = self.aq_parent.company_id
+
+            obligations = self.getObligations()
+
+            env_data = {
+                'company_id': company_id,
+                'released': self.released,
+                'path': self.absolute_url_path(),
+                'country': self.getCountryName(),
+                'company': self.aq_parent.title,
+                'userid': self.aq_parent.id,
+                'title': self.title,
+                'id': self.id,
+                'years': "{0}-{1}".format(self.year, self.endyear),
+                'end_year': self.endyear,
+                'reported': self.reportingdate.strftime('%Y-%m-%d'),
+                'files': self.get_files_info(),
+                'obligation': obligations[0] if obligations else "Unknown",
+                'accepted': accepted
+            }
+
+        return env_data
+
+    security.declareProtected('View', 'write_xls_header')
+    def write_xls_header(self, sheet):
+        """ Write the xls header
+        """
+        for head in XLS_HEADINGS:
+            column = XLS_HEADINGS.index(head)
+            sheet.write(0, column, head[0])
+            yield head[1], column
+
+    security.declareProtected('View', 'write_xls_data')
+    def write_xls_data(self, data, sheet, header, row):
+        """ Write envelope data to sheet
+        """
+        for key in header.keys():
+            value = data.get(key)
+            if isinstance(value, list):
+                value = ",".join(value)
+            sheet.write(row, header.get(key), value)
+
+    security.declareProtected('View', 'xls')
+    def xls(self):
+        """ xls export view
+        """
+        wb = xlwt.Workbook()
+        sheet = wb.add_sheet('Envelope')
+        data = self.get_export_data()
+        ordered_keys = [elem[1] for elem in XLS_HEADINGS]
+        if data:
+            header = dict(self.write_xls_header(sheet))
+            self.write_xls_data(data, sheet, header, 1)
+
+        return self.download_xls(wb)
+
+    security.declareProtected('View', 'download_xls')
+    def download_xls(self, wb):
+        """ Return an .xls file
+        """
+        xls = StringIO()
+        wb.save(xls)
+        xls.seek(0)
+        filename = 'envelope-{0}.xls'.format(self.id)
+        self.REQUEST.response.setHeader(
+            'Content-type', 'application/vnd.ms-excel; charset=utf-8'
+        )
+        self.REQUEST.response.setHeader(
+            'Content-Disposition', 'attachment; filename={0}'.format(filename)
+        )
+
+        return xls.read()
 
     ##################################################
     # documents accepted status functions

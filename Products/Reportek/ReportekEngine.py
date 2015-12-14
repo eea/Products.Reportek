@@ -549,7 +549,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     try:
                         countryName = obj.localities_dict()[obj.country]['name']
                     except KeyError:
-                        countryName = "Unknowm"
+                        countryName = "Unknown"
 
                 reported = obj.bobobase_modification_time()
                 if obj.meta_type == 'Report Envelope':

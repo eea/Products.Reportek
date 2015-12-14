@@ -24,6 +24,7 @@ __all__ = [
     'LOCAL_CONVERTERS_PORT',
     'LOCAL_CONVERTERS_HOST',
     'LOCAL_CONVERTERS_SCHEME',
+    'XLS_HEADINGS'
 ]
 
 DEPLOYMENT_CDR = 'CDR'
@@ -47,3 +48,17 @@ if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
     REDIS_HOSTNAME = os.environ.get('REDIS_HOSTNAME', 'localhost')
     REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
     __all__.extend(['REDIS_DATABASE', 'REDIS_HOSTNAME', 'REDIS_PORT'])
+
+XLS_HEADINGS = [
+    ('Company ID', 'company_id'),
+    ('Country', 'country'),
+    ('Company', 'company'),
+    ('User ID', 'userid'),
+    ('Title', 'title'),
+    ('URL', 'path'),
+    ('Years', 'years'),
+    ('Obligation', 'obligation'),
+    ('Reported', 'reported'),
+    ('Files', 'files'),
+    ('Accepted', 'accepted')
+]
