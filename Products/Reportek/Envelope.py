@@ -1255,16 +1255,16 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             if (hasattr(self.aq_parent, 'company_id')):
                 company_id = self.aq_parent.company_id
 
-            obligations = self.getObligations()
+            obligations = [obl[0] for obl in self.getObligations()]
 
             env_data = {
                 'company_id': company_id,
                 'released': self.released,
                 'path': self.absolute_url_path(),
                 'country': self.getCountryName(),
-                'company': self.aq_parent.title,
+                'company': self.aq_parent.title.decode('utf-8'),
                 'userid': self.aq_parent.id,
-                'title': self.title,
+                'title': self.title.decode('utf-8'),
                 'id': self.id,
                 'years': "{0}-{1}".format(self.year, self.endyear),
                 'end_year': self.endyear,
@@ -1276,55 +1276,20 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
         return env_data
 
-    security.declareProtected('View', 'write_xls_header')
-    def write_xls_header(self, sheet):
-        """ Write the xls header
-        """
-        for head in XLS_HEADINGS:
-            column = XLS_HEADINGS.index(head)
-            sheet.write(0, column, head[0])
-            yield head[1], column
-
-    security.declareProtected('View', 'write_xls_data')
-    def write_xls_data(self, data, sheet, header, row):
-        """ Write envelope data to sheet
-        """
-        for key in header.keys():
-            value = data.get(key)
-            if isinstance(value, list):
-                value = ",".join(value)
-            sheet.write(row, header.get(key), value)
-
     security.declareProtected('View', 'xls')
     def xls(self):
         """ xls export view
         """
+        engine = getattr(self, ENGINE_ID)
         wb = xlwt.Workbook()
         sheet = wb.add_sheet('Envelope')
-        data = self.get_export_data()
-        ordered_keys = [elem[1] for elem in XLS_HEADINGS]
-        if data:
-            header = dict(self.write_xls_header(sheet))
-            self.write_xls_data(data, sheet, header, 1)
-
-        return self.download_xls(wb)
-
-    security.declareProtected('View', 'download_xls')
-    def download_xls(self, wb):
-        """ Return an .xls file
-        """
-        xls = StringIO()
-        wb.save(xls)
-        xls.seek(0)
         filename = 'envelope-{0}.xls'.format(self.id)
-        self.REQUEST.response.setHeader(
-            'Content-type', 'application/vnd.ms-excel; charset=utf-8'
-        )
-        self.REQUEST.response.setHeader(
-            'Content-Disposition', 'attachment; filename={0}'.format(filename)
-        )
+        data = self.get_export_data()
+        if data:
+            header = dict(RepUtils.write_xls_header(sheet))
+            RepUtils.write_xls_data(data, sheet, header, 1)
 
-        return xls.read()
+        return engine.download_xls(wb, filename)
 
     ##################################################
     # documents accepted status functions

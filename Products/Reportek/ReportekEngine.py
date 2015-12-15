@@ -32,6 +32,7 @@ import os
 from operator import itemgetter
 from urlparse import urlparse
 from zipfile import *
+from StringIO import StringIO
 import json
 
 # Zope imports
@@ -1299,26 +1300,35 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             if dateRangeQuery:
                 catalog_args['reportingdate'] = dateRangeQuery
 
-        envelopeObjects = self.get_envelopes(catalog_args)
-        if envelopeObjects:
-            wk = xlwt.Workbook()
-            sheet = wk.add_sheet('Search results')
-            for obj in envelopeObjects:
-                idx = envelopeObjects.index(obj)
-                keys = obj.keys()
-                # FIXME
-                for key in keys:
-                    if idx == 0:
-                        sheet.write(idx, keys.index(key), key)
-                    else:
-                        try:
-                            sheet.write(idx, keys.index(key), obj.get(key).encode('utf-8'))
-                        except:
-                            pass
+        brains = self.Catalog(**catalog_args)
+        if brains:
+            wb = xlwt.Workbook()
+            sheet = wb.add_sheet('Results')
+            header = dict(RepUtils.write_xls_header(sheet))
+            idx = 1  # Start from row 1
+            for brain in brains:
+                obj = brain.getObject()
+                data = obj.get_export_data()
+                RepUtils.write_xls_data(data, sheet, header, idx)
+                idx += 1
 
-            self.REQUEST.response.setHeader('Content-Type', 'application/vnd.ms-excel')
-            self.REQUEST.response.setHeader('Content-Disposition',' attachment; filename=search_results.xls')
-            wk.save(self.REQUEST.response)
-            return self.REQUEST.response
+            return self.download_xls(wb, 'searchresults.xls')
+
+    security.declareProtected('View', 'download_xls')
+    def download_xls(self, wb, filename):
+        """ Return an .xls file
+        """
+        xls = StringIO()
+        wb.save(xls)
+        xls.seek(0)
+
+        self.REQUEST.response.setHeader(
+            'Content-type', 'application/vnd.ms-excel; charset=utf-8'
+        )
+        self.REQUEST.response.setHeader(
+            'Content-Disposition', 'attachment; filename={0}'.format(filename)
+        )
+
+        return xls.read()
 
 Globals.InitializeClass(ReportekEngine)

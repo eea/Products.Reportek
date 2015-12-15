@@ -16,7 +16,7 @@
       <div tal:replace="structure python:context.activity_operations(REQUEST=context.REQUEST)"/>
     </ul>
   </div>
-
+  <span tal:content="python:context.title"/>
   <h1 tal:content="python:context.title_or_id()"></h1>
 
   <div class="metadata">
