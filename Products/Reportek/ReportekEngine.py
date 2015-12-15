@@ -1235,6 +1235,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         def getUserCollections(self):
             raise RuntimeError('Method not allowed on this distribution.')
 
+    security.declareProtected('View', 'xls_export')
     def xls_export(self, catalog_args=None):
         """ XLS Export for catalog results
         """
