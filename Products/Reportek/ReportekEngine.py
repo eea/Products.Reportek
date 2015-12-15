@@ -457,19 +457,13 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declareProtected('View', 'search_dataflow')
     search_dataflow = PageTemplateFile('zpt/search_dataflow', globals())
 
-    security.declareProtected('View', 'searchdataflow')
-    def searchdataflow(self):
-        """Search the ZCatalog for Report Envelopes,
-        show results and keep displaying the form """
-        # show the initial default populated
-        if 'sort_on' not in self.REQUEST:
-            return self._searchdataflow()
-
-        # make sure fields you are not searching for are not included
-        # in the query, not even with '' or None values
+    def get_query_args(self):
+        """ Make a Catalog query object from the form in the REQUEST
+        """
         catalog_args = {
             'meta_type': ['Report Envelope', 'Repository Referral']
         }
+
         status = self.REQUEST.get('release_status')
         if status == 'anystatus':
             catalog_args.pop('released', None)
@@ -478,9 +472,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         elif status == 'notreleased':
             catalog_args['released'] = 0
         else:
-            # FIXME this stops the view but does not display a proper error
-            self.REQUEST.RESPONSE.setStatus(400, 'bla')
-            return self.REQUEST.RESPONSE
+            return
 
         if self.REQUEST.get('query_start'):
             catalog_args['start'] = self.REQUEST['query_start']
@@ -511,6 +503,21 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             dateRangeQuery['query'] = reportingdate_end
         if dateRangeQuery:
             catalog_args['reportingdate'] = dateRangeQuery
+
+        return catalog_args
+
+    security.declareProtected('View', 'searchdataflow')
+    def searchdataflow(self):
+        """Search the ZCatalog for Report Envelopes,
+        show results and keep displaying the form """
+        # show the initial default populated
+        if 'sort_on' not in self.REQUEST:
+            return self._searchdataflow()
+
+        catalog_args = self.get_query_args()
+        if not catalog_args:
+            return
+
         envelopes = self.Catalog(**catalog_args)
         envelopeObjects = []
         for eBrain in envelopes:
@@ -519,63 +526,68 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 envelopeObjects.append(o)
         return self._searchdataflow(results=envelopeObjects, **self.REQUEST.form)
 
-    security.declareProtected('View', 'get_envelopes')
-    def get_envelopes(self, catalog_args):
-        envelopes = self.Catalog(**catalog_args)
+    security.declareProtected('View', 'get_df_objects')
+    def get_df_objects(self, catalog_args):
+        """ Query the catalog with the provided catalog_args
+        """
         envelopeObjects = []
-        for eBrain in envelopes:
-            obj = eBrain.getObject()
-            if getSecurityManager().checkPermission('View', obj):
-                files = []
-                for fileObj in obj.objectValues('Report Document'):
-                    files.append({
-                        "filename": fileObj.id,
-                        "title": str(fileObj.absolute_url_path()),
-                        "url": str(fileObj.absolute_url_path()) + "/manage_document"
+        if catalog_args:
+            envelopes = self.Catalog(**catalog_args)
+
+            for eBrain in envelopes:
+                obj = eBrain.getObject()
+                if getSecurityManager().checkPermission('View', obj):
+                    files = []
+                    for fileObj in obj.objectValues('Report Document'):
+                        files.append({
+                            "filename": fileObj.id,
+                            "title": str(fileObj.absolute_url_path()),
+                            "url": str(fileObj.absolute_url_path()) + "/manage_document"
+                        })
+
+                    accepted = True
+                    for fileObj in obj.objectValues('Report Feedback'):
+                        if fileObj.title in ("Data delivery was not acceptable",
+                                             "Non-acceptance of F-gas report"):
+                            accepted = False
+
+                    obligations = []
+                    for uri in obj.dataflow_uris:
+                        obligations.append(self.dataflow_lookup(uri)['TITLE'])
+
+                    countryName = ''
+                    if obj.meta_type == 'Report Envelope':
+                        countryName = obj.getCountryName()
+                    else:
+                        try:
+                            countryName = obj.localities_dict()[obj.country]['name']
+                        except KeyError:
+                            countryName = "Unknown"
+
+                    reported = obj.bobobase_modification_time()
+                    if obj.meta_type == 'Report Envelope':
+                        reported = obj.reportingdate
+
+                    company_id = '-'
+                    if (hasattr(obj.aq_parent, 'company_id')):
+                        company_id = obj.aq_parent.company_id
+
+                    envelopeObjects.append({
+                        'company_id': company_id,
+                        'released': obj.released,
+                        'path': obj.absolute_url_path(),
+                        'country': countryName,
+                        'company': obj.aq_parent.title,
+                        'userid': obj.aq_parent.id,
+                        'title': obj.title,
+                        'id': obj.id,
+                        'years': {"start": obj.year, "end": obj.endyear},
+                        'end_year': obj.endyear,
+                        'reportingdate': reported.strftime('%Y-%m-%d'),
+                        'files': files,
+                        'obligation': obligations[0] if obligations else "Unknown",
+                        'accepted': accepted
                     })
-
-                accepted = True
-                for fileObj in obj.objectValues('Report Feedback'):
-                    if fileObj.title in ("Data delivery was not acceptable", "Non-acceptance of F-gas report"):
-                        accepted = False
-
-                obligations = []
-                for uri in obj.dataflow_uris:
-                    obligations.append(self.dataflow_lookup(uri)['TITLE'])
-
-                countryName = ''
-                if obj.meta_type == 'Report Envelope':
-                    countryName = obj.getCountryName()
-                else:
-                    try:
-                        countryName = obj.localities_dict()[obj.country]['name']
-                    except KeyError:
-                        countryName = "Unknown"
-
-                reported = obj.bobobase_modification_time()
-                if obj.meta_type == 'Report Envelope':
-                    reported = obj.reportingdate
-
-                company_id = '-'
-                if (hasattr(obj.aq_parent, 'company_id')):
-                    company_id = obj.aq_parent.company_id
-
-                envelopeObjects.append({
-                    'company_id': company_id,
-                    'released': obj.released,
-                    'path': obj.absolute_url_path(),
-                    'country': countryName,
-                    'company': obj.aq_parent.title,
-                    'userid': obj.aq_parent.id,
-                    'title': obj.title,
-                    'id': obj.id,
-                    'years': {"start": obj.year, "end": obj.endyear},
-                    'end_year': obj.endyear,
-                    'reportingdate': reported.strftime('%Y-%m-%d'),
-                    'files': files,
-                    'obligation': obligations[0] if obligations else "Unknown",
-                    'accepted': accepted
-                })
 
         return envelopeObjects
 
@@ -584,51 +596,13 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """Search the ZCatalog for Report Envelopes,
         show results and keep displaying the form """
 
-        catalog_args = {
-            'meta_type': ['Report Envelope', 'Repository Referral'],
-        }
-
-        status = self.REQUEST.get('release_status')
-        if status == 'anystatus':
-            catalog_args.pop('released', None)
-        elif status == 'released':
-            catalog_args['released'] = 1
-        elif status == 'notreleased':
-            catalog_args['released'] = 0
-        else:
-            return json.dumps([])
-
-        if self.REQUEST.get('query_start'):
-            catalog_args['start'] = self.REQUEST['query_start']
-        if self.REQUEST.get('obligation'):
-            obl = self.REQUEST.get('obligation')
-            obl = filter(lambda c: c.get('PK_RA_ID') == obl, self.dataflow_rod())[0]
-            catalog_args['dataflow_uris'] = [obl['uri']]
+        catalog_args = self.get_query_args()
         if self.REQUEST.get('countries'):
             isos = self.REQUEST.get('countries')
             countries = filter(lambda c: c.get('iso') in isos, self.localities_rod())
             catalog_args['country'] = [country['uri'] for country in countries]
-        if self.REQUEST.get('years'):
-            catalog_args['years'] = self.REQUEST['years']
-        if self.REQUEST.get('partofyear'):
-            catalog_args['partofyear'] = self.REQUEST['partofyear']
 
-        reportingdate_start = self.REQUEST.get('reportingdate_start')
-        reportingdate_end = self.REQUEST.get('reportingdate_end')
-        dateRangeQuery = {}
-        if reportingdate_start and reportingdate_end:
-            dateRangeQuery['range'] = 'min:max'
-            dateRangeQuery['query'] = [reportingdate_start, reportingdate_end]
-        elif reportingdate_start:
-            dateRangeQuery['range'] = 'min'
-            dateRangeQuery['query'] = reportingdate_start
-        elif reportingdate_end:
-            dateRangeQuery['range'] = 'max'
-            dateRangeQuery['query'] = reportingdate_end
-        if dateRangeQuery:
-            catalog_args['reportingdate'] = dateRangeQuery
-
-        return json.dumps(self.get_envelopes(catalog_args))
+        return json.dumps(self.get_df_objects(catalog_args))
 
     def assign_roles(self, user, role, local_roles, doc):
         local_roles.append(role)
@@ -1253,52 +1227,15 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             raise RuntimeError('Method not allowed on this distribution.')
 
     def xls_export(self, catalog_args=None):
-        """ TODO
+        """ XLS Export for catalog results
         """
         if not catalog_args:
-            catalog_args = {
-                'meta_type': ['Report Envelope', 'Repository Referral'],
-            }
+            catalog_args = self.get_query_args()
 
-            status = self.REQUEST.get('release_status')
-            if status == 'anystatus':
-                catalog_args.pop('released', None)
-            elif status == 'released':
-                catalog_args['released'] = 1
-            elif status == 'notreleased':
-                catalog_args['released'] = 0
-            else:
-                return json.dumps([])
-
-            if self.REQUEST.get('query_start'):
-                catalog_args['start'] = self.REQUEST['query_start']
-            if self.REQUEST.get('obligation'):
-                obl = self.REQUEST.get('obligation')
-                obl = filter(lambda c: c.get('PK_RA_ID') == obl, self.dataflow_rod())[0]
-                catalog_args['dataflow_uris'] = [obl['uri']]
-            if self.REQUEST.get('countries'):
-                isos = self.REQUEST.get('countries')
-                countries = filter(lambda c: c.get('iso') in isos, self.localities_rod())
-                catalog_args['country'] = [country['uri'] for country in countries]
-            if self.REQUEST.get('years'):
-                catalog_args['years'] = self.REQUEST['years']
-            if self.REQUEST.get('partofyear'):
-                catalog_args['partofyear'] = self.REQUEST['partofyear']
-
-            reportingdate_start = self.REQUEST.get('reportingdate_start')
-            reportingdate_end = self.REQUEST.get('reportingdate_end')
-            dateRangeQuery = {}
-            if reportingdate_start and reportingdate_end:
-                dateRangeQuery['range'] = 'min:max'
-                dateRangeQuery['query'] = [reportingdate_start, reportingdate_end]
-            elif reportingdate_start:
-                dateRangeQuery['range'] = 'min'
-                dateRangeQuery['query'] = reportingdate_start
-            elif reportingdate_end:
-                dateRangeQuery['range'] = 'max'
-                dateRangeQuery['query'] = reportingdate_end
-            if dateRangeQuery:
-                catalog_args['reportingdate'] = dateRangeQuery
+            if self.REQUEST.get('sort_on'):
+                catalog_args['sort_on'] = self.REQUEST['sort_on']
+            if self.REQUEST.get('sort_order'):
+                catalog_args['sort_order'] = self.REQUEST['sort_order']
 
         brains = self.Catalog(**catalog_args)
         if brains:

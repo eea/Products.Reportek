@@ -27,10 +27,17 @@ function toggleSelect() {
 }
 
 $(document).ready(function() {
+
+  $('#frmsearch_submit').on('click', function(evt){
+    evt.preventDefault();
+    var search_form = $('#frmSearch');
+    search_form.attr('action', '');
+    search_form.submit();
+  });
   $('#btn-xls-export').on('click', function(evt){
     evt.preventDefault();
     var search_form = $('#frmSearch');
-    var action = $('#form_xls_export').attr('action');
+    var action = $(this).attr('data-action');
     search_form.attr('action', action);
     search_form.submit();
   });
@@ -57,6 +64,8 @@ $(document).ready(function() {
                partofyear_selected options/partofyear | nothing;
                country_selected options/country | nothing;
                status options/release_status | string:released;
+               sort_on options/sort_on | nothing;
+               sort_order options/sort_order | nothing;
                      ">
     <col style="width:150px" />
     <tr>
@@ -110,9 +119,13 @@ $(document).ready(function() {
     </tr>
     <tr>
       <td colspan="2" align="center">
-        <input type="submit" value="Search" />
-        <input type="hidden" id="sort_on" name="sort_on" value="reportingdate"/>
-        <input type="hidden" id="sort_order" name="sort_order" value="reverse"/>
+        <input type="submit" id="frmsearch_submit" value="Search" />
+        <input type="button" id ="btn-xls-export" value="Export results to xls"
+          data-action="ReportekEngine/xls_export" />
+        <input type="hidden" id="sort_on" name="sort_on" value="reportingdate"
+          tal:attributes="value sort_on | default" />
+        <input type="hidden" id="sort_order" name="sort_order" value="reverse"
+          tal:attributes="value sort_order | default" />
       </td>
     </tr>
   </table>
@@ -120,9 +133,6 @@ $(document).ready(function() {
 <br/>
 
 <tal:block condition="options/results | nothing">
-  <form id="form_xls_export" action="ReportekEngine/xls_export">
-    <input type="submit" value="XLS export" id="btn-xls-export" />
-  </form>
 
   <p><tal:block i18n:translate="">Note: </tal:block><em i18n:translate="">Repository Referrals</em> <tal:block i18n:translate="">will not be added to zip archives, since their documents are located outside this system.</tal:block></p>
   <form action="ReportekEngine/zipEnvelopes" method="post" id="frmZip"
