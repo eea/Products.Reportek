@@ -308,6 +308,50 @@ class Referral(CatalogAware, SimpleItem, CountriesManager):
         res_a('</rdf:RDF>')
         return '\n'.join(res)
 
+    security.declareProtected('View', 'getObligations')
+    def getObligations(self):
+        lookup = self.ReportekEngine.dataflow_lookup
+        return [(lookup(obl)['TITLE'], obl) for obl in self.dataflow_uris]
+
+    security.declareProtected('View', 'get_export_data')
+    def get_export_data(self, format='xls'):
+        """ Return data for export
+        """
+        env_data = {}
+        if getSecurityManager().checkPermission('View', self):
+            if format == 'xls':
+                accepted = True
+                for fileObj in self.objectValues('Report Feedback'):
+                    no_delivery_msgs = ("Data delivery was not acceptable",
+                                        "Non-acceptance of F-gas report")
+                    if fileObj.title in no_delivery_msgs:
+                        accepted = False
+
+                company_id = '-'
+                if (hasattr(self.aq_parent, 'company_id')):
+                    company_id = self.aq_parent.company_id
+
+                obligations = [obl[0] for obl in self.getObligations()]
+
+                env_data = {
+                    'company_id': company_id,
+                    'released': self.released,
+                    'path': self.absolute_url_path(),
+                    'country': self.getCountryName(),
+                    'company': self.aq_parent.title.decode('utf-8'),
+                    'userid': self.aq_parent.id,
+                    'title': self.title.decode('utf-8'),
+                    'id': self.id,
+                    'years': "{0}-{1}".format(self.year, self.endyear),
+                    'end_year': self.endyear,
+                    'reported': self.reportingdate.strftime('%Y-%m-%d'),
+                    'files': [],
+                    'obligation': obligations[0] if obligations else "Unknown",
+                    'accepted': accepted
+                }
+
+        return env_data
+
     security.declareProtected('Change Collections', 'manage_editReferral')
     def manage_editReferral(self, title, descr, referral_url,
             year, endyear, partofyear, country, locality,

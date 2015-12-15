@@ -570,10 +570,6 @@ def write_xls_data(data, sheet, header, row):
         value = data.get(key)
         if isinstance(value, list):
             value = ",".join(value)
-        # if isinstance(value, unicode):
-        #     value = value.encode('latin-1')
-        # if not isinstance(value, bool):
-        #     if 'Danfoss' in value:
-        #         import pdb; pdb.set_trace( )
-            # FIX encoding decoding thingy
+            if len(value) > 32000:
+                value = (value[:32000] + '..') if len(value) > 32000 else value
         sheet.write(row, header.get(key), value)
