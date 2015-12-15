@@ -601,6 +601,15 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             isos = self.REQUEST.get('countries')
             countries = filter(lambda c: c.get('iso') in isos, self.localities_rod())
             catalog_args['country'] = [country['uri'] for country in countries]
+        if self.REQUEST.get('obligations'):
+            obligations = self.REQUEST.get('obligations')
+            df_dict = {o['PK_RA_ID']: o['uri'] for o in self.dataflow_rod()}
+
+            if not isinstance(obligations, list):
+                obligations = [obligations]
+
+            df_uris = [df_dict[obl] for obl in obligations]
+            catalog_args['dataflow_uris'] = df_uris
 
         return json.dumps(self.get_df_objects(catalog_args))
 
