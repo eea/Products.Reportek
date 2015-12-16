@@ -156,7 +156,7 @@ $(document).ready(function() {
           {'id':'dataflow_uris','title':'Obligation','sortable':1},
           {'id':'reportingdate','title':'Reported','sortable':1},
           {'id':'files','title':'Files','sortable':0},
-          {'id':'accepted','title':'Accepted','sortable':1}),
+          {'id':'accepted','title':'Accepted','sortable':0}),
           sort_on=request.get('sort_on','reportingdate'),
           sort_order=request.get('sort_order', 'reverse'))"/>
         <tal:block condition="not: isBdrDeployment"
