@@ -8,7 +8,7 @@
 g_isSelected = false;
 
 function toggleSelect() {
-  frm = document.getElementById("frmZip");
+  frm = document.getElementById("results-form");
   if (g_isSelected == false) {
     for (i = 0; i < frm.length; i++) {
       frm.elements[i].checked = true ;
@@ -28,19 +28,21 @@ function toggleSelect() {
 
 $(document).ready(function() {
 
-  $('#frmsearch_submit').on('click', function(evt){
-    evt.preventDefault();
-    var search_form = $('#frmSearch');
-    search_form.attr('action', '');
-    search_form.submit();
-  });
-  $('#btn-xls-export').on('click', function(evt){
+  $('.custom-search-btn').on('click', function(evt){
     evt.preventDefault();
     var search_form = $('#frmSearch');
     var action = $(this).attr('data-action');
     search_form.attr('action', action);
     search_form.submit();
-  });
+  })
+
+  $('.custom-result-btn').on('click', function(evt){
+    evt.preventDefault();
+    var results_form = $('#results-form');
+    var action = $(this).attr('data-action');
+    results_form.attr('action', action);
+    results_form.submit();
+  })
 });
 
 // ]]>
@@ -119,7 +121,8 @@ $(document).ready(function() {
     </tr>
     <tr>
       <td colspan="2" align="center">
-        <input type="submit" id="frmsearch_submit" value="Search" />
+        <input type="submit" id="frmsearch_submit" class="custom-search-btn"
+          data-action='' value="Search" />
         <input type="hidden" id="sort_on" name="sort_on" value="reportingdate"
           tal:attributes="value sort_on | default" />
         <input type="hidden" id="sort_order" name="sort_order" value="reverse"
@@ -133,7 +136,7 @@ $(document).ready(function() {
 <tal:block condition="options/results | nothing">
 
   <p><tal:block i18n:translate="">Note: </tal:block><em i18n:translate="">Repository Referrals</em> <tal:block i18n:translate="">will not be added to zip archives, since their documents are located outside this system.</tal:block></p>
-  <form action="ReportekEngine/zipEnvelopes" method="post" id="frmZip"
+  <form action="ReportekEngine/zipEnvelopes" method="post" id="results-form"
     tal:define="query_start python:request.get('query_start') or 0;
                 Batch python:modules['ZTUtils'].Batch;
                 html_quote python:modules['Products.PythonScripts.standard'].html_quote;
@@ -225,9 +228,11 @@ $(document).ready(function() {
       (Envelopes with no checkbox are still in draft mode)<br/>
       <input type="button" name="selectAll" value="Select All" onclick="toggleSelect(); return false"/>
       <input type="button" id ="btn-xls-export" value="Export all results to XLS"
-        data-action="ReportekEngine/xls_export" />
-
-      <input type="submit" value="Zip envelopes" />
+        class="custom-search-btn" data-action="ReportekEngine/xls_export" />
+      <input type="button" id ="btn-xls-export-selected" value="Export selected to XLS"
+        class="custom-result-btn" data-action="ReportekEngine/xls_export" />
+      <input type="submit" class="custom-result-btn"
+        data-action="ReportekEngine/zipEnvelopes" value="Zip envelopes" />
     </p>
   </form>
 </tal:block>

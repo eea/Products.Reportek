@@ -1236,31 +1236,39 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             raise RuntimeError('Method not allowed on this distribution.')
 
     security.declareProtected('View', 'xls_export')
-    def xls_export(self, catalog_args=None):
+    def xls_export(self, envelopes=None, catalog_args=None):
         """ XLS Export for catalog results
         """
-        if not catalog_args:
-            catalog_args = self.get_query_args()
+        env_objs = []
 
-            if self.REQUEST.get('sort_on'):
-                catalog_args['sort_on'] = self.REQUEST['sort_on']
-            if self.REQUEST.get('sort_order'):
-                catalog_args['sort_order'] = self.REQUEST['sort_order']
+        if envelopes:
+            envelopes = RepUtils.utConvertToList(envelopes)
+            env_objs = [self.unrestrictedTraverse(env, None) for env in envelopes]
+        else:
+            if not catalog_args:
+                catalog_args = self.get_query_args()
 
-        brains = self.Catalog(**catalog_args)
-        if brains:
-            wb = xlwt.Workbook()
-            sheet = wb.add_sheet('Results')
-            header = dict(RepUtils.write_xls_header(sheet))
-            idx = 1  # Start from row 1
-            for brain in brains:
-                obj = brain.getObject()
-                data = obj.get_export_data()
-                if data:
-                    RepUtils.write_xls_data(data, sheet, header, idx)
-                    idx += 1
+                if self.REQUEST.get('sort_on'):
+                    catalog_args['sort_on'] = self.REQUEST['sort_on']
+                if self.REQUEST.get('sort_order'):
+                    catalog_args['sort_order'] = self.REQUEST['sort_order']
 
-            return self.download_xls(wb, 'searchresults.xls')
+            brains = self.Catalog(**catalog_args)
+            if brains:
+                env_objs = [brain.getObject() for brain in brains]
+
+        wb = xlwt.Workbook()
+        sheet = wb.add_sheet('Results')
+        header = dict(RepUtils.write_xls_header(sheet))
+        idx = 1  # Start from row 1
+
+        for obj in env_objs:
+            data = obj.get_export_data()
+            if data:
+                RepUtils.write_xls_data(data, sheet, header, idx)
+                idx += 1
+
+        return self.download_xls(wb, 'searchresults.xls')
 
     security.declareProtected('View', 'download_xls')
     def download_xls(self, wb, filename):
