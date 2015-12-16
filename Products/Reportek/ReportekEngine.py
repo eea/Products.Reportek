@@ -1256,8 +1256,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             for brain in brains:
                 obj = brain.getObject()
                 data = obj.get_export_data()
-                RepUtils.write_xls_data(data, sheet, header, idx)
-                idx += 1
+                if data:
+                    RepUtils.write_xls_data(data, sheet, header, idx)
+                    idx += 1
 
             return self.download_xls(wb, 'searchresults.xls')
 
