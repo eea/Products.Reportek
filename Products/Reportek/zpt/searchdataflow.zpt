@@ -120,8 +120,6 @@ $(document).ready(function() {
     <tr>
       <td colspan="2" align="center">
         <input type="submit" id="frmsearch_submit" value="Search" />
-        <input type="button" id ="btn-xls-export" value="Export results to xls"
-          data-action="ReportekEngine/xls_export" />
         <input type="hidden" id="sort_on" name="sort_on" value="reportingdate"
           tal:attributes="value sort_on | default" />
         <input type="hidden" id="sort_order" name="sort_order" value="reverse"
@@ -226,6 +224,9 @@ $(document).ready(function() {
     <p>
       (Envelopes with no checkbox are still in draft mode)<br/>
       <input type="button" name="selectAll" value="Select All" onclick="toggleSelect(); return false"/>
+      <input type="button" id ="btn-xls-export" value="Export all results to XLS"
+        data-action="ReportekEngine/xls_export" />
+
       <input type="submit" value="Zip envelopes" />
     </p>
   </form>
