@@ -602,3 +602,13 @@ tr.user-disabled {
 #workarea .disabled_members ul {
   margin: 0 0 0 1.5em;
 }
+
+.batch-size-ctl {
+  float: right;
+}
+
+.df-btn {
+  border: 1px solid #bbb;
+  border-radius: 3px;
+  font-size: small;
+}

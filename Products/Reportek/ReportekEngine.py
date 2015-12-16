@@ -507,7 +507,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return catalog_args
 
     security.declareProtected('View', 'searchdataflow')
-    def searchdataflow(self):
+    def searchdataflow(self, batch_size=None):
         """Search the ZCatalog for Report Envelopes,
         show results and keep displaying the form """
         # show the initial default populated
@@ -524,7 +524,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             o = eBrain.getObject()
             if getSecurityManager().checkPermission('View', o):
                 envelopeObjects.append(o)
-        return self._searchdataflow(results=envelopeObjects, **self.REQUEST.form)
+
+        return self._searchdataflow(results=envelopeObjects,
+                                    **self.REQUEST.form)
 
     security.declareProtected('View', 'get_df_objects')
     def get_df_objects(self, catalog_args):
