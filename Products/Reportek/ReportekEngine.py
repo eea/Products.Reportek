@@ -127,6 +127,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     fgas_registry_obligations = []
     fgas_registry_url = ''
     auth_middleware_recheck_interval = 300
+    XLS_max_rows = 1000
 
     def all_meta_types(self, interfaces=None):
         """
@@ -262,6 +263,13 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.bdr_registry_obligations = self.REQUEST.get('bdr_registry_obligations', self.bdr_registry_obligations)
         self.fgas_registry_url = self.REQUEST.get('fgas_registry_url', self.fgas_registry_url)
         self.fgas_registry_obligations = self.REQUEST.get('fgas_registry_obligations', self.fgas_registry_obligations)
+        xls_max_rows = self.REQUEST.get('xls_max_rows', self.XLS_max_rows)
+
+        try:
+            xls_max_rows = int(xls_max_rows)
+        except ValueError:
+            xls_max_rows = None
+        self.XLS_max_rows = xls_max_rows
 
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             self.BDRRegistryAPI.set_base_url(self.bdr_registry_url)
@@ -1269,6 +1277,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             if data:
                 RepUtils.write_xls_data(data, sheet, header, idx)
                 idx += 1
+            # break if more than defined self.XLS_max_rows
+            if self.XLS_max_rows:
+                if idx > self.XLS_max_rows:
+                    break
 
         return self.download_xls(wb, 'searchresults.xls')
 

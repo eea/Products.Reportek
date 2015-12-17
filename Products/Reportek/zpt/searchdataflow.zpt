@@ -157,7 +157,8 @@ $(document).ready(function() {
                 Batch python:modules['ZTUtils'].Batch;
                 html_quote python:modules['Products.PythonScripts.standard'].html_quote;
                 batch_size python:options.get('batch_size') or 50;
-                batch python:Batch(options['results'], int(batch_size), int(query_start), orphan=1)">
+                batch python:Batch(options['results'], int(batch_size), int(query_start), orphan=1);
+                results_no python: len(options['results'])">
 
     <metal:block use-macro="here/macros/resultsTable">
       <metal:block fill-slot="resultsTableHead">

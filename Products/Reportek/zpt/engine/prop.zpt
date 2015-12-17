@@ -173,10 +173,17 @@
                                     selected python: fgas_o[0] in here.fgas_registry_obligations"
                     tal:content="python: fgas_o[1]" />
             </select>
-
         </p>
     </fieldset>
 </tal:block>
+<fieldset>
+    <legend>XLS export settings</legend>
+    <p class="form-help">
+        <label for='xls_max_rows'><strong>XLS export maximum number of rows</strong></label>
+        <input type="text" size="50" id="xls_max_rows" name="xls_max_rows"
+               tal:attributes="value here/XLS_max_rows" />
+    </p>
+</fieldset>
 <br/>
 <input type="submit" value="Save changes" />
 </form>
