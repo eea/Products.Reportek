@@ -42,6 +42,13 @@ $(document).ready(function() {
     evt.preventDefault();
     var search_form = $('#frmSearch');
     var action = $(this).attr('data-action');
+    if ($(this).attr('id') === 'btn-xls-export') {
+      var xls_max_rows = $(this).attr('data-xls_max_rows');
+      var results_no = $(this).attr('data-results_no');
+      if (results_no > xls_max_rows) {
+        alert('XLS export is currently limited to ' + xls_max_rows + ' rows maximum!');
+      }
+    }
     search_form.attr('action', action);
     search_form.submit();
   })
@@ -257,7 +264,9 @@ $(document).ready(function() {
       <input type="button" name="selectAll" value="Select All"
        onclick="toggleSelect(); return false" class="df-btn" />
       <input type="button" id ="btn-xls-export" value="Export all results to XLS"
-        class="df-btn custom-search-btn" data-action="ReportekEngine/xls_export" />
+        class="df-btn custom-search-btn" data-action="ReportekEngine/xls_export"
+        tal:attributes="data-xls_max_rows python: here.XLS_max_rows;
+                        data-results_no results_no" />
       <input type="button" id ="btn-xls-export-selected" value="Export selected to XLS"
         class="df-btn custom-result-btn" data-action="ReportekEngine/xls_export" />
       <input type="submit" class="df-btn custom-result-btn"
