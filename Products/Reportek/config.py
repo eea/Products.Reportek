@@ -24,32 +24,16 @@ __all__ = [
     'LOCAL_CONVERTERS_PORT',
     'LOCAL_CONVERTERS_HOST',
     'LOCAL_CONVERTERS_SCHEME',
-    'XLS_HEADINGS'
+    'XLS_HEADINGS',
+    'BDR_XLS_HEADINGS',
+    'CDR_XLS_HEADINGS'
 ]
 
 DEPLOYMENT_CDR = 'CDR'
 DEPLOYMENT_BDR = 'BDR'
 DEPLOYMENT_MDR = 'MDR'
 
-REPORTEK_DEPLOYMENT = os.environ.get('REPORTEK_DEPLOYMENT', DEPLOYMENT_MDR)
-LOCAL_CONVERTERS_PORT = os.environ.get('LOCAL_CONVERTERS_PORT', '5000')
-LOCAL_CONVERTERS_HOST = os.environ.get('LOCAL_CONVERTERS_HOST', 'localhost')
-LOCAL_CONVERTERS_SCHEME = os.environ.get('LOCAL_CONVERTERS_SCHEME', 'http')
-
-if REPORTEK_DEPLOYMENT in (DEPLOYMENT_CDR, DEPLOYMENT_MDR):
-    permission_manage_properties_collections = 'Change Collections'
-    permission_manage_properties_envelopes = 'Change Envelopes'
-elif REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-    permission_manage_properties_collections = 'Manage properties'
-    permission_manage_properties_envelopes = 'Manage properties'
-
-if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
-    REDIS_DATABASE = int(os.environ.get('REDIS_DATABASE'))
-    REDIS_HOSTNAME = os.environ.get('REDIS_HOSTNAME', 'localhost')
-    REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
-    __all__.extend(['REDIS_DATABASE', 'REDIS_HOSTNAME', 'REDIS_PORT'])
-
-XLS_HEADINGS = [
+BDR_XLS_HEADINGS = [
     ('Company ID', 'company_id'),
     ('Country', 'country'),
     ('Company', 'company'),
@@ -62,3 +46,32 @@ XLS_HEADINGS = [
     ('Files', 'files'),
     ('Accepted', 'accepted')
 ]
+
+CDR_XLS_HEADINGS = [
+    ('Country', 'country'),
+    ('Title', 'title'),
+    ('Years', 'years'),
+    ('Obligation', 'obligation'),
+    ('Reported', 'reported'),
+]
+
+XLS_HEADINGS = CDR_XLS_HEADINGS
+
+REPORTEK_DEPLOYMENT = os.environ.get('REPORTEK_DEPLOYMENT', DEPLOYMENT_MDR)
+LOCAL_CONVERTERS_PORT = os.environ.get('LOCAL_CONVERTERS_PORT', '5000')
+LOCAL_CONVERTERS_HOST = os.environ.get('LOCAL_CONVERTERS_HOST', 'localhost')
+LOCAL_CONVERTERS_SCHEME = os.environ.get('LOCAL_CONVERTERS_SCHEME', 'http')
+
+if REPORTEK_DEPLOYMENT in (DEPLOYMENT_CDR, DEPLOYMENT_MDR):
+    permission_manage_properties_collections = 'Change Collections'
+    permission_manage_properties_envelopes = 'Change Envelopes'
+
+elif REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+    permission_manage_properties_collections = 'Manage properties'
+    permission_manage_properties_envelopes = 'Manage properties'
+    XLS_HEADINGS = BDR_XLS_HEADINGS
+if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
+    REDIS_DATABASE = int(os.environ.get('REDIS_DATABASE'))
+    REDIS_HOSTNAME = os.environ.get('REDIS_HOSTNAME', 'localhost')
+    REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
+    __all__.extend(['REDIS_DATABASE', 'REDIS_HOSTNAME', 'REDIS_PORT'])
