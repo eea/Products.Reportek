@@ -97,9 +97,12 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
         year = endyear
     now = DateTime()
     if year and year > now.year():
-        error_msg = 'You cannot submit a report which relates to a future year.\
-                     Please fill in the correct year!'
-        return self.manage_addEnvelopeForm(error=error_msg)
+        if REQUEST is not None:
+            error_msg = 'You cannot submit a report which relates to a future\
+                         year. Please fill in the correct year!'
+            return self.manage_addEnvelopeForm(error=error_msg)
+        else:
+            raise ValueError('Cannot create envelope which relates to a future year')
 
     year_parts = ['Whole Year', 'First Half', 'Second Half',
                   'First Quarter', 'Second Quarter', 'Third Quarter',
