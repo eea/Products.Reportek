@@ -31,6 +31,7 @@
         </tal:block>
 
         <tal:block tal:condition="canCreateEnvelope">
+            <p style="color: red;" tal:condition="options/error | nothing" tal:content="options/error" />
             <form action="manage_addEnvelope" method="post">
             <p class="form-help" i18n:translate="">Fill out the fields in this report profile and click <em>Add</em>. This will create an <em>envelope</em> into which you make the delivery.</p>
             <table>
