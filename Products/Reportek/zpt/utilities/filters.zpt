@@ -22,6 +22,16 @@
         </div>
       </tal:block>
 
+      <tal:block metal:define-macro="path-filter">
+        <div class="form-group" tal:define="placeholder placeholder|nothing;">
+          <label for="path_filter">Path</label>
+          <input id="path_filter" name="path_filter" type="text"
+            title="Entering /foo/bar will search in /foo/bar, entering foo/bar will search everywhere for foo/bar in path"
+            tal:attributes="class python: 'placeholder-enabled text-input' if placeholder else 'text-input';
+                            value request/path_filter | nothing">
+        </div>
+      </tal:block>
+
       <tal:block metal:define-macro="role">
         <div class="form-group" tal:define="placeholder placeholder|nothing;">
           <label for="role">Role</label>
