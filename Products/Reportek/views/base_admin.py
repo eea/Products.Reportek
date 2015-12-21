@@ -121,7 +121,7 @@ class BaseAdmin(BrowserView):
             'obligations': obligations
         }
 
-    def search_catalog(self, obligations, countries, role, users=[]):
+    def search_catalog(self, obligations, countries, role, users=None, path=None):
         if len(countries) == len(self.localities_rod):
             country_codes = None
         else:
@@ -140,6 +140,8 @@ class BaseAdmin(BrowserView):
             query['dataflow_uris'] = df_uris
         if users:
             query['local_defined_users'] = users
+        if path:
+            query['path'] = path
 
         return self.context.Catalog(query)
 
@@ -148,6 +150,9 @@ class BaseAdmin(BrowserView):
         countries = self.request.get('countries', [])
         search_type = self.request.get('search_type')
         entity = self.request.get('username', '')
+        path = self.request.get('path_filter', '')
+        use_path = None
+        parts = None
         match_groups = []
 
         if search_type == 'groups':
@@ -160,52 +165,65 @@ class BaseAdmin(BrowserView):
         if self.request.get('btn.find_collections', False):
             entity = ''
 
+        if path:
+            parts = path.split('/')
+            if path.startswith('http') or path.startswith('/'):
+                use_path = path
+                if path.startswith('http'):
+                    use_path = '/{0}'.format('/'.join(parts[3:]))
+                parts = None
+            else:
+                parts = path
+
         records = []
         brains = self.search_catalog(obligations,
                                      countries,
                                      role='',
-                                     users=entity)
+                                     users=entity,
+                                     path=use_path)
+
         for brain in brains:
             col_obligations = []
-            for uri in list(brain.dataflow_uris):
-                try:
-                    title = self.get_obligations_title()[uri]
-                except KeyError:
-                    title = 'Unknown/Deleted obligation'
-                col_obligations.append({
-                    'uri': uri,
-                    'title': title
-                })
-            col_obligations.sort(key=itemgetter('title'))
-            l_roles = brain.local_defined_roles
-            if config.REPORTEK_DEPLOYMENT == config.DEPLOYMENT_BDR:
-                # For BDR, Reporters actually have local 'Owner' Roles
-                for user in l_roles.keys():
-                    l_roles[user] = ['Reporter (Owner)' if role == 'Owner'
-                                     else role for role in l_roles[user]]
-            collection = {
-                'path': brain.getPath(),
-                'country': brain.getCountryName,
-                'obligations': col_obligations,
-                'roles': brain.local_defined_roles,
-                'title': brain.title
-            }
+            if not parts or parts in brain.getPath():
+                for uri in list(brain.dataflow_uris):
+                    try:
+                        title = self.get_obligations_title()[uri]
+                    except KeyError:
+                        title = 'Unknown/Deleted obligation'
+                    col_obligations.append({
+                        'uri': uri,
+                        'title': title
+                    })
+                col_obligations.sort(key=itemgetter('title'))
+                l_roles = brain.local_defined_roles
+                if config.REPORTEK_DEPLOYMENT == config.DEPLOYMENT_BDR:
+                    # For BDR, Reporters actually have local 'Owner' Roles
+                    for user in l_roles.keys():
+                        l_roles[user] = ['Reporter (Owner)' if role == 'Owner'
+                                         else role for role in l_roles[user]]
+                collection = {
+                    'path': brain.getPath(),
+                    'country': brain.getCountryName,
+                    'obligations': col_obligations,
+                    'roles': brain.local_defined_roles,
+                    'title': brain.title
+                }
 
-            if match_groups:
-                c_code = self.get_country_code(brain.getCountryName).lower()
-                c_codes = [c_code]
-                c_exc = {'gb': 'uk',
-                         'gr': 'el'}.get(c_code)
-                if c_exc:
-                    c_codes.append(c_exc)
+                if match_groups:
+                    c_code = self.get_country_code(brain.getCountryName).lower()
+                    c_codes = [c_code]
+                    c_exc = {'gb': 'uk',
+                             'gr': 'el'}.get(c_code)
+                    if c_exc:
+                        c_codes.append(c_exc)
 
-                for code in c_codes:
-                    group = self.request.get('groupsname') + '-' + code
-                    if group in match_groups:
-                        collection['matched_group'] = group
-                        break
+                    for code in c_codes:
+                        group = self.request.get('groupsname') + '-' + code
+                        if group in match_groups:
+                            collection['matched_group'] = group
+                            break
 
-            records.append(collection)
+                records.append(collection)
 
         records.sort(key=itemgetter('path'))
         return records

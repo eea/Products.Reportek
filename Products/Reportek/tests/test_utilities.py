@@ -581,8 +581,8 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         self.browser.getControl(name='btnFilter').click()
         self._check_controls(self.browser.contents)
         expected_url = (ru_url + '/get_users_by_path?'
-                        'obligations%3Alist=8&role=&countries%3Alist=tc&'
-                        'btnFilter=Search')
+                                 'obligations%3Alist=8&path_filter=&'
+                                 'role=&countries%3Alist=tc&btnFilter=Search')
         self.assertEqual(expected_url, self.browser.url)
 
         # We have an ajax call that we need to see the result of
