@@ -80,6 +80,10 @@
     <subscriber for="zope.lifecycleevent.interfaces.IObjectMovedEvent"
             handler="Products.Reportek.OpenFlowEngine.handle_application_move_events" />
 
+    <subscriber for="Products.Reportek.interfaces.IProcess
+                     zope.lifecycleevent.interfaces.IObjectMovedEvent"
+            handler="Products.Reportek.OpenFlowEngine.handle_process_move_events" />
+
     <i18n:registerTranslations directory="locales" />
 
 </configure>

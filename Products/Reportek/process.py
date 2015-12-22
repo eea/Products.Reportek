@@ -9,11 +9,13 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from OFS.Folder import Folder
 from DateTime import DateTime
 from Products.ZCatalog.CatalogPathAwareness import CatalogAware
+from zope.interface import implements
 
 # Product imports
 from activity import activity
 from transition import transition
 from Products.Reportek import constants
+from Products.Reportek.interfaces import IProcess
 
 CycleError = 'CycleError' # For _topsort()
 
@@ -31,6 +33,7 @@ class process(CatalogAware, Folder):
     Each process instance is described by a instance"""
 
     meta_type = 'Process'
+    implements(IProcess)
     security = ClassSecurityInfo()
     icon='misc_/Reportek/Process.gif'
 

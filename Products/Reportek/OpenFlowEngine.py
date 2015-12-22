@@ -857,3 +857,14 @@ def handle_application_move_events(obj):
     except TypeError:
         # skip, not a real REQUEST
         pass
+
+
+def handle_process_move_events(obj, event):
+    """ Process move event handler
+    """
+    wf_engine = obj.aq_parent
+    mapping = wf_engine.process_mappings.pop(event.oldName, None)
+
+    if mapping:
+        wf_engine.process_mappings[event.newName] = mapping
+        wf_engine._p_changed = 1
