@@ -657,8 +657,7 @@ class OpenFlowEngine(Folder, Toolz):
         self.process_mappings[p_process] = l_ret_dict
         self._p_changed = 1
         if REQUEST:
-            message="Properties changed"
-            return self.workflow_map_processes(self,REQUEST,manage_tabs_message=message)
+            REQUEST.RESPONSE.redirect('workflow_map_processes')
 
     security.declarePublic('findProcess')
     def findProcess(self, dataflow_uris, country_code):
@@ -713,6 +712,30 @@ class OpenFlowEngine(Folder, Toolz):
 
     security.declareProtected('Manage OpenFlow', 'workflow_map_process')
     workflow_map_process = PageTemplateFile('zpt/Workflow/workflowMapProcess', globals())
+
+    security.declareProtected('Manage OpenFlow', 'handle_workflow_map_processes')
+    def handle_workflow_map_processes(self, REQUEST=None):
+        """ Handler for workflow_map_processes form
+        """
+        if REQUEST:
+            if not REQUEST.get('delete'):
+                p_process = ''
+                for key, val in REQUEST.form.iteritems():
+                    if val == 'Edit mapping':
+                        p_process = '_'.join(key.split('_')[1:])
+                        break
+
+                REQUEST.form['p_process'] = p_process
+
+                return self.workflow_map_process(REQUEST)
+            else:
+                processes = REQUEST.form.get('process')
+                if isinstance(processes, str):
+                    processes = [processes]
+                for p_id in processes:
+                    self.process_mappings.pop(p_id, None)
+                    self._p_changed = 1
+                REQUEST.RESPONSE.redirect(self.REQUEST.HTTP_REFERER)
 
     security.declarePublic('getApplicationToActivitiesMapping')
     def getApplicationToActivitiesMapping(self):
