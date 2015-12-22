@@ -657,7 +657,7 @@ class OpenFlowEngine(Folder, Toolz):
         self.process_mappings[p_process] = l_ret_dict
         self._p_changed = 1
         if REQUEST:
-            REQUEST.RESPONSE.redirect('workflow_map_processes')
+            REQUEST.RESPONSE.redirect('workflow_map_processes?manage_tabs_message=Properties changed')
 
     security.declarePublic('findProcess')
     def findProcess(self, dataflow_uris, country_code):
@@ -735,7 +735,7 @@ class OpenFlowEngine(Folder, Toolz):
                 for p_id in processes:
                     self.process_mappings.pop(p_id, None)
                     self._p_changed = 1
-                REQUEST.RESPONSE.redirect(self.REQUEST.HTTP_REFERER)
+                REQUEST.RESPONSE.redirect('workflow_map_processes?manage_tabs_message=Mapping deleted')
 
     security.declarePublic('getApplicationToActivitiesMapping')
     def getApplicationToActivitiesMapping(self):
