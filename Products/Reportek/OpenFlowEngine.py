@@ -865,6 +865,7 @@ def handle_process_move_events(obj, event):
     wf_engine = obj.aq_parent
     mapping = wf_engine.process_mappings.pop(event.oldName, None)
 
-    if mapping:
+    if mapping and event.newName:
         wf_engine.process_mappings[event.newName] = mapping
-        wf_engine._p_changed = 1
+
+    wf_engine._p_changed = 1
