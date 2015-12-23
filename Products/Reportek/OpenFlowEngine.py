@@ -487,8 +487,10 @@ class OpenFlowEngine(Folder, Toolz):
             except Exception as e:
                 raise OpenFlowEngineImportError('Invalid rid', pr.get('rid', None), e.args)
 
-            self.manage_addProcess(pr_id, pr['title'], pr['description'], None,
-                int(pr['priority']), pr['begin'], pr['end'])
+            self.manage_addProcess(pr_id, title=pr['title'],
+                                   description=pr['description'], BeginEnd=None,
+                                   priority=int(pr['priority']),
+                                   begin=pr['begin'], end=pr['end'])
 
             process = self._getOb(pr_id)
             pushRoles = defaultdict(list)

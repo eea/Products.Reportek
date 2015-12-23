@@ -21,7 +21,7 @@ CycleError = 'CycleError' # For _topsort()
 
 manage_addProcessForm = PageTemplateFile('zpt/Workflow/process_add.zpt', globals())
 
-def manage_addProcess(self, id, title='', description='', BeginEnd=None, app_folder=None, priority=0, begin=None, end=None, REQUEST=None):
+def manage_addProcess(self, id, title='', description='', BeginEnd=None, priority=0, begin=None, end=None, REQUEST=None, app_folder=None):
     """ """
     p = process(id, title, description, BeginEnd, priority, begin, end)
     self._setObject(id, p)
