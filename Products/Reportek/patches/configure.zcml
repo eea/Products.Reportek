@@ -7,9 +7,10 @@
     <include package="collective.monkeypatcher" file="meta.zcml" />
 
     <monkey:patch description="Patch for Products.ZCatalog"
-              class="Products.ZCatalog.CatalogPathAwareness.CatalogAware"
-              original="manage_beforeDelete"
-              replacement=".patch_products_zcatalog.patched_manage_beforeDelete"
-              preserveOriginal="false" />
+      class="Products.ZCatalog.CatalogPathAwareness.CatalogAware"
+      original="manage_beforeDelete"
+      replacement=".patch_products_zcatalog.patched_manage_beforeDelete"
+      preserveOriginal="false"
+    />
 
 </configure>

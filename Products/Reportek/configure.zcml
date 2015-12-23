@@ -59,7 +59,7 @@
 
     <include file="dataflow_mappings.zcml" />
     <include file="views.zcml" />
-    <include file="patches.zcml" />
+    <include package=".patches" />
 
 
     <configure zcml:condition="installed zope.container">
