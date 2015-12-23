@@ -21,10 +21,15 @@ CycleError = 'CycleError' # For _topsort()
 
 manage_addProcessForm = PageTemplateFile('zpt/Workflow/process_add.zpt', globals())
 
-def manage_addProcess(self, id, title='', description='', BeginEnd=None, priority=0, begin=None, end=None, REQUEST=None):
+def manage_addProcess(self, id, title='', description='', BeginEnd=None, app_folder=None, priority=0, begin=None, end=None, REQUEST=None):
     """ """
     p = process(id, title, description, BeginEnd, priority, begin, end)
     self._setObject(id, p)
+    if app_folder:
+        app_folder_path = '/' + constants.APPLICATIONS_FOLDER_ID
+        app_folder = self.restrictedTraverse(app_folder_path)
+        app_folder.manage_addFolder(id=id, title=title)
+
     if REQUEST: REQUEST.RESPONSE.redirect('manage_main')
 
 class process(CatalogAware, Folder):
