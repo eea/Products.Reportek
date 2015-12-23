@@ -125,6 +125,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     bdr_registry_password = ''
     bdr_registry_obligations = []
     fgas_registry_obligations = []
+    preliminary_obligations = []
     fgas_registry_url = ''
     auth_middleware_recheck_interval = 300
     XLS_max_rows = 1000
@@ -270,6 +271,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         except ValueError:
             xls_max_rows = None
         self.XLS_max_rows = xls_max_rows
+
+        self.preliminary_obligations = self.REQUEST.get('preliminary_obligations', self.preliminary_obligations)
 
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             self.BDRRegistryAPI.set_base_url(self.bdr_registry_url)

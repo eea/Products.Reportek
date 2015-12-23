@@ -99,7 +99,14 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
     if not year and endyear:
         year = endyear
     now = DateTime()
-    if year and year > now.year():
+    preliminary_obl = False
+
+    engine = getattr(self, ENGINE_ID)
+    for uri in self.dataflow_uris:
+        if uri in engine.preliminary_obligations:
+            preliminary_obl = True
+
+    if year and year > now.year() and not preliminary_obl:
         if REQUEST is not None:
             error_msg = 'You cannot submit a report which relates to a future\
                          year. Please fill in the correct year!'
