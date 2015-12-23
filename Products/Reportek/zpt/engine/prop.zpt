@@ -6,189 +6,209 @@
 <p class="form-help">This page presents properties that are generic for Reportek.</p>
 
 <form name="edit" action="manage_properties" method="post">
-<table valign="top">
-	<tr>
-		<th><label for="title">Title</label></th>
-		<td><input type="text" size="50" id="title" name="title" tal:attributes="value here/title" /></td>
-	</tr>
-</table>
-<br />
-<fieldset>
-	<legend>WebQuestionnaire</legend>
-	<p class="form-help">The properties below are relevant to the WebQuestionnaire. If there is no such aplication available, leave the fields below empty.</p>
-	<p class="form-help">
-		<strong><label for="webq_url">WebQ XML-RPC server</label></strong>
-		<input type="text" size="50" id="webq_url" name="webq_url" tal:attributes="value here/webq_url" />
-	</p>
-	<p class="form-help">
-		<strong><label for="webq_envelope_menu">Envelope menu URL</label></strong>
-		<input type="text" size="50" id="webq_envelope_menu" name="webq_envelope_menu" tal:attributes="value here/webq_envelope_menu" /><br />
-		The URL to the WebQ page which constructs a menu for a specified envelope, that is a list of add-buttons, one for each legal XML schema in the envelope and edit buttons for the existing XML files in the envelope.
-	</p>
-	<p class="form-help">
-		<strong><label for="webq_before_edit_page">WebQ before edit URL</label></strong>
-		<input type="text" size="50" id="webq_before_edit_page" name="webq_before_edit_page" tal:attributes="value here/webq_before_edit_page" /><br />
-		WebQ generates this webpage, before the user starts to use the edit form of a file, in order to inquire about the capabilities of the webbrowser and the language the form should be in.
-	</p>
-</fieldset>
-<br />
-<fieldset>
-	<legend>Quality assessment</legend>
-	<p class="form-help">
-		<strong><label for="QA_application">QA application relative URL</label></strong>
-		<input type="text" size="50" id="QA_application" name="QA_application" tal:attributes="value here/QA_application" /><br />
-		Leave this field empty if there is no QA service to link to.
-	</p>
-</fieldset>
-<fieldset>
-	<legend>Globally restricted site</legend>
-	<p class="form-help">
-		<strong><label for="globally_restricted_site">Globally restricted site</label></strong>
-		<input type="checkbox" id="globally_restricted_site" name="globally_restricted_site" tal:attributes="checked here/globally_restricted_site" /><br />
-		Check this box if the content from this site needs to be fully restricted from public view (e.g. BDR). By enabling this option, all Report Documents will be restricted, and users will not be able to change their status.
-	</p>
-</fieldset>
-<fieldset tal:condition="isCdrDeployment">
-	<legend>Content Registry</legend>
-	<p class="form-help">
-        <label for='cr_api_url'><strong>Content Registry API URL</strong></label>
-		<input type="text" size="50" id="cr_api_url" name="cr_api_url"
-               tal:attributes="value here/cr_api_url" />
+    <tal:def tal:define="obligations here/get_rod_obligations">
+        <table valign="top">
+            <tr>
+                <th><label for="title">Title</label></th>
+                <td><input type="text" size="50" id="title" name="title" tal:attributes="value here/title" /></td>
+            </tr>
+        </table>
         <br />
-        <span>(leave it empty if Content Registry is not to be pingged)
+        <fieldset>
+            <legend>WebQuestionnaire</legend>
+            <p class="form-help">The properties below are relevant to the WebQuestionnaire. If there is no such aplication available, leave the fields below empty.</p>
+            <p class="form-help">
+                <strong><label for="webq_url">WebQ XML-RPC server</label></strong>
+                <input type="text" size="50" id="webq_url" name="webq_url" tal:attributes="value here/webq_url" />
+            </p>
+            <p class="form-help">
+                <strong><label for="webq_envelope_menu">Envelope menu URL</label></strong>
+                <input type="text" size="50" id="webq_envelope_menu" name="webq_envelope_menu" tal:attributes="value here/webq_envelope_menu" /><br />
+                The URL to the WebQ page which constructs a menu for a specified envelope, that is a list of add-buttons, one for each legal XML schema in the envelope and edit buttons for the existing XML files in the envelope.
+            </p>
+            <p class="form-help">
+                <strong><label for="webq_before_edit_page">WebQ before edit URL</label></strong>
+                <input type="text" size="50" id="webq_before_edit_page" name="webq_before_edit_page" tal:attributes="value here/webq_before_edit_page" /><br />
+                WebQ generates this webpage, before the user starts to use the edit form of a file, in order to inquire about the capabilities of the webbrowser and the language the form should be in.
+            </p>
+        </fieldset>
         <br />
-    </p>
-</fieldset>
-<br />
-<fieldset>
-	<legend>Dataflows Manager XMLRPC Properties</legend>
-	<p class="form-help">
-        <label for='dfm_url'><strong>Dataflows Manager XMLRPC URL</strong></label>
-		<input type="text" size="50" id="dfm_url" name="dfm_url"
-               tal:attributes="value here/dfm_url" />
+        <fieldset>
+            <legend>Quality assessment</legend>
+            <p class="form-help">
+                <strong><label for="QA_application">QA application relative URL</label></strong>
+                <input type="text" size="50" id="QA_application" name="QA_application" tal:attributes="value here/QA_application" /><br />
+                Leave this field empty if there is no QA service to link to.
+            </p>
+        </fieldset>
+        <fieldset>
+            <legend>Globally restricted site</legend>
+            <p class="form-help">
+                <strong><label for="globally_restricted_site">Globally restricted site</label></strong>
+                <input type="checkbox" id="globally_restricted_site" name="globally_restricted_site" tal:attributes="checked here/globally_restricted_site" /><br />
+                Check this box if the content from this site needs to be fully restricted from public view (e.g. BDR). By enabling this option, all Report Documents will be restricted, and users will not be able to change their status.
+            </p>
+        </fieldset>
+        <fieldset tal:condition="isCdrDeployment">
+            <legend>Content Registry</legend>
+            <p class="form-help">
+                <label for='cr_api_url'><strong>Content Registry API URL</strong></label>
+                <input type="text" size="50" id="cr_api_url" name="cr_api_url"
+                       tal:attributes="value here/cr_api_url" />
+                <br />
+                <span>(leave it empty if Content Registry is not to be pingged)
+                <br />
+            </p>
+        </fieldset>
         <br />
-    </p>
-	<p class="form-help">
-        <label for='dfm_method'><strong>Dataflows Manager XMLRPC method</strong></label>
-		<input type="text" size="50" id="dfm_method" name="dfm_method"
-               tal:attributes="value here/dfm_method" />
-        <br />
-    </p>
-	<p class="form-help">
-        <label for='dfm_timeout'><strong>Dataflows Manager XMLRPC timeout</strong></label>
-		<input type="text" size="50" id="dfm_timeout" name="dfm_timeout"
-               tal:attributes="value here/dfm_timeout" />
-        <br />
-        <span>(Dataflows Manager XMLRPC timeout in seconds)
-        <br />
-    </p>
-</fieldset>
-<fieldset>
-	<legend>Countries Manager XMLRPC Properties</legend>
-	<p class="form-help">
-        <label for='cm_url'><strong>Countries Manager XMLRPC URL</strong></label>
-		<input type="text" size="50" id="cm_url" name="cm_url"
-               tal:attributes="value here/cm_url" />
-        <br />
-    </p>
-	<p class="form-help">
-        <label for='cm_method'><strong>Countries Manager XMLRPC method</strong></label>
-		<input type="text" size="50" id="cm_method" name="cm_method"
-               tal:attributes="value here/cm_method" />
-        <br />
-    </p>
-	<p class="form-help">
-        <label for='cm_timeout'><strong>Countries Manager XMLRPC timeout</strong></label>
-		<input type="text" size="50" id="cm_timeout" name="cm_timeout"
-               tal:attributes="value here/cm_timeout" />
-        <br />
-        <span>(Countries Manager XMLRPC timeout in seconds)
-        <br />
-    </p>
-</fieldset>
-<br/>
-<fieldset tal:condition="isBdrDeployment">
-	<legend>Bdr Authorization API</legend>
-	<p class="form-help">
-        <label for='auth_middleware_url'><strong>Bdr Authorization Middleware API URL</strong></label>
-		<input type="text" size="50" id="auth_middleware_url" name="auth_middleware_url"
-               tal:attributes="value here/auth_middleware_url" />
-        <br />
-        <span>(leave it empty if Bdr Authorization API is not to be used)
-        <br />
-    </p>
-	<p class="form-help">
-        <label for='auth_middleware_recheck_interval'><strong>Authorization recheck interval</strong></label>
-		<input type="text" size="50" id="auth_middleware_recheck_interval" name="auth_middleware_recheck_interval"
-               tal:attributes="value here/auth_middleware_recheck_interval" />
-    </p>
-</fieldset>
-<tal:block tal:condition="isBdrDeployment" tal:define="obligations here/get_rod_obligations">
-    <fieldset>
-        <legend>Bdr Registry API</legend>
-        <p class="form-help">
-            <label for='bdr_registry_url'><strong>Bdr Registry API URL</strong></label>
-            <input type="text" size="50" id="bdr_registry_url" name="bdr_registry_url"
-                   tal:attributes="value here/bdr_registry_url" />
-            <br />
-            <span>(leave it empty if Bdr Registry API is not to be used)
-            <br />
-        </p>
-        <p class="form-help">
-            <label for='bdr_registry_obligations'><strong>Bdr Registry obligations</strong></label>
-            <br />
-            <select name="bdr_registry_obligations:list" size="5" multiple="">
-                <option tal:repeat="bdr_o python: obligations"
-                 tal:attributes="value python: bdr_o[0];
-                                 selected python: bdr_o[0] in here.bdr_registry_obligations"
-                 tal:content="python: bdr_o[1]" />
-            </select>
-        </p>
-        <p class="form-help">
-            <label for='bdr_registry_username'><strong>Bdr Registry username</strong></label>
-            <input type="text" size="50" id="bdr_registry_username" name="bdr_registry_username" tal:attributes="value here/bdr_registry_username" />
-        </p>
-        <p class="form-help">
-            <label for='bdr_registry_password'><strong>Bdr Registry password</strong></label>
-            <input type="password" size="50" id="bdr_registry_password" name="bdr_registry_password"
-                   tal:attributes="value here/bdr_registry_password" />
-        </p>
-    </fieldset>
-    <fieldset>
-        <legend>FGAS Registry Cache API</legend>
-        <p class="form-help">
-            <label for='fgas_registry_url'><strong>FGAS Cache Registry API URL</strong></label>
-            <input type="text" size="50" id="fgas_registry_url" name="fgas_registry_url"
-                   tal:attributes="value here/fgas_registry_url" />
-            <br />
-            <span>(leave it empty if FGAS Cache Registry API is not to be used)
-            <br />
-        </p>
-        <p class="form-help">
-            <label for='fgas_registry_obligations'><strong>FGAS Registry obligations</strong></label>
-            <br />
-            <select name="fgas_registry_obligations:list" size="5" multiple="">
-                <option tal:repeat="fgas_o python: obligations"
-                    tal:attributes="value python: fgas_o[0];
-                                    selected python: fgas_o[0] in here.fgas_registry_obligations"
-                    tal:content="python: fgas_o[1]" />
-            </select>
+        <fieldset>
+            <legend>Dataflows Manager XMLRPC Properties</legend>
+            <p class="form-help">
+                <label for='dfm_url'><strong>Dataflows Manager XMLRPC URL</strong></label>
+                <input type="text" size="50" id="dfm_url" name="dfm_url"
+                       tal:attributes="value here/dfm_url" />
+                <br />
+            </p>
+            <p class="form-help">
+                <label for='dfm_method'><strong>Dataflows Manager XMLRPC method</strong></label>
+                <input type="text" size="50" id="dfm_method" name="dfm_method"
+                       tal:attributes="value here/dfm_method" />
+                <br />
+            </p>
+            <p class="form-help">
+                <label for='dfm_timeout'><strong>Dataflows Manager XMLRPC timeout</strong></label>
+                <input type="text" size="50" id="dfm_timeout" name="dfm_timeout"
+                       tal:attributes="value here/dfm_timeout" />
+                <br />
+                <span>(Dataflows Manager XMLRPC timeout in seconds)
+                <br />
+            </p>
+        </fieldset>
+        <fieldset>
+            <legend>Countries Manager XMLRPC Properties</legend>
+            <p class="form-help">
+                <label for='cm_url'><strong>Countries Manager XMLRPC URL</strong></label>
+                <input type="text" size="50" id="cm_url" name="cm_url"
+                       tal:attributes="value here/cm_url" />
+                <br />
+            </p>
+            <p class="form-help">
+                <label for='cm_method'><strong>Countries Manager XMLRPC method</strong></label>
+                <input type="text" size="50" id="cm_method" name="cm_method"
+                       tal:attributes="value here/cm_method" />
+                <br />
+            </p>
+            <p class="form-help">
+                <label for='cm_timeout'><strong>Countries Manager XMLRPC timeout</strong></label>
+                <input type="text" size="50" id="cm_timeout" name="cm_timeout"
+                       tal:attributes="value here/cm_timeout" />
+                <br />
+                <span>(Countries Manager XMLRPC timeout in seconds)
+                <br />
+            </p>
+        </fieldset>
+        <br/>
 
-        </p>
-    </fieldset>
-</tal:block>
-<br/>
-<input type="submit" value="Save changes" />
+        <fieldset>
+            <legend>Preliminary obligations</legend>
+            <p class="form-help">
+                <label for='preliminary_obligations'><strong>Preliminary obligations</strong></label>
+                <br />
+                <select name="preliminary_obligations:list" size="5" multiple="">
+                    <option tal:repeat="pre_o python: obligations"
+                     tal:attributes="value python: pre_o[0];
+                                     selected python: pre_o[0] in here.preliminary_obligations"
+                     tal:content="python: pre_o[1]" />
+                </select>
+                <br />
+                <span>(Obligations for which reporting data which relates to future years is possible)</span>
+                <br />
+            </p>
+        </fieldset>
+        <br />
+        <fieldset tal:condition="isBdrDeployment">
+            <legend>Bdr Authorization API</legend>
+            <p class="form-help">
+                <label for='auth_middleware_url'><strong>Bdr Authorization Middleware API URL</strong></label>
+                <input type="text" size="50" id="auth_middleware_url" name="auth_middleware_url"
+                       tal:attributes="value here/auth_middleware_url" />
+                <br />
+                <span>(leave it empty if Bdr Authorization API is not to be used)
+                <br />
+            </p>
+            <p class="form-help">
+                <label for='auth_middleware_recheck_interval'><strong>Authorization recheck interval</strong></label>
+                <input type="text" size="50" id="auth_middleware_recheck_interval" name="auth_middleware_recheck_interval"
+                       tal:attributes="value here/auth_middleware_recheck_interval" />
+            </p>
+        </fieldset>
+        <tal:block tal:condition="isBdrDeployment">
+            <fieldset>
+                <legend>Bdr Registry API</legend>
+                <p class="form-help">
+                    <label for='bdr_registry_url'><strong>Bdr Registry API URL</strong></label>
+                    <input type="text" size="50" id="bdr_registry_url" name="bdr_registry_url"
+                           tal:attributes="value here/bdr_registry_url" />
+                    <br />
+                    <span>(leave it empty if Bdr Registry API is not to be used)
+                    <br />
+                </p>
+                <p class="form-help">
+                    <label for='bdr_registry_obligations'><strong>Bdr Registry obligations</strong></label>
+                    <br />
+                    <select name="bdr_registry_obligations:list" size="5" multiple="">
+                        <option tal:repeat="bdr_o python: obligations"
+                         tal:attributes="value python: bdr_o[0];
+                                         selected python: bdr_o[0] in here.bdr_registry_obligations"
+                         tal:content="python: bdr_o[1]" />
+                    </select>
+                </p>
+                <p class="form-help">
+                    <label for='bdr_registry_username'><strong>Bdr Registry username</strong></label>
+                    <input type="text" size="50" id="bdr_registry_username" name="bdr_registry_username" tal:attributes="value here/bdr_registry_username" />
+                </p>
+                <p class="form-help">
+                    <label for='bdr_registry_password'><strong>Bdr Registry password</strong></label>
+                    <input type="password" size="50" id="bdr_registry_password" name="bdr_registry_password"
+                           tal:attributes="value here/bdr_registry_password" />
+                </p>
+            </fieldset>
+            <fieldset>
+                <legend>FGAS Registry Cache API</legend>
+                <p class="form-help">
+                    <label for='fgas_registry_url'><strong>FGAS Cache Registry API URL</strong></label>
+                    <input type="text" size="50" id="fgas_registry_url" name="fgas_registry_url"
+                           tal:attributes="value here/fgas_registry_url" />
+                    <br />
+                    <span>(leave it empty if FGAS Cache Registry API is not to be used)
+                    <br />
+                </p>
+                <p class="form-help">
+                    <label for='fgas_registry_obligations'><strong>FGAS Registry obligations</strong></label>
+                    <br />
+                    <select name="fgas_registry_obligations:list" size="5" multiple="">
+                        <option tal:repeat="fgas_o python: obligations"
+                            tal:attributes="value python: fgas_o[0];
+                                            selected python: fgas_o[0] in here.fgas_registry_obligations"
+                            tal:content="python: fgas_o[1]" />
+                    </select>
+
+                </p>
+            </fieldset>
+        </tal:block>
+        <br/>
+        <input type="submit" value="Save changes" />
+    </tal:def>
 </form>
 
 <form action="runAutomaticApplications" method="get">
 <fieldset>
-	<legend>Trigger Automatic Applications</legend>
-	<p class="form-help">
-		<strong><label for="p_applications">Name of activity to run</label></strong>
-		<input type="text" size="50" id="p_applications" name="p_applications" /><br />
-	</p>
-	<input type="submit" value="Trigger" />
+    <legend>Trigger Automatic Applications</legend>
+    <p class="form-help">
+        <strong><label for="p_applications">Name of activity to run</label></strong>
+        <input type="text" size="50" id="p_applications" name="p_applications" /><br />
+    </p>
+    <input type="submit" value="Trigger" />
 </fieldset>
 <form>
 
