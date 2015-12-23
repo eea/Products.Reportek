@@ -123,6 +123,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     bdr_registry_password = ''
     bdr_registry_obligations = []
     fgas_registry_obligations = []
+    preliminary_obligations = []
     fgas_registry_url = ''
     auth_middleware_recheck_interval = 300
 
@@ -260,6 +261,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.bdr_registry_obligations = self.REQUEST.get('bdr_registry_obligations', self.bdr_registry_obligations)
         self.fgas_registry_url = self.REQUEST.get('fgas_registry_url', self.fgas_registry_url)
         self.fgas_registry_obligations = self.REQUEST.get('fgas_registry_obligations', self.fgas_registry_obligations)
+
+        self.preliminary_obligations = self.REQUEST.get('preliminary_obligations', self.preliminary_obligations)
 
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             self.BDRRegistryAPI.set_base_url(self.bdr_registry_url)
