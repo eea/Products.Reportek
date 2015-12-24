@@ -13,4 +13,18 @@
       preserveOriginal="false"
     />
 
+    <monkey:patch description="Patch manage_renameForm"
+      class="OFS.CopySupport.CopyContainer"
+      original="manage_renameForm"
+      replacement=".patch_ofs_copysupport.patched_manage_renameForm"
+      preserveOriginal="false"
+    />
+
+    <monkey:patch description="Patch manage_renameObjects"
+      class="OFS.CopySupport.CopyContainer"
+      original="manage_renameObjects"
+      replacement=".patch_ofs_copysupport.patched_manage_renameObjects"
+      preserveOriginal="false"
+    />
+
 </configure>
