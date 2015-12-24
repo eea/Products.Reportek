@@ -34,7 +34,8 @@ def patched_manage_renameObjects(self, ids=[], new_ids=[],
             self.manage_renameObject(ids[i], new_ids[i], REQUEST)
             # If checked, also rename the corresponding Application folders
             if ids[i] in renameapp_ids and app_folder:
-                app_folder.manage_renameObject(ids[i], new_ids[i], REQUEST)
+                if ids[i] in app_folder.objectIds():
+                    app_folder.manage_renameObject(ids[i], new_ids[i], REQUEST)
     if REQUEST is not None:
         return self.manage_main(self, REQUEST, update_menu=1)
     return None

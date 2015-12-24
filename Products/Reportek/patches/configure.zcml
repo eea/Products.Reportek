@@ -27,4 +27,11 @@
       preserveOriginal="false"
     />
 
+    <monkey:patch description="Patch manage_delObjects"
+      class="OFS.ObjectManager.ObjectManager"
+      original="manage_delObjects"
+      replacement=".patch_manage_delObjects.patched_manage_delObjects"
+      preserveOriginal="false"
+    />
+
 </configure>
