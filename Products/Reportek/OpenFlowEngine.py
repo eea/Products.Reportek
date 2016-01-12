@@ -487,8 +487,10 @@ class OpenFlowEngine(Folder, Toolz):
             except Exception as e:
                 raise OpenFlowEngineImportError('Invalid rid', pr.get('rid', None), e.args)
 
-            self.manage_addProcess(pr_id, pr['title'], pr['description'], None,
-                int(pr['priority']), pr['begin'], pr['end'])
+            self.manage_addProcess(pr_id, title=pr['title'],
+                                   description=pr['description'], BeginEnd=None,
+                                   priority=int(pr['priority']),
+                                   begin=pr['begin'], end=pr['end'])
 
             process = self._getOb(pr_id)
             pushRoles = defaultdict(list)
@@ -657,8 +659,7 @@ class OpenFlowEngine(Folder, Toolz):
         self.process_mappings[p_process] = l_ret_dict
         self._p_changed = 1
         if REQUEST:
-            message="Properties changed"
-            return self.workflow_map_processes(self,REQUEST,manage_tabs_message=message)
+            REQUEST.RESPONSE.redirect('workflow_map_processes?manage_tabs_message=Properties changed')
 
     security.declarePublic('findProcess')
     def findProcess(self, dataflow_uris, country_code):
@@ -713,6 +714,30 @@ class OpenFlowEngine(Folder, Toolz):
 
     security.declareProtected('Manage OpenFlow', 'workflow_map_process')
     workflow_map_process = PageTemplateFile('zpt/Workflow/workflowMapProcess', globals())
+
+    security.declareProtected('Manage OpenFlow', 'handle_workflow_map_processes')
+    def handle_workflow_map_processes(self, REQUEST=None):
+        """ Handler for workflow_map_processes form
+        """
+        if REQUEST:
+            if not REQUEST.get('delete'):
+                p_process = ''
+                for key, val in REQUEST.form.iteritems():
+                    if val == 'Edit mapping':
+                        p_process = '_'.join(key.split('_')[1:])
+                        break
+
+                REQUEST.form['p_process'] = p_process
+
+                return self.workflow_map_process(REQUEST)
+            else:
+                processes = REQUEST.form.get('process')
+                if isinstance(processes, str):
+                    processes = [processes]
+                for p_id in processes:
+                    self.process_mappings.pop(p_id, None)
+                    self._p_changed = 1
+                REQUEST.RESPONSE.redirect('workflow_map_processes?manage_tabs_message=Mapping deleted')
 
     security.declarePublic('getApplicationToActivitiesMapping')
     def getApplicationToActivitiesMapping(self):
@@ -834,3 +859,15 @@ def handle_application_move_events(obj):
     except TypeError:
         # skip, not a real REQUEST
         pass
+
+
+def handle_process_move_events(obj, event):
+    """ Process move event handler
+    """
+    wf_engine = obj.aq_parent
+    mapping = wf_engine.process_mappings.pop(event.oldName, None)
+
+    if mapping and event.newName:
+        wf_engine.process_mappings[event.newName] = mapping
+
+    wf_engine._p_changed = 1
