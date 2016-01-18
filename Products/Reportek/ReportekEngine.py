@@ -1049,7 +1049,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             l_server = self.get_uns_xmlrpc_server()
             l_ret = l_server.UNSService.canSubscribe(self.UNS_channel_id, user_id)
             return l_ret
-        except Exception, err:
+        except Exception as e:
+            logger.warning("Unable to contact UNS to check if {0} can "
+                           "subscribe: {1}".format(user_id, e))
             return 0
 
     security.declareProtected('View', 'subscribeToUNS')
@@ -1117,14 +1119,22 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#event_type', notification_type])
             l_ret = l_server.UNSService.sendNotification(self.UNS_channel_id, l_res)
             return 1
-        except:
+        except Exception as e:
+            logger.warning("Unable to send UNS notification for: {0}: {1}"
+                           .format(envelope.absolute_url(), e))
             return 0
 
     security.declarePrivate('uns_subscribe_actors')
     def uns_subscribe_actors(self, actors, filters):
         server = self.get_uns_xmlrpc_server()
         for act in actors:
-            server.UNSService.makeSubscription(self.UNS_channel_id, act, filters)
+            try:
+                server.UNSService.makeSubscription(self.UNS_channel_id, act, filters)
+                return 1
+            except Exception as e:
+                logger.warning("Unable to subscribe actors: {0} to UNS: {1}"
+                               .format(actors, e))
+                return 0
 
     ################################################################################
     #
