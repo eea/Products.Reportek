@@ -628,3 +628,8 @@ tr.user-disabled {
 #path_filter {
   width: 200px;
 }
+
+.total-dflow-results {
+  position: absolute;
+  left: 50%;
+}

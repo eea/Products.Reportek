@@ -248,6 +248,10 @@ $(document).ready(function() {
         </tal:block>
       </metal:block>
     </metal:block>
+    <span class="total-dflow-results">
+      <span>Total number of results:</span>
+      <span tal:content="results_no" />
+    </span>
     <div class="batch-size-ctl">
       <label for="b_size">Number of results per page:</label>
       <select id="b_size" name="b_size"
