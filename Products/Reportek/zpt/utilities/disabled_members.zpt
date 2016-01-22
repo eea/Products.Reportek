@@ -10,6 +10,8 @@
     <script type="text/javascript" charset="utf8" src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.min.js"></script>
     <script src="++resource++static/select2-3.5.0/select2.js"></script>
     <script src="++resource++static/utils.js"></script>
+    <script src="++resource++static/moment.min.js"></script>
+    <script src="++resource++static/datetime-moment.js"></script>
 
   </metal:block>
 
