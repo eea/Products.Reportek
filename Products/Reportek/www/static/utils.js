@@ -444,6 +444,7 @@ reportek.utils = {
   },
 
   initCompaniesTable: function() {
+    $.fn.dataTable.moment( 'DD/MM/YYYY' );
     $("#comp-table").dataTable({
       "iDisplayLength": 20,
       "sAjaxSource": "/fgases_registry/get_companies",
