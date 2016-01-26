@@ -80,6 +80,8 @@
             var cid = $('input[name=cid]:checked', '#company-verification').val()
             if(cid && confirm("Are you sure do you want to approve this company?")) {
               this.submit();
+            } else if (!cid) {
+              alert("Please select if this is a new company or if it can be matched with an existing one!");
             }
           });
         </script>
