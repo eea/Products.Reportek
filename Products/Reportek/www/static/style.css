@@ -633,3 +633,28 @@ tr.user-disabled {
   position: absolute;
   left: 50%;
 }
+
+.overflow {
+  overflow: hidden;
+}
+
+.no-borders {
+  border: 0!important;
+}
+
+.box-small {
+  padding: 12px;
+  margin-bottom: 12px;
+  border: 1px solid #ddd;
+  background: #f6f6f6;
+}
+
+.org-actions {
+  margin-left: 24px;
+}
+
+.org-actions .h4 {
+  font-size: 14px;
+  font-weight: bold;
+  margin: 0 0 12px;
+}

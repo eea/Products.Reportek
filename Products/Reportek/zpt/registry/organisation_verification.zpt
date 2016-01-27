@@ -43,7 +43,7 @@
 
         <tal:block condition="company">
           <h2 tal:content="company/name" />
-          <div class="details">
+          <div class="details overflow">
             <tal:block metal:use-macro="here/partials/macros/organisation_details" />
           </div>
 

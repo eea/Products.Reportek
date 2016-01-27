@@ -195,6 +195,13 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
                 return unverifyResponse
 
+    def updateCompanyStatus(self, company_id, status):
+        url = self.baseUrl + '/misc/undertaking/{0}/statusupdate'.format(company_id)
+        data = {'status': status}
+        response = self.do_api_request(url, data=data, method="post")
+
+        return response
+
     def getCompaniesExcelExport(self):
         url = self.baseUrl + '/misc/undertaking/export'
         response = self.do_api_request(url)
