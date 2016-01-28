@@ -71,7 +71,8 @@ def manage_addCollection(self, title, descr, year, endyear, partofyear,
 
     self._setObject(id, ob)
     if REQUEST is not None:
-        return self.manage_main(self, REQUEST, update_menu=1)
+        # Return to parent view
+        return REQUEST.RESPONSE.redirect(self.absolute_url())
 
 
 class Collection(CatalogAware, Folder, Toolz):
