@@ -114,10 +114,29 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
         else:
             raise ValueError('Cannot create envelope which relates to a future year')
 
-    year_parts = ['Whole Year', 'First Half', 'Second Half',
-                  'First Quarter', 'Second Quarter', 'Third Quarter',
-                  'Fourth Quarter']
-    months = ["January","February","March","April","May","June","July","August","September","October","November","December"]
+    year_parts = [
+        'Whole Year',
+        'First Half',
+        'Second Half',
+        'First Quarter',
+        'Second Quarter',
+        'Third Quarter',
+        'Fourth Quarter'
+    ]
+    months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+    ]
     if not partofyear in (year_parts + months):
         raise InvalidPartOfYear
 
@@ -132,7 +151,8 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
         ob.manage_pasteObjects(l_data)
     ob.startInstance(REQUEST)  # Start the instance
     if REQUEST is not None:
-        return REQUEST.RESPONSE.redirect('manage_main')
+        # Return to container's view
+        return REQUEST.RESPONSE.redirect(self.absolute_url())
     else:
         return ob.absolute_url()
 

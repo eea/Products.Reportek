@@ -62,6 +62,9 @@ def manage_addCollection(self, title, descr, year, endyear, partofyear,
                          old_company_id=None):
     """Add a new Collection object
     """
+    if isinstance(self, Collection) and not self.allow_collections:
+        raise ValueError("The collection does not allow child collections "
+                         "to be created.")
     if id == '':
         id = RepUtils.generate_id('col')
     ob = Collection(id, title, year, endyear, partofyear, country, locality,
@@ -71,7 +74,7 @@ def manage_addCollection(self, title, descr, year, endyear, partofyear,
 
     self._setObject(id, ob)
     if REQUEST is not None:
-        # Return to parent view
+        # Return to containers's view
         return REQUEST.RESPONSE.redirect(self.absolute_url())
 
 
