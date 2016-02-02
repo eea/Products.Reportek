@@ -5,54 +5,67 @@
   <div tal:condition="not: company">
     <p i18n:translate="">Unable to retrieve data</p>
   </div>
-  <table class="table-list" tal:condition="company">
+  <div tal:condition="company">
+    <h3 i18n:translate="">
+      Registry data for <span i18n:name="company_name" tal:content="company/name" />
+    </h3>
+    <table class="table-list">
 
-    <tr>
-      <th i18n:translate="">Registry</th>
-      <td tal:content="company/registry" />
-    </tr>
+      <tr>
+        <th i18n:translate="">Registry</th>
+        <td tal:content="company/registry" />
+      </tr>
 
-    <tr>
-      <th i18n:translate="">Company name</th>
-      <td tal:content="company/name" />
-    </tr>
+      <tr>
+        <th i18n:translate="">Company name</th>
+        <td tal:content="company/name" />
+      </tr>
 
-    <tr>
-      <th i18n:translate="">Company ID</th>
-      <td tal:content="here/company_id" />
-    </tr>
+      <tr>
+        <th i18n:translate="">Company ID</th>
+        <td tal:content="here/company_id" />
+      </tr>
 
-    <tr>
-      <th i18n:translate="">Status</th>
-      <td tal:content="company/status" />
-    </tr>
+      <tr>
+        <th i18n:translate="">Status</th>
+        <td tal:content="company/status" />
+      </tr>
 
-    <tr>
-      <th i18n:translate="">Street and number</th>
-       <td tal:content="company/address/street" />
-    </tr>
+      <tr>
+        <th i18n:translate="">Street and number</th>
+         <td tal:content="company/address/street" />
+      </tr>
 
-    <tr>
-      <th i18n:translate="">City</th>
-      <td tal:content="company/address/city" />
-    </tr>
+      <tr>
+        <th i18n:translate="">City</th>
+        <td tal:content="company/address/city" />
+      </tr>
 
-    <tr>
-      <th i18n:translate="">Country</th>
-      <td tal:content="company/country" />
-    </tr>
+      <tr>
+        <th i18n:translate="">Country</th>
+        <td tal:content="company/country" />
+      </tr>
 
-    <tr>
-      <th i18n:translate="">VAT number</th>
-      <td tal:content="company/vat" />
-    </tr>
+      <tr>
+        <th i18n:translate="">VAT number</th>
+        <td tal:content="company/vat" />
+      </tr>
 
-    <tr tal:define="r_date company/portal_registration_date|nothing">
-      <th i18n:translate="">Portal registration date (YYYY/MM/DD)</th>
-      <td tal:condition="r_date"
-        tal:content="python: r_date.strftime('%Y-%m-%d')" />
-    </tr>
+      <tr tal:define="r_date company/portal_registration_date|nothing">
+        <th i18n:translate="">Portal registration date (YYYY/MM/DD)</th>
+        <td tal:condition="r_date"
+          tal:content="python: r_date.strftime('%Y-%m-%d')" />
+      </tr>
 
-  </table>
+      <tr>
+        <th i18n:translate="">Types</th>
+        <td>
+          <ul class="c_types">
+            <li tal:repeat="c_type here/company_types" tal:content="c_type" />
+          </ul>
+        </td>
+      </tr>
+    </table>
+  </div>
 </div>
 <tal:block content="structure here/standard_html_footer" />
