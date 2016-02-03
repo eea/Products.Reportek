@@ -42,7 +42,7 @@
         <td><input type="text" name="title:utf8:ustring" size="60" style="width:85%" /></td> 
       </tr>
       <tr>
-        <th style="width: 15%" i18n:translate="">Feedback content (plain text)</th>
+        <th style="width: 15%" i18n:translate="">Feedback text</th>
               <td>
                   <textarea id="ckeditor-textarea" cols="60" rows="100" name="feedbacktext:utf8:ustring" style="width:85%"></textarea>
         </td>
