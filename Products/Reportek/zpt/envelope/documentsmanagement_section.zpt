@@ -1,11 +1,11 @@
 <tal:block tal:define="dummy python:request.set('therearerestrictions', 0);
-  menuEnvelope here/getWebQ_MenuEnvelope_URL;
-  canChangeEnvelope here/canChangeEnvelope;
-  showFormButtons python:here.is_active_for_me(request) and canChangeEnvelope and not here.released;
-  qa_4_files python:test(showFormButtons, here.canRunQAOnFiles(), {});
-  documents python:here.tlzSortByAttr(here.objectValues(['Report Document']), 'id');
-  hyperlinks  python:here.tlzSortByAttr(here.objectValues(['Report Hyperlink']), 'id');
-  SecurityManager modules/AccessControl/getSecurityManager;">
+                       menuEnvelope here/getWebQ_MenuEnvelope_URL;
+                       canChangeEnvelope here/canChangeEnvelope;
+                       showFormButtons python:here.is_active_for_me(request) and canChangeEnvelope and not here.released;
+                       qa_4_files python:test(showFormButtons, here.canRunQAOnFiles(), {});
+                       documents python:here.tlzSortByAttr(here.objectValues(['Report Document']), 'id');
+                       hyperlinks  python:here.tlzSortByAttr(here.objectValues(['Report Hyperlink']), 'id');
+                       SecurityManager modules/AccessControl/getSecurityManager;">
 
   <div class="filessection">
     <fieldset>
