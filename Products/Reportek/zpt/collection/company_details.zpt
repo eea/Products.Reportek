@@ -54,6 +54,15 @@
             tal:content="python: r_date.strftime('%Y-%m-%d')" />
         </tr>
 
+        <tr>
+          <th i18n:translate="">Types</th>
+          <td>
+            <ul class="c_types">
+              <li tal:repeat="c_type here/company_types" tal:content="c_type" />
+            </ul>
+          </td>
+        </tr>
+
       </table>
     </div>
   </metal:block>
