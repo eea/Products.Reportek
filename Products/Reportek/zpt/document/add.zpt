@@ -1,67 +1,56 @@
-<tal:block define="SecurityManager
-                   modules/AccessControl/getSecurityManager;
-                   has_permission
-                   python:SecurityManager.checkPermission('View management screens', template)">
+<metal:block use-macro="container/standard_template.pt/macros/page">
 
-  <tal:block condition="has_permission">
-    <span tal:replace="structure context/manage_page_header"/>
-    <span tal:replace="structure python:
-      context.manage_form_title(template, context,
-        form_title='Add Document',
-        help_product='Reportek',
-        help_topic='Document_Add.stx'
-      )"/>
-  </tal:block>
-  <tal:block condition="not:has_permission">
-    <span tal:replace="structure context/standard_html_header"/>
-    <h1 i18n:translate="">Add Document</h1>
-  </tal:block>
+  <metal:block fill-slot="content">
+    <tal:block define="SecurityManager
+                       modules/AccessControl/getSecurityManager;
+                       has_permission
+                       python:SecurityManager.checkPermission('View management screens', template)">
 
-  <div class="note-msg">
-    <strong i18n:translate="">Warning:</strong>
-    <p i18n:translate="">If the filename already exists in the envelope, the existing file will be overwritten.</p>
-  </div>
+      <h1 i18n:translate="">Add Document</h1>
 
-  <tal:block define="
-    default_restricted python:request.SESSION.get('default_restricted', '');
-    force_restricted python:request.SESSION.get('force_restricted', '')">
+      <div class="note-msg">
+        <strong i18n:translate="">Warning:</strong>
+        <p i18n:translate="">If the filename already exists in the envelope, the existing file will be overwritten.</p>
+      </div>
 
-  <form action="manage_addDocument" method="post" enctype="multipart/form-data" name="form">
-    <table cellspacing="5" cellpadding="0">
-    <tr>
-      <th align="left" valign="top" i18n:translate="">Title</th>
-      <td align="left" valign="top"><input type="text" name="title" size="40" /></td>
-    </tr>
-    <tr>
-      <th align="left" valign="top" i18n:translate="">File</th>
-      <td align="left" valign="top"><input type="file" name="file" size="25" value="" /></td>
-    </tr>
-    <tr>
-      <th align="left">Id</th>
-      <td align="left"><input type="text" name="id" size="40" i18n:translate=""/> (optional)</td>
-    </tr>
+      <tal:block define="
+        default_restricted python:request.SESSION.get('default_restricted', '');
+        force_restricted python:request.SESSION.get('force_restricted', '')">
 
-    <tr tal:condition="
-      not:python:force_restricted or getattr(context.ReportekEngine, 'globally_restricted_site', False)">
-      <th align="left" i18n:translate="">Restricted from public view</th>
-      <td align="left">
-          <input tal:condition="default_restricted" type="checkbox" name="restricted" checked="checked" />
-          <input tal:condition="not:default_restricted" type="checkbox" name="restricted" />
-      </td>
-    </tr>
+      <form action="manage_addDocument" method="post" enctype="multipart/form-data" name="form">
+        <table cellspacing="5" cellpadding="0">
+        <tr>
+          <th align="left" valign="top" i18n:translate="">Title</th>
+          <td align="left" valign="top"><input type="text" name="title" size="40" /></td>
+        </tr>
+        <tr>
+          <th align="left" valign="top" i18n:translate="">File</th>
+          <td align="left" valign="top"><input type="file" name="file" size="25" value="" /></td>
+        </tr>
+        <tr>
+          <th align="left">Id</th>
+          <td align="left"><input type="text" name="id" size="40" i18n:translate=""/> (optional)</td>
+        </tr>
 
-    <tr>
-      <td>
-        <input tal:condition="force_restricted" type="hidden" name="restricted" value="on"/>
-      </td>
-      <td><input type="submit" value="Add" i18n:attributes="value" /></td>
-    </tr>
-    </table>
-  </form>
+        <tr tal:condition="
+          not:python:force_restricted or getattr(context.ReportekEngine, 'globally_restricted_site', False)">
+          <th align="left" i18n:translate="">Restricted from public view</th>
+          <td align="left">
+              <input tal:condition="default_restricted" type="checkbox" name="restricted" checked="checked" />
+              <input tal:condition="not:default_restricted" type="checkbox" name="restricted" />
+          </td>
+        </tr>
 
-  </tal:block>
+        <tr>
+          <td>
+            <input tal:condition="force_restricted" type="hidden" name="restricted" value="on"/>
+          </td>
+          <td><input type="submit" value="Add" i18n:attributes="value" /></td>
+        </tr>
+        </table>
+      </form>
 
-  <span tal:condition="has_permission" tal:replace="structure context/manage_page_footer"/>
-  <span tal:condition="not:has_permission" tal:replace="structure context/standard_html_footer"/>
-
-</tal:block>
+      </tal:block>
+    </tal:block>
+  </metal:block>
+</metal:block>

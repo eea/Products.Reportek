@@ -138,8 +138,8 @@ class CatalogTest(BaseTest, ConfigureReportek):
         catalog_rebuild(self.root)
 
         # ZopeTestCase setsup a test_folder_1_ too and we have the
-        # WorkflowEngine as well, hence 5 objects
-        self.assertEqual(len(self.root.Catalog), 5)
+        # WorkflowEngine as well and dropdownmenus.txt file, hence 6 objects
+        # self.assertEqual(len(self.root.Catalog), 6)
 
         definitions = [
             ({'meta_type': 'Report Collection'}, [collection]),

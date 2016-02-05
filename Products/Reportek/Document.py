@@ -112,7 +112,8 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
             if REQUEST:
                 return self.messageDialog(
                     message='The file is an invalid XML (reason: %s)' % str(e.args),
-                    action='./manage_main')
+                    action=self.absolute_url()
+                    )
             else:
                 return ''
         if save_id:
@@ -126,12 +127,8 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
             obj.manage_restrictDocument()
         obj.reindex_object()
         if REQUEST is not None:
-            security=getSecurityManager()
-            if security.checkPermission('View management screens', self):
-                ppath = './manage_main'
-            else:
-                pobj = REQUEST.PARENTS[0]
-                ppath = string.join(pobj.getPhysicalPath(), '/')
+            pobj = REQUEST.PARENTS[0]
+            ppath = string.join(pobj.getPhysicalPath(), '/')
             return self.messageDialog(
                 message='The file %s was successfully created!' % id,
                 action=ppath)
@@ -141,7 +138,8 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
         if REQUEST is not None:
             return self.messageDialog(
                 message='You must specify a file!',
-                action='./manage_main')
+                action=self.absolute_url()
+                )
         else:
             return ''
 

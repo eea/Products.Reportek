@@ -1,6 +1,9 @@
 # -*- coding: utf-8 -*-
+import os
 from mock import Mock
+from App.Common import package_home
 from Testing import ZopeTestCase
+from Globals import DTMLFile
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
 from zope.traversing.adapters import DefaultTraversable
@@ -19,6 +22,7 @@ from OFS.SimpleItem import SimpleItem
 from Products.Reportek.Collection import Collection, manage_addCollection
 from Products.Reportek.Envelope import Envelope
 from Products.Reportek.ReportekEngine import ReportekEngine
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
 from utils import makerequest
 from copy import deepcopy
@@ -46,6 +50,15 @@ class BaseTest(ZopeTestCase.ZopeTestCase):
     provideAdapter(DefaultTraversable,
         (interface.Interface,),ITraversable)
 
+    def get_abs_path(self, filename, _prefix=None):
+        if _prefix:
+            if isinstance(_prefix, str):
+                filename = os.path.join(_prefix, filename)
+            else:
+                filename = os.path.join(package_home(_prefix), filename)
+
+        return filename
+
     def afterSetUp(self):
         name = 'mock'
         new_environ = {
@@ -60,6 +73,15 @@ class BaseTest(ZopeTestCase.ZopeTestCase):
         self.app.REQUEST.AUTHENTICATED_USER.getUserName.return_value = 'gigel'
         self.root.standard_html_header = ''
         self.root.standard_html_footer = ''
+        self.root.management_page_charset = 'utf-8'
+        self.root.buttons_loginout = ''
+        self.root.buttons_py = ''
+        dropdown = open(self.get_abs_path('data/dropdownmenus.txt', globals()),'rb')
+        self.root.manage_addFile(id='dropdownmenus.txt',
+                                 file=dropdown)
+        dropdown.close()
+        self.root['breadcrumb'] = PageTemplateFile('data/breadcrumb.pt', globals())
+        self.root['standard_template.pt'] = PageTemplateFile('data/standard_template.pt', globals())
         self.engine = self.create_reportek_engine(self.root)
         self.wf = self.create_flow_engine(self.root)
 

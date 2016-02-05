@@ -78,7 +78,7 @@
     <div id="menuribbon"
          tal:content="structure here/dropdownmenus.txt"></div>
     <metal:block define-slot="breadcrumbtrails">
-     <tal:block content="structure here/breadcrumbtrail"></tal:block>
+     <tal:block content="structure here/breadcrumb"></tal:block>
     </metal:block>
 
     <div id="leftcolumn" class="localnav">
