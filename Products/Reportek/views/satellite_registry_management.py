@@ -1,6 +1,7 @@
 from base_admin import BaseAdmin
 from Products.Reportek.constants import ENGINE_ID
 from Products.Reportek.RepUtils import fix_json_from_id
+from plone.memoize.ram import global_cache
 import json
 import re
 
@@ -61,6 +62,15 @@ class SatelliteRegistryManagement(BaseAdmin):
 
             return self.index(error='Specify an email address.')
 
+        if self.request.method == "POST" and self.request.get('orgaction') == 'statusupdate':
+            status = self.request.get('newval')
+            orgid = self.request.get('orgid')
+            if orgid and status:
+                if not api.updateCompanyStatus(orgid, status.upper()):
+                    return self.index(error='Unable to change company status')
+                else:
+                    # We need to clear the company_details cache
+                    global_cache.invalidate('Products.Reportek.RegistryManagement.get_company_details')
         return self.index(error=False)
 
     def get_api(self):

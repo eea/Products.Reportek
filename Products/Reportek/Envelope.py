@@ -43,8 +43,10 @@ from Products.PythonScripts.standard import url_quote
 from zExceptions import Forbidden
 from DateTime import DateTime
 from DateTime.interfaces import SyntaxError
+from StringIO import StringIO
 from ZPublisher.Iterators import filestream_iterator
 import logging
+import xlwt
 logger = logging.getLogger("Reportek")
 
 # Product specific imports
@@ -61,6 +63,7 @@ import zip_content
 from zope.interface import implements
 from interfaces import IEnvelope
 from paginator import DiggPaginator, EmptyPage, InvalidPage
+from Products.Reportek.config import XLS_HEADINGS
 import transaction
 
 
@@ -96,10 +99,20 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
     if not year and endyear:
         year = endyear
     now = DateTime()
-    if year and year > now.year():
-        error_msg = 'You cannot submit a report which relates to a future year.\
-                     Please fill in the correct year!'
-        return self.manage_addEnvelopeForm(error=error_msg)
+    preliminary_obl = False
+
+    engine = getattr(self, ENGINE_ID)
+    for uri in self.dataflow_uris:
+        if uri in engine.preliminary_obligations:
+            preliminary_obl = True
+
+    if year and year > now.year() and not preliminary_obl:
+        if REQUEST is not None:
+            error_msg = 'You cannot submit a report which relates to a future\
+                         year. Please fill in the correct year!'
+            return self.manage_addEnvelopeForm(error=error_msg)
+        else:
+            raise ValueError('Cannot create envelope which relates to a future year')
 
     year_parts = ['Whole Year', 'First Half', 'Second Half',
                   'First Quarter', 'Second Quarter', 'Third Quarter',
@@ -1233,6 +1246,67 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         res.append('</rdf:RDF>')
         return '\n'.join(res)
 
+    security.declareProtected('View', 'get_files_info')
+    def get_files_info(self):
+        files = []
+        for fileObj in self.objectValues('Report Document'):
+            files.append(fileObj.absolute_url_path())
+
+        return files
+
+    security.declareProtected('View', 'get_export_data')
+    def get_export_data(self, format='xls'):
+        """ Return data for export
+        """
+        env_data = {}
+        if getSecurityManager().checkPermission('View', self):
+            if format == 'xls':
+                accepted = True
+                for fileObj in self.objectValues('Report Feedback'):
+                    no_delivery_msgs = ("Data delivery was not acceptable",
+                                        "Non-acceptance of F-gas report")
+                    if fileObj.title in no_delivery_msgs:
+                        accepted = False
+
+                company_id = '-'
+                if (hasattr(self.aq_parent, 'company_id')):
+                    company_id = self.aq_parent.company_id
+
+                obligations = [obl[0] for obl in self.getObligations()]
+
+                env_data = {
+                    'company_id': company_id,
+                    'released': self.released,
+                    'path': self.absolute_url_path(),
+                    'country': self.getCountryName(),
+                    'company': self.aq_parent.title.decode('utf-8'),
+                    'userid': self.aq_parent.id,
+                    'title': self.title.decode('utf-8'),
+                    'id': self.id,
+                    'years': "{0}-{1}".format(self.year, self.endyear),
+                    'end_year': self.endyear,
+                    'reported': self.reportingdate.strftime('%Y-%m-%d'),
+                    'files': self.get_files_info(),
+                    'obligation': obligations[0] if obligations else "Unknown",
+                    'accepted': accepted
+                }
+
+        return env_data
+
+    security.declareProtected('View', 'xls')
+    def xls(self):
+        """ xls export view
+        """
+        engine = getattr(self, ENGINE_ID)
+        wb = xlwt.Workbook()
+        sheet = wb.add_sheet('Envelope')
+        filename = 'envelope-{0}.xls'.format(self.id)
+        data = self.get_export_data()
+        if data:
+            header = dict(RepUtils.write_xls_header(sheet))
+            RepUtils.write_xls_data(data, sheet, header, 1)
+
+        return engine.download_xls(wb, filename)
 
     ##################################################
     # documents accepted status functions

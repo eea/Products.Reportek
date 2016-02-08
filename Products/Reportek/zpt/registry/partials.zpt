@@ -44,56 +44,58 @@
 </tal:block>
 
 <tal:block metal:define-macro="organisation_details">
-  <table class="table-list">
-    <tr>
-      <th>Company name</th>
-      <td tal:content="company/name" />
-    </tr>
+  <div class="pull-left">
+    <table class="table-list">
+      <tr>
+        <th>Company name</th>
+        <td tal:content="company/name" />
+      </tr>
 
-    <tr>
-      <th>Status</th>
-      <td tal:content="company/status" />
-    </tr>
+      <tr>
+        <th>Status</th>
+        <td tal:content="company/status" />
+      </tr>
 
-    <tr>
-      <th>Street and number</th>
-       <td tal:content="string:${company/address/street} ${company/address/number}" />
-    </tr>
+      <tr>
+        <th>Street and number</th>
+         <td tal:content="string:${company/address/street} ${company/address/number}" />
+      </tr>
 
-    <tr>
-      <th>Municipality</th>
-      <td tal:content="company/address/city" />
-    </tr>
+      <tr>
+        <th>Municipality</th>
+        <td tal:content="company/address/city" />
+      </tr>
 
-    <tr>
-      <th>Postal code</th>
-      <td tal:content="company/address/zipcode" />
-    </tr>
+      <tr>
+        <th>Postal code</th>
+        <td tal:content="company/address/zipcode" />
+      </tr>
 
-    <tr>
-      <th>VAT number</th>
-      <td tal:content="company/vat" />
-    </tr>
+      <tr>
+        <th>VAT number</th>
+        <td tal:content="company/vat" />
+      </tr>
 
-    <tr>
-      <th>Country</th>
-      <td tal:content="company/address/country/name" />
-    </tr>
+      <tr>
+        <th>Country</th>
+        <td tal:content="company/address/country/name" />
+      </tr>
 
-    <tr>
-      <th>Obligation</th>
-      <td tal:content="company/domain" />
-    </tr>
+      <tr>
+        <th>Obligation</th>
+        <td tal:content="company/domain" />
+      </tr>
 
-    <tr>
-      <th>Website</th>
-      <td>
-        <a tal:attributes="href python: company['website'] if company['website'].startswith('http') else 'http://' + company['website']"
-           tal:condition="company/website"
-           tal:content="company/website" />
-      </td>
-    </tr>
-  </table>
+      <tr>
+        <th>Website</th>
+        <td>
+          <a tal:attributes="href python: company['website'] if company['website'].startswith('http') else 'http://' + company['website']"
+             tal:condition="company/website"
+             tal:content="company/website" />
+        </td>
+      </tr>
+    </table>
+  </div>
 </tal:block>
 
 <tal:block metal:define-macro="representative_details">

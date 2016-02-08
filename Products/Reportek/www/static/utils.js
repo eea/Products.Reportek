@@ -281,7 +281,8 @@ reportek.utils = {
       data: {
         obligations: $("#obligations").val(),
         role: $("#role").val(),
-        countries: $("#countries").val()
+        countries: $("#countries").val(),
+        path_filter: $("#path_filter").val()
       },
       success: function(result) {
         var rows = $.parseJSON(result).data;
@@ -313,6 +314,7 @@ reportek.utils = {
     $("#countries").select2("val", "");
     $("#obligations").select2("val", "");
     $("#role").select2("val", "");
+    $("#path_filter").val("");
   },
 
   toggleSelectCountries: function(ckey) {
@@ -442,6 +444,7 @@ reportek.utils = {
   },
 
   initCompaniesTable: function() {
+    $.fn.dataTable.moment( 'DD/MM/YYYY' );
     $("#comp-table").dataTable({
       "iDisplayLength": 20,
       "sAjaxSource": "/fgases_registry/get_companies",

@@ -70,7 +70,8 @@ class transition(CatalogAware, SimpleItem):
         self.To = To
         self.description = description
         self.reindex_object()
-        if REQUEST: return self.manage_editTransitionForm(self, REQUEST,manage_tabs_message="Saved changes.")
+        if REQUEST:
+            REQUEST.RESPONSE.redirect('manage_editTransitionForm?manage_tabs_message=Saved changes.')
 
 
 InitializeClass(transition)

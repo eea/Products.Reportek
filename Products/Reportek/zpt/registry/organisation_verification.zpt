@@ -43,7 +43,7 @@
 
         <tal:block condition="company">
           <h2 tal:content="company/name" />
-          <div class="details">
+          <div class="details overflow">
             <tal:block metal:use-macro="here/partials/macros/organisation_details" />
           </div>
 
@@ -80,6 +80,8 @@
             var cid = $('input[name=cid]:checked', '#company-verification').val()
             if(cid && confirm("Are you sure do you want to approve this company?")) {
               this.submit();
+            } else if (!cid) {
+              alert("Please select if this is a new company or if it can be matched with an existing one!");
             }
           });
         </script>

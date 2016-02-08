@@ -3,6 +3,7 @@ from interfaces import IRegistryManagement
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
 from plone.memoize import ram
+from requests.exceptions import RequestException
 from time import time
 from zope.interface import implementer
 import logging
@@ -194,6 +195,13 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
                 return unverifyResponse
 
+    def updateCompanyStatus(self, company_id, status):
+        url = self.baseUrl + '/misc/undertaking/{0}/statusupdate'.format(company_id)
+        data = {'status': status}
+        response = self.do_api_request(url, data=data, method="post")
+
+        return response
+
     def getCompaniesExcelExport(self):
         url = self.baseUrl + '/misc/undertaking/export'
         response = self.do_api_request(url)
@@ -307,8 +315,12 @@ class BDRRegistryAPI(BaseRegistryAPI):
         url = self.baseUrl + '/accounts/login'
 
         client = requests.session()
+        csrf = None
+        try:
+            csrf = client.get(url).cookies.get('csrftoken')
+        except RequestException as e:
+            logger.warning("Unable to retrieve csrf: %s" % str(e))
 
-        csrf = client.get(url).cookies.get('csrftoken')
         engine = self.getEngine()
 
         data = {
@@ -317,7 +329,12 @@ class BDRRegistryAPI(BaseRegistryAPI):
             'csrfmiddlewaretoken': csrf,
             'next': '/'
         }
-        resp = client.post(url, data=data, headers=dict(Referer=url))
+        try:
+            resp = client.post(url, data=data, headers=dict(Referer=url))
+        except RequestException as e:
+            logger.warning("Unable to login to BDRRegistry: %s" % str(e))
+            return None
+
         if resp:
             if resp.status_code == 200:
                 # I see no other way of getting the sessionid

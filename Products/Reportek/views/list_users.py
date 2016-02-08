@@ -125,7 +125,9 @@ class ListUsers(BaseAdmin):
         obligations = REQUEST.get('obligations[]', [])
         countries = REQUEST.get('countries[]', [])
         role = REQUEST.get('role', '')
-
+        path = REQUEST.get('path_filter', '')
+        use_path = None
+        parts = None
         if not isinstance(countries, list):
             countries = [countries]
 
@@ -134,65 +136,76 @@ class ListUsers(BaseAdmin):
             if role == 'Reporter (Owner)':
                 use_role = 'Owner'
 
-        brains = self.search_catalog(obligations, countries, use_role)
+        if path:
+            parts = path.split('/')
+            if path.startswith('http') or path.startswith('/'):
+                use_path = path
+                if path.startswith('http'):
+                    use_path = '/{0}'.format('/'.join(parts[3:]))
+                parts = None
+            else:
+                parts = path
 
+        brains = self.search_catalog(obligations, countries, use_role,
+                                     path=use_path)
         for brain in brains:
             users = {}
             col_obligations = []
-            for uri in list(brain.dataflow_uris):
-                try:
-                    title = self.get_obligations_title()[uri]
-                except KeyError:
-                    title = 'Unknown/Deleted obligation'
-                col_obligations.append((uri, title))
+            if not parts or parts in brain.getPath():
+                for uri in list(brain.dataflow_uris):
+                    try:
+                        title = self.get_obligations_title()[uri]
+                    except KeyError:
+                        title = 'Unknown/Deleted obligation'
+                    col_obligations.append((uri, title))
 
-            if use_role:
-                users = dict((user, {'uid': user,
-                                     'role': role,
-                                     }) for user, roles
-                             in brain.local_defined_roles.iteritems()
-                             if use_role in roles)
-            else:
-                if brain.local_defined_users:
+                if use_role:
                     users = dict((user, {'uid': user,
-                                         'role': brain.local_defined_roles.get(user),
-                                         })
-                                 for user in brain.local_defined_users)
-            if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-                # Hide our internal user agent from search results
-                if 'bdr_folder_agent' in users.keys():
-                    del users['bdr_folder_agent']
+                                         'role': role,
+                                         }) for user, roles
+                                 in brain.local_defined_roles.iteritems()
+                                 if use_role in roles)
+                else:
+                    if brain.local_defined_users:
+                        users = dict((user, {'uid': user,
+                                             'role': brain.local_defined_roles.get(user),
+                                             })
+                                     for user in brain.local_defined_users)
+                if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+                    # Hide our internal user agent from search results
+                    if 'bdr_folder_agent' in users.keys():
+                        del users['bdr_folder_agent']
 
-                middleware = self.get_middleware()
-                ecas_path = '/acl_users/' + ECAS_ID
-                ecas = self.context.unrestrictedTraverse(ecas_path, None)
+                    middleware = self.get_middleware()
+                    ecas_path = '/acl_users/' + ECAS_ID
+                    ecas = self.context.unrestrictedTraverse(ecas_path, None)
 
-                if ecas:
-                    ecas_users = getattr(ecas, '_ecas_id', {})
-                    for ecas_user_id, user in ecas_users.iteritems():
+                    if ecas:
+                        ecas_users = getattr(ecas, '_ecas_id', {})
+                        for ecas_user_id, user in ecas_users.iteritems():
 
-                        # Normalize path object path
-                        obj_path = brain.getPath()
-                        if obj_path.startswith('/'):
-                            obj_path = obj_path[1:]
+                            # Normalize path object path
+                            obj_path = brain.getPath()
+                            if obj_path.startswith('/'):
+                                obj_path = obj_path[1:]
 
-                        if middleware.authorizedUser(ecas_user_id, obj_path):
-                            username = getattr(user, 'username', None)
-                            if username:
-                                uid = username
-                            else:
-                                uid = getattr(user, 'email', None)
-                            users[uid] = {
-                                'uid': uid,
-                                'role': 'Reporter (Owner)'
-                            }
-            if not users:
-                continue
+                            if middleware.authorizedUser(ecas_user_id, obj_path):
+                                username = getattr(user, 'username', None)
+                                if username:
+                                    uid = username
+                                else:
+                                    uid = getattr(user, 'email', None)
+                                users[uid] = {
+                                    'uid': uid,
+                                    'role': 'Reporter (Owner)'
+                                }
+                if not users:
+                    continue
 
-            yield {
-                'path': [brain.getPath(), brain.title],
-                'obligations': col_obligations,
-                'users':  users}
+                yield {
+                    'path': [brain.getPath(), brain.title],
+                    'obligations': col_obligations,
+                    'users':  users}
 
     def getUsers(self, REQUEST):
 

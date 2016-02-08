@@ -138,7 +138,8 @@ class activity(CatalogAware, SimpleItem):
         if description != None:
             self.description = description
         self.reindex_object()
-        if REQUEST: return self.manage_editForm(self, REQUEST,manage_tabs_message="Saved changes.")
+        if REQUEST:
+            REQUEST.RESPONSE.redirect('manage_editForm?manage_tabs_message=Saved changes.')
 
     security.declareProtected('Manage OpenFlow', 'title_or_id')
     def title_or_id(self):

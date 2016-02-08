@@ -32,6 +32,7 @@ import os
 from operator import itemgetter
 from urlparse import urlparse
 from zipfile import *
+from StringIO import StringIO
 import json
 
 # Zope imports
@@ -43,6 +44,7 @@ from App.config import getConfiguration
 from config import *
 import Globals
 import Products
+import xlwt
 import xmlrpclib
 from DateTime import DateTime
 from time import time, strftime
@@ -123,8 +125,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     bdr_registry_password = ''
     bdr_registry_obligations = []
     fgas_registry_obligations = []
+    preliminary_obligations = []
     fgas_registry_url = ''
     auth_middleware_recheck_interval = 300
+    XLS_max_rows = 1000
 
     def all_meta_types(self, interfaces=None):
         """
@@ -260,6 +264,15 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.bdr_registry_obligations = self.REQUEST.get('bdr_registry_obligations', self.bdr_registry_obligations)
         self.fgas_registry_url = self.REQUEST.get('fgas_registry_url', self.fgas_registry_url)
         self.fgas_registry_obligations = self.REQUEST.get('fgas_registry_obligations', self.fgas_registry_obligations)
+        xls_max_rows = self.REQUEST.get('xls_max_rows', self.XLS_max_rows)
+
+        try:
+            xls_max_rows = int(xls_max_rows)
+        except ValueError:
+            xls_max_rows = None
+        self.XLS_max_rows = xls_max_rows
+
+        self.preliminary_obligations = self.REQUEST.get('preliminary_obligations', self.preliminary_obligations)
 
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             self.BDRRegistryAPI.set_base_url(self.bdr_registry_url)
@@ -455,19 +468,13 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declareProtected('View', 'search_dataflow')
     search_dataflow = PageTemplateFile('zpt/search_dataflow', globals())
 
-    security.declareProtected('View', 'searchdataflow')
-    def searchdataflow(self):
-        """Search the ZCatalog for Report Envelopes,
-        show results and keep displaying the form """
-        # show the initial default populated
-        if 'sort_on' not in self.REQUEST:
-            return self._searchdataflow()
-
-        # make sure fields you are not searching for are not included
-        # in the query, not even with '' or None values
+    def get_query_args(self):
+        """ Make a Catalog query object from the form in the REQUEST
+        """
         catalog_args = {
             'meta_type': ['Report Envelope', 'Repository Referral']
         }
+
         status = self.REQUEST.get('release_status')
         if status == 'anystatus':
             catalog_args.pop('released', None)
@@ -476,9 +483,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         elif status == 'notreleased':
             catalog_args['released'] = 0
         else:
-            # FIXME this stops the view but does not display a proper error
-            self.REQUEST.RESPONSE.setStatus(400, 'bla')
-            return self.REQUEST.RESPONSE
+            return
 
         if self.REQUEST.get('query_start'):
             catalog_args['start'] = self.REQUEST['query_start']
@@ -509,120 +514,117 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             dateRangeQuery['query'] = reportingdate_end
         if dateRangeQuery:
             catalog_args['reportingdate'] = dateRangeQuery
+
+        return catalog_args
+
+    security.declareProtected('View', 'searchdataflow')
+    def searchdataflow(self, batch_size=None):
+        """Search the ZCatalog for Report Envelopes,
+        show results and keep displaying the form """
+        # show the initial default populated
+        if 'sort_on' not in self.REQUEST:
+            return self._searchdataflow()
+
+        catalog_args = self.get_query_args()
+        if not catalog_args:
+            return
+
         envelopes = self.Catalog(**catalog_args)
         envelopeObjects = []
         for eBrain in envelopes:
             o = eBrain.getObject()
             if getSecurityManager().checkPermission('View', o):
                 envelopeObjects.append(o)
-        return self._searchdataflow(results=envelopeObjects, **self.REQUEST.form)
+
+        return self._searchdataflow(results=envelopeObjects,
+                                    **self.REQUEST.form)
+
+    security.declareProtected('View', 'get_df_objects')
+    def get_df_objects(self, catalog_args):
+        """ Query the catalog with the provided catalog_args
+        """
+        envelopeObjects = []
+        if catalog_args:
+            envelopes = self.Catalog(**catalog_args)
+
+            for eBrain in envelopes:
+                obj = eBrain.getObject()
+                if getSecurityManager().checkPermission('View', obj):
+                    files = []
+                    for fileObj in obj.objectValues('Report Document'):
+                        files.append({
+                            "filename": fileObj.id,
+                            "title": str(fileObj.absolute_url_path()),
+                            "url": str(fileObj.absolute_url_path()) + "/manage_document"
+                        })
+
+                    accepted = True
+                    for fileObj in obj.objectValues('Report Feedback'):
+                        if fileObj.title in ("Data delivery was not acceptable",
+                                             "Non-acceptance of F-gas report"):
+                            accepted = False
+
+                    obligations = []
+                    for uri in obj.dataflow_uris:
+                        obligations.append(self.dataflow_lookup(uri)['TITLE'])
+
+                    countryName = ''
+                    if obj.meta_type == 'Report Envelope':
+                        countryName = obj.getCountryName()
+                    else:
+                        try:
+                            countryName = obj.localities_dict()[obj.country]['name']
+                        except KeyError:
+                            countryName = "Unknown"
+
+                    reported = obj.bobobase_modification_time()
+                    if obj.meta_type == 'Report Envelope':
+                        reported = obj.reportingdate
+
+                    company_id = '-'
+                    if (hasattr(obj.aq_parent, 'company_id')):
+                        company_id = obj.aq_parent.company_id
+
+                    envelopeObjects.append({
+                        'company_id': company_id,
+                        'released': obj.released,
+                        'path': obj.absolute_url_path(),
+                        'country': countryName,
+                        'company': obj.aq_parent.title,
+                        'userid': obj.aq_parent.id,
+                        'title': obj.title,
+                        'id': obj.id,
+                        'years': {"start": obj.year, "end": obj.endyear},
+                        'end_year': obj.endyear,
+                        'reportingdate': reported.strftime('%Y-%m-%d'),
+                        'files': files,
+                        'obligation': obligations[0] if obligations else "Unknown",
+                        'accepted': accepted
+                    })
+
+        return envelopeObjects
 
     security.declareProtected('View', 'search_dataflow_url')
     def search_dataflow_url(self):
         """Search the ZCatalog for Report Envelopes,
         show results and keep displaying the form """
 
-        catalog_args = {
-            'meta_type': ['Report Envelope', 'Repository Referral'],
-        }
-
-        status = self.REQUEST.get('release_status')
-        if status == 'anystatus':
-            catalog_args.pop('released', None)
-        elif status == 'released':
-            catalog_args['released'] = 1
-        elif status == 'notreleased':
-            catalog_args['released'] = 0
-        else:
-            return json.dumps([])
-
-        if self.REQUEST.get('query_start'):
-            catalog_args['start'] = self.REQUEST['query_start']
-        if self.REQUEST.get('obligation'):
-            obl = self.REQUEST.get('obligation')
-            obl = filter(lambda c: c.get('PK_RA_ID') == obl, self.dataflow_rod())[0]
-            catalog_args['dataflow_uris'] = [obl['uri']]
+        catalog_args = self.get_query_args()
         if self.REQUEST.get('countries'):
             isos = self.REQUEST.get('countries')
             countries = filter(lambda c: c.get('iso') in isos, self.localities_rod())
             catalog_args['country'] = [country['uri'] for country in countries]
-        if self.REQUEST.get('years'):
-            catalog_args['years'] = self.REQUEST['years']
-        if self.REQUEST.get('partofyear'):
-            catalog_args['partofyear'] = self.REQUEST['partofyear']
+        if self.REQUEST.get('obligations'):
+            obligations = self.REQUEST.get('obligations')
+            df_dict = {o['PK_RA_ID']: o['uri'] for o in self.dataflow_rod()}
 
-        reportingdate_start = self.REQUEST.get('reportingdate_start')
-        reportingdate_end = self.REQUEST.get('reportingdate_end')
-        dateRangeQuery = {}
-        if reportingdate_start and reportingdate_end:
-            dateRangeQuery['range'] = 'min:max'
-            dateRangeQuery['query'] = [reportingdate_start, reportingdate_end]
-        elif reportingdate_start:
-            dateRangeQuery['range'] = 'min'
-            dateRangeQuery['query'] = reportingdate_start
-        elif reportingdate_end:
-            dateRangeQuery['range'] = 'max'
-            dateRangeQuery['query'] = reportingdate_end
-        if dateRangeQuery:
-            catalog_args['reportingdate'] = dateRangeQuery
+            if not isinstance(obligations, list):
+                obligations = [obligations]
 
-        envelopes = self.Catalog(**catalog_args)
-        envelopeObjects = []
-        for eBrain in envelopes:
-            obj = eBrain.getObject()
-            if getSecurityManager().checkPermission('View', obj):
-                files = []
-                for fileObj in obj.objectValues('Report Document'):
-                    files.append({
-                        "filename": fileObj.id,
-                        "title": str(fileObj.absolute_url_path()),
-                        "url": str(fileObj.absolute_url_path()) + "/manage_document"
-                    })
+            df_uris = [df_dict[obl] for obl in obligations]
+            catalog_args['dataflow_uris'] = df_uris
 
-                accepted = True
-                for fileObj in obj.objectValues('Report Feedback'):
-                    if fileObj.title in ("Data delivery was not acceptable", "Non-acceptance of F-gas report"):
-                        accepted = False
-
-                obligations = []
-                for uri in obj.dataflow_uris:
-                    obligations.append(self.dataflow_lookup(uri)['TITLE'])
-
-                countryName = ''
-                if obj.meta_type == 'Report Envelope':
-                    countryName = obj.getCountryName()
-                else:
-                    try:
-                        countryName = obj.localities_dict()[obj.country]['name']
-                    except KeyError:
-                        countryName = "Unknowm"
-
-                reported = obj.bobobase_modification_time()
-                if obj.meta_type == 'Report Envelope':
-                    reported = obj.reportingdate
-
-                company_id = '-'
-                if (hasattr(obj.aq_parent, 'company_id')):
-                    company_id = obj.aq_parent.company_id
-
-                envelopeObjects.append({
-                    'company_id': company_id,
-                    'released': obj.released,
-                    'path': obj.absolute_url_path(),
-                    'country': countryName,
-                    'company': obj.aq_parent.title,
-                    'userid': obj.aq_parent.id,
-                    'title': obj.title,
-                    'id': obj.id,
-                    'years': {"start": obj.year, "end": obj.endyear},
-                    'end_year': obj.endyear,
-                    'reportingdate': reported.strftime('%Y-%m-%d'),
-                    'files': files,
-                    'obligation': obligations[0] if obligations else "Unknown",
-                    'accepted': accepted
-                })
-
-        return json.dumps(envelopeObjects)
+        return json.dumps(self.get_df_objects(catalog_args))
 
     def assign_roles(self, user, role, local_roles, doc):
         local_roles.append(role)
@@ -1047,7 +1049,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             l_server = self.get_uns_xmlrpc_server()
             l_ret = l_server.UNSService.canSubscribe(self.UNS_channel_id, user_id)
             return l_ret
-        except Exception, err:
+        except Exception as e:
+            logger.warning("Unable to contact UNS to check if {0} can "
+                           "subscribe: {1}".format(user_id, e))
             return 0
 
     security.declareProtected('View', 'subscribeToUNS')
@@ -1115,14 +1119,22 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#event_type', notification_type])
             l_ret = l_server.UNSService.sendNotification(self.UNS_channel_id, l_res)
             return 1
-        except:
+        except Exception as e:
+            logger.warning("Unable to send UNS notification for: {0}: {1}"
+                           .format(envelope.absolute_url(), e))
             return 0
 
     security.declarePrivate('uns_subscribe_actors')
     def uns_subscribe_actors(self, actors, filters):
         server = self.get_uns_xmlrpc_server()
         for act in actors:
-            server.UNSService.makeSubscription(self.UNS_channel_id, act, filters)
+            try:
+                server.UNSService.makeSubscription(self.UNS_channel_id, act, filters)
+                return 1
+            except Exception as e:
+                logger.warning("Unable to subscribe actors: {0} to UNS: {1}"
+                               .format(actors, e))
+                return 0
 
     ################################################################################
     #
@@ -1246,5 +1258,60 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         def getUserCollections(self):
             raise RuntimeError('Method not allowed on this distribution.')
 
+    security.declareProtected('View', 'xls_export')
+    def xls_export(self, envelopes=None, catalog_args=None):
+        """ XLS Export for catalog results
+        """
+        env_objs = []
+
+        if envelopes:
+            envelopes = RepUtils.utConvertToList(envelopes)
+            env_objs = [self.unrestrictedTraverse(env, None) for env in envelopes]
+        else:
+            if not catalog_args:
+                catalog_args = self.get_query_args()
+
+                if self.REQUEST.get('sort_on'):
+                    catalog_args['sort_on'] = self.REQUEST['sort_on']
+                if self.REQUEST.get('sort_order'):
+                    catalog_args['sort_order'] = self.REQUEST['sort_order']
+
+            brains = self.Catalog(**catalog_args)
+            if brains:
+                env_objs = [brain.getObject() for brain in brains]
+
+        wb = xlwt.Workbook()
+        sheet = wb.add_sheet('Results')
+        header = dict(RepUtils.write_xls_header(sheet))
+        idx = 1  # Start from row 1
+
+        for obj in env_objs:
+            data = obj.get_export_data()
+            if data:
+                RepUtils.write_xls_data(data, sheet, header, idx)
+                idx += 1
+            # break if more than defined self.XLS_max_rows
+            if self.XLS_max_rows:
+                if idx > self.XLS_max_rows:
+                    break
+
+        return self.download_xls(wb, 'searchresults.xls')
+
+    security.declareProtected('View', 'download_xls')
+    def download_xls(self, wb, filename):
+        """ Return an .xls file
+        """
+        xls = StringIO()
+        wb.save(xls)
+        xls.seek(0)
+
+        self.REQUEST.response.setHeader(
+            'Content-type', 'application/vnd.ms-excel; charset=utf-8'
+        )
+        self.REQUEST.response.setHeader(
+            'Content-Disposition', 'attachment; filename={0}'.format(filename)
+        )
+
+        return xls.read()
 
 Globals.InitializeClass(ReportekEngine)

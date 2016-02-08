@@ -10,6 +10,8 @@
           src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.min.js"></script>
     <script src="++resource++static/select2-3.5.0/select2.js"></script>
     <script src="++resource++static/utils.js"></script>
+    <script src="++resource++static/moment.min.js"></script>
+    <script src="++resource++static/datetime-moment.js"></script>
   </metal:block>
 
   <metal:block fill-slot="breadcrumbtrails">
@@ -30,7 +32,25 @@
       <tal:block condition="company">
         <h1 tal:content="company/name" />
         <hr>
-        <tal:block metal:use-macro="here/partials/macros/organisation_details" />
+        <div class="overflow">
+          <tal:block metal:use-macro="here/partials/macros/organisation_details" />
+          <div class="box-small no-borders pull-left org-actions">
+            <form id="action-form" method="post">
+              <input type="hidden" name="orgid" tal:attributes="value company/company_id" />
+              <input type="hidden" name="orgaction" value="" />
+              <input type="hidden" name="newval" value="" />
+              <p class="h4 no-margins">Actions:</p>
+              <ul tal:define="status company/status">
+                <li tal:condition="python: status == 'VALID'">
+                  <a class="org-action" id="disabled_status-action" href="#">Disable company</a>
+                </li>
+                <li tal:condition="python: status != 'VALID'">
+                  <a class="org-action" id="valid_status-action" href="#">Validate company</a>
+                </li>
+              </ul>
+            </form>
+          </div>
+        </div>
         <hr>
         <h2>Reporting folder</h2>
         <span>
@@ -82,6 +102,33 @@
             </tbody>
           </table>
         </div>
+        <script>
+          $(".org-action").on("click", function(evt){
+            evt.preventDefault();
+
+            var action = $(this).attr("id").split("-action")[0];
+            var newval;
+            if (action.split('_status').length > 1) {
+              newval = action.split('_status')[0];
+              org_action = 'statusupdate';
+            }
+            var confirmation = false;
+            var form = $("#action-form");
+
+            if (org_action === "statusupdate") {
+              if (newval === "disabled") {
+                confirmation = confirm("Are you sure you want to set the company's status to DISABLED?");
+              } else if (newval === "valid") {
+                confirmation = confirm("Are you sure you want to set the company's status to VALID?");
+              }
+              if (confirmation) {
+                $("input[name='newval']").val(newval);
+                $("input[name='orgaction'").val(org_action);
+                form.submit();
+              }
+            }
+          });
+        </script>
       </tal:block>
       <div class="warning-msg" tal:condition="not: company">
         <strong>Error</strong>

@@ -35,6 +35,7 @@ from webdav.common import rfc1123_date
 from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
 from datetime import datetime
+from Products.Reportek.config import XLS_HEADINGS
 
 
 def formatException(self, error):
@@ -551,3 +552,24 @@ def fix_json_from_id(obj):
         obj.pop(key, None)
 
     return obj
+
+
+def write_xls_header(sheet):
+    """ Write the xls header
+    """
+    for head in XLS_HEADINGS:
+        column = XLS_HEADINGS.index(head)
+        sheet.write(0, column, head[0])
+        yield head[1], column
+
+
+def write_xls_data(data, sheet, header, row):
+    """ Write data to sheet
+    """
+    for key in header.keys():
+        value = data.get(key)
+        if isinstance(value, list):
+            value = ",".join(value)
+            if len(value) > 32000:
+                value = (value[:32000] + '..') if len(value) > 32000 else value
+        sheet.write(row, header.get(key), value)

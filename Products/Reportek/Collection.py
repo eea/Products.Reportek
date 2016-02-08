@@ -593,6 +593,20 @@ class Collection(CatalogAware, Folder, Toolz):
 
         return status
 
+    security.declareProtected('View', 'company_types')
+    def company_types(self):
+        """ Retrieve the types of the collection's associated company
+        """
+        c_types = []
+        data = self.get_company_data()
+        if data:
+            for c_type in data.get('types', '').split(','):
+                if c_type:
+                    c_types.append(c_type)
+
+        return c_types
+
+
     security.declareProtected('View', 'portal_registration_date')
     def portal_registration_date(self):
         """ Retrieve the portal_registration_date of the collection's associated

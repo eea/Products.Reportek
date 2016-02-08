@@ -16,5 +16,6 @@ setup(
         'plone.memoize',
         'Zope2',
         'collective.monkeypatcher',
+        'xlwt'
     ],
 )
