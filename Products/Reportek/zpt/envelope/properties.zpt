@@ -103,8 +103,7 @@
                   tal:replace="structure string:
                     <option ${selected} value=''>
                       Unspecified
-                    </option>"
-                />
+                    </option>"/>
                 <tal:block repeat="item engine/localities_table">
                   <option
                     tal:define="selected_condition python:item['uri'] == context.country;
@@ -112,17 +111,17 @@
                     tal:replace="structure string:
                         <option ${selected} value=${item/uri}>
                           ${item/name}
-                        </option>"
+                        </option>"/>
+                  <tal:block repeat="item engine/localities_table">
+                    <option
+                      tal:define="selected_condition python:item['uri'] == context.country;
+                                  selected python:test(selected_condition, 'selected=selected', '')"
+                      tal:replace="structure string:
+                          <option ${selected} value=${item/uri}>
+                            ${item/name}
+                          </option>"
                     />
-                    <tal:block repeat="item engine/localities_table">
-                      <option
-                        tal:define="selected_condition python:item['uri'] == context.country;
-                                    selected python:test(selected_condition, 'selected=selected', '')"
-                        tal:replace="structure string:
-                            <option ${selected} value=${item/uri}>
-                              ${item/name}
-                            </option>"
-                      />
+                  </tal:block>
                 </tal:block>
               </select>
             </td>
