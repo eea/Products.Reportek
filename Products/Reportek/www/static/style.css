@@ -658,3 +658,15 @@ tr.user-disabled {
   font-weight: bold;
   margin: 0 0 12px;
 }
+
+.searchdataflow .sortable {
+  width: 100%;
+}
+
+.searchdataflow_controls {
+  margin: 10px 0 10px 0;
+}
+
+.searchdataflow_controls .buttons {
+  margin: 10px 0 0 0;
+}

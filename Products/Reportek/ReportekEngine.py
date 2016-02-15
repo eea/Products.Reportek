@@ -1275,10 +1275,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     catalog_args['sort_on'] = self.REQUEST['sort_on']
                 if self.REQUEST.get('sort_order'):
                     catalog_args['sort_order'] = self.REQUEST['sort_order']
-
-            brains = self.Catalog(**catalog_args)
-            if brains:
-                env_objs = [brain.getObject() for brain in brains]
+            if catalog_args:
+                brains = self.Catalog(**catalog_args)
+                if brains:
+                    env_objs = [brain.getObject() for brain in brains]
 
         wb = xlwt.Workbook()
         sheet = wb.add_sheet('Results')
