@@ -83,8 +83,8 @@ $(document).ready(function() {
                partofyear_selected options/partofyear | nothing;
                country_selected options/country | nothing;
                status options/release_status | string:released;
-               sort_on options/sort_on | nothing;
-               sort_order options/sort_order | nothing;
+               sort_on options/sort_on | string:reportingdate;
+               sort_order options/sort_order | string:reverse;
                      ">
     <col style="width:150px" />
     <tr>

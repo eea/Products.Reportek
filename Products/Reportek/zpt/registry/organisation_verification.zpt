@@ -75,14 +75,16 @@
 
         <script>
           $('#company-verification').on('submit', function(e){
-            e.preventDefault();
-
             var cid = $('input[name=cid]:checked', '#company-verification').val()
             if(cid && confirm("Are you sure do you want to approve this company?")) {
               this.submit();
+              return true;
             } else if (!cid) {
               alert("Please select if this is a new company or if it can be matched with an existing one!");
+              e.preventDefault();
+              return false;
             }
+            return false;
           });
         </script>
 
