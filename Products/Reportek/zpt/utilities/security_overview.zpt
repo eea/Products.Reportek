@@ -1,0 +1,72 @@
+<tal:block define="global deployment python: here.ReportekEngine.getDeploymentType();
+                   global isCdrDeployment python: deployment == 'CDR';
+                   global isBdrDeployment python: deployment == 'BDR';
+                   global filtered python:request.get('btnFilter')"
+                   />
+
+<metal:block use-macro="container/standard_template.pt/macros/page">
+
+  <metal:block fill-slot="head">
+    <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
+    <link href="++resource++static/style.css" rel="stylesheet"/>
+    <link href="++resource++static/fontawesome/font-awesome.min.css" rel="stylesheet"/>
+
+    <script type="text/javascript" charset="utf8" src="++resource++static/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.min.js"></script>
+    <script src="++resource++static/select2-3.5.0/select2.js"></script>
+    <script src="++resource++static/utils.js"></script>
+    <script src="++resource++static/moment.min.js"></script>
+    <script src="++resource++static/datetime-moment.js"></script>
+  </metal:block>
+
+  <metal:block fill-slot="content">
+      <div class="filter-form">
+          <h1>Security Overview</h1>
+          <tal:block tal:define="placeholder python: True;
+                                 roles python: ['Auditor', 'Client', 'Data collaborator', 'Reporter']">
+            <metal:block use-macro="here/ReportekUtilities/filters/macros/users-form"/>
+          </tal:block>
+      </div>
+
+      <div id="results">
+        <table id="datatable" data-table-key="by_path"
+          tal:condition="filtered"
+          tal:attributes="class python: 'datatable ' + {'CDR': 'cdr-datatable', 'BDR': 'bdr-datatable'}.get(deployment, 'CDR')">
+          <thead>
+            <tr>
+              <th>Collection</th>
+              <th>Title</th>
+              <th>Obligations</th>
+              <th>Users</th>
+            </tr>
+          </thead>
+          <tbody>
+          </tbody>
+        </table>
+      </div>
+
+      <div id="ajax-results">
+      </div>
+<!--     <metal:block fill-slot="info-message">
+      <div class="info-message" tal:condition="filtered">
+        <span tal:condition="isBdrDeployment" i18n:translate="">Results related only to our internal user are hidden</span>
+      </div>
+    </metal:block>
+
+    <metal:block fill-slot="data-table">
+      <table id="datatable" data-table-key="by_path"
+            tal:condition="filtered"
+            tal:attributes="class python: 'datatable ' + {'CDR': 'cdr-datatable', 'BDR': 'bdr-datatable'}.get(deployment, 'CDR')">
+        <thead>
+          <tr>
+            <th>Collection</th>
+            <th>Obligations</th>
+            <th>Users</th>
+          </tr>
+        </thead>
+        <tbody>
+        </tbody>
+      </table>
+    </metal:block> -->
+  </metal:block>
+</metal:block>

@@ -59,7 +59,7 @@
 
   <browser:page
     name="api.get_user_type"
-    for=".interfaces.IReportekUtilities"
+    for="*"
     permission="zope2.ViewManagementScreens"
     class=".views.ListUsers"
     attribute="api_get_user_type" />
@@ -154,5 +154,12 @@
     permission="zope2.ViewManagementScreens"
     class=".views.EnvelopeUtils"
     template="zpt/utilities/envelopes_autocomplete.zpt"/>
+
+  <browser:page
+    name="security_overview"
+    for="*"
+    permission="zope2.ReportekSecurityOverview"
+    class=".views.SecurityOverview"
+    template="zpt/utilities/security_overview.zpt"/>
 
 </configure>

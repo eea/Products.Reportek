@@ -203,7 +203,11 @@ class ListUsers(BaseAdmin):
                     continue
 
                 yield {
-                    'path': [brain.getPath(), brain.title],
+                    'collection': {
+                        'path': brain.getPath(),
+                        'title': brain.title,
+                        'type': brain.meta_type
+                    },
                     'obligations': col_obligations,
                     'users':  users}
 
