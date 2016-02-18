@@ -24,6 +24,7 @@
         <td>
           <input type="checkbox" id="allow_collections" name="allow_collections:int" value="1" checked="checked" /> <label for="allow_collections" i18n:translate="">Collections</label>
           <input type="checkbox" id="allow_envelopes" name="allow_envelopes:int" value="1" checked="checked" /> <label for="allow_envelopes" i18n:translate="">Envelopes</label>
+          <input type="checkbox" id="allow_referrals" name="allow_referrals:int" value="1"  tal:attributes="checked here/are_referrals_allowed" /> <label for="allow_referrals" i18n:translate="">Referrals</label>
         </td>
       </tr>
       <tr>

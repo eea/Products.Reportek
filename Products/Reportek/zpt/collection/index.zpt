@@ -11,7 +11,7 @@
 
     <div id="operations" tal:condition="python:permission_allow_envelopes or permission_allow_collections">
       <ul>
-        <li><a href="manage_addReferralForm" title="Create a new Referral if a certain delivery data is not stored on this system, in which case specify another location for it." i18n:attributes="title" i18n:translate="">New referral</a></li>
+        <li tal:condition="here/are_referrals_allowed"><a href="manage_addReferralForm" title="Create a new Referral if a certain delivery data is not stored on this system, in which case specify another location for it." i18n:attributes="title" i18n:translate="">New referral</a></li>
         <li tal:condition="permission_allow_collections"><a href="manage_addCollectionForm" title="Collections are folders that define the structure for the Data Repository, grouping Envelopes by country and by the reporting obligations they respond to." i18n:attributes="title" i18n:translate="">New collection</a></li>
         <li tal:condition="permission_allow_envelopes"><a href="manage_addEnvelopeForm" title="Envelopes store all the information about a delivery" i18n:attributes="title" i18n:translate="">New envelope</a></li>
       </ul>
