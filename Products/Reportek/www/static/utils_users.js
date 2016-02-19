@@ -14,6 +14,7 @@ reportek.utils.users = {
   table_data: null,
   users_links: {"LDAP User": "www.eionet.europa.eu/directory/user?uid=",
                 "LDAP Group": "www.eionet.europa.eu/ldap-roles?role_id="},
+  usertype_api: "api.get_user_type?username=",
 
   load: function() {
     var self = reportek.utils.users;
@@ -48,9 +49,10 @@ reportek.utils.users = {
 
   renderUsersLI: function(user) {
     var utils = reportek.utils;
+    var self = utils.users;
     var getUserType = $("<a/>", {"class": "user-type",
                                  "data-uid": user.uid,
-                                 "href": "api.get_user_type?username=" + user.uid,
+                                 "href": self.usertype_api + user.uid,
                                  "text": "Get user type"});
     var userhtml = $("<span>", {"class": "user-id",
                                 "data-uid": user.uid,
@@ -80,16 +82,23 @@ reportek.utils.users = {
 
   updateUserType: function(user, utype) {
     var self = reportek.utils.users;
-    var text = "Type: " + utype;
-    var uids = $("[data-uid='" + user + "']");
-    var links = uids.filter('.user-type');
-    var li = links.parent();
-    li.html(text);
-
-    if (utype === "LDAP Group" || utype === "LDAP User") {
-      var users = uids.filter('.user-id');
+    var tab_sel = $(".grouping-tabbed-elem.currenttab");
+    var users = [];
+    var uid_targets;
+    if (tab_sel.find('#grouped_by_path').length > 0) {
+      var text = "Type: " + utype;
+      uid_targets = $("[data-uid='" + user + "']");
+      var links = uid_targets.filter('.user-type');
+      var li = links.parent();
+      li.html(text);
+      users = uid_targets.filter(".user-id");
+    } else if (tab_sel.find("#grouped_by_person").length > 0) {
+      users = $("[data-uid='" + user + "']");
+    }
+    if ((utype === "LDAP Group" || utype === "LDAP User") && users.length > 0) {
       var user_link = $("<a>", {"class": "user-link",
                                 "href": window.location.protocol + "//" + self.users_links[utype] + user,
+                                "target": "_blank",
                                 "text": user});
       users.html(user_link.outerHTML());
     }
@@ -97,8 +106,8 @@ reportek.utils.users = {
 
   getUserType: function(elem) {
     var self = reportek.utils.users;
-    var url = $(elem).attr("href");
     var user = $(elem).attr("data-uid");
+    var url = self.usertype_api + user;
     if (self.users[user].checked === true) {
       self.updateUserType(user, self.users[user].utype);
     } else {
@@ -114,7 +123,7 @@ reportek.utils.users = {
     var trows = $("#datatable tbody tr");
     $.each(trows, function(idx, row){
       self.current_row = row;
-      var user_type = $(row).find(".user-type");
+      var user_type = $(row).find(".user-type,.user-cell");
       var user;
       $.each(user_type, function(i, elem) {
         user = $(elem).attr("data-uid");
@@ -188,8 +197,12 @@ reportek.utils.users = {
 
           api.column(3, {page:"current"}).data().each(function(group, i) {
             if (last !== group) {
+              var userhtml = $("<td>", {"colspan": 2,
+                                        "data-uid": group,
+                                        "class": "user-cell",
+                                        "text": group});
               $(rows).eq(i).before(
-                "<tr class='group'><td colspan='2'>" + group + "</td></tr>"
+                "<tr class='group'>" + userhtml.outerHTML() + "</tr>"
               );
               last = group;
             }
