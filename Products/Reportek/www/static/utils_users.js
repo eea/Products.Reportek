@@ -12,6 +12,8 @@ reportek.utils.users = {
   table_headers: {"grouped_by_path": ["Collection", "Title", "Obligations", "Users"],
                   "grouped_by_person": ["Path", "Obligations"]},
   table_data: null,
+  users_links: {"LDAP User": "www.eionet.europa.eu/directory/user?uid=",
+                "LDAP Group": "www.eionet.europa.eu/ldap-roles?role_id="},
 
   load: function() {
     var self = reportek.utils.users;
@@ -50,8 +52,10 @@ reportek.utils.users = {
                                  "data-uid": user.uid,
                                  "href": "api.get_user_type?username=" + user.uid,
                                  "text": "Get user type"});
-
-    return "<span class='user-id'>" + user.uid + "</span>" + utils.misc.renderAsUL([getUserType.prop("outerHTML"), "Role: " + user.role]);
+    var userhtml = $("<span>", {"class": "user-id",
+                                "data-uid": user.uid,
+                                "text": user.uid});
+    return userhtml.outerHTML() + utils.misc.renderAsUL([getUserType.prop("outerHTML"), "Role: " + user.role]);
   },
 
   createUserTypeMapping: function() {
@@ -75,10 +79,20 @@ reportek.utils.users = {
   },
 
   updateUserType: function(user, utype) {
+    var self = reportek.utils.users;
     var text = "Type: " + utype;
-    var links = $("[data-uid='" + user + "']");
+    var uids = $("[data-uid='" + user + "']");
+    var links = uids.filter('.user-type');
     var li = links.parent();
     li.html(text);
+
+    if (utype === "LDAP Group" || utype === "LDAP User") {
+      var users = uids.filter('.user-id');
+      var user_link = $("<a>", {"class": "user-link",
+                                "href": window.location.protocol + "//" + self.users_links[utype] + user,
+                                "text": user});
+      users.html(user_link.outerHTML());
+    }
   },
 
   getUserType: function(elem) {
