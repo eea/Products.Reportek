@@ -552,6 +552,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
 
     def test_reportek_utilities(self):
         # Go to ReportekUtilities index_html view
+        self.setRoles('Manager')
         r_utilities = getattr(self.app, constants.REPORTEK_UTILITIES)
         ru_url = r_utilities.absolute_url()
         index_url = ru_url + '/index_html'
@@ -580,21 +581,19 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         # Filter
         self.browser.getControl(name='btnFilter').click()
         self._check_controls(self.browser.contents)
-        expected_url = (ru_url + '/get_users_by_path?'
-                                 'obligations%3Alist=8&path_filter=&'
-                                 'role=&countries%3Alist=tc&btnFilter=Search')
-        self.assertEqual(expected_url, self.browser.url)
 
         # We have an ajax call that we need to see the result of
-        ajax_url = self.app.absolute_url() + '/api.get_users_by_path?obligation=8&role=&countries%5B%5D=tc'
-        self.browser.open(ajax_url)
+        ajax_url = self.app.absolute_url() + '/api.get_users_by_path'
+        self.browser.post(ajax_url, 'obligation=8&role=&countries%5B%5D=tc')
         expected_result = ('{"data": [{"obligations": ['
-                           '["http://nohost/obligations/1",'
-                           ' "Yearly report to the Fictive Convention"]],'
-                           ' "path": ["/tc", "Test Country"], '
-                           '"users": {"test_user_1_": {'
-                           '"role": ["Owner", "Reporter"], '
-                           '"uid": "test_user_1_"}}}]}')
+                          '["http://nohost/obligations/1", '
+                          '"Yearly report to the Fictive Convention"]], '
+                          '"users": {"test_user_1_": {'
+                          '"role": ["Owner", "Reporter"], '
+                          '"uid": "test_user_1_"}}, '
+                          '"collection": {"path": "/tc", '
+                          '"type": "Report Collection", '
+                          '"title": "Test Country"}}]}')
         self.assertEqual(expected_result, self.browser.contents)
 
         # Go back to ReportekUtilities index_html
