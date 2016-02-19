@@ -236,21 +236,5 @@ class ListUsers(BaseAdmin):
                     'obligations': col_obligations,
                     'users':  users}
 
-    def getUsers(self, REQUEST):
-
-        records = []
-        recs = self.get_records(REQUEST)
-        for record in recs:
-            res = copy(record)
-            del res['users']
-            for user in record['users']:
-                rr = copy(res)
-                rr['user'] = user
-                records.append(rr)
-
-        # Datatable needs items sorted by user in order to group them
-        records.sort(key=itemgetter('user'))
-        return json.dumps({"data": records})
-
     def getUsersByPath(self, REQUEST):
         return json.dumps({"data": list(self.get_records(REQUEST))})

@@ -6,7 +6,7 @@
   <browser:page
     name="index_html"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekSecurityOverview"
     class=".views.BaseAdmin"
     template="zpt/utilities/index.zpt"/>
 
@@ -39,14 +39,14 @@
   <browser:page
     name="get_users_by_path"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekSecurityOverview"
     class=".views.ListUsers"
     template="zpt/utilities/get_users_by_path.zpt"/>
 
   <browser:page
     name="api.get_users_by_path"
     for="*"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekSecurityOverview"
     class=".views.ListUsers"
     attribute="getUsersByPath" />
 
@@ -60,7 +60,7 @@
   <browser:page
     name="api.get_user_type"
     for="*"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekSecurityOverview"
     class=".views.ListUsers"
     attribute="api_get_user_type" />
 
@@ -70,20 +70,6 @@
     permission="zope2.ViewManagementScreens"
     class=".views.BaseAdmin"
     attribute="api_get_collections" />
-
-  <browser:page
-    name="get_users"
-    for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
-    class=".views.ListUsers"
-    template="zpt/utilities/get_users.zpt"/>
-
-  <browser:page
-    name="api.get_users"
-    for="*"
-    permission="zope2.ViewManagementScreens"
-    class=".views.ListUsers"
-    attribute="getUsers" />
 
   <browser:page
     name="country.reporters"
@@ -154,12 +140,5 @@
     permission="zope2.ViewManagementScreens"
     class=".views.EnvelopeUtils"
     template="zpt/utilities/envelopes_autocomplete.zpt"/>
-
-  <browser:page
-    name="security_overview"
-    for="*"
-    permission="zope2.ReportekSecurityOverview"
-    class=".views.SecurityOverview"
-    template="zpt/utilities/security_overview.zpt"/>
 
 </configure>

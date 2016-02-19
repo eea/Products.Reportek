@@ -82,17 +82,17 @@ reportek.utils.users = {
 
   updateUserType: function(user, utype) {
     var self = reportek.utils.users;
-    var tab_sel = $(".grouping-tabbed-elem.currenttab");
     var users = [];
     var uid_targets;
-    if (tab_sel.find('#grouped_by_path').length > 0) {
+    var table_type = $("#datatable").data("table-type");
+    if (table_type === "grouped_by_path") {
       var text = "Type: " + utype;
       uid_targets = $("[data-uid='" + user + "']");
       var links = uid_targets.filter('.user-type');
       var li = links.parent();
       li.html(text);
       users = uid_targets.filter(".user-id");
-    } else if (tab_sel.find("#grouped_by_person").length > 0) {
+    } else if (table_type === "grouped_by_person") {
       users = $("[data-uid='" + user + "']");
     }
     if ((utype === "LDAP Group" || utype === "LDAP User") && users.length > 0) {
