@@ -560,7 +560,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         self.assertEqual(self.browser.url, index_url)
 
         # Go to users that have access
-        users_access_link = self.browser.getLink(id='user-roles')
+        users_access_link = self.browser.getLink(text='Show where users have roles')
         users_access_link.click()
         self._check_controls(self.browser.contents)
         self.assertTrue('Yearly report to the Fictive Convention' in
@@ -611,7 +611,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             self.browser.goBack(count=2)
             self.browser.getLink(text='Assign roles by obligation').click()
             self._check_controls(self.browser.contents)
-            self.assertEqual(ru_url + '/assign_role', self.browser.url)
+            self.assertEqual(ru_url + '/@@assign_role', self.browser.url)
             search_term_ctl = self.browser.getControl(name='search_term')
             search_term_ctl.value = 'test_user_1_'
             self.browser.getControl(name='btnFind').click()
@@ -774,7 +774,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         # Go to revoke roles view
         self.browser.getLink(text='Revoke roles').click()
         self._check_controls(self.browser.contents)
-        self.assertEqual(ru_url + '/revoke_roles',
+        self.assertEqual(ru_url + '/@@revoke_roles',
                          self.browser.url)
 
         # Search for our test user
