@@ -65,6 +65,13 @@
     attribute="api_get_user_type" />
 
   <browser:page
+    name="api.get_users_type"
+    for="*"
+    permission="zope2.ReportekSecurityOverview"
+    class=".views.ListUsers"
+    attribute="api_get_users_type" />
+
+  <browser:page
     name="api.get_collections"
     for="*"
     permission="zope2.ViewManagementScreens"

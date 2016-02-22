@@ -145,6 +145,15 @@ class ListUsers(BaseAdmin):
         return json.dumps({"username": username,
                            "utype": self.get_user_type(username)})
 
+    def api_get_users_type(self, REQUEST):
+        users = list(set(REQUEST.get('users[]', [])))
+        users_type = []
+        for user in users:
+            users_type.append({"username": user,
+                               "utype": self.get_user_type(user)})
+
+        return json.dumps(users_type)
+
     def get_records(self, REQUEST):
 
         obligations = REQUEST.get('obligations[]', [])

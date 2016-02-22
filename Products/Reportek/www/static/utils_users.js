@@ -15,6 +15,7 @@ reportek.utils.users = {
   users_links: {"LDAP User": "www.eionet.europa.eu/directory/user?uid=",
                 "LDAP Group": "www.eionet.europa.eu/ldap-roles?role_id="},
   usertype_api: "api.get_user_type?username=",
+  userstype_api: "api.get_users_type",
 
   load: function() {
     var self = reportek.utils.users;
@@ -71,9 +72,8 @@ reportek.utils.users = {
     });
   },
 
-  updateUserTypeMapping: function(data) {
+  updateUserTypeMapping: function(user) {
     var self = reportek.utils.users;
-    var user = JSON.parse(data);
     self.users[user.username].username = user.username;
     self.users[user.username].checked = true;
     self.users[user.username].utype = user.utype;
@@ -113,8 +113,24 @@ reportek.utils.users = {
     } else {
       $.ajax({
         url: url,
-      }).success(self.updateUserTypeMapping);
+      }).success(function(data) {
+        self.updateUserTypeMapping(JSON.parse(data));
+      });
     }
+  },
+
+  getUsersType: function(users) {
+    var self = reportek.utils.users;
+    var url = self.userstype_api;
+    $.ajax({
+      url: url,
+      data: {users: users},
+      }).done(function(data) {
+        var users = JSON.parse(data);
+        $.each(users, function(idx, user) {
+          self.updateUserTypeMapping(user);
+        });
+      });
   },
 
   getCurrentUserTypes: function() {
@@ -130,9 +146,12 @@ reportek.utils.users = {
         if (self.users[user] === undefined) {
           self.users[user] = {"username": user, "checked": false, "utype": "N/A"};
         }
-        self.getUserType(elem);
       });
     });
+    var keys = $.map(self.users, function(v, i){
+      return i;
+    });
+    self.getUsersType(keys);
   },
 
   bindGetUserTypes: function() {
