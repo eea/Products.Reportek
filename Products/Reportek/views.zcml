@@ -3,8 +3,15 @@
   xmlns:browser="http://namespaces.zope.org/browser"
   xmlns:five="http://namespaces.zope.org/five">
 
+  <browser:menu
+    id="reportek_utilities"
+    title="Reportek Utilities"
+  />
+
   <browser:page
     name="index_html"
+    menu="reportek_utilities"
+    title="Index"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ReportekSecurityOverview"
     class=".views.BaseAdmin"
@@ -38,6 +45,8 @@
 
   <browser:page
     name="get_users_by_path"
+    menu="reportek_utilities"
+    title="Show where users have roles"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ReportekSecurityOverview"
     class=".views.ListUsers"
@@ -52,6 +61,8 @@
 
   <browser:page
     name="disabled_members"
+    menu="reportek_utilities"
+    title="Disabled members"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.ManageRoles"
@@ -80,6 +91,8 @@
 
   <browser:page
     name="country.reporters"
+    menu="reportek_utilities"
+    title="List country reporters"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.ListUsers"
@@ -101,6 +114,8 @@
 
   <browser:page
     name="revoke_roles"
+    menu="reportek_utilities"
+    title="Revoke roles"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.ManageRoles"
@@ -108,6 +123,8 @@
 
   <browser:page
     name="assign_role"
+    menu="reportek_utilities"
+    title="Assign roles by obligation"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.ManageRoles"
@@ -115,6 +132,8 @@
 
   <browser:page
     name="collections.search"
+    menu="reportek_utilities"
+    title="Create envelopes"
     for=".ReportekUtilities.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.SearchCollections"
@@ -122,6 +141,8 @@
 
   <browser:page
     name="collections.wrong_country"
+    menu="reportek_utilities"
+    title="Collections allocated to the wrong country"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.WrongCountry"
@@ -129,6 +150,8 @@
 
   <browser:page
     name="envelopes.wrong_country"
+    menu="reportek_utilities"
+    title="Envelopes allocated to the wrong country"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.WrongCountry"
@@ -136,6 +159,8 @@
 
   <browser:page
     name="obligation.recent_uploads"
+    menu="reportek_utilities"
+    title="Recent uploads"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.RecentUploads"
@@ -143,6 +168,8 @@
 
   <browser:page
     name="envelopes.autocomplete"
+    menu="reportek_utilities"
+    title="Auto complete envelopes"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.EnvelopeUtils"
