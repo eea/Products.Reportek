@@ -75,7 +75,10 @@ class ListUsers(BaseAdmin):
                            "utype": self.get_user_type(username)})
 
     def api_get_users_type(self, REQUEST):
-        users = list(set(REQUEST.get('users[]', [])))
+        users = REQUEST.get('users[]', [])
+        if not isinstance(users, list):
+            users = [users]
+        users = list(set(users))
         users_type = []
         for user in users:
             users_type.append({"username": user,

@@ -199,7 +199,7 @@ reportek.utils.users = {
     dataTable.draw();
   },
 
-  generateDatatableConfig: function(table_type, dr_type) {
+  generateDatatableConfig: function(table_type) {
     var generalSettings = {
       grouped_by_path: {
         "columns": [
@@ -266,7 +266,7 @@ reportek.utils.users = {
       },
       success: function(result) {
         self.table_data = $.parseJSON(result).data;
-        var dtConfig = self.generateDatatableConfig(table_type, dr_type);
+        var dtConfig = self.generateDatatableConfig(table_type);
         self.generateDatatable(target, dtConfig, self.table_data, table_type);
       }
     });
@@ -302,7 +302,7 @@ reportek.utils.users = {
       target.data("table-type", tab.attr("id"));
       $(".grouping-tabbed-elem").removeClass("currenttab");
       tab.parent().addClass("currenttab");
-      var dtConfig = self.generateDatatableConfig(target.data("table-type"), dr_type);
+      var dtConfig = self.generateDatatableConfig(target.data("table-type"));
       if (target.data("table-type") === "grouped_by_person") {
         data = self.getDataGroupedByPerson();
       }
