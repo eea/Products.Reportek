@@ -90,15 +90,6 @@
     attribute="api_get_collections" />
 
   <browser:page
-    name="country.reporters"
-    menu="reportek_utilities"
-    title="List country reporters"
-    for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
-    class=".views.ListUsers"
-    template="zpt/utilities/get_country_reporters.zpt" />
-
-  <browser:page
     name="find_user"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"

@@ -11,7 +11,7 @@
     <div tal:define="menuitems view/get_available_menu_items;
                      menuactions python: dict((item.get('action'), item.get('title')) for item in menuitems);
                      menu_keys python: menuactions.keys();
-                     user_mgmt_actions python: ['@@get_users_by_path', '@@country.reporters', '@@assign_role', '@@revoke_roles', '@@disabled_members'];
+                     user_mgmt_actions python: ['@@get_users_by_path', '@@assign_role', '@@revoke_roles', '@@disabled_members'];
                      collections_actions python: ['@@collections.wrong_country', '@@collections.build'];
                      envelopes_actions python: ['@@collections.search', '@@envelopes.autocomplete', '@@envelopes.wrong_country'];
                      generic_actions python: ['@@obligation.recent_uploads', '@@statistics']">
@@ -21,7 +21,7 @@
 
         <ul>
           <tal:rep tal:repeat="action user_mgmt_actions">
-            <li tal:condition="python: action in menu_keys and not (action == '@@country.reporters' and isBdrDeployment)">
+            <li tal:condition="python: action in menu_keys">
               <a href="" tal:attributes="href action" tal:content="python:menuactions.get(action)"/>
             </li>
           </tal:rep>
