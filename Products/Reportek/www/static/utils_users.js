@@ -286,8 +286,9 @@ reportek.utils.users = {
       var newRec = $.extend({}, record);
       delete newRec.users;
       $.each(record.users, function(index, user) {
-        newRec.user = user.uid;
-        regrouped.push(newRec);
+        var rr = $.extend({}, newRec);
+        rr.user = user.uid;
+        regrouped.push(rr);
       });
     });
     regrouped.sort(function(a, b){
