@@ -600,15 +600,6 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         self.browser.goBack(count=3)
 
         if REPORTEK_DEPLOYMENT != DEPLOYMENT_BDR:
-            # Click on the list country reporters
-            self.browser.getLink(text='List country reporters').click()
-            self._check_controls(self.browser.contents)
-            self.browser.getControl(label='Show reporters').click()
-            self._check_controls(self.browser.contents)
-            # test_user_1_ should come up in the reporters list
-            self.assertTrue('test_user_1_@test.com' in self.browser.contents)
-
-            self.browser.goBack(count=2)
             self.browser.getLink(text='Assign roles by obligation').click()
             self._check_controls(self.browser.contents)
             self.assertEqual(ru_url + '/@@assign_role', self.browser.url)
