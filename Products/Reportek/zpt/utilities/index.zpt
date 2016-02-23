@@ -1,5 +1,5 @@
-<tal:block define="global isCdrDeployment python: here.ReportekEngine.getDeploymentType() == 'CDR'"/>
-<tal:block define="global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'"/>
+<tal:block define="global isCdrDeployment python: here.ReportekEngine.getDeploymentType() == 'CDR';
+                   global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'"/>
 <metal:block use-macro="container/standard_template.pt/macros/page">
 
   <metal:block fill-slot="breadcrumbtrails">
@@ -8,52 +8,62 @@
 
 
   <metal:block fill-slot="content">
+    <div tal:define="menuitems view/get_available_menu_items;
+                     menuactions python: dict((item.get('action'), item.get('title')) for item in menuitems);
+                     menu_keys python: menuactions.keys();
+                     user_mgmt_actions python: ['@@get_users_by_path', '@@assign_role', '@@revoke_roles', '@@disabled_members'];
+                     collections_actions python: ['@@collections.wrong_country', '@@collections.build'];
+                     envelopes_actions python: ['@@collections.search', '@@envelopes.autocomplete', '@@envelopes.wrong_country'];
+                     generic_actions python: ['@@obligation.recent_uploads', '@@statistics']">
 
-    <div class="utils-user-mgmt">
-      <h2>User management</h2>
+      <div class="utils-user-mgmt" tal:condition="python: [action for action in user_mgmt_actions if action in menu_keys]">
+        <h2>User management</h2>
 
-      <ul>
-        <li>
-          <a href="get_users_by_path" id="user-roles">Show where users have roles</a>
-        </li>
-        <li tal:condition="not: isBdrDeployment"><a href="country.reporters">List country reporters</a></li>
-        <li><a href="assign_role">Assign roles by obligation</a></li>
-        <li><a href="revoke_roles">Revoke roles</a></li>
-        <li><a href="disabled_members">Disabled members</a></li>
-      </ul>
+        <ul>
+          <tal:rep tal:repeat="action user_mgmt_actions">
+            <li tal:condition="python: action in menu_keys">
+              <a href="" tal:attributes="href action" tal:content="python:menuactions.get(action)"/>
+            </li>
+          </tal:rep>
+        </ul>
+      </div>
+
+      <div class="utils-collections" tal:condition="python: not isBdrDeployment and [action for action in collections_actions if action in menu_keys]">
+        <h2>Collections</h2>
+
+        <ul>
+          <tal:rep tal:repeat="action collections_actions">
+            <li tal:condition="python: action in menu_keys">
+              <a href="" tal:attributes="href action" tal:content="python:menuactions.get(action)"/>
+            </li>
+          </tal:rep>
+        </ul>
+      </div>
+
+      <div class="utils-envelopes" tal:condition="python: not isBdrDeployment and [action for action in envelopes_actions if action in menu_keys]">
+        <h2>Envelopes</h2>
+        <ul>
+          <tal:rep tal:repeat="action envelopes_actions">
+            <li tal:condition="python: action in menu_keys">
+              <a href="" tal:attributes="href action" tal:content="python:menuactions.get(action)"/>
+            </li>
+          </tal:rep>
+        </ul>
+      </div>
+
+      <div class="utils-generic">
+        <h2>Generic</h2>
+
+        <ul>
+          <tal:rep tal:repeat="action generic_actions">
+            <li tal:condition="python: action in menu_keys and not (action == '@@statistics' and not isCdrDeployment)">
+              <a href="" tal:attributes="href action" tal:content="python:menuactions.get(action)"/>
+            </li>
+          </tal:rep>
+          <li><a href="/ReportekEngine/sitemap">Sitemap</a></li>
+        </ul>
+      </div>
+
     </div>
-
-    <div class="utils-collections" tal:condition="not: isBdrDeployment">
-      <h2>Collections</h2>
-
-      <ul>
-        <li><a href="collections.wrong_country">Collections allocated to the wrong country</a></li>
-        <li tal:condition="not: isBdrDeployment | nothing">
-          <a href="collections.build">Build collections</a>
-        </li>
-      </ul>
-    </div>
-
-    <div class="utils-envelopes" tal:condition="not: isBdrDeployment">
-      <h2>Envelopes</h2>
-      <ul>
-        <li><a href="collections.search">Create envelopes</a></li>
-        <li><a href="envelopes.autocomplete">Auto complete envelopes</a></li>
-        <li><a href="envelopes.wrong_country">Envelopes allocated to the wrong country</a></li>
-      </ul>
-    </div>
-
-    <div class="utils-generic">
-      <h2>Generic</h2>
-
-      <ul>
-        <li><a href="obligation.recent_uploads">Recent uploads</a></li>
-        <li tal:condition="isCdrDeployment | nothing">
-          <a href="statistics">Statistics</a>
-        </li>
-        <li><a href="/ReportekEngine/sitemap">Sitemap</a></li>
-      </ul>
-    <div>
-
   </metal:block>
 </metal:block>

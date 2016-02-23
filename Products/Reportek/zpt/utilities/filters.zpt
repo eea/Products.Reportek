@@ -1,5 +1,5 @@
 <metal:def define-macro="users-form">
-  <form method="get" action="">
+  <form method="post" action="">
     <div class="filters">
       <tal:block metal:define-macro="select-obligations">
         <div class="form-group" tal:define="placeholder placeholder|nothing;">
@@ -33,11 +33,12 @@
       </tal:block>
 
       <tal:block metal:define-macro="role">
-        <div class="form-group" tal:define="placeholder placeholder|nothing;">
+        <div class="form-group" tal:define="placeholder placeholder|nothing;
+                                            roles roles | view/get_roles">
           <label for="role">Role</label>
           <select id="role" name="role" style="width: 200px;" tal:attributes="class python: 'placeholder-enabled' if placeholder else ''">
             <option></option>
-            <option tal:repeat="role view/get_roles"
+            <option tal:repeat="role roles"
                     tal:content="role"
                     tal:attributes="selected python:request.get('role', '') == role">
             </option>

@@ -48,16 +48,16 @@
       </thead>
       <tbody>
         <tr tal:repeat="reporter options/reporters">
-          <td tal:content="reporter/uid" />
-          <td tal:content="reporter/type" />
-          <td tal:content="reporter/name" />
+          <td tal:content="reporter/uid|nothing" />
+          <td tal:content="reporter/type|nothing" />
+          <td tal:content="reporter/name|nothing" />
           <td>
-            <a tal:condition="reporter/email"
+            <a tal:condition="reporter/email|nothing"
                tal:attributes="href string:mailto:${reporter/email}"
                tal:content="reporter/email" />
           </td>
           <td>
-            <ul tal:condition="reporter/paths">
+            <ul tal:condition="reporter/paths|nothing">
               <li tal:repeat="path reporter/paths">
                 <a tal:attributes="href string:${path}"
                  tal:content="path" />

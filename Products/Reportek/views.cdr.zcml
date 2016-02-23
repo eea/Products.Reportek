@@ -2,10 +2,13 @@
   xmlns="http://namespaces.zope.org/zope"
   xmlns:browser="http://namespaces.zope.org/browser"
   xmlns:meta="http://namespaces.zope.org/meta"
-  xmlns:zcml="http://namespaces.zope.org/zcml">
+  xmlns:zcml="http://namespaces.zope.org/zcml"
+  i18n_domain="default">
 
   <browser:page
     name="statistics"
+    menu="reportek_utilities"
+    title="Statistics"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.Statistics"
@@ -13,6 +16,8 @@
 
   <browser:page
     name="collections.build"
+    menu="reportek_utilities"
+    title="Build collections"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.BuildCollections"

@@ -57,10 +57,10 @@
             permission="zope2.ViewManagementScreens"
             global="False"/>
 
+    <include file="permissions.zcml" />
     <include file="dataflow_mappings.zcml" />
     <include file="views.zcml" />
     <include package=".patches" />
-
 
     <configure zcml:condition="installed zope.container">
         <subscriber for="Products.Reportek.interfaces.IEnvelope

@@ -669,4 +669,8 @@ tr.user-disabled {
 
 .searchdataflow_controls .buttons {
   margin: 10px 0 0 0;
+
+#workarea ul.unstyled-list {
+  list-style: none;
+  list-style-image: none;
 }

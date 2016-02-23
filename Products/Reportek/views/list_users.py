@@ -1,82 +1,15 @@
-import json
-from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
-from copy import copy
-from operator import itemgetter
+from plone.memoize import ram
+from Products.Reportek.config import DEPLOYMENT_BDR
+from Products.Reportek.config import DEPLOYMENT_CDR
+from Products.Reportek.config import REPORTEK_DEPLOYMENT
 from Products.Reportek.constants import ENGINE_ID, ECAS_ID
+from time import time
+import json
 
 from base_admin import BaseAdmin
 
 
 class ListUsers(BaseAdmin):
-
-    def __call__(self, *args, **kwargs):
-        super(ListUsers, self).__call__(*args, **kwargs)
-        if self.__name__ == 'country.reporters':
-            countries = self.get_available_countries()
-
-            country = self.request.get('country')
-
-            if not country:
-                country = countries[0].getId()
-
-            reporters = self.get_reporters(country)
-
-            return self.index(reporters=reporters,
-                              countries=countries)
-
-        return self.index()
-
-    def get_available_countries(self):
-        app = self.context.getPhysicalRoot()
-        countries = app.objectValues('Report Collection')
-        return sorted(countries, key=lambda x: x.title)
-
-    def get_reporters(self, country, role='Reporter'):
-        acl_users = self.context.acl_users
-        if (hasattr(acl_users, 'ldapmultiplugin')):
-            acl_users = self.context.acl_users.ldapmultiplugin.acl_users
-            query = {
-                'meta_type': 'Report Collection',
-                'local_unique_roles': role,
-                'path': '/{0}'.format(country)}
-
-            entities = {}
-            brains = self.context.Catalog(query)
-            for brain in brains:
-                for entity, roles in brain.local_defined_roles.items():
-                    if role in roles:
-                        if entities.get(entity):
-                            paths = entities[entity].get('paths', [])
-                            paths.append(brain.getURL())
-                            paths.sort()
-                        else:
-                            e_info = {
-                                'uid': entity,
-                            }
-                            user_ob = acl_users.getUserById(entity)
-                            if user_ob:
-                                e_info['type'] = 'User'
-                                e_info['name'] = unicode(user_ob.getProperty('cn'),
-                                                         'latin-1')
-                                e_info['email'] = user_ob.getProperty('mail')
-                                e_info['paths'] = [brain.getURL()]
-                            else:
-                                groups = self.search_ldap_groups(entity)
-                                if groups:
-                                    # Use only the first result
-                                    group = groups[0]
-                                    e_info['type'] = 'LDAP Group'
-                                    e_info['name'] = group.get('description')
-                                    e_info['email'] = None
-                                    e_info['paths'] = [brain.getURL()]
-                            entities[entity] = e_info
-
-            entity_list = entities.values()
-
-            entity_list.sort(key=itemgetter('uid'))
-            return entity_list
-
-        return []
 
     def get_middleware(self):
         engine = self.context.unrestrictedTraverse('/'+ENGINE_ID, None)
@@ -90,6 +23,25 @@ class ListUsers(BaseAdmin):
             user_ob = ldap_users.getUserById(username)
             if user_ob:
                 return user_ob
+
+    @ram.cache(lambda *args: time() // (60*60*12))
+    def getLDAPGroups(self):
+        """ Return a list of LDAP group ids
+        """
+        group_ids = []
+        acl_users = self.context.acl_users
+        if (hasattr(acl_users, 'ldapmultiplugin')):
+            ldap_users = acl_users.ldapmultiplugin.acl_users
+            groups = ldap_users.getGroups()
+            group_ids = [group[0] for group in groups if group[0]]
+
+        return group_ids
+
+    def is_ldap_group(self, username):
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
+            ldap_groups = self.getLDAPGroups()
+            if username in ldap_groups:
+                return True
 
     def is_ecas_user(self, username):
         ecas_path = '/acl_users/' + ECAS_ID
@@ -108,9 +60,11 @@ class ListUsers(BaseAdmin):
             if self.is_ecas_user(username):
                 return 'ECAS'
         if self.is_ldap_user(username):
-            return 'LDAP'
+            return 'LDAP User'
         elif self.is_local_user(username):
             return 'LOCAL'
+        elif self.is_ldap_group(username):
+            return 'LDAP Group'
 
         return 'N/A'
 
@@ -119,6 +73,18 @@ class ListUsers(BaseAdmin):
 
         return json.dumps({"username": username,
                            "utype": self.get_user_type(username)})
+
+    def api_get_users_type(self, REQUEST):
+        users = REQUEST.get('users[]', [])
+        if not isinstance(users, list):
+            users = [users]
+        users = list(set(users))
+        users_type = []
+        for user in users:
+            users_type.append({"username": user,
+                               "utype": self.get_user_type(user)})
+
+        return json.dumps(users_type)
 
     def get_records(self, REQUEST):
 
@@ -203,25 +169,13 @@ class ListUsers(BaseAdmin):
                     continue
 
                 yield {
-                    'path': [brain.getPath(), brain.title],
+                    'collection': {
+                        'path': brain.getPath(),
+                        'title': brain.title,
+                        'type': brain.meta_type
+                    },
                     'obligations': col_obligations,
                     'users':  users}
-
-    def getUsers(self, REQUEST):
-
-        records = []
-        recs = self.get_records(REQUEST)
-        for record in recs:
-            res = copy(record)
-            del res['users']
-            for user in record['users']:
-                rr = copy(res)
-                rr['user'] = user
-                records.append(rr)
-
-        # Datatable needs items sorted by user in order to group them
-        records.sort(key=itemgetter('user'))
-        return json.dumps({"data": records})
 
     def getUsersByPath(self, REQUEST):
         return json.dumps({"data": list(self.get_records(REQUEST))})

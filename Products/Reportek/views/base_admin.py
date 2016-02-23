@@ -1,7 +1,8 @@
-import json
 from collections import defaultdict
 from operator import itemgetter
 from Products.Five import BrowserView
+from zope.browsermenu.menu import getMenu
+import json
 
 from Products.Reportek import config, constants
 
@@ -267,3 +268,7 @@ class BaseAdmin(BrowserView):
             group_list = {group.get('cn'): group for group in groups}.values()
             group_list.sort(key=itemgetter('cn'))
             return group_list
+
+    def get_available_menu_items(self):
+        return getMenu('reportek_utilities', self.context, self.request)
+
