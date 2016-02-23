@@ -246,13 +246,6 @@ reportek.utils.users = {
     };
 
     $.extend(dtConfig, generalSettings[table_type]);
-    if (dr_type === 'BDR' && table_type === "grouped_by_path") {
-      dtConfig.columns = [
-        {"width": "25%"},
-        {"width": "30%"},
-        null
-      ];
-    }
     return dtConfig;
   },
 
