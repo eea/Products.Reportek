@@ -1,77 +1,81 @@
-<tal:block define="header here/standard_html_header"
-           replace="structure python:header.encode('latin-1')" />
-<script src="++resource++static/ckeditor/ckeditor.js"></script>
+<metal:block use-macro="container/standard_template.pt/macros/page">
 
-<div id="operations">
-  <ul>
-    <li><a tal:attributes="href request/URL2" title="Go back to envelope" i18n:attributes="title go-back-title" i18n:translate="">Back to envelope</a></li>
-  </ul>
-</div>
-<h1><tal:block i18n:translate="">Edit Feedback</tal:block> <span tal:replace="context/id"/></h1>
+  <metal:block fill-slot="head">
+    <script src="++resource++static/ckeditor/ckeditor.js"></script>
+  </metal:block>
 
-<fieldset><legend i18n:translate="">Edit properties</legend>
-<form id="edit" tal:attributes="action request/URL1" method="post">
-<table>
-<tr>
-  <th align="left" i18n:translate="">Title</th>
-  <td align="left"><input type="text" name="title:utf8:ustring" size="60" tal:attributes="value context/title" /></td>
-</tr>
-<tr>
-  <th align="left" i18n:translate="">Feedback text</th>
-    <td align="left">
-      <textarea id="ckeditor-textarea" name="feedbacktext:utf8:ustring" cols="60" rows="20"><tal:block replace="context/feedbacktext"/></textarea>
-    </td>
-</tr>
-<tr>
-  <th i18n:translate="">Restricted from public view</th>
-  <td>
-    <input type="hidden" name="applyRestriction" value="1" />
-    <input type="checkbox" name="restricted"
-      tal:attributes="checked python: {True: 'checked'}.get(context.isRestricted())">
-  </td>
-</tr>
+  <metal:block fill-slot="content">
+    <div id="operations">
+      <ul>
+        <li><a tal:attributes="href request/URL2" title="Go back to envelope" i18n:attributes="title go-back-title" i18n:translate="">Back to envelope</a></li>
+      </ul>
+    </div>
+    <h1><tal:block i18n:translate="">Edit Feedback</tal:block> <span tal:replace="context/id"/></h1>
 
-<tr>
-  <td></td>
-  <td><input type="submit" name="manage_editFeedback:method" value="Change" i18n:attributes="value" /></td>
-</tr>
-</table>
-</form>
-</fieldset>
-
-<fieldset><legend i18n:translate="">Attached files</legend>
-  <table cellspacing="5" cellpadding="0" border="0" tal:define="att_file python:context.objectValues(['File', 'File (Blob)'])" tal:condition="python:len(att_file)>0">
+    <fieldset><legend i18n:translate="">Edit properties</legend>
+    <form id="edit" tal:attributes="action request/URL1" method="post">
+    <table>
     <tr>
-      <th style="vertical-align: top"><span i18n:translate="">Attached files</span>: </th>
+      <th align="left" i18n:translate="">Title</th>
+      <td align="left"><input type="text" name="title:utf8:ustring" size="60" tal:attributes="value context/title" /></td>
+    </tr>
+    <tr>
+      <th align="left" i18n:translate="">Feedback text</th>
+        <td align="left">
+          <textarea id="ckeditor-textarea" name="feedbacktext:utf8:ustring" cols="60" rows="20"><tal:block replace="context/feedbacktext"/></textarea>
+        </td>
+    </tr>
+    <tr>
+      <th i18n:translate="">Restricted from public view</th>
       <td>
-        <tal:block repeat="file_item att_file">
-          <a tal:attributes="href file_item/absolute_url" title="Download file" tal:content="file_item/getId" i18n:attributes="title">file id</a>
-          <a style="font-size: 0.8em" tal:attributes="href string:manage_uploadAttFeedbackForm?file=${file_item/getId}" title="Edit attached file" i18n:attributes="title">[edit]</a>
-          <a style="font-size: 0.8em" tal:attributes="href string:manage_deleteAttFeedbackForm?file=${file_item/getId}" title="Delete attached file" i18n:attributes="title">[delete]</a><br />
-        </tal:block>
+        <input type="hidden" name="applyRestriction" value="1" />
+        <input type="checkbox" name="restricted"
+          tal:attributes="checked python: {True: 'checked'}.get(context.isRestricted())">
       </td>
     </tr>
-  </table>
 
-  <form id="edit" tal:attributes="action request/URL1" method="post" enctype="multipart/form-data">
-    <table cellspacing="5" cellpadding="0" border="0">
-      <tr>
-        <th align="left" i18n:translate="">Upload new file</th>
-        <td><input type="file" name="file" size="25" value="" /></td>
-      </tr>
-      <tr>
-        <td></td>
-        <td><input type="submit" name="manage_uploadFeedback:method" value="Upload" i18n:attributes="value" /></td>
-      </tr>
+    <tr>
+      <td></td>
+      <td><input type="submit" name="manage_editFeedback:method" value="Change" i18n:attributes="value" /></td>
+    </tr>
     </table>
-  </form>
-</fieldset>
-<script>
-    CKEDITOR.replace('ckeditor-textarea',
-        {
-            height: 400
-        }
-    );
-</script>
+    </form>
+    </fieldset>
 
-<span tal:replace="structure here/standard_html_footer" />
+    <fieldset><legend i18n:translate="">Attached files</legend>
+      <table cellspacing="5" cellpadding="0" border="0" tal:define="att_file python:context.objectValues(['File', 'File (Blob)'])" tal:condition="python:len(att_file)>0">
+        <tr>
+          <th style="vertical-align: top"><span i18n:translate="">Attached files</span>: </th>
+          <td>
+            <tal:block repeat="file_item att_file">
+              <a tal:attributes="href file_item/absolute_url" title="Download file" tal:content="file_item/getId" i18n:attributes="title">file id</a>
+              <a style="font-size: 0.8em" tal:attributes="href string:manage_uploadAttFeedbackForm?file=${file_item/getId}" title="Edit attached file" i18n:attributes="title">[edit]</a>
+              <a style="font-size: 0.8em" tal:attributes="href string:manage_deleteAttFeedbackForm?file=${file_item/getId}" title="Delete attached file" i18n:attributes="title">[delete]</a><br />
+            </tal:block>
+          </td>
+        </tr>
+      </table>
+
+      <form id="edit" tal:attributes="action request/URL1" method="post" enctype="multipart/form-data">
+        <table cellspacing="5" cellpadding="0" border="0">
+          <tr>
+            <th align="left" i18n:translate="">Upload new file</th>
+            <td><input type="file" name="file" size="25" value="" /></td>
+          </tr>
+          <tr>
+            <td></td>
+            <td><input type="submit" name="manage_uploadFeedback:method" value="Upload" i18n:attributes="value" /></td>
+          </tr>
+        </table>
+      </form>
+    </fieldset>
+    <script>
+        CKEDITOR.replace('ckeditor-textarea',
+            {
+                height: 400
+            }
+        );
+    </script>
+
+  </metal:block>
+</metal:block>
