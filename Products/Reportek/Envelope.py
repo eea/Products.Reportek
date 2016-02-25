@@ -1093,12 +1093,12 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             if REQUEST is not None:
                 return self.messageDialog(
                                 message="The file(s) were successfully created!",
-                                action='./manage_main')
+                                action='./index_html')
 
         elif REQUEST is not None:
             return self.messageDialog(
                             message="You must specify a file!",
-                            action='./manage_main')
+                            action='./index_html')
 
     security.declareProtected('View', 'getZipInfo')
     def getZipInfo(self, document):
