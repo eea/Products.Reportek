@@ -1,21 +1,16 @@
 from base_admin import BaseAdmin
 from DateTime import DateTime
+from urllib import unquote
 
 
 class EnvelopeUtils(BaseAdmin):
 
     def __call__(self, *args, **kwargs):
-
+        super(EnvelopeUtils, self).__call__(*args, **kwargs)
         if self.request.get('btn.autocomplete'):
             self.auto_complete_envelopes()
-            return self.request.response.redirect('%s/%s?done=1' % (
-                        self.context.absolute_url(), self.__name__))
-
         if self.request.get('btn.search'):
-            workitems, tasks = self.get_not_completed_workitems()
-            return self.index(workitems=workitems,
-                              tasks=tasks)
-
+            self.get_not_completed_workitems()
         return self.index()
 
     def get_envelope_status(self):
@@ -36,7 +31,7 @@ class EnvelopeUtils(BaseAdmin):
         if age:
             query['reportingdate'] = {
                         'query': DateTime() - age,
-                        'range': 'min'}
+                        'range': 'max'}
 
         if obligations:
             if not isinstance(obligations, list):
@@ -63,24 +58,41 @@ class EnvelopeUtils(BaseAdmin):
             tasks.add(activity)
             workitems.append(workitem)
 
-        return workitems, tasks
+        # return workitems, tasks
+        self.request['workitems'] = workitems
+        self.request['tasks'] = tasks
 
     def auto_complete_envelopes(self):
         ids = self.request.get('ids', [])
         task = self.request.get('task', '')
+        results = []
+        errors = []
+        if task:
+            for path in ids:
+                path = unquote(path)
+                workitem = self.context.unrestrictedTraverse(path, None)
+                if workitem:
+                    if task and workitem.getActivityDetails('title') != task:
+                        continue
 
-        for path in ids:
-            workitem = self.context.unrestrictedTraverse(path, None)
-            if task and workitem.getActivityDetails('title') != task:
-                continue
+                    envelope = workitem.getParentNode()
+                    workitem_id = workitem.getId()
 
-            envelope = workitem.getParentNode()
-            workitem_id = workitem.getId()
+                    # activate workitem
+                    if workitem.status == 'inactive':
+                        envelope.activateWorkitem(workitem_id)
 
-            # activate workitem
-            if workitem.status == 'inactive':
-                envelope.activateWorkitem(workitem_id)
-
-            # complete envelope
-            self.request.set('inspectresult', 'Finish')
-            envelope.completeWorkitem(workitem_id, REQUEST=self.request)
+                    # complete envelope
+                    self.request.set('inspectresult', 'Finish')
+                    try:
+                        envelope.completeWorkitem(workitem_id)
+                        results.append({'path': '/'.join(path.split('/')[:-1]),
+                                        'task': task})
+                    except Exception as e:
+                        errors.append({'path': '/'.join(path.split('/')[:-1]),
+                                       'error': str(e)})
+                else:
+                    errors.append({'path': '/'.join(path.split('/')[:-1]),
+                                   'error': 'Unable to retrieve workitem'})
+        self.request['op_results'] = results
+        self.request['op_errors'] = errors

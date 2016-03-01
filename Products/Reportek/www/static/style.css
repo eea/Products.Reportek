@@ -663,3 +663,7 @@ tr.user-disabled {
   list-style: none;
   list-style-image: none;
 }
+
+.env-task-listing {
+  font-style: italic;
+}
