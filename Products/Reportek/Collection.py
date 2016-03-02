@@ -58,7 +58,7 @@ manage_addCollectionForm = PageTemplateFile('zpt/collection/add', globals())
 
 def manage_addCollection(self, title, descr, year, endyear, partofyear,
                          country, locality, dataflow_uris, allow_collections=0,
-                         allow_envelopes=0, id='', REQUEST=None,
+                         allow_envelopes=0, allow_referrals=0, id='', REQUEST=None,
                          old_company_id=None):
     """Add a new Collection object
     """
@@ -68,6 +68,10 @@ def manage_addCollection(self, title, descr, year, endyear, partofyear,
                     descr, dataflow_uris, allow_collections, allow_envelopes)
     if old_company_id:
         ob.old_company_id = old_company_id
+
+    if isinstance(self, Collection):
+        if allow_referrals != self.are_referrals_allowed():
+            ob.prop_allowed_referrals = allow_referrals
 
     self._setObject(id, ob)
     if REQUEST is not None:
@@ -357,7 +361,7 @@ class Collection(CatalogAware, Folder, Toolz):
     security.declareProtected(permission_manage_properties_collections, 'manage_editCollection')
     def manage_editCollection(self, title, descr,
             year, endyear, partofyear, locality, country='',
-            allow_collections=0,allow_envelopes=0,dataflow_uris=[],REQUEST=None):
+            allow_collections=0,allow_envelopes=0,allow_referrals=0,dataflow_uris=[],REQUEST=None):
         """ Manage the edited values """
         self.title = title
         try: self.year = int(year)
@@ -370,6 +374,9 @@ class Collection(CatalogAware, Folder, Toolz):
         self.descr = descr
         self.allow_collections = allow_collections
         self.allow_envelopes = allow_envelopes
+        if allow_referrals != self.are_referrals_allowed():
+            self.prop_allowed_referrals = allow_referrals
+
         self.dataflow_uris = dataflow_uris
         # update ZCatalog
         self.reindex_object()
@@ -648,6 +655,11 @@ class Collection(CatalogAware, Folder, Toolz):
             return False
 
         return self.allow_envelopes
+
+    def are_referrals_allowed(self):
+        """ Check through aquisition if referrals are allowed
+        """
+        return getattr(self, 'prop_allowed_referrals', 1)
 
     security.declareProtected('Add Envelopes', 'get_company_details')
     def get_company_details(self):

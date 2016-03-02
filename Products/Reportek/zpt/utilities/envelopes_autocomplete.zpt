@@ -24,16 +24,56 @@
   </metal:block>
 <metal:block fill-slot="content">
   <metal:block use-macro="here/util_controls/macros/utilities-controls" />
-  <p class="important-msg" tal:condition="request/done | nothing">
-    Operations completed succesfully.
-  </p>
+      <tal:block tal:condition="python: request.get('op_results', 'Not set') != 'Not set'"
+       tal:define="results python: request.get('op_results', 'Not set');
+                   errors python: request.get('op_errors')">
+        <metal:block use-macro="here/info_message/macros/info-message">
+          <div metal:fill-slot="info-message-container" class="info-message info-message-info">
+            <div class="im-controls im-controls-right">
+              <a id="im-close" href="#" class="im-control im-close">
+                <span class="icon-remove"></span>
+              </a>
+            </div>
+            <div class="im-message msg-warning" tal:condition="python: len(results) == 0 and len(errors) == 0">
+              No results
+            </div>
+
+            <div class="im-message msg-success" tal:condition="python: len(results) > 0">
+              <div class="info-message-content">
+                Changed envelopes: <span tal:content="python:len(results)"/>
+                <ul>
+                  <li tal:repeat="res results">
+                    <a tal:define="href python: res.get('path')"
+                      tal:attributes="href href"
+                      tal:content="python: res.get('path')"/>
+                      Completed task: 
+                    <span class="env-task-listing" tal:content="python: res.get('task')"/>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="im-message msg-danger" tal:condition="errors">
+              Errors reported: <span tal:content="python:len(errors)"/>
+              <ul>
+                <li tal:repeat="err errors">
+                  <a tal:define="href python: err.get('path')"
+                    tal:attributes="href href"
+                    tal:content="python: err.get('path')"/>
+                    Error message: 
+                  <span class="env-task-listing" tal:content="python: err.get('error')"/>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </metal:block>
+      </tal:block>
 
   <h1>Auto complete envelopes</h1>
   <p class="info">
     Searches the envelopes that have been in a given status for more than a given number of days and which are tagged with a certain obligation and allows Managers to complete the selected ones.
   </p>
 
-  <form action="" method="get">
+  <form action="" method="post" name="search">
 
     <h2>1. Search envelopes</h2>
 
@@ -65,7 +105,7 @@
     </div>
   </form>
 
-  <form action="" method="post" tal:condition="options/workitems | nothing">
+  <form action="" method="post" tal:condition="request/workitems | nothing" name="advance" id="envelope_advance">
 
     <h2>1. Move forward the envelopes</h2>
 
@@ -73,11 +113,10 @@
       <label for="task">From the list below, move forward selected envelopes having the task</label>
       <select name="task" id="task">
         <option></option>
-        <option tal:repeat="task options/tasks"
+        <option tal:repeat="task request/tasks"
                 tal:attributes="value task"
                 tal:content="task" />
       </select>
-
       <input onclick="javascript:return window.confirm('Are you sure you want to move selected envelopes forward?')"
               type="submit"
               name="btn.autocomplete" value="Ok" />
@@ -97,7 +136,7 @@
       </thead>
 
       <tbody>
-        <tr tal:repeat="workitem options/workitems">
+        <tr tal:repeat="workitem request/workitems">
           <td>
             <input type="checkbox" name="ids:list" checked="checked"
                    tal:attributes="value python:workitem.absolute_url(1)" />
@@ -117,13 +156,13 @@
             <span tal:replace="actor" tal:condition="actor" />
             <span tal:condition="not: actor">Not assigned</span>
           </td>
-          <td tal:content="python:workitem.reportingdate.strftime('%m/%d/%Y')" />
+          <td tal:content="python:workitem.reportingdate.strftime('%Y/%m/%d')" />
         </tr>
       </tbody>
     </table>
   </form>
 
-  <strong tal:condition="python: not options.get('workitems')
+  <strong tal:condition="python: not request.get('workitems')
                          and request.get('btn.search')">
     No envelopes found.
   </strong>

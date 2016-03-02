@@ -99,8 +99,10 @@
 
       <tr>
         <th i18n:translate="">Coverage</th>
-        <td tal:define="engine python:context.getEngine();">
-          <select name="country">
+        <td tal:define="engine python:context.getEngine();
+                        can_move_released python: getattr(context, 'can_move_released', False)">
+          <select name="country"
+            tal:attributes="disabled python: 'disabled' if context.released and not can_move_released else ''">
             <option
               tal:define="
                 selected_condition python:context.country == '';

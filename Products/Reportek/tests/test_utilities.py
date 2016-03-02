@@ -552,6 +552,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
 
     def test_reportek_utilities(self):
         # Go to ReportekUtilities index_html view
+        self.setRoles('Manager')
         r_utilities = getattr(self.app, constants.REPORTEK_UTILITIES)
         ru_url = r_utilities.absolute_url()
         index_url = ru_url + '/index_html'
@@ -559,7 +560,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         self.assertEqual(self.browser.url, index_url)
 
         # Go to users that have access
-        users_access_link = self.browser.getLink(id='user-roles')
+        users_access_link = self.browser.getLink(text='Show where users have roles')
         users_access_link.click()
         self._check_controls(self.browser.contents)
         self.assertTrue('Yearly report to the Fictive Convention' in
@@ -580,39 +581,28 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         # Filter
         self.browser.getControl(name='btnFilter').click()
         self._check_controls(self.browser.contents)
-        expected_url = (ru_url + '/get_users_by_path?'
-                                 'obligations%3Alist=8&path_filter=&'
-                                 'role=&countries%3Alist=tc&btnFilter=Search')
-        self.assertEqual(expected_url, self.browser.url)
 
         # We have an ajax call that we need to see the result of
-        ajax_url = self.app.absolute_url() + '/api.get_users_by_path?obligation=8&role=&countries%5B%5D=tc'
-        self.browser.open(ajax_url)
+        ajax_url = self.app.absolute_url() + '/api.get_users_by_path'
+        self.browser.post(ajax_url, 'obligation=8&role=&countries%5B%5D=tc')
         expected_result = ('{"data": [{"obligations": ['
-                           '["http://nohost/obligations/1",'
-                           ' "Yearly report to the Fictive Convention"]],'
-                           ' "path": ["/tc", "Test Country"], '
-                           '"users": {"test_user_1_": {'
-                           '"role": ["Owner", "Reporter"], '
-                           '"uid": "test_user_1_"}}}]}')
+                          '["http://nohost/obligations/1", '
+                          '"Yearly report to the Fictive Convention"]], '
+                          '"users": {"test_user_1_": {'
+                          '"role": ["Owner", "Reporter"], '
+                          '"uid": "test_user_1_"}}, '
+                          '"collection": {"path": "/tc", '
+                          '"type": "Report Collection", '
+                          '"title": "Test Country"}}]}')
         self.assertEqual(expected_result, self.browser.contents)
 
         # Go back to ReportekUtilities index_html
         self.browser.goBack(count=3)
 
         if REPORTEK_DEPLOYMENT != DEPLOYMENT_BDR:
-            # Click on the list country reporters
-            self.browser.getLink(text='List country reporters').click()
-            self._check_controls(self.browser.contents)
-            self.browser.getControl(label='Show reporters').click()
-            self._check_controls(self.browser.contents)
-            # test_user_1_ should come up in the reporters list
-            self.assertTrue('test_user_1_@test.com' in self.browser.contents)
-
-            self.browser.goBack(count=2)
             self.browser.getLink(text='Assign roles by obligation').click()
             self._check_controls(self.browser.contents)
-            self.assertEqual(ru_url + '/assign_role', self.browser.url)
+            self.assertEqual(ru_url + '/@@assign_role', self.browser.url)
             search_term_ctl = self.browser.getControl(name='search_term')
             search_term_ctl.value = 'test_user_1_'
             self.browser.getControl(name='btnFind').click()
@@ -765,17 +755,16 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             self.browser.getControl(name='btn.search').click()
             self.assertTrue('Test envelope' in self.browser.contents)
 
-            # Move forward our envelope
+            # Try to move forward our envelope
             self.browser.getControl(name='btn.autocomplete').click()
-            self.assertTrue('Operations completed succesfully.' in
-                            self.browser.contents)
+            self.assertTrue('No results' in self.browser.contents)
 
             self.browser.goBack(count=3)
 
         # Go to revoke roles view
         self.browser.getLink(text='Revoke roles').click()
         self._check_controls(self.browser.contents)
-        self.assertEqual(ru_url + '/revoke_roles',
+        self.assertEqual(ru_url + '/@@revoke_roles',
                          self.browser.url)
 
         # Search for our test user

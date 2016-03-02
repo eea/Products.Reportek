@@ -658,3 +658,12 @@ tr.user-disabled {
   font-weight: bold;
   margin: 0 0 12px;
 }
+
+#workarea ul.unstyled-list {
+  list-style: none;
+  list-style-image: none;
+}
+
+.env-task-listing {
+  font-style: italic;
+}

@@ -7,7 +7,6 @@ if (window.reportek === undefined) {
 }
 
 reportek.utils = {
-  users: {},
   countries_keys: {"eu28": ["AT", "BE", "BG", "CY", "CZ", "DE", "DK", 
                              "EE", "ES", "FI", "FR", "GB", "GR", "HR",
                              "HU", "IE", "IT", "LT", "LU", "LV", "MT",
@@ -47,8 +46,6 @@ reportek.utils = {
       }
     }
 
-    if ($("#datatable").length !== 0)
-      self.initDataTable();
     $(".toggledCB").click(function() {
       var checkedElems = $(".toggledCB").filter(function(index, element) {
         return $(element).prop("checked") === true;
@@ -71,36 +68,6 @@ reportek.utils = {
       });
     });
     self.manageInfoMessages();
-  },
-
-  generateRow: function(row, tableKey) {
-    var self = reportek.utils;
-    var result = [
-        self.renderAsLink(row.path[0], row.path[0], row.path[1]),
-        self.renderAsUL($.map(row.obligations, function (obligation) {
-          return self.renderAsLink(obligation[0], obligation[1]);
-        }))
-      ];
-
-    if (tableKey === "by_path")
-      result.push(
-        self.renderAsUL($.map(row.users, function (user) {
-          return self.renderUsersLI(user);
-        })));
-    else if (tableKey === "by_person")
-      result.push(row.user);
-
-    return result;
-  },
-
-  renderUsersLI: function(user) {
-    var self = reportek.utils;
-    var getUserType = $("<a/>", {"class": "user-type",
-                                 "data-uid": user.uid,
-                                 "href": "api.get_user_type?username=" + user.uid,
-                                 "text": "Get user type"});
-
-    return "<span class='user-id'>" + user.uid + "</span>" + self.renderAsUL([getUserType.prop("outerHTML"), "Role: " + user.role]);
   },
 
   do_spinner: function(container) {
@@ -143,171 +110,11 @@ reportek.utils = {
     }
   },
 
-  createUserTypeMapping: function() {
-    var self = reportek.utils;
-    var username;
-    $.each($(".user-type"), function(idx, elem) {
-      username = $(elem).attr("data-uid");
-      if (self.users[username] === undefined) {
-        self.users[username] = {"checked": false, "utype": "N/A"};
-      }
-    });
-  },
-
-  updateUserTypeMapping: function(data) {
-    var self = reportek.utils;
-    var user = JSON.parse(data);
-    self.users[user.username].username = user.username;
-    self.users[user.username].checked = true;
-    self.users[user.username].utype = user.utype;
-    self.updateUserType(user.username, user.utype);
-  },
-
-  updateUserType: function(user, utype) {
-    var text = "Type: " + utype;
-    var links = $("[data-uid='" + user + "']");
-    var li = links.parent();
-    li.html(text);
-  },
-
-  getUserType: function(elem) {
-    var self = reportek.utils;
-    var url = $(elem).attr("href");
-    var user = $(elem).attr("data-uid");
-    if (self.users[user].checked === true) {
-      self.updateUserType(user, self.users[user].utype);
-    } else {
-      $.ajax({
-        url: url,
-      }).success(self.updateUserTypeMapping);
-    }
-  },
-
-  getCurrentUserTypes: function() {
-    var self = reportek.utils;
-    self.bindGetUserTypes();
-    var trows = $("#datatable tbody tr");
-    $.each(trows, function(idx, row){
-      self.current_row = row;
-      var user_type = $(row).find(".user-type");
-      var user;
-      $.each(user_type, function(i, elem) {
-        user = $(elem).attr("data-uid");
-        if (self.users[user] === undefined) {
-          self.users[user] = {"username": user, "checked": false, "utype": "N/A"};
-        }
-        self.getUserType(elem);
-      });
-    });
-  },
-
-  bindGetUserTypes: function() {
-    var self = reportek.utils;
-    var trows = $("#datatable tbody tr");
-    $.each(trows, function(idx, elem){
-      var user_type = $(elem).find(".user-type");
-      $(user_type).on("click", function(evt) {
-        evt.preventDefault();
-        self.getUserType(this);
-      });
-    });
-  },
-
-  initDataTable: function() {
-    /* Init the datatable object */
-
-    var self = reportek.utils;
-    var target = $("#datatable");
-
-    var generalSettings = {
-      by_path: {
-        "columns": [
-          {"width": "25%"},
-          null,
-          {"width": "15%"}
-        ]},
-      by_person: {
-        "ordering": false,
-        "drawCallback": function () {
-          var api = this.api();
-          var rows = api.rows({page: "current"}).nodes();
-          var last = null;
-
-          api.column(2, {page:"current"}).data().each(function(group, i) {
-            if (last !== group) {
-              $(rows).eq(i).before(
-                "<tr class='group'><td colspan='2'>" + group + "</td></tr>"
-              );
-              last = group;
-            }
-          });
-        },
-        columnDefs: [
-          {"visible": false, "targets": 2}
-        ],
-        "columns": [
-          {"width": "20%"},
-          null
-        ]
-      }
-    };
-
-    var dtConfig = {
-      pagingType: "simple",
-      serverSide: false,
-      processing: true,
-      pageLength: 100
-    };
-
-    var tableKey = target.data("table-key");
-    $.extend(dtConfig, generalSettings[tableKey]);
-    if (target.hasClass("bdr-datatable") && tableKey === "by_path") {
-      dtConfig.columns = [
-        {"width": "25%"},
-        {"width": "30%"},
-        null
-      ];
-    }
-    var dataTable = target.DataTable(dtConfig);
-    $(".dataTables_filter input").attr("placeholder", "Filter by...");
-    var dataSources = {
-      by_path: "/api.get_users_by_path",
-      by_person: "/api.get_users"
-    };
-    self.datatable_loading(target, "hide");
-    dataTable.on("draw.dt", self.getCurrentUserTypes);
-    $.ajax({
-      url: dataSources[tableKey],
-      data: {
-        obligations: $("#obligations").val(),
-        role: $("#role").val(),
-        countries: $("#countries").val(),
-        path_filter: $("#path_filter").val()
-      },
-      success: function(result) {
-        var rows = $.parseJSON(result).data;
-        $.each(rows, function(idx, row) {
-          dataTable.row.add(self.generateRow(row, tableKey));
-        });
-        self.datatable_loading(target, "show");
-        dataTable.draw();
-      }
-    });
-  },
-
   manage_role_cb: function(col_cb) {
     var sel_roles = $(col_cb).parents("tr").find(".local-roles");
     if (sel_roles.length > 0) {
       sel_roles.prop("checked", $(col_cb).prop("checked"));
     }
-  },
-
-  renderAsUL: function(li_items) {
-    var result_html = "";
-    $.each(li_items, function(index, li_item) {
-      result_html += "<li>" + li_item + "</li>";
-    });
-    return "<ul>" + result_html + "</ul>";
   },
 
   clear_filters: function() {
@@ -339,11 +146,6 @@ reportek.utils = {
     } else {
       $("#s2id_countries").select2("val", self.countries_keys[ckey]);
     }
-  },
-
-  renderAsLink: function(href, display, title) {
-    var title_attribute = title ? " title='" + title + "'" : "";
-    return "<a href='" + href + "'" + title_attribute + ">" + display + "</a>";
   },
 
   getUserUrl: function(user) {
@@ -579,7 +381,7 @@ reportek.utils = {
               return row.matched_group;
             }
           }
-      }
+      };
       columnDefs.splice(1, 0, ldapg_coldef);
     }
     dtable.dataTable({
@@ -691,8 +493,7 @@ reportek.utils = {
           reportek.utils.handleSearchUser(data);
         });
     });
-  }
-
+  },
 };
 
 window.jQuery(document).ready(function () {
