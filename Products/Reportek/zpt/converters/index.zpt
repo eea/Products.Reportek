@@ -29,7 +29,7 @@
             $('.dataTable').dataTable({
                 "bScrollInfinite": true,
                 "bScrollCollapse": true,
-                "sScrollY": "200px"
+                "sScrollY": "400px"
             });
             $('#ajax_conv').click(function(event) {
                 event.preventDefault();
