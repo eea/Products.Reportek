@@ -221,7 +221,7 @@ class EnvelopeCustomDataflows:
                         c_log = 'WARNING: Conversion contains validation warnings (Code: {})'.format(l_result)
                     else:
                         l_msg = 'The file was successfully uploaded in the envelope and converted into an XML delivery.'
-                        c_log = 'INFO: Conversion successful (Code: {})'.format(l_result)
+                        c_log = 'INFO: Conversion successful'.format(l_result)
                     self.log_file_conversion(l_id, c_log)
                     return self.messageDialog(
                                 message=l_msg,
