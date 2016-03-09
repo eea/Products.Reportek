@@ -7,7 +7,8 @@
     permission_allow_envelopes python:here.allowed_envelopes() and SecurityManager.checkPermission('Add Envelopes', here);
     permission_allow_collections python:here.allow_collections and SecurityManager.checkPermission('Add Collections', here);
     permission_chgcoll python:SecurityManager.checkPermission('Change Collections', here);
-    has_descr python:here.descr!=''; has_dataflow_uris python:len(here.dataflow_uris)>0">
+    has_descr python:here.descr!=''; has_dataflow_uris python:len(here.dataflow_uris)>0;
+    isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'">
 
     <div id="operations" tal:condition="python:permission_allow_envelopes or permission_allow_collections">
       <ul>
@@ -36,28 +37,55 @@
     <form method="post" tal:attributes="action string:${request/URL1}/">
       <div class="filessection">
         <h2 i18n:translate="">Envelopes and subcollections</h2>
-        <table style="width: 100%; border: 0">
-          <col style="width: 16px" tal:condition="permission_chgcoll" />
-          <col style="width: 18px" />
-          <col />
-          <col style="width: 7em" />
+        <table style="width: 100%; border: 0"
+          tal:define="colls python: here.objectValues(['Report Collection']);
+                      envs python: here.objectValues(['Report Envelope']);
+                      refs python: here.objectValues(['Repository Referral']);
+                      c_name python: isBdrDeployment and envs;
+                      env_stat python: isBdrDeployment and envs;
+                      additional_colls python: c_name and env_stat">
+          <thead>
+            <th style="width: 16px" tal:condition="permission_chgcoll" />
+            <th style="width: 18px" />
+            <th></th>
+            <th tal:condition="additional_colls">Company name</th>
+            <th tal:condition="additional_colls">Envelope status</th>
+            <th style="width: 7em" />
+          </thead>
           <tbody>
-            <tr valign="top" tal:repeat="item python:test(here.allow_envelopes==1, here.tlzSortObjsListByMethod(here.objectValues(['Report Collection']), 'bobobase_modification_time', 1), here.tlzSortByAttr(here.objectValues(['Report Collection']), 'title'))">
+            <tr valign="top" tal:repeat="item python:test(here.allow_envelopes==1, here.tlzSortObjsListByMethod(colls, 'bobobase_modification_time', 1), here.tlzSortByAttr(colls, 'title'))">
               <td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>
               <td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Collection" i18n:attributes="alt" /></td>
               <td><a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" /></td>
+              <tal:block tal:condition="additional_colls">
+                <td></td>
+                <td></td>
+              </tal:block>
               <td tal:content="python:item.bobobase_modification_time().strftime('%d %b %Y')" />
             </tr>
-            <tr valign="top" tal:repeat="item python:here.tlzSortByAttr(here.objectValues(['Report Envelope']), 'reportingdate', 1)">
+            <tr valign="top" tal:repeat="item python:here.tlzSortByAttr(envs, 'reportingdate', 1)">
               <td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>
               <td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Envelope" i18n:attributes="alt" /></td>
               <td><a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" /></td>
+              <tal:block tal:condition="additional_colls">
+                <td>
+                  <span tal:content="here/title|nothing" />
+                </td>
+                <td>
+                  <span i18n:translate="" tal:condition="item/released">Released</span>
+                  <span i18n:translate="" tal:condition="not: item/released">Not released</span>
+                </td>
+              </tal:block>
               <td tal:content="python:item.reportingdate.strftime('%d %b %Y')" />
             </tr>
-            <tr valign="top" tal:repeat="item python:here.tlzSortByAttr(here.objectValues(['Repository Referral']), 'title')">
+            <tr valign="top" tal:repeat="item python:here.tlzSortByAttr(refs, 'title')">
               <td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>
               <td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Repository Referral" i18n:attributes="alt" /></td>
               <td><a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" /></td>
+              <tal:block tal:condition="additional_colls">
+                <td></td>
+                <td></td>
+              </tal:block>
               <td tal:content="python:item.bobobase_modification_time().strftime('%d %b %Y')" />
             </tr>
           </tbody>
