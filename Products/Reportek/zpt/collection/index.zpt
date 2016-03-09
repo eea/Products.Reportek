@@ -48,8 +48,8 @@
             <th style="width: 16px" tal:condition="permission_chgcoll" />
             <th style="width: 18px" />
             <th></th>
-            <th tal:condition="additional_colls">Company name</th>
-            <th tal:condition="additional_colls">Envelope status</th>
+            <th tal:condition="additional_colls" class="tcenter additional-env-info">Company name</th>
+            <th tal:condition="additional_colls" class="tcenter additional-env-info">Envelope status</th>
             <th style="width: 7em" />
           </thead>
           <tbody>
@@ -68,10 +68,10 @@
               <td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Envelope" i18n:attributes="alt" /></td>
               <td><a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" /></td>
               <tal:block tal:condition="additional_colls">
-                <td>
+                <td class="tcenter additional-env-info">
                   <span tal:content="here/title|nothing" />
                 </td>
-                <td>
+                <td class="tcenter additional-env-info">
                   <span i18n:translate="" tal:condition="item/released">Released</span>
                   <span i18n:translate="" tal:condition="not: item/released">Not released</span>
                 </td>
