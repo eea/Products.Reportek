@@ -222,6 +222,25 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         else:
             return getattr(QA_workitems[-1], 'blocker', False)
 
+    @property
+    def has_unknown_qa_result(self):
+        """ Returns True if a feedback object has an 'UNKNOWN' feedback status
+        """
+        VALID_FB_STATUSES = [
+            'INFO',
+            'WARNING',
+            'ERROR',
+            'BLOCKER'
+        ]
+
+        aqa_fbs = [rf for rf in self.objectValues('Report Feedback')
+                   if getattr(rf, 'title', '').startswith('AutomaticQA')]
+
+        for fb in aqa_fbs:
+            fb_status = getattr(fb, 'feedback_status', 'UNKNOWN')
+            if fb_status not in VALID_FB_STATUSES:
+                return True
+
     def uns_is_set(self):
         """ Returns True if UNS server is set """
         engine = getattr(self, ENGINE_ID)
