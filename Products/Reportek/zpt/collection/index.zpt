@@ -41,8 +41,9 @@
           tal:define="colls python: here.objectValues(['Report Collection']);
                       envs python: here.objectValues(['Report Envelope']);
                       refs python: here.objectValues(['Repository Referral']);
-                      additional_colls python: isBdrDeployment and envs;">
-          <thead>
+                      additional_colls python: isBdrDeployment and envs;
+                      visible python: colls or envs or refs;">
+          <thead tal:condition="visible">
             <th style="width: 16px" tal:condition="permission_chgcoll" />
             <th style="width: 18px" />
             <th></th>
@@ -51,7 +52,7 @@
             <th tal:condition="additional_colls" class="tcenter additional-env-info">Acceptability</th>
             <th style="width: 7em" class="tcenter">Updated</th>
           </thead>
-          <tbody>
+          <tbody tal:condition="visible">
             <tr valign="top" tal:repeat="item python:test(here.allow_envelopes==1, here.tlzSortObjsListByMethod(colls, 'bobobase_modification_time', 1), here.tlzSortByAttr(colls, 'title'))">
               <td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>
               <td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Collection" i18n:attributes="alt" /></td>
