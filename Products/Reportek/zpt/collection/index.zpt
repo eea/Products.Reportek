@@ -50,7 +50,9 @@
             <th tal:condition="additional_colls" class="tcenter additional-env-info">Reporting year</th>
             <th tal:condition="additional_colls" class="tcenter additional-env-info">Status</th>
             <th tal:condition="additional_colls" class="tcenter additional-env-info">Acceptability</th>
-            <th style="width: 7em" class="tcenter">Updated</th>
+            <th style="width: 7em" class="tcenter">
+              <span tal:condition="isBdrDeployment">Updated</span>
+            </th>
           </thead>
           <tbody tal:condition="visible">
             <tr valign="top" tal:repeat="item python:test(here.allow_envelopes==1, here.tlzSortObjsListByMethod(colls, 'bobobase_modification_time', 1), here.tlzSortByAttr(colls, 'title'))">
