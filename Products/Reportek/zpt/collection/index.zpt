@@ -37,20 +37,19 @@
     <form method="post" tal:attributes="action string:${request/URL1}/">
       <div class="filessection">
         <h2 i18n:translate="">Envelopes and subcollections</h2>
-        <table style="width: 100%; border: 0"
+        <table style="width: 100%; border: 0" class="collection-table-listing"
           tal:define="colls python: here.objectValues(['Report Collection']);
                       envs python: here.objectValues(['Report Envelope']);
                       refs python: here.objectValues(['Repository Referral']);
-                      c_name python: isBdrDeployment and envs;
-                      env_stat python: isBdrDeployment and envs;
-                      additional_colls python: c_name and env_stat">
+                      additional_colls python: isBdrDeployment and envs;">
           <thead>
             <th style="width: 16px" tal:condition="permission_chgcoll" />
             <th style="width: 18px" />
             <th></th>
-            <th tal:condition="additional_colls" class="tcenter additional-env-info">Company name</th>
-            <th tal:condition="additional_colls" class="tcenter additional-env-info">Envelope status</th>
-            <th style="width: 7em" />
+            <th tal:condition="additional_colls" class="tcenter additional-env-info">Reporting year</th>
+            <th tal:condition="additional_colls" class="tcenter additional-env-info">Status</th>
+            <th tal:condition="additional_colls" class="tcenter additional-env-info">Acceptability</th>
+            <th style="width: 7em" class="tcenter">Updated</th>
           </thead>
           <tbody>
             <tr valign="top" tal:repeat="item python:test(here.allow_envelopes==1, here.tlzSortObjsListByMethod(colls, 'bobobase_modification_time', 1), here.tlzSortByAttr(colls, 'title'))">
@@ -60,8 +59,9 @@
               <tal:block tal:condition="additional_colls">
                 <td></td>
                 <td></td>
+                <td></td>
               </tal:block>
-              <td tal:content="python:item.bobobase_modification_time().strftime('%d %b %Y')" />
+              <td class="tcenter" tal:content="python:item.bobobase_modification_time().strftime('%d %b %Y')" />
             </tr>
             <tr valign="top" tal:repeat="item python:here.tlzSortByAttr(envs, 'reportingdate', 1)">
               <td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>
@@ -69,14 +69,22 @@
               <td><a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" /></td>
               <tal:block tal:condition="additional_colls">
                 <td class="tcenter additional-env-info">
-                  <span tal:content="here/title|nothing" />
+                  <span tal:condition="python:item.endyear == ''"
+                      tal:content="python:'%s - %s' %(item.year, item.partofyear)">
+                  </span>
+                  <span tal:condition="not:python:item.endyear == ''"
+                      tal:content="python:'%s to %s' %(item.year, item.endyear)">
+                  </span>
                 </td>
                 <td class="tcenter additional-env-info">
                   <span i18n:translate="" tal:condition="item/released">Released</span>
                   <span i18n:translate="" tal:condition="not: item/released">Not released</span>
                 </td>
+                <td class="tcenter additional-env-info">
+                  <span i18n:translate="" tal:content="python: {True: 'Acceptable', False: 'Not acceptable', None: 'N/A'}.get(item.is_acceptable(), '')" />
+                </td>
               </tal:block>
-              <td tal:content="python:item.reportingdate.strftime('%d %b %Y')" />
+              <td class="tcenter" tal:content="python:item.reportingdate.strftime('%d %b %Y')" />
             </tr>
             <tr valign="top" tal:repeat="item python:here.tlzSortByAttr(refs, 'title')">
               <td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>
@@ -85,8 +93,9 @@
               <tal:block tal:condition="additional_colls">
                 <td></td>
                 <td></td>
+                <td></td>
               </tal:block>
-              <td tal:content="python:item.bobobase_modification_time().strftime('%d %b %Y')" />
+              <td class="tcenter" tal:content="python:item.bobobase_modification_time().strftime('%d %b %Y')" />
             </tr>
           </tbody>
         </table>
