@@ -228,6 +228,8 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         """
         VALID_FB_STATUSES = [
             'INFO',
+            'SKIPPED',
+            'OK',
             'WARNING',
             'ERROR',
             'BLOCKER'
