@@ -8,7 +8,7 @@
 
 <div id="detailed-qa"
   tal:define="fb_objs context/getFeedbackObjects;
-              feedbacks python: [fb for fb in fb_objs if getattr(fb, 'message', None) and getattr(fb, 'automatic', False)];
+              feedbacks python: [fb for fb in fb_objs if getattr(fb, 'automatic', False)];
               fb_files python: [getattr(fb, 'document_id', '') for fb in feedbacks];
               seen python: {};
               u_fb_files python: [seen.setdefault(x, x) for x in fb_files if x not in seen];
@@ -24,8 +24,11 @@
           <li tal:repeat="feedback python: [fb for fb in feedbacks if getattr(fb, 'document_id', '') == fb_file]">
             <span tal:define="fb_status python: getattr(feedback, 'feedback_status', '')"
                   tal:attributes="class python: fb_classes.get(fb_status)">
-              <span class="fb-status" tal:content="fb_status"/>:
-              <span tal:content="python: getattr(feedback, 'message', '')"/>
+              <span class="fb-status" tal:content="fb_status" />:
+              <span tal:define="default python: getattr(feedback, 'title', '').split(':')[-1];
+                                message python: getattr(feedback, 'message');
+                                info python: message if message else default"
+                tal:content="info"/>
             </span>
             <a href="#" tal:attributes="href feedback/absolute_url">Show more...</a>
           </li>
@@ -40,7 +43,10 @@
         <span tal:define="fb_status python: getattr(feedback, 'feedback_status', '')"
               tal:attributes="class python: fb_classes.get(fb_status)">
           <span class="fb-status" tal:content="fb_status"/>:
-          <span tal:content="python: getattr(feedback, 'message', '')"/>
+          <span tal:define="default python: getattr(feedback, 'title', '').split(':')[-1];
+                            message python: getattr(feedback, 'message');
+                            info python: message if message else default"
+            tal:content="info"/>
         </span>
         <a href="#" tal:attributes="href feedback/absolute_url">Show more...</a>
       </li>
