@@ -8,7 +8,7 @@
 
 <div id="detailed-qa"
   tal:define="fb_objs context/getFeedbackObjects;
-              feedbacks python: [fb for fb in fb_objs if getattr(fb, 'automatic', False)];
+              feedbacks python: [fb for fb in fb_objs if getattr(fb, 'title', '').startswith('AutomaticQA')];
               fb_files python: [getattr(fb, 'document_id', '') for fb in feedbacks];
               seen python: {};
               u_fb_files python: [seen.setdefault(x, x) for x in fb_files if x not in seen];
