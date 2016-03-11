@@ -224,8 +224,11 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
     @property
     def has_unknown_qa_result(self):
-        """ Returns True if a feedback object has an 'UNKNOWN' feedback status
+        """ Returns True if an AutomaticQA feedback object has an 'UNKNOWN'
+            feedback status. Every feedback_status other than the ones defined
+            in VALID_FB_STATUSES is treated as 'UNKNOWN'.
         """
+
         VALID_FB_STATUSES = [
             'INFO',
             'SKIPPED',
