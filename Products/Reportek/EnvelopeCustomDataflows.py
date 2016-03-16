@@ -110,17 +110,21 @@ class EnvelopeCustomDataflows:
 
     security.declareProtected('Change Envelopes', 'get_conv_results')
     def get_conv_results(self):
-        """ Retrieve conversion results from the current active workitem """
+        """ Retrieve conversion results from workitems """
         conv_results = {}
         if hasattr(self, 'REQUEST'):
-            active_wks = self.getWorkitemsActiveForMe(self.REQUEST)
-            for wk in active_wks:
+            wks = self.getListOfWorkitems()
+            for wk in wks:
                 wk_fc_log = {}
                 for ev_log in wk.event_log:
                     if ev_log.get('event') == 'file conversion':
                         fc_log = {}
+                        active = False
                         file_info, result = ev_log.get('comment').split(' ; ')
                         filename = file_info.split('File:')[-1].strip()
+                        if filename in self.objectIds():
+                            active = True
+                        fc_log['active'] = active
                         fc_log['status'] = result.split(']:')[0].lstrip('([')
                         msg = result.split(']:')[-1].strip(' )')
                         fc_log['code'] = ''
@@ -129,8 +133,23 @@ class EnvelopeCustomDataflows:
                             fc_log['code'] = msg.split('Code: ')[-1].rstrip(')')
                         wk_fc_log[filename] = fc_log
                 conv_results[wk.getId()] = wk_fc_log
-
         return conv_results
+
+    def get_failed_active_conversions(self):
+        """ Returns failed active conversions. Active means the file has not
+            been deleted
+        """
+        failed = []
+        conv_results = self.get_conv_results()
+        has_conversions = [conv for conv in conv_results
+                           if conv_results.get(conv)]
+
+        for wk_log in has_conversions:
+            file = conv_results.get(wk_log)
+            if file.get('active') and file.get('status') != 'INFO':
+                failed.append(file)
+
+        return failed
 
     security.declareProtected('Change Envelopes', 'convert_excel_file')
     def convert_excel_file(self, file, restricted='', strict_check=0, conversion_function='', REQUEST=None):
