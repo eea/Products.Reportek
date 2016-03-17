@@ -145,9 +145,10 @@ class EnvelopeCustomDataflows:
                            if conv_results.get(conv)]
 
         for wk_log in has_conversions:
-            file = conv_results.get(wk_log)
-            if file.get('active') and file.get('status') != 'INFO':
-                failed.append(file)
+            files = conv_results.get(wk_log)
+            for filename, c_info in files.iteritems():
+                if c_info.get('active') and c_info.get('status') != 'INFO':
+                    failed.append(filename)
 
         return failed
 
