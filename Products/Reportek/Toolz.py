@@ -77,16 +77,16 @@ class Toolz:
         return {}
 
     def getLDAPUserFirstName(self, dn):
-        return unicode(dn.get('sn', ''), 'iso-8859-1').encode('utf-8')
+        return dn.get('sn', '')
 
     def getLDAPUserLastName(self, dn):
-        return unicode(dn.get('givenName', ''), 'iso-8859-1').encode('utf-8')
+        return dn.get('givenName', '')
 
     def getLDAPUserCanonicalName(self, cn):
-        return unicode(cn.get('cn', ''), 'iso-8859-1').encode('utf-8')
+        return cn.get('cn', '')
 
     def getLDAPUserEmail(self, dn):
-        return unicode(dn.get('mail', ''), 'iso-8859-1').encode('utf-8')
+        return dn.get('mail', '')
 
     @ram.cache(lambda *args: time() // (60*60*12))
     def getLDAPGroups(self):
