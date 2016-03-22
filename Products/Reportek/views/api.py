@@ -81,3 +81,26 @@ class ReportekApi(BrowserView):
         """
 
         return self.search_envelopes(obligation, rejected=True)
+
+    def collections_json(self):
+        """ Returns a JSON with some basic Collections information
+        """
+        BASIC_DATA = [
+            'title',
+            'company_id',
+        ]
+        results = []
+        query = {
+            'meta_type': 'Report Collection'
+        }
+        brains = self.context.Catalog(**query)
+        for brain in brains:
+            coll = brain.getObject()
+            exp_data = {}
+            exp_data['path'] = brain.getPath()
+            for data in BASIC_DATA:
+                exp_data[data] = getattr(coll, data, None)
+            results.append(exp_data)
+
+        return json.dumps(results, indent=4)
+
