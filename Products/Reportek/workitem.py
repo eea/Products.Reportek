@@ -1,5 +1,5 @@
 import constants
-from AccessControl import ClassSecurityInfo, view_management_screens
+from AccessControl import ClassSecurityInfo
 from DateTime import DateTime
 from time import time
 from OFS.SimpleItem import SimpleItem 
@@ -184,7 +184,7 @@ class workitem(CatalogAware, SimpleItem, PropertyManager):
         if not self.blocked:
             self.setStatus('inactive', comment, actor)
 
-    security.declareProtected(view_management_screens, 'set_blocked_attr')
+    security.declareProtected('View management screens', 'set_blocked_attr')
     def set_blocked_attr(self, value=1, comment='', actor=''):
         """ sets the 'blocked' flag at the specified value
             used by Managers to fix the envelopes in which the automatic QA failed 
