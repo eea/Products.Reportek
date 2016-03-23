@@ -320,14 +320,14 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             self._BDRRegistryAPI = BDRRegistryAPI('BDR Registry', self.bdr_registry_url)
         return self._BDRRegistryAPI
 
-    def get_registry(self, dataflow_uris):
+    def get_registry(self, collection):
         registry = ''
-        if dataflow_uris:
-            if dataflow_uris[0] in self.bdr_registry_obligations:
+        if collection.dataflow_uris:
+            if collection.dataflow_uris[0] in self.bdr_registry_obligations:
                 registry = 'BDRRegistryAPI'
-            elif dataflow_uris[0] in self.fgas_registry_obligations:
+            elif collection.dataflow_uris[0] in self.fgas_registry_obligations:
                 registry = 'FGASRegistryAPI'
-                if not getattr(self, '_company_id', None) and getattr(self, 'old_company_id', None):
+                if not getattr(collection, '_company_id', None) and getattr(collection, 'old_company_id', None):
                     registry = 'BDRRegistryAPI'
         return getattr(self, registry, None)
 
