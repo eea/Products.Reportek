@@ -195,7 +195,7 @@ class workitem(CatalogAware, SimpleItem, PropertyManager):
         else:
             self.blocked = 0
         self.actor = actor
-        self.addEvent('set blocker flag to %s' % self.blocked, comment)
+        self.addEvent('set blocked flag to %s' % self.blocked, comment)
         self.reindex_object()
 
     def setStatus(self, status, comment='', actor=''):
