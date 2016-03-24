@@ -577,7 +577,7 @@ class Collection(CatalogAware, Folder, Toolz):
         """
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             engine = self.getEngine()
-            registry = engine.get_registry(self.dataflow_uris)
+            registry = engine.get_registry(self)
 
             if self.company_id and registry:
                 data = registry.get_company_details(self.company_id)

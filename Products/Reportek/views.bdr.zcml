@@ -165,4 +165,11 @@
       permission="zope2.FgasesRegistryAdministration"
       attribute="get_rejected_envelopes"/>
 
+  <browser:page
+      name="collections_json"
+      for=".interfaces.IReportekAPI"
+      class=".views.ReportekApi"
+      permission="zope2.ViewManagementScreens"
+      attribute="collections_json"/>
+
 </configure>

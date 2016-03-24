@@ -184,6 +184,20 @@ class workitem(CatalogAware, SimpleItem, PropertyManager):
         if not self.blocked:
             self.setStatus('inactive', comment, actor)
 
+    security.declareProtected('View management screens', 'set_blocked_attr')
+    def set_blocked_attr(self, value=1, comment='', actor=''):
+        """ sets the 'blocked' flag at the specified value
+            used by Managers to fix the envelopes in which the automatic QA failed 
+            and their acceptability status is wrong
+        """
+        if value:
+            self.blocked = 1
+        else:
+            self.blocked = 0
+        self.actor = actor
+        self.addEvent('set blocked flag to %s' % self.blocked, comment)
+        self.reindex_object()
+
     def setStatus(self, status, comment='', actor=''):
         """ """
         old_status = self.status
