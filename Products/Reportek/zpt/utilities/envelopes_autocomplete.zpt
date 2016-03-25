@@ -73,7 +73,7 @@
     Searches the envelopes that have been in a given status for more than a given number of days and which are tagged with a certain obligation and allows Managers to complete the selected ones.
   </p>
 
-  <form action="" method="post" name="search">
+  <form action="" method="post" name="search" tal:attributes="action request/URL">
 
     <h2>1. Search envelopes</h2>
 
