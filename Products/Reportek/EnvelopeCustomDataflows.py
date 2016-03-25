@@ -96,6 +96,62 @@ class EnvelopeCustomDataflows:
         """ Returns the list of XML files with the given schema from that envelope """
         return [doc.id for doc in self.objectValues('Report Document') if doc.xml_schema_location == schema]
 
+    security.declareProtected('Change Envelopes', 'log_file_conversion')
+    def log_file_conversion(self, filename, result):
+        """ Logs the file conversion result on the workitem """
+        if hasattr(self, 'REQUEST'):
+            for l_w in self.getWorkitemsActiveForMe(self.REQUEST):
+                l_w.addEvent('file conversion', 'File: {0} ; ({1})'
+                             .format(
+                                    filename,
+                                    result
+                                )
+                             )
+
+    security.declareProtected('Change Envelopes', 'get_conv_results')
+    def get_conv_results(self):
+        """ Retrieve conversion results from workitems """
+        conv_results = {}
+        if hasattr(self, 'REQUEST'):
+            wks = self.getListOfWorkitems()
+            for wk in wks:
+                wk_fc_log = {}
+                for ev_log in wk.event_log:
+                    if ev_log.get('event') == 'file conversion':
+                        fc_log = {}
+                        active = False
+                        file_info, result = ev_log.get('comment').split(' ; ')
+                        filename = file_info.split('File:')[-1].strip()
+                        if filename in self.objectIds():
+                            active = True
+                        fc_log['active'] = active
+                        fc_log['status'] = result.split(']:')[0].lstrip('([')
+                        msg = result.split(']:')[-1].strip(' )')
+                        fc_log['code'] = ''
+                        fc_log['message'] = msg
+                        if len(msg.split('Code: ')) > 1:
+                            fc_log['code'] = msg.split('Code: ')[-1].rstrip(')')
+                        wk_fc_log[filename] = fc_log
+                conv_results[wk.getId()] = wk_fc_log
+        return conv_results
+
+    def get_failed_active_conversions(self):
+        """ Returns failed active conversions. Active means the file has not
+            been deleted
+        """
+        failed = []
+        conv_results = self.get_conv_results()
+        has_conversions = [conv for conv in conv_results
+                           if conv_results.get(conv)]
+
+        for wk_log in has_conversions:
+            files = conv_results.get(wk_log)
+            for filename, c_info in files.iteritems():
+                if c_info.get('active') and c_info.get('status') != 'INFO':
+                    failed.append(filename)
+
+        return failed
+
     security.declareProtected('Change Envelopes', 'convert_excel_file')
     def convert_excel_file(self, file, restricted='', strict_check=0, conversion_function='', REQUEST=None):
         """ Uploads the original spreadsheet to the envelope
@@ -133,6 +189,7 @@ class EnvelopeCustomDataflows:
             l_original_type = 'Spreadsheet file'
         else:
             l_original_type = 'Data file'
+
         # upload original file in the envelope
         self.manage_addDocument(id=l_id, title=l_original_type, file=l_original_content, restricted=restricted)
         if strict_check and l_original_type == 'Data file':
@@ -158,6 +215,7 @@ class EnvelopeCustomDataflows:
                 conversion_log.error(
                     "Error while calling remote {} for xmlrpc method {}. ({})".format(
                     l_server_name, method_name, str(e)))
+                self.log_file_conversion(l_id, '[ERROR]: Conversion failed due to a system error.')
                 return self.messageDialog(
                         message=('The file was successfully uploaded in the '
                                  'envelope, but not converted into an '
@@ -201,10 +259,14 @@ class EnvelopeCustomDataflows:
                 if REQUEST is not None:
                     if len(l_converted_files) == 0:
                         l_msg = 'The file was successfully uploaded in the envelope, but not converted into an XML delivery because the file contains no data.'
+                        c_log = '[ERROR]: File contains no data (Code: {})'.format(l_result)
                     elif l_result == '1':
                         l_msg = 'The file was successfully uploaded in the envelope and converted into an XML delivery. The conversion contains validation warnings - see the Feedback posted for this file for details.'
+                        c_log = '[WARNING]: Conversion contains validation warnings (Code: {})'.format(l_result)
                     else:
                         l_msg = 'The file was successfully uploaded in the envelope and converted into an XML delivery.'
+                        c_log = '[INFO]: Conversion successful'.format(l_result)
+                    self.log_file_conversion(l_id, c_log)
                     return self.messageDialog(
                                 message=l_msg,
                                 action='index_html')
@@ -226,6 +288,7 @@ class EnvelopeCustomDataflows:
                             l_ret_list.get('resultDescription',
                                            'Error in converting file at %s' %l_doc.absolute_url())
                     )
+                    self.log_file_conversion(l_id, '[ERROR]: Conversion failed due to a system error. (Code: {})'.format(l_result))
                     return self.messageDialog(
                                     message='The file was successfully uploaded in the envelope, but not converted into an XML delivery. See the Feedback posted for this file for details.',
                                     action='index_html')
@@ -243,6 +306,7 @@ class EnvelopeCustomDataflows:
                         content_type='text/html',
                         document_id=l_id)
                 if REQUEST is not None:
+                    self.log_file_conversion(l_id, '[ERROR]: Conversion failed due missing or expired reporting schema. (Code: {})'.format(l_result))
                     return self.messageDialog(
                                     message='The file was successfully uploaded in the envelope, but not converted into an XML delivery, because you are not using the most recent reporting template - %s. See the feedback posted for this file for details.' % l_ret_list['resultDescription'],
                                     action='index_html')
@@ -250,6 +314,7 @@ class EnvelopeCustomDataflows:
                     return 0
             else:
                 if REQUEST is not None:
+                    self.log_file_conversion(l_id, '[ERROR]: Conversion failed due to a system error. (Code: {})'.format(l_result))
                     return self.messageDialog(
                                     message='Incorrect result from the Conversion service. The file was successfully uploaded in the envelope, but not converted into an XML delivery.',
                                     action='index_html')
@@ -264,6 +329,7 @@ class EnvelopeCustomDataflows:
                         l_ret_list.get('resultDescription',
                                        'Error in converting file at %s' %l_doc.absolute_url())
                 )
+                self.log_file_conversion(l_id, '[ERROR]: Conversion failed due to a system error.')
                 return self.messageDialog(
                                 message='The file was successfully uploaded in the envelope, but not converted into an XML delivery because of a system error: %s' % str(err),
                                 action='index_html')
