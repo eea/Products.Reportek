@@ -37,14 +37,15 @@ reportek.utils.users = {
         }))
       ];
 
-    if (table_type === "grouped_by_path")
+    if (table_type === "grouped_by_path") {
       result.push(
         utils.misc.renderAsUL($.map(row.users, function (user) {
           return self.renderUsersLI(user);
         })));
-    else if (table_type === "grouped_by_member")
+    }
+    else if (table_type === "grouped_by_member") {
       result.push(row.user);
-
+    }
     return result;
   },
 
@@ -217,12 +218,16 @@ reportek.utils.users = {
 
           api.column(3, {page:"current"}).data().each(function(group, i) {
             if (last !== group) {
-              var userhtml = $("<td>", {"colspan": 2,
-                                        "data-uid": group,
+              var userhtml = $("<td>", {"colspan": 1,
+                                        "data-uid": group.uid,
                                         "class": "user-cell",
-                                        "text": group});
+                                        "text": group.uid});
+              var rolehtml = $("<td>", {"colspan": 1,
+                                        "data-uid": group.role,
+                                        "class": "user-cell",
+                                        "text": 'Role: ' + group.role});
               $(rows).eq(i).before(
-                "<tr class='group'>" + userhtml.outerHTML() + "</tr>"
+                "<tr class='group'>" + userhtml.outerHTML() + rolehtml.outerHTML() + "</tr>"
               );
               last = group;
             }
@@ -254,7 +259,6 @@ reportek.utils.users = {
     var self = reportek.utils.users;
     var target = $("#datatable");
     var table_type = target.data("table-type");
-    var dr_type = target.data("table-dr_type");
 
     $.ajax({
       url: "/api.get_users_by_path",
@@ -280,7 +284,8 @@ reportek.utils.users = {
       delete newRec.users;
       $.each(record.users, function(index, user) {
         var rr = $.extend({}, newRec);
-        rr.user = user.uid;
+        rr.user = {'uid': user.uid,
+                   'role': user.role};
         regrouped.push(rr);
       });
     });
@@ -293,7 +298,6 @@ reportek.utils.users = {
   handleUsersGrouping: function() {
     var self = reportek.utils.users;
     var target = $("#datatable");
-    var dr_type = target.data("table-dr_type");
 
     $(".grouping-tabbed-elem a").on("click", function(evt) {
       evt.preventDefault();
