@@ -123,16 +123,23 @@ reportek.utils.users = {
   getUsersType: function(users) {
     var self = reportek.utils.users;
     var url = self.userstype_api;
-    $.ajax({
-      url: url,
-      method: 'POST',
-      data: {users: users},
-      }).done(function(data) {
-        var users = JSON.parse(data);
-        $.each(users, function(idx, user) {
-          self.updateUserTypeMapping(user);
+    if (users.length > 0) {
+      $.ajax({
+        url: url,
+        method: 'POST',
+        data: {users: users},
+        }).done(function(data) {
+          var users = JSON.parse(data);
+          $.each(users, function(idx, user) {
+            self.updateUserTypeMapping(user);
+          });
         });
-      });
+    }
+    $.each(self.users, function(idx, user) {
+      if (user.checked) {
+        self.updateUserTypeMapping(user);
+      }
+    });
   },
 
   getCurrentUserTypes: function() {
@@ -151,7 +158,9 @@ reportek.utils.users = {
       });
     });
     var keys = $.map(self.users, function(v, i){
-      return i;
+      if (!v.checked) {
+        return i;
+      }
     });
     self.getUsersType(keys);
   },
