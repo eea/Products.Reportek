@@ -10,7 +10,7 @@ if (window.reportek === undefined) {
 reportek.utils.users = {
   users: {},
   table_headers: {"grouped_by_path": ["Collection", "Title", "Obligations", "Users"],
-                  "grouped_by_person": ["Path", "Obligations"]},
+                  "grouped_by_member": ["Path", "Obligations"]},
   table_data: null,
   users_links: {"LDAP User": "www.eionet.europa.eu/directory/user?uid=",
                 "LDAP Group": "www.eionet.europa.eu/ldap-roles?role_id="},
@@ -42,7 +42,7 @@ reportek.utils.users = {
         utils.misc.renderAsUL($.map(row.users, function (user) {
           return self.renderUsersLI(user);
         })));
-    else if (table_type === "grouped_by_person")
+    else if (table_type === "grouped_by_member")
       result.push(row.user);
 
     return result;
@@ -92,7 +92,7 @@ reportek.utils.users = {
       var li = links.parent();
       li.html(text);
       users = uid_targets.filter(".user-id");
-    } else if (table_type === "grouped_by_person") {
+    } else if (table_type === "grouped_by_member") {
       users = $("[data-uid='" + user + "']");
     }
     if ((utype === "LDAP Group" || utype === "LDAP User") && users.length > 0) {
@@ -208,7 +208,7 @@ reportek.utils.users = {
           null,
           {"width": "15%"}
         ]},
-      grouped_by_person: {
+      grouped_by_member: {
         "ordering": false,
         "drawCallback": function () {
           var api = this.api();
@@ -272,7 +272,7 @@ reportek.utils.users = {
     });
   },
 
-  getDataGroupedByPerson: function() {
+  getDataGroupedByMember: function() {
     var self = reportek.utils.users;
     var regrouped = [];
     $.each(self.table_data, function(idx, record) {
@@ -303,8 +303,8 @@ reportek.utils.users = {
       $(".grouping-tabbed-elem").removeClass("currenttab");
       tab.parent().addClass("currenttab");
       var dtConfig = self.generateDatatableConfig(target.data("table-type"));
-      if (target.data("table-type") === "grouped_by_person") {
-        data = self.getDataGroupedByPerson();
+      if (target.data("table-type") === "grouped_by_member") {
+        data = self.getDataGroupedByMember();
       }
       self.generateDatatable(target, dtConfig, data, target.data("table-type"));
     });
