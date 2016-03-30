@@ -268,6 +268,7 @@ reportek.utils.users = {
     var self = reportek.utils.users;
     var target = $("#datatable");
     var table_type = target.data("table-type");
+    reportek.utils.spinner.css("display", "block");
 
     $.ajax({
       url: "/api.get_users_by_path",
