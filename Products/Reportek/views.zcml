@@ -85,14 +85,14 @@
   <browser:page
     name="api.get_collections"
     for="*"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekSecurityOverview"
     class=".views.BaseAdmin"
     attribute="api_get_collections" />
 
   <browser:page
     name="find_user"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekSecurityOverview"
     class=".views.ManageRoles"
     template="zpt/utilities/find_user.zpt"/>
 

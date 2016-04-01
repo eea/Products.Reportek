@@ -57,6 +57,9 @@
         <metal:block define-slot="tabs" />
         <metal:block define-slot="info-message" />
         <metal:block define-slot="data-table" />
+        <div class="spinner-container">
+          <img src="++resource++static/ajax-loader.gif" class="ajax-spinner">
+        </div>
       </div>
 
       <div id="ajax-results">

@@ -26,6 +26,8 @@ reportek.utils = {
 
   load: function() {
     var self = reportek.utils;
+    self.spinner = self.get_spinner($('#results'));
+    self.spinner.css('display', 'none');
     self.initEnvelopesTable();
     self.initCompaniesTable();
     self.bindSearchRadios();
@@ -70,7 +72,7 @@ reportek.utils = {
     self.manageInfoMessages();
   },
 
-  do_spinner: function(container) {
+  get_spinner: function(container) {
     var img_container = container.find($(".spinner-container"));
     if (img_container.length <= 0 ) {
       img_container = $("<div />", {"class": "spinner-container"});
@@ -86,15 +88,14 @@ reportek.utils = {
 
   datatable_loading: function(target, action) {
     var self = reportek.utils;
-    var t_parent = target.parent();
     var t_id = target.attr("id");
     var t_length = $("#" + t_id+ "_length");
     var t_filter = $("#" + t_id+ "_filter");
     var t_paginate = $("#" + t_id+ "_paginate");
     var t_info = $("#" + t_id+ "_info");
-    var spinner = self.do_spinner(t_parent);
 
     if (action === "hide") {
+      self.spinner.css('display', 'block');
       target.hide();
       t_length.hide();
       t_filter.hide();
@@ -106,7 +107,7 @@ reportek.utils = {
       t_filter.show();
       t_paginate.show();
       t_info.show();
-      spinner.remove();
+      self.spinner.css('display', 'none');
     }
   },
 
@@ -360,12 +361,14 @@ reportek.utils = {
               var entity = username ? username : groupsname;
               entity = row.matched_group ? row.matched_group : entity;
               var ulist = $("<ul>");
-              var li_elem, link;
-              for (var i=0; i<row.roles[entity].length; i++){
-                li_elem = $("<li>", {
-                  "text": row.roles[entity][i]
-                  });
-                li_elem.appendTo(ulist);
+              var li_elem;
+              if (row.roles[entity] !== undefined) {
+                for (var i=0; i<row.roles[entity].length; i++){
+                  li_elem = $("<li>", {
+                    "text": row.roles[entity][i]
+                    });
+                  li_elem.appendTo(ulist);
+                }
               }
               return ulist.outerHTML();
             }
@@ -398,7 +401,10 @@ reportek.utils = {
       "id": "coll-form",
       });
     results.html("");
-    $(data).filter(".datatable").appendTo(coll_form);
+
+    var user_data = $(data).filter(".datatable");
+    user_data.appendTo(coll_form);
+
     var search_type = $("input[name='search_type']:checked").attr("value");
     if (search_type !== undefined) {
       var hidden_search_type = $("<input>", {
@@ -418,11 +424,15 @@ reportek.utils = {
       }
     }
 
-    $("<input>", {
-      "type": "submit",
-      "name": "btn.find_roles",
-      "value": "Find user/group roles"
-      }).appendTo(coll_form);
+    if (user_data.length > 0) {
+      $("<input>", {
+        "type": "submit",
+        "name": "btn.find_roles",
+        "value": "Find user/group roles"
+        }).appendTo(coll_form);
+    } else {
+      coll_form.append($("<p>", {"text": "No results"}));
+    }
     $("#ajax-results").prepend(coll_form);
     $("#coll-form").submit(function(evt){
       evt.preventDefault();
@@ -475,7 +485,7 @@ reportek.utils = {
       $(tab.attr("href")).removeClass("hidden-content");
       tab.parent().addClass("currenttab");
 
-      $("#results").empty();
+      $("#results").find('*').not(".spinner-container, .spinner-container *").remove();
       $("#ajax-results").empty();
 
       evt.preventDefault();
@@ -484,12 +494,12 @@ reportek.utils = {
     $(".filter-form #find-user-form").submit(function(evt) {
       evt.preventDefault();
       $("#ajax-results").empty();
-      var spinner = self.do_spinner($("#ajax-results"));
+      self.spinner.css("display", "block");
       $.ajax({
           url: "find_user",
           data: $("#find-user-form").serialize()
         }).success(function(data){
-          spinner.remove();
+          self.spinner.css("display", "none");
           reportek.utils.handleSearchUser(data);
         });
     });

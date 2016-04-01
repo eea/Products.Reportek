@@ -10,7 +10,7 @@ if (window.reportek === undefined) {
 reportek.utils.users = {
   users: {},
   table_headers: {"grouped_by_path": ["Collection", "Title", "Obligations", "Users"],
-                  "grouped_by_person": ["Path", "Obligations"]},
+                  "grouped_by_member": ["Path", "Obligations"]},
   table_data: null,
   users_links: {"LDAP User": "www.eionet.europa.eu/directory/user?uid=",
                 "LDAP Group": "www.eionet.europa.eu/ldap-roles?role_id="},
@@ -37,14 +37,15 @@ reportek.utils.users = {
         }))
       ];
 
-    if (table_type === "grouped_by_path")
+    if (table_type === "grouped_by_path") {
       result.push(
         utils.misc.renderAsUL($.map(row.users, function (user) {
           return self.renderUsersLI(user);
         })));
-    else if (table_type === "grouped_by_person")
+    }
+    else if (table_type === "grouped_by_member") {
       result.push(row.user);
-
+    }
     return result;
   },
 
@@ -92,7 +93,7 @@ reportek.utils.users = {
       var li = links.parent();
       li.html(text);
       users = uid_targets.filter(".user-id");
-    } else if (table_type === "grouped_by_person") {
+    } else if (table_type === "grouped_by_member") {
       users = $("[data-uid='" + user + "']");
     }
     if ((utype === "LDAP Group" || utype === "LDAP User") && users.length > 0) {
@@ -122,16 +123,23 @@ reportek.utils.users = {
   getUsersType: function(users) {
     var self = reportek.utils.users;
     var url = self.userstype_api;
-    $.ajax({
-      url: url,
-      method: 'POST',
-      data: {users: users},
-      }).done(function(data) {
-        var users = JSON.parse(data);
-        $.each(users, function(idx, user) {
-          self.updateUserTypeMapping(user);
+    if (users.length > 0) {
+      $.ajax({
+        url: url,
+        method: 'POST',
+        data: {users: users},
+        }).done(function(data) {
+          var users = JSON.parse(data);
+          $.each(users, function(idx, user) {
+            self.updateUserTypeMapping(user);
+          });
         });
-      });
+    }
+    $.each(self.users, function(idx, user) {
+      if (user.checked) {
+        self.updateUserTypeMapping(user);
+      }
+    });
   },
 
   getCurrentUserTypes: function() {
@@ -150,7 +158,9 @@ reportek.utils.users = {
       });
     });
     var keys = $.map(self.users, function(v, i){
-      return i;
+      if (!v.checked) {
+        return i;
+      }
     });
     self.getUsersType(keys);
   },
@@ -208,7 +218,7 @@ reportek.utils.users = {
           null,
           {"width": "15%"}
         ]},
-      grouped_by_person: {
+      grouped_by_member: {
         "ordering": false,
         "drawCallback": function () {
           var api = this.api();
@@ -217,12 +227,16 @@ reportek.utils.users = {
 
           api.column(3, {page:"current"}).data().each(function(group, i) {
             if (last !== group) {
-              var userhtml = $("<td>", {"colspan": 2,
-                                        "data-uid": group,
+              var userhtml = $("<td>", {"colspan": 1,
+                                        "data-uid": group.uid,
                                         "class": "user-cell",
-                                        "text": group});
+                                        "text": group.uid});
+              var rolehtml = $("<td>", {"colspan": 1,
+                                        "data-uid": group.role,
+                                        "class": "user-cell",
+                                        "text": 'Role: ' + group.role});
               $(rows).eq(i).before(
-                "<tr class='group'>" + userhtml.outerHTML() + "</tr>"
+                "<tr class='group'>" + userhtml.outerHTML() + rolehtml.outerHTML() + "</tr>"
               );
               last = group;
             }
@@ -254,7 +268,7 @@ reportek.utils.users = {
     var self = reportek.utils.users;
     var target = $("#datatable");
     var table_type = target.data("table-type");
-    var dr_type = target.data("table-dr_type");
+    reportek.utils.spinner.css("display", "block");
 
     $.ajax({
       url: "/api.get_users_by_path",
@@ -272,7 +286,7 @@ reportek.utils.users = {
     });
   },
 
-  getDataGroupedByPerson: function() {
+  getDataGroupedByMember: function() {
     var self = reportek.utils.users;
     var regrouped = [];
     $.each(self.table_data, function(idx, record) {
@@ -280,7 +294,8 @@ reportek.utils.users = {
       delete newRec.users;
       $.each(record.users, function(index, user) {
         var rr = $.extend({}, newRec);
-        rr.user = user.uid;
+        rr.user = {'uid': user.uid,
+                   'role': user.role};
         regrouped.push(rr);
       });
     });
@@ -293,7 +308,6 @@ reportek.utils.users = {
   handleUsersGrouping: function() {
     var self = reportek.utils.users;
     var target = $("#datatable");
-    var dr_type = target.data("table-dr_type");
 
     $(".grouping-tabbed-elem a").on("click", function(evt) {
       evt.preventDefault();
@@ -303,8 +317,8 @@ reportek.utils.users = {
       $(".grouping-tabbed-elem").removeClass("currenttab");
       tab.parent().addClass("currenttab");
       var dtConfig = self.generateDatatableConfig(target.data("table-type"));
-      if (target.data("table-type") === "grouped_by_person") {
-        data = self.getDataGroupedByPerson();
+      if (target.data("table-type") === "grouped_by_member") {
+        data = self.getDataGroupedByMember();
       }
       self.generateDatatable(target, dtConfig, data, target.data("table-type"));
     });

@@ -17,8 +17,8 @@
             </a>
           </li>
           <li class="grouping-tabbed-elem">
-            <a href="#grouped_by_person" id="grouped_by_person">
-              Grouped by person
+            <a href="#grouped_by_member" id="grouped_by_member">
+              Grouped by member
             </a>
           </li>
         </ul>
