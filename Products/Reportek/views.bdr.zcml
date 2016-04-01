@@ -124,7 +124,7 @@
       attribute="get_companies_api"/>
 
   <browser:page
-      name="users_json"
+      name="users_xls"
       for=".interfaces.IRegistryManagement"
       permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"

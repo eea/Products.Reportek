@@ -34,7 +34,7 @@
     and approved in BDR. You can see the company details and reporters by
     clicking on the company name. You can export them in <a href="organisations_excel">
     Excel</a> or <a href="organisations_json">JSON </a> format. Alternatively you
-    can export all reporters in <a href="users_json">Excel</a> format.
+    can export all reporters in <a href="users_xls">Excel</a> format.
     </p>
 
    <table id="comp-table" width="100%">
