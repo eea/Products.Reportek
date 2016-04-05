@@ -28,6 +28,16 @@
             <tal:block metal:use-macro="here/filters/macros/select-obligations" />
             <tal:block metal:use-macro="here/filters/macros/countries" />
           </tal:block>
+          <div class="form-indent">
+            <label for="allow_referrals">Allowed referrals</label>
+            <input type="radio" value="1" name="allow_referrals" checked="checked" />Yes
+            <input type="radio" value="0" name="allow_referrals" />No
+          </div>
+          <div class="form-indent">
+            <label for="explicit">Acquired/Explicit</label>
+            <input type="radio" value="0" name="explicit" checked="checked"/> Acquired
+            <input type="radio" value="1" name="explicit" />Explicit
+          </div>
         </div>
         <div>
           <input type="submit" name="btn.submit" value="Submit" />

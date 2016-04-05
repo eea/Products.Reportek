@@ -11,6 +11,8 @@ class ReferralsUtils(BaseAdmin):
 
         obligations = self.request.get('obligations', [])
         countries = self.request.get('countries', [])
+        allow_referrals = bool(int(self.request.get('allow_referrals', '1')))
+        explicit = bool(int(self.request.get('explicit', '0')))
         brains = self.search_catalog(obligations, countries, role='')
         results = []
         for brain in brains:
@@ -33,10 +35,15 @@ class ReferralsUtils(BaseAdmin):
             }
             coll = brain.getObject()
             prop_allowed_referrals = getattr(coll, 'prop_allowed_referrals', None)
-            allow_referrals = coll.are_referrals_allowed()
-            coll_data['allowed_referrals'] = allow_referrals
+            allowed_referrals = coll.are_referrals_allowed()
+            coll_data['allowed_referrals'] = allowed_referrals
             coll_data['prop_allowed_referrals'] = prop_allowed_referrals
-            results.append(coll_data)
+            is_req = (
+                (allow_referrals == bool(allowed_referrals)) and
+                (explicit == (prop_allowed_referrals is not None))
+            )
+            if is_req:
+                results.append(coll_data)
 
         results.sort(key=itemgetter('path'))
 
