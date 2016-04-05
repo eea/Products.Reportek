@@ -57,9 +57,11 @@ reportek.utils.referrals = {
           return utils.misc.renderAsLink(obligation.uri, obligation.title);
         }))
       ];
-    var allowed = row.allowed_referrals;
+    var allowed = '';
     if (row.prop_allowed_referrals === null) {
-      allowed += ' Inherited';
+      allowed = utils.misc.renderAsCheckbox('allowed_referrals', row.path, 'Inherited', row.allowed_referrals);
+    } else {
+      allowed = utils.misc.renderAsCheckbox('allowed_referrals', row.path, '', row.allowed_referrals);
     }
     result.push(allowed);
     return result;

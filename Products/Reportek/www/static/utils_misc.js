@@ -19,5 +19,16 @@ reportek.utils.misc = {
   renderAsLink: function(href, display, title) {
     var title_attribute = title ? " title='" + title + "'" : "";
     return "<a href='" + href + "'" + title_attribute + ">" + display + "</a>";
+  },
+
+  renderAsCheckbox: function(name, value, display, checked) {
+    var checkbox = $("<input>", {
+        type: 'checkbox',
+        name: name,
+        checked: checked,
+        value: value,
+        text: display
+      });
+    return checkbox.outerHTML() + checkbox.text();
   }
 };
