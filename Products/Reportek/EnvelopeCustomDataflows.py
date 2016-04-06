@@ -543,7 +543,7 @@ class EnvelopeCustomDataflows:
                             REQUEST=REQUEST)
 
     security.declareProtected('Change Envelopes', 'manage_addDDFile')
-    def manage_addDDFile(self, file, restricted='', required_schema=[], REQUEST=None):
+    def manage_addDDFile(self, file, restricted='', required_schema=[], replace_xml=1, REQUEST=None):
         """ Adds a DD file as follows:
             - if the file is a spreadsheet, it calls convert_excel_file
             - if the file XML, it calls replace_dd_xml
@@ -559,7 +559,7 @@ class EnvelopeCustomDataflows:
             l_filename = file.filename.lower()
             if l_filename.endswith('.xls') or l_filename.endswith('.xlsx') or l_filename.endswith('.ods'):
                 return self.convert_excel_file(file=file, restricted=restricted, REQUEST=REQUEST)
-            elif re.search(self.fileTypeByName_pattern, l_filename):
+            elif int(replace_xml) and re.search(self.fileTypeByName_pattern, l_filename):
                 return self.replace_dd_xml(file=file, restricted=restricted, required_schema=required_schema, REQUEST=REQUEST)
             elif l_filename.endswith('.zip'):
                 return self.manage_addzipfile(file=file, restricted=restricted, REQUEST=REQUEST)
