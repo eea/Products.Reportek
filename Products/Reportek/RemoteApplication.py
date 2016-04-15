@@ -243,6 +243,11 @@ class RemoteApplication(SimpleItem):
         # Check if the application has done its job
         l_complete = 1
         l_failed = 0
+
+        # Retry if we have no getResult
+        if not l_wk_prop['getResult']:
+            l_complete = 0
+
         for l_jobID, l_job_details in l_wk_prop['getResult'].items():
             # result retrieved
             if l_job_details['code'] == 1:
