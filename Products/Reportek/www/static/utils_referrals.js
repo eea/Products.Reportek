@@ -46,6 +46,11 @@ reportek.utils.referrals = {
         pageLength: 100
         };
     self.generateDatatable(target, dtConfig, self.table_data);
+    if (self.table_data.length > 0) {
+      $("#results").find("input[type='submit']").removeClass("hidden-content");
+    } else {
+      $("#results").find("input[type='submit']").addClass("hidden-content");
+    }
   },
 
   generateRow: function(row) {

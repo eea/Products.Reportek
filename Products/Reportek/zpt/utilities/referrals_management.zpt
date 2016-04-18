@@ -44,8 +44,11 @@
         </div>
       </form>
       <div id="results">
-        <table id="datatable">
-        </table>
+        <form method="post" id="update_referrals" action="update_referrals_status">
+          <table id="datatable">
+          </table>
+          <input type="submit" name="btn.update" value="Apply" class="hidden-content" />
+        </form>
       </div>
     </metal:block>
   </metal:block>
