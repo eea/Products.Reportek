@@ -1,3 +1,4 @@
+from Acquisition import aq_base
 from base_admin import BaseAdmin
 from operator import itemgetter
 import json
@@ -34,7 +35,7 @@ class ReferralsUtils(BaseAdmin):
                 'title': brain.title
             }
             coll = brain.getObject()
-            prop_allowed_referrals = getattr(coll, 'prop_allowed_referrals', None)
+            prop_allowed_referrals = getattr(aq_base(coll), 'prop_allowed_referrals', None)
             allowed_referrals = coll.are_referrals_allowed()
             coll_data['allowed_referrals'] = allowed_referrals
             coll_data['prop_allowed_referrals'] = prop_allowed_referrals

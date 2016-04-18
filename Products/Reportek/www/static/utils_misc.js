@@ -23,12 +23,14 @@ reportek.utils.misc = {
 
   renderAsCheckbox: function(name, value, display, checked) {
     var checkbox = $("<input>", {
-        type: 'checkbox',
+        type: "checkbox",
         name: name,
-        checked: checked,
         value: value,
         text: display
       });
+    if (checked != 0) {
+      checkbox.attr("checked", "checked");
+    }
     return checkbox.outerHTML() + checkbox.text();
   }
 };
