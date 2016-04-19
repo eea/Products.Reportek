@@ -19,6 +19,7 @@ reportek.utils.referrals = {
     var self = reportek.utils.referrals;
     $("#referrals_filters").on("submit", function(evt){
       evt.preventDefault();
+      reportek.utils.spinner.css("display", "block");
       var formdata = $(this).serialize();
 
       $.ajax({
@@ -40,14 +41,13 @@ reportek.utils.referrals = {
   update_results: function(data) {
     var self = reportek.utils.referrals;
     var target = $("#datatable");
-    reportek.utils.spinner.css("display", "block");
     self.table_data = $.parseJSON(data).data;
     var dtConfig =  {
         "columns": [
           {"width": "25%"},
           null,
           null,
-          {"width": "25%"}
+          {"width": "27%"}
         ],
         pagingType: "simple",
         serverSide: false,
@@ -64,20 +64,30 @@ reportek.utils.referrals = {
 
   update_apply_results: function(data) {
     var results = $.parseJSON(data);
+    var container;
     if (results.updated.length > 0) {
       $.each(results.updated, function(index, elem) {
+        container = $("input[name='rstatus:" + elem.rid + "']").parent();
+        container.find(".upd").remove();
+        var acquired = container.find(".acquired-setting");
+        if (acquired) {
+          acquired.removeClass("acquired-setting icon-double-angle-down");
+          acquired.addClass("explicit-setting icon-double-angle-right upd-success");
+        }
         $("<span>", {
-          "class": "upd-success icon-ok-sign",
+          "class": "upd upd-success icon-ok-sign",
           "title": "Updated successfully"
-        }).appendTo($("input[name='rstatus:" + elem.rid + "']").parent());
+        }).appendTo(container);
       });
     }
     if (results.errors.length > 0) {
       $.each(results.errors, function(index, elem) {
+        container = $("input[name='rstatus:" + elem.rid + "']").parent();
+        container.find('.upd').remove();
         $("<span>", {
-          "class": "upd-error icon-remove-sign",
+          "class": "upd upd-error icon-remove-sign",
           "title": elem.error
-        }).appendTo($("input[name='rstatus:" + elem.rid + "']").parent());
+        }).appendTo(container);
       });
     }
     $('html, body').animate({ scrollTop: 0 }, 'fast');

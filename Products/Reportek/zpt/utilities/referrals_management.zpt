@@ -21,15 +21,6 @@
 
     <metal:block fill-slot="content">
       <metal:block use-macro="here/util_controls/macros/utilities-controls" />
-<!--       <metal:block use-macro="here/info_message/macros/info-message">
-        <div metal:fill-slot="info-message-container" class="info-message info-message-info hidden-content">
-          <div class="im-controls im-controls-right">
-            <a id="im-close" href="#" class="im-control im-close">
-              <span class="icon-remove"></span>
-            </a>
-          </div>
-        </div>
-      </metal:block> -->
       <form method="post" id="referrals_filters">
         <div class="filters" tal:define="rod_data view/get_rod_obligations">
           <h1>Referrals management</h1>
@@ -57,6 +48,9 @@
         </div>
       </form>
       <div id="results">
+        <div class="spinner-container">
+          <img src="++resource++static/ajax-loader.gif" class="ajax-spinner">
+        </div>
         <form method="post" id="update_referrals" action="api.update_referrals_status">
           <table id="datatable">
           </table>
