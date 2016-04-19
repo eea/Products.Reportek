@@ -21,6 +21,15 @@
 
     <metal:block fill-slot="content">
       <metal:block use-macro="here/util_controls/macros/utilities-controls" />
+<!--       <metal:block use-macro="here/info_message/macros/info-message">
+        <div metal:fill-slot="info-message-container" class="info-message info-message-info hidden-content">
+          <div class="im-controls im-controls-right">
+            <a id="im-close" href="#" class="im-control im-close">
+              <span class="icon-remove"></span>
+            </a>
+          </div>
+        </div>
+      </metal:block> -->
       <form method="post" id="referrals_filters">
         <div class="filters" tal:define="rod_data view/get_rod_obligations">
           <h1>Referrals management</h1>
@@ -35,16 +44,20 @@
           </div>
           <div class="form-indent">
             <label for="explicit">Acquired/Explicit</label>
-            <input type="radio" value="0" name="explicit" checked="checked"/> Acquired
-            <input type="radio" value="1" name="explicit" />Explicit
+            <input type="radio" value="0" name="explicit" checked="checked"/>
+            <span class="acquired-setting icon-double-angle-down"></span>
+            Acquired
+            <input type="radio" value="1" name="explicit" />
+            <span class="acquired-setting icon-double-angle-right"></span>
+            Explicit
           </div>
         </div>
         <div>
-          <input type="submit" name="btn.submit" value="Submit" />
+          <input type="submit" name="btn.submit" value="Search" />
         </div>
       </form>
       <div id="results">
-        <form method="post" id="update_referrals" action="update_referrals_status">
+        <form method="post" id="update_referrals" action="api.update_referrals_status">
           <table id="datatable">
           </table>
           <input type="submit" name="btn.update" value="Apply" class="hidden-content" />

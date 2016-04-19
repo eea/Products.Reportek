@@ -182,4 +182,11 @@
     class=".views.ReferralsUtils"
     attribute="api_get_referrals_status"/>
 
+  <browser:page
+    name="api.update_referrals_status"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.ReferralsUtils"
+    attribute="api_update_referrals_status"/>
+
 </configure>

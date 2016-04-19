@@ -21,16 +21,17 @@ reportek.utils.misc = {
     return "<a href='" + href + "'" + title_attribute + ">" + display + "</a>";
   },
 
-  renderAsCheckbox: function(name, value, display, checked) {
-    var checkbox = $("<input>", {
-        type: "checkbox",
+  renderAsRadio: function(name, value, display, checked, klass) {
+    var radio = $("<input>", {
+        type: "radio",
         name: name,
         value: value,
-        text: display
+        text: display,
+        class: klass,
       });
-    if (checked != 0) {
-      checkbox.attr("checked", "checked");
+    if (checked !== 0) {
+      radio.attr("checked", "checked");
     }
-    return checkbox.outerHTML() + checkbox.text();
+    return radio.outerHTML() + radio.text();
   }
 };

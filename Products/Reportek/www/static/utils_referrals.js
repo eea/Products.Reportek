@@ -12,10 +12,10 @@ reportek.utils.referrals = {
 
   load: function() {
     var self = reportek.utils.referrals;
-    self.bind_search_submit();
+    self.bind_submits();
   },
 
-  bind_search_submit: function() {
+  bind_submits: function() {
     var self = reportek.utils.referrals;
     $("#referrals_filters").on("submit", function(evt){
       evt.preventDefault();
@@ -26,8 +26,17 @@ reportek.utils.referrals = {
           data: formdata
       }).success(self.update_results);
     });
-  },
 
+    $("#update_referrals").on("submit", function(evt) {
+      evt.preventDefault();
+      var formdata = $(this).serialize();
+      $.ajax({
+          url: "api.update_referrals_status",
+          data: formdata
+      }).success(self.update_apply_results);
+    });
+  },
+  
   update_results: function(data) {
     var self = reportek.utils.referrals;
     var target = $("#datatable");
@@ -38,7 +47,7 @@ reportek.utils.referrals = {
           {"width": "25%"},
           null,
           null,
-          {"width": "15%"}
+          {"width": "25%"}
         ],
         pagingType: "simple",
         serverSide: false,
@@ -53,6 +62,27 @@ reportek.utils.referrals = {
     }
   },
 
+  update_apply_results: function(data) {
+    var results = $.parseJSON(data);
+    if (results.updated.length > 0) {
+      $.each(results.updated, function(index, elem) {
+        $("<span>", {
+          "class": "upd-success icon-ok-sign",
+          "title": "Updated successfully"
+        }).appendTo($("input[name='rstatus:" + elem.rid + "']").parent());
+      });
+    }
+    if (results.errors.length > 0) {
+      $.each(results.errors, function(index, elem) {
+        $("<span>", {
+          "class": "upd-error icon-remove-sign",
+          "title": elem.error
+        }).appendTo($("input[name='rstatus:" + elem.rid + "']").parent());
+      });
+    }
+    $('html, body').animate({ scrollTop: 0 }, 'fast');
+  },
+
   generateRow: function(row) {
     var utils = reportek.utils;
     var result = [
@@ -62,12 +92,20 @@ reportek.utils.referrals = {
           return utils.misc.renderAsLink(obligation.uri, obligation.title);
         }))
       ];
-    var allowed = '';
-    if (row.prop_allowed_referrals === null) {
-      allowed = utils.misc.renderAsCheckbox('allowed_referrals', row.path, 'Inherited', row.allowed_referrals);
-    } else {
-      allowed = utils.misc.renderAsCheckbox('allowed_referrals', row.path, '', row.allowed_referrals);
-    }
+
+    var setting_type = $("<span>", {
+        "class": row.prop_allowed_referrals === null ? "acquired-setting icon-double-angle-down" : "explicit-setting icon-double-angle-right",
+      });
+    var allowed = setting_type.outerHTML();
+
+    var settings = ['1', '0'];
+    $.each(settings, function(index, setting) {
+      var name = 'rstatus:' + row.rid;
+      var display = setting === '1' ? 'Allowed' : 'Not allowed';
+      var checked = setting === '1' && row.allowed_referrals !== 0 || setting === '0' && row.allowed_referrals === 0 ? 'checked' : 0;
+      allowed += utils.misc.renderAsRadio(name, setting, display, checked, 'referrals-status');
+    });
+
     result.push(allowed);
     return result;
   },

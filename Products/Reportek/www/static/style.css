@@ -667,3 +667,17 @@ tr.user-disabled {
 .env-task-listing {
   font-style: italic;
 }
+
+input.referrals-status {
+  margin-left: .7em;
+}
+
+.upd-success {
+  color: green;
+  margin-left: .3em;
+}
+
+.upd-error {
+  color: red;
+  margin-left: .3em;
+}
