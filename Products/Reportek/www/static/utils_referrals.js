@@ -65,6 +65,9 @@ reportek.utils.referrals = {
   update_apply_results: function(data) {
     var results = $.parseJSON(data);
     var container;
+    $(".upd-success").removeClass("upd-success");
+    $(".upd-error").removeClass("upd-error");
+    $(".upd").remove();
     if (results.updated.length > 0) {
       $.each(results.updated, function(index, elem) {
         container = $("input[name='rstatus:" + elem.rid + "']").parent();
