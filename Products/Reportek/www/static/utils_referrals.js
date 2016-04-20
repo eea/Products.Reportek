@@ -91,7 +91,7 @@ reportek.utils.referrals = {
         }).appendTo(container);
       });
     }
-    $('html, body').animate({ scrollTop: 0 }, 'fast');
+    $("html, body").animate({scrollTop: $(".upd").first().offset().top}, "fast");
   },
 
   generateRow: function(row) {
