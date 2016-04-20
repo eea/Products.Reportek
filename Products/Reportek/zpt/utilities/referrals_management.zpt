@@ -30,15 +30,19 @@
           </tal:block>
           <div class="form-indent">
             <label for="allow_referrals">Allowed referrals</label>
-            <input type="radio" value="1" name="allow_referrals" checked="checked" />Yes
-            <input type="radio" value="0" name="allow_referrals" />No
+            <input type="radio" value="1" name="allow_referrals"
+             checked="checked" title="Referrals are allowed" />Yes
+            <input type="radio" value="0" name="allow_referrals" 
+              title="Referrals are not allowed" />No
           </div>
           <div class="form-indent">
             <label for="explicit">Acquired/Explicit</label>
-            <input type="radio" value="0" name="explicit" checked="checked"/>
+            <input type="radio" value="0" name="explicit" checked="checked"
+              title="Referrals status is explicitly set on the envelope" />
             <span class="acquired-setting icon-double-angle-down"></span>
             Acquired
-            <input type="radio" value="1" name="explicit" />
+            <input type="radio" value="1" name="explicit" 
+              title="Referrals status is acquired from a parent collection that has referrals status set explicitly" />
             <span class="acquired-setting icon-double-angle-right"></span>
             Explicit
           </div>
