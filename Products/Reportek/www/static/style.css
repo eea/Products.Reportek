@@ -682,3 +682,7 @@ input.referrals-status {
 .upd-error {
   color: red;
 }
+
+.warning-container {
+  margin: 10px;
+}

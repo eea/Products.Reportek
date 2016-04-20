@@ -59,6 +59,7 @@ class ReferralsUtils(BaseAdmin):
     def api_update_referrals_status(self):
         catalog = self.context.restrictedTraverse(constants.DEFAULT_CATALOG, None)
         updated = []
+        to_update = []
         errors = []
         if catalog:
             for rs_setting, value in self.request.form.items():
@@ -68,18 +69,27 @@ class ReferralsUtils(BaseAdmin):
                         obj = catalog.getobject(rid)
                         value = int(value)
                         if obj.are_referrals_allowed() != value:
-                            obj.prop_allowed_referrals = value
-                            updated.append({
+                            to_update.append({
                                 'rid': rid,
-                                'title': obj.title,
-                                'url': obj.absolute_url()
-                                })
+                                'obj': obj,
+                                'value': value
+                            })
                     except Exception as e:
                         logger.warning("Error changing referral status for RID: {} (Error: {})".format(rid, str(e)))
                         errors.append({
                             'rid': rid,
                             'error': str(e)
                         })
+
+        for item in to_update:
+            obj = item.get('obj')
+            obj.prop_allowed_referrals = item.get('value')
+            obj.reindex_object()
+            updated.append({
+                'rid': item.get('rid'),
+                'title': obj.title,
+                'url': obj.absolute_url()
+            })
 
         return json.dumps({"updated": updated, "errors": errors})
 

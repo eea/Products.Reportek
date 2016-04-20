@@ -55,21 +55,26 @@ reportek.utils.referrals = {
         pageLength: 100
         };
     self.generateDatatable(target, dtConfig, self.table_data);
+    var warn_container = $(".warning-container");
     if (self.table_data.length > 0) {
       $("#results").find("input[type='submit']").removeClass("hidden-content");
+      if (warn_container.hasClass("hidden-content")) {
+        $(".warning-container").removeClass("hidden-content");
+        reportek.utils.manageInfoMessages();
+      }
     } else {
       $("#results").find("input[type='submit']").addClass("hidden-content");
     }
   },
 
   update_apply_results: function(data) {
-    var results = $.parseJSON(data);
+    var uresults = $.parseJSON(data);
     var container;
     $(".upd-success").removeClass("upd-success");
     $(".upd-error").removeClass("upd-error");
     $(".upd").remove();
-    if (results.updated.length > 0) {
-      $.each(results.updated, function(index, elem) {
+    if (uresults.updated.length > 0) {
+      $.each(uresults.updated, function(index, elem) {
         container = $("input[name='rstatus:" + elem.rid + "']").parent();
         var acquired = container.find(".acquired-setting");
         if (acquired) {
@@ -82,8 +87,8 @@ reportek.utils.referrals = {
         }).appendTo(container);
       });
     }
-    if (results.errors.length > 0) {
-      $.each(results.errors, function(index, elem) {
+    if (uresults.errors.length > 0) {
+      $.each(uresults.errors, function(index, elem) {
         container = $("input[name='rstatus:" + elem.rid + "']").parent();
         $("<span>", {
           "class": "upd upd-error icon-remove-sign",

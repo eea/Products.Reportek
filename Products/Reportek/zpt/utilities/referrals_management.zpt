@@ -52,6 +52,23 @@
         </div>
       </form>
       <div id="results">
+        <div class="warning-container hidden-content">
+          <metal:block use-macro="here/info_message/macros/info-message">
+            <div metal:fill-slot="info-message-controls">
+              <a id="im-close" href="#" class="im-control im-close">
+                <span class="icon-remove"></span>
+              </a>
+              <a id="im-open" href="#" class="im-control im-open">
+                <span class="icon-info-sign"></span>
+              </a>
+            </div>
+            <div metal:fill-slot="im-message" class="im-message msg-info" data-info="referrals-ack">
+              <div class="info-message-content">
+                Be aware that changing referral status, will also affect all child collections that acquire the referral status from it.
+              </div>
+            </div>
+          </metal:block>
+        </div>
         <div class="spinner-container">
           <img src="++resource++static/ajax-loader.gif" class="ajax-spinner">
         </div>
