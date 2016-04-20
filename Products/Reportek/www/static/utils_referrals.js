@@ -71,7 +71,6 @@ reportek.utils.referrals = {
     if (results.updated.length > 0) {
       $.each(results.updated, function(index, elem) {
         container = $("input[name='rstatus:" + elem.rid + "']").parent();
-        container.find(".upd").remove();
         var acquired = container.find(".acquired-setting");
         if (acquired) {
           acquired.removeClass("acquired-setting icon-double-angle-down");
@@ -86,7 +85,6 @@ reportek.utils.referrals = {
     if (results.errors.length > 0) {
       $.each(results.errors, function(index, elem) {
         container = $("input[name='rstatus:" + elem.rid + "']").parent();
-        container.find('.upd').remove();
         $("<span>", {
           "class": "upd upd-error icon-remove-sign",
           "title": elem.error
