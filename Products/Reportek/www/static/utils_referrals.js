@@ -19,13 +19,35 @@ reportek.utils.referrals = {
     var self = reportek.utils.referrals;
     $("#referrals_filters").on("submit", function(evt){
       evt.preventDefault();
-      reportek.utils.spinner.css("display", "block");
-      var formdata = $(this).serialize();
+      var valid_obj = {
+          ignore: '',
+          rules: {
+            "obligations:list": { required:true }
+          },
+          messages: {
+            "obligations:list": {
+              required: 'Required field'
+            }
+          },
+          highlight: function(label) {
+            $(label).closest('.control-group').addClass('err');
+          },
+          success: function (label, element) {
+            label.text('').closest('.control-group').removeClass('err');
+          },
+      };
 
-      $.ajax({
-          url: "api.get_referrals_status",
-          data: formdata
-      }).success(self.update_results);
+      reportek.utils.validate_form(this, valid_obj);
+
+      if ($(this).valid()) {
+        reportek.utils.spinner.css("display", "block");
+        var formdata = $(this).serialize();
+
+        $.ajax({
+            url: "api.get_referrals_status",
+            data: formdata
+        }).success(self.update_results);
+      }
     });
 
     $("#update_referrals").on("submit", function(evt) {

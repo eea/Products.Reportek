@@ -4,7 +4,9 @@
       <tal:block metal:define-macro="select-obligations">
         <div class="form-group" tal:define="placeholder placeholder|nothing;">
           <label for="obligations">Obligations</label>
-          <select id="obligations" name="obligations:list" multiple="multiple" tal:attributes="class python: 'placeholder-enabled' if placeholder else ''">
+          <select id="obligations" name="obligations:list" multiple="multiple"
+           tal:define="klass python: 'placeholder-enabled' if placeholder else '';"
+           tal:attributes="class klass;">
             <tal:block define="req_obl request/obligations | string:;
                                rod_data rod_data | view/get_assigned_rod_obligations"
                        repeat="instrument rod_data/legal_instruments">

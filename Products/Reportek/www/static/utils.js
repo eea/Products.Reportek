@@ -43,7 +43,7 @@ reportek.utils = {
         }
         select.select2({
           placeholder: placeholder,
-          allowClear: true
+          allowClear: true,
         });
       }
     }
@@ -70,6 +70,10 @@ reportek.utils = {
       });
     });
     self.manageInfoMessages();
+  },
+
+  validate_form: function(form, validate_options) {
+    $(form).validate(validate_options);
   },
 
   get_spinner: function(container) {

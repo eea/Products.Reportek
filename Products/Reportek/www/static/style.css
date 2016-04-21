@@ -686,3 +686,8 @@ input.referrals-status {
 .warning-container {
   margin: 10px;
 }
+
+.error, .error:focus {
+  border-color: red;
+  color: red;
+}

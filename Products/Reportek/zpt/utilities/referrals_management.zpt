@@ -8,6 +8,7 @@
       <script type="text/javascript" charset="utf8" src="++resource++static/jquery-1.11.2.min.js"></script>
       <script type="text/javascript" charset="utf8" src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.min.js"></script>
       <script src="++resource++static/select2-3.5.0/select2.js"></script>
+      <script src="++resource++static/jquery-validation/jquery.validate.min.js"></script>
       <script src="++resource++static/utils.js"></script>
       <script src="++resource++static/utils_misc.js"></script>
       <script src="++resource++static/utils_referrals.js"></script>
@@ -21,24 +22,24 @@
 
     <metal:block fill-slot="content">
       <metal:block use-macro="here/util_controls/macros/utilities-controls" />
-      <form method="post" id="referrals_filters">
+      <h1>Referrals management</h1>
+      <form method="post" id="referrals_filters" novalidate>
         <div class="filters" tal:define="rod_data view/get_rod_obligations">
-          <h1>Referrals management</h1>
+          <tal:block metal:use-macro="here/filters/macros/select-obligations" />
           <tal:block tal:define="placeholder python: True">
-            <tal:block metal:use-macro="here/filters/macros/select-obligations" />
             <tal:block metal:use-macro="here/filters/macros/countries" />
           </tal:block>
           <div class="form-indent">
-            <label for="allow_referrals">Allowed referrals</label>
+            <label for="allow_referrals">Collections with referrals status</label>
             <input type="radio" value="1" name="allow_referrals"
-             checked="checked" title="Referrals are allowed" />Yes
+             checked="checked" title="Search for collections that allow referrals" />Allowed
             <input type="radio" value="0" name="allow_referrals" 
-              title="Referrals are not allowed" />No
+              title="Search for collections that don't allow referrals" />Not allowed
           </div>
           <div class="form-indent">
-            <label for="explicit">Acquired/Explicit</label>
+            <label for="explicit">Collections referrals status is</label>
             <input type="radio" value="0" name="explicit" checked="checked"
-              title="Referrals status is explicitly set on the envelope" />
+              title="Referrals status is explicitly set on the collection" />
             <span class="acquired-setting icon-double-angle-down"></span>
             Acquired
             <input type="radio" value="1" name="explicit" 
@@ -48,7 +49,7 @@
           </div>
         </div>
         <div>
-          <input type="submit" name="btn.submit" value="Search" />
+          <input type="submit" name="btn.submit" value="Search collections" />
         </div>
       </form>
       <div id="results">
