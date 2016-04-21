@@ -432,7 +432,6 @@ hr {
 
 .info-message {
   overflow: hidden;
-  padding: 10px 0 0 0;
 }
 
 .im-message {
@@ -457,8 +456,8 @@ hr {
 }
 
 .bg-visible {
-  padding: 10px 10px 10px 0;
-  border: 1px solid #B6B6B6;
+/*  padding: 10px 10px 10px 0;
+  border: 1px solid #B6B6B6;*/
 }
 
 .bg-info {
@@ -684,10 +683,25 @@ input.referrals-status {
 }
 
 .warning-container {
-  margin: 10px;
+  margin: 10px 0 20px 0;
 }
 
 .error, .error:focus {
   border-color: red;
   color: red;
+}
+
+.caution-msg {
+  margin: 0;
+}
+
+.im-close, .im-open {
+  cursor: hand;
+}
+
+.im-ctl-inherit-icon {
+  width: 14px;
+  height: 14px;
+  background-repeat:no-repeat;
+  background-size:cover;
 }

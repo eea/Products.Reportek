@@ -22,15 +22,11 @@
   <tal:block tal:condition="isBdrDeployment">
     <metal:block use-macro="here/info_message/macros/info-message">
       <div metal:fill-slot="info-message-controls">
-        <a id="im-close" href="#" class="im-control im-close">
-          <span class="icon-remove"></span>
-        </a>
-        <a id="im-open" href="#" class="im-control im-open">
-          <span class="icon-info-sign"></span>
-        </a>
+        <div class="im-control im-open im-ctl-inherit-icon">
+        </div>
       </div>
-      <div metal:fill-slot="im-message" class="im-message msg-info" data-info="ecas-login-ack">
-        <div class="info-message-content">
+      <div metal:fill-slot="im-message" class="im-message" data-info="ecas-login-ack">
+        <div class="im-close caution-msg">
           In order to be able to assign or revoke roles to or from an ECAS user, the ECAS user must first login to BDR.
         </div>
       </div>

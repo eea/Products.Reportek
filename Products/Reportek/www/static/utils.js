@@ -202,12 +202,17 @@ reportek.utils = {
     var self = reportek.utils;
     var open_ctl = elem.find(".im-open");
     var close_ctl = elem.find(".im-close");
+
+    if (open_ctl.hasClass("im-ctl-inherit-icon")) {
+      open_ctl.css("background-image", close_ctl.css("background-image"));
+    };
+
     var data_info = elem.find(".im-message").attr("data-info");
-    open_ctl.on("click", function(evt){
+    open_ctl.off("click").on("click", function(evt){
       self.toggleInfoMessage(elem);
       evt.preventDefault();
     });
-    close_ctl.on("click", function(evt){
+    close_ctl.off("click").on("click", function(evt){
       self.toggleInfoMessage(elem);
       if (data_info !== undefined) {
         self.setCookie(elem);

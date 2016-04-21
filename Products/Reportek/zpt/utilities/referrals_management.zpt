@@ -23,7 +23,7 @@
     <metal:block fill-slot="content">
       <metal:block use-macro="here/util_controls/macros/utilities-controls" />
       <h1>Referrals management</h1>
-      <form method="post" id="referrals_filters" novalidate>
+      <form method="post" id="referrals_filters">
         <div class="filters" tal:define="rod_data view/get_rod_obligations">
           <tal:block metal:use-macro="here/filters/macros/select-obligations" />
           <tal:block tal:define="placeholder python: True">
@@ -56,16 +56,12 @@
         <div class="warning-container hidden-content">
           <metal:block use-macro="here/info_message/macros/info-message">
             <div metal:fill-slot="info-message-controls">
-              <a id="im-close" href="#" class="im-control im-close">
-                <span class="icon-remove"></span>
-              </a>
-              <a id="im-open" href="#" class="im-control im-open">
-                <span class="icon-info-sign"></span>
-              </a>
+              <div class="im-control im-open im-ctl-inherit-icon">
+              </div>
             </div>
-            <div metal:fill-slot="im-message" class="im-message msg-info" data-info="referrals-ack">
-              <div class="info-message-content">
-                Be aware that changing referral status, will also affect all child collections that acquire the referral status from it.
+            <div metal:fill-slot="im-message" class="im-message" data-info="referrals-ack">
+              <div class="im-close caution-msg">
+                Be aware that changing a collection's referral status, will also affect all child collections that acquire the referral status from it.
               </div>
             </div>
           </metal:block>
