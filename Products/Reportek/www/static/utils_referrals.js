@@ -97,7 +97,7 @@ reportek.utils.referrals = {
     $(".upd").remove();
     if (uresults.updated.length > 0) {
       $.each(uresults.updated, function(index, elem) {
-        container = $("input[name='rstatus:" + elem.rid + "']").parent();
+        container = $("input[name='rstatus:" + elem.rid + "']").parents('td');
         var acquired = container.find(".acquired-setting");
         if (acquired) {
           acquired.removeClass("acquired-setting icon-double-angle-down");
