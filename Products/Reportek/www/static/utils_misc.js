@@ -21,17 +21,21 @@ reportek.utils.misc = {
     return "<a href='" + href + "'" + title_attribute + ">" + display + "</a>";
   },
 
-  renderAsRadio: function(name, value, display, checked, klass) {
+  labelWrap: function(input, label_text, title) {
+    return $("<label>", {"title": title}).append(input, label_text);
+  },
+
+  renderAsRadio: function(name, value, display, title, checked, klass) {
+    var self = reportek.utils.misc;
     var radio = $("<input>", {
         type: "radio",
         name: name,
         value: value,
-        text: display,
         class: klass,
       });
     if (checked !== 0) {
       radio.attr("checked", "checked");
     }
-    return radio.outerHTML() + radio.text();
+    return self.labelWrap(radio, display, title).outerHTML();
   }
 };

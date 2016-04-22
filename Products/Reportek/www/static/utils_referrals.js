@@ -150,12 +150,13 @@ reportek.utils.referrals = {
     });
     var allowed = setting_type.outerHTML();
 
-    var settings = ['1', '0'];
+    var settings = ["1", "0"];
     $.each(settings, function(index, setting) {
-      var name = 'rstatus:' + row.rid;
-      var display = setting === '1' ? 'Allowed' : 'Not allowed';
-      var checked = setting === '1' && row.allowed_referrals !== 0 || setting === '0' && row.allowed_referrals === 0 ? 'checked' : 0;
-      allowed += utils.misc.renderAsRadio(name, setting, display, checked, 'referrals-status');
+      var name = "rstatus:" + row.rid;
+      var display = setting === "1" ? "Allowed" : "Not allowed";
+      var checked = setting === "1" && row.allowed_referrals !== 0 || setting === "0" && row.allowed_referrals === 0 ? "checked" : 0;
+      var title = display === "Allowed" ? "Allow adding referrals in collection" : "Do not allow adding referrals in collection";
+      allowed += utils.misc.renderAsRadio(name, setting, display, title, checked, "referrals-status");
     });
 
     result.push(allowed);
