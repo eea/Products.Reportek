@@ -133,7 +133,8 @@ reportek.utils.referrals = {
 
     var setting_type = $("<span>", {
         "class": row.prop_allowed_referrals === null ? "acquired-setting icon-double-angle-down" : "explicit-setting icon-double-angle-right",
-      });
+        "title": row.prop_allowed_referrals === null ? "Referrals status acquired from parent collection": "Referrals status explicitly set on collection"
+    });
     var allowed = setting_type.outerHTML();
 
     var settings = ['1', '0'];
