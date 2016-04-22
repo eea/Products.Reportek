@@ -682,6 +682,11 @@ input.referrals-status {
   color: red;
 }
 
+.upd-info {
+  text-align: center;
+  margin-top: 8px;
+}
+
 .warning-container {
   margin: 10px 0 20px 0;
 }

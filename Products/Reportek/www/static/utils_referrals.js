@@ -107,6 +107,10 @@ reportek.utils.referrals = {
           "class": "upd upd-success icon-ok-sign",
           "title": "Updated successfully"
         }).appendTo(container);
+        $("<div>", {
+          "class": "upd upd-success upd-info",
+          "text": "Updated successfully"
+        }).appendTo(container);
       });
     }
     if (uresults.errors.length > 0) {
@@ -117,6 +121,10 @@ reportek.utils.referrals = {
           "title": elem.error
         }).appendTo(container);
       });
+      $("<div>", {
+        "class": "upd upd-error upd-info",
+        "text": "Update failed"
+      }).appendTo(container);
     }
     $("html, body").animate({scrollTop: $(".upd").first().offset().top}, "fast");
   },
@@ -133,7 +141,8 @@ reportek.utils.referrals = {
 
     var setting_type = $("<span>", {
         "class": row.prop_allowed_referrals === null ? "acquired-setting icon-double-angle-down" : "explicit-setting icon-double-angle-right",
-      });
+        "title": row.prop_allowed_referrals === null ? "Referrals status acquired from parent collection": "Referrals status explicitly set on collection"
+    });
     var allowed = setting_type.outerHTML();
 
     var settings = ['1', '0'];
