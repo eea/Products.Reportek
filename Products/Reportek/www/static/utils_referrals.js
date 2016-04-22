@@ -111,6 +111,11 @@ reportek.utils.referrals = {
           "class": "upd upd-success upd-info",
           "text": "Updated successfully"
         }).appendTo(container);
+
+        $.each($("input[name='rstatus:" + elem.rid + "']"), function(idx, radio){
+          // Update the name of radio inputs with the new object RID
+          $(radio).attr("name", "rstatus:" + elem.newrid);
+        });
       });
     }
     if (uresults.errors.length > 0) {

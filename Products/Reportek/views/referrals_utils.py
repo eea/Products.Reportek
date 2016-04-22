@@ -87,6 +87,7 @@ class ReferralsUtils(BaseAdmin):
             obj.reindex_object()
             updated.append({
                 'rid': item.get('rid'),
+                'newrid': catalog.getrid('/' + obj.absolute_url(1)),
                 'title': obj.title,
                 'url': obj.absolute_url()
             })
