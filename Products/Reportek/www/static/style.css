@@ -710,3 +710,12 @@ input.referrals-status {
   background-repeat:no-repeat;
   background-size:cover;
 }
+
+.table-obligation-link {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 200px;
+  display: inline-block;
+  vertical-align: middle;
+}

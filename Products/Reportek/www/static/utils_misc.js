@@ -16,9 +16,10 @@ reportek.utils.misc = {
     return "<ul>" + result_html + "</ul>";
   },
 
-  renderAsLink: function(href, display, title) {
+  renderAsLink: function(href, display, title, klass) {
     var title_attribute = title ? " title='" + title + "'" : "";
-    return "<a href='" + href + "'" + title_attribute + ">" + display + "</a>";
+    var class_attribute = klass ? " class='" + klass + "'" : "";
+    return "<a href='" + href + "'" + title_attribute + class_attribute + ">" + display + "</a>";
   },
 
   labelWrap: function(input, label_text, title) {

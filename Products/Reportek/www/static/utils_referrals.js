@@ -66,9 +66,9 @@ reportek.utils.referrals = {
     self.table_data = $.parseJSON(data).data;
     var dtConfig =  {
         "columns": [
-          {"width": "25%"},
+          {"width": "20%"},
           null,
-          null,
+          {"width": "15%"},
           {"width": "27%"}
         ],
         pagingType: "simple",
@@ -140,7 +140,7 @@ reportek.utils.referrals = {
         utils.misc.renderAsLink(row.path, row.path, row.title),
         row.title,
         utils.misc.renderAsUL($.map(row.obligations, function (obligation) {
-          return utils.misc.renderAsLink(obligation.uri, obligation.title);
+          return utils.misc.renderAsLink(obligation.uri, obligation.title, obligation.title, "table-obligation-link");
         }))
       ];
 
