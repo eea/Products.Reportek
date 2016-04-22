@@ -31,23 +31,29 @@
           </tal:block>
           <div class="form-indent">
             <label for="allow_referrals">Collections with referrals status</label>
+            <label title="Search for collections with any referral status">
+              <input type="radio" value="any" name="allow_referrals" checked="checked" />Any
+            </label>
             <label title="Search for collections that allow referrals">
-              <input type="radio" value="1" name="allow_referrals"
-               checked="checked" />Allowed
+              <input type="radio" value="true" name="allow_referrals" />Allowed
             </label>
             <label title="Search for collections that don't allow referrals">
-              <input type="radio" value="0" name="allow_referrals" />Not allowed
+              <input type="radio" value="false" name="allow_referrals" />Not allowed
             </label>
           </div>
           <div class="form-indent">
             <label for="explicit">Collections referrals status is</label>
+            <label title="Referrals status is either explicit or acquired">
+              <input type="radio" value="any" name="explicit" checked="checked"/>
+              Any
+            </label>
             <label title="Referrals status is explicitly set on the collection">
-              <input type="radio" value="0" name="explicit" checked="checked" />
+              <input type="radio" value="false" name="explicit"/>
               <span class="acquired-setting icon-double-angle-down"></span>
               Acquired
             </label>
             <label title="Referrals status is acquired from a parent collection that has referrals status set explicitly">
-              <input type="radio" value="1" name="explicit" />
+              <input type="radio" value="true" name="explicit" />
               <span class="acquired-setting icon-double-angle-right"></span>
               Explicit
             </label>
