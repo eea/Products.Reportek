@@ -86,6 +86,26 @@
         </tr>
       </tal:block>
 
+      <tal:def tal:define="applicable python: not (context.title == 'Confirmation of receipt' or context.getId().startswith('conversion_log'));">
+        <tal:block tal:condition="python: context.automatic and applicable">
+          <tr>
+              <th scope="row" class="scope-row" i18n:translate="">Feedback status: </th>
+              <td tal:define="feedback_status python: getattr(context, 'feedback_status', None);
+                              f_status python: 'empty' if feedback_status == '' else feedback_status;">
+                <span tal:content="f_status" />
+              </td>
+          </tr>
+
+          <tr>
+              <th scope="row" class="scope-row" i18n:translate="">Feedback message: </th>
+              <td tal:define="feedback_message python: getattr(context, 'message', None);
+                              f_message python: 'empty' if feedback_message == '' else feedback_message;">
+                <span tal:content="f_message"/>
+              </td>
+          </tr>
+        </tal:block>
+      </tal:def>
+
       </table>
 
 
