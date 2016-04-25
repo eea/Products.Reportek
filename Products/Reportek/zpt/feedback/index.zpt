@@ -86,9 +86,10 @@
         </tr>
       </tal:block>
 
-      <tal:def tal:define="not_applicable_titles python: ['Receipt of delivery', 'Confirmation of receipt', 'You didn\'t upload!', 'Cover letter'];
+      <tal:def tal:define="not_applicable_titles python: ['Confirmation of receipt', 'You didn\'t upload!', 'Cover letter'];
                            applicable python: not (context.title in not_applicable_titles or
-                                                   context.getId().startswith('conversion_log'));">
+                                                   context.getId().startswith('conversion_log')) or
+                                                   context.getId().startswith('Receipt of delivery');">
         <tal:block tal:condition="python: context.automatic and applicable">
           <tr>
               <th scope="row" class="scope-row" i18n:translate="">Feedback status: </th>
