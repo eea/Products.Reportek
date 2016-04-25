@@ -69,7 +69,7 @@ reportek.utils.referrals = {
           {"width": "20%"},
           null,
           {"width": "15%"},
-          {"width": "27%"}
+          {"width": "31%"}
         ],
         pagingType: "simple",
         serverSide: false,

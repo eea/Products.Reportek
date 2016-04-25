@@ -73,7 +73,7 @@
             <div metal:fill-slot="im-message" class="im-message" data-info="referrals-ack">
               <div class="im-close caution-msg">
                 <strong>Caution</strong>
-                <p>Be aware that changing a collection's referral status, will also affect all child collections that acquire the referral status from it.</p>
+                <p>Be aware that changing a collection's referral status will also affect all child collections that acquire the referral status from it.</p>
               </div>
             </div>
           </metal:block>
