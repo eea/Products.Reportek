@@ -98,6 +98,14 @@ table.dataTable tr.group td {
   content: "< ";
 }
 
+.paginate_button.next.disabled {
+  display: none;
+}
+
+.paginate_button.previous.disabled {
+  display: none;
+}
+
 .dataTables_processing {
   padding: .5em;
   float: right;
@@ -719,3 +727,4 @@ input.referrals-status {
   display: inline-block;
   vertical-align: middle;
 }
+
