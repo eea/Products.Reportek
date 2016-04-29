@@ -5,6 +5,7 @@ from App.Dialogs import MessageDialog
 from cgi import escape
 from App.special_dtml import HTML
 from Products.Reportek.interfaces import IProcess
+from Products.Reportek.interfaces import IDocument
 from Products.Reportek.constants import APPLICATIONS_FOLDER_ID
 from webdav.Lockable import ResourceLockedError
 from zExceptions import BadRequest
@@ -26,7 +27,7 @@ del_apps = HTML("""
   <TD VALIGN="TOP">
   <BR><BR>
   <CENTER>
-  Selected processes have been deleted. Do you also want to delete the corresponding /Application folders for these processes?
+  &dtml-message;
   </CENTER>
   </TD>
 </TR>
@@ -48,7 +49,7 @@ del_apps = HTML("""
 </TR>
 </TABLE>
 </FORM>
-</BODY></HTML>""", target='', action='manage_main', title='Changed', ids=[], previous='')
+</BODY></HTML>""", target='', action='manage_main', title='Changed', ids=[], previous='', message='')
 
 
 def patched_manage_delObjects(self, ids=[], REQUEST=None):
@@ -64,6 +65,7 @@ def patched_manage_delObjects(self, ids=[], REQUEST=None):
     try:    p=self._reserved_names
     except: p=()
     processes = []
+    fbs = []
     for n in ids:
         if n in p:
             return MessageDialog(title='Not Deletable',
@@ -72,6 +74,10 @@ def patched_manage_delObjects(self, ids=[], REQUEST=None):
         v = self._getOb(n, self)
         if IProcess.providedBy(v):
             processes.append(v)
+
+        if IDocument.providedBy(v):
+            fbs_id = [fb.getId() for fb in v.getFeedbacksForDocument()]
+            fbs.extend(fbs_id)
 
     while ids:
         id=ids[-1]
@@ -97,6 +103,12 @@ def patched_manage_delObjects(self, ids=[], REQUEST=None):
             return del_apps(title='Delete corresponding Application folders?',
                             action=app_folder.absolute_url(),
                             ids=ids,
-                            previous='./manage_main')
-
+                            previous='./manage_main',
+                            message='Selected processes have been deleted. Do you also want to delete the corresponding /Application folders for these processes?')
+        if fbs:
+            return del_apps(title='Delete corresponding feedbacks?',
+                            action=self.absolute_url(),
+                            ids=fbs,
+                            previous='./manage_main',
+                            message='Selected files have been deleted. Do you also want to delete the corresponding feedbacks?')
         return self.manage_main(self, REQUEST, update_menu=1)
