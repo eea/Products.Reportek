@@ -124,7 +124,7 @@
       attribute="get_companies_api"/>
 
   <browser:page
-      name="users_json"
+      name="users_xls"
       for=".interfaces.IRegistryManagement"
       permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"
@@ -164,5 +164,12 @@
       class=".views.ReportekApi"
       permission="zope2.FgasesRegistryAdministration"
       attribute="get_rejected_envelopes"/>
+
+  <browser:page
+      name="collections_json"
+      for=".interfaces.IReportekAPI"
+      class=".views.ReportekApi"
+      permission="zope2.ViewManagementScreens"
+      attribute="collections_json"/>
 
 </configure>

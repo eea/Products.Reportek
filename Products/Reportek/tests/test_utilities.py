@@ -755,10 +755,9 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             self.browser.getControl(name='btn.search').click()
             self.assertTrue('Test envelope' in self.browser.contents)
 
-            # Move forward our envelope
+            # Try to move forward our envelope
             self.browser.getControl(name='btn.autocomplete').click()
-            self.assertTrue('Operations completed succesfully.' in
-                            self.browser.contents)
+            self.assertTrue('No results' in self.browser.contents)
 
             self.browser.goBack(count=3)
 

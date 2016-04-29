@@ -5,9 +5,9 @@ from envelope_utils import EnvelopeUtils
 from list_users import ListUsers
 from manage_roles import ManageRoles
 from recent_uploads import RecentUploads
+from referrals_utils import ReferralsUtils
 from satellite_registry_management import SatelliteRegistryManagement
 from search_collections import SearchCollections
 from security_overview import SecurityOverview
-from statistics import Statistics
 from statistics import Statistics
 from wrong_country import WrongCountry

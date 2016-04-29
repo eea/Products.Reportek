@@ -14,6 +14,7 @@
                      user_mgmt_actions python: ['@@get_users_by_path', '@@assign_role', '@@revoke_roles', '@@disabled_members'];
                      collections_actions python: ['@@collections.wrong_country', '@@collections.build'];
                      envelopes_actions python: ['@@collections.search', '@@envelopes.autocomplete', '@@envelopes.wrong_country'];
+                     referral_actions python: ['@@referrals.management'];
                      generic_actions python: ['@@obligation.recent_uploads', '@@statistics']">
 
       <div class="utils-user-mgmt" tal:condition="python: [action for action in user_mgmt_actions if action in menu_keys]">
@@ -46,6 +47,17 @@
           <tal:rep tal:repeat="action envelopes_actions">
             <li tal:condition="python: action in menu_keys">
               <a href="" tal:attributes="href action" tal:content="python:menuactions.get(action)"/>
+            </li>
+          </tal:rep>
+        </ul>
+      </div>
+
+      <div class="utils-referrals">
+        <h2 i18n:translate="">Referrals</h2>
+        <ul>
+          <tal:rep tal:repeat="action referral_actions">
+            <li tal:condition="python: action in menu_keys">
+              <a href="" tal:attributes="href action" tal:content="python: menuactions.get(action)"/>
             </li>
           </tal:rep>
         </ul>

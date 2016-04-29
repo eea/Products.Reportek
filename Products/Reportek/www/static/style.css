@@ -98,6 +98,14 @@ table.dataTable tr.group td {
   content: "< ";
 }
 
+.paginate_button.next.disabled {
+  display: none;
+}
+
+.paginate_button.previous.disabled {
+  display: none;
+}
+
 .dataTables_processing {
   padding: .5em;
   float: right;
@@ -432,7 +440,6 @@ hr {
 
 .info-message {
   overflow: hidden;
-  padding: 10px 0 0 0;
 }
 
 .im-message {
@@ -457,8 +464,8 @@ hr {
 }
 
 .bg-visible {
-  padding: 10px 10px 10px 0;
-  border: 1px solid #B6B6B6;
+/*  padding: 10px 10px 10px 0;
+  border: 1px solid #B6B6B6;*/
 }
 
 .bg-info {
@@ -674,3 +681,61 @@ tr.user-disabled {
   list-style: none;
   list-style-image: none;
 }
+
+.env-task-listing {
+  font-style: italic;
+}
+
+input.referrals-status {
+  margin-left: .6em;
+}
+
+.upd {
+  margin-left: .3em;
+}
+.upd-success {
+  color: green;
+}
+
+.upd-error {
+  color: red;
+}
+
+.upd-info {
+  text-align: center;
+  margin-top: 8px;
+}
+
+.warning-container {
+  margin: 10px 0 20px 0;
+}
+
+.error, .error:focus {
+  border-color: red;
+  color: red;
+}
+
+.caution-msg {
+  margin: 0;
+}
+
+.im-close, .im-open {
+  cursor: hand;
+}
+
+.im-ctl-inherit-icon {
+  width: 14px;
+  height: 14px;
+  background-repeat:no-repeat;
+  background-size:cover;
+}
+
+.table-obligation-link {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  width: 200px;
+  display: inline-block;
+  vertical-align: middle;
+}
+

@@ -329,7 +329,7 @@ def initialize(context):
 
         context.registerClass(
            Referral.Referral,
-           permission='Add Collections',
+           permission='Add Envelopes',
            constructors = (
                 Referral.manage_addReferralForm,
                 Referral.manage_addReferral),

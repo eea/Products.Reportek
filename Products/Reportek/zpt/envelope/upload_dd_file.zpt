@@ -15,6 +15,7 @@
       the information from it and convert the delivery to XML format.
       You can also directly upload the XML files following the Data Dictionary schema.
     </p>
+
     <div class="note-msg">
       <strong i18n:translate="">Note</strong>
       <p i18n:translate="">
@@ -22,6 +23,7 @@
         and the previous delivery in the original format (if any) will be first deleted.
       </p>
     </div>
+
     <p i18n:translate="">
       Additionally, upload accompanying or explanatory information in any other format.
     </p>
@@ -29,6 +31,10 @@
     <form action="manage_addDDFile" method="post" enctype="multipart/form-data" name="form">
       <tal:block tal:repeat="item python:request.SESSION.get('required_schema', [])">
         <input type="hidden" name="required_schema:list" tal:attributes="value item" />
+      </tal:block>
+      <tal:block tal:condition="python: request.SESSION.has_key('replace_xml')">
+        <input type="hidden" name="replace_xml" tal:attributes="value python: request.SESSION.get('replace_xml')" />
+        <tal:block tal:replace="python:request.SESSION.delete('replace_xml')" />
       </tal:block>
       <label for="file" i18n:translate="">File</label>
       <input type="file" name="file" id="file" size="25" value="" />
