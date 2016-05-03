@@ -1,128 +1,129 @@
-<tal:block content="structure here/standard_html_header" />
+<metal:block use-macro="container/standard_template.pt/macros/page">
+  <metal:block fill-slot="content">
 
-<div id="operations">
-  <ul>
-    <li><a href="/">Frontpage</a></li>
-  </ul>
-</div>
+    <div id="operations">
+      <ul>
+        <li><a href="/">Frontpage</a></li>
+      </ul>
+    </div>
 
-<h1>Global task list</h1>
+    <h1>Global task list</h1>
 
-<p>
-  This page represents the TODO list for all users of the website.
-  First, this gives you an overview of what tasks you can work on
-  next: If there is no user assigned to an envelope, click on the
-  envelope's link and activate the task which is awaiting assigment.
-  Secondly, if you've already started work in an envelope by activating a
-  task, look for your username in the list below to find the link to the envelope.
-</p>
+    <p>
+      This page represents the TODO list for all users of the website.
+      First, this gives you an overview of what tasks you can work on
+      next: If there is no user assigned to an envelope, click on the
+      envelope's link and activate the task which is awaiting assigment.
+      Secondly, if you've already started work in an envelope by activating a
+      task, look for your username in the list below to find the link to the envelope.
+    </p>
 
-<tal:block define="global sortby python:request.get('sort', 'reportingdate');
-            global how python:request.get('how', 'desc');
-            global page python:request.get('page', '1');
-            global paginator python:here.getNotCompletedWorkitems(sortby, how, request);
-            global page_url string:${here/absolute_url}/globalworklist?sort=${sortby}&amp;how=${how}" />
+    <tal:block define="global sortby python:request.get('sort', 'reportingdate');
+                global how python:request.get('how', 'desc');
+                global page python:request.get('page', '1');
+                global paginator python:here.getNotCompletedWorkitems(sortby, how, request);
+                global page_url string:${here/absolute_url}/globalworklist?sort=${sortby}&amp;how=${how}" />
 
-<table class="sortable" tal:condition="paginator/object_list">
-  <thead>
-    <tr>
-      <tal:block tal:condition="python:sortby=='country'">
-      <th tal:condition="python:how=='asc'" class="sorted" scope="col">
-          <a rel="nofollow"
-            tal:attributes="href string:${here/absolute_url}/globalworklist?sort=getCountryName&how=desc"
-            title="Sorted A..Z by Coverage - Click to reverse" >Coverage
-            <img src="misc_/Reportek/sort_asc" alt="" />
-          </a>
-      </th>
-      <th tal:condition="python:how=='desc'" class="sorted" scope="col">
-          <a rel="nofollow"
-            tal:attributes="href string:${here/absolute_url}/globalworklist?sort=getCountryName&how=asc"
-            title="Sorted Z..A by Coverage - Click to reverse">Coverage
-            <img src="misc_/Reportek/sort_desc" alt="" />
-          </a>
-      </th>
-      </tal:block>
-      <th tal:condition="python:sortby!='country'" scope="col">
-          <a rel="nofollow"
-            tal:attributes="href string:${here/absolute_url}/globalworklist?sort=getCountryName&how=asc"
-            title="Sortable">Coverage
-            <img src="misc_/Reportek/sortnot" alt="" />
-          </a>
-      </th>
-      <th>Envelope</th>
-      <th>Task</th>
-      <th>Status</th>
-      <tal:block tal:condition="python:sortby=='actor'">
-      <th tal:condition="python:how=='asc'" class="sorted" scope="col">
-          <a rel="nofollow"
-            tal:attributes="href string:${here/absolute_url}/globalworklist?sort=actor&how=desc"
-            title="Sorted A..Z by user - Click to reverse" >User
-            <img src="misc_/Reportek/sort_asc" alt="" />
-          </a>
-      </th>
-      <th tal:condition="python:how=='desc'" class="sorted" scope="col">
-          <a rel="nofollow"
-            tal:attributes="href string:${here/absolute_url}/globalworklist?sort=actor&how=asc"
-            title="Sorted Z..A by user - Click to reverse">User
-            <img src="misc_/Reportek/sort_desc" alt="" />
-          </a>
-      </th>
-      </tal:block>
-      <th tal:condition="python:sortby!='actor'" scope="col">
-          <a rel="nofollow"
-            tal:attributes="href string:${here/absolute_url}/globalworklist?sort=actor&how=asc"
-            title="Sortable">User
-            <img src="misc_/Reportek/sortnot" alt="" />
-          </a>
-      </th>
-      <tal:block tal:condition="python:sortby=='reportingdate'">
-      <th tal:condition="python:how=='asc'" class="sorted" scope="col">
-          <a rel="nofollow"
-            tal:attributes="href string:${here/absolute_url}/globalworklist?sort=reportingdate&how=desc"
-            title="Sorted A..Z by last reporting date - Click to reverse" >Reported
-            <img src="misc_/Reportek/sort_asc" alt="" />
-          </a>
-      </th>
-      <th tal:condition="python:how=='desc'" class="sorted" scope="col">
-          <a rel="nofollow"
-            tal:attributes="href string:${here/absolute_url}/globalworklist?sort=reportingdate&how=asc"
-            title="Sorted A..Z by last reporting date - Click to reverse">Reported
-            <img src="misc_/Reportek/sort_desc" alt="" />
-          </a>
-      </th>
-      </tal:block>
-      <th tal:condition="python:sortby!='reportingdate'" scope="col">
-          <a rel="nofollow"
-            tal:attributes="href string:${here/absolute_url}/globalworklist?sort=reportingdate&how=asc"
-            title="Sortable">Reported
-            <img src="misc_/Reportek/sortnot" alt="" />
-          </a>
-      </th>
-    </tr>
-  </thead>
-  <tbody>
-    <tal:block repeat="workitem paginator/object_list">
-      <tr tal:attributes="class python:test(workitem.actor == request.AUTHENTICATED_USER, 'yourown', '')">
-        <td tal:define="country workitem/country"
-          tal:content="python:here.localities_dict(country).get('name')" />
-        <td>
-          <a tal:define="workitem_parent workitem/getParentNode"
-            tal:attributes="href workitem_parent/absolute_url"
-              tal:content="workitem_parent/title_or_id">
-          </a>
-        </td>
-        <td tal:content="python:workitem.getActivityDetails('title')" />
-        <td tal:content="workitem/status" />
-        <td tal:content="workitem/actor | string: Not assigned" />
-        <td tal:content="python:workitem.reportingdate.strftime('%Y-%m-%d')" />
-      </tr>
-    </tal:block>
-    </tbody>
-</table>
+    <table class="sortable" tal:condition="paginator/object_list">
+      <thead>
+        <tr>
+          <tal:block tal:condition="python:sortby=='country'">
+          <th tal:condition="python:how=='asc'" class="sorted" scope="col">
+              <a rel="nofollow"
+                tal:attributes="href string:${here/absolute_url}/globalworklist?sort=getCountryName&how=desc"
+                title="Sorted A..Z by Coverage - Click to reverse" >Coverage
+                <img src="misc_/Reportek/sort_asc" alt="" />
+              </a>
+          </th>
+          <th tal:condition="python:how=='desc'" class="sorted" scope="col">
+              <a rel="nofollow"
+                tal:attributes="href string:${here/absolute_url}/globalworklist?sort=getCountryName&how=asc"
+                title="Sorted Z..A by Coverage - Click to reverse">Coverage
+                <img src="misc_/Reportek/sort_desc" alt="" />
+              </a>
+          </th>
+          </tal:block>
+          <th tal:condition="python:sortby!='country'" scope="col">
+              <a rel="nofollow"
+                tal:attributes="href string:${here/absolute_url}/globalworklist?sort=getCountryName&how=asc"
+                title="Sortable">Coverage
+                <img src="misc_/Reportek/sortnot" alt="" />
+              </a>
+          </th>
+          <th>Envelope</th>
+          <th>Task</th>
+          <th>Status</th>
+          <tal:block tal:condition="python:sortby=='actor'">
+          <th tal:condition="python:how=='asc'" class="sorted" scope="col">
+              <a rel="nofollow"
+                tal:attributes="href string:${here/absolute_url}/globalworklist?sort=actor&how=desc"
+                title="Sorted A..Z by user - Click to reverse" >User
+                <img src="misc_/Reportek/sort_asc" alt="" />
+              </a>
+          </th>
+          <th tal:condition="python:how=='desc'" class="sorted" scope="col">
+              <a rel="nofollow"
+                tal:attributes="href string:${here/absolute_url}/globalworklist?sort=actor&how=asc"
+                title="Sorted Z..A by user - Click to reverse">User
+                <img src="misc_/Reportek/sort_desc" alt="" />
+              </a>
+          </th>
+          </tal:block>
+          <th tal:condition="python:sortby!='actor'" scope="col">
+              <a rel="nofollow"
+                tal:attributes="href string:${here/absolute_url}/globalworklist?sort=actor&how=asc"
+                title="Sortable">User
+                <img src="misc_/Reportek/sortnot" alt="" />
+              </a>
+          </th>
+          <tal:block tal:condition="python:sortby=='reportingdate'">
+          <th tal:condition="python:how=='asc'" class="sorted" scope="col">
+              <a rel="nofollow"
+                tal:attributes="href string:${here/absolute_url}/globalworklist?sort=reportingdate&how=desc"
+                title="Sorted A..Z by last reporting date - Click to reverse" >Reported
+                <img src="misc_/Reportek/sort_asc" alt="" />
+              </a>
+          </th>
+          <th tal:condition="python:how=='desc'" class="sorted" scope="col">
+              <a rel="nofollow"
+                tal:attributes="href string:${here/absolute_url}/globalworklist?sort=reportingdate&how=asc"
+                title="Sorted A..Z by last reporting date - Click to reverse">Reported
+                <img src="misc_/Reportek/sort_desc" alt="" />
+              </a>
+          </th>
+          </tal:block>
+          <th tal:condition="python:sortby!='reportingdate'" scope="col">
+              <a rel="nofollow"
+                tal:attributes="href string:${here/absolute_url}/globalworklist?sort=reportingdate&how=asc"
+                title="Sortable">Reported
+                <img src="misc_/Reportek/sortnot" alt="" />
+              </a>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tal:block repeat="workitem paginator/object_list">
+          <tr tal:attributes="class python:test(workitem.actor == request.AUTHENTICATED_USER, 'yourown', '')">
+            <td tal:define="country workitem/country"
+              tal:content="python:here.localities_dict(country).get('name')" />
+            <td>
+              <a tal:define="workitem_parent workitem/getParentNode"
+                tal:attributes="href workitem_parent/absolute_url"
+                  tal:content="workitem_parent/title_or_id">
+              </a>
+            </td>
+            <td tal:content="python:workitem.getActivityDetails('title')" />
+            <td tal:content="workitem/status" />
+            <td tal:content="workitem/actor | string: Not assigned" />
+            <td tal:content="python:workitem.reportingdate.strftime('%Y-%m-%d')" />
+          </tr>
+        </tal:block>
+        </tbody>
+    </table>
 
-<p tal:condition="not:paginator/object_list">Nothing on the task list</p>
+    <p tal:condition="not:paginator/object_list">Nothing on the task list</p>
 
-<tal:block define="records_pagination nocall:here/records_pagination"
-           content="structure python:records_pagination(documents=paginator, page_url=page_url)" />
-
-<tal:block content="structure here/standard_html_footer" />
+    <tal:block define="records_pagination nocall:here/records_pagination"
+               content="structure python:records_pagination(documents=paginator, page_url=page_url)" />
+  </metal:block>
+</metal:block>
