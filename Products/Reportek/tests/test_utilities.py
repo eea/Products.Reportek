@@ -110,24 +110,6 @@ class MockedLDAPUser(SimpleItem):
     def uid(self, value):
         self._uid = value
 
-DTMLS = [
-    {
-        'dtml_id': 'standard_html_header',
-        'title': 'Standard Html Header',
-        'filename': 'standard_html_header.dtml'
-    },
-    {
-        'dtml_id': 'breadcrumbtrail',
-        'title': 'Trail of breadcrumbs',
-        'filename': 'breadcrumbtrail.dtml'
-    },
-    {
-        'dtml_id': 'standard_html_footer',
-        'title': 'Standard Html Footer',
-        'filename': 'standard_html_footer.dtml'
-    }
-]
-
 SCRIPTS = [
     {
         'script_id': 'buttons_loginout',
@@ -212,17 +194,6 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         r_utilities.manage_permission(view_management_screens,
                                       roles=['Owner'])
         r_utilities._p_changed = True
-
-    def _setupDTMLS(self):
-        for dtml in DTMLS:
-            dtml_path = os.path.join(os.path.dirname(__file__),
-                                     'data', dtml.get('filename'))
-            with open(dtml_path, 'rb') as f:
-                f.seek(0)
-                dtml_content = f.read()
-                self.app.manage_addDTMLMethod(dtml.get('dtml_id'),
-                                              dtml.get('title'),
-                                              dtml_content)
 
     def _setupSCRIPTS(self):
         for script in SCRIPTS:
@@ -376,7 +347,6 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
 
         self.app.manage_addProperty('management_page_charset',
                                     'utf-8', 'string')
-        self._setupDTMLS()
         self._setupSCRIPTS()
         self._setupFILES()
         self._setupTMPLS()

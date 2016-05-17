@@ -1,18 +1,9 @@
 # -*- coding: utf-8 -*-
-import os
-from mock import Mock
-from App.Common import package_home
-from Testing import ZopeTestCase
-from Globals import DTMLFile
-ZopeTestCase.installProduct('Reportek')
-ZopeTestCase.installProduct('PythonScripts')
 from zope.traversing.adapters import DefaultTraversable
 from zope.traversing.interfaces import ITraversable
 from zope.component import provideAdapter
 from zope import interface
 from zope.interface import implements
-
-
 
 from StringIO import StringIO
 from utils import simple_addEnvelope
@@ -27,9 +18,12 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from utils import makerequest
 from copy import deepcopy
 
-
-
-
+import os
+from mock import Mock
+from App.Common import package_home
+from Testing import ZopeTestCase
+ZopeTestCase.installProduct('Reportek')
+ZopeTestCase.installProduct('PythonScripts')
 
 
 def _createStandardCollection(app):

@@ -1,8 +1,0 @@
-</div> <!-- workarea -->
-</div> <!-- container -->
-<div id="pagefoot">
-Last modified <dtml-var bobobase_modification_time fmt=Date>. |
-<a href="/legalnotice">Legal notice</a>
-</div>
-</body>
-</html>
