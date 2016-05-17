@@ -1151,7 +1151,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             yield group, [x for x in ob_list if x.get(key, '') == group]
 
     security.declareProtected('View', 'messageDialog')
-    def messageDialog(self, message='', action='./manage_main', REQUEST=None):
+    def messageDialog(self, message='', action='', REQUEST=None):
         """ displays a message dialog """
         return self.message_dialog(message=message, action=action)
 

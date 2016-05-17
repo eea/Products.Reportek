@@ -382,7 +382,7 @@ class Referral(CatalogAware, SimpleItem, CountriesManager):
 #           return self.manage_prop(self,REQUEST,manage_tabs_message=message)
             return self.messageDialog(
                             message="The properties of %s have been changed!" % self.id,
-                            action='./manage_main')
+                            action='')
 
     security.declareProtected('Change Collections', 'manage_changeReferral')
 

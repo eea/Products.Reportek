@@ -389,7 +389,7 @@ class Collection(CatalogAware, Folder, Toolz):
         if REQUEST is not None:
             return self.messageDialog(
                             message="The properties of %s have been changed!" % self.id,
-                            action='./manage_main')
+                            action='')
 
     security.declareProtected('Change Collections', 'manage_editCategories')
     def manage_editCategories(self, REQUEST=None):
@@ -399,7 +399,7 @@ class Collection(CatalogAware, Folder, Toolz):
         if REQUEST is not None:
             return self.messageDialog(
                             message="The categories of %s have been changed!" % self.id,
-                            action='./manage_main')
+                            action='')
 
     security.declareProtected(permission_manage_properties_collections, 'manage_changeCollection')
     def manage_changeCollection(self, title=None,
@@ -433,7 +433,7 @@ class Collection(CatalogAware, Folder, Toolz):
         if REQUEST is not None:
             return self.messageDialog(
                             message="The properties of %s have been changed!" % self.id,
-                            action='./manage_main')
+                            action='')
 
     security.declareProtected('Use OpenFlow', 'worklist')
     worklist =  PageTemplateFile('zpt/collection/worklist', globals())
@@ -537,7 +537,7 @@ class Collection(CatalogAware, Folder, Toolz):
         self._company_id = value
 
     security.declareProtected('View', 'messageDialog')
-    def messageDialog(self, message='', action='./manage_main', REQUEST=None):
+    def messageDialog(self, message='', action='', REQUEST=None):
         """ displays a message dialog """
         return self.message_dialog(message=message, action=action)
 
