@@ -142,20 +142,6 @@
             </td>
           </tr>
 
-          <tr>
-            <th i18n:translate="">Coverage note</th>
-            <td>
-              <input type="text" name="locality" size="30" tal:attributes="value context/locality" />
-            </td>
-          </tr>
-
-          <tr>
-            <td></td>
-            <td>
-              <input type="submit" name="manage_editEnvelope:method" value="Change" />
-            </td>
-          </tr>
-
         </table>
       </form>
 
