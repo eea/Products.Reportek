@@ -397,7 +397,7 @@ class RemoteApplication(SimpleItem):
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                         p_analyze={'code':-2, 'last_error':'Code: ' + str(l_fault.faultCode) + '\nDescription: ' + str(l_fault.faultString)})
             else:
-                next_run = DateTime(int(l_wk_prop['analyze']['next_run']) + self.retryFrequency)
+                next_run = DateTime(int(l_wk_prop['analyze']['next_run']) + int(self.retryFrequency))
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                         p_analyze={'code':0, 'last_error':'Code: ' + str(l_fault.faultCode) + '\nDescription: ' + str(l_fault.faultString), 'retries_left':l_nRetries - 1, 'next_run':next_run})
         # An HTTP protocol error - retry later
@@ -408,7 +408,7 @@ class RemoteApplication(SimpleItem):
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                         p_analyze={'code':-2, 'last_error':'Code: ' + str(l_protocol.errcode) + '\nDescription: ' + str(l_protocol.errmsg)})
             else:
-                next_run = DateTime(int(l_wk_prop['analyze']['next_run']) + self.retryFrequency)
+                next_run = DateTime(int(l_wk_prop['analyze']['next_run']) + int(self.retryFrequency))
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                         p_analyze={'code':0, 'last_error':'Code: ' + str(l_protocol.errcode) + '\nDescription: ' + str(l_protocol.errmsg), 'retries_left':l_nRetries - 1, 'next_run':next_run})
         # A broken response package - critical, do not retry
