@@ -776,7 +776,43 @@ class EnvelopeInstance(CatalogAware, Folder):
         self.completeWorkitem(workitem_id)
         process = self.unrestrictedTraverse(self.process_path)
         if not self.isEnd(process.id, self.getActivity(workitem_id).id):
-            self.forwardWorkitem( workitem_id)
+            self.forwardWorkitem(workitem_id)
 
+    def traceActivity(self, steps=0, activity_type=None):
+        """Return required activity by crawling up it's history."""
+
+        wk_ids = [int(wk_id) for wk_id in self.objectIds('Workitem')]
+        last_workitem_id = max(wk_ids)
+        count = 1
+        last_workitem = getattr(self, str(last_workitem_id))
+
+        while last_workitem_id != 0:
+            workitem_from = getattr(last_workitem, 'workitems_from')
+            if len(workitem_from) > 0:
+                workitem_from = workitem_from[-1]
+            prev_wk = getattr(self, workitem_from)
+            prev_wk_id = prev_wk.activity_id
+
+            steps_cond = (not activity_type and count == steps)
+            act_cond = (not steps and activity_type == prev_wk_id)
+
+            if steps_cond or act_cond:
+                return prev_wk
+            else:
+                last_workitem = getattr(self, prev_wk.getId())
+                last_workitem_id = prev_wk.getId()
+                count += 1
+
+    def getPreviousActivityOfType(self, activity_type):
+        """Return previous activity of type activity_type."""
+
+        return self.traceActivity(activity_type=activity_type)
+
+    def getPreviousActivity(self, steps=1):
+        """Return previous step activity."""
+
+        activity = self.traceActivity(steps=steps)
+        if activity:
+            return activity.activity_id
 
 InitializeClass(EnvelopeInstance)
