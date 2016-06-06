@@ -30,7 +30,12 @@ class EnvelopesAPI(BrowserView):
     def build_catalog_query(self):
         """Return a catalog query dictionary based on query params."""
         params = self.request.form.keys()
-        valid_filters = ['isReleased', 'reportingDate', 'obligations']
+        valid_filters = [
+            'isReleased',
+            'reportingDate',
+            'obligations',
+            'periodDescription'
+        ]
 
         catalog_field_map = {
             'title': 'title',
