@@ -61,6 +61,7 @@
     <include file="dataflow_mappings.zcml" />
     <include file="views.zcml" />
     <include package=".patches" />
+    <include package=".api" />
 
     <configure zcml:condition="installed zope.container">
         <subscriber for="Products.Reportek.interfaces.IEnvelope
