@@ -783,6 +783,10 @@ class EnvelopeInstance(CatalogAware, Folder):
 
         wk_ids = [int(wk_id) for wk_id in self.objectIds('Workitem')]
         last_workitem_id = max(wk_ids)
+
+        if not steps and not activity_type:
+            return getattr(self, str(last_workitem_id))
+
         count = 1
         last_workitem = getattr(self, str(last_workitem_id))
 
