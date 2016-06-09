@@ -90,10 +90,10 @@ class EnvelopesAPI(BrowserView):
 
         return query
 
-    def get_envelope_wk_brains(self, path):
+    def get_env_children(self, path, children_type):
         query = {
             'path': path,
-            'meta_type': 'Workitem',
+            'meta_type': children_type,
         }
         brains = self.context.Catalog(**query)
 
@@ -124,10 +124,10 @@ class EnvelopesAPI(BrowserView):
             years = brain.years
             startyear = years[0] if years else ''
             endyear = years[-1] if years and len(years) > 1 else ''
-            wk_brains = self.get_envelope_wk_brains(brain.getPath())
+            wk_brains = self.get_env_children(brain.getPath(), 'Workitem')
             default_props = {
                 'url': brain.getURL(),
-                'title': getattr(brain, 'title', None),
+                'title': brain.title,
                 'description': brain.Description,
                 'countryCode': self.getCountryCode(brain.country),
                 'isReleased': brain.released,
