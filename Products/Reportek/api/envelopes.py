@@ -126,8 +126,26 @@ class EnvelopesAPI(BrowserView):
         """Return True if filter value is different from env value."""
         for afilter in additional_filters:
             afilter_v = self.request.form.get(afilter)
-            if afilter_v and afilter_v != default_props.get(afilter):
+            if afilter_v and afilter_v != str(default_props.get(afilter)):
                 return True
+
+    def get_envelope_history(self, path):
+        """Return a the envelope's workflow history."""
+        result = []
+        wk_brains = self.get_env_children(path, 'Workitem')
+        for brain in wk_brains:
+            blocker = brain.blocker
+            if not blocker and blocker is not False:
+                blocker = None
+            result.append({
+                'activity_id': brain.activity_id,
+                'blocker': blocker,
+                'id': brain.id,
+                'title': brain.title,
+                'modified': brain.bobobase_modification_time.HTML4()
+            })
+
+        return result
 
     def get_envelopes(self):
         """Return envelopes."""
@@ -190,10 +208,11 @@ class EnvelopesAPI(BrowserView):
                         envelope_data['files'] = files_data.get('documents')
                         if files_data.get('errors'):
                             errors += files_data.get('errors', [])
+                    elif field == 'history':
+                        envelope_data['history'] = self.get_envelope_history(brain.getPath())
                     elif field in default_props.keys():
                         envelope_data[field] = default_props.get(field)
 
                 if envelope_data:
                     results.append(envelope_data)
-
         return json.dumps(data, indent=4)
