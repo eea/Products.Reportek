@@ -112,44 +112,53 @@ class EnvelopesAPI(BrowserView):
     def get_envelopes(self):
         """Return envelopes."""
         results = []
-
+        errors = []
+        data = {
+            'envelopes': results,
+            'errors': errors
+        }
         fields = self.request.form.get('fields')
+        if not self.request.form.get('obligations'):
+            errors.append({
+                'title': 'No obligation specified',
+                'detail': 'You need to specify the obligations filter. E.g. api/envelopes?obligations=696'
+            })
+        else:
+            if fields:
+                fields = fields.split(',')
 
-        if fields:
-            fields = fields.split(',')
+            query = self.build_catalog_query()
+            brains = self.context.Catalog(**query)
+            for brain in brains:
+                years = brain.years
+                startyear = years[0] if years else ''
+                endyear = years[-1] if years and len(years) > 1 else ''
+                wk_brains = self.get_env_children(brain.getPath(), 'Workitem')
+                default_props = {
+                    'url': brain.getURL(),
+                    'title': brain.title,
+                    'description': brain.Description,
+                    'countryCode': self.getCountryCode(brain.country),
+                    'isReleased': brain.released,
+                    'reportingDate': brain.reportingdate.HTML4(),
+                    'periodStartYear': startyear,
+                    'periodEndYear': endyear,
+                    'periodDescription': brain.partofyear,
+                    'isBlockedByQCError': self.is_env_blocked(wk_brains),
+                    'status': wk_brains[-1].activity_id
+                }
+                envelope_data = {}
 
-        query = self.build_catalog_query()
-        brains = self.context.Catalog(**query)
-        for brain in brains:
-            years = brain.years
-            startyear = years[0] if years else ''
-            endyear = years[-1] if years and len(years) > 1 else ''
-            wk_brains = self.get_env_children(brain.getPath(), 'Workitem')
-            default_props = {
-                'url': brain.getURL(),
-                'title': brain.title,
-                'description': brain.Description,
-                'countryCode': self.getCountryCode(brain.country),
-                'isReleased': brain.released,
-                'reportingDate': brain.reportingdate.HTML4(),
-                'periodStartYear': startyear,
-                'periodEndYear': endyear,
-                'periodDescription': brain.partofyear,
-                'isBlockedByQCError': self.is_env_blocked(wk_brains),
-                'status': wk_brains[-1].activity_id
-            }
-            envelope_data = {}
+                if not fields:
+                    fields = default_props.keys()
 
-            if not fields:
-                fields = default_props.keys()
+                for field in fields:
+                    if field == 'files':
+                        envelope_data['files'] = self.get_files(brain.getPath())
+                    elif field in default_props.keys():
+                        envelope_data[field] = default_props.get(field)
 
-            for field in fields:
-                if field == 'files':
-                    envelope_data['files'] = self.get_files(brain.getPath())
-                elif field in default_props.keys():
-                    envelope_data[field] = default_props.get(field)
+                if envelope_data:
+                    results.append(envelope_data)
 
-            if envelope_data:
-                results.append(envelope_data)
-
-        return json.dumps(results, indent=4)
+        return json.dumps(data, indent=4)
