@@ -700,4 +700,11 @@ class Collection(CatalogAware, Folder, Toolz):
 
         return data
 
+    @property
+    def Description(self):
+        if isinstance(self.descr, unicode):
+            return self.descr.encode('utf-8')
+
+        return self.descr
+
 Globals.InitializeClass(Collection)
