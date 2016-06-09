@@ -1,6 +1,8 @@
 from DateTime import DateTime
 from Products.Five import BrowserView
 from Products.Reportek.constants import ENGINE_ID
+from ZODB.blob import POSKeyError
+from Products.Reportek.blob import StorageError
 import datetime
 import json
 
@@ -28,21 +30,37 @@ class EnvelopesAPI(BrowserView):
     def get_files(self, env_path=None):
         """Return envelope's files."""
         documents = []
+        errors = []
+        documents_data = {
+            'documents': documents,
+            'errors': errors
+        }
         if env_path:
             envelope = self.context.restrictedTraverse(env_path, None)
             if envelope:
                 for doc in envelope.objectValues('Report Document'):
+                    archived_files = []
+                    try:
+                        zipfiles = envelope.getZipInfo(doc)
+                        for zfile in zipfiles:
+                            archived_files.append(zfile)
+                    except (POSKeyError, StorageError) as e:
+                        errors.append({
+                            'title': 'An error occured trying to access file: {}'.format(doc.absolute_url(0)),
+                            'description': str(e)
+                        })
                     doc_properties = {
                         'url': doc.absolute_url(0),
                         'title': doc.title,
                         'contentType': doc.content_type,
                         'schemaURL': doc.xml_schema_location,
-                        'uploadDate': doc.upload_time().HTML4()
+                        'uploadDate': doc.upload_time().HTML4(),
+                        'archived_files': archived_files or None
                     }
 
                     documents.append(doc_properties)
 
-        return documents
+        return documents_data
 
     def build_catalog_query(self):
         """Return a catalog query dictionary based on query params."""
@@ -154,7 +172,10 @@ class EnvelopesAPI(BrowserView):
 
                 for field in fields:
                     if field == 'files':
-                        envelope_data['files'] = self.get_files(brain.getPath())
+                        files_data = self.get_files(brain.getPath())
+                        envelope_data['files'] = files_data.get('documents')
+                        if files_data.get('errors'):
+                            errors += files_data.get('errors', [])
                     elif field in default_props.keys():
                         envelope_data[field] = default_props.get(field)
 
