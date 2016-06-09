@@ -62,16 +62,8 @@ class EnvelopesAPI(BrowserView):
 
         return documents_data
 
-    def build_catalog_query(self):
+    def build_catalog_query(self, valid_filters):
         """Return a catalog query dictionary based on query params."""
-        params = self.request.form.keys()
-        valid_filters = [
-            'isReleased',
-            'reportingDate',
-            'obligations',
-            'periodDescription'
-        ]
-
         catalog_field_map = {
             'title': 'title',
             'isReleased': 'released',
@@ -82,8 +74,9 @@ class EnvelopesAPI(BrowserView):
         query = {
             'meta_type': 'Report Envelope'
         }
-        for param in params:
-            if param in valid_filters:
+
+        for param in valid_filters:
+            if self.request.form.get(param):
                 if param != 'obligations':
                     c_idx = catalog_field_map.get(param)
                     value = self.request.form.get(param)
@@ -109,6 +102,7 @@ class EnvelopesAPI(BrowserView):
         return query
 
     def get_env_children(self, path, children_type):
+        """Return envelope's children of type children_type as brains."""
         query = {
             'path': path,
             'meta_type': children_type,
@@ -118,6 +112,7 @@ class EnvelopesAPI(BrowserView):
         return brains
 
     def is_env_blocked(self, wk_brains):
+        """Return 1 if envelope is blocked, otherwise 1."""
         qa_wks = [wk for wk in wk_brains if wk.activity_id == 'AutomaticQA']
         if not qa_wks:
             return 0
@@ -126,6 +121,13 @@ class EnvelopesAPI(BrowserView):
             if not blocker:
                 return 0
             return 1
+
+    def is_invalid(self, default_props, additional_filters):
+        """Return True if filter value is different from env value."""
+        for afilter in additional_filters:
+            afilter_v = self.request.form.get(afilter)
+            if afilter_v and afilter_v != default_props.get(afilter):
+                return True
 
     def get_envelopes(self):
         """Return envelopes."""
@@ -136,6 +138,13 @@ class EnvelopesAPI(BrowserView):
             'errors': errors
         }
         fields = self.request.form.get('fields')
+        valid_catalog_filters = [
+            'isReleased',
+            'reportingDate',
+            'obligations',
+            'periodDescription'
+        ]
+
         if not self.request.form.get('obligations'):
             errors.append({
                 'title': 'No obligation specified',
@@ -145,7 +154,7 @@ class EnvelopesAPI(BrowserView):
             if fields:
                 fields = fields.split(',')
 
-            query = self.build_catalog_query()
+            query = self.build_catalog_query(valid_catalog_filters)
             brains = self.context.Catalog(**query)
             for brain in brains:
                 years = brain.years
@@ -166,6 +175,11 @@ class EnvelopesAPI(BrowserView):
                     'status': wk_brains[-1].activity_id
                 }
                 envelope_data = {}
+                additional_filters = [key for key in default_props.keys()
+                                      if key not in valid_catalog_filters]
+
+                if self.is_invalid(default_props, additional_filters):
+                    continue
 
                 if not fields:
                     fields = default_props.keys()
