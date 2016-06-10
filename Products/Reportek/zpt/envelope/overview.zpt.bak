@@ -89,7 +89,7 @@
             <tal:block tal:condition="context/is_blocked">
               <div class="envelope-blocked-status">
                 <strong style="color: red;">
-                  <span i18n:translate="">The last AutomaticQA run has flagged this envelope as unfit for release. Reporters have to change the delivery and release the envelope again.</span>
+                  <span i18n:translate="">The last AutomaticQA run has flagged this envelope as unfit for release.</span>
                 </strong>
               </div>
             </tal:block>
