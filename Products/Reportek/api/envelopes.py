@@ -69,6 +69,8 @@ class EnvelopesAPI(BrowserView):
             'isReleased': 'released',
             'reportingDate': 'reportingdate',
             'periodDescription': 'partofyear',
+            'lastUpdateDateStart': 'bobobase_modification_time',
+            'lastUpdateDateEnd': 'bobobase_modification_time'
         }
 
         query = {
@@ -88,6 +90,30 @@ class EnvelopesAPI(BrowserView):
                         value = {
                             'query': (DateTime(startd), DateTime(endd)),
                             'range': 'min:max'
+                        }
+                    if param.startswith('lastUpdateDate'):
+                        val = query.get(c_idx)
+                        upd_start = None
+                        upd_end = None
+                        v_date = datetime.datetime.strptime(value, '%Y-%m-%d')
+                        if param.endswith('Start'):
+                            upd_start = v_date
+                            d_query = DateTime(upd_start)
+                            d_range = 'min'
+                        elif param.endswith('End'):
+                            upd_end = v_date
+                            d_query = DateTime(upd_end)
+                            d_range = 'max'
+
+                        if val:
+                            d_range = 'min:max'
+                            if upd_start:
+                                d_query = (DateTime(upd_start), val['query'])
+                            elif upd_end:
+                                d_query = (val['query'], DateTime(upd_end))
+                        value = {
+                            'query': d_query,
+                            'range': d_range
                         }
                     query[c_idx] = value
                 else:
@@ -160,7 +186,9 @@ class EnvelopesAPI(BrowserView):
             'isReleased',
             'reportingDate',
             'obligations',
-            'periodDescription'
+            'periodDescription',
+            'lastUpdateDateStart',
+            'lastUpdateDateEnd'
         ]
 
         if not self.request.form.get('obligations'):
