@@ -10,6 +10,112 @@ import json
 class EnvelopesAPI(BrowserView):
     """Envelopes API"""
 
+    AVAILABLE_FILTERS = {
+        'url': {
+            'catalog_mapping': '',
+            'help_text': 'Return all envelopes with specified url. E.g.: '
+                         '/api/envelopes?obligations=696&url=<url>',
+        },
+        'title': {
+            'catalog_mapping': 'title',
+            'help_text': 'Return all envelopes with specified title. E.g.: '
+                         '/api/envelopes?obligations=696&title=<title>',
+        },
+        'description': {
+            'catalog_mapping': 'description',
+            'help_text': 'Return all envelopes with specified description. '
+                         'E.g.: /api/envelopes?obligations=696'
+                         '&description=<description>',
+        },
+        'fields': {
+            'catalog_mapping': '',
+            'help_text': 'Return only the specified fields for envelopes. '
+                         'E.g.: /api/envelopes?obligations=696&fields=title,'
+                         'description,url,files',
+        },
+        'hide_help': {
+            'catalog_mapping': '',
+            'help_text': 'Hide the additional help information from the results',
+        },
+        'countryCode': {
+            'catalog_mapping': '',
+            'help_text': 'Return all envelopes related to specified '
+                         'countryCode. E.g.: /api/envelopes?obligations='
+                         '696&countryCode=RO',
+        },
+        'isReleased': {
+            'catalog_mapping': 'released',
+            'help_text': 'Return all released(1) or unreleased(0) envelopes.'
+                         'E.g.: /api/envelopes?obligations=696'
+                         '&isReleased=1',
+        },
+        'reportingDate': {
+            'catalog_mapping': 'reportingdate',
+            'help_text': 'Return all envelopes with the specified '
+                         'reportingDate with format YYYY-MM-DD. E.g.: '
+                         '/api/envelopes?obligations=696'
+                         '&reportingDate=2015-01-15',
+        },
+        'modifiedDate': {
+            'catalog_mapping': 'bobobase_modification_time',
+            'help_text': 'Return all envelopes with the specified '
+                         'modifiedDate with format YYYY-MM-DD. E.g.: '
+                         '/api/envelopes?obligations=696'
+                         '&modifiedDate=2015-01-15',
+        },
+        'modifiedDateStart': {
+            'catalog_mapping': 'bobobase_modification_time',
+            'help_text': 'Return all envelopes that have a '
+                         'modifiedDate starting from the specified '
+                         'modifiedDateStart with format YYYY-MM-DD. E.g.: '
+                         '/api/envelopes?obligations=696'
+                         '&modifiedDateStart=2015-01-15',
+        },
+        'modifiedDateEnd': {
+            'catalog_mapping': 'bobobase_modification_time',
+            'help_text': 'Return all envelopes that have a '
+                         'modifiedDate before the specified '
+                         'modifiedDateEnd with format YYYY-MM-DD. E.g.: '
+                         '/api/envelopes?obligations=696'
+                         '&modifiedDateEnd=2015-01-15',
+        },
+        'periodStartYear': {
+            'catalog_mapping': '',
+            'help_text': 'Return all envelopes with specified start year. E.g.'
+                         ': /api/envelopes?obligations=696'
+                         '&periodStartYear=2014',
+        },
+        'periodEndYear': {
+            'catalog_mapping': '',
+            'help_text': 'Return all envelopes with specified end year. E.g.: '
+                         '/api/envelopes?obligations=696'
+                         '&periodEndYear=2014',
+        },
+        'periodDescription': {
+            'catalog_mapping': 'partofyear',
+            'help_text': 'Return all envelopes with specified period '
+                         'description. E.g.: /api/envelopes?obligations='
+                         '696&periodDescription=Whole%20Year',
+        },
+        'obligations': {
+            'catalog_mapping': '',
+            'help_text': 'Return all envelopes with specified obligation(s). '
+                         'E.g.: /api/envelopes?obligations=696,701',
+        },
+        'isBlockedByQCError': {
+            'catalog_mapping': '',
+            'help_text': 'Return all envelopes that are blocked by a QC Error.'
+                         ' E.g.: /api/envelopes?obligations=696'
+                         '&isBlockedByQCError=1',
+        },
+        'status': {
+            'catalog_mapping': '',
+            'help_text': 'Return all envelopes with specified status. E.g.: '
+                         '/api/envelopes?obligations=696'
+                         '&status=Draft',
+        },
+    }
+
     def __call__(self):
         return self.get_envelopes()
 
@@ -64,15 +170,11 @@ class EnvelopesAPI(BrowserView):
 
     def build_catalog_query(self, valid_filters):
         """Return a catalog query dictionary based on query params."""
-        catalog_field_map = {
-            'title': 'title',
-            'isReleased': 'released',
-            'reportingDate': 'reportingdate',
-            'periodDescription': 'partofyear',
-            'lastUpdateDateStart': 'bobobase_modification_time',
-            'lastUpdateDateEnd': 'bobobase_modification_time'
-        }
-
+        catalog_field_map = {}
+        for c_filter in self.AVAILABLE_FILTERS.keys():
+            c_mapping = self.AVAILABLE_FILTERS[c_filter].get('catalog_mapping')
+            if c_mapping:
+                catalog_field_map[c_filter] = c_mapping
         query = {
             'meta_type': 'Report Envelope'
         }
@@ -82,16 +184,19 @@ class EnvelopesAPI(BrowserView):
                 if param != 'obligations':
                     c_idx = catalog_field_map.get(param)
                     value = self.request.form.get(param)
+
                     if param == 'isReleased':
                         value = int(value)
-                    if param == 'reportingDate':
+
+                    if param in ['reportingDate', 'modifiedDate']:
                         startd = datetime.datetime.strptime(value, '%Y-%m-%d')
                         endd = startd + datetime.timedelta(days=1)
                         value = {
                             'query': (DateTime(startd), DateTime(endd)),
                             'range': 'min:max'
                         }
-                    if param.startswith('lastUpdateDate'):
+
+                    if param in ['modifiedDateStart', 'modifiedDateEnd']:
                         val = query.get(c_idx)
                         upd_start = None
                         upd_end = None
@@ -177,18 +282,26 @@ class EnvelopesAPI(BrowserView):
         """Return envelopes."""
         results = []
         errors = []
+        a_filters = [{a_f: self.AVAILABLE_FILTERS[a_f].get('help_text')}
+                     for a_f in self.AVAILABLE_FILTERS]
         data = {
             'envelopes': results,
-            'errors': errors
+            'errors': errors,
         }
         fields = self.request.form.get('fields')
+
+        if 'hide_help' not in self.request.form.keys():
+            data['available_filters'] = a_filters
+            data['available_fields'] = self.AVAILABLE_FILTERS.keys() + ['files', 'history']
+
         valid_catalog_filters = [
             'isReleased',
             'reportingDate',
             'obligations',
             'periodDescription',
-            'lastUpdateDateStart',
-            'lastUpdateDateEnd'
+            'modifiedDate',
+            'modifiedDateStart',
+            'modifiedDateEnd'
         ]
 
         if not self.request.form.get('obligations'):
@@ -214,6 +327,7 @@ class EnvelopesAPI(BrowserView):
                     'countryCode': self.getCountryCode(brain.country),
                     'isReleased': brain.released,
                     'reportingDate': brain.reportingdate.HTML4(),
+                    'modifiedDate': brain.bobobase_modification_time.HTML4(),
                     'periodStartYear': startyear,
                     'periodEndYear': endyear,
                     'periodDescription': brain.partofyear,
