@@ -271,13 +271,9 @@ class EnvelopesAPI(BrowserView):
                       for p in self.AVAILABLE_FILTERS
                       if self.request.form.get(p)}
 
-        modifiedDateStart = fed_params.get('modifiedDateStart')
-        modifiedDateEnd = fed_params.get('modifiedDateEnd')
-
-        if not fed_params.get('obligations') and len(fed_params) < 2:
-            if not modifiedDateEnd and not modifiedDateStart:
-                modifiedDateStart = DateTime() - 90
-                fed_params['modifiedDateStart'] = modifiedDateStart.strftime('%Y-%m-%d')
+        if not fed_params:
+            modifiedDateStart = DateTime() - 90
+            fed_params['modifiedDateStart'] = modifiedDateStart.strftime('%Y-%m-%d')
 
         if fields:
             fields = fields.split(',')
