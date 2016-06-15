@@ -59,6 +59,9 @@ class EnvelopesAPI(BrowserView):
         'status': {
             'catalog_mapping': '',
         },
+        'creator': {
+            'catalog_mapping': '',
+        }
     }
 
     def __call__(self):
