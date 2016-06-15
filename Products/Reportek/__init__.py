@@ -233,7 +233,7 @@ def create_reportek_indexes(catalog):
     add_index('meta_type', catalog, 'FieldIndex', meta=True)
     add_index('bobobase_modification_time', catalog, 'DateIndex', meta=True)
     add_index('activity_id', catalog, 'FieldIndex', meta=True)
-    add_index('actor', catalog, 'FieldIndex')
+    add_index('actor', catalog, 'FieldIndex', meta=True)
     add_index('content_type', catalog, 'FieldIndex')
     add_index('country', catalog, 'FieldIndex', meta=True)
     add_index('dataflow_uri', catalog, 'FieldIndex', meta=True)

@@ -231,6 +231,10 @@ class EnvelopesAPI(BrowserView):
         wk_brains = self.get_env_children(brain.getPath(), 'Workitem')
         obls = [obl.split('http://rod.eionet.europa.eu/obligations/')[-1]
                 for obl in brain.dataflow_uris]
+        actors = [wk.actor for wk in wk_brains if wk.activity_id == 'Draft']
+        creator = None
+        if actors:
+            creator = actors[-1]
         return {
             'url': brain.getURL(),
             'title': brain.title,
@@ -244,7 +248,8 @@ class EnvelopesAPI(BrowserView):
             'periodEndYear': endyear,
             'periodDescription': brain.partofyear,
             'isBlockedByQCError': self.is_env_blocked(wk_brains),
-            'status': wk_brains[-1].activity_id
+            'status': wk_brains[-1].activity_id,
+            'creator': creator or 'Not assigned'
         }
 
     def get_envelopes(self):
