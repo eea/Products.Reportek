@@ -12,7 +12,7 @@ class EnvelopesAPI(BrowserView):
 
     AVAILABLE_FILTERS = {
         'url': {
-            'catalog_mapping': '',
+            'catalog_mapping': 'path',
         },
         'title': {
             'catalog_mapping': 'title',
@@ -143,7 +143,8 @@ class EnvelopesAPI(BrowserView):
                             'query': (DateTime(startd), DateTime(endd)),
                             'range': 'min:max'
                         }
-
+                    if param == 'url':
+                        value = value.split(self.request.base)[-1]
                     if param in ['modifiedDateStart', 'modifiedDateEnd']:
                         val = query.get(c_idx)
                         upd_start = None
@@ -288,6 +289,7 @@ class EnvelopesAPI(BrowserView):
         fields = self.request.form.get('fields')
 
         valid_catalog_filters = [
+            'url',
             'isReleased',
             'reportingDate',
             'obligations',
