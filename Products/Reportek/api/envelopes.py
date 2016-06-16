@@ -21,7 +21,7 @@ class EnvelopesAPI(BrowserView):
             'catalog_mapping': 'description',
         },
         'countryCode': {
-            'catalog_mapping': '',
+            'catalog_mapping': 'country',
         },
         'isReleased': {
             'catalog_mapping': 'released',
@@ -80,6 +80,15 @@ class EnvelopesAPI(BrowserView):
                             if str(x['uri']) == country_uri][0])
             except:
                 return dummycounty['iso']
+
+    def get_country_uri(self, country_code):
+        """Return country uri from country code."""
+        engine = getattr(self.context, ENGINE_ID)
+        localities_table = engine.localities_table()
+        country_uri = [loc.get('uri') for loc in localities_table
+                       if country_code == loc.get('iso')]
+        if country_uri:
+            return country_uri[0]
 
     def get_hostname(self):
         """Extract hostname in virtual-host-safe manner."""
@@ -159,6 +168,8 @@ class EnvelopesAPI(BrowserView):
                         }
                     if param == 'url':
                         value = value.split(self.get_hostname())[-1]
+                    if param == 'countryCode':
+                        value = self.get_country_uri(value)
                     if param in ['modifiedDateStart', 'modifiedDateEnd']:
                         val = query.get(c_idx)
                         upd_start = None
@@ -304,6 +315,7 @@ class EnvelopesAPI(BrowserView):
 
         valid_catalog_filters = [
             'url',
+            'countryCode',
             'isReleased',
             'reportingDate',
             'obligations',
