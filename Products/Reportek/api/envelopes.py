@@ -20,9 +20,6 @@ class EnvelopesAPI(BrowserView):
         'description': {
             'catalog_mapping': 'description',
         },
-        'fields': {
-            'catalog_mapping': '',
-        },
         'countryCode': {
             'catalog_mapping': '',
         },
