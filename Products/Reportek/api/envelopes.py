@@ -61,6 +61,9 @@ class EnvelopesAPI(BrowserView):
         },
         'creator': {
             'catalog_mapping': '',
+        },
+        'hasUnknownQA': {
+            'catalog_mapping': '',
         }
     }
 
@@ -226,6 +229,27 @@ class EnvelopesAPI(BrowserView):
 
         return result
 
+    def has_unknown_qa(self, path):
+        """Return true if has a AutomaticQA feedback with UNKNOWN QA."""
+        fb_brains = self.get_env_children(path, 'Report Feedback')
+        aqa_brains = [brain for brain in fb_brains
+                      if brain.title.startswith('AutomaticQA')]
+        VALID_FB_STATUSES = [
+            'INFO',
+            'SKIPPED',
+            'OK',
+            'WARNING',
+            'ERROR',
+            'BLOCKER'
+        ]
+
+        for aqa in aqa_brains:
+            fb_status = aqa.feedback_status
+            if fb_status not in VALID_FB_STATUSES:
+                return 1
+
+        return 0
+
     def get_default_props(self, brain):
         """Return default envelope's properties."""
         years = brain.years
@@ -252,7 +276,8 @@ class EnvelopesAPI(BrowserView):
             'periodDescription': brain.partofyear,
             'isBlockedByQCError': self.is_env_blocked(wk_brains),
             'status': wk_brains[-1].activity_id,
-            'creator': creator or 'Not assigned'
+            'creator': creator or 'Not assigned',
+            'hasUnknownQA': self.has_unknown_qa(brain.getPath())
         }
 
     def get_envelopes(self):
