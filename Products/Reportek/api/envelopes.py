@@ -81,6 +81,20 @@ class EnvelopesAPI(BrowserView):
             except:
                 return dummycounty['iso']
 
+    def get_hostname(self):
+        """Extract hostname in virtual-host-safe manner."""
+
+        if "HTTP_X_FORWARDED_HOST" in self.request.environ:
+            # Virtual host
+            host = self.request.environ["HTTP_X_FORWARDED_HOST"]
+        elif "HTTP_HOST" in self.request.environ:
+            # Direct client request
+            host = self.request.environ["HTTP_HOST"]
+        else:
+            return None
+
+        return host
+
     def get_files(self, env_path=None):
         """Return envelope's files."""
         documents = []
@@ -144,7 +158,7 @@ class EnvelopesAPI(BrowserView):
                             'range': 'min:max'
                         }
                     if param == 'url':
-                        value = value.split(self.request.base)[-1]
+                        value = value.split(self.get_hostname())[-1]
                     if param in ['modifiedDateStart', 'modifiedDateEnd']:
                         val = query.get(c_idx)
                         upd_start = None
