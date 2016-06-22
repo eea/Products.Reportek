@@ -278,13 +278,8 @@ class EnvelopesAPI(BrowserView):
         years = brain.years
         startyear = years[0] if years else ''
         endyear = years[-1] if years and len(years) > 1 else ''
-        wk_brains = self.get_env_children(brain.getPath(), 'Workitem')
         obls = [obl.split('http://rod.eionet.europa.eu/obligations/')[-1]
                 for obl in brain.dataflow_uris]
-        actors = [wk.actor for wk in wk_brains if wk.activity_id == 'Draft']
-        creator = None
-        if actors:
-            creator = actors[-1]
         return {
             'url': brain.getURL(),
             'title': brain.title,
@@ -297,6 +292,17 @@ class EnvelopesAPI(BrowserView):
             'periodStartYear': startyear,
             'periodEndYear': endyear,
             'periodDescription': brain.partofyear,
+        }
+
+    def get_additional_props(self, brain):
+        """Return additional envelope properties."""
+        wk_brains = self.get_env_children(brain.getPath(), 'Workitem')
+        actors = [wk.actor for wk in wk_brains if wk.activity_id == 'Draft']
+        creator = None
+        if actors:
+            creator = actors[-1]
+
+        return {
             'isBlockedByQCError': self.is_env_blocked(wk_brains),
             'status': wk_brains[-1].activity_id,
             'creator': creator or 'Not assigned',
@@ -349,11 +355,18 @@ class EnvelopesAPI(BrowserView):
             for brain in brains:
                 default_props = self.get_default_props(brain)
                 envelope_data = {}
-                if self.is_invalid(default_props, additional_filters, fed_params):
-                    continue
-
                 if not fields:
                     fields = default_props.keys()
+                additional_p_fields = [param for param in fields
+                                       if param not in default_props]
+                additional_p_filters = [param for param in fed_params.keys()
+                                        if param not in default_props]
+                if additional_p_fields or additional_p_filters:
+                    additional_props = self.get_additional_props(brain)
+                    default_props.update(additional_props)
+
+                if self.is_invalid(default_props, additional_filters, fed_params):
+                    continue
 
                 for field in fields:
                     if field == 'files':
