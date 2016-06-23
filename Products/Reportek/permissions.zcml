@@ -17,4 +17,9 @@
     title="Reportek Security Overview"
   />
 
+  <permission
+    id="zope2.ReportekAPI"
+    title="Reportek API Access"
+  />
+
 </configure>

@@ -6,7 +6,7 @@
   <browser:page
     name="envelopes"
     for="Products.Reportek.interfaces.IReportekAPI"
-    permission="zope2.View"
+    permission="zope2.ReportekAPI"
     class=".envelopes.EnvelopesAPI"
   />
 
