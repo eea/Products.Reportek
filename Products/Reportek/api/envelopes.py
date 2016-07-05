@@ -248,12 +248,15 @@ class EnvelopesAPI(BrowserView):
             blocker = brain.blocker
             if not blocker and blocker is not False:
                 blocker = None
+            title, status = brain.title.split(', status: ')
+
             result.append({
                 'activity_id': brain.activity_id,
                 'blocker': blocker,
                 'id': brain.id,
-                'title': brain.title,
-                'modified': brain.bobobase_modification_time.HTML4()
+                'title': title,
+                'modified': brain.bobobase_modification_time.HTML4(),
+                'activity_status': status
             })
 
         return result
