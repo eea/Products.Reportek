@@ -1395,6 +1395,12 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     def has_permission(self, *args, **kwargs):
         return self.acquiredRolesAreUsedBy(*args, **kwargs)
 
+    @property
+    def Description(self):
+        if isinstance(self.descr, unicode):
+            return self.descr.encode('utf-8')
+
+        return self.descr
 
 # Initialize the class in order the security assertions be taken into account
 Globals.InitializeClass(Envelope)
