@@ -29,6 +29,12 @@ class EnvelopesAPI(BrowserView):
         'reportingDate': {
             'catalog_mapping': 'reportingdate',
         },
+        'reportingDateStart': {
+            'catalog_mapping': 'reportingdate',
+        },
+        'reportingDateEnd': {
+            'catalog_mapping': 'reportingdate',
+        },
         'modifiedDate': {
             'catalog_mapping': 'bobobase_modification_time',
         },
@@ -170,7 +176,7 @@ class EnvelopesAPI(BrowserView):
                         value = value.split(self.get_hostname())[-1]
                     if param == 'countryCode':
                         value = self.get_country_uri(value)
-                    if param in ['modifiedDateStart', 'modifiedDateEnd']:
+                    if param in ['modifiedDateStart', 'modifiedDateEnd', 'reportingDateStart', 'reportingDateEnd']:
                         val = query.get(c_idx)
                         upd_start = None
                         upd_end = None
@@ -324,6 +330,8 @@ class EnvelopesAPI(BrowserView):
             'countryCode',
             'isReleased',
             'reportingDate',
+            'reportingDateStart',
+            'reportingDateEnd',
             'obligations',
             'periodDescription',
             'modifiedDate',
