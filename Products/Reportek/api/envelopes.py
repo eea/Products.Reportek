@@ -62,6 +62,15 @@ class EnvelopesAPI(BrowserView):
         'status': {
             'catalog_mapping': '',
         },
+        'statusDate': {
+            'catalog_mapping': '',
+        },
+        'statusDateStart': {
+            'catalog_mapping': '',
+        },
+        'statusDateEnd': {
+            'catalog_mapping': '',
+        },
         'creator': {
             'catalog_mapping': '',
         },
@@ -233,12 +242,46 @@ class EnvelopesAPI(BrowserView):
                 return 0
             return 1
 
-    def is_invalid(self, default_props, additional_filters, fed_params):
-        """Return True if filter value is different from env value."""
+    def is_in_range(self, date_value, date_start, date_end):
+        if date_start and not date_end:
+            return date_start >= date_value
+        elif date_end and not date_start:
+            return date_end >= date_value
+        else:
+            return date_start <= date_value <= date_end
+
+    def is_filtered_out(self, default_props, additional_filters, fed_params):
+        """Return True if value is not compliant with user's filters."""
+        datev = str(default_props.get('statusDate'))
+        datev = datetime.datetime.strptime(datev[:10], '%Y-%m-%d')
+        sdatesrange = ('statusDateStart' in additional_filters or
+                       'statusDateEnd' in additional_filters)
+        if sdatesrange:
+            sds = None
+            sde = None
+            sds = fed_params.get('statusDateStart')
+            if sds:
+                sds = datetime.datetime.strptime(sds, '%Y-%m-%d')
+            sde = fed_params.get('statusDateEnd')
+            if sde:
+                sde = datetime.datetime.strptime(sde, '%Y-%m-%d')
+            elif sds:
+                sde = datetime.datetime.now()
+
+            if sds or sde:
+                if not self.is_in_range(datev, sds, sde):
+                    return True
+
         for afilter in additional_filters:
             afilter_v = fed_params.get(afilter)
-            if afilter_v and afilter_v != str(default_props.get(afilter)):
-                return True
+            if afilter_v and afilter not in ['statusDateStart', 'statusDateEnd']:
+                if afilter == 'statusDate':
+                    startd = datetime.datetime.strptime(afilter_v, '%Y-%m-%d')
+                    endd = startd + datetime.timedelta(days=1)
+                    if not self.is_in_range(datev, startd, endd):
+                        return True
+                elif afilter_v != str(default_props.get(afilter)):
+                    return True
 
     def get_envelope_history(self, path):
         """Return a the envelope's workflow history."""
@@ -314,6 +357,7 @@ class EnvelopesAPI(BrowserView):
         return {
             'isBlockedByQCError': self.is_env_blocked(wk_brains),
             'status': wk_brains[-1].activity_id,
+            'statusDate': wk_brains[-1].bobobase_modification_time.HTML4(),
             'creator': creator or 'Not assigned',
             'hasUnknownQC': self.has_unknown_qc(brain.getPath())
         }
@@ -376,7 +420,7 @@ class EnvelopesAPI(BrowserView):
                     additional_props = self.get_additional_props(brain)
                     default_props.update(additional_props)
 
-                if self.is_invalid(default_props, additional_filters, fed_params):
+                if self.is_filtered_out(default_props, additional_filters, fed_params):
                     continue
 
                 for field in fields:
