@@ -250,8 +250,8 @@ class EnvelopesAPI(BrowserView):
         else:
             return date_start <= date_value <= date_end
 
-    def is_invalid(self, default_props, additional_filters, fed_params):
-        """Return True if filter value is different from env value."""
+    def is_filtered_out(self, default_props, additional_filters, fed_params):
+        """Return True if value is not compliant with user's filters."""
         datev = str(default_props.get('statusDate'))
         datev = datetime.datetime.strptime(datev[:10], '%Y-%m-%d')
         sdatesrange = ('statusDateStart' in additional_filters or
@@ -420,7 +420,7 @@ class EnvelopesAPI(BrowserView):
                     additional_props = self.get_additional_props(brain)
                     default_props.update(additional_props)
 
-                if self.is_invalid(default_props, additional_filters, fed_params):
+                if self.is_filtered_out(default_props, additional_filters, fed_params):
                     continue
 
                 for field in fields:
