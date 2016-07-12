@@ -53,7 +53,7 @@ class EnvelopesAPI(BrowserView):
         'periodDescription': {
             'catalog_mapping': 'partofyear',
         },
-        'obligations[]': {
+        'obligations': {
             'catalog_mapping': '',
         },
         'isBlockedByQCError': {
@@ -167,7 +167,7 @@ class EnvelopesAPI(BrowserView):
 
         for param in valid_filters:
             if fed_params.get(param):
-                if param != 'obligations[]':
+                if param != 'obligations':
                     c_idx = catalog_field_map.get(param)
                     value = fed_params.get(param)
 
@@ -371,7 +371,7 @@ class EnvelopesAPI(BrowserView):
             'envelopes': results,
             'errors': errors,
         }
-        fields = self.request.form.get('fields[]')
+        fields = self.request.form.get('fields')
 
         valid_catalog_filters = [
             'url',
@@ -380,7 +380,7 @@ class EnvelopesAPI(BrowserView):
             'reportingDate',
             'reportingDateStart',
             'reportingDateEnd',
-            'obligations[]',
+            'obligations',
             'periodDescription',
             'modifiedDate',
             'modifiedDateStart',
