@@ -1,0 +1,223 @@
+swagger: '2.0'
+info:
+  version: 1.0.0
+  title: Envelopes
+  description: ''
+host: localhost:8081
+basePath: /api
+schemes:
+  - http
+  - https
+produces:
+  - application/json
+paths:
+  /envelopes:
+    get:
+      tags:
+        - envelopes
+      parameters:
+        - name: isReleased
+          in: query
+          description: Released(1) or Unreleased(0) envelopes to return
+          type: integer
+          minimum: 0
+          maximum: 1
+        - name: url
+          in: query
+          description: Url of the envelopes or part of to return
+          type: string
+        - name: countryCode
+          in: query
+          description: Country code in ISO "ALPHA-2 Code format for envelopes to return
+          type: string
+        - name: reportingDate
+          in: query
+          description: >-
+            Return envelopes with this reporting date. ISO8601(YYYY-MM-DD) date
+            format.
+          type: string
+        - name: reportingDateStart
+          in: query
+          description: >-
+            Return envelopes that have a reporting date in range of
+            reportingDateStart and reportingDateEnd or today if reportingDateEnd
+            is missing. ISO8601(YYYY-MM-DD) date format.
+          type: string
+        - name: reportingDateEnd
+          in: query
+          description: >-
+            Return envelopes that have a reporting date in range of
+            reportingDateStart and reportingDateEnd. If reportingDateStart is
+            missing, all envelopes with reporting date <= reportingDateEnd will
+            be returned. ISO8601(YYYY-MM-DD) date format.
+          type: string
+        - name: obligations
+          in: query
+          description: Return envelopes with one of the following obligations
+          type: array
+          items:
+            type: integer
+          collectionFormat: csv
+        - name: periodDescription
+          in: query
+          description: Return envelopes with specified periodDescription
+          type: string
+        - name: modifiedDate
+          in: query
+          description: >-
+            Return envelopes with specified modifiedDate. ISO8601(YYYY-MM-DD)
+            date format.
+          type: string
+        - name: modifiedDateStart
+          in: query
+          description: >-
+            Return envelopes that have a modified date in range of
+            modifiedDateStart and modifiedDateEnd or today if modifiedDateEnd is
+            missing. ISO8601(YYYY-MM-DD) date format.
+          type: string
+        - name: modifiedDateEnd
+          in: query
+          description: >-
+            Return envelopes that have a modified date in range of
+            modifiedDateStart and modifiedDateEnd. If modifiedDateStart is
+            missing, all envelopes with modified date <= modifiedDateEnd will be
+            returned. ISO8601(YYYY-MM-DD) date format.
+          type: string
+        - name: status
+          in: query
+          description: Return envelopes that have the following status
+          type: string
+        - name: statusDate
+          in: query
+          type: string
+          description: >-
+            Return envelopes that have a status with the following statusDate.
+            ISO8601(YYYY-MM-DD) date format.
+        - name: fields
+          in: query
+          description: Return envelopes with only the fields specified
+          type: array
+          items:
+            type: string
+            enum:
+              - files
+              - url
+              - title
+              - description
+              - countryCode
+              - isReleased
+              - reportingDate
+              - modifiedDate
+              - periodStartYear
+              - periodEndYear
+              - periodDescription
+              - obligations
+              - isBlockedByQCError
+              - status
+              - statusDate
+              - creator
+              - hasUnknownQC
+              - history
+          collectionFormat: csv
+      responses:
+        '200':
+          description: List released or unreleased envelopes
+          schema:
+            type: object
+            properties:
+              envelopes:
+                type: array
+                items:
+                  $ref: '#/definitions/Envelope'
+              errors:
+                type: array
+                items:
+                  $ref: '#/definitions/Error'
+definitions:
+  Envelope:
+    type: object
+    properties:
+      title:
+        type: string
+      description:
+        type: string
+      obligations:
+        type: array
+        items:
+          type: integer
+      periodStartYear:
+        type: string
+      periodEndYear:
+        type: string
+      countryCode:
+        type: string
+      reportingDate:
+        type: string
+      url:
+        type: string
+      modifiedDate:
+        type: string
+      periodDescription:
+        type: string
+      isReleased:
+        type: integer
+  ExtendedEnvelopeModel:
+    allOf:
+    - $ref: '#/definitions/Envelope'
+    - type: object
+      properties:
+        isBlockedByQCError:
+          type: integer
+        status:
+          type: string
+        statusDate:
+          type: string
+        creator:
+          type: string
+        files:
+          type: array
+          items:
+            $ref: '#/definitions/File'
+        history:
+          type: array
+          items:
+            $ref: '#/definitions/History'
+  File:
+    type: object
+    properties:
+        contentType:
+          type: string
+        title:
+          type: string
+        url:
+          type: string
+        uploadDate:
+          type: string
+        schemaURL:
+          type: string
+        archived_files:
+          type: array
+          items:
+            type: string
+  History:
+    type: object
+    properties:
+      activity_id:
+        type: string
+      activity_status:
+        type: string
+      blocker:
+        type: boolean
+      title:
+        type: string
+      modified:
+        type: string
+      id:
+        type: string
+  Error:
+    type: object
+    properties:
+      title:
+        type: string
+      description:
+        type: string
