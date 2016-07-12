@@ -147,7 +147,7 @@ class EnvelopesAPI(BrowserView):
                         'contentType': doc.content_type,
                         'schemaURL': doc.xml_schema_location,
                         'uploadDate': doc.upload_time().HTML4(),
-                        'archived_files': archived_files or None
+                        'archived_files': archived_files
                     }
 
                     documents.append(doc_properties)
