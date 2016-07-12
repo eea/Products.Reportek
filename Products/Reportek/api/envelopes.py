@@ -437,4 +437,5 @@ class EnvelopesAPI(BrowserView):
 
                 if envelope_data:
                     results.append(envelope_data)
+        self.request.RESPONSE.setHeader("Content-Type", "application/json")
         return json.dumps(data, indent=4)
