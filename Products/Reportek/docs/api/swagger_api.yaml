@@ -227,42 +227,43 @@ paths:
                 items:
                   $ref: '#/definitions/Error'
           examples:
-            errors:
-              - title: Error title
-                description: This is a generic error description
-            envelopes:
-              - files:
-                  - title: My Envelope file
-                    archived_files:
-                      - File1.xml
-                      - File2.xml
-                    contentType: application/xml
-                    uploadDate: 2013-04-12T23:20:50.52Z
-                    url: http://foo/bar/my_envelope/my_envelope_file.xml
-                    schemaURL: http://foo/bar/schema.xsd
-                periodEndYear: 2014
-                status: Release
-                countryCode: RO
-                statusDate: 2013-04-13T01:20:50.53Z
-                obligations:
-                  - '701'
-                isBlockedByQCError: 0
-                url: http://foo/bar/my_envelope
-                modifiedDate: 2013-04-13T01:20:50.53Z
-                creator: foo
-                history:
-                  - id: 0
-                    title: Release
-                    activity_id: Release
-                    activity_status: complete
-                    blocker: false
-                    modified: 2013-04-13T01:20:50.53Z
-                isReleased: 1
-                title: My Envelope
-                reportingDate: 2013-04-13T01:20:50.53Z
-                periodStartYear: 2013
-                description: A description for my envelope
-                periodDescription: Whole Year
+            'application/json':
+              errors:
+                - title: Error title
+                  description: This is a generic error description
+              envelopes:
+                - files:
+                    - title: My Envelope file
+                      archived_files:
+                        - File1.xml
+                        - File2.xml
+                      contentType: application/xml
+                      uploadDate: 2013-04-12T23:20:50.52Z
+                      url: http://foo/bar/my_envelope/my_envelope_file.xml
+                      schemaURL: http://foo/bar/schema.xsd
+                  periodEndYear: 2014
+                  status: Release
+                  countryCode: RO
+                  statusDate: 2013-04-13T01:20:50.53Z
+                  obligations:
+                    - '701'
+                  isBlockedByQCError: 0
+                  url: http://foo/bar/my_envelope
+                  modifiedDate: 2013-04-13T01:20:50.53Z
+                  creator: foo
+                  history:
+                    - id: 0
+                      title: Release
+                      activity_id: Release
+                      activity_status: complete
+                      blocker: false
+                      modified: 2013-04-13T01:20:50.53Z
+                  isReleased: 1
+                  title: My Envelope
+                  reportingDate: 2013-04-13T01:20:50.53Z
+                  periodStartYear: 2013
+                  description: A description for my envelope
+                  periodDescription: Whole Year
 definitions:
   Envelope:
     type: object
