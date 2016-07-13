@@ -22,6 +22,9 @@ paths:
           type: integer
           minimum: 0
           maximum: 1
+          enum:
+            - 0
+            - 1
         - name: url
           in: query
           description: Url of the envelopes or part of to return
@@ -30,27 +33,99 @@ paths:
           in: query
           description: Country code in ISO "ALPHA-2 Code format for envelopes to return
           type: string
+          enum:
+            - AL
+            - DZ
+            - AD
+            - AM
+            - AT
+            - AZ
+            - BY
+            - BE
+            - BA
+            - BG
+            - HR
+            - CY
+            - CZ
+            - DK
+            - EG
+            - EE
+            - EU
+            - FI
+            - FR
+            - GE
+            - DE
+            - GI
+            - GR
+            - GL
+            - HU
+            - IS
+            - IE
+            - IL
+            - IT
+            - JO
+            - KZ
+            - XK
+            - KG
+            - LV
+            - LB
+            - LY
+            - LI
+            - LT
+            - LU
+            - MK
+            - MT
+            - MD
+            - MC
+            - ME
+            - MA
+            - NL
+            - NO
+            - PS
+            - PL
+            - PT
+            - RO
+            - RU
+            - SM
+            - RS
+            - SK
+            - SI
+            - ES
+            - SE
+            - CH
+            - SY
+            - TJ
+            - TN
+            - TR
+            - TM
+            - UA
+            - GB
+            - UZ
+            - VA
         - name: reportingDate
           in: query
           description: >-
-            Return envelopes with this reporting date. ISO8601(YYYY-MM-DD) date
+            Return envelopes with this reporting date.
             format.
           type: string
+          format: date
         - name: reportingDateStart
           in: query
           description: >-
             Return envelopes that have a reporting date in range of
             reportingDateStart and reportingDateEnd or today if reportingDateEnd
-            is missing. ISO8601(YYYY-MM-DD) date format.
+            is missing.
           type: string
+          format: date
         - name: reportingDateEnd
           in: query
           description: >-
             Return envelopes that have a reporting date in range of
             reportingDateStart and reportingDateEnd. If reportingDateStart is
             missing, all envelopes with reporting date <= reportingDateEnd will
-            be returned. ISO8601(YYYY-MM-DD) date format.
+            be returned.
           type: string
+          format: date
         - name: obligations
           in: query
           description: Return envelopes with one of the following obligations
@@ -62,27 +137,50 @@ paths:
           in: query
           description: Return envelopes with specified periodDescription
           type: string
+          enum:
+            - Whole Year
+            - First Half
+            - Second Half
+            - First Quarter
+            - Second Quarter
+            - Third Quarter
+            - Fourth Quarter
+            - January
+            - February
+            - March
+            - April
+            - May
+            - June
+            - July
+            - August
+            - September
+            - October
+            - November
+            - December
         - name: modifiedDate
           in: query
           description: >-
-            Return envelopes with specified modifiedDate. ISO8601(YYYY-MM-DD)
+            Return envelopes with specified modifiedDate.
             date format.
           type: string
+          format: date
         - name: modifiedDateStart
           in: query
           description: >-
             Return envelopes that have a modified date in range of
             modifiedDateStart and modifiedDateEnd or today if modifiedDateEnd is
-            missing. ISO8601(YYYY-MM-DD) date format.
+            missing.
           type: string
+          format: date
         - name: modifiedDateEnd
           in: query
           description: >-
             Return envelopes that have a modified date in range of
             modifiedDateStart and modifiedDateEnd. If modifiedDateStart is
             missing, all envelopes with modified date <= modifiedDateEnd will be
-            returned. ISO8601(YYYY-MM-DD) date format.
+            returned.
           type: string
+          format: date
         - name: status
           in: query
           description: Return envelopes that have the following status
@@ -90,9 +188,9 @@ paths:
         - name: statusDate
           in: query
           type: string
+          format: date
           description: >-
             Return envelopes that have a status with the following statusDate.
-            ISO8601(YYYY-MM-DD) date format.
         - name: fields
           in: query
           description: Return envelopes with only the fields specified
@@ -139,64 +237,91 @@ definitions:
     properties:
       title:
         type: string
+        description: The envelope's title.
       description:
         type: string
+        description: The envelope's description.
       obligations:
         type: array
+        description: The obligations for which the envelope has been created.
         items:
           type: integer
       periodStartYear:
+        description: The starting year of the period for which the envelope has been created.
         type: string
       periodEndYear:
         type: string
+        description: The ending year of the period for which the envelope has been created.
       countryCode:
         type: string
+        description: The envelope's country code (ISO Alpha-2).
       reportingDate:
         type: string
+        description: The envelope's reporting date.
+        format: dateTime
       url:
         type: string
+        description: The envelope's URL.
       modifiedDate:
         type: string
+        description: The envelope's modification date.
+        format: dateTime
       periodDescription:
-        type: string
+        $ref: '#/definitions/PeriodDescription'
       isReleased:
         type: integer
-  ExtendedEnvelopeModel:
-    allOf:
-    - $ref: '#/definitions/Envelope'
-    - type: object
-      properties:
-        isBlockedByQCError:
-          type: integer
-        status:
-          type: string
-        statusDate:
-          type: string
-        creator:
-          type: string
-        files:
-          type: array
-          items:
-            $ref: '#/definitions/File'
-        history:
-          type: array
-          items:
-            $ref: '#/definitions/History'
+        description: The envelope's release status
+        enum:
+          - 0
+          - 1
+      isBlockedByQCError:
+        type: integer
+        description: Is the envelope blocked by a QC Error.
+        enum:
+          - 0
+          - 1
+      status:
+        type: string
+        description: The workflow status of the envelope.
+      statusDate:
+        type: string
+        format: dateTime
+        description: The date the workflow status has been set.
+      creator:
+        type: string
+        description: The envelope's creator.
+      files:
+        type: array
+        description: The list of files attached to the envelope.
+        items:
+          $ref: '#/definitions/File'
+      history:
+        type: array
+        description: The workflow history of the envelope.
+        items:
+          $ref: '#/definitions/History'
   File:
     type: object
     properties:
         contentType:
           type: string
+          description: The file's content type.
         title:
           type: string
+          description: The file's title.
         url:
           type: string
+          description: The file's URL.
         uploadDate:
           type: string
+          description: The file's upload date.
+          format: dateTime
         schemaURL:
           type: string
+          description: The URL of the file's schema.
         archived_files:
           type: array
+          description: The list of files that have been archived. Available only if there is an archive attached to the envelope and if it can be opened.
           items:
             type: string
   History:
@@ -204,20 +329,52 @@ definitions:
     properties:
       activity_id:
         type: string
+        description: The id of the activity/workflow.
       activity_status:
         type: string
+        description: The status of the activity/workflow.
       blocker:
         type: boolean
+        description: The blocker status of the activity/workflow.
       title:
         type: string
+        description: The title of the activity/workflow.
       modified:
         type: string
+        format: dateTime
+        description: The modification date of the activity/workflow.
       id:
         type: string
+        description: The id of the activity/workflow.
   Error:
     type: object
     properties:
       title:
         type: string
+        description: The error's title.
       description:
         type: string
+        description: The error's description
+  PeriodDescription:
+    type: string
+    description: The envelope's reporting period description.
+    enum:
+      - Whole Year
+      - First Half
+      - Second Half
+      - First Quarter
+      - Second Quarter
+      - Third Quarter
+      - Fourth Quarter
+      - January
+      - February
+      - March
+      - April
+      - May
+      - June
+      - July
+      - August
+      - September
+      - October
+      - November
+      - December
