@@ -18,7 +18,7 @@ class EnvelopesAPI(BrowserView):
             'catalog_mapping': 'title',
         },
         'description': {
-            'catalog_mapping': 'description',
+            'catalog_mapping': 'Description',
         },
         'countryCode': {
             'catalog_mapping': 'country',
@@ -101,7 +101,7 @@ class EnvelopesAPI(BrowserView):
         engine = getattr(self.context, ENGINE_ID)
         localities_table = engine.localities_table()
         country_uri = [loc.get('uri') for loc in localities_table
-                       if country_code == loc.get('iso')]
+                       if country_code.upper() == loc.get('iso')]
         if country_uri:
             return country_uri[0]
 
@@ -281,7 +281,7 @@ class EnvelopesAPI(BrowserView):
                     endd = startd + datetime.timedelta(days=1)
                     if not self.is_in_range(datev, startd, endd):
                         return True
-                elif afilter_v != str(default_props.get(afilter)):
+                elif afilter_v.upper() != str(default_props.get(afilter)).upper():
                     return True
 
     def get_envelope_history(self, path):
@@ -384,7 +384,7 @@ class EnvelopesAPI(BrowserView):
             'periodDescription',
             'modifiedDate',
             'modifiedDateStart',
-            'modifiedDateEnd'
+            'modifiedDateEnd',
         ]
 
         fed_params = {p: self.request.form.get(p)

@@ -250,7 +250,7 @@ def create_reportek_indexes(catalog):
     add_index('years', catalog, 'KeywordIndex', meta=True)
     add_index('local_unique_roles', catalog, 'KeywordIndex')
     add_index('local_defined_users', catalog, 'KeywordIndex', meta=True)
-    add_index('Description', catalog, 'FieldIndex', meta=True)
+    add_index('Description', catalog, 'ZCTextIndex', meta=True)
     add_index('blocker', catalog, 'FieldIndex', meta=True)
     add_index('feedback_status', catalog, 'FieldIndex', meta=True)
     if 'local_defined_roles' not in catalog.schema():
