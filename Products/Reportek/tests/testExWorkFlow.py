@@ -30,7 +30,7 @@ class rolesTestCase(BaseTest, ConfigureReportek):
         # Create a Process Instance of the Process definition mentioned above
         self.coll = getattr(self.app, 'collection')
         self.coll.manage_addProduct['Reportek'].manage_addEnvelope('title',
-            'descr','2003','2004', 'Whole Year', 'entire country',REQUEST=self.app.REQUEST)
+            'descr','2003','2004', 'WHOLE_YEAR', 'entire country',REQUEST=self.app.REQUEST)
         self.of = getattr(self.app, 'WorkflowEngine')
 
     def testEditRolePush(self):
@@ -99,7 +99,7 @@ class zopeEnvTestCase(BaseTest, ConfigureReportek):
         self.createStandardCollection()
         self.coll = getattr(self.app, 'collection')
         self.coll.manage_addProduct['Reportek'].manage_addEnvelope('title',
-            'descr','2003','2004', 'Whole Year', 'entire country',REQUEST=self.app.REQUEST)
+            'descr','2003','2004', 'WHOLE_YEAR', 'entire country',REQUEST=self.app.REQUEST)
         self.of = getattr(self.app, 'WorkflowEngine')
         self.pd = getattr(self.of, 'begin_end')
 
@@ -132,7 +132,7 @@ class zopeEnvCopySupport(BaseTest, ConfigureReportek):
         self.createStandardCollection()
         self.coll = getattr(self.app, 'collection')
         self.coll.manage_addProduct['Reportek'].manage_addEnvelope('title',
-            'descr','2003','2004', 'Whole Year', 'entire country',REQUEST=self.app.REQUEST)
+            'descr','2003','2004', 'WHOLE_YEAR', 'entire country',REQUEST=self.app.REQUEST)
         self.of = getattr(self.app, 'WorkflowEngine')
         self.pd = getattr(self.of, 'begin_end')
         loginUnrestricted()

@@ -75,28 +75,28 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
         self.assertNotEqual(self.envelope, None)
 
     def test_endDateMultipleYears(self):
-        self.helpCreateEnvelope('2003', '2004', 'Whole Year')
+        self.helpCreateEnvelope('2003', '2004', 'WHOLE_YEAR')
         s = self.envelope.getStartDate()
         self.assertEqual(s.strftime('%Y-%m-%d'),'2003-01-01')
         r = self.envelope.getEndDate()
         self.assertEqual(r.strftime('%Y-%m-%d'),'2004-12-31')
 
     def test_endDateFirstHalf(self):
-        self.helpCreateEnvelope('2003', '', 'First Half')
+        self.helpCreateEnvelope('2003', '', 'FIRST_HALF')
         s = self.envelope.getStartDate()
         self.assertEqual(s.strftime('%Y-%m-%d'),'2003-01-01')
         r = self.envelope.getEndDate()
         self.assertEqual(r.strftime('%Y-%m-%d'),'2003-06-30')
 
     def test_endDateFirstQuarter(self):
-        self.helpCreateEnvelope('2009', '', 'First Quarter')
+        self.helpCreateEnvelope('2009', '', 'FIRST_QUARTER')
         s = self.envelope.getStartDate()
         self.assertEqual(s.strftime('%Y-%m-%d'),'2009-01-01')
         r = self.envelope.getEndDate()
         self.assertEqual(r.strftime('%Y-%m-%d'),'2009-03-31')
 
     def test_endDateThirdQuarter(self):
-        self.helpCreateEnvelope('2009', '', 'Third Quarter')
+        self.helpCreateEnvelope('2009', '', 'THIRD_QUARTER')
         s = self.envelope.getStartDate()
         self.assertEqual(s.strftime('%Y-%m-%d'),'2009-07-01')
         r = self.envelope.getEndDate()
@@ -104,7 +104,7 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
 
     @patch('Products.Reportek.Envelope.transaction.commit')
     def test_endDateMultipleYearsQuarter(self, mock_commit):
-        self.helpCreateEnvelope('2004', '2009', 'First Quarter')
+        self.helpCreateEnvelope('2004', '2009', 'FIRST_QUARTER')
         s = self.envelope.getStartDate()
         self.assertEqual(s.strftime('%Y-%m-%d'),'2004-01-01')
         r = self.envelope.getEndDate()
@@ -116,7 +116,7 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
 
     @patch('Products.Reportek.Envelope.transaction.commit')
     def test_DateNoDates(self, mock_commit):
-        self.helpCreateEnvelope('', '', 'First Quarter')
+        self.helpCreateEnvelope('', '', 'FIRST_QUARTER')
         s = self.envelope.getStartDate()
         self.assertEqual(s, None)
         r = self.envelope.getEndDate()

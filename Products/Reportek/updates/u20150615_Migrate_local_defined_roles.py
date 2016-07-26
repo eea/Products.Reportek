@@ -5,10 +5,17 @@
 
 from Products.Reportek.updates import MigrationBase
 from Products.Reportek.catalog import catalog_rebuild
-
+from Products.Reportek.config import DEPLOYMENT_CDR
+from Products.Reportek.config import DEPLOYMENT_MDR
+from Products.Reportek.config import DEPLOYMENT_BDR
 import transaction
 
 VERSION = 2
+APPLIES_TO = [
+    DEPLOYMENT_BDR,
+    DEPLOYMENT_CDR,
+    DEPLOYMENT_MDR
+]
 
 
 @MigrationBase.checkMigration(__name__)

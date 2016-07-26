@@ -79,7 +79,7 @@ class ReportekEngineTest(BaseTest, ConfigureReportek):
                             authUser='TestUser',
                             year=2012,
                             endyear=2013,
-                            partofyear='January',
+                            partofyear='JANUARY',
                             country='http://example.com/country/1',
                             locality='TestLocality',
                             descr='TestDescription')
@@ -145,7 +145,7 @@ class SearchResultsTest(BaseTest, ConfigureReportek):
                             authUser='TestUser',
                             year=2012,
                             endyear=2013,
-                            partofyear='January',
+                            partofyear='JANUARY',
                             country='http://example.com/country/1',
                             locality='TestLocality',
                             descr='TestDescription')
@@ -173,7 +173,7 @@ class SearchResultsTest(BaseTest, ConfigureReportek):
                             authUser='TestUser',
                             year=2012,
                             endyear=2013,
-                            partofyear='June',
+                            partofyear='JUNE',
                             country='http://example.com/country/2',
                             locality='TestLocality',
                             descr='TestDescription')

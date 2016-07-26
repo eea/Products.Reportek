@@ -39,6 +39,7 @@ from AccessControl.Permissions import view_management_screens
 import AccessControl.Role
 from AccessControl import getSecurityManager, ClassSecurityInfo, Unauthorized
 from Products.Reportek import permission_manage_properties_envelopes
+from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION
 from Products.PythonScripts.standard import url_quote
 from zExceptions import Forbidden
 from DateTime import DateTime
@@ -50,6 +51,11 @@ import xlwt
 logger = logging.getLogger("Reportek")
 
 # Product specific imports
+from Products.Reportek import RepUtils
+from Products.Reportek import Document
+from Products.Reportek import Hyperlink
+from Products.Reportek import Feedback
+from Products.Reportek.BaseDelivery import BaseDelivery
 import RepUtils
 import Document
 import Hyperlink
@@ -114,10 +120,10 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
         else:
             raise ValueError('Cannot create envelope which relates to a future year')
 
-    year_parts = ['Whole Year', 'First Half', 'Second Half',
-                  'First Quarter', 'Second Quarter', 'Third Quarter',
-                  'Fourth Quarter']
-    months = ["January","February","March","April","May","June","July","August","September","October","November","December"]
+    year_parts = ['WHOLE_YEAR', 'FIRST_HALF', 'SECOND_HALF',
+                  'FIRST_QUARTER', 'SECOND_QUARTER', 'THIRD_QUARTER',
+                  'FOURTH_QUARTER']
+    months = ["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"]
     if not partofyear in (year_parts + months):
         raise InvalidPartOfYear
 
@@ -157,7 +163,7 @@ def get_first_accept(req_dict):
     firstseg = segs[0].split(';')
     return firstseg[0].strip()
 
-class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDataflows):
+class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDataflows, BaseDelivery):
     """ Envelopes are basic container objects that provide a standard
         interface for object management. Envelope objects also implement
         a management interface
@@ -196,14 +202,9 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     def __init__(self, process, title, authUser, year, endyear, partofyear, country, locality, descr):
         """ Envelope constructor
         """
-        self.year = year
-        self.endyear = endyear
-        self._check_year_range()
-        self.title = title
-        self.partofyear = partofyear
-        self.country = country
-        self.locality = locality
-        self.descr = descr
+        BaseDelivery.__init__(self, title=title, year=year, endyear=endyear,
+                              partofyear=partofyear, country=country,
+                              locality=locality, descr=descr)
         self.reportingdate = DateTime()
         self.released = 0
         # workflow part
@@ -478,54 +479,54 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         """
         if self.year:
             l_year = str(self.year)
-            if self.partofyear in ['', 'Whole Year', 'First Half', 'First Quarter', 'January']:
+            if self.partofyear in ['', 'WHOLE_YEAR', 'FIRST_HALF', 'FIRST_QUARTER', 'JANUARY']:
                 return DateTime(l_year + '/01/01')
-            elif self.partofyear == 'February':
+            elif self.partofyear == 'FEBRUARY':
                 return DateTime(l_year + '/02/01')
-            elif self.partofyear == 'March':
+            elif self.partofyear == 'MARCH':
                 return DateTime(l_year + '/03/01')
-            elif self.partofyear in ['April', 'Second Quarter']:
+            elif self.partofyear in ['APRIL', 'SECOND_QUARTER']:
                 return DateTime(l_year + '/04/01')
-            elif self.partofyear == 'May':
+            elif self.partofyear == 'MAY':
                 return DateTime(l_year + '/05/01')
-            elif self.partofyear == 'June':
+            elif self.partofyear == 'JUNE':
                 return DateTime(l_year + '/06/01')
-            elif self.partofyear in ['July', 'Third Quarter', 'Second Half']:
+            elif self.partofyear in ['JULY', 'THIRD_QUARTER', 'SECOND_HALF']:
                 return DateTime(l_year + '/07/01')
-            elif self.partofyear == 'August':
+            elif self.partofyear == 'AUGUST':
                 return DateTime(l_year + '/08/01')
-            elif self.partofyear == 'September':
+            elif self.partofyear == 'SEPTEMBER':
                 return DateTime(l_year + '/09/01')
-            elif self.partofyear in ['October', 'Fourth Quarter']:
+            elif self.partofyear in ['OCTOBER', 'FOURTH_QUARTER']:
                 return DateTime(l_year + '/10/01')
-            elif self.partofyear == 'November':
+            elif self.partofyear == 'NOVEMBER':
                 return DateTime(l_year + '/11/01')
-            elif self.partofyear == 'December':
+            elif self.partofyear == 'DECEMBER':
                 return DateTime(l_year + '/12/01')
         return None
 
     def getEndDate(self):
         endmonths = {
          '': '12-31',
-         'Whole Year': '12/31',
-         'First Half': '06/30',
-         'Second Half': '12/31',
-         'First Quarter': '03/31',
-         'Second Quarter': '06/30',
-         'Third Quarter': '09/30',
-         'Fourth Quarter': '12/31',
-         'January': '01/31',
-         'February': '02/28', # Fix leap year?
-         'March': '03/31',
-         'April': '04/30',
-         'May': '05/31',
-         'June': '06/30',
-         'July': '07/31',
-         'August': '08/31',
-         'September': '09/30',
-         'October': '10/31',
-         'November': '11/30',
-         'December': '12/31'
+         'WHOLE_YEAR': '12/31',
+         'FIRST_HALF': '06/30',
+         'SECOND_HALF': '12/31',
+         'FIRST_QUARTER': '03/31',
+         'SECOND_QUARTER': '06/30',
+         'THIRD_QUARTER': '09/30',
+         'FOURTH_QUARTER': '12/31',
+         'JANUARY': '01/31',
+         'FEBRUARY': '02/28',  # Fix leap year?
+         'MARCH': '03/31',
+         'APRIL': '04/30',
+         'MAY': '05/31',
+         'JUNE': '06/30',
+         'JULY': '07/31',
+         'AUGUST': '08/31',
+         'SEPTEMBER': '09/30',
+         'OCTOBER': '10/31',
+         'NOVEMBER': '11/30',
+         'DECEMBER': '12/31'
         }
         if self.endyear != '':
             try:
@@ -553,14 +554,14 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                     return startDate
             except:
                 pass
-        if self.partofyear in ['', 'Whole Year']:
+        if self.partofyear in ['', 'WHOLE_YEAR']:
             return startDate + '/P1Y'
-        if self.partofyear in ['First Half', 'Second Half']:
+        if self.partofyear in ['FIRST_HALF', 'SECOND_HALF']:
             return startDate + '/P6M'
-        if self.partofyear in ['First Quarter', 'Second Quarter', 'Third Quarter', 'Fourth Quarter']:
+        if self.partofyear in ['FIRST_QUARTER', 'SECOND_QUARTER', 'THIRD_QUARTER', 'FOURTH_QUARTER']:
             return startDate + '/P3M'
-        if self.partofyear in ['January', 'February', 'March', 'April',
-          'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December' ]:
+        if self.partofyear in ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL',
+          'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER' ]:
             return startDate + '/P1M'
         return startDate
 
@@ -1269,6 +1270,10 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
         res.append('</rdf:RDF>')
         return '\n'.join(res)
+
+    @property
+    def friendlypartofyear(self):
+        return REPORTING_PERIOD_DESCRIPTION.get(self.partofyear)
 
     security.declareProtected('View', 'get_files_info')
     def get_files_info(self):

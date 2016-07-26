@@ -329,7 +329,7 @@ def simple_addEnvelope(parent, *args, **kwargs):
                kwargs.get('descr', ''),
                kwargs.get('year', '2011'),
                kwargs.get('endyear', '2012'),
-               kwargs.get('partofyear', 'Whole Year'),
+               kwargs.get('partofyear', 'WHOLE_YEAR'),
                kwargs.get('locality'),
                kwargs.get('REQUEST', None),
                kwargs.get('previous_delivery','') ]

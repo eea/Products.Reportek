@@ -42,35 +42,36 @@ from DateTime import DateTime
 # Product imports
 import RepUtils
 from CountriesManager import CountriesManager
+from Products.Reportek.BaseDelivery import BaseDelivery
 import constants
 
 manage_addReferralForm = PageTemplateFile('zpt/referral/add', globals())
 
-def manage_addReferral(self, title, descr, referral_url,
-            year, endyear, partofyear, country, locality, dataflow_uris,
-            REQUEST=None):
+
+def manage_addReferral(self, title, descr, referral_url, year, endyear,
+                       partofyear, country, locality, dataflow_uris,
+                       REQUEST=None):
     """ Add a new Referral object with id *id*. """
     id = RepUtils.generate_id("ref")
-    ob = Referral()
+    try:
+        year = int(year)
+    except:
+        year = ''
+    try:
+        endyear = int(endyear)
+    except:
+        endyear = ''
+
+    ob = Referral(title, descr, referral_url, year, endyear, partofyear,
+                  country, locality, dataflow_uris)
     ob.id = id
-    ob.title = title
-    ob.referral_url = referral_url
-    try: ob.year = int(year)
-    except: ob.year = ''
-    try: ob.endyear = int(endyear)
-    except: ob.endyear = ''
-    ob.partofyear = partofyear
-    ob.country = country
-    ob.locality = locality
-    ob.descr = descr
     ob.released = 1
-    ob.dataflow_uris = dataflow_uris
     self._setObject(id, ob)
     ob=self._getOb(id)
     return self.manage_main(self, REQUEST, update_menu=1)
 
 
-class Referral(CatalogAware, SimpleItem, CountriesManager):
+class Referral(CatalogAware, SimpleItem, CountriesManager, BaseDelivery):
     """ Referrals are basic objects that provide a standard
         interface for object management. Referral objects also implement
         a management interface and can have arbitrary properties.
@@ -92,6 +93,15 @@ class Referral(CatalogAware, SimpleItem, CountriesManager):
         AccessControl.Role.RoleManager.manage_options+
         SimpleItem.manage_options
         )
+
+    def __init__(self, title, descr, referral_url, year, endyear, partofyear,
+                 country, locality, dataflow_uris):
+        """Referral constructor."""
+        BaseDelivery.__init__(self, title=title, year=year, endyear=endyear,
+                              partofyear=partofyear, country=country,
+                              locality=locality, descr=descr)
+        self.referral_url = referral_url
+        self.dataflow_uris = dataflow_uris
 
     def get_reportingdate(self):
         return self.bobobase_modification_time()

@@ -1,0 +1,21 @@
+REPORTING_PERIOD_DESCRIPTION = {
+    "WHOLE_YEAR": "Whole Year",
+    "FIRST_HALF": "First Half",
+    "SECOND_HALF": "Second Half",
+    "FIRST_QUARTER": "First Quarter",
+    "SECOND_QUARTER": "Second Quarter",
+    "THIRD_QUARTER": "Third Quarter",
+    "FOURTH_QUARTER": "Fourth Quarter",
+    "JANUARY": "January",
+    "FEBRUARY": "February",
+    "MARCH": "March",
+    "APRIL": "April",
+    "MAY": "May",
+    "JUNE": "June",
+    "JULY": "July",
+    "AUGUST": "August",
+    "SEPTEMBER": "September",
+    "OCTOBER": "October",
+    "NOVEMBER": "November",
+    "DECEMBER": "December"
+}

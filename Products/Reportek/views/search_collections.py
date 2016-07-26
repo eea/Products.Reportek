@@ -23,4 +23,4 @@ class SearchCollections(BaseAdmin):
             obj = self.context.unrestrictedTraverse(collection)
             obj.manage_addProduct['Reportek'].manage_addEnvelope(
                 title, descr='', year=year,
-                endyear='', partofyear='Whole Year', locality='')
+                endyear='', partofyear='WHOLE_YEAR', locality='')

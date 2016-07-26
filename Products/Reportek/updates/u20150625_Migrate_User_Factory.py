@@ -6,13 +6,19 @@
 from Products.Reportek.updates import MigrationBase
 from Products.Reportek.ReportekUserFactoryPlugin import addReportekUserFactoryPlugin
 from Products.Reportek.config import REPORTEK_DEPLOYMENT
-from Products.Reportek.config import DEPLOYMENT_CDR as CDR
-from Products.Reportek.config import DEPLOYMENT_MDR as MDR
+from Products.Reportek.config import DEPLOYMENT_CDR
+from Products.Reportek.config import DEPLOYMENT_MDR
+from Products.Reportek.config import DEPLOYMENT_BDR
 
 from Products.PluggableAuthService.interfaces.plugins import IUserFactoryPlugin
 import transaction
 
 VERSION = 3
+APPLIES_TO = [
+    DEPLOYMENT_BDR,
+    DEPLOYMENT_CDR,
+    DEPLOYMENT_MDR
+]
 
 
 @MigrationBase.checkMigration(__name__)
@@ -30,11 +36,11 @@ def update(app, skipMigrationCheck=False):
         addReportekUserFactoryPlugin(acl_users, 'reportek-user-factory')
         # Now we need to activate it for CDR and BDR
         plugins = acl_users._getOb('plugins')
-        if REPORTEK_DEPLOYMENT != MDR:
+        if REPORTEK_DEPLOYMENT != DEPLOYMENT_MDR:
             plugins.activatePlugin(IUserFactoryPlugin, 'reportek-user-factory')
 
         # Migrate local users for CDR
-        if REPORTEK_DEPLOYMENT == CDR:
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
             ldapplugins = acl_users.objectIds('LDAP Multi Plugin')
 
             for plugin_id in ldapplugins:

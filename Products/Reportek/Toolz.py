@@ -27,12 +27,14 @@ from DateTime import DateTime
 from plone.memoize import ram
 from Products.PythonScripts.standard import html_quote
 from Products.Reportek import constants
+from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION
 from time import time
 import RepUtils
 
 
 class Toolz:
     """ Useful functions """
+    reporting_year_labels = REPORTING_PERIOD_DESCRIPTION
 
     def __valideIssueProperty(self, param):
         """Check if exists a property with given value"""
@@ -113,26 +115,28 @@ class Toolz:
         return sorted(r.keys(), reverse=desc), dict(r)
 
     def partofyear_table(self):
-        return ['Whole Year',
-            'First Half',
-            'Second Half',
-            'First Quarter',
-            'Second Quarter',
-            'Third Quarter',
-            'Fourth Quarter',
-            'January',
-            'February',
-            'March',
-            'April',
-            'May',
-            'June',
-            'July',
-            'August',
-            'September',
-            'October',
-            'November',
-            'December'
+        ordered_keys = [
+            "WHOLE_YEAR",
+            "FIRST_HALF",
+            "SECOND_HALF",
+            "FIRST_QUARTER",
+            "SECOND_QUARTER",
+            "THIRD_QUARTER",
+            "FOURTH_QUARTER",
+            "JANUARY",
+            "FEBRUARY",
+            "MARCH",
+            "APRIL",
+            "MAY",
+            "JUNE",
+            "JULY",
+            "AUGUST",
+            "SEPTEMBER",
+            "OCTOBER",
+            "NOVEMBER",
+            "DECEMBER",
         ]
+        return ordered_keys
 
     def tlzNewlineToBr(self, s):
         #converts the new lines to br tags and encodes the content

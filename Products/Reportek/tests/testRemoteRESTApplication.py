@@ -69,7 +69,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
                        authUser='TestUser',
                        year=2012,
                        endyear=2013,
-                       partofyear='January',
+                       partofyear='JANUARY',
                        country='http://spatial/1',
                        locality='TestLocality',
                        descr='TestDescription')

@@ -9,6 +9,10 @@ class IDocument(Interface):
     xml_schema_location = Attribute('needed for XML files')
 
 
+class IBaseDelivery(Interface):
+    """BaseDelivery Interface."""
+
+
 class IEnvelope(Interface):
     """ Reportek Envelope."""
     id = Attribute('id')

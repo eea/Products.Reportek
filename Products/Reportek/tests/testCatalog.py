@@ -54,7 +54,7 @@ class CatalogTest(BaseTest, ConfigureReportek):
                             authUser='TestUser',
                             year=2012,
                             endyear=2013,
-                            partofyear='January',
+                            partofyear='JANUARY',
                             country='http://example.com/country/1',
                             locality='TestLocality',
                             descr='TestDescription')
@@ -71,7 +71,7 @@ class CatalogTest(BaseTest, ConfigureReportek):
                             authUser='TestUser',
                             year=2012,
                             endyear=2013,
-                            partofyear='February',
+                            partofyear='FEBRUARY',
                             country='http://example.com/country/2',
                             locality='TestLocality',
                             descr='TestDescription').__of__(self.engine)
@@ -87,7 +87,7 @@ class CatalogTest(BaseTest, ConfigureReportek):
             ({'meta_type': 'Report Envelope', 'country': 'http://example.com/country/2'}, [second_envelope]),
             ({'meta_type': 'Report Envelope', 'getCountryName': 'FirstCountry'}, [first_envelope]),
             ({'meta_type': 'Report Envelope', 'years': [2012]}, [first_envelope, second_envelope]),
-            ({'meta_type': 'Report Envelope', 'partofyear': 'January'}, [first_envelope]),
+            ({'meta_type': 'Report Envelope', 'partofyear': 'JANUARY'}, [first_envelope]),
             ({'meta_type': 'Report Envelope', 'process_path': '/ProcessURL'}, [first_envelope, second_envelope]),
             ({'meta_type': 'Report Envelope', 'released': 1}, [first_envelope]),
             ({'meta_type': 'Report Envelope', 'path': '/ReportekEngine/first_envelope'}, [first_envelope]),

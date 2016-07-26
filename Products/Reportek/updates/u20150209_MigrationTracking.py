@@ -7,11 +7,18 @@
 
 from Products.Reportek.updates import MigrationBase
 from Products.Reportek.constants import ENGINE_ID, MIGRATION_ID
-
+from Products.Reportek.config import DEPLOYMENT_CDR
+from Products.Reportek.config import DEPLOYMENT_MDR
+from Products.Reportek.config import DEPLOYMENT_BDR
 import transaction
 from ZODB.PersistentMapping import PersistentMapping
 
 VERSION = 1
+APPLIES_TO = [
+    DEPLOYMENT_BDR,
+    DEPLOYMENT_CDR,
+    DEPLOYMENT_MDR
+]
 
 @MigrationBase.checkMigration(__name__)
 def update(app, skipMigrationCheck=True):
