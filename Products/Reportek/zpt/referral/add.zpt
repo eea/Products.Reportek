@@ -67,7 +67,9 @@
             <td>
                 <input type="text" name="year" id="year" size="4" maxlength="4" tal:attributes="value here/year | nothing" />
                 <select name="partofyear" id="partofyear">
-                    <option tal:repeat="item here/partofyear_table" tal:attributes="value item; selected python:item==default" tal:content="item" i18n:translate="" />
+                    <option tal:repeat="item here/partofyear_table"
+                      tal:attributes="value item; selected python:item==default"
+                      tal:content="python: here.reporting_year_labels.get(item)" i18n:translate="" />
                 </select>
                 <label for="endyear" class="form-optional" i18n:translate="">to</label>
                 <input type="text" id="endyear" name="endyear" size="4" maxlength="4" value="" />
