@@ -54,28 +54,28 @@ class ReferralTestCase(BaseTest, ConfigureReportek):
         self.assertEqual(r.strftime('%Y-%m-%d'),'2004-12-31')
 
     def test_endDateFirstHalf(self):
-        self.helpCreateReferral('2003', '', 'First Half')
+        self.helpCreateReferral('2003', '', 'FIRST_HALF')
         s = self.referral.getStartDate()
         self.assertEqual(s.strftime('%Y-%m-%d'),'2003-01-01')
         r = self.referral.getEndDate()
         self.assertEqual(r.strftime('%Y-%m-%d'),'2003-06-30')
 
     def test_endDateFirstQuarter(self):
-        self.helpCreateReferral('2009', '', 'First Quarter')
+        self.helpCreateReferral('2009', '', 'FIRST_QUARTER')
         s = self.referral.getStartDate()
         self.assertEqual(s.strftime('%Y-%m-%d'),'2009-01-01')
         r = self.referral.getEndDate()
         self.assertEqual(r.strftime('%Y-%m-%d'),'2009-03-31')
 
     def test_endDateThirdQuarter(self):
-        self.helpCreateReferral('2009', '', 'Third Quarter')
+        self.helpCreateReferral('2009', '', 'THIRD_QUARTER')
         s = self.referral.getStartDate()
         self.assertEqual(s.strftime('%Y-%m-%d'),'2009-07-01')
         r = self.referral.getEndDate()
         self.assertEqual(r.strftime('%Y-%m-%d'),'2009-09-30')
 
     def test_endDateMultipleYearsQuarter(self):
-        self.helpCreateReferral('2004', '2009', 'First Quarter')
+        self.helpCreateReferral('2004', '2009', 'FIRST_QUARTER')
         s = self.referral.getStartDate()
         self.assertEqual(s.strftime('%Y-%m-%d'),'2004-01-01')
         r = self.referral.getEndDate()
@@ -85,7 +85,7 @@ class ReferralTestCase(BaseTest, ConfigureReportek):
         assert rdf.find('endOfPeriod') > -1
 
     def test_DateNoDates(self):
-        self.helpCreateReferral('', '', 'First Quarter')
+        self.helpCreateReferral('', '', 'FIRST_QUARTER')
         s = self.referral.getStartDate()
         self.assertEqual(s, None)
         r = self.referral.getEndDate()

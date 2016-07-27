@@ -48,17 +48,11 @@
 <metal:block define-macro="partOfYearSelect">
   <select id="partofyear" name="partofyear">
     <option value="">Any part of year</option>
-    <option tal:define="options python:('Whole Year', 'First Half',
-                                        'Second Half', 'First Quarter',
-                                        'Second Quarter', 'Third Quarter',
-                                        'Fourth Quarter', 'January',
-                                        'February', 'March', 'April', 'May', 'June',
-                                        'July','August','September','October','November','December');
-                        given_value partofyear_selected | nothing;"
-            tal:repeat="value options"
+    <option tal:define="given_value partofyear_selected | nothing;"
+            tal:repeat="value here/ReportekEngine/partofyear_table"
             tal:attributes="value value;
                             selected python: value == given_value;"
-            tal:content="value">
+            tal:content="python: here.reporting_year_labels.get(value)">
         part_of_year
     </option>
   </select>

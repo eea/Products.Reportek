@@ -337,9 +337,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declarePublic('getPartsOfYear')
     def getPartsOfYear(self):
         """ """
-        return ['','Whole Year', 'First Half', 'Second Half',
-           'First Quarter', 'Second Quarter', 'Third Quarter', 'Fourth Quarter',
-           'January','February','March','April', 'May','June','July','August','September','October','November','December']
+        return [''] + self.partofyear_table
 
     security.declareProtected(view_management_screens, 'update_company_collection')
 
