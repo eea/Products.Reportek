@@ -127,11 +127,11 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
     if not partofyear in (year_parts + months):
         raise InvalidPartOfYear
 
-    ob = Envelope(process, title, actor, year, endyear, partofyear, self.country, locality, descr)
+    dataflow_uris = getattr(self,'dataflow_uris',[])   # Get it from collection
+    ob = Envelope(process, title, actor, year, endyear, partofyear, self.country, locality, descr, dataflow_uris)
     ob.id = id
     self._setObject(id, ob)
     ob = self._getOb(id)
-    ob.dataflow_uris = getattr(self,'dataflow_uris',[])   # Get it from collection
     if previous_delivery:
         l_envelope = self.restrictedTraverse(previous_delivery)
         l_data = l_envelope.manage_copyObjects(l_envelope.objectIds('Report Document'))
@@ -199,13 +199,15 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
     macros = PageTemplateFile('zpt/envelope/macros', globals()).macros
 
-    def __init__(self, process, title, authUser, year, endyear, partofyear, country, locality, descr):
+    def __init__(self, process, title, authUser, year, endyear, partofyear, country, locality, descr, dataflow_uris=None):
         """ Envelope constructor
         """
         BaseDelivery.__init__(self, title=title, year=year, endyear=endyear,
                               partofyear=partofyear, country=country,
-                              locality=locality, descr=descr)
+                              locality=locality, descr=descr,
+                              dataflow_uris=dataflow_uris)
         self.reportingdate = DateTime()
+
         self.released = 0
         # workflow part
         self.customer = authUser
@@ -307,11 +309,6 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             latestDraftWorkitem = draft_workitems[-1]
 
             return latestDraftWorkitem.actor
-
-    security.declareProtected('View', 'getObligations')
-    def getObligations(self):
-        lookup = self.ReportekEngine.dataflow_lookup
-        return [(lookup(obl)['TITLE'], obl) for obl in self.dataflow_uris]
 
     security.declareProtected('View', 'getSubmittedDocs')
     def getSubmittedDocs(self):
@@ -444,20 +441,6 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
     security.declareProtected('View', 'data_quality')
     data_quality = PageTemplateFile('zpt/envelope/data_quality', globals())
-
-
-    security.declarePublic('years')
-    def years(self):
-        """ Return the range of years the object pertains to
-        """
-        if self.year == '':
-            return ''
-        if self.endyear == '':
-            return [ self.year ]
-        if int(self.year) > int(self.endyear):
-            return range(int(self.endyear),int(self.year)+1)
-        else:
-            return range(int(self.year),int(self.endyear)+1)
 
 
     security.declareProtected('Release Envelopes', 'content_registry_ping')
@@ -1169,6 +1152,21 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     def friendlypartofyear(self):
         return REPORTING_PERIOD_DESCRIPTION.get(self.partofyear)
 
+    security.declareProtected('View', 'get_export_data')
+    def get_export_data(self, format='xls'):
+        """ Return data for export
+        """
+        env_data = BaseDelivery.get_export_data(self, format=format)
+        if getSecurityManager().checkPermission('View', self):
+            if format == 'xls':
+                env_data.update({
+                    'released': self.released,
+                    'reported': self.reportingdate.strftime('%Y-%m-%d'),
+                    'files': self.get_files_info(),
+                })
+
+        return env_data
+
     security.declareProtected('View', 'get_files_info')
     def get_files_info(self):
         files = []
@@ -1177,44 +1175,6 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
         return files
 
-    security.declareProtected('View', 'get_export_data')
-    def get_export_data(self, format='xls'):
-        """ Return data for export
-        """
-        env_data = {}
-        if getSecurityManager().checkPermission('View', self):
-            if format == 'xls':
-                accepted = True
-                for fileObj in self.objectValues('Report Feedback'):
-                    no_delivery_msgs = ("Data delivery was not acceptable",
-                                        "Non-acceptance of F-gas report")
-                    if fileObj.title in no_delivery_msgs:
-                        accepted = False
-
-                company_id = '-'
-                if (hasattr(self.aq_parent, 'company_id')):
-                    company_id = self.aq_parent.company_id
-
-                obligations = [obl[0] for obl in self.getObligations()]
-
-                env_data = {
-                    'company_id': company_id,
-                    'released': self.released,
-                    'path': self.absolute_url_path(),
-                    'country': self.getCountryName(),
-                    'company': self.aq_parent.title.decode('utf-8'),
-                    'userid': self.aq_parent.id,
-                    'title': self.title.decode('utf-8'),
-                    'id': self.id,
-                    'years': "{0}-{1}".format(self.year, self.endyear),
-                    'end_year': self.endyear,
-                    'reported': self.reportingdate.strftime('%Y-%m-%d'),
-                    'files': self.get_files_info(),
-                    'obligation': obligations[0] if obligations else "Unknown",
-                    'accepted': accepted
-                }
-
-        return env_data
 
     security.declareProtected('View', 'xls')
     def xls(self):

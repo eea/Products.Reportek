@@ -29,21 +29,18 @@ Referrals are obsolete. It is better to use an Envelope with a hyperlink in it.
 
 $Id$"""
 
-import time, types, os, string
-import Products
+import types
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from OFS.SimpleItem import SimpleItem
 import Globals
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl import getSecurityManager, ClassSecurityInfo
 import AccessControl.Role
-from DateTime import DateTime
 
 # Product imports
 import RepUtils
 from CountriesManager import CountriesManager
 from Products.Reportek.BaseDelivery import BaseDelivery
-import constants
 
 manage_addReferralForm = PageTemplateFile('zpt/referral/add', globals())
 
@@ -99,9 +96,9 @@ class Referral(CatalogAware, SimpleItem, CountriesManager, BaseDelivery):
         """Referral constructor."""
         BaseDelivery.__init__(self, title=title, year=year, endyear=endyear,
                               partofyear=partofyear, country=country,
-                              locality=locality, descr=descr)
+                              locality=locality, descr=descr,
+                              dataflow_uris=dataflow_uris)
         self.referral_url = referral_url
-        self.dataflow_uris = dataflow_uris
 
     def get_reportingdate(self):
         return self.bobobase_modification_time()
@@ -151,18 +148,6 @@ class Referral(CatalogAware, SimpleItem, CountriesManager, BaseDelivery):
     security.declareProtected('Change Collections', 'manage_prop')
     manage_prop = PageTemplateFile('zpt/referral/prop', globals())
 
-    security.declarePublic('years')
-
-    def years(self):
-        """ Return the range of years the object pertains to """
-        if self.year == '':
-            return ''
-        if self.endyear == '':
-            return [ self.year ]
-        if int(self.year) > int(self.endyear):
-            return range(int(self.endyear),int(self.year)+1)
-        else:
-            return range(int(self.year),int(self.endyear)+1)
 
     security.declareProtected('View', 'manage_main')
 
@@ -226,47 +211,18 @@ class Referral(CatalogAware, SimpleItem, CountriesManager, BaseDelivery):
         res_a('</rdf:RDF>')
         return '\n'.join(res)
 
-    security.declareProtected('View', 'getObligations')
-    def getObligations(self):
-        lookup = self.ReportekEngine.dataflow_lookup
-        return [(lookup(obl)['TITLE'], obl) for obl in self.dataflow_uris]
-
     security.declareProtected('View', 'get_export_data')
     def get_export_data(self, format='xls'):
         """ Return data for export
         """
-        env_data = {}
+        env_data = BaseDelivery.get_export_data(self, format=format)
         if getSecurityManager().checkPermission('View', self):
             if format == 'xls':
-                accepted = True
-                for fileObj in self.objectValues('Report Feedback'):
-                    no_delivery_msgs = ("Data delivery was not acceptable",
-                                        "Non-acceptance of F-gas report")
-                    if fileObj.title in no_delivery_msgs:
-                        accepted = False
-
-                company_id = '-'
-                if (hasattr(self.aq_parent, 'company_id')):
-                    company_id = self.aq_parent.company_id
-
-                obligations = [obl[0] for obl in self.getObligations()]
-
-                env_data = {
-                    'company_id': company_id,
+                env_data.update({
                     'released': self.released,
-                    'path': self.absolute_url_path(),
-                    'country': self.getCountryName(),
-                    'company': self.aq_parent.title.decode('utf-8'),
-                    'userid': self.aq_parent.id,
-                    'title': self.title.decode('utf-8'),
-                    'id': self.id,
-                    'years': "{0}-{1}".format(self.year, self.endyear),
-                    'end_year': self.endyear,
                     'reported': self.reportingdate.strftime('%Y-%m-%d'),
-                    'files': [],
-                    'obligation': obligations[0] if obligations else "Unknown",
-                    'accepted': accepted
-                }
+                    'files': []
+                })
 
         return env_data
 

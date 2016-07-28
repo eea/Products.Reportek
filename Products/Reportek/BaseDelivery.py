@@ -1,14 +1,23 @@
+from AccessControl import ClassSecurityInfo
+from AccessControl import getSecurityManager
 from DateTime import DateTime
-from zope.interface import implements
 from Products.Reportek.interfaces import IBaseDelivery
+from Products.Reportek.config import REPORTEK_DEPLOYMENT
+from Products.Reportek.config import DEPLOYMENT_BDR
+from zope.interface import implements
 
 
 class BaseDelivery(object):
     """BaseDelivery class."""
     implements(IBaseDelivery)
 
+    # Create a SecurityInfo for this class. We will use this
+    # in the rest of our class definition to make security
+    # assertions.
+    security = ClassSecurityInfo()
+
     def __init__(self, title=None, year=None, endyear=None, partofyear=None,
-                 country=None, locality=None, descr=None):
+                 country=None, locality=None, descr=None, dataflow_uris=None):
         """ Envelope constructor
         """
         self.year = year
@@ -19,6 +28,9 @@ class BaseDelivery(object):
         self.country = country
         self.locality = locality
         self.descr = descr
+        if not dataflow_uris:
+            dataflow_uris = []
+        self.dataflow_uris = dataflow_uris
 
     def getStartDate(self):
         """ returns the start date in DateTime format
@@ -123,3 +135,61 @@ class BaseDelivery(object):
                     self.endyear = y
             except:
                 pass
+
+    security.declarePublic('years')
+    def years(self):
+        """ Return the range of years the object pertains to
+        """
+        if self.year == '':
+            return ''
+        if self.endyear == '':
+            return [self.year]
+        if int(self.year) > int(self.endyear):
+            return range(int(self.endyear), int(self.year) + 1)
+        else:
+            return range(int(self.year), int(self.endyear) + 1)
+
+    security.declareProtected('View', 'getObligations')
+    def getObligations(self):
+        lookup = self.ReportekEngine.dataflow_lookup
+        return [(lookup(obl)['TITLE'], obl) for obl in self.dataflow_uris]
+
+    security.declareProtected('View', 'get_export_data')
+    def get_export_data(self, format='xls'):
+        """ Return data for export
+        """
+        env_data = {}
+        if getSecurityManager().checkPermission('View', self):
+            if format == 'xls':
+                accepted = True
+                for fileObj in self.objectValues('Report Feedback'):
+                    no_delivery_msgs = ("Data delivery was not acceptable",
+                                        "Non-acceptance of F-gas report")
+                    if fileObj.title in no_delivery_msgs:
+                        accepted = False
+
+                company_id = '-'
+                if (hasattr(self.aq_parent, 'company_id')):
+                    company_id = self.aq_parent.company_id
+                company = '-'
+                userid = '-'
+                if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+                    company = self.aq_parent.title.decode('utf-8')
+                    userid = self.aq_parent.id
+                obligations = [obl[0] for obl in self.getObligations()]
+
+                env_data = {
+                    'company_id': company_id,
+                    'path': self.absolute_url_path(),
+                    'country': self.getCountryName(),
+                    'company': company,
+                    'userid': userid,
+                    'title': self.title.decode('utf-8'),
+                    'id': self.id,
+                    'years': "{0}-{1}".format(self.year, self.endyear),
+                    'end_year': self.endyear,
+                    'obligation': obligations[0] if obligations else "Unknown",
+                    'accepted': accepted
+                }
+
+        return env_data
