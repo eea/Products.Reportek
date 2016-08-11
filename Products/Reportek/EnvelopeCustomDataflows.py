@@ -461,17 +461,13 @@ class EnvelopeCustomDataflows:
 
     security.declareProtected('Change Envelopes', 'replace_dd_xml')
     def replace_dd_xml(self, file, restricted='', required_schema=[], REQUEST=None):
-        """ Receives the file uploaded check that the schema id
-            starts with 'http://dd.eionet.europa.eu/GetSchema?id=' or,
-            if the 'required_schema' list is provided, it checks that
-            the schema is one of those
-
-            If so, it replaces the existing XML files in the envelope,
-            otherwise it complains
+        """ Cheks if the schema id of the file is either empty or is in the 'required_schema' list.
+            If yes, it adds the new file; if there are XML files in the envelope with the same schema, those are deleted first.
+            If no, it doesn't upload the file and complains.
 
             Returns the error message on REQUEST and the result code if no REQUEST is given:
-                1 if the file was right
-                0 if the file was not right
+                1 if the file is XML and of the right schema
+                0 if the file is either not XML or with the right schema
                 -1 if there was no file
         """
         if not file or type(file) is type('') or not hasattr(file,'filename'):
@@ -496,7 +492,7 @@ class EnvelopeCustomDataflows:
                                 " File not uploaded! Reason: %s"%str(e.args),
                         action='index_html')
             file.seek(0)
-            if (not required_schema and schema.startswith('http://dd.eionet.europa.eu/GetSchema?id=')) or schema in RepUtils.utConvertToList(required_schema):
+            if not required_schema or schema in RepUtils.utConvertToList(required_schema):
                 #delete all the XML files from this envelope which containt this schema
                 xmls = self._get_xml_files_by_schema(schema)
                 self.manage_delObjects(xmls)
@@ -507,7 +503,7 @@ class EnvelopeCustomDataflows:
                 if REQUEST is not None:
                     return self.messageDialog(
                                 message="The file you are trying to upload wasn't generated "
-                                        " according to the Data Dictionary schema!"
+                                        " according to the correct schema!"
                                         " File not uploaded!",
                                 action='index_html')
                 else:
