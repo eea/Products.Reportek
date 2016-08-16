@@ -227,7 +227,15 @@ class EnvelopesAPI(BrowserView):
             'path': path,
             'meta_type': children_type,
         }
+
+        def getbID(b):
+            return int(b.id)
+
         brains = self.context.Catalog(**query)
+
+        if children_type == 'Workitem':
+
+            brains = sorted(brains, key=getbID)
 
         return brains
 
