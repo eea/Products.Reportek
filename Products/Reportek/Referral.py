@@ -160,56 +160,14 @@ class Referral(CatalogAware, SimpleItem, CountriesManager, BaseDelivery):
         else:
             return apply(self.index_html,(self,)+ args, kw)
 
-    security.declareProtected('View', 'rdf')
-    def rdf(self, REQUEST):
-        """ Returns the envelope metadata in RDF format
-            This includes files and feedback objects
-        """
-        REQUEST.RESPONSE.setHeader('content-type', 'application/rdf+xml; charset=utf-8')
+    security.declareProtected('View', 'get_custom_delivery_rdf_meta')
+    def get_custom_delivery_rdf_meta(self):
+        """Return custom content type metadata for RDF export."""
         res = []
-        res_a = res.append  #optimisation
+        res.append('<link>%s</link>' % RepUtils.xmlEncode(self.referral_url))
+        res.append('<hasFile rdf:resource="%s"/>' % RepUtils.xmlEncode(self.referral_url))
 
-        res_a('<?xml version="1.0" encoding="utf-8"?>')
-        res_a('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"')
-        res_a(' xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"')
-        res_a(' xmlns:dct="http://purl.org/dc/terms/"')
-        res_a(' xmlns:cr="http://cr.eionet.europa.eu/ontologies/contreg.rdf#"')
-        res_a(' xmlns="http://rod.eionet.europa.eu/schema.rdf#">')
-
-        res_a('<Delivery rdf:about="%s">' % RepUtils.xmlEncode(self.absolute_url()))
-        res_a('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(self.title_or_id()))
-        res_a('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(self.title_or_id()))
-        if self.descr:
-            res_a('<dct:description>%s</dct:description>' % RepUtils.xmlEncode(self.descr))
-
-        if self.country:
-            res_a('<locality rdf:resource="%s" />' % self.country.replace('eionet.eu.int','eionet.europa.eu'))
-        if self.locality != '':
-            res_a('<coverageNote>%s</coverageNote>' % RepUtils.xmlEncode(self.locality))
-
-        period = self.getPeriod()
-        if period != '':
-            res_a('<period>%s</period>' % period)
-
-        startDT = self.getStartDate()
-        if startDT:
-            res_a('<startOfPeriod rdf:datatype="http://www.w3.org/2001/XMLSchema#date">%s</startOfPeriod>' % startDT.strftime('%Y-%m-%d'))
-
-        endDT = self.getEndDate()
-        if endDT:
-            res_a('<endOfPeriod rdf:datatype="http://www.w3.org/2001/XMLSchema#date">%s</endOfPeriod>' % endDT.strftime('%Y-%m-%d'))
-
-        for flow in self.dataflow_uris:
-            res_a('<obligation rdf:resource="%s"/>' % RepUtils.xmlEncode(flow.replace('eionet.eu.int','eionet.europa.eu')))
-
-        res_a('<link>%s</link>' % RepUtils.xmlEncode(self.referral_url))
-        res_a('<hasFile rdf:resource="%s"/>' % RepUtils.xmlEncode(self.referral_url))
-        res_a('</Delivery>')
-#       res_a('<File rdf:about="%s">' % RepUtils.xmlEncode(self.referral_url))
-#       res_a('</File>')
-
-        res_a('</rdf:RDF>')
-        return '\n'.join(res)
+        return res
 
     security.declareProtected('View', 'get_export_data')
     def get_export_data(self, format='xls'):

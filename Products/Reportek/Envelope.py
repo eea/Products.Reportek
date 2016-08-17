@@ -1023,69 +1023,43 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             objByMetatype[t] = [ o for o in self.objectValues(t) ]
         return objByMetatype
 
-
-    security.declareProtected('View', 'rdf')
-    def rdf(self, REQUEST):
-        """ Returns the envelope metadata in RDF format.
-            This includes files and feedback objects.
-            It is meant for triple stores, so there no point in returning
-            anything until the envelope is released, because only released
-            content should be indexed.
-        """
-        REQUEST.RESPONSE.setHeader('content-type', 'application/rdf+xml; charset=utf-8')
-        if not self.canViewContent():
-            raise Unauthorized, "Envelope is not available"
-
+    security.declareProtected('View', 'get_custom_rdf_meta')
+    def get_custom_rdf_meta(self):
+        """Return custom envelope type metadata for RDF export."""
         objsByType = self._getObjectsForContentRegistry()
         res = []
         creator = self.getActorDraft()
         if not creator:
             creator = self.customer
-
-        res.append('<?xml version="1.0" encoding="utf-8"?>')
-        res.append('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"')
-        res.append(' xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"')
-        res.append(' xmlns:dct="http://purl.org/dc/terms/"')
-        res.append(' xmlns:cr="http://cr.eionet.europa.eu/ontologies/contreg.rdf#"')
-        res.append(' xmlns="http://rod.eionet.europa.eu/schema.rdf#">')
-
-        res.append('<Delivery rdf:about="%s">' % RepUtils.xmlEncode(self.absolute_url()))
-        res.append('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(self.title_or_id()))
-        res.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(self.title_or_id()))
         res.append('<dct:creator>%s</dct:creator>' % RepUtils.xmlEncode(creator))
-        if self.descr:
-             res.append('<dct:description>%s</dct:description>' % RepUtils.xmlEncode(self.descr))
 
+    security.declareProtected('View', 'get_custom_delivery_rdf_meta')
+    def get_custom_delivery_rdf_meta(self):
+        """Return custom content type metadata for RDF export."""
+        res = []
+        objsByType = self._getObjectsForContentRegistry()
+        creator = self.getActorDraft()
+        if not creator:
+            creator = self.customer
+
+        res.append('<dct:creator>%s</dct:creator>' % RepUtils.xmlEncode(creator))
         res.append('<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</released>' % self.reportingdate.HTML4())
-
         res.append('<link>%s</link>' % RepUtils.xmlEncode(self.absolute_url()))
-        if self.country:
-            res.append('<locality rdf:resource="%s" />' % self.country.replace('eionet.eu.int','eionet.europa.eu'))
-        if self.locality != '':
-            res.append('<coverageNote>%s</coverageNote>' % RepUtils.xmlEncode(self.locality))
-
-        period = self.getPeriod()
-        if period != '':
-            res.append('<period>%s</period>' % period)
-
-        startDT = self.getStartDate()
-        if startDT:
-            res.append('<startOfPeriod rdf:datatype="http://www.w3.org/2001/XMLSchema#date">%s</startOfPeriod>' % startDT.strftime('%Y-%m-%d'))
-
-        endDT = self.getEndDate()
-        if endDT:
-            res.append('<endOfPeriod rdf:datatype="http://www.w3.org/2001/XMLSchema#date">%s</endOfPeriod>' % endDT.strftime('%Y-%m-%d'))
-
-        for flow in self.dataflow_uris:
-            res.append('<obligation rdf:resource="%s"/>' % RepUtils.xmlEncode(flow.replace('eionet.eu.int','eionet.europa.eu')))
 
         for o in objsByType.get('Report Document', []):
             res.append('<hasFile rdf:resource="%s"/>' % RepUtils.xmlEncode(o.absolute_url()) )
         for o in objsByType.get('Report Feedback', []):
             res.append('<cr:hasFeedback rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(self.absolute_url()), o.id))
-        # In wich tag should we include this information??
         res.append('<blockedByQA rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</blockedByQA>' % repr(self.is_blocked).lower())
-        res.append('</Delivery>')
+
+        return res
+
+    security.declareProtected('View', 'get_custom_cobjs_rdf_meta')
+    def get_custom_cobjs_rdf_meta(self):
+        """Return custom child objects metadata for RDF export."""
+        res = []
+        objsByType = self._getObjectsForContentRegistry()
+
         for metatype, objs in objsByType.items():
             for o in objs:
                 xmlChunk = []
@@ -1145,8 +1119,20 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                         xmlChunk = []
                 res.extend(xmlChunk)
 
-        res.append('</rdf:RDF>')
-        return '\n'.join(res)
+        return res
+
+    security.declareProtected('View', 'rdf')
+    def rdf(self, REQUEST):
+        """ Returns the envelope metadata in RDF format.
+            This includes files and feedback objects.
+            It is meant for triple stores, so there no point in returning
+            anything until the envelope is released, because only released
+            content should be indexed.
+        """
+        if not self.canViewContent():
+            raise Unauthorized, "Envelope is not available"
+
+        return BaseDelivery.rdf(self, REQUEST)
 
     @property
     def friendlypartofyear(self):

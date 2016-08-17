@@ -7,15 +7,15 @@
 <Delivery rdf:about="http://nohost/collection/envu2nsuq">
 <rdfs:label>envu2nsuq</rdfs:label>
 <dct:title>envu2nsuq</dct:title>
-<dct:creator>test_user_1_</dct:creator>
-<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:41Z</released>
-<link>http://nohost/collection/envu2nsuq</link>
 <locality rdf:resource="http://rod.eionet.europa.eu/spatial/2" />
 <coverageNote>http://rod.eionet.eu.int/localities/1</coverageNote>
 <period>2003-01-01/P2Y</period>
 <startOfPeriod rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2003-01-01</startOfPeriod>
 <endOfPeriod rdf:datatype="http://www.w3.org/2001/XMLSchema#date">2004-12-31</endOfPeriod>
 <obligation rdf:resource="http://rod.eionet.europa.eu/obligations/8"/>
+<dct:creator>test_user_1_</dct:creator>
+<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:41Z</released>
+<link>http://nohost/collection/envu2nsuq</link>
 <hasFile rdf:resource="http://nohost/collection/envu2nsuq/another%20document%20id%20with%20space.txt"/>
 <hasFile rdf:resource="http://nohost/collection/envu2nsuq/file2.txt"/>
 <cr:hasFeedback rdf:resource="http://nohost/collection/envu2nsuq/feedback1399024721"/>

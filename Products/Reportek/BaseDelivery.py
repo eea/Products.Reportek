@@ -4,6 +4,7 @@ from DateTime import DateTime
 from Products.Reportek.interfaces import IBaseDelivery
 from Products.Reportek.config import REPORTEK_DEPLOYMENT
 from Products.Reportek.config import DEPLOYMENT_BDR
+from Products.Reportek.RepUtils import xmlEncode
 from zope.interface import implements
 
 
@@ -193,3 +194,57 @@ class BaseDelivery(object):
                 }
 
         return env_data
+
+    security.declareProtected('View', 'get_custom_cobjs_rdf_meta')
+    def get_custom_cobjs_rdf_meta(self):
+        """Return custom child objects metadata for RDF export."""
+        return []
+
+    security.declareProtected('View', 'rdf')
+    def rdf(self, REQUEST):
+        """Returns the delivery metadata in RDF format."""
+        REQUEST.RESPONSE.setHeader('content-type',
+                                   'application/rdf+xml; charset=utf-8')
+        res = []
+        res_a = res.append
+
+        res_a('<?xml version="1.0" encoding="utf-8"?>')
+        res_a('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"')
+        res_a(' xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"')
+        res_a(' xmlns:dct="http://purl.org/dc/terms/"')
+        res_a(' xmlns:cr="http://cr.eionet.europa.eu/ontologies/contreg.rdf#"')
+        res_a(' xmlns="http://rod.eionet.europa.eu/schema.rdf#">')
+
+        res_a('<Delivery rdf:about="%s">' % xmlEncode(self.absolute_url()))
+        res_a('<rdfs:label>%s</rdfs:label>' % xmlEncode(self.title_or_id()))
+        res_a('<dct:title>%s</dct:title>' % xmlEncode(self.title_or_id()))
+
+        if self.descr:
+            res_a('<dct:description>%s</dct:description>' % xmlEncode(self.descr))
+
+        if self.country:
+            res.append('<locality rdf:resource="%s" />' % self.country.replace('eionet.eu.int','eionet.europa.eu'))
+        if self.locality != '':
+            res.append('<coverageNote>%s</coverageNote>' % xmlEncode(self.locality))
+
+        period = self.getPeriod()
+        if period != '':
+            res.append('<period>%s</period>' % period)
+
+        startDT = self.getStartDate()
+        if startDT:
+            res.append('<startOfPeriod rdf:datatype="http://www.w3.org/2001/XMLSchema#date">%s</startOfPeriod>' % startDT.strftime('%Y-%m-%d'))
+
+        endDT = self.getEndDate()
+        if endDT:
+            res.append('<endOfPeriod rdf:datatype="http://www.w3.org/2001/XMLSchema#date">%s</endOfPeriod>' % endDT.strftime('%Y-%m-%d'))
+
+        for flow in self.dataflow_uris:
+            res.append('<obligation rdf:resource="%s"/>' %
+                       xmlEncode(flow.replace('eionet.eu.int',
+                                              'eionet.europa.eu')))
+        res.extend(self.get_custom_delivery_rdf_meta())
+        res_a('</Delivery>')
+        res.extend(self.get_custom_cobjs_rdf_meta())
+        res_a('</rdf:RDF>')
+        return '\n'.join(res)
