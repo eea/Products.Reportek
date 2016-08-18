@@ -17,5 +17,6 @@ REPORTING_PERIOD_DESCRIPTION = {
     "SEPTEMBER": "September",
     "OCTOBER": "October",
     "NOVEMBER": "November",
-    "DECEMBER": "December"
+    "DECEMBER": "December",
+    "": "Not applicable"
 }

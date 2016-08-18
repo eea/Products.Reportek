@@ -1,6 +1,7 @@
 from DateTime import DateTime
 from Products.Five import BrowserView
 from Products.Reportek.constants import ENGINE_ID
+from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION as rpd
 from ZODB.blob import POSKeyError
 from Products.Reportek.blob import StorageError
 import datetime
@@ -38,12 +39,6 @@ class EnvelopesAPI(BrowserView):
         'modifiedDate': {
             'catalog_mapping': 'bobobase_modification_time',
         },
-        'modifiedDateStart': {
-            'catalog_mapping': 'bobobase_modification_time',
-        },
-        'modifiedDateEnd': {
-            'catalog_mapping': 'bobobase_modification_time',
-        },
         'periodStartYear': {
             'catalog_mapping': '',
         },
@@ -54,7 +49,7 @@ class EnvelopesAPI(BrowserView):
             'catalog_mapping': 'partofyear',
         },
         'obligations': {
-            'catalog_mapping': '',
+            'catalog_mapping': 'dataflow_uris',
         },
         'isBlockedByQCError': {
             'catalog_mapping': '',
@@ -154,9 +149,76 @@ class EnvelopesAPI(BrowserView):
 
         return documents_data
 
+    def get_isreleased_query(self, value, **kwargs):
+        """Return a catalog released query."""
+        return int(value)
+
+    def get_dates_query(self, value, **kwargs):
+        """Return a catalog date query."""
+        startd = datetime.datetime.strptime(value, '%Y-%m-%d')
+        endd = startd + datetime.timedelta(days=1)
+        value = {
+            'query': (DateTime(startd), DateTime(endd)),
+            'range': 'min:max'
+        }
+        return value
+
+    def get_url_query(self, value, **kwargs):
+        """Return a catalog url query."""
+        return value.split(self.get_hostname())[-1]
+
+    def get_country_query(self, value, **kwargs):
+        """Return a catalog country query."""
+        return [self.get_country_uri(cc) for cc in value]
+
+    def get_dates_range_query(self, value, **kwargs):
+        """Return a catalog dates range query."""
+        query = kwargs.get('query')
+        c_idx = kwargs.get('c_idx')
+        param = kwargs.get('param')
+        val = query.get(c_idx)
+        upd_start = None
+        upd_end = None
+        v_date = datetime.datetime.strptime(value, '%Y-%m-%d')
+        if param.endswith('Start'):
+            upd_start = v_date
+            d_query = DateTime(upd_start)
+            d_range = 'min'
+        elif param.endswith('End'):
+            upd_end = v_date
+            d_query = DateTime(upd_end)
+            d_range = 'max'
+
+        if val:
+            d_range = 'min:max'
+            if upd_start:
+                d_query = (DateTime(upd_start), val['query'])
+            elif upd_end:
+                d_query = (val['query'], DateTime(upd_end))
+        value = {
+            'query': d_query,
+            'range': d_range
+        }
+        return value
+
+    def get_obligations_query(self, value, **kwargs):
+        """Return a catalog obligations query."""
+        df_tpl = 'http://rod.eionet.europa.eu/obligations/{}'
+        return [df_tpl.format(o) for o in value]
+
+    def get_periodd_query(self, value, **kwargs):
+        """Return a catalog periodDescription query."""
+        return [v.upper().replace(' ', '_') for v in value]
+
     def build_catalog_query(self, valid_filters, fed_params):
         """Return a catalog query dictionary based on query params."""
         catalog_field_map = {}
+        multiple_v_filters = [
+            'obligations',
+            'countryCode',
+            'periodDescription'
+        ]
+
         for c_filter in self.AVAILABLE_FILTERS.keys():
             c_mapping = self.AVAILABLE_FILTERS[c_filter].get('catalog_mapping')
             if c_mapping:
@@ -167,58 +229,25 @@ class EnvelopesAPI(BrowserView):
 
         for param in valid_filters:
             if fed_params.get(param):
-                if param != 'obligations':
-                    c_idx = catalog_field_map.get(param)
-                    value = fed_params.get(param)
-
-                    if param == 'isReleased':
-                        value = int(value)
-
-                    if param in ['reportingDate', 'modifiedDate']:
-                        startd = datetime.datetime.strptime(value, '%Y-%m-%d')
-                        endd = startd + datetime.timedelta(days=1)
-                        value = {
-                            'query': (DateTime(startd), DateTime(endd)),
-                            'range': 'min:max'
-                        }
-                    if param == 'url':
-                        value = value.split(self.get_hostname())[-1]
-                    if param == 'countryCode':
-                        value = self.get_country_uri(value)
-                    if param in ['modifiedDateStart', 'modifiedDateEnd', 'reportingDateStart', 'reportingDateEnd']:
-                        val = query.get(c_idx)
-                        upd_start = None
-                        upd_end = None
-                        v_date = datetime.datetime.strptime(value, '%Y-%m-%d')
-                        if param.endswith('Start'):
-                            upd_start = v_date
-                            d_query = DateTime(upd_start)
-                            d_range = 'min'
-                        elif param.endswith('End'):
-                            upd_end = v_date
-                            d_query = DateTime(upd_end)
-                            d_range = 'max'
-
-                        if val:
-                            d_range = 'min:max'
-                            if upd_start:
-                                d_query = (DateTime(upd_start), val['query'])
-                            elif upd_end:
-                                d_query = (val['query'], DateTime(upd_end))
-                        value = {
-                            'query': d_query,
-                            'range': d_range
-                        }
-                    query[c_idx] = value
-                else:
-                    obligations = fed_params.get(param)
-                    if obligations:
-                        obligations = obligations.split(',')
-                        df_tpl = 'http://rod.eionet.europa.eu/obligations/{}'
-                        df_uris = [df_tpl.format(o) for o in obligations]
-
-                    query['dataflow_uris'] = df_uris
-
+                cases = {
+                    'isReleased': self.get_isreleased_query,
+                    'reportingDate': self.get_dates_query,
+                    'modifiedDate': self.get_dates_query,
+                    'url': self.get_url_query,
+                    'countryCode': self.get_country_query,
+                    'reportingDateStart': self.get_dates_range_query,
+                    'reportingDateEnd': self.get_dates_range_query,
+                    'obligations': self.get_obligations_query,
+                    'periodDescription': self.get_periodd_query
+                }
+                c_idx = catalog_field_map.get(param)
+                value = fed_params.get(param)
+                if param in multiple_v_filters:
+                    value = value.split(',')
+                get_value = cases.get(param)
+                if get_value:
+                    query[c_idx] = get_value(value, param=param, query=query,
+                                             c_idx=c_idx)
         return query
 
     def get_env_children(self, path, children_type):
@@ -289,6 +318,12 @@ class EnvelopesAPI(BrowserView):
                     endd = startd + datetime.timedelta(days=1)
                     if not self.is_in_range(datev, startd, endd):
                         return True
+                elif afilter == 'status':
+                    filter_vs = afilter_v.split(',')
+                    res = [afv for afv in filter_vs
+                           if afv.upper() != str(default_props.get(afilter)).upper()]
+                    if len(res) == len(filter_vs):
+                        return True
                 elif afilter_v.upper() != str(default_props.get(afilter)).upper():
                     return True
 
@@ -352,7 +387,7 @@ class EnvelopesAPI(BrowserView):
             'obligations': obls,
             'periodStartYear': startyear,
             'periodEndYear': endyear,
-            'periodDescription': brain.partofyear,
+            'periodDescription': rpd.get(brain.partofyear),
         }
 
     def get_additional_props(self, brain):
@@ -375,6 +410,7 @@ class EnvelopesAPI(BrowserView):
         """Return envelopes."""
         results = []
         errors = []
+        query = None
         data = {
             'envelopes': results,
             'errors': errors,
@@ -391,59 +427,63 @@ class EnvelopesAPI(BrowserView):
             'obligations',
             'periodDescription',
             'modifiedDate',
-            'modifiedDateStart',
-            'modifiedDateEnd',
         ]
 
         fed_params = {p: self.request.form.get(p)
                       for p in self.AVAILABLE_FILTERS
                       if self.request.form.get(p)}
-        if not fed_params:
-            m_date_start = DateTime() - 90
-            fed_params['modifiedDateStart'] = m_date_start.strftime('%Y-%m-%d')
 
         if fields:
             fields = fields.split(',')
 
-        query = self.build_catalog_query(valid_catalog_filters, fed_params)
-        brains = self.context.Catalog(**query)
-        if len(brains) > self.MAX_RESULTS:
-            error = 'There are too many possible results for your query. '\
-                    'Please use additional filters.'
-            errors.append({'title': 'Too many results',
-                           'description': error
-                           })
-        else:
-            additional_filters = [key for key in self.AVAILABLE_FILTERS.keys()
-                                  if key not in valid_catalog_filters]
-            for brain in brains:
-                default_props = self.get_default_props(brain)
-                envelope_data = {}
-                if not fields:
-                    fields = default_props.keys()
-                additional_p_fields = [param for param in fields
-                                       if param not in default_props]
-                additional_p_filters = [param for param in fed_params.keys()
-                                        if param not in default_props]
-                if additional_p_fields or additional_p_filters:
-                    additional_props = self.get_additional_props(brain)
-                    default_props.update(additional_props)
+        try:
+            query = self.build_catalog_query(valid_catalog_filters, fed_params)
+        except Exception as e:
+            error = 'An error occured while processing your request: {}'.format(str(e))
+            errors.append({
+                'title': 'Error processing request.',
+                'description': error
+            })
+        if query:
+            brains = self.context.Catalog(**query)
 
-                if self.is_filtered_out(default_props, additional_filters, fed_params):
-                    continue
+            if len(brains) > self.MAX_RESULTS:
+                error = 'There are too many possible results for your query. '\
+                        'Please use additional filters.'
+                errors.append({'title': 'Too many results',
+                               'description': error
+                               })
+            else:
+                additional_filters = [key for key in self.AVAILABLE_FILTERS.keys()
+                                      if key not in valid_catalog_filters]
+                for brain in brains:
+                    default_props = self.get_default_props(brain)
+                    envelope_data = {}
+                    if not fields:
+                        fields = default_props.keys()
+                    additional_p_fields = [param for param in fields
+                                           if param not in default_props]
+                    additional_p_filters = [param for param in fed_params.keys()
+                                            if param not in default_props]
+                    if additional_p_fields or additional_p_filters:
+                        additional_props = self.get_additional_props(brain)
+                        default_props.update(additional_props)
 
-                for field in fields:
-                    if field == 'files':
-                        files_data = self.get_files(brain.getPath())
-                        envelope_data['files'] = files_data.get('documents')
-                        if files_data.get('errors'):
-                            errors += files_data.get('errors', [])
-                    elif field == 'history':
-                        envelope_data['history'] = self.get_envelope_history(brain.getPath())
-                    elif field in default_props.keys():
-                        envelope_data[field] = default_props.get(field)
+                    if self.is_filtered_out(default_props, additional_filters, fed_params):
+                        continue
 
-                if envelope_data:
-                    results.append(envelope_data)
+                    for field in fields:
+                        if field == 'files':
+                            files_data = self.get_files(brain.getPath())
+                            envelope_data['files'] = files_data.get('documents')
+                            if files_data.get('errors'):
+                                errors += files_data.get('errors', [])
+                        elif field == 'history':
+                            envelope_data['history'] = self.get_envelope_history(brain.getPath())
+                        elif field in default_props.keys():
+                            envelope_data[field] = default_props.get(field)
+
+                    if envelope_data:
+                        results.append(envelope_data)
         self.request.RESPONSE.setHeader("Content-Type", "application/json")
         return json.dumps(data, indent=4)

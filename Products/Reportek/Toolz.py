@@ -135,6 +135,7 @@ class Toolz:
             "OCTOBER",
             "NOVEMBER",
             "DECEMBER",
+            ""
         ]
         return ordered_keys
 
