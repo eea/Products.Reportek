@@ -260,12 +260,10 @@ class EnvelopesAPI(BrowserView):
         def getbID(b):
             return int(b.id)
 
-        brains = self.context.Catalog(**query)
+        brains = list(self.context.Catalog(**query))
 
         if children_type == 'Workitem':
-
-            brains = sorted(brains, key=getbID)
-
+            brains.sort(key=getbID)
         return brains
 
     def is_env_blocked(self, wk_brains):
@@ -392,16 +390,23 @@ class EnvelopesAPI(BrowserView):
 
     def get_additional_props(self, brain):
         """Return additional envelope properties."""
+        last_status_d = None
         wk_brains = self.get_env_children(brain.getPath(), 'Workitem')
         actors = [wk.actor for wk in wk_brains if wk.activity_id == 'Draft']
         creator = None
         if actors:
             creator = actors[-1]
 
+        if brain.activation_log:
+            last_status_d = brain.activation_log[-1].get('start')
+            if last_status_d:
+                last_status_d = datetime.datetime.fromtimestamp(last_status_d)
+                last_status_d = DateTime(last_status_d).HTML4()
+
         return {
             'isBlockedByQCError': self.is_env_blocked(wk_brains),
             'status': wk_brains[-1].activity_id,
-            'statusDate': wk_brains[-1].bobobase_modification_time.HTML4(),
+            'statusDate': last_status_d,
             'creator': creator or 'Not assigned',
             'hasUnknownQC': self.has_unknown_qc(brain.getPath())
         }
