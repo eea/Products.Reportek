@@ -253,6 +253,7 @@ def create_reportek_indexes(catalog):
     add_index('Description', catalog, 'FieldIndex', meta=True)
     add_index('blocker', catalog, 'FieldIndex', meta=True)
     add_index('feedback_status', catalog, 'FieldIndex', meta=True)
+    add_index('activation_log', catalog, 'FieldIndex', meta=True)
     if 'local_defined_roles' not in catalog.schema():
         catalog.addColumn('local_defined_roles')
     add_index('document_id', catalog, 'FieldIndex')
