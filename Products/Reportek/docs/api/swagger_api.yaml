@@ -3,7 +3,7 @@ info:
   version: 1.0.0
   title: Envelopes
   description: ''
-host: 'localhost:8081'
+host: 'cdrdev.eionet.europa.eu'
 basePath: /api
 schemes:
   - http

@@ -9,7 +9,7 @@
 
 
 ### URI scheme
-*Host* : localhost:8081  
+*Host* : cdrdev.eionet.europa.eu  
 *BasePath* : /api  
 *Schemes* : HTTP, HTTPS
 
