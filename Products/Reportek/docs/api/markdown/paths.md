@@ -12,18 +12,16 @@
 
 |Type|Name|Description|Schema|Default|
 |---|---|---|---|---|
-|**Query**|**countryCode**  <br>*optional*|Country code in ISO "ALPHA-2 Code format for envelopes to return|enum (AL, DZ, AD, AM, AT, AZ, BY, BE, BA, BG, HR, CY, CZ, DK, EG, EE, EU, FI, FR, GE, DE, GI, GR, GL, HU, IS, IE, IL, IT, JO, KZ, XK, KG, LV, LB, LY, LI, LT, LU, MK, MT, MD, MC, ME, MA, NL, NO, PS, PL, PT, RO, RU, SM, RS, SK, SI, ES, SE, CH, SY, TJ, TN, TR, TM, UA, GB, UZ, VA)||
+|**Query**|**countryCode**  <br>*optional*|Country code in ISO "ALPHA-2 Code format for envelopes to return|< enum (AL, DZ, AD, AM, AT, AZ, BY, BE, BA, BG, HR, CY, CZ, DK, EG, EE, EU, FI, FR, GE, DE, GI, GR, GL, HU, IS, IE, IL, IT, JO, KZ, XK, KG, LV, LB, LY, LI, LT, LU, MK, MT, MD, MC, ME, MA, NL, PS, PL, PT, RO, RU, SM, RS, SK, SI, ES, SE, CH, SY, TJ, TN, TR, TM, UA, GB, UZ, VA) > array||
 |**Query**|**fields**  <br>*optional*|Return envelopes with only the fields specified|< enum (files, url, title, description, countryCode, isReleased, reportingDate, modifiedDate, periodStartYear, periodEndYear, periodDescription, obligations, isBlockedByQCError, status, statusDate, creator, hasUnknownQC, history) > array(csv)||
 |**Query**|**isReleased**  <br>*optional*|Released(1) or Unreleased(0) envelopes to return|enum (, )||
 |**Query**|**modifiedDate**  <br>*optional*|Return envelopes with specified modifiedDate. date format.|string(date)||
-|**Query**|**modifiedDateEnd**  <br>*optional*|Return envelopes that have a modified date in range of modifiedDateStart and modifiedDateEnd. If modifiedDateStart is missing, all envelopes with modified date <= modifiedDateEnd will be returned.|string(date)||
-|**Query**|**modifiedDateStart**  <br>*optional*|Return envelopes that have a modified date in range of modifiedDateStart and modifiedDateEnd or today if modifiedDateEnd is missing.|string(date)||
 |**Query**|**obligations**  <br>*optional*|Return envelopes with one of the following obligations|< integer > array(csv)||
-|**Query**|**periodDescription**  <br>*optional*|Return envelopes with specified periodDescription|enum (Whole Year, First Half, Second Half, First Quarter, Second Quarter, Third Quarter, Fourth Quarter, January, February, March, April, May, June, July, August, September, October, November, December)||
+|**Query**|**periodDescription**  <br>*optional*|Return envelopes with specified periodDescription|< enum (Whole Year, First Half, Second Half, First Quarter, Second Quarter, Third Quarter, Fourth Quarter, January, February, March, April, May, June, July, August, September, October, November, December) > array||
 |**Query**|**reportingDate**  <br>*optional*|Return envelopes with this reporting date. format.|string(date)||
 |**Query**|**reportingDateEnd**  <br>*optional*|Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd. If reportingDateStart is missing, all envelopes with reporting date <= reportingDateEnd will be returned.|string(date)||
 |**Query**|**reportingDateStart**  <br>*optional*|Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd or today if reportingDateEnd is missing.|string(date)||
-|**Query**|**status**  <br>*optional*|Return envelopes that have the following status|string||
+|**Query**|**status**  <br>*optional*|Return envelopes that have the following status|< string > array||
 |**Query**|**statusDate**  <br>*optional*|Return envelopes that have a status with the following statusDate.|string(date)||
 |**Query**|**url**  <br>*optional*|Url of the envelopes or part of to return|string||
 

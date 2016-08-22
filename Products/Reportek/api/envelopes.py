@@ -450,7 +450,7 @@ class EnvelopesAPI(BrowserView):
                 'description': error
             })
         if query:
-            brains = self.context.Catalog(**query)
+            brains = list(self.context.Catalog(**query))
 
             if len(brains) > self.MAX_RESULTS:
                 error = 'There are too many possible results for your query. '\
