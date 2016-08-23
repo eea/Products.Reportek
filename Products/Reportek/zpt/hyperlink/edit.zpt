@@ -1,52 +1,44 @@
-<tal:block define="SecurityManager modules/AccessControl/getSecurityManager; has_permission python:not SecurityManager.checkPermission('View management screens', template)">
+<metal:block use-macro="container/standard_template.pt/macros/page">
 
-	<tal:block condition="has_permission">
-		<span tal:replace="structure here/manage_propertiesForm" />
-	</tal:block>
+  <metal:block fill-slot="content">
+    
+    <tal:block tal:define="canChangeFile here/canChangeEnvelope; isLimited python:not here.isRestricted()">
+      <div id="operations">
+        <ul>
+          <li><a tal:attributes="href request/URL2" i18n:translate="">Back to envelope</a></li>
+        </ul>
+      </div>
 
-	<tal:block condition="python:not has_permission">
-		<span tal:replace="structure here/standard_html_header" />
-		
-		<tal:block tal:define="canChangeFile here/canChangeEnvelope; isLimited python:not here.isRestricted()">
-			<div id="operations">
-				<ul>
-					<li><a tal:attributes="href request/URL2" i18n:translate="">Back to envelope</a></li>
-				</ul>
-			</div>
+      <h1><tal:block i18n:translate="">Edit Hyperlink</tal:block> <span tal:replace="here/id" /></h1>
 
-			<h1><tal:block i18n:translate="">Edit Hyperlink</tal:block> <span tal:replace="here/id" /></h1>
-
-			<form id="edit" tal:attributes="action request/URL1" method="post">
-			<table cellspacing="5" cellpadding="0" border="0">
-				<tr>
-					<th align="left"><label for="title" i18n:translate="">Title</label></th>
-					<td align="left"><input type="text" id="title" name="title" size="60" tal:attributes="value here/title" /></td>
-				</tr>
-				<tr>
-					<th align="left"><label for="hyperlinkurl" i18n:translate="">Hyperlink URL</label></th>
-					<td align="left"><input type="text" id="hyperlinkurl" name="hyperlinkurl" size="60" tal:attributes="value here/hyperlinkurl" /></td>
-				</tr>
-				<tr>
-					<th><label for="restricted" i18n:translate="">Restricted from public view</label></th>
-					<td>
-						<tal:block tal:condition="canChangeFile">
-							<input type="hidden" id="applyRestriction" name="applyRestriction" value="1" />
-							<input type="checkbox" id="restricted" name="restricted" tal:attributes="checked isLimited" />
-						</tal:block>
-						<tal:block tal:condition="canChangeFile">
-							<tal:block tal:content="python:test(isLimited, 'Yes', 'No')" i18n:translate="" />
-						</tal:block>
-					</td>
-				</tr>
-				<tr>
-					<td>&nbsp;</td>
-					<td><input type="submit" name="manage_editHyperlink:method" value="Change" i18n:attributes="value" /></td>
-				</tr>
-			</table>
-			</form>
-		</tal:block>
-
-		<span tal:replace="structure here/standard_html_footer" />
-	</tal:block>
-
-</tal:block>
+      <form id="edit" tal:attributes="action request/URL1" method="post">
+      <table cellspacing="5" cellpadding="0" border="0">
+        <tr>
+          <th align="left"><label for="title" i18n:translate="">Title</label></th>
+          <td align="left"><input type="text" id="title" name="title" size="60" tal:attributes="value here/title" /></td>
+        </tr>
+        <tr>
+          <th align="left"><label for="hyperlinkurl" i18n:translate="">Hyperlink URL</label></th>
+          <td align="left"><input type="text" id="hyperlinkurl" name="hyperlinkurl" size="60" tal:attributes="value here/hyperlinkurl" /></td>
+        </tr>
+        <tr>
+          <th><label for="restricted" i18n:translate="">Restricted from public view</label></th>
+          <td>
+            <tal:block tal:condition="canChangeFile">
+              <input type="hidden" id="applyRestriction" name="applyRestriction" value="1" />
+              <input type="checkbox" id="restricted" name="restricted" tal:attributes="checked isLimited" />
+            </tal:block>
+            <tal:block tal:condition="canChangeFile">
+              <tal:block tal:content="python:test(isLimited, 'Yes', 'No')" i18n:translate="" />
+            </tal:block>
+          </td>
+        </tr>
+        <tr>
+          <td>&nbsp;</td>
+          <td><input type="submit" name="manage_editHyperlink:method" value="Change" i18n:attributes="value" /></td>
+        </tr>
+      </table>
+      </form>
+    </tal:block>
+  </metal:block>
+</metal:block>

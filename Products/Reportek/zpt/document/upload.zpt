@@ -1,36 +1,30 @@
-<tal:block define="SecurityManager modules/AccessControl/getSecurityManager; has_permission python:SecurityManager.checkPermission('View management screens', template)">
+<metal:block use-macro="container/standard_template.pt/macros/page">
 
-	<tal:block condition="has_permission">
-		<span tal:replace="structure context/manage_page_header" />
-		<span tal:replace="structure python:context.manage_tabs(management_view='Properties')" />
-	</tal:block>
-	<tal:block condition="python:not has_permission">
-		<span tal:replace="structure here/standard_html_header" />
-		<div id="tabbedmenu">
-			<ul>
-				<li id="currenttab"><a href="manage_uploadForm" i18n:translate="">Upload</a></li>
-				<li><a href="manage_main" i18n:translate="">Edit properties</a></li>
-			</ul>
-		</div>
-	</tal:block>
+  <metal:block fill-slot="content">
+    <tal:block define="SecurityManager modules/AccessControl/getSecurityManager; has_permission python:SecurityManager.checkPermission('View management screens', template)">
 
-	<h1 i18n:translate="">Upload file</h1>
-	<br />
-	<form tal:attributes="action request/URL1" method="post" enctype="multipart/form-data">
-	<table cellspacing="2">
-		<tr><th colspan="2" align="left"><strong i18n:translate="">Local upload</strong></th></tr>
-		<tr>
-			<th align="left"><label for="file" i18n:translate="">File</label></th>
-			<td align="left"><input type="file" id="file" name="file" size="25" value="" /></td>
-		</tr>
-		<tr>
-			<td> </td>
-			<td><br /><input type="submit" value="Upload" name="manage_file_upload:method" i18n:attributes="value" /></td>
-		</tr>
-	</table>
-	</form>
+        <div id="tabbedmenu">
+          <ul>
+            <li id="currenttab"><a href="manage_uploadForm" i18n:translate="">Upload</a></li>
+            <li><a href="manage_main" i18n:translate="">Edit properties</a></li>
+          </ul>
+        </div>
 
-	<span tal:condition="has_permission" tal:replace="structure context/manage_page_footer" />
-	<span tal:condition="not:has_permission" tal:replace="structure context/standard_html_footer" />
-
-</tal:block>
+      <h1 i18n:translate="">Upload file</h1>
+      <br />
+      <form tal:attributes="action request/URL1" method="post" enctype="multipart/form-data">
+      <table cellspacing="2">
+        <tr><th colspan="2" align="left"><strong i18n:translate="">Local upload</strong></th></tr>
+        <tr>
+          <th align="left"><label for="file" i18n:translate="">File</label></th>
+          <td align="left"><input type="file" id="file" name="file" size="25" value="" /></td>
+        </tr>
+        <tr>
+          <td> </td>
+          <td><br /><input type="submit" value="Upload" name="manage_file_upload:method" i18n:attributes="value" /></td>
+        </tr>
+      </table>
+      </form>
+    </tal:block>
+  </metal:block>
+</metal:block>

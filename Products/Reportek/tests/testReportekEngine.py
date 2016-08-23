@@ -31,22 +31,22 @@ class ReportekEngineTest(BaseTest, ConfigureReportek):
         self.createStandardCollection()
         self.createStandardEnvelope()
         try:
-            dtml = ReportekEngine.searchfeedbacks
-            dtml.read()
+            zpt = ReportekEngine.searchfeedbacks
+            zpt.read()
         except (AttributeError, IOError) as err:
             self.fail(err)
 
     def test_resultsfeedbacks_on_disk(self):
         try:
-            dtml = ReportekEngine.resultsfeedbacks
-            dtml.read()
+            zpt = ReportekEngine.resultsfeedbacks
+            zpt.read()
         except (AttributeError, IOError) as err:
             self.fail(err)
 
     def test_recent_uploads_on_disk(self):
         try:
-            dtml = ReportekEngine.recent
-            dtml.read()
+            zpt = ReportekEngine.recent
+            zpt.read()
         except (AttributeError, IOError) as err:
             self.fail(err)
 
@@ -59,15 +59,15 @@ class ReportekEngineTest(BaseTest, ConfigureReportek):
 
     def test_searchxml_on_disk(self):
         try:
-            dtml = ReportekEngine.searchxml
-            dtml.read()
+            zpt = ReportekEngine.searchxml
+            zpt.read()
         except (AttributeError, IOError) as err:
             self.fail(err)
 
     def test_resultsxml_on_disk(self):
         try:
-            dtml = ReportekEngine.resultsxml
-            dtml.read()
+            zpt = ReportekEngine.resultsxml
+            zpt.read()
         except (AttributeError, IOError) as err:
             self.fail(err)
 

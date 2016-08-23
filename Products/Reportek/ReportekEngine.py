@@ -1178,7 +1178,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             yield group, [x for x in ob_list if x.get(key, '') == group]
 
     security.declareProtected('View', 'messageDialog')
-    def messageDialog(self, message='', action='./manage_main', REQUEST=None):
+    def messageDialog(self, message='', action='', REQUEST=None):
         """ displays a message dialog """
         return self.message_dialog(message=message, action=action)
 
@@ -1302,10 +1302,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     catalog_args['sort_on'] = self.REQUEST['sort_on']
                 if self.REQUEST.get('sort_order'):
                     catalog_args['sort_order'] = self.REQUEST['sort_order']
-
-            brains = self.Catalog(**catalog_args)
-            if brains:
-                env_objs = [brain.getObject() for brain in brains]
+            if catalog_args:
+                brains = self.Catalog(**catalog_args)
+                if brains:
+                    env_objs = [brain.getObject() for brain in brains]
 
         wb = xlwt.Workbook()
         sheet = wb.add_sheet('Results')
