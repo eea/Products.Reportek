@@ -1,79 +1,81 @@
 <fieldset><legend i18n:translate="">Feedback for this envelope</legend>
-<table cellspacing="2" cellpadding="2" style="width: 100%">
-  <tbody tal:define="feedbacks context/getFeedbackObjects;
-                     total_number python:len(feedbacks);
-                     query_start python:request.get('fs') or 0;
-                     Batch python:modules['ZTUtils'].Batch;
-                     global batch python:Batch(feedbacks, 20, int(query_start), orphan=1)">
-
-    <tr valign="baseline"
+  <table cellspacing="2" cellpadding="2" style="width: 100%">
+    <tbody tal:define="feedbacks context/getFeedbackObjects;
+                       total_number python:len(feedbacks);
+                       query_start python:request.get('fs') or 0;
+                       Batch python:modules['ZTUtils'].Batch;
+                       global batch python:Batch(feedbacks, 20, int(query_start), orphan=1)">
+      <tr valign="baseline"
         tal:condition="batch"
         tal:repeat="feedb_item batch">
-			<td style="width:34px">
-				<img src="/misc_/Reportek/feedback_gif" alt="Feedback icon" />
-			</td>
-			<td tal:define="SecurityManager modules/AccessControl/getSecurityManager;
-                      fb_status python: getattr(feedb_item, 'feedback_status', None)">
-        <tal:block tal:condition="python: fb_status == 'BLOCKER'">
-          [<span tal:content="fb_status" />]
-        </tal:block>
-        <a tal:attributes="href feedb_item/id; title fb_status"
-           tal:content="feedb_item/title_or_id">title_or_id</a>
-        <tal:block condition="python:SecurityManager.checkPermission('View', feedb_item)">
-					<span
-            tal:condition="not:python:context.has_permission('View')"
-            tal:replace="string:(Limited)" i18n:translate="">(Limited)</span>
-        </tal:block>
-        <tal:block condition="not:python:SecurityManager.checkPermission('View', feedb_item)">
-          <tal:block define="dummy python:request.set('therearerestrictions',1)"></tal:block>
-					<img src="misc_/Reportek/lockicon_gif" alt="No access" style="width: 16px; height: 16px" />
-        </tal:block>
-        <tal:block
-              condition="feedb_item/automatic"
-              define="postingdate python:feedb_item.postingdate.strftime('%d %b %Y')">
-          <tal:block i18n:translate="">
-              (Posted automatically on <div tal:replace="postingdate"
-                                            i18n:name="postingdate"/>)
+        <td style="width:34px">
+          <img src="/misc_/Reportek/feedback_gif" alt="Feedback icon" />
+        </td>
+        <td tal:define="SecurityManager modules/AccessControl/getSecurityManager;
+                        fb_status python: getattr(feedb_item, 'feedback_status', None)">
+          <tal:block tal:condition="python: fb_status == 'BLOCKER'">
+            [<span tal:content="fb_status" />]
           </tal:block>
-        </tal:block>
-        <span tal:condition="not:feedb_item/automatic"
-              tal:define="postingdate python:feedb_item.postingdate.strftime('%d %b %Y');
-                          releasedate python:feedb_item.releasedate.strftime('%d %b %Y')"
-              tal:replace="string:(Posted on ${postingdate} for the ${releasedate} release)"/>
+          <a tal:attributes="href feedb_item/id; title fb_status"
+             tal:content="feedb_item/title_or_id">title_or_id</a>
+          <tal:block condition="python:SecurityManager.checkPermission('View', feedb_item)">
+            <span
+              tal:condition="not:python:context.has_permission('View')"
+              tal:replace="string:(Limited)" i18n:translate="">(Limited)</span>
+          </tal:block>
+          <tal:block condition="not:python:SecurityManager.checkPermission('View', feedb_item)">
+            <tal:block define="dummy python:request.set('therearerestrictions',1)"></tal:block>
+            <img src="misc_/Reportek/lockicon_gif" alt="No access" style="width: 16px; height: 16px" />
+          </tal:block>
+          <tal:block
+                condition="feedb_item/automatic"
+                define="postingdate python:feedb_item.postingdate.strftime('%d %b %Y')">
+            <tal:block i18n:translate="">
+                (Posted automatically on <div tal:replace="postingdate"
+                                              i18n:name="postingdate"/>)
+            </tal:block>
+          </tal:block>
+          <tal:block condition="feedb_item/automatic"
+                     define="postingdate python:feedb_item.postingdate.strftime('%d %b %Y')">
+            <tal:block i18n:translate="">(Posted automatically on <div tal:replace="postingdate" i18n:name="postingdate"/>)
+            </tal:block>
+          </tal:block>
+          <span tal:condition="not:feedb_item/automatic"
+                tal:define="postingdate python:feedb_item.postingdate.strftime('%d %b %Y');
+                            releasedate python:feedb_item.releasedate.strftime('%d %b %Y')"
+                tal:replace="string:(Posted on ${postingdate} for the ${releasedate} release)"/>
 
-        <tal:block condition="python:context.canEditFeedback() and not feedb_item.automatic">
-          <a tal:attributes="href string:${feedb_item/absolute_url}/manage_editFeedbackForm" title="Edit feedback" class="test_button"
-             i18n:translate="">Edit</a>
-          <a tal:attributes="href string:manage_deleteFeedbackForm?id=${feedb_item/id}"
-             title="Delete feedback" class="test_button"
-             i18n:translate="">Delete</a>
-        </tal:block>
-      </td>
-    </tr>
-    <tr tal:condition="not:feedbacks">
-      <td i18n:translate="">No feedback posted in this envelope</td>
-    </tr>
-    <tr>
-      <td colspan="6">
+          <tal:block condition="python:context.canEditFeedback() and not feedb_item.automatic">
+            <a tal:attributes="href string:${feedb_item/absolute_url}/manage_editFeedbackForm"
+              title="Edit feedback" class="test_button" i18n:translate="">Edit</a>
+            <a tal:attributes="href string:manage_deleteFeedbackForm?id=${feedb_item/id}"
+              title="Delete feedback" class="test_button" i18n:translate="">Delete</a>
+          </tal:block>
+        </td>
+      </tr>
+      <tr tal:condition="not:feedbacks">
+        <td i18n:translate="">No feedback posted in this envelope</td>
+      </tr>
+      <tr>
+        <td colspan="6">
           <a href="previousbatch" tal:define="p batch/previous"
-                                  tal:condition="p"
-                                  tal:attributes="href string:?fs=${p/first}"
-                                  i18n:translate="">
-              (Previous <span tal:replace="p/length" i18n:name="n">n</span>)
+            tal:condition="p"
+            tal:attributes="href string:?fs=${p/first}"
+            i18n:translate="">
+            (Previous <span tal:replace="p/length" i18n:name="n">n</span>)
           </a>
           <a href="nextbatch" tal:define="n batch/next"
-                              tal:condition="n"
-                              tal:attributes="href string:?fs=${n/first}"
-                              i18n:translate="">
-               (Next <span tal:replace="n/length" i18n:name="n">n</span>)
+            tal:condition="n"
+            tal:attributes="href string:?fs=${n/first}"
+            i18n:translate="">
+            (Next <span tal:replace="n/length" i18n:name="n">n</span>)
           </a>
-
-        <span tal:condition="python:total_number > 20"
-              i18n:translate="">
-              of <span i18n:name="total_number" tal:replace="total_number"/> feedbacks
-        </span>
-      </td>
-    </tr>
-</tbody>
-</table>
+          <span tal:condition="python:total_number > 20"
+            i18n:translate="">
+            of <span i18n:name="total_number" tal:replace="total_number"/> feedbacks
+          </span>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 </fieldset>

@@ -16,16 +16,18 @@
         tal:condition="here/description | nothing"
         tal:attributes="content here/description" />
 
-  <script type="text/javascript" src="/styles/pageops.js"></script>
-
-  <link rel="stylesheet" type="text/css" media="print" href="http://www.eionet.europa.eu/styles/eionet2007/print.css" />
-
-  <link rel="stylesheet" type="text/css" href="http://www.eionet.europa.eu/styles/eionet2007/screen.css" media="screen" title="Eionet 2007 style" />
-
-  <link rel="stylesheet" type="text/css" media="handheld" href="http://www.eionet.europa.eu/styles/eionet2007/handheld.css" />
+  <tal:def tal:define="proto python: 'https://' if request.get('SERVER_URL', '').startswith('https://') else 'http://'">
+    <script type="text/javascript" src="https://www.eionet.europa.eu/styles/eionet2007/pageops.js"
+      tal:attributes="src string:${proto}www.eionet.europa.eu/styles/eionet2007/pageops.js"></script>
+    <link rel="stylesheet" type="text/css" media="print" href="http://www.eionet.europa.eu/styles/eionet2007/print.css"
+      tal:attributes="href string:${proto}www.eionet.europa.eu/styles/eionet2007/print.css" />
+    <link rel="stylesheet" type="text/css" href="http://www.eionet.europa.eu/styles/eionet2007/screen.css" media="screen" title="Eionet 2007 style"
+      tal:attributes="href string:${proto}www.eionet.europa.eu/styles/eionet2007/screen.css" />
+    <link rel="stylesheet" type="text/css" media="handheld" href="http://www.eionet.europa.eu/styles/eionet2007/handheld.css"
+      tal:attributes="href string:${proto}www.eionet.europa.eu/styles/eionet2007/handheld.css"/>
+  </tal:def>
 
   <link rel="stylesheet" type="text/css" href="/styles/eionet2007.css" media="screen" title="Eionet 2007 style" />
-
   <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
 
   <tal:block condition="python:here.absolute_url(1) == ''">
@@ -78,7 +80,7 @@
     <div id="menuribbon"
          tal:content="structure here/dropdownmenus.txt"></div>
     <metal:block define-slot="breadcrumbtrails">
-     <tal:block content="structure here/breadcrumbtrail"></tal:block>
+     <tal:block content="structure here/breadcrumb"></tal:block>
     </metal:block>
 
     <div id="leftcolumn" class="localnav">

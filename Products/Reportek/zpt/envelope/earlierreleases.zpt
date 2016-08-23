@@ -1,43 +1,47 @@
-<tal:block tal:define="has_permission here/canViewContent;
-	self_url here/absolute_url;
-	deliveries python:here.getEngine().lookup_last_delivery(dataflow_uris=here.dataflow_uris, country=here.country, reporting_period=str(here.getStartDate()))">
+<metal:block use-macro="container/standard_template.pt/macros/page">
+  <metal:block fill-slot="content">
+    <tal:block
+      tal:define="has_permission here/canViewContent;
+                  self_url here/absolute_url;
+                  start_date python: str(here.getStartDate()) if here.getStartDate() else None;
+                  deliveries python:here.getEngine().lookup_last_delivery(dataflow_uris=here.dataflow_uris, country=here.country, reporting_period=start_date)">
 
-	<span tal:replace="structure here/standard_html_header" />
+      <tal:block tal:condition="has_permission">
+        <span tal:replace="structure python:here.envelope_tabs(tab='envelope_previous')" />
 
-	<tal:block tal:condition="has_permission">
-		<span tal:replace="structure python:here.envelope_tabs(tab='envelope_previous')" />
+        <h1 i18n:translate="">Previous deliveries</h1>
 
-		<h1 i18n:translate="">Previous deliveries</h1>
+        <p i18n:translate="">If you want to copy the files from a previous delivery, choose the delivery and click <em>Go</em>:</p>
 
-		<p i18n:translate="">If you want to copy the files from a previous delivery, choose the delivery and click <em>Go</em>:</p>
+        <table tal:condition="python:len(deliveries)>0">
+        <tr>
+          <th i18n:translate="">Title</th>
+          <th i18n:translate="">Description</th>
+          <th i18n:translate="">Period</th>
+          <th i18n:translate="">Released</th>
+          <th i18n:translate="">Copy files</th>
+        </tr>
+        <tal:block tal:repeat="item deliveries">
+          <form method="post" action="manage_copyDelivery" tal:condition="python:item.absolute_url()!=self_url">
+          <tr>
+            <td><a tal:attributes="href item/absolute_url" tal:content="item/title_or_id" /></td>
+            <td tal:content="item/descr" />
+            <td><span tal:replace="item/year" /> - <span tal:replace="item/partofyear" /></td>
+            <td tal:content="python:test(item.delivery_status(), 'Yes', 'No')" i18n:translate="" />
+            <td>
+              <input type="hidden" name="previous_delivery" tal:attributes="value python:item.absolute_url(1)" />
+              <input type="submit" class="fileop" value="Go" title="Copy files from this delivery" i18n:attributes="value;title" />
+            </td>
+          </tr>
+          </form>
+        </tal:block>
+        </table>
 
-		<table tal:condition="python:len(deliveries)>0">
-		<tr>
-			<th i18n:translate="">Title</th>
-			<th i18n:translate="">Description</th>
-			<th i18n:translate="">Period</th>
-			<th i18n:translate="">Released</th>
-			<th i18n:translate="">Copy files</th>
-		</tr>
-		<tal:block tal:repeat="item deliveries">
-			<form method="post" action="manage_copyDelivery" tal:condition="python:item.absolute_url()!=self_url">
-			<tr>
-				<td><a tal:attributes="href item/absolute_url" tal:content="item/title_or_id" /></td>
-				<td tal:content="item/descr" />
-				<td><span tal:replace="item/year" /> - <span tal:replace="item/partofyear" /></td>
-				<td tal:content="python:test(item.delivery_status(), 'Yes', 'No')" i18n:translate="" />
-				<td>
-					<input type="hidden" name="previous_delivery" tal:attributes="value python:item.absolute_url(1)" />
-					<input type="submit" class="fileop" value="Go" title="Copy files from this delivery" i18n:attributes="value;title" />
-				</td>
-			</tr>
-			</form>
-		</tal:block>
-		</table>
+        <p tal:condition="python:len(deliveries)==0" i18n:translate="">No previous deliveries have been made.</p>
+      </tal:block>
 
-		<p tal:condition="python:len(deliveries)==0" i18n:translate="">No previous deliveries have been made.</p>
-	</tal:block>
+      <span tal:replace="structure here/standard_html_footer" />
 
-	<span tal:replace="structure here/standard_html_footer" />
-
-</tal:block>
+    </tal:block>
+  </metal:block>
+</metal:block>

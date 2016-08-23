@@ -1,163 +1,150 @@
-<tal:block define="global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR';
-                   SecurityManager modules/AccessControl/getSecurityManager;
-                   permission_condition python:SecurityManager.checkPermission( 'View management screens', template)">
+<metal:block use-macro="container/standard_template.pt/macros/page">
+  <metal:block fill-slot="content">
+    <tal:block define="global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR';
+                       SecurityManager modules/AccessControl/getSecurityManager;
+                       permission_condition python:SecurityManager.checkPermission( 'View management screens', template)">
 
-  <tal:block condition="permission_condition">
-    <span tal:replace="structure context/manage_page_header"/>
-    <span tal:content="structure python:context.manage_tabs(management_view='Properties')"/>
-  </tal:block>
-  <tal:block condition="
-        not:python:SecurityManager.checkPermission('View management screens', template)">
-    <span tal:replace="structure context/standard_html_header"/>
+      <span tal:replace="structure python:context.envelope_tabs(tab='manage_prop')"/>
 
-    <span tal:replace="structure python:context.envelope_tabs(tab='manage_prop')"/>
+      <h1 i18n:translate="">Envelope Properties</h1>
 
-    <h1 i18n:translate="">Envelope Properties</h1>
-  </tal:block>
+      <form name="edit" tal:attributes="action request/URL1" method="post">
+        <table>
+          <tr>
+            <th i18n:translate="">Title</th>
+            <td>
+              <input type="text" size="50" name="title" tal:attributes="value context/title"/>
+            </td>
+          </tr>
 
-  <form name="edit" tal:attributes="action request/URL1" method="post">
-    <table>
-      <tr>
-        <th i18n:translate="">Title</th>
-        <td>
-          <input type="text" size="50" name="title" tal:attributes="value context/title"/>
-        </td>
-      </tr>
+          <tr>
+            <th i18n:translate="">Description</th>
+            <td>
+              <textarea name="descr" rows="5" cols="50"
+                        tal:content="context/descr">descr
+              </textarea>
+            </td>
+          </tr>
 
-      <tr>
-        <th i18n:translate="">Description</th>
-        <td>
-          <textarea name="descr" rows="5" cols="50"
-                    tal:content="context/descr">descr
-          </textarea>
-        </td>
-      </tr>
-
-      <tr>
-        <th i18n:translate="">Year</th>
-        <td>
-          <input type="text" name="year" size="4" maxlength="4"
-                 tal:attributes="value context/year"/>
-          <select name="partofyear">
-          <tal:block
-            repeat="item python:('Whole Year',
-                   'First Half', 'Second Half',
-                   'First Quarter', 'Second Quarter',
-                   'Third Quarter', 'Fourth Quarter',
-                   'January','February','March','April', 'May','June',
-                   'July','August','September','October','November','December')">
-            <tal:block condition="python:item == request.get('partofyear')">
-              <option tal:attributes="selected string:selected; value item"
-                      tal:content="item">
-              </option>
-            </tal:block>
-            <tal:block condition="not:python:item == request.get('partofyear')">
-              <option tal:attributes="value item"
-                      tal:content="item">
-              </option>
-            </tal:block>
-          </tal:block>
-          </select>
-          <span class="form-optional">to</span>
-          <input type="text" name="endyear" size="4" maxlength="4"
-                 tal:attributes="value context/endyear" />
-        </td>
-      </tr>
-
-      <tal:block define="dummy python:request.set('group',0)"/>
-      <tr>
-        <th i18n:translate="">Obligations</th>
-        <td>
-          <select id="dataflows" size="15" name="dataflow_uris:list" multiple="multiple"
-           tal:attributes="disabled not: permission_condition">
-            <tal:block tal:define="obligation_select_size python:'1' if isBdrDeployment else '15';
-                                   data context/ReportekEngine/dataflow_table_grouped;
-                                   groups python:data[0];
-                                   items python:data[1];
-                                   dataflow_uri context/dataflow_uri | nothing"
-                                   tal:attributes="size obligation_select_size">
-                <tal:block tal:repeat="group groups">
-                    <optgroup tal:attributes="label python:context.ReportekEngine.truncate(group)">
-                    <tal:block tal:repeat="item python:items[group]">
-                        <option tal:define="terminated python:int(item.get('terminated', '0'))"
-                                tal:attributes="value item/uri;
-                                selected python:item['uri'] in context.dataflow_uris;
-                                label python:context.ReportekEngine.truncate(item['TITLE'])">
-                        [<span tal:replace="python:' '.join(item['SOURCE_TITLE'].split()[0:2])" />]
-                        <span tal:replace="python:context.ReportekEngine.truncate(item['TITLE'])" />
-                        <tal:block tal:condition="terminated">
-                            (<tal:block i18n:translate="">terminated</tal:block>)
-                        </tal:block>
-                        </option>
-                    </tal:block>
-                    </optgroup>
+          <tr>
+            <th i18n:translate="">Year</th>
+            <td>
+              <input type="text" name="year" size="4" maxlength="4"
+                     tal:attributes="value context/year"/>
+              <select name="partofyear">
+              <tal:block
+                repeat="item python:('Whole Year',
+                       'First Half', 'Second Half',
+                       'First Quarter', 'Second Quarter',
+                       'Third Quarter', 'Fourth Quarter',
+                       'January','February','March','April', 'May','June',
+                       'July','August','September','October','November','December')">
+                <tal:block condition="python:item == request.get('partofyear')">
+                  <option tal:attributes="selected string:selected; value item"
+                          tal:content="item">
+                  </option>
+                </tal:block>
+                <tal:block condition="not:python:item == request.get('partofyear')">
+                  <option tal:attributes="value item"
+                          tal:content="item">
+                  </option>
                 </tal:block>
               </tal:block>
-          </select>
-        </td>
-      </tr>
+              </select>
+              <span class="form-optional">to</span>
+              <input type="text" name="endyear" size="4" maxlength="4"
+                     tal:attributes="value context/endyear" />
+            </td>
+          </tr>
 
-      <tr>
-        <th i18n:translate="">Coverage</th>
-        <td tal:define="engine python:context.getEngine();
-                        can_move_released python: getattr(context, 'can_move_released', False);
-                        readonly python: 'readonly' if context.released and not can_move_released else '';
-                        ">
-            <tal:block tal:condition="readonly"
-              tal:define="has_valid_country python: [country for country in engine.localities_table() if country.get('uri') == context.country];
-                          env_country python: has_valid_country[0] if has_valid_country else {};">
-              <input type="hidden" name="country"
-                tal:attributes="value context/country"/>
-              <span tal:define="c_name python: env_country.get('name', '')" tal:content="c_name" />
-            </tal:block>
-            <select name="country"
-              tal:condition="not: readonly">
-              <option
-                tal:define="
-                  selected_condition python:context.country == '';
-                  selected python:test(selected_condition, 'selected=selected', '')"
-                tal:replace="structure string:
-                  <option ${selected} value=''>
-                    Unspecified
-                  </option>"
-              />
-              <tal:block repeat="item engine/localities_table">
-                <option
-                  tal:define="selected_condition python:item['uri'] == context.country;
-                              selected python:test(selected_condition, 'selected=selected', '')"
-                  tal:replace="structure string:
-                      <option ${selected} value=${item/uri}>
-                        ${item/name}
+          <tal:block define="dummy python:request.set('group',0)"/>
+          <tr>
+            <th i18n:translate="">Obligations</th>
+            <td>
+              <select id="dataflows" size="15" name="dataflow_uris:list" multiple="multiple"
+               tal:attributes="disabled not: permission_condition">
+                <tal:block tal:define="obligation_select_size python:'1' if isBdrDeployment else '15';
+                                       data context/ReportekEngine/dataflow_table_grouped;
+                                       groups python:data[0];
+                                       items python:data[1];
+                                       dataflow_uri context/dataflow_uri | nothing"
+                                       tal:attributes="size obligation_select_size">
+                    <tal:block tal:repeat="group groups">
+                        <optgroup tal:attributes="label python:context.ReportekEngine.truncate(group)">
+                        <tal:block tal:repeat="item python:items[group]">
+                            <option tal:define="terminated python:int(item.get('terminated', '0'))"
+                                    tal:attributes="value item/uri;
+                                    selected python:item['uri'] in context.dataflow_uris;
+                                    label python:context.ReportekEngine.truncate(item['TITLE'])">
+                            [<span tal:replace="python:' '.join(item['SOURCE_TITLE'].split()[0:2])" />]
+                            <span tal:replace="python:context.ReportekEngine.truncate(item['TITLE'])" />
+                            <tal:block tal:condition="terminated">
+                                (<tal:block i18n:translate="">terminated</tal:block>)
+                            </tal:block>
+                            </option>
+                        </tal:block>
+                        </optgroup>
+                    </tal:block>
+                  </tal:block>
+              </select>
+            </td>
+          </tr>
+
+          <tr>
+            <th i18n:translate="">Coverage</th>
+            <td tal:define="engine python:context.getEngine();
+                            can_move_released python: getattr(context, 'can_move_released', False);
+                            readonly python: 'readonly' if context.released and not can_move_released else '';
+                            ">
+                <tal:block tal:condition="readonly"
+                  tal:define="has_valid_country python: [country for country in engine.localities_table() if country.get('uri') == context.country];
+                              env_country python: has_valid_country[0] if has_valid_country else {};">
+                  <input type="hidden" name="country"
+                    tal:attributes="value context/country"/>
+                  <span tal:define="c_name python: env_country.get('name', '')" tal:content="c_name" />
+                </tal:block>
+                <select name="country"
+                  tal:condition="not: readonly">
+                  <option
+                    tal:define="
+                      selected_condition python:context.country == '';
+                      selected python:test(selected_condition, 'selected=selected', '')"
+                    tal:replace="structure string:
+                      <option ${selected} value=''>
+                        Unspecified
                       </option>"
-                />
-              </tal:block>
-            </select>
-        </td>
-      </tr>
+                  />
+                  <tal:block repeat="item engine/localities_table">
+                    <option
+                      tal:define="selected_condition python:item['uri'] == context.country;
+                                  selected python:test(selected_condition, 'selected=selected', '')"
+                      tal:replace="structure string:
+                          <option ${selected} value=${item/uri}>
+                            ${item/name}
+                          </option>"
+                    />
+                  </tal:block>
+                </select>
+            </td>
+          </tr>
 
-      <tr>
-        <th i18n:translate="">Coverage note</th>
-        <td>
-          <input type="text" name="locality" size="30" tal:attributes="value context/locality" />
-        </td>
-      </tr>
+          <tr>
+            <th i18n:translate="">Coverage note</th>
+            <td>
+              <input type="text" name="locality" size="30" tal:attributes="value context/locality" />
+            </td>
+          </tr>
 
-      <tr>
-        <td></td>
-        <td>
-          <input type="submit" name="manage_editEnvelope:method" value="Change" />
-        </td>
-      </tr>
+          <tr>
+            <td></td>
+            <td>
+              <input type="submit" name="manage_editEnvelope:method" value="Change" />
+            </td>
+          </tr>
 
-    </table>
-  </form>
+        </table>
+      </form>
 
-  <tal:block condition="permission_condition">
-    <span tal:replace="structure context/manage_page_footer"/>
-  </tal:block>
-
-  <tal:block condition="not:permission_condition">
-    <span tal:replace="structure context/standard_html_footer"/>
-  </tal:block>
-
-</tal:block>
+    </tal:block>
+  </metal:block>
+</metal:block>

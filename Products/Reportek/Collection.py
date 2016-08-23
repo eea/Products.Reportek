@@ -62,6 +62,9 @@ def manage_addCollection(self, title, descr, year, endyear, partofyear,
                          old_company_id=None):
     """Add a new Collection object
     """
+    if isinstance(self, Collection) and not self.allow_collections:
+        raise ValueError("The collection does not allow child collections "
+                         "to be created.")
     if id == '':
         id = RepUtils.generate_id('col')
     ob = Collection(id, title, year, endyear, partofyear, country, locality,
@@ -75,7 +78,8 @@ def manage_addCollection(self, title, descr, year, endyear, partofyear,
 
     self._setObject(id, ob)
     if REQUEST is not None:
-        return self.manage_main(self, REQUEST, update_menu=1)
+        # Return to containers's view
+        return REQUEST.RESPONSE.redirect(self.absolute_url())
 
 
 class Collection(CatalogAware, Folder, Toolz):
@@ -385,7 +389,7 @@ class Collection(CatalogAware, Folder, Toolz):
         if REQUEST is not None:
             return self.messageDialog(
                             message="The properties of %s have been changed!" % self.id,
-                            action='./manage_main')
+                            action='')
 
     security.declareProtected('Change Collections', 'manage_editCategories')
     def manage_editCategories(self, REQUEST=None):
@@ -395,7 +399,7 @@ class Collection(CatalogAware, Folder, Toolz):
         if REQUEST is not None:
             return self.messageDialog(
                             message="The categories of %s have been changed!" % self.id,
-                            action='./manage_main')
+                            action='')
 
     security.declareProtected(permission_manage_properties_collections, 'manage_changeCollection')
     def manage_changeCollection(self, title=None,
@@ -429,7 +433,7 @@ class Collection(CatalogAware, Folder, Toolz):
         if REQUEST is not None:
             return self.messageDialog(
                             message="The properties of %s have been changed!" % self.id,
-                            action='./manage_main')
+                            action='')
 
     security.declareProtected('Use OpenFlow', 'worklist')
     worklist =  PageTemplateFile('zpt/collection/worklist', globals())
@@ -533,7 +537,7 @@ class Collection(CatalogAware, Folder, Toolz):
         self._company_id = value
 
     security.declareProtected('View', 'messageDialog')
-    def messageDialog(self, message='', action='./manage_main', REQUEST=None):
+    def messageDialog(self, message='', action='', REQUEST=None):
         """ displays a message dialog """
         return self.message_dialog(message=message, action=action)
 

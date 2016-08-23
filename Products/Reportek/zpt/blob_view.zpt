@@ -1,14 +1,16 @@
-<tal:block replace="structure context/standard_html_header" />
-<tal:block define="envelope python:context.getMySelf()"
-           condition="envelope">
-  <div id="operations">
-    <ul><li>
-        <a title="Back to the containing envelope"
-            tal:attributes="href python:envelope.absolute_url()">
-        Back to envelope
-      </a>
-    </li></ul>
-  </div>
-</tal:block>
-<tal:block content="structure options/content" />
-<tal:block replace="structure context/standard_html_footer" />
+<metal:block use-macro="container/standard_template.pt/macros/page">
+  <metal:block fill-slot="content">
+    <tal:block define="envelope python:context.getMySelf()"
+               condition="envelope">
+      <div id="operations">
+        <ul><li>
+            <a title="Back to the containing envelope"
+                tal:attributes="href python:envelope.absolute_url()">
+            Back to envelope
+          </a>
+        </li></ul>
+      </div>
+    </tal:block>
+    <tal:block content="structure options/content" />
+  </metal:block>
+</metal:block>

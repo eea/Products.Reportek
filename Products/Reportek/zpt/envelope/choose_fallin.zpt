@@ -1,38 +1,41 @@
-<tal:block tal:replace="structure context/standard_html_header" />
+<metal:block use-macro="container/standard_template.pt/macros/page">
 
-<tal:block tal:define="workitem_id python:request.get('workitem_id', None)">
+  <metal:block fill-slot="content">
 
-<tal:block tal:condition="workitem_id">
-	<p>
-		You can chooose an activity of the current process: a new workitem will be created for the specified activity.
-		The new workitem will be linked to the fallen out workitem <em><strong tal:content="workitem_id" /></em> of the current container.
-	</p>
+    <tal:block tal:define="workitem_id python:request.get('workitem_id', None)">
 
-	<form action="fallinWorkitem" method="post">
-	<input type="hidden" name="coming_from" tal:attributes="value request/HTTP_REFERER" />
-	<input type="hidden" name="workitem_id" tal:attributes="value workitem_id" />
-	<table cellspacing="2" cellpadding="2" border="0">
-		<tr>
-			<th bgcolor="#dfdfdf">Process</th>
-			<th bgcolor="#dfdfdf">Activity</th>
-		</tr>
-		<tr tal:define="process here/getProcess">
-			<td tal:content="python:process.absolute_url(1)" />
-			<td>
-				<select name="activity_id">
-					<option tal:repeat="item python:process.objectValues(['Activity'])" tal:attributes="value item/id" tal:content="item/id" />
-				<select>
-			</td>
-			<td><input type="submit" value="Fallin" /></td>
-		</tr>
-	</table>
-	</form>
-</tal:block>
+      <tal:block tal:condition="workitem_id">
+        <p>
+          You can chooose an activity of the current process: a new workitem will be created for the specified activity.
+          The new workitem will be linked to the fallen out workitem <em><strong tal:content="workitem_id" /></em> of the current container.
+        </p>
 
-<tal:block tal:condition="python:not workitem_id">
-	<p>You must specify an workitem id.</p>
-</tal:block>
+        <form action="fallinWorkitem" method="post">
+        <input type="hidden" name="coming_from" tal:attributes="value request/HTTP_REFERER" />
+        <input type="hidden" name="workitem_id" tal:attributes="value workitem_id" />
+        <table cellspacing="2" cellpadding="2" border="0">
+          <tr>
+            <th bgcolor="#dfdfdf">Process</th>
+            <th bgcolor="#dfdfdf">Activity</th>
+          </tr>
+          <tr tal:define="process here/getProcess">
+            <td tal:content="python:process.absolute_url(1)" />
+            <td>
+              <select name="activity_id">
+                <option tal:repeat="item python:process.objectValues(['Activity'])" tal:attributes="value item/id" tal:content="item/id" />
+              <select>
+            </td>
+            <td><input type="submit" value="Fallin" /></td>
+          </tr>
+        </table>
+        </form>
+      </tal:block>
 
-</tal:block>
+      <tal:block tal:condition="python:not workitem_id">
+        <p>You must specify an workitem id.</p>
+      </tal:block>
 
-<tal:block tal:replace="structure context/standard_html_footer" />
+    </tal:block>
+
+  </metal:block>
+</metal:block>

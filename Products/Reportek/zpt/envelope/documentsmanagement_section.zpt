@@ -1,107 +1,107 @@
 <tal:block tal:define="dummy python:request.set('therearerestrictions', 0);
-	menuEnvelope here/getWebQ_MenuEnvelope_URL;
-	canChangeEnvelope here/canChangeEnvelope;
-	showFormButtons python:here.is_active_for_me(request) and canChangeEnvelope and not here.released;
-	qa_4_files python:test(showFormButtons, here.canRunQAOnFiles(), {});
-	documents python:here.tlzSortByAttr(here.objectValues(['Report Document']), 'id');
-	hyperlinks  python:here.tlzSortByAttr(here.objectValues(['Report Hyperlink']), 'id');
-	SecurityManager modules/AccessControl/getSecurityManager;">
+                       menuEnvelope here/getWebQ_MenuEnvelope_URL;
+                       canChangeEnvelope here/canChangeEnvelope;
+                       showFormButtons python:here.is_active_for_me(request) and canChangeEnvelope and not here.released;
+                       qa_4_files python:test(showFormButtons, here.canRunQAOnFiles(), {});
+                       documents python:here.tlzSortByAttr(here.objectValues(['Report Document']), 'id');
+                       hyperlinks  python:here.tlzSortByAttr(here.objectValues(['Report Hyperlink']), 'id');
+                       SecurityManager modules/AccessControl/getSecurityManager;">
 
-<div class="filessection">
-	<fieldset>
-		<legend i18n:translate="">Files in this envelope</legend>
+  <div class="filessection">
+    <fieldset>
+      <legend i18n:translate="">Files in this envelope</legend>
 
-		<form method="post" tal:attributes="action here/absolute_url">
-		<table cellspacing="2" cellpadding="2">
-		<tbody>
-			<tr valign="baseline" tal:repeat="item documents">
-				<td style="width:16px" tal:condition="canChangeEnvelope">
-					<input type="checkbox" name="ids:list" tal:attributes="value item/id" tal:condition="python:item.get_accept_time() is None" />
-				</td>
-				<td style="width:34px">
-					<img tal:attributes="src string:${item/id}/icon_gif" alt="icon" i18n:attributes="alt" />
-				</td>
-				<td tal:define="a_title python:test(not here.released and canChangeEnvelope, 'File operations: [View file in different formats], [Replace file], [File properties], [View the feedback posted for it (if any)]', 'File operations: [View file in different formats], [File properties], [View the feedback posted for it (if any)]')">
-					<a tal:attributes="title a_title; href string:${item/id}/manage_edit_document" tal:content="item/id" i18n:attributes="title" />
-				</td>
-				<td style="white-space:nowrap" tal:define="has_permission python:SecurityManager.checkPermission('View', item)">
-					<tal:block tal:condition="has_permission">
-						<tal:block tal:condition="item/isRestricted" i18n:translate="">(Limited)</tal:block>
-					</tal:block>
-					<tal:block tal:condition="python:not has_permission">
-						<tal:block tal:define="dummy python:request.set('therearerestrictions', 1)" />
-						<img src="misc_/Reportek/lockicon_gif" alt="No access" width="16" height="16" i18n:attributes="alt" />
-					</tal:block>
-					<img tal:condition="item/get_accept_time" src="misc_/Reportek/accepted" alt="Document accepted by the client" i18n:attributes="alt" />
-				</td>
-				<td><em tal:content="item/title" /></td>
-				<td tal:content="python:item.upload_time().strftime('%d %b %Y')" />
-				<td style="width:6em"><tal:block tal:condition="python:hasattr(item, 'size')"><span tal:replace="item/size" /></tal:block></td>
-				<td>
-					<tal:block tal:condition="python:qa_4_files.has_key(item.id)">
-						<tal:block tal:repeat="script_item python:qa_4_files[item.id]">
-							<tal:block tal:condition="python:item.canHaveOnlineQA(script_item[3])">
-								<tal:block tal:condition="python:script_item[0] != -1" tal:define="script_item_id python:script_item[0]; script_item_title python:script_item[1];">
-									<a tal:attributes="href string:${item/absolute_url}/runQAScript?p_file_url=${item/absolute_url}&amp;p_script_id=${script_item_id}; title string:Run ${script_item_title}" class="test_button">Run QA #<span tal:replace="python:path('repeat/script_item/index')+1" /></a>
-								</tal:block>
-							</tal:block>
-							<tal:block tal:condition="python:not item.canHaveOnlineQA(script_item[3])">
-								<span class="not-button" tal:attributes="title python:'File too large for direct QA %s. Use the automatic QA instead.' % script_item[1]">n/a</span>
-							</tal:block>
-						</tal:block>
-					</tal:block>
-				</td>
-			</tr>
-			<tr valign="baseline" tal:repeat="item hyperlinks">
-				<td style="width:16px" tal:condition="canChangeEnvelope">
-					<input type="checkbox" name="ids:list" tal:attributes="value item/id" />
-				</td>
-				<td style="width:34px">
-					<img tal:attributes="src string:${item/id}/icon_gif" alt="icon" i18n:attributes="alt" />
-				</td>
-				<td><a title="Hyperlink" tal:attributes="href string:${item/id}/manage_editHyperlinkForm" tal:content="item/id" i18n:attributes="title" /></td>
-				<td style="white-space:nowrap" tal:define="has_permission python:SecurityManager.checkPermission('View', item)">
-					<a tal:attributes="title item/hyperlinkurl; href item/hyperlinkurl"><img src="misc_/Reportek/link_gif" width="16" height="16" alt="icon" /></a>
-					<tal:block tal:condition="has_permission">
-						<tal:block tal:condition="item/isRestricted" i18n:translate="">(Limited)</tal:block>
-					</tal:block>
-					<tal:block tal:condition="python:not has_permission">
-						<tal:block tal:define="dummy python:request.set('therearerestrictions', 1)" />
-						<img src="misc_/Reportek/lockicon_gif" alt="No access" width="16" height="16" i18n:attributes="alt" />
-					</tal:block>
-				</td>
-				<td><em tal:content="item/title" /></td>
-				<td tal:content="python:item.upload_time().strftime('%d %b %Y')" />
-				<td style="width:6em"><tal:block tal:condition="python:hasattr(item, 'size')"><span tal:replace="item/size" /></tal:block></td>
-			</tr>
-			<tr tal:condition="python:len(documents)==0 and len(hyperlinks)==0">
-				<td colspan="6" i18n:translate="">No files uploaded</td>
-			</tr>
-		</tbody>
-		</table>
-		<tal:block tal:condition="showFormButtons">
-			<tal:block tal:condition="python:len(documents)>0 or len(hyperlinks)>0">
-				<p>
-					<input type="submit" class="fileop" name="manage_renameForm:method" value="Rename" title="Select some files to rename them" i18n:attributes="value;title" />
-					<input type="submit" class="fileop" name="manage_cutObjects:method" value="Cut" title="Select some files to cut them" i18n:attributes="value;title" />
-					<input type="submit" class="fileop" name="manage_copyObjects:method" value="Copy" title="Select some files to copy them" i18n:attributes="value;title" />
-					<tal:block tal:condition="here/cb_dataValid">
-						<input type="submit" class="fileop" name="manage_pasteObjects:method" value="Paste" title="Paste previously selected files to this envelope" i18n:attributes="value;title" />
-					</tal:block>
-					<input type="submit" class="fileop" name="manage_delObjects:method" value="Delete" title="Select some files to delete them" i18n:attributes="value;title" />
-				</p>
-			</tal:block>
-			<tal:block tal:condition="python:len(documents)==0 and len(hyperlinks)==0">
-				<p tal:condition="here/cb_dataValid">
-					<input type="submit" class="fileop" name="manage_pasteObjects:method" value="Paste" title="Paste previously selected files to this envelope" i18n:attributes="value;title" />
-				</p>
-			</tal:block>
-		</tal:block>
-		</form>
+      <form method="post" tal:attributes="action here/absolute_url">
+      <table cellspacing="2" cellpadding="2">
+      <tbody>
+        <tr valign="baseline" tal:repeat="item documents">
+          <td style="width:16px" tal:condition="canChangeEnvelope">
+            <input type="checkbox" name="ids:list" tal:attributes="value item/id" tal:condition="python:item.get_accept_time() is None" />
+          </td>
+          <td style="width:34px">
+            <img tal:attributes="src string:${item/id}/icon_gif" alt="icon" i18n:attributes="alt" />
+          </td>
+          <td tal:define="a_title python:test(not here.released and canChangeEnvelope, 'File operations: [View file in different formats], [Replace file], [File properties], [View the feedback posted for it (if any)]', 'File operations: [View file in different formats], [File properties], [View the feedback posted for it (if any)]')">
+            <a tal:attributes="title a_title; href string:${item/id}/manage_edit_document" tal:content="item/id" i18n:attributes="title" />
+          </td>
+          <td style="white-space:nowrap" tal:define="has_permission python:SecurityManager.checkPermission('View', item)">
+            <tal:block tal:condition="has_permission">
+              <tal:block tal:condition="item/isRestricted" i18n:translate="">(Limited)</tal:block>
+            </tal:block>
+            <tal:block tal:condition="python:not has_permission">
+              <tal:block tal:define="dummy python:request.set('therearerestrictions', 1)" />
+              <img src="misc_/Reportek/lockicon_gif" alt="No access" width="16" height="16" i18n:attributes="alt" />
+            </tal:block>
+            <img tal:condition="item/get_accept_time" src="misc_/Reportek/accepted" alt="Document accepted by the client" i18n:attributes="alt" />
+          </td>
+          <td><em tal:content="item/title" /></td>
+          <td tal:content="python:item.upload_time().strftime('%d %b %Y')" />
+          <td style="width:6em"><tal:block tal:condition="python:hasattr(item, 'size')"><span tal:replace="item/size" /></tal:block></td>
+          <td>
+            <tal:block tal:condition="python:qa_4_files.has_key(item.id)">
+              <tal:block tal:repeat="script_item python:qa_4_files[item.id]">
+                <tal:block tal:condition="python:item.canHaveOnlineQA(script_item[3])">
+                  <tal:block tal:condition="python:script_item[0] != -1" tal:define="script_item_id python:script_item[0]; script_item_title python:script_item[1];">
+                    <a tal:attributes="href string:${item/absolute_url}/runQAScript?p_file_url=${item/absolute_url}&amp;p_script_id=${script_item_id}; title string:Run ${script_item_title}" class="test_button">Run QA #<span tal:replace="python:path('repeat/script_item/index')+1" /></a>
+                  </tal:block>
+                </tal:block>
+                <tal:block tal:condition="python:not item.canHaveOnlineQA(script_item[3])">
+                  <span class="not-button" tal:attributes="title python:'File too large for direct QA %s. Use the automatic QA instead.' % script_item[1]">n/a</span>
+                </tal:block>
+              </tal:block>
+            </tal:block>
+          </td>
+        </tr>
+        <tr valign="baseline" tal:repeat="item hyperlinks">
+          <td style="width:16px" tal:condition="canChangeEnvelope">
+            <input type="checkbox" name="ids:list" tal:attributes="value item/id" />
+          </td>
+          <td style="width:34px">
+            <img tal:attributes="src string:${item/id}/icon_gif" alt="icon" i18n:attributes="alt" />
+          </td>
+          <td><a title="Hyperlink" tal:attributes="href string:${item/id}/manage_editHyperlinkForm" tal:content="item/id" i18n:attributes="title" /></td>
+          <td style="white-space:nowrap" tal:define="has_permission python:SecurityManager.checkPermission('View', item)">
+            <a tal:attributes="title item/hyperlinkurl; href item/hyperlinkurl"><img src="misc_/Reportek/link_gif" width="16" height="16" alt="icon" /></a>
+            <tal:block tal:condition="has_permission">
+              <tal:block tal:condition="item/isRestricted" i18n:translate="">(Limited)</tal:block>
+            </tal:block>
+            <tal:block tal:condition="python:not has_permission">
+              <tal:block tal:define="dummy python:request.set('therearerestrictions', 1)" />
+              <img src="misc_/Reportek/lockicon_gif" alt="No access" width="16" height="16" i18n:attributes="alt" />
+            </tal:block>
+          </td>
+          <td><em tal:content="item/title" /></td>
+          <td tal:content="python:item.upload_time().strftime('%d %b %Y')" />
+          <td style="width:6em"><tal:block tal:condition="python:hasattr(item, 'size')"><span tal:replace="item/size" /></tal:block></td>
+        </tr>
+        <tr tal:condition="python:len(documents)==0 and len(hyperlinks)==0">
+          <td colspan="6" i18n:translate="">No files uploaded</td>
+        </tr>
+      </tbody>
+      </table>
+      <tal:block tal:condition="showFormButtons">
+        <tal:block tal:condition="python:len(documents)>0 or len(hyperlinks)>0">
+          <p>
+            <input type="submit" class="fileop" name="manage_renameForm:method" value="Rename" title="Select some files to rename them" i18n:attributes="value;title" />
+            <input type="submit" class="fileop" name="manage_cutObjects:method" value="Cut" title="Select some files to cut them" i18n:attributes="value;title" />
+            <input type="submit" class="fileop" name="manage_copyObjects:method" value="Copy" title="Select some files to copy them" i18n:attributes="value;title" />
+            <tal:block tal:condition="here/cb_dataValid">
+              <input type="submit" class="fileop" name="manage_pasteObjects:method" value="Paste" title="Paste previously selected files to this envelope" i18n:attributes="value;title" />
+            </tal:block>
+            <input type="submit" class="fileop" name="manage_delObjects:method" value="Delete" title="Select some files to delete them" i18n:attributes="value;title" />
+          </p>
+        </tal:block>
+        <tal:block tal:condition="python:len(documents)==0 and len(hyperlinks)==0">
+          <p tal:condition="here/cb_dataValid">
+            <input type="submit" class="fileop" name="manage_pasteObjects:method" value="Paste" title="Paste previously selected files to this envelope" i18n:attributes="value;title" />
+          </p>
+        </tal:block>
+      </tal:block>
+      </form>
 
-		<p tal:condition="python:request['therearerestrictions']>0" i18n:translate="">Access limitations may apply for files, which are not (yet) released for public view. Files marked with <img src="misc_/Reportek/lockicon_gif" alt="Padlock" width="16" height="16" /> are unavailable. You must log in to get access.</p>
+      <p tal:condition="python:request['therearerestrictions']>0" i18n:translate="">Access limitations may apply for files, which are not (yet) released for public view. Files marked with <img src="misc_/Reportek/lockicon_gif" alt="Padlock" width="16" height="16" /> are unavailable. You must log in to get access.</p>
 
-	</fieldset>
-</div>
+    </fieldset>
+  </div>
 
 </tal:block>

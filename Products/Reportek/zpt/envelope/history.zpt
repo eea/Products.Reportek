@@ -1,4 +1,5 @@
-<span tal:replace="structure here/standard_html_header" />
+<metal:block use-macro="container/standard_template.pt/macros/page">
+  <metal:block fill-slot="content">
     <div tal:replace="structure python:context.envelope_tabs(tab='history_section')"/>
     <h1 i18n:translate="">
       History of <span tal:replace="string:${context/title_or_id}" i18n:name="title"/>
@@ -65,5 +66,5 @@
       </tr>
     </tal:block>
     </table>
-
-<span tal:replace="structure here/standard_html_footer" />
+  </metal:block>
+</metal:block>

@@ -1,22 +1,23 @@
-<div tal:replace="structure here/standard_html_header" />
+<metal:block use-macro="container/standard_template.pt/macros/page">
+  <metal:block fill-slot="content">
 
-<form tal:attributes="action options/action" method="get" name="frmMessage">
-<table border="0" width="100%" cellpadding="10">
-    <tr>
-        <td valign="top">
-            <span style="text-align: center; font-weight: bold; font-size: 50px; color: #77003b;">!</span>
-        </td>
-        <td valign="top">
-            <span style="text-align: center" tal:content="options/message" i18n:translate="" />
-        </td>
-    </tr>
-    <tr>
-        <td valign="top"> </td>
-        <td valign="top">
-            <span style="text-align: center"><input type="submit" value="   ok   " i18n:attributes="value" /></span>
-        </td>
-    </tr>
-</table>
-</form>
-
-<div tal:replace="structure here/standard_html_footer" />
+    <form tal:attributes="action options/action" method="get" name="frmMessage">
+    <table border="0" width="100%" cellpadding="10">
+        <tr>
+            <td valign="top">
+                <span style="text-align: center; font-weight: bold; font-size: 50px; color: #77003b;">!</span>
+            </td>
+            <td valign="top">
+                <span style="text-align: center" tal:content="options/message" i18n:translate="" />
+            </td>
+        </tr>
+        <tr>
+            <td valign="top"> </td>
+            <td valign="top">
+                <span style="text-align: center"><input type="submit" value="   ok   " i18n:attributes="value" /></span>
+            </td>
+        </tr>
+    </table>
+    </form>
+  </metal:block>
+</metal:block>

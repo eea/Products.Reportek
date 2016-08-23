@@ -1,7 +1,9 @@
 <tal:block define="workflow_tabs python:context.getWorkflowTabs(request);
-                   dummy python: request.set('tab', options.get('tab') or request.get('tab') or 'overview')">
+                   dummy python: request.set('tab', options.get('tab') or request.get('tab') or 'overview');
+                   SecurityManager modules/AccessControl/getSecurityManager;
+                   is_mgmt python:SecurityManager.checkPermission('View management screens', context);">
 
-<div id="tabbedmenu">
+  <div id="tabbedmenu">
     <ul>
       <tal:block condition="python:request.get('tab') in ['overview', 'index_html']"
                  replace="structure string:<li id='currenttab'>"/>
@@ -50,6 +52,17 @@
         <tal:block replace="structure string:</li>"/>
       </tal:block>
 
+      <tal:block condition="is_mgmt">
+        <tal:block condition="python:request.get('tab') == 'manage_history'"
+                   replace="structure string:<li id='currenttab'>"/>
+        <tal:block condition="not:python:request.get('tab') == 'manage_history'"
+                   replace="structure string:<li>"/>
+          <a href="manage_history_html" title="Manage the workflow history"
+             i18n:attributes="title tab-edit-title"
+             i18n:translate="">Manage workflow history</a>
+        <tal:block replace="structure string:</li>"/>
+      </tal:block>
+
       <tal:block condition="python:request.get('tab') == 'history_section'"
                  replace="structure string:<li id='currenttab'>"/>
       <tal:block condition="not:python:request.get('tab') == 'history_section'"
@@ -72,6 +85,6 @@
       </tal:block>
 
     </ul>
-</div>
+  </div>
 
 </tal:block>

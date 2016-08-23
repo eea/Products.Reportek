@@ -108,16 +108,35 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
 
     if year and year > now.year() and not preliminary_obl:
         if REQUEST is not None:
-            error_msg = 'You cannot submit a report which relates to a future\
-                         year. Please fill in the correct year!'
+            error_msg = 'You cannot submit a report which relates to a future'\
+                        ' year. Please fill in the correct year!'
             return self.manage_addEnvelopeForm(error=error_msg)
         else:
             raise ValueError('Cannot create envelope which relates to a future year')
 
-    year_parts = ['Whole Year', 'First Half', 'Second Half',
-                  'First Quarter', 'Second Quarter', 'Third Quarter',
-                  'Fourth Quarter']
-    months = ["January","February","March","April","May","June","July","August","September","October","November","December"]
+    year_parts = [
+        'Whole Year',
+        'First Half',
+        'Second Half',
+        'First Quarter',
+        'Second Quarter',
+        'Third Quarter',
+        'Fourth Quarter'
+    ]
+    months = [
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December"
+    ]
     if not partofyear in (year_parts + months):
         raise InvalidPartOfYear
 
@@ -132,7 +151,8 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
         ob.manage_pasteObjects(l_data)
     ob.startInstance(REQUEST)  # Start the instance
     if REQUEST is not None:
-        return REQUEST.RESPONSE.redirect('manage_main')
+        # Return to container's view
+        return REQUEST.RESPONSE.redirect(self.absolute_url())
     else:
         return ob.absolute_url()
 
@@ -631,7 +651,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         if self.REQUEST is not None:
             return self.messageDialog(
                             message="The envelope has now been released to the public!",
-                            action='./manage_main')
+                            action='')
 
     security.declareProtected(view_management_screens, 'unrelease_envelope_manual')
     def unrelease_envelope_manual(self):
@@ -656,7 +676,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         if self.REQUEST is not None:
             return self.messageDialog(
                             message="The envelope is no longer available to the public!",
-                            action='./manage_main')
+                            action='')
 
     # See if this is really used somewhere
     security.declareProtected('View', 'delivery_status')
@@ -703,7 +723,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         if REQUEST is not None:
             return self.messageDialog(
                             message="The properties of %s have been changed!" % self.id,
-                            action='./manage_main')
+                            action='')
 
     security.declareProtected(permission_manage_properties_envelopes, 'manage_changeEnvelope')
     def manage_changeEnvelope(self, title=None, descr=None,
@@ -734,7 +754,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         if REQUEST is not None:
             return self.messageDialog(
                             message="The properties of %s have been changed!" % self.id,
-                            action='./manage_main')
+                            action='')
 
     ##################################################
     # These methods represent the outcome of the CDR discussion.
@@ -1097,12 +1117,12 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             if REQUEST is not None:
                 return self.messageDialog(
                                 message="The file(s) were successfully created!",
-                                action='./manage_main')
+                                action='./index_html')
 
         elif REQUEST is not None:
             return self.messageDialog(
                             message="You must specify a file!",
-                            action='./manage_main')
+                            action='./index_html')
 
     security.declareProtected('View', 'getZipInfo')
     def getZipInfo(self, document):

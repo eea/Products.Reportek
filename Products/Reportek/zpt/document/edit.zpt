@@ -1,114 +1,122 @@
 <tal:block define="SecurityManager modules/AccessControl/getSecurityManager; has_permission python:SecurityManager.checkPermission('View management screens', template)">
 
-	<link rel="stylesheet" type="text/css" href="http://www.eionet.europa.eu/styles/eionet2007/screen.css" media="screen" />
+  <link rel="stylesheet" type="text/css" href="http://www.eionet.europa.eu/styles/eionet2007/screen.css" media="screen" />
 
-	<tal:block condition="has_permission">
-		<script language="javascript" type="text/javascript">
-		//<![CDATA[
-			function fConvert(doc_path, conv_value, source)
-			{
-				document.location.href='/Converters/run_conversion?file=' + doc_path + '&amp;conv=' + conv_value + '&amp;source=' + source;
-			}
-		// ]]>
-		</script>
-		<span tal:replace="structure context/manage_page_header" />
-		<span tal:replace="structure python:context.manage_tabs(management_view='Properties')" />
-	</tal:block>
-	<tal:block condition="python:not has_permission">
-		<span tal:replace="structure here/standard_html_header" />
-		<div id="tabbedmenu">
-			<ul>
-				<li><a href="index_html" i18n:translate="">Overview</a></li>
-				<li id="currenttab"><a href="manage_main" i18n:translate="">Edit Properties</a></li>
-			</ul>
-		</div>
-		<div id="operations">
-			<ul>
-				<li><a tal:attributes="href here/absolute_url" i18n:translate="">Download/View</a></li>
-				<li><a tal:attributes="href request/URL2" i18n:translate="">Back to envelope</a></li>
-				<li tal:condition="python:not here.released"><a href="./manage_uploadForm" i18n:translate="">Replace file</a></li>
-			</ul>
-		</div>
-	</tal:block>
+  <tal:cond tal:condition="nothing">
+    <metal:def define-macro="document-edit">
+      <div class="caution-msg" tal:condition="options/warnings | nothing"><span tal:replace="options/warnings" /></div>
 
-	<div class="caution-msg" tal:condition="options/warnings | nothing"><span tal:replace="options/warnings" /></div>
+      <h1><tal:block i18n:translate="">Edit file</tal:block> <span tal:replace="here/title_or_id" /></h1>
 
-	<h1><tal:block i18n:translate="">Edit file</tal:block> <span tal:replace="here/title_or_id" /></h1>
-
-	<form name="edit" tal:attributes="action request/URL1" method="post">
-	<table cellspacing="5" cellpadding="0" border="0">
-		<tr>
-			<th align="left"><label for="title" i18n:translate="">Title</label></th>
-			<td align="left" ><input type="text" id="title" name="title" size="60" tal:attributes="value here/title" /></td>
-		</tr>
-		<tr>
-			<th align="left"><label for="content_type" i18n:translate="">Content Type</label></th>
-			<td align="left" ><input type="text" id="content_type" name="content_type" size="60" tal:attributes="value here/content_type" /></td>
-		</tr>
-		<tr>
-			<th align="left"><label for="xml_schema_location" i18n:translate="">Schema location</label></th>
-			<td align="left"><input type="text" id="xml_schema_location" name="xml_schema_location" size="60" tal:attributes="value here/xml_schema_location" /></td>
-		</tr>
-		<tr>
-			<th align="left" i18n:translate="">File Size</th>
-            <td align="left">
-                <span tal:content="string:${context/size}"></span>
-                <span tal:condition="python: context.rawsize() >= 1000"
-                      tal:content="string: (${context/rawsize} Bytes)"></span>
-            </td>
-		</tr>
+      <form name="edit" tal:attributes="action request/URL1" method="post">
+      <table cellspacing="5" cellpadding="0" border="0">
         <tr>
-            <th align="left" i18n:translate="">Compressed size</th>
-            <tal:block condition="here/is_compressed">
-                <td align="left"
-                    tal:define="cSize_bytes_human here/compressed_size;
-                            cSize_bytes python: cSize_bytes_human[0];
-                            cSize_human python: cSize_bytes_human[1]">
-                    <span tal:content="cSize_human"></span>
-                    <span tal:condition="python: cSize_bytes >= 1024"
-                          tal:content="string: (${cSize_bytes} Bytes)"></span>
-                </td>
-            </tal:block>
-            <tal:block condition="not: here/is_compressed">
-                <td align="left">Not compressed</td>
-            </tal:block>
+          <th align="left"><label for="title" i18n:translate="">Title</label></th>
+          <td align="left" ><input type="text" id="title" name="title" size="60" tal:attributes="value here/title" /></td>
         </tr>
-		<tr tal:condition="has_permission">
-			<th align="left" i18n:translate="">File path on server</th>
-			<td align="left" tal:content="here/blob_path">NOT OK</td>
-		</tr>
-		<tr>
-			<th align="left" i18n:translate="">Document accepted by the client</th>
-			<td>
-				<tal:block tal:condition="here/get_accept_time"><img src="misc_/Reportek/accepted" alt="Document accepted by the client" i18n:attributes="alt" /></tal:block>
-				<tal:block tal:condition="python:not here.get_accept_time()"><tal:block i18n:translate="">not yet</tal:block></tal:block>
-			</td>
-		</tr>
-		<tr>
-			<td> </td>
-			<td><input type="submit" name="manage_editDocument:method" value=" Change " i18n:attributes="value" /></td>
-		</tr>
-		<tr><td colspan="2"> </td></tr>
-	</table>
+        <tr>
+          <th align="left"><label for="content_type" i18n:translate="">Content Type</label></th>
+          <td align="left" ><input type="text" id="content_type" name="content_type" size="60" tal:attributes="value here/content_type" /></td>
+        </tr>
+        <tr>
+          <th align="left"><label for="xml_schema_location" i18n:translate="">Schema location</label></th>
+          <td align="left"><input type="text" id="xml_schema_location" name="xml_schema_location" size="60" tal:attributes="value here/xml_schema_location" /></td>
+        </tr>
+        <tr>
+          <th align="left" i18n:translate="">File Size</th>
+                <td align="left">
+                    <span tal:content="string:${context/size}"></span>
+                    <span tal:condition="python: context.rawsize() >= 1000"
+                          tal:content="string: (${context/rawsize} Bytes)"></span>
+                </td>
+        </tr>
+            <tr>
+                <th align="left" i18n:translate="">Compressed size</th>
+                <tal:block condition="here/is_compressed">
+                    <td align="left"
+                        tal:define="cSize_bytes_human here/compressed_size;
+                                cSize_bytes python: cSize_bytes_human[0];
+                                cSize_human python: cSize_bytes_human[1]">
+                        <span tal:content="cSize_human"></span>
+                        <span tal:condition="python: cSize_bytes >= 1024"
+                              tal:content="string: (${cSize_bytes} Bytes)"></span>
+                    </td>
+                </tal:block>
+                <tal:block condition="not: here/is_compressed">
+                    <td align="left">Not compressed</td>
+                </tal:block>
+            </tr>
+        <tr tal:condition="has_permission">
+          <th align="left" i18n:translate="">File path on server</th>
+          <td align="left" tal:content="here/blob_path">NOT OK</td>
+        </tr>
+        <tr>
+          <th align="left" i18n:translate="">Document accepted by the client</th>
+          <td>
+            <tal:block tal:condition="here/get_accept_time"><img src="misc_/Reportek/accepted" alt="Document accepted by the client" i18n:attributes="alt" /></tal:block>
+            <tal:block tal:condition="python:not here.get_accept_time()"><tal:block i18n:translate="">not yet</tal:block></tal:block>
+          </td>
+        </tr>
+        <tr>
+          <td> </td>
+          <td><input type="submit" name="manage_editDocument:method" value=" Change " i18n:attributes="value" /></td>
+        </tr>
+        <tr><td colspan="2"> </td></tr>
+      </table>
 
-	<table border="0" cellpadding="2" cellspacing="0" tal:define="converters options/converters; local_converters python:converters[0]; remote_converters python:converters[1];">
-		<tr>
-			<th><label for="conversion" i18n:translate="">View file as</label></th>
-			<td>
-				<select name="conversion" id="conversion">
-					<option value="default" i18n:translate="">Original</option>
-					<option value="" tal:condition="python:len(local_converters)>0" i18n:translate="">Local converters</option>
-					<option tal:repeat="item local_converters" src="local" tal:attributes="value item/xsl">&nbsp;&nbsp;&nbsp;<span tal:replace="item/description" /></option>
-					<option value="" tal:condition="python:len(remote_converters)>0" i18n:translate="">Remote converters</option>
-					<option tal:repeat="item remote_converters" src="remote" tal:attributes="value item/convert_id">&nbsp;&nbsp;&nbsp;<span tal:replace="item/description" /></option>
-				</select>&nbsp;
-				<input type="button" value="Go" tal:define="url python:here.absolute_url(1)" tal:attributes="onclick string:javascript:fConvert('${url}', document.edit.conversion.options[document.edit.conversion.options.selectedIndex].value, document.edit.conversion.options[document.edit.conversion.options.selectedIndex].getAttribute('src'));;" i18n:attributes="value" />
-			</td>
-		</tr>
-	</table>
-	</form>
+      <table border="0" cellpadding="2" cellspacing="0" tal:define="converters options/converters; local_converters python:converters[0]; remote_converters python:converters[1];">
+        <tr>
+          <th><label for="conversion" i18n:translate="">View file as</label></th>
+          <td>
+            <select name="conversion" id="conversion">
+              <option value="default" i18n:translate="">Original</option>
+              <option value="" tal:condition="python:len(local_converters)>0" i18n:translate="">Local converters</option>
+              <option tal:repeat="item local_converters" src="local" tal:attributes="value item/xsl">&nbsp;&nbsp;&nbsp;<span tal:replace="item/description" /></option>
+              <option value="" tal:condition="python:len(remote_converters)>0" i18n:translate="">Remote converters</option>
+              <option tal:repeat="item remote_converters" src="remote" tal:attributes="value item/convert_id">&nbsp;&nbsp;&nbsp;<span tal:replace="item/description" /></option>
+            </select>&nbsp;
+            <input type="button" value="Go" tal:define="url python:here.absolute_url(1)" tal:attributes="onclick string:javascript:fConvert('${url}', document.edit.conversion.options[document.edit.conversion.options.selectedIndex].value, document.edit.conversion.options[document.edit.conversion.options.selectedIndex].getAttribute('src'));;" i18n:attributes="value" />
+          </td>
+        </tr>
+      </table>
+      </form>
+    </metal:def>
+  </tal:cond>
 
-	<span tal:condition="has_permission" tal:replace="structure context/manage_page_footer" />
-	<span tal:condition="not:has_permission" tal:replace="structure context/standard_html_footer" />
+  <tal:block condition="has_permission">
+    <script language="javascript" type="text/javascript">
+    //<![CDATA[
+      function fConvert(doc_path, conv_value, source)
+      {
+        document.location.href='/Converters/run_conversion?file=' + doc_path + '&amp;conv=' + conv_value + '&amp;source=' + source;
+      }
+    // ]]>
+    </script>
+    <span tal:replace="structure context/manage_page_header" />
+    <span tal:replace="structure python:context.manage_tabs(management_view='Properties')" />
+    <metal:block use-macro="template/macros/document-edit" />
+  </tal:block>
+  <tal:block condition="python:not has_permission">
+    <metal:block use-macro="container/standard_template.pt/macros/page">
+      <metal:block fill-slot="content">
+        <div id="tabbedmenu">
+          <ul>
+            <li><a href="index_html" i18n:translate="">Overview</a></li>
+            <li id="currenttab"><a href="manage_main" i18n:translate="">Edit Properties</a></li>
+          </ul>
+        </div>
+        <div id="operations">
+          <ul>
+            <li><a tal:attributes="href here/absolute_url" i18n:translate="">Download/View</a></li>
+            <li><a tal:attributes="href request/URL2" i18n:translate="">Back to envelope</a></li>
+            <li tal:condition="python:not here.released"><a href="./manage_uploadForm" i18n:translate="">Replace file</a></li>
+          </ul>
+        </div>
+        <metal:block use-macro="template/macros/document-edit" />
+      </metal:block>
+    </metal:block>
+  </tal:block>
+
+  <span tal:condition="has_permission" tal:replace="structure context/manage_page_footer" />
 
 </tal:block>
