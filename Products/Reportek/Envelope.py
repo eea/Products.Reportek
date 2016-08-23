@@ -138,7 +138,7 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
         ob.manage_pasteObjects(l_data)
     ob.startInstance(REQUEST)  # Start the instance
     if REQUEST is not None:
-        return REQUEST.RESPONSE.redirect('manage_main')
+        return REQUEST.RESPONSE.redirect(self.absolute_url())
     else:
         return ob.absolute_url()
 

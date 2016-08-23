@@ -20,86 +20,56 @@
 
       <h1 tal:content="python:context.title_or_id()"></h1>
 
-  <div class="metadata">
-    <table border="0" cellspacing="2" cellpadding="2">
-    <tbody>
-    <tr>
-      <th i18n:translate="">Description</th>
-      <td tal:content="python:context.descr"></td>
-    </tr>
-    <tr>
-      <th i18n:translate="">Obligations</th>
-      <td tal:define="engine context/getEngine">
-        <tal:block condition="python:context.dataflow_uris" repeat="uri python:context.dataflow_uris">
-          <tal:block define="df python:engine.dataflow_lookup(uri)">
-            <a tal:attributes="href python:df['details_url']"
-               tal:content="python:df['TITLE']"></a>
-            <tal:block condition="python:df.get('terminated', '0') == '1'">
-             <em i18n:translate="">Terminated</em>
-            </tal:block>
-            <br/>
-          </tal:block>
-        </tal:block>
-        <tal:block condition="python:not context.dataflow_uris">
-          <span style="color:maroon;font-weight:bold"
-                title="The obligation tag makes it possible for the requesters to find the delivery"
-                i18n:attributes="title"
-                i18n:translate="">
-            Notice: this envelope has no obligation tag</span>
-        </tal:block>
-      </td>
-    </tr>
-    <tr>
-      <th i18n:translate="">Period</th>
-      <td tal:condition="python:context.endyear == ''"
-          tal:content="python:'%s - %s' %(context.year, context.friendlypartofyear)">
-      </td>
-      <td tal:condition="not:python:context.endyear == ''"
-          tal:content="python:'%s to %s' %(context.year, context.endyear)">
-      </td>
-    </tr>
-    <tr>
-      <th i18n:translate="">Coverage</th>
-      <td tal:content="context/getCountryName">
-        <span tal:condition="context/locality" tal:replace="python:': %s' %context.locality"></span>
-      </td>
-    </tr>
-    <tal:block condition="context/released">
-    <tr>
-      <th i18n:translate="">Reported</th>
-      <td tal:content="python: context.reportingdate.strftime('%d %b %Y %H:%M')" />
-    </tr>
-    </tal:block>
-    <tr>
-      <th i18n:translate="">Status</th>
-      <td>
-        <tal:block condition="not:python:context.status in ('running', 'active')">
-          <span i18n:translate="">
-            Envelope is <span i18n:name="status" tal:replace="context/status"></span>
-          </span>
-          <br/>
-        </tal:block>
-        <tal:block define="activeW python:context.getListOfWorkitems('active');
-                           inactiveW python:context.getListOfWorkitems('inactive')">
-          <metal:block use-macro="here/macros/tasks_in_progress">
-          </metal:block>
-        </tal:block>
-        <tal:def tal:define="w_items python:[wi for wi in context.getListOfWorkitems()];
-                             last python: w_items[-1].activity_id if w_items else None;">
-          <tal:block tal:condition="python: last == 'Draft'">
-            <tal:block tal:condition="context/is_blocked">
-              <div class="envelope-blocked-status">
-                <strong style="color: red;">
-                  <span i18n:translate="">The last AutomaticQA run has flagged this envelope as unfit for release. Reporters have to change the delivery and release the envelope again.</span>
-                </strong>
-              </div>
-            </tal:block>
-            <tal:block tal:condition="context/has_unknown_qa_result">
-              <div>
-                <strong>
-                  <span i18n:translate="">Some automatic data quality checks finished with an unknown result, see <a href="data_quality">Data quality</a>.</span>
-                </strong>
-              </div>
+      <div class="metadata">
+        <table border="0" cellspacing="2" cellpadding="2">
+          <tbody>
+            <tr>
+              <th i18n:translate="">Description</th>
+              <td tal:content="python:context.descr"></td>
+            </tr>
+            <tr>
+              <th i18n:translate="">Obligations</th>
+              <td tal:define="engine context/getEngine">
+                <tal:block condition="python:context.dataflow_uris" repeat="uri python:context.dataflow_uris">
+                  <tal:block define="df python:engine.dataflow_lookup(uri)">
+                    <a tal:attributes="href python:df['details_url']"
+                       tal:content="python:df['TITLE']"></a>
+                    <tal:block condition="python:df.get('terminated', '0') == '1'">
+                     <em i18n:translate="">Terminated</em>
+                    </tal:block>
+                    <br/>
+                  </tal:block>
+                </tal:block>
+
+                <tal:block condition="python:not context.dataflow_uris">
+                  <span style="color:maroon;font-weight:bold"
+                        title="The obligation tag makes it possible for the requesters to find the delivery"
+                        i18n:attributes="title"
+                        i18n:translate="">
+                    Notice: this envelope has no obligation tag</span>
+                </tal:block>
+              </td>
+            </tr>
+            <tr>
+              <th i18n:translate="">Period</th>
+              <td tal:condition="python:context.endyear == ''"
+                  tal:content="python:'%s - %s' %(context.year, context.friendlypartofyear)">
+              </td>
+              <td tal:condition="not:python:context.endyear == ''"
+                  tal:content="python:'%s to %s' %(context.year, context.endyear)">
+              </td>
+            </tr>
+            <tr>
+              <th i18n:translate="">Coverage</th>
+              <td tal:content="context/getCountryName">
+                <span tal:condition="context/locality" tal:replace="python:': %s' %context.locality"></span>
+              </td>
+            </tr>
+            <tal:block condition="context/released">
+              <tr>
+                <th i18n:translate="">Reported</th>
+                <td tal:content="python: context.reportingdate.strftime('%d %b %Y %H:%M')" />
+              </tr>
             </tal:block>
             <tr>
               <th i18n:translate="">Status</th>

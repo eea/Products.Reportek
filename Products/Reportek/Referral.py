@@ -64,8 +64,11 @@ def manage_addReferral(self, title, descr, referral_url, year, endyear,
     ob.id = id
     ob.released = 1
     self._setObject(id, ob)
-    ob=self._getOb(id)
-    return self.manage_main(self, REQUEST, update_menu=1)
+    ob = self._getOb(id)
+
+    if REQUEST is not None:
+        # Return to containers's view
+        return REQUEST.RESPONSE.redirect(self.absolute_url())
 
 
 class Referral(CatalogAware, SimpleItem, CountriesManager, BaseDelivery):
