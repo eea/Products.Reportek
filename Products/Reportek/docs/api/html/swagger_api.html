@@ -257,11 +257,13 @@ font-style: italic;
   "envelopes" : [ {
     "files" : [ {
       "title" : "My Envelope file",
-      "archived_files" : [ "File1.xml", "File2.xml" ],
+      "archivedFiles" : [ "File1.xml", "File2.xml" ],
       "contentType" : "application/xml",
       "uploadDate" : "2013-04-12T23:20:50.520Z",
       "url" : "http://foo/bar/my_envelope/my_envelope_file.xml",
-      "schemaURL" : "http://foo/bar/schema.xsd"
+      "schemaURL" : "http://foo/bar/schema.xsd",
+      "fileSize" : 3679181,
+      "fileSizeHR" : "3.51 MB"
     } ],
     "periodEndYear" : 2014,
     "status" : "Release",
@@ -302,7 +304,7 @@ font-style: italic;
         <a href="#inline_response_200">inline_response_200</a>
     <h3 class="field-label">Example data</h3>
     <div class="example-data-content-type">Content-Type: application/json</div>
-    <pre class="example"><code>{errors&#x3D;[{title&#x3D;Error title, description&#x3D;This is a generic error description}], envelopes&#x3D;[{files&#x3D;[{title&#x3D;My Envelope file, archived_files&#x3D;[File1.xml, File2.xml], contentType&#x3D;application/xml, uploadDate&#x3D;2013-04-12T23:20:50.520Z, url&#x3D;http://foo/bar/my_envelope/my_envelope_file.xml, schemaURL&#x3D;http://foo/bar/schema.xsd}], periodEndYear&#x3D;2014, status&#x3D;Release, countryCode&#x3D;RO, statusDate&#x3D;2013-04-13T01:20:50.530Z, obligations&#x3D;[701], isBlockedByQCError&#x3D;0, url&#x3D;http://foo/bar/my_envelope, modifiedDate&#x3D;2013-04-13T01:20:50.530Z, creator&#x3D;foo, history&#x3D;[{id&#x3D;0, title&#x3D;Release, activity_id&#x3D;Release, activity_status&#x3D;complete, blocker&#x3D;false, modified&#x3D;2013-04-13T01:20:50.530Z}], isReleased&#x3D;1, title&#x3D;My Envelope, reportingDate&#x3D;2013-04-13T01:20:50.530Z, periodStartYear&#x3D;2013, description&#x3D;A description for my envelope, periodDescription&#x3D;Whole Year}]}</code></pre>
+    <pre class="example"><code>{errors&#x3D;[{title&#x3D;Error title, description&#x3D;This is a generic error description}], envelopes&#x3D;[{files&#x3D;[{title&#x3D;My Envelope file, archivedFiles&#x3D;[File1.xml, File2.xml], contentType&#x3D;application/xml, uploadDate&#x3D;2013-04-12T23:20:50.520Z, url&#x3D;http://foo/bar/my_envelope/my_envelope_file.xml, schemaURL&#x3D;http://foo/bar/schema.xsd, fileSize&#x3D;3679181, fileSizeHR&#x3D;3.51 MB}], periodEndYear&#x3D;2014, status&#x3D;Release, countryCode&#x3D;RO, statusDate&#x3D;2013-04-13T01:20:50.530Z, obligations&#x3D;[701], isBlockedByQCError&#x3D;0, url&#x3D;http://foo/bar/my_envelope, modifiedDate&#x3D;2013-04-13T01:20:50.530Z, creator&#x3D;foo, history&#x3D;[{id&#x3D;0, title&#x3D;Release, activity_id&#x3D;Release, activity_status&#x3D;complete, blocker&#x3D;false, modified&#x3D;2013-04-13T01:20:50.530Z}], isReleased&#x3D;1, title&#x3D;My Envelope, reportingDate&#x3D;2013-04-13T01:20:50.530Z, periodStartYear&#x3D;2013, description&#x3D;A description for my envelope, periodDescription&#x3D;Whole Year}]}</code></pre>
   </div> <!-- method -->
   <hr/>
 
@@ -357,7 +359,9 @@ font-style: italic;
 <div class="param">url (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The file&#39;s URL. </div>
 <div class="param">uploadDate (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The file&#39;s upload date. format: dateTime</div>
 <div class="param">schemaURL (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The URL of the file&#39;s schema. </div>
-<div class="param">archived_files (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">array[String]</a></span> The list of files that have been archived. Available only if there is an archive attached to the envelope and if it can be opened. </div>
+<div class="param">fileSize (optional)</div><div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span> The size of the file in bytes </div>
+<div class="param">fileSizeHR (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The size of the file in human readable format. </div>
+<div class="param">archivedFiles (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">array[String]</a></span> The list of files that have been archived. Available only if there is an archive attached to the envelope and if it can be opened. </div>
     </div>  <!-- field-items -->
   </div>
   <div class="model">

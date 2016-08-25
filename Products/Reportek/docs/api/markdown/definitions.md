@@ -40,8 +40,10 @@
 
 |Name|Description|Schema|
 |---|---|---|
-|**archived_files**  <br>*optional*|The list of files that have been archived. Available only if there is an archive attached to the envelope and if it can be opened.|< string > array|
+|**archivedFiles**  <br>*optional*|The list of files that have been archived. Available only if there is an archive attached to the envelope and if it can be opened.|< string > array|
 |**contentType**  <br>*optional*|The file's content type.|string|
+|**fileSize**  <br>*optional*|The size of the file in bytes|integer|
+|**fileSizeHR**  <br>*optional*|The size of the file in human readable format.|string|
 |**schemaURL**  <br>*optional*|The URL of the file's schema.|string|
 |**title**  <br>*optional*|The file's title.|string|
 |**uploadDate**  <br>*optional*|The file's upload date.|string|

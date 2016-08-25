@@ -142,7 +142,9 @@ class EnvelopesAPI(BrowserView):
                         'contentType': doc.content_type,
                         'schemaURL': doc.xml_schema_location,
                         'uploadDate': doc.upload_time().HTML4(),
-                        'archived_files': archived_files
+                        'fileSize': doc.get_size(),
+                        'fileSizeHR': doc.size(),
+                        'archivedFiles': archived_files
                     }
 
                     documents.append(doc_properties)
@@ -304,7 +306,7 @@ class EnvelopesAPI(BrowserView):
             elif sds:
                 sde = datetime.datetime.now()
 
-            if sds or sde:
+            if datev and (sds or sde):
                 if not self.is_in_range(datev, sds, sde):
                     return True
 

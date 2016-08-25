@@ -55,11 +55,13 @@ json :
     "envelopes" : [ {
       "files" : [ {
         "title" : "My Envelope file",
-        "archived_files" : [ "File1.xml", "File2.xml" ],
+        "archivedFiles" : [ "File1.xml", "File2.xml" ],
         "contentType" : "application/xml",
         "uploadDate" : "2013-04-12T23:20:50.520+0000",
         "url" : "http://foo/bar/my_envelope/my_envelope_file.xml",
-        "schemaURL" : "http://foo/bar/schema.xsd"
+        "schemaURL" : "http://foo/bar/schema.xsd",
+        "fileSize" : 3679181,
+        "fileSizeHR" : "3.51 MB"
       } ],
       "periodEndYear" : 2014,
       "status" : "Release",
