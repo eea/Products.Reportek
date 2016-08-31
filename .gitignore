@@ -9,3 +9,4 @@ var/*
 Products.Reportek.egg-info/*
 *.pyc
 *.bak
+.idea/
