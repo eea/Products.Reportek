@@ -26,6 +26,11 @@
     </div>
 
     <form method="post" action="manage_addDocOrZip" enctype="multipart/form-data" name="frmAddOtherFile">
+      <tal:block tal:repeat="item python:request.SESSION.get('required_schema', [])">
+        <input type="hidden" name="required_schema:list" tal:attributes="value item" />
+      </tal:block>
+      <input type="hidden" name="replace_xml" tal:attributes="value python:request.SESSION.get('replace_xml', 0)" />
+
       <span style="height: 2em; width: 17em; font-weight: 700; float: left;"
             i18n:translate="">Title</span>
       <input type="text" name="title" size="40" />
@@ -47,7 +52,15 @@
       <input type="checkbox" name="restricted" />
       <br clear="all" />
 
-      <input type="submit" value="Add" i18n:attributes="value add-button"/>
+      <input type="submit" value="Add" i18n:attributes="value add-button" />
     </form>
+
+    <tal:block tal:condition="python:request.SESSION.has_key('required_schema')">
+      <tal:block tal:replace="python:request.SESSION.delete('required_schema')" />
+    </tal:block>
+    <tal:block tal:condition="python:request.SESSION.has_key('replace_xml')">
+      <tal:block tal:replace="python:request.SESSION.delete('replace_xml')" />
+    </tal:block>
+
   </metal:block>
 </metal:block>

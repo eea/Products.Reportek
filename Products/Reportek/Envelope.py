@@ -1085,18 +1085,15 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         """ Generate id from filename and make sure,
             there are no spaces in the id.
         """
-        id=name[max(string.rfind(name,'/'),
-                  string.rfind(name,'\\'),
-                  string.rfind(name,':')
-                 )+1:]
-        id = RepUtils.cleanup_id(id)
+        id = self.cook_file_id(name)
         self.manage_addDocument(id=id, title=id, file=zipfile, restricted=restricted)
 
     security.declareProtected('Add Envelopes', 'manage_addzipfile')
     def manage_addzipfile(self, file='', content_type='', restricted='', REQUEST=None):
-        """ Expand a zipfile into a number of Documents.
-            Go through the zipfile and for each file in there call
-            self.manage_addProduct['Report Document'].manageaddDocument(id,...
+        """ Expands a zipfile into a number of Documents.
+            Goes through the zipfile and calls manageaddDocument
+            This function does not apply any special treatment to XML files,
+            use manage_addDDzipfile for that
         """
 
         if type(file) is not type('') and hasattr(file,'filename'):
@@ -1111,7 +1108,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
             for name in zf.namelist():
                 zf.setcurrentfile(name)
-                self._add_file_from_zip(zf,name, restricted)
+                self._add_file_from_zip(zf, name, restricted)
                 transaction.commit()
 
             if REQUEST is not None:

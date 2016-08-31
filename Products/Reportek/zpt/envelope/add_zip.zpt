@@ -7,9 +7,17 @@
 
     <tal:block define="
       default_restricted python:request.SESSION.get('default_restricted', '');
-      force_restricted python:request.SESSION.get('force_restricted', '')">
+      force_restricted python:request.SESSION.get('force_restricted', '');
+	  replace_xml python:request.SESSION.get('replace_xml', 0);
+	  required_schema python:request.SESSION.get('required_schema', [])">
 
-      <form action="manage_addzipfile" method="post" enctype="multipart/form-data" name="form">
+      <form action="manage_addDDzipfile" method="post" enctype="multipart/form-data" name="form">
+
+      <tal:block tal:repeat="item required_schema">
+          <input type="hidden" name="required_schema:list" tal:attributes="value item" />
+      </tal:block>
+      <input type="hidden" name="replace_xml" tal:attributes="value replace_xml" />
+
       <table cellspacing="5" cellpadding="0">
         <tr>
           <th align="left" valign="top" i18n:translate="">Zip file</th>
@@ -35,6 +43,13 @@
         </tr>
       </table>
       </form>
+
+      <tal:block tal:condition="python:request.SESSION.has_key('required_schema')">
+          <tal:block tal:replace="python:request.SESSION.delete('required_schema')" />
+      </tal:block>
+      <tal:block tal:condition="python:request.SESSION.has_key('replace_xml')">
+          <tal:block tal:replace="python:request.SESSION.delete('replace_xml')" />
+      </tal:block>
 
     </tal:block>
   </metal:block>
