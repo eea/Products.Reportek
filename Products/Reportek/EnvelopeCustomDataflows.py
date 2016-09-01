@@ -536,7 +536,7 @@ class EnvelopeCustomDataflows(Toolz):
                 transaction.commit()
                 if not zipped_file_id:
                     # something happened with the file upload and the upload didn't go through
-                    # file_ids_not_uploaded.append(id)
+                    file_ids_not_uploaded.append(id)
                     continue
                 zipped_file = getattr(self, zipped_file_id)
                 # for XML files, check if the schema is in the list of accepted schemas for that dataflow
@@ -546,6 +546,7 @@ class EnvelopeCustomDataflows(Toolz):
                             RepUtils.utConvertLinesToList(required_schema):
                         # delete this XML file, it has the wrong schema for this dataflow
                         self.manage_delObjects(zipped_file_id)
+                        #print name, zipped_file_id
                         file_ids_not_uploaded.append(zipped_file_id)
                         transaction.commit()
 
@@ -556,6 +557,7 @@ class EnvelopeCustomDataflows(Toolz):
 
             # if 'replace_xml', delete all XML files with the same schemas as files just uploaded
             file_ids_to_delete = list(set(file_ids_to_delete))
+            #print file_ids_to_delete
             self.manage_delObjects([x for x in file_ids_to_delete if x not in zip_file_ids])
             if file_ids_not_uploaded:
                 if len(file_ids_not_uploaded) == len(zip_file_ids):
