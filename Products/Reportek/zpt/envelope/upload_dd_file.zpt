@@ -32,10 +32,8 @@
       <tal:block tal:repeat="item python:request.SESSION.get('required_schema', [])">
         <input type="hidden" name="required_schema:list" tal:attributes="value item" />
       </tal:block>
-      <tal:block tal:condition="python: request.SESSION.has_key('replace_xml')">
-        <input type="hidden" name="replace_xml" tal:attributes="value python: request.SESSION.get('replace_xml')" />
-        <tal:block tal:replace="python:request.SESSION.delete('replace_xml')" />
-      </tal:block>
+      <input type="hidden" name="replace_xml" tal:attributes="value python:request.SESSION.get('replace_xml', 0)" />
+
       <label for="file" i18n:translate="">File</label>
       <input type="file" name="file" id="file" size="25" value="" />
       <br />
@@ -47,6 +45,9 @@
 
     <tal:block tal:condition="python:request.SESSION.has_key('required_schema')">
       <tal:block tal:replace="python:request.SESSION.delete('required_schema')" />
+    </tal:block>
+    <tal:block tal:condition="python:request.SESSION.has_key('replace_xml')">
+      <tal:block tal:replace="python:request.SESSION.delete('replace_xml')" />
     </tal:block>
   </metal:block>
 </metal:block>

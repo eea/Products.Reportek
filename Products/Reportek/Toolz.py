@@ -16,7 +16,7 @@
 # Rights Reserved.
 #
 # Contributor(s):
-# Miruna Badescu, Finsiel Romania
+# Miruna Badescu, Eau de Web
 
 
 """ Toolz module
@@ -30,6 +30,7 @@ from Products.Reportek import constants
 from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION
 from time import time
 import RepUtils
+from string import rfind
 
 
 class Toolz:
@@ -165,3 +166,10 @@ class Toolz:
         if len(text)<=80:
             return text
         return '%s ...' % text[:77]
+
+
+    def cook_file_id(self, file_id):
+        """ cleans up a file id to make it suitable for a Zope id or a file system id """
+        if file_id:
+            file_id = file_id[max(rfind(file_id, '/'), rfind(file_id, '\\'), rfind(file_id, ':')) + 1:]
+        return RepUtils.cleanup_id(file_id.strip())
