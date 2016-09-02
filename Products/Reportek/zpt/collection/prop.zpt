@@ -1,9 +1,7 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
   <metal:block fill-slot="content">
     <span tal:replace="structure python:here.collection_tabs(tab='manage_prop')" />
-    <tal:block define="SecurityManager modules/AccessControl/getSecurityManager;
-                       has_permission python:SecurityManager.checkPermission('View management screens', template);
-                       global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'">
+    <tal:block define="global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'">
       <h1 i18n:translate="">Collection Properties</h1>
       <form name="edit" tal:attributes="action string:${request/URL1}/" method="post">
       <table valign="top">
