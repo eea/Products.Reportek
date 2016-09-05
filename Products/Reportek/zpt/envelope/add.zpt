@@ -1,7 +1,8 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
   <metal:block fill-slot="content">
     <tal:block define="SecurityManager modules/AccessControl/getSecurityManager;
-                       has_permission python:SecurityManager.checkPermission('View management screens', template)">
+                       has_permission python:SecurityManager.checkPermission('View management screens', template);
+                       isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'">
 
       <tal:block tal:define="hasTerminatedObligations python:here.num_terminated_dataflows()>=1;
                              canCreateEnvelope python: here.allowed_envelopes() and not hasTerminatedObligations;
@@ -39,7 +40,7 @@
                 <th><label for="descr" i18n:translate="">Description</label></th>
                 <td><textarea cols="50" rows="6" id="descr" name="descr"></textarea><br /><br /></td>
               </tr>
-              <tr tal:define="default here/partofyear | nothing; year here/year | nothing; default_year nothing">
+              <tr tal:define="default here/partofyear | nothing; year here/year | nothing; default_year python:test(year, year, (here.ZopeTime()-180).year()) if not isBdrDeployment else None">
                 <th valign="top"><label for="year" i18n:translate="">Relating to which year</label></th>
                 <td>
                   <input type="text" name="year" id="year" size="4" maxlength="4" tal:attributes="value default_year"/>
