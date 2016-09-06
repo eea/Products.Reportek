@@ -73,7 +73,7 @@
               <tal:block tal:condition="additional_colls">
                 <td class="tcenter additional-env-info">
                   <span tal:condition="python:item.endyear == ''"
-                      tal:content="python:'%s - %s' %(item.year, item.partofyear)">
+                      tal:content="python:'%s - %s' %(item.year, here.reporting_year_labels.get(item.partofyear))">
                   </span>
                   <span tal:condition="not:python:item.endyear == ''"
                       tal:content="python:'%s to %s' %(item.year, item.endyear)">
