@@ -138,7 +138,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
         api_url = api_url.format(companyId, candidateId)
         response = self.do_api_request(api_url,
                                        data={'user': userId},
-                                       method="post"
+                                       method="post",
                                        headers={'Authorization':self.token})
         if response:
             if response.status_code == requests.codes.ok:
