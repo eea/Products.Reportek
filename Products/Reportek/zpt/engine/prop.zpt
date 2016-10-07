@@ -184,6 +184,14 @@
                     <br />
                 </p>
                 <p class="form-help">
+                    <label for='fgas_registry_token'><strong>FGAS Cache Registry API TOKEN</strong></label>
+                    <input type="text" size="50" id="fgas_registry_token" name="fgas_registry_token"
+                           tal:attributes="value here/fgas_registry_token" />
+                    <br />
+                    <span>(leave it empty if FGAS Cache Registry API is not to be used)
+                    <br />
+                </p>
+                <p class="form-help">
                     <label for='fgas_registry_obligations'><strong>FGAS Registry obligations</strong></label>
                     <br />
                     <select name="fgas_registry_obligations:list" size="5" multiple="">
