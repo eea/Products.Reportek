@@ -127,6 +127,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     fgas_registry_obligations = []
     preliminary_obligations = []
     fgas_registry_url = ''
+    fgas_registry_token = ''
     auth_middleware_recheck_interval = 300
     XLS_max_rows = 1000
 
@@ -263,6 +264,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.bdr_registry_password = self.REQUEST.get('bdr_registry_password', self.bdr_registry_password)
         self.bdr_registry_obligations = self.REQUEST.get('bdr_registry_obligations', self.bdr_registry_obligations)
         self.fgas_registry_url = self.REQUEST.get('fgas_registry_url', self.fgas_registry_url)
+        self.fgas_registry_token = self.REQUEST.get('fgas_registry_token', self.fgas_registry_token)
         self.fgas_registry_obligations = self.REQUEST.get('fgas_registry_obligations', self.fgas_registry_obligations)
         xls_max_rows = self.REQUEST.get('xls_max_rows', self.XLS_max_rows)
 
@@ -276,7 +278,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             self.BDRRegistryAPI.set_base_url(self.bdr_registry_url)
-            self.FGASRegistryAPI.set_base_url(self.fgas_registry_url)
+            self.FGASRegistryAPI.set_base_url(self.fgas_registry_url, self.fgas_registry_token)
 
         # don't send the completed from back, the values set on self must be used
         return self._manage_properties(manage_tabs_message="Properties changed")
@@ -311,7 +313,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     @property
     def FGASRegistryAPI(self):
         if not getattr(self, '_FGASRegistryAPI', None):
-            self._FGASRegistryAPI = FGASRegistryAPI('FGAS Registry', self.fgas_registry_url)
+            self._FGASRegistryAPI = FGASRegistryAPI('FGAS Registry', self.fgas_registry_url, self.fgas_registry_token)
         return self._FGASRegistryAPI
 
     @property
