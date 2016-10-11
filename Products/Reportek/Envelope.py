@@ -37,7 +37,9 @@ import Globals, OFS.SimpleItem, OFS.ObjectManager
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl.Permissions import view_management_screens
 import AccessControl.Role
-from AccessControl import getSecurityManager, ClassSecurityInfo, Unauthorized
+
+from AccessControl import ClassSecurityInfo, Unauthorized
+from AccessControl.SecurityManagement import getSecurityManager
 from Products.Reportek import permission_manage_properties_envelopes
 from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION
 from Products.PythonScripts.standard import url_quote
@@ -841,6 +843,16 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         """ """
         self.manage_delObjects(file_id)
         REQUEST.RESPONSE.redirect(self.absolute_url())
+
+    @RepUtils.manage_as_owner
+    def delete_feedbacks(self, fb_ids):
+        """Delete the feedbacks with fb_ids."""
+        self.manage_delObjects(fb_ids)
+
+    @RepUtils.manage_as_owner
+    def add_feedback(self, **kwargs):
+        """Add feedback. To be called by Applications."""
+        self.manage_addFeedback(**kwargs)
 
     security.declareProtected('Add Feedback', 'manage_addFeedbackForm')
     manage_addFeedbackForm = Feedback.manage_addFeedbackForm
