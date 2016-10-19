@@ -73,8 +73,9 @@ To prepare a report you first create an envelope. Then you upload the files and 
 Generate documentation
 ----------------------
 
-You can find information on how to generate documentation in the `reportek-zopebuildout's README <https://github.com/eea/reportek.zopebuildout#generate-documentation>`_
+You can find information on how to generate documentation in the reportek-zopebuildout's README `generate documentation section <https://github.com/eea/reportek.zopebuildout#generate-documentation>`_.
 
 Tests
 -----
-You can find information on how to run the tests in the `reportek-zopebuildout's README` <https://github.com/eea/reportek.zopebuildout#tests>`_
+
+You can find information on how to run the tests in the reportek-zopebuildout's README `tests section <https://github.com/eea/reportek.zopebuildout#tests>`_.
