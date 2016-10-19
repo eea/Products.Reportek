@@ -22,16 +22,7 @@ You can either get the list from http://ROD.eionet.europa.eu with XML-RPC or you
 Installation
 ------------
 
-If you haven't already done it, first create a ``ZCatalog`` named ``Catalog``. Keep the default indexes and metadata. Then add the following indexes:
-
-* ``TextIndex``: ``PrincipiaSearchSource``
-* ``FieldIndex``: ``bobobase_modification_time, id, meta_type, country, dataflow, partofyear, released, reportingdate``
-* ``KeywordIndex``: ``years``
-* ``PathIndex``: ``path``
-
-Then add as ``metadata``: ``bobobase_modification_time, id, meta_type, country, dataflow_title``. Otherwise search will not work. Extract Reportek to the Product folder.
-    
-Then there is a ZEXP file called ``Reportek-scripts``. It contains the design template, the DTML code for search etc. Copy it to the import directory. Then import it into the toplevel Zope folder. Depending on your preferences copy the scripts to where you have created Reportek Collections.
+The recommended method of installing the product is to run a buildout similar to the `reportek-zopebuildout <https://github.com/eea/reportek.zopebuildout>`_. All the requirements and prerequisites are documented in order for ease of deployment.
 
 What is the envelopes.rdf script for?
 -------------------------------------
@@ -48,7 +39,7 @@ The folder ``Converters`` is automatically added in the Root folder after the pr
 (eg. If you have installed the pdftotext converter then type in the Converter path (including the arguments) something like: 
 ``pdftotext -raw %s`` for Linux or something like ``"C:\Program Files\pdftotext" -raw %s`` for Windows.)
 
-Once a converter is added in the Report Document list, you will be give the possibility to choose among the available conversions (*View document as*) for every type of document.
+Once a converter is added in the Report Document list, you will be given the possibility to choose among the available conversions (*View document as*) for every type of document.
 
 Authentication
 --------------
@@ -70,19 +61,6 @@ And then there still is the Zope Manager, who can fix everything if/when the sec
 
 A user can be one, more or all of these roles at the same time. Additionally, a user can only delete objects he himself have created. And in the case of files, only if the envelope is not released.
 
-Permissions
------------
-
-There are seven permissions:
-
-* *Add Collections*, which is given to the collection administrator
-* *Change Collections*, which is given to "owner". Thereby the collection administrator can only modify the collections he has created.
-* *Add Envelopes*, which is given to the "reporter". This allows people to create envelopes. If you have the right to create an envelope you also have the right to add files into it.  If there are certain parts of the hierarchy that a reporter should be restricted to, then give him the permission as a local role, or create a user folder on that level.
-* *Change Envelopes*. Give this permission to "owner" to let a "reporter" fill his own envelopes or give the permission to "reporter" to let all reporters modify all envelopes.
-* *Add Feedback* given to "Client" to be able to add feedback for release of envelopes
-* *Delete Objects*. Typically give this permission to "owner" and maybe "release-coordinator" or "collection administrator".
-* *Release Envelopes*. Can be given to "owner", "reporter" or some other class of users.
-
 Usage
 -----
 
@@ -91,3 +69,12 @@ The purpose of this product is to make it easy to store the obligatory environme
 To deal with the many reports we let the user organise them in a hierarchial set of collections of his own choice. At the leaves of the structure are the envelopes. They contain all the files and necesary meta-data. The collections also have meta-data, but they only serve as default values for envelope creation.
 
 To prepare a report you first create an envelope. Then you upload the files and finally you release it for the public.
+
+Generate documentation
+----------------------
+
+You can find information on how to generate documentation in the `reportek-zopebuildout's README <https://github.com/eea/reportek.zopebuildout#generate-documentation>`_
+
+Tests
+-----
+You can find information on how to run the tests in the `reportek-zopebuildout's README` <https://github.com/eea/reportek.zopebuildout#tests>`_
