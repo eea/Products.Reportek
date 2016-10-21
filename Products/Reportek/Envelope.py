@@ -125,8 +125,10 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
     year_parts = ['WHOLE_YEAR', 'FIRST_HALF', 'SECOND_HALF',
                   'FIRST_QUARTER', 'SECOND_QUARTER', 'THIRD_QUARTER',
                   'FOURTH_QUARTER']
-    months = ["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"]
-    if not partofyear in (year_parts + months):
+    months = ["JANUARY", "FEBRUARY", "MARCH", "APRIL", "MAY", "JUNE", "JULY",
+              "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"]
+
+    if partofyear and not partofyear in (year_parts + months):
         raise InvalidPartOfYear
 
     dataflow_uris = getattr(self,'dataflow_uris',[])   # Get it from collection
