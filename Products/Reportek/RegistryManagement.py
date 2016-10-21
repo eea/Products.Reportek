@@ -52,6 +52,7 @@ class BaseRegistryAPI(SimpleItem):
             logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
             return None
         if response.status_code != requests.codes.ok:
+            logger.warning("Retrieved a %s status code when contacting SatelliteRegistry's url: %s " % (response.status_code, url))
             return None
 
         return response
@@ -150,8 +151,11 @@ class FGASRegistryAPI(BaseRegistryAPI):
     def getCandidates(self):
         url = self.baseUrl + '/candidate/list'
         response = self.do_api_request(url, headers={'Authorization':self.token})
+
         if response:
             return response.json()
+
+        return []
 
     def getUsers(self):
         url = self.baseUrl + '/user/list'
