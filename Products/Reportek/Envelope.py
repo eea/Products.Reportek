@@ -37,7 +37,9 @@ import Globals, OFS.SimpleItem, OFS.ObjectManager
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl.Permissions import view_management_screens
 import AccessControl.Role
-from AccessControl import getSecurityManager, ClassSecurityInfo, Unauthorized
+
+from AccessControl import ClassSecurityInfo, Unauthorized
+from AccessControl.SecurityManagement import getSecurityManager
 from Products.Reportek import permission_manage_properties_envelopes
 from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION
 from Products.PythonScripts.standard import url_quote
@@ -213,17 +215,27 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         self.customer = authUser
         EnvelopeInstance.__init__(self, process)
 
+    def get_qa_workitems(self):
+        """Return a list of AutomaticQA workitems."""
+        return [
+            wi for wi in self.getMySelf().getListOfWorkitems()
+            if wi.activity_id == 'AutomaticQA'
+        ]
+
     @property
     def is_blocked(self):
-        """ Returns True if the last AutomaticQA workitem of the envelope has a blocker feedback """
-        QA_workitems = [
-            wi for wi in self.getMySelf().getListOfWorkitems()
-               if wi.activity_id == 'AutomaticQA'
-        ]
+        """Returns True if the last AutomaticQA workitem of the envelope
+        has a blocker feedback."""
+        QA_workitems = self.get_qa_workitems()
         if not QA_workitems:
             return False
         else:
             return getattr(QA_workitems[-1], 'blocker', False)
+
+    def get_qa_feedbacks(self):
+        """Return a list containing all AutomaticQA feedback objects."""
+        return [rf for rf in self.objectValues('Report Feedback')
+                if getattr(rf, 'title', '').startswith('AutomaticQA')]
 
     @property
     def has_unknown_qa_result(self):
@@ -231,7 +243,6 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             feedback status. Every feedback_status other than the ones defined
             in VALID_FB_STATUSES is treated as 'UNKNOWN'.
         """
-
         VALID_FB_STATUSES = [
             'INFO',
             'SKIPPED',
@@ -241,13 +252,26 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             'BLOCKER'
         ]
 
-        aqa_fbs = [rf for rf in self.objectValues('Report Feedback')
-                   if getattr(rf, 'title', '').startswith('AutomaticQA')]
+        aqa_fbs = self.get_qa_feedbacks()
 
         for fb in aqa_fbs:
             fb_status = getattr(fb, 'feedback_status', 'UNKNOWN')
             if fb_status not in VALID_FB_STATUSES:
                 return True
+
+    @property
+    def has_no_qa_result(self):
+        """Return True if an AutomaticQA feedback has no feedback status."""
+        QA_workitems = self.get_qa_workitems()
+        if QA_workitems:
+            aqa_fbs = self.get_qa_feedbacks()
+            if not aqa_fbs:
+                return True
+            else:
+                aqa_no_fbstatus = [fb for fb in aqa_fbs
+                                   if not getattr(fb, 'feedback_status', None)]
+                if aqa_no_fbstatus:
+                    return True
 
     def uns_is_set(self):
         """ Returns True if UNS server is set """
@@ -817,6 +841,16 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         """ """
         self.manage_delObjects(file_id)
         REQUEST.RESPONSE.redirect(self.absolute_url())
+
+    @RepUtils.manage_as_owner
+    def delete_feedbacks(self, fb_ids):
+        """Delete the feedbacks with fb_ids."""
+        self.manage_delObjects(fb_ids)
+
+    @RepUtils.manage_as_owner
+    def add_feedback(self, **kwargs):
+        """Add feedback. To be called by Applications."""
+        self.manage_addFeedback(**kwargs)
 
     security.declareProtected('Add Feedback', 'manage_addFeedbackForm')
     manage_addFeedbackForm = Feedback.manage_addFeedbackForm

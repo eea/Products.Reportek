@@ -30,12 +30,14 @@ class BaseRegistryAPI(SimpleItem):
 
     TIMEOUT = 20
 
-    def __init__(self, registry_name, url):
+    def __init__(self, registry_name, url, token=None):
         self.registry_name = registry_name
         self.baseUrl = url
+        self.token = token
 
-    def set_base_url(self, url):
+    def set_base_url(self, url, token=None):
         self.baseUrl = url
+        self.token = token
 
     def do_api_request(self, url, method='get', data=None, cookies=None,
                        headers=None, params=None):
@@ -50,6 +52,7 @@ class BaseRegistryAPI(SimpleItem):
             logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
             return None
         if response.status_code != requests.codes.ok:
+            logger.warning("Retrieved a %s status code when contacting SatelliteRegistry's url: %s " % (response.status_code, url))
             return None
 
         return response
@@ -74,7 +77,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
             page = 'list'
         url_prefix = self.baseUrl + '/undertaking/'
         url = url_prefix + page
-        response = self.do_api_request(url)
+        response = self.do_api_request(url, headers={'Authorization':self.token})
 
         if response:
             return response.json()
@@ -82,13 +85,12 @@ class FGASRegistryAPI(BaseRegistryAPI):
     @ram.cache(lambda *args, **kwargs: args[2] + str(time() // (60 * 60)))
     def get_company_details(self, company_id):
         url = self.baseUrl + '/undertaking/{0}/details'.format(company_id)
-        response = self.do_api_request(url)
+        response = self.do_api_request(url, headers={'Authorization':self.token})
         if response:
             return response.json()
 
     def getCompanyDetailsById(self, companyId):
         details = self.get_company_details(companyId)
-
         keysToVerify = ['domain', 'address', 'company_id', 'collection_id']
         if reduce(lambda i, x: i and x in details, keysToVerify, True):
             path = self.buildCollectionPath(
@@ -97,13 +99,14 @@ class FGASRegistryAPI(BaseRegistryAPI):
                 str(details['company_id']),
                 details['collection_id']
             )
-            details['path'] = '/' + path
+            if path:
+                details['path'] = '/' + path
 
         return details
 
     def getCollectionPaths(self, username):
         url = self.baseUrl + '/user/' + username + '/companies'
-        response = self.do_api_request(url)
+        response = self.do_api_request(url, headers={'Authorization':self.token})
         paths = []
         if response:
             companies = response.json()
@@ -121,7 +124,9 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
     def existsCompany(self, params):
         url = self.baseUrl + '/undertaking/filter/'
-        response = self.do_api_request(url, params=params)
+        response = self.do_api_request(url,
+                params=params,
+                headers={'Authorization':self.token})
         if response:
             return response.json()
 
@@ -134,7 +139,8 @@ class FGASRegistryAPI(BaseRegistryAPI):
         api_url = api_url.format(companyId, candidateId)
         response = self.do_api_request(api_url,
                                        data={'user': userId},
-                                       method="post")
+                                       method="post",
+                                       headers={'Authorization':self.token})
         if response:
             if response.status_code == requests.codes.ok:
                 data = response.json()
@@ -144,25 +150,28 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
     def getCandidates(self):
         url = self.baseUrl + '/candidate/list'
-        response = self.do_api_request(url)
+        response = self.do_api_request(url, headers={'Authorization':self.token})
+
         if response:
             return response.json()
 
+        return []
+
     def getUsers(self):
         url = self.baseUrl + '/user/list'
-        response = self.do_api_request(url)
+        response = self.do_api_request(url, headers={'Authorization':self.token})
         if response:
             return response.json()
 
     def getMatchingLog(self):
         url = self.baseUrl + '/matching_log'
-        response = self.do_api_request(url)
+        response = self.do_api_request(url, headers={'Authorization':self.token})
         if response:
             return response.json()
 
     def getDataSyncLog(self):
         url = self.baseUrl + '/data_sync_log'
-        response = self.do_api_request(url)
+        response = self.do_api_request(url, headers={'Authorization':self.token})
         if response:
             return response.json()
 
@@ -171,7 +180,10 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if co:
             url = self.baseUrl + '/candidate/unverify/{0}/'.format(companyId)
             data = {'user': userId}
-            response = self.do_api_request(url, data=data, method="post")
+            response = self.do_api_request(url,
+                    data=data,
+                    method="post",
+                    headers={'Authorization':self.token})
             if response:
                 unverifyResponse = response.json()
                 if not unverifyResponse:
@@ -187,7 +199,10 @@ class FGASRegistryAPI(BaseRegistryAPI):
                     'oldcompany_id': co['oldcompany_id'],
                     'oldcollection_path': path
                 }
-                response = self.do_api_request(url, data=data, method="post")
+                response = self.do_api_request(url,
+                        data=data,
+                        method="post",
+                        headers={'Authorization':self.token})
                 if not response:
                     email_sending_failed = True
                 if email_sending_failed:
@@ -198,31 +213,31 @@ class FGASRegistryAPI(BaseRegistryAPI):
     def updateCompanyStatus(self, company_id, status):
         url = self.baseUrl + '/misc/undertaking/{0}/statusupdate'.format(company_id)
         data = {'status': status}
-        response = self.do_api_request(url, data=data, method="post")
+        response = self.do_api_request(url, data=data, method="post", headers={'Authorization':self.token})
 
         return response
 
     def getCompaniesExcelExport(self):
         url = self.baseUrl + '/misc/undertaking/export'
-        response = self.do_api_request(url)
+        response = self.do_api_request(url, headers={'Authorization':self.token})
 
         return response
 
     def getUsersExcelExport(self):
         url = self.baseUrl + '/misc/user/export'
-        response = self.do_api_request(url)
+        response = self.do_api_request(url, headers={'Authorization':self.token})
 
         return response
 
     def getSettings(self):
         url = self.baseUrl + '/misc/settings'
-        response = self.do_api_request(url)
+        response = self.do_api_request(url, headers={'Authorization':self.token})
         if response:
             return response.json()
 
     def getAllEmails(self):
         url = self.baseUrl + '/misc/mail/list'
-        response = self.do_api_request(url)
+        response = self.do_api_request(url, headers={'Authorization':self.token})
         if response:
             return response.json()
 
@@ -233,7 +248,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
             'first_name': first_name,
             'last_name': last_name
         }
-        response = self.do_api_request(url, data=data, method='post')
+        response = self.do_api_request(url, data=data, method='post', headers={'Authorization':self.token})
         if response:
             return response.json()
 
@@ -242,7 +257,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
         data = {
             'mail': email
         }
-        response = self.do_api_request(url, data=data, method='post')
+        response = self.do_api_request(url, data=data, method='post', headers={'Authorization':self.token})
         if response:
             return response.json()
 
@@ -256,7 +271,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
             'company_id': company_id,
             'user': user
         }
-        response = self.do_api_request(url, data=data, method='post')
+        response = self.do_api_request(url, data=data, method='post', headers={'Authorization':self.token})
         if not response:
             email_sending_failed = True
         if email_sending_failed:
@@ -278,7 +293,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
             'company_id': company_id,
             'user': user
         }
-        response = self.do_api_request(url, data=data, method='post')
+        response = self.do_api_request(url, data=data, method='post', headers={'Authorization':self.token})
         if not response:
             email_sending_failed = True
 
@@ -299,7 +314,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
     @classmethod
     def buildCollectionPath(cls, domain, country_code, company_id, old_collection_id=None):
         obligation_folder = cls.DOMAIN_TO_OBLIGATION_FOLDER.get(domain)
-        if not obligation_folder:
+        if not obligation_folder or not country_code:
             return None
         country_folder = cls.getCountryFolder(country_code)
         collection_folder = old_collection_id if old_collection_id else company_id

@@ -12,10 +12,11 @@ setup(
     install_requires=[
         'lxml',
         'path.py',
-        'requests==1.2.3',
+        'requests==2.11.1',
         'plone.memoize',
         'Zope2',
         'collective.monkeypatcher',
-        'xlwt'
+        'xlwt',
+        'Products.PluggableAuthService'
     ],
 )

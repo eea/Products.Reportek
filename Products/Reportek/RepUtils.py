@@ -32,6 +32,9 @@ import json
 from types import FunctionType
 from urllib import FancyURLopener
 from webdav.common import rfc1123_date
+from AccessControl.SecurityManagement import getSecurityManager
+from AccessControl.SecurityManagement import newSecurityManager
+from AccessControl.SecurityManagement import setSecurityManager
 from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
 from datetime import datetime
@@ -573,3 +576,19 @@ def write_xls_data(data, sheet, header, row):
             if len(value) > 32000:
                 value = (value[:32000] + '..') if len(value) > 32000 else value
         sheet.write(row, header.get(key), value)
+
+
+def manage_as_owner(func):
+    """Decorator to be used by Applications to call methods as
+       owner.
+    """
+    def inner(*args, **kwargs):
+        user_id = args[0].REQUEST['AUTHENTICATED_USER'].getUserName()
+        if user_id != 'Anonymous User':
+            smanager = getSecurityManager()
+            owner = args[0].getOwner()
+            newSecurityManager(args[0].REQUEST, owner)
+            res = func(*args, **kwargs)
+            setSecurityManager(smanager)
+            return res
+    return inner

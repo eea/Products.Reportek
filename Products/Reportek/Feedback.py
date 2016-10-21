@@ -291,6 +291,20 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
                             message='Document released to public.',
                             action=REQUEST['HTTP_REFERER'])
 
+    @RepUtils.manage_as_owner
+    def unrestrict_feedback(self):
+        """Remove access restriction for this feedback.
+           To be called by Applications.
+        """
+        self.manage_unrestrict(ids=[self.id])
+
+    @RepUtils.manage_as_owner
+    def restrict_feedback(self):
+        """Restrict access to this feedback.
+           To be called by Applications
+        """
+        self.manage_restrict(ids=[self.id])
+
     security.declarePublic('isRestricted')
     def isRestricted(self):
         """ Returns True if the feedback is restricted, False otherwise """
