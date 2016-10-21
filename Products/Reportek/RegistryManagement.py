@@ -92,17 +92,18 @@ class FGASRegistryAPI(BaseRegistryAPI):
     def getCompanyDetailsById(self, companyId):
         details = self.get_company_details(companyId)
         keysToVerify = ['domain', 'address', 'company_id', 'collection_id']
-        if reduce(lambda i, x: i and x in details, keysToVerify, True):
-            path = self.buildCollectionPath(
-                details['domain'],
-                details['country_code'],
-                str(details['company_id']),
-                details['collection_id']
-            )
-            if path:
-                details['path'] = '/' + path
+        if details:
+            if reduce(lambda i, x: i and x in details, keysToVerify, True):
+                path = self.buildCollectionPath(
+                    details['domain'],
+                    details['country_code'],
+                    str(details['company_id']),
+                    details['collection_id']
+                )
+                if path:
+                    details['path'] = '/' + path
 
-        return details
+            return details
 
     def getCollectionPaths(self, username):
         url = self.baseUrl + '/user/' + username + '/companies'
