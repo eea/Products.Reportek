@@ -91,18 +91,18 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
     def getCompanyDetailsById(self, companyId):
         details = self.get_company_details(companyId)
-        if details:
-            keysToVerify = ['domain', 'address', 'company_id', 'collection_id']
-            if reduce(lambda i, x: i and x in details, keysToVerify, True):
-                path = self.buildCollectionPath(
-                    details['domain'],
-                    details['country_code'],
-                    str(details['company_id']),
-                    details['collection_id']
-                )
+        keysToVerify = ['domain', 'address', 'company_id', 'collection_id']
+        if reduce(lambda i, x: i and x in details, keysToVerify, True):
+            path = self.buildCollectionPath(
+                details['domain'],
+                details['country_code'],
+                str(details['company_id']),
+                details['collection_id']
+            )
+            if path:
                 details['path'] = '/' + path
 
-            return details
+        return details
 
     def getCollectionPaths(self, username):
         url = self.baseUrl + '/user/' + username + '/companies'
@@ -314,7 +314,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
     @classmethod
     def buildCollectionPath(cls, domain, country_code, company_id, old_collection_id=None):
         obligation_folder = cls.DOMAIN_TO_OBLIGATION_FOLDER.get(domain)
-        if not obligation_folder:
+        if not obligation_folder or not country_code:
             return None
         country_folder = cls.getCountryFolder(country_code)
         collection_folder = old_collection_id if old_collection_id else company_id
