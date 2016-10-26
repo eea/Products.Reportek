@@ -4,9 +4,13 @@
 #  >>> from Products.Reportek.updates import u20151127_Migrate_AuthMiddlewareApi_and_company_ids; u20151127_Migrate_AuthMiddlewareApi_and_company_ids.update(app)
 
 from Products.Reportek.updates import MigrationBase
+from Products.Reportek.config import DEPLOYMENT_BDR
 import transaction
 
 VERSION = 5
+APPLIES_TO = [
+    DEPLOYMENT_BDR
+]
 
 
 def migrate_AuthMiddleWareApi(app):

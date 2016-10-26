@@ -68,6 +68,7 @@ from zope.i18n.negotiator import normalize_lang
 from zope.i18n.interfaces import II18nAware, INegotiator
 from zope.component import getUtility
 import logging
+import importlib
 logger = logging.getLogger("Reportek")
 
 class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
@@ -989,21 +990,47 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     _migration_table = PageTemplateFile('zpt/engine/migration_table', globals())
 
-    security.declareProtected('View', 'migration_table')
+    security.declareProtected('View management screens', 'migration_table')
     def migration_table(self):
         """List all migrations applied to this deployment and their details"""
+        do_update = self.REQUEST.form.get('update')
+        if do_update:
+            upd_module = importlib.import_module('.'.join(['Products.Reportek.updates', do_update]))
+            app = self.unrestrictedTraverse('/')
+            upd_module.update(app)
+
         migs = getattr(self, constants.MIGRATION_ID)
         migs = sorted(migs.values(), key=lambda o: o.current_ts, reverse=True)
-        rows = []
+        done_rows = []
+        todo_rows = []
+
         for migrationOb in migs:
             migrationItem = {
                 'name': migrationOb.name,
                 'version': migrationOb.version,
                 'first': migrationOb.toDate(migrationOb.first_ts),
-                'current': migrationOb.toDate(migrationOb.current_ts),
+                'current': migrationOb.toDate(migrationOb.current_ts)
             }
-            rows.append(migrationItem)
-        return self._migration_table(migrationRows=rows)
+            done_rows.append(migrationItem)
+        upd_path = os.path.dirname(Products.Reportek.updates.__file__)
+        upd_files = [f.split('.py')[0] for f in os.listdir(upd_path)
+                     if os.path.isfile('/'.join([upd_path, f])) and
+                     f.startswith('u') and len(f.split('.py')) > 1]
+        applied = [upd.get('name') for upd in done_rows]
+        for f in set(upd_files):
+            applicable = False
+            if f not in applied:
+                upd_module = importlib.import_module('.'.join(['Products.Reportek.updates', f]))
+                if REPORTEK_DEPLOYMENT in upd_module.APPLIES_TO:
+                    applicable = True
+                todo_rows.append({
+                    'name': f,
+                    'applicable': applicable,
+                    'version': upd_module.VERSION,
+                })
+
+        return self._migration_table(todo_migrationRows=todo_rows,
+                                     done_migrationRows=done_rows)
 
     security.declareProtected('View management screens', 'manage_editUNSInterface')
     def manage_editUNSInterface(self, UNS_server, UNS_username, UNS_password, UNS_password_confirmation, UNS_channel_id, UNS_notification_types, REQUEST=None):
