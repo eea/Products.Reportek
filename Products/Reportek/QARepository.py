@@ -217,47 +217,47 @@ class QARepository(Folder):
         file_obj = self.unrestrictedTraverse(l_file_relative_url, None)
 
         if file_obj is not None:
-        l_file_id = p_file_url.split('/')[-1]
-        # local script
-        if p_script_id.startswith('loc_'):
+            l_file_id = p_file_url.split('/')[-1]
+            # local script
+            if p_script_id.startswith('loc_'):
 
-            l_script_obj = getattr(self, p_script_id.replace('loc_', ''), None)
+                l_script_obj = getattr(self, p_script_id.replace('loc_', ''), None)
 
-            if l_script_obj is None:
-                l_res_data.data = 'QA error'
+                if l_script_obj is None:
+                    l_res_data.data = 'QA error'
 
-            else:
-                if l_script_obj.content_type_out:
-                    l_res_ct = l_script_obj.content_type_out
-
-                    with file_obj.data_file.open() as doc_file:
-                        tmp_copy = RepUtils.temporary_named_copy(doc_file)
-
-                    with tmp_copy:
-                        #generate extra-parameters
-                        #the file path is set default as first parameter
-                        params = [tmp_copy.name]
-                        for k in l_script_obj.qa_extraparams:
-                            params.append(eval(k))
-
-                        command = l_script_obj.script_url % tuple(params)
-                        proc = subprocess.Popen(
-                                   shlex.split(command),
-                                   stdout=subprocess.PIPE,
-                                   stderr=subprocess.STDOUT,
-                                   shell=False)
-                        l_res_data.data = proc.stdout.read()
                 else:
-                    l_res_data.data =  'QA error'
+                    if l_script_obj.content_type_out:
+                        l_res_ct = l_script_obj.content_type_out
 
-            l_tmp = [l_res_ct, l_res_data]
+                        with file_obj.data_file.open() as doc_file:
+                            tmp_copy = RepUtils.temporary_named_copy(doc_file)
 
-        # remote script
-        else:
-            l_qa_app = self.getQAApplication()
-            l_server_url = l_qa_app.RemoteServer
-            l_remote_server = l_qa_app.RemoteService
-            l_server = xmlrpclib.ServerProxy(l_server_url)
+                        with tmp_copy:
+                            #generate extra-parameters
+                            #the file path is set default as first parameter
+                            params = [tmp_copy.name]
+                            for k in l_script_obj.qa_extraparams:
+                                params.append(eval(k))
+
+                            command = l_script_obj.script_url % tuple(params)
+                            proc = subprocess.Popen(
+                                       shlex.split(command),
+                                       stdout=subprocess.PIPE,
+                                       stderr=subprocess.STDOUT,
+                                       shell=False)
+                            l_res_data.data = proc.stdout.read()
+                    else:
+                        l_res_data.data =  'QA error'
+
+                l_tmp = [l_res_ct, l_res_data]
+
+            # remote script
+            else:
+                l_qa_app = self.getQAApplication()
+                l_server_url = l_qa_app.RemoteServer
+                l_remote_server = l_qa_app.RemoteService
+                l_server = xmlrpclib.ServerProxy(l_server_url)
                 l_server_service = getattr(l_server, l_remote_server)
                 l_tmp = l_server_service.runQAScript(p_file_url, p_script_id)
         else:
