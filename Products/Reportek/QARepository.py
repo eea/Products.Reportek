@@ -223,7 +223,7 @@ class QARepository(Folder):
 
             l_script_obj = getattr(self, p_script_id.replace('loc_', ''), None)
 
-                if l_script_obj is None:
+            if l_script_obj is None:
                 l_res_data.data = 'QA error'
 
             else:
