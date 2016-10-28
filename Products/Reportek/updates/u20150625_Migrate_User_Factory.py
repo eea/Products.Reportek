@@ -86,4 +86,3 @@ def doMigrateLocalUser(acl_users, user_data):
                     return False
 
         return True
-

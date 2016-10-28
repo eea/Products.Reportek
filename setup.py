@@ -16,6 +16,7 @@ setup(
         'plone.memoize',
         'Zope2',
         'collective.monkeypatcher',
-        'xlwt'
+        'xlwt',
+        'Products.PluggableAuthService'
     ],
 )

@@ -52,6 +52,7 @@ class BaseRegistryAPI(SimpleItem):
             logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
             return None
         if response.status_code != requests.codes.ok:
+            logger.warning("Retrieved a %s status code when contacting SatelliteRegistry's url: %s " % (response.status_code, url))
             return None
 
         return response
@@ -90,18 +91,19 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
     def getCompanyDetailsById(self, companyId):
         details = self.get_company_details(companyId)
-
         keysToVerify = ['domain', 'address', 'company_id', 'collection_id']
-        if reduce(lambda i, x: i and x in details, keysToVerify, True):
-            path = self.buildCollectionPath(
-                details['domain'],
-                details['country_code'],
-                str(details['company_id']),
-                details['collection_id']
-            )
-            details['path'] = '/' + path
+        if details:
+            if reduce(lambda i, x: i and x in details, keysToVerify, True):
+                path = self.buildCollectionPath(
+                    details['domain'],
+                    details['country_code'],
+                    str(details['company_id']),
+                    details['collection_id']
+                )
+                if path:
+                    details['path'] = '/' + path
 
-        return details
+            return details
 
     def getCollectionPaths(self, username):
         url = self.baseUrl + '/user/' + username + '/companies'
@@ -150,8 +152,11 @@ class FGASRegistryAPI(BaseRegistryAPI):
     def getCandidates(self):
         url = self.baseUrl + '/candidate/list'
         response = self.do_api_request(url, headers={'Authorization':self.token})
+
         if response:
             return response.json()
+
+        return []
 
     def getUsers(self):
         url = self.baseUrl + '/user/list'
@@ -310,7 +315,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
     @classmethod
     def buildCollectionPath(cls, domain, country_code, company_id, old_collection_id=None):
         obligation_folder = cls.DOMAIN_TO_OBLIGATION_FOLDER.get(domain)
-        if not obligation_folder:
+        if not obligation_folder or not country_code:
             return None
         country_folder = cls.getCountryFolder(country_code)
         collection_folder = old_collection_id if old_collection_id else company_id
