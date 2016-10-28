@@ -27,14 +27,6 @@
             <tal:block define="dummy python:request.set('therearerestrictions',1)"></tal:block>
             <img src="misc_/Reportek/lockicon_gif" alt="No access" style="width: 16px; height: 16px" />
           </tal:block>
-          <tal:block
-                condition="feedb_item/automatic"
-                define="postingdate python:feedb_item.postingdate.strftime('%d %b %Y')">
-            <tal:block i18n:translate="">
-                (Posted automatically on <div tal:replace="postingdate"
-                                              i18n:name="postingdate"/>)
-            </tal:block>
-          </tal:block>
           <tal:block condition="feedb_item/automatic"
                      define="postingdate python:feedb_item.postingdate.strftime('%d %b %Y')">
             <tal:block i18n:translate="">(Posted automatically on <div tal:replace="postingdate" i18n:name="postingdate"/>)
