@@ -113,7 +113,8 @@ class QARepository(Folder):
         l_remote_server = l_qa_app.RemoteService
         try:
             l_server = xmlrpclib.ServerProxy(l_server_url, allow_none=True)
-            return eval('l_server.%s.listQueries(\'%s\')' %(l_remote_server, p_schema))
+            l_server_service = getattr(l_server, l_remote_server)
+            return l_server_service.listQueries(p_schema)
         except:
             return []
 
@@ -138,7 +139,8 @@ class QARepository(Folder):
             l_remote_server = l_qa_app.RemoteService
             try:
                 l_server = xmlrpclib.ServerProxy(l_server_url)
-                l_tmp = eval('l_server.%s.listQAScripts(\'%s\')' %(l_remote_server, p_schema))
+                l_server_service = getattr(l_server, l_remote_server)
+                l_tmp = l_server_service.listQAScripts(p_schema)
                 l_ret.extend([x[0] for x in l_tmp])
             except:
                 pass
@@ -173,9 +175,8 @@ class QARepository(Folder):
                 if l_qa_app:
                     try:
                         l_server = xmlrpclib.ServerProxy(l_server_url)
-                        l_tmp = eval('l_server.%s.listQAScripts(\'%s\')'
-                                     %(l_remote_server,
-                                       l_file.xml_schema_location))
+                        l_server_service = getattr(l_server, l_remote_server)
+                        l_tmp = l_server_service.listQAScripts(l_file.xml_schema_location)
                         if len(l_tmp):
                             l_ret[l_file.id] = l_tmp
                     except:
@@ -211,15 +212,18 @@ class QARepository(Folder):
         l_res_ct = 'text/plain'
         l_res_data = QAResult()
 
+        #make sure p_file_url is a real Zope file
+        l_file_relative_url = p_file_url.replace('%s/' % self.REQUEST.SERVER_URL, '')
+        file_obj = self.unrestrictedTraverse(l_file_relative_url, None)
+
+        if file_obj is not None:
         l_file_id = p_file_url.split('/')[-1]
         # local script
         if p_script_id.startswith('loc_'):
 
             l_script_obj = getattr(self, p_script_id.replace('loc_', ''), None)
-            p_file_url = p_file_url.replace('%s/' % self.REQUEST.SERVER_URL, '')
-            file_obj = self.unrestrictedTraverse(p_file_url, None)
 
-            if file_obj is None or l_script_obj is None:
+                if l_script_obj is None:
                 l_res_data.data = 'QA error'
 
             else:
@@ -254,7 +258,14 @@ class QARepository(Folder):
             l_server_url = l_qa_app.RemoteServer
             l_remote_server = l_qa_app.RemoteService
             l_server = xmlrpclib.ServerProxy(l_server_url)
-            l_tmp = eval('l_server.%s.runQAScript(\'%s\', \'%s\')' %(l_remote_server, p_file_url, p_script_id))
+                l_server_service = getattr(l_server, l_remote_server)
+                l_tmp = l_server_service.runQAScript(p_file_url, p_script_id)
+        else:
+            #invalid or missing file
+            l_file_id = ''
+            l_res_data.data = 'QA error'
+            l_tmp = ['', l_res_data]
+
         return l_file_id, l_tmp
 
     security.declareProtected(view_management_screens, 'manage_edit')
