@@ -84,6 +84,10 @@
                      zope.lifecycleevent.interfaces.IObjectMovedEvent"
             handler="Products.Reportek.OpenFlowEngine.handle_process_move_events" />
 
+    <subscriber for="Products.Reportek.interfaces.IDocument
+                     zope.lifecycleevent.interfaces.IObjectRemovedEvent"
+            handler="Products.Reportek.subscribers.handle_document_removed_event" />
+
     <i18n:registerTranslations directory="locales" />
 
 </configure>

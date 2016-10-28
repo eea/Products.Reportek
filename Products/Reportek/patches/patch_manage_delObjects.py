@@ -71,13 +71,6 @@ def patched_manage_delObjects(self, ids=[], REQUEST=None):
             return MessageDialog(title='Not Deletable',
                    message='<EM>%s</EM> cannot be deleted.' % escape(n),
                    action ='./manage_main',)
-        v = self._getOb(n, self)
-        if IProcess.providedBy(v):
-            processes.append(v)
-
-        if IDocument.providedBy(v):
-            fbs_id = [fb.getId() for fb in v.getFeedbacksForDocument()]
-            fbs.extend(fbs_id)
 
     while ids:
         id=ids[-1]
@@ -88,8 +81,13 @@ def patched_manage_delObjects(self, ids=[], REQUEST=None):
 
         if v is self:
             raise BadRequest, '%s does not exist' % escape(ids[-1])
+
+        if IProcess.providedBy(v):
+            processes.append(v.getId())
+
         self._delObject(id)
         del ids[-1]
+
     if REQUEST is not None:
         if processes:
             app_folder = getattr(self.getPhysicalRoot(),
@@ -98,17 +96,12 @@ def patched_manage_delObjects(self, ids=[], REQUEST=None):
             app_ids = app_folder.objectIds()
 
             if app_folder:
-                ids = [p.getId() for p in processes if p.getId() in app_ids]
+                p_ids = [proc for proc in processes if proc in app_ids]
 
             return del_apps(title='Delete corresponding Application folders?',
                             action=app_folder.absolute_url(),
-                            ids=ids,
+                            ids=p_ids,
                             previous='./manage_main',
                             message='Selected processes have been deleted. Do you also want to delete the corresponding /Application folders for these processes?')
-        if fbs:
-            return del_apps(title='Delete corresponding feedbacks?',
-                            action=self.absolute_url(),
-                            ids=fbs,
-                            previous='./manage_main',
-                            message='Selected files have been deleted. Do you also want to delete the corresponding feedbacks?')
+
         return self.manage_main(self, REQUEST, update_menu=1)
