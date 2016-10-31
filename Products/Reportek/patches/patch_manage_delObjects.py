@@ -5,6 +5,7 @@ from App.Dialogs import MessageDialog
 from cgi import escape
 from App.special_dtml import HTML
 from Products.Reportek.interfaces import IProcess
+from Products.Reportek.interfaces import IDocument
 from Products.Reportek.constants import APPLICATIONS_FOLDER_ID
 from webdav.Lockable import ResourceLockedError
 from zExceptions import BadRequest
@@ -26,7 +27,7 @@ del_apps = HTML("""
   <TD VALIGN="TOP">
   <BR><BR>
   <CENTER>
-  Selected processes have been deleted. Do you also want to delete the corresponding /Application folders for these processes?
+  &dtml-message;
   </CENTER>
   </TD>
 </TR>
@@ -48,7 +49,7 @@ del_apps = HTML("""
 </TR>
 </TABLE>
 </FORM>
-</BODY></HTML>""", target='', action='manage_main', title='Changed', ids=[], previous='')
+</BODY></HTML>""", target='', action='manage_main', title='Changed', ids=[], previous='', message='')
 
 
 def patched_manage_delObjects(self, ids=[], REQUEST=None):
@@ -64,14 +65,12 @@ def patched_manage_delObjects(self, ids=[], REQUEST=None):
     try:    p=self._reserved_names
     except: p=()
     processes = []
+    fbs = []
     for n in ids:
         if n in p:
             return MessageDialog(title='Not Deletable',
                    message='<EM>%s</EM> cannot be deleted.' % escape(n),
                    action ='./manage_main',)
-        v = self._getOb(n, self)
-        if IProcess.providedBy(v):
-            processes.append(v)
 
     while ids:
         id=ids[-1]
@@ -82,8 +81,13 @@ def patched_manage_delObjects(self, ids=[], REQUEST=None):
 
         if v is self:
             raise BadRequest, '%s does not exist' % escape(ids[-1])
+
+        if IProcess.providedBy(v):
+            processes.append(v.getId())
+
         self._delObject(id)
         del ids[-1]
+
     if REQUEST is not None:
         if processes:
             app_folder = getattr(self.getPhysicalRoot(),
@@ -92,11 +96,12 @@ def patched_manage_delObjects(self, ids=[], REQUEST=None):
             app_ids = app_folder.objectIds()
 
             if app_folder:
-                ids = [p.getId() for p in processes if p.getId() in app_ids]
+                p_ids = [proc for proc in processes if proc in app_ids]
 
             return del_apps(title='Delete corresponding Application folders?',
                             action=app_folder.absolute_url(),
-                            ids=ids,
-                            previous='./manage_main')
+                            ids=p_ids,
+                            previous='./manage_main',
+                            message='Selected processes have been deleted. Do you also want to delete the corresponding /Application folders for these processes?')
 
         return self.manage_main(self, REQUEST, update_menu=1)
