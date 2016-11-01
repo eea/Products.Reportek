@@ -31,6 +31,7 @@ def update(app, skipMigrationCheck=False):
         catalog_rebuild(catalog.unrestrictedTraverse('/'))
         trans.commit()
         print "Migration complete!"
+        return True
     except:
         trans.abort()
         raise

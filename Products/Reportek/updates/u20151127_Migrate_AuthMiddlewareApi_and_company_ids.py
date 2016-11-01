@@ -50,3 +50,4 @@ def update(app, skipMigrationCheck=False):
     migrate_AuthMiddleWareApi(app)
     add_company_id_to_collections(app)
     print 'All done'
+    return True
