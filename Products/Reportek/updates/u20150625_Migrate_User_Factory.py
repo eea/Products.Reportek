@@ -62,6 +62,7 @@ def update(app, skipMigrationCheck=False):
 
         trans.commit()
         print "All done!"
+        return True
     except:
         trans.abort()
         raise

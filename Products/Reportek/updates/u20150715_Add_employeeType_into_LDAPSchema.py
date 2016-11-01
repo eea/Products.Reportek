@@ -34,6 +34,7 @@ def update(app, skipMigrationCheck=False):
                                                     friendly_name='disabled')
                 print "Added 'employeeType' with friendly name 'disabled' to %s" % ldapfolder.absolute_url()
                 trans.commit()
+                return True
     except:
         trans.abort()
         raise

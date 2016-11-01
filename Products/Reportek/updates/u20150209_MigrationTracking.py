@@ -30,3 +30,4 @@ def update(app, skipMigrationCheck=True):
     if not hasattr(eng, MIGRATION_ID):
         setattr(eng, MIGRATION_ID, PersistentMapping())
     transaction.commit()
+    return True

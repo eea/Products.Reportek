@@ -40,10 +40,11 @@ REPORTEK_META_TYPES = [
         'XMLRPC Method',
         'Workflow Engine']
 
-def catalog_rebuild(root):
+
+def catalog_rebuild(root, catalog='Catalog'):
     import transaction
 
-    catalog = root.Catalog
+    catalog = root.unrestrictedTraverse('/'.join([catalog]))
 
     def add_to_catalog(ob):
         catalog.catalog_object(ob, '/'.join(ob.getPhysicalPath()))

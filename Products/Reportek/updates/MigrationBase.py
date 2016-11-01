@@ -109,22 +109,23 @@ def checkMigration(module_name):
                         return None
                 return thisUpdate
 
-            mig = None
-            if not skipMigrationCheck:
-                migs = getattr(getattr(app, ENGINE_ID), MIGRATION_ID)
-                mig = _trackMigration()
-                if not mig:
-                    return False
-
             # the real update (it will also commit)
             ret = migrationFunc(app, *args, **kwargs)
+            if ret:
+                mig = None
+                if not skipMigrationCheck:
+                    migs = getattr(getattr(app, ENGINE_ID), MIGRATION_ID)
+                    mig = _trackMigration()
+                    if not mig:
+                        return False
 
-            if mig:
-                if version:
-                    mig.version = version
-                mig.current_ts = time.time()
-                migs[thisUpdateName] = mig
-                transaction.commit()
+                if mig:
+                    if version:
+                        mig.version = version
+                    mig.current_ts = time.time()
+                    migs[thisUpdateName] = mig
+                    transaction.commit()
+
             return ret
         wrapper.__module__ = migrationFunc.__module__
         wrapper.__name__ = migrationFunc.__name__
@@ -137,11 +138,14 @@ def checkMigration(module_name):
 class MigrationEntry(object):
     DATETIME_FMT = "%Y-%m-%d %H:%M:%S %Z"
 
-    def __init__(self, name, version):
+    def __init__(self, name, version, logs=None):
         self.name = name
         self.version = version
         self.first_ts = time.time()
         self.current_ts = self.first_ts
+        if not logs:
+            logs = []
+        self.logs = logs
 
     @classmethod
     def toDate(cls, ts):
