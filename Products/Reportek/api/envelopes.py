@@ -290,10 +290,28 @@ class EnvelopesAPI(BrowserView):
                 elif afilter_v.upper() != str(default_props.get(afilter)).upper():
                     return True
 
-    def get_envelope_history(self, path):
+    def get_wk_date(self, env_brain, wk_brain):
+        """Return the end time of workitem from the envelope's
+           activation_log.
+        """
+        activation_log = env_brain.activation_log
+        end_date = None
+        try:
+            end_date = activation_log[int(wk_brain.id)].get('end')
+        except IndexError:
+            pass
+        if end_date:
+            end_date = datetime.datetime.fromtimestamp(end_date)
+            end_date = DateTime(end_date)
+        else:
+            end_date = wk_brain.bobobase_modification_time
+
+        return end_date
+
+    def get_envelope_history(self, env_brain):
         """Return a the envelope's workflow history."""
         result = []
-        wk_brains = self.get_env_children(path, 'Workitem')
+        wk_brains = self.get_env_children(env_brain.getPath(), 'Workitem')
         for brain in wk_brains:
             blocker = brain.blocker
             if not blocker and blocker is not False:
@@ -305,7 +323,7 @@ class EnvelopesAPI(BrowserView):
                 'blocker': blocker,
                 'id': brain.id,
                 'title': title,
-                'modified': brain.bobobase_modification_time.HTML4(),
+                'modified': self.get_wk_date(env_brain, brain).HTML4(),
                 'activity_status': status
             })
 
@@ -444,7 +462,7 @@ class EnvelopesAPI(BrowserView):
                         if files_data.get('errors'):
                             errors += files_data.get('errors', [])
                     elif field == 'history':
-                        envelope_data['history'] = self.get_envelope_history(brain.getPath())
+                        envelope_data['history'] = self.get_envelope_history(brain)
                     elif field in default_props.keys():
                         envelope_data[field] = default_props.get(field)
 
