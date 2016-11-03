@@ -504,7 +504,7 @@ class EnvelopesAPI(BrowserView):
                             if files_data.get('errors'):
                                 errors += files_data.get('errors', [])
                         elif field == 'history':
-                            envelope_data['history'] = self.get_envelope_history(brain.getPath())
+                            envelope_data['history'] = self.get_envelope_history(brain)
                         elif field in default_props.keys():
                             envelope_data[field] = default_props.get(field)
 
