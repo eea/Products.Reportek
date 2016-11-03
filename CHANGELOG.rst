@@ -32,6 +32,10 @@
    - Added support for ECAS users in ReportekUtilities assign_roles and revoke_roles
      [olimpiurob]
 
+* Bug fix #78107 - Python code injection in bdr-uat.eionet.europa.eu
+   - Removed eval blocks since we can use *getattr* to invoke xmlrpc methods
+   - Added check to make sure that p_file_url is valid Zope file
+
 3.8.5 (22-06-2015)
 ------------------
 * Feature #26312 - Changed dct:creator on envelope rdf export [olimpiurob]
