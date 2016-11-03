@@ -32,78 +32,76 @@ paths:
         - name: countryCode
           in: query
           description: Country code in ISO "ALPHA-2 Code format for envelopes to return
-          type: array
-          items:
-            type: string
-            enum:
-              - AL
-              - DZ
-              - AD
-              - AM
-              - AT
-              - AZ
-              - BY
-              - BE
-              - BA
-              - BG
-              - HR
-              - CY
-              - CZ
-              - DK
-              - EG
-              - EE
-              - EU
-              - FI
-              - FR
-              - GE
-              - DE
-              - GI
-              - GR
-              - GL
-              - HU
-              - IS
-              - IE
-              - IL
-              - IT
-              - JO
-              - KZ
-              - XK
-              - KG
-              - LV
-              - LB
-              - LY
-              - LI
-              - LT
-              - LU
-              - MK
-              - MT
-              - MD
-              - MC
-              - ME
-              - MA
-              - NL
-              - NO
-              - PS
-              - PL
-              - PT
-              - RO
-              - RU
-              - SM
-              - RS
-              - SK
-              - SI
-              - ES
-              - SE
-              - CH
-              - SY
-              - TJ
-              - TN
-              - TR
-              - TM
-              - UA
-              - GB
-              - UZ
-              - VA
+          type: string
+          enum:
+            - AL
+            - DZ
+            - AD
+            - AM
+            - AT
+            - AZ
+            - BY
+            - BE
+            - BA
+            - BG
+            - HR
+            - CY
+            - CZ
+            - DK
+            - EG
+            - EE
+            - EU
+            - FI
+            - FR
+            - GE
+            - DE
+            - GI
+            - GR
+            - GL
+            - HU
+            - IS
+            - IE
+            - IL
+            - IT
+            - JO
+            - KZ
+            - XK
+            - KG
+            - LV
+            - LB
+            - LY
+            - LI
+            - LT
+            - LU
+            - MK
+            - MT
+            - MD
+            - MC
+            - ME
+            - MA
+            - NL
+            - NO
+            - PS
+            - PL
+            - PT
+            - RO
+            - RU
+            - SM
+            - RS
+            - SK
+            - SI
+            - ES
+            - SE
+            - CH
+            - SY
+            - TJ
+            - TN
+            - TR
+            - TM
+            - UA
+            - GB
+            - UZ
+            - VA
         - name: reportingDate
           in: query
           description: Return envelopes with this reporting date. format.
@@ -136,40 +134,53 @@ paths:
         - name: periodDescription
           in: query
           description: Return envelopes with specified periodDescription
-          type: array
-          items:
-            type: string
-            enum:
-              - Whole Year
-              - First Half
-              - Second Half
-              - First Quarter
-              - Second Quarter
-              - Third Quarter
-              - Fourth Quarter
-              - January
-              - February
-              - March
-              - April
-              - May
-              - June
-              - July
-              - August
-              - September
-              - October
-              - November
-              - December
+          type: string
+          enum:
+            - Whole Year
+            - First Half
+            - Second Half
+            - First Quarter
+            - Second Quarter
+            - Third Quarter
+            - Fourth Quarter
+            - January
+            - February
+            - March
+            - April
+            - May
+            - June
+            - July
+            - August
+            - September
+            - October
+            - November
+            - December
         - name: modifiedDate
           in: query
           description: Return envelopes with specified modifiedDate. date format.
           type: string
           format: date
+        - name: modifiedDateStart
+          in: query
+          description: >-
+            Return envelopes that have a modified date in range of
+            modifiedDateStart and modifiedDateEnd or today if modifiedDateEnd is
+            missing.
+          type: string
+          format: date
+        - name: modifiedDateEnd
+          in: query
+          description: >-
+            Return envelopes that have a modified date in range of
+            modifiedDateStart and modifiedDateEnd. If modifiedDateStart is
+            missing, all envelopes with modified date <= modifiedDateEnd will be
+            returned.
+          type: string
+          format: date
         - name: status
           in: query
           description: Return envelopes that have the following status
-          type: array
-          items:
-            type: string
+          type: string
         - name: statusDate
           in: query
           type: string
