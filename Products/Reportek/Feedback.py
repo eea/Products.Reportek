@@ -112,7 +112,8 @@ def manage_addFeedback(self, id ='', title='', feedbacktext='', file=None, activ
         if 'file_upload' in REQUEST.form:
             REQUEST.RESPONSE.redirect('%s/manage_editFeedbackForm' % obj.absolute_url())
         else:
-            return self.messageDialog(message="The Feedback %s was successfully created!" % id)
+            return self.messageDialog(message="The Feedback %s was successfully created!" % id,
+                                      action=self.absolute_url())
 
 class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, CommentsManager):
     """
