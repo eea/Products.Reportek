@@ -29,12 +29,12 @@ Referrals are obsolete. It is better to use an Envelope with a hyperlink in it.
 
 $Id$"""
 
-import time, types, os, string
-import Products
+import types
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from OFS.SimpleItem import SimpleItem
 import Globals
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek.constants import DF_URL_PREFIX
 from AccessControl import getSecurityManager, ClassSecurityInfo
 import AccessControl.Role
 from DateTime import DateTime
@@ -124,7 +124,7 @@ class Referral(CatalogAware, SimpleItem, CountriesManager):
         # The new URI-based obligation codes. Can now be multiple
         if not hasattr(self,'dataflow_uris'):
             if self.dataflow:
-                self.dataflow_uris = ( "http://rod.eionet.europa.eu/obligations/" + self.dataflow, )
+                self.dataflow_uris = (DF_URL_PREFIX + self.dataflow,)
             else:
                 self.dataflow_uris = ( )
 

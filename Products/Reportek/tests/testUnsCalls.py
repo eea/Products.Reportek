@@ -1,14 +1,15 @@
 import unittest
 from mock import Mock, patch
+from Products.Reportek.constants import DF_URL_PREFIX
 
 
 mock_dataflow = {
     'terminated': '0',
     'PK_RA_ID': '572',
     'SOURCE_TITLE': 'EEA AMP',
-    'details_url': 'http://rod.eionet.europa.eu/obligations/572',
+    'details_url': DF_URL_PREFIX + '572',
     'TITLE': 'Corine Land Cover 2006',
-    'uri': 'http://rod.eionet.europa.eu/obligations/572',
+    'uri': DF_URL_PREFIX + '572',
     'LAST_UPDATE': '2008-03-05',
     'PK_SOURCE_ID': '499',
 }
