@@ -1,19 +1,18 @@
 # -*- coding: utf-8 -*-
-# Migrate Converter attributes
+# Migrate Converters attributes
 # Run them from within debug mode like so:
-#  >>> from Products.Reportek.updates import u20161107_migrate_converter_attributes; u20161107_migrate_converter_attributes.update(app)
+#  >>> from Products.Reportek.updates import u20161107_migrate_converters_attributes; u20161107_migrate_converters_attributes.update(app)
 
 from Products.Reportek.updates import MigrationBase
 from Products.Reportek.config import DEPLOYMENT_CDR
 from Products.Reportek.config import DEPLOYMENT_MDR
 from Products.Reportek.config import DEPLOYMENT_BDR
-from Products.Reportek.constants import DF_URL_PREFIX
 from Products.Reportek.constants import DEFAULT_CATALOG
 import logging
 import transaction
 
 logger = logging.getLogger(__name__)
-VERSION = 9
+VERSION = 10
 APPLIES_TO = [
     DEPLOYMENT_BDR,
     DEPLOYMENT_CDR,
@@ -21,9 +20,9 @@ APPLIES_TO = [
 ]
 
 
-def migrate_converter_attributes(app):
+def migrate_converters_attributes(app):
     catalog = app.unrestrictedTraverse('/' + DEFAULT_CATALOG)
-    brains = catalog({'meta_type': 'Converter'})
+    brains = catalog({'meta_type': 'Reportek Converters'})
 
     count = 0
     for brain in brains:
@@ -33,19 +32,12 @@ def migrate_converter_attributes(app):
             logger.error('Unable to retrieve object: {} due to {}'.format(brain.getURL(), str(e)))
         if obj:
             do_update = False
-            if not hasattr(obj, 'ct_schema'):
-                obj.ct_schema = ''
+            if not hasattr(obj, 'remote_converter'):
+                obj.remote_converter = "http://converters.eionet.europa.eu/RpcRouter"
                 do_update = True
-            if not hasattr(obj, 'ct_extraparams'):
-                obj.ct_extraparams = ''
+            if not hasattr(obj, 'api_url'):
+                obj.api_url = 'http://converters.eionet.europa.eu/api'
                 do_update = True
-            if not hasattr(obj, 'description'):
-                obj.description = ''
-                do_update = True
-            if not hasattr(obj, 'suffix'):
-                obj.suffix = ''
-                do_update = True
-
             if do_update:
                 obj.reindex_object()
 
@@ -60,8 +52,8 @@ def migrate_converter_attributes(app):
 
 @MigrationBase.checkMigration(__name__)
 def update(app, skipMigrationCheck=False):
-    if not migrate_converter_attributes(app):
+    if not migrate_converters_attributes(app):
         return
 
-    logger.info('Converter attributes have been migrated')
+    logger.info('Converters attributes have been migrated')
     return True
