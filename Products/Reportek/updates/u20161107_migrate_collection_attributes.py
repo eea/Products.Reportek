@@ -8,6 +8,7 @@ from Products.Reportek.config import DEPLOYMENT_CDR
 from Products.Reportek.config import DEPLOYMENT_MDR
 from Products.Reportek.config import DEPLOYMENT_BDR
 from Products.Reportek.constants import DF_URL_PREFIX
+from Products.Reportek.constants import DEFAULT_CATALOG
 import logging
 import transaction
 
@@ -21,7 +22,7 @@ APPLIES_TO = [
 
 
 def migrate_collection_attributes(app):
-    catalog = app.unrestrictedTraverse('/Catalog')
+    catalog = app.unrestrictedTraverse('/' + DEFAULT_CATALOG)
     brains = catalog({'meta_type': 'Report Collection'})
 
     count = 0
@@ -90,7 +91,7 @@ def migrate_collection_attributes(app):
 
 
 @MigrationBase.checkMigration(__name__)
-def update(app, skipMigrationCheck=True):
+def update(app, skipMigrationCheck=False):
     if not migrate_collection_attributes(app):
         return
 
