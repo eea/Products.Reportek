@@ -1028,7 +1028,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     'applicable': applicable,
                     'version': upd_module.VERSION,
                 })
-
+        todo_rows = sorted(todo_rows, key=lambda o: o.get('version'),
+                           reverse=True)
         return self._migration_table(todo_migrationRows=todo_rows,
                                      done_migrationRows=done_rows)
 
