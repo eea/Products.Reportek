@@ -76,5 +76,5 @@ def update(app, skipMigrationCheck=False):
     if not migrate_referrals_attributes(app):
         return
 
-    logger.info('referrals attributes have been migrated')
+    logger.info('Referrals attributes have been migrated')
     return True
