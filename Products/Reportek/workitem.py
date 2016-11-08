@@ -70,10 +70,6 @@ class workitem(CatalogAware, SimpleItem, PropertyManager):
     security.declareProtected('View', 'index_html')
     index_html = PageTemplateFile('zpt/Workflow/workitem_index', globals())
 
-    def __setstate__(self,state):
-        """ """
-        workitem.inheritedAttribute('__setstate__')(self, state)
-
     def title(self):
         return self.activity_id + " by " + self.actor + ", status: " + self.status
 
