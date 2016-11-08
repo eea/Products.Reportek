@@ -4,6 +4,7 @@ from Products.Reportek.constants import ENGINE_ID
 from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION as rpd
 from ZODB.blob import POSKeyError
 from Products.Reportek.blob import StorageError
+from Products.Reportek.constants import DF_URL_PREFIX
 import datetime
 import json
 
@@ -250,6 +251,7 @@ class EnvelopesAPI(BrowserView):
                 if get_value:
                     query[c_idx] = get_value(value, param=param, query=query,
                                              c_idx=c_idx)
+
         return query
 
     def get_env_children(self, path, children_type):
@@ -392,7 +394,7 @@ class EnvelopesAPI(BrowserView):
         years = brain.years
         startyear = years[0] if years else ''
         endyear = years[-1] if years and len(years) > 1 else ''
-        obls = [obl.split('http://rod.eionet.europa.eu/obligations/')[-1]
+        obls = [obl.split(DF_URL_PREFIX)[-1]
                 for obl in brain.dataflow_uris]
         return {
             'url': brain.getURL(),

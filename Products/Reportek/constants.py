@@ -38,6 +38,8 @@ REPORTEK_API = 'api'
 ECAS_ID = 'eCas'
 MIGRATION_ID = 'Migrations'
 
+DF_URL_PREFIX = 'http://rod.eionet.europa.eu/obligations/'
+
 # remote servers
 WEBQ_XML_REPOSITORY = 'http://cdr.eionet.europa.eu/xmlexports/groundwater/'
 

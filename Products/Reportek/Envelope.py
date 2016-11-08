@@ -304,10 +304,6 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         else:
             return None
 
-    def __setstate__(self,state):
-        """ """
-        Envelope.inheritedAttribute('__setstate__')(self, state)
-
     def all_meta_types( self, interfaces=None ):
         """ Called by Zope to determine what kind of object the envelope can contain
         """

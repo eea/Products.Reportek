@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# Migrate authMiddlewareApi (BDR Only)
+# Add missing postingdates to feedbacks
 # Run them from within debug mode like so:
 #  >>> from Products.Reportek.updates import u20161026_add_missing_postingdate_to_feedbacks; u20161026_add_missing_postingdate_to_feedbacks.update(app)
 

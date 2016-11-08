@@ -2,6 +2,7 @@ from AccessControl import ClassSecurityInfo
 from interfaces import IRegistryManagement
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
+from Products.Reportek.constants import DF_URL_PREFIX
 from plone.memoize import ram
 from requests.exceptions import RequestException
 from time import time
@@ -64,7 +65,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
     }
     # TODO: obtain those dynamically rather than hardcode them here
     DOMAIN_TO_OBLIGATION = {
-        'FGAS': 'http://rod.eionet.europa.eu/obligations/713',
+        'FGAS': DF_URL_PREFIX + '713',
     }
     COUNTRY_TO_FOLDER = {
         'uk': 'gb',
