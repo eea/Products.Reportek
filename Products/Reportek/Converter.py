@@ -81,12 +81,16 @@ class Converter(SimpleItem):
         """ update """
         Converter.inheritedAttribute('__setstate__')(self, state)
         if not hasattr(self, 'ct_schema'):
+            self.setstate = True
             self.ct_schema = ''
         if not hasattr(self, 'ct_extraparams'):
+            self.setstate = True
             self.ct_extraparams = ''
         if not hasattr(self, 'description'):
+            self.setstate = True
             self.description = ''
         if not hasattr(self, 'suffix'):
+            self.setstate = True
             self.suffix = ''
 
     #security stuff
