@@ -79,6 +79,7 @@ class activity(CatalogAware, SimpleItem):
     def __setstate__(self,state):
         activity.inheritedAttribute('__setstate__')(self, state)
         if not hasattr(self, 'complete_automatically'):
+            self.setstate = True
             if self.isAutoStart():
                 self.complete_automatically = 1
             else:

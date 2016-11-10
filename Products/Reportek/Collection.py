@@ -136,33 +136,55 @@ class Collection(CatalogAware, Folder, Toolz):
     def __setstate__(self, state):
         Collection.inheritedAttribute('__setstate__')(self, state)
         if type(self.year) is types.StringType and self.year != '':
+            # Set temporary marker
+            self.setstate = True
             try:
                 self.year = int(self.year)
             except:
                 self.year = ''
 
         if not hasattr(self,'endyear'):
+            # Set temporary marker
+            self.setstate = True
             self.endyear = ''
 
         if hasattr(self,'main_issues'):
+            # Set temporary marker
+            self.setstate = True
             del self.main_issues
         if hasattr(self,'broad'):
+            # Set temporary marker
+            self.setstate = True
             del self.broad
         if hasattr(self,'narrow'):
+            # Set temporary marker
+            self.setstate = True
             del self.narrow
         if hasattr(self,'media'):
+            # Set temporary marker
+            self.setstate = True
             del self.media
         if hasattr(self,'response'):
+            # Set temporary marker
+            self.setstate = True
             del self.response
         if hasattr(self,'pressures'):
+            # Set temporary marker
+            self.setstate = True
             del self.pressures
         if hasattr(self,'impacts'):
+            # Set temporary marker
+            self.setstate = True
             del self.impacts
         if hasattr(self,'keywords'):
+            # Set temporary marker
+            self.setstate = True
             del self.keywords
         # The new URI-based obligation codes. Can now be multiple
         # Old reportek could only use ROD.
         if not hasattr(self,'dataflow_uris'):
+            # Set temporary marker
+            self.setstate = True
             if self.dataflow:
                 self.dataflow_uris = [ "http://rod.eionet.eu.int/obligations/" + self.dataflow ]
             else:

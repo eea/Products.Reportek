@@ -55,6 +55,7 @@ class QARepository(Folder):
     def __setstate__(self,state):
         QARepository.inheritedAttribute('__setstate__')(self, state)
         if not hasattr(self,'QA_application'):
+            self.setstate = True
             self.QA_application = 'EnvelopeQAApplication'
 
     meta_types = ({'name': 'QAScript',         'action': 'manage_addQAScriptForm'},)

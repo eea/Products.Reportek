@@ -24,69 +24,22 @@ APPLIES_TO = [
 def migrate_collection_attributes(app):
     catalog = app.unrestrictedTraverse('/' + DEFAULT_CATALOG)
     brains = catalog({'meta_type': 'Report Collection'})
-
     count = 0
     for brain in brains:
         try:
             obj = brain.getObject()
         except Exception as e:
             logger.error('Unable to retrieve object: {} due to {}'.format(brain.getURL(), str(e)))
-        if obj:
-            do_update = False
-            year = getattr(obj, 'year', '')
-            if year and isinstance(year, str):
-                try:
-                    obj.year = int(year)
-                    do_update = True
-                except ValueError:
-                    logger.warning('Unable to convert year value: {} from string to integer')
 
-            if not hasattr(obj, 'endyear'):
-                do_update = True
-                obj.endyear = ''
-
-            if hasattr(obj, 'main_issues'):
-                do_update = True
-                del obj.main_issues
-            if hasattr(obj, 'broad'):
-                do_update = True
-                del obj.broad
-            if hasattr(obj, 'narrow'):
-                do_update = True
-                del obj.narrow
-            if hasattr(obj, 'media'):
-                do_update = True
-                del obj.media
-            if hasattr(obj, 'response'):
-                do_update = True
-                del obj.response
-            if hasattr(obj, 'pressures'):
-                do_update = True
-                del obj.pressures
-            if hasattr(obj, 'impacts'):
-                do_update = True
-                del obj.impacts
-            if hasattr(obj, 'keywords'):
-                do_update = True
-                del obj.keywords
-            # The new URI-based obligation codes. Can now be multiple
-            # Old reportek could only use ROD.
-            if not hasattr(obj, 'dataflow_uris'):
-                if obj.dataflow:
-                    obj.dataflow_uris = [DF_URL_PREFIX + obj.dataflow]
-                else:
-                    obj.dataflow_uris = []
-                do_update = True
-
-            if do_update:
-                obj.reindex_object()
-
+        if obj and hasattr(obj, 'setstate'):
+            del obj.setstate
+            obj._p_changed = 1
             if count % 10000 == 0:
                 transaction.savepoint()
                 logger.info('savepoint at %d records', count)
 
             count += 1
-
+    logger.info('Changed a total of {} objects'.format(count))
     return True
 
 

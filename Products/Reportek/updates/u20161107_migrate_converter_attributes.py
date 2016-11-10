@@ -7,8 +7,7 @@ from Products.Reportek.updates import MigrationBase
 from Products.Reportek.config import DEPLOYMENT_CDR
 from Products.Reportek.config import DEPLOYMENT_MDR
 from Products.Reportek.config import DEPLOYMENT_BDR
-from Products.Reportek.constants import DF_URL_PREFIX
-from Products.Reportek.constants import DEFAULT_CATALOG
+from Products.Reportek.constants import CONVERTERS_ID
 import logging
 import transaction
 
@@ -22,39 +21,19 @@ APPLIES_TO = [
 
 
 def migrate_converter_attributes(app):
-    catalog = app.unrestrictedTraverse('/' + DEFAULT_CATALOG)
-    brains = catalog({'meta_type': 'Converter'})
-
     count = 0
-    for brain in brains:
-        try:
-            obj = brain.getObject()
-        except Exception as e:
-            logger.error('Unable to retrieve object: {} due to {}'.format(brain.getURL(), str(e)))
-        if obj:
-            do_update = False
-            if not hasattr(obj, 'ct_schema'):
-                obj.ct_schema = ''
-                do_update = True
-            if not hasattr(obj, 'ct_extraparams'):
-                obj.ct_extraparams = ''
-                do_update = True
-            if not hasattr(obj, 'description'):
-                obj.description = ''
-                do_update = True
-            if not hasattr(obj, 'suffix'):
-                obj.suffix = ''
-                do_update = True
+    converters = app.unrestrictedTraverse('/' + CONVERTERS_ID)
 
-            if do_update:
-                obj.reindex_object()
-
+    for ob in converters.objectValues('Converter'):
+        if ob and hasattr(ob, 'setstate'):
+            del ob.setstate
+            ob._p_changed = 1
             if count % 10000 == 0:
                 transaction.savepoint()
                 logger.info('savepoint at %d records', count)
 
             count += 1
-
+    logger.info('Changed a total of {} objects'.format(count))
     return True
 
 
