@@ -107,6 +107,7 @@ class Referral(CatalogAware, SimpleItem, CountriesManager):
     def __setstate__(self,state):
         Referral.inheritedAttribute('__setstate__')(self, state)
         if type(self.year) is types.StringType and self.year != '':
+            self.setstate = True
             try:
                 self.year = int(self.year)
             except:
