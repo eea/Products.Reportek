@@ -23,30 +23,22 @@ APPLIES_TO = [
 def migrate_activities_attributes(app):
     catalog = app.unrestrictedTraverse('/' + DEFAULT_CATALOG)
     brains = catalog({'meta_type': 'Activity'})
-
+    print len(brains)
     count = 0
     for brain in brains:
         try:
             obj = brain.getObject()
         except Exception as e:
             logger.error('Unable to retrieve object: {} due to {}'.format(brain.getURL(), str(e)))
-        if obj:
-            do_update = False
-            if not hasattr(obj, 'complete_automatically'):
-                if obj.isAutoStart():
-                    obj.complete_automatically = 1
-                else:
-                    obj.complete_automatically = 0
-                do_update = True
-            if do_update:
-                obj.reindex_object()
-
+        if obj and hasattr(obj, 'setstate'):
+            del obj.setstate
+            obj._p_changed = 1
             if count % 10000 == 0:
                 transaction.savepoint()
                 logger.info('savepoint at %d records', count)
 
             count += 1
-
+    logger.info('Changed a total of {} objects'.format(count))
     return True
 
 
