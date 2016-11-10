@@ -23,7 +23,7 @@ APPLIES_TO = [
 def migrate_referrals_attributes(app):
     catalog = app.unrestrictedTraverse('/' + DEFAULT_CATALOG)
     brains = catalog({'meta_type': 'Repository Referral'})
-    print len(brains)
+
     count = 0
     for brain in brains:
         try:
