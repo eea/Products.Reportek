@@ -93,16 +93,6 @@ class Converters(Folder):
         self.remote_converter = "http://converters.eionet.europa.eu/RpcRouter"
         self.api_url = 'http://converters.eionet.europa.eu/api'
 
-    def __setstate__(self, state):
-        """ update """
-        Converters.inheritedAttribute('__setstate__')(self, state)
-        if not hasattr(self, 'remote_converter'):
-            self.setstate = True
-            self.remote_converter = "http://converters.eionet.europa.eu/RpcRouter"
-        if not hasattr(self, 'api_url'):
-            self.setstate = True
-            self.api_url = 'http://converters.eionet.europa.eu/api'
-
     def __getitem__(self, attr):
         try:
             available_ids = requests.get(

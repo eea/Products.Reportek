@@ -104,31 +104,6 @@ class Referral(CatalogAware, SimpleItem, CountriesManager):
 
     reportingdate = property(get_reportingdate)
 
-    def __setstate__(self,state):
-        Referral.inheritedAttribute('__setstate__')(self, state)
-        if type(self.year) is types.StringType and self.year != '':
-            self.setstate = True
-            try:
-                self.year = int(self.year)
-            except:
-                self.year = ''
-
-        if not hasattr(self,'endyear'):
-            self.endyear = ''
-
-        if type(self.endyear) is types.StringType and self.endyear != '':
-            try:
-                self.endyear = int(self.endyear)
-            except:
-                self.endyear = ''
-
-        # The new URI-based obligation codes. Can now be multiple
-        if not hasattr(self,'dataflow_uris'):
-            if self.dataflow:
-                self.dataflow_uris = (DF_URL_PREFIX + self.dataflow,)
-            else:
-                self.dataflow_uris = ( )
-
     security.declarePrivate('get_first_accept')
     def get_first_accept(self):
         """ Figures out which type of content the webbrowser prefers
