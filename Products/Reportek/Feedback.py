@@ -165,11 +165,6 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
         self.message = message
         self.feedback_status = feedback_status
 
-    def __setstate__(self,state):
-        ReportFeedback.inheritedAttribute('__setstate__')(self, state)
-        if not hasattr(self,'postingdate'):
-            self.postingdate = self.bobobase_modification_time()
-
     def update_item(self, postingdate=None):
         """ If the parameter is provided, updates the postingdate to it
             If not, checks if the property exists and sets it to bobobase_modification_time

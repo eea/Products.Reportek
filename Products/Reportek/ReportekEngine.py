@@ -1060,9 +1060,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 frag = '%s:%s@' % (self.UNS_username, self.UNS_password)
                 url = url.replace('http://', 'http://'+frag)
                 url = url.replace('https://', 'https://'+frag)
-        else:
-            url = ''
-        return xmlrpclib.Server(url)
+            return xmlrpclib.Server(url)
 
     security.declareProtected('View', 'canUserSubscribeToUNS')
     def canUserSubscribeToUNS(self, user_id='', REQUEST=None):
@@ -1076,8 +1074,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         # TODO: cache results for a few minutes
         try:
             l_server = self.get_uns_xmlrpc_server()
-            l_ret = l_server.UNSService.canSubscribe(self.UNS_channel_id, user_id)
-            return l_ret
+            if l_server:
+                l_ret = l_server.UNSService.canSubscribe(self.UNS_channel_id,
+                                                         user_id)
+                return l_ret
         except Exception as e:
             logger.warning("Unable to contact UNS to check if {0} can "
                            "subscribe: {1}".format(user_id, e))
@@ -1112,58 +1112,64 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             for l_filter_event_type in filter_event_types:
                 l_filters_final.append({'http://rod.eionet.europa.eu/schema.rdf#event_type':l_filter_event_type})
 
-        try:
-            l_server = self.get_uns_xmlrpc_server()
-            #l_ret = l_server.UNSService.makeSubscription(self.UNS_channel_id, self.REQUEST['AUTHENTICATED_USER'].getUserName(), l_filters)
-            l_ret = l_server.UNSService.makeSubscription(self.UNS_channel_id, self.REQUEST['AUTHENTICATED_USER'].getUserName(), l_filters_final)
-            if REQUEST is not None:
-                REQUEST.RESPONSE.redirect('subscriptions_html?info_title=Information&info_msg=Subscription made successfully')
-            return (1, '')
-        except Exception, err:
-            if REQUEST is not None:
-                REQUEST.RESPONSE.redirect('subscriptions_html?info_title=Error&info_msg=Your subscription could not be made because of the following error: %s' % str(err))
-            return (0, str(err))
+        l_server = self.get_uns_xmlrpc_server()
+        if l_server:
+            try:
+                #l_ret = l_server.UNSService.makeSubscription(self.UNS_channel_id, self.REQUEST['AUTHENTICATED_USER'].getUserName(), l_filters)
+                l_ret = l_server.UNSService.makeSubscription(self.UNS_channel_id, self.REQUEST['AUTHENTICATED_USER'].getUserName(), l_filters_final)
+                if REQUEST is not None:
+                    REQUEST.RESPONSE.redirect('subscriptions_html?info_title=Information&info_msg=Subscription made successfully')
+                return (1, '')
+            except Exception, err:
+                if REQUEST is not None:
+                    REQUEST.RESPONSE.redirect('subscriptions_html?info_title=Error&info_msg=Your subscription could not be made because of the following error: %s' % str(err))
+                return (0, str(err))
 
     security.declareProtected('View', 'sendNotificationToUNS')
     def sendNotificationToUNS(self, envelope, notification_type, notification_label, actor='system'):
         """ Sends events data to the specified UNS's push channel """
-        try:
-            l_server = self.get_uns_xmlrpc_server()
-            # create unique notification identifier
-            # Envelope URL + time + notification_type
-            l_time = str(time())
-            l_id = "%s/events#ts%s" % (envelope.absolute_url(), l_time )
-            #l_id = "http://rod.eionet.europa.eu/events/%s" % l_time
-            l_res = []
-            l_res.append([l_id, 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', 'http://rod.eionet.europa.eu/schema.rdf#Workflowevent'])
-            l_res.append([l_id, 'http://purl.org/dc/elements/1.1/title', notification_label])
-            l_res.append([l_id, 'http://purl.org/dc/elements/1.1/identifier', envelope.absolute_url()])
-            l_res.append([l_id, 'http://purl.org/dc/elements/1.1/date', strftime('%Y-%b-%d %H:%M:%S')])
-            #l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#label', notification_label])
-            l_dataflows = [self.dataflow_lookup(x)['TITLE'] for x in envelope.dataflow_uris]
-            for l_dataflow in l_dataflows:
-                l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#obligation', str(l_dataflow)])
-            l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#locality', str(envelope.getCountryName())])
-            l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#actor', actor])
-            l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#event_type', notification_type])
-            l_ret = l_server.UNSService.sendNotification(self.UNS_channel_id, l_res)
-            return 1
-        except Exception as e:
-            logger.warning("Unable to send UNS notification for: {0}: {1}"
-                           .format(envelope.absolute_url(), e))
-            return 0
+        l_server = self.get_uns_xmlrpc_server()
+        res = 0
+        if l_server:
+            try:
+                # create unique notification identifier
+                # Envelope URL + time + notification_type
+                l_time = str(time())
+                l_id = "%s/events#ts%s" % (envelope.absolute_url(), l_time )
+                #l_id = "http://rod.eionet.europa.eu/events/%s" % l_time
+                l_res = []
+                l_res.append([l_id, 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', 'http://rod.eionet.europa.eu/schema.rdf#Workflowevent'])
+                l_res.append([l_id, 'http://purl.org/dc/elements/1.1/title', notification_label])
+                l_res.append([l_id, 'http://purl.org/dc/elements/1.1/identifier', envelope.absolute_url()])
+                l_res.append([l_id, 'http://purl.org/dc/elements/1.1/date', strftime('%Y-%b-%d %H:%M:%S')])
+                #l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#label', notification_label])
+                l_dataflows = [self.dataflow_lookup(x)['TITLE'] for x in envelope.dataflow_uris]
+                for l_dataflow in l_dataflows:
+                    l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#obligation', str(l_dataflow)])
+                l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#locality', str(envelope.getCountryName())])
+                l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#actor', actor])
+                l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#event_type', notification_type])
+                l_ret = l_server.UNSService.sendNotification(self.UNS_channel_id, l_res)
+                res = 1
+            except Exception as e:
+                logger.warning("Unable to send UNS notification for: {0}: {1}"
+                               .format(envelope.absolute_url(), e))
+                res = 0
+        return res
 
     security.declarePrivate('uns_subscribe_actors')
     def uns_subscribe_actors(self, actors, filters):
         server = self.get_uns_xmlrpc_server()
-        for act in actors:
-            try:
-                server.UNSService.makeSubscription(self.UNS_channel_id, act, filters)
-                return 1
-            except Exception as e:
-                logger.warning("Unable to subscribe actors: {0} to UNS: {1}"
-                               .format(actors, e))
-                return 0
+        if server:
+            for act in actors:
+                try:
+                    server.UNSService.makeSubscription(self.UNS_channel_id,
+                                                       act, filters)
+                    return 1
+                except Exception as e:
+                    logger.warning("Unable to subscribe actors: {0} to UNS: {1}"
+                                   .format(actors, e))
+                    return 0
 
     ################################################################################
     #

@@ -76,15 +76,6 @@ class activity(CatalogAware, SimpleItem):
         # the workitem will be completed if this parameter is true
         self.complete_automatically = complete_automatically
 
-    def __setstate__(self,state):
-        activity.inheritedAttribute('__setstate__')(self, state)
-        if not hasattr(self, 'complete_automatically'):
-            self.setstate = True
-            if self.isAutoStart():
-                self.complete_automatically = 1
-            else:
-                self.complete_automatically = 0
-
     security.declareProtected('Manage OpenFlow', 'manage_editForm')
     manage_editForm = PageTemplateFile('zpt/Workflow/activity_edit.zpt', globals())
 
