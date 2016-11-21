@@ -1,5 +1,5 @@
 import unittest
-from mock import Mock, patch
+from mock import Mock, patch, MagicMock
 from Products.Reportek.constants import DF_URL_PREFIX
 
 
@@ -31,6 +31,7 @@ class UNSCallsTest(unittest.TestCase):
         self.xmlrpc_server = Mock()
         xmlrpc_patch.start().ServerProxy.return_value = self.xmlrpc_server
         xmlrpc_patch.start().Server.return_value = self.xmlrpc_server
+        ReportekEngine.uns_notifications_enabled = MagicMock(return_value=True)
         self.engine = ReportekEngine()
         self.engine.UNS_server = 'http://uns.example.com'
         self.engine.UNS_channel_id = '132547698'
