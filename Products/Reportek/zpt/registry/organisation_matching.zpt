@@ -50,7 +50,8 @@
       <thead>
         <tr>
           <th>Companies (as registered in FGAS Portal)</th>
-          <th>Candidates (from BDR-Registry)</th>
+          <th>Status</th>
+          <th>Country</th>
         </tr>
       </thead>
       <tbody>
@@ -65,34 +66,19 @@
                 "sAjaxSource": "/fgases_registry/get_candidates",
                 "sAjaxDataProp" : "",
                 "aoColumns": [
-                  { "mData": "undertaking" },  // for User Detail
-                  { "mData": "links" }
+                  { "data": null },  // for User Detail
+                  { "data": "status" },
+                  { "data": "country" },
                 ],
                 "columnDefs": [
                   {
                     "targets": 0,
-                    "data": "undertaking",
+                    "data": null,
                     "render": function (data, type, full, meta) {
                       return '<a href="/fgases_registry/organisation_verification?id='+
                         data.company_id + '">' + data.name + '</a>';
                     }
                   },
-                  {
-                    "targets": 1,
-                    "bSortable": false,
-                    "data": "links",
-                    "render": function (data, type, full, meta) {
-                      if (data.length == 0) {
-                        return "<i>No candidates</i>";
-                      } else {
-                        var candidates = "";
-                        for (var i = 0; i < data.length; i++) {
-                          candidates += "<span>" + data[i].name + "<span/><br/>";
-                        }
-                        return candidates;
-                      }
-                    }
-                  }
                 ],
                 "order": [[ 0, "asc" ]]
             });
