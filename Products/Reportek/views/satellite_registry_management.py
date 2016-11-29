@@ -205,14 +205,6 @@ class SatelliteRegistryManagement(BaseAdmin):
         response = api.getUsersExcelExport()
         return response.content
 
-    def auto_matching(self):
-        api = self.get_api()
-        if not api:
-            return None
-
-        settings = api.getSettings()
-        return settings["AUTO_VERIFY_COMPANIES"]
-
     def get_url(self):
         api = self.get_api()
         if not api:
