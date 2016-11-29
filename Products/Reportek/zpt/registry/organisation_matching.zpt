@@ -49,7 +49,7 @@
     <table class="table simple_table" id="matching-table">
       <thead>
         <tr>
-          <th>Companies (as registered in FGAS Portal)</th>
+          <th>Company name (as registered in FGAS Portal)</th>
           <th>Status</th>
           <th>Country</th>
         </tr>
@@ -66,19 +66,28 @@
                 "sAjaxSource": "/fgases_registry/get_candidates",
                 "sAjaxDataProp" : "",
                 "aoColumns": [
-                  { "data": null },  // for User Detail
+                  { "data": "name" },  // for User Detail
                   { "data": "status" },
                   { "data": "country" },
                 ],
                 "columnDefs": [
                   {
+                    "width": "40%",
                     "targets": 0,
-                    "data": null,
+                    "data": "name",
                     "render": function (data, type, full, meta) {
                       return '<a href="/fgases_registry/organisation_verification?id='+
-                        data.company_id + '">' + data.name + '</a>';
+                        full.company_id + '">' + data + '</a>';
                     }
                   },
+                  {
+                    "width": "20%",
+                    "targets": 1,
+                  },
+                  {
+                    "width": "40%",
+                    "targets": 2,
+                  }
                 ],
                 "order": [[ 0, "asc" ]]
             });

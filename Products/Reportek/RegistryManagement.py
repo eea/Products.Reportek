@@ -132,13 +132,11 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if response:
             return response.json()
 
-    def verifyCandidate(self, companyId, candidateId, userId):
+    def verifyCandidate(self, companyId, userId):
         # use the right pattern for Api url
-        api_url = self.baseUrl + "/candidate/verify-none/{0}/"
-        if candidateId:
-            api_url = self.baseUrl + "/candidate/verify/{0}/{1}/"
+        api_url = self.baseUrl + "/candidate/verify/{0}/"
+        api_url = api_url.format(companyId)
 
-        api_url = api_url.format(companyId, candidateId)
         response = self.do_api_request(api_url,
                                        data={'user': userId},
                                        method="post",

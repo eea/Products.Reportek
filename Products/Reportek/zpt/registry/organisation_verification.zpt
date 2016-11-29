@@ -47,24 +47,7 @@
             <tal:block metal:use-macro="here/partials/macros/organisation_details" />
           </div>
 
-          <h2>
-            Company candidates (taken from BDR Registry)
-          </h2>
-
-          <p tal:condition="company/candidates">Please choose one of the following companies to match.</p>
-          <p tal:condition="not: company/candidates">This company has no candidates.</p>
-
           <form id="company-verification" method="post">
-            <tal:block condition="company/candidates"
-                       repeat="candidate company/candidates">
-              <tal:block metal:use-macro="here/partials/macros/short_organisation_details" />
-            </tal:block>
-            <div class="company-header clearfix">
-              <label class="btn btn-default pull-left" for="none">
-                <input type="radio" name="cid" value="none" id="none">
-                New company
-              </label>
-            </div>
             <input type="hidden" name="fid"
                    tal:attributes="value string:${company/company_id}">
             <hr/>
@@ -75,14 +58,9 @@
 
         <script>
           $('#company-verification').on('submit', function(e){
-            var cid = $('input[name=cid]:checked', '#company-verification').val()
-            if(cid && confirm("Are you sure do you want to approve this company?")) {
+            if(confirm("Are you sure do you want to approve this company?")) {
               this.submit();
               return true;
-            } else if (!cid) {
-              alert("Please select if this is a new company or if it can be matched with an existing one!");
-              e.preventDefault();
-              return false;
             }
             return false;
           });

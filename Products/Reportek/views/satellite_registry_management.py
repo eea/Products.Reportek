@@ -18,13 +18,10 @@ class SatelliteRegistryManagement(BaseAdmin):
                 return None
 
         if self.request.method == "POST" and self.request.get("verify.btn"):
-            candidateId = self.request.form.get("cid")
             newId = self.request.form.get("fid")
             userId = self.request.form.get("user")
-            if candidateId and newId and userId:
-                if candidateId == "none":
-                    candidateId = None
-                if api.verifyCandidate(newId, candidateId, userId):
+            if newId and userId:
+                if api.verifyCandidate(newId, userId):
                     return self.request.response.redirect('{0}/{1}?done=1'.format(
                         self.context.absolute_url(), "organisation_matching"))
 
