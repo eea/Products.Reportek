@@ -96,9 +96,7 @@ class RemoteRESTAPIApplication(SimpleItem):
 
     def add_async_batch_qajob(self, workitem, env_url):
         """Submit envelope level batch job for analysis."""
-        foo = 'http://converters-api.devel1.eionet.europa.eu/restapi1'
-        async_batch_url = '/'.join([foo,
-                                    # self.async_base_url,
+        async_batch_url = '/'.join([self.async_base_url,
                                     self.jobs_endpoint.strip('/'),
                                     self.batch_endpoint.strip('/')])
         data = {
@@ -108,24 +106,25 @@ class RemoteRESTAPIApplication(SimpleItem):
         ctype = "application/json"
         headers = {"Accept": ctype,
                    "Content-Type": ctype}
-        result = None
         err = None
+        jsondata = None
         try:
             result = requests.post(async_batch_url, data=data,
                                    headers=headers, timeout=self.timeout)
         except RequestException as e:
             err = str(e)
-        if result:
+
+        try:
             jsondata = result.json()
-            if result.status_code == 200:
+        except ValueError as e:
+            err = str(e)
+
+        if jsondata and not err:
+            if result.status_code == requests.codes.ok:
                 return jsondata
             else:
-                err = '{} {}'.format(result.status_code,
-                                     jsondata.get('errorMessage'))
-        elif hasattr(result, 'status_code'):
-            err = 'A {} HTTP error occured.'.format(result.status_code)
-        else:
-            err = 'Envelope analysis query returned no result.'
+                err = 'HTTP Error {} - {}'.format(result.status_code,
+                                                  jsondata.get('errorMessage'))
 
         if err:
             err_msg = 'Envelope analysis job for {}'\
@@ -148,6 +147,11 @@ class RemoteRESTAPIApplication(SimpleItem):
         qa_data = getattr(workitem, self.app_name)
         jobs_meta = qa_data.get('jobs', {})
         return jobs_meta.get(jobid)
+
+    def persist_meta(self, workitem):
+        """Persist the changes to the metadata."""
+        qa_data = getattr(workitem, self.app_name)
+        qa_data._p_changed = 1
 
     def init_wk(self, workitem):
         """Adds QA-specific extra properties to the workitem."""
@@ -218,6 +222,7 @@ class RemoteRESTAPIApplication(SimpleItem):
                 next_run = int(data['next_run'])
                 next_run = DateTime(next_run + int(self.r_frequency))
                 data['next_run'] = next_run
+            self.persist_meta(workitem)
 
     def manage_analysis(self, workitem, analysis, REQUEST=None):
         """Handle analysis results."""
@@ -233,14 +238,16 @@ class RemoteRESTAPIApplication(SimpleItem):
         qa_data['jobs'][job.get('jobId')]['retries'] = self.retries
         file = job.get('fileUrl').split('/')[-1]
         msg = '{} - job in progress: #{} for file: {}'.format(self.app_name,
-                                                            job.get('jobId'),
-                                                            file)
+                                                              job.get('jobId'),
+                                                              file)
+        self.persist_meta(workitem)
         self.log_event('info', msg, workitem)
 
     def update_job(self, workitem, job):
         """Update the job in the automatic property mapping."""
         qa_data = getattr(workitem, self.app_name)
         qa_data['jobs'][job.get('jobId')].update(job)
+        self.persist_meta(workitem)
 
     def manage_jobs(self, workitem, REQUEST=None):
         """Manage the remote jobs."""
@@ -259,12 +266,11 @@ class RemoteRESTAPIApplication(SimpleItem):
         """Get the remote result for the current jobid."""
         jobid = job.get('jobId')
         file = job.get('fileUrl').split('/')[-1]
-        # foo = 'http://converters-api.devel1.eionet.europa.eu/restapi1'
         job_url = '/'.join([self.async_base_url,
                             self.jobs_endpoint.strip('/'),
                             jobid])
         headers = {"Accept": "application/json"}
-        result = None
+        jsondata = None
         err = None
 
         try:
@@ -272,17 +278,18 @@ class RemoteRESTAPIApplication(SimpleItem):
                                   timeout=self.timeout)
         except RequestException as e:
             err = str(e)
-        if result:
+
+        try:
             jsondata = result.json()
-            if result.status_code == 200:
+        except ValueError as e:
+            err = str(e)
+
+        if jsondata and not err:
+            if result.status_code == requests.codes.ok:
                 return jsondata
             else:
-                err = '{} {}'.format(result.status_code,
-                                     jsondata.get('errorMessage'))
-        elif hasattr(result, 'status_code'):
-            err = 'A {} HTTP error occured.'.format(result.status_code)
-        else:
-            err = 'Job query returned no result.'
+                err = 'HTTP Error {} - {}'.format(result.status_code,
+                                                  jsondata.get('errorMessage'))
 
         if err:
             err_msg = 'Job: #{} for file {},'\
