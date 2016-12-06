@@ -161,7 +161,7 @@ def xmlEncode(p_string):
 #encode to UTF-8 from user encoding
 def utGMLEncode(p_str, p_str_enc):
     """ Giving a string and an encoding, returns the string encoded to UTF-8
-        If no encoding is provided it will assume as input encoding UTF-8 
+        If no encoding is provided it will assume as input encoding UTF-8
 
         Also special characters that might appear in GML files are escaped
     """
@@ -549,8 +549,7 @@ def fix_json_from_id(obj):
 
     # Delete unused keys
     unused = ['country_code', 'date_created', 'date_updated', 'candidates',
-              'collection_id', 'oldcompany_verified', 'oldcompany_extid',
-              'oldcompany_id']
+              'collection_id', 'oldcompany_verified', 'oldcompany_extid']
     for key in unused:
         obj.pop(key, None)
 

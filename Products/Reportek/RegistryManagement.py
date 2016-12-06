@@ -196,7 +196,6 @@ class FGASRegistryAPI(BaseRegistryAPI):
                 data = {
                     'company_id': companyId,
                     'user': userId,
-                    'oldcompany_id': co['oldcompany_id'],
                     'oldcollection_path': path
                 }
                 response = self.do_api_request(url,
