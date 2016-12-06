@@ -32,6 +32,7 @@ from OFS.Folder import Folder
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek.RemoteApplication import RemoteApplication
 import Globals
 
 import constants
@@ -136,15 +137,7 @@ class QARepository(Folder):
         # remote scripts
         l_qa_app = self.getQAApplication()
         if l_qa_app:
-            l_server_url = l_qa_app.RemoteServer
-            l_remote_server = l_qa_app.RemoteService
-            try:
-                l_server = xmlrpclib.ServerProxy(l_server_url)
-                l_server_service = getattr(l_server, l_remote_server)
-                l_tmp = l_server_service.listQAScripts(p_schema)
-                l_ret.extend([x[0] for x in l_tmp])
-            except:
-                pass
+            l_ret.extend(l_qa_app.get_schema_qa_scripts(p_schema))
         return l_ret
 
     def getDataflowMappingsContainer(self):
@@ -159,35 +152,28 @@ class QARepository(Folder):
         l_ret = {}
         #calculate remote service URL
         l_qa_app = self.getQAApplication()
-        if l_qa_app:
-            l_server_url = l_qa_app.RemoteServer
-            l_remote_server = l_qa_app.RemoteService
 
         for l_file in files:
             # get the valid schemas for the envelope's dataflows
             l_valid_schemas = self.getDataflowMappingsContainer().getSchemasForDataflows(l_file.dataflow_uris)
+            schema = l_file.xml_schema_location
             # go on only if it's an XML file with a non-empty valid schema or if no valid schemas
             # are defined for those dataflows
             #NOTE due to updated dataflow_uris, l_valid_schemas is always None
-            if ((l_file.xml_schema_location and
-                (l_file.xml_schema_location in l_valid_schemas or not l_valid_schemas)) or
+            if ((schema and
+                (schema in l_valid_schemas or not l_valid_schemas)) or
                 self._get_local_qa_scripts(dataflow_uris=l_file.dataflow_uris)):
                 #remote scripts
                 if l_qa_app:
-                    try:
-                        l_server = xmlrpclib.ServerProxy(l_server_url)
-                        l_server_service = getattr(l_server, l_remote_server)
-                        l_tmp = l_server_service.listQAScripts(l_file.xml_schema_location)
-                        if len(l_tmp):
-                            l_ret[l_file.id] = l_tmp
-                    except:
-                        pass
+                    f_scripts = l_qa_app.get_schema_qa_scripts(schema)
+                    if f_scripts:
+                        l_ret[l_file.id] = f_scripts
                 #local scripts
                 l_buff = [
                     ['loc_%s' % y.id, y.title, y.bobobase_modification_time(),
                      y.max_size] for y in
                         self._get_local_qa_scripts(
-                            l_file.xml_schema_location,
+                            schema,
                             dataflow_uris=l_file.dataflow_uris,
                             content_type_in=l_file.content_type)
                 ]

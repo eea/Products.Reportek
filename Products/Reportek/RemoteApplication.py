@@ -567,4 +567,20 @@ class RemoteApplication(SimpleItem):
     security.declareProtected(view_management_screens, 'manage_settings_html')
     manage_settings_html = PageTemplateFile('zpt/remote/application_edit', globals())
 
+    def get_schema_qa_scripts(self, schema):
+        """Returns the list of QA script ids available for a schema."""
+        l_ret = []
+        l_server_url = self.RemoteServer
+        l_remote_server = self.RemoteService
+        try:
+            l_server = xmlrpclib.ServerProxy(l_server_url)
+            l_server_service = getattr(l_server, l_remote_server)
+            l_tmp = l_server_service.listQAScripts(schema)
+            l_ret.extend([x[0] for x in l_tmp])
+        except:
+            pass
+
+        return l_ret
+
+
 InitializeClass(RemoteApplication)

@@ -22,12 +22,14 @@ manage_addRemoteRESTAPIApplicationForm = ptf('zpt/remote/restapi_app_add',
 
 def manage_addRemoteRESTAPIApplication(self, id='', title='', base_url='',
                                        async_base_url='', jobs_endpoint='',
-                                       batch_endpoint='', app_name='',
+                                       batch_endpoint='',
+                                       qascripts_endpoint='', app_name='',
                                        REQUEST=None):
     """Generic base application that calls a remote service."""
 
     ob = RemoteRESTAPIApplication(id, title, base_url, async_base_url,
-                                  jobs_endpoint, batch_endpoint, app_name)
+                                  jobs_endpoint, batch_endpoint,
+                                  qascripts_endpoint, app_name)
     self._setObject(id, ob)
 
     if REQUEST is not None:
@@ -47,8 +49,8 @@ class RemoteRESTAPIApplication(SimpleItem):
     manage_settings_html = ptf('zpt/remote/restapi_app_edit', globals())
 
     def __init__(self, id, title, base_url, async_base_url, jobs_endpoint,
-                 batch_endpoint, app_name, timeout=20, retries=5,
-                 r_frequency=300):
+                 batch_endpoint, qascripts_endpoint, app_name, timeout=20,
+                 retries=5, r_frequency=300):
         """Initialize a new instance of RemoteRESTAPIApplication."""
         self.id = id
         self.title = title
@@ -56,20 +58,22 @@ class RemoteRESTAPIApplication(SimpleItem):
         self.async_base_url = async_base_url
         self.jobs_endpoint = jobs_endpoint
         self.batch_endpoint = batch_endpoint
+        self.qascripts_endpoint = qascripts_endpoint
         self.app_name = app_name
         self.retries = int(retries)
         self.timeout = int(timeout)
         self.r_frequency = int(r_frequency)
 
     def manage_settings(self, title, base_url, async_base_url, jobs_endpoint,
-                        batch_endpoint, app_name, retries, timeout,
-                        r_frequency, REQUEST):
+                        batch_endpoint, qascripts_endpoint, app_name, retries,
+                        timeout, r_frequency, REQUEST):
         """Change the settings of the RemoteRESTAPIApplication."""
         self.title = title
         self.base_url = base_url
         self.async_base_url = async_base_url
         self.jobs_endpoint = jobs_endpoint
         self.batch_endpoint = batch_endpoint
+        self.qascripts_endpoint = qascripts_endpoint
         self.app_name = app_name
         self.retries = int(retries)
         self.timeout = int(timeout)
@@ -108,6 +112,8 @@ class RemoteRESTAPIApplication(SimpleItem):
                    "Content-Type": ctype}
         err = None
         jsondata = None
+        result = None
+
         try:
             result = requests.post(async_batch_url, data=data,
                                    headers=headers, timeout=self.timeout)
@@ -272,6 +278,7 @@ class RemoteRESTAPIApplication(SimpleItem):
         headers = {"Accept": "application/json"}
         jsondata = None
         err = None
+        result = None
 
         try:
             result = requests.get(job_url, headers=headers,
@@ -378,6 +385,44 @@ class RemoteRESTAPIApplication(SimpleItem):
     def finish(self, workitem_id, REQUEST=None):
         self.activateWorkitem(workitem_id, actor='openflow_engine')
         self.completeWorkitem(workitem_id, actor='openflow_engine', REQUEST=REQUEST)
+
+    def get_schema_qa_scripts(self, schema):
+        """Returns the list of QA script ids available for a schema."""
+        job_url = '/'.join([self.base_url,
+                            self.qascripts_endpoint.strip('/')])
+        headers = {"Accept": "application/json"}
+        jsondata = None
+        err = None
+        result = None
+        params = {
+            'schema': schema
+        }
+
+        try:
+            result = requests.get(job_url, headers=headers, params=params,
+                                  timeout=self.timeout)
+        except RequestException as e:
+            err = str(e)
+
+        try:
+            jsondata = result.json()
+        except ValueError as e:
+            err = str(e)
+
+        if jsondata and not err:
+            if result.status_code == requests.codes.ok:
+                script_ids = [script.get('id') for script in jsondata]
+                return script_ids
+            else:
+                err = 'HTTP Error {} - {}'.format(result.status_code,
+                                                  jsondata.get('errorMessage'))
+
+        if err:
+            err_msg = 'Unable to retrieve QAScripts for schema: {}'\
+                      ' due to: {}'.format(schema, err)
+            self.log_event('error', err_msg)
+
+        return []
 
 
 InitializeClass(RemoteRESTAPIApplication)
