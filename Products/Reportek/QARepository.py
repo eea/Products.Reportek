@@ -32,7 +32,6 @@ from OFS.Folder import Folder
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Products.Reportek.RemoteApplication import RemoteApplication
 import Globals
 
 import constants
@@ -134,10 +133,12 @@ class QARepository(Folder):
         l_ret = []
         # local scripts
         l_ret.extend([x.id for x in self._get_local_qa_scripts() if x.xml_schema == p_schema])
+
         # remote scripts
         l_qa_app = self.getQAApplication()
         if l_qa_app:
             l_ret.extend(l_qa_app.get_schema_qa_scripts(p_schema))
+
         return l_ret
 
     def getDataflowMappingsContainer(self):
@@ -241,12 +242,9 @@ class QARepository(Folder):
 
             # remote script
             else:
+
                 l_qa_app = self.getQAApplication()
-                l_server_url = l_qa_app.RemoteServer
-                l_remote_server = l_qa_app.RemoteService
-                l_server = xmlrpclib.ServerProxy(l_server_url)
-                l_server_service = getattr(l_server, l_remote_server)
-                l_tmp = l_server_service.runQAScript(p_file_url, p_script_id)
+                l_tmp = l_qa_app.run_remote_qascript(p_file_url, p_script_id)
         else:
             #invalid or missing file
             l_file_id = ''

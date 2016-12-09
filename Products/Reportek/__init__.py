@@ -44,12 +44,12 @@ import Converter
 import Collection
 import Referral
 import OpenFlowEngine
-import RemoteApplication
-import RemoteRESTApplication
 import DataflowMappings
 import ReportekEngine
 import ReportekUtilities
 import ReportekAPI
+from Products.Reportek import RemoteApplication
+from Products.Reportek import RemoteRESTApplication
 from Products.Reportek import RemoteRESTAPIApplication
 from Products.Reportek.ReportekUserFactoryPlugin import ReportekUserFactoryPlugin
 from Products.Reportek.ReportekUserFactoryPlugin import addReportekUserFactoryPlugin

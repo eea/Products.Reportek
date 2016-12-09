@@ -1,6 +1,5 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
   <metal:block fill-slot="content">
-
     <tal:block define="
       the_content_type python:request.SESSION.get('note_content_type', 'text/html');
       redirect_to python:request.SESSION.get('redirect_to', context.getMySelf().absolute_url())">

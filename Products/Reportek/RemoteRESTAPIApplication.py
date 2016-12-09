@@ -7,6 +7,7 @@ from DateTime import DateTime
 
 from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile as ptf
+from Products.Reportek.RepUtils import RemoteApplicationException
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from OFS.SimpleItem import SimpleItem
@@ -275,7 +276,9 @@ class RemoteRESTAPIApplication(SimpleItem):
         job_url = '/'.join([self.async_base_url,
                             self.jobs_endpoint.strip('/'),
                             jobid])
-        headers = {"Accept": "application/json"}
+        ctype = "application/json"
+        headers = {"Accept": ctype,
+                   "Content-Type": ctype}
         jsondata = None
         err = None
         result = None
@@ -388,9 +391,11 @@ class RemoteRESTAPIApplication(SimpleItem):
 
     def get_schema_qa_scripts(self, schema):
         """Returns the list of QA script ids available for a schema."""
-        job_url = '/'.join([self.base_url,
+        qascripts_url = '/'.join([self.base_url,
                             self.qascripts_endpoint.strip('/')])
-        headers = {"Accept": "application/json"}
+        ctype = "application/json"
+        headers = {"Accept": ctype,
+                   "Content-Type": ctype}
         jsondata = None
         err = None
         result = None
@@ -399,8 +404,8 @@ class RemoteRESTAPIApplication(SimpleItem):
         }
 
         try:
-            result = requests.get(job_url, headers=headers, params=params,
-                                  timeout=self.timeout)
+            result = requests.get(qascripts_url, headers=headers,
+                                  params=params, timeout=self.timeout)
         except RequestException as e:
             err = str(e)
 
@@ -423,6 +428,46 @@ class RemoteRESTAPIApplication(SimpleItem):
             self.log_event('error', err_msg)
 
         return []
+
+    def run_remote_qascript(self, file_url, script_id):
+        """Run remote synchronous QA Script."""
+        jobs_url = '/'.join([self.base_url,
+                             self.jobs_endpoint.strip('/')])
+        data = {
+            "sourceUrl": file_url,
+            "scriptId": script_id
+        }
+        data = json.dumps(data)
+        ctype = "application/json"
+        headers = {"Accept": ctype,
+                   "Content-Type": ctype}
+        err = None
+        jsondata = None
+        result = None
+
+        try:
+            result = requests.post(jobs_url, data=data,
+                                   headers=headers, timeout=self.timeout)
+        except RequestException as e:
+            err = str(e)
+
+        try:
+            jsondata = result.json()
+        except ValueError as e:
+            err = str(e)
+
+        if jsondata and not err:
+            if result.status_code == requests.codes.ok:
+                return jsondata
+            else:
+                err = 'HTTP Error {} - {}'.format(result.status_code,
+                                                  jsondata.get('errorMessage'))
+
+        if err:
+            err_msg = 'QA script {} for {}'\
+                      ' failed: ({})'.format(file_url, script_id, err)
+            self.log_event('error', err_msg)
+            raise RemoteApplicationException(err_msg)
 
 
 InitializeClass(RemoteRESTAPIApplication)
