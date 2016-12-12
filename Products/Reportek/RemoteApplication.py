@@ -576,6 +576,14 @@ class RemoteApplication(SimpleItem):
 
         return server_service
 
+    def get_qa_scripts(self, schema):
+        """Return a list of script ids for the specified schema."""
+        try:
+            server_service = self.get_xmlrpc_server_service()
+            return server_service.listQueries(schema)
+        except:
+            return []
+
     def get_qa_script_ids(self, schema):
         """Returns the list of QA script ids available for a schema."""
         l_ret = []

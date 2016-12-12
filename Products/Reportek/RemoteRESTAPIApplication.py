@@ -399,9 +399,11 @@ class RemoteRESTAPIApplication(SimpleItem):
         jsondata = None
         err = None
         result = None
-        params = {
-            'schema': schema
-        }
+        params = None
+        if schema:
+            params = {
+                'schema': schema
+            }
 
         try:
             result = requests.get(qascripts_url, headers=headers,
@@ -435,6 +437,19 @@ class RemoteRESTAPIApplication(SimpleItem):
             scripts = [script.get('id') for script in scripts]
 
         return scripts
+
+    def get_qa_scripts(self, schema):
+        """Return a list of script ids for the specified schema."""
+        scripts = self.get_schema_qa_scripts(schema)
+        result = []
+        for script in scripts:
+            result.append({
+                'description': script.get('description'),
+                'xml_schema': script.get('schemaUrl'),
+                'content_type_out': script.get('outputType')
+            })
+
+        return result
 
     def run_remote_qascript(self, file_url, script_id):
         """Run remote synchronous QA Script."""

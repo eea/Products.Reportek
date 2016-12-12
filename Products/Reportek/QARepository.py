@@ -110,14 +110,9 @@ class QARepository(Folder):
         l_qa_app = self.getQAApplication()
         if not l_qa_app:
             return []
-        l_server_url = l_qa_app.RemoteServer
-        l_remote_server = l_qa_app.RemoteService
-        try:
-            l_server = xmlrpclib.ServerProxy(l_server_url, allow_none=True)
-            l_server_service = getattr(l_server, l_remote_server)
-            return l_server_service.listQueries(p_schema)
-        except:
-            return []
+        scripts = l_qa_app.get_qa_scripts(p_schema)
+
+        return scripts
 
     def getQAScriptsDescriptions(self):
         """ Loops all local and remote QA scripts for display """
