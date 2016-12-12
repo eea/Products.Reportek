@@ -416,8 +416,7 @@ class RemoteRESTAPIApplication(SimpleItem):
 
         if jsondata and not err:
             if result.status_code == requests.codes.ok:
-                script_ids = [script.get('id') for script in jsondata]
-                return script_ids
+                return jsondata
             else:
                 err = 'HTTP Error {} - {}'.format(result.status_code,
                                                   jsondata.get('errorMessage'))
@@ -428,6 +427,14 @@ class RemoteRESTAPIApplication(SimpleItem):
             self.log_event('error', err_msg)
 
         return []
+
+    def get_qa_script_ids(self, schema):
+        """Return a list of script ids for the specified schema."""
+        scripts = self.get_schema_qa_scripts(schema)
+        if scripts:
+            scripts = [script.get('id') for script in scripts]
+
+        return scripts
 
     def run_remote_qascript(self, file_url, script_id):
         """Run remote synchronous QA Script."""

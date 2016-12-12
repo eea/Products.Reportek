@@ -137,7 +137,7 @@ class QARepository(Folder):
         # remote scripts
         l_qa_app = self.getQAApplication()
         if l_qa_app:
-            l_ret.extend(l_qa_app.get_schema_qa_scripts(p_schema))
+            l_ret.extend(l_qa_app.get_qa_script_ids(p_schema))
 
         return l_ret
 
@@ -166,7 +166,7 @@ class QARepository(Folder):
                 self._get_local_qa_scripts(dataflow_uris=l_file.dataflow_uris)):
                 #remote scripts
                 if l_qa_app:
-                    f_scripts = l_qa_app.get_schema_qa_scripts(schema)
+                    f_scripts = l_qa_app.get_qa_script_ids(schema)
                     if f_scripts:
                         l_ret[l_file.id] = f_scripts
                 #local scripts

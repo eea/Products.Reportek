@@ -576,7 +576,7 @@ class RemoteApplication(SimpleItem):
 
         return server_service
 
-    def get_schema_qa_scripts(self, schema):
+    def get_qa_script_ids(self, schema):
         """Returns the list of QA script ids available for a schema."""
         l_ret = []
         try:
