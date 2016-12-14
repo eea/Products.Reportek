@@ -584,13 +584,13 @@ class RemoteApplication(SimpleItem):
         except:
             return []
 
-    def get_qa_script_ids(self, schema):
+    def get_qa_scripts_short(self, schema):
         """Returns the list of QA script ids available for a schema."""
         l_ret = []
         try:
             server_service = self.get_xmlrpc_server_service()
             l_tmp = server_service.listQAScripts(schema)
-            l_ret.extend([x[0] for x in l_tmp])
+            l_ret.extend(l_tmp)
         except:
             pass
 

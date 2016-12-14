@@ -13,7 +13,7 @@ from AccessControl.Permissions import view_management_screens
 from OFS.SimpleItem import SimpleItem
 from ZODB.PersistentMapping import PersistentMapping
 
-FEEDBACKTEXT_LIMIT = 1024 * 16 # 16KB
+FEEDBACKTEXT_LIMIT = 1024 * 16  # 16KB
 
 logger = logging.getLogger("Reportek")
 
@@ -121,17 +121,19 @@ class RemoteRESTAPIApplication(SimpleItem):
         except RequestException as e:
             err = str(e)
 
-        try:
-            jsondata = result.json()
-        except ValueError as e:
-            err = str(e)
+        if not err:
+            try:
+                jsondata = result.json()
+            except ValueError as e:
+                err = "Unable to convert QA Service response"\
+                      " to JSON: {}".format(str(e))
 
-        if jsondata and not err:
-            if result.status_code == requests.codes.ok:
-                return jsondata
-            else:
-                err = 'HTTP Error {} - {}'.format(result.status_code,
-                                                  jsondata.get('errorMessage'))
+            if jsondata:
+                if result.status_code == requests.codes.ok:
+                    return jsondata
+                else:
+                    err = 'HTTP Error {} - {}'.format(result.status_code,
+                                                      jsondata.get('errorMessage'))
 
         if err:
             err_msg = 'Envelope analysis job for {}'\
@@ -289,17 +291,18 @@ class RemoteRESTAPIApplication(SimpleItem):
         except RequestException as e:
             err = str(e)
 
-        try:
-            jsondata = result.json()
-        except ValueError as e:
-            err = str(e)
-
-        if jsondata and not err:
-            if result.status_code == requests.codes.ok:
-                return jsondata
-            else:
-                err = 'HTTP Error {} - {}'.format(result.status_code,
-                                                  jsondata.get('errorMessage'))
+        if not err:
+            try:
+                jsondata = result.json()
+            except ValueError as e:
+                err = "Unable to convert QA Service response"\
+                      " to JSON: {}".format(str(e))
+            if jsondata:
+                if result.status_code == requests.codes.ok:
+                    return jsondata
+                else:
+                    err = 'HTTP Error {} - {}'.format(result.status_code,
+                                                      jsondata.get('errorMessage'))
 
         if err:
             err_msg = 'Job: #{} for file {},'\
@@ -411,17 +414,19 @@ class RemoteRESTAPIApplication(SimpleItem):
         except RequestException as e:
             err = str(e)
 
-        try:
-            jsondata = result.json()
-        except ValueError as e:
-            err = str(e)
+        if not err:
+            try:
+                jsondata = result.json()
+            except ValueError as e:
+                err = "Unable to convert QA Service response"\
+                      " to JSON: {}".format(str(e))
 
-        if jsondata and not err:
-            if result.status_code == requests.codes.ok:
-                return jsondata
-            else:
-                err = 'HTTP Error {} - {}'.format(result.status_code,
-                                                  jsondata.get('errorMessage'))
+            if jsondata:
+                if result.status_code == requests.codes.ok:
+                    return jsondata
+                else:
+                    err = 'HTTP Error {} - {}'.format(result.status_code,
+                                                      jsondata.get('errorMessage'))
 
         if err:
             err_msg = 'Unable to retrieve QAScripts for schema: {}'\
@@ -430,11 +435,14 @@ class RemoteRESTAPIApplication(SimpleItem):
 
         return []
 
-    def get_qa_script_ids(self, schema):
+    def get_qa_scripts_short(self, schema):
         """Return a list of script ids for the specified schema."""
         scripts = self.get_schema_qa_scripts(schema)
         if scripts:
-            scripts = [script.get('id') for script in scripts]
+            scripts = [[script.get('id'),
+                        script.get('name'), '',
+                        script.get('runOnDemandMaxFileSizeMB')
+                        ]for script in scripts]
 
         return scripts
 
@@ -473,17 +481,19 @@ class RemoteRESTAPIApplication(SimpleItem):
         except RequestException as e:
             err = str(e)
 
-        try:
-            jsondata = result.json()
-        except ValueError as e:
-            err = str(e)
+        if not err:
+            try:
+                jsondata = result.json()
+            except ValueError as e:
+                err = "Unable to convert QA Service response"\
+                      " to JSON: {}".format(str(e))
 
-        if jsondata and not err:
-            if result.status_code == requests.codes.ok:
-                return jsondata
-            else:
-                err = 'HTTP Error {} - {}'.format(result.status_code,
-                                                  jsondata.get('errorMessage'))
+            if jsondata:
+                if result.status_code == requests.codes.ok:
+                    return jsondata
+                else:
+                    err = 'HTTP Error {} - {}'.format(result.status_code,
+                                                      jsondata.get('errorMessage'))
 
         if err:
             err_msg = 'QA script {} for {}'\
