@@ -151,14 +151,14 @@ class EnvelopeRemoteServicesManager:
             REQUEST.RESPONSE.redirect('note')
         try:
             l_file_id, l_tmp = getattr(self, QAREPOSITORY_ID)._runQAScript(p_file_url, p_script_id)
-            if return_inline: return l_tmp[1].data
-            REQUEST.SESSION.set('note_content_type', l_tmp[0])
+            if return_inline: return l_tmp.get('feedbackContent')
+            REQUEST.SESSION.set('note_content_type', l_tmp.get('feedbackContentType'))
             if l_file_id != 'xml':
                 REQUEST.SESSION.set('note_title', 'QA result for file %s' %l_file_id)
             else: 
                 REQUEST.SESSION.set('note_title', 'QA result for envelope')
             REQUEST.SESSION.set('note_tip', 'This page is only temporary. The page URL address can not be used as a reference to the result. <br /><br />Please use the "<em>File >> Save As</em>" option within your browser to save the validation results.')
-            REQUEST.SESSION.set('note_text', l_tmp[1].data)
+            REQUEST.SESSION.set('note_text', l_tmp.get('feedbackContent'))
             REQUEST.RESPONSE.redirect('note')
         except Exception, err:
             l_err = str(err).replace('<', '&lt;')

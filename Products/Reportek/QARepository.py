@@ -182,6 +182,63 @@ class QARepository(Folder):
                         l_ret[l_file.id] = l_buff
         return l_ret
 
+    def run_local_QAScript(self, l_script_obj, file_obj):
+        """Runs the localQA script."""
+        res = {}
+
+        if l_script_obj is None:
+            fb_content = 'QA error'
+
+        else:
+            if l_script_obj.content_type_out:
+                c_type = l_script_obj.content_type_out
+
+                with file_obj.data_file.open() as doc_file:
+                    tmp_copy = RepUtils.temporary_named_copy(doc_file)
+
+                with tmp_copy:
+                    #generate extra-parameters
+                    #the file path is set default as first parameter
+                    params = [tmp_copy.name]
+                    for k in l_script_obj.qa_extraparams:
+                        params.append(eval(k))
+
+                    command = l_script_obj.script_url % tuple(params)
+                    proc = subprocess.Popen(
+                               shlex.split(command),
+                               stdout=subprocess.PIPE,
+                               stderr=subprocess.STDOUT,
+                               shell=False)
+                    fb_content = proc.stdout.read()
+            else:
+                fb_content = 'QA Error'
+        if fb_content:
+            res.update(feedbackContent=fb_content)
+
+        return res
+
+    def run_remote_QAScript(self, p_file_url, p_script_id):
+        """Run the remote QA Script."""
+        res = {}
+
+        l_qa_app = self.getQAApplication()
+        if hasattr(l_qa_app, 'run_remote_qascript'):
+            l_tmp = l_qa_app.run_remote_qascript(p_file_url,
+                                                 p_script_id)
+            if l_tmp:
+                if isinstance(l_tmp, dict):
+                    res.update(l_tmp)
+                elif isinstance(l_tmp, list):
+                    c_type = l_tmp[0]
+                    fb_content = l_tmp[1].data if len(l_tmp) >= 2 else None
+                    fb_status = l_tmp[2].data if len(l_tmp) >= 3 else None
+                    fb_message = l_tmp[3].data if len(l_tmp) >= 4 else None
+                    res.update(feedbackContentType=c_type,
+                               feedbackContent=fb_content,
+                               feedbackStatus=fb_status,
+                               feedbackMessage=fb_message)
+        return res
+
     def _runQAScript(self, p_file_url, p_script_id):
         """ Runs the QA script with the specified id against
             the source XML file
@@ -192,9 +249,14 @@ class QARepository(Folder):
             This method can be only called from the browser and the result is
             displayed in a temporary page
         """
-        l_res_ct = 'text/plain'
-        l_res_data = QAResult()
-
+        c_type = 'text/plain'
+        fb_content = None
+        fb_status = None
+        fb_message = None
+        res = {'feedbackContentType': c_type,
+               'feedbackContent': fb_content,
+               'feedbackStatus': fb_status,
+               'feedbackMessage': fb_message}
         #make sure p_file_url is a real Zope file
         l_file_relative_url = p_file_url.replace('%s/' % self.REQUEST.SERVER_URL, '')
         file_obj = self.unrestrictedTraverse(l_file_relative_url, None)
@@ -203,51 +265,17 @@ class QARepository(Folder):
             l_file_id = p_file_url.split('/')[-1]
             # local script
             if p_script_id.startswith('loc_'):
-
                 l_script_obj = getattr(self, p_script_id.replace('loc_', ''), None)
-
-                if l_script_obj is None:
-                    l_res_data.data = 'QA error'
-
-                else:
-                    if l_script_obj.content_type_out:
-                        l_res_ct = l_script_obj.content_type_out
-
-                        with file_obj.data_file.open() as doc_file:
-                            tmp_copy = RepUtils.temporary_named_copy(doc_file)
-
-                        with tmp_copy:
-                            #generate extra-parameters
-                            #the file path is set default as first parameter
-                            params = [tmp_copy.name]
-                            for k in l_script_obj.qa_extraparams:
-                                params.append(eval(k))
-
-                            command = l_script_obj.script_url % tuple(params)
-                            proc = subprocess.Popen(
-                                       shlex.split(command),
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.STDOUT,
-                                       shell=False)
-                            l_res_data.data = proc.stdout.read()
-                    else:
-                        l_res_data.data =  'QA error'
-
-                l_tmp = [l_res_ct, l_res_data]
+                res.update(self.run_local_QAScript(l_script_obj, file_obj))
 
             # remote script
             else:
-                l_qa_app = self.getQAApplication()
-                if hasattr(l_qa_app, 'run_remote_qascript'):
-                    l_tmp = l_qa_app.run_remote_qascript(p_file_url,
-                                                         p_script_id)
+                res.update(self.run_remote_QAScript(p_file_url, p_script_id))
         else:
             #invalid or missing file
             l_file_id = ''
-            l_res_data.data = 'QA error'
-            l_tmp = ['', l_res_data]
-
-        return l_file_id, l_tmp
+            res.update(feedbackContent='QA Error')
+        return l_file_id, res
 
     security.declareProtected(view_management_screens, 'manage_edit')
     def manage_edit(self, QA_application, REQUEST=None):
@@ -265,9 +293,3 @@ class QARepository(Folder):
     index_html = PageTemplateFile('zpt/qa/scripts_index', globals())
 
 Globals.InitializeClass(QARepository)
-
-
-class QAResult:
-    """ container for QAScript results """
-    def __init__(self):
-        self.data = ''
