@@ -277,7 +277,7 @@ class RemoteRESTAPIApplication(SimpleItem):
         file = job.get('fileUrl').split('/')[-1]
         job_url = '/'.join([self.async_base_url,
                             self.jobs_endpoint.strip('/'),
-                            jobid])
+                            str(jobid)])
         ctype = "application/json"
         headers = {"Accept": ctype,
                    "Content-Type": ctype}
