@@ -144,29 +144,35 @@ class EnvelopeRemoteServicesManager:
         """
         l_qa_app = getattr(self, QAREPOSITORY_ID).getQAApplication()
         if not l_qa_app:
-            if return_inline: return 'System error.'
-            REQUEST.SESSION.set('note_content_type', 'text/html')
-            REQUEST.SESSION.set('note_title', 'Error')
-            REQUEST.SESSION.set('note_text', 'The operation could not be completed.')
-            REQUEST.RESPONSE.redirect('note')
+            if return_inline:
+                return 'System error.'
+            return self.note(note_content_type='text/html',
+                             note_title='Error',
+                             note_text='The operation could not be completed.')
         try:
             l_file_id, l_tmp = getattr(self, QAREPOSITORY_ID)._runQAScript(p_file_url, p_script_id)
-            if return_inline: return l_tmp.get('feedbackContent')
-            REQUEST.SESSION.set('note_content_type', l_tmp.get('feedbackContentType'))
+            if return_inline:
+                return l_tmp.get('feedbackContent')
+            note_content_type = l_tmp.get('feedbackContentType')
             if l_file_id != 'xml':
-                REQUEST.SESSION.set('note_title', 'QA result for file %s' %l_file_id)
-            else: 
-                REQUEST.SESSION.set('note_title', 'QA result for envelope')
-            REQUEST.SESSION.set('note_tip', 'This page is only temporary. The page URL address can not be used as a reference to the result. <br /><br />Please use the "<em>File >> Save As</em>" option within your browser to save the validation results.')
-            REQUEST.SESSION.set('note_text', l_tmp.get('feedbackContent'))
-            REQUEST.RESPONSE.redirect('note')
+                note_title = 'QA result for file %s' % l_file_id
+            else:
+                note_title = 'QA result for envelope'
+            note_tip = 'This page is only temporary. The page URL address can not be used as a reference to the result. <br /><br />Please use the "<em>File >> Save As</em>" option within your browser to save the validation results.'
+            note_text = l_tmp.get('feedbackContent')
+            return self.note(note_content_type=note_content_type,
+                             note_title=note_title,
+                             note_text=note_text,
+                             note_tip=note_tip)
         except Exception, err:
             l_err = str(err).replace('<', '&lt;')
-            if return_inline: return 'The operation could not be completed because of the following error: %s' % l_err
-            REQUEST.SESSION.set('note_content_type', 'text/html')
-            REQUEST.SESSION.set('note_title', 'Error')
-            REQUEST.SESSION.set('note_text', 'The operation could not be completed because of the following error: %s' % l_err)
-            REQUEST.RESPONSE.redirect('note')
+            if return_inline:
+                return 'The operation could not be completed because of the following error: %s' % l_err
+            return self.note(note_content_type='text/html',
+                             note_title='Error',
+                             note_text='The operation could not be'
+                                       ' completed because of the '
+                                       'following error: %s' % l_err)
 
     security.declareProtected('View', 'runQAScripts')
     def runQAScripts(self, REQUEST):
