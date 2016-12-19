@@ -351,9 +351,10 @@ class RemoteRESTAPIApplication(SimpleItem):
 
                 if result['feedbackStatus'] == 'BLOCKER':
                     workitem.blocker = True
-                    info = '{} - job completed: #{} - {}'.format(self.app_name,
-                                                                 jobid,
-                                                                 script_title)
+
+                info = '{} - job completed: #{} - {}'.format(self.app_name,
+                                                             jobid,
+                                                             script_title)
                 self.log_event('info', info, workitem)
             else:
                 job['last_error'] = result.get('feedbackMessage')
