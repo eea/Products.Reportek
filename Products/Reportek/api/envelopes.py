@@ -329,14 +329,14 @@ class EnvelopesAPI(BrowserView):
                 elif afilter_v.upper() != str(default_props.get(afilter)).upper():
                     return True
 
-    def get_wk_date(self, env_brain, wk_brain):
-        """Return the end time of workitem from the envelope's
+    def get_wk_date(self, wk_brain):
+        """Return the end time of workitem from the workitem's
            activation_log.
         """
-        activation_log = env_brain.activation_log
+        activation_log = wk_brain.activation_log
         end_date = None
         try:
-            end_date = activation_log[int(wk_brain.id)].get('end')
+            end_date = activation_log[-1].get('end')
         except IndexError:
             pass
         if end_date:
@@ -356,13 +356,12 @@ class EnvelopesAPI(BrowserView):
             if not blocker and blocker is not False:
                 blocker = None
             title, status = brain.title.split(', status: ')
-
             result.append({
                 'activity_id': brain.activity_id,
                 'blocker': blocker,
                 'id': brain.id,
                 'title': title,
-                'modified': self.get_wk_date(env_brain, brain).HTML4(),
+                'modified': self.get_wk_date(brain).HTML4(),
                 'activity_status': status
             })
 
