@@ -1075,7 +1075,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         # TODO: cache results for a few minutes
         try:
             l_server = self.get_uns_xmlrpc_server()
-            if l_server:
+            if l_server is not None:
                 l_ret = l_server.UNSService.canSubscribe(self.UNS_channel_id,
                                                          user_id)
                 return l_ret
@@ -1115,7 +1115,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         try:
             l_server = self.get_uns_xmlrpc_server()
-            if l_server:
+            if l_server is not None:
                 #l_ret = l_server.UNSService.makeSubscription(self.UNS_channel_id, self.REQUEST['AUTHENTICATED_USER'].getUserName(), l_filters)
                 l_ret = l_server.UNSService.makeSubscription(self.UNS_channel_id, self.REQUEST['AUTHENTICATED_USER'].getUserName(), l_filters_final)
                 if REQUEST is not None:
@@ -1134,7 +1134,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             l_server = self.get_uns_xmlrpc_server()
             # create unique notification identifier
             # Envelope URL + time + notification_type
-            if l_server:
+            if l_server is not None:
                 l_time = str(time())
                 l_id = "%s/events#ts%s" % (envelope.absolute_url(), l_time )
                 #l_id = "http://rod.eionet.europa.eu/events/%s" % l_time
@@ -1160,11 +1160,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security.declarePrivate('uns_subscribe_actors')
     def uns_subscribe_actors(self, actors, filters):
-        server = self.get_uns_xmlrpc_server()
+        l_server = self.get_uns_xmlrpc_server()
         for act in actors:
             try:
-                if server:
-                    server.UNSService.makeSubscription(self.UNS_channel_id,
+                if l_server is not None:
+                    l_server.UNSService.makeSubscription(self.UNS_channel_id,
                                                        act, filters)
                     return 1
             except Exception as e:
