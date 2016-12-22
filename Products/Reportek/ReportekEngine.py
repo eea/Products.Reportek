@@ -1074,7 +1074,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         # TODO: cache results for a few minutes
         try:
             l_server = self.get_uns_xmlrpc_server()
-            if l_server:
+            if l_server is not None:
                 l_ret = l_server.UNSService.canSubscribe(self.UNS_channel_id,
                                                          user_id)
                 return l_ret
@@ -1112,28 +1112,28 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             for l_filter_event_type in filter_event_types:
                 l_filters_final.append({'http://rod.eionet.europa.eu/schema.rdf#event_type':l_filter_event_type})
 
-        l_server = self.get_uns_xmlrpc_server()
-        if l_server:
-            try:
+        try:
+            l_server = self.get_uns_xmlrpc_server()
+            if l_server is not None:
                 #l_ret = l_server.UNSService.makeSubscription(self.UNS_channel_id, self.REQUEST['AUTHENTICATED_USER'].getUserName(), l_filters)
                 l_ret = l_server.UNSService.makeSubscription(self.UNS_channel_id, self.REQUEST['AUTHENTICATED_USER'].getUserName(), l_filters_final)
                 if REQUEST is not None:
                     REQUEST.RESPONSE.redirect('subscriptions_html?info_title=Information&info_msg=Subscription made successfully')
                 return (1, '')
-            except Exception, err:
-                if REQUEST is not None:
-                    REQUEST.RESPONSE.redirect('subscriptions_html?info_title=Error&info_msg=Your subscription could not be made because of the following error: %s' % str(err))
-                return (0, str(err))
+        except Exception, err:
+            if REQUEST is not None:
+                REQUEST.RESPONSE.redirect('subscriptions_html?info_title=Error&info_msg=Your subscription could not be made because of the following error: %s' % str(err))
+            return (0, str(err))
 
     security.declareProtected('View', 'sendNotificationToUNS')
     def sendNotificationToUNS(self, envelope, notification_type, notification_label, actor='system'):
         """ Sends events data to the specified UNS's push channel """
-        l_server = self.get_uns_xmlrpc_server()
         res = 0
-        if l_server:
-            try:
-                # create unique notification identifier
-                # Envelope URL + time + notification_type
+        try:
+            l_server = self.get_uns_xmlrpc_server()
+            # create unique notification identifier
+            # Envelope URL + time + notification_type
+            if l_server is not None:
                 l_time = str(time())
                 l_id = "%s/events#ts%s" % (envelope.absolute_url(), l_time )
                 #l_id = "http://rod.eionet.europa.eu/events/%s" % l_time
@@ -1151,25 +1151,25 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#event_type', notification_type])
                 l_ret = l_server.UNSService.sendNotification(self.UNS_channel_id, l_res)
                 res = 1
-            except Exception as e:
-                logger.warning("Unable to send UNS notification for: {0}: {1}"
-                               .format(envelope.absolute_url(), e))
-                res = 0
+        except Exception as e:
+            logger.warning("Unable to send UNS notification for: {0}: {1}"
+                           .format(envelope.absolute_url(), e))
+            res = 0
         return res
 
     security.declarePrivate('uns_subscribe_actors')
     def uns_subscribe_actors(self, actors, filters):
-        server = self.get_uns_xmlrpc_server()
-        if server:
-            for act in actors:
-                try:
-                    server.UNSService.makeSubscription(self.UNS_channel_id,
+        l_server = self.get_uns_xmlrpc_server()
+        for act in actors:
+            try:
+                if l_server is not None:
+                    l_server.UNSService.makeSubscription(self.UNS_channel_id,
                                                        act, filters)
                     return 1
-                except Exception as e:
-                    logger.warning("Unable to subscribe actors: {0} to UNS: {1}"
-                                   .format(actors, e))
-                    return 0
+            except Exception as e:
+                logger.warning("Unable to subscribe actors: {0} to UNS: {1}"
+                               .format(actors, e))
+                return 0
 
     ################################################################################
     #
