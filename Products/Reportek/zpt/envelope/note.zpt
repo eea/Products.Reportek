@@ -1,9 +1,12 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
   <metal:block fill-slot="content">
-
     <tal:block define="
-      the_content_type python:request.SESSION.get('note_content_type', 'text/html');
-      redirect_to python:request.SESSION.get('redirect_to', context.getMySelf().absolute_url())">
+      the_content_type options/note_content_type | string:text/html;
+      redirect_to options/redirect_to | python:request.SESSION.get('redirect_to', context.getMySelf().absolute_url());
+      note_title options/note_title|nothing;
+      note_text options/note_text|string:This page has expired. Restart the intended action from the beginning.;
+      note_tip options/note_tip|nothing;
+      ">
       <!-- if -->
       <tal:block condition="python:the_content_type.find('text/html') != -1 or the_content_type.find('text/plain') != -1">
         <div id="operations">
@@ -17,15 +20,15 @@
             </ul>
         </div>
 
-        <h1 i18n:translate="" tal:content="python:request.SESSION.get('note_title', '')"></h1>
+        <h1 i18n:translate="" tal:content="note_title"></h1>
 
-        <tal:block condition="python:request.SESSION.has_key('note_tip')">
+        <tal:block condition="note_tip">
           <div style="float: right;
                       width: 16em;
                       border: 1px solid #666666;
                       padding: 1em;
                       background-color: #FFFFE1;">
-            <strong i18n:translate="">Tip:</strong> <span i18n:translate="" tal:content="structure python:request.SESSION.get('note_tip', '')"/>
+            <strong i18n:translate="">Tip:</strong> <span i18n:translate="" tal:content="structure note_tip"/>
           </div>
         </tal:block>
 
@@ -38,21 +41,13 @@
         </tal:block>
     </tal:block>
     <!-- end -->
-    <div i18n:translate="" tal:content="structure python:request.SESSION.get('note_text', 'This page has expired. Restart the intended action from the beginning.')"/>
+    <div i18n:translate="" tal:content="structure note_text"/>
 
       <tal:block condition="python:request.SESSION.has_key('redirect_to')">
         <tal:block define="dummy python:request.SESSION.delete('redirect_to')"/>
-      </tal:block>
-      <tal:block condition="python:request.SESSION.has_key('note_title')">
-        <tal:block define="dummy python:request.SESSION.delete('note_title')"/>
-      </tal:block>
-      <tal:block condition="python:request.SESSION.has_key('note_text')">
-        <tal:block define="dummy python:request.SESSION.delete('note_text')"/>
-      </tal:block>
-      <tal:block condition="python:request.SESSION.has_key('note_tip')">
-        <tal:block define="dummy python:request.SESSION.delete('note_tip')"/>
       </tal:block>
 
     </tal:block>
   </metal:block>
 </metal:block>
+  

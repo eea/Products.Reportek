@@ -194,16 +194,18 @@ class RemoteConverter(Converter):
             return self.REQUEST.RESPONSE
 
         except Exception, error:
-            self.REQUEST.SESSION.set('note_title', 'Error in conversion')
+            note_title = 'Error in conversion'
             l_tmp = string.maketrans('<>', '  ')
             message = str(error).translate(l_tmp)
-            if type(error) == type(requests.HTTPError()):
+            if isinstance(error, requests.HTTPError):
                 message = result.text
-            message.replace(r'\n','<br />')
-            self.REQUEST.SESSION.set('note_text',
-                'The operation could not be completed because of the following error:<br /><br />%s' %message)
-            self.REQUEST.SESSION.set('redirect_to', self.REQUEST['HTTP_REFERER'])
-            return file_obj.note()
+            message.replace(r'\n', '<br />')
+            note_text = 'The operation could not be completed because of '\
+                        'the following error:<br /><br />{}'.format(message)
+            redirect_to = self.REQUEST['HTTP_REFERER']
+            return file_obj.note(note_title=note_title,
+                                 note_text=note_text,
+                                 redirect_to=redirect_to)
 
 
 class ConversionResult(object):

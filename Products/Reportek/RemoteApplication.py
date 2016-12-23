@@ -35,7 +35,7 @@ import xmlrpclib
 import string
 import urllib
 from Products.PythonScripts.standard import html_quote
-from Document import Document
+from Products.Reportek.Document import Document
 import transaction
 
 
@@ -566,5 +566,40 @@ class RemoteApplication(SimpleItem):
 
     security.declareProtected(view_management_screens, 'manage_settings_html')
     manage_settings_html = PageTemplateFile('zpt/remote/application_edit', globals())
+
+    def get_xmlrpc_server_service(self):
+        """Return an instance of the xmlrpc server."""
+        server_url = self.RemoteServer
+        remote_server = self.RemoteService
+        server = xmlrpclib.ServerProxy(server_url)
+        server_service = getattr(server, remote_server)
+
+        return server_service
+
+    def get_qa_scripts(self, schema):
+        """Return a list of script ids for the specified schema."""
+        try:
+            server_service = self.get_xmlrpc_server_service()
+            return server_service.listQueries(schema)
+        except:
+            return []
+
+    def get_qa_scripts_short(self, schema):
+        """Returns the list of QA script ids available for a schema."""
+        l_ret = []
+        try:
+            server_service = self.get_xmlrpc_server_service()
+            l_tmp = server_service.listQAScripts(schema)
+            l_ret.extend(l_tmp)
+        except:
+            pass
+
+        return l_ret
+
+    def run_remote_qascript(self, file_url, script_id):
+        """Run remote synchronous QA Script."""
+        server_service = self.get_xmlrpc_server_service()
+        result = server_service.runQAScript(file_url, script_id)
+        return result
 
 InitializeClass(RemoteApplication)
