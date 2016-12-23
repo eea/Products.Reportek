@@ -52,4 +52,4 @@ def update(app, skipMigrationCheck=False):
     logger.info("Collections updated")
     migrate_partofyear(app, 'Report Envelope')
     logger.info("Envelopes updated")
-
+    return True
