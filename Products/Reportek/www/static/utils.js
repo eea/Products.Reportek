@@ -44,6 +44,9 @@ reportek.utils = {
         select.select2({
           placeholder: placeholder,
           allowClear: true,
+          matcher: function(term, text, option) {
+            return text.toUpperCase().indexOf(term.toUpperCase())>=0 || option.val().toUpperCase().indexOf(term.toUpperCase())>=0;
+          }
         });
       }
     }
