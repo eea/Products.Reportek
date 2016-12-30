@@ -21,7 +21,7 @@
       <tal:block condition="results">
         <form action="ReportekEngine/zipEnvelopes" method="post" id="frmZip">
 
-        <metal:block use-macro="here/macros/resultsTable">
+        <metal:block use-macro="here/engineMacros/macros/resultsTable">
 
           <metal:block fill-slot="resultsTableHead">
               <tal:block content="structure python:context.sortable_table((

@@ -8,7 +8,7 @@
         <tr>
           <td><label for="xml_schema_location" class="question required">Schema</label></td>
           <td>
-              <metal:block metal:use-macro="here/macros/xmlSchemaSelect"/>
+              <metal:block metal:use-macro="here/engineMacros/macros/xmlSchemaSelect"/>
           </td>
         </tr>
         <tr>
@@ -20,18 +20,18 @@
         <tr>
           <td><label for="partofyear" class="question">Part of year</label></td>
           <td>
-              <metal:block metal:use-macro="here/macros/partOfYearSelect"/>
+              <metal:block metal:use-macro="here/engineMacros/macros/partOfYearSelect"/>
           </td>
         </tr>
         <tr>
           <td><label for="country" class="question">Country</label></td>
           <td>
-              <metal:block metal:use-macro="here/macros/countrySelect"/>
+              <metal:block metal:use-macro="here/engineMacros/macros/countrySelect"/>
           </td>
         </tr>
         <tr>
           <td colspan="2" align="center">
-              <metal:block metal:use-macro="here/macros/formInputFields"/>
+              <metal:block metal:use-macro="here/engineMacros/macros/formInputFields"/>
           </td>
         </tr>
       </table>

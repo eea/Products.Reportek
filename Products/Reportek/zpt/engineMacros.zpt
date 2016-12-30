@@ -1,12 +1,13 @@
 <metal:block define-macro="obligationsSelect">
+  <tal:def tal:define="u python:context.getUniqueValuesFor('dataflow_uris');">
   <select size="15" id="dataflows" name="dataflow_uris"
-          tal:define="u python:context.getUniqueValuesFor('dataflow_uris');
-                      sort_by python:(('SOURCE_TITLE', 'nocase', 'asc'),
+          tal:define="sort_by python:(('SOURCE_TITLE', 'nocase', 'asc'),
                                       ('TITLE', 'nocase', 'asc'));
                       currentsource string:'';
                       values python:context.ReportekEngine.dataflow_table();
-                      dummy python:values.sort(key=lambda k: (k.get('uri') in u, k['SOURCE_TITLE'], k['TITLE']));"
+                      dummy python:values.sort(key=lambda k, u=u: (k.get('uri') in u, k['SOURCE_TITLE'], k['TITLE']));"
           tal:attributes="size obligation_select_size | default">
+          <span tal:content="values"/>
     <option value="">Any obligation</option>
     <tal:block repeat="value values">
       <tal:block
@@ -31,6 +32,7 @@
     </tal:block>
     <tal:block content="structure string:</optgroup>" />
   </select>
+  </tal:def>
 </metal:block>
 
 
@@ -175,4 +177,29 @@
     </a>
 </metal:block>
 
+</metal:block>
+
+<metal:block metal:define-macro="select2-obligations">
+  <tal:block
+    tal:define="placeholder placeholder | nothing;
+                multiple multiple | nothing;">
+    <select id="obligations" name="dataflow_uris:list" style="width: 100%"
+     tal:define="klass python: 'select2-enabled placeholder-enabled' if placeholder else 'select2-enabled';"
+     tal:attributes="class klass;
+                     multiple multiple;">
+      <tal:block define="req_obl request/obligations|context/dataflow_uris;
+                         rod_data rod_data | context/api/@@assigned_obligations;"
+                 repeat="instrument rod_data/keys">
+        <optgroup tal:attributes="label instrument">
+          <tal:block repeat="obl python:rod_data[instrument]">
+            <option tal:attributes="value obl/uri;
+                      class python:'terminated' if obl['terminated'] == '1' else nothing;
+                      selected python:obl['uri'] in req_obl"
+                    tal:content="obl/title">
+            </option>
+          </tal:block>
+        </optgroup>
+      </tal:block>
+    </select>
+  </tal:block>
 </metal:block>

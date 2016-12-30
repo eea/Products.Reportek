@@ -1,3 +1,11 @@
+#workarea ul.select2-choices {
+  margin: 0;
+}
+
+.select-container {
+  width: 100%;
+}
+
 .dataTables_wrapper:after {
   content: "";
   display: table;
@@ -738,4 +746,3 @@ input.referrals-status {
   display: inline-block;
   vertical-align: middle;
 }
-

@@ -35,7 +35,7 @@
           <tr>
             <th><label for="dataflows" class="question">Obligation</label></th>
             <td>
-              <metal:block metal:use-macro="here/macros/obligationsSelect"/>
+              <metal:block metal:use-macro="here/engineMacros/macros/obligationsSelect"/>
             </td>
           </tr>
           <tr>
@@ -45,7 +45,7 @@
                      size="4" maxlength="4" value=""
                      tal:attributes="value years | default"/>
               <label for="partofyear" class="question">Part of year</label>
-              <metal:block metal:use-macro="here/macros/partOfYearSelect"/>
+              <metal:block metal:use-macro="here/engineMacros/macros/partOfYearSelect"/>
             </td>
           </tr>
           <tr>
@@ -64,7 +64,7 @@
           </tr>
           <tr>
             <th><label for="country" class="question">Country</label></th>
-            <td><metal:block metal:use-macro="here/macros/countrySelect"/></td>
+            <td><metal:block metal:use-macro="here/engineMacros/macros/countrySelect"/></td>
           </tr>
           <tr>
             <th>Status</th>
@@ -112,7 +112,7 @@
                       batch python:Batch(options['results'], int(batch_size), int(query_start), orphan=1);
                       results_no python: len(options['results'])">
 
-          <metal:block use-macro="here/macros/resultsTable">
+          <metal:block use-macro="here/engineMacros/macros/resultsTable">
             <metal:block fill-slot="resultsTableHead">
               <tal:block condition="isBdrDeployment"
                 content="structure python:context.sortable_table((

@@ -441,9 +441,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         else:
             pass
 
-    security.declareProtected('View', 'macros')
-    macros = PageTemplateFile('zpt/engineMacros', globals()).macros
-
     security.declareProtected('View', 'globalworklist')
     globalworklist = PageTemplateFile('zpt/engineGlobalWorklist', globals())
 
