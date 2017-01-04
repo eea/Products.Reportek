@@ -182,11 +182,13 @@
 <metal:block metal:define-macro="select2-obligations">
   <tal:block
     tal:define="placeholder placeholder | nothing;
-                multiple multiple | nothing;">
+                multiple multiple | nothing;
+                disabled disabled | nothing;">
     <select id="obligations" name="dataflow_uris:list" style="width: 100%"
      tal:define="klass python: 'select2-enabled placeholder-enabled' if placeholder else 'select2-enabled';"
      tal:attributes="class klass;
-                     multiple multiple;">
+                     multiple multiple;
+                     disabled disabled;">
       <tal:block define="req_obl request/obligations|context/dataflow_uris;
                          rod_data rod_data | context/api/@@assigned_obligations;"
                  repeat="instrument rod_data/keys">

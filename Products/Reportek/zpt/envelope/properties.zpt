@@ -67,34 +67,10 @@
           <tal:block define="dummy python:request.set('group',0)"/>
           <tr>
             <th i18n:translate="">Obligations</th>
-            <td class="select-container" tal:define="multiple string:multiple">
+            <td class="select-container"
+              tal:define="multiple string:multiple;
+                          disabled not: permission_condition">
               <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
-<!--               <select id="dataflows" size="15" name="dataflow_uris:list" multiple="multiple"
-               tal:attributes="disabled not: permission_condition">
-                <tal:block tal:define="obligation_select_size python:'1' if isBdrDeployment else '15';
-                                       data context/ReportekEngine/dataflow_table_grouped;
-                                       groups python:data[0];
-                                       items python:data[1];
-                                       dataflow_uri context/dataflow_uri | nothing"
-                                       tal:attributes="size obligation_select_size">
-                    <tal:block tal:repeat="group groups">
-                        <optgroup tal:attributes="label python:context.ReportekEngine.truncate(group)">
-                        <tal:block tal:repeat="item python:items[group]">
-                            <option tal:define="terminated python:int(item.get('terminated', '0'))"
-                                    tal:attributes="value item/uri;
-                                    selected python:item['uri'] in context.dataflow_uris;
-                                    label python:context.ReportekEngine.truncate(item['TITLE'])">
-                            [<span tal:replace="python:' '.join(item['SOURCE_TITLE'].split()[0:2])" />]
-                            <span tal:replace="python:context.ReportekEngine.truncate(item['TITLE'])" />
-                            <tal:block tal:condition="terminated">
-                                (<tal:block i18n:translate="">terminated</tal:block>)
-                            </tal:block>
-                            </option>
-                        </tal:block>
-                        </optgroup>
-                    </tal:block>
-                  </tal:block>
-              </select> -->
             </td>
           </tr>
 
