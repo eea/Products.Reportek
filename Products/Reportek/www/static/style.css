@@ -552,10 +552,12 @@ tr.user-disabled {
   white-space: nowrap;
 }
 
-.tabbedmenu ul {
+#workarea .tabbedmenu ul {
   margin: 0;
   padding: 0px 10px 0 10px;
   list-style: none;
+  list-style-image: none;
+  list-style-type: none;
 }
 
 .tabbedmenu .currenttab span,
