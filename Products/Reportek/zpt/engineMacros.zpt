@@ -185,7 +185,7 @@
                 multiple multiple | nothing;
                 disabled disabled | nothing;
                 empty_select empty_select | nothing">
-    <select id="obligations" style="width: 100%"
+    <select id="obligations"
      tal:define="klass python: 'select2-enabled placeholder-enabled' if placeholder else 'select2-enabled';
                  name python: 'dataflow_uris:list' if multiple else 'dataflow_uris';"
      tal:attributes="class klass;

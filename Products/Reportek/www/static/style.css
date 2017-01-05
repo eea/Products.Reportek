@@ -2,6 +2,10 @@
   margin: 0;
 }
 
+.select2-container {
+  width: 100%;
+}
+
 /*Workaround for select2 overflowing the containers width in searchdataflow*/
 td.searchdataflow.select-container {
   width: 550px;

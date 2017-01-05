@@ -47,12 +47,17 @@
           <tal:block metal:use-macro="here/find_user/macros/users_table" />
 
           <h2>3. Select one or more countries</h2>
-          <tal:block tal:define="placeholder python: True">
+          <tal:block tal:define="placeholder string:All">
             <tal:block metal:use-macro="here/filters/macros/countries" />
           </tal:block>
 
           <h2>4. Select obligations</h2>
-          <tal:block metal:use-macro="here/filters/macros/select-obligations" />
+          <div class="form-group"
+            tal:define="multiple string:multiple;
+                        placeholder string:All">
+            <label for="obligations">Obligations</label>
+            <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
+          </div>
 
           <h2>5. Filter by path</h2>
           <tal:block metal:use-macro="here/filters/macros/path-filter" />
