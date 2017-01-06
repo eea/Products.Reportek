@@ -7,7 +7,7 @@ class RecentUploads(BaseAdmin):
 
     def get_recent_uploads(self):
         if self.request.get('btn.search'):
-            obligations = self.request.get('obligations', [])
+            obligations = self.request.get('dataflow_uris', [])
             countries = self.request.get('countries', [])
             start = self.request.get('startdate', '')
             end = self.request.get('enddate', '')
@@ -20,8 +20,7 @@ class RecentUploads(BaseAdmin):
             if obligations:
                 if not isinstance(obligations, list):
                     obligations = [obligations]
-                df_uris = [self.get_obligations()[obl] for obl in obligations]
-                query['dataflow_uris'] = df_uris
+                query['dataflow_uris'] = obligations
             if countries:
                 query['country'] = self.get_country_codes(countries)
             if start or end:
