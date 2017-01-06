@@ -146,7 +146,7 @@ class BaseAdmin(BrowserView):
         return self.context.Catalog(query)
 
     def get_collections(self):
-        obligations = self.request.get('obligations', [])
+        obligations = self.request.get('dataflow_uris', [])
         countries = self.request.get('countries', [])
         search_type = self.request.get('search_type')
         entity = self.request.get('username', '')
