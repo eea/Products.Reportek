@@ -76,30 +76,32 @@ class UNSCallsTest(unittest.TestCase):
              'http://rod.eionet.europa.eu/schema.rdf#locality': country},
         ])
 
-    def test_subscribe_to_dataflow(self):
+    @patch('Products.Reportek.DataflowsManager.DataflowsManager.dataflow_lookup')
+    def test_subscribe_to_dataflow(self, mock_dataflow_lookup):
         event = "Envelope release"
-        flow = "Flow One"
-        self.engine.subscribeToUNS(filter_dataflows=[flow],
+        mock_dataflow_lookup.return_value = mock_dataflow
+        self.engine.subscribeToUNS(dataflow_uris=[mock_dataflow['uri']],
                                    filter_event_types=[event])
 
         makeSubscription = self.xmlrpc_server.UNSService.makeSubscription
         makeSubscription.assert_called_once_with('132547698', 'someone', [
             {'http://rod.eionet.europa.eu/schema.rdf#event_type': event,
-             'http://rod.eionet.europa.eu/schema.rdf#obligation': flow},
+             'http://rod.eionet.europa.eu/schema.rdf#obligation': mock_dataflow['TITLE']},
         ])
 
-    def test_subscribe_to_country_and_dataflow(self):
+    @patch('Products.Reportek.DataflowsManager.DataflowsManager.dataflow_lookup')
+    def test_subscribe_to_country_and_dataflow(self, mock_dataflow_lookup):
         event = "Envelope release"
-        flow = "Flow One"
+        mock_dataflow_lookup.return_value = mock_dataflow
         country = "es"
         self.engine.subscribeToUNS(filter_country=country,
-                                   filter_dataflows=[flow],
+                                   dataflow_uris=[mock_dataflow['uri']],
                                    filter_event_types=[event])
 
         makeSubscription = self.xmlrpc_server.UNSService.makeSubscription
         makeSubscription.assert_called_once_with('132547698', 'someone', [
             {'http://rod.eionet.europa.eu/schema.rdf#event_type': event,
-             'http://rod.eionet.europa.eu/schema.rdf#obligation': flow,
+             'http://rod.eionet.europa.eu/schema.rdf#obligation': mock_dataflow['TITLE'],
              'http://rod.eionet.europa.eu/schema.rdf#locality': country},
         ])
 

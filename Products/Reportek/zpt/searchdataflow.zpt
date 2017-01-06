@@ -39,7 +39,7 @@
           <col style="width:150px" />
           <tr>
             <th><label for="dataflows" class="question">Obligation</label></th>
-            <td class="select-container searchdataflow"
+            <td class="select-container select-fixed-width"
               tal:define="placeholder string:Any obligation;
                           empty_select python: True">
               <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
