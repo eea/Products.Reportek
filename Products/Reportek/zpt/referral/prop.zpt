@@ -1,5 +1,11 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
-
+  <metal:block fill-slot="head">
+    <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
+    <link href="++resource++static/style.css" rel="stylesheet"/>
+    <script type="text/javascript" charset="utf8" src="++resource++static/jquery-1.11.2.min.js"></script>
+    <script src="++resource++static/select2-3.5.0/select2.js"></script>
+    <script src="++resource++static/reportek.js"></script>
+  </metal:block>
   <metal:block fill-slot="content">
 
     <span tal:replace="structure python:here.referral_tabs(tab='manage_prop')" />
@@ -19,22 +25,10 @@
         <th valign="top"><label for="descr" i18n:translate="">Description</label></th>
         <td><textarea id="descr" name="descr" rows="5" cols="50" tal:content="here/descr"></textarea></td>
       </tr>
-      <tr>
+      <tr tal:define="default here/dataflow_uris | python:[]">
         <th valign="top"><label for="dataflow_uris" i18n:translate="">Obligations</label></th>
-        <td tal:define="data here/dataflow_table_grouped; groups python:data[0]; items python:data[1]">
-          <select id="dataflow_uris" size="15" name="dataflow_uris:list" multiple="multiple">
-            <tal:block tal:repeat="group groups">
-              <optgroup tal:attributes="label python:test(len(group)<=80, group, '%s ...' % group[:77])">
-                <tal:block tal:repeat="item python:items[group]">
-                <option tal:define="terminated python:item.has_key('terminated') and item['terminated']=='1'" tal:attributes="value item/uri; class python:test(terminated, 'terminated', None); selected python:item['uri'] in here.dataflow_uris">
-                  [<span tal:replace="python:' '.join(item['SOURCE_TITLE'].split()[0:2])" />]
-                  <span tal:replace="python:test(len(item['TITLE'])<=80, item['TITLE'], '%s ...' % item['TITLE'][:77])" />
-                  <tal:block tal:condition="terminated"> (<tal:block i18n:translate="">terminated</tal:block>)</tal:block>
-                </option>
-                </tal:block>
-              </optgroup>
-            </tal:block>
-          </select>
+        <td tal:define="multiple string:multiple" class="select-container">
+          <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
         </td>
       </tr>
       <tr>
