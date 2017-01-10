@@ -1,19 +1,51 @@
 <tal:block content="structure options/context/manage_page_header" />
 <tal:block content="structure options/context/manage_tabs" />
 
+<link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
+<link href="++resource++static/style.css" rel="stylesheet"/>
+<script type="text/javascript" charset="utf8"
+      src="++resource++static/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" charset="utf8"
+      src="++resource++static/searchdataflow.js"></script>
+<script src="++resource++static/select2-3.5.0/select2.js"></script>
+<script src="++resource++static/reportek.js"></script>
+
 <h2>Create a new dataflow mapping table</h2>
 
 <form action="" method="post">
 
-  <label>ID: <input name="id"></label><br>
-
-  <label>Title: <input name="title"></label><br>
-
-  <label>Dataflow:
-    <tal:block content="structure options/context/dataflows_select" /></label><br>
-
-  <button type="submit">Create</button>
-
+  <table cellspacing="0" cellpadding="2" border="0">
+    <tr>
+      <td>
+        <label class="form-label" for="id">ID</label>
+      </td>
+      <td>
+        <input class="form-element" id="id" name="id" size="60"/>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label class="form-label" for="title">Title</label>
+      </td>
+      <td>
+        <input class="form-element" id="title" name="title" size="60"/>
+      </td>
+    </tr>
+    <tr>
+      <td>
+        <label class="form-label" for="dataflow_uris">Dataflow</label>
+      </td>
+      <td class="select-container select-fixed-width">
+        <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
+      </td>
+    </tr>
+    <tr class="row-hilite">
+      <td></td>
+      <td>
+        <button type="submit">Create</button>
+      </td>
+    </tr>
+  </table>
 </form>
 
 <tal:block content="structure options/context/manage_page_footer" />

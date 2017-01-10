@@ -603,7 +603,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         if REQUEST is not None:
             return self.messageDialog(
                             message="The properties of %s have been changed!" % self.id,
-                            action='./manage_main')
+                            action='./')
 
     security.declareProtected(permission_manage_properties_envelopes, 'manage_changeEnvelope')
     def manage_changeEnvelope(self, title=None, descr=None,
@@ -634,7 +634,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         if REQUEST is not None:
             return self.messageDialog(
                             message="The properties of %s have been changed!" % self.id,
-                            action='./manage_main')
+                            action='./')
 
     ##################################################
     # These methods represent the outcome of the CDR discussion.

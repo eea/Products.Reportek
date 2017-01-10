@@ -189,4 +189,34 @@
     class=".views.ReferralsUtils"
     attribute="api_update_referrals_status"/>
 
+  <browser:page
+    name="obligations"
+    for="Products.Reportek.interfaces.IReportekAPI"
+    permission="zope2.View"
+    class=".views.misc.MiscAPI"
+    attribute="get_obligations"
+  />
+
+  <browser:page
+    name="assigned_obligations"
+    for="Products.Reportek.interfaces.IReportekAPI"
+    permission="zope2.View"
+    class=".views.misc.MiscAPI"
+    attribute="get_assigned_obligations"
+  />
+
+  <browser:page
+    name="obligations_json"
+    for="Products.Reportek.interfaces.IReportekAPI"
+    permission="zope2.View"
+    class=".views.misc.MiscAPI"
+    attribute="get_obligations_json"
+  />
+
+  <browser:page
+    name="engineMacros"
+    for="*"
+    permission="zope2.View"
+    template="zpt/engineMacros.zpt"/>
+
 </configure>
