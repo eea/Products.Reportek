@@ -184,7 +184,7 @@
     tal:define="placeholder placeholder | nothing;
                 multiple multiple | nothing;
                 disabled disabled | nothing;
-                empty_select empty_select | nothing">
+                empty_select empty_select | nothing;">
     <select id="obligations"
      tal:define="klass python: 'select2-enabled placeholder-enabled' if placeholder else 'select2-enabled';
                  name python: 'dataflow_uris:list' if multiple else 'dataflow_uris';"
@@ -194,8 +194,8 @@
                      data-placeholder placeholder;
                      name name">
       <option tal:condition="empty_select"></option>
-      <tal:block define="req_obl request/obligations|context/dataflow_uris|request/dataflow_uris|python: [];
-                         rod_data rod_data | context/api/@@assigned_obligations;"
+      <tal:block define="req_obl req_obl|request/obligations|context/dataflow_uris|request/dataflow_uris|python: [];
+                         rod_data rod_data | context/api/@@assigned_obligations | options/context/api/@@assigned_obligations;"
                  repeat="instrument rod_data/keys">
         <optgroup tal:attributes="label instrument">
           <tal:block repeat="obl python:rod_data[instrument]">

@@ -30,7 +30,7 @@ class AddForm(BrowserView):
         ob = DataflowMappingsRecord(
                 oid,
                 form.get('title'),
-                form.get('dataflow_uri'))
+                form.get('dataflow_uris'))
         self.parent._setObject(oid, ob)
         return self.request.response.redirect(
                     self.parent.absolute_url() + '/manage_main')
@@ -46,7 +46,7 @@ class AddForm(BrowserView):
     def __call__(self, *args, **kwargs):
         if self.request.method == 'POST':
             existing_records = self.get_records_by_dataflow(
-                                    self.request.form['dataflow_uri'])
+                                    self.request.form['dataflow_uris'])
             if existing_records:
                 [record] = existing_records
                 raise Exception(
@@ -196,7 +196,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
 
             if REQUEST.form.get('update'):
                 self.title = REQUEST.form['title']
-                self.dataflow_uri = REQUEST.form['dataflow_uri']
+                self.dataflow_uri = REQUEST.form['dataflow_uris']
                 message_dialog = 'Saved changes.'
 
         return self._edit(
