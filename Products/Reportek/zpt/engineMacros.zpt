@@ -48,7 +48,7 @@
 
 
 <metal:block define-macro="partOfYearSelect">
-  <select id="partofyear" name="partofyear">
+  <select id="partofyear" name="partofyear" class="select2-enabled">
     <option value="">Any part of year</option>
     <option tal:define="given_value partofyear_selected | nothing;"
             tal:repeat="value here/ReportekEngine/partofyear_table"
@@ -62,7 +62,7 @@
 
 
 <metal:block define-macro="countrySelect">
-  <select id="country" name="country">
+  <select id="country" name="country" class="select2-enabled">
     <option></option>
     <option tal:define="values python:context.localities_table;
                         given_value country_selected | nothing;"

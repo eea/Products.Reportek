@@ -24,7 +24,7 @@
       </h1>
 
       <form id="frmSearch" action="searchdataflow" method="get">
-        <table class="formtable"
+        <table class="formtable rform-table"
           tal:define="obligation_select_size python:'1' if isBdrDeployment else '15';
                      obligation_selected options/dataflow_uris | nothing;
                      years options/years | nothing;
@@ -51,7 +51,11 @@
               <input type="text" id="search_years" name="years:int:ignore_empty"
                      size="4" maxlength="4" value=""
                      tal:attributes="value years | default"/>
-              <label for="partofyear" class="question">Part of year</label>
+            </td>
+          </tr>
+          <tr>
+            <th><label for="partofyear" class="question">Part of year</label></th>
+            <td>
               <metal:block metal:use-macro="here/engineMacros/macros/partOfYearSelect"/>
             </td>
           </tr>

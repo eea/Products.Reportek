@@ -17,7 +17,7 @@
         <p class="form-help" i18n:translate="">A collection is an organisation of envelopes. Some fields you fill out will show up as default values for all envelopes and collections you subsequently create in this collection.</p>
 
         <form action="manage_addCollection" method="post" name="form">
-          <table border="0" cellspacing="5" cellpadding="0">
+          <table border="0" cellspacing="5" cellpadding="0" class="rform-table">
             <tr>
               <th><label for="title" i18n:translate="">Title</label></th>
               <td><input type="text" id="title" name="title" size="50" value="" /></td>
@@ -45,7 +45,7 @@
               <th><label for="year" i18n:translate="">Relating to which year</label></th>
               <td>
                 <input type="text" name="year" id="year" size="4" maxlength="4" tal:attributes="value here/year | nothing" />
-                <select name="partofyear" id="partofyear">
+                <select name="partofyear" id="partofyear" class="select2-enabled" style="width:65%">
                   <option tal:repeat="item here/ReportekEngine/partofyear_table"
                           tal:attributes="value item; selected python:item==default"
                           tal:content="python: here.reporting_year_labels.get(item)" i18n:translate="" />
@@ -57,7 +57,7 @@
             <tr tal:define="default here/country | nothing">
               <th><label for="country" i18n:translate="">Coverage</label></th>
               <td>
-                <select name="country" id="country" tal:define="engine here/getEngine">
+                <select name="country" id="country" tal:define="engine here/getEngine" class="select2-enabled">
                   <option value="" i18n:translate="">Unspecified</option>
                   <option tal:repeat="item engine/localities_table"
                           tal:attributes="value item/uri; selected python:item['uri']==default"

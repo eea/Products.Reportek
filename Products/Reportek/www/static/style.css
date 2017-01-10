@@ -1,3 +1,10 @@
+.rform-table input {
+  line-height: 22px;
+}
+
+.rform-table {
+  width: 65%;
+}
 #workarea ul.select2-choices {
   margin: 0;
 }

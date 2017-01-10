@@ -41,7 +41,7 @@
           <tr>
             <th><label for="filter_country" i18n:translate="">and country is</label></th>
             <td>
-              <select name="filter_country" id="filter_country">
+              <select name="filter_country" id="filter_country" class="select2-enabled">
                 <option tal:attributes="selected python:not default_country" value="" i18n:translate="">Any country</option>
                 <option tal:repeat="item here/localities_table" tal:attributes="value item/name; selected python:item['uri']==default_country" tal:content="item/name" />
               </select>

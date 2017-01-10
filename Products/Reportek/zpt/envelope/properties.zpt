@@ -16,7 +16,7 @@
       <h1 i18n:translate="">Envelope Properties</h1>
 
       <form name="edit" tal:attributes="action request/URL1" method="post">
-        <table>
+        <table class="rform-table">
           <tr>
             <th i18n:translate="">Title</th>
             <td>
@@ -38,7 +38,7 @@
             <td>
               <input type="text" name="year" size="4" maxlength="4"
                      tal:attributes="value context/year"/>
-              <select name="partofyear">
+              <select name="partofyear" class="select2-enabled" style="width:65%">
               <tal:block
                 repeat="item python:('Whole Year',
                        'First Half', 'Second Half',
@@ -88,7 +88,7 @@
                   <span tal:define="c_name python: env_country.get('name', '')" tal:content="c_name" />
                 </tal:block>
                 <select name="country"
-                  tal:condition="not: readonly">
+                  tal:condition="not: readonly" class="select2-enabled">
                   <option
                     tal:define="
                       selected_condition python:context.country == '';
