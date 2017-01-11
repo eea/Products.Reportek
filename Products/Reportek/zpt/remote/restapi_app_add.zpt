@@ -40,6 +40,10 @@
       <td><input type="text" name="qascripts_endpoint" id="qascripts_endpoint" size="40" /></td>
     </tr>
     <tr>
+      <th><label for="token">JWT Token (leave empty if it shouldn't be used)</label></th>
+      <td><input type="text" name="token" id="token" size="40" /></td>
+    </tr>
+    <tr>
       <th><label for="app_name">Activity ID</label></th>
       <td><input type="text" name="app_name" id="app_name" size="40" /></td>
     </tr>

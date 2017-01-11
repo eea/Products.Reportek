@@ -25,12 +25,12 @@ def manage_addRemoteRESTAPIApplication(self, id='', title='', base_url='',
                                        async_base_url='', jobs_endpoint='',
                                        batch_endpoint='',
                                        qascripts_endpoint='', app_name='',
-                                       REQUEST=None):
+                                       token='', REQUEST=None):
     """Generic base application that calls a remote service."""
 
     ob = RemoteRESTAPIApplication(id, title, base_url, async_base_url,
                                   jobs_endpoint, batch_endpoint,
-                                  qascripts_endpoint, app_name)
+                                  qascripts_endpoint, app_name, token)
     self._setObject(id, ob)
 
     if REQUEST is not None:
@@ -50,8 +50,8 @@ class RemoteRESTAPIApplication(SimpleItem):
     manage_settings_html = ptf('zpt/remote/restapi_app_edit', globals())
 
     def __init__(self, id, title, base_url, async_base_url, jobs_endpoint,
-                 batch_endpoint, qascripts_endpoint, app_name, timeout=20,
-                 retries=5, r_frequency=300):
+                 batch_endpoint, qascripts_endpoint, app_name, token='',
+                 timeout=20, retries=5, r_frequency=300):
         """Initialize a new instance of RemoteRESTAPIApplication."""
         self.id = id
         self.title = title
@@ -61,13 +61,14 @@ class RemoteRESTAPIApplication(SimpleItem):
         self.batch_endpoint = batch_endpoint
         self.qascripts_endpoint = qascripts_endpoint
         self.app_name = app_name
+        self.token = token
         self.retries = int(retries)
         self.timeout = int(timeout)
         self.r_frequency = int(r_frequency)
 
     def manage_settings(self, title, base_url, async_base_url, jobs_endpoint,
-                        batch_endpoint, qascripts_endpoint, app_name, retries,
-                        timeout, r_frequency, REQUEST):
+                        batch_endpoint, qascripts_endpoint, app_name, token,
+                        retries, timeout, r_frequency, REQUEST):
         """Change the settings of the RemoteRESTAPIApplication."""
         self.title = title
         self.base_url = base_url
@@ -76,6 +77,7 @@ class RemoteRESTAPIApplication(SimpleItem):
         self.batch_endpoint = batch_endpoint
         self.qascripts_endpoint = qascripts_endpoint
         self.app_name = app_name
+        self.token = token
         self.retries = int(retries)
         self.timeout = int(timeout)
         self.r_frequency = int(r_frequency)
@@ -111,6 +113,9 @@ class RemoteRESTAPIApplication(SimpleItem):
         ctype = "application/json"
         headers = {"Accept": ctype,
                    "Content-Type": ctype}
+        if self.token:
+            headers["X-Auth-Token"] = self.token
+
         err = None
         jsondata = None
         result = None
@@ -281,6 +286,9 @@ class RemoteRESTAPIApplication(SimpleItem):
         ctype = "application/json"
         headers = {"Accept": ctype,
                    "Content-Type": ctype}
+        if self.token:
+            headers["X-Auth-Token"] = self.token
+
         jsondata = None
         err = None
         result = None
@@ -472,6 +480,8 @@ class RemoteRESTAPIApplication(SimpleItem):
         ctype = "application/json"
         headers = {"Accept": ctype,
                    "Content-Type": ctype}
+        if self.token:
+            headers["X-Auth-Token"] = self.token
         err = None
         jsondata = None
         result = None
