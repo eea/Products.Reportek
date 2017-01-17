@@ -1,5 +1,7 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Bug fix #80692 - Fixed select option values in envelope's properties template [olimpiurob]
+
 * Bug fix #79314 - Display postingdate instead of releasedate in Document's manage template feedback section [olimpiurob]
 
 3.8.6 (09-01-2017)
