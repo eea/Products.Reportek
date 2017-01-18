@@ -95,11 +95,49 @@ class RemoteRESTAPIApplication(SimpleItem):
 
     def log_event(self, evt_type, evt_msg, workitem=None):
         """Logs events. If workitem is provided addEvent on workitem too."""
-        evt_types = ["debug, info, warning, error, exception, critical, log"]
+        evt_types = ["debug", "info", "warning", "error", "exception",
+                     "critical", "log"]
         if evt_type in evt_types:
             getattr(logger, evt_type)(evt_msg)
         if workitem:
             workitem.addEvent(evt_msg)
+
+    def do_api_request(self, url, method='get', data=None, cookies=None,
+                       headers=None, params=None):
+        """Call requests methods and return a dictionary with data and error
+           keys.
+        """
+        api_req = requests.get
+        jsondata = None
+        error = None
+        if method == 'post':
+            api_req = requests.post
+
+        if self.token:
+            headers['Authorization'] = self.token
+        try:
+            response = api_req(url, data=data, cookies=cookies,
+                               headers=headers, params=params, verify=False,
+                               timeout=self.timeout)
+        except RequestException as e:
+            error = str(e)
+
+        if not error:
+            try:
+                jsondata = response.json()
+            except ValueError as e:
+                error = "Unable to convert QA Service response"\
+                        " to JSON: {}. HTTP Code:"\
+                        " {}".format(str(e), response.status_code)
+
+            if jsondata:
+                if isinstance(jsondata, dict):
+                    error = jsondata.get('errorMessage')
+                if response.status_code != requests.codes.ok or error:
+                    error = 'HTTP Code: {} - {}'.format(response.status_code,
+                                                        error)
+
+        return dict(data=jsondata, error=error)
 
     def add_async_batch_qajob(self, workitem, env_url):
         """Submit envelope level batch job for analysis."""
@@ -113,32 +151,11 @@ class RemoteRESTAPIApplication(SimpleItem):
         ctype = "application/json"
         headers = {"Accept": ctype,
                    "Content-Type": ctype}
-        if self.token:
-            headers["X-Auth-Token"] = self.token
 
-        err = None
-        jsondata = None
-        result = None
-
-        try:
-            result = requests.post(async_batch_url, data=data,
-                                   headers=headers, timeout=self.timeout)
-        except RequestException as e:
-            err = str(e)
-
-        if not err:
-            try:
-                jsondata = result.json()
-            except ValueError as e:
-                err = "Unable to convert QA Service response"\
-                      " to JSON: {}".format(str(e))
-
-            if jsondata:
-                if result.status_code == requests.codes.ok:
-                    return jsondata
-                else:
-                    err = 'HTTP Error {} - {}'.format(result.status_code,
-                                                      jsondata.get('errorMessage'))
+        result = self.do_api_request(async_batch_url, method='post', data=data,
+                                     headers=headers)
+        err = result.get('error')
+        jsondata = result.get('data')
 
         if err:
             err_msg = 'Envelope analysis job for {}'\
@@ -150,6 +167,8 @@ class RemoteRESTAPIApplication(SimpleItem):
                 err_msg = '{} - Giving up on envelope analysis, '\
                           'due to: {}'.format(self.app_name, err_msg)
                 self.log_event('error', err_msg, workitem)
+        else:
+            return jsondata
 
     def get_analysis_meta(self, workitem):
         """Return analysis metadata."""
@@ -205,6 +224,7 @@ class RemoteRESTAPIApplication(SimpleItem):
         self.manage_jobs(workitem, REQUEST)
         analysis = self.get_analysis_meta(workitem)
         analysis_done = analysis['last_error'] == None or analysis['retries'] == 0
+
         if not self.get_running_jobs(workitem) and analysis_done:
             self.finish(workitem.id, REQUEST)
 
@@ -218,6 +238,9 @@ class RemoteRESTAPIApplication(SimpleItem):
             batch_res = self.add_async_batch_qajob(workitem, env_url)
             if not batch_res:
                 self.update_retries(workitem, REQUEST)
+            else:
+                qa_data['analysis']['last_error'] = None
+
             return batch_res
 
     def update_retries(self, workitem, jobid=None, REQUEST=None):
@@ -286,31 +309,10 @@ class RemoteRESTAPIApplication(SimpleItem):
         ctype = "application/json"
         headers = {"Accept": ctype,
                    "Content-Type": ctype}
-        if self.token:
-            headers["X-Auth-Token"] = self.token
 
-        jsondata = None
-        err = None
-        result = None
-
-        try:
-            result = requests.get(job_url, headers=headers,
-                                  timeout=self.timeout)
-        except RequestException as e:
-            err = str(e)
-
-        if not err:
-            try:
-                jsondata = result.json()
-            except ValueError as e:
-                err = "Unable to convert QA Service response"\
-                      " to JSON: {}".format(str(e))
-            if jsondata:
-                if result.status_code == requests.codes.ok:
-                    return jsondata
-                else:
-                    err = 'HTTP Error {} - {}'.format(result.status_code,
-                                                      jsondata.get('errorMessage'))
+        result = self.do_api_request(job_url, method='get', headers=headers)
+        err = result.get('error')
+        jsondata = result.get('data')
 
         if err:
             err_msg = 'Job: #{} for file {},'\
@@ -321,6 +323,8 @@ class RemoteRESTAPIApplication(SimpleItem):
                 err_msg = '{} - Giving up on job: #{}, '\
                           'due to: {}'.format(self.app_name, jobid, err_msg)
                 self.log_event('error', err_msg, workitem)
+        else:
+            return jsondata
 
     def manage_results(self, workitem, job, result, REQUEST=None):
         """Manage a QA job result."""
@@ -355,7 +359,7 @@ class RemoteRESTAPIApplication(SimpleItem):
                 }
                 data['fb_attrs'] = fb_attrs
 
-                self.add_feedback(env, data)
+                self.add_feedback(env, data, workitem)
 
                 if result['feedbackStatus'] == 'BLOCKER':
                     workitem.blocker = True
@@ -370,10 +374,14 @@ class RemoteRESTAPIApplication(SimpleItem):
 
             self.update_job(workitem, job)
 
-    def add_feedback(self, env, data):
+    def add_feedback(self, env, data, workitem):
         """Add an AutomaticQA feedback."""
         fb_attrs = data.get('fb_attrs')
-        env.manage_addFeedback(**fb_attrs)
+        try:
+            env.manage_addFeedback(**fb_attrs)
+        except Exception as e:
+            err_msg = 'Unable to create feedback: {}'.format(str(e))
+            self.log_event('error', err_msg, workitem)
         fb_ob = env.restrictedTraverse(fb_attrs.get('id'))
 
         fb_content = data.get('fb_content')
@@ -408,41 +416,23 @@ class RemoteRESTAPIApplication(SimpleItem):
         ctype = "application/json"
         headers = {"Accept": ctype,
                    "Content-Type": ctype}
-        jsondata = None
-        err = None
-        result = None
         params = None
         if schema:
             params = {
                 'schema': schema
             }
-
-        try:
-            result = requests.get(qascripts_url, headers=headers,
-                                  params=params, timeout=self.timeout)
-        except RequestException as e:
-            err = str(e)
-
-        if not err:
-            try:
-                jsondata = result.json()
-            except ValueError as e:
-                err = "Unable to convert QA Service response"\
-                      " to JSON: {}".format(str(e))
-
-            if jsondata:
-                if result.status_code == requests.codes.ok:
-                    return jsondata
-                else:
-                    err = 'HTTP Error {} - {}'.format(result.status_code,
-                                                      jsondata.get('errorMessage'))
+        result = self.do_api_request(qascripts_url, method='get',
+                                     headers=headers, params=params)
+        err = result.get('error')
+        jsondata = result.get('data')
 
         if err:
             err_msg = 'Unable to retrieve QAScripts for schema: {}'\
                       ' due to: {}'.format(schema, err)
             self.log_event('error', err_msg)
-
-        return []
+            return []
+        else:
+            return jsondata
 
     def get_qa_scripts_short(self, schema):
         """Return a list of script ids for the specified schema."""
@@ -480,37 +470,18 @@ class RemoteRESTAPIApplication(SimpleItem):
         ctype = "application/json"
         headers = {"Accept": ctype,
                    "Content-Type": ctype}
-        if self.token:
-            headers["X-Auth-Token"] = self.token
-        err = None
-        jsondata = None
-        result = None
 
-        try:
-            result = requests.post(jobs_url, data=data,
-                                   headers=headers, timeout=self.timeout)
-        except RequestException as e:
-            err = str(e)
-
-        if not err:
-            try:
-                jsondata = result.json()
-            except ValueError as e:
-                err = "Unable to convert QA Service response"\
-                      " to JSON: {}".format(str(e))
-
-            if jsondata:
-                if result.status_code == requests.codes.ok:
-                    return jsondata
-                else:
-                    err = 'HTTP Error {} - {}'.format(result.status_code,
-                                                      jsondata.get('errorMessage'))
+        result = self.do_api_request(jobs_url, method='post', headers=headers)
+        err = result.get('error')
+        jsondata = result.get('data')
 
         if err:
             err_msg = 'QA script {} for {}'\
                       ' failed: ({})'.format(file_url, script_id, err)
             self.log_event('error', err_msg)
             raise RemoteApplicationException(err_msg)
+        else:
+            return jsondata
 
 
 InitializeClass(RemoteRESTAPIApplication)

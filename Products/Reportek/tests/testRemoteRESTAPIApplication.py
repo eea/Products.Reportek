@@ -104,10 +104,13 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
         data = {'envelopeUrl': 'http://nohost/col1/env1'}
         mock_requests.post.assert_called_once_with(
             'http://submit.url/rest/async/jobs/batch',
-            data=json.dumps(data),
+            cookies=None,
+            verify=False,
             headers={'Content-Type': 'application/json',
                      'Accept': 'application/json'},
-            timeout=20)
+            params=None,
+            timeout=20,
+            data=json.dumps(data))
 
     @patch('Products.Reportek.RemoteRESTAPIApplication.requests')
     def test_request_async_batch_job_auth(self, mock_requests):
@@ -127,11 +130,14 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
         data = {'envelopeUrl': 'http://nohost/col1/env1'}
         mock_requests.post.assert_called_once_with(
             'http://submit.url/rest/async/jobs/batch',
-            data=json.dumps(data),
+            cookies=None,
+            verify=False,
             headers={'Content-Type': 'application/json',
                      'Accept': 'application/json',
-                     'X-Auth-Token': 'token'},
-            timeout=20)
+                     'Authorization': 'token'},
+            params=None,
+            timeout=20,
+            data=json.dumps(data))
 
     @patch('Products.Reportek.RemoteRESTAPIApplication.requests')
     def test_workitem_initialization(self, mock_requests):
@@ -303,7 +309,8 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
         prop = self.app.col1.env1['0'].restapp
         self.assertEqual(prop['analysis']['last_error'], 'Envelope analysis'
                          ' job for http://nohost/col1/env1 failed: (Unable to'
-                         ' convert QA Service response to JSON: )')
+                         ' convert QA Service response to JSON: '
+                         '. HTTP Code: 200)')
 
     @patch('Products.Reportek.RemoteRESTAPIApplication.requests')
     def test_batch_error(self, mock_requests):
@@ -319,7 +326,7 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
         self.create_cepaa_set(1)
         prop = self.app.col1.env1['0'].restapp
         self.assertEqual(prop['analysis']['last_error'], 'Envelope analysis'
-                         ' job for http://nohost/col1/env1 failed: (HTTP Error'
+                         ' job for http://nohost/col1/env1 failed: (HTTP Code:'
                          ' 500 - QA Service Exception)')
 
     @patch('Products.Reportek.RemoteRESTAPIApplication.requests')
@@ -342,5 +349,6 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
         self.create_cepaa_set(1)
         prop = self.app.col1.env1['0'].restapp
         self.assertEqual('Job: #123 for file some.file.url.1, failed: (Unable'
-                         ' to convert QA Service response to JSON: )',
+                         ' to convert QA Service response to JSON: '
+                         '. HTTP Code: 200)',
                          prop['jobs'][123]['last_error'])
