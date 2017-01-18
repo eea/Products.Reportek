@@ -471,7 +471,8 @@ class RemoteRESTAPIApplication(SimpleItem):
         headers = {"Accept": ctype,
                    "Content-Type": ctype}
 
-        result = self.do_api_request(jobs_url, method='post', headers=headers)
+        result = self.do_api_request(jobs_url, method='post', headers=headers,
+                                     data=data)
         err = result.get('error')
         jsondata = result.get('data')
 
