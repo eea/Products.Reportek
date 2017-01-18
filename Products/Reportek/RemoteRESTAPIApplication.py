@@ -128,14 +128,16 @@ class RemoteRESTAPIApplication(SimpleItem):
             except ValueError as e:
                 error = "Unable to convert QA Service response"\
                         " to JSON: {}. HTTP Code:"\
-                        " {}".format(str(e), response.status_code)
+                        " {} ({})".format(str(e), response.status_code,
+                                          response.reason)
 
             if jsondata:
                 if isinstance(jsondata, dict):
                     error = jsondata.get('errorMessage')
                 if response.status_code != requests.codes.ok or error:
-                    error = 'HTTP Code: {} - {}'.format(response.status_code,
-                                                        error)
+                    error = 'HTTP Code: {} ({}) - {}'.format(response.status_code,
+                                                             response.reason,
+                                                             error)
 
         return dict(data=jsondata, error=error)
 

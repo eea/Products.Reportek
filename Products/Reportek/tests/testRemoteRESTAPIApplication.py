@@ -90,6 +90,7 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
     def test_request_async_batch_job(self, mock_requests):
         mock_requests.post.return_value = Mock(
             status_code=200,
+            reason='OK',
             json=Mock(return_value={'jobs': [
                 {
                     'jobId': 123,
@@ -116,6 +117,7 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
     def test_request_async_batch_job_auth(self, mock_requests):
         mock_requests.post.return_value = Mock(
             status_code=200,
+            reason='OK',
             json=Mock(return_value={'jobs': [
                 {
                     'jobId': 123,
@@ -143,6 +145,7 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
     def test_workitem_initialization(self, mock_requests):
         mock_requests.post.return_value = Mock(
             status_code=200,
+            reason='OK',
             json=Mock(return_value={'jobs': [
                 {
                     'jobId': 123,
@@ -167,6 +170,7 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
         job2fileurl = 'http://some.file.url.2'
         mock_requests.post.return_value = Mock(
             status_code=200,
+            reason='OK',
             json=Mock(return_value={'jobs': [
                 {
                     'jobId': job1id,
@@ -191,6 +195,7 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
     def test_create_job_fb(self, mock_requests):
         mock_requests.post.return_value = Mock(
             status_code=200,
+            reason='OK',
             json=Mock(return_value={'jobs': [
                 {
                     'jobId': 123,
@@ -199,6 +204,7 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
             ]}))
         mock_requests.get.return_value = Mock(
             status_code=200,
+            reason='OK',
             json=Mock(return_value={
                 'scriptTitle': 'Check obligation dependent QA/QC rules',
                 'executionStatus': {
@@ -235,6 +241,7 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
             ]}))
         mock_requests.get.return_value = Mock(
             status_code=200,
+            reason='OK',
             json=Mock(return_value={
                 'scriptTitle': 'Check obligation dependent QA/QC rules',
                 'executionStatus': {
@@ -256,6 +263,7 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
     def test_job_pending_no_retries(self, mock_requests):
         mock_requests.post.return_value = Mock(
             status_code=200,
+            reason='OK',
             json=Mock(return_value={'jobs': [
                 {
                     'jobId': 123,
@@ -264,6 +272,7 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
             ]}))
         mock_requests.get.return_value = Mock(
             status_code=200,
+            reason='OK',
             json=Mock(return_value={
                 'scriptTitle': 'Check obligation dependent QA/QC rules',
                 'executionStatus': {
@@ -280,6 +289,7 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
         self.assertEqual(4, prop['jobs'][123]['retries'])
         mock_requests.get.return_value = Mock(
             status_code=200,
+            reason='OK',
             json=Mock(return_value={
                 'scriptTitle': 'Check obligation dependent QA/QC rules',
                 'executionStatus': {
@@ -302,20 +312,23 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
             raise ValueError
         mock_requests.post.return_value = Mock(
             status_code=200,
+            reason='OK',
             json=bad_json)
         mock_requests.codes.ok = 200
+        mock_requests.reason = 'OK'
 
         self.create_cepaa_set(1)
         prop = self.app.col1.env1['0'].restapp
         self.assertEqual(prop['analysis']['last_error'], 'Envelope analysis'
                          ' job for http://nohost/col1/env1 failed: (Unable to'
                          ' convert QA Service response to JSON: '
-                         '. HTTP Code: 200)')
+                         '. HTTP Code: 200 (OK))')
 
     @patch('Products.Reportek.RemoteRESTAPIApplication.requests')
     def test_batch_error(self, mock_requests):
         mock_requests.post.return_value = Mock(
             status_code=500,
+            reason='Internal Server Error',
             json=Mock(return_value={
                 'httpStatusCode': 500,
                 'errorMessage': 'QA Service Exception'
@@ -327,7 +340,7 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
         prop = self.app.col1.env1['0'].restapp
         self.assertEqual(prop['analysis']['last_error'], 'Envelope analysis'
                          ' job for http://nohost/col1/env1 failed: (HTTP Code:'
-                         ' 500 - QA Service Exception)')
+                         ' 500 (Internal Server Error) - QA Service Exception)')
 
     @patch('Products.Reportek.RemoteRESTAPIApplication.requests')
     def test_bad_job_json(self, mock_requests):
@@ -335,6 +348,7 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
             raise ValueError
         mock_requests.post.return_value = Mock(
             status_code=200,
+            reason='OK',
             json=Mock(return_value={'jobs': [
                 {
                     'jobId': 123,
@@ -343,6 +357,7 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
             ]}))
         mock_requests.get.return_value = Mock(
             status_code=200,
+            reason='OK',
             json=bad_json)
         mock_requests.codes.ok = 200
 
@@ -350,5 +365,5 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
         prop = self.app.col1.env1['0'].restapp
         self.assertEqual('Job: #123 for file some.file.url.1, failed: (Unable'
                          ' to convert QA Service response to JSON: '
-                         '. HTTP Code: 200)',
+                         '. HTTP Code: 200 (OK))',
                          prop['jobs'][123]['last_error'])
