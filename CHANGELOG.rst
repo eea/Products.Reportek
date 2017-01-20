@@ -8,6 +8,11 @@
   - fixed form submit and HTML cleanup
   [chiridra refs #80563]
 
+* Feature: Fgas companies that are just manufacturers don't need to report
+  - valid companies of type FGAS_MANUFACTURER_OF_EQUIPMENT_HFCS are unable
+    to report
+  [chiridra refs #77591]
+
 3.8.6 (09-01-2017)
 ------------------
 * Delete organisation matching from the Fgas Cache Registry

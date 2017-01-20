@@ -619,10 +619,24 @@ class Collection(CatalogAware, Folder, Toolz):
 
         return True
 
+    def is_manufacturer(self):
+        """ Return True if BDR deployment and associated company type is
+            only FGAS_MANUFACTURER_OF_EQUIPMENT_HFCS, otherwise False
+        """
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            types = self.company_types()
+            if len(types) == 1:
+                if types[0] == 'FGAS_MANUFACTURER_OF_EQUIPMENT_HFCS':
+                    return True
+        return False
+
     def allowed_envelopes(self):
         """ Return False if the collection's associated company is disabled
         """
         if not self.is_valid():
+            return False
+
+        if self.is_manufacturer():
             return False
 
         return self.allow_envelopes
