@@ -4,6 +4,10 @@
 
 * Bug fix #79314 - Display postingdate instead of releasedate in Document's manage template feedback section [olimpiurob]
 
+* Bug fix: Products.Reportek - FGases registry - Notifications settings form
+  - fixed form submit and HTML cleanup
+  [chiridra refs #80563]
+
 3.8.6 (09-01-2017)
 ------------------
 * Delete organisation matching from the Fgas Cache Registry
