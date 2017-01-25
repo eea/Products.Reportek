@@ -13,6 +13,10 @@
     to report
   [chiridra refs #77591]
 
+* Feature: Add the message attribute to manage_addFeedback
+  - added message parameter to manage_addFeedback constructor
+  [chiridra refs #79288]
+
 3.8.6 (09-01-2017)
 ------------------
 * Delete organisation matching from the Fgas Cache Registry

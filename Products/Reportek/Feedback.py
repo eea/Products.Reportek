@@ -57,7 +57,8 @@ from Products.Reportek import constants
 manage_addFeedbackForm = PageTemplateFile('zpt/feedback/add', globals())
 
 def manage_addFeedback(self, id ='', title='', feedbacktext='', file=None, activity_id='', automatic=0,
-        content_type='text/plain', document_id=None, script_url=None, restricted='', feedback_status='', REQUEST=None):
+        content_type='text/plain', document_id=None, script_url=None, restricted='', message='', feedback_status='',
+        REQUEST=None):
     """Adds feedback as a file to a folder."""
 
     # get the release date of the envelope
@@ -75,7 +76,9 @@ def manage_addFeedback(self, id ='', title='', feedbacktext='', file=None, activ
 
     ob = ReportFeedback(
             id, releasedate, title, feedbacktext, activity_id,
-            automatic, content_type, document_id, feedback_status=feedback_status)
+            automatic, content_type, document_id,
+            message=message,
+            feedback_status=feedback_status)
     if file:
         if type(file) != list:  # one file object
             file = [file]
