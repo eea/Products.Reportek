@@ -1,9 +1,14 @@
+.select-container {
+  display: table;
+  table-layout: fixed;
+}
+
 .rform-table input {
   line-height: 22px;
 }
 
 .rform-table {
-  width: 65%;
+  width: 100%;
 }
 #workarea ul.select2-choices {
   margin: 0;
@@ -15,8 +20,8 @@
 
 /*Workaround for select2 overflowing the containers width in searchdataflow*/
 td.select-fixed-width.select-container {
-  width: 550px;
-  max-width: 550px;
+  width: 650px;
+  max-width: 650px;
 }
 
 .dataTables_wrapper:after {
@@ -196,8 +201,8 @@ form h2 {
   float: left;
   margin: 0!important;
 }
-.select2-drop {
-  font-size: smaller;
+.formtable {
+  width: 90%;
 }
 .form-group .select2-container ul {
   margin: 0!important;
