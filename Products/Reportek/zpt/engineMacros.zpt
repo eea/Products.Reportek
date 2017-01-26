@@ -196,13 +196,16 @@
       <option tal:condition="empty_select"></option>
       <tal:block define="req_obl req_obl|request/obligations|context/dataflow_uris|request/dataflow_uris|python: [];
                          rod_data rod_data | context/api/@@assigned_obligations | options/context/api/@@assigned_obligations;"
-                 repeat="instrument rod_data/keys">
+                 repeat="instrument python:sorted(rod_data.keys())">
         <optgroup tal:attributes="label instrument">
           <tal:block repeat="obl python:rod_data[instrument]">
-            <option tal:attributes="value obl/uri;
-                      class python:'terminated' if obl['terminated'] == '1' else nothing;
-                      selected python:obl['uri'] in req_obl"
-                    tal:content="obl/title">
+            <option tal:define="prefix python: instrument.split();
+                                prefix python: prefix[:2] if len(prefix) >= 2 else prefix[:1];
+                                prefix python: ' '.join(prefix)"
+              tal:attributes="value obl/uri;
+                              class python:'terminated' if obl['terminated'] == '1' else nothing;
+                              selected python:obl['uri'] in req_obl"
+              tal:content="string:[${prefix}] ${obl/title}">
             </option>
           </tal:block>
         </optgroup>
