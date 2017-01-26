@@ -17,4 +17,8 @@ window.jQuery(document).ready(function () {
         });
       }
     }
+    $("input[type='reset']").click(function (){
+      var elems = $(".select2-enabled");
+      elems.val([]).trigger('change');
+    });
 });

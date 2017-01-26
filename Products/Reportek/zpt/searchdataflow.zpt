@@ -1,10 +1,9 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
 
   <metal:block fill-slot="head">
-    
     <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
-
     <link href="++resource++static/style.css" rel="stylesheet"/>
+
     <script type="text/javascript" charset="utf8"
           src="++resource++static/jquery-1.11.2.min.js"></script>
     <script type="text/javascript" charset="utf8"
@@ -36,14 +35,13 @@
                      sort_on options/sort_on | string:reportingdate;
                      sort_order options/sort_order | string:reverse;
                            ">
-          <col style="width:150px" />
           <tr>
             <th><label for="dataflow_uris" class="question">Obligation</label></th>
-            <td class="select-container select-fixed-width"
+            <td class="select-container" style="width:100%;"
               tal:define="placeholder string:Any obligation;
                           empty_select python: True">
               <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
-          </td>
+            </td>
           </tr>
           <tr>
             <th><label for="search_years" class="question">Covering Year</label></th>

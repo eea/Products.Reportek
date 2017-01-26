@@ -35,8 +35,10 @@
       <td>
         <label class="form-label" for="dataflow_uris">Dataflow</label>
       </td>
-      <td class="select-container select-fixed-width">
-        <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
+      <td>
+        <div class="select-container" style="width:50%"">
+          <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
+        </div>
       </td>
     </tr>
     <tr class="row-hilite">

@@ -38,7 +38,7 @@
             <td>
               <input type="text" name="year" size="4" maxlength="4"
                      tal:attributes="value context/year"/>
-              <select name="partofyear" class="select2-enabled" style="width:65%">
+              <select name="partofyear" class="select2-enabled" style="width:35%">
               <tal:block
                 repeat="item python:('Whole Year',
                        'First Half', 'Second Half',
@@ -67,10 +67,12 @@
           <tal:block define="dummy python:request.set('group',0)"/>
           <tr>
             <th i18n:translate="">Obligations</th>
-            <td class="select-container"
-              tal:define="multiple string:multiple;
-                          disabled not: permission_condition">
-              <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
+            <td>
+              <div class="select-container" style="width:100%"
+                tal:define="multiple string:multiple;
+                            disabled not: permission_condition">
+                <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
+              </div>
             </td>
           </tr>
 
@@ -115,7 +117,7 @@
           <tr>
             <th i18n:translate="">Coverage note</th>
             <td>
-              <input type="text" name="locality" size="30" tal:attributes="value context/locality" />
+              <input type="text" name="locality" size="50" tal:attributes="value context/locality" />
             </td>
           </tr>
 
