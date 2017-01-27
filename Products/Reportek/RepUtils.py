@@ -29,6 +29,7 @@ import traceback
 import string,base64,time
 import operator
 import json
+from copy import deepcopy
 from types import FunctionType
 from urllib import FancyURLopener
 from webdav.common import rfc1123_date
@@ -485,14 +486,16 @@ def replace_keys(replace_items, obj):
     return obj
 
 
-def fix_json_from_id(obj):
+def fix_json_from_id(obj_original):
     """
     Replace keys from json to set the right json format, used in SatelliteRegistryManagement class
-    :param obj: python dict
+    :param obj_original: python dict
     :return: the dict in the corect format
     """
-    if not obj:
+    if not obj_original:
         return {}
+
+    obj = deepcopy(obj_original)
 
     # Replace keys to set the right json format
     obj = replace_keys({

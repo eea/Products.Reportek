@@ -17,6 +17,11 @@
   - added message parameter to manage_addFeedback constructor
   [chiridra refs #79288]
 
+* Bug fix: strange BDR's FGases registry behaviour
+  - fixed fix_json_from_id method and related calls: use deepcopy
+    to alter the given dictionary parameter which is MUTABLE!
+  [chiridra refs #81127]
+
 3.8.6 (09-01-2017)
 ------------------
 * Delete organisation matching from the Fgas Cache Registry

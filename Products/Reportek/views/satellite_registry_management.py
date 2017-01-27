@@ -105,8 +105,7 @@ class SatelliteRegistryManagement(BaseAdmin):
         details = {}
         if self.request.get('id'):
             companyId = self.request.get('id')
-            details = api.get_company_details(companyId)
-            fix_json_from_id(details)
+            details = fix_json_from_id(api.get_company_details(companyId))
 
         return json.dumps(details, indent=2)
 
@@ -181,12 +180,13 @@ class SatelliteRegistryManagement(BaseAdmin):
         if not api:
             return None
 
-        companies = api.get_registry_companies(detailed=True)
-        if companies is None:
-            companies = []
+        companies_original = api.get_registry_companies(detailed=True)
+        if companies_original is None:
+            companies_original = []
 
-        for company in companies:
-            fix_json_from_id(company)
+        companies = []
+        for company in companies_original:
+            companies.append(fix_json_from_id(company))
 
         self.request.response.setHeader('Content-Type', 'application/json')
         return json.dumps(companies, indent=2)
