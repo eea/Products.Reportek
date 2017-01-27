@@ -13,7 +13,7 @@ class ReferralsUtils(BaseAdmin):
 
     def api_get_referrals_status(self):
 
-        obligations = self.request.get('obligations', [])
+        obligations = self.request.get('dataflow_uris', [])
         countries = self.request.get('countries', [])
         r_choices = {
             'any': None,

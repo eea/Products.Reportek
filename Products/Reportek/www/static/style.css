@@ -1,3 +1,29 @@
+.select-container {
+  display: table;
+  table-layout: fixed;
+}
+
+.rform-table input {
+  line-height: 22px;
+}
+
+.rform-table {
+  width: 100%;
+}
+#workarea ul.select2-choices {
+  margin: 0;
+}
+
+.select2-container {
+  width: 100%;
+}
+
+/*Workaround for select2 overflowing the containers width in searchdataflow*/
+td.select-fixed-width.select-container {
+  width: 650px;
+  max-width: 650px;
+}
+
 .dataTables_wrapper:after {
   content: "";
   display: table;
@@ -175,8 +201,8 @@ form h2 {
   float: left;
   margin: 0!important;
 }
-.select2-drop {
-  font-size: smaller;
+.formtable {
+  width: 90%;
 }
 .form-group .select2-container ul {
   margin: 0!important;
@@ -542,10 +568,12 @@ tr.user-disabled {
   white-space: nowrap;
 }
 
-.tabbedmenu ul {
+#workarea .tabbedmenu ul {
   margin: 0;
   padding: 0px 10px 0 10px;
   list-style: none;
+  list-style-image: none;
+  list-style-type: none;
 }
 
 .tabbedmenu .currenttab span,
@@ -738,4 +766,3 @@ input.referrals-status {
   display: inline-block;
   vertical-align: middle;
 }
-

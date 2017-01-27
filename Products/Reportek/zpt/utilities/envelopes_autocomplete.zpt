@@ -4,6 +4,7 @@
   <script type="text/javascript" charset="utf8" src="++resource++static/jquery-1.11.2.min.js"></script>
   <script type="text/javascript" charset="utf8" src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.min.js"></script>
   <script src="++resource++static/select2-3.5.0/select2.js"></script>
+  <script src="++resource++static/reportek.js"></script>
   <script src="++resource++static/utils.js"></script>
   <script src="++resource++static/moment.min.js"></script>
   <script src="++resource++static/datetime-moment.js"></script>
@@ -79,7 +80,11 @@
 
     <div class="filters">
 
-      <tal:block metal:use-macro="here/filters/macros/select-obligations" />
+      <div class="form-group"
+        tal:define="multiple string:multiple">
+        <label for="obligations">Obligations</label>
+        <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
+      </div>
 
       <div class="form-indent">
         <label for="status">that have been</label>

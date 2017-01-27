@@ -1,21 +1,27 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
+  <metal:block fill-slot="head">
+    <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
+    <link href="++resource++static/style.css" rel="stylesheet"/>
+
+    <script type="text/javascript" charset="utf8"
+          src="++resource++static/jquery-1.11.2.min.js"></script>
+    <script src="++resource++static/select2-3.5.0/select2.js"></script>
+    <script src="++resource++static/reportek.js"></script>
+  </metal:block>
   <metal:block fill-slot="content">
     <form action="resultsfeedbacks" method="get">
     <h1>Search Central Data Repository</h1>
       <table class="formtable">
-        <col style="width:15%; white-space:nowrap"/>
-        <col style="width:85%"/>
         <tr>
-            <td colspan="2"><label for="dataflows" class="question">Obligation</label></td>
-        </tr>
-        <tr>
-          <td colspan="2">
-            <metal:block metal:use-macro="here/macros/obligationsSelect"/>
+          <td><label for="dataflow_uris" class="question">Obligation</label></td>
+          <td class="select-container" style="width:100%;"
+            tal:define="placeholder string:Any obligation;
+                        empty_select python: True">
+            <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
           </td>
         </tr>
         <tr>
           <td><label for="startdate" class="question">From date</label></td>
-
           <td>
             <input type="text" id="startdate"
                    name="startdate:date:ignore_empty" size="10" value="" />
@@ -31,12 +37,12 @@
         <tr>
           <td><label for="country" class="question">Country</label></td>
           <td>
-            <metal:block metal:use-macro="here/macros/countrySelect"/>
+            <metal:block metal:use-macro="here/engineMacros/macros/countrySelect"/>
           </td>
         </tr>
         <tr>
           <td colspan="2" align="center">
-            <metal:block metal:use-macro="here/macros/formInputFields"/>
+            <metal:block metal:use-macro="here/engineMacros/macros/formInputFields"/>
           </td>
         </tr>
       </table>

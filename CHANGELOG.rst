@@ -1,5 +1,7 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Feature #73710 - Unified obligations select input across views [olimpiurob]
+
 * Bug fix #80692 - Fixed select option values in envelope's properties template [olimpiurob]
 
 * Bug fix #79314 - Display postingdate instead of releasedate in Document's manage template feedback section [olimpiurob]

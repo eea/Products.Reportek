@@ -2,6 +2,15 @@
 <tal:block replace="structure context/manage_tabs" />
 <tal:block replace="structure context/reportek_messages" />
 
+<link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
+<link href="++resource++static/style.css" rel="stylesheet"/>
+<script type="text/javascript" charset="utf8"
+      src="++resource++static/jquery-1.11.2.min.js"></script>
+<script type="text/javascript" charset="utf8"
+      src="++resource++static/searchdataflow.js"></script>
+<script src="++resource++static/select2-3.5.0/select2.js"></script>
+<script src="++resource++static/reportek.js"></script>
+
 <div class="system-msg"
      tal:condition="options/message_dialog | nothing"
      tal:content="options/message_dialog" />
@@ -25,10 +34,13 @@
     </tr>
     <tr>
       <td>
-        <label class="form-label" for="dataflow_uri">Dataflow</label>
+        <label class="form-label" for="dataflow_uris">Dataflow</label>
       </td>
       <td>
-        <tal:block content="structure python:here.dataflows_select(edit=1)" />
+        <div class="select-container" style="width:50%"
+          tal:define="req_obl python: [context.dataflow_uri];">
+          <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
+        </div>
       </td>
     </tr>
     <tr class="row-hilite">

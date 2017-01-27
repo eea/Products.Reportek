@@ -183,7 +183,7 @@ class DFMTestCase(unittest.TestCase):
         #self.mappings.test.delete_schemas = Mock()
         request = Mock(method='POST',
                        form=dict(update=True,
-                                 dataflow_uri=newObligation,
+                                 dataflow_uris=newObligation,
                                  title=newTitle))
         self.mappings.test.edit(request)
         self.assertEqual(self.mappings.test.title, newTitle)

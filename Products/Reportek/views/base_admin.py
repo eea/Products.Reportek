@@ -137,8 +137,7 @@ class BaseAdmin(BrowserView):
         if obligations:
             if not isinstance(obligations, list):
                 obligations = [obligations]
-            df_uris = [self.get_obligations()[obl] for obl in obligations]
-            query['dataflow_uris'] = df_uris
+            query['dataflow_uris'] = obligations
         if users:
             query['local_defined_users'] = users
         if path:
@@ -147,7 +146,7 @@ class BaseAdmin(BrowserView):
         return self.context.Catalog(query)
 
     def get_collections(self):
-        obligations = self.request.get('obligations', [])
+        obligations = self.request.get('dataflow_uris', [])
         countries = self.request.get('countries', [])
         search_type = self.request.get('search_type')
         entity = self.request.get('username', '')

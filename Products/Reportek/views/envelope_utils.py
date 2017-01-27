@@ -21,7 +21,7 @@ class EnvelopeUtils(BaseAdmin):
     def get_not_completed_workitems(self):
         status = self.request.get('status', '')
         age = self.request.get('age', 0)
-        obligations = self.request.get('obligations', [])
+        obligations = self.request.get('dataflow_uris', [])
 
         query = {'meta_type': 'Workitem',
                  'status': ['active', 'inactive'],
@@ -36,8 +36,7 @@ class EnvelopeUtils(BaseAdmin):
         if obligations:
             if not isinstance(obligations, list):
                 obligations = [obligations]
-            df_uris = [self.get_obligations()[obl] for obl in obligations]
-            query['dataflow_uris'] = df_uris
+            query['dataflow_uris'] = obligations
 
         brains = self.context.Catalog(**query)
 

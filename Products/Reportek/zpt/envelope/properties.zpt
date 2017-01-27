@@ -1,4 +1,11 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
+  <metal:block fill-slot="head">
+    <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
+    <link href="++resource++static/style.css" rel="stylesheet"/>
+    <script type="text/javascript" charset="utf8" src="++resource++static/jquery-1.11.2.min.js"></script>
+    <script src="++resource++static/select2-3.5.0/select2.js"></script>
+    <script src="++resource++static/reportek.js"></script>
+  </metal:block>
   <metal:block fill-slot="content">
     <tal:block define="global isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR';
                        SecurityManager modules/AccessControl/getSecurityManager;
@@ -9,7 +16,7 @@
       <h1 i18n:translate="">Envelope Properties</h1>
 
       <form name="edit" tal:attributes="action request/URL1" method="post">
-        <table>
+        <table class="rform-table">
           <tr>
             <th i18n:translate="">Title</th>
             <td>
@@ -31,7 +38,7 @@
             <td>
               <input type="text" name="year" size="4" maxlength="4"
                      tal:attributes="value context/year"/>
-              <select name="partofyear" id="partofyear">
+              <select name="partofyear" id="partofyear" class="select2-enabled" style="width:35%">
                 <option tal:repeat="item here/partofyear_table" tal:attributes="value item; selected python:item==here.partofyear" tal:content="python: context.reporting_year_labels.get(item)" i18n:translate="" />
               </select>
               <span class="form-optional">to</span>
@@ -44,32 +51,11 @@
           <tr>
             <th i18n:translate="">Obligations</th>
             <td>
-              <select id="dataflows" size="15" name="dataflow_uris:list" multiple="multiple"
-               tal:attributes="disabled not: permission_condition">
-                <tal:block tal:define="obligation_select_size python:'1' if isBdrDeployment else '15';
-                                       data context/ReportekEngine/dataflow_table_grouped;
-                                       groups python:data[0];
-                                       items python:data[1];
-                                       dataflow_uri context/dataflow_uri | nothing"
-                                       tal:attributes="size obligation_select_size">
-                    <tal:block tal:repeat="group groups">
-                        <optgroup tal:attributes="label python:context.ReportekEngine.truncate(group)">
-                        <tal:block tal:repeat="item python:items[group]">
-                            <option tal:define="terminated python:int(item.get('terminated', '0'))"
-                                    tal:attributes="value item/uri;
-                                    selected python:item['uri'] in context.dataflow_uris;
-                                    label python:context.ReportekEngine.truncate(item['TITLE'])">
-                            [<span tal:replace="python:' '.join(item['SOURCE_TITLE'].split()[0:2])" />]
-                            <span tal:replace="python:context.ReportekEngine.truncate(item['TITLE'])" />
-                            <tal:block tal:condition="terminated">
-                                (<tal:block i18n:translate="">terminated</tal:block>)
-                            </tal:block>
-                            </option>
-                        </tal:block>
-                        </optgroup>
-                    </tal:block>
-                  </tal:block>
-              </select>
+              <div class="select-container" style="width:100%"
+                tal:define="multiple string:multiple;
+                            disabled not: permission_condition">
+                <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
+              </div>
             </td>
           </tr>
 
@@ -87,7 +73,7 @@
                   <span tal:define="c_name python: env_country.get('name', '')" tal:content="c_name" />
                 </tal:block>
                 <select name="country"
-                  tal:condition="not: readonly">
+                  tal:condition="not: readonly" class="select2-enabled">
                   <option
                     tal:define="
                       selected_condition python:context.country == '';
@@ -114,7 +100,7 @@
           <tr>
             <th i18n:translate="">Coverage note</th>
             <td>
-              <input type="text" name="locality" size="30" tal:attributes="value context/locality" />
+              <input type="text" name="locality" size="50" tal:attributes="value context/locality" />
             </td>
           </tr>
 

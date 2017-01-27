@@ -222,7 +222,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     def get_rod_obligations(self):
         """ Returns a sorted list of obligations from ROD
         """
-        obligations = [(o.get('uri'), o.get('TITLE')) for o in self.dataflow_rod()]
+        obligations = [(o.get('uri'), o.get('')) for o in self.dataflow_rod()]
         data = []
 
         if obligations:
@@ -440,9 +440,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             return json.dumps(resp)
         else:
             pass
-
-    security.declareProtected('View', 'macros')
-    macros = PageTemplateFile('zpt/engineMacros', globals()).macros
 
     security.declareProtected('View', 'globalworklist')
     globalworklist = PageTemplateFile('zpt/engineGlobalWorklist', globals())
@@ -1084,20 +1081,21 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             return 0
 
     security.declareProtected('View', 'subscribeToUNS')
-    def subscribeToUNS(self, filter_country='', filter_dataflows=[], filter_event_types=[], REQUEST=None):
+    def subscribeToUNS(self, filter_country='', dataflow_uris=[], filter_event_types=[], REQUEST=None):
         """ Creates new or updates existing subscription to the specified
             If there is a request, returns a message, otherwise, returns
             (1, '') for success
             (0, error_description) for failure
         """
         l_filters = []
-        if filter_dataflows not in [[], ['']]:
-            for l_filter_dataflow in filter_dataflows:
+        if dataflow_uris not in [[], ['']]:
+            for df_uri in dataflow_uris:
+                df_title = self.dataflow_lookup(df_uri)['TITLE']
                 if filter_country:
-                    l_filters.append({'http://rod.eionet.europa.eu/schema.rdf#obligation': l_filter_dataflow, \
+                    l_filters.append({'http://rod.eionet.europa.eu/schema.rdf#obligation': df_title, \
                         'http://rod.eionet.europa.eu/schema.rdf#locality':filter_country})
                 else:
-                    l_filters.append({'http://rod.eionet.europa.eu/schema.rdf#obligation': l_filter_dataflow})
+                    l_filters.append({'http://rod.eionet.europa.eu/schema.rdf#obligation': df_title})
         elif filter_country:
             l_filters.append({'http://rod.eionet.europa.eu/schema.rdf#locality':filter_country})
 
