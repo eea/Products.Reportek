@@ -455,8 +455,7 @@ class RemoteApplication(SimpleItem):
                         title= self.app_name + l_filename + l_ret['SCRIPT_TITLE'],
                         activity_id=l_workitem.activity_id,
                         automatic=1,
-                        document_id=l_file_id,
-                        feedback_status=l_ret.get('FEEDBACK_STATUS', ''))
+                        document_id=l_file_id)
                 feedback_ob = envelope[feedback_id]
 
                 content = l_ret['VALUE']
@@ -480,6 +479,7 @@ class RemoteApplication(SimpleItem):
 
                 # l_workitem.feedback_status = l_ret['FEEDBACK_STATUS']
                 feedback_ob.message = l_ret.get('FEEDBACK_MESSAGE', '')
+                feedback_ob.feedback_status=l_ret.get('FEEDBACK_STATUS', '')
 
                 if l_ret['FEEDBACK_STATUS'] == 'BLOCKER':
                     l_workitem.blocker = True

@@ -57,7 +57,7 @@ from Products.Reportek import constants
 manage_addFeedbackForm = PageTemplateFile('zpt/feedback/add', globals())
 
 def manage_addFeedback(self, id ='', title='', feedbacktext='', file=None, activity_id='', automatic=0,
-        content_type='text/plain', document_id=None, script_url=None, restricted='', message='', feedback_status='',
+        content_type='text/plain', document_id=None, script_url=None, restricted='',
         REQUEST=None):
     """Adds feedback as a file to a folder."""
 
@@ -76,9 +76,7 @@ def manage_addFeedback(self, id ='', title='', feedbacktext='', file=None, activ
 
     ob = ReportFeedback(
             id, releasedate, title, feedbacktext, activity_id,
-            automatic, content_type, document_id,
-            message=message,
-            feedback_status=feedback_status)
+            automatic, content_type, document_id)
     if file:
         if type(file) != list:  # one file object
             file = [file]
@@ -117,6 +115,27 @@ def manage_addFeedback(self, id ='', title='', feedbacktext='', file=None, activ
         else:
             return self.messageDialog(message="The Feedback %s was successfully created!" % id,
                                       action=self.absolute_url())
+
+def manage_addManualQAFeedback(self, id ='', title='', feedbacktext='', file=None, activity_id='', automatic=0,
+        content_type='text/plain', document_id=None, script_url=None, restricted='', message='', feedback_status='',
+        REQUEST=None):
+    """Adds a manual QA feedback as a file to a folder. To be used by Managers.
+    """
+    self.manage_addFeedback(id=id, title=title, feedbacktext=feedbacktext,
+                            file=file, activity_id=activity_id,
+                            automatic=automatic, content_type=content_type,
+                            document_id=document_id, script_url=script_url,
+                            restricted=restricted, REQUEST=REQUEST)
+    if not id:
+        id = 'feedback' + str(int(self.reportingdate))
+
+    obj = self._getOb(id)
+    obj.feedback_status = feedback_status
+    obj.message = message
+    obj.reindex_object()
+    if REQUEST is not None:
+        return self.messageDialog(message="The Feedback %s was successfully created!" % id,
+                                  action=self.absolute_url())
 
 class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, CommentsManager):
     """

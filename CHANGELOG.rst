@@ -1,5 +1,7 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Feature #79288 - Added manage_addManualQAFeedback to be used by Managers only
+                   [olimpiurob]
 * Feature #73710 - Unified obligations select input across views [olimpiurob]
 
 * Bug fix #80692 - Fixed select option values in envelope's properties template [olimpiurob]
