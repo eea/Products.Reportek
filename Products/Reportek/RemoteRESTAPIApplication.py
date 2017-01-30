@@ -349,6 +349,7 @@ class RemoteRESTAPIApplication(SimpleItem):
                     'fb_content': result.get('feedbackContent'),
                     'fb_content_type': result.get('feedbackContentType'),
                     'fb_message': result.get('feedbackMessage'),
+                    'fb_status': result.get('feedbackStatus')
                 }
 
                 fb_attrs = {
@@ -357,7 +358,6 @@ class RemoteRESTAPIApplication(SimpleItem):
                     'activity_id': workitem.activity_id,
                     'automatic': 1,
                     'document_id': filename,
-                    'feedback_status': result.get('feedbackStatus', '')
                 }
                 data['fb_attrs'] = fb_attrs
 
@@ -406,6 +406,7 @@ class RemoteRESTAPIApplication(SimpleItem):
             fb_ob.content_type = fb_content_type
 
         fb_ob.message = fb_message
+        fb_ob.feedback_status = data.get('fb_status', '')
 
     def finish(self, workitem_id, REQUEST=None):
         self.activateWorkitem(workitem_id, actor='openflow_engine')
