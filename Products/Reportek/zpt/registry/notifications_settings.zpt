@@ -16,7 +16,7 @@
 
     <tal:block condition="not: options/error | nothing">
       <p class="important-msg" tal:condition="request/done | nothing">
-        Email added succesfully.
+        Email added/deleted succesfully.
       </p>
     </tal:block>
 
@@ -27,39 +27,39 @@
         registered in the FGAS portal and matched with old records from the
         BDR-Registry.
     </p>
+
     <h2>Add email</h2>
     <form method="post" id="add-email-form">
       <div class="form-group">
         <label class="question" for="fname">First name *</label>
-        <input id="fname" type="text" name="fname" size="35" >
+        <input id="fname" type="text" name="fname" size="35" />
       </div>
-
       <div class="form-group">
         <label class="question" for="lname">Last name *</label>
-        <input id="lname" type="text" name="lname" size="35" >
+        <input id="lname" type="text" name="lname" size="35" />
       </div>
-
       <div class="form-group">
         <label class="question" for="email">Email *</label>
-        <input id="email" type="text" name="email" size="35" >
+        <input id="email" type="text" name="email" size="35" />
       </div>
-
       <input type="submit" name="add.btn" value="Add email" />
-
     </form>
-
-    <script>
+    <script language="javascript" type="text/javascript">
+    <!--
       $('#add-email-form').on('submit', function(e){
-        e.preventDefault();
-
-        var fname = $('input[name=fname]', '#add-email-form').val()
-        var lname = $('input[name=lname]', '#add-email-form').val()
-        var email = $('input[name=email]', '#add-email-form').val()
+        var fname = $('#add-email-form #fname').val();
+        var lname = $('#add-email-form #lname').val();
+        var email = $('#add-email-form #email').val();
 
         if(fname && lname && email) {
           this.submit();
+          return true;
+        } else {
+          alert('All fields are mandatory!');
+          return false;
         }
       });
+    // -->
     </script>
 
     <h2>Existing emails</h2>

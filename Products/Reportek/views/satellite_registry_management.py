@@ -18,13 +18,10 @@ class SatelliteRegistryManagement(BaseAdmin):
                 return None
 
         if self.request.method == "POST" and self.request.get("verify.btn"):
-            candidateId = self.request.form.get("cid")
             newId = self.request.form.get("fid")
             userId = self.request.form.get("user")
-            if candidateId and newId and userId:
-                if candidateId == "none":
-                    candidateId = None
-                if api.verifyCandidate(newId, candidateId, userId):
+            if newId and userId:
+                if api.verifyCandidate(newId, userId):
                     return self.request.response.redirect('{0}/{1}?done=1'.format(
                         self.context.absolute_url(), "organisation_matching"))
 
@@ -108,8 +105,7 @@ class SatelliteRegistryManagement(BaseAdmin):
         details = {}
         if self.request.get('id'):
             companyId = self.request.get('id')
-            details = api.get_company_details(companyId)
-            fix_json_from_id(details)
+            details = fix_json_from_id(api.get_company_details(companyId))
 
         return json.dumps(details, indent=2)
 
@@ -184,12 +180,13 @@ class SatelliteRegistryManagement(BaseAdmin):
         if not api:
             return None
 
-        companies = api.get_registry_companies(detailed=True)
-        if companies is None:
-            companies = []
+        companies_original = api.get_registry_companies(detailed=True)
+        if companies_original is None:
+            companies_original = []
 
-        for company in companies:
-            fix_json_from_id(company)
+        companies = []
+        for company in companies_original:
+            companies.append(fix_json_from_id(company))
 
         self.request.response.setHeader('Content-Type', 'application/json')
         return json.dumps(companies, indent=2)
@@ -207,14 +204,6 @@ class SatelliteRegistryManagement(BaseAdmin):
             return None
         response = api.getUsersExcelExport()
         return response.content
-
-    def auto_matching(self):
-        api = self.get_api()
-        if not api:
-            return None
-
-        settings = api.getSettings()
-        return settings["AUTO_VERIFY_COMPANIES"]
 
     def get_url(self):
         api = self.get_api()

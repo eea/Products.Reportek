@@ -29,6 +29,7 @@ import traceback
 import string,base64,time
 import operator
 import json
+from copy import deepcopy
 from types import FunctionType
 from urllib import FancyURLopener
 from webdav.common import rfc1123_date
@@ -161,7 +162,7 @@ def xmlEncode(p_string):
 #encode to UTF-8 from user encoding
 def utGMLEncode(p_str, p_str_enc):
     """ Giving a string and an encoding, returns the string encoded to UTF-8
-        If no encoding is provided it will assume as input encoding UTF-8 
+        If no encoding is provided it will assume as input encoding UTF-8
 
         Also special characters that might appear in GML files are escaped
     """
@@ -485,14 +486,16 @@ def replace_keys(replace_items, obj):
     return obj
 
 
-def fix_json_from_id(obj):
+def fix_json_from_id(obj_original):
     """
     Replace keys from json to set the right json format, used in SatelliteRegistryManagement class
-    :param obj: python dict
+    :param obj_original: python dict
     :return: the dict in the corect format
     """
-    if not obj:
+    if not obj_original:
         return {}
+
+    obj = deepcopy(obj_original)
 
     # Replace keys to set the right json format
     obj = replace_keys({
@@ -549,8 +552,7 @@ def fix_json_from_id(obj):
 
     # Delete unused keys
     unused = ['country_code', 'date_created', 'date_updated', 'candidates',
-              'collection_id', 'oldcompany_verified', 'oldcompany_extid',
-              'oldcompany_id']
+              'collection_id', 'oldcompany_verified', 'oldcompany_extid']
     for key in unused:
         obj.pop(key, None)
 

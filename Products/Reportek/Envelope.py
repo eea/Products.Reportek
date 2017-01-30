@@ -854,6 +854,8 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     manage_addFeedbackForm = Feedback.manage_addFeedbackForm
     security.declareProtected('Add Feedback', 'manage_addFeedback')
     manage_addFeedback = Feedback.manage_addFeedback
+    security.declareProtected('View management screens', 'manage_addManualQAFeedback')
+    manage_addManualQAFeedback = Feedback.manage_addManualQAFeedback
     security.declareProtected('Add Feedback', 'manage_deleteFeedbackForm')
     manage_deleteFeedbackForm = PageTemplateFile('zpt/feedback/delete', globals())
 

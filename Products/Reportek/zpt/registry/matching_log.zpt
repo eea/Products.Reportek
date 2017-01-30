@@ -25,7 +25,6 @@
           <thead>
             <tr>
               <th>Company (FGAS Portal)</th>
-              <th>Old record (BDR registry)</th>
               <th>Approval success</th>
               <th>User</th>
               <th>Date</th>
@@ -37,10 +36,6 @@
               <td>
                 <a tal:content="record/company_id"
                    tal:attributes="href string:${here/absolute_url}/organisation_details?id=${record/company_id}"></a>
-              </td>
-              <td>
-                <tal:block condition="record/oldcompany_account" content="record/oldcompany_account" />
-                <tal:block condition="not: record/oldcompany_account" content="string: New company" />
               </td>
               <td tal:content="record/verified " />
               <td tal:content="record/user "/>

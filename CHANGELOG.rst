@@ -1,6 +1,39 @@
-3.8.6-dev (unreleased)
+3.8.7-dev (unreleased)
 ----------------------
+* Feature #79288 - Added manage_addManualQAFeedback to be used by Managers only
+                   [olimpiurob]
 * Feature #73710 - Unified obligations select input across views [olimpiurob]
+
+* Bug fix #80692 - Fixed select option values in envelope's properties template [olimpiurob]
+
+* Bug fix #79314 - Display postingdate instead of releasedate in Document's manage template feedback section [olimpiurob]
+
+* Bug fix: Products.Reportek - FGases registry - Notifications settings form
+  - fixed form submit and HTML cleanup
+  [chiridra refs #80563]
+
+* Feature: Fgas companies that are just manufacturers don't need to report
+  - valid companies of type FGAS_MANUFACTURER_OF_EQUIPMENT_HFCS are unable
+    to report
+  [chiridra refs #77591]
+
+* Feature: Add the message attribute to manage_addFeedback
+  - added message parameter to manage_addFeedback constructor
+  [chiridra refs #79288]
+
+* Bug fix: strange BDR's FGases registry behaviour
+  - fixed fix_json_from_id method and related calls: use deepcopy
+    to alter the given dictionary parameter which is MUTABLE!
+  [chiridra refs #81127]
+
+3.8.6 (09-01-2017)
+------------------
+* Delete organisation matching from the Fgas Cache Registry
+  - removed references to candidates
+  - removed references to oldcompany_id field
+  - removed auto_matching
+  [chiridra refs #78691]
+
 * Feature #27205 - Added view for DataflowMappings [olimpiurob]
 * Feature #23931
     - Added support for assigning local roles to LDAP groups [olimpiurob]
@@ -9,7 +42,7 @@
     - Fixed content_type guessing for zip archived files [olimpiurob]
 * Feature #18887
    - Refactored utils.js for more readibility and ease of maintenance [olimpiurob]
-   - Improved get_user_type ajax calls, it will now create a user mapping 
+   - Improved get_user_type ajax calls, it will now create a user mapping
      to avoid multiple calls for the same user [olimpiurob]
    - Fixed Back to utilities link not including the arrow icon for some views [olimpiurob]
    - Fixed jslint errors on utils.js [olimpiurob]
@@ -159,7 +192,7 @@
 3.7.2-dev1 (06-01-2015)
 -----------------------
 * Task #22312
-    - Add more categories to ReportekUtilities 
+    - Add more categories to ReportekUtilities
 
 3.7.2-dev (05-01-2015)
 ----------------------
@@ -170,7 +203,7 @@
 
 3.7.1 (10-12-2014)
 -------------------
-* Task 3324 
+* Task 3324
     - Fixed file upload in envelope [vitaliemaldur]
     - Fixed the id generation for the file [vitaliemaldur]
 * Task 21521 - Simplified process of attaching multiple files to a feedback [olimpiurob]

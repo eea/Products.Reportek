@@ -250,7 +250,7 @@
               <li>
                 <a title="View feedback" tal:attributes="href f/absolute_url"
                    tal:content="f/title_or_id" />
-                <tal:block define="fdate python:f.releasedate.strftime('%d %b %Y')">
+                <tal:block define="fdate python:f.postingdate.strftime('%d %b %Y')">
                   <i tal:condition="f/automatic">
                     (Posted automatically on <span tal:replace="fdate" />)
                   </i>
