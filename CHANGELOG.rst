@@ -1,5 +1,9 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Bug fix #81672 - Fixed regression from refs #73710 which caused
+  - ReportekUtilities/@@collections.build to create collections with no
+  - obligations. [olimpiurob]
+
 * Feature #79288 - Added manage_addManualQAFeedback to be used by Managers only
                    [olimpiurob]
 * Feature #73710 - Unified obligations select input across views [olimpiurob]
