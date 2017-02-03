@@ -151,7 +151,7 @@ class RemoteApplication(SimpleItem):
                     REQUEST.set('actor', 'openflow_engine')
                 self.__finishApplication(workitem_id, REQUEST)
             # see if it's any point to go on
-            elif eval('l_workitem.'  + self.app_name)['analyze']['code'] == -2:
+            elif getattr(l_workitem, self.app_name)['analyze']['code'] == -2:
                 l_workitem.addEvent('Operation failed: error calling the remote service')
                 if REQUEST is not None:
                     REQUEST.set('RemoteApplicationSucceded', 0)
@@ -166,7 +166,7 @@ class RemoteApplication(SimpleItem):
         # dictionary of {xml_schema_location: [URL_file]}
         l_dict = self.getDocumentsForRemoteService()
         # get the property of the workitem which keeps all the instance data for this operation
-        l_wk_prop = eval('l_workitem.' + self.app_name)
+        l_wk_prop = getattr(l_workitem, self.app_name)
 
         # test if analyze should be called
         if l_wk_prop['analyze']['code'] == 0:
@@ -360,11 +360,13 @@ class RemoteApplication(SimpleItem):
         """
         l_workitem = getattr(self, p_workitem_id)
         # get the property of the workitem which keeps all the instance data for this operation
-        l_wk_prop = eval('l_workitem.' + self.app_name)
+        l_wk_prop = getattr(l_workitem, self.app_name)
 
         try:
             l_server = xmlrpclib.ServerProxy(self.RemoteServer)
-            l_ret = eval('l_server.' + self.RemoteService + '.analyzeXMLFiles(p_files_dict)')
+            service = getattr(l_server, self.RemoteService)
+            l_ret = getattr(service, 'analyzeXMLFiles')(p_files_dict)
+
             # if there were no files to assess, return 0 so the work can go on
             if not l_ret:
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_analyze={'code':2})
@@ -433,14 +435,15 @@ class RemoteApplication(SimpleItem):
         """
         l_workitem = getattr(self, p_workitem_id)
         # get the property of the workitem which keeps all the instance data for this operation
-        l_wk_prop = eval('l_workitem.' + self.app_name)
+        l_wk_prop = getattr(l_workitem, self.app_name)
         # find out what file this job was for
         l_file_url = l_wk_prop['getResult'][p_jobID]['fileURL']
         l_file_id = urllib.unquote(string.split(l_file_url, '/')[-1])
 
         try:
             l_server = xmlrpclib.ServerProxy(self.RemoteServer)
-            l_ret = eval('l_server.' + self.RemoteService + '.getResult(str(p_jobID))')
+            service = getattr(l_server, self.RemoteService)
+            l_ret = getattr(service, 'getResult')(str(p_jobID))
 
             # job ready
             if l_ret['CODE'] == '0':
@@ -520,12 +523,15 @@ class RemoteApplication(SimpleItem):
         """ Adds QA-specific extra properties to the workitem """
         l_workitem = getattr(self, p_workitem_id)
         setattr(l_workitem, self.app_name, {})
-        eval('l_workitem.' + self.app_name)['analyze'] = {'code':0,
-                                    'retries_left':self.nRetries,
-                                    'last_error':None,
-                                    'next_run':DateTime()
-                                   }
-        eval('l_workitem.' + self.app_name)['getResult'] = {}
+        l_wk_prop = getattr(l_workitem, self.app_name)
+        l_wk_prop['analyze'] = {
+            'code': 0,
+            'retries_left': self.nRetries,
+            'last_error': None,
+            'next_run': DateTime()
+        }
+
+        l_wk_prop['getResult'] = {}
 
     def __manageAutomaticProperty(self, p_workitem_id, p_analyze={}, p_getResult={}):
         """
@@ -547,7 +553,7 @@ class RemoteApplication(SimpleItem):
             -2 - failed
         """
         l_workitem = getattr(self, p_workitem_id)
-        l_qa = eval('l_workitem.' + self.app_name)
+        l_qa = getattr(l_workitem, self.app_name)
 
         for l_key in p_analyze.keys():
             l_qa['analyze'][l_key] = p_analyze[l_key]
