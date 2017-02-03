@@ -286,7 +286,7 @@ def utSortObjsListByMethod(p_list, p_method, p_desc=1):
 
 def utSortByMethod(p_obj_list, p_attr, p_date, p_sort_order=0):
     """ Sort a list of objects by the result of one of their functions """
-    l_temp = map(None, map(lambda x,y:eval('x.' + y + '()'), p_obj_list, (p_attr,)*len(p_obj_list)), xrange(len(p_obj_list)), p_obj_list, (p_date,)*len(p_obj_list))
+    l_temp = map(None, map(lambda x,y:getattr(x, y)(), p_obj_list, (p_attr,)*len(p_obj_list)), xrange(len(p_obj_list)), p_obj_list, (p_date,)*len(p_obj_list))
     l_temp = filter(lambda x: x[0] < x[3], l_temp)
     l_temp.sort()
     if p_sort_order:
