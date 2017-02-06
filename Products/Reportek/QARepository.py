@@ -32,6 +32,7 @@ from OFS.Folder import Folder
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from RestrictedPython.Eval import RestrictionCapableEval
 import Globals
 
 import constants
@@ -194,8 +195,14 @@ class QARepository(Folder):
                     #generate extra-parameters
                     #the file path is set default as first parameter
                     params = [tmp_copy.name]
+                    eval_map = {
+                        'file_obj': file_obj,
+                        'l_script_obj': l_script_obj,
+                        'REQUEST': self.REQUEST,
+                    }
                     for k in l_script_obj.qa_extraparams:
-                        params.append(eval(k))
+                        eval_res = RestrictionCapableEval(k).eval(eval_map)
+                        params.append(eval_res)
 
                     command = l_script_obj.script_url % tuple(params)
                     proc = subprocess.Popen(
@@ -261,7 +268,6 @@ class QARepository(Folder):
             if p_script_id.startswith('loc_'):
                 l_script_obj = getattr(self, p_script_id.replace('loc_', ''), None)
                 res.update(self.run_local_QAScript(l_script_obj, file_obj))
-
             # remote script
             else:
                 res.update(self.run_remote_QAScript(p_file_url, p_script_id))

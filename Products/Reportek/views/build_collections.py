@@ -17,20 +17,18 @@ class BuildCollections(BaseAdmin):
 
         # get form params
         pattern = self.request.form.pop('pattern', '')
-        countries = self.request.form.pop('countries', None)
+        countries = self.request.form.pop('countries', [])
         title = self.request.form.pop('ctitle', '')
-        obl = self.request.form.pop('obligations', [])
+        obligations = self.request.form.pop('dataflow_uris', [])
 
         collection_id = self.request.form.pop('cid', '')
         allow_collections = int(self.request.form.pop('allow_collections', 0))
         allow_envelopes = int(self.request.form.pop('allow_envelopes', 0))
 
-        obligations = []
-        # adjust obligation to expected format
-        for ob in obl:
-            ob = filter(lambda c: c.get('PK_RA_ID') == ob, self.dataflow_rod)[0]
-            obligations.append(ob.get('uri'))
-
+        if not countries:
+            err = "No country selected! Please select at least one country."
+            messages['fail'].append(err)
+            return self.index(messages=messages)
         # get ReportekEngine object
         engine = self.context.unrestrictedTraverse('/'+ENGINE_ID)
 
