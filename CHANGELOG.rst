@@ -1,5 +1,7 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Task #80011 - Refactored python eval function calls [olimpiurob]
+
 * Bug fix #81672 - Fixed regression from refs #73710 which caused
   - ReportekUtilities/@@collections.build to create collections with no
   - obligations. [olimpiurob]

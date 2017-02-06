@@ -30,6 +30,7 @@ from OFS.SimpleItem import SimpleItem
 from AccessControl import ClassSecurityInfo, getSecurityManager, Unauthorized
 from AccessControl.Permissions import view_management_screens, view
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from RestrictedPython.Eval import RestrictionCapableEval
 from zExceptions import Redirect
 import Globals
 import RepUtils
@@ -140,8 +141,14 @@ class Converter(SimpleItem):
                 #generate extra-parameters
                 #the file path is set default as first parameter
                 params = [tmp_copy.name]
+                eval_map = {
+                    'file_obj': file_obj,
+                    'converter_obj': converter_obj,
+                    'REQUEST': self.REQUEST,
+                }
                 for k in converter_obj.ct_extraparams:
-                    params.append(eval(k))
+                    eval_res = RestrictionCapableEval(k).eval(eval_map)
+                    params.append(eval_res)
 
                 command = converter_obj.convert_url % tuple(params)
                 data = os.popen(command).read()
