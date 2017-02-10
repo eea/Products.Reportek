@@ -15,7 +15,7 @@
 
 <h2>Generic</h2>
 <ul>
-<li><a href="searchcollections">Search for collections with obligation</a></li>
+<li><a href="searchcollections">Search for collections and create envelopes</a></li>
 <li><a href="wrong_country">Collections allocated to the wrong country</a></li>
 <li><a href="wrong_country?otype=envelope">Envelopes allocated to the wrong country</a></li>
 <li><a href="statistics">Statistics</a></li>
