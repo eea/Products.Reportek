@@ -50,6 +50,14 @@ class ListUsers(BaseAdmin):
             if ecas.getEcasUserId(username):
                 return True
 
+    def get_ecas_user(self, username):
+        user = None
+        ecas_path = '/acl_users/' + ECAS_ID
+        ecas = self.context.unrestrictedTraverse(ecas_path, None)
+        if ecas:
+            user = ecas.getEcasUserId(username)
+        return user
+
     def is_local_user(self, username):
         acl_users = self.context.acl_users
         if acl_users.getUserById(username):
@@ -68,6 +76,21 @@ class ListUsers(BaseAdmin):
 
         return 'N/A'
 
+    def get_user_details(self, username):
+        r = {'fullname': '', 'email': ''}
+
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            user = self.get_ecas_user(username)
+            if user:
+                r['email'] = user.email
+
+        user = self.is_ldap_user(username)
+        if user:
+            r['fullname'] = user.cn
+            r['email'] = user.mail
+
+        return r
+
     def api_get_user_type(self, REQUEST):
         username = REQUEST.get('username')
 
@@ -81,8 +104,12 @@ class ListUsers(BaseAdmin):
         users = list(set(users))
         users_type = []
         for user in users:
-            users_type.append({"username": user,
-                               "utype": self.get_user_type(user)})
+            user_details = self.get_user_details(user)
+
+            users_type.append({'username': user,
+                               'utype': self.get_user_type(user),
+                               'fullname': user_details['fullname'],
+                               'email': user_details['email']})
 
         return json.dumps(users_type)
 
