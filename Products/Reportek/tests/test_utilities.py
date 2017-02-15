@@ -630,7 +630,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             self.browser.goBack(count=6)
 
             # Go to search Search for collection with obligation view
-            self.browser.getLink(text='Create envelopes').click()
+            self.browser.getLink(text='Search for collections and create envelopes').click()
             self._check_controls(self.browser.contents)
             self.browser.getControl(name='dataflow_uris:list').controls[0].selected = True
             self.browser.getControl(name='btn.search').click()
