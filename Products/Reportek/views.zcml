@@ -124,7 +124,7 @@
   <browser:page
     name="collections.search"
     menu="reportek_utilities"
-    title="Create envelopes"
+    title="Search for collections and create envelopes"
     for=".ReportekUtilities.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.SearchCollections"

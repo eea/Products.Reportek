@@ -23,7 +23,7 @@
   </p>
 
 
-  <h1>Search for collections with obligation</h1>
+  <h1>Search for collections and create envelopes</h1>
   <form action="" method="get">
 
     <h2>1. Search collections</h2>
@@ -43,7 +43,7 @@
 
   <form action="" method="post"
         tal:condition="request/btn.search | nothing">
-    
+
     <tal:def tal:define="collections view/get_collections">
       <h2>2. Create envelopes</h2>
 

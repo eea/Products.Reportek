@@ -59,7 +59,17 @@ reportek.utils.users = {
     var userhtml = $("<span>", {"class": "user-id",
                                 "data-uid": user.uid,
                                 "text": user.uid});
-    return userhtml.outerHTML() + utils.misc.renderAsUL([getUserType.prop("outerHTML"), "Role: " + user.role]);
+    var userFullname = $("<span>", {"class": "user-fullname",
+                                   "data-uid": user.uid,
+                                   "text": "full name"});
+    var userEmail = $("<span>", {"class": "user-email",
+                                   "data-uid": user.uid,
+                                   "text": "email"});
+    return userhtml.outerHTML() +
+           ' <small>(' + user.role + ')</small>' +
+           utils.misc.renderAsUL([userFullname.outerHTML(),
+                                  userEmail.outerHTML(),
+                                  getUserType.outerHTML()]);
   },
 
   createUserTypeMapping: function() {
@@ -78,17 +88,35 @@ reportek.utils.users = {
     self.users[user.username].username = user.username;
     self.users[user.username].checked = true;
     self.users[user.username].utype = user.utype;
-    self.updateUserType(user.username, user.utype);
+    self.users[user.username].fullname = user.fullname;
+    self.users[user.username].email = user.email;
+    self.updateUserType(user.username, user.utype, user.fullname, user.email);
   },
 
-  updateUserType: function(user, utype) {
+  updateUserType: function(user, utype, fullname, email) {
+    debugger;
     var self = reportek.utils.users;
     var users = [];
     var uid_targets;
     var table_type = $("#datatable").data("table-type");
     if (table_type === "grouped_by_path") {
-      var text = "Type: " + utype;
       uid_targets = $("[data-uid='" + user + "']");
+
+      var tags_fullname = uid_targets.filter('.user-fullname');
+      if (fullname != '') {
+          tags_fullname.parent().html('<small>' + fullname + '</small>');
+      } else {
+        tags_fullname.parent().remove();
+      }
+
+      var tags_email = uid_targets.filter('.user-email');
+      if (email != '') {
+          tags_email.parent().html('<small><a href="mailto:' + email + '">' + email + '</a></small>');
+      } else {
+        tags_email.parent().remove();
+      }
+
+      var text = '<small>Type: ' + utype + '</small>';
       var links = uid_targets.filter('.user-type');
       var li = links.parent();
       li.html(text);
@@ -213,10 +241,10 @@ reportek.utils.users = {
     var generalSettings = {
       grouped_by_path: {
         "columns": [
-          {"width": "25%"},
+          {"width": "20%"},
           null,
           null,
-          {"width": "15%"}
+          {"width": "25%"}
         ]},
       grouped_by_member: {
         "ordering": false,
