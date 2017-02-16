@@ -49,7 +49,8 @@
 
       <h2>2. Select obligations</h2>
       <div class="form-group"
-        tal:define="multiple string:multiple">
+        tal:define="multiple string:multiple;
+                    rod_data context/api/@@obligations">
         <label for="obligations">Obligations</label>
         <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
       </div>
