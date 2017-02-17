@@ -194,7 +194,9 @@
                      data-placeholder placeholder;
                      name name">
       <option tal:condition="empty_select"></option>
-      <tal:block define="req_obl req_obl|request/obligations|context/dataflow_uris|request/dataflow_uris|python: [];
+      <tal:block define="req_uris python: request.get('dataflow_uris', []);
+                         req_uris python: req_uris if isinstance(req_uris, list) else [req_uris];
+                         req_obl req_obl|request/obligations|context/dataflow_uris|req_uris;
                          rod_data rod_data | context/api/@@assigned_obligations | options/context/api/@@assigned_obligations;"
                  repeat="instrument python:sorted(rod_data.keys())">
         <optgroup tal:attributes="label instrument">
