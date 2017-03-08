@@ -276,25 +276,20 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                     return True
 
     @property
-    def has_failed_qa_job(self):
-        """Return True if the last AutomaticQA has failed and given up jobs."""
+    def has_failed_qa(self):
+        """Return True if the last AutomaticQA has failed and given up."""
         QA_workitems = self.get_qa_workitems()
         if not QA_workitems:
             return False
 
         last_qa = QA_workitems[-1]
-        aqa_attr = getattr(last_qa, last_qa.activity_id, None)
-        if aqa_attr:
-            jobs = aqa_attr.get('getResult', {})
-            for jobid, val in jobs.iteritems():
-                if not val.get('retries_left') and val.get('code') == -2:
-                    return True
+        return last_qa.failure
 
     @property
     def successful_qa(self):
-        """Return True if not has_no_qa_result and not has_failed_qa_job."""
+        """Return True if not has_no_qa_result and not has_failed_qa."""
 
-        if not self.has_no_qa_result and not self.has_failed_qa_job:
+        if not self.has_no_qa_result and not self.has_failed_qa:
             return True
 
     def uns_is_set(self):

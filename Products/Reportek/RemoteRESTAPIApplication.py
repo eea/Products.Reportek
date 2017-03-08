@@ -169,6 +169,7 @@ class RemoteRESTAPIApplication(SimpleItem):
                 err_msg = '{} - Giving up on envelope analysis, '\
                           'due to: {}'.format(self.app_name, err_msg)
                 self.log_event('error', err_msg, workitem)
+                workitem.failure = True
         else:
             return jsondata
 
@@ -325,6 +326,7 @@ class RemoteRESTAPIApplication(SimpleItem):
                 err_msg = '{} - Giving up on job: #{}, '\
                           'due to: {}'.format(self.app_name, jobid, err_msg)
                 self.log_event('error', err_msg, workitem)
+                workitem.failure = True
         else:
             return jsondata
 
