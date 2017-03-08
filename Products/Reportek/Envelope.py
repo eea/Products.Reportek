@@ -309,6 +309,23 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                 if aqa_no_fbstatus:
                     return True
 
+    @property
+    def has_failed_qa(self):
+        """Return True if the last AutomaticQA has failed and given up."""
+        QA_workitems = self.get_qa_workitems()
+        if not QA_workitems:
+            return False
+
+        last_qa = QA_workitems[-1]
+        return last_qa.failure
+
+    @property
+    def successful_qa(self):
+        """Return True if not has_no_qa_result and not has_failed_qa."""
+
+        if not self.has_no_qa_result and not self.has_failed_qa:
+            return True
+
     def uns_is_set(self):
         """ Returns True if UNS server is set """
         engine = getattr(self, ENGINE_ID)

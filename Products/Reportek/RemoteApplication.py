@@ -266,6 +266,7 @@ class RemoteApplication(SimpleItem):
                 for x in l_files_failed.keys():
                     l_filenames_jobs += '<li>%s for file %s</li>' % (l_files_failed[x], x)
                 l_workitem.addEvent('Giving up on %s job(s): <ul>%s</ul>' % (self.app_name, l_filenames_jobs))
+                l_workitem.failure = True
             if REQUEST is not None:
                 REQUEST.set('RemoteApplicationSucceded', 1 - l_failed)
                 REQUEST.set('actor', 'openflow_engine')
@@ -396,6 +397,7 @@ class RemoteApplication(SimpleItem):
             l_nRetries = int(l_wk_prop['analyze']['retries_left'])
             if l_nRetries == 0:
                 l_workitem.addEvent('Error in sending files to %s: %s' % (self.app_name, str(l_fault.faultString)))
+                l_workitem.failure = True
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                         p_analyze={'code':-2, 'last_error':'Code: ' + str(l_fault.faultCode) + '\nDescription: ' + str(l_fault.faultString)})
             else:
@@ -407,6 +409,7 @@ class RemoteApplication(SimpleItem):
             l_nRetries = int(l_wk_prop['analyze']['retries_left'])
             if l_nRetries == 0:
                 l_workitem.addEvent('Error in sending files to %s: %s' % (self.app_name, str(l_protocol.errmsg)))
+                l_workitem.failure = True
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                         p_analyze={'code':-2, 'last_error':'Code: ' + str(l_protocol.errcode) + '\nDescription: ' + str(l_protocol.errmsg)})
             else:
