@@ -1,3 +1,7 @@
+.autocomplete-select {
+  width: 25%;
+}
+
 .select-container {
   display: table;
   table-layout: fixed;
