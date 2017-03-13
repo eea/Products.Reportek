@@ -120,7 +120,7 @@
    tal:condition="request/wks_data | nothing" name="advance" id="envelope_advance">
     <div tal:define="wks_data request/wks_data;
                      workflows python:request.get('workflows')">
-      <h2>1. Move forward the envelopes</h2>
+      <h2>2. Move forward the envelopes</h2>
 
       <div class="filters">
         <h5>From the list below, move forward selected envelopes having:</h5>
