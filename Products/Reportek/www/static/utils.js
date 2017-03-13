@@ -32,24 +32,6 @@ reportek.utils = {
     self.initCompaniesTable();
     self.bindSearchRadios();
     self.initTabbedMenu();
-    // var placeholder = "";
-    // var selects_ids = ["#role", "#obligations", "#countries"];
-
-    // for (var i=0; i<=selects_ids.length; i++) {
-    //   var select = $(selects_ids[i]);
-    //   if (select.length > 0) {
-    //     if (select.hasClass("placeholder-enabled")) {
-    //       placeholder = "All";
-    //     }
-    //     select.select2({
-    //       placeholder: placeholder,
-    //       allowClear: true,
-    //       matcher: function(term, text, option) {
-    //         return text.toUpperCase().indexOf(term.toUpperCase())>=0 || option.val().toUpperCase().indexOf(term.toUpperCase())>=0;
-    //       }
-    //     });
-    //   }
-    // }
 
     $(".toggledCB").click(function() {
       var checkedElems = $(".toggledCB").filter(function(index, element) {
