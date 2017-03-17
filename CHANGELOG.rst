@@ -1,7 +1,10 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Bug fix #77346 - Fixed remote converters section in Converters view not loading [olimpiurob]
+
 * Bug fix #79389 - Display script title in case of missing feedback message
   in data_quality tab for non-envelope tests [olimpiurob]
+
 * Task #80011 - Refactored python eval function calls [olimpiurob]
 
 * Bug fix #81672 - Fixed regression from refs #73710 which caused
