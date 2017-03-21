@@ -12,19 +12,32 @@ reportek.utils.autocomplete = {
       var self = reportek.utils.autocomplete;
       $("#workflow").on("change", function() {
         var selected = $(this).find(":selected");
-        var results = selected.data()['results'].split(',');
+        var results = selected.data()['results'];
+        var task = $("#task :selected").val();
+        var wfresults = results[task];
         var resultsselect = $("#inspectresult");
         resultsselect.empty();
-        $.each(results, function( index, value ) {
-          $( "<option></option>", {
-            "value": value,
-            "text": value
-            }).appendTo(resultsselect);
+        $.each(wfresults, function( index, value ) {
+          if (value !== null) {
+            $( "<option></option>", {
+              "value": value,
+              "text": value
+              }).appendTo(resultsselect);
+          }
         });
       });
       $("#task").on("change", function() {
-        var selected = $(this).find(":selected");
-        var workflows = selected.data()["workflows"].split(',');
+        self.populateWFSelect();
+      });
+      self.populateWFSelect();
+    },
+    populateWFSelect: function() {
+      var selected = $("#task").find(":selected");
+      if (selected.length > 0) {
+        var workflows = selected.data()["workflows"];
+        if (workflows.length > 0) {
+          workflows = workflows.split(',')
+        }
         var wfoptions = $("#workflow > option");
         for (var i=0; i < wfoptions.length; i++) {
             $(wfoptions[i]).addClass("hidden-content");
@@ -37,7 +50,7 @@ reportek.utils.autocomplete = {
             $(visible[0]).prop("selected", true);
             $("#workflow").trigger("change");
         }
-      });
+      }
     }
 }
 
