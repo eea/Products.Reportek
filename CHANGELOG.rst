@@ -1,5 +1,10 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Bug fix: Unauthorized message in accessing the webforms
+  -  used zope2.Public permission instead of zope2.View
+  for engineMacros
+  [chiridra refs #83453]
+
 * Bug fix #77346 - Fixed remote converters section in Converters view not loading [olimpiurob]
 
 * Bug fix #79389 - Display script title in case of missing feedback message

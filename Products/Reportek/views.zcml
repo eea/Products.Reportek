@@ -216,7 +216,7 @@
   <browser:page
     name="engineMacros"
     for="*"
-    permission="zope2.View"
+    permission="zope2.Public"
     template="zpt/engineMacros.zpt"/>
 
 </configure>
