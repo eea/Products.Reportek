@@ -35,21 +35,24 @@ class EnvelopeUtils(BaseAdmin):
 
         return '/'.join([wflow_path, 'default'])
 
-    def get_wf_results(self, wf_path):
-        """Return the possible inspectresult values for the workflow."""
-        wf = self.context.restrictedTraverse(wf_path)
-        transitions = wf.objectValues('Transition')
-        values = set()
-        for transition in transitions:
-            if 'inspectresult' in transition.condition:
-                # This is ugly, the proper thing to do would be to use
-                # vocabularies for the form values in the application and
-                # transitions
-                values.add(transition.condition.split('=')[-1].strip().strip("'"))
-        if not values:
-            values.add('Finish')
+    def get_next_activities(self, wfpath, wk):
+        """Return the next possible activities for the envelope with workitem wk
+           and workflow path wf_path.
+        """
+        wf = self.context.restrictedTraverse(wfpath)
+        wf_transitions = wf.objectValues('Transition')
+        next_transitions = [(getattr(t, 'To'), getattr(t, 'condition')) for t in wf_transitions
+                            if getattr(t, 'From') == wk.activity_id]
 
-        return list(values)
+        return next_transitions
+
+    def get_possible_results(self, condition):
+        """Return the possible inspectresult values for the workflow."""
+        if 'inspectresult' in condition:
+            # This is ugly, the proper thing to do would be to use
+            # vocabularies for the form values in the application and
+            # transitions
+            return condition.split('=')[-1].strip().strip("'")
 
     def get_not_completed_workitems(self):
         status = self.request.get('status', '')
@@ -90,7 +93,8 @@ class EnvelopeUtils(BaseAdmin):
 
 
             wf = self.get_env_workflow(workitem)
-            results = self.get_wf_results(wf)
+            next_activities = self.get_next_activities(wf, workitem)
+            results = self.get_possible_results(next_activities)
             if wf:
                 if not tasks.get(activity):
                     tasks[activity] = [wf]
@@ -99,7 +103,13 @@ class EnvelopeUtils(BaseAdmin):
                         tasks[activity].append(wf)
 
             if not workflows.get(wf):
-                workflows[wf] = results
+                workflows[wf] = {}
+
+            to = {}
+            for act in next_activities:
+                to[act[0]] = self.get_possible_results(act[1])
+            workflows[wf][activity] = to
+
             wks_data[workitem.getPath()] = {
                 'wf_data': {
                     'workflow': wf,
@@ -110,6 +120,7 @@ class EnvelopeUtils(BaseAdmin):
         self.request['wks_data'] = wks_data
         self.request['tasks'] = tasks
         self.request['workflows'] = workflows
+        self.request['jsonify'] = json.dumps
 
     def auto_complete_envelopes(self):
         ids = self.request.get('ids', [])
