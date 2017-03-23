@@ -1,3 +1,4 @@
+from App.Dialogs import MessageDialog
 from Products.Reportek.interfaces import IProcess
 from Products.Reportek.constants import APPLICATIONS_FOLDER_ID
 from App.special_dtml import DTMLFile
@@ -11,6 +12,10 @@ def patched_manage_renameForm(self, REQUEST=None, RESPONSE=None):
 
     if REQUEST:
         ids = REQUEST.get('ids')
+        if not ids:
+            return MessageDialog(title='No items specified',
+                   message='No items were specified!',
+                   action ='',)
         for oid in ids:
             obj = self.get(oid)
             if IProcess.providedBy(obj):

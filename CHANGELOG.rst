@@ -1,5 +1,9 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Bug fix: Fixed error when attempting to rename with no file selected in the
+  envelope's files section
+  [olimpiurob refs #83450]
+
 * Bug fix: Unauthorized message in accessing the webforms
   -  used zope2.Public permission instead of zope2.View
   for engineMacros
