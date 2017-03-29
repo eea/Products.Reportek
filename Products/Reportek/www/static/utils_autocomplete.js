@@ -15,9 +15,15 @@ reportek.utils.autocomplete = {
         var results = selected.data()['results'];
         var task = $("#task :selected").val();
         var wfresults = results[task];
+        var inspectvals = [];
+        for (var prop in wfresults) {
+          inspectvals.push(wfresults[prop]);
+        }
+        inspectvals.sort();
+        inspectvals = $.unique(inspectvals);
         var resultsselect = $("#inspectresult");
         resultsselect.empty();
-        $.each(wfresults, function( index, value ) {
+        $.each(inspectvals, function( index, value ) {
           if (value !== null) {
             $( "<option></option>", {
               "value": value,
