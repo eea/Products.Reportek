@@ -132,7 +132,7 @@
           <div class="form-group">
             <label for="task">Task:</label>
             <select name="task" id="task" class="autocomplete-select">
-              <option tal:repeat="task python: tasks.keys()"
+              <option tal:repeat="task python: sorted(tasks.keys())"
                       tal:attributes="value task;
                                       data-workflows python: ','.join(tasks.get(task, []))"
                       tal:content="task" />
@@ -141,7 +141,7 @@
           <div class="form-group">
             <label for="workflow">Workflow: </label>
             <select name="workflow" id="workflow" class="autocomplete-select">
-              <tal:rep tal:repeat="workflow python:workflows.keys()">
+              <tal:rep tal:repeat="workflow python:sorted(workflows.keys())">
                 <option tal:condition="workflow"
                         tal:attributes="value python:workflow;
                                         data-results python:jsonify(workflows[workflow])"
@@ -179,8 +179,7 @@
           <tal:rep tal:repeat="wk_data wks_data">
             <tr tal:define="workitem python:wks_data[wk_data].get('workitem');
                             wf_data python:wks_data[wk_data].get('wf_data');
-                            workflow python: wf_data.get('workflow');
-                            inspectresults python:wf_data.get('inspectresults')">
+                            workflow python: wf_data.get('workflow');">
               <td>
                 <input type="checkbox" name="ids:list" checked="checked"
                        tal:attributes="value python:workitem.absolute_url(1)" />

@@ -94,7 +94,6 @@ class EnvelopeUtils(BaseAdmin):
 
             wf = self.get_env_workflow(workitem)
             next_activities = self.get_next_activities(wf, workitem)
-            results = self.get_possible_results(next_activities)
             if wf:
                 if not tasks.get(activity):
                     tasks[activity] = [wf]
@@ -112,8 +111,7 @@ class EnvelopeUtils(BaseAdmin):
 
             wks_data[workitem.getPath()] = {
                 'wf_data': {
-                    'workflow': wf,
-                    'inspectresults': results},
+                    'workflow': wf},
                 'workitem': workitem,
             }
 
