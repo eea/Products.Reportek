@@ -271,7 +271,7 @@ class EnvelopesAPI(BrowserView):
         return brains
 
     def is_env_blocked(self, wk_brains):
-        """Return 1 if envelope is blocked, otherwise 1."""
+        """Return 1 if envelope is blocked, otherwise 0."""
         qa_wks = [wk for wk in wk_brains if wk.activity_id == 'AutomaticQA']
         if not qa_wks:
             return 0
@@ -335,10 +335,11 @@ class EnvelopesAPI(BrowserView):
         """
         activation_log = wk_brain.activation_log
         end_date = None
-        try:
-            end_date = activation_log[-1].get('end')
-        except IndexError:
-            pass
+        if activation_log:
+            try:
+                end_date = activation_log[-1].get('end')
+            except IndexError:
+                pass
         if end_date:
             end_date = datetime.datetime.fromtimestamp(end_date)
             end_date = DateTime(end_date)
@@ -348,7 +349,7 @@ class EnvelopesAPI(BrowserView):
         return end_date
 
     def get_envelope_history(self, env_brain):
-        """Return a the envelope's workflow history."""
+        """Return the envelope's workflow history."""
         result = []
         wk_brains = self.get_env_children(env_brain.getPath(), 'Workitem')
         for brain in wk_brains:
@@ -366,6 +367,11 @@ class EnvelopesAPI(BrowserView):
             })
 
         return result
+
+    def get_envelope_company_id(self, env_brain):
+        """Return the company ID for the envelope."""
+        env = env_brain.getObject()
+        return env.company_id
 
     def has_unknown_qc(self, path):
         """Return true if has a AutomaticQA feedback with UNKNOWN QC."""
@@ -395,6 +401,7 @@ class EnvelopesAPI(BrowserView):
         endyear = years[-1] if years and len(years) > 1 else ''
         obls = [obl.split(DF_URL_PREFIX)[-1]
                 for obl in brain.dataflow_uris]
+
         return {
             'url': brain.getURL(),
             'title': brain.title,
@@ -506,6 +513,8 @@ class EnvelopesAPI(BrowserView):
                                 errors += files_data.get('errors', [])
                         elif field == 'history':
                             envelope_data['history'] = self.get_envelope_history(brain)
+                        elif field == 'companyId':
+                            envelope_data['companyId'] = self.get_envelope_company_id(brain)
                         elif field in default_props.keys():
                             envelope_data[field] = default_props.get(field)
 

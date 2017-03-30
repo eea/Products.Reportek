@@ -200,6 +200,7 @@ paths:
               - creator
               - hasUnknownQC
               - history
+              - companyId
           collectionFormat: csv
       responses:
         '200':
@@ -249,6 +250,7 @@ paths:
                       activity_status: complete
                       blocker: false
                       modified: 2013-04-13T01:20:50.53Z
+                  companyId: 18006,
                   isReleased: 1
                   title: My Envelope
                   reportingDate: 2013-04-13T01:20:50.53Z
@@ -326,6 +328,9 @@ definitions:
         description: The workflow history of the envelope.
         items:
           $ref: '#/definitions/History'
+      companyId:
+        type: string
+        description: The company ID associated with with the envelope's parent Collection
   File:
     type: object
     properties:
