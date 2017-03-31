@@ -49,6 +49,8 @@ except:
 import RepUtils
 from constants import WORKFLOW_ENGINE_ID, WEBQ_XML_REPOSITORY, CONVERTERS_ID, APPLICATIONS_FOLDER_ID
 from workitem import workitem
+import logging
+logger = logging.getLogger("Reportek")
 
 
 class EnvelopeInstance(CatalogAware, Folder):
@@ -702,11 +704,21 @@ class EnvelopeInstance(CatalogAware, Folder):
         application_url = self.getApplicationUrl(workitem_id)
         activity_obj = self.getActivity(workitem_id)
         if application_url:
+            args = {'workitem_id': workitem_id}
             if REQUEST:
-                args = {'workitem_id':workitem_id, 'REQUEST':REQUEST}
+                args['REQUEST'] = REQUEST
             else:
-                args = {'workitem_id':workitem_id, 'REQUEST':self.REQUEST}
-            apply(self.restrictedTraverse(application_url), (), args)
+                args['REQUEST'] = self.REQUEST
+            application = self.restrictedTraverse(application_url)
+            try:
+                application(**args)
+            except Exception as e:
+                msg = "Application Error while executing: {} "\
+                      "for envelope: {}, with workitem_id: {} - Error: {}"\
+                      .format(application_url, self.absolute_url(),
+                              workitem_id, e)
+                logger.error(msg, exc_info=True)
+
         self.activateWorkitem(workitem_id, 'openflow_engine')
         if activity_obj.complete_automatically:
             self.completeWorkitem(workitem_id)
