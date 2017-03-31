@@ -58,7 +58,7 @@
                         var spinner = new Spinner(opts).spin(target);
                     },
                     success: function(data){
-                        $('#remote').replaceWith(data);
+                        $('#spinner').replaceWith(data);
                         $('#remote_dataTable').css('font-size', '14px');
                         $('#remote_dataTable').css('margin', '0px');
                         $('#remote_dataTable').dataTable({

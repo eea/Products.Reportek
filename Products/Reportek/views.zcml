@@ -124,7 +124,7 @@
   <browser:page
     name="collections.search"
     menu="reportek_utilities"
-    title="Create envelopes"
+    title="Search for collections and create envelopes"
     for=".ReportekUtilities.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
     class=".views.SearchCollections"
@@ -216,7 +216,7 @@
   <browser:page
     name="engineMacros"
     for="*"
-    permission="zope2.View"
+    permission="zope2.Public"
     template="zpt/engineMacros.zpt"/>
 
 </configure>

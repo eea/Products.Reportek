@@ -28,7 +28,10 @@
                 <span tal:define="fb_status python: getattr(feedback, 'feedback_status', '')"
                       tal:attributes="class python: fb_classes.get(fb_status)">
                   <span class="fb-status" tal:content="fb_status"/>:
-                  <span tal:content="python: getattr(feedback, 'message', '')"/>
+                  <span tal:define="default python: getattr(feedback, 'title', '').split(':')[-1];
+                                    message python: getattr(feedback, 'message');
+                                    info python: message if message else default"
+                    tal:content="info"/>
                 </span>
                 <a href="#" tal:attributes="href feedback/absolute_url">Show more...</a>
               </li>

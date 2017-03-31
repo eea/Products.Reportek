@@ -39,10 +39,12 @@ class EnvelopeUtils(BaseAdmin):
         """Return the next possible activities for the envelope with workitem wk
            and workflow path wf_path.
         """
-        wf = self.context.restrictedTraverse(wfpath)
-        wf_transitions = wf.objectValues('Transition')
-        next_transitions = [(getattr(t, 'To'), getattr(t, 'condition')) for t in wf_transitions
-                            if getattr(t, 'From') == wk.activity_id]
+        wf = self.context.restrictedTraverse(wfpath, None)
+        next_transitions = []
+        if wf:
+            wf_transitions = wf.objectValues('Transition')
+            next_transitions = [(getattr(t, 'To'), getattr(t, 'condition')) for t in wf_transitions
+                                if getattr(t, 'From') == wk.activity_id]
 
         return next_transitions
 

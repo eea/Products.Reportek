@@ -13,7 +13,7 @@
 |Type|Name|Description|Schema|Default|
 |---|---|---|---|---|
 |**Query**|**countryCode**  <br>*optional*|Country code in ISO "ALPHA-2 Code format for envelopes to return|< enum (AL, DZ, AD, AM, AT, AZ, BY, BE, BA, BG, HR, CY, CZ, DK, EG, EE, EU, FI, FR, GE, DE, GI, GR, GL, HU, IS, IE, IL, IT, JO, KZ, XK, KG, LV, LB, LY, LI, LT, LU, MK, MT, MD, MC, ME, MA, NL, PS, PL, PT, RO, RU, SM, RS, SK, SI, ES, SE, CH, SY, TJ, TN, TR, TM, UA, GB, UZ, VA) > array||
-|**Query**|**fields**  <br>*optional*|Return envelopes with only the fields specified|< enum (files, url, title, description, countryCode, isReleased, reportingDate, modifiedDate, periodStartYear, periodEndYear, periodDescription, obligations, isBlockedByQCError, status, statusDate, creator, hasUnknownQC, history) > array(csv)||
+|**Query**|**fields**  <br>*optional*|Return envelopes with only the fields specified|< enum (files, url, title, description, countryCode, isReleased, reportingDate, modifiedDate, periodStartYear, periodEndYear, periodDescription, obligations, isBlockedByQCError, status, statusDate, creator, hasUnknownQC, history, companyId) > array(csv)||
 |**Query**|**isReleased**  <br>*optional*|Released(1) or Unreleased(0) envelopes to return|enum (, )||
 |**Query**|**modifiedDate**  <br>*optional*|Return envelopes with specified modifiedDate. date format.|string(date)||
 |**Query**|**obligations**  <br>*optional*|Return envelopes with one of the following obligations|< integer > array(csv)||
@@ -80,6 +80,7 @@ json :
         "blocker" : false,
         "modified" : "2013-04-13T01:20:50.530+0000"
       } ],
+      "companyId" : "18006",
       "isReleased" : 1,
       "title" : "My Envelope",
       "reportingDate" : "2013-04-13T01:20:50.530+0000",

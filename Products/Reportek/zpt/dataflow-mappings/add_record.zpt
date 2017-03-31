@@ -36,7 +36,8 @@
         <label class="form-label" for="dataflow_uris">Dataflow</label>
       </td>
       <td>
-        <div class="select-container" style="width:50%"">
+        <div class="select-container" style="width:50%"
+          tal:define="rod_data options/context/api/@@obligations">
           <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
         </div>
       </td>

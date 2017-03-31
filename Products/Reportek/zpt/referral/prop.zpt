@@ -27,7 +27,9 @@
       </tr>
       <tr tal:define="default here/dataflow_uris | python:[]">
         <th valign="top"><label for="dataflow_uris" i18n:translate="">Obligations</label></th>
-        <td tal:define="multiple string:multiple" class="select-container">
+        <td tal:define="multiple string:multiple;
+                        rod_data context/api/@@obligations"
+          class="select-container" style="width:100%"">
           <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
         </td>
       </tr>

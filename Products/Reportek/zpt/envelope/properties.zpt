@@ -53,7 +53,8 @@
             <td>
               <div class="select-container" style="width:100%"
                 tal:define="multiple string:multiple;
-                            disabled not: permission_condition">
+                            disabled not: permission_condition;
+                            rod_data context/api/@@obligations">
                 <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
               </div>
             </td>

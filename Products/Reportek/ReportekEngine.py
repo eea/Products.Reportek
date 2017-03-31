@@ -222,11 +222,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     def get_rod_obligations(self):
         """ Returns a sorted list of obligations from ROD
         """
-        obligations = [(o.get('uri'), o.get('')) for o in self.dataflow_rod()]
+        obligations = [(o.get('uri'), o.get('TITLE')) for o in self.dataflow_rod()]
         data = []
 
         if obligations:
             data = sorted(obligations, key=itemgetter(1))
+
         return data
 
     _manage_properties = PageTemplateFile('zpt/engine/prop', globals())

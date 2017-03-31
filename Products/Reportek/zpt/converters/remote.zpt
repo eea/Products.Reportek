@@ -8,9 +8,9 @@
 </thead>
 <tbody>
 <tr tal:repeat="item options/convs | python:[]">
-	<td tal:content="conv_item/description" />
-	<td tal:content="conv_item/xml_schema" />
-	<td tal:content="conv_item/result_type" />
+	<td tal:content="item/description" />
+	<td tal:content="item/xml_schema" />
+	<td tal:content="item/result_type" />
 </tr>
 </tbody>
 </table>

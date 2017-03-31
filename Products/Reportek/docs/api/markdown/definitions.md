@@ -12,6 +12,7 @@
 |**description**  <br>*optional*|The envelope's description.|string|
 |**files**  <br>*optional*|The list of files attached to the envelope.|< [File](#file) > array|
 |**history**  <br>*optional*|The workflow history of the envelope.|< [History](#history) > array|
+|**companyId**  <br>*optional*|The company ID associated with with the envelope's parent Collection.|string|
 |**isBlockedByQCError**  <br>*optional*|Is the envelope blocked by a QC Error.|integer|
 |**isReleased**  <br>*optional*|The envelope's release status|integer|
 |**modifiedDate**  <br>*optional*|The envelope's modification date.|string|
