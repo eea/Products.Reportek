@@ -34,6 +34,7 @@ from OFS.Folder import Folder
 from Products.ZCatalog.CatalogPathAwareness import CatalogAware
 from time import time
 from DateTime import DateTime
+from Products.Reportek.exceptions import ApplicationException
 import string
 
 # Product specific imports
@@ -717,7 +718,8 @@ class EnvelopeInstance(CatalogAware, Folder):
                       "for envelope: {}, with workitem_id: {} - Error: {}"\
                       .format(application_url, self.absolute_url(),
                               workitem_id, e)
-                logger.error(msg, exc_info=True)
+                logger.exception(msg)
+                raise ApplicationException(msg)
 
         self.activateWorkitem(workitem_id, 'openflow_engine')
         if activity_obj.complete_automatically:
