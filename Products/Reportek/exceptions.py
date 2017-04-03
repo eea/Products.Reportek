@@ -12,3 +12,6 @@ class LocalConversionException(Exception):
 
 class EnvelopeReleasedException(Exception):
     """ Raised by saveXML when the Envelope is released and the document cannot be saved. """
+
+class ApplicationException(Exception):
+    """Raised when an Zope Python Application fails"""
