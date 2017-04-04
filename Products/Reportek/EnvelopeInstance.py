@@ -51,6 +51,7 @@ import RepUtils
 from constants import WORKFLOW_ENGINE_ID, WEBQ_XML_REPOSITORY, CONVERTERS_ID, APPLICATIONS_FOLDER_ID
 from workitem import workitem
 import logging
+import sys
 logger = logging.getLogger("Reportek")
 
 
@@ -714,7 +715,7 @@ class EnvelopeInstance(CatalogAware, Folder):
             try:
                 application(**args)
             except Exception as e:
-                msg = "Application Error while executing: {} "\
+                msg = "ApplicationException while executing: {} "\
                       "for envelope: {}, with workitem_id: {} - Error: {}"\
                       .format(application_url, self.absolute_url(),
                               workitem_id, e)
@@ -735,7 +736,17 @@ class EnvelopeInstance(CatalogAware, Folder):
             args = {'workitem_id':workitem_id, 'REQUEST':REQUEST}
             # Why should the application return the actor?
             #actor = apply(self.restrictedTraverse(application_url), (), args) 
-            apply(self.restrictedTraverse(application_url), (), args) 
+            application = self.restrictedTraverse(application_url)
+            try:
+                application(**args)
+            except Exception as e:
+                msg = "ApplicationException while executing: {} "\
+                      "for envelope: {}, with workitem_id: {} - Error: {}"\
+                      .format(application_url, self.absolute_url(),
+                              workitem_id, e)
+                logger.exception(msg)
+                raise ApplicationException(msg)
+
             if REQUEST:
                 actor = REQUEST.AUTHENTICATED_USER.getUserName()
             else:

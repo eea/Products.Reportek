@@ -1,5 +1,7 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Feature: Added ApplicationException exception to be easier to track application
+* errors [olimpiurob refs #73709]
 * Bug fix: Fixed error when attempting to rename with no file selected in the
   envelope's files section
   [olimpiurob refs #83450]
