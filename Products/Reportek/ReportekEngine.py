@@ -1047,8 +1047,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return 1
 
     def uns_notifications_enabled(self):
-        env = getattr(getConfiguration(), 'environment', {})
-        return bool(env.get('UNS_NOTIFICATIONS', 'off') == 'on')
+        return bool(os.environ.get('UNS_NOTIFICATIONS', 'off') == 'on')
 
     security.declarePrivate('get_uns_xmlrpc_server')
     def get_uns_xmlrpc_server(self):
