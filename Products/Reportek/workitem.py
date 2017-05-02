@@ -263,4 +263,13 @@ class workitem(CatalogAware, SimpleItem, PropertyManager):
         except:
             return None
 
+    @property
+    def failure(self):
+        return getattr(self, '_failure', False)
+
+    @failure.setter
+    def failure(self, value):
+        self._failure = bool(value)
+
+
 InitializeClass(workitem)

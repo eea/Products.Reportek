@@ -35,7 +35,7 @@ import xmlrpclib
 import string
 import urllib
 from Products.PythonScripts.standard import html_quote
-from Document import Document
+from Products.Reportek.Document import Document
 import transaction
 
 
@@ -266,6 +266,7 @@ class RemoteApplication(SimpleItem):
                 for x in l_files_failed.keys():
                     l_filenames_jobs += '<li>%s for file %s</li>' % (l_files_failed[x], x)
                 l_workitem.addEvent('Giving up on %s job(s): <ul>%s</ul>' % (self.app_name, l_filenames_jobs))
+                l_workitem.failure = True
             if REQUEST is not None:
                 REQUEST.set('RemoteApplicationSucceded', 1 - l_failed)
                 REQUEST.set('actor', 'openflow_engine')
@@ -396,6 +397,7 @@ class RemoteApplication(SimpleItem):
             l_nRetries = int(l_wk_prop['analyze']['retries_left'])
             if l_nRetries == 0:
                 l_workitem.addEvent('Error in sending files to %s: %s' % (self.app_name, str(l_fault.faultString)))
+                l_workitem.failure = True
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                         p_analyze={'code':-2, 'last_error':'Code: ' + str(l_fault.faultCode) + '\nDescription: ' + str(l_fault.faultString)})
             else:
@@ -407,6 +409,7 @@ class RemoteApplication(SimpleItem):
             l_nRetries = int(l_wk_prop['analyze']['retries_left'])
             if l_nRetries == 0:
                 l_workitem.addEvent('Error in sending files to %s: %s' % (self.app_name, str(l_protocol.errmsg)))
+                l_workitem.failure = True
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                         p_analyze={'code':-2, 'last_error':'Code: ' + str(l_protocol.errcode) + '\nDescription: ' + str(l_protocol.errmsg)})
             else:
@@ -572,5 +575,40 @@ class RemoteApplication(SimpleItem):
 
     security.declareProtected(view_management_screens, 'manage_settings_html')
     manage_settings_html = PageTemplateFile('zpt/remote/application_edit', globals())
+
+    def get_xmlrpc_server_service(self):
+        """Return an instance of the xmlrpc server."""
+        server_url = self.RemoteServer
+        remote_server = self.RemoteService
+        server = xmlrpclib.ServerProxy(server_url)
+        server_service = getattr(server, remote_server)
+
+        return server_service
+
+    def get_qa_scripts(self, schema):
+        """Return a list of script ids for the specified schema."""
+        try:
+            server_service = self.get_xmlrpc_server_service()
+            return server_service.listQueries(schema)
+        except:
+            return []
+
+    def get_qa_scripts_short(self, schema):
+        """Returns the list of QA script ids available for a schema."""
+        l_ret = []
+        try:
+            server_service = self.get_xmlrpc_server_service()
+            l_tmp = server_service.listQAScripts(schema)
+            l_ret.extend(l_tmp)
+        except:
+            pass
+
+        return l_ret
+
+    def run_remote_qascript(self, file_url, script_id):
+        """Run remote synchronous QA Script."""
+        server_service = self.get_xmlrpc_server_service()
+        result = server_service.runQAScript(file_url, script_id)
+        return result
 
 InitializeClass(RemoteApplication)

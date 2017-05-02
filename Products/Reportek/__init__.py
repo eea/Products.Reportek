@@ -44,12 +44,13 @@ import Converter
 import Collection
 import Referral
 import OpenFlowEngine
-import RemoteApplication
-import RemoteRESTApplication
 import DataflowMappings
 import ReportekEngine
 import ReportekUtilities
 import ReportekAPI
+from Products.Reportek import RemoteApplication
+from Products.Reportek import RemoteRESTApplication
+from Products.Reportek import RemoteRESTAPIApplication
 from Products.Reportek.ReportekUserFactoryPlugin import ReportekUserFactoryPlugin
 from Products.Reportek.ReportekUserFactoryPlugin import addReportekUserFactoryPlugin
 from Products.Reportek.ReportekUserFactoryPlugin import manage_addReportekUserFactoryPluginForm
@@ -356,6 +357,15 @@ def initialize(context):
            constructors = (
                 RemoteRESTApplication.manage_addRemoteRESTApplicationForm,
                 RemoteRESTApplication.manage_addRemoteRESTApplication),
+           icon = 'www/qa_application.gif'
+           )
+
+        context.registerClass(
+           RemoteRESTAPIApplication.RemoteRESTAPIApplication,
+           permission='Add Remote REST API Application',
+           constructors = (
+                RemoteRESTAPIApplication.manage_addRemoteRESTAPIApplicationForm,
+                RemoteRESTAPIApplication.manage_addRemoteRESTAPIApplication),
            icon = 'www/qa_application.gif'
            )
 

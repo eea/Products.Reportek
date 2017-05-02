@@ -5,6 +5,7 @@ from Globals import InitializeClass
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek.constants import DATAFLOW_MAPPINGS
 from UserList import UserList
 
 from constants import DATAFLOW_MAPPINGS, ENGINE_ID
@@ -50,7 +51,7 @@ class DataflowMappings(Folder):
         """
         query = {
             'meta_type': DataflowMappingsRecord.meta_type,
-            'path': '/DataflowMappings'
+            'path': '/{}'.format(DATAFLOW_MAPPINGS)
         }
         if dataflow_uris:
             if isinstance(dataflow_uris, UserList):
@@ -61,7 +62,8 @@ class DataflowMappings(Folder):
                 query['dataflow_uri'] = [dataflow_uris]
 
         res = []
-        for brain in self.Catalog(**query):
+        brains = self.Catalog(**query)
+        for brain in brains:
             for schema in brain.getObject().mapping['schemas']:
                 if not web_form_only or schema['has_webform']:
                     # yield schema # can't yield here if using dtml; it doesn't know how to iterate

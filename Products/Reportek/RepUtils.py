@@ -594,3 +594,7 @@ def manage_as_owner(func):
             setSecurityManager(smanager)
             return res
     return inner
+
+class RemoteApplicationException(Exception):
+    """Our own Remote Application exception."""
+    pass
