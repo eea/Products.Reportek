@@ -87,10 +87,12 @@ class RemoteRESTAPIApplication(SimpleItem):
                 manage_tabs_message='Saved changes.'
             )
 
-    def do_feedback_cleanup(self, envelope):
+    def do_feedback_cleanup(self, envelope, s_title=None):
         """Deletes all previous feedbacks created by this application."""
         for l_item in envelope.objectValues('Report Feedback'):
-            if l_item.activity_id == self.app_name:
+            do_delete = not s_title or (s_title and
+                                        s_title in getattr(l_item, 'title', ''))
+            if l_item.activity_id == self.app_name and do_delete:
                 envelope.manage_delObjects(l_item.id)
 
     def log_event(self, evt_type, evt_msg, workitem=None):
@@ -140,6 +142,42 @@ class RemoteRESTAPIApplication(SimpleItem):
                                                              error)
 
         return dict(data=jsondata, error=error)
+
+    def add_async_qajob(self, workitem, failed_job):
+        """Submit asynchronous qa job"""
+        async_qa_url = '/'.join([self.async_base_url,
+                                 self.jobs_endpoint.strip('/')])
+        file_src = failed_job.get('fileUrl')
+        script_id = failed_job.get('scriptId')
+        jobid = failed_job.get('jobId')
+        data = {
+            "sourceUrl": file_src,
+            "scriptId": script_id
+        }
+        data = json.dumps(data)
+        ctype = "application/json"
+        headers = {"Accept": ctype,
+                   "Content-Type": ctype}
+
+        result = self.do_api_request(async_qa_url, method='post', data=data,
+                                     headers=headers)
+        err = result.get('error')
+        jsondata = result.get('data')
+
+        if err:
+            err_msg = 'Script ID: {} for file {},'\
+                      ' failed: ({})'.format(script_id, file_src, err)
+            failed_job['last_error'] = err_msg
+            self.update_retries(workitem, jobid=jobid)
+            if failed_job.get('retries') == 0:
+                err_msg = '{} - Giving up on job: #{}, '\
+                          'due to: {}'.format(self.app_name, jobid, err_msg)
+                self.log_event('error', err_msg, workitem)
+                failed_job['status'] = 'Failed'
+                self.update_job(workitem, failed_job)
+                workitem.failure = True
+        else:
+            return jsondata
 
     def add_async_batch_qajob(self, workitem, env_url):
         """Submit envelope level batch job for analysis."""
@@ -204,10 +242,82 @@ class RemoteRESTAPIApplication(SimpleItem):
         """ Runs the Remote Aplication for the first time """
         workitem = getattr(self, workitem_id)
         envelope = workitem.getMySelf()
-        self.do_feedback_cleanup(envelope)
         self.init_wk(workitem)
+        if not REQUEST or REQUEST and not getattr(REQUEST, 'failed_qa_only', None):
+            self.do_feedback_cleanup(envelope)
+        else:
+            self.manage_previously_failed_jobs(workitem, envelope)
+            self.check_if_blocked(workitem, envelope)
         self.update_retries(workitem)
         self.callApplication(workitem_id, REQUEST)
+
+    def check_if_blocked(self, workitem, envelope):
+        """Checks if remaining feedbacks are blockers"""
+        fbs = envelope.objectValues('Report Feedback')
+        for fb in fbs:
+            if getattr(fb, 'feedback_status', '') == 'BLOCKER' and not workitem.blocker:
+                workitem.blocker = True
+
+    def manage_previously_failed_jobs(self, workitem, envelope):
+        """Adds previously failed QA jobs in the wk prop."""
+        failed_jobs = self.get_failed_jobs(envelope)
+        if failed_jobs:
+            for job in failed_jobs:
+                self.do_feedback_cleanup(envelope,
+                                         s_title=job.get('scriptTitle'))
+                job_id = '_'.join(['', job.get('scriptId'), job.get('fileUrl')])
+                job['jobId'] = job_id
+                self.add_job(workitem, job)
+
+    def handle_failed_job(self, workitem, job):
+        result = self.add_async_qajob(workitem, job)
+        if result:
+            l_wk_prop = getattr(workitem, self.app_name)
+            del l_wk_prop['jobs'][job.get('jobId')]
+            msg = '{} - Previously failed job submitted: {}'\
+                  ' for file: {}'.format(self.app_name, job.get('scriptTitle'),
+                                         job.get('fileUrl'))
+            self.log_event('info', msg, workitem)
+            job['jobId'] = result.get('jobId')
+            job['status'] = 'Pending'
+
+            self.add_job(workitem, job)
+
+    def update_scripts_data(self, workitem, file_id, script_title, status):
+        """Updates the status of the script with script_title."""
+        l_wk_prop = getattr(workitem, self.app_name)
+        envelope = workitem.getMySelf()
+        schemas = []
+
+        if file_id == 'xml':
+            schemas = envelope.dataflow_uris
+        else:
+            file = envelope.restrictedTraverse(str(file_id))
+            schemas = [getattr(file, 'xml_schema_location')]
+
+        for schema in schemas:
+            script_data = l_wk_prop['scripts'][schema]
+            for script_id in script_data:
+                if script_data[script_id].get('script_title') == script_title:
+                    script_data[script_id]['status'] = status
+
+    def get_failed_jobs(self, envelope):
+        """Return a list of failed QA jobs."""
+        QA_workitems = envelope.get_qa_workitems()
+        failed_jobs = []
+        if QA_workitems:
+            last_qa_wk_prop = getattr(QA_workitems[-2], self.app_name)
+            jobs = last_qa_wk_prop.get('jobs', [])
+            for jobid, job in jobs.iteritems():
+                if job.get('status') == 'Failed':
+                    failed_jobs.append({
+                        'fileUrl': job.get('fileUrl'),
+                        'scriptId': job.get('scriptId'),
+                        'scriptTitle': job.get('scriptTitle'),
+                        'retries': self.retries
+                    })
+
+        return failed_jobs
 
     def get_running_jobs(self, workitem):
         """Return true if this QA is done."""
@@ -281,6 +391,11 @@ class RemoteRESTAPIApplication(SimpleItem):
                                                               job.get('jobId'),
                                                               file)
         self.persist_meta(workitem)
+        if not job.get('jobId', '').startswith('_'):
+            msg = '{} - Previously failed job in progress: {}'\
+                  ' for file: {}'.format(self.app_name,
+                                         job.get('scriptTitle'),
+                                         file)
         self.log_event('info', msg, workitem)
 
     def update_job(self, workitem, job):
@@ -297,10 +412,14 @@ class RemoteRESTAPIApplication(SimpleItem):
             t_threshold = True
             if job.get('next_run'):
                 t_threshold = DateTime() >= DateTime(int(job['next_run']))
+            submitted = not job.get('jobId', '').startswith('_')
             skip = job.get('status') == 'Ready' or job.get('retries') == 0
             if t_threshold and not skip:
-                result = self.get_job_result(workitem, job)
-                self.manage_results(workitem, job, result, REQUEST)
+                if submitted:
+                    result = self.get_job_result(workitem, job)
+                    self.manage_results(workitem, job, result, REQUEST)
+                else:
+                    self.handle_failed_job(workitem, job)
 
     def get_job_result(self, workitem, job):
         """Get the remote result for the current jobid."""
@@ -326,6 +445,8 @@ class RemoteRESTAPIApplication(SimpleItem):
                 err_msg = '{} - Giving up on job: #{}, '\
                           'due to: {}'.format(self.app_name, jobid, err_msg)
                 self.log_event('error', err_msg, workitem)
+                job['status'] = 'Failed'
+                self.update_job(workitem, job)
                 workitem.failure = True
         else:
             return jsondata
