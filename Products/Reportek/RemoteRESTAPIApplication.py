@@ -391,7 +391,7 @@ class RemoteRESTAPIApplication(SimpleItem):
                                                               job.get('jobId'),
                                                               file)
         self.persist_meta(workitem)
-        if not job.get('jobId', '').startswith('_'):
+        if job.get('jobId', '').startswith('_'):
             msg = '{} - Previously failed job in progress: {}'\
                   ' for file: {}'.format(self.app_name,
                                          job.get('scriptTitle'),

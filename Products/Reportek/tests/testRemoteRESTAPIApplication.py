@@ -93,10 +93,10 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
             reason='OK',
             json=Mock(return_value={'jobs': [
                 {
-                    'jobId': 123,
+                    'jobId': '123',
                     'fileUrl': 'http://some.file.url.1'
                 }, {
-                    'jobId': 456,
+                    'jobId': '456',
                     'fileUrl': 'http://some.file.url.2'
                 }
             ]}))
@@ -120,10 +120,10 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
             reason='OK',
             json=Mock(return_value={'jobs': [
                 {
-                    'jobId': 123,
+                    'jobId': '123',
                     'fileUrl': 'http://some.file.url.1'
                 }, {
-                    'jobId': 456,
+                    'jobId': '456',
                     'fileUrl': 'http://some.file.url.2'
                 }
             ]}))
@@ -148,10 +148,10 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
             reason='OK',
             json=Mock(return_value={'jobs': [
                 {
-                    'jobId': 123,
+                    'jobId': '123',
                     'fileUrl': 'http://some.file.url.1'
                 }, {
-                    'jobId': 456,
+                    'jobId': '456',
                     'fileUrl': 'http://some.file.url.2'
                 }
             ]}))
@@ -164,9 +164,9 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
 
     @patch('Products.Reportek.RemoteRESTAPIApplication.requests')
     def test_app_writes_success_in_event_log(self, mock_requests):
-        job1id = 123
+        job1id = '123'
         job1fileurl = 'http://some.file.url.1'
-        job2id = 456
+        job2id = '456'
         job2fileurl = 'http://some.file.url.2'
         mock_requests.post.return_value = Mock(
             status_code=200,
@@ -198,7 +198,7 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
             reason='OK',
             json=Mock(return_value={'jobs': [
                 {
-                    'jobId': 123,
+                    'jobId': '123',
                     'fileUrl': 'http://some.file.url.1'
                 }
             ]}))
@@ -223,7 +223,7 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
         evtlog = self.app.col1.env1['0'].event_log
         self.assertEqual(evtlog[2]['event'], 'restapp - job completed: #123'
                          ' - Check obligation dependent QA/QC rules')
-        self.assertEqual(prop['jobs'][123]['status'], 'Ready')
+        self.assertEqual(prop['jobs']['123']['status'], 'Ready')
         fb_id = 'restapp_123'
         assert fb_id in self.app.col1.env1.objectIds()
         fb = self.app.col1.env1.restrictedTraverse(fb_id)
@@ -235,7 +235,7 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
             status_code=200,
             json=Mock(return_value={'jobs': [
                 {
-                    'jobId': 123,
+                    'jobId': '123',
                     'fileUrl': 'http://some.file.url.1'
                 }
             ]}))
@@ -253,11 +253,11 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
 
         self.create_cepaa_set(1)
         prop = self.app.col1.env1['0'].restapp
-        self.assertEqual(prop['jobs'][123]['status'], 'Pending')
-        self.assertEqual(4, prop['jobs'][123]['retries'])
+        self.assertEqual(prop['jobs']['123']['status'], 'Pending')
+        self.assertEqual(4, prop['jobs']['123']['retries'])
         restapp = self.app.Applications.proc1.act1
         restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
-        self.assertEqual(3, prop['jobs'][123]['retries'])
+        self.assertEqual(3, prop['jobs']['123']['retries'])
 
     @patch('Products.Reportek.RemoteRESTAPIApplication.requests')
     def test_job_pending_no_retries(self, mock_requests):
@@ -266,7 +266,7 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
             reason='OK',
             json=Mock(return_value={'jobs': [
                 {
-                    'jobId': 123,
+                    'jobId': '123',
                     'fileUrl': 'http://some.file.url.1'
                 }
             ]}))
@@ -285,8 +285,8 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
         self.create_cepaa_set(1)
         prop = self.app.col1.env1['0'].restapp
         evtlog = self.app.col1.env1['0'].event_log
-        self.assertEqual(prop['jobs'][123]['status'], 'Pending')
-        self.assertEqual(4, prop['jobs'][123]['retries'])
+        self.assertEqual(prop['jobs']['123']['status'], 'Pending')
+        self.assertEqual(4, prop['jobs']['123']['retries'])
         mock_requests.get.return_value = Mock(
             status_code=200,
             reason='OK',
@@ -303,7 +303,7 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
         for retry in range(4):
             restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
 
-        self.assertEqual(0, prop['jobs'][123]['retries'])
+        self.assertEqual(0, prop['jobs']['123']['retries'])
         self.assertEqual(evtlog[-1].get('event'), 'forwarded to End')
 
     @patch('Products.Reportek.RemoteRESTAPIApplication.requests')
@@ -351,7 +351,7 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
             reason='OK',
             json=Mock(return_value={'jobs': [
                 {
-                    'jobId': 123,
+                    'jobId': '123',
                     'fileUrl': 'http://some.file.url.1'
                 }
             ]}))
@@ -366,4 +366,4 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
         self.assertEqual('Job: #123 for file some.file.url.1, failed: (Unable'
                          ' to convert QA Service response to JSON: '
                          '. HTTP Code: 200 (OK))',
-                         prop['jobs'][123]['last_error'])
+                         prop['jobs']['123']['last_error'])
