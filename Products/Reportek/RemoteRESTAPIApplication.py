@@ -1,3 +1,4 @@
+import datetime
 import json
 import logging
 import requests
@@ -297,15 +298,35 @@ class RemoteRESTAPIApplication(SimpleItem):
                 if script_data[script_id].get('script_title') == script_title:
                     script_data[script_id]['status'] = status
 
+    def file_has_been_modified(self, envelope, qa_wk_id, fileurl):
+        """Returns True if the file has been modified since last Automatic QA"""
+        filename = fileurl.split('/')[-1]
+        filename = filename.encode('utf-8')
+        log = getattr(envelope, 'activation_log', [])
+        qa_end = envelope.reportingdate
+        try:
+            qa_log = log[int(qa_wk_id)]
+            qa_end = DateTime(datetime.datetime.fromtimestamp(qa_log.get('end')))
+        except Exception:
+            pass
+
+        if filename != 'xml':
+            file = envelope.restrictedTraverse(filename, None)
+            if file:
+                if file.upload_time() < qa_end:
+                    return False
+        return True
+
     def get_failed_jobs(self, envelope):
         """Return a list of failed QA jobs."""
         QA_workitems = envelope.get_qa_workitems()
         failed_jobs = []
         if QA_workitems:
-            last_qa_wk_prop = getattr(QA_workitems[-2], self.app_name)
+            qa = QA_workitems[-2]
+            last_qa_wk_prop = getattr(qa, self.app_name)
             jobs = last_qa_wk_prop.get('jobs', [])
             for jobid, job in jobs.iteritems():
-                if job.get('status') == 'Failed':
+                if job.get('status') == 'Failed' or self.file_has_been_modified(envelope, qa.id, job.get('fileUrl')):
                     failed_jobs.append({
                         'fileUrl': job.get('fileUrl'),
                         'scriptId': job.get('scriptId'),
