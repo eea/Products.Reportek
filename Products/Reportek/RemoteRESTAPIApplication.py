@@ -170,12 +170,8 @@ class RemoteRESTAPIApplication(SimpleItem):
             failed_job['last_error'] = err_msg
             self.update_retries(workitem, jobid=jobid)
             if failed_job.get('retries') == 0:
-                err_msg = '{} - Giving up on job: #{}, '\
-                          'due to: {}'.format(self.app_name, jobid, err_msg)
-                self.log_event('error', err_msg, workitem)
-                failed_job['status'] = 'Failed'
+                self.mark_failed(workitem, job)
                 self.update_job(workitem, failed_job)
-                workitem.failure = True
         else:
             return jsondata
 
@@ -381,6 +377,15 @@ class RemoteRESTAPIApplication(SimpleItem):
             for job in jobs:
                 self.add_job(workitem, job)
 
+    def mark_failed(self, workitem, job):
+        jobid = job.get('jobId')
+        err_msg = '{} - Giving up on job: #{}, '\
+                  'due to: {}'.format(self.app_name,
+                                      jobid, job.get('last_error'))
+        self.log_event('error', err_msg, workitem)
+        job['status'] = 'Failed'
+        workitem.failure = True
+
     def add_job(self, workitem, job):
         """Add a new job in the automatic property mapping."""
         qa_data = getattr(workitem, self.app_name)
@@ -442,12 +447,8 @@ class RemoteRESTAPIApplication(SimpleItem):
             job['last_error'] = err_msg
             self.update_retries(workitem, jobid=jobid)
             if job.get('retries') == 0:
-                err_msg = '{} - Giving up on job: #{}, '\
-                          'due to: {}'.format(self.app_name, jobid, err_msg)
-                self.log_event('error', err_msg, workitem)
-                job['status'] = 'Failed'
+                self.mark_failed(workitem, job)
                 self.update_job(workitem, job)
-                workitem.failure = True
         else:
             return jsondata
 
@@ -459,10 +460,10 @@ class RemoteRESTAPIApplication(SimpleItem):
             jobid = job.get('jobId')
             job['status'] = status.get('statusName')
             job['last_error'] = None
+            filename = job.get('fileUrl').split('/')[-1]
             if status_id == '0':
                 env = workitem.getMySelf()
                 fb_id = '{0}_{1}'.format(self.app_name, jobid)
-                filename = job.get('fileUrl').split('/')[-1]
                 script_title = result.get('scriptTitle')
                 fb_title = '{} result for: {} - {}'.format(self.app_name,
                                                            filename,
@@ -496,7 +497,11 @@ class RemoteRESTAPIApplication(SimpleItem):
             else:
                 job['last_error'] = result.get('feedbackMessage')
                 self.update_retries(workitem, jobid=jobid)
-
+                if job.get('retries') == 0:
+                    err_msg = 'Job: #{} for file {},'\
+                      ' failed: ({})'.format(jobid, filename, job['last_error'])
+                    job['last_error'] = err_msg
+                    self.mark_failed(workitem, job)
             self.update_job(workitem, job)
 
     def add_feedback(self, env, data, workitem):
