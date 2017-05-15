@@ -829,7 +829,7 @@ class EnvelopeInstance(CatalogAware, Folder):
                 return prev_wk
             else:
                 last_workitem = getattr(self, prev_wk.getId())
-                last_workitem_id = prev_wk.getId()
+                last_workitem_id = int(prev_wk.getId())
                 count += 1
 
     def getPreviousActivityOfType(self, activity_type):
