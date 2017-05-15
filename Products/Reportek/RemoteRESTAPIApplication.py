@@ -88,11 +88,11 @@ class RemoteRESTAPIApplication(SimpleItem):
                 manage_tabs_message='Saved changes.'
             )
 
-    def do_feedback_cleanup(self, envelope, s_title=None):
+    def do_feedback_cleanup(self, envelope, file=None):
         """Deletes all previous feedbacks created by this application."""
         for l_item in envelope.objectValues('Report Feedback'):
-            do_delete = not s_title or (s_title and
-                                        s_title in getattr(l_item, 'title', ''))
+            do_delete = not file or (file and
+                                     getattr(l_item, 'title', '') == file)
             if l_item.activity_id == self.app_name and do_delete:
                 envelope.manage_delObjects(l_item.id)
 
@@ -171,7 +171,7 @@ class RemoteRESTAPIApplication(SimpleItem):
             failed_job['last_error'] = err_msg
             self.update_retries(workitem, jobid=jobid)
             if failed_job.get('retries') == 0:
-                self.mark_failed(workitem, job)
+                self.mark_failed(workitem, failed_job)
                 self.update_job(workitem, failed_job)
         else:
             return jsondata
@@ -215,8 +215,7 @@ class RemoteRESTAPIApplication(SimpleItem):
 
     def get_job_meta(self, workitem, jobid):
         """Return job metadata."""
-        qa_data = getattr(workitem, self.app_name)
-        jobs_meta = qa_data.get('jobs', {})
+        jobs_meta = self.get_jobs_meta(workitem)
         return jobs_meta.get(jobid)
 
     def persist_meta(self, workitem):
@@ -240,63 +239,58 @@ class RemoteRESTAPIApplication(SimpleItem):
         workitem = getattr(self, workitem_id)
         envelope = workitem.getMySelf()
         self.init_wk(workitem)
-        if not REQUEST or REQUEST and not getattr(REQUEST, 'failed_qa_only', None):
-            self.do_feedback_cleanup(envelope)
-        else:
-            self.manage_previously_failed_jobs(workitem, envelope)
-            self.check_if_blocked(workitem, envelope)
+
+        self.setup_previous_jobs(workitem, envelope)
+        self.check_if_blocked(workitem, envelope)
+
         self.update_retries(workitem)
         self.callApplication(workitem_id, REQUEST)
+
+    def setup_previous_jobs(self, workitem, envelope):
+        """Setup the old jobs."""
+        last_qa = self.get_previous_qa(envelope)
+        jobs = self.get_jobs_meta(last_qa)
+
+        for jobid, job in jobs.iteritems():
+            job_id = '_'.join(['', job.get('scriptId'), job.get('fileUrl')])
+            j_ready = job.get('status') == 'Ready'
+            j_failed = job.get('status') == 'Failed'
+            f_modified = self.file_has_been_modified(envelope,
+                                                     last_qa.id,
+                                                     job.get('fileUrl'))
+            if j_ready and not f_modified:
+                job['oldJobId'] = job.get('oldJobId', job.get('jobId'))
+            elif j_failed or f_modified:
+                filename = job.get('fileUrl').split('/')[-1]
+                filename = filename.encode('utf-8')
+                filename = '{} result for: {} - {}'.format(self.app_name,
+                                                           filename,
+                                                           job.get('scriptTitle'))
+                self.do_feedback_cleanup(envelope, file=filename)
+                for attr in ['status', 'last_error', 'next_run']:
+                    if attr in job:
+                        del job[attr]
+                job['retries'] = self.retries
+            job['jobId'] = job_id
+            self.add_job(workitem, job)
 
     def check_if_blocked(self, workitem, envelope):
         """Checks if remaining feedbacks are blockers"""
         fbs = envelope.objectValues('Report Feedback')
         for fb in fbs:
-            if getattr(fb, 'feedback_status', '') == 'BLOCKER' and not workitem.blocker:
+            is_blocker = getattr(fb, 'feedback_status', '') == 'BLOCKER'
+            if is_blocker and not workitem.blocker:
                 workitem.blocker = True
-
-    def manage_previously_failed_jobs(self, workitem, envelope):
-        """Adds previously failed QA jobs in the wk prop."""
-        failed_jobs = self.get_failed_jobs(envelope)
-        if failed_jobs:
-            for job in failed_jobs:
-                self.do_feedback_cleanup(envelope,
-                                         s_title=job.get('scriptTitle'))
-                job_id = '_'.join(['', job.get('scriptId'), job.get('fileUrl')])
-                job['jobId'] = job_id
-                self.add_job(workitem, job)
 
     def handle_failed_job(self, workitem, job):
         result = self.add_async_qajob(workitem, job)
         if result:
+            # Register old job with a new valid ID
             l_wk_prop = getattr(workitem, self.app_name)
             del l_wk_prop['jobs'][job.get('jobId')]
-            msg = '{} - Previously failed job submitted: {}'\
-                  ' for file: {}'.format(self.app_name, job.get('scriptTitle'),
-                                         job.get('fileUrl'))
-            self.log_event('info', msg, workitem)
             job['jobId'] = result.get('jobId')
             job['status'] = 'Pending'
-
             self.add_job(workitem, job)
-
-    def update_scripts_data(self, workitem, file_id, script_title, status):
-        """Updates the status of the script with script_title."""
-        l_wk_prop = getattr(workitem, self.app_name)
-        envelope = workitem.getMySelf()
-        schemas = []
-
-        if file_id == 'xml':
-            schemas = envelope.dataflow_uris
-        else:
-            file = envelope.restrictedTraverse(str(file_id))
-            schemas = [getattr(file, 'xml_schema_location')]
-
-        for schema in schemas:
-            script_data = l_wk_prop['scripts'][schema]
-            for script_id in script_data:
-                if script_data[script_id].get('script_title') == script_title:
-                    script_data[script_id]['status'] = status
 
     def file_has_been_modified(self, envelope, qa_wk_id, fileurl):
         """Returns True if the file has been modified since last Automatic QA"""
@@ -317,24 +311,29 @@ class RemoteRESTAPIApplication(SimpleItem):
                     return False
         return True
 
-    def get_failed_jobs(self, envelope):
-        """Return a list of failed QA jobs."""
+    def get_previous_qa(self, envelope):
+        """Returns the previously ran Automatic QA activity."""
         QA_workitems = envelope.get_qa_workitems()
-        failed_jobs = []
         if QA_workitems:
             qa = QA_workitems[-2]
-            last_qa_wk_prop = getattr(qa, self.app_name)
-            jobs = last_qa_wk_prop.get('jobs', [])
-            for jobid, job in jobs.iteritems():
-                if job.get('status') == 'Failed' or self.file_has_been_modified(envelope, qa.id, job.get('fileUrl')):
-                    failed_jobs.append({
-                        'fileUrl': job.get('fileUrl'),
-                        'scriptId': job.get('scriptId'),
-                        'scriptTitle': job.get('scriptTitle'),
-                        'retries': self.retries
-                    })
+            return qa
 
-        return failed_jobs
+    def get_jobs_meta(self, wk):
+        """Returns jobs meta"""
+        qa_wk_prop = getattr(wk, self.app_name, {})
+        jobs = qa_wk_prop.get('jobs', {})
+
+        return jobs
+
+    def get_ready_job_ids(self, workitem):
+        """Return a list of finished QA jobs."""
+        ready_ids = []
+        jobs = self.get_jobs_meta(workitem)
+        for jobid, job in jobs.iteritems():
+            if jobid.startswith('_') and job.get('status') == 'Ready':
+                ready_ids.append(jobid)
+
+        return ready_ids
 
     def get_running_jobs(self, workitem):
         """Return true if this QA is done."""
@@ -349,11 +348,10 @@ class RemoteRESTAPIApplication(SimpleItem):
     def callApplication(self, workitem_id, REQUEST=None):
         """Called on a regular basis"""
         workitem = getattr(self, workitem_id)
-        result = self.do_analysis(workitem, REQUEST)
-        self.manage_analysis(workitem, result, REQUEST)
+        self.do_analysis(workitem, REQUEST)
         self.manage_jobs(workitem, REQUEST)
         analysis = self.get_analysis_meta(workitem)
-        analysis_done = analysis['last_error'] == None or analysis['retries'] == 0
+        analysis_done = analysis['status'] == 'Ready' or analysis['retries'] == 0
 
         if not self.get_running_jobs(workitem) and analysis_done:
             self.finish(workitem.id, REQUEST)
@@ -362,16 +360,37 @@ class RemoteRESTAPIApplication(SimpleItem):
         """Analyse the envelope."""
         qa_data = getattr(workitem, self.app_name)
         t_threshold = DateTime() >= DateTime(int(qa_data['analysis']['next_run']))
-        if not qa_data.get('jobs') and t_threshold:
+        if not qa_data['analysis'].get('status') == 'Ready' and t_threshold:
             envelope = workitem.getMySelf()
-            env_url = envelope.absolute_url(0)
-            batch_res = self.add_async_batch_qajob(workitem, env_url)
-            if not batch_res:
-                self.update_retries(workitem, REQUEST)
-            else:
-                qa_data['analysis']['last_error'] = None
+            schema_docs = envelope.getDocumentsForRemoteService()
+            l_wk_prop = getattr(workitem, self.app_name)
+            ready_ids = self.get_ready_job_ids(workitem)
+            failed = False
+            for schema, files in schema_docs.iteritems():
+                scripts = self.get_schema_qa_scripts(schema)
+                if scripts:
+                    for script in scripts:
+                        for e_file in files:
+                            job_id = '_'.join(['', script.get('id'), e_file])
+                            if job_id not in l_wk_prop.get('jobs') and job_id not in ready_ids:
+                                job = {
+                                    'scriptTitle': script.get('name'),
+                                    'fileUrl': e_file,
+                                    'jobId': job_id,
+                                    'scriptId': script.get('id'),
+                                    'retries': self.retries
+                                }
+                                self.add_job(workitem, job)
+                else:
+                    qa_data['analysis'][schema]['last_error'] = 'Unable to '\
+                        'retrieve scripts for files: {} '\
+                        'with schema: {}'.format(files, schema)
+                    failed = True
 
-            return batch_res
+            if not failed:
+                qa_data['analysis']['status'] = 'Ready'
+
+            self.update_retries(workitem, REQUEST)
 
     def update_retries(self, workitem, jobid=None, REQUEST=None):
         """Update the retries and next_run metadata."""
@@ -391,14 +410,8 @@ class RemoteRESTAPIApplication(SimpleItem):
                 data['next_run'] = next_run
             self.persist_meta(workitem)
 
-    def manage_analysis(self, workitem, analysis, REQUEST=None):
-        """Handle analysis results."""
-        if analysis:
-            jobs = analysis.get('jobs')
-            for job in jobs:
-                self.add_job(workitem, job)
-
     def mark_failed(self, workitem, job):
+        """Sets workitem's failure property to True if job has failed."""
         jobid = job.get('jobId')
         err_msg = '{} - Giving up on job: #{}, '\
                   'due to: {}'.format(self.app_name,
@@ -418,10 +431,8 @@ class RemoteRESTAPIApplication(SimpleItem):
                                                               file)
         self.persist_meta(workitem)
         if job.get('jobId', '').startswith('_'):
-            msg = '{} - Previously failed job in progress: {}'\
-                  ' for file: {}'.format(self.app_name,
-                                         job.get('scriptTitle'),
-                                         file)
+            return
+
         self.log_event('info', msg, workitem)
 
     def update_job(self, workitem, job):
@@ -564,7 +575,7 @@ class RemoteRESTAPIApplication(SimpleItem):
     def get_schema_qa_scripts(self, schema):
         """Returns the list of QA script ids available for a schema."""
         qascripts_url = '/'.join([self.base_url,
-                            self.qascripts_endpoint.strip('/')])
+                                  self.qascripts_endpoint.strip('/')])
         ctype = "application/json"
         headers = {"Accept": ctype,
                    "Content-Type": ctype}
@@ -582,31 +593,32 @@ class RemoteRESTAPIApplication(SimpleItem):
             err_msg = 'Unable to retrieve QAScripts for schema: {}'\
                       ' due to: {}'.format(schema, err)
             self.log_event('error', err_msg)
-            return []
         else:
             return jsondata
 
     def get_qa_scripts_short(self, schema):
         """Return a list of script ids for the specified schema."""
         scripts = self.get_schema_qa_scripts(schema)
+        result = []
         if scripts:
-            scripts = [[script.get('id'),
-                        script.get('name'), '',
-                        script.get('runOnDemandMaxFileSizeMB')
-                        ]for script in scripts]
+            result = [[script.get('id'),
+                       script.get('name'), '',
+                       script.get('runOnDemandMaxFileSizeMB')
+                       ]for script in scripts]
 
-        return scripts
+        return result
 
     def get_qa_scripts(self, schema):
         """Return a list of script ids for the specified schema."""
         scripts = self.get_schema_qa_scripts(schema)
         result = []
-        for script in scripts:
-            result.append({
-                'description': script.get('description'),
-                'xml_schema': script.get('schemaUrl'),
-                'content_type_out': script.get('outputType')
-            })
+        if scripts:
+            for script in scripts:
+                result.append({
+                    'description': script.get('description'),
+                    'xml_schema': script.get('schemaUrl'),
+                    'content_type_out': script.get('outputType')
+                })
 
         return result
 
