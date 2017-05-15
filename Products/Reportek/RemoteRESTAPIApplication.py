@@ -314,7 +314,7 @@ class RemoteRESTAPIApplication(SimpleItem):
     def get_previous_qa(self, envelope):
         """Returns the previously ran Automatic QA activity."""
         QA_workitems = envelope.get_qa_workitems()
-        if QA_workitems:
+        if QA_workitems and len(QA_workitems) >= 2:
             qa = QA_workitems[-2]
             return qa
 
