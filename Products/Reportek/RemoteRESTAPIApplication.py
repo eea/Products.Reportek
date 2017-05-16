@@ -195,6 +195,8 @@ class RemoteRESTAPIApplication(SimpleItem):
         """Adds QA-specific extra properties to the workitem."""
         default_meta = {
             'last_error': None,
+            'status': 'Pending',
+            'jobs': {}
         }
         qa_data = PersistentMapping()
         qa_data['analysis'] = default_meta
@@ -316,28 +318,37 @@ class RemoteRESTAPIApplication(SimpleItem):
     def callApplication(self, workitem_id, REQUEST=None):
         """Called on a regular basis"""
         workitem = getattr(self, workitem_id)
-        self.do_analysis(workitem, REQUEST)
-        self.manage_jobs(workitem, REQUEST)
         analysis = self.get_analysis_meta(workitem)
-        analysis_done = analysis['status'] == 'Ready' or analysis['retries'] == 0
-
-        if not self.get_running_jobs(workitem) and analysis_done:
+        analysis_ready = analysis.get('status') == 'Ready'
+        analysys_fail = (analysis.get('status') == 'Failed' and
+                         analysis.get('retries') == 0)
+        jobs_running = self.get_running_jobs(workitem)
+        if (not jobs_running and analysis_ready) or analysys_fail:
             self.finish(workitem.id, REQUEST)
+
+        self.do_analysis(workitem, REQUEST)
+
+        if analysis.get('status') == 'Ready':
+            self.manage_jobs(workitem, REQUEST)
 
     def do_analysis(self, workitem, REQUEST=None):
         """Analyse the envelope."""
         qa_data = getattr(workitem, self.app_name)
         t_threshold = DateTime() >= DateTime(int(qa_data['analysis']['next_run']))
         if not qa_data['analysis'].get('status') == 'Ready' and t_threshold:
+            qa_data['analysis']['status'] = 'Pending'
             envelope = workitem.getMySelf()
             schema_docs = envelope.getDocumentsForRemoteService()
             l_wk_prop = getattr(workitem, self.app_name)
             ready_ids = self.get_ready_job_ids(workitem)
             failed = False
             for schema, files in schema_docs.iteritems():
+                meta = {'last_error': None}
+                qa_data['analysis']['jobs'][schema] = meta
                 scripts = self.get_schema_qa_scripts(schema)
                 if scripts:
                     for script in scripts:
+                        meta[script.get('id')] = dict(files=files)
                         for e_file in files:
                             job_id = '_'.join(['', script.get('id'), e_file])
                             if job_id not in l_wk_prop.get('jobs') and job_id not in ready_ids:
@@ -350,15 +361,17 @@ class RemoteRESTAPIApplication(SimpleItem):
                                 }
                                 self.add_job(workitem, job)
                 else:
-                    qa_data['analysis'][schema]['last_error'] = 'Unable to '\
+                    meta['last_error'] = 'Unable to '\
                         'retrieve scripts for files: {} '\
                         'with schema: {}'.format(files, schema)
                     failed = True
 
             if not failed:
                 qa_data['analysis']['status'] = 'Ready'
+            else:
+                qa_data['analysis']['status'] = 'Failed'
 
-            self.update_retries(workitem, REQUEST)
+            self.update_retries(workitem, REQUEST=REQUEST)
 
     def update_retries(self, workitem, jobid=None, REQUEST=None):
         """Update the retries and next_run metadata."""
