@@ -38,7 +38,7 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
         act_id = "act%s" % idx
         app_id = "act%s" % idx
         country = 'http://spatial/%s' % idx
-        dataflow_uris = 'http://obligation/%idx' % idx
+        dataflow_uris = ['http://obligation/%idx' % idx,]
         col = Collection(col_id, country=country, dataflow_uris=dataflow_uris)
         self.app._setOb(col_id, col)
 
@@ -70,6 +70,9 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
         getattr(self.wf, proc_id).begin = act_id
         self.wf.setProcessMappings(proc_id, '1', '1')
 
+        mock_dm_container = Mock(getSchemasForDataflows=Mock(return_value=[]))
+        col.getDataflowMappingsContainer = Mock(return_value=mock_dm_container)
+
         env = Envelope(process=getattr(self.wf, proc_id),
                        title='FirstEnvelope',
                        authUser='TestUser',
@@ -78,7 +81,8 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
                        partofyear='January',
                        country='http://spatial/1',
                        locality='TestLocality',
-                       descr='TestDescription')
+                       descr='TestDescription',
+                       dataflow_uris=dataflow_uris)
         env._content_registry_ping = Mock()
         env.id = env_id
         getattr(self.app, col_id)._setOb(env_id, env)
@@ -87,59 +91,91 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
         getattr(self, env_id).startInstance(self.app.REQUEST)
 
     @patch('Products.Reportek.RemoteRESTAPIApplication.requests')
-    def test_request_async_batch_job(self, mock_requests):
-        mock_requests.post.return_value = Mock(
+    def test_analysis(self, mock_requests):
+        mock_requests.get.return_value = Mock(
             status_code=200,
             reason='OK',
-            json=Mock(return_value={'jobs': [
+            json=Mock(return_value=[
                 {
-                    'jobId': '123',
-                    'fileUrl': 'http://some.file.url.1'
-                }, {
-                    'jobId': '456',
-                    'fileUrl': 'http://some.file.url.2'
+                    "id": "7",
+                    "type": "xquery 1.0",
+                    "outputType": "HTML",
+                    "url": "test.test",
+                    "name": "Test 1",
+                    "description": "This is a test",
+                    "isActive": "1",
+                    "runOnDemandMaxFileSizeMB": "200",
+                    "schemaUrl": "http://local.test/test"
+                },
+                {
+                    "id": "2",
+                    "type": "xquery 1.0",
+                    "outputType": "HTML",
+                    "url": "test.test1",
+                    "name": "Test 2",
+                    "description": "This is another test",
+                    "isActive": "1",
+                    "runOnDemandMaxFileSizeMB": "200",
+                    "schemaUrl": "http://local.test/test2"
                 }
-            ]}))
+            ]))
         mock_requests.codes.ok = 200
         self.create_cepaa_set(1)
-        data = {'envelopeUrl': 'http://nohost/col1/env1'}
-        mock_requests.post.assert_called_once_with(
-            'http://submit.url/rest/async/jobs/batch',
+
+        params = {'schema': 'http://obligation/1dx'}
+        mock_requests.get.assert_called_once_with(
+            'http://submit.url/rest/qascripts',
             cookies=None,
             verify=False,
             headers={'Content-Type': 'application/json',
                      'Accept': 'application/json'},
-            params=None,
+            params=params,
             timeout=20,
-            data=json.dumps(data))
+            data=None)
 
-    @patch('Products.Reportek.RemoteRESTAPIApplication.requests')
-    def test_request_async_batch_job_auth(self, mock_requests):
-        mock_requests.post.return_value = Mock(
-            status_code=200,
-            reason='OK',
-            json=Mock(return_value={'jobs': [
-                {
-                    'jobId': '123',
-                    'fileUrl': 'http://some.file.url.1'
-                }, {
-                    'jobId': '456',
-                    'fileUrl': 'http://some.file.url.2'
-                }
-            ]}))
-        mock_requests.codes.ok = 200
-        self.create_cepaa_set(1, security=True)
-        data = {'envelopeUrl': 'http://nohost/col1/env1'}
-        mock_requests.post.assert_called_once_with(
-            'http://submit.url/rest/async/jobs/batch',
-            cookies=None,
-            verify=False,
-            headers={'Content-Type': 'application/json',
-                     'Accept': 'application/json',
-                     'Authorization': 'token'},
-            params=None,
-            timeout=20,
-            data=json.dumps(data))
+        @patch('Products.Reportek.RemoteRESTAPIApplication.requests')
+        def test_analysis_auth(self, mock_requests):
+            mock_requests.get.return_value = Mock(
+                status_code=200,
+                reason='OK',
+                json=Mock(return_value=[
+                    {
+                        "id": "7",
+                        "type": "xquery 1.0",
+                        "outputType": "HTML",
+                        "url": "test.test",
+                        "name": "Test 1",
+                        "description": "This is a test",
+                        "isActive": "1",
+                        "runOnDemandMaxFileSizeMB": "200",
+                        "schemaUrl": "http://local.test/test"
+                    },
+                    {
+                        "id": "2",
+                        "type": "xquery 1.0",
+                        "outputType": "HTML",
+                        "url": "test.test1",
+                        "name": "Test 2",
+                        "description": "This is another test",
+                        "isActive": "1",
+                        "runOnDemandMaxFileSizeMB": "200",
+                        "schemaUrl": "http://local.test/test2"
+                    }
+                ]))
+            mock_requests.codes.ok = 200
+            self.create_cepaa_set(1, security=True)
+
+            params = {'schema': 'http://obligation/1dx'}
+            mock_requests.get.assert_called_once_with(
+                'http://submit.url/rest/qascripts',
+                cookies=None,
+                verify=False,
+                headers={'Content-Type': 'application/json',
+                         'Accept': 'application/json',
+                         'Authorization': 'token'},
+                params=params,
+                timeout=20,
+                data=None)
 
     @patch('Products.Reportek.RemoteRESTAPIApplication.requests')
     def test_workitem_initialization(self, mock_requests):
