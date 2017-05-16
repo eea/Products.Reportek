@@ -176,38 +176,6 @@ class RemoteRESTAPIApplication(SimpleItem):
         else:
             return jsondata
 
-    def add_async_batch_qajob(self, workitem, env_url):
-        """Submit envelope level batch job for analysis."""
-        async_batch_url = '/'.join([self.async_base_url,
-                                    self.jobs_endpoint.strip('/'),
-                                    self.batch_endpoint.strip('/')])
-        data = {
-            "envelopeUrl": env_url
-        }
-        data = json.dumps(data)
-        ctype = "application/json"
-        headers = {"Accept": ctype,
-                   "Content-Type": ctype}
-
-        result = self.do_api_request(async_batch_url, method='post', data=data,
-                                     headers=headers)
-        err = result.get('error')
-        jsondata = result.get('data')
-
-        if err:
-            err_msg = 'Envelope analysis job for {}'\
-                      ' failed: ({})'.format(env_url, err)
-            analysis = self.get_analysis_meta(workitem)
-            analysis['last_error'] = err_msg
-            self.update_retries(workitem)
-            if analysis.get('retries') == 0:
-                err_msg = '{} - Giving up on envelope analysis, '\
-                          'due to: {}'.format(self.app_name, err_msg)
-                self.log_event('error', err_msg, workitem)
-                workitem.failure = True
-        else:
-            return jsondata
-
     def get_analysis_meta(self, workitem):
         """Return analysis metadata."""
         qa_data = getattr(workitem, self.app_name, {})
