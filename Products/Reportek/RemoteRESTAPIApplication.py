@@ -252,7 +252,7 @@ class RemoteRESTAPIApplication(SimpleItem):
             if is_blocker and not workitem.blocker:
                 workitem.blocker = True
 
-    def handle_failed_job(self, workitem, job):
+    def submit_job(self, workitem, job):
         result = self.add_async_qajob(workitem, job)
         if result:
             # Register old job with a new valid ID
@@ -329,6 +329,10 @@ class RemoteRESTAPIApplication(SimpleItem):
         self.do_analysis(workitem, REQUEST)
 
         if analysis.get('status') == 'Ready':
+            unsubmitted = self.get_unsubmitted_jobs(workitem, REQUEST)
+            for job in unsubmitted:
+                self.submit_job(workitem, job)
+
             self.manage_jobs(workitem, REQUEST)
 
     def do_analysis(self, workitem, REQUEST=None):
@@ -422,6 +426,19 @@ class RemoteRESTAPIApplication(SimpleItem):
         qa_data['jobs'][job.get('jobId')].update(job)
         self.persist_meta(workitem)
 
+    def get_unsubmitted_jobs(self, workitem, REQUEST=None):
+        """Returns a list of unsubmitted jobs"""
+        unsubmitted = []
+        qa_data = getattr(workitem, self.app_name)
+        jobs = qa_data.get('jobs', [])
+        for jobid, job in jobs.iteritems():
+            submitted = not job.get('jobId', '').startswith('_')
+            skip = job.get('status') == 'Ready' or job.get('retries') == 0
+            if not submitted and not skip:
+                unsubmitted.append(job)
+
+        return unsubmitted
+
     def manage_jobs(self, workitem, REQUEST=None):
         """Manage the remote jobs."""
         qa_data = getattr(workitem, self.app_name)
@@ -436,8 +453,6 @@ class RemoteRESTAPIApplication(SimpleItem):
                 if submitted:
                     result = self.get_job_result(workitem, job)
                     self.manage_results(workitem, job, result, REQUEST)
-                else:
-                    self.handle_failed_job(workitem, job)
 
     def get_job_result(self, workitem, job):
         """Get the remote result for the current jobid."""

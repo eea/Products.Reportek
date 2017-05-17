@@ -1,5 +1,6 @@
 from mock import Mock, patch
 import json
+import requests_mock
 from OFS.Folder import Folder
 from DateTime import DateTime
 
@@ -31,7 +32,7 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
             'Common',
             Folder('Common'))
 
-    def create_cepaa_set(self, idx, security=False):
+    def create_cepaa_set(self, idx, security=False, retries=5):
         col_id = "col%s" % idx
         env_id = "env%s" % idx
         proc_id = "proc%s" % idx
@@ -59,7 +60,9 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
             '/jobs', '/batch', '/qascripts',
             'restapp', token=token
         )
-
+        if retries != 5:
+            act = proc.restrictedTraverse(app_id)
+            act.retries = retries
         getattr(self.wf, proc_id).addActivity(act_id,
                                               split_mode='xor',
                                               join_mode='xor',
@@ -179,227 +182,251 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
 
     @patch('Products.Reportek.RemoteRESTAPIApplication.requests')
     def test_workitem_initialization(self, mock_requests):
-        mock_requests.post.return_value = Mock(
+        mock_requests.get.return_value = Mock(
             status_code=200,
             reason='OK',
-            json=Mock(return_value={'jobs': [
+            json=Mock(return_value=[
                 {
-                    'jobId': '123',
-                    'fileUrl': 'http://some.file.url.1'
-                }, {
-                    'jobId': '456',
-                    'fileUrl': 'http://some.file.url.2'
+                    "id": "7",
+                    "type": "xquery 1.0",
+                    "outputType": "HTML",
+                    "url": "test.test",
+                    "name": "Test 1",
+                    "description": "This is a test",
+                    "isActive": "1",
+                    "runOnDemandMaxFileSizeMB": "200",
+                    "schemaUrl": "http://local.test/test"
+                },
+                {
+                    "id": "2",
+                    "type": "xquery 1.0",
+                    "outputType": "HTML",
+                    "url": "test.test1",
+                    "name": "Test 2",
+                    "description": "This is another test",
+                    "isActive": "1",
+                    "runOnDemandMaxFileSizeMB": "200",
+                    "schemaUrl": "http://local.test/test2"
                 }
-            ]}))
+            ]))
         mock_requests.codes.ok = 200
         self.create_cepaa_set(1)
         prop = self.app.col1.env1['0'].restapp
         analysis = prop['analysis']
         assert analysis['last_error'] is None
         assert isinstance(analysis['next_run'], DateTime)
+        assert 'http://obligation/1dx' in analysis['jobs']
 
     @patch('Products.Reportek.RemoteRESTAPIApplication.requests')
     def test_app_writes_success_in_event_log(self, mock_requests):
-        job1id = '123'
-        job1fileurl = 'http://some.file.url.1'
-        job2id = '456'
-        job2fileurl = 'http://some.file.url.2'
-        mock_requests.post.return_value = Mock(
-            status_code=200,
-            reason='OK',
-            json=Mock(return_value={'jobs': [
-                {
-                    'jobId': job1id,
-                    'fileUrl': job1fileurl
-                }, {
-                    'jobId': job2id,
-                    'fileUrl': job2fileurl
-                }
-            ]}))
+        script_id = '123'
+        job_id = '1234'
+        file_url = 'http://nohost/col1/env1/xml'
+        mock_requests.get.side_effect = [
+            Mock(status_code=200,
+                 reason='OK',
+                 json=Mock(return_value=[{
+                        "id": script_id,
+                        "type": "xquery 1.0",
+                        "outputType": "HTML",
+                        "url": "test.test",
+                        "name": "Test 1",
+                        "description": "This is a test",
+                        "isActive": "1",
+                        "runOnDemandMaxFileSizeMB": "200",
+                        "schemaUrl": "http://local.test/test"
+                 }])),
+            Mock(status_code=200,
+                 reason='OK',
+                 json=Mock(return_value={
+                        "scriptTitle": "Test 1",
+                        "executionStatus": {
+                            "statusId": "1",
+                            "statusName": "Pending"
+                        }
+                 }))
+        ]
         mock_requests.codes.ok = 200
-        self.create_cepaa_set(1)
-        evtlog = self.app.col1.env1['0'].event_log
-
-        self.assertEqual(evtlog[1]['event'], 'restapp - job in progress: #{}'
-                         ' for file: {}'.format(job1id,
-                                                job1fileurl.split('/')[-1]))
-        assert evtlog[2]['event'] == 'restapp - job in progress: #{} for file'\
-                                     ': {}'.format(job2id,
-                                                   job2fileurl.split('/')[-1])
-
-    @patch('Products.Reportek.RemoteRESTAPIApplication.requests')
-    def test_create_job_fb(self, mock_requests):
         mock_requests.post.return_value = Mock(
-            status_code=200,
-            reason='OK',
-            json=Mock(return_value={'jobs': [
-                {
-                    'jobId': '123',
-                    'fileUrl': 'http://some.file.url.1'
-                }
-            ]}))
-        mock_requests.get.return_value = Mock(
             status_code=200,
             reason='OK',
             json=Mock(return_value={
-                'scriptTitle': 'Check obligation dependent QA/QC rules',
-                'executionStatus': {
-                    'statusId': '0',
-                    'statusName': 'Ready'
-                },
-                'feedbackStatus': 'ERROR',
-                'feedbackMessage': 'Some message',
-                'feedbackContentType': 'text/html',
-                'feedbackContent': '<div>Dummy</div>'
+                "jobId": job_id
             }))
-        mock_requests.codes.ok = 200
 
         self.create_cepaa_set(1)
+
+        evtlog = self.app.col1.env1['0'].event_log
+        self.assertEqual(evtlog[1]['event'], 'restapp - job in progress: #{}'
+                         ' for file: {}'.format(job_id,
+                                                file_url.split('/')[-1]))
+
+    @patch('Products.Reportek.RemoteRESTAPIApplication.requests')
+    def test_create_job_fb(self, mock_requests):
+        script_id = '123'
+        script_title = 'Test 1'
+        job_id = '1234'
+        mock_requests.get.side_effect = [
+            Mock(status_code=200,
+                 reason='OK',
+                 json=Mock(return_value=[{
+                        "id": script_id,
+                        "type": "xquery 1.0",
+                        "outputType": "HTML",
+                        "url": "test.test",
+                        "name": script_title,
+                        "description": "This is a test",
+                        "isActive": "1",
+                        "runOnDemandMaxFileSizeMB": "200",
+                        "schemaUrl": "http://local.test/test"
+                 }])),
+            Mock(status_code=200,
+                 reason='OK',
+                 json=Mock(return_value={
+                        "scriptTitle": script_title,
+                        "executionStatus": {
+                            "statusId": "0",
+                            "statusName": "Ready"
+                        },
+                        "feedbackStatus": "ERROR",
+                        "feedbackMessage": "Some message",
+                        "feedbackContentType": "text/html",
+                        "feedbackContent": "<div>...</div>" 
+                 }))
+        ]
+        mock_requests.codes.ok = 200
+        mock_requests.post.return_value = Mock(
+            status_code=200,
+            reason='OK',
+            json=Mock(return_value={
+                "jobId": job_id
+            }))
+
+        self.create_cepaa_set(1)
+
+        mock_requests.codes.ok = 200
+
         prop = self.app.col1.env1['0'].restapp
         evtlog = self.app.col1.env1['0'].event_log
-        self.assertEqual(evtlog[2]['event'], 'restapp - job completed: #123'
-                         ' - Check obligation dependent QA/QC rules')
-        self.assertEqual(prop['jobs']['123']['status'], 'Ready')
-        fb_id = 'restapp_123'
+        self.assertEqual(evtlog[2]['event'], 'restapp - job completed: #{}'
+                         ' - {}'.format(job_id, script_title))
+        self.assertEqual(prop['jobs'][job_id]['status'], 'Ready')
+        fb_id = 'restapp_1234'
         assert fb_id in self.app.col1.env1.objectIds()
         fb = self.app.col1.env1.restrictedTraverse(fb_id)
         self.assertEqual(fb.feedback_status, 'ERROR')
 
     @patch('Products.Reportek.RemoteRESTAPIApplication.requests')
     def test_job_not_done(self, mock_requests):
+        script_id = '123'
+        job_id = '1234'
+        mock_requests.get.side_effect = [
+            Mock(status_code=200,
+                 reason='OK',
+                 json=Mock(return_value=[{
+                        "id": script_id,
+                        "type": "xquery 1.0",
+                        "outputType": "HTML",
+                        "url": "test.test",
+                        "name": "Test 1",
+                        "description": "This is a test",
+                        "isActive": "1",
+                        "runOnDemandMaxFileSizeMB": "200",
+                        "schemaUrl": "http://local.test/test"
+                 }])),
+            Mock(status_code=200,
+                 reason='OK',
+                 json=Mock(return_value={
+                        "scriptTitle": "Test 1",
+                        "executionStatus": {
+                            "statusId": "1",
+                            "statusName": "Pending"
+                        }
+                 })),
+            Mock(status_code=200,
+                 reason='OK',
+                 json=Mock(return_value={
+                        "scriptTitle": "Test 1",
+                        "executionStatus": {
+                            "statusId": "2",
+                            "statusName": "Failed"
+                        }
+                 }))
+        ]
+        mock_requests.codes.ok = 200
         mock_requests.post.return_value = Mock(
-            status_code=200,
-            json=Mock(return_value={'jobs': [
-                {
-                    'jobId': '123',
-                    'fileUrl': 'http://some.file.url.1'
-                }
-            ]}))
-        mock_requests.get.return_value = Mock(
             status_code=200,
             reason='OK',
             json=Mock(return_value={
-                'scriptTitle': 'Check obligation dependent QA/QC rules',
-                'executionStatus': {
-                    'statusId': '1',
-                    'statusName': 'Pending'
-                }
+                "jobId": job_id
             }))
         mock_requests.codes.ok = 200
 
         self.create_cepaa_set(1)
         prop = self.app.col1.env1['0'].restapp
-        self.assertEqual(prop['jobs']['123']['status'], 'Pending')
-        self.assertEqual(4, prop['jobs']['123']['retries'])
+        self.assertEqual(prop['jobs'][job_id]['status'], 'Pending')
+        self.assertEqual(4, prop['jobs'][job_id]['retries'])
         restapp = self.app.Applications.proc1.act1
-        restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
-        self.assertEqual(3, prop['jobs']['123']['retries'])
+        restapp.__of__(self.app.col1.env1).callApplication('0',
+                                                           self.app.REQUEST)
+        self.assertEqual(3, prop['jobs'][job_id]['retries'])
 
     @patch('Products.Reportek.RemoteRESTAPIApplication.requests')
     def test_job_pending_no_retries(self, mock_requests):
+        script_id = '123'
+        job_id = '1234'
+        mock_requests.get.side_effect = [
+            Mock(status_code=200,
+                 reason='OK',
+                 json=Mock(return_value=[{
+                        "id": script_id,
+                        "type": "xquery 1.0",
+                        "outputType": "HTML",
+                        "url": "test.test",
+                        "name": "Test 1",
+                        "description": "This is a test",
+                        "isActive": "1",
+                        "runOnDemandMaxFileSizeMB": "200",
+                        "schemaUrl": "http://local.test/test"
+                 }])),
+            Mock(status_code=200,
+                 reason='OK',
+                 json=Mock(return_value={
+                        "scriptTitle": "Test 1",
+                        "executionStatus": {
+                            "statusId": "1",
+                            "statusName": "Pending"
+                        }
+                 })),
+            Mock(status_code=200,
+                 reason='OK',
+                 json=Mock(return_value={
+                        "scriptTitle": "Test 1",
+                        "executionStatus": {
+                            "statusId": "2",
+                            "statusName": "Failed"
+                        }
+                 }))
+        ]
+        mock_requests.codes.ok = 200
         mock_requests.post.return_value = Mock(
             status_code=200,
             reason='OK',
-            json=Mock(return_value={'jobs': [
-                {
-                    'jobId': '123',
-                    'fileUrl': 'http://some.file.url.1'
-                }
-            ]}))
-        mock_requests.get.return_value = Mock(
-            status_code=200,
-            reason='OK',
             json=Mock(return_value={
-                'scriptTitle': 'Check obligation dependent QA/QC rules',
-                'executionStatus': {
-                    'statusId': '1',
-                    'statusName': 'Pending'
-                }
+                "jobId": job_id
             }))
         mock_requests.codes.ok = 200
-
-        self.create_cepaa_set(1)
+        self.create_cepaa_set(1, retries=2)
         prop = self.app.col1.env1['0'].restapp
         evtlog = self.app.col1.env1['0'].event_log
-        self.assertEqual(prop['jobs']['123']['status'], 'Pending')
-        self.assertEqual(4, prop['jobs']['123']['retries'])
-        mock_requests.get.return_value = Mock(
-            status_code=200,
-            reason='OK',
-            json=Mock(return_value={
-                'scriptTitle': 'Check obligation dependent QA/QC rules',
-                'executionStatus': {
-                    'statusId': '1',
-                    'statusName': 'Pending'
-                }
-            }))
+        self.assertEqual(prop['jobs'][job_id]['status'], 'Pending')
+        self.assertEqual(1, prop['jobs'][job_id]['retries'])
+
         restapp = self.app.Applications.proc1.act1
         # Setting the retry frequency to 0
         restapp.r_frequency = 0
-        for retry in range(4):
+        for retry in range(2):
             restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
 
-        self.assertEqual(0, prop['jobs']['123']['retries'])
+        self.assertEqual(0, prop['jobs'][job_id]['retries'])
         self.assertEqual(evtlog[-1].get('event'), 'forwarded to End')
-
-    @patch('Products.Reportek.RemoteRESTAPIApplication.requests')
-    def test_bad_batch_json(self, mock_requests):
-        def bad_json():
-            raise ValueError
-        mock_requests.post.return_value = Mock(
-            status_code=200,
-            reason='OK',
-            json=bad_json)
-        mock_requests.codes.ok = 200
-        mock_requests.reason = 'OK'
-
-        self.create_cepaa_set(1)
-        prop = self.app.col1.env1['0'].restapp
-        self.assertEqual(prop['analysis']['last_error'], 'Envelope analysis'
-                         ' job for http://nohost/col1/env1 failed: (Unable to'
-                         ' convert QA Service response to JSON: '
-                         '. HTTP Code: 200 (OK))')
-
-    @patch('Products.Reportek.RemoteRESTAPIApplication.requests')
-    def test_batch_error(self, mock_requests):
-        mock_requests.post.return_value = Mock(
-            status_code=500,
-            reason='Internal Server Error',
-            json=Mock(return_value={
-                'httpStatusCode': 500,
-                'errorMessage': 'QA Service Exception'
-            })
-        )
-        mock_requests.codes.ok = 200
-
-        self.create_cepaa_set(1)
-        prop = self.app.col1.env1['0'].restapp
-        self.assertEqual(prop['analysis']['last_error'], 'Envelope analysis'
-                         ' job for http://nohost/col1/env1 failed: (HTTP Code:'
-                         ' 500 (Internal Server Error) - QA Service Exception)')
-
-    @patch('Products.Reportek.RemoteRESTAPIApplication.requests')
-    def test_bad_job_json(self, mock_requests):
-        def bad_json():
-            raise ValueError
-        mock_requests.post.return_value = Mock(
-            status_code=200,
-            reason='OK',
-            json=Mock(return_value={'jobs': [
-                {
-                    'jobId': '123',
-                    'fileUrl': 'http://some.file.url.1'
-                }
-            ]}))
-        mock_requests.get.return_value = Mock(
-            status_code=200,
-            reason='OK',
-            json=bad_json)
-        mock_requests.codes.ok = 200
-
-        self.create_cepaa_set(1)
-        prop = self.app.col1.env1['0'].restapp
-        self.assertEqual('Job: #123 for file some.file.url.1, failed: (Unable'
-                         ' to convert QA Service response to JSON: '
-                         '. HTTP Code: 200 (OK))',
-                         prop['jobs']['123']['last_error'])
