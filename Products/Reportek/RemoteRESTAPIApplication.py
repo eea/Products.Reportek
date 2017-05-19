@@ -144,13 +144,13 @@ class RemoteRESTAPIApplication(SimpleItem):
 
         return dict(data=jsondata, error=error)
 
-    def add_async_qajob(self, workitem, failed_job):
+    def add_async_qajob(self, workitem, job):
         """Submit asynchronous qa job"""
         async_qa_url = '/'.join([self.async_base_url,
                                  self.jobs_endpoint.strip('/')])
-        file_src = failed_job.get('fileUrl')
-        script_id = failed_job.get('scriptId')
-        jobid = failed_job.get('jobId')
+        file_src = job.get('fileUrl')
+        script_id = job.get('scriptId')
+        jobid = job.get('jobId')
         data = {
             "sourceUrl": file_src,
             "scriptId": script_id
@@ -168,11 +168,11 @@ class RemoteRESTAPIApplication(SimpleItem):
         if err:
             err_msg = 'Script ID: {} for file {},'\
                       ' failed: ({})'.format(script_id, file_src, err)
-            failed_job['last_error'] = err_msg
+            job['last_error'] = err_msg
             self.update_retries(workitem, jobid=jobid)
-            if failed_job.get('retries') == 0:
-                self.mark_failed(workitem, failed_job)
-                self.update_job(workitem, failed_job)
+            if job.get('retries') == 0:
+                self.mark_failed(workitem, job)
+                self.update_job(workitem, job)
         else:
             return jsondata
 
@@ -221,7 +221,9 @@ class RemoteRESTAPIApplication(SimpleItem):
         last_qa = self.get_previous_qa(envelope)
         jobs = self.get_jobs_meta(last_qa)
 
-        for jobid, job in jobs.iteritems():
+        for jobid, oldjob in jobs.iteritems():
+            # Make a copy of the old job and process that instead
+            job = dict(oldjob)
             job_id = '_'.join(['', job.get('scriptId'), job.get('fileUrl')])
             j_ready = job.get('status') == 'Ready'
             j_failed = job.get('status') == 'Failed'
@@ -320,20 +322,20 @@ class RemoteRESTAPIApplication(SimpleItem):
         workitem = getattr(self, workitem_id)
         analysis = self.get_analysis_meta(workitem)
         analysis_ready = analysis.get('status') == 'Ready'
-        analysys_fail = (analysis.get('status') == 'Failed' and
+        analysis_fail = (analysis.get('status') == 'Failed' and
                          analysis.get('retries') == 0)
         jobs_running = self.get_running_jobs(workitem)
-        if (not jobs_running and analysis_ready) or analysys_fail:
-            self.finish(workitem.id, REQUEST)
+        if (not jobs_running and analysis_ready) or analysis_fail:
+            self.finish_wk(workitem.id, REQUEST)
+        else:
+            self.do_analysis(workitem, REQUEST)
 
-        self.do_analysis(workitem, REQUEST)
+            if analysis.get('status') == 'Ready':
+                unsubmitted = self.get_unsubmitted_jobs(workitem, REQUEST)
+                for job in unsubmitted:
+                    self.submit_job(workitem, job)
 
-        if analysis.get('status') == 'Ready':
-            unsubmitted = self.get_unsubmitted_jobs(workitem, REQUEST)
-            for job in unsubmitted:
-                self.submit_job(workitem, job)
-
-            self.manage_jobs(workitem, REQUEST)
+                self.manage_jobs(workitem, REQUEST)
 
     def do_analysis(self, workitem, REQUEST=None):
         """Analyse the envelope."""
@@ -564,7 +566,7 @@ class RemoteRESTAPIApplication(SimpleItem):
         fb_ob.message = fb_message
         fb_ob.feedback_status = data.get('fb_status', '')
 
-    def finish(self, workitem_id, REQUEST=None):
+    def finish_wk(self, workitem_id, REQUEST=None):
         self.activateWorkitem(workitem_id, actor='openflow_engine')
         self.completeWorkitem(workitem_id, actor='openflow_engine', REQUEST=REQUEST)
 
