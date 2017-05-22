@@ -202,6 +202,7 @@ class RemoteRESTAPIApplication(SimpleItem):
         qa_data = PersistentMapping()
         qa_data['analysis'] = default_meta
         qa_data['jobs'] = {}
+        qa_data['localQA'] = {}
         setattr(workitem, self.app_name, qa_data)
 
     security.declareProtected('Use OpenFlow', '__call__')
@@ -686,8 +687,6 @@ class RemoteRESTAPIApplication(SimpleItem):
         """Run the local QA scripts"""
         qa_repo = self.QARepository
         wk_prop = getattr(workitem, self.app_name)
-        if 'localQA' not in wk_prop:
-            wk_prop['localQA'] = {}
         local_qa = wk_prop['localQA']
         xml_files = (x for x in self.aq_parent.objectValues(Document.meta_type)
                      if x.content_type == 'text/xml' and x.xml_schema_location)
@@ -707,8 +706,6 @@ class RemoteRESTAPIApplication(SimpleItem):
         # not ran yet
         wk_prop = getattr(workitem, self.app_name)
         local_qa = wk_prop.get('localQA')
-        if not local_qa:
-            return False
         for script_results in local_qa.values():
             # any bad status present?
             if any((bad_status for bad_status in script_results.values()

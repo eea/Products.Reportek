@@ -31,6 +31,9 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
         self.apps_folder._setOb(
             'Common',
             Folder('Common'))
+        from Products.Reportek.QARepository import QARepository
+        qa_repo = QARepository()
+        self.app._setObject(qa_repo.id, qa_repo)
 
     def create_cepaa_set(self, idx, security=False, retries=5, retry_qa=False):
         col_id = "col%s" % idx
