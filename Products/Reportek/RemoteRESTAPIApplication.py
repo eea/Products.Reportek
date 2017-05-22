@@ -9,6 +9,7 @@ from DateTime import DateTime
 from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile as ptf
 from Products.Reportek.RepUtils import RemoteApplicationException
+from Products.Reportek.Document import Document
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from OFS.SimpleItem import SimpleItem
@@ -92,7 +93,7 @@ class RemoteRESTAPIApplication(SimpleItem):
         """Deletes all previous feedbacks created by this application."""
         for l_item in envelope.objectValues('Report Feedback'):
             do_delete = not file or (file and
-                                     getattr(l_item, 'title', '') == file)
+                                     getattr(l_item, 'id', '') == file)
             if l_item.activity_id == self.app_name and do_delete:
                 envelope.manage_delObjects(l_item.id)
 
@@ -325,11 +326,13 @@ class RemoteRESTAPIApplication(SimpleItem):
         analysis_fail = (analysis.get('status') == 'Failed' and
                          analysis.get('retries') == 0)
         jobs_running = self.get_running_jobs(workitem)
-        if (not jobs_running and analysis_ready) or analysis_fail:
+
+        l_qa = self.local_scripts_done(workitem)
+        if (((not jobs_running and analysis_ready) or analysis_fail) and l_qa):
             self.finish_wk(workitem.id, REQUEST)
         else:
             self.do_analysis(workitem, REQUEST)
-
+            self.run_automatic_local_apps(workitem)
             if analysis.get('status') == 'Ready':
                 unsubmitted = self.get_unsubmitted_jobs(workitem, REQUEST)
                 for job in unsubmitted:
@@ -544,10 +547,10 @@ class RemoteRESTAPIApplication(SimpleItem):
             self.log_event('error', err_msg, workitem)
         fb_ob = env.restrictedTraverse(fb_attrs.get('id'))
 
-        fb_content = data.get('fb_content')
-        fb_content_type = data.get('fb_content_type')
-        fb_message = data.get('fb_message')
-        if len(fb_content) > FEEDBACKTEXT_LIMIT:
+        fb_content = data.get('fb_content', '')
+        fb_content_type = data.get('fb_content_type', '')
+        fb_message = data.get('fb_message', '')
+        if fb_content and len(fb_content) > FEEDBACKTEXT_LIMIT:
             with tempfile.TemporaryFile() as tmp:
                 tmp.write(fb_content.encode('utf-8'))
                 tmp.seek(0)
@@ -645,6 +648,74 @@ class RemoteRESTAPIApplication(SimpleItem):
             raise RemoteApplicationException(err_msg)
         else:
             return jsondata
+
+    def run_automatic_local_apps(self, workitem):
+        """Run the automatic local QA apps"""
+        wk_prop = getattr(workitem, self.app_name)
+        for file_id, result, script_id in self.run_local_qa_scripts(workitem):
+            wk_prop = getattr(workitem, self.app_name)
+            env = workitem.getMySelf()
+            qa_repo = self.QARepository
+            script_title = qa_repo[script_id].title
+            fb_id = '{0}_{1}_{2}'.format(self.app_name, script_id, file_id)
+            fb_title = '{0} result for file {1}: {2}'.format(self.app_name,
+                                                             file_id,
+                                                             script_title)
+            data = {
+                'fb_content': result.get('feedbackContent'),
+                'fb_content_type': result.get('feedbackContentType'),
+                'fb_message': result.get('feedbackMessage'),
+                'fb_status': result.get('feedbackStatus')
+            }
+
+            fb_attrs = {
+                'id': fb_id,
+                'title': fb_title,
+                'activity_id': workitem.activity_id,
+                'automatic': 1,
+                'document_id': file_id,
+            }
+            data['fb_attrs'] = fb_attrs
+            self.do_feedback_cleanup(env, file=fb_id)
+            self.add_feedback(env, data, workitem)
+            # mark script for file as done
+            wk_prop['localQA'][file_id][script_id] = 'done'
+            self.persist_meta(workitem)
+
+    def run_local_qa_scripts(self, workitem):
+        """Run the local QA scripts"""
+        qa_repo = self.QARepository
+        wk_prop = getattr(workitem, self.app_name)
+        if 'localQA' not in wk_prop:
+            wk_prop['localQA'] = {}
+        local_qa = wk_prop['localQA']
+        xml_files = (x for x in self.aq_parent.objectValues(Document.meta_type)
+                     if x.content_type == 'text/xml' and x.xml_schema_location)
+        for xml in xml_files:
+            if xml.id not in local_qa:
+                local_qa[xml.id] = {}
+            res_for_xml = local_qa[xml.id]
+            for script in qa_repo._get_local_qa_scripts(xml.xml_schema_location):
+                if script.id not in res_for_xml or res_for_xml[script.id] == 'failed':
+                    res_for_xml[script.id] = 'in progress'
+                    self.persist_meta(workitem)
+                    file_id, result = qa_repo._runQAScript(xml.absolute_url(1), 'loc_%s' % script.id)
+                    yield file_id, result, script.id
+                    # else, don't yield - nothing will happen in parent's loop
+
+    def local_scripts_done(self, workitem):
+        # not ran yet
+        wk_prop = getattr(workitem, self.app_name)
+        local_qa = wk_prop.get('localQA')
+        if not local_qa:
+            return False
+        for script_results in local_qa.values():
+            # any bad status present?
+            if any((bad_status for bad_status in script_results.values()
+                    if bad_status != 'done')):
+                return False
+        # truly no bad statuses (including no script -> status pairs) because we check this after join
+        return True
 
 
 InitializeClass(RemoteRESTAPIApplication)
