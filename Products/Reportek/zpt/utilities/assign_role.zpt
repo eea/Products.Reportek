@@ -41,40 +41,50 @@
     </metal:block>
 
     <metal:block fill-slot="data-table">
-      <tal:block condition="request/search_term | nothing">
+      <tal:block condition="request/search_term | nothing"
+        tal:define="result view/search_entities">
         <form action="#preview" method="POST" id="assign-roles-form">
 
           <tal:block metal:use-macro="here/find_user/macros/users_table" />
+          <tal:block tal:condition="not: result/error|nothing">
+            <tal:def tal:define="users result/users | nothing;
+                                 groups result/groups | nothing">
+              <tal:cond tal:condition="python: users or groups">
+                <h2>3. Select one or more countries</h2>
+                <tal:block tal:define="placeholder string:All">
+                  <tal:block metal:use-macro="here/filters/macros/countries" />
+                </tal:block>
 
-          <h2>3. Select one or more countries</h2>
-          <tal:block tal:define="placeholder string:All">
-            <tal:block metal:use-macro="here/filters/macros/countries" />
+                <h2>4. Select obligations</h2>
+                <div class="form-group"
+                  tal:define="multiple string:multiple;
+                              placeholder string:All">
+                  <label for="obligations">Obligations</label>
+                  <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
+                </div>
+
+                <h2>5. Filter by path</h2>
+                <tal:block metal:use-macro="here/filters/macros/path-filter" />
+
+                <h2>6. Select role</h2>
+                <tal:block metal:use-macro="here/filters/macros/role" />
+
+                <input type="hidden" name="search_term"
+                       tal:attributes="value request/search_term" />
+                
+                <input type="hidden" name="search_type"
+                       tal:attributes="value request/search_type|nothing" />
+
+                <div>
+                  <input type="submit" name="btn.find_collections"
+                         value="Find collections" />
+                </div>
+              </tal:cond>
+              <tal:cond tal:condition="python: not (users or groups)">
+                <span>No results for your query</span>
+              </tal:cond>
+            </tal:def>
           </tal:block>
-
-          <h2>4. Select obligations</h2>
-          <div class="form-group"
-            tal:define="multiple string:multiple;
-                        placeholder string:All">
-            <label for="obligations">Obligations</label>
-            <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
-          </div>
-
-          <h2>5. Filter by path</h2>
-          <tal:block metal:use-macro="here/filters/macros/path-filter" />
-
-          <h2>6. Select role</h2>
-          <tal:block metal:use-macro="here/filters/macros/role" />
-
-          <input type="hidden" name="search_term"
-                 tal:attributes="value request/search_term" />
-          
-          <input type="hidden" name="search_type"
-                 tal:attributes="value request/search_type|nothing" />
-
-          <div>
-            <input type="submit" name="btn.find_collections"
-                   value="Find collections" />
-          </div>
 
           <p tal:condition="not: request/search_term | nothing">
             <strong>Please enter a search term</strong>
