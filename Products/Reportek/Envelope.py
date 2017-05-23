@@ -41,6 +41,7 @@ import AccessControl.Role
 from AccessControl import ClassSecurityInfo, Unauthorized
 from AccessControl.SecurityManagement import getSecurityManager
 from Products.Reportek import permission_manage_properties_envelopes
+from Products.Reportek.exceptions import ApplicationException
 from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION
 from Products.PythonScripts.standard import url_quote
 from zExceptions import Forbidden
@@ -409,14 +410,19 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                     l_default_tab = w.id
         if l_no_active_workitems == 1:
             application = self.getPhysicalRoot().restrictedTraverse(l_application_url)
-            params = {'workitem_id': l_default_tab,
-                      'client': self,
-                      'document_title': application.title,
-                      'REQUEST': REQUEST,
-                      'RESPONSE': REQUEST.RESPONSE
+            params = {
+                'workitem_id': l_default_tab,
+                'REQUEST': REQUEST,
             }
-            return self.getPhysicalRoot().restrictedTraverse(l_application_url)(**params)
-        else:
+            try:
+                return application(**params)
+            except Exception as e:
+                msg = "ApplicationException while executing: {} "\
+                      "for envelope: {}, with workitem_id: {} - Error: {}"\
+                      .format(l_application_url, self.absolute_url(),
+                              l_default_tab, e)
+                logger.exception(msg)
+
             return self.overview(REQUEST)
 
     security.declareProtected('View management screens', 'manage_main_inh')
