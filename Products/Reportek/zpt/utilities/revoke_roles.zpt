@@ -44,21 +44,31 @@
       <tal:block condition="request/search_term | nothing"
         tal:define="user python:request.get('username', None);
                   group python: request.get('groupsname', None);
-                  entity python: user or group">
+                  entity python: user or group;
+                  result view/search_entities">
 
         <form action="" method="POST" id="revoke-roles-form">
 
           <tal:block metal:use-macro="here/find_user/macros/users_table" />
+          <tal:block tal:condition="not: result/error|nothing">
+            <tal:def tal:define="users result/users | nothing;
+                                 groups result/groups | nothing">
+              <tal:cond tal:condition="python: users or groups">
+                <input type="hidden" name="search_term"
+                       tal:attributes="value request/search_term" />
 
-          <input type="hidden" name="search_term"
-                 tal:attributes="value request/search_term" />
+                <input type="hidden" name="search_type"
+                       tal:attributes="value request/search_type|nothing" />
 
-          <input type="hidden" name="search_type"
-                 tal:attributes="value request/search_type|nothing" />
-
-          <div>
-            <input type="submit" name="btn.find_roles" value="Find user/group roles" />
-          </div>
+                <div>
+                  <input type="submit" name="btn.find_roles" value="Find user/group roles" />
+                </div>
+              </tal:cond>
+              <tal:cond tal:condition="python: not (users or groups)">
+                <span>No results for your query</span>
+              </tal:cond>
+            </tal:def>
+          </tal:block>
 
           <p tal:condition="not: request/search_term | nothing">
             <strong>Please enter a search term</strong>

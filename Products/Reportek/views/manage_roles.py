@@ -201,7 +201,11 @@ class ManageRoles(BaseAdmin):
                 users = ecas_users + ldap_users
 
                 if users:
-                    users.sort(key=itemgetter('uid'))
+                    try:
+                        users.sort(key=itemgetter('uid'))
+                    except KeyError:
+                        # Fail silently if missing 'uid'
+                        pass
 
                 response['users'] = users
 
