@@ -104,6 +104,14 @@
                     </tal:block>
                   </tal:block>
                 </tal:def>
+                <tal:def tal:define="status_extra options/status_extra|nothing">
+                  <tal:block tal:condition="status_extra">
+                    <span tal:attributes="class python: {'error': 'error-msg-lite', 'warning': 'warning-msg-lite', 'info': 'info-msg-lite'}.get(e_type, '');"
+                    tal:define="e_type python: status_extra.get('type');
+                                e_msg python: status_extra.get('message');"
+                     tal:content="e_msg"/>
+                  </tal:block>
+                </tal:def>
               </td>
             </tr>
             <tr tal:condition="isBdrDeployment">
