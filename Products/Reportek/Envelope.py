@@ -394,6 +394,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         """ """
         if REQUEST is None:
             REQUEST = self.REQUEST
+        status_extra = None
         browser_accept_type = get_first_accept(REQUEST)
         if browser_accept_type == 'application/rdf+xml':
             REQUEST.RESPONSE.redirect(self.absolute_url() + '/rdf', status=303) # The Linked Data guys want status 303
@@ -412,7 +413,10 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             application = self.getPhysicalRoot().restrictedTraverse(l_application_url)
             params = {
                 'workitem_id': l_default_tab,
+                'client': self,
+                'document_title': application.title,
                 'REQUEST': REQUEST,
+                'RESPONSE': REQUEST.RESPONSE
             }
             try:
                 return application(**params)
@@ -422,8 +426,12 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                       .format(l_application_url, self.absolute_url(),
                               l_default_tab, e)
                 logger.exception(msg)
+                status_extra = {
+                    'type': 'error',
+                    'message': 'A system error occured and an alert has been triggered for the administrators!'
+                }
 
-        return self.overview(REQUEST)
+        return self.overview(REQUEST, status_extra=status_extra)
 
     security.declareProtected('View management screens', 'manage_main_inh')
     manage_main_inh = EnvelopeInstance.manage_main
