@@ -400,7 +400,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             try:
                 return application(**params)
             except Exception as e:
-                msg = "ApplicationException while executing: {} "\
+                msg = "ApplicationException while trying to display: {} "\
                       "for envelope: {}, with workitem_id: {} - Error: {}"\
                       .format(l_application_url, self.absolute_url(),
                               l_default_tab, e)
