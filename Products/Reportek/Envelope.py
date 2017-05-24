@@ -422,7 +422,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                       .format(l_application_url, self.absolute_url(),
                               l_default_tab, e)
                 logger.exception(msg)
-
+        else:
             return self.overview(REQUEST)
 
     security.declareProtected('View management screens', 'manage_main_inh')
