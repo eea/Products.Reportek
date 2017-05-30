@@ -104,11 +104,12 @@
                     </tal:block>
                   </tal:block>
                 </tal:def>
-                <tal:def tal:define="status_extra options/status_extra|nothing">
+                <tal:def tal:define="session python: getattr(request, 'SESSION', {});
+                                     status_extra python: session.get('status_extra')">
                   <tal:block tal:condition="status_extra">
                     <span tal:attributes="class python: {'error': 'error-msg-lite', 'warning': 'warning-msg-lite', 'info': 'info-msg-lite'}.get(e_type, '');"
-                    tal:define="e_type python: status_extra.get('type');
-                                e_msg python: status_extra.get('message');"
+                    tal:define="e_type python: status_extra[0];
+                                e_msg python: status_extra[1];"
                      tal:content="e_msg"/>
                   </tal:block>
                 </tal:def>

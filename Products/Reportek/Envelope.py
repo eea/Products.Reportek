@@ -377,6 +377,9 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         """ """
         if REQUEST is None:
             REQUEST = self.REQUEST
+        session = getattr(REQUEST, 'SESSION', None)
+        if session and session.has_key('status_extra'):
+            session.delete('status_extra')
         status_extra = None
         browser_accept_type = get_first_accept(REQUEST)
         if browser_accept_type == 'application/rdf+xml':
@@ -389,7 +392,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             if w.status == 'active' and w.actor!= 'openflow_engine' and (w.actor == l_current_actor or getSecurityManager().checkPermission('Change Envelopes', self)):
                 l_application_url = self.getApplicationUrl(w.id)
                 if l_application_url:
-                    # if nore workitems are active for the current user, the overview is returned
+                    # if more workitems are active for the current user, the overview is returned
                     l_no_active_workitems += 1
                     l_default_tab = w.id
         if l_no_active_workitems == 1:
@@ -409,12 +412,12 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                       .format(l_application_url, self.absolute_url(),
                               l_default_tab, e)
                 logger.exception(msg)
-                status_extra = {
-                    'type': 'error',
-                    'message': 'A system error occured and an alert has been triggered for the administrators!'
-                }
+                status_extra = ('error',
+                                'A system error occured and an alert has been'
+                                ' triggered for the administrators!')
+                REQUEST.SESSION.set('status_extra', status_extra)
 
-        return self.overview(REQUEST, status_extra=status_extra)
+        return self.overview(REQUEST)
 
     security.declareProtected('View management screens', 'manage_main_inh')
     manage_main_inh = EnvelopeInstance.manage_main
