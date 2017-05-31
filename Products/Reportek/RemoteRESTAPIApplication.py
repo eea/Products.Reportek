@@ -195,7 +195,6 @@ class RemoteRESTAPIApplication(SimpleItem):
     def init_wk(self, workitem):
         """Adds QA-specific extra properties to the workitem."""
         default_meta = {
-            'last_error': None,
             'status': 'Pending',
             'jobs': {}
         }
@@ -329,17 +328,17 @@ class RemoteRESTAPIApplication(SimpleItem):
         jobs_running = self.get_running_jobs(workitem)
 
         l_qa = self.local_scripts_done(workitem)
-        if (((not jobs_running and analysis_ready) or analysis_fail) and l_qa):
+        if (not jobs_running and l_qa and (analysis_ready or analysis_fail)):
             self.finish_wk(workitem.id, REQUEST)
         else:
             self.do_analysis(workitem, REQUEST)
             self.run_automatic_local_apps(workitem)
-            if analysis.get('status') == 'Ready':
-                unsubmitted = self.get_unsubmitted_jobs(workitem, REQUEST)
-                for job in unsubmitted:
-                    self.submit_job(workitem, job)
+            # if analysis.get('status') == 'Ready':
+            unsubmitted = self.get_unsubmitted_jobs(workitem, REQUEST)
+            for job in unsubmitted:
+                self.submit_job(workitem, job)
 
-                self.manage_jobs(workitem, REQUEST)
+            self.manage_jobs(workitem, REQUEST)
 
     def do_analysis(self, workitem, REQUEST=None):
         """Analyse the envelope."""
@@ -373,7 +372,7 @@ class RemoteRESTAPIApplication(SimpleItem):
                 else:
                     meta['last_error'] = 'Unable to '\
                         'retrieve scripts for files: {} '\
-                        'with schema: {}'.format(files, schema)
+                        'with schema: {}'.format(', '.join(files), schema)
                     failed = True
 
             if not failed:

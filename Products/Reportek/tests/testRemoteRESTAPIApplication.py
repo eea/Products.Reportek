@@ -230,7 +230,6 @@ class RemoteRESTAPIApplicationProduct(WorkflowTestCase):
         self.create_cepaa_set(1)
         prop = self.app.col1.env1['0'].AutomaticQA
         analysis = prop['analysis']
-        assert analysis['last_error'] is None
         assert isinstance(analysis['next_run'], DateTime)
         assert 'http://obligation/1dx' in analysis['jobs']
 
