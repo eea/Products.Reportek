@@ -333,7 +333,6 @@ class RemoteRESTAPIApplication(SimpleItem):
         else:
             self.do_analysis(workitem, REQUEST)
             self.run_automatic_local_apps(workitem)
-            # if analysis.get('status') == 'Ready':
             unsubmitted = self.get_unsubmitted_jobs(workitem, REQUEST)
             for job in unsubmitted:
                 self.submit_job(workitem, job)
@@ -344,7 +343,9 @@ class RemoteRESTAPIApplication(SimpleItem):
         """Analyse the envelope."""
         qa_data = getattr(workitem, self.app_name)
         t_threshold = DateTime() >= DateTime(int(qa_data['analysis']['next_run']))
-        if not qa_data['analysis'].get('status') == 'Ready' and t_threshold:
+        ready = qa_data['analysis'].get('status') == 'Ready'
+        no_retries = qa_data['analysis'].get('retries') == 0
+        if not ready and t_threshold and not no_retries:
             qa_data['analysis']['status'] = 'Pending'
             envelope = workitem.getMySelf()
             schema_docs = envelope.getDocumentsForRemoteService()
