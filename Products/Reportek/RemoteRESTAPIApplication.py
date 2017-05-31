@@ -361,7 +361,10 @@ class RemoteRESTAPIApplication(SimpleItem):
                         meta[script.get('id')] = dict(files=files)
                         for e_file in files:
                             job_id = '_'.join(['', script.get('id'), e_file])
-                            if job_id not in l_wk_prop.get('jobs') and job_id not in ready_ids:
+                            in_queue = [j for j in l_wk_prop.get('jobs', {}).values()
+                                        if j.get('scriptId') == script.get('id') and
+                                        j.get('fileUrl') == e_file]
+                            if job_id not in l_wk_prop.get('jobs') and job_id not in ready_ids and not in_queue:
                                 job = {
                                     'scriptTitle': script.get('name'),
                                     'fileUrl': e_file,
