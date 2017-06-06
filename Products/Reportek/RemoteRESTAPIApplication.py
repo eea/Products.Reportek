@@ -532,7 +532,7 @@ class RemoteRESTAPIApplication(SimpleItem):
                                                              script_title)
                 self.log_event('info', info, workitem)
             else:
-                job['last_error'] = result.get('feedbackMessage')
+                job['last_error'] = status.get('statusName')
                 self.update_retries(workitem, jobid=jobid)
                 if job.get('retries') == 0:
                     err_msg = 'Job: #{} for file {},'\
