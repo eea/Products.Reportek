@@ -61,6 +61,8 @@ REPORTEK_DEPLOYMENT = os.environ.get('REPORTEK_DEPLOYMENT', DEPLOYMENT_MDR)
 LOCAL_CONVERTERS_PORT = os.environ.get('LOCAL_CONVERTERS_PORT', '5000')
 LOCAL_CONVERTERS_HOST = os.environ.get('LOCAL_CONVERTERS_HOST', 'localhost')
 LOCAL_CONVERTERS_SCHEME = os.environ.get('LOCAL_CONVERTERS_SCHEME', 'http')
+ZIP_CACHE_THRESHOLD = int(os.environ.get('ZIP_CACHE_THRESHOLD', 100000000))
+ZIP_CACHE_PATH = os.environ.get('ZIP_CACHE_PATH')
 
 if REPORTEK_DEPLOYMENT in (DEPLOYMENT_CDR, DEPLOYMENT_MDR):
     permission_manage_properties_collections = 'Change Collections'

@@ -59,6 +59,8 @@ from Products.Reportek import Document
 from Products.Reportek import Hyperlink
 from Products.Reportek import Feedback
 from Products.Reportek.BaseDelivery import BaseDelivery
+from Products.Reportek.config import ZIP_CACHE_THRESHOLD
+from Products.Reportek.RepUtils import get_zip_cache
 import RepUtils
 import Document
 import Hyperlink
@@ -74,9 +76,6 @@ from interfaces import IEnvelope
 from paginator import DiggPaginator, EmptyPage, InvalidPage
 from Products.Reportek.config import XLS_HEADINGS
 import transaction
-
-
-ZIP_CACHE_THRESHOLD = 100000000 # 100 MB
 
 
 manage_addEnvelopeForm = PageTemplateFile('zpt/envelope/add', globals())
@@ -893,12 +892,6 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     security.declareProtected('Add Envelopes', 'manage_addzipfileform')
     manage_addzipfileform = PageTemplateFile('zpt/envelope/add_zip', globals())
 
-    def _get_zip_cache(self):
-        zip_cache = path(CLIENT_HOME)/'zip_cache'
-        if not zip_cache.isdir():
-            zip_cache.mkdir()
-        return zip_cache
-
     security.declareProtected('View', 'envelope_zip')
     def envelope_zip(self, REQUEST, RESPONSE):
         """ Go through the envelope and find all the external documents
@@ -923,7 +916,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             else:
                 restricted_docs.append(doc)
 
-        zip_cache = self._get_zip_cache()
+        zip_cache = get_zip_cache()
         envelope_path = '/'.join(self.getPhysicalPath())
         if restricted_docs:
             flag = 'all'
@@ -982,7 +975,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
     def _invalidate_zip_cache(self):
         """ delete zip cache files """
-        zip_cache = self._get_zip_cache()
+        zip_cache = get_zip_cache()
         envelope_path = '/'.join(self.getPhysicalPath())
         for flag in ['public', 'all']:
             cache_key = zip_content.encode_zip_name(envelope_path, flag)

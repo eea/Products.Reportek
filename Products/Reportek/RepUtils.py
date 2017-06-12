@@ -29,6 +29,7 @@ import traceback
 import string,base64,time
 import operator
 import json
+from path import path
 from copy import deepcopy
 from types import FunctionType
 from urllib import FancyURLopener
@@ -40,6 +41,7 @@ from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
 from datetime import datetime
 from Products.Reportek.config import XLS_HEADINGS
+from Products.Reportek.config import ZIP_CACHE_PATH
 
 
 def formatException(self, error):
@@ -594,3 +596,11 @@ def manage_as_owner(func):
             setSecurityManager(smanager)
             return res
     return inner
+
+def get_zip_cache():
+    zc_path = ZIP_CACHE_PATH or CLIENT_HOME
+    zip_cache = path(zc_path)/'zip_cache'
+    if not zip_cache.isdir():
+        zip_cache.mkdir()
+
+    return zip_cache
