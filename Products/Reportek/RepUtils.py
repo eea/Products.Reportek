@@ -29,6 +29,7 @@ import traceback
 import string,base64,time
 import operator
 import json
+import time
 from path import path
 from copy import deepcopy
 from types import FunctionType
@@ -604,3 +605,17 @@ def get_zip_cache():
         zip_cache.mkdir()
 
     return zip_cache
+
+
+def cleanup_zip_cache(days=7):
+    """Cleanup the zip_cache"""
+    zip_cache = get_zip_cache()
+    removed = []
+    for f in os.listdir(zip_cache):
+        file_path = os.path.join(zip_cache, f)
+        if os.stat(file_path).st_mtime < time.time() - int(days) * 86400:
+            os.unlink(file_path)
+            removed.append(f)
+            logger.info('Automatically removed file {} because '
+                        'it was older than {} days'.format(f, days))
+    return removed
