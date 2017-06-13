@@ -60,6 +60,7 @@ from Products.Reportek import Hyperlink
 from Products.Reportek import Feedback
 from Products.Reportek.BaseDelivery import BaseDelivery
 from Products.Reportek.config import ZIP_CACHE_THRESHOLD
+from Products.Reportek.config import ZIP_CACHE_ENABLED
 from Products.Reportek.RepUtils import get_zip_cache
 import RepUtils
 import Document
@@ -980,7 +981,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         else:
             outzd.close()
             # only save cache file if greater than threshold
-            if os.stat(tmpfile.name).st_size > ZIP_CACHE_THRESHOLD:
+            if os.stat(tmpfile.name).st_size > ZIP_CACHE_THRESHOLD and ZIP_CACHE_ENABLED:
                 os.link(tmpfile.name, cached_zip_path)
 
             tmpfile.seek(0)
