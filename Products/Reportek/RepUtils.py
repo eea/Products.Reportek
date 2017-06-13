@@ -29,6 +29,8 @@ import traceback
 import string,base64,time
 import operator
 import json
+import time
+from path import path
 from copy import deepcopy
 from types import FunctionType
 from urllib import FancyURLopener
@@ -40,6 +42,7 @@ from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
 from datetime import datetime
 from Products.Reportek.config import XLS_HEADINGS
+from Products.Reportek.config import ZIP_CACHE_PATH
 
 
 def formatException(self, error):
@@ -594,6 +597,30 @@ def manage_as_owner(func):
             setSecurityManager(smanager)
             return res
     return inner
+
+
+def get_zip_cache():
+    zc_path = ZIP_CACHE_PATH or CLIENT_HOME
+    zip_cache = path(zc_path)/'zip_cache'
+    if not zip_cache.isdir():
+        zip_cache.mkdir()
+
+    return zip_cache
+
+
+def cleanup_zip_cache(days=7):
+    """Cleanup the zip_cache"""
+    zip_cache = get_zip_cache()
+    removed = []
+    for f in os.listdir(zip_cache):
+        file_path = os.path.join(zip_cache, f)
+        if os.stat(file_path).st_mtime < time.time() - int(days) * 86400:
+            os.unlink(file_path)
+            removed.append(f)
+            logger.info('Automatically removed file {} because '
+                        'it was older than {} days'.format(f, days))
+    return removed
+
 
 class RemoteApplicationException(Exception):
     """Our own Remote Application exception."""

@@ -456,7 +456,6 @@ class RemoteApplication(SimpleItem):
                     l_filename = ' result for file %s: ' % l_file_id
                 envelope = self.aq_parent
                 feedback_id = '{0}_{1}'.format(self.app_name, p_jobID)
-
                 envelope.manage_addFeedback(id=feedback_id,
                         title= self.app_name + l_filename + l_ret['SCRIPT_TITLE'],
                         activity_id=l_workitem.activity_id,

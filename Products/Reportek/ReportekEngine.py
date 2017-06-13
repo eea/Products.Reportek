@@ -795,9 +795,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         envelopes = RepUtils.utConvertToList(envelopes)
 
-        temp_dir = path(CLIENT_HOME)/'zip_cache'
-        if not temp_dir.isdir():
-            temp_dir.mkdir()
+        temp_dir = RepUtils.get_zip_cache()
         tmpfile = tempfile.mktemp(".temp", dir=str(temp_dir))
 
         if len(envelopes) == 0:
@@ -1346,5 +1344,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         )
 
         return xls.read()
+
+    security.declareProtected('View management screens', 'zip_cache_cleanup')
+    def zip_cache_cleanup(self, days=7):
+        """Deletes files older than days."""
+        return RepUtils.cleanup_zip_cache(days=days)
 
 Globals.InitializeClass(ReportekEngine)
