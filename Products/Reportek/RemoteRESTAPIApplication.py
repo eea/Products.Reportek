@@ -93,7 +93,7 @@ class RemoteRESTAPIApplication(SimpleItem):
         """Deletes all previous feedbacks created by this application."""
         for l_item in envelope.objectValues('Report Feedback'):
             do_delete = not file or (file and
-                                     getattr(l_item, 'id', '') == file)
+                                     getattr(l_item, 'title', '') == file)
             if l_item.activity_id == self.app_name and do_delete:
                 envelope.manage_delObjects(l_item.id)
 
@@ -235,7 +235,9 @@ class RemoteRESTAPIApplication(SimpleItem):
             filename = filename.encode('utf-8')
             if j_ready and not f_modified:
                 job['oldJobId'] = job.get('oldJobId', job.get('jobId'))
-            elif j_failed or f_modified or filename == 'xml':
+            elif j_failed or f_modified:
+                filename = job.get('fileUrl').split('/')[-1]
+                filename = filename.encode('utf-8')
                 filename = '{} result for: {} - {}'.format(self.app_name,
                                                            filename,
                                                            job.get('scriptTitle'))
