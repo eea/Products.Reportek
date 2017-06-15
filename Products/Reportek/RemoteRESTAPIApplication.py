@@ -231,11 +231,11 @@ class RemoteRESTAPIApplication(SimpleItem):
             f_modified = self.file_has_been_modified(envelope,
                                                      last_qa.id,
                                                      job.get('fileUrl'))
+            filename = job.get('fileUrl').split('/')[-1]
+            filename = filename.encode('utf-8')
             if j_ready and not f_modified:
                 job['oldJobId'] = job.get('oldJobId', job.get('jobId'))
-            elif j_failed or f_modified:
-                filename = job.get('fileUrl').split('/')[-1]
-                filename = filename.encode('utf-8')
+            elif j_failed or f_modified or filename == 'xml':
                 filename = '{} result for: {} - {}'.format(self.app_name,
                                                            filename,
                                                            job.get('scriptTitle'))
