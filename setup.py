@@ -10,13 +10,14 @@ setup(
     include_package_data=True,
     zip_safe=False,
     install_requires=[
-        'lxml',
-        'path.py',
-        'requests==2.11.1',
-        'plone.memoize',
+        'Products.PluggableAuthService',
         'Zope2',
         'collective.monkeypatcher',
+        'lxml',
+        'path.py',
+        'plone.memoize',
+        'requests==2.11.1',
         'xlwt',
-        'Products.PluggableAuthService'
+        'zipstream',
     ],
 )
