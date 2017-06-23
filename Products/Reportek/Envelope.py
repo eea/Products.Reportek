@@ -981,7 +981,8 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                     for meta in metadata:
                         outzd.writestr(meta, metadata[meta](self))
 
-                    # write to temporary file before streaming the response otherwise 
+                    # write to temporary file before streaming the response
+                    # otherwise we wont have the needed content length
                     for data in outzd:
                         tmpfile.write(data)
 
