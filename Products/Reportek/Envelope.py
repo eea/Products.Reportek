@@ -32,7 +32,9 @@ __version__='$Revision$'[11:-2]
 
 import os, types, tempfile, string
 from path import path
-from zipfile import *
+from zipstream import ZipFile
+from zipstream import ZIP_DEFLATED
+
 import Globals, OFS.SimpleItem, OFS.ObjectManager
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl.Permissions import view_management_screens
@@ -933,46 +935,50 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                 return stream_response(RESPONSE, data_file,
                                        response_zip_name, 'application/x-zip')
 
-        tmpfile = tempfile.NamedTemporaryFile(suffix='.temp', dir=zip_cache)
+        with tempfile.NamedTemporaryFile(suffix='.temp', dir=zip_cache) as tmpfile:
+            with ZipFile(mode="w", compression=ZIP_DEFLATED, allowZip64=True) as outzd:
+                try:
+                    for doc in public_docs:
+                        outzd.write_iter(doc.getId(),
+                                         RepUtils.iter_file_data(doc.data_file.open()))
 
-        try:
-            outzd = ZipFile(tmpfile, "w", compression=ZIP_DEFLATED, allowZip64=True)
+                    for fdbk in self.objectValues('Report Feedback'):
+                        if getSecurityManager().checkPermission('View', fdbk):
+                            outzd.writestr('%s.html' % fdbk.getId(),
+                                           zip_content.get_feedback_content(fdbk))
 
-            for doc in public_docs:
-                outzd.writestr(doc.getId(), doc.data_file.open().read())
+                            for attachment in fdbk.objectValues(['File', 'File (Blob)']):
+                                if attachment.meta_type == 'File (Blob)':
+                                    outzd.write_iter(attachment.getId(),
+                                                     RepUtils.iter_file_data(attachment.data_file.open()))
+                                else:
+                                    outzd.write_iter(attachment.getId(),
+                                                     RepUtils.iter_ofs_file_data(attachment))
+                    metadata = {
+                        'feedbacks.html': zip_content.get_feedback_list,
+                        'metadata.txt': zip_content.get_metadata_content,
+                        'README.txt': zip_content.get_readme_content,
+                        'history.txt': zip_content.get_history_content
+                    }
+                    # write metadata files
+                    for meta in metadata:
+                        outzd.writestr(meta, metadata[meta](self))
 
-            for fdbk in self.objectValues('Report Feedback'):
-                if getSecurityManager().checkPermission('View', fdbk):
-                    outzd.writestr('%s.html' % fdbk.getId(),
-                                zip_content.get_feedback_content(fdbk))
+                    # write to temporary file before streaming the response otherwise 
+                    for data in outzd:
+                        tmpfile.write(data)
 
-                    for attachment in fdbk.objectValues(['File', 'File (Blob)']):
-                        tmp_data = RepUtils.ofs_file_content_tmp(attachment)
-                        outzd.write(tmp_data.name, attachment.getId())
-                        tmp_data.close()
+                except Exception as e:
+                    raise ValueError("An error occurred while preparing the zip file. {}".format(str(e)))
 
-            #write feedback, metadata, README and history
-            outzd.writestr('feedbacks.html', zip_content.get_feedback_list(self))
-            outzd.writestr('metadata.txt', zip_content.get_metadata_content(self))
-            outzd.writestr('README.txt', zip_content.get_readme_content(self))
-            outzd.writestr('history.txt', zip_content.get_history_content(self))
+                else:
+                    # only save cache file if greater than threshold
+                    if os.stat(tmpfile.name).st_size > ZIP_CACHE_THRESHOLD and ZIP_CACHE_ENABLED:
+                        os.link(tmpfile.name, cached_zip_path)
 
-        except:
-            outzd.close()
-            raise ValueError("An error occurred while preparing the zip file.")
-
-        else:
-            outzd.close()
-            # only save cache file if greater than threshold
-            if os.stat(tmpfile.name).st_size > ZIP_CACHE_THRESHOLD and ZIP_CACHE_ENABLED:
-                os.link(tmpfile.name, cached_zip_path)
-
-            tmpfile.seek(0)
-            return stream_response(RESPONSE, tmpfile,
-                                   response_zip_name, 'application/x-zip')
-
-        finally:
-            tmpfile.close()
+                    tmpfile.seek(0)
+                    return stream_response(RESPONSE, tmpfile,
+                                           response_zip_name, 'application/x-zip')
 
     def _invalidate_zip_cache(self):
         """ delete zip cache files """

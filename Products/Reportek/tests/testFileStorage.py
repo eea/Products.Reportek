@@ -310,8 +310,8 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
     @patch('Products.Reportek.Envelope.transaction.commit')
     @patch('Products.Reportek.Envelope.ZipFile')
     def test_cache_hit_on_2nd_download(self, mock_ZipFile, mock_commit):
-        import zipfile
-        mock_ZipFile.side_effect = zipfile.ZipFile
+        import zipstream
+        mock_ZipFile.side_effect = zipstream.ZipFile
 
         file_1 = create_upload_file('data one')
         doc_id = Document.manage_addDocument(self.envelope, file=file_1)
