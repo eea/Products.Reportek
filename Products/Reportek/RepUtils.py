@@ -598,7 +598,6 @@ def manage_as_owner(func):
             return res
     return inner
 
-
 def get_zip_cache():
     zc_path = ZIP_CACHE_PATH or CLIENT_HOME
     zip_cache = path(zc_path)/'zip_cache'
