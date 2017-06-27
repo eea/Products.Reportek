@@ -45,6 +45,7 @@
 |**contentType**  <br>*optional*|The file's content type.|string|
 |**fileSize**  <br>*optional*|The size of the file in bytes|integer|
 |**fileSizeHR**  <br>*optional*|The size of the file in human readable format.|string|
+|**isRestricted**  <br>*optional*|The document's restricted status|integer|
 |**schemaURL**  <br>*optional*|The URL of the file's schema.|string|
 |**title**  <br>*optional*|The file's title.|string|
 |**uploadDate**  <br>*optional*|The file's upload date.|string|

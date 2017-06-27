@@ -145,7 +145,8 @@ class EnvelopesAPI(BrowserView):
                         'uploadDate': doc.upload_time().HTML4(),
                         'fileSize': doc.get_size(),
                         'fileSizeHR': doc.size(),
-                        'archivedFiles': archived_files
+                        'archivedFiles': archived_files,
+                        'isRestricted': 1 if doc.isRestricted() else 0
                     }
 
                     documents.append(doc_properties)

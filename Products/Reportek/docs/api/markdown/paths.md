@@ -61,7 +61,8 @@ json :
         "url" : "http://foo/bar/my_envelope/my_envelope_file.xml",
         "schemaURL" : "http://foo/bar/schema.xsd",
         "fileSize" : 3679181,
-        "fileSizeHR" : "3.51 MB"
+        "fileSizeHR" : "3.51 MB",
+        "isRestricted" : 0
       } ],
       "periodEndYear" : 2014,
       "status" : "Release",
