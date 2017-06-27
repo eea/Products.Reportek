@@ -34,7 +34,7 @@ import os, types, tempfile, string
 from path import path
 from zipstream import ZipFile
 from zipstream import ZIP_DEFLATED
-from zipfile import BadZipFile
+from zipfile import BadZipfile
 
 import Globals, OFS.SimpleItem, OFS.ObjectManager
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
