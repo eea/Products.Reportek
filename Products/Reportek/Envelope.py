@@ -958,7 +958,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                 try:
                     for doc in public_docs:
                         outzd.write_iter(doc.getId(),
-                                         RepUtils.iter_file_data(doc.data_file.open()))
+                                         RepUtils.read_file_chunked(doc.data_file))
 
                     for fdbk in self.objectValues('Report Feedback'):
                         if getSecurityManager().checkPermission('View', fdbk):
@@ -968,7 +968,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                             for attachment in fdbk.objectValues(['File', 'File (Blob)']):
                                 if attachment.meta_type == 'File (Blob)':
                                     outzd.write_iter(attachment.getId(),
-                                                     RepUtils.iter_file_data(attachment.data_file.open()))
+                                                     RepUtils.read_file_chunked(attachment.data_file))
                                 else:
                                     outzd.write_iter(attachment.getId(),
                                                      RepUtils.iter_ofs_file_data(attachment))

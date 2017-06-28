@@ -124,6 +124,14 @@ def iter_file_data(in_file, chunk_size=131072):
             break
         yield chunk
 
+def read_file_chunked(in_file, chunk_size=131072):
+    f = in_file.open("rb")
+    while True:
+        chunk = f.read(chunk_size)
+        if not chunk:
+            break
+        yield chunk
+    f.close()
 
 def cleanup_id(name):
     """ Cleanup an id
