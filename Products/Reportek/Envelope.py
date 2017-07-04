@@ -31,11 +31,12 @@ __version__='$Revision$'[11:-2]
 
 
 import os, types, tempfile, string
+from os.path import basename
 from path import path
 from zipstream import ZipFile
 from zipstream import ZIP_DEFLATED
 from zipfile import BadZipfile
-
+import shutil
 import Globals, OFS.SimpleItem, OFS.ObjectManager
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl.Permissions import view_management_screens
@@ -930,21 +931,69 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
         public_docs = []
         restricted_docs = []
+        doc_mapping = {}
+        c_length = 0
 
+        zip_cache = get_zip_cache()
         for doc in self.objectValues('Report Document'):
             if getSecurityManager().checkPermission('View', doc):
                 public_docs.append(doc)
             else:
                 restricted_docs.append(doc)
+            dst_path = '/'.join([zip_cache, '-'.join([self.getId(), doc.getId()])])
 
-        zip_cache = get_zip_cache()
-        envelope_path = '/'.join(self.getPhysicalPath())
+            # If the blob is not compressed, copy it from the blobcache
+            if not doc.data_file.compressed_safe:
+                shutil.copyfile(doc.data_file.get_fs_path(), dst_path)
+            else:
+                with open(dst_path, "w") as f:
+                    f.write(doc.data_file.open().read())
+
+            doc_mapping[doc.getId()] = dst_path
+            c_length += doc.data_file.size
+
+        metadata = {
+            'feedbacks.html': zip_content.get_feedback_list,
+            'metadata.txt': zip_content.get_metadata_content,
+            'README.txt': zip_content.get_readme_content,
+            'history.txt': zip_content.get_history_content
+        }
+        for meta in metadata:
+            dst_path = '/'.join([zip_cache, '-'.join([self.getId(), meta])])
+            with open(dst_path, 'w') as f:
+                f.write(metadata[meta](self))
+                f.seek(0, os.SEEK_END)
+                c_length += f.tell()
+            doc_mapping[meta] = dst_path
+
+        for fdbk in self.objectValues('Report Feedback'):
+            if getSecurityManager().checkPermission('View', fdbk):
+                dst_path = '/'.join([zip_cache, '-'.join([self.getId(), fdbk.getId()])])
+                with open(dst_path, 'w') as f:
+                    f.write(zip_content.get_feedback_content(fdbk))
+                    f.seek(0, os.SEEK_END)
+                    c_length += f.tell()
+                doc_mapping[fdbk.getId()] = dst_path
+
+                for attachment in fdbk.objectValues(['File', 'File (Blob)']):
+                    tmp_data = RepUtils.ofs_file_content_tmp(attachment)
+                    dst_path = '/'.join([zip_cache, '-'.join([self.getId(),
+                                                              fdbk.getId(),
+                                                              attachment.getId()])])
+                    tmp_data.seek(0, os.SEEK_END)
+                    c_length += tmp_data.tell()
+                    os.link(tmp_data.name, dst_path)
+                    tmp_data.close()
+                    doc_mapping[attachment.getId()] = dst_path
+
         if restricted_docs:
             flag = 'all'
             response_zip_name = self.getId() + '-all.zip'
         else:
             flag = 'public'
             response_zip_name = self.getId() + '.zip'
+
+        envelope_path = '/'.join(self.getPhysicalPath())
         cache_key = zip_content.encode_zip_name(envelope_path, flag)
         cached_zip_path = zip_cache/cache_key
 
@@ -953,51 +1002,21 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                 return stream_response(RESPONSE, data_file,
                                        response_zip_name, 'application/x-zip')
 
-        with tempfile.NamedTemporaryFile(suffix='.temp', dir=zip_cache) as tmpfile:
-            with ZipFile(mode="w", compression=ZIP_DEFLATED, allowZip64=True) as outzd:
-                try:
-                    for doc in public_docs:
-                        outzd.write_iter(doc.getId(),
-                                         RepUtils.read_file_chunked(doc.data_file))
+        def generator():
+            outzd = ZipFile(mode='w', compression=ZIP_DEFLATED)
+            for doc in doc_mapping:
+                outzd.write(doc_mapping[doc], doc)
 
-                    for fdbk in self.objectValues('Report Feedback'):
-                        if getSecurityManager().checkPermission('View', fdbk):
-                            outzd.writestr('%s.html' % fdbk.getId(),
-                                           zip_content.get_feedback_content(fdbk))
+            for chunk in outzd:
+                yield chunk
 
-                            for attachment in fdbk.objectValues(['File', 'File (Blob)']):
-                                if attachment.meta_type == 'File (Blob)':
-                                    outzd.write_iter(attachment.getId(),
-                                                     RepUtils.read_file_chunked(attachment.data_file))
-                                else:
-                                    outzd.write_iter(attachment.getId(),
-                                                     RepUtils.iter_ofs_file_data(attachment))
-                    metadata = {
-                        'feedbacks.html': zip_content.get_feedback_list,
-                        'metadata.txt': zip_content.get_metadata_content,
-                        'README.txt': zip_content.get_readme_content,
-                        'history.txt': zip_content.get_history_content
-                    }
-                    # write metadata files
-                    for meta in metadata:
-                        outzd.writestr(meta, metadata[meta](self))
+        RESPONSE.setHeader('Content-Type', 'application/x-zip')
+        RESPONSE.setHeader('Content-Disposition',
+                           'attachment; filename="%s"' % response_zip_name)
 
-                    # write to temporary file before streaming the response
-                    # otherwise we wont have the needed content length
-                    for data in outzd:
-                        tmpfile.write(data)
-
-                except Exception as e:
-                    raise ValueError("An error occurred while preparing the zip file. {}".format(str(e)))
-
-                else:
-                    # only save cache file if greater than threshold
-                    if os.stat(tmpfile.name).st_size > ZIP_CACHE_THRESHOLD and ZIP_CACHE_ENABLED:
-                        os.link(tmpfile.name, cached_zip_path)
-
-                    tmpfile.seek(0)
-                    return stream_response(RESPONSE, tmpfile,
-                                           response_zip_name, 'application/x-zip')
+        body = RepUtils.ZipStreamIterator(generator, self.getId())
+        RESPONSE.setBody(body)
+        RESPONSE.finalize()
 
     def _invalidate_zip_cache(self):
         """ delete zip cache files """

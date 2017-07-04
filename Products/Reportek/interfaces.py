@@ -50,3 +50,7 @@ class IRegistryManagement(Interface):
 class IProcess(Interface):
     """ Process marker interface
     """
+
+
+class IZipStreamCompleted(Interface):
+    """ZipStreamCompleted interface"""

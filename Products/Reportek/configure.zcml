@@ -89,6 +89,9 @@
                      zope.lifecycleevent.interfaces.IObjectRemovedEvent"
             handler="Products.Reportek.subscribers.handle_document_removed_event" />
 
+    <subscriber for="Products.Reportek.interfaces.IZipStreamCompleted"
+            handler="Products.Reportek.subscribers.handle_zipstream_completed_event" />
+
     <i18n:registerTranslations directory="locales" />
 
 </configure>
