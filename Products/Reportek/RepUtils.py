@@ -58,7 +58,7 @@ def formatException(self, error):
      return ''.join(lines)
 
 import logging
-logger = logging.getLogger('Reportek.ReptUtils')
+logger = logging.getLogger('Reportek.RepUtils')
 #logger.setLevel(logging.DEBUG)
 logging.Formatter.formatException = formatException
 
@@ -598,6 +598,7 @@ def manage_as_owner(func):
             return res
     return inner
 
+
 def get_zip_cache():
     zc_path = ZIP_CACHE_PATH or CLIENT_HOME
     zip_cache = path(zc_path)/'zip_cache'
@@ -611,11 +612,24 @@ def cleanup_zip_cache(days=7):
     """Cleanup the zip_cache"""
     zip_cache = get_zip_cache()
     removed = []
+    # 60 minutes limit for temp files
+    t_limit = time.time() - 3600
+    # days limit for zip files
+    z_limit = time.time() - int(days) * 86400
     for f in os.listdir(zip_cache):
         file_path = os.path.join(zip_cache, f)
-        if os.stat(file_path).st_mtime < time.time() - int(days) * 86400:
-            os.unlink(file_path)
-            removed.append(f)
-            logger.info('Automatically removed file {} because '
-                        'it was older than {} days'.format(f, days))
+        delete = os.stat(file_path).st_mtime < z_limit
+        l_msg = 'Automatically removed file {} because '\
+                'it was older than {} days'.format(f, days)
+        if f.endswith('.temp'):
+            delete = os.stat(file_path).st_mtime < t_limit
+            l_msg = 'Automatically removed orphaned temp file {}'.format(f)
+        if delete:
+            try:
+                os.unlink(file_path)
+                removed.append(f)
+                logger.info(l_msg)
+            except OSError as e:
+                logger.warning('Unable to remove file: {} ({})'.format(f,
+                                                                       str(e)))
     return removed
