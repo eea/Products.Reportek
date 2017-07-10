@@ -1,5 +1,6 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Feature: Added Added envelopes.stuck page in ReportekUtilities [olimpiurob refs #73720]
 * Feature: Added isRestricted attribute to the JSON API [olimpiurob refs #83074]
 * Feature: Improved envelope zip file export [olimpiurob refs #85996]
 * Feature: Added ApplicationException exception to be easier to track application

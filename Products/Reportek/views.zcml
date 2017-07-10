@@ -167,6 +167,15 @@
     template="zpt/utilities/envelopes_autocomplete.zpt"/>
 
   <browser:page
+    name="envelopes.stuck"
+    menu="reportek_utilities"
+    title="Stuck envelopes"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.EnvelopeUtils"
+    template="zpt/utilities/envelopes_stuck.zpt"/>
+
+  <browser:page
     name="referrals.management"
     menu="reportek_utilities"
     title="Referrals management"
