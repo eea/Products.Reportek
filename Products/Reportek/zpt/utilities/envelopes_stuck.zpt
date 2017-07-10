@@ -35,7 +35,9 @@
       <thead>
         <tr>
           <th>Envelope</th>
+          <th>Workflow</th>
           <th>Activity</th>
+          <th>Stuck since</th>
         </tr>
       </thead>
 
@@ -43,13 +45,20 @@
         <tr tal:repeat="env data">
           <td>
             <a tal:attributes="href string: ${env/envelope/absolute_url}"
-               tal:content="env/envelope/title_or_id">
+               tal:content="env/envelope/getPath">
             </a>
-
+          </td>
+          <td tal:define="process env/envelope/getProcess">
+            <a tal:attributes="href string: ${process/absolute_url}"
+               tal:content="process/title_or_id">
+            </a>
           </td>
           <td>
             <a tal:attributes="href env/activity/absolute_url"
                tal:content="env/activity/title_or_id" />
+          </td>
+          <td>
+            <span tal:content="python:env.get('s_date').strftime('%Y-%m-%dT%H:%M:%SZ')"/>
           </td>
         </tr>
       </tbody>

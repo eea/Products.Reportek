@@ -180,6 +180,7 @@ class EnvelopeUtils(BaseAdmin):
                 if obj.getId() == last_workitem_id and not obj.pull_roles:
                     activity = env.getActivity(obj.getId())
                     envelopes.append({'envelope': env,
-                                      'activity': activity})
+                                      'activity': activity,
+                                      's_date': obj.event_log[-1].get('time')})
 
         return envelopes
