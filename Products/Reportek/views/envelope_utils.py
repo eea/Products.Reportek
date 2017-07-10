@@ -4,6 +4,7 @@ from DateTime import DateTime
 from urllib import unquote
 from Products.Reportek.constants import WORKFLOW_ENGINE_ID
 
+
 class EnvelopeUtils(BaseAdmin):
 
     def __call__(self, *args, **kwargs):
@@ -157,3 +158,28 @@ class EnvelopeUtils(BaseAdmin):
                                    'error': 'Unable to retrieve workitem'})
         self.request['op_results'] = results
         self.request['op_errors'] = errors
+
+    def stuck_envelopes(self):
+        catalog = self.context.Catalog
+        brains = catalog(meta_type='Activity')
+        activities = [brain.getObject() for brain in brains]
+        # Get all automated activities
+        auto_activities = {act.getId() for act in activities
+                           if act.complete_automatically == 1 and
+                           act.start_mode == 1 and act.finish_mode == 1}
+        # Get all inactive workitems
+        inactive_brains = catalog(meta_type='Workitem', status='inactive')
+        envelopes = []
+        for b in inactive_brains:
+            obj = b.getObject()
+            if obj.activity_id in auto_activities:
+                env = obj.aq_parent
+                wk_ids = [int(wk_id) for wk_id in env.objectIds('Workitem')]
+                last_workitem_id = str(max(wk_ids))
+                # Check if it's the last workitem_id and cannot be pulled
+                if obj.getId() == last_workitem_id and not obj.pull_roles:
+                    activity = env.getActivity(obj.getId())
+                    envelopes.append({'envelope': env,
+                                      'activity': activity})
+
+        return envelopes
