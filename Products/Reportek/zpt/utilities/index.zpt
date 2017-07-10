@@ -13,7 +13,7 @@
                      menu_keys python: menuactions.keys();
                      user_mgmt_actions python: ['@@get_users_by_path', '@@assign_role', '@@revoke_roles', '@@disabled_members'];
                      collections_actions python: ['@@collections.wrong_country', '@@collections.build'];
-                     envelopes_actions python: ['@@collections.search', '@@envelopes.autocomplete', '@@envelopes.wrong_country'];
+                     envelopes_actions python: ['@@collections.search', '@@envelopes.autocomplete', '@@envelopes.wrong_country', '@@envelopes.stuck'];
                      referral_actions python: ['@@referrals.management'];
                      generic_actions python: ['@@obligation.recent_uploads', '@@statistics']">
 

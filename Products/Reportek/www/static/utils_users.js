@@ -94,7 +94,6 @@ reportek.utils.users = {
   },
 
   updateUserType: function(user, utype, fullname, email) {
-    debugger;
     var self = reportek.utils.users;
     var users = [];
     var uid_targets;
