@@ -179,8 +179,21 @@ class EnvelopeUtils(BaseAdmin):
                 # Check if it's the last workitem_id and cannot be pulled
                 if obj.getId() == last_workitem_id and not obj.pull_roles:
                     activity = env.getActivity(obj.getId())
-                    envelopes.append({'envelope': env,
-                                      'activity': activity,
-                                      's_date': obj.event_log[-1].get('time')})
+                    process = env.getProcess()
+                    envelopes.append({
+                        'env': {
+                            'url': env.absolute_url(),
+                            'path': env.getPath()
+                        },
+                        'process': {
+                            'url': process.absolute_url(),
+                            'title': process.title_or_id()
+                        },
+                        'activity': {
+                            'url': activity.absolute_url(),
+                            'title': activity.title_or_id()
+                        },
+                        's_date': obj.event_log[-1].get('time')
+                    })
 
         return envelopes
