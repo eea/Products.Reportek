@@ -28,7 +28,8 @@
 <metal:block fill-slot="content">
   <metal:block use-macro="here/util_controls/macros/utilities-controls" />
   <h1>Stuck envelopes</h1>
-
+  <p>This page lists the envelopes that are in a state of their workflow which is automatic, but failed to execute due to an error. The error might have occurred in the activity which got stuck, or in the subsequent transitions or activities. In order to resolve each situation, navigate to the envelope and access the 'Manage workflow history' tab.
+  </p>
   <tal:block define="data view/stuck_envelopes">
 
     <table tal:condition="data" class="datatable">
@@ -58,7 +59,7 @@
                tal:content="env/activity/title" />
           </td>
           <td>
-            <span tal:content="python:env.get('s_date').strftime('%Y-%m-%dT%H:%M:%SZ')"/>
+            <span tal:content="python:env.get('s_date').strftime('%d/%m/%Y %H:%M:%S')"/>
           </td>
         </tr>
       </tbody>
