@@ -255,6 +255,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             'OK',
             'WARNING',
             'ERROR',
+            'FAILED',
             'BLOCKER'
         ]
 
@@ -263,6 +264,24 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         for fb in aqa_fbs:
             fb_status = getattr(fb, 'feedback_status', 'UNKNOWN')
             if fb_status not in VALID_FB_STATUSES:
+                return True
+
+    @property
+    def has_unacceptable_qa_result(self):
+        """Return True if AutomaticQA feedback object has an 'ERROR', 'BLOCKER'
+        or 'FAILED' feedback status."""
+
+        UNACCEPTABLE_FB_STATUSES = [
+            'BLOCKER',
+            'ERROR',
+            'FAILED'
+        ]
+
+        aqa_fbs = self.get_qa_feedbacks()
+
+        for fb in aqa_fbs:
+            fb_status = getattr(fb, 'feedback_status', 'UNKNOWN')
+            if fb_status not in UNACCEPTABLE_FB_STATUSES:
                 return True
 
     @property
