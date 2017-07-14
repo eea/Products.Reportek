@@ -284,6 +284,17 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             if fb_status not in UNACCEPTABLE_FB_STATUSES:
                 return True
 
+    def get_fb_with_status(self, status):
+        """Returns a list of fb ids with status status."""
+        aqa_fbs = self.get_qa_feedbacks()
+        fb_ids = []
+        for fb in aqa_fbs:
+            fb_status = getattr(fb, 'feedback_status', 'UNKNOWN')
+            if fb_status == status:
+                fb_ids.append(fb.getId())
+
+        return fb_ids
+
     @property
     def has_no_qa_result(self):
         """Return True if an AutomaticQA feedback has no feedback status."""
