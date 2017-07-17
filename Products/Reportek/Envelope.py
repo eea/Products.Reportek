@@ -1257,6 +1257,10 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
         return engine.download_xls(wb, filename)
 
+    def has_dataflow(self, dataflow_uri):
+        """Return True if dataflow_uri in envelope's dataflow_uris."""
+        return dataflow_uri in self.dataflow_uris
+
     ##################################################
     # documents accepted status functions
     ##################################################
