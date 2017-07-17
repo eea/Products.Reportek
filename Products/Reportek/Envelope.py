@@ -281,7 +281,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
         for fb in aqa_fbs:
             fb_status = getattr(fb, 'feedback_status', 'UNKNOWN')
-            if fb_status not in UNACCEPTABLE_FB_STATUSES:
+            if fb_status in UNACCEPTABLE_FB_STATUSES:
                 return True
 
     def get_fb_with_status(self, status):
