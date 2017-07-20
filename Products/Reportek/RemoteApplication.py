@@ -173,6 +173,7 @@ class RemoteApplication(SimpleItem):
             self.__analyzeDocuments(workitem_id, l_dict)
         # see if it's any point to go on
         elif l_wk_prop['analyze']['code'] == -2 and self._local_scripts_done(l_wk_prop.get('localQA')):
+            l_workitem.failure = True
             if REQUEST is not None:
                 REQUEST.set('RemoteApplicationSucceded', 0)
                 REQUEST.set('actor', 'openflow_engine')
@@ -419,15 +420,18 @@ class RemoteApplication(SimpleItem):
         # A broken response package - critical, do not retry
         except xmlrpclib.ResponseError, l_response:
             l_workitem.addEvent('Error in sending files to %s: %s' % (self.app_name, str(l_response)))
+            l_workitem.failure = True
             self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                      p_analyze={'code':-2, 'last_error':'Response error\nDescription: ' + str(l_response)})
         # Generic client error - critical, do not retry
         except xmlrpclib.Error, err:
             l_workitem.addEvent('Error in sending files to %s: %s' % (self.app_name, str(err)))
+            l_workitem.failure = True
             self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                      p_analyze={'code':-2, 'last_error':str(err)})
         except Exception, err:
             l_workitem.addEvent('Error in sending files to %s: %s' % (self.app_name, str(err)))
+            l_workitem.failure = True
             self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                      p_analyze={'code':-2, 'last_error':str(err)})
         return 1
