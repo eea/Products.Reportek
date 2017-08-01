@@ -83,6 +83,8 @@
 
         <label for="allow_collections">Collections</label>
         <input type="checkbox" value="1" name="allow_collections" id="allow_collections"/>
+        <label for="allow_referrals" i18n:translate="">Referrals</label>
+        <input type="checkbox" id="allow_referrals" name="allow_referrals" value="1"/>
       </div>
 
       <div>

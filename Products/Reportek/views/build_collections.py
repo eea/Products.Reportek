@@ -24,6 +24,7 @@ class BuildCollections(BaseAdmin):
         collection_id = self.request.form.pop('cid', '')
         allow_collections = int(self.request.form.pop('allow_collections', 0))
         allow_envelopes = int(self.request.form.pop('allow_envelopes', 0))
+        allow_referrals = int(self.request.form.pop('allow_referrals', 0))
 
         if not countries:
             err = "No country selected! Please select at least one country."
@@ -43,12 +44,15 @@ class BuildCollections(BaseAdmin):
                         target_path = '/'.join([country['iso'].lower(), pattern])
 
                     target = engine.getPhysicalRoot().restrictedTraverse(target_path)
-                    target.manage_addCollection(
-                        title, '', '', '', '', country['uri'], '', obligations,
-                        allow_collections=allow_collections,
-                        allow_envelopes=allow_envelopes,
-                        id=collection_id
-                    )
+                    kwargs = {
+                        'allow_collections': allow_collections,
+                        'allow_envelopes': allow_envelopes,
+                        'allow_referrals': allow_referrals,
+                        'id': collection_id
+                    }
+                    target.manage_addCollection(title, '', '', '', '',
+                                                country['uri'], '', obligations,
+                                                **kwargs)
                     messages['success'].append(country['name'])
                 except KeyError:
                     err = "{0}: the specified path does not exist [{1}]".format(
