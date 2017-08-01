@@ -1,5 +1,7 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Feature: Added part of year related inputs in ReportekUtilites's collections.build view [olimpiurob refs #84330]
+* Feature: Added referrals checkbox in ReportekUtilites's collections.build view [olimpiurob refs #84330]
 * Feature: Added Added envelopes.stuck page in ReportekUtilities [olimpiurob refs #73720]
 * Feature: Added isRestricted attribute to the JSON API [olimpiurob refs #83074]
 * Feature: Improved envelope zip file export [olimpiurob refs #85996]
