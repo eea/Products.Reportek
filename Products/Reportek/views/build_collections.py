@@ -25,6 +25,9 @@ class BuildCollections(BaseAdmin):
         allow_collections = int(self.request.form.pop('allow_collections', 0))
         allow_envelopes = int(self.request.form.pop('allow_envelopes', 0))
         allow_referrals = int(self.request.form.pop('allow_referrals', 0))
+        year = self.request.form.pop('year', '')
+        endyear = self.request.form.pop('endyear', '')
+        partofyear = self.request.form.pop('partofyear', '')
 
         if not countries:
             err = "No country selected! Please select at least one country."
@@ -50,9 +53,9 @@ class BuildCollections(BaseAdmin):
                         'allow_referrals': allow_referrals,
                         'id': collection_id
                     }
-                    target.manage_addCollection(title, '', '', '', '',
-                                                country['uri'], '', obligations,
-                                                **kwargs)
+                    target.manage_addCollection(title, '', year, endyear,
+                                                partofyear, country['uri'], '',
+                                                obligations, **kwargs)
                     messages['success'].append(country['name'])
                 except KeyError:
                     err = "{0}: the specified path does not exist [{1}]".format(
