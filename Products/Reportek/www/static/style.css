@@ -708,6 +708,7 @@ tr.user-disabled {
 
 .searchdataflow_controls .buttons {
   margin: 10px 0 0 0;
+}
 
 #workarea ul.unstyled-list {
   list-style: none;
@@ -769,4 +770,19 @@ input.referrals-status {
   width: 200px;
   display: inline-block;
   vertical-align: middle;
+}
+
+#year-input .yearpart {
+  float: left;
+}
+
+#year-input input {
+  height: auto;
+  margin:0 5px 0 0;
+}
+
+#year-input .endyearpart label {
+  width: auto;
+  margin:0 5px;
+  padding: 0;
 }
