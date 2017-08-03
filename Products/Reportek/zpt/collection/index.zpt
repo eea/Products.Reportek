@@ -6,13 +6,14 @@
     <tal:block tal:define="SecurityManager modules/AccessControl/getSecurityManager;
                            permission_allow_envelopes python:here.allowed_envelopes() and SecurityManager.checkPermission('Add Envelopes', here);
                            permission_allow_collections python:here.allow_collections and SecurityManager.checkPermission('Add Collections', here);
+                           permission_allow_referrals python:here.are_referrals_allowed();
                            permission_chgcoll python:SecurityManager.checkPermission('Change Collections', here);
                            has_descr python:here.descr!=''; has_dataflow_uris python:len(here.dataflow_uris)>0;
                            isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'">
 
-    <div id="operations" tal:condition="python:permission_allow_envelopes or permission_allow_collections">
+    <div id="operations" tal:condition="python:permission_allow_envelopes or permission_allow_collections or permission_allow_referrals">
       <ul>
-        <li tal:condition="here/are_referrals_allowed"><a href="manage_addReferralForm" title="Create a new Referral if a certain delivery data is not stored on this system, in which case specify another location for it." i18n:attributes="title" i18n:translate="">New referral</a></li>
+        <li tal:condition="permission_allow_referrals"><a href="manage_addReferralForm" title="Create a new Referral if a certain delivery data is not stored on this system, in which case specify another location for it." i18n:attributes="title" i18n:translate="">New referral</a></li>
         <li tal:condition="permission_allow_collections"><a href="manage_addCollectionForm" title="Collections are folders that define the structure for the Data Repository, grouping Envelopes by country and by the reporting obligations they respond to." i18n:attributes="title" i18n:translate="">New collection</a></li>
         <li tal:condition="permission_allow_envelopes"><a href="manage_addEnvelopeForm" title="Envelopes store all the information about a delivery" i18n:attributes="title" i18n:translate="">New envelope</a></li>
       </ul>
