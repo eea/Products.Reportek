@@ -6,7 +6,7 @@
     <tal:block tal:define="SecurityManager modules/AccessControl/getSecurityManager;
                            permission_allow_envelopes python:here.allowed_envelopes() and SecurityManager.checkPermission('Add Envelopes', here);
                            permission_allow_collections python:here.allow_collections and SecurityManager.checkPermission('Add Collections', here);
-                           permission_allow_referrals python:here.are_referrals_allowed();
+                           permission_allow_referrals python:here.are_referrals_allowed() and SecurityManager.checkPermission('Add Envelopes', here);
                            permission_chgcoll python:SecurityManager.checkPermission('Change Collections', here);
                            has_descr python:here.descr!=''; has_dataflow_uris python:len(here.dataflow_uris)>0;
                            isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'">
