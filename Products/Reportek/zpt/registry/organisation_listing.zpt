@@ -7,7 +7,7 @@
     <script type="text/javascript" charset="utf8"
           src="++resource++static/jquery-1.11.2.min.js"></script>
     <script type="text/javascript" charset="utf8"
-          src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.min.js"></script>
+          src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.js"></script>
     <script src="++resource++static/select2-3.5.0/select2.js"></script>
     <script src="++resource++static/utils.js"></script>
     <script src="++resource++static/utils_fcs.js"></script>
@@ -37,17 +37,19 @@
     Excel</a> or <a href="organisations_json">JSON </a> format. Alternatively you
     can export all reporters in <a href="users_xls">Excel</a> format.
     </p>
-    <label for="obligation">Obligation:</label>
-    <select id="obligation" name="obligation">
-      <option value="fgas">FGAS</option>
-      <option value="ods">ODS</option>
+    <div class="obligation-select-container">
+    <label for="domain">Obligation:</label>
+    <select id="domain" name="domain">
+      <option value="FGAS">FGAS</option>
+      <option value="ODS">ODS</option>
     </select>
+    </div>
+    <p>List of companies that report for the <span id="obligation">FGAS</span> obligation:</p>
    <table id="comp-table" width="100%">
       <thead>
         <tr>
           <th>ID</th>
           <th>Company name</th>
-          <th>Obligation</th>
           <th>Reporters</th>
           <th>Country</th>
           <th>VAT number</th>

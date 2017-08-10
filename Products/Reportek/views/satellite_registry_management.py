@@ -12,6 +12,7 @@ class SatelliteRegistryManagement(BaseAdmin):
         super(SatelliteRegistryManagement, self).__call__(*args, **kwargs)
 
         api = None
+        domain = self.request.form.get('domain', 'FGAS')
         if self.request.method == "POST":
             api = self.get_api()
             if not api:
@@ -21,7 +22,7 @@ class SatelliteRegistryManagement(BaseAdmin):
             newId = self.request.form.get("fid")
             userId = self.request.form.get("user")
             if newId and userId:
-                if api.verifyCandidate(newId, userId):
+                if api.verifyCandidate(newId, userId, domain=domain):
                     return self.request.response.redirect('{0}/{1}?done=1'.format(
                         self.context.absolute_url(), "organisation_matching"))
 
@@ -63,7 +64,7 @@ class SatelliteRegistryManagement(BaseAdmin):
             status = self.request.get('newval')
             orgid = self.request.get('orgid')
             if orgid and status:
-                if not api.updateCompanyStatus(orgid, status.upper()):
+                if not api.updateCompanyStatus(orgid, status.upper(), domain=domain):
                     return self.index(error='Unable to change company status')
                 else:
                     # We need to clear the company_details cache
@@ -79,14 +80,15 @@ class SatelliteRegistryManagement(BaseAdmin):
         api = self.get_api()
         if not api:
             return None
-        companies = api.get_registry_companies()
+        domain = self.request.form.get('domain', 'FGAS')
+        companies = api.get_registry_companies(domain=domain)
         self.request.response.setHeader('Content-Type', 'application/json')
         return json.dumps(companies, indent=2)
 
     def get_companies_api(self):
         get_params = ['id', 'vat', 'name', 'countrycode', 'OR_vat', 'OR_name']
         params = {}
-
+        domain = self.request.form.get('domain', 'FGAS')
         for param in get_params:
             if self.request.get(param):
                 if param == 'countrycode':
@@ -96,16 +98,17 @@ class SatelliteRegistryManagement(BaseAdmin):
 
         api = self.get_api()
         self.request.response.setHeader('Content-Type', 'application/json')
-        return json.dumps(api.existsCompany(params), indent=2)
+        return json.dumps(api.existsCompany(params, domain=domain), indent=2)
 
     def get_company_json(self):
         self.request.response.setHeader('Content-Type', 'application/json')
         api = self.get_api()
-
+        domain = self.request.form.get('domain', 'FGAS')
         details = {}
         if self.request.get('id'):
             companyId = self.request.get('id')
-            details = fix_json_from_id(api.get_company_details(companyId))
+            details = fix_json_from_id(api.get_company_details(companyId,
+                                                               domain=domain))
 
         return json.dumps(details, indent=2)
 
@@ -118,7 +121,8 @@ class SatelliteRegistryManagement(BaseAdmin):
             return None
 
         companyId = self.request.get('id')
-        data = api.getCompanyDetailsById(companyId)
+        domain = self.request.form.get('domain', 'FGAS')
+        data = api.getCompanyDetailsById(companyId, domain=domain)
         if not data:
             return None
 
@@ -135,8 +139,8 @@ class SatelliteRegistryManagement(BaseAdmin):
         api = self.get_api()
         if not api:
             return None
-
-        candidates = api.getCandidates()
+        domain = self.request.form.get('domain', 'FGAS')
+        candidates = api.getCandidates(domain=domain)
         self.request.response.setHeader('Content-Type', 'application/json')
         return json.dumps(candidates, indent=2)
 
@@ -158,7 +162,8 @@ class SatelliteRegistryManagement(BaseAdmin):
             api = self.get_api()
             if api:
                 companyId = self.request.get('id')
-                details = api.unverifyCompany(companyId, self.request.AUTHENTICATED_USER.getUserName())
+                domain = self.request.form.get('domain', 'FGAS')
+                details = api.unverifyCompany(companyId, self.request.AUTHENTICATED_USER.getUserName(), domain=domain)
         return json.dumps(details, indent=2)
 
     def get_companies_excel(self):
@@ -172,15 +177,17 @@ class SatelliteRegistryManagement(BaseAdmin):
         api = self.get_api()
         if not api:
             return None
-        response = api.getCompaniesExcelExport()
+        domain = self.request.form.get('domain', 'FGAS')
+        response = api.getCompaniesExcelExport(domain=domain)
         return response.content
 
     def get_companies_json(self):
         api = self.get_api()
         if not api:
             return None
-
-        companies_original = api.get_registry_companies(detailed=True)
+        domain = self.request.form.get('domain', 'FGAS')
+        companies_original = api.get_registry_companies(detailed=True,
+                                                        domain=domain)
         if companies_original is None:
             companies_original = []
 
