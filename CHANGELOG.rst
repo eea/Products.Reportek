@@ -1,5 +1,6 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Bug fix: Ignore unicode encode/decode errors for filenames in zipfiles for JSON API [olimpiurob refs #87497]
 * Feature: Added description to ReportekEngine's sendNotificationToUNS method [olimpiurob refs #87399]
 * Bug fix: Added 'Add Envelopes' permission check in the collection's index template [olimpiurob refs #84330]
 * Feature: Added part of year related inputs in ReportekUtilites's collections.build view [olimpiurob refs #84330]
