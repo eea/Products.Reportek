@@ -131,8 +131,10 @@ class EnvelopesAPI(BrowserView):
                     try:
                         zipfiles = envelope.getZipInfo(doc)
                         for zfile in zipfiles:
-                            zfile = unicode(zfile, errors='ignore')
-                            archived_files.append(zfile.encode('utf-8', 'ignore'))
+                            if not isinstance(zfile, unicode):
+                                zfile = unicode(zfile, errors='ignore')
+                            archived_files.append(zfile.encode('utf-8',
+                                                               'ignore'))
                     except (POSKeyError, StorageError) as e:
                         errors.append({
                             'title': 'An error occured trying to access file: {}'.format(doc.absolute_url(0)),
