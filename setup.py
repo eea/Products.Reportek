@@ -20,4 +20,10 @@ setup(
         'xlwt',
         'zipstream',
     ],
+    entry_points="""
+          # -*- Entry points: -*-
+          [console_scripts]
+          zip_cache_cleanup = Products.Reportek.RepUtils:cleanup_zip_cache
+          automatic_qa = Products.Reportek.scripts.automatic_qa:main
+          """,
 )
