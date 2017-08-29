@@ -17,5 +17,7 @@ def get_zope_site():
     from AccessControl.SpecialUsers import system as user
     from AccessControl.SecurityManagement import newSecurityManager
     newSecurityManager(None, user)
+    # We need the AUTHENTICATED_USER in the REQUEST for manage_as_owner decorator
+    app.REQUEST['AUTHENTICATED_USER'] = user
 
     return app
