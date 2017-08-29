@@ -1,5 +1,6 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Feature: Added automatic_qa and zip_cache_cleanup console scripts [olimpiurob refs #87250]
 * Bug fix: Fixed regression from previous commit caused when trying to convert to unicode a filename that's already unicode [olimpiurob refs #87497]
 * Bug fix: Ignore unicode encode/decode errors for filenames in zipfiles for JSON API [olimpiurob refs #87497]
 * Feature: Added description to ReportekEngine's sendNotificationToUNS method [olimpiurob refs #87399]
