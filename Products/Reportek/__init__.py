@@ -178,6 +178,7 @@ def ping_remaining_envelopes(app, crPingger):
         lines.insert(0, "Could not get to redis server")
         logger.warn('. '.join(lines))
         return
+
     for envPathName in envPathNames:
         # get this fresh on every iteration
         envStatus = rs.hget(constants.PING_ENVELOPES_REDIS_KEY, envPathName)
@@ -185,14 +186,21 @@ def ping_remaining_envelopes(app, crPingger):
         if not envStatus['op']:
             continue
         envPathOnly, proto_domain = _strip_protocol_domain(envPathName)
-        env = app.unrestrictedTraverse(envPathOnly)
-        uris = [ envPathName + '/rdf' ]
-        innerObjsByMetatype = env._getObjectsForContentRegistry()
-        # as we are not called from browser there is no domain part in the absolute_url
-        uris.extend( proto_domain +  '/' + o.absolute_url(1)
-                    for objs in innerObjsByMetatype.values()
-                        for o in objs )
-        crPingger.content_registry_ping(uris, ping_argument=envStatus['op'], envPathName=envPathName)
+        env = app.unrestrictedTraverse(envPathOnly, None)
+        uris = [envPathName + '/rdf']
+        if not env:
+            logger.warning("Envelope {} no longer exists in the zope "
+                           "environment. Setting cr ping argument to "
+                           "'delete'".format(envPathName))
+            envStatus['op'] = 'delete'
+        else:
+            innerObjsByMetatype = env._getObjectsForContentRegistry()
+            # as we are not called from browser there is no domain part in the absolute_url
+            uris.extend(proto_domain + '/' + o.absolute_url(1)
+                        for objs in innerObjsByMetatype.values()
+                            for o in objs)
+        crPingger.content_registry_ping(uris, ping_argument=envStatus['op'],
+                                        envPathName=envPathName)
 
 def add_index(name, catalog, meta_type, meta=False):
     if name not in catalog.indexes():
