@@ -96,7 +96,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
             return response.json()
 
     def getCompanyDetailsById(self, companyId, domain='FGAS'):
-        details = self.get_company_details(companyId)
+        details = self.get_company_details(companyId, domain=domain)
         keysToVerify = ['domain', 'address', 'company_id', 'collection_id']
         if details:
             if reduce(lambda i, x: i and x in details, keysToVerify, True):
@@ -231,7 +231,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
         return response
 
     def getCompaniesExcelExport(self, domain='FGAS'):
-        url = '/'.join([self.baseUrl, 'undertaking', domain, 'export'])
+        url = '/'.join([self.baseUrl, 'export', 'undertaking', domain])
         response = self.do_api_request(url,
                                        headers={'Authorization': self.token})
 
