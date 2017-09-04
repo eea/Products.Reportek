@@ -20,6 +20,13 @@
         The companies automatically approved by the system have the user “SYSTEM”.
       </p>
 
+      <div class="obligation-select-container">
+        <label for="domain">Obligation:</label>
+        <select id="domain" name="domain">
+          <option value="FGAS">FGAS</option>
+          <option value="ODS">ODS</option>
+        </select>
+      </div>
       <tal:block condition="records">
         <table class="table simple_table">
           <thead>
