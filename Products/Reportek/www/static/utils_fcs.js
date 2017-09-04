@@ -15,10 +15,20 @@ reportek.utils.fcs = {
 
     load: function() {
       var self = reportek.utils.fcs;
+      self.domain = $("#domain").val();
+      self.update_domain_param();
       self.companies_url = self.base_url + self.companies;
       self.company_details_url = self.base_url + self.company_details;
       self.initCompaniesTable();
       self.bind_obl_select();
+    },
+    update_domain_param: function() {
+      var self = reportek.utils.fcs;
+      var anchors = $(".export");
+      for (var i=0; i<anchors.length; i++) {
+        var href = $(anchors[i]).attr("href");
+        $(anchors[i]).attr("href", href.split('?')[0] + '?domain=' + self.domain);
+      }
     },
     get_companies_url: function() {
       var self = reportek.utils.fcs;
@@ -34,6 +44,7 @@ reportek.utils.fcs = {
         self.tbl.ajax.url(self.get_companies_url());
         self.tbl.ajax.reload();
         $("#obligation").text(self.domain);
+        self.update_domain_param();
       });
     },
     initCompaniesTable: function() {

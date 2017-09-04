@@ -33,9 +33,9 @@
     This page contains the list of companies registered in
     <a tal:attributes="href view/get_url">FGAS portal</a>
     and approved in BDR. You can see the company details and reporters by
-    clicking on the company name. You can export them in <a href="organisations_excel">
-    Excel</a> or <a href="organisations_json">JSON </a> format. Alternatively you
-    can export all reporters in <a href="users_xls">Excel</a> format.
+    clicking on the company name. You can export them in <a class="export" href="organisations_excel">
+    Excel</a> or <a class="export" href="organisations_json">JSON </a> format. Alternatively you
+    can export all reporters in <a class="export" href="users_xls">Excel</a> format.
     </p>
     <div class="obligation-select-container">
     <label for="domain">Obligation:</label>

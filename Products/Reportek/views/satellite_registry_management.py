@@ -4,6 +4,9 @@ from Products.Reportek.RepUtils import fix_json_from_id
 from plone.memoize.ram import global_cache
 import json
 import re
+import logging
+
+logger = logging.getLogger("Reportek")
 
 
 class SatelliteRegistryManagement(BaseAdmin):
