@@ -151,7 +151,8 @@ class SatelliteRegistryManagement(BaseAdmin):
         api = self.get_api()
         if not api:
             return None
-        return api.getMatchingLog()
+        self.request.response.setHeader('Content-Type', 'application/json')
+        return json.dumps(api.getMatchingLog(), indent=2)
 
     def get_datasync_log(self):
         api = self.get_api()
@@ -238,6 +239,15 @@ class SatelliteRegistryManagement(BaseAdmin):
             old_collection_id = None
         return api.lockedCompany(str(company_id), old_collection_id,
                                  country_code, domain)
+
+    def is_company_locked(self):
+        company_id = self.request.form.get('company_id')
+        old_collection_id = self.request.form.get('old_collection_id')
+        country_code = self.request.form.get('country_code')
+        domain = self.request.form.get('domain', 'FGAS')
+        self.request.response.setHeader('Content-Type', 'application/json')
+        return json.dumps(self.lockedCompany(company_id, old_collection_id,
+                                             country_code, domain))
 
     def lockDownCompany(self, company_id, old_collection_id, country_code, domain, user, came_from):
         api = self.get_api()
