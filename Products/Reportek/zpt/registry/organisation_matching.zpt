@@ -6,6 +6,8 @@
           src="++resource++static/jquery-1.11.2.min.js"></script>
     <script type="text/javascript" charset="utf8"
           src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.min.js"></script>
+    <script src="++resource++static/utils.js"></script>
+    <script src="++resource++static/utils_fcs.js"></script>
   </metal:block>
 
   <metal:block fill-slot="breadcrumbtrails">
@@ -52,39 +54,5 @@
       </tbody>
     </table>
 
-    <script>
-        $(function() {
-            $('#matching-table').dataTable({
-                "iDisplayLength": 20,
-                "sAjaxSource": "/fgases_registry/get_candidates",
-                "sAjaxDataProp" : "",
-                "aoColumns": [
-                  { "data": "name" },  // for User Detail
-                  { "data": "status" },
-                  { "data": "country" },
-                ],
-                "columnDefs": [
-                  {
-                    "width": "40%",
-                    "targets": 0,
-                    "data": "name",
-                    "render": function (data, type, full, meta) {
-                      return '<a href="/fgases_registry/organisation_verification?id='+
-                        full.company_id + '">' + data + '</a>';
-                    }
-                  },
-                  {
-                    "width": "20%",
-                    "targets": 1,
-                  },
-                  {
-                    "width": "40%",
-                    "targets": 2,
-                  }
-                ],
-                "order": [[ 0, "asc" ]]
-            });
-        });
-    </script>
   </metal:block>
 </metal:block>

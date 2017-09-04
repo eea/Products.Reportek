@@ -19,7 +19,8 @@ reportek.utils.fcs = {
       self.update_domain_param();
       self.companies_url = self.base_url + self.companies;
       self.company_details_url = self.base_url + self.company_details;
-      self.initCompaniesTable();
+      self.init_companies();
+      self.init_matching_companies();
       self.bind_obl_select();
     },
     update_domain_param: function() {
@@ -47,7 +48,7 @@ reportek.utils.fcs = {
         self.update_domain_param();
       });
     },
-    initCompaniesTable: function() {
+    init_companies: function() {
       var self = reportek.utils.fcs;
       $.fn.dataTable.moment( 'DD/MM/YYYY' );
       self.tbl = $("#comp-table").DataTable({
@@ -103,6 +104,38 @@ reportek.utils.fcs = {
             }
           }
         ]
+      });
+    },
+    init_matching_companies: function() {
+      $('#matching-table').dataTable({
+          "iDisplayLength": 20,
+          "sAjaxSource": "/fgases_registry/get_candidates",
+          "sAjaxDataProp" : "",
+          "aoColumns": [
+            { "data": "name" },  // for User Detail
+            { "data": "status" },
+            { "data": "country" },
+          ],
+          "columnDefs": [
+            {
+              "width": "40%",
+              "targets": 0,
+              "data": "name",
+              "render": function (data, type, full, meta) {
+                return '<a href="/fgases_registry/organisation_verification?id='+
+                  full.company_id + '">' + data + '</a>';
+              }
+            },
+            {
+              "width": "20%",
+              "targets": 1,
+            },
+            {
+              "width": "40%",
+              "targets": 2,
+            }
+          ],
+          "order": [[ 0, "asc" ]]
       });
     }
 };
