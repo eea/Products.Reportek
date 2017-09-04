@@ -151,8 +151,10 @@ class SatelliteRegistryManagement(BaseAdmin):
         api = self.get_api()
         if not api:
             return None
+        domain = self.request.form.get('domain', 'FGAS')
+        m_logs = api.getMatchingLog(domain=domain)
         self.request.response.setHeader('Content-Type', 'application/json')
-        return json.dumps(api.getMatchingLog(), indent=2)
+        return json.dumps(m_logs, indent=2)
 
     def get_datasync_log(self):
         api = self.get_api()

@@ -171,8 +171,8 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if response:
             return response.json()
 
-    def getMatchingLog(self):
-        url = self.baseUrl + '/log/matching'
+    def getMatchingLog(self, domain='FGAS'):
+        url = '/'.join([self.baseUrl, 'log', 'matching', domain])
         response = self.do_api_request(url,
                                        headers={'Authorization': self.token})
         if response:
