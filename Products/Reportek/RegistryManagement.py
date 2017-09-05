@@ -138,10 +138,15 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if response:
             return response.json()
 
-    def verifyCandidate(self, companyId, userId, domain='FGAS'):
+    def verifyCandidate(self, companyId, userId, candidateId=None, domain='FGAS'):
         # use the right pattern for Api url
-        api_url = '/'.join([self.baseUrl, 'candidate', domain, 'verify',
-                            '{0}/'.format(companyId)])
+        verify_endpoint = '/'.join(['candidate', domain, 'verify-none',
+                                    companyId])
+        if candidateId:
+            verify_endpoint = '/'.join(['candidate', domain, 'verify',
+                                        companyId, candidateId])
+
+        api_url = '/'.join([self.baseUrl, verify_endpoint])
 
         response = self.do_api_request(api_url,
                                        data={'user': userId},
@@ -287,7 +292,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
         bdrAuth = self.authMiddleware
         bdrAuth.lockDownCollection(path, user)
         email_sending_failed = False
-        url = self.baseUrl + '/alert_lockdown/wrong_match'
+        url = '/'.join([self.baseUrl, 'alert_lockdown', 'wrong_match', domain])
         data = {
             'company_id': company_id,
             'user': user
@@ -311,7 +316,8 @@ class FGASRegistryAPI(BaseRegistryAPI):
         path = self._unlockCompany(company_id, old_collection_id, country_code, domain, user)
 
         email_sending_failed = False
-        url = self.baseUrl + '/alert_lockdown/wrong_lockdown'
+        url = '/'.join([self.baseUrl, 'alert_lockdown', 'wrong_lockdown',
+                        domain])
         data = {
             'company_id': company_id,
             'user': user

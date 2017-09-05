@@ -22,10 +22,16 @@ class SatelliteRegistryManagement(BaseAdmin):
                 return None
 
         if self.request.method == "POST" and self.request.get("verify.btn"):
+            candidateId = self.request.form.get("cid")
             newId = self.request.form.get("fid")
             userId = self.request.form.get("user")
-            if newId and userId:
-                if api.verifyCandidate(newId, userId, domain=domain):
+            if candidateId and newId and userId:
+                if candidateId == "none":
+                    candidateId = None
+                isForMatch = api.verifyCandidate(newId, userId,
+                                                 candidateId=candidateId,
+                                                 domain=domain)
+                if isForMatch:
                     return self.request.response.redirect('{0}/{1}?done=1'.format(
                         self.context.absolute_url(), "organisation_matching"))
 

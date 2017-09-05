@@ -47,7 +47,20 @@
             <tal:block metal:use-macro="here/partials/macros/organisation_details" />
           </div>
 
-          <form id="company-verification" method="post">
+          <h2>Company candidates</h2>
+          <p>Please choose one of the following companies to match.</p>
+
+          <form method="post">
+            <tal:block condition="company/candidates"
+                       repeat="candidate company/candidates">
+              <tal:block metal:use-macro="here/partials/macros/short_organisation_details" />
+            </tal:block>
+            <div class="company-header clearfix">
+              <label class="btn btn-default pull-left" for="none">
+                <input type="radio" name="cid" value="none" id="none">
+                None of the above
+              </label>
+            </div>
             <input type="hidden" name="fid"
                    tal:attributes="value string:${company/company_id}">
             <hr/>
