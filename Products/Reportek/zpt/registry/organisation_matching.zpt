@@ -50,6 +50,7 @@
         <option value="ODS">ODS</option>
       </select>
     </div>
+    <p>List of pending companies that report for the <span id="obligation">FGAS</span> obligation:</p>
     <table class="table simple_table" id="matching-table">
       <thead>
         <tr>

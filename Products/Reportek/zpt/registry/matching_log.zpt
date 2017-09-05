@@ -34,19 +34,20 @@
         <option value="ODS">ODS</option>
       </select>
     </div>
-      <table class="table simple_table" id="approval-table">
-        <thead>
-          <tr>
-            <th>Company (FGAS Portal)</th>
-            <th>Approval success</th>
-            <th>User</th>
-            <th>Date</th>
-            <th>Lockdown</th>
-          </tr>
-        </thead>
-        <tbody>
+    <p>Approval log for companies that report for the <span id="obligation">FGAS</span> obligation:</p>
+    <table class="table simple_table" id="approval-table">
+      <thead>
+        <tr>
+          <th>Company (FGAS Portal)</th>
+          <th>Approval success</th>
+          <th>User</th>
+          <th>Date</th>
+          <th>Lockdown</th>
+        </tr>
+      </thead>
+      <tbody>
 
-        </tbody>
-      </table>
+      </tbody>
+    </table>
   </metal:block>
 </metal:block>
