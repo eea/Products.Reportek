@@ -95,6 +95,13 @@
     class=".views.SatelliteRegistryManagement"
     attribute="get_matching_log"/>
 
+    <browser:page
+      name="get_datasync_log"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.FgasesRegistryAdministration"
+      class=".views.SatelliteRegistryManagement"
+      attribute="get_datasync_log"/>
+
   <browser:page
     name="is_company_locked"
     for=".interfaces.IRegistryManagement"

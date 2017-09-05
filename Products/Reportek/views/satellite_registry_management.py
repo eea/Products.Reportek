@@ -160,7 +160,10 @@ class SatelliteRegistryManagement(BaseAdmin):
         api = self.get_api()
         if not api:
             return None
-        return api.getDataSyncLog()
+        domain = self.request.form.get('domain', 'FGAS')
+        sync_logs = api.getDataSyncLog(domain=domain)
+        self.request.response.setHeader('Content-Type', 'application/json')
+        return json.dumps(sync_logs, indent=2)
 
     def unverify(self):
         details = {}

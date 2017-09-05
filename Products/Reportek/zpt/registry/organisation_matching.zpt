@@ -43,6 +43,13 @@
       want to have them automatically approved by the system.
     </strong></p>
 
+    <div class="obligation-select-container">
+      <label for="domain">Obligation:</label>
+      <select id="domain" name="domain">
+        <option value="FGAS">FGAS</option>
+        <option value="ODS">ODS</option>
+      </select>
+    </div>
     <table class="table simple_table" id="matching-table">
       <thead>
         <tr>

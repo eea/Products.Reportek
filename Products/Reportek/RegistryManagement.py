@@ -178,8 +178,9 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if response:
             return response.json()
 
-    def getDataSyncLog(self):
+    def getDataSyncLog(self, domain='FGAS'):
         url = self.baseUrl + '/log/sync'
+        url = '/'.join([self.baseUrl, 'log', 'sync', domain])
         response = self.do_api_request(url,
                                        headers={'Authorization': self.token})
         if response:

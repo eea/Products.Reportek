@@ -13,7 +13,8 @@ reportek.utils.fcs = {
                 'get_candidates': '/get_candidates',
                 'organisation_details': '/organisation_details',
                 'organisation_verification': '/organisation_verification',
-                'get_matching_log': '/get_matching_log'},
+                'get_matching_log': '/get_matching_log',
+                'get_datasync_log': '/get_datasync_log'},
     domain: 'FGAS',
 
     load: function() {
@@ -24,6 +25,7 @@ reportek.utils.fcs = {
       self.init_companies();
       self.init_matched_companies();
       self.init_approval_log();
+      self.init_sync_log();
       self.bind_obl_select();
     },
     update_domain_param: function() {
@@ -125,18 +127,18 @@ reportek.utils.fcs = {
               "dataSrc":"",
             },
             "aoColumns": [
-              { "data": "name" },  // for User Detail
-              { "data": "status" },
-              { "data": "country" },
+              { "data": "undertaking.name" },
+              { "data": "undertaking.status" },
+              { "data": "undertaking.country" },
             ],
             "columnDefs": [
               {
                 "width": "40%",
                 "targets": 0,
-                "data": "name",
+                "data": "undertaking.name",
                 "render": function (data, type, full, meta) {
                   return "<a href='" + self.get_endpoint_url('organisation_verification') + "&id=" +
-                    full.company_id + '">' + data + '</a>';
+                    full.undertaking.company_id + "'>" + data + "</a>";
                 }
               },
               {
@@ -222,7 +224,42 @@ reportek.utils.fcs = {
             "order": [[ 0, "asc" ]]
         });
       }
-    }
+    },
+    init_sync_log: function() {
+      var self = reportek.utils.fcs;
+      if ($('#synclog-table').length) {
+        self.tbl_endpoint = self.get_endpoint_url('get_datasync_log');
+        self.tbl = $('#synclog-table').DataTable({
+            "iDisplayLength": 20,
+            "ajax": {
+              "url": self.tbl_endpoint,
+              "contentType": "application/json",
+              "type": "GET",
+              "dataSrc":"",
+            },
+            "aoColumns": [
+              { "data": "execution_time" },
+              { "data": "organizations" },
+              { "data": "using_last_update" },
+            ],
+            "columnDefs": [
+              {
+                "width": "40%",
+                "targets": 0,
+              },
+              {
+                "width": "20%",
+                "targets": 1,
+              },
+              {
+                "width": "40%",
+                "targets": 2,
+              }
+            ],
+            "order": [[ 0, "asc" ]]
+        });
+      }
+    },
 };
 
 $(document).ready(function () {
