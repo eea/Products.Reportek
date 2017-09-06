@@ -211,6 +211,7 @@ class BaseDelivery(object):
         res_a('<?xml version="1.0" encoding="utf-8"?>')
         res_a('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"')
         res_a(' xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"')
+        res_a(' xmlns:dcat="http://www.w3.org/ns/dcat#"')
         res_a(' xmlns:dct="http://purl.org/dc/terms/"')
         res_a(' xmlns:cr="http://cr.eionet.europa.eu/ontologies/contreg.rdf#"')
         res_a(' xmlns="http://rod.eionet.europa.eu/schema.rdf#">')

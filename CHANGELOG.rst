@@ -1,5 +1,6 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Feature: Added dcat:byteSize to the envelope's rdf export [olimpiurob refs #87836]
 * Bug fix: Treat cases where the envelope to be cr pinged, no longer exists in zope [olimpiurob refs #87250]
 * Feature: Added automatic_qa and zip_cache_cleanup console scripts [olimpiurob refs #87250]
 * Bug fix: Fixed regression from previous commit caused when trying to convert to unicode a filename that's already unicode [olimpiurob refs #87497]
