@@ -1,5 +1,8 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Bug fix: Properly check for feedback's document_id attribute when exporting to rdf 
+  - and changed the document_id default value to None in manage_editFeedback
+  [olimpiurob refs #85370]
 * Feature: Added dcat:byteSize to the envelope's rdf export [olimpiurob refs #87836]
 * Bug fix: Treat cases where the envelope to be cr pinged, no longer exists in zope [olimpiurob refs #87250]
 * Feature: Added automatic_qa and zip_cache_cleanup console scripts [olimpiurob refs #87250]
