@@ -1,5 +1,6 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Bug fix: Made sure the uploaded XML are well-formed [olimpiurob refs #88004]
 * Bug fix: Properly check for feedback's document_id attribute when exporting to rdf 
   - and changed the document_id default value to None in manage_editFeedback
   [olimpiurob refs #85370]
