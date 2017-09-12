@@ -1,5 +1,13 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Feature: Added possibility of setting the XLS->XML conversion type (split/no-split)
+  - when uploading, in the DataflowMapping Record [olimpiurob refs #87436]
+* Bug fix: Made sure the uploaded XML are well-formed [olimpiurob refs #88004]
+* Bug fix: Properly check for feedback's document_id attribute when exporting to rdf 
+  - and changed the document_id default value to None in manage_editFeedback
+  [olimpiurob refs #85370]
+* Feature: Added dcat:byteSize to the envelope's rdf export [olimpiurob refs #87836]
+* Bug fix: Treat cases where the envelope to be cr pinged, no longer exists in zope [olimpiurob refs #87250]
 * Feature: Added automatic_qa and zip_cache_cleanup console scripts [olimpiurob refs #87250]
 * Bug fix: Fixed regression from previous commit caused when trying to convert to unicode a filename that's already unicode [olimpiurob refs #87497]
 * Bug fix: Ignore unicode encode/decode errors for filenames in zipfiles for JSON API [olimpiurob refs #87497]

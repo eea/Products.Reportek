@@ -150,4 +150,24 @@
   </div>
 </form>
 
+<form action="" method="post">
+  <table cellspacing="0" cellpadding="2" border="0">
+    <tr>
+      <td>
+        <label class="form-label" for="xls_conversion">XLS Conversion</label>
+      </td>
+      <td colspan="2">
+        <input name="xls_conversion" id="xls_split" type="radio" value="split" tal:attributes="checked python: context.xls_conversion == 'split';"/>
+        <label class="form-label" for="xls_split">Split sheets</label>
+        <input name="xls_conversion" id="xls_non_split" type="radio" value="nosplit" tal:attributes="checked python: context.xls_conversion == 'nosplit';"/>
+        <label class="form-label" for="xls_non_split">Don't split sheets</label>
+      </td>
+    </tr>
+    <tr class="row-hilite">
+      <td colspan="2">
+        <input type="submit" name="update_xls_conversion" value="Submit" />
+      </td>
+    </tr>
+  </table>
+</form>
 <tal:block replace="structure context/manage_page_footer" />

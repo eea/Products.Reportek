@@ -1165,6 +1165,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                         xmlChunk.append('<File rdf:about="%s">' % o.absolute_url())
                         xmlChunk.append('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(o.title_or_id()))
                         xmlChunk.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(o.title_or_id()))
+                        xmlChunk.append('<dcat:byteSize>%s</dcat:byteSize>' % RepUtils.xmlEncode(o.data_file.size))
                         xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.upload_time().HTML4())
                         xmlChunk.append('<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>' % o.upload_time().HTML4())
                         xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(self.absolute_url()))
@@ -1199,7 +1200,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                         xmlChunk.append('<cr:feedbackMessage>%s</cr:feedbackMessage>' % RepUtils.xmlEncode(getattr(o, 'message', '')))
                         xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % o.content_type)
                         xmlChunk.append('<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>' % repr(o.isRestricted()).lower())
-                        if o.document_id not in [None, 'xml']:
+                        if o.document_id and o.document_id != 'xml':
                             xmlChunk.append('<cr:feedbackFor rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(self.absolute_url()),
                                     RepUtils.xmlEncode(url_quote(o.document_id)) ))
                         for attachment in o.objectValues(['File', 'File (Blob)']):

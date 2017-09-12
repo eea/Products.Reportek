@@ -288,7 +288,7 @@ class Collection(CatalogAware, Folder, Toolz):
 
     def getDataflowMappingsContainer(self):
         """ """
-        return getattr(self, constants.DATAFLOW_MAPPINGS)
+        return getattr(self, constants.DATAFLOW_MAPPINGS, None)
 
     def getCountryName(self, country_uri=None):
         """ Returns country name from the country uri
