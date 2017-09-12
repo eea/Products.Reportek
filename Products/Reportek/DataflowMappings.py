@@ -63,7 +63,6 @@ class DataflowMappings(Folder):
         brains = self.get_dataflow_mapping_records(dataflow_uris,
                                                    web_form_only)
         res = []
-        brains = self.Catalog(**query)
         for brain in brains:
             for schema in brain.getObject().mapping['schemas']:
                 if not web_form_only or schema['has_webform']:
