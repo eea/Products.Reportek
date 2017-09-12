@@ -198,11 +198,22 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
                 self.title = REQUEST.form['title']
                 self.dataflow_uri = REQUEST.form['dataflow_uris']
                 message_dialog = 'Saved changes.'
+            if REQUEST.form.get('update_xls_conversion'):
+                self._xls_conversion = REQUEST.form.get('xls_conversion')
+                message_dialog = 'XLS Conversion method updated.'
 
         return self._edit(
                     schemas=self._mappings,
                     message_dialog=message_dialog,
                 )
+
+    @property
+    def xls_conversion(self):
+        """Return the type of xls conversion."""
+        if not getattr(self, '_xls_conversion', None):
+            self._xls_conversion = 'split'
+
+        return getattr(self, '_xls_conversion', None)
 
 
 InitializeClass(DataflowMappingsRecord)

@@ -1,5 +1,7 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Feature: Added possibility of setting the XLS->XML conversion type (split/no-split)
+  - when uploading, in the DataflowMapping Record [olimpiurob refs #87436]
 * Bug fix: Made sure the uploaded XML are well-formed [olimpiurob refs #88004]
 * Bug fix: Properly check for feedback's document_id attribute when exporting to rdf 
   - and changed the document_id default value to None in manage_editFeedback
