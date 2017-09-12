@@ -1122,7 +1122,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             return (0, str(err))
 
     security.declareProtected('View', 'sendNotificationToUNS')
-    def sendNotificationToUNS(self, envelope, notification_type, notification_label, actor='system'):
+    def sendNotificationToUNS(self, envelope, notification_type, notification_label, actor='system', description=''):
         """ Sends events data to the specified UNS's push channel """
         res = 0
         try:
@@ -1136,6 +1136,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 l_res = []
                 l_res.append([l_id, 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', 'http://rod.eionet.europa.eu/schema.rdf#Workflowevent'])
                 l_res.append([l_id, 'http://purl.org/dc/elements/1.1/title', notification_label])
+                if description:
+                    l_res.append([l_id, 'http://purl.org/dc/elements/1.1/description', description])
                 l_res.append([l_id, 'http://purl.org/dc/elements/1.1/identifier', envelope.absolute_url()])
                 l_res.append([l_id, 'http://purl.org/dc/elements/1.1/date', strftime('%Y-%b-%d %H:%M:%S')])
                 #l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#label', notification_label])

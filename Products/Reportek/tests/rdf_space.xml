@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+ xmlns:dcat="http://www.w3.org/ns/dcat#"
  xmlns:dct="http://purl.org/dc/terms/"
  xmlns:cr="http://cr.eionet.europa.eu/ontologies/contreg.rdf#"
  xmlns="http://rod.eionet.europa.eu/schema.rdf#">
@@ -47,6 +48,7 @@
 <File rdf:about="http://nohost/collection/envu2nsuq/another%20document%20id%20with%20space.txt">
 <rdfs:label>another document id with space.txt</rdfs:label>
 <dct:title>another document id with space.txt</dct:title>
+<dcat:byteSize>29</dcat:byteSize>
 <dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:41Z</dct:issued>
 <dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:41Z</dct:date>
 <dct:isPartOf rdf:resource="http://nohost/collection/envu2nsuq"/>
@@ -56,6 +58,7 @@
 <File rdf:about="http://nohost/collection/envu2nsuq/file2.txt">
 <rdfs:label>file2.txt</rdfs:label>
 <dct:title>file2.txt</dct:title>
+<dcat:byteSize>29</dcat:byteSize>
 <dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:42Z</dct:issued>
 <dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">2014-05-02T09:58:42Z</dct:date>
 <dct:isPartOf rdf:resource="http://nohost/collection/envu2nsuq"/>

@@ -48,33 +48,42 @@ def detect_schema(src):
     """
     try:
         iterparser = lxml.etree.iterparse(src)
-        event, element = next(iter(iterparser))
+        iterparser = iter(iterparser)
+        event, element = next(iterparser)
         doc = element.getroottree()
+        root = doc.getroot()
+        # Copy the attributes into a dictionary
+        root_attr = dict(root.attrib)
+
+        # Loop over the elements in order to make sure it's well-formed
+        for event, element in iterparser:
+            element.clear()
     except lxml.etree.XMLSyntaxError as e:
         raise SchemaError('XML Syntax Error', *e.args)
 
-    root = doc.getroot()
-
-    location = root.attrib.get('{http://www.w3.org/2001/XMLSchema-instance}'
-                               'noNamespaceSchemaLocation')
+    location = root_attr.get('{http://www.w3.org/2001/XMLSchema-instance}'
+                             'noNamespaceSchemaLocation')
     if location:
         if absolute_location(location):
             return location
         else:
             raise SchemaError('Schema location is not a valid URL', location)
 
-    location = root.attrib.get('{http://www.w3.org/2001/XMLSchema-instance}'
-                               'schemaLocation')
+    location = root_attr.get('{http://www.w3.org/2001/XMLSchema-instance}'
+                             'schemaLocation')
     if location is not None:
         location_list = location.split()
         # schemaLocation must come in pairs (schema, location)
         if location_list and len(location_list) % 2:
-            raise SchemaError('schemaLocation must have pairs of values', locations_str(location_list))
-        location_list = location_list[1::2] # pick every 2nd item in list (the location)
+            raise SchemaError('schemaLocation must have pairs of values',
+                              locations_str(location_list))
+        # pick every 2nd item in list (the location)
+        location_list = location_list[1::2]
         if location_list:
             location_list_valid = filter(absolute_location, location_list)
             if len(location_list) != len(location_list_valid):
-                raise SchemaError('Schema location is not a valid URL', locations_str(set(location_list) - set(location_list_valid)))
+                raise SchemaError('Schema location is not a valid URL',
+                                  locations_str(set(location_list) - set(location_list_valid)))
         return ' '.join(location_list)
 
     location = doc.docinfo.system_url

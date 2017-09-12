@@ -212,7 +212,7 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
         return y
 
     security.declareProtected('Change Feedback', 'manage_editFeedback')
-    def manage_editFeedback(self, title='', feedbacktext='', content_type='', document_id='', applyRestriction='', restricted='', REQUEST=None):
+    def manage_editFeedback(self, title='', feedbacktext='', content_type='', document_id=None, applyRestriction='', restricted='', REQUEST=None):
         """ Edits the properties """
         self.title = title
         tmp = StringIO.StringIO(feedbacktext)

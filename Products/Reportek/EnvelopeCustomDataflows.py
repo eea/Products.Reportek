@@ -64,7 +64,9 @@ ESRI_EXTRAEXTENSIONS = ['.shp', '.shx', '.dbf', '.prj', '.xml']
 def invoke_conversion_service(server_name, method_name, url):
     server = xmlrpclib.ServerProxy(server_name)
     method = getattr(server.ConversionService, method_name)
-    return method(url, '')
+    if method_name == 'convertDD_XML_split':
+        return method(url, '')
+    return method(url)
 
 
 class EnvelopeCustomDataflows(Toolz):
@@ -206,11 +208,17 @@ class EnvelopeCustomDataflows(Toolz):
         # must commit transaction first, otherwise the file is not accessible from outside
         transaction.commit()
         l_doc = getattr(self, l_id)
-
         # XML/RPC call to the converter
         l_server_name = getattr(self, CONVERTERS_ID).remote_converter
         l_url = self.absolute_url() + '/' + l_id
+        # default xls conversion xmlrpc method
         method_name = 'convertDD_XML_split'
+        dfm = self.getDataflowMappingsContainer()
+        if dfm:
+            xls_conversion = dfm.get_xls_conversion_type(self.dataflow_uris)
+            method_name = {'split': 'convertDD_XML_split',
+                           'nosplit': 'convertDD_XML'}.get(xls_conversion,
+                                                           'convertDD_XML_split')
         try:
             l_ret_list = invoke_conversion_service(l_server_name, method_name, l_url)
         except Exception as e:
