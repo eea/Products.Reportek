@@ -165,7 +165,7 @@
     </tr>
     <tr class="row-hilite">
       <td colspan="2">
-        <input type="submit" name="update_xls_conversion" value="Submit" />
+        <input type="submit" name="update_xls_conversion" value="Save" />
       </td>
     </tr>
   </table>
