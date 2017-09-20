@@ -390,7 +390,7 @@ class EnvelopeCustomDataflows(Toolz):
         if content_type == 'text/xml':
             # don't attempt to extract schema for shapefiles that have their
             # own metadata in a schema-less xml
-            schemaless_shp_meta = 'shp.xml' in file.filename
+            schemaless_shp_meta = file.filename.endswith('.shp.xml')
             if not schemaless_shp_meta:
                 try:
                     # verify the XML schema
@@ -552,11 +552,12 @@ class EnvelopeCustomDataflows(Toolz):
                     file_ids_not_uploaded.append(id)
                     continue
                 zipped_file = getattr(self, zipped_file_id)
-                # for XML files, check if the schema is in the list of accepted schemas for that dataflow
+                schemaless_shp_meta = name.endswith('.shp.xml')
+                 # for XML files, check if the schema is in the list of accepted schemas for that dataflow
                 # and if the other files in the envlope with this schema should be replaced
                 if re.search(self.fileTypeByName_pattern, id):
-                    if required_schema and not zipped_file.xml_schema_location in \
-                            RepUtils.utConvertLinesToList(required_schema):
+                    if not schemaless_shp_meta and (required_schema and not zipped_file.xml_schema_location in \
+                            RepUtils.utConvertLinesToList(required_schema)):
                         # delete this XML file, it has the wrong schema for this dataflow
                         self.manage_delObjects(zipped_file_id)
                         #print name, zipped_file_id
