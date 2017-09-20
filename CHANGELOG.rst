@@ -1,5 +1,7 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Feature: Added possibility of uploading *.shp.xml metadata files that have no
+  - schema [olimpiurob refs #88302]
 * Feature: Added possibility of setting the XLS->XML conversion type (split/no-split)
   - when uploading, in the DataflowMapping Record [olimpiurob refs #87436]
 * Bug fix: Made sure the uploaded XML are well-formed [olimpiurob refs #88004]

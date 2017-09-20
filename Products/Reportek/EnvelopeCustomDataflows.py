@@ -386,21 +386,26 @@ class EnvelopeCustomDataflows(Toolz):
         file.seek(0)
 
         content_type, enc = guess_content_type(file.filename, first_1k)
+        schema = None
         if content_type == 'text/xml':
-            try:
-                # verify the XML schema
-                schema = detect_single_schema(file)
-            except SchemaError as e:
-                if REQUEST:
-                    return self.messageDialog(
-                        message="The file you are trying to upload does not have valid schema location."
-                                " File not uploaded! Reason: %s" % str(e.args),
-                        action='index_html')
+            # don't attempt to extract schema for shapefiles that have their
+            # own metadata in a schema-less xml
+            schemaless_shp_meta = 'shp.xml' in file.filename
+            if not schemaless_shp_meta:
+                try:
+                    # verify the XML schema
+                    schema = detect_single_schema(file)
+                except SchemaError as e:
+                    if REQUEST:
+                        return self.messageDialog(
+                            message="The file you are trying to upload does not have valid schema location."
+                                    " File not uploaded! Reason: %s" % str(e.args),
+                            action='index_html')
             file.seek(0)
             # if no list of schemas were specified, or if the current XML schema is part of the given list
-            if not required_schema or schema in RepUtils.utConvertToList(required_schema):
+            if not required_schema or schema in RepUtils.utConvertToList(required_schema) or schemaless_shp_meta:
                 cookid = self.cook_file_id(file.filename)
-                if int(replace_xml) == 1:
+                if int(replace_xml) == 1 and not schemaless_shp_meta:
                     # delete all the XML files from this envelope which contain this schema
                     xmls = self._get_xml_files_by_schema(schema)
                     self.manage_delObjects(xmls)
