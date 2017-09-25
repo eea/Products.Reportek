@@ -7,19 +7,10 @@
     <script src="++resource++static/select2-3.5.0/select2.js"></script>
     <script src="++resource++static/reportek.js"></script>
     <script src="++resource++static/utils.js"></script>
+    <script src="++resource++static/utils_stuck_envelopes.js"></script>
     <script src="++resource++static/moment.min.js"></script>
     <script src="++resource++static/datetime-moment.js"></script>
 
-    <script type="text/javascript">
-      $(function () {
-        $('.dataTable').DataTable({
-          autowidth: true,
-          searching: true,
-          paging: true,
-          pageLength: 50
-        })
-      });
-    </script>
     <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
   </metal:block>
   <metal:block fill-slot="breadcrumbtrails">
@@ -27,12 +18,37 @@
   </metal:block>
 <metal:block fill-slot="content">
   <metal:block use-macro="here/util_controls/macros/utilities-controls" />
-  <h1>Stuck envelopes</h1>
-  <p>This page lists the envelopes that are in a state of their workflow which is automatic, but failed to execute due to an error. The error might have occurred in the activity which got stuck, or in the subsequent transitions or activities. In order to resolve each situation, navigate to the envelope and access the 'Manage workflow history' tab.
-  </p>
-  <tal:block define="data view/stuck_envelopes">
+  <div class="ajaxtabsmenu tabbedmenu">
+    <ul class="unstyled-list">
+      <li class="tabbed-elem currenttab">
+        <a href="#stuck-inactive">
+          Stuck and inactive
+        </a>
+      </li>
+      <li class="tabbed-elem">
+        <a href="#lr-aqa">
+          Long running Automatic QA
+        </a>
+      </li>
+    </ul>
+  </div>
 
-    <table tal:condition="data" class="datatable">
+  <div class="filter-form" id="stuck-envelopes-tabs">
+    <div id="stuck-inactive" class="tabbed-content">
+      <h1>Stuck and inactive envelopes</h1>
+      <p>This page lists the envelopes that are in a state of their workflow which is automatic, but failed to execute due to an error. The error might have occurred in the activity which got stuck, or in the subsequent transitions or activities. In order to resolve each situation, navigate to the envelope and access the 'Manage workflow history' tab.
+      </p>
+    </div>
+    <div id="lr-aqa" class="tabbed-content hidden-content">
+      <h1>Envelopes in long running Automatic QA</h1>
+      <p>This page lists the envelopes that are currently in a running Automatic QA process.</p>
+      <label for="age">In Automatic QA process for:</label>
+      <input type="text" id="age" name="age" value="30"/> days
+      <input type="button" name="update" value="Update">
+    </div>
+  </div>
+  <div class="tabbedmenuend"></div>
+    <table id="s_envs">
       <thead>
         <tr>
           <th>Envelope</th>
@@ -43,33 +59,9 @@
       </thead>
 
       <tbody>
-        <tr tal:repeat="env data">
-          <td>
-            <a tal:attributes="href string: ${env/env/url}"
-               tal:content="env/env/path">
-            </a>
-          </td>
-          <td>
-            <a tal:attributes="href string: ${env/process/url}"
-               tal:content="env/process/title">
-            </a>
-          </td>
-          <td>
-            <a tal:attributes="href env/activity/url"
-               tal:content="env/activity/title" />
-          </td>
-          <td>
-            <span tal:content="python:env.get('s_date').strftime('%d/%m/%Y %H:%M:%S')"/>
-          </td>
-        </tr>
       </tbody>
     </table>
 
-    <p tal:condition="not: data">
-        No stuck envelope found.
-    </p>
-
-  </tal:block>
 </metal:block>
 
 </metal:block>

@@ -193,7 +193,44 @@ class EnvelopeUtils(BaseAdmin):
                             'url': activity.absolute_url(),
                             'title': activity.title_or_id()
                         },
-                        's_date': obj.event_log[-1].get('time')
+                        's_date': DateTime(obj.event_log[-1].get('time')).strftime('%d/%m/%Y %H:%M:%S')
                     })
 
-        return envelopes
+        return json.dumps(envelopes)
+
+    def env_long_running_aqa(self):
+        """Return a list of envelopes with long running Automatic QA"""
+
+        catalog = self.context.Catalog
+        # Get all active workitems
+        aqa_brains = catalog(meta_type='Workitem',
+                             activity_id='AutomaticQA',
+                             status='active')
+        try:
+            age = int(self.request.get('age', 30))
+        except Exception:
+            age = 30
+        envelopes = []
+        for brain in aqa_brains:
+            act_start = brain.activation_log[-1].get('start')
+            if DateTime() - DateTime(act_start) >= age:
+                wk = brain.getObject()
+                env = wk.aq_parent
+                activity = env.getActivity(wk.getId())
+                process = env.getProcess()
+                envelopes.append({
+                    'env': {
+                        'url': env.absolute_url(),
+                        'path': env.getPath()
+                    },
+                    'process': {
+                        'url': process.absolute_url(),
+                        'title': process.title_or_id()
+                    },
+                    'activity': {
+                        'url': activity.absolute_url(),
+                        'title': activity.title_or_id()
+                    },
+                    's_date': DateTime(act_start).strftime('%d/%m/%Y %H:%M:%S')
+                })
+        return json.dumps(envelopes)
