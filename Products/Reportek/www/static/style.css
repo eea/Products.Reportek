@@ -786,3 +786,7 @@ input.referrals-status {
   margin:0 5px;
   padding: 0;
 }
+
+#stuck-envelopes-tabs .highlight-fragment {
+  background-color: transparent;
+}
