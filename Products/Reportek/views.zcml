@@ -172,8 +172,21 @@
     title="Stuck envelopes"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ViewManagementScreens"
-    class=".views.EnvelopeUtils"
     template="zpt/utilities/envelopes_stuck.zpt"/>
+
+  <browser:page
+    name="get_stuck_envelopes"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.EnvelopeUtils"
+    attribute="stuck_envelopes"/>
+
+  <browser:page
+    name="get_lr_aqa_envelopes"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ViewManagementScreens"
+    class=".views.EnvelopeUtils"
+    attribute="env_long_running_aqa"/>
 
   <browser:page
     name="referrals.management"
