@@ -815,7 +815,7 @@ class EnvelopeInstance(CatalogAware, Folder):
         count = 1
         last_workitem = getattr(self, str(last_workitem_id))
 
-        while last_workitem_id != 0:
+        while str(last_workitem_id) != '0':
             workitem_from = getattr(last_workitem, 'workitems_from')
             if len(workitem_from) > 0:
                 workitem_from = workitem_from[-1]
