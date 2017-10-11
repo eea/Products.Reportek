@@ -180,18 +180,26 @@ class EnvelopeUtils(BaseAdmin):
                 if obj.getId() == last_workitem_id and not obj.pull_roles:
                     activity = env.getActivity(obj.getId())
                     process = env.getProcess()
+                    activity_url = process_url = ''
+                    activity_title = process_title = 'Not available'
+                    if activity:
+                        activity_url = activity.absolute_url()
+                        activity_title = activity.title_or_id()
+                    if process:
+                        process_url = process.absolute_url()
+                        process_title = process.title_or_id()
                     envelopes.append({
                         'env': {
                             'url': env.absolute_url(),
                             'path': env.getPath()
                         },
                         'process': {
-                            'url': process.absolute_url(),
-                            'title': process.title_or_id()
+                            'url': process_url,
+                            'title': process_title
                         },
                         'activity': {
-                            'url': activity.absolute_url(),
-                            'title': activity.title_or_id()
+                            'url': activity_url,
+                            'title': activity_title
                         },
                         's_date': obj.event_log[-1].get('time')
                     })
