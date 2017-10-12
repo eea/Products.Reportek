@@ -220,25 +220,26 @@ class EnvelopeUtils(BaseAdmin):
             age = 30
         envelopes = []
         for brain in aqa_brains:
-            act_start = brain.activation_log[-1].get('start')
-            if DateTime() - DateTime(act_start) >= age:
-                wk = brain.getObject()
-                env = wk.aq_parent
-                activity = env.getActivity(wk.getId())
-                process = env.getProcess()
-                envelopes.append({
-                    'env': {
-                        'url': env.absolute_url(),
-                        'path': env.getPath()
-                    },
-                    'process': {
-                        'url': process.absolute_url(),
-                        'title': process.title_or_id()
-                    },
-                    'activity': {
-                        'url': activity.absolute_url(),
-                        'title': activity.title_or_id()
-                    },
-                    's_date': DateTime(act_start).strftime('%d/%m/%Y %H:%M:%S')
-                })
+            if brain.activation_log:
+                act_start = brain.activation_log[-1].get('start')
+                if DateTime() - DateTime(act_start) >= age:
+                    wk = brain.getObject()
+                    env = wk.aq_parent
+                    activity = env.getActivity(wk.getId())
+                    process = env.getProcess()
+                    envelopes.append({
+                        'env': {
+                            'url': env.absolute_url(),
+                            'path': env.getPath()
+                        },
+                        'process': {
+                            'url': process.absolute_url(),
+                            'title': process.title_or_id()
+                        },
+                        'activity': {
+                            'url': activity.absolute_url(),
+                            'title': activity.title_or_id()
+                        },
+                        's_date': DateTime(act_start).strftime('%d/%m/%Y %H:%M:%S')
+                    })
         return json.dumps(envelopes)
