@@ -176,14 +176,9 @@ class RemoteConverter(Converter):
 
     def convert(self, file_obj):
         try:
-            url = '/'.join([self.api_url, 'convertPush'])
-            with file_obj.data_file.open() as f:
-                result = requests.post(
-                            url,
-                            files={'convert_file': (file_obj.id, f)},
-                            data={'convert_id': self.id,
-                                  'file_name': file_obj.absolute_url(0)},
-                            stream=True)
+            url = '/'.join([self.api_url, 'convert'])
+            result = requests.post(url, data={'convert_id': self.id,
+                                              'url': file_obj.absolute_url(0)})
             result.raise_for_status()
             #
             # let zope add the transfer-encoding: chuncked header if required
