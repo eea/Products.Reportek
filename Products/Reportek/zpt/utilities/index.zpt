@@ -41,11 +41,11 @@
         </ul>
       </div>
 
-      <div class="utils-envelopes" tal:condition="python: not isBdrDeployment and [action for action in envelopes_actions if action in menu_keys]">
+      <div class="utils-envelopes" tal:condition="python: [action for action in envelopes_actions if action in menu_keys]">
         <h2>Envelopes</h2>
         <ul>
           <tal:rep tal:repeat="action envelopes_actions">
-            <li tal:condition="python: action in menu_keys">
+            <li tal:condition="python: action in menu_keys and (not isBdrDeployment or isBdrDeployment and action == '@@envelopes.stuck')">
               <a href="" tal:attributes="href action" tal:content="python:menuactions.get(action)"/>
             </li>
           </tal:rep>

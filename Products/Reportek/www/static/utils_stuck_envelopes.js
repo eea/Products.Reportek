@@ -43,6 +43,7 @@ reportek.utils.stuck_envelopes = {
       age = parseInt($("#age").val());
       if (isInt(age) && age > 0) {
         self.update_table_values();
+        $("#age_info").text($("#age").val());
       } else {
           alert("Please enter the number of days!")
           return;
