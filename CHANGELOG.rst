@@ -1,5 +1,9 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Feature: Enabled the stuck envelopes utility for BDR deployments [robaaoli refs #88393]
+* Bug fix: Bullet proof the checking for activation_log value in stuck envelopes [robaaoli refs #88393]
+* Bug fix: Fixed condition test in EnvelopeInstance's traceActivity method
+  [olimpiurob refs #86937]
 * Feature: Added possibility of uploading *.shp.xml metadata files that have no
   - schema [olimpiurob refs #88302]
 * Feature: Added possibility of setting the XLS->XML conversion type (split/no-split)
