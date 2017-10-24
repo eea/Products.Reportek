@@ -790,3 +790,12 @@ input.referrals-status {
 #stuck-envelopes-tabs .highlight-fragment {
   background-color: transparent;
 }
+
+.center-spinner {
+  width: 100%;
+  text-align: center;
+}
+
+.ui-control {
+  text-decoration: none;
+}

@@ -38,6 +38,7 @@ from zope.contenttype import guess_content_type
 from zope.interface import implements
 import Globals
 import IconShow
+import json
 import os
 import requests
 import string
@@ -421,26 +422,56 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     # or editing with external editors e.g. XForms)
     _manage_template = PageTemplateFile('zpt/document/manage', globals())
 
-    security.declareProtected('View', 'manage_document')
-    def manage_document(self, REQUEST=None, manage_and_edit=False):
-        """ """
+    security.declareProtected('View', 'get_possible_conversions')
+    def get_possible_conversions(self):
+        """Return possible conversions for the file"""
         local_converters = []
         remote_converters = []
         warning_message = ''
         try:
             (local_converters, remote_converters) = \
-                    self.Converters.displayPossibleConversions(
-                        self.content_type,
-                        self.xml_schema_location,
-                        self.id
-                    )
+                self.Converters.displayPossibleConversions(self.content_type,
+                                                           self.xml_schema_location,
+                                                           self.id
+                                                           )
         except requests.ConnectionError as ex:
            local_converters, remote_converters = ex.results
            warning_message='Local conversion service unavailable.'
+
+        self.REQUEST.RESPONSE.setHeader('Content-Type',
+                                        'application/json')
+        return json.dumps({
+            'local_converters': local_converters,
+            'remote_converters': remote_converters,
+            'warnings': warning_message,
+            'file': self.absolute_url(1)
+        })
+
+    security.declareProtected('View', 'get_qa_scripts')
+    def get_qa_scripts(self):
+        """Return the available qa scripts for the file."""
+        scripts = self.getQAScripts().get(self.id, [])
+        online_qa = []
+        large_qa = []
+        res = {'online_qa': online_qa,
+               'large_qa': large_qa}
+        for script in scripts:
+            qa = {'title': script[1],
+                  'script_id': script[0]}
+            if self.canHaveOnlineQA(script[3]):
+                online_qa.append(qa)
+            else:
+                large_qa.append(qa)
+        res['file'] = self.absolute_url()
+        self.REQUEST.RESPONSE.setHeader('Content-Type',
+                                        'application/json')
+        return json.dumps(res)
+
+    security.declareProtected('View', 'manage_document')
+    def manage_document(self, REQUEST=None, manage_and_edit=False):
+        """ """
         return self._manage_template(
                    manage_and_edit=manage_and_edit,
-                   warnings=warning_message,
-                   converters=[local_converters, remote_converters]
                )
 
     security.declareProtected('View', 'manage_edit_document')
