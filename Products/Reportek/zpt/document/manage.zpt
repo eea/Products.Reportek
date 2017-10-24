@@ -1,5 +1,10 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
-
+  <metal:block fill-slot="head">
+    <link href="++resource++static/fontawesome/font-awesome.min.css" rel="stylesheet"/>
+    <link href="++resource++static/style.css" rel="stylesheet"/>
+    <script type="text/javascript" charset="utf8" src="++resource++static/jquery-1.11.2.min.js"></script>
+    <script type="text/javascript" src="++resource++static/manage_document.js"></script>
+  </metal:block>
   <metal:block fill-slot="content">
     <tal:block
       condition="python:context.canViewContent()"
@@ -28,50 +33,21 @@
       </tal:block>
 
       <div id="content">
-        <tal:block condition="options/warnings | nothing">
-        <div class="caution-msg" tal:content="options/warnings"></div>
-        </tal:block>
         <fieldset><legend i18n:translate="">View file as</legend>
           <ul>
               <li><a tal:attributes="href python:context.absolute_url(0); type context/content_type;"
                      i18n:translate="">Original</a></li>
-
-              <tal:block define="converters options/converters">
-                <tal:block repeat="conv_item python:converters[0]">
-                <li>
-                  <a class="converter"
-                     tal:define="
-                       file_url python:context.absolute_url(1);
-                       xsl python:conv_item['xsl']"
-                     tal:attributes="
-                       href string:/Converters/run_conversion?file=${file_url}&conv=${xsl}&source=local;
-                       type python:conv_item['content_type_out'];
-                       conv_id python:conv_item['xsl'];
-                       conv_file python:context.absolute_url(1);
-                       conv_source string:local"
-                     tal:content="python:conv_item['description']">
-                  </a> <span tal:define="more_info python:conv_item['more_info']"
-                             tal:condition="more_info"
-                             tal:replace="string:(${more_info})"/>
-                </li>
-                </tal:block>
-
-                <tal:block repeat="conv_item python:converters[1]">
-                <li>
-                  <a tal:define="
-                       file_url python:context.absolute_url(1);
-                       c_id python:conv_item['convert_id']"
-                     tal:attributes="
-                       href string:/Converters/run_conversion?file=${file_url}&conv=${c_id}&source=remote;
-                       type python:conv_item['content_type_out'];"
-                     tal:content="python:conv_item['description']">
-                  </a> <span tal:define="more_info python:conv_item['more_info']"
-                             tal:condition="more_info"
-                             tal:replace="string:(${more_info})"/>
-                </li>
-                </tal:block>
-              </tal:block>
           </ul>
+          <div class="remote-conversions">
+            <br/>
+            <a id="conversions-reload" href="#" class="ui-control">
+              <span class="icon-refresh"></span>
+            </a>
+            <span>Available conversions: </span>
+            <div class="spinner-container center-spinner" id="c_spinner">
+              <img src="++resource++static/ajax-loader.gif" class="ajax-spinner">
+            </div>
+          </div>
           <p tal:condition="python:context.get_size() == 0" i18n:translate="">
             <strong>Warning:</strong> this file is empty so viewing it in different formats might not work as expected!
           </p>
@@ -219,27 +195,17 @@
 
         <fieldset tal:condition="not:context/released">
           <legend i18n:translate="">Quality assessment</legend>
-          <tal:block condition="python:context.getQAScripts().has_key(context.id)">
-            <tal:block repeat="script_item python:context.getQAScripts()[context.id]">
-              <tal:block condition="python:context.canHaveOnlineQA(script_item[3])">
-              <p><span tal:replace="python:'Run %s' %script_item[1]"/>
-                <a tal:attributes="
-                    href python:'runQAScript?p_file_url=%s&amp;p_script_id=%s' %(
-                      context.absolute_url(), script_item[0]);
+          <div class="quality-assessment">
+            <br/>
+            <a id="qa-reload" href="#" class="ui-control">
+              <span class="icon-refresh"></span>
+            </a>
+            <span>Available QA Scripts: </span>
+            <div class="spinner-container center-spinner" id="qa_spinner">
+              <img src="++resource++static/ajax-loader.gif" class="ajax-spinner">
+            </div>
+          </div>
 
-                    title python:'Click to run %s' %script_item[1]"
-                    rel="nofollow" class="test_button"
-                    tal:content="string:Run QA #${repeat/script_item/number}"></a>
-              </tal:block>
-              <tal:block condition="not:python:context.canHaveOnlineQA(script_item[3])">
-                <p i18n:translate="">File too large to run the <em i18n:name="qa-script"><tal:block content="python:script_item[1]" /></em> quality assessment script directly. Use the feedback generated by the <em>automatic quality assessment</em> to view the results.</p>
-              </tal:block>
-            </tal:block>
-          </tal:block>
-
-          <tal:block condition="not:python:context.getQAScripts().has_key(context.id)">
-            <p i18n:translate="">No quality assessment scripts available for this document.</p>
-          </tal:block>
         </fieldset>
 
         <fieldset>
