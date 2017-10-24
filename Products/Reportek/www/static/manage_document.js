@@ -42,6 +42,11 @@ reportek.documents = {
           text: data.warnings
         }));
     }
+    if (data.local_converters.length <= 0 && data.remote_converters.length <= 0) {
+      c_container.append($("<p>", {
+        text: "No conversions available for this document."
+        }));
+    }
     var ulist = $("<ul>").appendTo(c_container);
     for (var i = 0; i < data.local_converters.length; i++) {
       var lconv = data.local_converters[i];
