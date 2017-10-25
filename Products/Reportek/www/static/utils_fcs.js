@@ -46,6 +46,7 @@ reportek.utils.fcs = {
     bind_obl_select: function() {
       var self = reportek.utils.fcs;
       $("#domain").on("change", {self:this}, function(evt){
+        self.tbl.clear().draw();
         evt.preventDefault();
         self = evt.data.self;
         self.domain = $(this).val();
