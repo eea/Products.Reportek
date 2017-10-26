@@ -44,13 +44,12 @@
     </strong></p>
 
     <div class="obligation-select-container">
-      <label for="domain">Obligation:</label>
+      <label for="domain">Filter companies by obligation:</label>
       <select id="domain" name="domain">
         <option value="FGAS">FGAS</option>
         <option value="ODS">ODS</option>
       </select>
     </div>
-    <p>List of pending companies that report for the <span id="obligation">FGAS</span> obligation:</p>
     <table class="table simple_table" id="matching-table">
       <thead>
         <tr>

@@ -52,7 +52,6 @@ reportek.utils.fcs = {
         self.domain = $(this).val();
         var endpoint = self.tbl_endpoint.split('/')[self.tbl_endpoint.split('/').length-1].split('?')[0];
         self.tbl.ajax.url(self.get_endpoint_url(endpoint)).load();
-        $("#obligation").text(self.domain);
         self.update_domain_param();
       });
     },

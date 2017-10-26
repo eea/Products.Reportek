@@ -24,13 +24,12 @@
       FGAS portal and the number of companies fetched.
     </p>
     <div class="obligation-select-container">
-      <label for="domain">Obligation:</label>
+      <label for="domain">Filter companies by obligation:</label>
       <select id="domain" name="domain">
         <option value="FGAS">FGAS</option>
         <option value="ODS">ODS</option>
       </select>
     </div>
-    <p>Sync log for companies that report for the <span id="obligation">FGAS</span> obligation:</p>
     <table id="synclog-table" class="table simple_table">
       <thead>
         <tr>
