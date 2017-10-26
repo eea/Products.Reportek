@@ -1,5 +1,6 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Feature: Added crashme view [olimpiurob refs #89420]
 * Bug fix: Added 'Add Envelopes' permission check in the collection's index template [olimpiurob refs #84330]
 * Feature: Added part of year related inputs in ReportekUtilites's collections.build view [olimpiurob refs #84330]
 * Feature: Added referrals checkbox in ReportekUtilites's collections.build view [olimpiurob refs #84330]

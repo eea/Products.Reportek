@@ -228,4 +228,10 @@
     permission="zope2.Public"
     template="zpt/engineMacros.zpt"/>
 
+  <browser:page
+    name="crashme"
+    for="*"
+    permission="zope2.ViewManagementScreens"
+    class="Products.Reportek.RepUtils.CrashMe"/>
+
 </configure>

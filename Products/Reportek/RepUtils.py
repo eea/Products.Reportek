@@ -21,28 +21,29 @@
 
 """ Generic functions module """
 
-import os
-import sys
-import re
-import tempfile
-import traceback
-import string,base64,time
-import operator
-import json
-import time
-from path import path
-from copy import deepcopy
-from types import FunctionType
-from urllib import FancyURLopener
-from webdav.common import rfc1123_date
 from AccessControl.SecurityManagement import getSecurityManager
 from AccessControl.SecurityManagement import newSecurityManager
 from AccessControl.SecurityManagement import setSecurityManager
 from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
-from datetime import datetime
+from Products.Five import BrowserView
 from Products.Reportek.config import XLS_HEADINGS
 from Products.Reportek.config import ZIP_CACHE_PATH
+from copy import deepcopy
+from datetime import datetime
+from path import path
+from types import FunctionType
+from urllib import FancyURLopener
+from webdav.common import rfc1123_date
+import json
+import operator
+import os
+import re
+import string,base64,time
+import sys
+import tempfile
+import time
+import traceback
 
 
 def formatException(self, error):
@@ -633,3 +634,10 @@ def cleanup_zip_cache(days=7):
                 logger.warning('Unable to remove file: {} ({})'.format(f,
                                                                        str(e)))
     return removed
+
+
+class CrashMe(BrowserView):
+    """ CrashMe view """
+
+    def __call__(self):
+        raise RuntimeError("Crashing as requested by you")
