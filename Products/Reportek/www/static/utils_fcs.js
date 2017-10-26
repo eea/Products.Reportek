@@ -51,8 +51,7 @@ reportek.utils.fcs = {
         self = evt.data.self;
         self.domain = $(this).val();
         var endpoint = self.tbl_endpoint.split('/')[self.tbl_endpoint.split('/').length-1].split('?')[0];
-        self.tbl.ajax.url(self.get_endpoint_url(endpoint));
-        self.tbl.ajax.reload();
+        self.tbl.ajax.url(self.get_endpoint_url(endpoint)).load();
         $("#obligation").text(self.domain);
         self.update_domain_param();
       });
@@ -70,6 +69,7 @@ reportek.utils.fcs = {
             "type": "GET",
             "dataSrc":"",
           },
+          "processing": true,
           "autowidth": false,
           "order": [[ 0, "desc" ]],
           "columns": [
@@ -127,6 +127,7 @@ reportek.utils.fcs = {
               "type": "GET",
               "dataSrc":"",
             },
+            "processing": true,
             "aoColumns": [
               { "data": "undertaking.name" },
               { "data": "undertaking.status" },
@@ -167,6 +168,7 @@ reportek.utils.fcs = {
               "type": "GET",
               "dataSrc":"",
             },
+            "processing": true,
             "aoColumns": [
               { "data": "company_id" },
               { "data": "verified" },
@@ -238,6 +240,7 @@ reportek.utils.fcs = {
               "type": "GET",
               "dataSrc":"",
             },
+            "processing": true,
             "aoColumns": [
               { "data": "execution_time" },
               { "data": "organizations" },
