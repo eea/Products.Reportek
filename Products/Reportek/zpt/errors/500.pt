@@ -1,0 +1,19 @@
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+  <head>
+  <script src="https://cdn.ravenjs.com/3.15.0/raven.min.js"></script>
+    <script tal:content="string:var dsn='${options/public_dsn}'; var error = '${options/error}';"></script>
+    <script type="text/javascript">
+      Raven.config(dsn).install();
+
+      function handleRouteError(err) {
+       Raven.captureException(err);
+       Raven.showReportDialog();
+      };
+
+      err = new Error(error);
+      handleRouteError(err);
+    </script>
+  </head>
+  <body>
+    <h2>Oops...An error occured (HTTP Error: <span tal:content="options/error"/>).</h2>
+  </body>
