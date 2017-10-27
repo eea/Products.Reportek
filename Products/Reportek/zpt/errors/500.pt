@@ -1,19 +1,169 @@
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
   <head>
-  <script src="https://cdn.ravenjs.com/3.15.0/raven.min.js"></script>
-    <script tal:content="string:var dsn='${options/public_dsn}'; var error = '${options/error}';"></script>
-    <script type="text/javascript">
-      Raven.config(dsn).install();
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <style type="text/css">
+      html,
+      body {
+        height: 100%;
+        width: 100%;
+        padding: 0;
+        margin: 0;
+        border: 0;
+        overflow: auto;
 
-      function handleRouteError(err) {
-       Raven.captureException(err);
-       Raven.showReportDialog();
-      };
+        background: #a7ba41 repeat-x;
+        background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #a7ba41), color-stop(100%, #848d28));
+        background-image: -webkit-linear-gradient(#a7ba41, #848d28);
+        background-image: -moz-linear-gradient(#a7ba41, #848d28);
+        background-image: -o-linear-gradient(#a7ba41, #848d28);
+        background-image: linear-gradient(#a7ba41, #848d28);
+        background: -ms-linear-gradient(top,  #a7ba41 0%,#848d28 100%);
+        filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#a7ba41', endColorstr='#848d28',GradientType=0 );
 
-      err = new Error(error);
-      handleRouteError(err);
-    </script>
+        color: #fff;
+        font-family: Arial,sans-serif;
+      }
+
+      .vertical-align {
+        display: block;
+
+        width: 400px;
+
+
+        position: relative;
+        top: 50%;
+        *top: 25%;
+        -webkit-transform: translateY(-50%);
+        -ms-transform: translateY(-50%);
+        transform: translateY(-50%);
+
+        margin: 0 auto;
+      }
+
+      button,
+      a.button,
+      a.button:link,
+      a.button:visited {
+        -webkit-appearance: none;
+        -webkit-border-radius: 3px;
+        -moz-border-radius: 3px;
+        -ms-border-radius: 3px;
+        -o-border-radius: 3px;
+        border-radius: 3px;
+        -webkit-background-clip: padding;
+        -moz-background-clip: padding;
+        background-clip: padding-box;
+        background: #dddddd repeat-x;
+        background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #ffffff), color-stop(100%, #dddddd));
+        background-image: -webkit-linear-gradient(#ffffff, #dddddd);
+        background-image: -moz-linear-gradient(#ffffff, #dddddd);
+        background-image: -o-linear-gradient(#ffffff, #dddddd);
+        background-image: linear-gradient(#ffffff, #dddddd);
+        border: 1px solid;
+        border-color: #bbbbbb;
+        cursor: pointer;
+        color: #333333;
+        display: inline-block;
+        font: 15px/20px Arial, sans-serif;
+        overflow: visible;
+        margin: 0;
+        padding: 3px 10px;
+        text-decoration: none;
+        vertical-align: top;
+        width: auto;
+        *padding-top: 2px;
+        *padding-bottom: 0;
+      }
+
+      .btn-eea {
+        background: #478ea5 repeat-x;
+        background-image: -webkit-gradient(linear, 50% 0%, 50% 100%, color-stop(0%, #478ea5), color-stop(100%, #346f83));
+        background-image: -webkit-linear-gradient(#478ea5, #346f83);
+        background-image: -moz-linear-gradient(#478ea5, #346f83);
+        background-image: -o-linear-gradient(#478ea5, #346f83);
+        background-image: linear-gradient(#478ea5, #346f83);
+        border: 1px solid;
+        border-color: #265a6c;
+        color: white;
+      }
+
+      button:hover,
+      a.button:hover {
+        background-image:none;
+      }
+
+      hr {
+        opacity: 0.5;
+        margin: 12px 0;
+        border: 0!important;
+        height: 1px;
+        background: white;
+      }
+
+      a,
+      a:link,
+      a:visited {
+        color: white;
+      }
+
+      .huge {
+        font-size: 72px;
+      }
+
+      .clearfix:before,
+      .clearfix:after {
+          display:table;
+          content:" ";
+      }
+
+      .clearfix:after{
+          clear:both;
+      }
+
+      .pull-left {
+          float: left;
+      }
+
+      .pull-right {
+          float: right;
+      }
+
+    </style>
+    <script src="https://cdn.ravenjs.com/3.15.0/raven.min.js"></script>
+      <script tal:content="string:var dsn='${options/public_dsn}'; var error = '${options/error}';"></script>
+      <script type="text/javascript">
+        Raven.config(dsn).install();
+
+        function handleRouteError(err) {
+         Raven.captureException(err);
+         Raven.showReportDialog();
+        };
+
+        err = new Error(error);
+        handleRouteError(err);
+      </script>
   </head>
   <body>
-    <h2>Oops...An error occured (HTTP Error: <span tal:content="options/error"/>).</h2>
+    <div class="vertical-align" tal:define="host options/host;
+                                            deployment python: host.split('.')[0].split('-')[0].upper();
+                                            d_title python: {'CDR': 'Central Data Repository (CDR)', 'BDR': 'Data Reporting for Business (BDR)', 'MDR': 'Mediterranean Data Repository (MDR)'}.get(deployment);
+                                            contact python: {'CDR': 'helpdesk@eionet.europa.eu', 'MDR': 'helpdesk@eionet.europa.eu', 'BDR': 'BDR.helpdesk@eea.europa.eu'}.get(deployment);
+                                            ">
+
+      <div style="text-align: center;">
+        <strong tal:content="d_title"/> <p><a tal:attributes="href string:https://${host}" tal:content="host"/></p>
+        <hr>
+        <h2 style="margin: 12px 0;">Our apologies our website is too popular right now...</h2>
+        <div style="line-height: 28px;">
+          <button onclick="window.history.back()">Go Back</button><br>
+          or<br>
+          Try Refreshing the Page
+        </div>
+        <hr>
+        <p style="font-style: italic;">If this problem persists <a tal:attributes="href string:mailto:${contact}">Contact <span tal:content="deployment"/> Web Team</a></p>
+        <p style="font-size: 90%"><a tal:attributes="href string:https://${host}" tal:content="d_title"/></p>  <br>
+      </div>
+    </div>
   </body>
+</html>
