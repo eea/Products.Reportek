@@ -358,7 +358,7 @@ def get_feedback_content(ob):
     if ob.automatic:
         try:
             task_name = ob.getActivityDetails('title')
-        except AttributeError:
+        except (AttributeError, KeyError):
             task_name = ob.activity_id
 
         if ob.document_id and ob.document_id != 'xml':
@@ -409,7 +409,7 @@ def get_feedback_list(ob):
             if feedback.automatic:
                 try:
                     task_name = feedback.getActivityDetails('title')
-                except AttributeError:
+                except (AttributeError, KeyError):
                     task_name = feedback.activity_id
 
                 if feedback.document_id and feedback.document_id != 'xml':
