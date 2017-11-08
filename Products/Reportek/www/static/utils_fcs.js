@@ -8,7 +8,7 @@ if (window.reportek === undefined) {
 }
 
 reportek.utils.fcs = {
-    base_url: '/fgases_registry',
+    base_url: '/european_registry',
     endpoints: {'get_companies': '/get_companies',
                 'get_candidates': '/get_candidates',
                 'organisation_details': '/organisation_details',
