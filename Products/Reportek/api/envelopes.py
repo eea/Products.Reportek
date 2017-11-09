@@ -135,7 +135,7 @@ class EnvelopesAPI(BrowserView):
                                 zfile = unicode(zfile, errors='ignore')
                             archived_files.append(zfile.encode('utf-8',
                                                                'ignore'))
-                    except (POSKeyError, StorageError) as e:
+                    except (POSKeyError, StorageError, SystemError) as e:
                         errors.append({
                             'title': 'An error occured trying to access file: {}'.format(doc.absolute_url(0)),
                             'description': str(e)
@@ -483,46 +483,45 @@ class EnvelopesAPI(BrowserView):
             })
         if query:
             brains = list(self.context.Catalog(**query))
+            # if len(brains) > self.MAX_RESULTS:
+            #     error = 'There are too many possible results for your query. '\
+            #             'Please use additional filters.'
+            #     errors.append({'title': 'Too many results',
+            #                    'description': error
+            #                    })
+            # else:
+            additional_filters = [key for key in self.AVAILABLE_FILTERS.keys()
+                                  if key not in valid_catalog_filters]
+            for brain in brains:
+                default_props = self.get_default_props(brain)
+                envelope_data = {}
+                if not fields:
+                    fields = default_props.keys()
+                additional_p_fields = [param for param in fields
+                                       if param not in default_props]
+                additional_p_filters = [param for param in fed_params.keys()
+                                        if param not in default_props]
+                if additional_p_fields or additional_p_filters:
+                    additional_props = self.get_additional_props(brain)
+                    default_props.update(additional_props)
 
-            if len(brains) > self.MAX_RESULTS:
-                error = 'There are too many possible results for your query. '\
-                        'Please use additional filters.'
-                errors.append({'title': 'Too many results',
-                               'description': error
-                               })
-            else:
-                additional_filters = [key for key in self.AVAILABLE_FILTERS.keys()
-                                      if key not in valid_catalog_filters]
-                for brain in brains:
-                    default_props = self.get_default_props(brain)
-                    envelope_data = {}
-                    if not fields:
-                        fields = default_props.keys()
-                    additional_p_fields = [param for param in fields
-                                           if param not in default_props]
-                    additional_p_filters = [param for param in fed_params.keys()
-                                            if param not in default_props]
-                    if additional_p_fields or additional_p_filters:
-                        additional_props = self.get_additional_props(brain)
-                        default_props.update(additional_props)
+                if self.is_filtered_out(default_props, additional_filters, fed_params):
+                    continue
 
-                    if self.is_filtered_out(default_props, additional_filters, fed_params):
-                        continue
+                for field in fields:
+                    if field == 'files':
+                        files_data = self.get_files(brain.getPath())
+                        envelope_data['files'] = files_data.get('documents')
+                        if files_data.get('errors'):
+                            errors += files_data.get('errors', [])
+                    elif field == 'history':
+                        envelope_data['history'] = self.get_envelope_history(brain)
+                    elif field == 'companyId':
+                        envelope_data['companyId'] = self.get_envelope_company_id(brain)
+                    elif field in default_props.keys():
+                        envelope_data[field] = default_props.get(field)
 
-                    for field in fields:
-                        if field == 'files':
-                            files_data = self.get_files(brain.getPath())
-                            envelope_data['files'] = files_data.get('documents')
-                            if files_data.get('errors'):
-                                errors += files_data.get('errors', [])
-                        elif field == 'history':
-                            envelope_data['history'] = self.get_envelope_history(brain)
-                        elif field == 'companyId':
-                            envelope_data['companyId'] = self.get_envelope_company_id(brain)
-                        elif field in default_props.keys():
-                            envelope_data[field] = default_props.get(field)
-
-                    if envelope_data:
-                        results.append(envelope_data)
+                if envelope_data:
+                    results.append(envelope_data)
         self.request.RESPONSE.setHeader("Content-Type", "application/json")
         return json.dumps(data, indent=4)

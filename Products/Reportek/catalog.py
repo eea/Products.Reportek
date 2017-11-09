@@ -47,7 +47,11 @@ def catalog_rebuild(root, catalog='Catalog'):
     catalog = root.unrestrictedTraverse('/'.join([catalog]))
 
     def add_to_catalog(ob):
-        catalog.catalog_object(ob, '/'.join(ob.getPhysicalPath()))
+        try:
+            catalog.catalog_object(ob, '/'.join(ob.getPhysicalPath()))
+        except Exception as e:
+            pass
+            # import pdb; pdb.set_trace( )
 
     catalog.manage_catalogClear()
     for i, ob in enumerate(walk_folder(root)):
