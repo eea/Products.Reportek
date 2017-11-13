@@ -420,28 +420,33 @@ class EnvelopesAPI(BrowserView):
             'periodDescription': rpd.get(brain.partofyear),
         }
 
-    def get_additional_props(self, brain):
+    def get_additional_props(self, brain, req_props):
         """Return additional envelope properties."""
         last_status_d = None
+        res = {}
         wk_brains = self.get_env_children(brain.getPath(), 'Workitem')
         actors = [wk.actor for wk in wk_brains if wk.activity_id == 'Draft']
         creator = None
         if actors:
             creator = actors[-1]
 
-        if brain.activation_log:
-            last_status_d = brain.activation_log[-1].get('start')
-            if last_status_d:
-                last_status_d = datetime.datetime.fromtimestamp(last_status_d)
-                last_status_d = DateTime(last_status_d).HTML4()
-
-        return {
-            'isBlockedByQCError': self.is_env_blocked(wk_brains),
+        res = {
             'status': wk_brains[-1].activity_id,
-            'statusDate': last_status_d,
-            'creator': creator or 'Not assigned',
-            'hasUnknownQC': self.has_unknown_qc(brain.getPath())
+            'creator': creator or 'Not assigned'
         }
+        if brain.activation_log:
+            if [prop for prop in req_props if prop.startswith('statusDate')]:
+                last_status_d = brain.activation_log[-1].get('start')
+                if last_status_d:
+                    last_status_d = datetime.datetime.fromtimestamp(last_status_d)
+                    last_status_d = DateTime(last_status_d).HTML4()
+                    res['statusDate'] = last_status_d
+        if 'isBlockedByQCError' in req_props:
+            res['isBlockedByQCError'] = self.is_env_blocked(wk_brains)
+        if 'hasUnknownQC' in req_props:
+            res['hasUnknownQC'] = self.has_unknown_qc(brain.getPath())
+
+        return res
 
     def get_envelopes(self):
         """Return envelopes."""
@@ -483,13 +488,6 @@ class EnvelopesAPI(BrowserView):
             })
         if query:
             brains = list(self.context.Catalog(**query))
-            # if len(brains) > self.MAX_RESULTS:
-            #     error = 'There are too many possible results for your query. '\
-            #             'Please use additional filters.'
-            #     errors.append({'title': 'Too many results',
-            #                    'description': error
-            #                    })
-            # else:
             additional_filters = [key for key in self.AVAILABLE_FILTERS.keys()
                                   if key not in valid_catalog_filters]
             for brain in brains:
@@ -502,7 +500,6 @@ class EnvelopesAPI(BrowserView):
                 additional_p_filters = [param for param in fed_params.keys()
                                         if param not in default_props]
                 if additional_p_fields or additional_p_filters:
-                    additional_props = self.get_additional_props(brain)
                     default_props.update(additional_props)
 
                 if self.is_filtered_out(default_props, additional_filters, fed_params):

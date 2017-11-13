@@ -50,8 +50,7 @@ def catalog_rebuild(root, catalog='Catalog'):
         try:
             catalog.catalog_object(ob, '/'.join(ob.getPhysicalPath()))
         except Exception as e:
-            pass
-            # import pdb; pdb.set_trace( )
+            log.warning("Unable to catalog object: {}".format(ob))
 
     catalog.manage_catalogClear()
     for i, ob in enumerate(walk_folder(root)):
