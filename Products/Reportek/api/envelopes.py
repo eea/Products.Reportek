@@ -500,6 +500,7 @@ class EnvelopesAPI(BrowserView):
                 additional_p_filters = [param for param in fed_params.keys()
                                         if param not in default_props]
                 if additional_p_fields or additional_p_filters:
+                    additional_props = self.get_additional_props(brain)
                     default_props.update(additional_props)
 
                 if self.is_filtered_out(default_props, additional_filters, fed_params):
