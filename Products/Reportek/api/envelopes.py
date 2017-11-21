@@ -388,6 +388,7 @@ class EnvelopesAPI(BrowserView):
             'OK',
             'WARNING',
             'ERROR',
+            'FAILED',
             'BLOCKER'
         ]
 
