@@ -53,7 +53,7 @@ class EnvelopesAPI(BrowserView):
             'catalog_mapping': 'dataflow_uris',
         },
         'isBlockedByQCError': {
-            'catalog_mapping': '',
+            'catalog_mapping': 'is_blocked',
         },
         'status': {
             'catalog_mapping': '',
@@ -68,10 +68,10 @@ class EnvelopesAPI(BrowserView):
             'catalog_mapping': '',
         },
         'creator': {
-            'catalog_mapping': '',
+            'catalog_mapping': 'getActorDraft',
         },
         'hasUnknownQC': {
-            'catalog_mapping': '',
+            'catalog_mapping': 'has_unknown_qa_result',
         }
     }
 
@@ -470,6 +470,9 @@ class EnvelopesAPI(BrowserView):
             'obligations',
             'periodDescription',
             'modifiedDate',
+            'isBlockedByQCError',
+            'creator',
+            'hasUnknownQC'
         ]
 
         fed_params = {p: self.request.form.get(p)
