@@ -11,7 +11,7 @@ import json
 
 class EnvelopesAPI(BrowserView):
     """Envelopes API"""
-    MAX_RESULTS = 5000
+    MAX_RESULTS = 10000
     AVAILABLE_FILTERS = {
         'url': {
             'catalog_mapping': 'path',
@@ -492,39 +492,46 @@ class EnvelopesAPI(BrowserView):
             })
         if query:
             brains = list(self.context.Catalog(**query))
-            additional_filters = [key for key in self.AVAILABLE_FILTERS.keys()
-                                  if key not in valid_catalog_filters]
-            for brain in brains:
-                default_props = self.get_default_props(brain)
-                envelope_data = {}
-                if not fields:
-                    fields = default_props.keys()
-                additional_p_fields = [param for param in fields
-                                       if param not in default_props]
-                additional_p_filters = [param for param in fed_params.keys()
-                                        if param not in default_props]
-                if additional_p_fields or additional_p_filters:
-                    req_props = list(set(additional_p_fields + additional_p_filters))
-                    additional_props = self.get_additional_props(brain, req_props)
-                    default_props.update(additional_props)
+            if len(brains) > self.MAX_RESULTS:
+                error = 'There are too many possible results for your query. '\
+                        'Please use additional filters.'
+                errors.append({'title': 'Too many results',
+                               'description': error
+                               })
+            else:
+                additional_filters = [key for key in self.AVAILABLE_FILTERS.keys()
+                                      if key not in valid_catalog_filters]
+                for brain in brains:
+                    default_props = self.get_default_props(brain)
+                    envelope_data = {}
+                    if not fields:
+                        fields = default_props.keys()
+                    additional_p_fields = [param for param in fields
+                                           if param not in default_props]
+                    additional_p_filters = [param for param in fed_params.keys()
+                                            if param not in default_props]
+                    if additional_p_fields or additional_p_filters:
+                        req_props = list(set(additional_p_fields + additional_p_filters))
+                        additional_props = self.get_additional_props(brain, req_props)
+                        default_props.update(additional_props)
 
-                if self.is_filtered_out(default_props, additional_filters, fed_params):
-                    continue
+                    if self.is_filtered_out(default_props, additional_filters, fed_params):
+                        continue
 
-                for field in fields:
-                    if field == 'files':
-                        files_data = self.get_files(brain.getPath())
-                        envelope_data['files'] = files_data.get('documents')
-                        if files_data.get('errors'):
-                            errors += files_data.get('errors', [])
-                    elif field == 'history':
-                        envelope_data['history'] = self.get_envelope_history(brain)
-                    elif field == 'companyId':
-                        envelope_data['companyId'] = self.get_envelope_company_id(brain)
-                    elif field in default_props.keys():
-                        envelope_data[field] = default_props.get(field)
+                    for field in fields:
+                        if field == 'files':
+                            files_data = self.get_files(brain.getPath())
+                            envelope_data['files'] = files_data.get('documents')
+                            if files_data.get('errors'):
+                                errors += files_data.get('errors', [])
+                        elif field == 'history':
+                            envelope_data['history'] = self.get_envelope_history(brain)
+                        elif field == 'companyId':
+                            envelope_data['companyId'] = self.get_envelope_company_id(brain)
+                        elif field in default_props.keys():
+                            envelope_data[field] = default_props.get(field)
 
-                if envelope_data:
-                    results.append(envelope_data)
+                    if envelope_data:
+                        results.append(envelope_data)
         self.request.RESPONSE.setHeader("Content-Type", "application/json")
         return json.dumps(data, indent=4)
