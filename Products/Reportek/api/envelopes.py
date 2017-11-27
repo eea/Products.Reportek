@@ -217,6 +217,18 @@ class EnvelopesAPI(BrowserView):
         """Return a catalog periodDescription query."""
         return [v.upper().replace(' ', '_') for v in value]
 
+    def get_blocked_query(self, value, **kwargs):
+        """Return an is_blocked catalog query."""
+        return int(value)
+
+    def get_unknown_qc_query(self, value, **kwargs):
+        """Return an has_unknown_qa_result catalog query"""
+        return bool(int(value))
+
+    def get_creator_query(self, value, **kwargs):
+        """Return an actor catalog query"""
+        return value
+
     def build_catalog_query(self, valid_filters, fed_params):
         """Return a catalog query dictionary based on query params."""
         catalog_field_map = {}
@@ -237,15 +249,18 @@ class EnvelopesAPI(BrowserView):
         for param in valid_filters:
             if fed_params.get(param):
                 cases = {
-                    'isReleased': self.get_isreleased_query,
-                    'reportingDate': self.get_dates_query,
-                    'modifiedDate': self.get_dates_query,
-                    'url': self.get_url_query,
                     'countryCode': self.get_country_query,
-                    'reportingDateStart': self.get_dates_range_query,
-                    'reportingDateEnd': self.get_dates_range_query,
+                    'creator': self.get_creator_query,
+                    'hasUnknownQC': self.get_unknown_qc_query,
+                    'isBlockedByQCError': self.get_blocked_query,
+                    'isReleased': self.get_isreleased_query,
+                    'modifiedDate': self.get_dates_query,
                     'obligations': self.get_obligations_query,
-                    'periodDescription': self.get_periodd_query
+                    'periodDescription': self.get_periodd_query,
+                    'reportingDate': self.get_dates_query,
+                    'reportingDateEnd': self.get_dates_range_query,
+                    'reportingDateStart': self.get_dates_range_query,
+                    'url': self.get_url_query,
                 }
                 c_idx = catalog_field_map.get(param)
                 value = fed_params.get(param)
@@ -255,7 +270,6 @@ class EnvelopesAPI(BrowserView):
                 if get_value:
                     query[c_idx] = get_value(value, param=param, query=query,
                                              c_idx=c_idx)
-
         return query
 
     def get_env_children(self, path, children_type):
@@ -408,17 +422,17 @@ class EnvelopesAPI(BrowserView):
                 for obl in brain.dataflow_uris]
 
         return {
-            'url': brain.getURL(),
-            'title': brain.title,
-            'description': brain.Description,
             'countryCode': self.getCountryCode(brain.country),
+            'description': brain.Description,
             'isReleased': brain.released,
-            'reportingDate': brain.reportingdate.HTML4(),
             'modifiedDate': brain.bobobase_modification_time.HTML4(),
             'obligations': obls,
-            'periodStartYear': startyear,
-            'periodEndYear': endyear,
             'periodDescription': rpd.get(brain.partofyear),
+            'periodEndYear': endyear,
+            'periodStartYear': startyear,
+            'reportingDate': brain.reportingdate.HTML4(),
+            'title': brain.title,
+            'url': brain.getURL(),
         }
 
     def get_additional_props(self, brain, req_props):
@@ -461,18 +475,18 @@ class EnvelopesAPI(BrowserView):
         fields = self.request.form.get('fields')
 
         valid_catalog_filters = [
-            'url',
             'countryCode',
+            'creator',
+            'hasUnknownQC',
+            'isBlockedByQCError',
             'isReleased',
-            'reportingDate',
-            'reportingDateStart',
-            'reportingDateEnd',
+            'modifiedDate',
             'obligations',
             'periodDescription',
-            'modifiedDate',
-            'isBlockedByQCError',
-            'creator',
-            'hasUnknownQC'
+            'reportingDate',
+            'reportingDateEnd',
+            'reportingDateStart',
+            'url',
         ]
 
         fed_params = {p: self.request.form.get(p)
