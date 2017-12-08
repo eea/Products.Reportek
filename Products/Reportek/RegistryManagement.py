@@ -62,36 +62,41 @@ class BaseRegistryAPI(SimpleItem):
 class FGASRegistryAPI(BaseRegistryAPI):
     DOMAIN_TO_OBLIGATION_FOLDER = {
         'FGAS': 'fgases',
+        'ODS': 'ods'
     }
     # TODO: obtain those dynamically rather than hardcode them here
     DOMAIN_TO_OBLIGATION = {
         'FGAS': DF_URL_PREFIX + '713',
+        'ODS': DF_URL_PREFIX + '213',
     }
     COUNTRY_TO_FOLDER = {
         'uk': 'gb',
         'el': 'gr'
     }
 
-    def get_registry_companies(self, detailed=False):
+    def get_registry_companies(self, domain='FGAS', detailed=False):
         page = 'list-small'
         if detailed:
             page = 'list'
-        url_prefix = self.baseUrl + '/undertaking/'
-        url = url_prefix + page
-        response = self.do_api_request(url, headers={'Authorization':self.token})
+        url_prefix = '/'.join([self.baseUrl, 'undertaking', domain])
+        url = '/'.join([url_prefix, page])
+        response = self.do_api_request(url,
+                                       headers={'Authorization': self.token})
 
         if response:
             return response.json()
 
     @ram.cache(lambda *args, **kwargs: args[2] + str(time() // (60 * 60)))
-    def get_company_details(self, company_id):
-        url = self.baseUrl + '/undertaking/{0}/details'.format(company_id)
-        response = self.do_api_request(url, headers={'Authorization':self.token})
+    def get_company_details(self, company_id, domain='FGAS'):
+        url = '/'.join([self.baseUrl, 'undertaking', domain, company_id,
+                        'details'])
+        response = self.do_api_request(url,
+                                       headers={'Authorization': self.token})
         if response:
             return response.json()
 
-    def getCompanyDetailsById(self, companyId):
-        details = self.get_company_details(companyId)
+    def getCompanyDetailsById(self, companyId, domain='FGAS'):
+        details = self.get_company_details(companyId, domain=domain)
         keysToVerify = ['domain', 'address', 'company_id', 'collection_id']
         if details:
             if reduce(lambda i, x: i and x in details, keysToVerify, True):
@@ -108,7 +113,8 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
     def getCollectionPaths(self, username):
         url = self.baseUrl + '/user/' + username + '/companies'
-        response = self.do_api_request(url, headers={'Authorization':self.token})
+        response = self.do_api_request(url,
+                                       headers={'Authorization': self.token})
         paths = []
         if response:
             companies = response.json()
@@ -124,23 +130,28 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
         return paths
 
-    def existsCompany(self, params):
-        url = self.baseUrl + '/undertaking/filter/'
+    def existsCompany(self, params, domain='FGAS'):
+        url = '/'.join([self.baseUrl, 'undertaking', domain, 'filter/'])
         response = self.do_api_request(url,
-                params=params,
-                headers={'Authorization':self.token})
+                                       params=params,
+                                       headers={'Authorization': self.token})
         if response:
             return response.json()
 
-    def verifyCandidate(self, companyId, userId):
+    def verifyCandidate(self, companyId, userId, candidateId=None, domain='FGAS'):
         # use the right pattern for Api url
-        api_url = self.baseUrl + "/candidate/verify/{0}/"
-        api_url = api_url.format(companyId)
+        verify_endpoint = '/'.join(['candidate', domain, 'verify-none',
+                                    companyId])
+        if candidateId:
+            verify_endpoint = '/'.join(['candidate', domain, 'verify',
+                                        companyId, candidateId])
+
+        api_url = '/'.join([self.baseUrl, verify_endpoint])
 
         response = self.do_api_request(api_url,
                                        data={'user': userId},
                                        method="post",
-                                       headers={'Authorization':self.token})
+                                       headers={'Authorization': self.token})
         if response:
             if response.status_code == requests.codes.ok:
                 data = response.json()
@@ -148,42 +159,48 @@ class FGASRegistryAPI(BaseRegistryAPI):
                     return True
             return False
 
-    def getCandidates(self):
-        url = self.baseUrl + '/candidate/list'
-        response = self.do_api_request(url, headers={'Authorization':self.token})
+    def getCandidates(self, domain='FGAS'):
+        url = '/'.join([self.baseUrl, 'candidate', domain, 'list'])
+        response = self.do_api_request(url,
+                                       headers={'Authorization': self.token})
 
         if response:
             return response.json()
 
         return []
 
-    def getUsers(self):
-        url = self.baseUrl + '/user/list'
-        response = self.do_api_request(url, headers={'Authorization':self.token})
+    def getUsers(self, domain='FGAS'):
+        url = '/'.join([self.baseUrl, 'user', domain, 'list'])
+        response = self.do_api_request(url,
+                                       headers={'Authorization': self.token})
         if response:
             return response.json()
 
-    def getMatchingLog(self):
-        url = self.baseUrl + '/matching_log'
-        response = self.do_api_request(url, headers={'Authorization':self.token})
+    def getMatchingLog(self, domain='FGAS'):
+        url = '/'.join([self.baseUrl, 'log', 'matching', domain])
+        response = self.do_api_request(url,
+                                       headers={'Authorization': self.token})
         if response:
             return response.json()
 
-    def getDataSyncLog(self):
-        url = self.baseUrl + '/data_sync_log'
-        response = self.do_api_request(url, headers={'Authorization':self.token})
+    def getDataSyncLog(self, domain='FGAS'):
+        url = self.baseUrl + '/log/sync'
+        url = '/'.join([self.baseUrl, 'log', 'sync', domain])
+        response = self.do_api_request(url,
+                                       headers={'Authorization': self.token})
         if response:
             return response.json()
 
-    def unverifyCompany(self, companyId, userId):
-        co = self.get_company_details(companyId)
+    def unverifyCompany(self, companyId, userId, domain='FGAS'):
+        co = self.get_company_details(companyId, domain)
         if co:
-            url = self.baseUrl + '/candidate/unverify/{0}/'.format(companyId)
+            url = '/'.join([self.baseUrl + 'candidate', domain,
+                            'unverify/{0}/'.format(companyId)])
             data = {'user': userId}
             response = self.do_api_request(url,
-                    data=data,
-                    method="post",
-                    headers={'Authorization':self.token})
+                                           data=data,
+                                           method="post",
+                                           headers={'Authorization': self.token})
             if response:
                 unverifyResponse = response.json()
                 if not unverifyResponse:
@@ -192,16 +209,16 @@ class FGASRegistryAPI(BaseRegistryAPI):
                 path = self._unlockCompany(str(companyId), co['oldcompany_account'],
                                            co['country_code'], co['domain'], userId)
                 email_sending_failed = False
-                url = self.baseUrl + '/misc/alert_lockdown/unmatch'
+                url = self.baseUrl + '/alert_lockdown/unmatch'
                 data = {
                     'company_id': companyId,
                     'user': userId,
                     'oldcollection_path': path
                 }
                 response = self.do_api_request(url,
-                        data=data,
-                        method="post",
-                        headers={'Authorization':self.token})
+                                               data=data,
+                                               method="post",
+                                               headers={'Authorization': self.token})
                 if not response:
                     email_sending_failed = True
                 if email_sending_failed:
@@ -209,68 +226,80 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
                 return unverifyResponse
 
-    def updateCompanyStatus(self, company_id, status):
-        url = self.baseUrl + '/misc/undertaking/{0}/statusupdate'.format(company_id)
+    def updateCompanyStatus(self, company_id, status, domain='FGAS'):
+        url = '/'.join([self.baseUrl, 'undertaking', domain,
+                        company_id, 'status_update'])
         data = {'status': status}
-        response = self.do_api_request(url, data=data, method="post", headers={'Authorization':self.token})
+        response = self.do_api_request(url, data=data,
+                                       method="post",
+                                       headers={'Authorization': self.token})
 
         return response
 
-    def getCompaniesExcelExport(self):
-        url = self.baseUrl + '/misc/undertaking/export'
-        response = self.do_api_request(url, headers={'Authorization':self.token})
+    def getCompaniesExcelExport(self, domain='FGAS'):
+        url = '/'.join([self.baseUrl, 'export', 'undertaking', domain])
+        response = self.do_api_request(url,
+                                       headers={'Authorization': self.token})
 
         return response
 
     def getUsersExcelExport(self):
-        url = self.baseUrl + '/misc/user/export'
-        response = self.do_api_request(url, headers={'Authorization':self.token})
+        url = self.baseUrl + '/export/user/list'
+        response = self.do_api_request(url,
+                                       headers={'Authorization': self.token})
 
         return response
 
     def getSettings(self):
-        url = self.baseUrl + '/misc/settings'
-        response = self.do_api_request(url, headers={'Authorization':self.token})
+        url = self.baseUrl + '/settings'
+        response = self.do_api_request(url,
+                                       headers={'Authorization': self.token})
         if response:
             return response.json()
 
     def getAllEmails(self):
-        url = self.baseUrl + '/misc/mail/list'
-        response = self.do_api_request(url, headers={'Authorization':self.token})
+        url = self.baseUrl + '/mail/list'
+        response = self.do_api_request(url,
+                                       headers={'Authorization': self.token})
         if response:
             return response.json()
 
     def addEmail(self, first_name, last_name, email):
-        url = self.baseUrl + '/misc/mail/add'
+        url = self.baseUrl + '/mail/add'
         data = {
             'mail': email,
             'first_name': first_name,
             'last_name': last_name
         }
-        response = self.do_api_request(url, data=data, method='post', headers={'Authorization':self.token})
+        response = self.do_api_request(url, data=data, method='post',
+                                       headers={'Authorization': self.token})
         if response:
             return response.json()
 
     def delEmail(self, email):
-        url = self.baseUrl + '/misc/mail/delete'
+        url = self.baseUrl + '/mail/delete'
         data = {
             'mail': email
         }
-        response = self.do_api_request(url, data=data, method='post', headers={'Authorization':self.token})
+        response = self.do_api_request(url, data=data, method='post',
+                                       headers={'Authorization': self.token})
         if response:
             return response.json()
 
     def lockDownCompany(self, company_id, old_collection_id, country_code, domain, user):
-        path = self.buildCollectionPath(domain, country_code, str(company_id), old_collection_id)
+        path = self.buildCollectionPath(domain, country_code,
+                                        str(company_id), old_collection_id)
         bdrAuth = self.authMiddleware
         bdrAuth.lockDownCollection(path, user)
         email_sending_failed = False
-        url = self.baseUrl + '/misc/alert_lockdown/wrong_match'
+        url = '/'.join([self.baseUrl, 'alert_lockdown', 'wrong_match', domain])
         data = {
             'company_id': company_id,
             'user': user
         }
-        response = self.do_api_request(url, data=data, method='post', headers={'Authorization':self.token})
+        response = self.do_api_request(url, data=data,
+                                       method='post',
+                                       headers={'Authorization': self.token})
         if not response:
             email_sending_failed = True
         if email_sending_failed:
@@ -287,12 +316,15 @@ class FGASRegistryAPI(BaseRegistryAPI):
         path = self._unlockCompany(company_id, old_collection_id, country_code, domain, user)
 
         email_sending_failed = False
-        url = self.baseUrl + '/misc/alert_lockdown/wrong_lockdown'
+        url = '/'.join([self.baseUrl, 'alert_lockdown', 'wrong_lockdown',
+                        domain])
         data = {
             'company_id': company_id,
             'user': user
         }
-        response = self.do_api_request(url, data=data, method='post', headers={'Authorization':self.token})
+        response = self.do_api_request(url, data=data,
+                                       method='post',
+                                       headers={'Authorization': self.token})
         if not response:
             email_sending_failed = True
 

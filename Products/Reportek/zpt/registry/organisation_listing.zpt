@@ -7,9 +7,10 @@
     <script type="text/javascript" charset="utf8"
           src="++resource++static/jquery-1.11.2.min.js"></script>
     <script type="text/javascript" charset="utf8"
-          src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.min.js"></script>
+          src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.js"></script>
     <script src="++resource++static/select2-3.5.0/select2.js"></script>
     <script src="++resource++static/utils.js"></script>
+    <script src="++resource++static/utils_fcs.js"></script>
     <script src="++resource++static/moment.min.js"></script>
     <script src="++resource++static/datetime-moment.js"></script>
   </metal:block>
@@ -28,21 +29,21 @@
     </style>
 
     <h1>Companies</h1>
-    <p>
-    This page contains the list of companies registered in
-    <a tal:attributes="href view/get_url">FGAS portal</a>
-    and approved in BDR. You can see the company details and reporters by
-    clicking on the company name. You can export them in <a href="organisations_excel">
-    Excel</a> or <a href="organisations_json">JSON </a> format. Alternatively you
-    can export all reporters in <a href="users_xls">Excel</a> format.
+    <p>Companies registered in FGAS and ODS <a tal:attributes="href view/get_url">portal</a> and approved in BDR. Click on a company name to see the details and the reporters. Alternatively, export companies in <a class="export" href="organisations_excel">
+    Excel</a> or <a class="export" href="organisations_json">JSON </a> format or all reporters in <a href="users_xls">Excel</a> format.
     </p>
-
+    <div class="obligation-select-container">
+    <label for="domain">Filter companies by obligation:</label>
+    <select id="domain" name="domain">
+      <option value="FGAS">FGAS</option>
+      <option value="ODS">ODS</option>
+    </select>
+    </div>
    <table id="comp-table" width="100%">
       <thead>
         <tr>
           <th>ID</th>
           <th>Company name</th>
-          <th>Obligation</th>
           <th>Reporters</th>
           <th>Country</th>
           <th>VAT number</th>

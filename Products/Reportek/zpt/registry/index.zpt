@@ -10,6 +10,9 @@
       <li><a href="organisation_listing">Companies</a></li>
     </ul>
     <ul>
+      <li><a href="organisation_matching">Pending companies</a></li>
+    </ul>
+    <ul>
       <li><a href="organisation_matching_log">Approval log</a></li>
     </ul>
     <ul>

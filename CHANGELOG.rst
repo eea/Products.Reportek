@@ -1,5 +1,7 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Feature: Added crashme view [olimpiurob refs #89420]
+* Feature: Added ODS support in fgases registry [olimpiurob refs #85847]
 * Bug fix: Catch KeyError exception when attempting to zip an envelope that has had it's workflow removed [olimpiurob refs #89581]
 * Feature: Refactored Document's manage template to acquire available 
   - conversions and qa_scripts with ajax calls [olimpiurob refs #89320]
