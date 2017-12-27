@@ -11,7 +11,7 @@ import json
 
 class EnvelopesAPI(BrowserView):
     """Envelopes API"""
-    MAX_RESULTS = 5000
+    MAX_RESULTS = 10000
     AVAILABLE_FILTERS = {
         'url': {
             'catalog_mapping': 'path',
@@ -53,7 +53,7 @@ class EnvelopesAPI(BrowserView):
             'catalog_mapping': 'dataflow_uris',
         },
         'isBlockedByQCError': {
-            'catalog_mapping': '',
+            'catalog_mapping': 'is_blocked',
         },
         'status': {
             'catalog_mapping': '',
@@ -68,10 +68,10 @@ class EnvelopesAPI(BrowserView):
             'catalog_mapping': '',
         },
         'creator': {
-            'catalog_mapping': '',
+            'catalog_mapping': 'getActorDraft',
         },
         'hasUnknownQC': {
-            'catalog_mapping': '',
+            'catalog_mapping': 'has_unknown_qa_result',
         }
     }
 
@@ -135,7 +135,7 @@ class EnvelopesAPI(BrowserView):
                                 zfile = unicode(zfile, errors='ignore')
                             archived_files.append(zfile.encode('utf-8',
                                                                'ignore'))
-                    except (POSKeyError, StorageError) as e:
+                    except (POSKeyError, StorageError, SystemError) as e:
                         errors.append({
                             'title': 'An error occured trying to access file: {}'.format(doc.absolute_url(0)),
                             'description': str(e)
@@ -217,6 +217,18 @@ class EnvelopesAPI(BrowserView):
         """Return a catalog periodDescription query."""
         return [v.upper().replace(' ', '_') for v in value]
 
+    def get_blocked_query(self, value, **kwargs):
+        """Return an is_blocked catalog query."""
+        return int(value)
+
+    def get_unknown_qc_query(self, value, **kwargs):
+        """Return an has_unknown_qa_result catalog query"""
+        return bool(int(value))
+
+    def get_creator_query(self, value, **kwargs):
+        """Return an actor catalog query"""
+        return value
+
     def build_catalog_query(self, valid_filters, fed_params):
         """Return a catalog query dictionary based on query params."""
         catalog_field_map = {}
@@ -237,15 +249,18 @@ class EnvelopesAPI(BrowserView):
         for param in valid_filters:
             if fed_params.get(param):
                 cases = {
-                    'isReleased': self.get_isreleased_query,
-                    'reportingDate': self.get_dates_query,
-                    'modifiedDate': self.get_dates_query,
-                    'url': self.get_url_query,
                     'countryCode': self.get_country_query,
-                    'reportingDateStart': self.get_dates_range_query,
-                    'reportingDateEnd': self.get_dates_range_query,
+                    'creator': self.get_creator_query,
+                    'hasUnknownQC': self.get_unknown_qc_query,
+                    'isBlockedByQCError': self.get_blocked_query,
+                    'isReleased': self.get_isreleased_query,
+                    'modifiedDate': self.get_dates_query,
                     'obligations': self.get_obligations_query,
-                    'periodDescription': self.get_periodd_query
+                    'periodDescription': self.get_periodd_query,
+                    'reportingDate': self.get_dates_query,
+                    'reportingDateEnd': self.get_dates_range_query,
+                    'reportingDateStart': self.get_dates_range_query,
+                    'url': self.get_url_query,
                 }
                 c_idx = catalog_field_map.get(param)
                 value = fed_params.get(param)
@@ -255,7 +270,6 @@ class EnvelopesAPI(BrowserView):
                 if get_value:
                     query[c_idx] = get_value(value, param=param, query=query,
                                              c_idx=c_idx)
-
         return query
 
     def get_env_children(self, path, children_type):
@@ -388,6 +402,7 @@ class EnvelopesAPI(BrowserView):
             'OK',
             'WARNING',
             'ERROR',
+            'FAILED',
             'BLOCKER'
         ]
 
@@ -407,41 +422,46 @@ class EnvelopesAPI(BrowserView):
                 for obl in brain.dataflow_uris]
 
         return {
-            'url': brain.getURL(),
-            'title': brain.title,
-            'description': brain.Description,
             'countryCode': self.getCountryCode(brain.country),
+            'description': brain.Description,
             'isReleased': brain.released,
-            'reportingDate': brain.reportingdate.HTML4(),
             'modifiedDate': brain.bobobase_modification_time.HTML4(),
             'obligations': obls,
-            'periodStartYear': startyear,
-            'periodEndYear': endyear,
             'periodDescription': rpd.get(brain.partofyear),
+            'periodEndYear': endyear,
+            'periodStartYear': startyear,
+            'reportingDate': brain.reportingdate.HTML4(),
+            'title': brain.title,
+            'url': brain.getURL(),
         }
 
-    def get_additional_props(self, brain):
+    def get_additional_props(self, brain, req_props):
         """Return additional envelope properties."""
         last_status_d = None
+        res = {}
         wk_brains = self.get_env_children(brain.getPath(), 'Workitem')
         actors = [wk.actor for wk in wk_brains if wk.activity_id == 'Draft']
         creator = None
         if actors:
             creator = actors[-1]
 
-        if brain.activation_log:
-            last_status_d = brain.activation_log[-1].get('start')
-            if last_status_d:
-                last_status_d = datetime.datetime.fromtimestamp(last_status_d)
-                last_status_d = DateTime(last_status_d).HTML4()
-
-        return {
-            'isBlockedByQCError': self.is_env_blocked(wk_brains),
+        res = {
             'status': wk_brains[-1].activity_id,
-            'statusDate': last_status_d,
-            'creator': creator or 'Not assigned',
-            'hasUnknownQC': self.has_unknown_qc(brain.getPath())
+            'creator': creator or 'Not assigned'
         }
+        if brain.activation_log:
+            if [prop for prop in req_props if prop.startswith('statusDate')]:
+                last_status_d = brain.activation_log[-1].get('start')
+                if last_status_d:
+                    last_status_d = datetime.datetime.fromtimestamp(last_status_d)
+                    last_status_d = DateTime(last_status_d).HTML4()
+                    res['statusDate'] = last_status_d
+        if 'isBlockedByQCError' in req_props:
+            res['isBlockedByQCError'] = self.is_env_blocked(wk_brains)
+        if 'hasUnknownQC' in req_props:
+            res['hasUnknownQC'] = self.has_unknown_qc(brain.getPath())
+
+        return res
 
     def get_envelopes(self):
         """Return envelopes."""
@@ -455,15 +475,18 @@ class EnvelopesAPI(BrowserView):
         fields = self.request.form.get('fields')
 
         valid_catalog_filters = [
-            'url',
             'countryCode',
+            'creator',
+            'hasUnknownQC',
+            'isBlockedByQCError',
             'isReleased',
-            'reportingDate',
-            'reportingDateStart',
-            'reportingDateEnd',
+            'modifiedDate',
             'obligations',
             'periodDescription',
-            'modifiedDate',
+            'reportingDate',
+            'reportingDateEnd',
+            'reportingDateStart',
+            'url',
         ]
 
         fed_params = {p: self.request.form.get(p)
@@ -483,7 +506,6 @@ class EnvelopesAPI(BrowserView):
             })
         if query:
             brains = list(self.context.Catalog(**query))
-
             if len(brains) > self.MAX_RESULTS:
                 error = 'There are too many possible results for your query. '\
                         'Please use additional filters.'
@@ -503,7 +525,8 @@ class EnvelopesAPI(BrowserView):
                     additional_p_filters = [param for param in fed_params.keys()
                                             if param not in default_props]
                     if additional_p_fields or additional_p_filters:
-                        additional_props = self.get_additional_props(brain)
+                        req_props = list(set(additional_p_fields + additional_p_filters))
+                        additional_props = self.get_additional_props(brain, req_props)
                         default_props.update(additional_props)
 
                     if self.is_filtered_out(default_props, additional_filters, fed_params):

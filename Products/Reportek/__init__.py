@@ -238,7 +238,9 @@ def create_reportek_indexes(catalog):
     if not hasattr(catalog, 'lexicon'):
         add_lexicon(catalog)
     add_index('id', catalog, 'FieldIndex', meta=True)
+
     add_index('title', catalog, 'ZCTextIndex', meta=True)
+
     add_index('meta_type', catalog, 'FieldIndex', meta=True)
     add_index('bobobase_modification_time', catalog, 'DateIndex', meta=True)
     add_index('activity_id', catalog, 'FieldIndex', meta=True)
@@ -259,14 +261,24 @@ def create_reportek_indexes(catalog):
     add_index('years', catalog, 'KeywordIndex', meta=True)
     add_index('local_unique_roles', catalog, 'KeywordIndex')
     add_index('local_defined_users', catalog, 'KeywordIndex', meta=True)
+
     add_index('Description', catalog, 'ZCTextIndex', meta=True)
+
     add_index('blocker', catalog, 'FieldIndex', meta=True)
     add_index('feedback_status', catalog, 'FieldIndex', meta=True)
+
     if 'activation_log' not in catalog.schema():
         catalog.addColumn('activation_log')
+
     if 'local_defined_roles' not in catalog.schema():
         catalog.addColumn('local_defined_roles')
     add_index('document_id', catalog, 'FieldIndex')
+    add_index('is_blocked', catalog, 'FieldIndex', meta=True)
+    add_index('getActorDraft', catalog, 'FieldIndex', meta=True)
+    add_index('has_unknown_qa_result', catalog, 'FieldIndex', meta=True)
+    add_index('bobobase_modification_time', catalog, 'DateIndex', meta=True)
+    add_index('dataflow_uris', catalog, 'KeywordIndex', meta=True)
+    add_index('reportingdate', catalog, 'FieldIndex', meta=True)
 
 
 class Empty:

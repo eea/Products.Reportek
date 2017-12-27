@@ -494,6 +494,7 @@ class RemoteApplication(SimpleItem):
                     l_workitem.blocker = True
 
                 feedback_ob.message = l_ret.get('FEEDBACK_MESSAGE', '')
+                feedback_ob.reindex_object()
 
                 l_getResultDict = {p_jobID: {'code':1, 'fileURL':l_file_url}}
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_getResult=l_getResultDict)

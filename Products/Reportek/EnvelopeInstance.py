@@ -463,6 +463,7 @@ class EnvelopeInstance(CatalogAware, Folder):
                         self.setStatus(status='complete', actor=l_actor)
             if activity.isAutoFinish() and not process.end == activity.id and not activity.isSubflow():
                 self.forwardWorkitem(workitem_id)
+            self.reindex_object()
             if REQUEST:
                 if REQUEST.has_key('DestinationURL'):
                     REQUEST.RESPONSE.redirect(REQUEST['DestinationURL'])
