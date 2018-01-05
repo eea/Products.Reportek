@@ -228,7 +228,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
     def updateCompanyStatus(self, company_id, status, domain='FGAS'):
         url = '/'.join([self.baseUrl, 'undertaking', domain,
-                        company_id, 'status_update'])
+                        company_id, 'statusupdate'])
         data = {'status': status}
         response = self.do_api_request(url, data=data,
                                        method="post",
