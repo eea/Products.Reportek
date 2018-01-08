@@ -20,7 +20,9 @@
         <th>Reporting folder</th>
         <td>
           <a tal:condition="candidate/account"
-            tal:define="coll_path string:/fgases/${candidate/country_code}/${candidate/account}"
+            tal:define="domain_folder python: {'FGAS': 'fgases', 'ODS': 'ods'};
+                        domain python: domain_folder.get(request.get('domain', 'FGAS'));
+                        coll_path string:/${domain}/${candidate/country_code}/${candidate/account}"
              tal:attributes="href coll_path"
              tal:content="coll_path" />
         </td>
@@ -149,4 +151,3 @@
     </tr>
   </table>
 </tal:block>
-

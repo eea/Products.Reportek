@@ -102,5 +102,6 @@ class ReportekApi(BrowserView):
                 exp_data[data] = getattr(coll, data, None)
             results.append(exp_data)
 
+        self.request.RESPONSE.setHeader("Content-Type", "application/json")
         return json.dumps(results, indent=4)
 

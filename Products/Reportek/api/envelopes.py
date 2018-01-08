@@ -516,6 +516,9 @@ class EnvelopesAPI(BrowserView):
                 additional_filters = [key for key in self.AVAILABLE_FILTERS.keys()
                                       if key not in valid_catalog_filters]
                 for brain in brains:
+                    # Skip the envelope if it has never been activated
+                    if not brain.activation_log:
+                        continue
                     default_props = self.get_default_props(brain)
                     envelope_data = {}
                     if not fields:

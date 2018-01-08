@@ -39,6 +39,7 @@ from zope.interface import implements
 import Globals
 import IconShow
 import json
+import logging
 import os
 import requests
 import string
@@ -66,6 +67,7 @@ FILE_FORMAT = "%n%c%e"
 BACKUP_ON_DELETE = 0
 ALWAYS_BACKUP = 1
 UNDO_POLICY = BACKUP_ON_DELETE
+logger = logging.getLogger("Reportek")
 
 manage_addDocumentForm = PageTemplateFile('zpt/document/add', globals())
 
@@ -110,6 +112,7 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
             obj.manage_file_upload(file, content_type)
         except SchemaError as e:
             self.manage_delObjects(id)
+            logger.exception('The file is an invalid XML (reason: %s)' % str(e.args))
             if REQUEST:
                 return self.messageDialog(
                     message='The file is an invalid XML (reason: %s)' % str(e.args),
