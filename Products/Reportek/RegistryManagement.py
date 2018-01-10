@@ -131,7 +131,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
         return paths
 
     def existsCompany(self, params, domain='FGAS'):
-        url = '/'.join([self.baseUrl, 'undertaking', domain, 'filter/'])
+        url = '/'.join([self.baseUrl, 'undertaking', domain, 'filter'])
         response = self.do_api_request(url,
                                        params=params,
                                        headers={'Authorization': self.token})
