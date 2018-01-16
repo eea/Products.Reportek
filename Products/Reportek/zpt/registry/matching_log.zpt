@@ -34,7 +34,7 @@
         <option value="ODS">ODS</option>
       </select>
     </div>
-    <table class="table simple_table" id="approval-table">
+    <table class="table" id="approval-table">
       <thead>
         <tr>
           <th>Company</th>

@@ -48,10 +48,10 @@
         <option value="ODS">ODS</option>
       </select>
     </div>
-    <table class="table simple_table" id="matching-table">
+    <table class="table" id="matching-table">
       <thead>
         <tr>
-          <th>Company name (as registered in FGAS Portal)</th>
+          <th>Company</th>
           <th>Status</th>
           <th>Country</th>
         </tr>
