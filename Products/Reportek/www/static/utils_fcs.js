@@ -124,7 +124,7 @@ reportek.utils.fcs = {
         self.tbl = $('#matching-table').DataTable({
             "iDisplayLength": 20,
             "language": {
-                processing: "<img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-matching'>",
+                processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>",
             },
             "ajax": {
               "url": self.tbl_endpoint,
@@ -168,7 +168,7 @@ reportek.utils.fcs = {
         self.tbl = $('#approval-table').DataTable({
             "iDisplayLength": 20,
             "language": {
-                processing: "<img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-approval'>",
+                processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-approval'>Processing...</div>",
             },
             "ajax": {
               "url": self.tbl_endpoint,
@@ -243,7 +243,7 @@ reportek.utils.fcs = {
         self.tbl = $('#synclog-table').DataTable({
             "iDisplayLength": 20,
             "language": {
-                processing: "<img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-synclog'>",
+                processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-synclog'>Processing...</div>",
             },
             "ajax": {
               "url": self.tbl_endpoint,
