@@ -86,7 +86,6 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if response:
             return response.json()
 
-    @ram.cache(lambda *args, **kwargs: args[2] + str(time() // (60 * 60)))
     def get_company_details(self, company_id, domain='FGAS'):
         url = '/'.join([self.baseUrl, 'undertaking', domain, company_id,
                         'details'])

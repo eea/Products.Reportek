@@ -137,9 +137,10 @@ table.dataTable tr.group td {
 }
 
 .dataTables_processing {
-  padding: .5em;
-  float: right;
-  color: #428be1;
+  float: left;
+  color: red;
+  margin-top: 1.3%;
+  margin-left: 24%;
 }
 
 .dataTable td {
@@ -798,4 +799,9 @@ input.referrals-status {
 
 .ui-control {
   text-decoration: none;
+}
+
+.fcs-table-loader {
+  width: 10%;
+  padding-right: 5px;
 }
