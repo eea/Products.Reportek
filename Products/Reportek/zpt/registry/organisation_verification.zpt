@@ -28,8 +28,8 @@
         <hr/>
 
         <p>
-          In this page you can view the company details (as registered in the
-          <a tal:attributes="href view/get_url">FGAS portal</a>)
+          Company details (as registered in the
+          <a tal:attributes="href view/get_url">FGAS and ODS portal</a>)
           and match it with the old record from
           <a href="/registry">
           BDR-Registry</a>, based on suggestions (candidates) made by the system.

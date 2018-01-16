@@ -20,7 +20,7 @@
 
     <h1>Approval log</h1>
     <p>
-      This page contains the company approval history order by timestamp.
+      Company approval history order by timestamp.
       You can see the details of an approved company by clicking on the
       company id.
 
@@ -37,7 +37,7 @@
     <table class="table simple_table" id="approval-table">
       <thead>
         <tr>
-          <th>Company (FGAS Portal)</th>
+          <th>Company</th>
           <th>Approval success</th>
           <th>User</th>
           <th>Date</th>

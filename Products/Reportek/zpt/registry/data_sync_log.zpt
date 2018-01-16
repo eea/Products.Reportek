@@ -20,8 +20,8 @@
 
     <h1>Data synchronisation logs</h1>
     <p>
-      This page contains latest 100 syncronisation jobs made against
-      FGAS portal and the number of companies fetched.
+      Latest 100 syncronisation jobs made against
+      <a tal:attributes="href view/get_url">FGAS and ODS portal</a> and the number of companies fetched.
     </p>
     <div class="obligation-select-container">
       <label for="domain">Filter companies by obligation:</label>

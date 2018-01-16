@@ -24,10 +24,8 @@
     <h1>Pending Companies</h1>
 
     <p>
-      In this page you can view the companies registered in the
-      <a tal:attributes="href view/get_url">FGAS portal</a>
-      and match them with old records taken from
-      <a href="/registry">
+      Companies registered in the <a tal:attributes="href view/get_url">FGAS and ODS portal</a>.
+      You can match them with old records taken from <a href="/registry">
       BDR-Registry</a>, based on suggestions (candidates) made by the system.
       Please click on the company name to view the suggestions and approve the company.
     </p>
