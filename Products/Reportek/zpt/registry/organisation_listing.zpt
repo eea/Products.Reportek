@@ -36,7 +36,7 @@
     <h1>Companies</h1>
 
     <p>Companies registered in <a tal:attributes="href view/get_url">FGAS and ODS portal</a> and approved in BDR. Click on a company name to see the details and the reporters. Alternatively, export companies in <a class="export" href="organisations_excel">
-    Excel</a> or <a class="export" href="organisations_json">JSON </a> format or all reporters in <a class="export" href="users_xls">Excel</a> format.
+    Excel</a> or <a class="export" href="organisations_json">JSON </a> format or reporters in <a class="export" href="users_xls">Excel</a> format.
     </p>
     <div class="obligation-select-container">
     <label for="domain">Filter companies by obligation:</label>
