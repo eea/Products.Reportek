@@ -242,8 +242,8 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
         return response
 
-    def getUsersExcelExport(self):
-        url = self.baseUrl + '/export/user/list'
+    def getUsersExcelExport(self, domain='FGAS'):
+        url = '/'.join([self.baseUrl, 'export', 'user', 'list', domain])
         response = self.do_api_request(url,
                                        headers={'Authorization': self.token})
 
