@@ -32,8 +32,10 @@ class SatelliteRegistryManagement(BaseAdmin):
                                                  candidateId=candidateId,
                                                  domain=domain)
                 if isForMatch:
-                    return self.request.response.redirect('{0}/{1}?done=1'.format(
-                        self.context.absolute_url(), "organisation_matching"))
+                    r_url = '{0}/{1}?domain={2}&id={3}&done=1'.format(
+                        self.context.absolute_url(), "organisation_details",
+                        domain, newId)
+                    return self.request.response.redirect(r_url)
 
             return self.index(error=True)
 
