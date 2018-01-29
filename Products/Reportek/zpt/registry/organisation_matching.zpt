@@ -60,6 +60,7 @@
           <th>Company</th>
           <th>Status</th>
           <th>Country</th>
+          <th>Date updated</th>
         </tr>
       </thead>
       <tbody>

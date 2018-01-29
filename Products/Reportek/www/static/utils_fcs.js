@@ -137,6 +137,7 @@ reportek.utils.fcs = {
               { "data": "undertaking.name" },
               { "data": "undertaking.status" },
               { "data": "undertaking.country" },
+              { "data": "undertaking.date_updated"}
             ],
             "columnDefs": [
               {
