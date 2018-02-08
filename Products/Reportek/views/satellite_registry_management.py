@@ -89,8 +89,8 @@ class SatelliteRegistryManagement(BaseAdmin):
 
     def is_permitted(self, domain):
         role_mapping = {
-            'ClientFG': 'FGAS',
-            'ClientODS': 'ODS'
+            'FGAS': 'ClientFG',
+            'ODS': 'ClientODS'
         }
         user = self.request.AUTHENTICATED_USER
         user_roles = user.getRolesInContext(self.context)
