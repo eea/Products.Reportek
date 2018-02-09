@@ -32,8 +32,10 @@ class SatelliteRegistryManagement(BaseAdmin):
                                                  candidateId=candidateId,
                                                  domain=domain)
                 if isForMatch:
-                    return self.request.response.redirect('{0}/{1}?done=1'.format(
-                        self.context.absolute_url(), "organisation_matching"))
+                    r_url = '{0}/{1}?domain={2}&id={3}&done=1'.format(
+                        self.context.absolute_url(), "organisation_details",
+                        domain, newId)
+                    return self.request.response.redirect(r_url)
 
             return self.index(error=True)
 
@@ -85,41 +87,55 @@ class SatelliteRegistryManagement(BaseAdmin):
         if engine:
             return getattr(engine, 'FGASRegistryAPI', None)
 
+    def is_permitted(self, domain):
+        role_mapping = {
+            'FGAS': 'ClientFG',
+            'ODS': 'ClientODS'
+        }
+        user = self.request.AUTHENTICATED_USER
+        user_roles = user.getRolesInContext(self.context)
+        if role_mapping.get(domain, '') in user_roles or 'Manager' in user_roles:
+            return True
+        return False
+
     def get_companies(self):
         api = self.get_api()
         if not api:
             return None
         domain = self.request.form.get('domain', 'FGAS')
-        companies = api.get_registry_companies(domain=domain)
-        self.request.response.setHeader('Content-Type', 'application/json')
-        return json.dumps(companies, indent=2)
+        if self.is_permitted(domain):
+            companies = api.get_registry_companies(domain=domain)
+            self.request.response.setHeader('Content-Type', 'application/json')
+            return json.dumps(companies, indent=2)
 
     def get_companies_api(self):
         get_params = ['id', 'vat', 'name', 'countrycode', 'OR_vat', 'OR_name']
         params = {}
         domain = self.request.form.get('domain', 'FGAS')
-        for param in get_params:
-            if self.request.get(param):
-                if param == 'countrycode':
-                    params[param] = self.request.get(param).upper()
-                else:
-                    params[param] = self.request.get(param)
+        if self.is_permitted(domain):
+            for param in get_params:
+                if self.request.get(param):
+                    if param == 'countrycode':
+                        params[param] = self.request.get(param).upper()
+                    else:
+                        params[param] = self.request.get(param)
 
-        api = self.get_api()
-        self.request.response.setHeader('Content-Type', 'application/json')
-        return json.dumps(api.existsCompany(params, domain=domain), indent=2)
+            api = self.get_api()
+            self.request.response.setHeader('Content-Type', 'application/json')
+            return json.dumps(api.existsCompany(params, domain=domain), indent=2)
 
     def get_company_json(self):
         self.request.response.setHeader('Content-Type', 'application/json')
         api = self.get_api()
         domain = self.request.form.get('domain', 'FGAS')
-        details = {}
-        if self.request.get('id'):
-            companyId = self.request.get('id')
-            details = fix_json_from_id(api.get_company_details(companyId,
-                                                               domain=domain))
+        if self.is_permitted(domain):
+            details = {}
+            if self.request.get('id'):
+                companyId = self.request.get('id')
+                details = fix_json_from_id(api.get_company_details(companyId,
+                                                                   domain=domain))
 
-        return json.dumps(details, indent=2)
+            return json.dumps(details, indent=2)
 
     def get_company_details(self):
         if 'id' not in self.request:
@@ -131,45 +147,49 @@ class SatelliteRegistryManagement(BaseAdmin):
 
         companyId = self.request.get('id')
         domain = self.request.form.get('domain', 'FGAS')
-        data = api.getCompanyDetailsById(companyId, domain=domain)
-        if not data:
-            return None
+        if self.is_permitted(domain):
+            data = api.getCompanyDetailsById(companyId, domain=domain)
+            if not data:
+                return None
 
-        data['warning'] = False
-        for user in data['users']:
-            if user['username'] == user['email']:
-                user['warning'] = True
-                data['warning'] = True
-            else:
-                user['warning'] = False
-        return data
+            data['warning'] = False
+            for user in data['users']:
+                if user['username'] == user['email']:
+                    user['warning'] = True
+                    data['warning'] = True
+                else:
+                    user['warning'] = False
+            return data
 
     def get_candidates(self):
         api = self.get_api()
         if not api:
             return None
         domain = self.request.form.get('domain', 'FGAS')
-        candidates = api.getCandidates(domain=domain)
-        self.request.response.setHeader('Content-Type', 'application/json')
-        return json.dumps(candidates, indent=2)
+        if self.is_permitted(domain):
+            candidates = api.getCandidates(domain=domain)
+            self.request.response.setHeader('Content-Type', 'application/json')
+            return json.dumps(candidates, indent=2)
 
     def get_matching_log(self):
         api = self.get_api()
         if not api:
             return None
         domain = self.request.form.get('domain', 'FGAS')
-        m_logs = api.getMatchingLog(domain=domain)
-        self.request.response.setHeader('Content-Type', 'application/json')
-        return json.dumps(m_logs, indent=2)
+        if self.is_permitted(domain):
+            m_logs = api.getMatchingLog(domain=domain)
+            self.request.response.setHeader('Content-Type', 'application/json')
+            return json.dumps(m_logs, indent=2)
 
     def get_datasync_log(self):
         api = self.get_api()
         if not api:
             return None
         domain = self.request.form.get('domain', 'FGAS')
-        sync_logs = api.getDataSyncLog(domain=domain)
-        self.request.response.setHeader('Content-Type', 'application/json')
-        return json.dumps(sync_logs, indent=2)
+        if self.is_permitted(domain):
+            sync_logs = api.getDataSyncLog(domain=domain)
+            self.request.response.setHeader('Content-Type', 'application/json')
+            return json.dumps(sync_logs, indent=2)
 
     def unverify(self):
         details = {}
@@ -178,7 +198,8 @@ class SatelliteRegistryManagement(BaseAdmin):
             if api:
                 companyId = self.request.get('id')
                 domain = self.request.form.get('domain', 'FGAS')
-                details = api.unverifyCompany(companyId, self.request.AUTHENTICATED_USER.getUserName(), domain=domain)
+                if self.is_permitted(domain):
+                    details = api.unverifyCompany(companyId, self.request.AUTHENTICATED_USER.getUserName(), domain=domain)
         return json.dumps(details, indent=2)
 
     def get_companies_excel(self):
@@ -193,25 +214,27 @@ class SatelliteRegistryManagement(BaseAdmin):
         if not api:
             return None
         domain = self.request.form.get('domain', 'FGAS')
-        response = api.getCompaniesExcelExport(domain=domain)
-        return response.content
+        if self.is_permitted(domain):
+            response = api.getCompaniesExcelExport(domain=domain)
+            return response.content
 
     def get_companies_json(self):
         api = self.get_api()
         if not api:
             return None
         domain = self.request.form.get('domain', 'FGAS')
-        companies_original = api.get_registry_companies(detailed=True,
-                                                        domain=domain)
-        if companies_original is None:
-            companies_original = []
+        if self.is_permitted(domain):
+            companies_original = api.get_registry_companies(detailed=True,
+                                                            domain=domain)
+            if companies_original is None:
+                companies_original = []
 
-        companies = []
-        for company in companies_original:
-            companies.append(fix_json_from_id(company))
+            companies = []
+            for company in companies_original:
+                companies.append(fix_json_from_id(company))
 
-        self.request.response.setHeader('Content-Type', 'application/json')
-        return json.dumps(companies, indent=2)
+            self.request.response.setHeader('Content-Type', 'application/json')
+            return json.dumps(companies, indent=2)
 
     def get_users_excel(self):
         headers = {
@@ -224,8 +247,10 @@ class SatelliteRegistryManagement(BaseAdmin):
         api = self.get_api()
         if not api:
             return None
-        response = api.getUsersExcelExport()
-        return response.content
+        domain = self.request.form.get('domain', 'FGAS')
+        if self.is_permitted(domain):
+            response = api.getUsersExcelExport(domain)
+            return response.content
 
     def get_url(self):
         api = self.get_api()
@@ -256,9 +281,10 @@ class SatelliteRegistryManagement(BaseAdmin):
         old_collection_id = self.request.form.get('old_collection_id')
         country_code = self.request.form.get('country_code')
         domain = self.request.form.get('domain', 'FGAS')
-        self.request.response.setHeader('Content-Type', 'application/json')
-        return json.dumps(self.lockedCompany(company_id, old_collection_id,
-                                             country_code, domain))
+        if self.is_permitted(domain):
+            self.request.response.setHeader('Content-Type', 'application/json')
+            return json.dumps(self.lockedCompany(company_id, old_collection_id,
+                                                 country_code, domain))
 
     def lockDownCompany(self, company_id, old_collection_id, country_code, domain, user, came_from):
         api = self.get_api()

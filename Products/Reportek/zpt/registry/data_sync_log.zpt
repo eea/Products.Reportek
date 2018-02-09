@@ -16,21 +16,26 @@
     <tal:block content="structure here/breadcrumbs_views"></tal:block>
   </metal:block>
 
-  <metal:block fill-slot="content">
+  <metal:block fill-slot="content" tal:define="user python: request.AUTHENTICATED_USER;
+                                               is_manager python: 'Manager' in user.getRolesInContext(context);
+                                               is_ods_client python: 'ClientODS' in user.getRolesInContext(context);
+                                               is_fgas_client python: 'ClientFG' in user.getRolesInContext(context);
+                                               fgas_allowed python: is_manager or is_fgas_client;
+                                               ods_allowed python: is_manager or is_ods_client;">
 
     <h1>Data synchronisation logs</h1>
     <p>
-      This page contains latest 100 syncronisation jobs made against
-      FGAS portal and the number of companies fetched.
+      Latest 100 syncronisation jobs made against
+      <a tal:attributes="href view/get_url">FGAS and ODS portal</a> and the number of companies fetched.
     </p>
     <div class="obligation-select-container">
       <label for="domain">Filter companies by obligation:</label>
       <select id="domain" name="domain">
-        <option value="FGAS">FGAS</option>
-        <option value="ODS">ODS</option>
+        <option tal:condition="fgas_allowed" value="FGAS">FGAS</option>
+        <option tal:condition="ods_allowed" value="ODS">ODS</option>
       </select>
     </div>
-    <table id="synclog-table" class="table simple_table">
+    <table id="synclog-table" class="table">
       <thead>
         <tr>
           <th>Date</th>

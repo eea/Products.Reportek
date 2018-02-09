@@ -22,9 +22,9 @@
 
     <h1>Notifications settings</h1>
     <p>
-        Each time an F-gases company is validated in BDR, an email is sent to the
+        Each time an FGAS or ODS company is validated in BDR, an email is sent to the
         addresses from the list below. By <em>validated</em>, we mean companies
-        registered in the FGAS portal and matched with old records from the
+        registered in the <a tal:attributes="href view/get_url">FGAS and ODS portal</a> and matched with old records from the
         BDR-Registry.
     </p>
 
@@ -64,7 +64,7 @@
 
     <h2>Existing emails</h2>
     <tal:block define="users view/get_emails">
-      <table tal:condition="users" class="table simple_table">
+      <table tal:condition="users" class="table">
         <thead>
           <tr>
             <th>First name</th>

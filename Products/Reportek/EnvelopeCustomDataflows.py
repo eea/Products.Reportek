@@ -257,7 +257,10 @@ class EnvelopeCustomDataflows(Toolz):
                 # add XML files
                 l_converted_files = l_ret_list['convertedFiles']
                 for l_xml in l_converted_files:
-                    l_xml_id = l_id[:-4] + '_' + l_xml['fileName']
+                    if method_name == 'convertDD_XML_split':
+                        l_xml_id = l_id[:-4] + '_' + l_xml['fileName']
+                    else:
+                        l_xml_id = l_xml['fileName']
                     self.manage_addDocument(id=l_xml_id, title='Converted from - %s' % l_id, file=l_xml['content'].data,
                                             content_type='text/xml', restricted=restricted)
                 # Change the original file title to show the conversion result

@@ -16,11 +16,16 @@
     <tal:block content="structure here/breadcrumbs_views"></tal:block>
   </metal:block>
 
-  <metal:block fill-slot="content">
+  <metal:block fill-slot="content" tal:define="user python: request.AUTHENTICATED_USER;
+                                               is_manager python: 'Manager' in user.getRolesInContext(context);
+                                               is_ods_client python: 'ClientODS' in user.getRolesInContext(context);
+                                               is_fgas_client python: 'ClientFG' in user.getRolesInContext(context);
+                                               fgas_allowed python: is_manager or is_fgas_client;
+                                               ods_allowed python: is_manager or is_ods_client;">
 
     <h1>Approval log</h1>
     <p>
-      This page contains the company approval history order by timestamp.
+      Company approval history order by timestamp.
       You can see the details of an approved company by clicking on the
       company id.
 
@@ -30,14 +35,14 @@
     <div class="obligation-select-container">
       <label for="domain">Filter companies by obligation:</label>
       <select id="domain" name="domain">
-        <option value="FGAS">FGAS</option>
-        <option value="ODS">ODS</option>
+        <option tal:condition="fgas_allowed" value="FGAS">FGAS</option>
+        <option tal:condition="ods_allowed" value="ODS">ODS</option>
       </select>
     </div>
-    <table class="table simple_table" id="approval-table">
+    <table class="table" id="approval-table">
       <thead>
         <tr>
-          <th>Company (FGAS Portal)</th>
+          <th>Company</th>
           <th>Approval success</th>
           <th>User</th>
           <th>Date</th>

@@ -41,14 +41,17 @@ class BaseRegistryAPI(SimpleItem):
         self.token = token
 
     def do_api_request(self, url, method='get', data=None, cookies=None,
-                       headers=None, params=None):
+                       headers=None, params=None, timeout=None):
         api_req = requests.get
         if method == 'post':
             api_req = requests.post
 
+        if not timeout:
+            timeout = self.TIMEOUT
+
         try:
             response = api_req(url, data=data, cookies=cookies, headers=headers,
-                               params=params, verify=False, timeout=self.TIMEOUT)
+                               params=params, verify=False, timeout=timeout)
         except Exception as e:
             logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
             return None
@@ -86,7 +89,6 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if response:
             return response.json()
 
-    @ram.cache(lambda *args, **kwargs: args[2] + str(time() // (60 * 60)))
     def get_company_details(self, company_id, domain='FGAS'):
         url = '/'.join([self.baseUrl, 'undertaking', domain, company_id,
                         'details'])
@@ -131,7 +133,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
         return paths
 
     def existsCompany(self, params, domain='FGAS'):
-        url = '/'.join([self.baseUrl, 'undertaking', domain, 'filter/'])
+        url = '/'.join([self.baseUrl, 'undertaking', domain, 'filter'])
         response = self.do_api_request(url,
                                        params=params,
                                        headers={'Authorization': self.token})
@@ -243,10 +245,11 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
         return response
 
-    def getUsersExcelExport(self):
-        url = self.baseUrl + '/export/user/list'
+    def getUsersExcelExport(self, domain='FGAS'):
+        url = '/'.join([self.baseUrl, 'export', 'user', 'list', domain])
         response = self.do_api_request(url,
-                                       headers={'Authorization': self.token})
+                                       headers={'Authorization': self.token},
+                                       timeout=120)
 
         return response
 

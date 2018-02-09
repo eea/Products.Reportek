@@ -19,6 +19,9 @@
   </metal:block>
 
   <metal:block fill-slot="content">
+    <p class="important-msg" tal:condition="request/done | nothing">
+      Operations completed succesfully.
+    </p>
     <tal:block define="company view/get_company_details">
 
       <div id="operations">
@@ -78,7 +81,7 @@
             </dl>
           </div>
 
-          <table class="simple_table">
+          <table class="table">
             <thead>
               <tr>
                 <th>Username</th>

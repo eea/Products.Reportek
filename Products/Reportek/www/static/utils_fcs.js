@@ -62,6 +62,9 @@ reportek.utils.fcs = {
         self.tbl_endpoint = self.get_endpoint_url('get_companies');
         self.tbl = $("#comp-table").DataTable({
           "iDisplayLength": 20,
+          "language": {
+              processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>",
+          },
           "ajax": {
             "url": self.tbl_endpoint,
             "contentType": "application/json",
@@ -120,6 +123,9 @@ reportek.utils.fcs = {
         self.tbl_endpoint = self.get_endpoint_url('get_candidates');
         self.tbl = $('#matching-table').DataTable({
             "iDisplayLength": 20,
+            "language": {
+                processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>",
+            },
             "ajax": {
               "url": self.tbl_endpoint,
               "contentType": "application/json",
@@ -131,6 +137,7 @@ reportek.utils.fcs = {
               { "data": "undertaking.name" },
               { "data": "undertaking.status" },
               { "data": "undertaking.country" },
+              { "data": "undertaking.date_updated"}
             ],
             "columnDefs": [
               {
@@ -161,6 +168,9 @@ reportek.utils.fcs = {
         self.tbl_endpoint = self.get_endpoint_url('get_matching_log');
         self.tbl = $('#approval-table').DataTable({
             "iDisplayLength": 20,
+            "language": {
+                processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-approval'>Processing...</div>",
+            },
             "ajax": {
               "url": self.tbl_endpoint,
               "contentType": "application/json",
@@ -233,6 +243,9 @@ reportek.utils.fcs = {
         self.tbl_endpoint = self.get_endpoint_url('get_datasync_log');
         self.tbl = $('#synclog-table').DataTable({
             "iDisplayLength": 20,
+            "language": {
+                processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-synclog'>Processing...</div>",
+            },
             "ajax": {
               "url": self.tbl_endpoint,
               "contentType": "application/json",

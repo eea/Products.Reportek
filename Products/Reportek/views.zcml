@@ -247,12 +247,4 @@
     permission="zope2.ViewManagementScreens"
     class="Products.Reportek.RepUtils.CrashMe"/>
 
-  <browser:page
-    for="zope.interface.common.interfaces.IException"
-    name="index.html"
-    class=".errors.SiteErrorView"
-    permission="zope.Public"
-    template="zpt/errors/500.pt"
-    />
-
 </configure>

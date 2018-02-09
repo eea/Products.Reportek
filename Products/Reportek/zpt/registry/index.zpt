@@ -5,7 +5,7 @@
   </metal:block>
 
   <metal:block fill-slot="content">
-    <h2>FGases registry management</h2>
+    <h2>European Registry management</h2>
     <ul>
       <li><a href="organisation_listing">Companies</a></li>
     </ul>
