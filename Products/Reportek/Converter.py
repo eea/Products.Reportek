@@ -168,26 +168,43 @@ class RemoteConverter(Converter):
         super(Converter, self).__init__(converter_id)
         self.id = converter_id
 
-    def __call__(self, file_url):
+    def __call__(self, file_url, write_to_response=True):
         file_obj = self.getPhysicalRoot().restrictedTraverse(file_url, None)
         if not getSecurityManager().checkPermission(view, file_obj):
-            raise Unauthorized, ('You are not authorized to view this document')
-        return self.convert(file_obj)
+            raise Unauthorized('You are not authorized to view this document')
+
+        if write_to_response:
+            converter = self.convert
+        else:
+            converter = self.convert_for_script
+
+        return converter(file_obj)
+
+    def _do_conversion(self, file_url):
+        url = '/'.join([self.api_url, 'convert'])
+        data = dict(convert_id=self.id, url=file_url)
+        return requests.post(url, data=data)
+
+    def convert_for_script(self, file_obj):
+        result = self._do_conversion(file_obj.absolute_url())
+        result.raise_for_status()
+        return result.content
 
     def convert(self, file_obj):
         try:
-            url = '/'.join([self.api_url, 'convert'])
-            result = requests.post(url, data={'convert_id': self.id,
-                                              'url': file_obj.absolute_url(0)})
+            result = self._do_conversion(file_obj.absolute_url())
             result.raise_for_status()
-            #
-            # let zope add the transfer-encoding: chuncked header if required
-            # (that is if the connection is not closed so there is more to come)
+
+            # Let Zope add the transfer-encoding: chuncked header if
+            # required (that is if the connection is not closed, so there is
+            # more to come).
+
             # TODO what if the requests does not decode payload?
-            # it handles chunked and gzip automatically, but what about the rest?
-            #
+            # it handles chunked and gzip automatically, but what
+            # about the rest?
+
             # result.headers is a case insensitive dict
-            #
+
             if result.headers.get('transfer-encoding'):
                 result.headers.pop('transfer-encoding')
             self.REQUEST.RESPONSE.headers.update(result.headers)
@@ -197,14 +214,20 @@ class RemoteConverter(Converter):
 
         except Exception, error:
             self.REQUEST.SESSION.set('note_title', 'Error in conversion')
-            l_tmp = string.maketrans('<>', '  ')
-            message = str(error).translate(l_tmp)
-            if type(error) == type(requests.HTTPError()):
+            if isinstance(error, requests.HTTPError):
                 message = result.text
-            message.replace(r'\n','<br />')
-            self.REQUEST.SESSION.set('note_text',
-                'The operation could not be completed because of the following error:<br /><br />%s' %message)
-            self.REQUEST.SESSION.set('redirect_to', self.REQUEST['HTTP_REFERER'])
+            else:
+                l_tmp = string.maketrans('<>', '  ')
+                message = str(error).translate(l_tmp)
+            message.replace(r'\n', '<br />')
+            self.REQUEST.SESSION.set('note_text', (
+                'The operation could not be completed because of '
+                'the following error:<br /><br />%s'
+                ) % message
+            )
+            self.REQUEST.SESSION.set(
+                'redirect_to', self.REQUEST['HTTP_REFERER']
+            )
             return file_obj.note()
 
 

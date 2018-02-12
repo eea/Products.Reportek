@@ -1,9 +1,10 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Feature: Added methods to allow remote conversion that doesn't write directly to RESPONSE [batradav refs #91145]
 * Feature: Added crashme view [olimpiurob refs #89420]
 * Feature: Added ODS support in fgases registry [olimpiurob refs #85847]
 * Bug fix: Catch KeyError exception when attempting to zip an envelope that has had it's workflow removed [olimpiurob refs #89581]
-* Feature: Refactored Document's manage template to acquire available 
+* Feature: Refactored Document's manage template to acquire available
   - conversions and qa_scripts with ajax calls [olimpiurob refs #89320]
 * Feature: Enabled the stuck envelopes utility for BDR deployments [robaaoli refs #88393]
 * Bug fix: Bullet proof the checking for activation_log value in stuck envelopes [robaaoli refs #88393]
@@ -14,7 +15,7 @@
 * Feature: Added possibility of setting the XLS->XML conversion type (split/no-split)
   - when uploading, in the DataflowMapping Record [olimpiurob refs #87436]
 * Bug fix: Made sure the uploaded XML are well-formed [olimpiurob refs #88004]
-* Bug fix: Properly check for feedback's document_id attribute when exporting to rdf 
+* Bug fix: Properly check for feedback's document_id attribute when exporting to rdf
   - and changed the document_id default value to None in manage_editFeedback
   [olimpiurob refs #85370]
 * Feature: Added dcat:byteSize to the envelope's rdf export [olimpiurob refs #87836]
