@@ -362,11 +362,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 obj.manage_delLocalRoles(owners)    #delete the old owner
                 obj.manage_setLocalRoles(wrapped_user.getId(),['Owner',])   #set local role to the new user
 
-    def create_fgas_collections(self, ctx, country, id, title):
+    def create_fgas_collections(self, ctx, country_uri, company_id, name):
         # Hardcoded obligations should be fixed and retrieved automatically
         parent_coll_df = ['http://rod.eionet.europa.eu/obligations/713']
         eq_imports_df = ['http://rod.eionet.europa.eu/obligations/765']
-        bulk_imports_fg = ['http://rod.eionet.europa.eu/obligations/764']
+        bulk_imports_df = ['http://rod.eionet.europa.eu/obligations/764']
 
         ctx.manage_addCollection(dataflow_uris=parent_coll_df,
                             country=country_uri,
@@ -377,13 +377,13 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         coll = getattr(ctx, company_id)
         coll.manage_addCollection(dataflow_uris=eq_imports_df,
                             country=country_uri,
-                            id=company_id,
+                            id=RepUtils.generate_id('col')+'ei',
                             title='Verification reports (Equipments imports)',
                             allow_collections=0, allow_envelopes=1,
                             descr='', locality='', partofyear='', year='', endyear='')
         coll.manage_addCollection(dataflow_uris=bulk_imports_df,
                             country=country_uri,
-                            id=company_id,
+                            id=RepUtils.generate_id('col')+'bi',
                             title='Verification reports (Bulk imports)',
                             allow_collections=0, allow_envelopes=1,
                             descr='', locality='', partofyear='', year='', endyear='')
