@@ -358,10 +358,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 obj.manage_delLocalRoles(owners)    #delete the old owner
                 obj.manage_setLocalRoles(wrapped_user.getId(),['Owner',])   #set local role to the new user
 
-    def create_fgas_collections(self, ctx,
-                                country=country_uri,
-                                id=company_id,
-                                title=name):
+    def create_fgas_collections(self, ctx, country, id, title):
         # Hardcoded obligations should be fixed and retrieved automatically
         parent_coll_df = ['http://rod.eionet.europa.eu/obligations/713']
         eq_imports_df = ['http://rod.eionet.europa.eu/obligations/765']
@@ -454,9 +451,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     try:
                         country_uri = country_folder.country
                         self.create_fgas_collections(country_folder,
-                                                     country=country_uri,
-                                                     id=company_id,
-                                                     title=name)
+                                                     country_uri,
+                                                     company_id,
+                                                     name)
                         coll = getattr(country_folder, company_id)
                     except Exception as e:
                         msg = "Cannot create collection %s. " % coll_path
