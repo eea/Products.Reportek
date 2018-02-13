@@ -126,10 +126,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     bdr_registry_username = ''
     bdr_registry_password = ''
     bdr_registry_obligations = []
-    fgas_registry_obligations = []
+    er_fgas_obligations = []
+    er_ods_obligations = []
     preliminary_obligations = []
-    fgas_registry_url = ''
-    fgas_registry_token = ''
+    er_url = ''
+    er_token = ''
     auth_middleware_recheck_interval = 300
     XLS_max_rows = 1000
 
@@ -266,9 +267,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.bdr_registry_username = self.REQUEST.get('bdr_registry_username', self.bdr_registry_username)
         self.bdr_registry_password = self.REQUEST.get('bdr_registry_password', self.bdr_registry_password)
         self.bdr_registry_obligations = self.REQUEST.get('bdr_registry_obligations', self.bdr_registry_obligations)
-        self.fgas_registry_url = self.REQUEST.get('fgas_registry_url', self.fgas_registry_url)
-        self.fgas_registry_token = self.REQUEST.get('fgas_registry_token', self.fgas_registry_token)
-        self.fgas_registry_obligations = self.REQUEST.get('fgas_registry_obligations', self.fgas_registry_obligations)
+        self.er_url = self.REQUEST.get('er_url', self.er_url)
+        self.er_token = self.REQUEST.get('er_token', self.er_token)
+        self.er_fgas_obligations = self.REQUEST.get('er_fgas_obligations', self.er_fgas_obligations)
+        self.er_ods_obligations = self.REQUEST.get('er_ods_obligations', self.er_ods_obligations)
         xls_max_rows = self.REQUEST.get('xls_max_rows', self.XLS_max_rows)
 
         try:
@@ -281,7 +283,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             self.BDRRegistryAPI.set_base_url(self.bdr_registry_url)
-            self.FGASRegistryAPI.set_base_url(self.fgas_registry_url, self.fgas_registry_token)
+            self.FGASRegistryAPI.set_base_url(self.er_url, self.er_token)
 
         # don't send the completed from back, the values set on self must be used
         return self._manage_properties(manage_tabs_message="Properties changed")
@@ -316,7 +318,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     @property
     def FGASRegistryAPI(self):
         if not getattr(self, '_FGASRegistryAPI', None):
-            self._FGASRegistryAPI = FGASRegistryAPI('FGAS Registry', self.fgas_registry_url, self.fgas_registry_token)
+            self._FGASRegistryAPI = FGASRegistryAPI('FGAS Registry', self.er_url, self.er_token)
         return self._FGASRegistryAPI
 
     @property
@@ -330,7 +332,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if collection.dataflow_uris:
             if collection.dataflow_uris[0] in self.bdr_registry_obligations:
                 registry = 'BDRRegistryAPI'
-            elif collection.dataflow_uris[0] in self.fgas_registry_obligations:
+            elif collection.dataflow_uris[0] in self.er_obligations:
                 registry = 'FGASRegistryAPI'
                 if not getattr(collection, '_company_id', None) and getattr(collection, 'old_company_id', None):
                     registry = 'BDRRegistryAPI'
@@ -355,6 +357,38 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 obj.changeOwnership(wrapped_user)   #change ownership
                 obj.manage_delLocalRoles(owners)    #delete the old owner
                 obj.manage_setLocalRoles(wrapped_user.getId(),['Owner',])   #set local role to the new user
+
+    def create_fgas_collections(self, ctx,
+                                country=country_uri,
+                                id=company_id,
+                                title=name):
+        # Hardcoded obligations should be fixed and retrieved automatically
+        parent_coll_df = ['http://rod.eionet.europa.eu/obligations/713']
+        eq_imports_df = ['http://rod.eionet.europa.eu/obligations/765']
+        bulk_imports_fg = ['http://rod.eionet.europa.eu/obligations/764']
+
+        ctx.manage_addCollection(dataflow_uris=parent_coll_df,
+                            country=country_uri,
+                            id=company_id,
+                            title=name,
+                            allow_collections=1, allow_envelopes=1,
+                            descr='', locality='', partofyear='', year='', endyear='')
+        coll = getattr(ctx, company_id)
+        coll.manage_addCollection(dataflow_uris=eq_imports_df,
+                            country=country_uri,
+                            id=company_id,
+                            title='Verification reports (Equipments imports)',
+                            allow_collections=0, allow_envelopes=1,
+                            descr='', locality='', partofyear='', year='', endyear='')
+        coll.manage_addCollection(dataflow_uris=bulk_imports_df,
+                            country=country_uri,
+                            id=company_id,
+                            title='Verification reports (Bulk imports)',
+                            allow_collections=0, allow_envelopes=1,
+                            descr='', locality='', partofyear='', year='', endyear='')
+        coll.allow_collections = 0
+        coll.reindex_object()
+
 
     def update_company_collection(self, company_id, domain, country,
                                 name, old_collection_id=None):
@@ -418,14 +452,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 coll = getattr(country_folder, coll_id, None)
                 if not coll:
                     try:
-                        dataflow_uris = [ self.FGASRegistryAPI.DOMAIN_TO_OBLIGATION[domain] ]
                         country_uri = country_folder.country
-                        country_folder.manage_addCollection(dataflow_uris=dataflow_uris,
-                            country=country_uri,
-                            id=company_id,
-                            title=name,
-                            allow_collections=0, allow_envelopes=1,
-                            descr='', locality='', partofyear='', year='', endyear='')
+                        self.create_fgas_collections(country_folder,
+                                                     country=country_uri,
+                                                     id=company_id,
+                                                     title=name)
                         coll = getattr(country_folder, company_id)
                     except Exception as e:
                         msg = "Cannot create collection %s. " % coll_path

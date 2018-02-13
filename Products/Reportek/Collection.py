@@ -549,9 +549,19 @@ class Collection(CatalogAware, Folder, Toolz):
             registry = engine.get_registry(self)
 
             if self.company_id and registry:
-                data = registry.get_company_details(self.company_id)
+                registry_name = getattr(registry, 'registry_name', None)
+                if registry_name == 'FGAS Registry':
+                    domain = 'FGAS'
+                    for obl in self.dataflow_uris:
+                        if obl in self.er_ods_obligations:
+                            domain = 'ODS'
+                            break
+                    data = registry.get_company_details(self.company_id,
+                                                        domain=domain)
+                else:
+                    data = registry.get_company_details(self.company_id)
                 if data:
-                    data['registry'] = getattr(registry, 'registry_name', None)
+                    data['registry'] = registry_name
 
                 return data
 

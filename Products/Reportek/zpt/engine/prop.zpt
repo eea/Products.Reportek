@@ -174,31 +174,42 @@
                 </p>
             </fieldset>
             <fieldset>
-                <legend>FGAS Registry Cache API</legend>
+                <legend>European Registry Cache API</legend>
                 <p class="form-help">
-                    <label for='fgas_registry_url'><strong>FGAS Cache Registry API URL</strong></label>
-                    <input type="text" size="50" id="fgas_registry_url" name="fgas_registry_url"
-                           tal:attributes="value here/fgas_registry_url" />
+                    <label for='er_url'><strong>European Cache Registry API URL</strong></label>
+                    <input type="text" size="50" id="er_url" name="er_url"
+                           tal:attributes="value here/er_url" />
+                    <br />
+                    <span>(leave it empty if European Cache Registry API is not to be used)
+                    <br />
+                </p>
+                <p class="form-help">
+                    <label for='er_token'><strong>European Cache Registry API TOKEN</strong></label>
+                    <input type="text" size="50" id="er_token" name="er_token"
+                           tal:attributes="value here/er_token" />
                     <br />
                     <span>(leave it empty if FGAS Cache Registry API is not to be used)
                     <br />
                 </p>
                 <p class="form-help">
-                    <label for='fgas_registry_token'><strong>FGAS Cache Registry API TOKEN</strong></label>
-                    <input type="text" size="50" id="fgas_registry_token" name="fgas_registry_token"
-                           tal:attributes="value here/fgas_registry_token" />
+                    <label for='er_fgas_obligations'><strong>European Registry FGAS obligations</strong></label>
                     <br />
-                    <span>(leave it empty if FGAS Cache Registry API is not to be used)
-                    <br />
-                </p>
-                <p class="form-help">
-                    <label for='fgas_registry_obligations'><strong>FGAS Registry obligations</strong></label>
-                    <br />
-                    <select name="fgas_registry_obligations:list" size="5" multiple="">
+                    <select name="er_fgas_obligations:list" size="5" multiple="">
                         <option tal:repeat="fgas_o python: obligations"
                             tal:attributes="value python: fgas_o[0];
-                                            selected python: fgas_o[0] in here.fgas_registry_obligations"
+                                            selected python: fgas_o[0] in here.er_fgas_obligations"
                             tal:content="python: fgas_o[1]" />
+                    </select>
+
+                </p>
+                <p class="form-help">
+                    <label for='er_ods_obligations'><strong>European Registry ODS obligations</strong></label>
+                    <br />
+                    <select name="er_ods_obligations:list" size="5" multiple="">
+                        <option tal:repeat="ods_o python: obligations"
+                            tal:attributes="value python: ods_o[0];
+                                            selected python: ods_o[0] in here.er_ods_obligations"
+                            tal:content="python: ods_o[1]" />
                     </select>
 
                 </p>
