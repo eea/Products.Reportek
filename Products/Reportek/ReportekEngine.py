@@ -329,11 +329,15 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     def get_registry(self, collection):
         registry = ''
-        if collection.dataflow_uris:
-            if collection.dataflow_uris[0] in self.bdr_registry_obligations:
+        obl = collection.dataflow_uris
+        if obl:
+            if obl[0] in self.bdr_registry_obligations:
                 registry = 'BDRRegistryAPI'
-            elif collection.dataflow_uris[0] in self.er_obligations:
-                registry = 'FGASRegistryAPI'
+            else:
+                for obl in self.dataflow_uris:
+                    if obl in self.er_ods_obligations or obl in self.er_fgas_obligations:
+                        registry = "FGASRegistryAPI"
+                        break
                 if not getattr(collection, '_company_id', None) and getattr(collection, 'old_company_id', None):
                     registry = 'BDRRegistryAPI'
         return getattr(self, registry, None)
