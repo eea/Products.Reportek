@@ -553,7 +553,7 @@ class Collection(CatalogAware, Folder, Toolz):
                 if registry_name == 'FGAS Registry':
                     domain = 'FGAS'
                     for obl in self.dataflow_uris:
-                        if obl in self.er_ods_obligations:
+                        if obl in engine.er_ods_obligations:
                             domain = 'ODS'
                             break
                     data = registry.get_company_details(self.company_id,
