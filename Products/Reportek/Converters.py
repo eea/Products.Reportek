@@ -283,9 +283,13 @@ class Converters(Folder):
                     return result.content
 
         if source == 'remote':
-            conv = Converter.RemoteConverter(converter_id).__of__(self)
-            return conv(file_url)
+            return self.run_remote_conversion(file_url, converter_id)
 
+    security.declarePublic('run_remote_conversion')
+    def run_remote_conversion(
+            self, file_url, converter_id, write_to_response=True):
+        conv = Converter.RemoteConverter(converter_id).__of__(self)
+        return conv(file_url, write_to_response=write_to_response)
 
 
 Globals.InitializeClass(Converters)
