@@ -140,18 +140,19 @@ class SatelliteRegistryManagement(BaseAdmin):
 
     def prep_company_xml(self, company):
         keys = [
-            'pk',
-            'name',
-            'addr_street',
-            'addr_postalcode',
-            'eori',
-            'vat_number',
+            'account',
+            'active',
             'addr_place1',
             'addr_place2'
-            'active',
-            'obligation',
+            'addr_postalcode',
+            'addr_street',
             'country',
+            'eori',
+            'name',
+            'obligation',
             'person',
+            'pk',
+            'vat_number',
         ]
         replace_keys({
             'users': 'person',
@@ -172,6 +173,7 @@ class SatelliteRegistryManagement(BaseAdmin):
             '#text': country.get('code')
         }
         company['eori'] = ''
+        company['account'] = company['company_id']
         company['vat_number'] = company.get('vat')
         company['addr_place1'] = ''
         company['addr_place2'] = ''
@@ -200,8 +202,7 @@ class SatelliteRegistryManagement(BaseAdmin):
                                                domain='ODS')
         if account_uid:
             old_company = [company for company in companies
-                           if str(company.get('oldcompany_account')) == account_uid or
-                           str(company.get('company_id')) == account_uid]
+                           if str(company.get('company_id')) == account_uid]
             if old_company:
                 result.append(self.prep_company_xml(old_company[0]))
         else:
