@@ -200,7 +200,7 @@ class SatelliteRegistryManagement(BaseAdmin):
                                                domain='ODS')
         if account_uid:
             old_company = [company for company in companies
-                           if str(company.get('Former_Company_no_2007-2010')) == account_uid or
+                           if str(company.get('oldcompany_account')) == account_uid or
                            str(company.get('company_id')) == account_uid]
             if old_company:
                 result.append(self.prep_company_xml(old_company[0]))
