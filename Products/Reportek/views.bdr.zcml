@@ -42,7 +42,7 @@
   <browser:page
       name="organisations"
       for=".interfaces.IRegistryManagement"
-      permission="zope2.ODSCompanies"
+      permission="zope2.View"
       class=".views.SatelliteRegistryManagement"
       attribute="get_organisations_xml"/>
 

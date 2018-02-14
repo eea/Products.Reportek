@@ -139,24 +139,19 @@ class SatelliteRegistryManagement(BaseAdmin):
             return json.dumps(details, indent=2)
 
     def prep_company_xml(self, company):
-        rem_keys = [
-            'address',
-            'businessprofile',
-            'collection_id',
-            'company_id',
-            'country_code_orig',
-            'date_created',
-            'domain',
-            'oldcompany_account',
-            'oldcompany_extid',
-            'oldcompany_id',
-            'oldcompany_verified',
-            'path',
-            'phone',
-            'representative',
-            'types',
-            'undertaking_type',
-            'website',
+        keys = [
+            'pk',
+            'name',
+            'addr_street',
+            'addr_postalcode',
+            'eori',
+            'vat_number',
+            'addr_place1',
+            'addr_place2'
+            'active',
+            'obligation',
+            'country',
+            'person',
         ]
         replace_keys({
             'users': 'person',
@@ -190,8 +185,9 @@ class SatelliteRegistryManagement(BaseAdmin):
             del person['first_name']
             del person['last_name']
             del person['username']
-        for key in rem_keys:
-            del company[key]
+        for key in company.keys():
+            if key not in keys:
+                del company[key]
         return company
 
     def get_organisations_xml(self):
@@ -200,21 +196,16 @@ class SatelliteRegistryManagement(BaseAdmin):
         api = self.get_api()
         account_uid = self.request.get('account_uid')
         result = []
-        companies = api.get_registry_companies(domain='ODS')
-        detailed_c = []
-        for company in companies:
-            c_id = str(company.get('company_id'))
-            c_data = api.getCompanyDetailsById(c_id, domain='ODS')
-            detailed_c.append(c_data)
-
+        companies = api.get_registry_companies(detailed=True,
+                                               domain='ODS')
         if account_uid:
-            old_company = [company for company in detailed_c
-                           if str(company.get('oldcompany_id')) == account_uid or
+            old_company = [company for company in companies
+                           if str(company.get('Former_Company_no_2007-2010')) == account_uid or
                            str(company.get('company_id')) == account_uid]
             if old_company:
                 result.append(self.prep_company_xml(old_company[0]))
         else:
-            result = [self.prep_company_xml(company) for company in detailed_c]
+            result = [self.prep_company_xml(company) for company in companies]
         xml = xmltodict.unparse({'organisations': {'organisation': result}})
         return xml
 
