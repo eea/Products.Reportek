@@ -19,6 +19,7 @@ setup(
         'requests==2.11.1',
         'xlwt',
         'zipstream',
+        'xmltodict==0.11.0'
     ],
     entry_points="""
           # -*- Entry points: -*-
