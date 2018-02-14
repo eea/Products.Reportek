@@ -22,4 +22,8 @@
     title="Reportek API Access"
   />
 
+  <permission
+    id="zope2.ODSCompanies"
+    title="Access to ODS Companies"
+  />
 </configure>

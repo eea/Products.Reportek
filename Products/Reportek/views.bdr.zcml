@@ -40,6 +40,13 @@
       attribute="get_company_json"/>
 
   <browser:page
+      name="organisations"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.ODSCompanies"
+      class=".views.SatelliteRegistryManagement"
+      attribute="get_organisations_xml"/>
+
+  <browser:page
       name="get_candidates"
       for=".interfaces.IRegistryManagement"
       permission="zope2.FgasesRegistryAdministration"

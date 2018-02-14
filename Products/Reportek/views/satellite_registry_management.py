@@ -1,7 +1,8 @@
 from base_admin import BaseAdmin
 from Products.Reportek.constants import ENGINE_ID
-from Products.Reportek.RepUtils import fix_json_from_id
+from Products.Reportek.RepUtils import fix_json_from_id, replace_keys
 from plone.memoize.ram import global_cache
+import xmltodict
 import json
 import re
 import logging
@@ -136,6 +137,86 @@ class SatelliteRegistryManagement(BaseAdmin):
                                                                    domain=domain))
 
             return json.dumps(details, indent=2)
+
+    def prep_company_xml(self, company):
+        rem_keys = [
+            'address',
+            'businessprofile',
+            'collection_id',
+            'company_id',
+            'country_code_orig',
+            'date_created',
+            'domain',
+            'oldcompany_account',
+            'oldcompany_extid',
+            'oldcompany_id',
+            'oldcompany_verified',
+            'path',
+            'phone',
+            'representative',
+            'types',
+            'undertaking_type',
+            'website',
+        ]
+        replace_keys({
+            'users': 'person',
+        }, company)
+        address = company.get('address', {})
+        company['pk'] = '-1'  # We don't have pk from european registry
+        company['addr_street'] = ' '.join([address.get('street', ''),
+                                           address.get('number', '')])
+        company['addr_postalcode'] = address.get('zipcode', '')
+        company['obligation'] = {
+            '@name': 'Ozone depleting substances',
+            '#text': company.get('domain').lower()
+        }
+        country = address.get('country')
+
+        company['country'] = {
+            '@name': country.get('name'),
+            '#text': country.get('code')
+        }
+        company['eori'] = ''
+        company['vat_number'] = company.get('vat')
+        company['addr_place1'] = ''
+        company['addr_place2'] = ''
+        company['active'] = {'VALID': True,
+                             'DISABLED': False}.get(company.get('status'))
+        for person in company.get('person'):
+            person['name'] = ' '.join([person.get('first_name'),
+                                       person.get('last_name')])
+            person['phone'] = ''
+            person['fax'] = ''
+            del person['first_name']
+            del person['last_name']
+            del person['username']
+        for key in rem_keys:
+            del company[key]
+        return company
+
+    def get_organisations_xml(self):
+        """Return ODS companies in xml format"""
+        self.request.response.setHeader('Content-Type', 'application/xml')
+        api = self.get_api()
+        account_uid = self.request.get('account_uid')
+        result = []
+        companies = api.get_registry_companies(domain='ODS')
+        detailed_c = []
+        for company in companies:
+            c_id = str(company.get('company_id'))
+            c_data = api.getCompanyDetailsById(c_id, domain='ODS')
+            detailed_c.append(c_data)
+
+        if account_uid:
+            old_company = [company for company in detailed_c
+                           if str(company.get('oldcompany_id')) == account_uid or
+                           str(company.get('company_id')) == account_uid]
+            if old_company:
+                result.append(self.prep_company_xml(old_company[0]))
+        else:
+            result = [self.prep_company_xml(company) for company in detailed_c]
+        xml = xmltodict.unparse({'organisations': {'organisation': result}})
+        return xml
 
     def get_company_details(self):
         if 'id' not in self.request:
