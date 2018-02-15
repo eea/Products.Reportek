@@ -152,7 +152,6 @@ class SatelliteRegistryManagement(BaseAdmin):
             'obligation',
             'person',
             'pk',
-            'vat_number',
         ]
         replace_keys({
             'users': 'person',
@@ -174,7 +173,6 @@ class SatelliteRegistryManagement(BaseAdmin):
         }
         company['eori'] = company.get('vat')
         company['account'] = company['company_id']
-        company['vat_number'] = company.get('vat')
         company['addr_place1'] = ''
         company['addr_place2'] = ''
         company['active'] = {'VALID': True,
