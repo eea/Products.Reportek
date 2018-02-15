@@ -172,7 +172,7 @@ class SatelliteRegistryManagement(BaseAdmin):
             '@name': country.get('name'),
             '#text': country.get('code')
         }
-        company['eori'] = ''
+        company['eori'] = company.get('vat')
         company['account'] = company['company_id']
         company['vat_number'] = company.get('vat')
         company['addr_place1'] = ''
