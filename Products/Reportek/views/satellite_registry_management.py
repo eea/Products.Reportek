@@ -173,6 +173,8 @@ class SatelliteRegistryManagement(BaseAdmin):
         }
         company['eori'] = company.get('vat')
         company['account'] = company['company_id']
+        if company.get('oldcompany_account'):
+            company['account'] = company['oldcompany_account']
         company['addr_place1'] = ''
         company['addr_place2'] = ''
         company['active'] = {'VALID': True,
@@ -199,12 +201,18 @@ class SatelliteRegistryManagement(BaseAdmin):
         companies = api.get_registry_companies(detailed=True,
                                                domain='ODS')
         if account_uid:
-            old_company = [company for company in companies
+            # Search for oldcompany_account first
+            company = [company for company in companies
+                       if str(company.get('oldcompany_account')) == account_uid]
+            if not company:
+                # Fallback to search for new company id
+                company = [company for company in companies
                            if str(company.get('company_id')) == account_uid]
-            if old_company:
-                result.append(self.prep_company_xml(old_company[0]))
+            if company:
+                result.append(self.prep_company_xml(company[0]))
         else:
-            result = [self.prep_company_xml(company) for company in companies]
+            result = [self.prep_company_xml(company)
+                      for company in companies]
         xml = xmltodict.unparse({'organisations': {'organisation': result}})
         return xml
 
