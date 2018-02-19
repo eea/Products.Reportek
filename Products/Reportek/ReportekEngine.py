@@ -367,7 +367,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         parent_coll_df = ['http://rod.eionet.europa.eu/obligations/713']
         eq_imports_df = ['http://rod.eionet.europa.eu/obligations/765']
         bulk_imports_df = ['http://rod.eionet.europa.eu/obligations/764']
-
         ctx.manage_addCollection(dataflow_uris=parent_coll_df,
                             country=country_uri,
                             id=company_id,
@@ -375,21 +374,29 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                             allow_collections=1, allow_envelopes=1,
                             descr='', locality='', partofyear='', year='', endyear='')
         coll = getattr(ctx, company_id)
+        coll.company_id = company_id
+        ei_id = ''.join([RepUtils.generate_id('col'), 'ei'])
         coll.manage_addCollection(dataflow_uris=eq_imports_df,
                             country=country_uri,
-                            id=RepUtils.generate_id('col')+'ei',
+                            id=ei_id,
                             title='Verification reports (Equipments imports)',
                             allow_collections=0, allow_envelopes=1,
                             descr='', locality='', partofyear='', year='', endyear='')
+        bi_id = ''.join([RepUtils.generate_id('col'), 'bi'])
         coll.manage_addCollection(dataflow_uris=bulk_imports_df,
                             country=country_uri,
-                            id=RepUtils.generate_id('col')+'bi',
+                            id=bi_id,
                             title='Verification reports (Bulk imports)',
                             allow_collections=0, allow_envelopes=1,
                             descr='', locality='', partofyear='', year='', endyear='')
+        ei = getattr(coll, ei_id)
+        ei.company_id = company_id
+        ei.reindex_object()
+        bi = getattr(coll, bi_id)
+        bi.company_id = company_id
+        bi.reindex_object()
         coll.allow_collections = 0
         coll.reindex_object()
-
 
     def update_company_collection(self, company_id, domain, country,
                                 name, old_collection_id=None):
@@ -460,7 +467,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                                                          company_id,
                                                          name)
                         else:
-                            country_folder.manage_addCollection(dataflow_uris=dataflow_uris,
+                            country_folder.manage_addCollection(dataflow_uris=[ self.FGASRegistryAPI.DOMAIN_TO_OBLIGATION[domain] ],
                                                                 country=country_uri,
                                                                 id=company_id,
                                                                 title=name,
