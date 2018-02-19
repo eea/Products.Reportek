@@ -17,6 +17,10 @@
         <td tal:content="candidate/vat_number" />
       </tr>
       <tr>
+        <th>EORI number</th>
+        <td tal:content="candidate/eori|nothing" />
+      </tr>
+      <tr>
         <th>Reporting folder</th>
         <td>
           <a tal:condition="candidate/account"
@@ -74,7 +78,7 @@
       </tr>
 
       <tr>
-        <th>VAT number</th>
+        <th>EORI number</th>
         <td tal:content="company/vat" />
       </tr>
 
