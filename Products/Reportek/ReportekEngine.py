@@ -454,10 +454,18 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 if not coll:
                     try:
                         country_uri = country_folder.country
-                        self.create_fgas_collections(country_folder,
-                                                     country_uri,
-                                                     company_id,
-                                                     name)
+                        if domain == 'FGAS':
+                            self.create_fgas_collections(country_folder,
+                                                         country_uri,
+                                                         company_id,
+                                                         name)
+                        else:
+                            country_folder.manage_addCollection(dataflow_uris=dataflow_uris,
+                                                                country=country_uri,
+                                                                id=company_id,
+                                                                title=name,
+                                                                allow_collections=0, allow_envelopes=1,
+                                                                descr='', locality='', partofyear='', year='', endyear='')
                         coll = getattr(country_folder, company_id)
                     except Exception as e:
                         msg = "Cannot create collection %s. " % coll_path
