@@ -379,14 +379,14 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         coll.manage_addCollection(dataflow_uris=eq_imports_df,
                             country=country_uri,
                             id=ei_id,
-                            title='F-gases verification reporting (Equipment imports)',
+                            title='Upload of verification documents (equipment importers)',
                             allow_collections=0, allow_envelopes=1,
                             descr='', locality='', partofyear='', year='', endyear='')
         bi_id = ''.join([RepUtils.generate_id('col'), 'bi'])
         coll.manage_addCollection(dataflow_uris=bulk_imports_df,
                             country=country_uri,
                             id=bi_id,
-                            title='F-gases verification reporting (Bulk imports)',
+                            title='Upload of verification documents (HFC producers and bulk importers)',
                             allow_collections=0, allow_envelopes=1,
                             descr='', locality='', partofyear='', year='', endyear='')
         ei = getattr(coll, ei_id)
