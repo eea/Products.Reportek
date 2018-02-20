@@ -76,7 +76,7 @@
               </dt>
               <dd>
                 User can not report yet, because he/she never logged in
-                <a tal:attributes="href view/get_url">FGAS portal</a>.
+                <a tal:attributes="href view/get_url">European registry</a>.
               </dd>
             </dl>
           </div>

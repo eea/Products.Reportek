@@ -688,7 +688,8 @@ class Collection(CatalogAware, Folder, Toolz):
                 'country': country.upper(),
                 'vat': raw_data.get('vat_number', raw_data.get('vat')),
                 'portal_registration_date': self.portal_registration_date(),
-                'registry': raw_data.get('registry')
+                'registry': {'FGAS Registry': 'European Registry'}.get(raw_data.get('registry'),
+                                                                       raw_data.get('registry'))
             }
 
         return data
