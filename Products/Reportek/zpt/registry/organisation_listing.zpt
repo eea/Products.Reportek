@@ -52,7 +52,7 @@
           <th>Company name</th>
           <th>Reporters</th>
           <th>Country</th>
-          <th>VAT number</th>
+          <th>EORI number</th>
           <th>Date registered</th>
         </tr>
       </thead>
