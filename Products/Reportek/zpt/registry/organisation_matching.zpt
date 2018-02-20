@@ -50,8 +50,8 @@
     <div class="obligation-select-container">
       <label for="domain">Filter companies by obligation:</label>
       <select id="domain" name="domain">
-        <option tal:condition="fgas_allowed" value="FGAS">FGAS</option>
         <option tal:condition="ods_allowed" value="ODS">ODS</option>
+        <option tal:condition="fgas_allowed" value="FGAS">FGAS</option>
       </select>
     </div>
     <table class="table" id="matching-table">
