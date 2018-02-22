@@ -100,20 +100,20 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
         id = id.strip()
         id = RepUtils.cleanup_id(id)
 
-    # Check to see if file has an extension which is disallowed
-    if disallow:
-        disallow = disallow.replace(' ', '').split(',')
-        for ext in disallow:
-            if not ext.startswith('.'):
-                ext = ''.join(['.', ext])
-            if id.endswith(ext):
-                if REQUEST:
-                    return self.messageDialog(
-                        message='{} files are disallowed in this context'.format(ext),
-                        action=self.absolute_url()
-                    )
-                else:
-                    return ''
+        # Check to see if file has an extension which is disallowed
+        if disallow:
+            disallow = disallow.replace(' ', '').split(',')
+            for ext in disallow:
+                if not ext.startswith('.'):
+                    ext = ''.join(['.', ext])
+                if id.endswith(ext):
+                    if REQUEST:
+                        return self.messageDialog(
+                            message='{} files are disallowed in this context'.format(ext),
+                            action=self.absolute_url()
+                        )
+                    else:
+                        return ''
 
         # delete the previous file with the same id, if exists
         if self.get(id) and isinstance(self.get(id), Document):
