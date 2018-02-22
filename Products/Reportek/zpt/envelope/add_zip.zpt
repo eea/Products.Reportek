@@ -8,8 +8,9 @@
     <tal:block define="
       default_restricted python:request.SESSION.get('default_restricted', '');
       force_restricted python:request.SESSION.get('force_restricted', '');
-	  replace_xml python:request.SESSION.get('replace_xml', 0);
-	  required_schema python:request.SESSION.get('required_schema', [])">
+      replace_xml python:request.SESSION.get('replace_xml', 0);
+      required_schema python:request.SESSION.get('required_schema', []);
+      disallow python: request.SESSION.get('disallow', '')">
 
       <form action="manage_addDDzipfile" method="post" enctype="multipart/form-data" name="form">
 
@@ -38,6 +39,8 @@
         <tr>
           <td>
             <input tal:condition="force_restricted" type="hidden" name="restricted" value="on"/>
+            <input tal:condition="disallow" type="hidden" name="disallow"
+              tal:attributes="value disallow"/>
           </td>
           <td><input type="submit" value="Add" i18n:attributes="value" /></td>
         </tr>

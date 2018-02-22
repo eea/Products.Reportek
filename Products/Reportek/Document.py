@@ -73,10 +73,11 @@ manage_addDocumentForm = PageTemplateFile('zpt/document/add', globals())
 
 
 def manage_addDocument(self, id='', title='', file='', content_type='',
-                       restricted='', REQUEST=None, deferred_compress=None):
-    """Add a Document to a folder. The form can be called with two variables
-       set in the session object: default_restricted and force_restricted.
-       This will set the restricted flag in the form.
+                       restricted='', disallow='', REQUEST=None,
+                       deferred_compress=None):
+    """Add a Document to a folder. The form can be called with three variables
+       set in the session object: default_restricted, force_restricted and
+       disallow. This will set the restricted flag in the form or
     """
     is_object = hasattr(file, 'filename') and file.filename
     is_str = file and isinstance(file, basestring)
@@ -98,6 +99,21 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
                     ) + 1:]
         id = id.strip()
         id = RepUtils.cleanup_id(id)
+
+    # Check to see if file has an extension which is disallowed
+    if disallow:
+        disallow = disallow.replace(' ', '').split(',')
+        for ext in disallow:
+            if not ext.startswith('.'):
+                ext = ''.join(['.', ext])
+            if id.endswith(ext):
+                if REQUEST:
+                    return self.messageDialog(
+                        message='{} files are disallowed in this context'.format(ext),
+                        action=self.absolute_url()
+                    )
+                else:
+                    return ''
 
         # delete the previous file with the same id, if exists
         if self.get(id) and isinstance(self.get(id), Document):

@@ -439,7 +439,8 @@ class EnvelopeCustomDataflows(Toolz):
 
     security.declareProtected('Change Envelopes', 'manage_addDocOrZip')
 
-    def manage_addDocOrZip(self, file, restricted='', id='', required_schema=[], replace_xml=0, REQUEST=None):
+    def manage_addDocOrZip(self, file, restricted='', id='', required_schema=[],
+                           replace_xml=0, disallow='', REQUEST=None):
         """ Adds a file or unpacks a zip in the envelope
              If the file is XML, it calls replace_dd_xml,
              otherwise, it just uploads the file using manage_addDocument
@@ -457,6 +458,7 @@ class EnvelopeCustomDataflows(Toolz):
                     restricted=restricted,
                     required_schema=required_schema,
                     replace_xml=int(replace_xml),
+                    disallow=disallow,
                     REQUEST=REQUEST)
             elif re.search(self.fileTypeByName_pattern, file.filename):
                 return self.replace_dd_xml(
@@ -470,6 +472,7 @@ class EnvelopeCustomDataflows(Toolz):
                     id=id,
                     file=file,
                     restricted=restricted,
+                    disallow=disallow,
                     REQUEST=REQUEST)
 
     security.declareProtected('Change Envelopes', 'manage_addDDFile')
@@ -501,7 +504,8 @@ class EnvelopeCustomDataflows(Toolz):
                 return self.manage_addDocument(file=file, restricted=restricted, REQUEST=REQUEST)
 
     security.declareProtected('Add Envelopes', 'manage_addDDzipfile')
-    def manage_addDDzipfile(self, file='', content_type='', restricted='', required_schema=[], replace_xml=0,
+    def manage_addDDzipfile(self, file='', content_type='', restricted='',
+                            required_schema=[], replace_xml=0, disallow='',
                             REQUEST=None):
         """ Expands a zipfile into a number of Documents.
             For the XML files, checks if the schema is correct for that dataflow, meaning the schema is part of the
@@ -548,7 +552,7 @@ class EnvelopeCustomDataflows(Toolz):
             for name in zip_file_ids:
                 id = self.cook_file_id(name)
                 zf.setcurrentfile(name)
-                zipped_file_id = self.manage_addDocument(id=id, title=id, file=zf, restricted=restricted)
+                zipped_file_id = self.manage_addDocument(id=id, title=id, file=zf, restricted=restricted, disallow=disallow)
                 transaction.commit()
                 if not zipped_file_id:
                     # something happened with the file upload and the upload didn't go through
@@ -578,10 +582,10 @@ class EnvelopeCustomDataflows(Toolz):
             self.manage_delObjects([x for x in file_ids_to_delete if x not in zip_file_ids])
             if file_ids_not_uploaded:
                 if len(file_ids_not_uploaded) == len(zip_file_ids):
-                    msg = 'No files were added in the envelope, because their schemas are not correct for this dataflow!'
+                    msg = 'No files were added in the envelope, because their schemas are not correct for this dataflow or file types are not allowed in this context!'
                 else:
                     msg = 'Some files from the zip file were not uploaded in the envelope ' \
-                          'because their schemas are not correct for this dataflow!'
+                          'because their schemas are not correct for this dataflow or certain file types are not allowed in this context!'
             else:
                 msg = 'The file(s) in this zip archive were successfully uploaded in the envelope'
 
