@@ -158,8 +158,9 @@ class SatelliteRegistryManagement(BaseAdmin):
         }, company)
         address = company.get('address', {})
         company['pk'] = '-1'  # We don't have pk from european registry
-        company['addr_street'] = ' '.join([address.get('street', ''),
-                                           address.get('number', '')])
+        street = address.get('street', '') if address.get('street', '') else ''
+        number = address.get('number', '') if address.get('number', '') else ''
+        company['addr_street'] = ' '.join([street, number])
         company['addr_postalcode'] = address.get('zipcode', '')
         company['obligation'] = {
             '@name': 'Ozone depleting substances',
@@ -180,8 +181,9 @@ class SatelliteRegistryManagement(BaseAdmin):
         company['active'] = {'VALID': True,
                              'DISABLED': False}.get(company.get('status'))
         for person in company.get('person'):
-            person['name'] = ' '.join([person.get('first_name'),
-                                       person.get('last_name')])
+            first_name = person.get('first_name', '') if person.get('first_name', '') else ''
+            last_name = person.get('last_name', '') if person.get('last_name', '') else ''
+            person['name'] = ' '.join([first_name, last_name])
             person['phone'] = ''
             person['fax'] = ''
             del person['first_name']
