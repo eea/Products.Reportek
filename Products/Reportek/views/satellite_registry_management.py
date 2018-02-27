@@ -162,7 +162,7 @@ class SatelliteRegistryManagement(BaseAdmin):
         number = address.get('number', '') if address.get('number', '') else ''
         city = address.get('city', '') if address.get('city', '') else ''
         company['addr_street'] = ' '.join([street, number, city])
-        company['addr_postalcode'] = address.get('zipCode', '')
+        company['addr_postalcode'] = address.get('zipcode', '')
         company['obligation'] = {
             '@name': 'Ozone depleting substances',
             '#text': company.get('domain').lower()
