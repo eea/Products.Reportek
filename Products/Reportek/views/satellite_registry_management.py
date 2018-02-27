@@ -143,7 +143,7 @@ class SatelliteRegistryManagement(BaseAdmin):
             'account',
             'active',
             'addr_place1',
-            'addr_place2'
+            'addr_place2',
             'addr_postalcode',
             'addr_street',
             'country',
@@ -190,6 +190,7 @@ class SatelliteRegistryManagement(BaseAdmin):
             del person['first_name']
             del person['last_name']
             del person['username']
+
         for key in company.keys():
             if key not in keys:
                 del company[key]
