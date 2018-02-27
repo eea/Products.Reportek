@@ -160,8 +160,9 @@ class SatelliteRegistryManagement(BaseAdmin):
         company['pk'] = '-1'  # We don't have pk from european registry
         street = address.get('street', '') if address.get('street', '') else ''
         number = address.get('number', '') if address.get('number', '') else ''
-        company['addr_street'] = ' '.join([street, number])
-        company['addr_postalcode'] = address.get('zipcode', '')
+        city = address.get('city', '') if address.get('city', '') else ''
+        company['addr_street'] = ' '.join([street, number, city])
+        company['addr_postalcode'] = address.get('zipCode', '')
         company['obligation'] = {
             '@name': 'Ozone depleting substances',
             '#text': company.get('domain').lower()
