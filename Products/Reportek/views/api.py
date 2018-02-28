@@ -1,15 +1,51 @@
 import json
+import datetime
+from DateTime import DateTime
 from Products.Five import BrowserView
+
 
 class ReportekApi(BrowserView):
     """ """
 
-    def search_envelopes(self, obligation, released=True, rejected=False):
-        results = []
+    def parse_date(self, value):
+        if value:
+            try:
+                return datetime.datetime.strptime(value, '%Y-%m-%d')
+            except Exception:
+                return None
 
-        brains = self.context.Catalog(meta_type='Report Envelope',
-                            dataflow_uris=obligation,
-                            released=released)
+    def search_envelopes(self, obligation, released=True, rejected=False,
+                         start_date=None, end_date=None):
+        results = []
+        start_date = self.parse_date(start_date)
+        end_date = self.parse_date(end_date)
+        if start_date and end_date:
+            reportingdate = {
+                'query': (DateTime(start_date), DateTime(end_date)),
+                'range': 'min:max'
+            }
+        elif start_date:
+            reportingdate = {
+                'query': DateTime(start_date),
+                'range': 'min'
+            }
+        elif end_date:
+            reportingdate = {
+                'query': DateTime(end_date),
+                'range': 'max'
+            }
+        else:
+            reportingdate = None
+
+        s_query = {
+            'meta_type': 'Report Envelope',
+            'dataflow_uris': obligation,
+            'released': released
+        }
+        if reportingdate:
+            s_query['reportingdate'] = reportingdate
+
+        brains = self.context.Catalog(**s_query)
         for brain in brains:
             env = brain.getObject()
             envelope_properties = {
@@ -55,32 +91,35 @@ class ReportekApi(BrowserView):
         return json.dumps(results, indent=4)
 
 
-    def get_released_envelopes(self, obligation):
+    def get_released_envelopes(self, obligation, start_date=None, end_date=None):
         """
         Get the released envelopes for a given obligation.
         Method used by FDB/ODB.
         """
 
-        return self.search_envelopes(obligation)
+        return self.search_envelopes(obligation, start_date=start_date,
+                                     end_date=end_date)
 
 
-    def get_unreleased_envelopes(self, obligation):
+    def get_unreleased_envelopes(self, obligation, start_date=None, end_date=None):
         """
         Get the un-released envelopes for a given obligation.
         Method used by FDB/ODB.
         """
 
-        return self.search_envelopes(obligation, released=False)
+        return self.search_envelopes(obligation, released=False,
+                                     start_date=start_date, end_date=end_date)
 
 
-    def get_rejected_envelopes(self, obligation):
+    def get_rejected_envelopes(self, obligation, start_date=None, end_date=None):
         """
         Get the rejected envelopes for a given obligation.
         If envelope contains blocker feedback, then it is rejected.
         Method used by FDB/ODB.
         """
 
-        return self.search_envelopes(obligation, rejected=True)
+        return self.search_envelopes(obligation, rejected=True,
+                                     start_date=start_date, end_date=end_date)
 
     def collections_json(self):
         """ Returns a JSON with some basic Collections information
