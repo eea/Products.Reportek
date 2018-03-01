@@ -1,5 +1,6 @@
 3.8.7-dev (unreleased)
 ----------------------
+* Feature: Enabled huge_tree support for xml parser [olimpiurob refs #92438]
 * Feature: Added methods to allow remote conversion that doesn't write directly to RESPONSE [batradav refs #91145]
 * Feature: Added crashme view [olimpiurob refs #89420]
 * Feature: Added ODS support in fgases registry [olimpiurob refs #85847]
