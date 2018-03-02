@@ -362,6 +362,39 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 obj.manage_delLocalRoles(owners)    #delete the old owner
                 obj.manage_setLocalRoles(wrapped_user.getId(),['Owner',])   #set local role to the new user
 
+    def create_subcollection(self, parent_coll, title, dataflow_uris,
+                              company_id=None, allow_envelopes=1,
+                              allow_collections=1, suffix=None,
+                              descr='', locality='', partofyear='',
+                              year='', endyear=''):
+        """Create subcollection in parent_coll"""
+        for coll in parent_coll.objectValues('Report Collection'):
+            if coll.title == title:
+                return coll
+        p_allow_c = getattr(parent_coll, 'allow_collections', 0)
+        if not p_allow_c:
+            parent_coll.allow_collections = 1
+        sc_id = RepUtils.generate_id('col')
+        if suffix:
+            sc_id = ''.join([sc_id, suffix])
+        parent_coll.manage_addCollection(dataflow_uris=dataflow_uris,
+                                         country=parent_coll.country,
+                                         id=sc_id, title=title,
+                                         allow_collections=allow_collections,
+                                         allow_envelopes=allow_envelopes,
+                                         descr=descr, locality=locality,
+                                         partofyear=partofyear,
+                                         year=year, endyear=endyear)
+        sc = getattr(parent_coll, sc_id)
+        if company_id:
+            sc = getattr(parent_coll, sc_id)
+            sc.company_id = company_id
+            sc.reindex_object()
+        if not p_allow_c:
+            parent_coll.allow_collections = 0
+            parent_coll.reindex_object()
+        return sc
+
     def create_fgas_collections(self, ctx, country_uri, company_id, name):
         # Hardcoded obligations should be fixed and retrieved automatically
         parent_coll_df = ['http://rod.eionet.europa.eu/obligations/713']
