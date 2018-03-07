@@ -297,13 +297,10 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             The workitems' event logs are used since these are displayed
             on the envelope's history tab
         """
-        for l_w in self.getWorkitemsActiveForMe(self.REQUEST):
-            l_w.addEvent('file upload', 'File: {0} ({1})'
-                            .format(
-                                self.id,
-                                self.data_file.human_readable(self.data_file.size)
-                            )
-                        )
+        if self.REQUEST and getattr(self.REQUEST, 'AUTHENTICATED_USER', None):
+            for l_w in self.getWorkitemsActiveForMe(self.REQUEST):
+                l_w.addEvent('file upload', 'File: {0} ({1})'.format(self.id,
+                                                                     self.data_file.human_readable(self.data_file.size)))
 
     def index_html(self, REQUEST, RESPONSE, icon=0):
         """ Returns the contents of the file.  Also, sets the
@@ -592,7 +589,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         return self.data_file.compressed_safe
 
     manage_uploadForm = PageTemplateFile('zpt/document/upload', globals())
-    def manage_file_upload(self, file='', content_type='', REQUEST=None):
+    def manage_file_upload(self, file='', content_type='', REQUEST=None, preserve_mtime=False):
         """ Upload file from local directory """
 
         if not content_type:
@@ -606,7 +603,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             skip_compress = True
             crc = file.CRC
 
-        with self.data_file.open('wb', orig_size=orig_size, skip_decompress=skip_compress, crc=crc) as data_file_handle:
+        with self.data_file.open('wb', orig_size=orig_size, skip_decompress=skip_compress, crc=crc, preserve_mtime=preserve_mtime) as data_file_handle:
             if hasattr(file, 'filename'):
                 for chunk in RepUtils.iter_file_data(file):
                     data_file_handle.write(chunk)
