@@ -63,6 +63,16 @@
           </td>
         </tr>
 
+        <tr>
+          <th i18n:translate="">Business profile</th>
+          <td>
+            <ul class="c_types" tal:define="profiles company/businessprofile|nothing;
+                                            profiles python: profiles.split(',') if profiles else [];">
+              <li tal:repeat="profile profiles" tal:content="profile" />
+            </ul>
+          </td>
+        </tr>
+
       </table>
     </div>
   </metal:block>

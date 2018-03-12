@@ -100,6 +100,24 @@
              tal:content="company/website" />
         </td>
       </tr>
+      <tr>
+        <th>Types</th>
+        <td tal:define="types company/types|nothing;
+                        types python: types.split(',') if types else [];">
+          <ul class="types">
+            <li tal:repeat="type types" tal:content="type"/>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <th>Business profile</th>
+        <td tal:define="profiles company/businessprofile|nothing;
+                        profiles python: profiles.split(',') if profiles else [];">
+          <ul class="types">
+            <li tal:repeat="profile profiles" tal:content="profile"/>
+          </ul>
+        </td>
+      </tr>
     </table>
   </div>
 </tal:block>

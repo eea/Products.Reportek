@@ -677,7 +677,6 @@ class Collection(CatalogAware, Folder, Toolz):
                                 raw_data.get('address', {}).get('city'))
             country = raw_data.get('country',
                                    raw_data.get('country_code'))
-
             data = {
                 'name': raw_data.get('name'),
                 'status': self.company_status(),
@@ -689,7 +688,8 @@ class Collection(CatalogAware, Folder, Toolz):
                 'vat': raw_data.get('vat_number', raw_data.get('vat')),
                 'portal_registration_date': self.portal_registration_date(),
                 'registry': {'FGAS Registry': 'European Registry'}.get(raw_data.get('registry'),
-                                                                       raw_data.get('registry'))
+                                                                       raw_data.get('registry')),
+                'businessprofile': raw_data.get('businessprofile', [])
             }
 
         return data

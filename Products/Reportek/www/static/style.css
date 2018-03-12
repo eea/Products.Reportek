@@ -805,3 +805,7 @@ input.referrals-status {
   width: 10%;
   padding-right: 5px;
 }
+
+#workarea ul.types {
+  margin-top: 0;
+}
