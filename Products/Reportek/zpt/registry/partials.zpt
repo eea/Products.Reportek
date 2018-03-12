@@ -58,6 +58,16 @@
       </tr>
 
       <tr>
+        <th>Company id</th>
+        <td tal:content="company/company_id|nothing" />
+      </tr>
+
+      <tr>
+        <th>Old company id</th>
+        <td tal:content="company/oldcompany_id|nothing" />
+      </tr>
+
+      <tr>
         <th>Status</th>
         <td tal:content="company/status" />
       </tr>
@@ -117,6 +127,10 @@
             <li tal:repeat="profile profiles" tal:content="profile"/>
           </ul>
         </td>
+      </tr>
+      <tr>
+        <th>Date created</th>
+        <td tal:content="company/date_created|nothing" />
       </tr>
     </table>
   </div>
