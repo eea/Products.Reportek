@@ -163,8 +163,9 @@ class XMLMetadata:
         doc_objs = [ doc for doc in self.envelope.objectValues('Report Document') ]
 
         xml_a('<?xml version="1.0" encoding="utf-8"?>')
-        company_id = getattr(self, '_company_id', None)
-        old_company_id = getattr(self.envelope, 'old_company_id', None)
+        p_coll = self.envelope.getParentNode()
+        company_id = getattr(p_coll, '_company_id', None)
+        old_company_id = getattr(p_coll, 'old_company_id', None)
 
         if company_id:
             if old_company_id:
