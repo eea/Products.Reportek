@@ -163,7 +163,22 @@ class XMLMetadata:
         doc_objs = [ doc for doc in self.envelope.objectValues('Report Document') ]
 
         xml_a('<?xml version="1.0" encoding="utf-8"?>')
-        xml_a('<envelope released="%s" %s>' % (tf[self.envelope.released], self._get_namespaces()))
+        company_id = self.envelope.company_id
+        old_company_id = getattr(self.envelope, 'old_company_id', None)
+
+        if company_id:
+            if old_company_id:
+                r_env = '<envelope released="%s" company_id="%s" old_company_id="%s" %s>' % (tf[self.envelope.released],
+                                                                                             company_id,
+                                                                                             old_company_id,
+                                                                                             self._get_namespaces())
+            else:
+                r_env = '<envelope released="%s" company_id="%s" %s>' % (tf[self.envelope.released],
+                                                                         company_id,
+                                                                         self._get_namespaces())
+        else:
+            r_env = '<envelope released="%s" %s>' % (tf[self.envelope.released], self._get_namespaces())
+        xml_a(r_env)
         xml_a(self._envelope_metadata(self.envelope, doc_objs))
         if not self.envelope.canViewContent():
             inline = "false"
