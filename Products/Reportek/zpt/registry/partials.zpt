@@ -87,8 +87,9 @@
         <td tal:content="company/address/zipcode" />
       </tr>
 
-      <tr>
-        <th>EORI number</th>
+      <tr tal:define="domain company/domain">
+        <th tal:condition="python: domain == 'ODS'">EORI number</th>
+        <th tal:condition="python: domain != 'ODS'">VAT number</th>
         <td tal:content="company/vat" />
       </tr>
 

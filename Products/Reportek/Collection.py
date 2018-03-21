@@ -689,7 +689,8 @@ class Collection(CatalogAware, Folder, Toolz):
                 'portal_registration_date': self.portal_registration_date(),
                 'registry': {'FGAS Registry': 'European Registry'}.get(raw_data.get('registry'),
                                                                        raw_data.get('registry')),
-                'businessprofile': raw_data.get('businessprofile', [])
+                'businessprofile': raw_data.get('businessprofile', []),
+                'domain': raw_data.get('domain', '')
             }
 
         return data
