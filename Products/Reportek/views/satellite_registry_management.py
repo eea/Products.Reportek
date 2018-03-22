@@ -139,6 +139,10 @@ class SatelliteRegistryManagement(BaseAdmin):
             return json.dumps(details, indent=2)
 
     def prep_company_xml(self, company):
+        cc_override = {
+            'UK': 'GB',
+            'EL': 'GR'
+        }
         keys = [
             'account',
             'active',
@@ -171,7 +175,7 @@ class SatelliteRegistryManagement(BaseAdmin):
 
         company['country'] = {
             '@name': country.get('name'),
-            '#text': country.get('code')
+            '#text': cc_override.get(country.get('code'), country.get('code'))
         }
         company['eori'] = company.get('vat')
         company['account'] = company['company_id']
