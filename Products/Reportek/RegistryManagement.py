@@ -102,9 +102,20 @@ class FGASRegistryAPI(BaseRegistryAPI):
         keysToVerify = ['domain', 'address', 'company_id', 'collection_id']
         if details:
             if reduce(lambda i, x: i and x in details, keysToVerify, True):
+                country_code = details.get('country_code')
+                # If we have a NONEU_TYPE company with a legal representative, 
+                # use the country_code from the legal representative
+                c_type = details.get('address', {}).get('country', {}).get('type')
+                rep = details.get('representative')
+                if c_type == 'NONEU_TYPE' and rep:
+                    address = rep.get('address')
+                    if address:
+                        country = address.get('country')
+                        if country:
+                            country_code = country.get('code')
                 path = self.buildCollectionPath(
                     details['domain'],
-                    details['country_code'],
+                    country_code,
                     str(details['company_id']),
                     details['collection_id']
                 )
