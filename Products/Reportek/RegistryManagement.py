@@ -132,8 +132,11 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if response:
             companies = response.json()
             for c in companies:
+                c_code = c.get('country')
+                if c.get('representative_country'):
+                    c_code = c.get('representative_country')
                 try:
-                    path = self.buildCollectionPath(c['domain'], c['country'],
+                    path = self.buildCollectionPath(c['domain'], c_code,
                                         str(c['company_id']), c['collection_id'])
                     if not path:
                         raise ValueError("Cannot form path with company data: %s" % str(c))
