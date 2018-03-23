@@ -1432,4 +1432,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """Deletes files older than days."""
         return RepUtils.cleanup_zip_cache(days=days)
 
+    security.declareProtected('View', 'jsonify')
+    def jsonify(self, value, ensure_ascii=False):
+        """Return the value as JSON"""
+        self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+        return json.dumps(value, indent=4, ensure_ascii=ensure_ascii)
+
 Globals.InitializeClass(ReportekEngine)
