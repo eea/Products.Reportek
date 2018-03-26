@@ -135,7 +135,9 @@ def cleanup_id(name):
             name = name.encode('ascii')
         except UnicodeEncodeError as e:
             name = name[:e.start].encode('ascii')
-    return string.translate(name, TRANSMAP)
+    valid_fn_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
+    return ''.join(c for c in name if c in valid_fn_chars)
+
 
 def generate_id(template):
     """ Generate a unique string
