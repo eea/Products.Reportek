@@ -74,7 +74,8 @@ class FGASRegistryAPI(BaseRegistryAPI):
     }
     COUNTRY_TO_FOLDER = {
         'uk': 'gb',
-        'el': 'gr'
+        'el': 'gr',
+        'non-eu': 'non-eu'
     }
 
     def get_registry_companies(self, domain='FGAS', detailed=False):

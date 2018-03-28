@@ -493,7 +493,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 coll = getattr(country_folder, coll_id, None)
                 if not coll:
                     try:
-                        country_uri = country_folder.country
+                        country_uri = getattr(country_folder, 'country', '')
                         if domain == 'FGAS':
                             self.create_fgas_collections(country_folder,
                                                          country_uri,
