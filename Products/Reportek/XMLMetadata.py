@@ -166,19 +166,26 @@ class XMLMetadata:
         p_coll = self.envelope.getParentNode()
         company_id = getattr(p_coll, '_company_id', None)
         old_company_id = getattr(p_coll, 'old_company_id', None)
-
+        a_mapping = {
+            None: 'unknown',
+            True: 'true',
+            False: 'false'
+        }
+        acceptable = a_mapping.get(self.envelope.is_acceptable())
         if company_id:
             if old_company_id:
-                r_env = '<envelope released="%s" company_id="%s" old_company_id="%s" %s>' % (tf[self.envelope.released],
-                                                                                             company_id,
-                                                                                             old_company_id,
-                                                                                             self._get_namespaces())
+                r_env = '<envelope released="%s" company_id="%s" old_company_id="%s" acceptable="%s" %s>' % (tf[self.envelope.released],
+                                                                                                             company_id,
+                                                                                                             old_company_id,
+                                                                                                             acceptable,
+                                                                                                             self._get_namespaces())
             else:
-                r_env = '<envelope released="%s" company_id="%s" %s>' % (tf[self.envelope.released],
-                                                                         company_id,
-                                                                         self._get_namespaces())
+                r_env = '<envelope released="%s" company_id="%s" acceptable="%s" %s>' % (tf[self.envelope.released],
+                                                                                         company_id,
+                                                                                         acceptable,
+                                                                                         self._get_namespaces())
         else:
-            r_env = '<envelope released="%s" %s>' % (tf[self.envelope.released], self._get_namespaces())
+            r_env = '<envelope released="%s" acceptable="%s" %s>' % (tf[self.envelope.released], acceptable, self._get_namespaces())
         xml_a(r_env)
         xml_a(self._envelope_metadata(self.envelope, doc_objs))
         if not self.envelope.canViewContent():
