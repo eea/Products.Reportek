@@ -38,6 +38,7 @@ from zipfile import BadZipfile
 
 import Globals, OFS.SimpleItem, OFS.ObjectManager
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate
 from AccessControl.Permissions import view_management_screens
 import AccessControl.Role
 
@@ -449,11 +450,12 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             application = self.getPhysicalRoot().restrictedTraverse(l_application_url)
             params = {
                 'workitem_id': l_default_tab,
-                'client': self,
-                'document_title': application.title,
                 'REQUEST': REQUEST,
                 'RESPONSE': REQUEST.RESPONSE
             }
+            if isinstance(application, ZopePageTemplate):
+                params['client'] = self
+                params['document_title'] = application.title
             try:
                 return application(**params)
             except Exception as e:
