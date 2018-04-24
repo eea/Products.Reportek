@@ -953,23 +953,24 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                   parameter cannot be a list, but a string. To include more than one
                   applications, separate them by ||
         """
-        l_catalog = getattr(self, constants.DEFAULT_CATALOG)
-        l_result = l_catalog(meta_type='Workitem', status='active')
-        l_list = []
-        workitems_list = map(getattr, l_result, ('data_record_id_',)*len(l_result))
-        l_applications = p_applications.split('||')
+        catalog = self.unrestrictedTraverse(constants.DEFAULT_CATALOG)
+        apps = p_applications.split('||')
+        result = []
+        brains = catalog(meta_type='Workitem',
+                         status='active',
+                         activity_id=apps)
 
-        for workitemptr in workitems_list:
+        for brain in brains:
             try:
-                workitem = l_catalog.getobject(workitemptr)
-                if workitem.activity_id in l_applications:
-                    l_list.append(workitem.absolute_url())
-                    workitem.triggerApplication(workitem.id, REQUEST)
-            except:
-                # TODO transaction savepoint restore
-                # TODO log the error (see r29924)
-                pass   # Bad zcatalog, but we ignore it
-        return l_list
+                wk = brain.getObject()
+                result.append(wk.absolute_url())
+                wk.triggerApplication(wk.id, REQUEST)
+            except Exception as e:
+                msg = 'Error while triggering application for: '\
+                      '{} - ({})'.format(wk.absolute_url(), str(e))
+                logger.error(msg)
+
+        return result
 
     def _xmlrpc_search_delivery(self, dataflow_uris, country):
         """ Looks for Report Envelopes with the given attributes
