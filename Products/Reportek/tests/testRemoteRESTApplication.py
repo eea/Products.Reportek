@@ -533,7 +533,10 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
             status_code=200,
             json=Mock(return_value={'jobId': 1, 'jobStatus': 'esriJobExecuting'})
         );
-        self.app.Catalog = MagicMock(return_value=[Mock()], getobject=lambda x: workitem)
+        brain = Mock(
+            getObject=Mock(return_value=workitem)
+        )
+        self.app.Catalog = MagicMock(return_value=[brain])
         self.assertEqual(5, workitem.restapp['retries_left'])
         self.ReportekEngine.runAutomaticApplications(p_applications='AutomaticQA||act1')
         self.assertEqual(4, workitem.restapp['retries_left'])

@@ -963,11 +963,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         for brain in brains:
             try:
                 wk = brain.getObject()
-                result.append(wk.absolute_url())
+                result.append(brain.getURL())
                 wk.triggerApplication(wk.id, REQUEST)
             except Exception as e:
                 msg = 'Error while triggering application for: '\
-                      '{} - ({})'.format(wk.absolute_url(), str(e))
+                      '{} - ({})'.format(brain.getURL(), str(e))
                 logger.error(msg)
 
         return result
