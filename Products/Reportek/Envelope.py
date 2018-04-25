@@ -451,11 +451,11 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             params = {
                 'workitem_id': l_default_tab,
                 'REQUEST': REQUEST,
-                'RESPONSE': REQUEST.RESPONSE
             }
             if isinstance(application, ZopePageTemplate):
                 params['client'] = self
                 params['document_title'] = application.title
+                params['RESPONSE'] = REQUEST.RESPONSE
             try:
                 return application(**params)
             except Exception as e:
