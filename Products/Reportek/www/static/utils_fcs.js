@@ -71,12 +71,20 @@ reportek.utils.fcs = {
             "type": "GET",
             "dataSrc":"",
           },
+          "drawCallback": function( settings ) {
+            if (self.domain === 'FGAS') {
+              $(".old-id").addClass("hidden-content");
+            } else {
+              $(".old-id").removeClass("hidden-content");
+            }
+          },
           "processing": true,
           "autowidth": false,
           "order": [[ 0, "desc" ]],
           "columns": [
-            { "width": "5%%" },
-            { "width": "25%" },
+            { "width": "5%" },
+            { "width": "5%" },
+            { "width": "20%" },
             { "width": "13%" },
             { "width": "15%" },
             { "width": "12%" },
@@ -84,6 +92,7 @@ reportek.utils.fcs = {
           ],
           "aoColumns": [
             { "mData": "company_id" },  // for User Detail
+            { "mData": "oldcompany_account" },
             { "mData": "name" },
             { "mData": "users" },
             { "mData": "address.country.name" },
@@ -92,8 +101,12 @@ reportek.utils.fcs = {
           ],
           "columnDefs": [
             {
+            "targets": 1,
+            "className": "old-id"
+            },
+            {
               "width": "25%",
-              "targets": 1,
+              "targets": 2,
               "data": "name",
               "render": function (data, type, full) {
                 return "<a href='" + self.get_endpoint_url('organisation_details') + "&id=" +
@@ -102,7 +115,7 @@ reportek.utils.fcs = {
             },
             {
               "width": "13%",
-              "targets": 2,
+              "targets": 3,
               "data": "users",
               "render": function (data, type, full) {
                 var result = "";

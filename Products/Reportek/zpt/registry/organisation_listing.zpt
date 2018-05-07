@@ -39,16 +39,17 @@
     Excel</a> or <a class="export" href="organisations_json">JSON </a> format or reporters in <a class="export" href="users_xls">Excel</a> format.
     </p>
     <div class="obligation-select-container">
-    <label for="domain">Filter companies by obligation:</label>
-    <select id="domain" name="domain">
-      <option tal:condition="ods_allowed" value="ODS">ODS</option>
-      <option tal:condition="fgas_allowed" value="FGAS">FGAS</option>
-    </select>
+      <label for="domain">Filter companies by obligation:</label>
+      <select id="domain" name="domain">
+        <option tal:condition="ods_allowed" value="ODS">ODS</option>
+        <option tal:condition="fgas_allowed" value="FGAS">FGAS</option>
+      </select>
     </div>
-   <table id="comp-table" width="100%">
+    <table id="comp-table" width="100%">
       <thead>
         <tr>
           <th>ID</th>
+          <th>ODS ID</th>
           <th>Company name</th>
           <th>Reporters</th>
           <th>Country</th>
@@ -59,7 +60,6 @@
       <tbody>
       </tbody>
     </table>
-
 
   </metal:block>
 

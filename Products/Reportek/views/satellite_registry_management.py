@@ -105,7 +105,8 @@ class SatelliteRegistryManagement(BaseAdmin):
             return None
         domain = self.request.form.get('domain', 'FGAS')
         if self.is_permitted(domain):
-            companies = api.get_registry_companies(domain=domain)
+            companies = api.get_registry_companies(domain=domain,
+                                                   detailed=True)
             self.request.response.setHeader('Content-Type', 'application/json')
             return json.dumps(companies, indent=2)
 
