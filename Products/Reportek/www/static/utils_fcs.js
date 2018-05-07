@@ -43,6 +43,15 @@ reportek.utils.fcs = {
         return self.base_url + self.endpoints[endpoint] + '?' + $.param( params );
 
     },
+    handle_domain_change: function() {
+      // Hide ODS ID column for FGAS companies
+      var self = reportek.utils.fcs;
+      if (self.domain === 'FGAS') {
+        $(".old-id").addClass("hidden-content");
+      } else {
+        $(".old-id").removeClass("hidden-content");
+      }
+    },
     bind_obl_select: function() {
       var self = reportek.utils.fcs;
       $("#domain").on("change", {self:this}, function(evt){
@@ -53,6 +62,7 @@ reportek.utils.fcs = {
         var endpoint = self.tbl_endpoint.split('/')[self.tbl_endpoint.split('/').length-1].split('?')[0];
         self.tbl.ajax.url(self.get_endpoint_url(endpoint)).load();
         self.update_domain_param();
+        self.handle_domain_change();
       });
     },
     init_companies: function() {
@@ -72,11 +82,7 @@ reportek.utils.fcs = {
             "dataSrc":"",
           },
           "drawCallback": function( settings ) {
-            if (self.domain === 'FGAS') {
-              $(".old-id").addClass("hidden-content");
-            } else {
-              $(".old-id").removeClass("hidden-content");
-            }
+            self.handle_domain_change();
           },
           "processing": true,
           "autowidth": false,
