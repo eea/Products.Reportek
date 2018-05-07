@@ -49,7 +49,7 @@
       <thead>
         <tr>
           <th>ID</th>
-          <th>ODS ID</th>
+          <th>ODS account</th>
           <th>Company name</th>
           <th>Reporters</th>
           <th>Country</th>

@@ -68,6 +68,10 @@
       </tr>
 
       <tr>
+        <th>Old company account</th>
+        <td tal:content="company/oldcompany_account|nothing" />
+      </tr>
+      <tr>
         <th>Status</th>
         <td tal:content="company/status" />
       </tr>
