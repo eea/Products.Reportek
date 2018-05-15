@@ -87,9 +87,8 @@ class XMLMetadata:
 
     def _document_data(self, document, inline):
         """ return the document metadata """
-        if getSecurityManager().checkPermission(view, document):
-            restricted = 'no'
-        else:
+        restricted = 'no'
+        if document.isRestricted():
             restricted = 'yes'
         if inline == 'true' and document.content_type == 'text/xml':
             #FIXME: Only if the user has permission to get the content
