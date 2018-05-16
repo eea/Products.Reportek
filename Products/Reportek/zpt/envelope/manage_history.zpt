@@ -43,8 +43,13 @@
         <td align="center" tal:content="item/id" />
         <td align="center" tal:content="item/status" />
         <td align="center" tal:content="item/activity_id" />
-        <td align="center" tal:define="item_activity_application python:item.activity_application(item.activity_id)">
-          <a tal:attributes="href item_activity_application/url" tal:content="item_activity_application/id" />
+        <td align="center" tal:define="activity python: getattr(context.getProcess(), item.activity_id, None);
+                                       app_details python: activity.mapped_application_details() if activity else {};
+                                       activity_app_url python:app_details.get('path', item.activity_application(item.activity_id).get('url'));
+                                       activity_app_url python: '/{}'.format(activity_app_url) if not activity_app_url.startswith('/') else activity_app_url;
+                                       activity_app_url python: '{}/manage_main'.format(activity_app_url) if not activity_app_url.endswith('/manage_main') or not activity_app_url.endswith('/manage_settings_html') else activity_app_url;
+                                       activity_app_id python:activity_app_url.split('/')[-2];">
+          <a tal:attributes="href activity_app_url" tal:content="activity_app_id" />
         </td>
         <td align="center">&nbsp;
           <tal:block tal:condition="python:item.status=='blocked'">
