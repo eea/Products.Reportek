@@ -23,10 +23,10 @@
                         fgas_allowed python: is_manager or is_fgas_client;
                         ods_allowed python: is_manager or is_ods_client;
                         cars_allowed python: is_manager or is_cars_client;
-                        df_ids python: [df.split('/')[-1] for df in here.dataflow_uris];
-                        is_ods python: '213' in df_ids;
-                        is_fgas python: '713' in df_ids;
-                        is_cars python: '655' in df_ids or '665' in df_ids;
+                        df_prefix python: 'http://rod.eionet.europa.eu/obligations/{}';
+                        is_ods python: df_prefix.format('213') in here.dataflow_uris;
+                        is_fgas python: df_prefix.format('713') in here.dataflow_uris;
+                        is_cars python: df_prefix.format('655') in here.dataflow_uris or df_prefix.format('665') in here.dataflow_uris;
                         allowed python: is_ods and ods_allowed or is_fgas and fgas_allowed or is_cars and cars_allowed;">
             <tal:block tal:condition="python: allowed">
                 <li tal:attributes="id python:test(tab=='transfers', 'currenttab', None)">
