@@ -37,7 +37,7 @@ def main():
     bin/instance run bin/auto_fallin --obligation <obligation_id> --act_from <ActivityID> --act_to <ActivityID> --env_year 2017
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('--obligation(s)',
+    parser.add_argument('--obligations',
                         help='Obligation(s), e.g. 673 or http://rod.eionet.europa.eu/obligations/673',
                         dest='obligations',
                         nargs = '*')
