@@ -26,5 +26,6 @@ setup(
           [console_scripts]
           zip_cache_cleanup = Products.Reportek.RepUtils:cleanup_zip_cache
           automatic_qa = Products.Reportek.scripts.automatic_qa:main
+          auto_fallin = Products.Reportek.scripts.auto_fallin:main
           """,
 )
