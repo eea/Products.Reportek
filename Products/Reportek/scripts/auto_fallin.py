@@ -27,7 +27,7 @@ except Exception:
 now = DateTime()
 should_run = False
 if SCHEDULE_PERIOD == 'weekly':
-    if math.ceil(now - SCHEDULE_START) % 7 == 0:
+    if int(math.ceil(now - SCHEDULE_START)) % 7 == 0:
         should_run = True
 elif SCHEDULE_PERIOD == 'monthly':
     if (SCHEDULE_START.month() != now.month() or (SCHEDULE_START.month() == now.month() and SCHEDULE_START.year() != now.year())) and SCHEDULE_START.day() == now.day():
