@@ -26,17 +26,23 @@ except Exception:
 
 now = DateTime()
 should_run = False
+print "Now: {}".format(now.HTML4())
 if SCHEDULE_PERIOD == 'weekly':
     if int(math.ceil(now - SCHEDULE_START)) % 7 == 0:
         should_run = True
+        print "Weekly run condition evaluates to: {}".format(int(math.ceil(now - SCHEDULE_START)) % 7)
+        print "Triggered weekly run"
 elif SCHEDULE_PERIOD == 'monthly':
     if (SCHEDULE_START.month() != now.month() or (SCHEDULE_START.month() == now.month() and SCHEDULE_START.year() != now.year())) and SCHEDULE_START.day() == now.day():
         should_run = True
+        print "Triggered monthly run"
 elif SCHEDULE_PERIOD == 'yearly':
     if SCHEDULE_START.day() == now.day() and SCHEDULE_START.month() == now.month():
         should_run = True
+        print "Triggered yearly run"
 elif SCHEDULE_PERIOD == 'daily':
     should_run = True
+    print "Triggered daily run"
 
 
 def get_envelopes(catalog, df_uris, act_from, act_to):
