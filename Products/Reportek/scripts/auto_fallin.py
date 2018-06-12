@@ -15,12 +15,28 @@ import sys
 import transaction
 import argparse
 import os
+import math
 
-SCHEDULE = os.environ.get('SCHEDULE', DateTime())
+SCHEDULE_START = os.environ.get('SCHEDULE_START', DateTime())
+SCHEDULE_PERIOD = os.environ.get('SCHEDULE_PERIOD', 'daily')
 try:
-    SCHEDULE = DateTime(SCHEDULE)
+    SCHEDULE_START = DateTime(SCHEDULE_START)
 except Exception:
-    SCHEDULE = DateTime()
+    SCHEDULE_START = DateTime()
+
+now = DateTime()
+should_run = False
+if SCHEDULE_PERIOD == 'weekly':
+    if math.ceil(now - SCHEDULE_START) % 7 == 0:
+        should_run = True
+elif SCHEDULE_PERIOD == 'monthly':
+    if (SCHEDULE_START.month() != now.month() or (SCHEDULE_START.month() == now.month() and SCHEDULE_START.year() != now.year())) and SCHEDULE_START.day() == now.day():
+        should_run = True
+elif SCHEDULE_PERIOD == 'yearly':
+    if SCHEDULE_START.day() == now.day() and SCHEDULE_START.month() == now.month():
+        should_run = True
+elif SCHEDULE_PERIOD == 'daily':
+    should_run = True
 
 
 def get_envelopes(catalog, df_uris, act_from, act_to):
@@ -67,7 +83,7 @@ def main():
         parser.print_help()
         sys.exit()
 
-    if SCHEDULE.dayOfYear() == DateTime().dayOfYear():
+    if should_run:
         obls = args.obligations
         df_prefix = 'http://rod.eionet.europa.eu/obligations/{}'
         obls = [df_prefix.format(obl) if not obl.startswith('http') else obl
