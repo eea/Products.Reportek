@@ -27,6 +27,7 @@ except Exception:
 now = DateTime()
 should_run = False
 print "Now: {}".format(now.HTML4())
+print "Scheduled start: {}".format(SCHEDULE_START.HTML4())
 if SCHEDULE_PERIOD == 'weekly':
     if int(math.ceil(now - SCHEDULE_START)) % 7 == 0:
         should_run = True
