@@ -14,6 +14,13 @@ from DateTime import DateTime
 import sys
 import transaction
 import argparse
+import os
+
+SCHEDULE = os.environ.get('SCHEDULE', DateTime())
+try:
+    SCHEDULE = DateTime(SCHEDULE)
+except Exception:
+    SCHEDULE = DateTime()
 
 
 def get_envelopes(catalog, df_uris, act_from, act_to):
@@ -55,36 +62,41 @@ def main():
                         dest='env_year',
                         default=DateTime().year())
     args = parser.parse_args(sys.argv[3:])
+
     if (args.obligations == None or args.act_from == None or args.act_to == None) or args.act_wf == None:
         parser.print_help()
         sys.exit()
-    obls = args.obligations
-    df_prefix = 'http://rod.eionet.europa.eu/obligations/{}'
-    obls = [df_prefix.format(obl) if not obl.startswith('http') else obl
-            for obl in obls]
-    site = get_zope_site()
-    catalog = site.unrestrictedTraverse(DEFAULT_CATALOG, None)
-    results = get_envelopes(catalog, obls, args.act_from, args.act_to)
-    savepoint = transaction.savepoint()
-    try:
-        for key, value in results.iteritems():
-            entry_savepoint = transaction.savepoint()
-            wk = value.get('wk')
-            env = value.get('envelope')
-            env_wf = env.getProcess()
-            activity = getattr(env_wf, args.act_to, None)
-            if str(env.year) == str(args.env_year) and args.act_wf == env_wf.id and activity:
-                try:
-                    env.falloutWorkitem(wk.id)
-                    env.fallinWorkitem(wk.id, args.act_to)
-                    env.endFallinWorkitem(wk.id)
-                    print "{} moved from {} to {}".format(env.absolute_url(1),
-                                                          args.act_from,
-                                                          args.act_to)
-                except Exception as e:
-                    entry_savepoint.rollback()
-                    print "Error while attempting to forward {}: {}".format(env.absolute_url(1), str(e))
-        transaction.commit()
-    except Exception as error:
-        savepoint.rollback()
-        print "Error while attempting to forward envelopes: {}".format(str(error))
+
+    if SCHEDULE.dayOfYear() == DateTime().dayOfYear():
+        obls = args.obligations
+        df_prefix = 'http://rod.eionet.europa.eu/obligations/{}'
+        obls = [df_prefix.format(obl) if not obl.startswith('http') else obl
+                for obl in obls]
+        site = get_zope_site()
+        catalog = site.unrestrictedTraverse(DEFAULT_CATALOG, None)
+        results = get_envelopes(catalog, obls, args.act_from, args.act_to)
+        savepoint = transaction.savepoint()
+        try:
+            for key, value in results.iteritems():
+                entry_savepoint = transaction.savepoint()
+                wk = value.get('wk')
+                env = value.get('envelope')
+                env_wf = env.getProcess()
+                activity = getattr(env_wf, args.act_to, None)
+                if str(env.year) == str(args.env_year) and args.act_wf == env_wf.id and activity:
+                    try:
+                        env.falloutWorkitem(wk.id)
+                        env.fallinWorkitem(wk.id, args.act_to)
+                        env.endFallinWorkitem(wk.id)
+                        print "{} moved from {} to {}".format(env.absolute_url(1),
+                                                              args.act_from,
+                                                              args.act_to)
+                    except Exception as e:
+                        entry_savepoint.rollback()
+                        print "Error while attempting to forward {}: {}".format(env.absolute_url(1), str(e))
+            transaction.commit()
+        except Exception as error:
+            savepoint.rollback()
+            print "Error while attempting to forward envelopes: {}".format(str(error))
+    else:
+        print "Defined SCHEDULE date is not today, aborting..."
