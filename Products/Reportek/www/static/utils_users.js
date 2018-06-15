@@ -298,7 +298,7 @@ reportek.utils.users = {
     reportek.utils.spinner.css("display", "block");
 
     $.ajax({
-      url: "/api.get_users_by_path",
+      url: "api.get_users_by_path",
       data: {
         obligations: $("#obligations").val(),
         role: $("#role").val(),

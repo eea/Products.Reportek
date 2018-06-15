@@ -13,33 +13,33 @@
     menu="reportek_utilities"
     title="Index"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ReportekSecurityOverview"
+    permission="zope2.ReportekUtilitiesUser"
     class=".views.BaseAdmin"
     template="zpt/utilities/index.zpt"/>
 
   <browser:page
     name="util_controls"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekUtilitiesUser"
     template="zpt/utilities/util_controls.zpt"/>
 
   <browser:page
     name="info_message"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekUtilitiesUser"
     template="zpt/utilities/info_message_template.zpt"/>
 
   <browser:page
     name="users_template"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekUsersManager"
     class=".views.BaseAdmin"
     template="zpt/utilities/users_template.zpt"/>
 
   <browser:page
     name="filters"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekUsersManager"
     class=".views.BaseAdmin"
     template="zpt/utilities/filters.zpt"/>
 
@@ -48,14 +48,14 @@
     menu="reportek_utilities"
     title="Show where users have roles"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ReportekSecurityOverview"
+    permission="zope2.ReportekUsersManager"
     class=".views.ListUsers"
     template="zpt/utilities/get_users_by_path.zpt"/>
 
   <browser:page
     name="api.get_users_by_path"
-    for="*"
-    permission="zope2.ReportekSecurityOverview"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ReportekUtilitiesUser"
     class=".views.ListUsers"
     attribute="getUsersByPath" />
 
@@ -64,42 +64,42 @@
     menu="reportek_utilities"
     title="Disabled members"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekUsersManager"
     class=".views.ManageRoles"
     template="zpt/utilities/disabled_members.zpt" />
 
   <browser:page
     name="api.get_user_type"
-    for="*"
-    permission="zope2.ReportekSecurityOverview"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ReportekUtilitiesUser"
     class=".views.ListUsers"
     attribute="api_get_user_type" />
 
   <browser:page
     name="api.get_users_type"
-    for="*"
-    permission="zope2.ReportekSecurityOverview"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ReportekUtilitiesUser"
     class=".views.ListUsers"
     attribute="api_get_users_type" />
 
   <browser:page
     name="api.get_collections"
-    for="*"
-    permission="zope2.ReportekSecurityOverview"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ReportekUtilitiesUser"
     class=".views.BaseAdmin"
     attribute="api_get_collections" />
 
   <browser:page
     name="find_user"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ReportekSecurityOverview"
+    permission="zope2.ReportekUsersManager"
     class=".views.ManageRoles"
     template="zpt/utilities/find_user.zpt"/>
 
   <browser:page
     name="roles_template"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekUsersManager"
     class=".views.ManageRoles"
     template="zpt/utilities/roles_template.zpt"/>
 
@@ -108,7 +108,7 @@
     menu="reportek_utilities"
     title="Revoke roles"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekUsersManager"
     class=".views.ManageRoles"
     template="zpt/utilities/revoke_roles.zpt"/>
 
@@ -117,7 +117,7 @@
     menu="reportek_utilities"
     title="Assign roles by obligation"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekUsersManager"
     class=".views.ManageRoles"
     template="zpt/utilities/assign_role.zpt"/>
 
@@ -126,7 +126,7 @@
     menu="reportek_utilities"
     title="Search for collections and create envelopes"
     for=".ReportekUtilities.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekCollectionsManager"
     class=".views.SearchCollections"
     template="zpt/utilities/search_collections.zpt"/>
 
@@ -135,7 +135,7 @@
     menu="reportek_utilities"
     title="Collections allocated to the wrong country"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekCollectionsManager"
     class=".views.WrongCountry"
     template="zpt/utilities/collections_wrong_country.zpt"/>
 
@@ -144,7 +144,7 @@
     menu="reportek_utilities"
     title="Envelopes allocated to the wrong country"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekEnvelopesManager"
     class=".views.WrongCountry"
     template="zpt/utilities/envelopes_wrong_country.zpt"/>
 
@@ -162,7 +162,7 @@
     menu="reportek_utilities"
     title="Auto complete envelopes"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekEnvelopesManager"
     class=".views.EnvelopeUtils"
     template="zpt/utilities/envelopes_autocomplete.zpt"/>
 
@@ -171,20 +171,20 @@
     menu="reportek_utilities"
     title="Stuck envelopes"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekEnvelopesManager"
     template="zpt/utilities/envelopes_stuck.zpt"/>
 
   <browser:page
     name="get_stuck_envelopes"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekEnvelopesManager"
     class=".views.EnvelopeUtils"
     attribute="stuck_envelopes"/>
 
   <browser:page
     name="get_lr_aqa_envelopes"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekEnvelopesManager"
     class=".views.EnvelopeUtils"
     attribute="env_long_running_aqa"/>
 
@@ -193,21 +193,21 @@
     menu="reportek_utilities"
     title="Referrals management"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekReferralsManager"
     class=".views.ReferralsUtils"
     template="zpt/utilities/referrals_management.zpt"/>
 
   <browser:page
     name="api.get_referrals_status"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekUtilitiesUser"
     class=".views.ReferralsUtils"
     attribute="api_get_referrals_status"/>
 
   <browser:page
     name="api.update_referrals_status"
     for=".interfaces.IReportekUtilities"
-    permission="zope2.ViewManagementScreens"
+    permission="zope2.ReportekReferralsManager"
     class=".views.ReferralsUtils"
     attribute="api_update_referrals_status"/>
 
