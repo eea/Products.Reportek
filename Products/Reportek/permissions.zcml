@@ -52,4 +52,9 @@
     title="Reportek Referrals Manager"
   />
 
+  <permission
+    id="zope2.ReportekDataflowAdmin"
+    title="Reportek Dataflow Admin"
+  />
+
 </configure>

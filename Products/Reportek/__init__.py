@@ -261,6 +261,7 @@ def create_reportek_indexes(catalog):
     add_index('Description', catalog, 'ZCTextIndex', meta=True)
     add_index('blocker', catalog, 'FieldIndex', meta=True)
     add_index('feedback_status', catalog, 'FieldIndex', meta=True)
+    add_index('allowedAdminRolesAndUsers', catalog, 'KeywordIndex', meta=True)
     if 'activation_log' not in catalog.schema():
         catalog.addColumn('activation_log')
     if 'local_defined_roles' not in catalog.schema():

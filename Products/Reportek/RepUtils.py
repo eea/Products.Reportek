@@ -20,7 +20,8 @@
 # Soren Roug, EEA
 
 """ Generic functions module """
-
+# from AccessControl.PermissionRole import rolesForPermissionOn
+from AccessControl.ImplPython import rolesForPermissionOn
 from AccessControl.SecurityManagement import getSecurityManager
 from AccessControl.SecurityManagement import newSecurityManager
 from AccessControl.SecurityManagement import setSecurityManager
@@ -29,19 +30,23 @@ from DateTime import DateTime
 from Products.Five import BrowserView
 from Products.Reportek.config import XLS_HEADINGS
 from Products.Reportek.config import ZIP_CACHE_PATH
+from Products.Reportek.permissions import reportek_dataflow_admin
+from copy import deepcopy
 from copy import deepcopy
 from datetime import datetime
 from path import path
 from types import FunctionType
 from urllib import FancyURLopener
 from webdav.common import rfc1123_date
+import base64
 import json
 import operator
 import os
 import re
-import string,base64,time
+import string
 import sys
 import tempfile
+import time
 import time
 import traceback
 
@@ -644,3 +649,57 @@ class CrashMe(BrowserView):
 
     def __call__(self):
         raise RuntimeError("Crashing as requested by you")
+
+
+class DFlowCatalogAware(object):
+    """DFlowCatalogAware class to allow for reportek_dataflow_admin permission
+       indexing.
+    """
+
+    def _mergedLocalRoles(self, object):
+        """Returns a merging of object and its ancestors'
+        __ac_local_roles__."""
+        # Modified from AccessControl.User.getRolesInContext().
+        merged = {}
+        object = getattr(object, 'aq_inner', object)
+        while 1:
+            if hasattr(object, '__ac_local_roles__'):
+                dict = object.__ac_local_roles__ or {}
+                if callable(dict):
+                    dict = dict()
+                for k, v in dict.items():
+                    if k in merged:
+                        merged[k] = merged[k] + v
+                    else:
+                        merged[k] = v
+            if hasattr(object, 'aq_parent'):
+                object = object.aq_parent
+                object = getattr(object, 'aq_inner', object)
+                continue
+            if hasattr(object, 'im_self'):
+                object = object.im_self
+                object = getattr(object, 'aq_inner', object)
+                continue
+            break
+
+        return deepcopy(merged)
+
+    def allowedAdminRolesAndUsers(self):
+        """
+        Return a list of roles and users with reportek_dataflow_admin
+        permission. Used by Catalog to filter out items you're not 
+        allowed to see.
+        """
+        ob = self
+        allowed = {}
+        for r in rolesForPermissionOn(reportek_dataflow_admin, ob):
+            allowed[r] = 1
+        localroles = self._mergedLocalRoles(ob)
+        for user, roles in localroles.items():
+            for role in roles:
+                if role in allowed:
+                    allowed['user:' + user] = 1
+        if 'Owner' in allowed:
+            del allowed['Owner']
+
+        return list(allowed.keys())

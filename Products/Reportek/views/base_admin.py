@@ -5,6 +5,7 @@ from zope.browsermenu.menu import getMenu
 import json
 
 from Products.Reportek import config, constants
+from Products.Reportek.catalog import searchResults
 
 
 class BaseAdmin(BrowserView):
@@ -19,14 +20,17 @@ class BaseAdmin(BrowserView):
     def __call__(self, *args, **kwargs):
         super(BaseAdmin, self).__call__(*args, **kwargs)
 
-        engine = getattr(self.context, constants.ENGINE_ID)
-        deployment_type = engine.getDeploymentType()
+        deployment_type = self.get_deployment()
         if deployment_type == config.DEPLOYMENT_BDR:
             is_bdr = True
         else:
             is_bdr = False
 
         return self.index(is_bdr=is_bdr)
+
+    def get_deployment(self):
+        engine = getattr(self.context, constants.ENGINE_ID)
+        return engine.getDeploymentType()
 
     @property
     def localities_rod(self):
@@ -123,6 +127,11 @@ class BaseAdmin(BrowserView):
         }
 
     def search_catalog(self, obligations, countries, role, users=None, path=None):
+        admin_check = False
+        deployment_type = self.get_deployment()
+        if deployment_type == config.DEPLOYMENT_BDR:
+            admin_check = True
+
         if len(countries) == len(self.localities_rod):
             country_codes = None
         else:
@@ -143,7 +152,8 @@ class BaseAdmin(BrowserView):
         if path:
             query['path'] = path
 
-        return self.context.Catalog(query)
+        return searchResults(self.context.Catalog, query,
+                             admin_check=admin_check)
 
     def get_collections(self):
         obligations = self.request.get('dataflow_uris', [])

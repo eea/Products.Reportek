@@ -35,6 +35,7 @@ from datetime import datetime
 from OFS.Folder import Folder
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import permission_manage_properties_collections
+from Products.Reportek.RepUtils import DFlowCatalogAware
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 import AccessControl.Role, webdav.Collection
 import Globals
@@ -82,7 +83,7 @@ def manage_addCollection(self, title, descr, year, endyear, partofyear,
         return REQUEST.RESPONSE.redirect(self.absolute_url())
 
 
-class Collection(CatalogAware, Folder, Toolz):
+class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
     """
     Collections are basic container objects that provide a standard
     interface for object management. Collection objects also implement

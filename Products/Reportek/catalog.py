@@ -7,6 +7,9 @@ reporting.
 """
 import logging
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from AccessControl.SecurityManagement import getSecurityManager
+from Products.ZCatalog.ZCatalog import ZCatalog
+from DateTime import DateTime
 from Products.Five.browser import BrowserView
 from OFS.interfaces import IObjectManager
 
@@ -83,3 +86,29 @@ def walk_folder(folder):
         if IObjectManager.providedBy(ob):
             for sub_ob in walk_folder(ob):
                 yield sub_ob
+
+
+def listAllowedAdminRolesAndUsers(user):
+    effective_roles = user.getRoles()
+    sm = getSecurityManager()
+    if sm.calledByExecutable():
+        eo = sm._context.stack[-1]
+        proxy_roles = getattr(eo, '_proxy_roles', None)
+        if proxy_roles:
+            effective_roles = proxy_roles
+    result = list(effective_roles)
+    result.append('Anonymous')
+    result.append('user:%s' % user.getId())
+    return result
+
+
+def searchResults(catalog, query, admin_check=False):
+    """
+        Calls catalog.searchResults with extra arguments that
+        limit the results to what the user is allowed to see.
+    """
+    if admin_check:
+        user = getSecurityManager().getUser()
+        query['allowedAdminRolesAndUsers'] = listAllowedAdminRolesAndUsers(user)
+
+    return catalog.searchResults(**query)

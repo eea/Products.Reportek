@@ -1,10 +1,10 @@
 from AccessControl import ClassSecurityInfo
 from AccessControl import getSecurityManager
 from DateTime import DateTime
-from Products.Reportek.interfaces import IBaseDelivery
-from Products.Reportek.config import REPORTEK_DEPLOYMENT
-from Products.Reportek.config import DEPLOYMENT_BDR
 from Products.Reportek.RepUtils import xmlEncode
+from Products.Reportek.config import DEPLOYMENT_BDR
+from Products.Reportek.config import REPORTEK_DEPLOYMENT
+from Products.Reportek.interfaces import IBaseDelivery
 from zope.interface import implements
 
 
@@ -32,6 +32,7 @@ class BaseDelivery(object):
         if not dataflow_uris:
             dataflow_uris = []
         self.dataflow_uris = dataflow_uris
+
 
     def getStartDate(self):
         """ returns the start date in DateTime format

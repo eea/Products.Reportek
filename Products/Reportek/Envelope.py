@@ -47,6 +47,7 @@ from AccessControl.SecurityManagement import getSecurityManager
 from Products.Reportek import permission_manage_properties_envelopes
 from Products.Reportek.exceptions import ApplicationException
 from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION
+from Products.Reportek.RepUtils import DFlowCatalogAware
 from Products.PythonScripts.standard import url_quote
 from zExceptions import Forbidden
 from DateTime import DateTime
@@ -172,7 +173,7 @@ def get_first_accept(req_dict):
     firstseg = segs[0].split(';')
     return firstseg[0].strip()
 
-class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDataflows, BaseDelivery):
+class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDataflows, BaseDelivery, DFlowCatalogAware):
     """ Envelopes are basic container objects that provide a standard
         interface for object management. Envelope objects also implement
         a management interface
