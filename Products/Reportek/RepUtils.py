@@ -30,6 +30,7 @@ from DateTime import DateTime
 from Products.Five import BrowserView
 from Products.Reportek.config import XLS_HEADINGS
 from Products.Reportek.config import ZIP_CACHE_PATH
+from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.Reportek.permissions import reportek_dataflow_admin
 from copy import deepcopy
 from copy import deepcopy
@@ -655,6 +656,7 @@ class DFlowCatalogAware(object):
     """DFlowCatalogAware class to allow for reportek_dataflow_admin permission
        indexing.
     """
+    _security_indexes = ('allowedAdminRolesAndUsers',)
 
     def _mergedLocalRoles(self, object):
         """Returns a merging of object and its ancestors'
@@ -703,3 +705,37 @@ class DFlowCatalogAware(object):
             del allowed['Owner']
 
         return list(allowed.keys())
+
+    def reindexObjectSecurity(self, skip_self=False):
+        """ Reindex security-related indexes on the object.
+        """
+        catalog = getattr(self, DEFAULT_CATALOG, None)
+        if catalog is None:
+            return
+        path = '/'.join(self.getPhysicalPath())
+        counter = 0
+        for brain in catalog.searchResults(path=path):
+            brain_path = brain.getPath()
+            if brain_path == path and skip_self:
+                continue
+            # Get the object
+            try:
+                ob = brain._unrestrictedGetObject()
+            except (AttributeError, KeyError):
+                # don't fail on catalog inconsistency
+                continue
+            if ob is None:
+                # BBB: Ignore old references to deleted objects.
+                # Can happen only when using
+                # catalog-getObject-raises off in Zope 2.8
+                logger.warning("reindexObjectSecurity: Cannot get %s from "
+                               "catalog", brain_path)
+                continue
+            counter += 1
+            # Recatalog with the same catalog uid.
+            s = getattr(ob, '_p_changed', 0)
+            catalog.catalog_object(ob, brain_path, self._security_indexes, 0)
+            if s is None:
+                ob._p_deactivate()
+
+        print counter

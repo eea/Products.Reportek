@@ -3,6 +3,7 @@ from base_admin import BaseAdmin
 from DateTime import DateTime
 from urllib import unquote
 from Products.Reportek.constants import WORKFLOW_ENGINE_ID
+from Products.Reportek.catalog import searchResults
 
 
 class EnvelopeUtils(BaseAdmin):
@@ -94,7 +95,6 @@ class EnvelopeUtils(BaseAdmin):
             if activity == 'Draft' and workitem.status == 'inactive':
                 continue
 
-
             wf = self.get_env_workflow(workitem)
             next_activities = self.get_next_activities(wf, workitem)
             if wf:
@@ -168,7 +168,11 @@ class EnvelopeUtils(BaseAdmin):
                            if act.complete_automatically == 1 and
                            act.start_mode == 1 and act.finish_mode == 1}
         # Get all inactive workitems
-        inactive_brains = catalog(meta_type='Workitem', status='inactive')
+        query = {
+            'meta_type': 'Workitem',
+            'status': 'inactive'}
+        inactive_brains = searchResults(catalog, query,
+                                        admin_check=self.should_check_permission())
         envelopes = []
         for b in inactive_brains:
             obj = b.getObject()
@@ -210,10 +214,14 @@ class EnvelopeUtils(BaseAdmin):
         """Return a list of envelopes with long running Automatic QA"""
 
         catalog = self.context.Catalog
+        query = {
+            'meta_type': 'Workitem',
+            'activity_id': 'AutomaticQA',
+            'status': 'active'
+        }
         # Get all active workitems
-        aqa_brains = catalog(meta_type='Workitem',
-                             activity_id='AutomaticQA',
-                             status='active')
+        aqa_brains = searchResults(catalog, query,
+                                   admin_check=self.should_check_permission())
         try:
             age = int(self.request.get('age', 30))
         except Exception:

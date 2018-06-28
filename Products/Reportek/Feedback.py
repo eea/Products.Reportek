@@ -37,6 +37,7 @@ from os.path import join, isfile
 # Zope imports
 from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate
 from Products.ZCatalog.CatalogAwareness import CatalogAware
+from Products.Reportek.RepUtils import DFlowCatalogAware
 from AccessControl.Permissions import view_management_screens
 from OFS.SimpleItem import SimpleItem
 from OFS.ObjectManager import ObjectManager
@@ -137,7 +138,7 @@ def manage_addManualQAFeedback(self, id ='', title='', feedbacktext='', file=Non
         return self.messageDialog(message="The Feedback %s was successfully created!" % id,
                                   action=self.absolute_url())
 
-class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, CommentsManager):
+class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, CommentsManager, DFlowCatalogAware):
     """
         Feedback objects are created in envelopes either manually (by Clients)
         or automatically (by activities such as the Automatic QA or Confirmation Receipt).

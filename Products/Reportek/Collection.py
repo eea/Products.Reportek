@@ -29,6 +29,7 @@ from AccessControl import getSecurityManager, ClassSecurityInfo
 from AccessControl.Permissions import change_permissions
 from AccessControl.Permissions import manage_users
 from AccessControl.requestmethod import requestmethod
+from Acquisition import aq_base
 from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
 from datetime import datetime
@@ -527,6 +528,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
         if REQUEST is not None:
             if hasattr(self, 'reindex_object'):
                 self.reindex_object()
+            if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+                if hasattr(aq_base(self), 'reindexObjectSecurity'):
+                    self.reindexObjectSecurity()
             stat='Your changes have been saved.'
             return self.manage_listLocalRoles(self, REQUEST, stat=stat)
 
@@ -537,6 +541,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
         if REQUEST is not None:
             if hasattr(self, 'reindex_object'):
                 self.reindex_object()
+            if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+                if hasattr(aq_base(self), 'reindexObjectSecurity'):
+                    self.reindexObjectSecurity()
             stat='Your changes have been saved.'
             return self.manage_listLocalRoles(self, REQUEST, stat=stat)
 

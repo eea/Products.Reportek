@@ -30,6 +30,7 @@ from OFS.SimpleItem import SimpleItem
 from os.path import join
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.CatalogAwareness import CatalogAware
+from Products.Reportek.RepUtils import DFlowCatalogAware
 from time import time
 from StringIO import StringIO
 from webdav.common import rfc1123_date
@@ -164,7 +165,7 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
             return ''
 
 
-class Document(CatalogAware, SimpleItem, IconShow.IconShow):
+class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
     """ An External Document allows indexing and conversions.
 
     .. attribute:: data_file

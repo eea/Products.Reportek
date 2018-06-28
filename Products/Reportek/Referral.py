@@ -35,6 +35,7 @@ from OFS.SimpleItem import SimpleItem
 import Globals
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.constants import DF_URL_PREFIX
+from Products.Reportek.RepUtils import DFlowCatalogAware
 from AccessControl import getSecurityManager, ClassSecurityInfo
 import AccessControl.Role
 
@@ -72,7 +73,7 @@ def manage_addReferral(self, title, descr, referral_url, year, endyear,
         return REQUEST.RESPONSE.redirect(self.absolute_url())
 
 
-class Referral(CatalogAware, SimpleItem, CountriesManager, BaseDelivery):
+class Referral(CatalogAware, SimpleItem, CountriesManager, BaseDelivery, DFlowCatalogAware):
     """ Referrals are basic objects that provide a standard
         interface for object management. Referral objects also implement
         a management interface and can have arbitrary properties.

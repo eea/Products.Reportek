@@ -126,12 +126,12 @@ class BaseAdmin(BrowserView):
             'obligations': obligations
         }
 
-    def search_catalog(self, obligations, countries, role, users=None, path=None):
-        admin_check = False
+    def should_check_permission(self):
         deployment_type = self.get_deployment()
         if deployment_type == config.DEPLOYMENT_BDR:
-            admin_check = True
+            return True
 
+    def search_catalog(self, obligations, countries, role, users=None, path=None):
         if len(countries) == len(self.localities_rod):
             country_codes = None
         else:
@@ -153,7 +153,7 @@ class BaseAdmin(BrowserView):
             query['path'] = path
 
         return searchResults(self.context.Catalog, query,
-                             admin_check=admin_check)
+                             admin_check=self.should_check_permission())
 
     def get_collections(self):
         obligations = self.request.get('dataflow_uris', [])
