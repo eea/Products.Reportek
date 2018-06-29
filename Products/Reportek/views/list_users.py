@@ -58,6 +58,14 @@ class ListUsers(BaseAdmin):
             user = ecas.getEcasUserId(username)
         return user
 
+    def get_ecas_email(self, username):
+        email = None
+        ecas_path = '/acl_users/' + ECAS_ID
+        ecas = self.context.unrestrictedTraverse(ecas_path, None)
+        if ecas:
+            email = ecas.getEcasIDEmail(username)
+        return email
+
     def is_local_user(self, username):
         acl_users = self.context.acl_users
         if acl_users.getUserById(username):
@@ -82,7 +90,7 @@ class ListUsers(BaseAdmin):
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             user = self.get_ecas_user(username)
             if user:
-                r['email'] = user.email
+                r['email'] = self.get_ecas_email(user)
 
         user = self.is_ldap_user(username)
         if user:
