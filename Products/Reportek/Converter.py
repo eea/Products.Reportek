@@ -32,6 +32,7 @@ from AccessControl.Permissions import view_management_screens, view
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from RestrictedPython.Eval import RestrictionCapableEval
 from zExceptions import Redirect
+from copy import deepcopy
 import Globals
 import RepUtils
 import constants
@@ -194,7 +195,7 @@ class RemoteConverter(Converter):
         try:
             result = self._do_conversion(file_obj.absolute_url())
             result.raise_for_status()
-
+            headers = deepcopy(result.headers)
             # Let Zope add the transfer-encoding: chuncked header if
             # required (that is if the connection is not closed, so there is
             # more to come).
@@ -203,11 +204,15 @@ class RemoteConverter(Converter):
             # it handles chunked and gzip automatically, but what
             # about the rest?
 
-            # result.headers is a case insensitive dict
-
-            if result.headers.get('transfer-encoding'):
-                result.headers.pop('transfer-encoding')
-            self.REQUEST.RESPONSE.headers.update(result.headers)
+            if headers.get('Transfer-Encoding'):
+                headers.pop('Transfer-Encoding')
+            # Due to https://taskman.eionet.europa.eu/issues/96712. The recent
+            # changes to converters allow the converters to return gzip content.
+            # However, requests automatically decompresses the content and we
+            # need to replace the 'Content-Encoding' value with none.
+            if headers.get('Content-Encoding') == 'gzip':
+                headers['Content-Encoding'] = 'none'
+            self.REQUEST.RESPONSE.headers.update(headers)
             for chunk in result.iter_content(chunk_size=64*1024):
                 self.REQUEST.RESPONSE.write(chunk)
             return self.REQUEST.RESPONSE
