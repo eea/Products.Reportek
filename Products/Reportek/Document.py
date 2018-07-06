@@ -692,5 +692,15 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         else:
             raise RuntimeError("Unable to compute uncompressed size")
 
+    def export_to_file(self, dst_path, file_id=None):
+        """Export the document's file to a File in dst_path"""
+        dst = self.unrestrictedTraverse(dst_path)
+        if not file_id:
+            file_id = self.getId()
+        f = getattr(self, 'data_file')
+        fc = f.open()
+        dst.manage_addFile(file_id, file=fc.read())
+        fc.close()
+
 
 Globals.InitializeClass(Document)
