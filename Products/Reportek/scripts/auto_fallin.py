@@ -80,10 +80,10 @@ def main():
     parser.add_argument('--workflow',
                         help='Workflow of the envelopes',
                         dest='act_wf')
-    parser.add_argument('--env_year',
-                        help='Envelope year, e.g. 2017, default=current year',
-                        dest='env_year',
-                        default=DateTime().year())
+    parser.add_argument('--env_year_offset',
+                        help='Envelope year offset, e.g. +1, meaning current year + 1, default=+0',
+                        dest='env_year_offset',
+                        default='+0')
     args = parser.parse_args(sys.argv[3:])
 
     if (args.obligations == None or args.act_from == None or args.act_to == None) or args.act_wf == None:
@@ -98,6 +98,12 @@ def main():
         site = get_zope_site()
         catalog = site.unrestrictedTraverse(DEFAULT_CATALOG, None)
         results = get_envelopes(catalog, obls, args.act_from, args.act_to)
+        year_offset = args.env_year_offset
+        env_year = DateTime().year()
+        if year_offset.startswith('+'):
+            env_year += int(year_offset[-1])
+        elif year_offset.startswith('-'):
+            env_year -= int(year_offset[-1])
         savepoint = transaction.savepoint()
         try:
             for key, value in results.iteritems():
@@ -106,7 +112,7 @@ def main():
                 env = value.get('envelope')
                 env_wf = env.getProcess()
                 activity = getattr(env_wf, args.act_to, None)
-                if str(env.year) == str(args.env_year) and args.act_wf == env_wf.id and activity:
+                if str(env.year) == str(env_year) and args.act_wf == env_wf.id and activity:
                     try:
                         env.falloutWorkitem(wk.id)
                         env.fallinWorkitem(wk.id, args.act_to)
