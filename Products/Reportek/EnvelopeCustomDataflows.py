@@ -891,7 +891,7 @@ class EnvelopeCustomDataflows(Toolz):
                             wk)
             else:
                 do_log("warning",
-                       "Sanitization process skipped for {} for not matching the required schema(s).".format(xml_id),
+                       "Sanitization process skipped for {} for not matching the required schema(s).".format(xml_file.getId()),
                        wk)
 
 
