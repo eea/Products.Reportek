@@ -830,6 +830,70 @@ class EnvelopeCustomDataflows(Toolz):
                 break
         return parseString(ret)
 
+    def convert(self, xml_schema, valid_xsls, file_url):
+        """Call the conversion service for the file and return the converted file
+        """
+        def values_in_list(values, enum):
+            result = False
+
+            for value in values:
+                if not result:
+                    result = value in enum
+
+            return result
+
+        converters = self.unrestrictedTraverse(CONVERTERS_ID)
+        xsls = converters.get_remote_converters_for_schema(xml_schema)
+        xsls_valid = [x for x in xsls if values_in_list(valid_xsls, x['xsl'])]
+        xsls_ids = [x['convert_id'] for x in xsls_valid]
+
+        if not xsls_ids:
+            raise ValueError('Could not find a valid converter (%s) for schema: %s' % (', '.join(valid_xsls), xml_schema))
+
+        file_url = '/{}'.format(file_url) if not file_url.startswith('/') else file_url
+        return converters.run_remote_conversion(file_url=file_url,
+                                                converter_id=xsls_ids[0],
+                                                write_to_response=False)
+
+    def sanitize_report_files(self, qa_xsls, schemas, wk=None):
+        """ Pass the envelope documents with the specified schemas through
+        a sanitization process through converters with the specified xsls
+        """
+        def do_log(m_type, msg, wk):
+            if wk:
+                wk.addEvent(msg)
+            else:
+                log = getattr(conversion_log, m_type, None)
+                if log:
+                    log(msg)
+
+        for xml_file in self.objectValues('Report Document'):
+            if xml_file.xml_schema_location in schemas:
+                url = xml_file.absolute_url(1)
+                try:
+                    converted = self.convert(xml_file.xml_schema_location,
+                                             qa_xsls, url)
+                    xml_id = xml_file.getId()
+                    xml_title = getattr(xml_file, 'title', '')
+                    xml_restricted = getattr(xml_file, 'restricted', '')
+                    self.manage_addDocument(id=xml_id,
+                                            title=xml_title,
+                                            file=converted,
+                                            content_type='text/xml',
+                                            restricted=xml_restricted)
+                    do_log("info",
+                           "Successfully sanitized: {}.".format(xml_id), wk)
+                    # Commit the transaction
+                    transaction.commit()
+                except Exception as e:
+                    do_log("error",
+                           "An error occured during the sanitization process: {}".format(str(e)),
+                            wk)
+        else:
+            do_log("warning",
+                   "Sanitization process skipped. No file(s) found matching the required schema(s).",
+                   wk)
+
 
 # Initialize the class in order the security assertions be taken into account
 InitializeClass(EnvelopeCustomDataflows)
