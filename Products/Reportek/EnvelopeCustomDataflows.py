@@ -889,10 +889,10 @@ class EnvelopeCustomDataflows(Toolz):
                     do_log("error",
                            "An error occured during the sanitization process: {}".format(str(e)),
                             wk)
-        else:
-            do_log("warning",
-                   "Sanitization process skipped. No file(s) found matching the required schema(s).",
-                   wk)
+            else:
+                do_log("warning",
+                       "Sanitization process skipped. No file(s) found matching the required schema(s).",
+                       wk)
 
 
 # Initialize the class in order the security assertions be taken into account
