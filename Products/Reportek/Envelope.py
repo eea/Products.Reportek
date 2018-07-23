@@ -550,6 +550,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         """
 
         engine = getattr(self, ENGINE_ID)
+        wk_path = None
         crPingger = engine.contentRegistryPingger
         if not crPingger:
             logger.debug("Not pingging Content Registry.")
@@ -561,12 +562,15 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         innerObjsByMetatype = self._getObjectsForContentRegistry()
         # ping CR for inner uris
         uris.extend( o.absolute_url() for objs in innerObjsByMetatype.values() for o in objs )
+        if wk:
+            wk_path = wk.absolute_url()
         if async:
             crPingger.content_registry_ping_async(uris,
-                    ping_argument=ping_argument, envPathName=self.absolute_url())
+                    ping_argument=ping_argument, envPathName=self.absolute_url(),
+                    wk_path=wk_path)
             message = "Async content registry ping requested"
         else:
-            success, message = crPingger.content_registry_ping(uris, ping_argument=ping_argument)
+            success, message = crPingger.content_registry_ping(uris, ping_argument=ping_argument, wk_path=wk_path)
 
         return message
 

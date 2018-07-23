@@ -34,7 +34,7 @@ class ContentRegistryPingger(object):
             logger.warning("Content Registry (%s) ping unsuccessful for the %s of %s\nResponse was: %s"
                             % (self.api_url, action, url, messageBody))
 
-    def content_registry_ping(self, uris, ping_argument=None, envPathName=None):
+    def content_registry_ping(self, uris, ping_argument=None, envPathName=None, wk_path=None):
         """ Pings the Content Registry to harvest a new envelope almost immediately after the envelope is released or revoked
             with the name of the envelope's RDF output
         """
@@ -58,6 +58,10 @@ class ContentRegistryPingger(object):
             uri = parse_uri(uri)
             success, message = self._content_registry_ping(uri, ping_argument=ping_argument)
             self._log_ping(success, message, uri, ping_argument)
+            if wk_path:
+                wk = self.unrestrictedTraverse(wk_path, None)
+                if wk:
+                    wk.addEvent(message)
             allOk = allOk and success
             if envPathName and self.PING_STORE and not self._check_ping(envPathName, ts):
                 allOk = False
@@ -67,14 +71,15 @@ class ContentRegistryPingger(object):
 
         return allOk, message
 
-    def content_registry_ping_async(self, uris, ping_argument=None, envPathName=None):
+    def content_registry_ping_async(self, uris, ping_argument=None, envPathName=None, wk_path=None):
         # delegate this to fire and forget thread - don't keep the user (browser) waiting
 
         pingger = threading.Thread(target=ContentRegistryPingger.content_registry_ping,
                          name='contentRegistryPing',
                          args=(self, uris),
                          kwargs={'ping_argument': ping_argument,
-                                 'envPathName': envPathName})
+                                 'envPathName': envPathName,
+                                 'wk_path': wk_path})
         pingger.setDaemon(True)
         pingger.start()
         return

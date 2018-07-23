@@ -1104,7 +1104,7 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         uris = args[0]
         self.assertEqual(len(uris), 4)
         self.assertEqual(set(uris), expectedUris)
-        self.assertEqual(len(kwargs), 2)
+        self.assertEqual(len(kwargs), 3)
         ping_argument = kwargs.get('ping_argument')
         self.assertEqual(ping_argument, 'create')
 
@@ -1125,7 +1125,7 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         uris = args[0]
         self.assertEqual(len(uris), 4)
         self.assertEqual(set(uris), expectedUris)
-        self.assertEqual(len(kwargs), 2)
+        self.assertEqual(len(kwargs), 3)
         ping_argument = kwargs.get('ping_argument')
         self.assertEqual(ping_argument, 'delete')
 
@@ -1146,6 +1146,6 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         uris = args[0]
         self.assertEqual(len(uris), 4)
         self.assertEqual(set(uris), expectedUris)
-        self.assertEqual(len(kwargs), 1)
+        self.assertEqual(len(kwargs), 2)
         ping_argument = kwargs.get('ping_argument')
         self.assertEqual(ping_argument, 'create')
