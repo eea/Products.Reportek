@@ -49,6 +49,7 @@ class ContentRegistryPingger(object):
             return uri
 
         allOk = True
+        message = ''
         if not ping_argument:
             ping_argument = 'create'
         if envPathName and self.PING_STORE:
@@ -63,7 +64,8 @@ class ContentRegistryPingger(object):
                 break
         if envPathName and self.PING_STORE:
             self._stop_ping(envPathName, ts)
-        return allOk
+
+        return allOk, message
 
     def content_registry_ping_async(self, uris, ping_argument=None, envPathName=None):
         # delegate this to fire and forget thread - don't keep the user (browser) waiting
