@@ -536,7 +536,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
 
     security.declareProtected('Release Envelopes', 'content_registry_ping')
-    def content_registry_ping(self, delete=False, async=True):
+    def content_registry_ping(self, delete=False, async=True, wk=None):
         """ Instruct ReportekEngine to ping CR.
 
             `delete` instructs the envelope to don't ping CR on
@@ -546,6 +546,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             Note that on delete, CR does not actually fetch envelope contents
             from CDR thus we can make the CR calls async even in that case
             when the envelope would not be available to the public anymore.
+            Return a message with the state of the ping
         """
 
         engine = getattr(self, ENGINE_ID)
@@ -563,9 +564,11 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         if async:
             crPingger.content_registry_ping_async(uris,
                     ping_argument=ping_argument, envPathName=self.absolute_url())
+            message = "Async content registry ping requested"
         else:
-            crPingger.content_registry_ping(uris, ping_argument=ping_argument)
-        return
+            success, message = crPingger.content_registry_ping(uris, ping_argument=ping_argument)
+
+        return message
 
 
     ##################################################

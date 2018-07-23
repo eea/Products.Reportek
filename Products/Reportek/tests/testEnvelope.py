@@ -1062,7 +1062,7 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         self.pingger = self.engine.contentRegistryPingger
         self.assertTrue(bool(self.pingger))
         ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async = Mock()
-        ContentRegistryPingger.ContentRegistryPingger.content_registry_ping = Mock()
+        ContentRegistryPingger.ContentRegistryPingger.content_registry_ping = Mock(return_value=(True, 'Pinged'))
         # add subobjects of type document, feedback, hyperlink
         content = 'test content for our document'
         self.doc = add_document(self.envelope, create_upload_file(content, 'foo.txt'))
