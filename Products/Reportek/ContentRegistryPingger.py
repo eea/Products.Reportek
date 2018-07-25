@@ -49,19 +49,19 @@ class ContentRegistryPingger(object):
             return uri
 
         allOk = True
-        message = ''
+        response = ''
         if not ping_argument:
             ping_argument = 'create'
         if envPathName and self.PING_STORE:
             ts = self._start_ping(envPathName, op=ping_argument)
         for uri in uris:
             uri = parse_uri(uri)
-            success, message = self._content_registry_ping(uri, ping_argument=ping_argument)
-            self._log_ping(success, message, uri, ping_argument)
+            success, response = self._content_registry_ping(uri, ping_argument=ping_argument)
+            self._log_ping(success, response.text, uri, ping_argument)
             if wk:
                 msgs = {
-                    True: "CR Ping successful",
-                    False: "CR Ping failed"
+                    True: "CR Ping successful for the {} of {} (HTTP status: {})".format(ping_argument, uri, resp.status_code),
+                    False: "CR Ping failed for the {} of {} (HTTP status: {})".format(ping_argument, uri, resp.status_code)
                 }
                 wk.addEvent(msgs.get(success))
             allOk = allOk and success
@@ -71,7 +71,7 @@ class ContentRegistryPingger(object):
         if envPathName and self.PING_STORE:
             self._stop_ping(envPathName, ts)
 
-        return allOk, message
+        return allOk, response
 
     def content_registry_ping_async(self, uris, ping_argument=None, envPathName=None, wk=None):
         # delegate this to fire and forget thread - don't keep the user (browser) waiting
@@ -94,8 +94,8 @@ class ContentRegistryPingger(object):
             params['delete'] = 'true'
         resp = requests.get(self.api_url, params=params)
         if resp.status_code == 200:
-            return (True, resp.text)
-        return (False, resp.text)
+            return (True, resp)
+        return (False, resp)
 
     @classmethod
     def content_registry_pretty_message(cls, message):
