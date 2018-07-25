@@ -60,8 +60,8 @@ class ContentRegistryPingger(object):
             self._log_ping(success, response.text, uri, ping_argument)
             if wk:
                 msgs = {
-                    True: "CR Ping successful for the {} of {} (HTTP status: {})".format(ping_argument, uri, resp.status_code),
-                    False: "CR Ping failed for the {} of {} (HTTP status: {})".format(ping_argument, uri, resp.status_code)
+                    True: "CR Ping successful for the {} of {} (HTTP status: {})".format(ping_argument, uri, response.status_code),
+                    False: "CR Ping failed for the {} of {} (HTTP status: {})".format(ping_argument, uri, response.status_code)
                 }
                 wk.addEvent(msgs.get(success))
             allOk = allOk and success
