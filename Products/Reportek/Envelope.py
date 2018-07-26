@@ -567,8 +567,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                     wk=wk)
             message = "Async content registry ping requested"
         else:
-            success, response = crPingger.content_registry_ping(uris, ping_argument=ping_argument, wk=wk)
-            message = response.text
+            success, message = crPingger.content_registry_ping(uris, ping_argument=ping_argument, wk=wk)
 
         return message
 
