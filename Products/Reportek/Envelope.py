@@ -550,7 +550,6 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         """
 
         engine = getattr(self, ENGINE_ID)
-        wk_path = None
         crPingger = engine.contentRegistryPingger
         if not crPingger:
             logger.debug("Not pingging Content Registry.")
@@ -568,7 +567,8 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                     wk=wk)
             message = "Async content registry ping requested"
         else:
-            success, message = crPingger.content_registry_ping(uris, ping_argument=ping_argument, wk=wk)
+            success, response = crPingger.content_registry_ping(uris, ping_argument=ping_argument, wk=wk)
+            message = response.text
 
         return message
 
