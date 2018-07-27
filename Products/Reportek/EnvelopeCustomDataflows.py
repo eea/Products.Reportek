@@ -855,9 +855,10 @@ class EnvelopeCustomDataflows(Toolz):
                                                 converter_id=xsls_ids[0],
                                                 write_to_response=False)
 
-    def sanitize_report_files(self, qa_xsls, schemas, wk=None):
-        """ Pass the envelope documents with the specified schemas through
-        a sanitization process through converters with the specified xsls
+    def sanitize_report_files(self, schema_convs, wk=None):
+        """ Pass the envelope documents with the specified schemas conversions
+         through a sanitization process through converters with the specified
+         xsls. Expected schema_convs structure: {schema: ['xsl']}
         """
         def do_log(m_type, msg, wk):
             if wk:
@@ -868,11 +869,12 @@ class EnvelopeCustomDataflows(Toolz):
                     log(msg)
 
         for xml_file in self.objectValues('Report Document'):
-            if xml_file.xml_schema_location in schemas:
+            schema = xml_file.xml_schema_location
+            if schema in schema_convs.keys():
                 url = xml_file.absolute_url(1)
                 try:
-                    converted = self.convert(xml_file.xml_schema_location,
-                                             qa_xsls, url)
+                    converted = self.convert(schema, schema_convs.get(schema),
+                                             url)
                     xml_id = xml_file.getId()
                     xml_title = getattr(xml_file, 'title', '')
                     xml_restricted = getattr(xml_file, 'restricted', '')
