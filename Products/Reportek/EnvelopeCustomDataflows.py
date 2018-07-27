@@ -830,21 +830,12 @@ class EnvelopeCustomDataflows(Toolz):
                 break
         return parseString(ret)
 
-    def convert(self, xml_schema, valid_xsls, file_url):
+    def convert(self, xml_schema, req_xsl, file_url):
         """Call the conversion service for the file and return the converted file
         """
-        def values_in_list(values, enum):
-            result = False
-
-            for value in values:
-                if not result:
-                    result = value in enum
-
-            return result
-
         converters = self.unrestrictedTraverse(CONVERTERS_ID)
         xsls = converters.get_remote_converters_for_schema(xml_schema)
-        xsls_valid = [x for x in xsls if values_in_list(valid_xsls, x['xsl'])]
+        xsls_valid = [x for x in xsls if req_xsl == x['xsl']]
         xsls_ids = [x['convert_id'] for x in xsls_valid]
 
         if not xsls_ids:
