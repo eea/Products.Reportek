@@ -649,7 +649,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     security.declareProtected(permission_manage_properties_envelopes, 'manage_editEnvelope')
     def manage_editEnvelope(self, title, descr,
             year, endyear, partofyear, country, locality, dataflow_uris=[],
-            REQUEST=None):
+            sync_process='', REQUEST=None):
         """ Manage the edited values
         """
         if not dataflow_uris:
@@ -660,6 +660,21 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                         action='./manage_prop')
                 return
         else:
+            # If sync workflow is checked, change the workflow if required and 
+            # fallin to the first activity of the new workflow
+            if sync_process == 'sync':
+                wf_engine = self.unrestrictedTraverse(WORKFLOW_ENGINE_ID, None)
+                if wf_engine:
+                    obl_process = wf_engine.findProcess(dataflow_uris, country)
+                    obl_process = self.unrestrictedTraverse(obl_process[-1], None)
+                    if obl_process and obl_process.absolute_url(1) != self.process_path and self.status != 'complete':
+                        self.setProcess(obl_process.absolute_url(1))
+                        begin_act = obl_process.begin
+                        wk = self.getListOfWorkitems()[-1]
+                        self.falloutWorkitem(wk.id)
+                        self.fallinWorkitem(wk.id, begin_act)
+                        self.endFallinWorkitem(wk.id)
+
             self.dataflow_uris = dataflow_uris
 
         self.title=title

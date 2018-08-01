@@ -59,6 +59,14 @@
               </div>
             </td>
           </tr>
+          <tr tal:condition="permission_condition">
+            <th i18n:translate="">Workflow sync</th>
+            <td>
+              <input type="checkbox" name="sync_process" disabled="disabled"
+                value="sync"
+                title="Warning! The envelope will be forwarded to the first Activity of the new workflow" />
+            </td>
+          </tr>
 
           <tr>
             <th i18n:translate="">Coverage</th>
