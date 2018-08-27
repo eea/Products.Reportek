@@ -839,7 +839,7 @@ class EnvelopeCustomDataflows(Toolz):
         xsls_ids = [x['convert_id'] for x in xsls_valid]
 
         if not xsls_ids:
-            raise ValueError('Could not find a valid converter (%s) for schema: %s' % (', '.join(valid_xsls), xml_schema))
+            raise ValueError('Could not find a valid converter (%s) for schema: %s' % (', '.join(req_xsl), xml_schema))
 
         file_url = '/{}'.format(file_url) if not file_url.startswith('/') else file_url
         return converters.run_remote_conversion(file_url=file_url,
