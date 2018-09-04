@@ -494,9 +494,7 @@ class RemoteApplication(SimpleItem):
                     l_workitem.blocker = True
 
                 feedback_ob.message = l_ret.get('FEEDBACK_MESSAGE', '')
-                l_workitem.addEvent("Added Automatic QA feedback file: {}".format(feedback_id))
-                # Explicitly commit the transaction after adding the Feedback
-                transaction.commit()
+
                 l_getResultDict = {p_jobID: {'code':1, 'fileURL':l_file_url}}
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_getResult=l_getResultDict)
             # not ready

@@ -859,6 +859,7 @@ class EnvelopeCustomDataflows(Toolz):
                 if log:
                     log(msg)
 
+        do_log("info", "Report Feedbacks in envelope: {}".format(self.objectValues('Report Feedback')))
         for xml_file in self.objectValues('Report Document'):
             schema = xml_file.xml_schema_location
             if schema in schema_convs.keys():
@@ -878,6 +879,7 @@ class EnvelopeCustomDataflows(Toolz):
                            "Successfully sanitized: {}.".format(xml_id), wk)
                     # Commit the transaction
                     transaction.commit()
+                    do_log("info", "Report Feedbacks in envelope: {}".format(self.objectValues('Report Feedback')))
                 except Exception as e:
                     do_log("error",
                            "An error occured during the sanitization process: {}".format(str(e)),
@@ -886,6 +888,7 @@ class EnvelopeCustomDataflows(Toolz):
                 do_log("warning",
                        "Sanitization process skipped for {} for not matching the required schema(s).".format(xml_file.getId()),
                        wk)
+        do_log("info", "Report Feedbacks in envelope: {}".format(self.objectValues('Report Feedback')))
 
 
 # Initialize the class in order the security assertions be taken into account
