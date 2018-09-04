@@ -851,7 +851,7 @@ class EnvelopeCustomDataflows(Toolz):
          through a sanitization process through converters with the specified
          xsls. Expected schema_convs structure: {schema: ['xsl']}
         """
-        def do_log(m_type, msg, wk):
+        def do_log(m_type, msg, wk=None):
             if wk:
                 wk.addEvent(msg)
             else:
