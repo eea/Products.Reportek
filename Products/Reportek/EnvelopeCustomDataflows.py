@@ -869,7 +869,7 @@ class EnvelopeCustomDataflows(Toolz):
                     xml_id = xml_file.getId()
                     xml_title = getattr(xml_file, 'title', '')
                     xml_restricted = getattr(xml_file, 'restricted', '')
-                    fbs = [fb for fb in obj.getFeedbacksForDocument()]
+                    fbs = [fb for fb in xml_file.getFeedbacksForDocument()]
                     # Change the document_ids of the associated feedback files
                     # so that they don't get deleted when the xml contents are
                     # being replaced
