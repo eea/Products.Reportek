@@ -859,7 +859,6 @@ class EnvelopeCustomDataflows(Toolz):
                 if log:
                     log(msg)
 
-        conversion_log.info("Report Feedbacks in envelope: {}".format(self.objectValues('Report Feedback')))
         for xml_file in self.objectValues('Report Document'):
             schema = xml_file.xml_schema_location
             if schema in schema_convs.keys():
@@ -870,6 +869,12 @@ class EnvelopeCustomDataflows(Toolz):
                     xml_id = xml_file.getId()
                     xml_title = getattr(xml_file, 'title', '')
                     xml_restricted = getattr(xml_file, 'restricted', '')
+                    fbs = [fb for fb in obj.getFeedbacksForDocument()]
+                    # Change the document_ids of the associated feedback files
+                    # so that they don't get deleted when the xml contents are
+                    # being replaced
+                    for fb in fbs:
+                        fb.document_id = ''
                     self.manage_addDocument(id=xml_id,
                                             title=xml_title,
                                             file=converted,
@@ -877,9 +882,11 @@ class EnvelopeCustomDataflows(Toolz):
                                             restricted=xml_restricted)
                     do_log("info",
                            "Successfully sanitized: {}.".format(xml_id), wk)
+                    # Apply the correct document_ids to the associated feedbacks
+                    for fb in fbs:
+                        fb.document_id = xml_id
                     # Commit the transaction
                     transaction.commit()
-                    conversion_log.info("Report Feedbacks in envelope: {}".format(self.objectValues('Report Feedback')))
                 except Exception as e:
                     do_log("error",
                            "An error occured during the sanitization process: {}".format(str(e)),
@@ -888,7 +895,6 @@ class EnvelopeCustomDataflows(Toolz):
                 do_log("warning",
                        "Sanitization process skipped for {} for not matching the required schema(s).".format(xml_file.getId()),
                        wk)
-        conversion_log.info("Report Feedbacks in envelope: {}".format(self.objectValues('Report Feedback')))
 
 
 # Initialize the class in order the security assertions be taken into account
