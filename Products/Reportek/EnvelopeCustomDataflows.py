@@ -875,6 +875,7 @@ class EnvelopeCustomDataflows(Toolz):
                     # being replaced
                     for fb in fbs:
                         fb.document_id = ''
+                        fb.reindex_object()
                     self.manage_addDocument(id=xml_id,
                                             title=xml_title,
                                             file=converted,
@@ -885,6 +886,7 @@ class EnvelopeCustomDataflows(Toolz):
                     # Apply the correct document_ids to the associated feedbacks
                     for fb in fbs:
                         fb.document_id = xml_id
+                        fb.reindex_object()
                     # Commit the transaction
                     transaction.commit()
                 except Exception as e:
