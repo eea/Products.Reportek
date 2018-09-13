@@ -4,8 +4,7 @@
     <link href="++resource++static/style.css" rel="stylesheet"/>
     <script type="text/javascript" charset="utf8"
           src="++resource++static/jquery-1.11.2.min.js"></script>
-    <script type="text/javascript" charset="utf8"
-          src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8" src="++resource++static/datatables.min.js"></script>
     <script src="++resource++static/utils.js"></script>
     <script src="++resource++static/utils_fcs.js"></script>
     <script src="++resource++static/moment.min.js"></script>
