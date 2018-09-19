@@ -28,10 +28,10 @@ class ContentRegistryPingger(object):
             action = 'delete'
         messageBody = self.content_registry_pretty_message(message)
         if success:
-            logger.info("Content Registry (%s) pingged OK for the %s of %s\nResponse was: %s"
+            logger.info("Content Registry (%s) pingged OK for the %s of %s. Response was: %s"
                         % (self.api_url, action, url, messageBody))
         else:
-            logger.warning("Content Registry (%s) ping unsuccessful for the %s of %s\nResponse was: %s"
+            logger.warning("Content Registry (%s) ping unsuccessful for the %s of %s. Response was: %s"
                             % (self.api_url, action, url, messageBody))
 
     def content_registry_ping(self, uris, ping_argument=None, envPathName=None, wk=None):
