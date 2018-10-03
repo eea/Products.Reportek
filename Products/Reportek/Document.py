@@ -39,6 +39,7 @@ from zope.contenttype import guess_content_type
 from zope.interface import implements
 import Globals
 import IconShow
+import io
 import json
 import logging
 import os
@@ -74,22 +75,25 @@ manage_addDocumentForm = PageTemplateFile('zpt/document/add', globals())
 
 
 def manage_addDocument(self, id='', title='', file='', content_type='',
-                       restricted='', disallow='', REQUEST=None,
+                       filename='', restricted='', disallow='', REQUEST=None,
                        deferred_compress=None):
     """Add a Document to a folder. The form can be called with three variables
        set in the session object: default_restricted, force_restricted and
        disallow. This will set the restricted flag in the form or
     """
-    is_object = hasattr(file, 'filename') and file.filename
+    is_object = hasattr(file, 'read') and (getattr(file, 'filename', None) or filename)
+    if is_object and not filename:
+        filename = getattr(file, 'filename')
     is_str = file and isinstance(file, basestring)
 
     if is_object:
+
         if not id:
-            id = file.filename
+            id = filename
         else:
             _, ext = os.path.splitext(id)
             if not ext:
-                _, ext = os.path.splitext(file.filename)
+                _, ext = os.path.splitext(filename)
                 id += ext
 
     if (is_str or is_object) and id:
@@ -148,7 +152,12 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
             obj.manage_restrictDocument()
         obj.reindex_object()
         if REQUEST is not None:
-            pobj = REQUEST.PARENTS[0]
+            # This is an ugly hack, sometimes the PARENTS are in reverse order
+            # TODO: Find a better way to handle the issue
+            if len(REQUEST.PARENTS) > 1:
+                pobj = REQUEST.PARENTS[0]
+                if not REQUEST.PARENTS[0].absolute_url(1):
+                    pobj = REQUEST.PARENTS[-1]
             ppath = string.join(pobj.getPhysicalPath(), '/')
             return self.messageDialog(
                 message='The file %s was successfully created!' % id,
@@ -605,7 +614,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             crc = file.CRC
 
         with self.data_file.open('wb', orig_size=orig_size, skip_decompress=skip_compress, crc=crc, preserve_mtime=preserve_mtime) as data_file_handle:
-            if hasattr(file, 'filename'):
+            if hasattr(file, 'read'):
                 for chunk in RepUtils.iter_file_data(file):
                     data_file_handle.write(chunk)
             else:
@@ -675,7 +684,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         return content_type
 
     def _compute_uncompressed_size(self, file_or_content):
-        if isinstance(file_or_content, FileUpload):
+        if isinstance(file_or_content, FileUpload) or isinstance(file_or_content, file):
             pos = file_or_content.tell()
             file_or_content.seek(0, 2)
             size = file_or_content.tell()

@@ -38,6 +38,7 @@ import re
 import xmlrpclib
 import string
 import logging
+import tempfile
 import transaction
 from xml.dom.minidom import parseString
 from collections import defaultdict
@@ -96,6 +97,10 @@ class EnvelopeCustomDataflows(Toolz):
     # generic method that uploads a single file or a zip
     security.declareProtected('Change Envelopes', 'upload_doc_or_zip')
     upload_doc_or_zip = PageTemplateFile('zpt/envelope/upload_doc_or_zip', globals())
+
+    # generic method that uploads a MMR file or accompanying data
+    security.declareProtected('Change Envelopes', 'upload_mmr_file')
+    upload_mmr_file = PageTemplateFile('zpt/envelope/upload_mmr_file', globals())
 
     def _get_xml_files_by_schema(self, schema):
         """ Returns the list of XML files with the given schema from that envelope """
@@ -367,7 +372,7 @@ class EnvelopeCustomDataflows(Toolz):
 
     security.declareProtected('Change Envelopes', 'replace_dd_xml')
 
-    def replace_dd_xml(self, file, restricted='', required_schema=[], replace_xml=1, REQUEST=None):
+    def replace_dd_xml(self, file, filename=None, check_schema=True, restricted='', required_schema=[], replace_xml=1, REQUEST=None):
         """ Cheks if the schema id of the file is either empty or is in the 'required_schema' list.
             If yes, it adds the new file; if there are XML files in the envelope with the same schema, those are deleted first.
             If no, it doesn't upload the file and complains.
@@ -377,7 +382,7 @@ class EnvelopeCustomDataflows(Toolz):
                 0 if the file is either not XML or with the right schema
                 -1 if there was no file
         """
-        if not file or type(file) is type('') or not hasattr(file, 'filename'):
+        if not file or type(file) is type('') or (not hasattr(file, 'filename') and not filename):
             if REQUEST is not None:
                 return self.messageDialog(
                     message='Upload failed! No file was specified!',
@@ -387,14 +392,16 @@ class EnvelopeCustomDataflows(Toolz):
         # guess content type
         first_1k = file.read(1024)
         file.seek(0)
-
-        content_type, enc = guess_content_type(file.filename, first_1k)
+        if not filename:
+            filename = file.filename
+        content_type, enc = guess_content_type(filename, first_1k)
         schema = None
         if content_type == 'text/xml':
             # don't attempt to extract schema for shapefiles that have their
             # own metadata in a schema-less xml
-            schemaless_shp_meta = file.filename.endswith('.shp.xml')
-            if not schemaless_shp_meta:
+            if filename.endswith('.shp.xml'):
+                check_schema = False
+            if check_schema:
                 try:
                     # verify the XML schema
                     schema = detect_single_schema(file)
@@ -407,7 +414,7 @@ class EnvelopeCustomDataflows(Toolz):
             file.seek(0)
             # if no list of schemas were specified, or if the current XML schema is part of the given list
             if not required_schema or schema in RepUtils.utConvertToList(required_schema) or schemaless_shp_meta:
-                cookid = self.cook_file_id(file.filename)
+                cookid = self.cook_file_id(filename)
                 if int(replace_xml) == 1 and not schemaless_shp_meta:
                     # delete all the XML files from this envelope which contain this schema
                     xmls = self._get_xml_files_by_schema(schema)
@@ -418,7 +425,10 @@ class EnvelopeCustomDataflows(Toolz):
                         self.manage_delObjects(cookid)
 
                 # finally, add a Report Document
-                return self.manage_addDocument(id=cookid, title='Data file', file=file, restricted=restricted,
+                return self.manage_addDocument(id=cookid, title='Data file',
+                                               file=file, filename=filename,
+                                               content_type=content_type,
+                                               restricted=restricted,
                                                REQUEST=REQUEST)
             else:
                 if REQUEST is not None:
@@ -898,6 +908,59 @@ class EnvelopeCustomDataflows(Toolz):
                        "Sanitization process skipped for {} for not matching the required schema(s).".format(xml_file.getId()),
                        wk)
 
+    security.declareProtected('Change Envelopes', 'manage_addMMRXLSFile')
+    def manage_addMMRXLSFile(self, file='', restricted='', required_schema=[], replace_xml=1, REQUEST=None):
+        """ Adds an XLS file based on the MMR template:
+            - if the file is a spreadsheet, it will call the local converters to convert it to XML
+            - if the file XML, it calls replace_dd_xml
+            - otherwise it calls manage_addDocument
+        """
+        if not file or type(file) is type('') or not hasattr(file, 'filename'):
+            if REQUEST is not None:
+                return self.messageDialog(
+                    message='No file was specified!',
+                    action='index_html')
+            return 0
+        else:
+            l_filename = file.filename.lower()
+            l_id = self.cook_file_id(file.filename)
+
+            # delete previous version of file if exists
+            if hasattr(self, l_id):
+                self.manage_delObjects(l_id)
+            # upload original file in the envelope
+            self.manage_addDocument(id=l_id, file=file, restricted=restricted, REQUEST=REQUEST)
+
+            # must commit transaction first, otherwise the file is not accessible from outside
+            transaction.commit()
+            if l_id.split('.')[-1].startswith('xls'):
+                l_doc = getattr(self, l_id)
+                converters = self.unrestrictedTraverse(CONVERTERS_ID)
+                available_local_converters = []
+                converter = None
+                available_local_converters = converters._get_local_converters()
+                # The only current way of finding an appropriate local converter is to look for the accepted content type
+                for conv_obj in available_local_converters:
+                    if l_doc.content_type in conv_obj.ct_input:
+                        converter = conv_obj
+
+                if converter:
+                    conv = converter.convert(l_doc, converter.id)
+                    with tempfile.TemporaryFile() as tmp:
+                        tmp.write(conv.content.encode('utf-8'))
+                        tmp.seek(0)
+                        return self.replace_dd_xml(
+                            file=tmp,
+                            filename='.'.join([l_id.split('.')[0], 'xml']),
+                            check_schema=False,
+                            restricted=restricted,
+                            required_schema=required_schema,
+                            replace_xml=int(replace_xml),
+                            REQUEST=REQUEST)
+            if REQUEST is not None:
+                return self.messageDialog(
+                    message="Files successfully uploaded!",
+                    action='.')
 
 # Initialize the class in order the security assertions be taken into account
 InitializeClass(EnvelopeCustomDataflows)
