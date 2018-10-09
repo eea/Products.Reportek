@@ -52,7 +52,7 @@ class ReportekApi(BrowserView):
                 'url': env.absolute_url(0),
                 'title': env.title,
                 'description': env.descr,
-                'dataflow_uris': env.dataflow_uris,
+                'dataflow_uris': env.dataflow_uris if isinstance(env.dataflow_uris, list) else list(env.dataflow_uris),
                 'country': env.country,
                 'country_name': env.getCountryName(),
                 'country_code': env.getCountryCode(),
