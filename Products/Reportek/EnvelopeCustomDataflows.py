@@ -413,9 +413,9 @@ class EnvelopeCustomDataflows(Toolz):
                             action='index_html')
             file.seek(0)
             # if no list of schemas were specified, or if the current XML schema is part of the given list
-            if not required_schema or schema in RepUtils.utConvertToList(required_schema) or schemaless_shp_meta:
+            if not required_schema or schema in RepUtils.utConvertToList(required_schema) or not check_schema:
                 cookid = self.cook_file_id(filename)
-                if int(replace_xml) == 1 and not schemaless_shp_meta:
+                if int(replace_xml) == 1 and check_schema:
                     # delete all the XML files from this envelope which contain this schema
                     xmls = self._get_xml_files_by_schema(schema)
                     self.manage_delObjects(xmls)
