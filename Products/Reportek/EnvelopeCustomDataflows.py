@@ -939,24 +939,25 @@ class EnvelopeCustomDataflows(Toolz):
                 available_local_converters = []
                 converter = None
                 available_local_converters = converters._get_local_converters()
-                # The only current way of finding an appropriate local converter is to look for the accepted content type
                 for conv_obj in available_local_converters:
-                    if l_doc.content_type in conv_obj.ct_input:
-                        converter = conv_obj
+                    if conv_obj.title == 'Convert MMR Projections XLS to XML':
+                        if l_doc.content_type in conv_obj.ct_input:
+                            converter = conv_obj
 
                 if converter:
                     conv = converter.convert(l_doc, converter.id)
-                    with tempfile.TemporaryFile() as tmp:
-                        tmp.write(conv.content.encode('utf-8'))
-                        tmp.seek(0)
-                        return self.replace_dd_xml(
-                            file=tmp,
-                            filename='.'.join([l_id.split('.')[0], 'xml']),
-                            check_schema=False,
-                            restricted=restricted,
-                            required_schema=required_schema,
-                            replace_xml=int(replace_xml),
-                            REQUEST=REQUEST)
+                    if conv.content:
+                        with tempfile.TemporaryFile() as tmp:
+                            tmp.write(conv.content.encode('utf-8'))
+                            tmp.seek(0)
+                            return self.replace_dd_xml(
+                                file=tmp,
+                                filename='.'.join([l_id.split('.')[0], 'xml']),
+                                check_schema=False,
+                                restricted=restricted,
+                                required_schema=required_schema,
+                                replace_xml=int(replace_xml),
+                                REQUEST=REQUEST)
             if REQUEST is not None:
                 return self.messageDialog(
                     message="Files successfully uploaded!",
