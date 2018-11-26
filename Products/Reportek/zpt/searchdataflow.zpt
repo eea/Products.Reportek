@@ -164,13 +164,17 @@
                 <tal:block tal:condition="not: python:hasattr(obj.aq_parent, 'company_id')" tal:content="string:-">
                 </tal:block>
               </td>
-              <td tal:content="python:obj.getCountryName()">country name</td>
-              <td tal:condition="isBdrDeployment"
-                tal:content="python:obj.aq_parent.title">company name
-              </td>
-              <td tal:condition="isBdrDeployment"
-                tal:content="python:obj.aq_parent.id">user id ?
-              </td>
+              <tal:def tal:define="company_meta python: obj.aq_parent.get_zope_company_meta()">
+                <td tal:content="python:obj.getCountryName()">country name</td>
+                <td tal:condition="isBdrDeployment"
+                  tal:define="company_name python: company_meta[0] if company_meta[0] else obj.aq_parent.title"
+                  tal:content="company_name">company name
+                </td>
+                <td tal:condition="isBdrDeployment"
+                    tal:define="user_id python:company_meta[1] if company_meta[1] else obj.aq_parent.getId()"
+                  tal:content="user_id">user id ?
+                </td>
+              </tal:def>
               <td>
                 <img tal:attributes="src obj/icon;
                                      alt obj/meta_type"
