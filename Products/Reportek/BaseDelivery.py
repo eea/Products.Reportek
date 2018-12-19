@@ -171,20 +171,21 @@ class BaseDelivery(object):
                         accepted = False
 
                 company_id = '-'
+                company_meta = self.aq_parent.get_zope_company_meta()
                 if (hasattr(self.aq_parent, 'company_id')):
                     company_id = self.aq_parent.company_id
                 company = '-'
                 userid = '-'
                 if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-                    company = self.aq_parent.title.decode('utf-8')
-                    userid = self.aq_parent.id
+                    company = company_meta[0] if company_meta[0] else self.aq_parent.title
+                    userid = company_meta[1] if company_meta[1] else self.aq_parent.id
                 obligations = [obl[0] for obl in self.getObligations()]
 
                 env_data = {
                     'company_id': company_id,
                     'path': self.absolute_url_path(),
                     'country': self.getCountryName(),
-                    'company': company,
+                    'company': company.decode('utf-8'),
                     'userid': userid,
                     'title': self.title.decode('utf-8'),
                     'id': self.id,
