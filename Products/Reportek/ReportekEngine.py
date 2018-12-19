@@ -945,6 +945,13 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 pass
         return objects
 
+    def get_apps_wks(self, apps):
+        catalog = self.unrestrictedTraverse(constants.DEFAULT_CATALOG)
+        return catalog(meta_type='Workitem',
+                       status='active',
+                       activity_id=apps)
+
+
     def runAutomaticApplications(self, p_applications, REQUEST=None):
         """ Searches for the active workitems of activities that need triggering
             on regular basis and calls triggerApplication for them
@@ -954,12 +961,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                   parameter cannot be a list, but a string. To include more than one
                   applications, separate them by ||
         """
-        catalog = self.unrestrictedTraverse(constants.DEFAULT_CATALOG)
         apps = p_applications.split('||')
         result = []
-        brains = catalog(meta_type='Workitem',
-                         status='active',
-                         activity_id=apps)
+        brains = self.get_apps_wks(apps)
 
         for brain in brains:
             try:
@@ -974,6 +978,23 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 logger.error(msg)
 
         return result
+
+    def getWkAppsActive(self, p_applications, REQUEST=None):
+        """ Searches for the active workitems of activities that need triggering
+            on regular basis.
+
+            Note: Since this method is called using a HTTP get, the p_applications
+                  parameter cannot be a list, but a string. To include more than one
+                  applications, separate them by ||
+        """
+        apps = p_applications.split('||')
+        result = []
+        brains = self.get_apps_wks(apps)
+
+        for brain in brains:
+            result.append(brain.getURL())
+
+        return self.jsonify(result)
 
     def _xmlrpc_search_delivery(self, dataflow_uris, country):
         """ Looks for Report Envelopes with the given attributes
