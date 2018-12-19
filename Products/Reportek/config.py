@@ -44,7 +44,11 @@ BDR_XLS_HEADINGS = [
     ('Obligation', 'obligation'),
     ('Reported', 'reported'),
     ('Files', 'files'),
-    ('Accepted', 'accepted')
+    ('Accepted', 'accepted'),
+    ('Activities', 'activities'),
+    ('Reported Gases', 'gases'),
+    ('Issued authorisations', 'i_authorisations'),
+    ('Available authorisations', 'a_authorisations')
 ]
 
 CDR_XLS_HEADINGS = [
