@@ -49,6 +49,7 @@ from constants import CONVERTERS_ID
 from zip_content import ZZipFile
 from XMLInfoParser import detect_single_schema, SchemaError
 from Toolz import Toolz
+import json
 import zip_content
 
 # from zipfile import *
@@ -962,6 +963,105 @@ class EnvelopeCustomDataflows(Toolz):
                 return self.messageDialog(
                     message="Files successfully uploaded!",
                     action='.')
+
+    def update_doc_metadata(self, doc_ids=None, extra_params=''):
+        converters = self.unrestrictedTraverse(CONVERTERS_ID)
+        available_local_converters = []
+        converter = None
+        available_local_converters = converters._get_local_converters()
+        metadata = {}
+        for conv_obj in available_local_converters:
+            if conv_obj.id == 'xml_to_json':
+                converter = conv_obj
+
+        if converter:
+            if not doc_ids:
+                docs = [doc for doc in self.objectValues('Report Document')
+                        if doc.content_type == 'text/xml']
+            else:
+                docs = [self.unrestrictedTraverse(doc_id) for doc_id in doc_ids
+                        if self.unrestrictedTraverse(doc_id).content_type == 'text/xml']
+            for doc in docs:
+                conv = converter.convert(doc, converter.id, extra_params=extra_params)
+                try:
+                    r_metadata = json.loads(conv.content)
+                except Exception as e:
+                    conversion_log.error("Unable to extract metadata for {}, with converter: {}".format(doc.getId(), converter.id))
+                    return
+                if extra_params:
+                    metadata = {}
+                    params = extra_params.split(' ')
+                    for param in params:
+                        m = r_metadata.get(param)
+                        if m:
+                            if len(m) == 1:
+                                m = m[0]
+                                metadata[m.keys()[0]] = m[m.keys()[0]]
+                            else:
+                                m_key = m[0].keys()[0]
+                                metadata[m_key] = [k[m_key] for k in m]
+                else:
+                    metadata = r_metadata
+                doc.metadata = metadata
+                doc.reindex_object()
+            return True
+
+    def get_xml_metadata(self):
+        """Retrieve the metadata from the XML document"""
+        xmls = [doc for doc in self.objectValues('Report Document')
+                if doc.content_type == 'text/xml' and hasattr(doc, 'metadata')]
+
+        if len(xmls) == 1:
+            return getattr(xmls[0], 'metadata')
+
+    # These properties are defined for BDR FGAS reports
+    # TODO: change these to methods instead, due to inconsistent behavior of the properties for some reason
+    def get_fgas_activities(self):
+        """Activities"""
+        KEY = 'Activities'
+        metadata = self.get_xml_metadata()
+        if metadata:
+            act = metadata.get(KEY)
+            if act:
+                return [a for a in act if act[a] == 'true']
+
+    def get_fgas_reported_gases(self):
+        """Reported Gases"""
+        KEY = 'ReportedGases'
+        metadata = self.get_xml_metadata()
+        if metadata:
+            result = []
+            gases = metadata.get(KEY)
+            if gases:
+                if isinstance(gases, dict):
+                    gases = [gases]
+                for gas in gases:
+                    result.append({
+                        'Name': gas.get('Name'),
+                        'GasId': gas.get('GasId'),
+                        'GasGroup': gas.get('GasGroup'),
+                        'GasGroupId': gas.get('GasGroupId')
+                    })
+                return result
+
+    def get_fgas_i_authorisations(self):
+        """tr_09A_imp SumOfPartnerAmounts"""
+        KEY = 'tr_09A_imp'
+        metadata = self.get_xml_metadata()
+        if metadata:
+            i_auth = metadata.get(KEY)
+            if i_auth:
+                return i_auth.get('SumOfPartnerAmounts')
+
+    def get_fgas_a_authorisations(self):
+        """F9_S13 AuthBalance Amount"""
+        KEY = 'F9_S13'
+        metadata = self.get_xml_metadata()
+        if metadata:
+            a_auth = metadata.get(KEY)
+            if a_auth:
+                a_balance = a_auth.get('AuthBalance', {})
+                return a_balance.get('Amount')
 
 # Initialize the class in order the security assertions be taken into account
 InitializeClass(EnvelopeCustomDataflows)

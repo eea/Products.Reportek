@@ -32,6 +32,8 @@ from AccessControl.Permissions import view_management_screens, view
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from RestrictedPython.Eval import RestrictionCapableEval
 from zExceptions import Redirect
+from ZODB.POSException import POSKeyError
+from Products.Reportek.blob import StorageError
 from copy import deepcopy
 import Globals
 import RepUtils
@@ -263,13 +265,18 @@ class LocalHttpConverter(Converter):
     def get_file_data(self, file_obj):
         data_file = getattr(file_obj, 'data_file', None)
         if (data_file and isinstance(data_file, blob.FileContainer)):
-            return data_file.open()
+            try:
+                return data_file.open()
+            except (POSKeyError, StorageError):
+                return ''
         else:
             return file_obj
 
-    def convert(self, file_obj, converter_id):
+    def convert(self, file_obj, converter_id, extra_params=None):
         url = '%s%s' % (self.get_local_http_converters_url(), self.convert_url)
-        extra_params = request_params(self.ct_extraparams, obj=file_obj)
+        # We could have a valid '' here
+        if extra_params is None:
+            extra_params = request_params(self.ct_extraparams, obj=file_obj)
         data = self.get_file_data(file_obj)
         files = {'file': data}
         accepts_shp = any(map(lambda item: 'shp' in item, self.ct_input))
@@ -282,10 +289,8 @@ class LocalHttpConverter(Converter):
                                         '.'.join([file_name, 'dbf']))
             files['shx'] = self.get_file_data(shx_file)
             files['dbf'] = self.get_file_data(dbf_file)
-        resp = requests.post(
-                   url,
-                   files=files,
-                   data={'extraparams': extra_params})
+        resp = requests.post(url, files=files,
+                             data={'extraparams': extra_params})
 
         response = ConversionResult(resp)
         return response

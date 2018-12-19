@@ -267,6 +267,11 @@ def create_reportek_indexes(catalog):
     if 'local_defined_roles' not in catalog.schema():
         catalog.addColumn('local_defined_roles')
     add_index('document_id', catalog, 'FieldIndex')
+    if config.REPORTEK_DEPLOYMENT == config.DEPLOYMENT_BDR:
+        add_index('get_fgas_activities', catalog, 'FieldIndex', meta=True)
+        add_index('get_fgas_reported_gases', catalog, 'FieldIndex', meta=True)
+        add_index('get_fgas_i_authorisations', catalog, 'FieldIndex', meta=True)
+        add_index('get_fgas_a_authorisations', catalog, 'FieldIndex', meta=True)
 
 
 class Empty:
