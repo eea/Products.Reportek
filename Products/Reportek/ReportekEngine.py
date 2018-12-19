@@ -70,6 +70,7 @@ from zope.i18n.interfaces import II18nAware, INegotiator
 from zope.component import getUtility
 import logging
 import importlib
+import transaction
 logger = logging.getLogger("Reportek")
 
 class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
@@ -965,6 +966,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 wk = brain.getObject()
                 result.append(brain.getURL())
                 wk.triggerApplication(wk.id, REQUEST)
+                if not REQUEST:
+                    transaction.commit()
             except Exception as e:
                 msg = 'Error while triggering application for: '\
                       '{} - ({})'.format(brain.getURL(), str(e))
