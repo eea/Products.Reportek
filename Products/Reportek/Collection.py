@@ -503,6 +503,20 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
     def company_id(self, value):
         self._company_id = value
 
+    def get_zope_company_meta(self):
+        """Return the company meta attached to the collection"""
+        def cname(obj):
+            try:
+                parent = obj.getParentNode()
+            except Exception as e:
+                return (None, None)
+            if hasattr(obj, '_company_id') and not hasattr(parent, '_company_id'):
+                return (obj.title, obj.getId())
+            else:
+                return cname(parent)
+
+        return cname(self)
+
     security.declareProtected('View', 'messageDialog')
     def messageDialog(self, message='', action='', REQUEST=None):
         """ displays a message dialog """
