@@ -18,10 +18,7 @@ def main():
 
     from Products.Reportek.scripts import get_zope_site
     from Products.Reportek.constants import ENGINE_ID
-    import transaction
     site = get_zope_site()
     engine = site.unrestrictedTraverse(ENGINE_ID, None)
     if engine:
         engine.runAutomaticApplications('AutomaticQA')
-        # commit the transaction
-        transaction.commit()

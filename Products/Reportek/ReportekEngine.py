@@ -70,6 +70,7 @@ from zope.i18n.interfaces import II18nAware, INegotiator
 from zope.component import getUtility
 import logging
 import importlib
+import transaction
 logger = logging.getLogger("Reportek")
 
 class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
@@ -944,6 +945,13 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 pass
         return objects
 
+    def get_apps_wks(self, apps):
+        catalog = self.unrestrictedTraverse(constants.DEFAULT_CATALOG)
+        return catalog(meta_type='Workitem',
+                       status='active',
+                       activity_id=apps)
+
+
     def runAutomaticApplications(self, p_applications, REQUEST=None):
         """ Searches for the active workitems of activities that need triggering
             on regular basis and calls triggerApplication for them
@@ -953,24 +961,40 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                   parameter cannot be a list, but a string. To include more than one
                   applications, separate them by ||
         """
-        catalog = self.unrestrictedTraverse(constants.DEFAULT_CATALOG)
         apps = p_applications.split('||')
         result = []
-        brains = catalog(meta_type='Workitem',
-                         status='active',
-                         activity_id=apps)
+        brains = self.get_apps_wks(apps)
 
         for brain in brains:
             try:
                 wk = brain.getObject()
                 result.append(brain.getURL())
                 wk.triggerApplication(wk.id, REQUEST)
+                if not REQUEST:
+                    transaction.commit()
             except Exception as e:
                 msg = 'Error while triggering application for: '\
                       '{} - ({})'.format(brain.getURL(), str(e))
                 logger.error(msg)
 
         return result
+
+    def getWkAppsActive(self, p_applications, REQUEST=None):
+        """ Searches for the active workitems of activities that need triggering
+            on regular basis.
+
+            Note: Since this method is called using a HTTP get, the p_applications
+                  parameter cannot be a list, but a string. To include more than one
+                  applications, separate them by ||
+        """
+        apps = p_applications.split('||')
+        result = []
+        brains = self.get_apps_wks(apps)
+
+        for brain in brains:
+            result.append(brain.getURL())
+
+        return self.jsonify(result)
 
     def _xmlrpc_search_delivery(self, dataflow_uris, country):
         """ Looks for Report Envelopes with the given attributes
