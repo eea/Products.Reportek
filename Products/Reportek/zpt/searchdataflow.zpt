@@ -237,7 +237,7 @@
                 <ul tal:condition="obj/get_fgas_reported_gases"
                   tal:repeat="gas python: obj.get_fgas_reported_gases()">
                   <li>
-                    Gas name: <span tal:content="python: gas.get('Name')"/><br/>
+                    Gas name: <span tal:content="python: gas.get('Name').split(' ')[0]"/><br/>
                     Gas ID: <span tal:content="python: gas.get('GasId')"/><br/>
                     Gas group: <span tal:content="python: gas.get('GasGroup')"/><br/>
                     Gas group ID: <span tal:content="python: gas.get('GasGroupId')"/><br/>
