@@ -1063,5 +1063,26 @@ class EnvelopeCustomDataflows(Toolz):
                 a_balance = a_auth.get('AuthBalance', {})
                 return a_balance.get('Amount')
 
+    def get_pretty_activities(self):
+        """Pretty print activities"""
+        act_map = {'D': 'EU Destruction Company',
+                   'E': 'EU Exporter Bulk',
+                   'Eq-I': 'EU Importer FGases',
+                   'Eq-I-RACHP-HFC': 'EU Importer FGases HFC',
+                   'Eq-I-other': 'EU Importer FGases Other',
+                   'FU': 'EU Feedstock User',
+                   'I': 'EU Importer Bulk',
+                   'I-HFC': 'EU Importer Bulk HFC',
+                   'I-other': 'EU Importer Bulk Other',
+                   'NIL-Report': 'NIL Report',
+                   'P': 'EU Producer',
+                   'P-HFC': 'EU Producer HFC',
+                   'P-other': 'EU Producer Other',
+                   'auth': 'Undertaking Authorisation',
+                   'auth-NER': 'Undertaking Authorisation NER'}
+        acts = self.get_fgas_activities()
+        if acts:
+            return [act_map.get(fa, fa) for fa in self.get_fgas_activities()]
+
 # Initialize the class in order the security assertions be taken into account
 InitializeClass(EnvelopeCustomDataflows)

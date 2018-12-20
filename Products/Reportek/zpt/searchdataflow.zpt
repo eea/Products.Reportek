@@ -212,25 +212,9 @@
               <tal:block condition="isBdrDeployment">
                 <tal:block replace="structure python: context.resultsdataflow_files(obj)"/>
                 <tal:block replace="structure python: context.resultsdataflow_accepted(obj)"/>
-                <td tal:condition="python: 'http://rod.eionet.europa.eu/obligations/713' == options['dataflow_uris']"
-                  tal:define="act_map python: {'D': 'EU Destruction Company',
-                                         'E': 'EU Exporter Bulk',
-                                         'Eq-I': 'EU Importer FGases',
-                                         'Eq-I-RACHP-HFC': 'EU Importer FGases HFC',
-                                         'Eq-I-other': 'EU Importer FGases Other',
-                                         'FU': 'EU Feedstock User',
-                                         'I': 'EU Importer Bulk',
-                                         'I-HFC': 'EU Importer Bulk HFC',
-                                         'I-other': 'EU Importer Bulk Other',
-                                         'NIL-Report': 'NIL Report',
-                                         'P': 'EU Producer',
-                                         'P-HFC': 'EU Producer HFC',
-                                         'P-other': 'EU Producer Other',
-                                         'auth': 'Undertaking Authorisation',
-                                         'auth-NER': 'Undertaking Authorisation NER',
-                                        }">
+                <td tal:condition="python: 'http://rod.eionet.europa.eu/obligations/713' == options['dataflow_uris']">
                   <ul tal:condition="obj/get_fgas_activities">
-                    <li tal:repeat="act python: [act_map.get(fa) for fa in obj.get_fgas_activities()]" tal:content="act"/>
+                    <li tal:repeat="act obj/get_pretty_activities" tal:content="act"/>
                   </ul>
               </td>
               <td tal:condition="python: 'http://rod.eionet.europa.eu/obligations/713' == options['dataflow_uris']">

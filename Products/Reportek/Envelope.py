@@ -1271,8 +1271,13 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                     'files': self.get_files_info(),
                 })
                 if 'http://rod.eionet.europa.eu/obligations/713' in self.dataflow_uris:
+                    acts = self.get_pretty_activities()
+                    if not acts:
+                        acts = ''
+                    else:
+                        acts = ', '.join(self.get_pretty_activities())
                     env_data.update({
-                        'activities': str(self.get_fgas_activities()),
+                        'activities': acts,
                         'gases': str(self.get_fgas_reported_gases()),
                         'i_authorisations': str(self.get_fgas_i_authorisations()),
                         'a_authorisations': str(self.get_fgas_a_authorisations())
