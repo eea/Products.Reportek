@@ -1272,13 +1272,31 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                 })
                 if 'http://rod.eionet.europa.eu/obligations/713' in self.dataflow_uris:
                     acts = self.get_pretty_activities()
+                    gases = self.get_fgas_reported_gases()
+                    gas_tmpl = (u"Gas name: {}\n"
+                                "Gas ID: {}\n"
+                                "Gas Group: {}\n"
+                                "Gas Group ID: {}\n\n"
+                                )
+                    pretty_gases = ''
+
+                    def parse_gas_data(data):
+                        if not data:
+                            data = 'N/A'
+                        return data
+
+                    if gases:
+                        pretty_gases = ''.join([gas_tmpl.format(parse_gas_data(g.get('Name')),
+                                                                parse_gas_data(g.get('GasId')),
+                                                                parse_gas_data(g.get('GasGroup')),
+                                                                parse_gas_data(g.get('GasGroupId'))) for g in gases])
                     if not acts:
                         acts = ''
                     else:
                         acts = ', '.join(self.get_pretty_activities())
                     env_data.update({
                         'activities': acts,
-                        'gases': str(self.get_fgas_reported_gases()),
+                        'gases': pretty_gases,
                         'i_authorisations': str(self.get_fgas_i_authorisations()),
                         'a_authorisations': str(self.get_fgas_a_authorisations())
                     })
