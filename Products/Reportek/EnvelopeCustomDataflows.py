@@ -1084,5 +1084,59 @@ class EnvelopeCustomDataflows(Toolz):
         if acts:
             return [act_map.get(fa, fa) for fa in self.get_fgas_activities()]
 
+    def get_transaction_year(self):
+        KEY = 'TransactionYear'
+        metadata = self.get_xml_metadata()
+        if metadata:
+            return metadata.get(KEY, 'N/A')
+
+    def metadata_json(self):
+        """Envelope JSON metadata"""
+        self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+        company_data = self.get_company_data()
+        company_name = None
+        company_country = None
+        company_vat = None
+        or_name = None
+        or_country = None
+        or_vat = None
+        nil_report = False
+
+        if company_data:
+            address = company_data.get('address')
+            country = address.get('country')
+            company_name = company_data.get('name')
+            company_country = country.get('name')
+            company_vat = company_data.get('vat')
+            rep = company_data.get('representative')
+            if rep:
+                or_address = rep.get('address')
+                or_name = rep.get('name')
+                or_country = or_address.get('country').get('name')
+                or_vat = rep.get('vatnumber')
+
+        acts = self.get_pretty_activities()
+        if acts:
+            nil_report = True if 'NIL-Report' in acts else False
+        envs = [env.getObject() for env in self.get_released_envelopes()]
+        envs = [env for env in envs
+                if env.get_transaction_year() == self.get_transaction_year()]
+        envs.reverse()
+        result = {
+            'submission_number': envs.index(self),
+            'submission_date': self.reportingdate.strftime('%Y-%m-%d'),
+            'company_name': company_name,
+            'company_country': company_country,
+            'company_vat': company_vat,
+            'or_name': or_name,
+            'or_country': or_country,
+            'or_vat': or_vat,
+            'company_id': self.company_id,
+            'transaction_year': self.get_transaction_year(),
+            'nil_report': nil_report,
+            'most_recent': self.is_newest_released(self.getId())
+        }
+
+        return json.dumps(result, indent=4, ensure_ascii=False)
 # Initialize the class in order the security assertions be taken into account
 InitializeClass(EnvelopeCustomDataflows)
