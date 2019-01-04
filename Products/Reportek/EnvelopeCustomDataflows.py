@@ -1123,8 +1123,12 @@ class EnvelopeCustomDataflows(Toolz):
             envs = [env for env in envs
                     if env.get_transaction_year() == self.get_transaction_year()]
             envs.reverse()
+            try:
+                sub_no = envs.index(self)
+            except ValueError:
+                sub_no = None
             result = {
-                'submission_number': envs.index(self),
+                'submission_number': sub_no,
                 'submission_date': self.reportingdate.strftime('%Y-%m-%d'),
                 'company_name': company_name,
                 'company_country': company_country,
