@@ -1124,7 +1124,7 @@ class EnvelopeCustomDataflows(Toolz):
                     if env.get_transaction_year() == self.get_transaction_year()]
             envs.reverse()
             try:
-                sub_no = envs.index(self)
+                sub_no = envs.index(self) + 1
             except ValueError:
                 sub_no = None
             result = {
