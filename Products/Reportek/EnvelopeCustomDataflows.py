@@ -1006,7 +1006,7 @@ class EnvelopeCustomDataflows(Toolz):
             return True
 
     def get_xml_metadata(self):
-        """Retrieve the metadata from the XML document"""
+        # Retrieve the metadata from the XML document
         xmls = [doc for doc in self.objectValues('Report Document')
                 if doc.content_type == 'text/xml' and hasattr(doc, 'metadata')]
 
@@ -1016,7 +1016,7 @@ class EnvelopeCustomDataflows(Toolz):
     # These properties are defined for BDR FGAS reports
     # TODO: change these to methods instead, due to inconsistent behavior of the properties for some reason
     def get_fgas_activities(self):
-        """Activities"""
+        # Activities
         KEY = 'Activities'
         metadata = self.get_xml_metadata()
         if metadata:
@@ -1025,7 +1025,7 @@ class EnvelopeCustomDataflows(Toolz):
                 return [a for a in act if act[a] == 'true']
 
     def get_fgas_reported_gases(self):
-        """Reported Gases"""
+        # Reported Gases
         KEY = 'ReportedGases'
         metadata = self.get_xml_metadata()
         if metadata:
@@ -1044,7 +1044,7 @@ class EnvelopeCustomDataflows(Toolz):
                 return result
 
     def get_fgas_i_authorisations(self):
-        """tr_09A_imp SumOfPartnerAmounts"""
+        # tr_09A_imp SumOfPartnerAmounts
         KEY = 'tr_09A_imp'
         metadata = self.get_xml_metadata()
         if metadata:
@@ -1053,7 +1053,7 @@ class EnvelopeCustomDataflows(Toolz):
                 return i_auth.get('SumOfPartnerAmounts')
 
     def get_fgas_a_authorisations(self):
-        """F9_S13 AuthBalance Amount"""
+        # F9_S13 AuthBalance Amount
         KEY = 'F9_S13'
         metadata = self.get_xml_metadata()
         if metadata:
@@ -1063,7 +1063,7 @@ class EnvelopeCustomDataflows(Toolz):
                 return a_balance.get('Amount')
 
     def get_pretty_activities(self):
-        """Pretty print activities"""
+        # Pretty print activities
         act_map = {'D': 'EU Destruction Company',
                    'E': 'EU Exporter Bulk',
                    'Eq-I': 'EU Importer FGases',
@@ -1084,10 +1084,13 @@ class EnvelopeCustomDataflows(Toolz):
             return [act_map.get(fa, fa) for fa in self.get_fgas_activities()]
 
     def get_transaction_year(self):
+        # Return the transaction year
         KEY = 'TransactionYear'
         metadata = self.get_xml_metadata()
         if metadata:
             return metadata.get(KEY, 'N/A')
+
+    security.declareProtected('View', 'metadata_json')
 
     def metadata_json(self):
         """Envelope JSON metadata"""
