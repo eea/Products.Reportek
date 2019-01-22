@@ -951,6 +951,19 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                        status='active',
                        activity_id=apps)
 
+    def get_running_envelopes(self):
+        catalog = self.unrestrictedTraverse(constants.DEFAULT_CATALOG)
+        return catalog(meta_type='Report Envelope',
+                       wf_status='forward')
+
+    def get_forward_envelopes(self):
+        """Return a JSON array with envelopes that are in forward wf_status."""
+        brains = self.get_running_envelopes()
+        result = []
+        for brain in brains:
+            result.append(brain.getURL())
+
+        return self.jsonify(result)
 
     def runAutomaticApplications(self, p_applications, REQUEST=None):
         """ Searches for the active workitems of activities that need triggering

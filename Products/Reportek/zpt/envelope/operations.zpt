@@ -39,7 +39,7 @@
                  i18n:translate="">Deactivate task</a>
             </li>
         </tal:block>
-          <tal:block condition="
+<!--           <tal:block condition="
             python:item.status == 'complete' and item.actor == current_actor and
                    not item.workitems_to and item.getDestinations(item.id) ">
           <li>
@@ -48,7 +48,7 @@
                       to the next person in the chain"
                i18n:translate="">Forward</a>
           </li>
-        </tal:block>
+        </tal:block> -->
       </tal:block>
     </tal:block>
   </tal:block>

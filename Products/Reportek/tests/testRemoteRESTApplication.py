@@ -174,6 +174,8 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         mock_requests.get.return_value = Mock(status_code=201);
         restapp = self.app.Applications.proc1.act1
         restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        #Forward state
+        self.app.col1.env1.forwardState()
         exp = re.compile('\w+ job id 1 for http:\/\/[\w+\/]+ returned invalid status code 201.$')
         self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-3]['event'], exp)
 
@@ -192,6 +194,8 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         );
         restapp = self.app.Applications.proc1.act1
         restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        # Forward state
+        self.app.col1.env1.forwardState()
         exp = re.compile('\w+ job id 1 for http:\/\/[\w+\/]+ output is not json.$')
         self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-4]['event'], exp)
         exp = re.compile('\w+ job id 1 for http:\/\/[\w+\/]+ output is invalid.$')
@@ -221,6 +225,8 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         restapp = self.app.Applications.proc1.act1
         self.col1.env1.manage_addFeedback = Mock()
         restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        #Forward state
+        self.app.col1.env1.forwardState()
         exp = re.compile('\w+ job id 1 for http:\/\/[\w+\/]+ successfully finished.$')
         self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-3]['event'], exp)
 
@@ -431,6 +437,8 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         restapp = self.app.Applications.proc1.act1
         self.col1.env1.manage_addFeedback = Mock()
         restapp.__of__(self.app.col1.env1).callApplication('0', self.app.REQUEST)
+        # Forward state
+        self.app.col1.env1.forwardState()
         exp = re.compile('\w+ job id 1 for http:\/\/[\w+\/]+ failed.$')
         self.assertRegexpMatches(self.app.col1.env1['0'].event_log[-3]['event'], exp)
 

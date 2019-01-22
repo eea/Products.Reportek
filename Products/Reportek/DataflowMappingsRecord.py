@@ -187,7 +187,6 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
         message_dialog = ''
 
         if REQUEST.method == 'POST':
-
             if REQUEST.form.get('add'):
                 message_dialog = self.add_schema(REQUEST)
 

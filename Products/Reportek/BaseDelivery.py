@@ -202,6 +202,9 @@ class BaseDelivery(object):
         """Return custom child objects metadata for RDF export."""
         return []
 
+    def get_dflow_uris(self):
+        return [df for df in self.dataflow_uris]
+
     security.declareProtected('View', 'rdf')
     def rdf(self, REQUEST):
         """Returns the delivery metadata in RDF format."""

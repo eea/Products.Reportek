@@ -48,7 +48,7 @@ except:
     # here's a what you need:
     from expression import Expression
 import RepUtils
-from constants import WORKFLOW_ENGINE_ID, WEBQ_XML_REPOSITORY, CONVERTERS_ID, APPLICATIONS_FOLDER_ID
+from constants import WORKFLOW_ENGINE_ID, WEBQ_XML_REPOSITORY, CONVERTERS_ID, APPLICATIONS_FOLDER_ID, ENGINE_ID
 from workitem import workitem
 import logging
 import sys
@@ -461,13 +461,41 @@ class EnvelopeInstance(CatalogAware, Folder):
                         self.completeSubflow(subflow_workitem_id)
                     else:
                         self.setStatus(status='complete', actor=l_actor)
+                        self.wf_status = 'complete'
+                        self.reindex_object()
             if activity.isAutoFinish() and not process.end == activity.id and not activity.isSubflow():
-                self.forwardWorkitem(workitem_id)
+                # If the current activity is auto start, let it be handled by the forwarder
+                if activity.isAutoStart():
+                    self.wf_status = 'forward'
+                    self.reindex_object()
+                # If it's manually started, forward it manually as we might have template forms that have form values
+                else:
+                    self.forwardWorkitem(workitem_id)
+
             if REQUEST:
                 if REQUEST.has_key('DestinationURL'):
                     REQUEST.RESPONSE.redirect(REQUEST['DestinationURL'])
                 else:
                     REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
+
+    def forwardState(self, REQUEST=None):
+        """.."""
+        wk = self.getListOfWorkitems()[-1]
+        result = {}
+        engine = getattr(self, ENGINE_ID)
+        if wk.status == 'complete':
+            self.forwardWorkitem(wk.id)
+            result['forwarded'] = wk.activity_id
+            latest_wk = self.getListOfWorkitems()[-1]
+            if wk != latest_wk:
+                result['triggerable'] = latest_wk.activity_id
+        else:
+            if self.wf_status == 'forward':
+                wk.triggerApplication(wk.id, REQUEST)
+                result['triggered'] = wk.activity_id
+
+        return engine.jsonify(result)
+
 
     def isEnd(self, activity_id):
         """  """
@@ -763,7 +791,12 @@ class EnvelopeInstance(CatalogAware, Folder):
                 if activity.isAutoPush():
                     self.callAutoPush(workitem_id)
                 if activity.isAutoStart():
+                    self.wf_status = 'forward'
+                    self.reindex_object()
                     self.startAutomaticApplication(workitem_id)
+                else:
+                    self.wf_status = 'manual'
+                    self.reindex_object()
             elif activity.isSubflow():
                 self.startSubflow(workitem_id)
 
