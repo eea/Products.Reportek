@@ -1,14 +1,14 @@
 <tal:block metal:define-macro="tasks_in_progress">
-  <tal:block condition="python:activeW">
+  <tal:block condition="python:of_interest">
     <span i18n:translate="">Task(s) in progress:</span>
-    <tal:block repeat="item activeW">
+    <tal:block repeat="item of_interest">
       <tal:block condition="python:item.actor == 'openflow_engine'"><img style="vertical-align: middle" src="/misc_/Reportek/work_in_process" alt="Work in progress for this activity" />
       </tal:block>
       <tal:block tal:define="title python: item.getActivityDetails('title');
                             description python:item.getActivityDetails('description')">
       <strong tal:condition="title" tal:content="title"></strong>
       <strong tal:condition="not: title" tal:content="python: item.process_path.split('/')[-1]"></strong>
-      (<span tal:condition="description" tal:replace="description"></span><span tal:condition="not: description" i18n:translate="">Workflow missing</span>)
+<!--       (<span tal:condition="description" tal:replace="description"></span><span tal:condition="not: description" i18n:translate="">Workflow missing</span>) -->
       </tal:block>
       <tal:block condition="python:item.actor == 'openflow_engine'">
         <tal:block define="dummy_var python:request.RESPONSE.setHeader('Refresh','60')" />

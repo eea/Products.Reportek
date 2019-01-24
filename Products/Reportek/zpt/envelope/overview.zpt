@@ -81,7 +81,8 @@
                   <br/>
                 </tal:block>
                 <tal:block define="activeW python:context.getListOfWorkitems('active');
-                                   inactiveW python:context.getListOfWorkitems('inactive')">
+                                   inactiveW python:context.getListOfWorkitems('inactive');
+                                   of_interest python: [context.getListOfWorkitems(status=['active', 'complete'])[-1]] if not inactiveW and not context.status == 'complete' else [];">
                   <metal:block use-macro="here/macros/tasks_in_progress">
                   </metal:block>
                 </tal:block>
