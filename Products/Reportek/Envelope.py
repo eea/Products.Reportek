@@ -597,11 +597,6 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             # update ZCatalog
             self.reindex_object()
             self._invalidate_zip_cache()
-            # make this change visible right away (for the CR ping following this call for instance)
-            # otherwise the envelope will really be released only after the calling view
-            # of this function will finish, and ZPublisher will commit automatically
-            transaction.commit()
-            logger.debug("Releasing Envelope: %s" % self.absolute_url())
         if self.REQUEST is not None:
             return self.messageDialog(
                             message="The envelope has now been released to the public!",

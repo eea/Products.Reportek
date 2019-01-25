@@ -478,21 +478,23 @@ class EnvelopeInstance(CatalogAware, Folder):
                 else:
                     REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
 
+    security.declareProtected('Use OpenFlow', 'forwardState')
     def forwardState(self, REQUEST=None):
         """.."""
-        wk = self.getListOfWorkitems()[-1]
         result = {}
         engine = getattr(self, ENGINE_ID)
-        if wk.status == 'complete':
-            self.forwardWorkitem(wk.id)
-            result['forwarded'] = wk.activity_id
-            latest_wk = self.getListOfWorkitems()[-1]
-            if wk != latest_wk:
-                result['triggerable'] = latest_wk.activity_id
-        else:
-            if self.wf_status == 'forward':
-                wk.triggerApplication(wk.id, REQUEST)
-                result['triggered'] = wk.activity_id
+        if getattr(self, 'wf_status', None) == 'forward':
+            wk = self.getListOfWorkitems()[-1]
+            if wk.status in ['complete', 'inactive']:
+                self.handleWorkitem(wk.id)
+                result['forwarded'] = wk.activity_id
+                latest_wk = self.getListOfWorkitems()[-1]
+                if wk != latest_wk:
+                    result['triggerable'] = latest_wk.activity_id
+            else:
+                if self.wf_status == 'forward':
+                    wk.triggerApplication(wk.id, REQUEST)
+                    result['triggered'] = wk.activity_id
 
         return engine.jsonify(result)
 
@@ -553,6 +555,29 @@ class EnvelopeInstance(CatalogAware, Folder):
                                  'blocked_init' : blocked_init,
                                  'process_to_id' : process.id})
         return destinations
+
+    def handleWorkitem(self, workitem_id, REQUEST=None):
+        # If it's a previously failed application, retry it, otherwise forward it
+        workitem = getattr(self, workitem_id)
+        activity = self.getActivity(workitem_id)
+        if self.isActiveOrRunning() and workitem.status == 'inactive' and \
+                getattr(self, 'wf_status', None) == 'forward':
+            if activity.isDummy():
+                self.manageDummyActivity(workitem_id)
+            elif activity.isStandard():
+                if activity.isAutoPush():
+                    self.callAutoPush(workitem_id)
+                if activity.isAutoStart():
+                    self.wf_status = 'forward'
+                    self.reindex_object()
+                    self.startAutomaticApplication(workitem_id)
+                else:
+                    self.wf_status = 'manual'
+                    self.reindex_object()
+            elif activity.isSubflow():
+                self.startSubflow(workitem_id)
+        else:
+            self.forwardWorkitem(workitem_id)
 
     security.declareProtected('Use OpenFlow', 'forwardWorkitem')
     def forwardWorkitem(self, workitem_id, path=None, REQUEST=None):
