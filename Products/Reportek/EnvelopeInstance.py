@@ -464,11 +464,11 @@ class EnvelopeInstance(CatalogAware, Folder):
                         self.wf_status = 'complete'
                         self.reindex_object()
             if activity.isAutoFinish() and not process.end == activity.id and not activity.isSubflow():
-                # If the current activity is auto start, let it be handled by the forwarder
-                if activity.isAutoStart():
+                # If the current activity is auto start and not bundled with previous, let it be handled by the forwarder
+                if activity.isAutoStart() and not activity.isBundled():
                     self.wf_status = 'forward'
                     self.reindex_object()
-                # If it's manually started, forward it manually as we might have template forms that have form values
+                # If it's manually started or bundled with previous, forward it manually as we might have template forms that have form values
                 else:
                     self.forwardWorkitem(workitem_id)
 

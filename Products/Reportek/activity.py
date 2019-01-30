@@ -48,6 +48,7 @@ class activity(CatalogAware, SimpleItem):
                  join_mode='and',
                  self_assignable=1,
                  start_mode=0,
+                 bundle_mode=0,
                  finish_mode=1,
                  subflow='',
                  push_application='',
@@ -63,6 +64,7 @@ class activity(CatalogAware, SimpleItem):
         self.join_mode = join_mode          # 'and', 'xor'
         self.self_assignable = self_assignable
         self.start_mode = start_mode
+        self.bundle_mode = bundle_mode
         self.finish_mode = finish_mode
         self.subflow = subflow
         self.kind = kind
@@ -87,6 +89,7 @@ class activity(CatalogAware, SimpleItem):
              join_mode=None,
              self_assignable=None,
              start_mode=None,
+             bundle_mode=None,
              finish_mode=None,
              subflow = None,
              push_application=None,
@@ -109,6 +112,10 @@ class activity(CatalogAware, SimpleItem):
             self.start_mode = 1
         else:
             self.start_mode = 0
+        if bundle_mode:
+            self.bundle_mode = 1
+        else:
+            self.bundle_mode = 0
         if finish_mode:
             self.finish_mode = 1
         else:
@@ -225,6 +232,10 @@ class activity(CatalogAware, SimpleItem):
         """ returns true if the activity start mode is automatic"""
         return self.start_mode and self.kind == 'standard'
 
+    security.declareProtected('Manage OpenFlow', 'isBundled')
+    def isBundled(self):
+        """ returns true if the activity start mode is automatic"""
+        return getattr(self, 'bundle_mode', 0) and self.kind == 'standard'
 
     security.declareProtected('Manage OpenFlow', 'isSelfAssignable')
     def isSelfAssignable(self):
