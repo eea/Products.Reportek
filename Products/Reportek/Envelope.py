@@ -926,13 +926,18 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
     @RepUtils.manage_as_owner
     def delete_feedbacks(self, fb_ids):
-        """Delete the feedbacks with fb_ids."""
+        # Delete the feedbacks with fb_ids.
         self.manage_delObjects(fb_ids)
 
     @RepUtils.manage_as_owner
     def add_feedback(self, **kwargs):
-        """Add feedback. To be called by Applications."""
+        # Add feedback. To be called by Applications.
         self.manage_addFeedback(**kwargs)
+
+    @RepUtils.manage_as_owner
+    def add_envelope(self, **kwargs):
+        # Add envelope. To be called by Applications.
+        self.manage_addEnvelope(**kwargs)
 
     security.declareProtected('Add Feedback', 'manage_addFeedbackForm')
     manage_addFeedbackForm = Feedback.manage_addFeedbackForm
