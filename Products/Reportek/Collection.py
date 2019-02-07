@@ -743,4 +743,11 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
 
         return self.descr
 
+    def add_envelope(self, **kwargs):
+        # Add envelope with the Manager role. To be called by Applications.
+        RepUtils.execute_under_special_role(self, "Manager",
+                                            self.manage_addEnvelope,
+                                            **kwargs)
+
+
 Globals.InitializeClass(Collection)

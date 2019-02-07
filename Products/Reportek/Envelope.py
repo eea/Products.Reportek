@@ -934,11 +934,6 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         # Add feedback. To be called by Applications.
         self.manage_addFeedback(**kwargs)
 
-    @RepUtils.manage_as_owner
-    def add_envelope(self, **kwargs):
-        # Add envelope. To be called by Applications.
-        self.manage_addEnvelope(**kwargs)
-
     security.declareProtected('Add Feedback', 'manage_addFeedbackForm')
     manage_addFeedbackForm = Feedback.manage_addFeedbackForm
     security.declareProtected('Add Feedback', 'manage_addFeedback')

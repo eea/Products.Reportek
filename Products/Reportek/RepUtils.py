@@ -21,26 +21,9 @@
 
 """ Generic functions module """
 # from AccessControl.PermissionRole import rolesForPermissionOn
-from AccessControl.ImplPython import rolesForPermissionOn
-from AccessControl.SecurityManagement import getSecurityManager
-from AccessControl.SecurityManagement import newSecurityManager
-from AccessControl.SecurityManagement import setSecurityManager
-from ComputedAttribute import ComputedAttribute
-from DateTime import DateTime
-from Products.Five import BrowserView
-from Products.Reportek.config import XLS_HEADINGS
-from Products.Reportek.config import ZIP_CACHE_PATH
-from Products.Reportek.constants import DEFAULT_CATALOG
-from Products.Reportek.permissions import reportek_dataflow_admin
-from copy import deepcopy
-from copy import deepcopy
-from datetime import datetime
-from path import path
-from types import FunctionType
-from urllib import FancyURLopener
-from webdav.common import rfc1123_date
 import base64
 import json
+import logging
 import operator
 import os
 import re
@@ -48,8 +31,36 @@ import string
 import sys
 import tempfile
 import time
-import time
 import traceback
+from copy import deepcopy
+from datetime import datetime
+from urllib import FancyURLopener
+
+from AccessControl.ImplPython import rolesForPermissionOn
+from AccessControl.SecurityManagement import (getSecurityManager,
+                                              newSecurityManager,
+                                              setSecurityManager)
+from AccessControl.User import UnrestrictedUser as BaseUnrestrictedUser
+from AccessControl.User import nobody
+from ComputedAttribute import ComputedAttribute
+from DateTime import DateTime
+from path import path
+from Products.Five import BrowserView
+from Products.Reportek.config import XLS_HEADINGS, ZIP_CACHE_PATH
+from Products.Reportek.constants import DEFAULT_CATALOG
+from Products.Reportek.permissions import reportek_dataflow_admin
+from types import FunctionType
+from webdav.common import rfc1123_date
+
+
+class UnrestrictedUser(BaseUnrestrictedUser):
+    """Unrestricted user that still has an id.
+    """
+
+    def getId(self):
+        """Return the ID of the user.
+        """
+        return self.getUserName()
 
 
 def formatException(self, error):
@@ -64,7 +75,6 @@ def formatException(self, error):
          lines[1:1] = traceback.format_stack(error[2].tb_frame.f_back)
      return ''.join(lines)
 
-import logging
 logger = logging.getLogger('Reportek.RepUtils')
 #logger.setLevel(logging.DEBUG)
 logging.Formatter.formatException = formatException
@@ -607,6 +617,54 @@ def manage_as_owner(func):
             setSecurityManager(smanager)
             return res
     return inner
+
+
+def execute_under_special_role(portal, role, function, *args, **kwargs):
+    """ Execute code under special role privileges.
+
+    Example how to call::
+
+        execute_under_special_role(portal, "Manager",
+            doSomeNormallyNotAllowedStuff,
+            source_folder, target_folder)
+
+
+    @param portal: Reference to ISiteRoot object whose access controls we are using
+
+    @param function: Method to be called with special privileges
+
+    @param role: User role for the security context when calling the privileged code; e.g. "Manager".
+
+    @param args: Passed to the function
+
+    @param kwargs: Passed to the function
+    """
+
+    sm = getSecurityManager()
+
+    try:
+        try:
+            # Clone the current user and assign a new role.
+            # Note that the username (getId()) is left in exception
+            # tracebacks in the error_log,
+            # so it is an important thing to store.
+            tmp_user = UnrestrictedUser(
+                sm.getUser().getId(), '', [role], ''
+                )
+
+            # Wrap the user in the acquisition context of the portal
+            tmp_user = tmp_user.__of__(portal.acl_users)
+            newSecurityManager(None, tmp_user)
+
+            # Call the function
+            return function(*args, **kwargs)
+
+        except:
+            # If special exception handlers are needed, run them here
+            raise
+    finally:
+        # Restore the old security manager
+        setSecurityManager(sm)
 
 
 def get_zip_cache():
