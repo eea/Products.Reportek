@@ -124,7 +124,7 @@
                         </td>
                         <td tal:content="collection/country" />
                         <td class="basic-input" tal:condition="python: deployment == 'BDR' and request.get('role', '') in ['ClientFG', 'ClientODS', 'ClientCARS']">
-                          <input tal:condition="python: len(collection.get('path').split('/')) == 3" id="sync_transfers" name="sync_transfers:list" type="checkbox" tal:attributes="value python: collection.get('path')"/>
+                          <input tal:condition="python: len(collection.get('path').split('/')) == 3" class="sync-transfers" name="sync_transfers:list" type="checkbox" tal:attributes="value python: collection.get('path')"/>
                         </td>
                         <td tal:condition="use_subgroups">
                           <span tal:condition="matched_group" tal:content="matched_group" tal:omit-tag=""/>

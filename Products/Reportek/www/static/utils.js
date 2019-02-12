@@ -31,6 +31,7 @@ reportek.utils = {
     self.initEnvelopesTable();
     self.bindSearchRadios();
     self.initTabbedMenu();
+    self.bindSyncTransfers();
 
     $(".toggledCB").click(function() {
       var checkedElems = $(".toggledCB").filter(function(index, element) {
@@ -442,6 +443,14 @@ reportek.utils = {
           self.spinner.css("display", "none");
           reportek.utils.handleSearchUser(data);
         });
+    });
+  },
+
+  bindSyncTransfers: function() {
+    var self = reportek.utils;
+    $(".sync-transfers").on("click", function(evt) {
+      var cb = $(this).parents('tr').find('input[name="collections:list"]');
+      cb.prop('checked', $(this).prop('checked'));
     });
   },
 };
