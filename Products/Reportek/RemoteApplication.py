@@ -517,6 +517,7 @@ class RemoteApplication(SimpleItem):
             feedback_log.exception("Error saving remote feedback, job #%s",
                                    p_jobID)
             l_workitem.addEvent('Error in the %s, job #%s for file %s: %s' % (self.app_name, p_jobID, l_file_id, str(err)))
+            l_workitem.failure = True
             l_getResultDict = {p_jobID: {'code':-2, 'last_error':str(err)}}
             self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_getResult=l_getResultDict)
         return l_getResultDict
