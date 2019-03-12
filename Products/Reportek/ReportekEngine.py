@@ -1371,18 +1371,27 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             ecas_user_id = ecas.getEcasUserId(username)
             # these are disjunct, so it is safe to add them all together
             # normally only one of the lists will have results, but they could be all empty too
-            middleware_collections = []
+            middleware_collections = {
+                'rw': [],
+                'ro': []
+            }
             logger.debug("Attempt to interrogate middleware for authorizations for user:id %s:%s" % (username, ecas_user_id))
             if ecas_user_id:
-                for colPath in self.authMiddleware.getUserCollectionPaths(ecas_user_id,
-                            recheck_interval=self.authMiddleware.recheck_interval):
+                user_paths = self.authMiddleware.getUserCollectionPaths(ecas_user_id,
+                            recheck_interval=self.authMiddleware.recheck_interval)
+                acc_paths = user_paths.get('paths') + user_paths.get('prev_paths')
+                for colPath in acc_paths:
                     try:
-                        middleware_collections.append(self.unrestrictedTraverse('/'+str(colPath)))
+                        if colPath in user_paths.get('paths'):
+                            middleware_collections['rw'].append(self.unrestrictedTraverse('/'+str(colPath)))
+                        else:
+                            middleware_collections['ro'].append(self.unrestrictedTraverse('/'+str(colPath)))
                     except:
                         logger.warning("Cannot traverse path: %s" % ('/'+str(colPath)))
             catalog = getattr(self, constants.DEFAULT_CATALOG)
-            old_style_collections = [ br.getObject() for br in catalog(id=username) ]
-            collections['Reporter'] = middleware_collections + old_style_collections
+            middleware_collections['rw'] += [ br.getObject() for br in catalog(id=username) ]
+
+            collections['Reporter'] = middleware_collections
             local_roles = ['Auditor', 'ClientFG', 'ClientODS', 'ClientCARS']
             local_r_col = catalog(meta_type='Report Collection',
                                   local_unique_roles=local_roles)

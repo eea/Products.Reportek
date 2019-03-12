@@ -35,8 +35,9 @@ class ReportekPropertiedUser(PropertiedUser):
             return []
 
         col_path = '/'.join(current_path_parts[:3])
-        if self.get_middleware_authorization(user_id, col_path):
-            return ['Owner']
+        m_auth = self.get_middleware_authorization(user_id, col_path)
+        if m_auth:
+            return {'RW': 'Owner', 'RO': 'Reader'}.get(m_auth)
         ldap_roles = self.get_ldap_role_in_context(obj, user_id)
         if ldap_roles:
             return ldap_roles

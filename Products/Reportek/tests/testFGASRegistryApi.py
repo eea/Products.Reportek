@@ -32,7 +32,10 @@ class FGASRegistryAPITest(ZopeTestCase.ZopeTestCase):
         rsp.json = Mock(return_value=json.loads(rsp.text))
 
         username = 'vasile'
-        expectedPaths = [u'fgases/ro/fgas30001', u'fgases/ro/12345']
+        expectedPaths = {
+            'paths': [u'fgases/ro/fgas30001', u'fgases/ro/12345'],
+            'prev_paths': []
+        }
 
         paths = self.api.getCollectionPaths(username)
         self.assertEqual(req_mock.call_args[0][0], self.api.baseUrl + '/user/' + username + '/companies')

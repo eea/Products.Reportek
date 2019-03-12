@@ -194,7 +194,11 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
 
     _get_users_list = PageTemplateFile('zpt/collection/users', globals())
 
+    security.declareProtected('View', 'company_details')
     company_details = PageTemplateFile('zpt/collection/company_details', globals())
+
+    security.declareProtected('View', 'other_reports')
+    other_reports = PageTemplateFile('zpt/collection/other_reports', globals())
 
     def local_defined_roles(self):
         return self.__ac_local_roles__

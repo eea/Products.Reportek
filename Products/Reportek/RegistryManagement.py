@@ -129,23 +129,44 @@ class FGASRegistryAPI(BaseRegistryAPI):
         url = self.baseUrl + '/user/' + username + '/companies'
         response = self.do_api_request(url,
                                        headers={'Authorization': self.token})
+        rep_paths = {}
         paths = []
+        prev_paths = []
+
+        def build_paths(c, c_code):
+            path = None
+            try:
+                path = self.buildCollectionPath(c['domain'], c_code,
+                                    str(c['company_id']), c['collection_id'])
+                if not path:
+                    raise ValueError("Cannot form path with company data: %s" % str(c))
+            except Exception as e:
+                logger.warning("Error in company data received from SatelliteRegistry: %s" % repr(e))
+
+            return path
+
         if response:
             companies = response.json()
             for c in companies:
                 c_code = c.get('country')
                 if c.get('representative_country'):
                     c_code = c.get('representative_country')
-                try:
-                    path = self.buildCollectionPath(c['domain'], c_code,
-                                        str(c['company_id']), c['collection_id'])
-                    if not path:
-                        raise ValueError("Cannot form path with company data: %s" % str(c))
+                path = build_paths(c, c_code)
+                if path:
                     paths.append(path)
-                except Exception as e:
-                    logger.warning("Error in company data received from SatelliteRegistry: %s" % repr(e))
+                for lr in c.get('represent_history', []):
+                    lr_address = lr.get('address', {})
+                    lr_c = lr_address.get('country')
+                    if lr_c:
+                        lr_c_code = lr_c.get('code')
+                        prev_path = build_paths(c, lr_c_code)
+                        if prev_path:
+                            prev_paths.append(prev_path)
 
-        return paths
+        rep_paths['paths'] = paths
+        rep_paths['prev_paths'] = prev_paths
+        return rep_paths
+
 
     def existsCompany(self, params, domain='FGAS'):
         url = '/'.join([self.baseUrl, 'undertaking', domain, 'filter'])
