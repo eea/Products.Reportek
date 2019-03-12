@@ -1066,9 +1066,9 @@ class EnvelopeCustomDataflows(Toolz):
         # Pretty print activities
         act_map = {'D': 'EU Destruction Company',
                    'E': 'EU Exporter Bulk',
-                   'Eq-I': 'EU Importer FGases',
-                   'Eq-I-RACHP-HFC': 'EU Importer FGases HFC',
-                   'Eq-I-other': 'EU Importer FGases Other',
+                   'Eq-I': 'Equipment Importer FGases',
+                   'Eq-I-RACHP-HFC': 'Equipment Importer FGases HFC',
+                   'Eq-I-other': 'Equipment Importer FGases Other',
                    'FU': 'EU Feedstock User',
                    'I': 'EU Importer Bulk',
                    'I-HFC': 'EU Importer Bulk HFC',
