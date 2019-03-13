@@ -5,22 +5,24 @@
     <div tal:define="owncolls here/ReportekEngine/getUserCollections;
                      rep_colls python: owncolls.get('Reporter', {});
                      rw_colls python: rep_colls.get('rw', []);
-                     ro_colls python: rep_colls.get('ro', []);">
-      <div tal:condition="not: owncolls">
-        <p i18n:translate="">No previous reports available</p>
+                     ro_colls python: rep_colls.get('ro', []);
+                     rw_colls python: [col for col in rw_colls if col.absolute_url() != context.absolute_url()];
+                     ro_colls python: [col for col in ro_colls if col.absolute_url() != context.absolute_url()]">
+      <div tal:condition="python: not owncolls or not (rw_colls or ro_colls)">
+        <p i18n:translate="">No other reports available</p>
       </div>
       <div tal:condition="python: rw_colls">
-        <p i18n:translate="" tal:condition="python: [col for col in rw_colls if col.absolute_url() != context.absolute_url()]">Current active reports (excluding the current context):</p>
+        <p i18n:translate="">Current active reports (excluding the current context):</p>
         <ul tal:repeat="col rw_colls">
-          <li tal:condition="python: col.absolute_url() != context.absolute_url()">
+          <li>
             <a tal:attributes="href col/absolute_url" tal:content="col/title" />
           </li>
         </ul>
       </div>
       <div tal:condition="python: ro_colls">
-        <p i18n:translate="" tal:condition="python: [col for col in ro_colls if col.absolute_url() != context.absolute_url()]">Previous reports (for archive purposes, excluding the current context):</p>
+        <p i18n:translate="">Previous reports (for archive purposes, excluding the current context):</p>
         <ul tal:repeat="col ro_colls">
-          <li tal:condition="python: col.absolute_url() != context.absolute_url()">
+          <li>
             <a tal:attributes="href col/absolute_url" tal:content="col/title" />
           </li>
         </ul>
