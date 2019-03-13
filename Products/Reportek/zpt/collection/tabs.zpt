@@ -5,7 +5,7 @@
         <tal:block tal:condition="python:SecurityManager.checkPermission('Use OpenFlow', here)">
             <li tal:attributes="id python:test(tab=='worklist', 'currenttab', None)"><a href="worklist" i18n:translate="">Task list</a></li>
         </tal:block>
-        <tal:block tal:condition="python: isBdrDeployment and SecurityManager.checkPermission('Add envelopes', here)">
+        <tal:block tal:condition="python: isBdrDeployment and SecurityManager.checkPermission('Add envelopes', here) and here.company_id">
             <li tal:attributes="id python:test(tab=='other_reports', 'currenttab', None)"><a href="other_reports" i18n:translate="">Other reports</a></li>
         </tal:block>
         <tal:block  tal:condition="python:SecurityManager.checkPermission('Change Collections', here)">
