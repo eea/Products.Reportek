@@ -933,7 +933,7 @@ class EnvelopeCustomDataflows(Toolz):
 
             # must commit transaction first, otherwise the file is not accessible from outside
             transaction.commit()
-            if l_id.split('.')[-1].startswith('xls'):
+            if l_id.split('.')[-1].lower().startswith('xls'):
                 l_doc = getattr(self, l_id)
                 converters = self.unrestrictedTraverse(CONVERTERS_ID)
                 available_local_converters = []
