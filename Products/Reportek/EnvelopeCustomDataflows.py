@@ -958,6 +958,10 @@ class EnvelopeCustomDataflows(Toolz):
                                 required_schema=required_schema,
                                 replace_xml=int(replace_xml),
                                 REQUEST=REQUEST)
+                    else:
+                        return self.messageDialog(
+                            message="Files uploaded but conversion to XML failed!",
+                            action='.')
             if REQUEST is not None:
                 return self.messageDialog(
                     message="Files successfully uploaded!",
