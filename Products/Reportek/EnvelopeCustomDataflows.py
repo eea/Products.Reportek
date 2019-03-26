@@ -938,7 +938,12 @@ class EnvelopeCustomDataflows(Toolz):
                 converters = self.unrestrictedTraverse(CONVERTERS_ID)
                 available_local_converters = []
                 converter = None
-                available_local_converters = converters._get_local_converters()
+                try:
+                    available_local_converters = converters._get_local_converters()
+                except Exception as e:
+                    return self.messageDialog(
+                        message="Unable to retrieve local converters. Please try again later! ({})".format(str(e)),
+                        action='.')
                 for conv_obj in available_local_converters:
                     if conv_obj.title == 'Convert MMR Projections XLS to XML':
                         if l_doc.content_type in conv_obj.ct_input:
