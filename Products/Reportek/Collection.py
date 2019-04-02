@@ -650,7 +650,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
             company_status = self.company_status()
 
             if company_status:
-                if company_status == 'DISABLED':
+                if company_status != 'VALID':
                     return False
 
         return True
