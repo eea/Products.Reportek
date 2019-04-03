@@ -85,7 +85,7 @@
                   <span i18n:translate="" tal:condition="not: item/released">Not released</span>
                 </td>
                 <td class="tcenter additional-env-info">
-                  <span i18n:translate="" tal:content="python: {True: 'Acceptable', False: 'Not acceptable', None: 'N/A'}.get(item.is_acceptable(), '')" />
+                  <span i18n:translate="" tal:content="python: {True: 'Acceptable', False: 'Not acceptable', None: 'N/A'}.get(item.is_acceptable() and item.successful_qa, '')" />
                 </td>
               </tal:block>
               <td class="tcenter" tal:content="python:item.reportingdate.strftime('%d %b %Y')" />
