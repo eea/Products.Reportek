@@ -1379,7 +1379,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             if ecas_user_id:
                 user_paths = self.authMiddleware.getUserCollectionPaths(ecas_user_id,
                             recheck_interval=self.authMiddleware.recheck_interval)
-                acc_paths = user_paths.get('paths') + user_paths.get('prev_paths')
+                acc_paths = list(set(user_paths.get('paths') + user_paths.get('prev_paths')))
+
                 for colPath in acc_paths:
                     try:
                         if colPath in user_paths.get('paths'):
@@ -1389,6 +1390,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     except:
                         logger.warning("Cannot traverse path: %s" % ('/'+str(colPath)))
             catalog = getattr(self, constants.DEFAULT_CATALOG)
+
             middleware_collections['rw'] += [ br.getObject() for br in catalog(id=username) ]
 
             collections['Reporter'] = middleware_collections
