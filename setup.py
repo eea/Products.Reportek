@@ -16,7 +16,7 @@ setup(
         'lxml',
         'path.py',
         'plone.memoize',
-        'requests==2.11.1',
+        'requests',
         'xlwt',
         'zipstream',
         'xmltodict==0.11.0'
