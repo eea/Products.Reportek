@@ -7,10 +7,30 @@
                      rw_colls python: rep_colls.get('rw', []);
                      ro_colls python: rep_colls.get('ro', []);
                      rw_colls python: [col for col in rw_colls if col.absolute_url() != context.absolute_url()];
-                     ro_colls python: [col for col in ro_colls if col.absolute_url() != context.absolute_url()]">
+                     ro_colls python: [col for col in ro_colls if col.absolute_url() != context.absolute_url()];
+                     comp_ro_colls python: [col for col in ro_colls if col.company_id == here.company_id];
+                     comp_rw_colls python: [col for col in rw_colls if col.company_id == here.company_id];">
       <div tal:condition="python: not owncolls or not (rw_colls or ro_colls)">
         <p i18n:translate="">No other reports available</p>
       </div>
+      <h2 tal:condition="python: comp_ro_colls or comp_rw_colls">Other reports for this company</h2>
+      <div tal:condition="python: comp_ro_colls">
+        <p i18n:translate="">Previous reports for this company:</p>
+        <ul tal:repeat="col comp_ro_colls">
+          <li>
+            <a tal:attributes="href col/absolute_url" tal:content="col/title" />
+          </li>
+        </ul>
+      </div>
+      <div tal:condition="python: comp_rw_colls">
+        <p i18n:translate="">Current active reports for this company:</p>
+        <ul tal:repeat="col comp_rw_colls">
+          <li>
+            <a tal:attributes="href col/absolute_url" tal:content="col/title" />
+          </li>
+        </ul>
+      </div>
+      <h2 tal:condition="python: rw_colls or ro_colls">Reports for other companies where the user is a reporter</h2>
       <div tal:condition="python: rw_colls">
         <p i18n:translate="">Current active reports (excluding the current context):</p>
         <ul tal:repeat="col rw_colls">
