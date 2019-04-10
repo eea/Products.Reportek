@@ -34,7 +34,7 @@
       <div tal:condition="python: rw_colls">
         <p i18n:translate="">Current active reports (excluding the current context):</p>
         <ul tal:repeat="col rw_colls">
-          <li>
+          <li tal:condition="python: col not in comp_rw_colls">
             <a tal:attributes="href col/absolute_url" tal:content="col/title" />
           </li>
         </ul>
@@ -42,7 +42,7 @@
       <div tal:condition="python: ro_colls">
         <p i18n:translate="">Previous reports (for archive purposes, excluding the current context):</p>
         <ul tal:repeat="col ro_colls">
-          <li>
+          <li tal:condition="python: col not in comp_ro_colls">
             <a tal:attributes="href col/absolute_url" tal:content="col/title" />
           </li>
         </ul>
