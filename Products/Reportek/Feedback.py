@@ -16,7 +16,8 @@
 # Rights Reserved.
 #
 # Contributor(s):
-# Miruna Badescu, Finsiel Romania
+# Miruna Badescu, Eau de Web
+# Olimpiu Rob, Eau de Web
 
 """
 Feedback module
@@ -215,14 +216,16 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
     security.declareProtected('Change Feedback', 'manage_editFeedback')
     def manage_editFeedback(self, title='', feedbacktext='', content_type='', document_id=None, applyRestriction='', restricted='', feedback_status='', message='', REQUEST=None):
         """ Edits the properties """
-        self.title = title
-        tmp = StringIO.StringIO(feedbacktext)
-        convs = getattr(self.getPhysicalRoot(), constants.CONVERTERS_ID, None)
-        # if Local Conversion Service is down
-        # the next line of code will raise an exception
-        # because we don't want to save unsecure html
-        sanitizer = convs['safe_html']
-        self.feedbacktext = sanitizer.convert(tmp, sanitizer.id).text
+        if title:
+            self.title = title
+        if feedbacktext:
+            tmp = StringIO.StringIO(feedbacktext)
+            convs = getattr(self.getPhysicalRoot(), constants.CONVERTERS_ID, None)
+            # if Local Conversion Service is down
+            # the next line of code will raise an exception
+            # because we don't want to save unsecure html
+            sanitizer = convs['safe_html']
+            self.feedbacktext = sanitizer.convert(tmp, sanitizer.id).text
         if content_type:
             self.content_type = content_type
         if document_id != 'None':
