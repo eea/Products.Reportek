@@ -393,10 +393,17 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
 
     def getFeedbacksForDocument(self):
         """ Returns the Feedback objects associated with this document """
-        return [f.getObject() for f
-                in self.Catalog(meta_type='Report Feedback',
-                                document_id=self.id,
-                                path=self.getParentNode().absolute_url(1))]
+        fbs = []
+        brains = self.Catalog(meta_type='Report Feedback',
+                              document_id=self.id,
+                              path=self.getParentNode().absolute_url(1))
+        for brain in brains:
+            try:
+                fbs.append(brain.getObject())
+            except KeyError as e:
+                logger.error("Error retrieving feedback object: {} from catalog brain: {}".format(brain.getPath(), str(e)))
+
+        return fbs
 
     def getExtendedFeedbackForDocument(self):
         """ Returns the feedback relevant for a document - URL and title """
