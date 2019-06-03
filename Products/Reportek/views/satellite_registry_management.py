@@ -185,7 +185,7 @@ class SatelliteRegistryManagement(BaseAdmin):
         company['addr_place1'] = ''
         company['addr_place2'] = ''
         company['active'] = {'VALID': True,
-                             'DISABLED': False}.get(company.get('status'))
+                             'DISABLED': False}.get(company.get('status'), False)
         for person in company.get('person'):
             first_name = person.get('first_name', '') if person.get('first_name', '') else ''
             last_name = person.get('last_name', '') if person.get('last_name', '') else ''

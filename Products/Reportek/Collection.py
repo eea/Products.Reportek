@@ -602,8 +602,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
                 if data.get('active'):
                     status = 'VALID'
             else:
-                if data.get('status') in ['DISABLED', 'REVISION', 'VALID']:
-                    return data.get('status')
+                return data.get('status', 'N/A')
 
         return status
 
