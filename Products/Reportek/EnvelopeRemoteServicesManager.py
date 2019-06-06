@@ -64,7 +64,8 @@ class EnvelopeRemoteServicesManager:
 
     def getFilesForSchema(self, schema_uri):
         """Return a list of Documents names in this envelope that are bound to the schema_uri."""
-        return [ doc.id for doc in self.objectValues(Document.meta_type) ]
+        return [doc for doc in self.objectValues(Document.meta_type)
+                if doc.xml_schema_location == schema_uri]
 
 
     # FIXME condition racing - concurent threads on the same envelope will collide
