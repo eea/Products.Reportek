@@ -59,35 +59,35 @@ import xlwt
 logger = logging.getLogger("Reportek")
 
 # Product specific imports
-from Products.Reportek import RepUtils
-from Products.Reportek import Document
-from Products.Reportek import Hyperlink
-from Products.Reportek import Feedback
-from Products.Reportek.BaseDelivery import BaseDelivery
-from Products.Reportek.config import ZIP_CACHE_THRESHOLD
-from Products.Reportek.config import ZIP_CACHE_ENABLED
-from Products.Reportek.RepUtils import get_zip_cache
-import RepUtils
-import Document
-import Hyperlink
-import Feedback
-from constants import WORKFLOW_ENGINE_ID, ENGINE_ID
-from exceptions import InvalidPartOfYear
+from EnvelopeCustomDataflows import EnvelopeCustomDataflows
 from EnvelopeInstance import EnvelopeInstance
 from EnvelopeRemoteServicesManager import EnvelopeRemoteServicesManager
-from EnvelopeCustomDataflows import EnvelopeCustomDataflows
-import zip_content
-from zope.interface import implements
+from Products.Reportek import Document
+from Products.Reportek import Feedback
+from Products.Reportek import Hyperlink
+from Products.Reportek import RepUtils
+from Products.Reportek import zip_content
+from Products.Reportek.BaseDelivery import BaseDelivery
+from Products.Reportek.RepUtils import get_zip_cache
+from Products.Reportek.config import XLS_HEADINGS
+from Products.Reportek.config import ZIP_CACHE_ENABLED
+from Products.Reportek.config import ZIP_CACHE_THRESHOLD
+from constants import WORKFLOW_ENGINE_ID, ENGINE_ID
+from exceptions import InvalidPartOfYear
 from interfaces import IEnvelope
 from paginator import DiggPaginator, EmptyPage, InvalidPage
-from Products.Reportek.config import XLS_HEADINGS
+from zope.interface import implements
+import Document
+import Feedback
+import Hyperlink
+import RepUtils
 import transaction
 
 
 manage_addEnvelopeForm = PageTemplateFile('zpt/envelope/add', globals())
 
 def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
-        REQUEST=None, previous_delivery=''):
+        REQUEST=None, previous_delivery='', return_path=None):
     """ Add a new Envelope object with id *id*.
     """
     id= RepUtils.generate_id('env')
@@ -148,6 +148,9 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
         ob.manage_pasteObjects(l_data)
     ob.startInstance(REQUEST)  # Start the instance
     if REQUEST is not None:
+        if return_path:
+            REQUEST.RESPONSE.setHeader('Content-Type', 'text/plain')
+            return ob.absolute_url()
         return REQUEST.RESPONSE.redirect(self.absolute_url())
     else:
         return ob.absolute_url()
@@ -1101,7 +1104,10 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         """ Lists the contents of a zip file """
         files = []
         # FIXME Why is application/octet-stream here? this might fix a glitch, so we'll keep it for now
-        if document.content_type in ['application/octet-stream', 'application/zip', 'application/x-compressed']:
+        if document.content_type in ['application/octet-stream',
+                                     'application/zip',
+                                     'application/x-compressed',
+                                     'application/x-zip-compressed']:
             try:
                 data_file = document.data_file.open()
                 zf = zip_content.ZZipFile(data_file)
