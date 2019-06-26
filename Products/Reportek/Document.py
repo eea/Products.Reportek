@@ -681,13 +681,17 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         elif name.endswith('.rar'):
             return 'application/x-rar-compressed'
 
+        h_ctype = None
         if headers and 'content-type' in headers:
-            return headers['content-type']
+            h_ctype = headers['content-type']
 
         # This will discard only utf8 BOM in case it is there
         # zope mime type guessing fails if BOM present
         body = RepUtils.discard_utf8_bom(body)
         content_type, enc = guess_content_type(name, body)
+        if content_type == 'text/x-unknown-content-type' and h_ctype:
+            return h_ctype
+
         return content_type
 
     def _compute_uncompressed_size(self, file_or_content):
