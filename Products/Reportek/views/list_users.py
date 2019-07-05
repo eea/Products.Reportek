@@ -94,8 +94,8 @@ class ListUsers(BaseAdmin):
 
         user = self.is_ldap_user(username)
         if user:
-            r['fullname'] = user.cn
-            r['email'] = user.mail
+            r['fullname'] = getattr(user, 'cn', 'N/A')
+            r['email'] = getattr(user, 'mail', 'N/A')
 
         return r
 
