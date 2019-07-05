@@ -273,6 +273,7 @@ def create_reportek_indexes(catalog):
         add_index('get_fgas_reported_gases', catalog, 'FieldIndex', meta=True)
         add_index('get_fgas_i_authorisations', catalog, 'FieldIndex', meta=True)
         add_index('get_fgas_a_authorisations', catalog, 'FieldIndex', meta=True)
+        add_index('company_id', catalog, 'FieldIndex', meta=True)
 
 
 class Empty:

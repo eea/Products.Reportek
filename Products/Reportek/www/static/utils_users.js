@@ -12,10 +12,12 @@ reportek.utils.users = {
   table_headers: {"grouped_by_path": ["Collection", "Title", "Obligations", "Users"],
                   "grouped_by_member": ["Path", "Obligations"]},
   table_data: null,
+  ecas_roles: ["Reporter (Owner)", "Reader"],
   users_links: {"LDAP User": "www.eionet.europa.eu/directory/user?uid=",
                 "LDAP Group": "www.eionet.europa.eu/ldap-roles?role_id="},
   usertype_api: "api.get_user_type?username=",
   userstype_api: "api.get_users_type",
+  ecasreportersbypath_api: "api.get_ecas_reporters_by_path",
 
   load: function() {
     var self = reportek.utils.users;
@@ -29,8 +31,10 @@ reportek.utils.users = {
   generateRow: function(row, table_type) {
     var utils = reportek.utils;
     var self = utils.users;
+    var klass = row.collection.company_id === null ? "col-path" : "col-path company-col " + row.collection.path.slice(1).split("/").join("-");
+
     var result = [
-        utils.misc.renderAsLink(row.collection.path, row.collection.path, row.collection.title),
+        utils.misc.renderAsLink(row.collection.path, row.collection.path, row.collection.title, klass),
         row.collection.title,
         utils.misc.renderAsUL($.map(row.obligations, function (obligation) {
           return utils.misc.renderAsLink(obligation[0], obligation[1]);
@@ -41,7 +45,7 @@ reportek.utils.users = {
       result.push(
         utils.misc.renderAsUL($.map(row.users, function (user) {
           return self.renderUsersLI(user);
-        })));
+        }), 'users'));
     }
     else if (table_type === "grouped_by_member") {
       result.push(row.user);
@@ -72,7 +76,7 @@ reportek.utils.users = {
                                   getUserType.outerHTML()]);
   },
 
-  createUserTypeMapping: function() {
+  createUserTypeMapping: function(user) {
     var self = reportek.utils.users;
     var username;
     $.each($(".user-type"), function(idx, elem) {
@@ -192,6 +196,67 @@ reportek.utils.users = {
     self.getUsersType(keys);
   },
 
+  appendRowUsers: function(row, user) {
+    var self = reportek.utils.users;
+    var user_ul = $(row).find(".users");
+    user_ul.append($("<li>" + self.renderUsersLI(user) + "</li>"));
+    if (self.users[user.username] === undefined) {
+      self.users[user.username] = user;
+      self.users[user.username]['checked'] = true;
+      self.users[user.username]['utype'] = "ECAS";
+    }
+    self.updateUserType(user.username, "ECAS", user.fullname, user.email);
+  },
+
+  getEcasReportersByPath: function() {
+    // Retrieve reporters for collections with company id's
+    var self = reportek.utils.users;
+    var url = self.ecasreportersbypath_api;
+    var col = $(".company-col").text();
+    var role = $("#role").val();
+    var paths = [];
+    $.each($(".company-col"), function(i, elem) {
+      paths.push($(elem).text());
+      var row = $(elem).parents('tr');
+      var user_td = $(row).find(".users").parent();
+      var img_container = $("<div />", {"class": "spinner-container"});
+      var img = $("<img />", {
+                    "src": "++resource++static/ajax-loader.gif",
+                    "class": "ajax-spinner"
+                  });
+      img_container.append(img);
+      user_td.append(img_container);
+    });
+    if (paths.length > 0) {
+      $.ajax({
+        url: url,
+        method: 'GET',
+        data: {paths: paths},
+        }).done(function(data) {
+          var users = JSON.parse(data);
+          for(var path in users) {
+            var klass = path.slice(1).split("/").join("-");
+            var row = $("."+klass).parents('tr');
+            $.each(users[path], function(idx, user) {
+              if (user.role === role) {
+                self.appendRowUsers(row, user);
+              }
+              row.find('.spinner-container').css("display", "none");
+            });
+          }
+        });
+    }
+  },
+
+  handleLoadingUsers: function() {
+    var self = reportek.utils.users;
+    var role = $("#role").val();
+    if (self.ecas_roles.indexOf(role) >= 0) {
+      self.getEcasReportersByPath();
+    }
+    self.getCurrentUserTypes();
+  },
+
   bindGetUserTypes: function() {
     var self = reportek.utils.users;
     var trows = $("#datatable tbody tr");
@@ -228,7 +293,7 @@ reportek.utils.users = {
 
     $(".dataTables_filter input").attr("placeholder", "Filter by...");
     utils.datatable_loading(target, "hide");
-    dataTable.on("draw.dt", self.getCurrentUserTypes);
+    dataTable.on("draw.dt", self.handleLoadingUsers);
     $.each(data, function(idx, row) {
       dataTable.row.add(self.generateRow(row, table_type));
     });
@@ -309,6 +374,10 @@ reportek.utils.users = {
         self.table_data = $.parseJSON(result).data;
         var dtConfig = self.generateDatatableConfig(table_type);
         self.generateDatatable(target, dtConfig, self.table_data, table_type);
+      },
+      error: function() {
+        reportek.utils.spinner.css("display", "none");
+        $("#ajax-results").text("An error occured while retrieving results. Please try again later!")
       }
     });
   },

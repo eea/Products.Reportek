@@ -28,7 +28,8 @@
             <option></option>
             <option tal:repeat="role roles"
                     tal:content="role"
-                    tal:attributes="selected python:request.get('role', '') == role">
+                    tal:attributes="selected python:request.get('role', '') == role;
+                                    disabled python: 'disabled' if role == 'Reader' else ''">
             </option>
           </select>
         </div>

@@ -564,6 +564,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
                           '"uid": "test_user_1_"}}, '
                           '"collection": {"path": "/tc", '
                           '"type": "Report Collection", '
+                          '"company_id": null, '
                           '"title": "Test Country"}}]}')
         self.assertEqual(expected_result, self.browser.contents)
 

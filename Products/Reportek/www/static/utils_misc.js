@@ -8,12 +8,14 @@ if (window.reportek === undefined) {
 }
 
 reportek.utils.misc = {
-  renderAsUL: function(li_items) {
+  renderAsUL: function(li_items, klass, iklass) {
     var result_html = "";
+    var u_class_attribute = klass ? " class='" + klass + "'" : "";
+    var i_class_attribute = iklass ? " class='" + iklass + "'" : "";
     $.each(li_items, function(index, li_item) {
-      result_html += "<li>" + li_item + "</li>";
+      result_html += "<li" + i_class_attribute + ">" + li_item + "</li>";
     });
-    return "<ul>" + result_html + "</ul>";
+    return "<ul" + u_class_attribute + ">" + result_html + "</ul>";
   },
 
   renderAsLink: function(href, display, title, klass) {

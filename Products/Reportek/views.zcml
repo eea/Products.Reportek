@@ -60,6 +60,13 @@
     attribute="getUsersByPath" />
 
   <browser:page
+    name="api.get_ecas_reporters_by_path"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ReportekUtilitiesUser"
+    class=".views.ListUsers"
+    attribute="get_ecas_reporters_by_path" />
+
+  <browser:page
     name="disabled_members"
     menu="reportek_utilities"
     title="Disabled members"

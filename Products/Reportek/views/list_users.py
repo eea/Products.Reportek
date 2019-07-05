@@ -121,6 +121,27 @@ class ListUsers(BaseAdmin):
 
         return json.dumps(users_type)
 
+    def get_ecas_reporters_by_path(self, REQUEST):
+        paths = REQUEST.get('paths[]', [])
+        middleware = self.get_middleware()
+        users = {}
+        for path in paths:
+            col = self.context.unrestrictedTraverse(path, None)
+            if col and col.company_id:
+                c_data = col.get_company_data()
+                if c_data:
+                    role_map = {
+                        'RW': 'Reporter (Owner)',
+                        'RO': 'Reader'
+                    }
+                    users[path] = [{'uid': u.get('username'),
+                                    'role': role_map.get(middleware.authorizedUser(u.get('username'), path)),
+                                    'email': u.get('email'),
+                                    'username': u.get('username'),
+                                    'fullname': ' '.join([u.get('first_name'), u.get('last_name')])}
+                                   for u in c_data.get('users', [])]
+        return json.dumps(users)
+
     def get_records(self, REQUEST):
 
         obligations = REQUEST.get('obligations[]', [])
@@ -177,29 +198,6 @@ class ListUsers(BaseAdmin):
                     if 'bdr_folder_agent' in users.keys():
                         del users['bdr_folder_agent']
 
-                    middleware = self.get_middleware()
-                    ecas_path = '/acl_users/' + ECAS_ID
-                    ecas = self.context.unrestrictedTraverse(ecas_path, None)
-
-                    if ecas:
-                        ecas_users = getattr(ecas, '_ecas_id', {})
-                        for ecas_user_id, user in ecas_users.iteritems():
-
-                            # Normalize path object path
-                            obj_path = brain.getPath()
-                            if obj_path.startswith('/'):
-                                obj_path = obj_path[1:]
-
-                            if middleware.authorizedUser(ecas_user_id, obj_path):
-                                username = getattr(user, 'username', None)
-                                if username:
-                                    uid = username
-                                else:
-                                    uid = getattr(user, 'email', None)
-                                users[uid] = {
-                                    'uid': uid,
-                                    'role': 'Reporter (Owner)'
-                                }
                 if not users:
                     continue
 
@@ -207,7 +205,8 @@ class ListUsers(BaseAdmin):
                     'collection': {
                         'path': brain.getPath(),
                         'title': brain.title,
-                        'type': brain.meta_type
+                        'type': brain.meta_type,
+                        'company_id': getattr(brain, 'company_id', None)
                     },
                     'obligations': col_obligations,
                     'users':  users}
