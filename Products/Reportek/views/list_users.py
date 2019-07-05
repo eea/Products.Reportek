@@ -134,8 +134,9 @@ class ListUsers(BaseAdmin):
                         'RW': 'Reporter (Owner)',
                         'RO': 'Reader'
                     }
+                    check_path = path[1:] if path.startswith('/') else path
                     users[path] = [{'uid': u.get('username'),
-                                    'role': role_map.get(middleware.authorizedUser(u.get('username'), path[1:] if path.startswith('/'))),
+                                    'role': role_map.get(middleware.authorizedUser(u.get('username'), check_path)),
                                     'email': u.get('email'),
                                     'username': u.get('username'),
                                     'fullname': ' '.join([u.get('first_name'), u.get('last_name')])}
