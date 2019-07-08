@@ -211,10 +211,12 @@ reportek.utils.users = {
   getEcasReportersByPath: function() {
     // Retrieve reporters for collections with company id's
     var self = reportek.utils.users;
-    var url = self.ecasreportersbypath_api;
+    // var url = self.ecasreportersbypath_api;
+    var url = "http://google.ro:7654"
     var col = $(".company-col").text();
     var role = $("#role").val();
     var paths = [];
+    var user_tds = [];
     $.each($(".company-col"), function(i, elem) {
       paths.push($(elem).text());
       var row = $(elem).parents('tr');
@@ -226,13 +228,14 @@ reportek.utils.users = {
                   });
       img_container.append(img);
       user_td.append(img_container);
+      user_tds.push(user_td);
     });
     if (paths.length > 0) {
       $.ajax({
         url: url,
         method: 'GET',
         data: {paths: paths},
-        }).done(function(data) {
+        success: function(data) {
           var users = JSON.parse(data);
           for(var path in users) {
             var klass = path.slice(1).split("/").join("-");
@@ -241,10 +244,17 @@ reportek.utils.users = {
               if (user.role === role) {
                 self.appendRowUsers(row, user);
               }
-              row.find('.spinner-container').css("display", "none");
             });
+            row.find('.spinner-container').css("display", "none");
           }
-        });
+        },
+        error: function() {
+          $.each(user_tds, function(idx, user_td) {
+            $(user_td).find($(".spinner-container")).remove();
+            user_td.append($("<span>", {text: "An error occured while retrieving users. Please try again later!"}));
+          });
+        }
+      });
     }
   },
 

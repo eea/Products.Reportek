@@ -127,6 +127,7 @@ class ListUsers(BaseAdmin):
         users = {}
         for path in paths:
             col = self.context.unrestrictedTraverse(path, None)
+            users[path] = []
             if col and col.company_id:
                 c_data = col.get_company_data()
                 if c_data:
