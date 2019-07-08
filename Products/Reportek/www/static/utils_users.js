@@ -211,8 +211,7 @@ reportek.utils.users = {
   getEcasReportersByPath: function() {
     // Retrieve reporters for collections with company id's
     var self = reportek.utils.users;
-    // var url = self.ecasreportersbypath_api;
-    var url = "http://google.ro:7654"
+    var url = self.ecasreportersbypath_api;
     var col = $(".company-col").text();
     var role = $("#role").val();
     var paths = [];
