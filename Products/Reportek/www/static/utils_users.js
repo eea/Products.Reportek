@@ -9,6 +9,11 @@ if (window.reportek === undefined) {
 
 reportek.utils.users = {
   users: {},
+  ecas_users: {},
+  ecas_paths: {},
+  ecas_users_for_query: [],
+  ecas_populated: {"grouped_by_path": {},
+                   "grouped_by_member": {}},
   table_headers: {"grouped_by_path": ["Collection", "Title", "Obligations", "Users"],
                   "grouped_by_member": ["Path", "Obligations"]},
   table_data: null,
@@ -208,44 +213,82 @@ reportek.utils.users = {
     self.updateUserType(user.username, "ECAS", user.fullname, user.email);
   },
 
+  populateEcasUsersPage: function(page) {
+    // Populate the self.ecas_users[page]
+    var self = reportek.utils.users;
+    self.ecas_users[page] = {};
+    var paths = self.ecas_paths[page];
+    $.each(paths, function(idx, path) {
+      if (self.ecas_users_for_query[path]) {
+        self.ecas_users[page][path] = self.ecas_users_for_query[path];
+      }
+    });
+  },
+
+  populateEcasResults: function(page) {
+    // Populate the users table td with ecas users
+    var self = reportek.utils.users;
+    var users = self.ecas_users[page];
+    var target = $("#datatable");
+    var table_type = target.data("table-type");
+    var role = $("#role").val();
+    var ddata = [];
+    if (table_type === 'grouped_by_path') {
+      self.ecas_populated[table_type][page] = true;
+    } else {
+      self.ecas_populated[table_type] = true;
+      users = self.ecas_users_for_query;
+    }
+    for(var path in users) {
+      var klass = path.slice(1).split("/").join("-");
+      var row = $("."+klass).parents('tr');
+      $.each(users[path], function(idx, user) {
+        if (table_type === "grouped_by_member") {
+          var record = {};
+          record[this.uid] = {"role": this.role,
+                              "uid": this.uid}
+          ddata.push({"collection": {"path": this.path, "title": this.collection},
+                      "obligations": this.obligations,
+                      "users": record});
+        } else {
+          if (user.role === role) {
+            self.appendRowUsers(row, user);
+          }
+        }
+      })
+      row.find('.spinner-container').css("display", "none");
+    }
+    if (ddata.length > 0) {
+      reportek.utils.spinner.css("display", "block");
+      ddata = self.getDataGroupedByMember(ddata);
+      var dataTable = target.DataTable();
+      var rows = [];
+      $.each(ddata, function(idx, row) {
+        rows.push(self.generateRow(row, table_type));
+      });
+      dataTable.rows.add(rows).draw();
+      reportek.utils.spinner.css("display", "none");
+    }
+  },
+
   getEcasReportersByPath: function() {
-    // Retrieve reporters for collections with company id's
     var self = reportek.utils.users;
     var url = self.ecasreportersbypath_api;
-    var col = $(".company-col").text();
-    var role = $("#role").val();
     var paths = [];
-    var user_tds = [];
-    $.each($(".company-col"), function(i, elem) {
-      paths.push($(elem).text());
-      var row = $(elem).parents('tr');
-      var user_td = $(row).find(".users").parent();
-      var img_container = $("<div />", {"class": "spinner-container"});
-      var img = $("<img />", {
-                    "src": "++resource++static/ajax-loader.gif",
-                    "class": "ajax-spinner"
-                  });
-      img_container.append(img);
-      user_td.append(img_container);
-      user_tds.push(user_td);
+    $.each(self.table_data, function(i, elem){
+      if (elem.collection.company_id) {
+        paths.push(elem.collection.path);
+      }
     });
     if (paths.length > 0) {
       $.ajax({
         url: url,
-        method: 'GET',
+        method: 'POST',
         data: {paths: paths},
         success: function(data) {
-          var users = JSON.parse(data);
-          for(var path in users) {
-            var klass = path.slice(1).split("/").join("-");
-            var row = $("."+klass).parents('tr');
-            $.each(users[path], function(idx, user) {
-              if (user.role === role) {
-                self.appendRowUsers(row, user);
-              }
-            });
-            row.find('.spinner-container').css("display", "none");
-          }
+          self.ecas_users_for_query = JSON.parse(data);
+          self.populateEcasUsersPage(0);
+          self.populateEcasResults(0);
         },
         error: function() {
           $.each(user_tds, function(idx, user_td) {
@@ -257,13 +300,53 @@ reportek.utils.users = {
     }
   },
 
+  addReportersSpinnerByPath: function(page) {
+    // Retrieve reporters for collections with company id's
+    var self = reportek.utils.users;
+    var paths = [];
+    var col = $(".company-col").text();
+    $.each($(".company-col"), function(i, elem) {
+      if (paths.indexOf($(elem).text()))
+      paths.push($(elem).text());
+      var row = $(elem).parents('tr');
+      var user_td = $(row).find(".users").parent();
+      if (user_td.find('.spinner-container').length <= 0) {
+        var img_container = $("<div />", {"class": "spinner-container"});
+        var img = $("<img />", {
+                      "src": "++resource++static/ajax-loader.gif",
+                      "class": "ajax-spinner"
+                    });
+        img_container.append(img);
+        user_td.append(img_container);
+      }
+    });
+    self.ecas_paths[page] = paths;
+  },
+
   handleLoadingUsers: function() {
     var self = reportek.utils.users;
     var role = $("#role").val();
-    if (self.ecas_roles.indexOf(role) >= 0) {
-      self.getEcasReportersByPath();
-    }
+    var table = $("#datatable").DataTable();
+    var table_type = $(this).data("table-type");
+    var page = table.page.info().page;
+    if (table_type === 'grouped_by_path') {
+      if (self.ecas_roles.indexOf(role) >= 0) {
+        if (!self.ecas_users[page]) {
+          if ($(".spinner-container").length <= 1) {
+            self.addReportersSpinnerByPath(page);
+          }
+          self.populateEcasUsersPage(page);
+        }
+        if (!self.ecas_populated[table_type][page]) {
+          self.populateEcasResults(page);
+        }
+      }
     self.getCurrentUserTypes();
+    } else {
+      if (self.ecas_roles.indexOf(role) >= 0 && !self.ecas_populated[table_type]) {
+        self.populateEcasResults(page);
+        }
+      }
   },
 
   bindGetUserTypes: function() {
@@ -383,6 +466,8 @@ reportek.utils.users = {
         self.table_data = $.parseJSON(result).data;
         var dtConfig = self.generateDatatableConfig(table_type);
         self.generateDatatable(target, dtConfig, self.table_data, table_type);
+        self.addReportersSpinnerByPath(0);
+        self.getEcasReportersByPath();
       },
       error: function() {
         reportek.utils.spinner.css("display", "none");
@@ -391,10 +476,13 @@ reportek.utils.users = {
     });
   },
 
-  getDataGroupedByMember: function() {
+  getDataGroupedByMember: function(data) {
     var self = reportek.utils.users;
     var regrouped = [];
-    $.each(self.table_data, function(idx, record) {
+    if (!data) {
+      var data = self.table_data;
+    }
+    $.each(data, function(idx, record) {
       var newRec = $.extend({}, record);
       delete newRec.users;
       $.each(record.users, function(index, user) {
@@ -426,6 +514,7 @@ reportek.utils.users = {
         data = self.getDataGroupedByMember();
       }
       self.generateDatatable(target, dtConfig, data, target.data("table-type"));
+      self.handleLoadingUsers();
     });
   }
 };

@@ -129,6 +129,13 @@ class ListUsers(BaseAdmin):
             col = self.context.unrestrictedTraverse(path, None)
             users[path] = []
             if col and col.company_id:
+                col_obligations = []
+                for uri in list(col.dataflow_uris):
+                    try:
+                        title = self.get_obligations_title()[uri]
+                    except KeyError:
+                        title = 'Unknown/Deleted obligation'
+                    col_obligations.append((uri, title))
                 c_data = col.get_company_data()
                 if c_data:
                     role_map = {
@@ -138,6 +145,9 @@ class ListUsers(BaseAdmin):
                     check_path = path[1:] if path.startswith('/') else path
                     users[path] = [{'uid': u.get('username'),
                                     'role': role_map.get(middleware.authorizedUser(u.get('username'), check_path)),
+                                    'collection': col.title,
+                                    'path': path,
+                                    'obligations': col_obligations,
                                     'email': u.get('email'),
                                     'username': u.get('username'),
                                     'fullname': ' '.join([u.get('first_name'), u.get('last_name')])}
