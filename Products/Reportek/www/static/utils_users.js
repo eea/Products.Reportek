@@ -486,6 +486,8 @@ reportek.utils.users = {
   handleUsersGrouping: function() {
     var self = reportek.utils.users;
     var target = $("#datatable");
+    var info_message = $("#results .info-message > span");
+    self.info_text = info_message.text();
 
     $(".grouping-tabbed-elem a").on("click", function(evt) {
       evt.preventDefault();
@@ -497,6 +499,11 @@ reportek.utils.users = {
       var dtConfig = self.generateDatatableConfig(target.data("table-type"));
       if (target.data("table-type") === "grouped_by_member") {
         data = self.getDataGroupedByMember();
+        if (self.ecas_roles.indexOf($("#role").val()) >= 0) {
+          $("#results .info-message > span").text("Results related only to our internal user are hidden. ECAS users are not loaded.");
+        }
+      } else {
+        info_message.text(self.info_text);
       }
       self.generateDatatable(target, dtConfig, data, target.data("table-type"));
       self.handleLoadingUsers();
