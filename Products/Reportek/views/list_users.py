@@ -123,12 +123,14 @@ class ListUsers(BaseAdmin):
 
     def get_ecas_reporters_by_path(self, REQUEST):
         paths = REQUEST.get('paths[]', [])
+        if not isinstance(paths, list):
+            paths = [paths]
         middleware = self.get_middleware()
         users = {}
         for path in paths:
             col = self.context.unrestrictedTraverse(path, None)
             users[path] = []
-            if col and col.company_id:
+            if col and getattr(col, 'company_id', None):
                 col_obligations = []
                 for uri in list(col.dataflow_uris):
                     try:
@@ -137,6 +139,7 @@ class ListUsers(BaseAdmin):
                         title = 'Unknown/Deleted obligation'
                     col_obligations.append((uri, title))
                 c_data = col.get_company_data()
+
                 if c_data:
                     role_map = {
                         'RW': 'Reporter (Owner)',
@@ -210,7 +213,7 @@ class ListUsers(BaseAdmin):
                     if 'bdr_folder_agent' in users.keys():
                         del users['bdr_folder_agent']
 
-                if not users:
+                if not users and role != 'Reporter (Owner)':
                     continue
 
                 yield {

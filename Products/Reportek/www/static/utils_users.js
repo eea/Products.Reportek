@@ -213,18 +213,6 @@ reportek.utils.users = {
     self.updateUserType(user.username, "ECAS", user.fullname, user.email);
   },
 
-  populateEcasUsersPage: function(page) {
-    // Populate the self.ecas_users[page]
-    var self = reportek.utils.users;
-    self.ecas_users[page] = {};
-    var paths = self.ecas_paths[page];
-    $.each(paths, function(idx, path) {
-      if (self.ecas_users_for_query[path]) {
-        self.ecas_users[page][path] = self.ecas_users_for_query[path];
-      }
-    });
-  },
-
   populateEcasResults: function(page) {
     // Populate the users table td with ecas users
     var self = reportek.utils.users;
@@ -233,12 +221,7 @@ reportek.utils.users = {
     var table_type = target.data("table-type");
     var role = $("#role").val();
     var ddata = [];
-    if (table_type === 'grouped_by_path') {
-      self.ecas_populated[table_type][page] = true;
-    } else {
-      self.ecas_populated[table_type] = true;
-      users = self.ecas_users_for_query;
-    }
+    self.ecas_populated[table_type][page] = true;
     for(var path in users) {
       var klass = path.slice(1).split("/").join("-");
       var row = $("."+klass).parents('tr');
@@ -271,30 +254,28 @@ reportek.utils.users = {
     }
   },
 
-  getEcasReportersByPath: function() {
+  getEcasReportersByPath: function(page) {
     var self = reportek.utils.users;
     var url = self.ecasreportersbypath_api;
     var paths = [];
-    $.each(self.table_data, function(i, elem){
-      if (elem.collection.company_id) {
-        paths.push(elem.collection.path);
-      }
-    });
+    paths = self.ecas_paths[page];
     if (paths.length > 0) {
       $.ajax({
         url: url,
         method: 'POST',
         data: {paths: paths},
         success: function(data) {
-          self.ecas_users_for_query = JSON.parse(data);
-          self.populateEcasUsersPage(0);
-          self.populateEcasResults(0);
+          self.ecas_users[page] = JSON.parse(data);
+          self.populateEcasResults(page);
         },
         error: function() {
-          $.each(user_tds, function(idx, user_td) {
+          $.each($(".company-col"), function(i, elem) {
+            paths.push($(elem).text());
+            var row = $(elem).parents('tr');
+            var user_td = $(row).find(".users").parent();
             $(user_td).find($(".spinner-container")).remove();
             user_td.append($("<span>", {text: "An error occured while retrieving users. Please try again later!"}));
-          });
+        });
         }
       });
     }
@@ -306,7 +287,6 @@ reportek.utils.users = {
     var paths = [];
     var col = $(".company-col").text();
     $.each($(".company-col"), function(i, elem) {
-      if (paths.indexOf($(elem).text()))
       paths.push($(elem).text());
       var row = $(elem).parents('tr');
       var user_td = $(row).find(".users").parent();
@@ -329,13 +309,20 @@ reportek.utils.users = {
     var table = $("#datatable").DataTable();
     var table_type = $(this).data("table-type");
     var page = table.page.info().page;
+
     if (table_type === 'grouped_by_path') {
       if (self.ecas_roles.indexOf(role) >= 0) {
+        $.each($(".company-col"), function(i, elem) {
+          if (!self.ecas_paths[page] || self.ecas_paths[page].indexOf($(elem).text()) <= 0) {
+            delete self.ecas_users[page];
+            return true;
+          }
+        });
         if (!self.ecas_users[page]) {
           if ($(".spinner-container").length <= 1) {
             self.addReportersSpinnerByPath(page);
+            self.getEcasReportersByPath(page);
           }
-          self.populateEcasUsersPage(page);
         }
         if (!self.ecas_populated[table_type][page]) {
           self.populateEcasResults(page);
@@ -466,8 +453,6 @@ reportek.utils.users = {
         self.table_data = $.parseJSON(result).data;
         var dtConfig = self.generateDatatableConfig(table_type);
         self.generateDatatable(target, dtConfig, self.table_data, table_type);
-        self.addReportersSpinnerByPath(0);
-        self.getEcasReportersByPath();
       },
       error: function() {
         reportek.utils.spinner.css("display", "none");
