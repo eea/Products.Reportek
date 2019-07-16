@@ -224,7 +224,7 @@ class ListUsers(BaseAdmin):
                         'company_id': getattr(brain, 'company_id', None)
                     },
                     'obligations': col_obligations,
-                    'users':  users}
+                    'users': users}
 
     def getUsersByPath(self, REQUEST):
         return json.dumps({"data": list(self.get_records(REQUEST))})

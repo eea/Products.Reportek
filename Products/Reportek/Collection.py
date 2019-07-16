@@ -665,6 +665,17 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
                     return True
         return False
 
+    def has_company_checks_failed(self):
+        """ Return True if BDR deployment and associated company checks failed
+        """
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            raw_data = self.get_company_data()
+            if raw_data:
+                checks_passed = raw_data.get('check_passed', False)
+                if not checks_passed:
+                    return True
+        return False
+
     def allowed_envelopes(self):
         """ Return False if the collection's associated company is disabled
         """
@@ -672,6 +683,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
             return False
 
         if self.is_manufacturer():
+            return False
+
+        if self.has_company_checks_passed():
             return False
 
         return self.allow_envelopes
