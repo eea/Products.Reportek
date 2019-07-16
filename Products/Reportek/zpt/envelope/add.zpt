@@ -17,7 +17,7 @@
 
         <tal:block tal:condition="python:not canCreateEnvelope">
           <tal:block tal:condition="not: here/allowed_envelopes">
-            <p i18n:translate="">You cannot create envelopes for invalid companies.</p>
+            <p i18n:translate="">You cannot create envelopes for invalid or other companies that failed our checks.</p>
           </tal:block>
           <tal:block tal:condition="hasTerminatedObligations">
             <p i18n:translate="">You cannot create envelopes for terminated obligations, you need to change the list of obligations associated to this collection and remove the following:</p>
