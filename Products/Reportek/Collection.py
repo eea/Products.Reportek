@@ -672,7 +672,8 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
             raw_data = self.get_company_data()
             if raw_data:
                 checks_passed = raw_data.get('check_passed', False)
-                if not checks_passed:
+                registry = raw_data.get('registry')
+                if not checks_passed and registry == 'FGAS Registry':
                     return True
         return False
 
