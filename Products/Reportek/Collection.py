@@ -685,7 +685,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
         if self.is_manufacturer():
             return False
 
-        if self.has_company_checks_passed():
+        if self.has_company_checks_failed():
             return False
 
         return self.allow_envelopes
