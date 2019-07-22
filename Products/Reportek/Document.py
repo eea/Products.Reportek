@@ -458,6 +458,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
     security.declareProtected('View', 'get_possible_conversions')
     def get_possible_conversions(self):
         """Return possible conversions for the file"""
+        exclude_internal = True if self.REQUEST.get('exclude_internal') else False
         local_converters = []
         remote_converters = []
         warning_message = ''
@@ -465,7 +466,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             (local_converters, remote_converters) = \
                 self.Converters.displayPossibleConversions(self.content_type,
                                                            self.xml_schema_location,
-                                                           self.id
+                                                           self.id,
+                                                           exclude_internal=exclude_internal
                                                            )
         except requests.ConnectionError as ex:
            local_converters, remote_converters = ex.results

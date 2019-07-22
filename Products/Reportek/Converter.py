@@ -69,7 +69,7 @@ class Converter(SimpleItem):
         SimpleItem.manage_options
     )
 
-    def __init__(self, id, title, convert_url, ct_input, ct_output, ct_schema, ct_extraparams, description, suffix=''):
+    def __init__(self, id, title, convert_url, ct_input, ct_output, ct_schema, ct_extraparams, description, suffix='', internal=False):
         """ """
         self.id = id
         self.title = title
@@ -80,12 +80,13 @@ class Converter(SimpleItem):
         self.ct_extraparams = ct_extraparams
         self.description = description
         self.suffix = suffix[suffix.find('.')+1:] # Drop everything up to period.
+        self.internal=internal
 
     #security stuff
     security = ClassSecurityInfo()
 
     security.declareProtected(view_management_screens, 'manage_settings')
-    def manage_settings(self, title='', ct_input='', ct_output='', ct_schema='', convert_url='', ct_extraparams='', description='', suffix='', REQUEST=None):
+    def manage_settings(self, title='', ct_input='', ct_output='', ct_schema='', convert_url='', ct_extraparams='', description='', suffix='', internal=False, REQUEST=None):
         """ """
         self.title = title
         self.convert_url = convert_url
@@ -95,6 +96,7 @@ class Converter(SimpleItem):
         self.ct_extraparams = RepUtils.utConvertLinesToList(ct_extraparams)
         self.description = description
         self.suffix = suffix[suffix.find('.')+1:] # Drop everything up to period.
+        self.internal = internal
         self._p_changed = 1
         if REQUEST:
             message="Content changed."

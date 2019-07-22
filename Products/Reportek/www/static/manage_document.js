@@ -26,6 +26,7 @@ reportek.documents = {
         $("#c_container").remove();
         $.ajax({
             url: "get_possible_conversions",
+            data: {exclude_internal: true}
         }).done(function(data) {
             self.update_conversions(data);
             $("#c_spinner").addClass("hidden-content");
