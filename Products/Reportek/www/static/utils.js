@@ -381,13 +381,18 @@ reportek.utils = {
       self.datatable_loading($("#ajax-results > .datatable"), "hide");
       $.ajax({
           url: "api.get_collections",
-          data: $("#coll-form").serialize()
-        }).success(function(data){
-          $("#coll-table_wrapper").remove();
-          self.datatable_loading($("#ajax-results > .datatable"), "show");
-          self.populateUserRolesTable(data);
-        });
+          data: $("#coll-form").serialize(),
+          success: function(data){
+            $("#coll-table_wrapper").remove();
+            self.datatable_loading($("#ajax-results > .datatable"), "show");
+            self.populateUserRolesTable(data);
+          },
+          error: function(){
+            $(".ajax-spinner").css("display", "none");
+            $("#ajax-results").text("An error occured while retrieving results. Please try again later!");
+          }
       });
+    });
   },
 
   addCollectionDataTable: function(parent_el) {
@@ -438,10 +443,15 @@ reportek.utils = {
       self.spinner.css("display", "block");
       $.ajax({
           url: "find_user",
-          data: $("#find-user-form").serialize()
-        }).success(function(data){
-          self.spinner.css("display", "none");
-          reportek.utils.handleSearchUser(data);
+          data: $("#find-user-form").serialize(),
+          success: function(data){
+            self.spinner.css("display", "none");
+            reportek.utils.handleSearchUser(data);
+          },
+          error: function(){
+            $(".ajax-spinner").css("display", "none");
+            $("#ajax-results").text("An error occured while retrieving results. Please try again later!");
+          }
         });
     });
   },

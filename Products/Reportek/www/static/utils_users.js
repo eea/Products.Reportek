@@ -456,7 +456,7 @@ reportek.utils.users = {
       },
       error: function() {
         reportek.utils.spinner.css("display", "none");
-        $("#ajax-results").text("An error occured while retrieving results. Please try again later!")
+        $("#ajax-results").text("An error occured while retrieving results. Please try again later!");
       }
     });
   },

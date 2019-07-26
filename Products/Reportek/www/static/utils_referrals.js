@@ -45,8 +45,13 @@ reportek.utils.referrals = {
 
         $.ajax({
             url: "api.get_referrals_status",
-            data: formdata
-        }).success(self.update_results);
+            data: formdata,
+            success: self.update_results,
+            error: function() {
+              $(".ajax-spinner").css("display", "none");
+              $("#results").text("An error occured while retrieving results. Please try again later!");
+            }
+        });
       }
     });
 
@@ -55,8 +60,13 @@ reportek.utils.referrals = {
       var formdata = $(this).serialize();
       $.ajax({
           url: "api.update_referrals_status",
-          data: formdata
-      }).success(self.update_apply_results);
+          data: formdata,
+          success: self.update_apply_results,
+          error: function() {
+            $(".ajax-spinner").css("display", "none");
+            $("#results").text("An error occured while updating the referrals status. Please try again later!");
+          }
+        });
     });
   },
   
