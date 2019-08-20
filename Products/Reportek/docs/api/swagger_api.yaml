@@ -3,7 +3,7 @@ info:
   version: 1.0.0
   title: Envelopes
   description: ''
-host: 'cdrdev.eionet.europa.eu'
+host: cdrdev.eionet.europa.eu
 basePath: /api
 schemes:
   - http
@@ -82,7 +82,7 @@ paths:
               - ME
               - MA
               - NL
-              - NO
+              - 'NO'
               - PS
               - PL
               - PT
@@ -111,19 +111,12 @@ paths:
           format: date
         - name: reportingDateStart
           in: query
-          description: >-
-            Return envelopes that have a reporting date in range of
-            reportingDateStart and reportingDateEnd or today if reportingDateEnd
-            is missing.
+          description: Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd or today if reportingDateEnd is missing.
           type: string
           format: date
         - name: reportingDateEnd
           in: query
-          description: >-
-            Return envelopes that have a reporting date in range of
-            reportingDateStart and reportingDateEnd. If reportingDateStart is
-            missing, all envelopes with reporting date <= reportingDateEnd will
-            be returned.
+          description: Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd. If reportingDateStart is missing, all envelopes with reporting date <= reportingDateEnd will be returned.
           type: string
           format: date
         - name: obligations
@@ -217,7 +210,7 @@ paths:
                 items:
                   $ref: '#/definitions/Error'
           examples:
-            'application/json':
+            application/json:
               errors:
                 - title: Error title
                   description: This is a generic error description
@@ -228,21 +221,21 @@ paths:
                         - File1.xml
                         - File2.xml
                       contentType: application/xml
-                      uploadDate: 2013-04-12T23:20:50.52Z
-                      url: http://foo/bar/my_envelope/my_envelope_file.xml
-                      schemaURL: http://foo/bar/schema.xsd
+                      uploadDate: 2013-04-12T23:20:50.520Z
+                      url: 'http://foo/bar/my_envelope/my_envelope_file.xml'
+                      schemaURL: 'http://foo/bar/schema.xsd'
                       fileSize: 3679181
                       fileSizeHR: 3.51 MB
                       isRestricted: 0
                   periodEndYear: 2014
                   status: Release
                   countryCode: RO
-                  statusDate: 2013-04-13T01:20:50.53Z
+                  statusDate: 2013-04-13T01:20:50.530Z
                   obligations:
                     - '701'
                   isBlockedByQCError: 0
-                  url: http://foo/bar/my_envelope
-                  modifiedDate: 2013-04-13T01:20:50.53Z
+                  url: 'http://foo/bar/my_envelope'
+                  modifiedDate: 2013-04-13T01:20:50.530Z
                   creator: foo
                   history:
                     - id: 0
@@ -250,11 +243,11 @@ paths:
                       activity_id: Release
                       activity_status: complete
                       blocker: false
-                      modified: 2013-04-13T01:20:50.53Z
-                  companyId: 18006,
+                      modified: 2013-04-13T01:20:50.530Z
+                  companyId: '18006,'
                   isReleased: 1
                   title: My Envelope
-                  reportingDate: 2013-04-13T01:20:50.53Z
+                  reportingDate: 2013-04-13T01:20:50.530Z
                   periodStartYear: 2013
                   description: A description for my envelope
                   periodDescription: Whole Year
@@ -274,9 +267,7 @@ definitions:
         items:
           type: integer
       periodStartYear:
-        description: >-
-          The starting year of the period for which the envelope has been
-          created.
+        description: The starting year of the period for which the envelope has been created.
         type: string
       periodEndYear:
         type: string
@@ -288,6 +279,13 @@ definitions:
         type: string
         description: The envelope's reporting date.
         format: dateTime
+      reportingDateStart:
+        type: string
+        description: Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd or today if reportingDateEnd is missing.
+        format: dateTime
+      reportingDateEnd:
+        type: string
+        description: Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd. If reportingDateStart is missing, all envelopes with reporting date <= reportingDateEnd will be returned.
       url:
         type: string
         description: The envelope's URL.
@@ -319,6 +317,12 @@ definitions:
       creator:
         type: string
         description: The envelope's creator.
+      hasUnknownQC:
+        type: integer
+        description: Is there an AutomaticQA feedback with no valid feedback status
+        enum:
+          - 0
+          - 1
       files:
         type: array
         description: The list of files attached to the envelope.
@@ -359,9 +363,7 @@ definitions:
         description: The size of the file in human readable format.
       archivedFiles:
         type: array
-        description: >-
-          The list of files that have been archived. Available only if there is
-          an archive attached to the envelope and if it can be opened.
+        description: The list of files that have been archived. Available only if there is an archive attached to the envelope and if it can be opened.
         items:
           type: string
       isRestricted:
