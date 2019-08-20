@@ -82,7 +82,7 @@ paths:
               - ME
               - MA
               - NL
-              - 'NO'
+              - NO
               - PS
               - PL
               - PT
@@ -119,6 +119,20 @@ paths:
           description: Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd. If reportingDateStart is missing, all envelopes with reporting date <= reportingDateEnd will be returned.
           type: string
           format: date
+        - name: hasUnknownQC
+          in: query
+          type: integer
+          description: Is there an AutomaticQA feedback with no valid feedback status
+          enum:
+            - 0
+            - 1
+        - name: isBlockedByQCError
+          in: query
+          type: integer
+          description: Is the envelope blocked by a QC Error.
+          enum:
+            - 0
+            - 1
         - name: obligations
           in: query
           description: Return envelopes with one of the following obligations
@@ -234,6 +248,7 @@ paths:
                   obligations:
                     - '701'
                   isBlockedByQCError: 0
+                  hasUnknownQC: 0
                   url: 'http://foo/bar/my_envelope'
                   modifiedDate: 2013-04-13T01:20:50.530Z
                   creator: foo
@@ -286,6 +301,7 @@ definitions:
       reportingDateEnd:
         type: string
         description: Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd. If reportingDateStart is missing, all envelopes with reporting date <= reportingDateEnd will be returned.
+        format: dateTime
       url:
         type: string
         description: The envelope's URL.

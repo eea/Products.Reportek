@@ -16,6 +16,8 @@
 | reportingDate | query | Return envelopes with this reporting date. format. | No | date |
 | reportingDateStart | query | Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd or today if reportingDateEnd is missing. | No | date |
 | reportingDateEnd | query | Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd. If reportingDateStart is missing, all envelopes with reporting date <= reportingDateEnd will be returned. | No | date |
+| hasUnknownQC | query | Is there an AutomaticQA feedback with no valid feedback status | No | integer |
+| isBlockedByQCError | query | Is the envelope blocked by a QC Error. | No | integer |
 | obligations | query | Return envelopes with one of the following obligations | No | [ integer ] |
 | periodDescription | query | Return envelopes with specified periodDescription | No | [ string ] |
 | modifiedDate | query | Return envelopes with specified modifiedDate. date format. | No | date |
@@ -44,7 +46,7 @@
 | countryCode | string | The envelope's country code (ISO Alpha-2). | No |
 | reportingDate | string (dateTime) | The envelope's reporting date. | No |
 | reportingDateStart | string (dateTime) | Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd or today if reportingDateEnd is missing. | No |
-| reportingDateEnd | string | Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd. If reportingDateStart is missing, all envelopes with reporting date <= reportingDateEnd will be returned. | No |
+| reportingDateEnd | string (dateTime) | Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd. If reportingDateStart is missing, all envelopes with reporting date <= reportingDateEnd will be returned. | No |
 | url | string | The envelope's URL. | No |
 | modifiedDate | string (dateTime) | The envelope's modification date. | No |
 | periodDescription | [PeriodDescription](#perioddescription) |  | No |
