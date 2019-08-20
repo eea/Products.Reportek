@@ -1,395 +1,60 @@
-<!doctype html>
-<html>
-  <head>
-    <title>Envelopes</title>
-    <style type="text/css">
-      body { 
-	font-family: Trebuchet MS, sans-serif;
-	font-size: 15px;
-	color: #444;
-	margin-right: 24px;
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Swagger UI</title>
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,700|Source+Code+Pro:300,600|Titillium+Web:400,600,700" rel="stylesheet">
+  <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.2.2/swagger-ui.css" >
+  <style>
+    html
+    {
+      box-sizing: border-box;
+      overflow: -moz-scrollbars-vertical;
+      overflow-y: scroll;
+    }
+    *,
+    *:before,
+    *:after
+    {
+      box-sizing: inherit;
+    }
+
+    body {
+      margin:0;
+      background: #fafafa;
+    }
+  </style>
+</head>
+<body>
+
+<div id="swagger-ui"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.2.2/swagger-ui-bundle.js"> </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/3.2.2/swagger-ui-standalone-preset.js"> </script>
+<script>
+window.onload = function() {
+
+  var spec = {"info": {"version": "1.0.0", "description": "", "title": "Envelopes"}, "paths": {"/envelopes": {"get": {"responses": {"200": {"schema": {"type": "object", "properties": {"errors": {"items": {"$ref": "#/definitions/Error"}, "type": "array"}, "envelopes": {"items": {"$ref": "#/definitions/Envelope"}, "type": "array"}}}, "examples": {"application/json": {"errors": [{"description": "This is a generic error description", "title": "Error title"}], "envelopes": [{"files": [{"contentType": "application/xml", "fileSizeHR": "3.51 MB", "archivedFiles": ["File1.xml", "File2.xml"], "title": "My Envelope file", "url": "http://foo/bar/my_envelope/my_envelope_file.xml", "uploadDate": "2013-04-12T23:20:50.520Z", "isRestricted": 0, "schemaURL": "http://foo/bar/schema.xsd", "fileSize": 3679181}], "status": "Release", "periodEndYear": 2014, "description": "A description for my envelope", "countryCode": "RO", "creator": "foo", "obligations": ["701"], "modifiedDate": "2013-04-13T01:20:50.530Z", "periodDescription": "Whole Year", "isBlockedByQCError": 0, "isReleased": 1, "periodStartYear": 2013, "title": "My Envelope", "url": "http://foo/bar/my_envelope", "reportingDate": "2013-04-13T01:20:50.530Z", "companyId": "18006,", "statusDate": "2013-04-13T01:20:50.530Z", "history": [{"activity_id": "Release", "activity_status": "complete", "blocker": false, "title": "Release", "modified": "2013-04-13T01:20:50.530Z", "id": 0}]}]}}, "description": "List released or unreleased envelopes"}}, "parameters": [{"minimum": 0, "description": "Released(1) or Unreleased(0) envelopes to return", "in": "query", "enum": [0, 1], "type": "integer", "maximum": 1, "name": "isReleased"}, {"in": "query", "type": "string", "description": "Url of the envelopes or part of to return", "name": "url"}, {"items": {"enum": ["AL", "DZ", "AD", "AM", "AT", "AZ", "BY", "BE", "BA", "BG", "HR", "CY", "CZ", "DK", "EG", "EE", "EU", "FI", "FR", "GE", "DE", "GI", "GR", "GL", "HU", "IS", "IE", "IL", "IT", "JO", "KZ", "XK", "KG", "LV", "LB", "LY", "LI", "LT", "LU", "MK", "MT", "MD", "MC", "ME", "MA", "NL", "NO", "PS", "PL", "PT", "RO", "RU", "SM", "RS", "SK", "SI", "ES", "SE", "CH", "SY", "TJ", "TN", "TR", "TM", "UA", "GB", "UZ", "VA"], "type": "string"}, "in": "query", "type": "array", "description": "Country code in ISO \"ALPHA-2 Code format for envelopes to return", "name": "countryCode"}, {"in": "query", "type": "string", "description": "Return envelopes with this reporting date. format.", "name": "reportingDate", "format": "date"}, {"in": "query", "type": "string", "description": "Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd or today if reportingDateEnd is missing.", "name": "reportingDateStart", "format": "date"}, {"in": "query", "type": "string", "description": "Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd. If reportingDateStart is missing, all envelopes with reporting date <= reportingDateEnd will be returned.", "name": "reportingDateEnd", "format": "date"}, {"description": "Return envelopes with one of the following obligations", "name": "obligations", "in": "query", "items": {"type": "integer"}, "type": "array", "collectionFormat": "csv"}, {"items": {"enum": ["Whole Year", "First Half", "Second Half", "First Quarter", "Second Quarter", "Third Quarter", "Fourth Quarter", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], "type": "string"}, "in": "query", "type": "array", "description": "Return envelopes with specified periodDescription", "name": "periodDescription"}, {"in": "query", "type": "string", "description": "Return envelopes with specified modifiedDate. date format.", "name": "modifiedDate", "format": "date"}, {"items": {"type": "string"}, "in": "query", "type": "array", "description": "Return envelopes that have the following status", "name": "status"}, {"in": "query", "type": "string", "description": "Return envelopes that have a status with the following statusDate.", "name": "statusDate", "format": "date"}, {"description": "Return envelopes with only the fields specified", "name": "fields", "in": "query", "items": {"enum": ["files", "url", "title", "description", "countryCode", "isReleased", "reportingDate", "modifiedDate", "periodStartYear", "periodEndYear", "periodDescription", "obligations", "isBlockedByQCError", "status", "statusDate", "creator", "hasUnknownQC", "history", "companyId"], "type": "string"}, "type": "array", "collectionFormat": "csv"}], "tags": ["envelopes"]}}}, "schemes": ["http", "https"], "produces": ["application/json"], "basePath": "/api", "host": "cdrdev.eionet.europa.eu", "definitions": {"History": {"type": "object", "properties": {"activity_id": {"type": "string", "description": "The id of the activity/workflow."}, "title": {"type": "string", "description": "The title of the activity/workflow."}, "blocker": {"type": "boolean", "description": "The blocker status of the activity/workflow."}, "activity_status": {"type": "string", "description": "The status of the activity/workflow."}, "modified": {"type": "string", "description": "The modification date of the activity/workflow.", "format": "dateTime"}, "id": {"type": "string", "description": "The id of the activity/workflow."}}}, "Envelope": {"type": "object", "properties": {"status": {"type": "string", "description": "The workflow status of the envelope."}, "files": {"items": {"$ref": "#/definitions/File"}, "type": "array", "description": "The list of files attached to the envelope."}, "reportingDate": {"type": "string", "description": "The envelope's reporting date.", "format": "dateTime"}, "periodEndYear": {"type": "string", "description": "The ending year of the period for which the envelope has been created."}, "description": {"type": "string", "description": "The envelope's description."}, "countryCode": {"type": "string", "description": "The envelope's country code (ISO Alpha-2)."}, "creator": {"type": "string", "description": "The envelope's creator."}, "obligations": {"items": {"type": "integer"}, "type": "array", "description": "The obligations for which the envelope has been created."}, "reportingDateEnd": {"type": "string", "description": "Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd. If reportingDateStart is missing, all envelopes with reporting date <= reportingDateEnd will be returned."}, "periodDescription": {"$ref": "#/definitions/PeriodDescription"}, "isBlockedByQCError": {"enum": [0, 1], "type": "integer", "description": "Is the envelope blocked by a QC Error."}, "isReleased": {"enum": [0, 1], "type": "integer", "description": "The envelope's release status"}, "periodStartYear": {"type": "string", "description": "The starting year of the period for which the envelope has been created."}, "hasUnknownQC": {"enum": [0, 1], "type": "integer", "description": "Is there an AutomaticQA feedback with no valid feedback status"}, "companyId": {"type": "string", "description": "The company ID associated with with the envelope's parent Collection"}, "url": {"type": "string", "description": "The envelope's URL."}, "title": {"type": "string", "description": "The envelope's title."}, "statusDate": {"type": "string", "description": "The date the workflow status has been set.", "format": "dateTime"}, "modifiedDate": {"type": "string", "description": "The envelope's modification date.", "format": "dateTime"}, "reportingDateStart": {"type": "string", "description": "Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd or today if reportingDateEnd is missing.", "format": "dateTime"}, "history": {"items": {"$ref": "#/definitions/History"}, "type": "array", "description": "The workflow history of the envelope."}}}, "File": {"type": "object", "properties": {"contentType": {"type": "string", "description": "The file's content type."}, "fileSizeHR": {"type": "string", "description": "The size of the file in human readable format."}, "archivedFiles": {"items": {"type": "string"}, "type": "array", "description": "The list of files that have been archived. Available only if there is an archive attached to the envelope and if it can be opened."}, "title": {"type": "string", "description": "The file's title."}, "url": {"type": "string", "description": "The file's URL."}, "fileSize": {"type": "integer", "description": "The size of the file in bytes"}, "isRestricted": {"enum": [0, 1], "type": "integer", "description": "The document's restricted status"}, "schemaURL": {"type": "string", "description": "The URL of the file's schema."}, "uploadDate": {"type": "string", "description": "The file's upload date.", "format": "dateTime"}}}, "PeriodDescription": {"enum": ["Whole Year", "First Half", "Second Half", "First Quarter", "Second Quarter", "Third Quarter", "Fourth Quarter", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"], "type": "string", "description": "The envelope's reporting period description."}, "Error": {"type": "object", "properties": {"description": {"type": "string", "description": "The error's description"}, "title": {"type": "string", "description": "The error's title."}}}}, "swagger": "2.0"};
+
+  // Build a system
+  const ui = SwaggerUIBundle({
+    spec: spec,
+    dom_id: '#swagger-ui',
+    deepLinking: true,
+    presets: [
+      SwaggerUIBundle.presets.apis,
+      SwaggerUIStandalonePreset
+    ],
+    plugins: [
+      SwaggerUIBundle.plugins.DownloadUrl
+    ],
+    layout: "StandaloneLayout"
+  })
+
+  window.ui = ui
 }
+</script>
+</body>
 
-h1	{
-	font-size: 25px;
-}
-h2	{
-	font-size: 20px;
-}
-h3	{
-	font-size: 16px;
-	font-weight: bold;
-}
-hr	{
-	height: 1px;
-	border: 0;
-	color: #ddd;
-	background-color: #ddd;
-	display: none;
-}
-
-.app-desc {
-  clear: both;
-  margin-left: 20px;
-}
-.param-name {
-  width: 100%;
-}
-.license-info {
-  margin-left: 20px;
-}
-
-.license-url {
-  margin-left: 20px;
-}
-
-.model {
-  margin: 0 0 0px 20px;
-}
-
-.method {
-  margin-left: 20px;
-}
-
-.method-notes	{
-	margin: 10px 0 20px 0;
-	font-size: 90%;
-	color: #555;
-}
-
-pre {
-  padding: 10px;
-  margin-bottom: 2px;
-}
-
-.http-method {
- text-transform: uppercase;
-}
-
-pre.get {
-  background-color: #0f6ab4;
-}
-
-pre.post {
-  background-color: #10a54a;
-}
-
-pre.put {
-  background-color: #c5862b;
-}
-
-pre.delete {
-  background-color: #a41e22;
-}
-
-.huge	{
-	color: #fff;
-}
-
-pre.example {
-  background-color: #f3f3f3;
-  padding: 10px;
-  border: 1px solid #ddd;
-}
-
-code {
-  white-space: pre;
-}
-
-.nickname {
-  font-weight: bold;
-}
-
-.method-path {
-  font-size: 1.5em;
-  background-color: #0f6ab4;
-}
-
-.up {
-  float:right;
-}
-
-.parameter {
-  width: 500px;
-}
-
-.param {
-  width: 500px;
-  padding: 10px 0 0 20px;
-  font-weight: bold;
-}
-
-.param-desc {
-  width: 700px;
-  padding: 0 0 0 20px;
-  color: #777;
-}
-
-.param-type {
-  font-style: italic;
-}
-
-.param-enum-header {
-width: 700px;
-padding: 0 0 0 60px;
-color: #777;
-font-weight: bold;
-}
-
-.param-enum {
-width: 700px;
-padding: 0 0 0 80px;
-color: #777;
-font-style: italic;
-}
-
-.field-label {
-  padding: 0;
-  margin: 0;
-  clear: both;
-}
-
-.field-items	{
-	padding: 0 0 15px 0;
-	margin-bottom: 15px;
-}
-
-.return-type {
-  clear: both;
-  padding-bottom: 10px;
-}
-
-.param-header {
-  font-weight: bold;
-}
-
-.method-tags {
-  text-align: right;
-}
-
-.method-tag {
-  background: none repeat scroll 0% 0% #24A600;
-  border-radius: 3px;
-  padding: 2px 10px;
-  margin: 2px;
-  color: #FFF;
-  display: inline-block;
-  text-decoration: none;
-}
-    </style>
-  </head>
-  <body>
-  <h1>Envelopes</h1>
-    <div class="app-desc"></div>
-    <div class="app-desc">More information: <a href="https://helloreverb.com">https://helloreverb.com</a></div>
-    <div class="app-desc">Contact Info: <a href="hello@helloreverb.com">hello@helloreverb.com</a></div>
-    <div class="app-desc">Version: 1.0.0</div>
-    <div class="app-desc">BasePath:/api</div>
-    <div class="license-info">All rights reserved</div>
-    <div class="license-url">http://apache.org/licenses/LICENSE-2.0.html</div>
-  <h2>Access</h2>
-
-  <h2><a name="__Methods">Methods</a></h2>
-  [ Jump to <a href="#__Models">Models</a> ]
-
-  <h2>Table of Contents </h2>
-  <div class="method-summary"></div>
-  <ol>
-  <li><a href="#envelopesGet"><code><span class="http-method">get</span> /envelopes</code></a></li>
-  </ol>
-
-  <div class="method"><a name="envelopesGet"/>
-    <div class="method-path">
-    <a class="up" href="#__Methods">Up</a>
-    <pre class="get"><code class="huge"><span class="http-method">get</span> /envelopes</code></pre></div>
-    <div class="method-summary"> (<span class="nickname">envelopesGet</span>)</div>
-    <div class="method-notes"></div>
-
-
-
-
-
-    <h3 class="field-label">Query parameters</h3>
-    <div class="field-items">
-      <div class="param">isReleased (optional)</div>
-
-      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash; Released(1) or Unreleased(0) envelopes to return </div><div class="param">url (optional)</div>
-
-      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash; Url of the envelopes or part of to return </div><div class="param">countryCode (optional)</div>
-
-      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash; Country code in ISO \&quot;ALPHA-2 Code format for envelopes to return </div><div class="param">reportingDate (optional)</div>
-
-      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash; Return envelopes with this reporting date. format. format: date</div><div class="param">reportingDateStart (optional)</div>
-
-      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash; Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd or today if reportingDateEnd is missing. format: date</div><div class="param">reportingDateEnd (optional)</div>
-
-      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash; Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd. If reportingDateStart is missing, all envelopes with reporting date &lt;&#x3D; reportingDateEnd will be returned. format: date</div><div class="param">obligations (optional)</div>
-
-      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash; Return envelopes with one of the following obligations </div><div class="param">periodDescription (optional)</div>
-
-      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash; Return envelopes with specified periodDescription </div><div class="param">modifiedDate (optional)</div>
-
-      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash; Return envelopes with specified modifiedDate. date format. format: date</div><div class="param">status (optional)</div>
-
-      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash; Return envelopes that have the following status </div><div class="param">statusDate (optional)</div>
-
-      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash; Return envelopes that have a status with the following statusDate. format: date</div><div class="param">fields (optional)</div>
-
-      <div class="param-desc"><span class="param-type">Query Parameter</span> &mdash; Return envelopes with only the fields specified </div>
-    </div>  <!-- field-items -->
-
-
-    <h3 class="field-label">Return type</h3>
-    <div class="return-type">
-      <a href="#inline_response_200">inline_response_200</a>
-      
-    </div>
-
-    <!--Todo: process Response Object and its headers, schema, examples -->
-
-    <h3 class="field-label">Example data</h3>
-    <div class="example-data-content-type">Content-Type: application/json</div>
-    <pre class="example"><code>{
-  "errors" : [ {
-    "title" : "Error title",
-    "description" : "This is a generic error description"
-  } ],
-  "envelopes" : [ {
-    "files" : [ {
-      "title" : "My Envelope file",
-      "archivedFiles" : [ "File1.xml", "File2.xml" ],
-      "contentType" : "application/xml",
-      "uploadDate" : "2013-04-12T23:20:50.520Z",
-      "url" : "http://foo/bar/my_envelope/my_envelope_file.xml",
-      "schemaURL" : "http://foo/bar/schema.xsd",
-      "fileSize" : 3679181,
-      "fileSizeHR" : "3.51 MB",
-      "isRestricted" : 0
-    } ],
-    "periodEndYear" : 2014,
-    "status" : "Release",
-    "countryCode" : "RO",
-    "statusDate" : "2013-04-13T01:20:50.530Z",
-    "obligations" : [ "701" ],
-    "isBlockedByQCError" : 0,
-    "url" : "http://foo/bar/my_envelope",
-    "modifiedDate" : "2013-04-13T01:20:50.530Z",
-    "creator" : "foo",
-    "history" : [ {
-      "id" : 0,
-      "title" : "Release",
-      "activity_id" : "Release",
-      "activity_status" : "complete",
-      "blocker" : false,
-      "modified" : "2013-04-13T01:20:50.530Z"
-    } ],
-    "companyId" : "18006",
-    "isReleased" : 1,
-    "title" : "My Envelope",
-    "reportingDate" : "2013-04-13T01:20:50.530Z",
-    "periodStartYear" : 2013,
-    "description" : "A description for my envelope",
-    "periodDescription" : "Whole Year"
-  } ]
-}</code></pre>
-
-    <h3 class="field-label">Produces</h3>
-    This API call produces the following media types according to the <span class="header">Accept</span> request header;
-    the media type will be conveyed by the <span class="heaader">Content-Type</span> response header.
-    <ul>
-      <li><code>application/json</code></li>
-    </ul>
-
-    <h3 class="field-label">Responses</h3>
-    <h4 class="field-label">200</h4>
-    List released or unreleased envelopes
-        <a href="#inline_response_200">inline_response_200</a>
-    <h3 class="field-label">Example data</h3>
-    <div class="example-data-content-type">Content-Type: application/json</div>
-    <pre class="example"><code>{errors&#x3D;[{title&#x3D;Error title, description&#x3D;This is a generic error description}], envelopes&#x3D;[{files&#x3D;[{title&#x3D;My Envelope file, archivedFiles&#x3D;[File1.xml, File2.xml], contentType&#x3D;application/xml, uploadDate&#x3D;2013-04-12T23:20:50.520Z, url&#x3D;http://foo/bar/my_envelope/my_envelope_file.xml, schemaURL&#x3D;http://foo/bar/schema.xsd, fileSize&#x3D;3679181, fileSizeHR&#x3D;3.51 MB}], periodEndYear&#x3D;2014, status&#x3D;Release, countryCode&#x3D;RO, statusDate&#x3D;2013-04-13T01:20:50.530Z, obligations&#x3D;[701], isBlockedByQCError&#x3D;0, url&#x3D;http://foo/bar/my_envelope, modifiedDate&#x3D;2013-04-13T01:20:50.530Z, creator&#x3D;foo, history&#x3D;[{id&#x3D;0, title&#x3D;Release, activity_id&#x3D;Release, activity_status&#x3D;complete, blocker&#x3D;false, modified&#x3D;2013-04-13T01:20:50.530Z}], companyId&#x3D;18006, isReleased&#x3D;1, title&#x3D;My Envelope, reportingDate&#x3D;2013-04-13T01:20:50.530Z, periodStartYear&#x3D;2013, description&#x3D;A description for my envelope, periodDescription&#x3D;Whole Year}]}</code></pre>
-  </div> <!-- method -->
-  <hr/>
-
-  <div class="up"><a href="#__Models">Up</a></div>
-  <h2><a name="__Models">Models</a></h2>
-  [ Jump to <a href="#__Methods">Methods</a> ]
-
-  <h2>Table of Contents</h2>
-  <ol>
-    <li><a href="#Envelope"><code>Envelope</code></a></li>
-    <li><a href="#Error"><code>Error</code></a></li>
-    <li><a href="#File"><code>File</code></a></li>
-    <li><a href="#History"><code>History</code></a></li>
-    <li><a href="#inline_response_200"><code>inline_response_200</code></a></li>
-    <li><a href="#PeriodDescription"><code>PeriodDescription</code></a></li>
-  </ol>
-
-  <div class="model">
-    <h3 class="field-label"><a name="Envelope">Envelope</a> <a class="up" href="#__Models">Up</a></h3>
-    <div class="field-items">
-      <div class="param">title (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The envelope&#39;s title. </div>
-<div class="param">description (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The envelope&#39;s description. </div>
-<div class="param">obligations (optional)</div><div class="param-desc"><span class="param-type"><a href="#integer">array[Integer]</a></span> The obligations for which the envelope has been created. </div>
-<div class="param">periodStartYear (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The starting year of the period for which the envelope has been created. </div>
-<div class="param">periodEndYear (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The ending year of the period for which the envelope has been created. </div>
-<div class="param">countryCode (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The envelope&#39;s country code (ISO Alpha-2). </div>
-<div class="param">reportingDate (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The envelope&#39;s reporting date. format: dateTime</div>
-<div class="param">url (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The envelope&#39;s URL. </div>
-<div class="param">modifiedDate (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The envelope&#39;s modification date. format: dateTime</div>
-<div class="param">periodDescription (optional)</div><div class="param-desc"><span class="param-type"><a href="#PeriodDescription">PeriodDescription</a></span>  </div>
-<div class="param">isReleased (optional)</div><div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span> The envelope&#39;s release status </div>
-<div class="param">isBlockedByQCError (optional)</div><div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span> Is the envelope blocked by a QC Error. </div>
-<div class="param">status (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The workflow status of the envelope. </div>
-<div class="param">statusDate (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The date the workflow status has been set. format: dateTime</div>
-<div class="param">creator (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The envelope&#39;s creator. </div>
-<div class="param">files (optional)</div><div class="param-desc"><span class="param-type"><a href="#File">array[File]</a></span> The list of files attached to the envelope. </div>
-<div class="param">history (optional)</div><div class="param-desc"><span class="param-type"><a href="#History">array[History]</a></span> The workflow history of the envelope. </div>
-<div class="param">companyId (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The company ID associated with with the envelope&#39;s parent Collection. </div>
-    </div>  <!-- field-items -->
-  </div>
-  <div class="model">
-    <h3 class="field-label"><a name="Error">Error</a> <a class="up" href="#__Models">Up</a></h3>
-    <div class="field-items">
-      <div class="param">title (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The error&#39;s title. </div>
-<div class="param">description (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The error&#39;s description </div>
-    </div>  <!-- field-items -->
-  </div>
-  <div class="model">
-    <h3 class="field-label"><a name="File">File</a> <a class="up" href="#__Models">Up</a></h3>
-    <div class="field-items">
-      <div class="param">contentType (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The file&#39;s content type. </div>
-<div class="param">title (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The file&#39;s title. </div>
-<div class="param">url (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The file&#39;s URL. </div>
-<div class="param">uploadDate (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The file&#39;s upload date. format: dateTime</div>
-<div class="param">schemaURL (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The URL of the file&#39;s schema. </div>
-<div class="param">fileSize (optional)</div><div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span> The size of the file in bytes </div>
-<div class="param">fileSizeHR (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The size of the file in human readable format. </div>
-<div class="param">archivedFiles (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">array[String]</a></span> The list of files that have been archived. Available only if there is an archive attached to the envelope and if it can be opened. </div>
-<div class="param">isRestricted (optional)</div><div class="param-desc"><span class="param-type"><a href="#integer">Integer</a></span> The document&#39;s restricted status </div>
-    </div>  <!-- field-items -->
-  </div>
-  <div class="model">
-    <h3 class="field-label"><a name="History">History</a> <a class="up" href="#__Models">Up</a></h3>
-    <div class="field-items">
-      <div class="param">activity_id (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The id of the activity/workflow. </div>
-<div class="param">activity_status (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The status of the activity/workflow. </div>
-<div class="param">blocker (optional)</div><div class="param-desc"><span class="param-type"><a href="#boolean">Boolean</a></span> The blocker status of the activity/workflow. </div>
-<div class="param">title (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The title of the activity/workflow. </div>
-<div class="param">modified (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The modification date of the activity/workflow. format: dateTime</div>
-<div class="param">id (optional)</div><div class="param-desc"><span class="param-type"><a href="#string">String</a></span> The id of the activity/workflow. </div>
-    </div>  <!-- field-items -->
-  </div>
-  <div class="model">
-    <h3 class="field-label"><a name="inline_response_200">inline_response_200</a> <a class="up" href="#__Models">Up</a></h3>
-    <div class="field-items">
-      <div class="param">envelopes (optional)</div><div class="param-desc"><span class="param-type"><a href="#Envelope">array[Envelope]</a></span>  </div>
-<div class="param">errors (optional)</div><div class="param-desc"><span class="param-type"><a href="#Error">array[Error]</a></span>  </div>
-    </div>  <!-- field-items -->
-  </div>
-  <div class="model">
-    <h3 class="field-label"><a name="PeriodDescription">PeriodDescription</a> <a class="up" href="#__Models">Up</a></h3>
-    <div class="field-items">
-          </div>  <!-- field-items -->
-  </div>
-  </body>
 </html>
