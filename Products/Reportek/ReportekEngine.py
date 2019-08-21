@@ -1496,22 +1496,20 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     def get_left_menu_tmpl(self, username=None):
         """Get the left menu template for username."""
         sm = getSecurityManager()
-        if not username:
-            username = sm.getUser().getId()
+        nobody = SpecialUsers.nobody
         left_hand_tmpl = self.unrestrictedTraverse('/left_menu_buttons')
         root = self.unrestrictedTraverse('/')
+        tmp_user = None
         try:
             try:
-                # Create the user
-                tmp_user = ReportekPropertiedUser(id=username, login=username)
-
-                # Get the user with roles populated
-                tmp_user = root.acl_users.getUserById(tmp_user.getId())
-                # If the user can't be found, use a nobody account
+                if username:
+                    # Get the user with roles populated
+                    tmp_user = root.acl_users.getUserById(username)
+                    # If the user can't be found, use a nobody account
                 if not tmp_user:
-                    tmp_user = SpecialUsers.nobody
-                newSecurityManager(None, tmp_user)
+                    tmp_user = nobody
 
+                newSecurityManager(None, tmp_user)
                 # Get the template rendered for the username
                 return left_hand_tmpl(context=root)
             except:
