@@ -123,6 +123,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     # If this is empty, this Reportek instance does not have a QA system linked to it
     QA_application = ''
     globally_restricted_site = False
+    cr_rmq = False
     if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
         cr_api_url = 'http://cr.eionet.europa.eu/ping'
     else:
@@ -262,8 +263,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.cm_timeout = self.REQUEST.get('cm_timeout', self.cm_timeout)
 
         self.cr_api_url = self.REQUEST.get('cr_api_url', self.cr_api_url)
+        self.cr_rmq = bool(self.REQUEST.get('cr_rmq', False))
         if self.cr_api_url:
             self.contentRegistryPingger.api_url = self.cr_api_url
+            self.contentRegistryPingger.cr_rmq = self.cr_rmq
 
         self.auth_middleware_url = self.REQUEST.get('auth_middleware_url', self.auth_middleware_url)
         if self.auth_middleware_url:
@@ -301,13 +304,13 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     @property
     def contentRegistryPingger(self):
-        if not self.cr_api_url:
+        if not self.cr_api_url and not self.cr_rmq:
             return None
         pingger = getattr(self, '_contentRegistryPingger', None)
         if pingger:
             return pingger
         else:
-            self._contentRegistryPingger = ContentRegistryPingger(self.cr_api_url)
+            self._contentRegistryPingger = ContentRegistryPingger(self.cr_api_url, self.cr_rmq)
             return self._contentRegistryPingger
 
     @property
@@ -1169,6 +1172,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     def uns_notifications_enabled(self):
         return bool(os.environ.get('UNS_NOTIFICATIONS', 'off') == 'on')
+
+    def rmq_connector_enabled(self):
+        return bool(os.environ.get('RABBITMQ_ENABLED', 'off') == 'on')
 
     security.declarePrivate('get_uns_xmlrpc_server')
     def get_uns_xmlrpc_server(self):

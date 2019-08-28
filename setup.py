@@ -19,7 +19,9 @@ setup(
         'requests',
         'xlwt',
         'zipstream',
-        'xmltodict==0.11.0'
+        'xmltodict==0.11.0',
+        'eea.rabbitmq.client',
+        'contextlib2'
     ],
     entry_points="""
           # -*- Entry points: -*-

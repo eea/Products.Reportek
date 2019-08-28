@@ -6,6 +6,7 @@ import threading
 import time
 from config import *
 from constants import PING_ENVELOPES_REDIS_KEY
+from Products.Reportek.rabbitmq import send_message
 import pickle
 
 class ContentRegistryPingger(object):
@@ -18,8 +19,9 @@ class ContentRegistryPingger(object):
                                  port=REDIS_PORT,
                                  db=REDIS_DATABASE)
 
-    def __init__(self, api_url):
+    def __init__(self, api_url, cr_rmq=False):
         self.api_url = api_url
+        self.cr_rmq = cr_rmq
 
     def _log_ping(self, success, message, url, ping_argument=None):
         if not ping_argument or ping_argument == 'create':
@@ -53,7 +55,7 @@ class ContentRegistryPingger(object):
         http_code = None
         if not ping_argument:
             ping_argument = 'create'
-        if envPathName and self.PING_STORE:
+        if envPathName and self.PING_STORE and not self.cr_rmq:
             ts = self._start_ping(envPathName, op=ping_argument)
         for uri in uris:
             uri = parse_uri(uri)
@@ -68,10 +70,11 @@ class ContentRegistryPingger(object):
                 }
                 wk.addEvent(msgs.get(success))
             allOk = allOk and success
-            if envPathName and self.PING_STORE and not self._check_ping(envPathName, ts):
-                allOk = False
-                break
-        if envPathName and self.PING_STORE:
+            if envPathName and self.PING_STORE and not self.cr_rmq:
+                if not self._check_ping(envPathName, ts):
+                    allOk = False
+                    break
+        if envPathName and self.PING_STORE and not self.cr_rmq:
             self._stop_ping(envPathName, ts)
 
         return allOk, ping_res
@@ -95,9 +98,19 @@ class ContentRegistryPingger(object):
             params['create'] = 'true'
         elif ping_argument == 'delete':
             params['delete'] = 'true'
-        resp = requests.get(self.api_url, params=params)
-        if resp.status_code == 200:
-            return (True, resp)
+        if not self.cr_rmq:
+            resp = requests.get(self.api_url, params=params)
+            if resp.status_code == 200:
+                return (True, resp)
+        else:
+            options = {}
+            options['create'] = ping_argument
+            options['service_to_ping'] = self.api_url
+            options['obj_url'] = uri
+            resp = self.ping_RabbitMQ(options)
+            if resp:
+                return (True, 'Queued')
+
         return (False, resp)
 
     @classmethod
@@ -150,3 +163,13 @@ class ContentRegistryPingger(object):
             envPingStatus = {'op': None, 'ts': 0}
         envPingStatus = pickle.dumps(envPingStatus)
         self.PING_STORE.hset(PING_ENVELOPES_REDIS_KEY, envPathName, envPingStatus)
+
+    def ping_RabbitMQ(self, options):
+        """ Ping the CR/SDS service via RabbitMQ
+        """
+        msg = "{create}|{service_to_ping}|{obj_url}".format(**options)
+        try:
+            send_message(msg, queue="cr_queue")
+            return True
+        except Exception as err:
+            logger.error("Sending '%s' in 'cr_queue' FAILED: %s", msg, err)
