@@ -59,6 +59,11 @@
                 <span>(leave it empty if Content Registry is not to be pingged)
                 <br />
             </p>
+            <p class="form-help">
+                <strong><label for="cr_rmq">Use RabbitMQ for CR</label></strong>
+                <input type="checkbox" id="cr_rmq" name="cr_rmq" tal:attributes="checked here/cr_rmq" /><br />
+                Check this box if Content Registry Pings should be done via RabbitMQ. RabbitMQ connection settings need to be set by environment variables.
+            </p>
         </fieldset>
         <br />
         <fieldset>
