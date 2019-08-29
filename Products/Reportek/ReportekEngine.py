@@ -225,7 +225,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     def getDeploymentType(self):
         return Products.Reportek.REPORTEK_DEPLOYMENT
 
-    security.declareProtected(view_management_screens, 'manage_properties')
+    security.declareProtected('View', 'get_rod_obligations')
     def get_rod_obligations(self):
         """ Returns a sorted list of obligations from ROD
         """
