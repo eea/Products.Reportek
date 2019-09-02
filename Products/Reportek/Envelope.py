@@ -539,7 +539,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
 
     security.declareProtected('Release Envelopes', 'content_registry_ping')
-    def content_registry_ping(self, delete=False, async=True, wk=None):
+    def content_registry_ping(self, delete=False, async=False, wk=None, silent=True):
         """ Instruct ReportekEngine to ping CR.
 
             `delete` instructs the envelope to don't ping CR on
@@ -571,6 +571,8 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             message = "Async content registry ping requested"
         else:
             success, message = crPingger.content_registry_ping(uris, ping_argument=ping_argument, wk=wk)
+            if not silent and not success:
+                raise Exception('CR Ping failed! Please try again later!')
 
         return message
 

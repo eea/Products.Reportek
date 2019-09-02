@@ -1096,15 +1096,15 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         ])
         self.envelope.content_registry_ping()
 
-        self.assertTrue(ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.called)
-        call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.call_args
+        self.assertTrue(ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called)
+        call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.call_args
         args = call_args[0]
         kwargs = call_args[1]
         self.assertEqual(len(args), 1)
         uris = args[0]
         self.assertEqual(len(uris), 4)
         self.assertEqual(set(uris), expectedUris)
-        self.assertEqual(len(kwargs), 3)
+        self.assertEqual(len(kwargs), 2)
         ping_argument = kwargs.get('ping_argument')
         self.assertEqual(ping_argument, 'create')
 
@@ -1117,15 +1117,15 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         ])
         self.envelope.content_registry_ping(delete=True)
 
-        self.assertTrue(ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.called)
-        call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.call_args
+        self.assertTrue(ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called)
+        call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.call_args
         args = call_args[0]
         kwargs = call_args[1]
         self.assertEqual(len(args), 1)
         uris = args[0]
         self.assertEqual(len(uris), 4)
         self.assertEqual(set(uris), expectedUris)
-        self.assertEqual(len(kwargs), 3)
+        self.assertEqual(len(kwargs), 2)
         ping_argument = kwargs.get('ping_argument')
         self.assertEqual(ping_argument, 'delete')
 
