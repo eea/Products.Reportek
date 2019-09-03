@@ -112,7 +112,7 @@ def error_response(exc, message, REQUEST):
 manage_addEnvelopeForm = PageTemplateFile('zpt/envelope/add', globals())
 
 def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
-        REQUEST=None, previous_delivery='', return_path=None):
+        REQUEST=None, previous_delivery=''):
     """ Add a new Envelope object with id *id*.
     """
     id= RepUtils.generate_id('env')
