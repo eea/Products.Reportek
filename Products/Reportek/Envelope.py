@@ -54,6 +54,7 @@ from DateTime import DateTime
 from DateTime.interfaces import SyntaxError
 from StringIO import StringIO
 from ZPublisher.Iterators import filestream_iterator
+import json
 import logging
 import xlwt
 logger = logging.getLogger("Reportek")
@@ -72,6 +73,7 @@ from Products.Reportek.RepUtils import get_zip_cache
 from Products.Reportek.config import XLS_HEADINGS
 from Products.Reportek.config import ZIP_CACHE_ENABLED
 from Products.Reportek.config import ZIP_CACHE_THRESHOLD
+from Products.Reportek.constants import DF_URL_PREFIX
 from constants import WORKFLOW_ENGINE_ID, ENGINE_ID
 from exceptions import InvalidPartOfYear
 from interfaces import IEnvelope
@@ -82,6 +84,29 @@ import Feedback
 import Hyperlink
 import RepUtils
 import transaction
+
+
+def error_response(exc, message, REQUEST):
+    """Return an error"""
+    if REQUEST is not None:
+        accept = REQUEST.environ.get("HTTP_ACCEPT")
+        if accept == 'application/json':
+            REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+            if hasattr(exc, '__name__'):
+                error_type = exc.__name__
+            else:
+                error_type = str(exc)
+            error = {
+                'title': error_type,
+                'description': message
+            }
+            data = {
+                'envelopes': [],
+                'errors': [error],
+            }
+            return json.dumps(data, indent=4)
+
+    raise exc(message)
 
 
 manage_addEnvelopeForm = PageTemplateFile('zpt/envelope/add', globals())
@@ -100,7 +125,7 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
     if l_err_code == 0:
         process = self.unrestrictedTraverse(l_result, None)
     else:
-        raise l_result[0], l_result[1]
+        return error_response(l_result[0], l_result[1], REQUEST)
 
     if valid_year(year):
         year = int(year)
@@ -121,12 +146,12 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
             preliminary_obl = True
 
     if year and year > now.year() and not preliminary_obl:
-        if REQUEST is not None:
+        if REQUEST is not None and 'manage_addEnvelopeForm' in REQUEST.environ("HTTP_REFERER"):
             error_msg = 'You cannot submit a report which relates to a future\
                          year. Please fill in the correct year!'
             return self.manage_addEnvelopeForm(error=error_msg)
         else:
-            raise ValueError('Cannot create envelope which relates to a future year')
+            return error_response(ValueError, 'Cannot create envelope which relates to a future year', REQUEST)
 
     year_parts = ['WHOLE_YEAR', 'FIRST_HALF', 'SECOND_HALF',
                   'FIRST_QUARTER', 'SECOND_QUARTER', 'THIRD_QUARTER',
@@ -135,9 +160,9 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
               "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"]
 
     if partofyear and not partofyear in (year_parts + months):
-        raise InvalidPartOfYear
+        return error_response(InvalidPartOfYear, 'Invalid Part of Year', REQUEST)
 
-    dataflow_uris = getattr(self,'dataflow_uris',[])   # Get it from collection
+    dataflow_uris = getattr(self, 'dataflow_uris', [])  # Get it from collection
     ob = Envelope(process, title, actor, year, endyear, partofyear, self.country, locality, descr, dataflow_uris)
     ob.id = id
     self._setObject(id, ob)
@@ -148,9 +173,29 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
         ob.manage_pasteObjects(l_data)
     ob.startInstance(REQUEST)  # Start the instance
     if REQUEST is not None:
-        if return_path:
-            REQUEST.RESPONSE.setHeader('Content-Type', 'text/plain')
-            return ob.absolute_url()
+        if REQUEST.environ.get("HTTP_ACCEPT") == 'application/json':
+            REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+            REQUEST.RESPONSE.setStatus(201)
+            obls = [obl.split(DF_URL_PREFIX)[-1]
+                    for obl in ob.dataflow_uris]
+            env = {
+                'url': ob.absolute_url(),
+                'title': ob.title,
+                'description': ob.descr,
+                'countryCode': self.getCountryCode(ob.country),
+                'isReleased': ob.released,
+                'reportingDate': ob.reportingdate.HTML4(),
+                'modifiedDate': ob.bobobase_modification_time().HTML4(),
+                'obligations': obls,
+                'periodStartYear': ob.year,
+                'periodEndYear': ob.endyear,
+                'periodDescription': REPORTING_PERIOD_DESCRIPTION.get(ob.partofyear),
+            }
+            data = {
+                'envelopes': [env],
+                'errors': [],
+            }
+            return json.dumps(data, indent=4)
         return REQUEST.RESPONSE.redirect(self.absolute_url())
     else:
         return ob.absolute_url()
