@@ -101,7 +101,6 @@ def error_response(exc, message, REQUEST):
                 'description': message
             }
             data = {
-                'envelopes': [],
                 'errors': [error],
             }
             return json.dumps(data, indent=4)
@@ -146,7 +145,7 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
             preliminary_obl = True
 
     if year and year > now.year() and not preliminary_obl:
-        if REQUEST is not None and 'manage_addEnvelopeForm' in REQUEST.environ("HTTP_REFERER"):
+        if REQUEST is not None and 'manage_addEnvelopeForm' in REQUEST.environ.get("HTTP_REFERER"):
             error_msg = 'You cannot submit a report which relates to a future\
                          year. Please fill in the correct year!'
             return self.manage_addEnvelopeForm(error=error_msg)

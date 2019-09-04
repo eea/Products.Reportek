@@ -254,4 +254,11 @@
     permission="zope2.ViewManagementScreens"
     class="Products.Reportek.RepUtils.CrashMe"/>
 
+  <browser:page
+    for="zExceptions.BadRequest"
+    name="index.html"
+    class=".errors.BadRequestErrorView"
+    permission="zope.Public"
+    />
+
 </configure>
