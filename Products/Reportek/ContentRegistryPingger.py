@@ -98,7 +98,7 @@ class ContentRegistryPingger(object):
             params['create'] = 'true'
         elif ping_argument == 'delete':
             params['delete'] = 'true'
-        if not self.cr_rmq:
+        if not getattr(self, 'cr_rmq', None):
             resp = requests.get(self.api_url, params=params)
             if resp.status_code == 200:
                 return (True, resp)
