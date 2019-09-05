@@ -257,7 +257,21 @@
   <browser:page
     for="zExceptions.BadRequest"
     name="index.html"
-    class=".errors.BadRequestErrorView"
+    class=".errors.ErrorView"
+    permission="zope.Public"
+    />
+
+  <browser:page
+    for="zExceptions.Unauthorized"
+    name="index.html"
+    class=".errors.ErrorView"
+    permission="zope.Public"
+    />
+
+  <browser:page
+    for="zExceptions.NotFound"
+    name="index.html"
+    class=".errors.ErrorView"
     permission="zope.Public"
     />
 
