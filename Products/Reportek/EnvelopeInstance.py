@@ -849,7 +849,7 @@ class EnvelopeInstance(CatalogAware, Folder):
         same_process_path = self.unrestrictedTraverse(self.process_path).id
         while workitem_id != []:
             engine, workitem, process, activity = self.getEnvironment(workitem_id)
-            if activity.isSubflow() and (process.id != same_process_path):
+            if activity and activity.isSubflow() and (process.id != same_process_path):
                 return workitem_id
             workitem_id = workitem.workitems_from and workitem.workitems_from[0]
         return None
