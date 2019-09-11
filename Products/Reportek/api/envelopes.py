@@ -55,6 +55,7 @@ class EnvelopesAPI(BrowserView):
         'isBlockedByQCError': {
             'catalog_mapping': '',
         },
+        # Deprecated as it was improperly called status. activity set of filters are the suggested filters to be used
         'status': {
             'catalog_mapping': '',
         },
@@ -65,6 +66,22 @@ class EnvelopesAPI(BrowserView):
             'catalog_mapping': '',
         },
         'statusDateEnd': {
+            'catalog_mapping': '',
+        },
+        # activity* and status* filters return the same values
+        'activity': {
+            'catalog_mapping': '',
+        },
+        'activityDate': {
+            'catalog_mapping': '',
+        },
+        'activityDateStart': {
+            'catalog_mapping': '',
+        },
+        'activityDateEnd': {
+            'catalog_mapping': '',
+        },
+        'activityStatus': {
             'catalog_mapping': '',
         },
         'creator': {
@@ -299,14 +316,16 @@ class EnvelopesAPI(BrowserView):
         if datev:
             datev = datetime.datetime.strptime(str(datev)[:10], '%Y-%m-%d')
         sdatesrange = ('statusDateStart' in additional_filters or
-                       'statusDateEnd' in additional_filters)
+                       'statusDateEnd' in additional_filters or
+                       'activityDateStart' in additional_filters or
+                       'activityDateEnd' in additional_filters)
         if sdatesrange:
             sds = None
             sde = None
-            sds = fed_params.get('statusDateStart')
+            sds = fed_params.get('statusDateStart') or fed_params.get('activityDateStart')
             if sds:
                 sds = datetime.datetime.strptime(sds, '%Y-%m-%d')
-            sde = fed_params.get('statusDateEnd')
+            sde = fed_params.get('statusDateEnd') or fed_params.get('activityDateEnd')
             if sde:
                 sde = datetime.datetime.strptime(sde, '%Y-%m-%d')
             elif sds:
@@ -318,13 +337,13 @@ class EnvelopesAPI(BrowserView):
 
         for afilter in additional_filters:
             afilter_v = fed_params.get(afilter)
-            if afilter_v and afilter not in ['statusDateStart', 'statusDateEnd']:
-                if afilter == 'statusDate':
+            if afilter_v and afilter not in ['statusDateStart', 'statusDateEnd', 'activityDateStart', 'activityDateEnd']:
+                if afilter == 'statusDate' or afilter == 'activityDate':
                     startd = datetime.datetime.strptime(afilter_v, '%Y-%m-%d')
                     endd = startd + datetime.timedelta(days=1)
                     if not self.is_in_range(datev, startd, endd):
                         return True
-                elif afilter == 'status':
+                elif afilter == 'status' or afilter == 'activity':
                     filter_vs = afilter_v.split(',')
                     res = [afv for afv in filter_vs
                            if afv.upper() != str(default_props.get(afilter)).upper()]
@@ -434,11 +453,14 @@ class EnvelopesAPI(BrowserView):
             if last_status_d:
                 last_status_d = datetime.datetime.fromtimestamp(last_status_d)
                 last_status_d = DateTime(last_status_d).HTML4()
-
+        last_wk = wk_brains[-1].getObject()
         return {
             'isBlockedByQCError': self.is_env_blocked(wk_brains),
             'status': wk_brains[-1].activity_id,
+            'activity': wk_brains[-1].activity_id,
             'statusDate': last_status_d,
+            'activityDate': last_status_d,
+            'activityStatus': getattr(last_wk, 'status'),
             'creator': creator or 'Not assigned',
             'hasUnknownQC': self.has_unknown_qc(brain.getPath())
         }
@@ -502,6 +524,7 @@ class EnvelopesAPI(BrowserView):
                                            if param not in default_props]
                     additional_p_filters = [param for param in fed_params.keys()
                                             if param not in default_props]
+
                     if additional_p_fields or additional_p_filters:
                         additional_props = self.get_additional_props(brain)
                         default_props.update(additional_props)

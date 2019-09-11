@@ -119,20 +119,6 @@ paths:
           description: Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd. If reportingDateStart is missing, all envelopes with reporting date <= reportingDateEnd will be returned.
           type: string
           format: date
-        - name: hasUnknownQC
-          in: query
-          type: integer
-          description: Is there an AutomaticQA feedback with no valid feedback status
-          enum:
-            - 0
-            - 1
-        - name: isBlockedByQCError
-          in: query
-          type: integer
-          description: Is the envelope blocked by a QC Error.
-          enum:
-            - 0
-            - 1
         - name: obligations
           in: query
           description: Return envelopes with one of the following obligations
@@ -173,7 +159,7 @@ paths:
           format: date
         - name: status
           in: query
-          description: Return envelopes that have the following status
+          description: Return envelopes that have the following status - deprecated, please use activity instead
           type: array
           items:
             type: string
@@ -181,7 +167,49 @@ paths:
           in: query
           type: string
           format: date
-          description: Return envelopes that have a status with the following statusDate.
+          description: Return envelopes that have a status with the following statusDate. - deprecated, please use activityDate instead
+        - name: statusDateStart
+          in: query
+          description: Return envelopes that have a status date in range of statusDateStart and statusDateEnd or today if statusDateEnd is missing. - deprecated, please use activityDateStart instead
+          type: string
+          format: date
+        - name: statusDateEnd
+          in: query
+          description: Return envelopes that have a status date in range of statusDateStart and statusDateEnd or today if statusDateStart is missing. - deprecated, please use activityDateEnd instead
+          type: string
+          format: date
+        - name: activity
+          in: query
+          description: Return envelopes that have the following activity
+          type: array
+          items:
+            type: string
+        - name: activityDate
+          in: query
+          type: string
+          format: date
+          description: Return envelopes that have an activity with the following activityDate.
+        - name: activityDateStart
+          in: query
+          description: Return envelopes that have an activity date in range of activityDateStart and activityDateEnd or today if activityDateEnd is missing.
+          type: string
+          format: date
+        - name: activityDateEnd
+          in: query
+          description: Return envelopes that have an activity date in range of activityDateStart and activityDateEnd or today if activityDateStart is missing.
+          type: string
+          format: date
+        - name: activityStatus
+          in: query
+          description: Return envelopes with activity status of.
+          type: array
+          items:
+            type: string
+            enum:
+              - active
+              - complete
+              - fallout
+              - inactive
         - name: fields
           in: query
           description: Return envelopes with only the fields specified
@@ -204,6 +232,13 @@ paths:
               - isBlockedByQCError
               - status
               - statusDate
+              - statusDateStart
+              - statusDateEnd
+              - activity
+              - activityDate
+              - activityDateStart
+              - activityDateEnd
+              - activityStatus
               - creator
               - hasUnknownQC
               - history
@@ -248,7 +283,6 @@ paths:
                   obligations:
                     - '701'
                   isBlockedByQCError: 0
-                  hasUnknownQC: 0
                   url: 'http://foo/bar/my_envelope'
                   modifiedDate: 2013-04-13T01:20:50.530Z
                   creator: foo
@@ -301,7 +335,6 @@ definitions:
       reportingDateEnd:
         type: string
         description: Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd. If reportingDateStart is missing, all envelopes with reporting date <= reportingDateEnd will be returned.
-        format: dateTime
       url:
         type: string
         description: The envelope's URL.
@@ -325,11 +358,26 @@ definitions:
           - 1
       status:
         type: string
-        description: The workflow status of the envelope.
+        description: The workflow status of the envelope - deprecated, please use activity instead.
       statusDate:
         type: string
         format: dateTime
-        description: The date the workflow status has been set.
+        description: The date the workflow status has been set. - deprecated, please use activityDate instead.
+      activity:
+        type: string
+        description: The workflow activity of the envelope.
+      activityDate:
+        type: string
+        format: dateTime
+        description: The date the workflow activity has been set.
+      activityStatus:
+        type: string
+        description: The status of the activity
+        enum:
+          - active
+          - complete
+          - fallout
+          - inactive
       creator:
         type: string
         description: The envelope's creator.

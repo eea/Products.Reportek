@@ -16,13 +16,18 @@
 | reportingDate | query | Return envelopes with this reporting date. format. | No | date |
 | reportingDateStart | query | Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd or today if reportingDateEnd is missing. | No | date |
 | reportingDateEnd | query | Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd. If reportingDateStart is missing, all envelopes with reporting date <= reportingDateEnd will be returned. | No | date |
-| hasUnknownQC | query | Is there an AutomaticQA feedback with no valid feedback status | No | integer |
-| isBlockedByQCError | query | Is the envelope blocked by a QC Error. | No | integer |
 | obligations | query | Return envelopes with one of the following obligations | No | [ integer ] |
 | periodDescription | query | Return envelopes with specified periodDescription | No | [ string ] |
 | modifiedDate | query | Return envelopes with specified modifiedDate. date format. | No | date |
-| status | query | Return envelopes that have the following status | No | [ string ] |
-| statusDate | query | Return envelopes that have a status with the following statusDate. | No | date |
+| status | query | Return envelopes that have the following status - deprecated, please use activity instead | No | [ string ] |
+| statusDate | query | Return envelopes that have a status with the following statusDate. - deprecated, please use activityDate instead | No | date |
+| statusDateStart | query | Return envelopes that have a status date in range of statusDateStart and statusDateEnd or today if statusDateEnd is missing. - deprecated, please use activityDateStart instead | No | date |
+| statusDateEnd | query | Return envelopes that have a status date in range of statusDateStart and statusDateEnd or today if statusDateStart is missing. - deprecated, please use activityDateEnd instead | No | date |
+| activity | query | Return envelopes that have the following activity | No | [ string ] |
+| activityDate | query | Return envelopes that have an activity with the following activityDate. | No | date |
+| activityDateStart | query | Return envelopes that have an activity date in range of activityDateStart and activityDateEnd or today if activityDateEnd is missing. | No | date |
+| activityDateEnd | query | Return envelopes that have an activity date in range of activityDateStart and activityDateEnd or today if activityDateStart is missing. | No | date |
+| activityStatus | query | Return envelopes with activity status of. | No | [ string ] |
 | fields | query | Return envelopes with only the fields specified | No | [ string ] |
 
 ##### Responses
@@ -46,14 +51,17 @@
 | countryCode | string | The envelope's country code (ISO Alpha-2). | No |
 | reportingDate | string (dateTime) | The envelope's reporting date. | No |
 | reportingDateStart | string (dateTime) | Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd or today if reportingDateEnd is missing. | No |
-| reportingDateEnd | string (dateTime) | Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd. If reportingDateStart is missing, all envelopes with reporting date <= reportingDateEnd will be returned. | No |
+| reportingDateEnd | string | Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd. If reportingDateStart is missing, all envelopes with reporting date <= reportingDateEnd will be returned. | No |
 | url | string | The envelope's URL. | No |
 | modifiedDate | string (dateTime) | The envelope's modification date. | No |
 | periodDescription | [PeriodDescription](#perioddescription) |  | No |
 | isReleased | integer | The envelope's release status | No |
 | isBlockedByQCError | integer | Is the envelope blocked by a QC Error. | No |
-| status | string | The workflow status of the envelope. | No |
-| statusDate | string (dateTime) | The date the workflow status has been set. | No |
+| status | string | The workflow status of the envelope - deprecated, please use activity instead. | No |
+| statusDate | string (dateTime) | The date the workflow status has been set. - deprecated, please use activityDate instead. | No |
+| activity | string | The workflow activity of the envelope. | No |
+| activityDate | string (dateTime) | The date the workflow activity has been set. | No |
+| activityStatus | string | The status of the activity | No |
 | creator | string | The envelope's creator. | No |
 | hasUnknownQC | integer | Is there an AutomaticQA feedback with no valid feedback status | No |
 | files | [ [File](#file) ] | The list of files attached to the envelope. | No |
