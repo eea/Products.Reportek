@@ -35,6 +35,7 @@ from Products.ZCatalog.CatalogPathAwareness import CatalogAware
 from time import time
 from DateTime import DateTime
 from Products.Reportek.exceptions import ApplicationException
+import json
 import string
 
 # Product specific imports
@@ -286,6 +287,26 @@ class EnvelopeInstance(CatalogAware, Folder):
             else:
                 REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
 
+    security.declareProtected('Manage OpenFlow', 'handle_wk_response')
+    def handle_wk_response(self, workitem):
+        # Handle responses for wk actions
+        if getattr(self, 'REQUEST'):
+            if self.REQUEST.environ.get("HTTP_ACCEPT") == 'application/json':
+                self.REQUEST.RESPONSE.setHeader('Content-Type',
+                                                'application/json')
+                data = {
+                    'workitem': {
+                        'url': workitem.absolute_url(),
+                        'actor': workitem.actor,
+                        'status': workitem.status
+                    }
+                }
+                return json.dumps(data, indent=4)
+            if self.REQUEST.has_key('DestinationURL'):
+                self.REQUEST.RESPONSE.redirect(self.REQUEST['DestinationURL'])
+            else:
+                self.REQUEST.RESPONSE.redirect(self.REQUEST['HTTP_REFERER'])
+
     security.declareProtected('Manage OpenFlow', 'terminateInstance')
     def terminateInstance(self, REQUEST=None):
         """ terminate a specified instance """
@@ -336,11 +357,7 @@ class EnvelopeInstance(CatalogAware, Folder):
         workitem_is_ok = self.isActiveOrRunning() and not workitem.status == 'completed' and workitem.actor == ''
         if user_is_ok and workitem_is_ok:
                 workitem.assignTo(actor)
-        if REQUEST: 
-            if REQUEST.has_key('DestinationURL'):
-                REQUEST.RESPONSE.redirect(REQUEST['DestinationURL'])
-            else:
-                REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
+        return self.handle_wk_response(workitem)
 
     security.declareProtected('Use OpenFlow', 'unassignWorkitem')
     def unassignWorkitem(self, workitem_id, REQUEST=None):
@@ -348,11 +365,7 @@ class EnvelopeInstance(CatalogAware, Folder):
         workitem = getattr(self, str(workitem_id))
         if self.isActiveOrRunning() and workitem.status != 'completed':
             getattr(self, workitem_id).assignTo('')
-        if REQUEST: 
-            if REQUEST.has_key('DestinationURL'):
-                REQUEST.RESPONSE.redirect(REQUEST['DestinationURL'])
-            else:
-                REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
+        return self.handle_wk_response(workitem)
 
 # FIXME: In Openflow, the actor is not set when you activate the item,
 # unless you have given it as an argument. This seems strange given
@@ -375,11 +388,7 @@ class EnvelopeInstance(CatalogAware, Folder):
                     self.assignWorkitem(workitem_id, action_actor)
             workitem.setStatus('active', actor=action_actor)
             self.setStatus(status='active', actor=action_actor)
-        if REQUEST: 
-            if REQUEST.has_key('DestinationURL'):
-                REQUEST.RESPONSE.redirect(REQUEST['DestinationURL'])
-            else:
-                REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
+        return self.handle_wk_response(workitem)
 
     security.declareProtected('Use OpenFlow', 'inactivateWorkitem')
     def inactivateWorkitem(self, workitem_id, REQUEST=None):
@@ -390,11 +399,7 @@ class EnvelopeInstance(CatalogAware, Folder):
             workitem.setStatus('inactive', actor=actor)
             if self.getActiveWorkitems() == 0:
                 self.setStatus(status='running', actor=actor)
-        if REQUEST: 
-            if REQUEST.has_key('DestinationURL'):
-                REQUEST.RESPONSE.redirect(REQUEST['DestinationURL'])
-            else:
-                REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
+        return self.handle_wk_response(workitem)
 
     security.declareProtected('Use OpenFlow', 'suspendWorkitem')
     def suspendWorkitem(self, workitem_id, REQUEST=None):
@@ -410,11 +415,7 @@ class EnvelopeInstance(CatalogAware, Folder):
             workitem.setStatus('suspended', actor=actor)
             if self.getActiveWorkitems() == 0:
                 self.setStatus(status='running', actor=actor)
-        if REQUEST:
-            if REQUEST.has_key('DestinationURL'):
-                REQUEST.RESPONSE.redirect(REQUEST['DestinationURL'])
-            else:
-                REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
+        return self.handle_wk_response(workitem)
 
     security.declareProtected('Use OpenFlow', 'resumeWorkitem')
     def resumeWorkitem(self, workitem_id, REQUEST=None):
@@ -428,11 +429,7 @@ class EnvelopeInstance(CatalogAware, Folder):
                workitem.status == 'suspended' and \
                not workitem.blocked:
             workitem.setStatus('inactive', actor=actor)
-        if REQUEST: 
-            if REQUEST.has_key('DestinationURL'):
-                REQUEST.RESPONSE.redirect(REQUEST['DestinationURL'])
-            else:
-                REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
+        return self.handle_wk_response(workitem)
 
     security.declareProtected('Use OpenFlow', 'completeWorkitem')
     def completeWorkitem(self, workitem_id, actor=None, REQUEST=None):
@@ -471,12 +468,7 @@ class EnvelopeInstance(CatalogAware, Folder):
                 # If it's manually started or bundled with previous, forward it manually as we might have template forms that have form values
                 else:
                     self.forwardWorkitem(workitem_id)
-
-            if REQUEST:
-                if REQUEST.has_key('DestinationURL'):
-                    REQUEST.RESPONSE.redirect(REQUEST['DestinationURL'])
-                else:
-                    REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
+            return self.handle_wk_response(workitem)
 
     security.declareProtected('Use OpenFlow', 'forwardState')
     def forwardState(self, REQUEST=None):
@@ -667,11 +659,7 @@ class EnvelopeInstance(CatalogAware, Folder):
                           actor=actor,
                           graph_level=graph_level)
             workitem._p_changed = 1
-        if REQUEST: 
-            if REQUEST.has_key('DestinationURL'):
-                REQUEST.RESPONSE.redirect(REQUEST['DestinationURL'])
-            else:
-                REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
+        return self.handle_wk_response(workitem)
 
     security.declareProtected('Use OpenFlow', 'falloutWorkitem')
     def falloutWorkitem(self, workitem_id, REQUEST=None):
@@ -682,11 +670,7 @@ class EnvelopeInstance(CatalogAware, Folder):
         else:
             actor = ''
         workitem.setStatus('fallout', actor=actor)
-        if REQUEST: 
-            if REQUEST.has_key('DestinationURL'):
-                REQUEST.RESPONSE.redirect(REQUEST['DestinationURL'])
-            else:
-                REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
+        return self.handle_wk_response(workitem)
 
     def sendWorkitemsToException(self, process_id, activity_id):
         for wi in self.Catalog(meta_type='Workitem',
