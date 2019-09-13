@@ -46,6 +46,8 @@ from constants import CONVERTERS_ID
 from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.config import DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT
+from Products.Reportek.Document import error_message
+from Products.Reportek.Document import success_message
 from Toolz import Toolz
 from XMLInfoParser import SchemaError, detect_single_schema
 from zip_content import ZZipFile
@@ -181,9 +183,9 @@ class EnvelopeCustomDataflows(Toolz):
         """
         if not file or type(file) is type('') or not hasattr(file, 'filename'):
             if REQUEST is not None:
-                return self.messageDialog(
-                    message='Upload failed! No file was specified!',
-                    action='index_html')
+                return error_message(self,
+                                     'Upload failed! No file was specified!',
+                                     action='index_html', REQUEST=REQUEST)
             else:
                 return -1
         l_original_content = file.read()
@@ -204,15 +206,16 @@ class EnvelopeCustomDataflows(Toolz):
         self.manage_addDocument(id=l_id, title=l_original_type, file=l_original_content, restricted=restricted)
         if strict_check and l_original_type == 'Data file':
             if REQUEST is not None:
-                return self.messageDialog(
-                    message='The file was successfully uploaded in the envelope.',
-                    action='index_html')
+                return success_message(self, [obj],
+                                       message='The file was successfully uploaded in the envelope.',
+                                       action='index_html', REQUEST=REQUEST)
             else:
                 return 0
 
         # must commit transaction first, otherwise the file is not accessible from outside
         transaction.commit()
         l_doc = getattr(self, l_id)
+        objs = [l_doc]
         # XML/RPC call to the converter
         l_server_name = getattr(self, CONVERTERS_ID).remote_converter
         l_url = self.absolute_url() + '/' + l_id
@@ -231,12 +234,18 @@ class EnvelopeCustomDataflows(Toolz):
                 conversion_log.error(
                     "Error while calling remote {} for xmlrpc method {}. ({})".format(
                         l_server_name, method_name, str(e)))
-                self.log_file_conversion(l_id, '[ERROR]: Conversion failed due to a system error.')
-                return self.messageDialog(
-                    message=('The file was successfully uploaded in the '
+                l_err = '[ERROR]: Conversion failed due to a system error.'
+                self.log_file_conversion(l_id, l_err)
+                msg = ('The file was successfully uploaded in the '
                              'envelope, but not converted into an '
-                             'XML delivery because of a system error: %s') % str(e),
-                    action='index_html')
+                             'XML delivery because of a system error: %s') % str(e)
+                err = {
+                    'title': l_err.split(':')[0].replace(']','').replace('[', ''),
+                    'description': l_msg
+                }
+                return success_message(self, objs, message=msg,
+                                       errors=[err], action='index_html',
+                                       REQUEST=REQUEST)
             else:
                 return 0
 
@@ -268,6 +277,7 @@ class EnvelopeCustomDataflows(Toolz):
                         l_xml_id = l_xml['fileName']
                     self.manage_addDocument(id=l_xml_id, title='Converted from - %s' % l_id, file=l_xml['content'].data,
                                             content_type='text/xml', restricted=restricted)
+                    objs.append(getattr(self, l_xml_id))
                 # Change the original file title to show the conversion result
                 l_doc.manage_editDocument(title='%s - converted into an XML delivery' % l_original_type,
                                           content_type=l_doc.content_type)
@@ -289,9 +299,13 @@ class EnvelopeCustomDataflows(Toolz):
                         l_msg = 'The file was successfully uploaded in the envelope and converted into an XML delivery.'
                         c_log = '[INFO]: Conversion successful'.format(l_result)
                     self.log_file_conversion(l_id, c_log)
-                    return self.messageDialog(
-                        message=l_msg,
-                        action='index_html')
+                    err = {
+                        'title': c_log.split(':')[0].replace(']','').replace('[', ''),
+                        'description': l_msg
+                    }
+                    return success_message(self, objs, message=l_msg,
+                                           errors=[err], action='index_html',
+                                           REQUEST=REQUEST)
                 else:
                     return 1
             elif l_result == '2':
@@ -311,12 +325,16 @@ class EnvelopeCustomDataflows(Toolz):
                         l_ret_list.get('resultDescription',
                                        'Error in converting file at %s' % l_doc.absolute_url())
                     )
-                    self.log_file_conversion(l_id,
-                                             '[ERROR]: Conversion failed due to a system error. (Code: {})'.format(
-                                                 l_result))
-                    return self.messageDialog(
-                        message='The file was successfully uploaded in the envelope, but not converted into an XML delivery. See the Feedback posted for this file for details.',
-                        action='index_html')
+                    l_err = '[ERROR]: Conversion failed due to a system error. (Code: {})'.format(l_result)
+                    self.log_file_conversion(l_id, l_err)
+                    msg = 'The file was successfully uploaded in the envelope, but not converted into an XML delivery. See the Feedback posted for this file for details.'
+                    err = {
+                         'title': l_err.split(':')[0].replace(']','').replace('[', ''),
+                         'description': msg
+                    }
+                    return success_message(self, objs, message=msg,
+                                           errors=[err], action='index_html',
+                                           REQUEST=REQUEST)
                 else:
                     return 0
 
@@ -333,23 +351,31 @@ class EnvelopeCustomDataflows(Toolz):
                                         content_type='text/html',
                                         document_id=l_id)
                 if REQUEST is not None:
-                    self.log_file_conversion(l_id,
-                                             '[ERROR]: Conversion failed due missing or expired reporting schema. (Code: {})'.format(
-                                                 l_result))
-                    return self.messageDialog(
-                        message='The file was successfully uploaded in the envelope, but not converted into an XML delivery, because you are not using the most recent reporting template - %s. See the feedback posted for this file for details.' %
-                                l_ret_list['resultDescription'],
-                        action='index_html')
+                    l_err = '[ERROR]: Conversion failed due missing or expired reporting schema. (Code: {})'.format(l_result)
+                    self.log_file_conversion(l_id, l_err)
+                    msg = 'The file was successfully uploaded in the envelope, but not converted into an XML delivery, because you are not using the most recent reporting template - %s. See the feedback posted for this file for details.' % l_ret_list['resultDescription']
+                    err = {
+                         'title': l_err.split(':')[0].replace(']','').replace('[', ''),
+                         'description': msg
+                    }
+                    return success_message(self, objs, message=msg,
+                                           errors=[err], action='index_html',
+                                           REQUEST=REQUEST)
                 else:
                     return 0
             else:
                 if REQUEST is not None:
-                    self.log_file_conversion(l_id,
-                                             '[ERROR]: Conversion failed due to a system error. (Code: {})'.format(
-                                                 l_result))
-                    return self.messageDialog(
-                        message='Incorrect result from the Conversion service. The file was successfully uploaded in the envelope, but not converted into an XML delivery.',
-                        action='index_html')
+                    l_err = '[ERROR]: Conversion failed due to a system error. (Code: {})'.format(
+                            l_result)
+                    self.log_file_conversion(l_id, l_err)
+                    msg = 'Incorrect result from the Conversion service. The file was successfully uploaded in the envelope, but not converted into an XML delivery.'
+                    err = {
+                         'title': l_err.split(':')[0].replace(']','').replace('[', ''),
+                         'description': msg
+                    }
+                    return success_message(self, objs, message=msg,
+                                           errors=[err], action='index_html',
+                                           REQUEST=REQUEST)
                 else:
                     return 0
 
@@ -362,11 +388,17 @@ class EnvelopeCustomDataflows(Toolz):
                     l_ret_list.get('resultDescription',
                                    'Error in converting file at %s' % l_doc.absolute_url())
                 )
-                self.log_file_conversion(l_id, '[ERROR]: Conversion failed due to a system error.')
-                return self.messageDialog(
-                    message='The file was successfully uploaded in the envelope, but not converted into an XML delivery because of a system error: %s' % str(
-                        err),
-                    action='index_html')
+                l_err = '[ERROR]: Conversion failed due to a system error.'
+                self.log_file_conversion(l_id, l_err)
+                msg = 'The file was successfully uploaded in the envelope, but not converted into an XML delivery because of a system error: %s' % str(
+                      err)
+                err = {
+                     'title': l_err.split(':')[0].replace(']','').replace('[', ''),
+                     'description': msg
+                }
+                return success_message(self, objs, message=msg,
+                                       errors=[err], action='index_html',
+                                       REQUEST=REQUEST)
             else:
                 return 0
 
@@ -384,9 +416,9 @@ class EnvelopeCustomDataflows(Toolz):
         """
         if not file or type(file) is type('') or (not hasattr(file, 'filename') and not filename):
             if REQUEST is not None:
-                return self.messageDialog(
-                    message='Upload failed! No file was specified!',
-                    action='index_html')
+                return error_message(self,
+                                     'Upload failed! No file was specified!',
+                                     action='index_html', REQUEST=REQUEST)
             else:
                 return -1
         # guess content type
@@ -407,10 +439,10 @@ class EnvelopeCustomDataflows(Toolz):
                     schema = detect_single_schema(file)
                 except SchemaError as e:
                     if REQUEST:
-                        return self.messageDialog(
-                            message="The file you are trying to upload does not have valid schema location."
-                                    " File not uploaded! Reason: %s" % str(e.args),
-                            action='index_html')
+                        return error_message(self,
+                                             "The file you are trying to upload does not have valid schema location."
+                                             " File not uploaded! Reason: %s" % str(e.args),
+                                             action='index_html', REQUEST=REQUEST)
             file.seek(0)
             # if no list of schemas were specified, or if the current XML schema is part of the given list
             if not required_schema or schema in RepUtils.utConvertToList(required_schema) or not check_schema:
@@ -432,18 +464,18 @@ class EnvelopeCustomDataflows(Toolz):
                                                REQUEST=REQUEST)
             else:
                 if REQUEST is not None:
-                    return self.messageDialog(
-                        message="The file you are trying to upload wasn't generated "
-                                " according to the correct schema!"
-                                " File not uploaded!",
-                        action='index_html')
+                    return error_message(self,
+                                         "The file you are trying to upload wasn't generated "
+                                         " according to the correct schema!"
+                                         " File not uploaded!",
+                                         action='index_html', REQUEST=REQUEST)
                 else:
                     return 0
         else:
             if REQUEST is not None:
-                return self.messageDialog(
-                    message="The file you are trying to upload is not an XML file! File not uploaded!",
-                    action='index_html')
+                return error_message(self,
+                                     "The file you are trying to upload is not an XML file! File not uploaded!",
+                                     action='index_html', REQUEST=REQUEST)
             else:
                 return 0
 
@@ -457,9 +489,9 @@ class EnvelopeCustomDataflows(Toolz):
          """
         if not file or type(file) is type('') or not hasattr(file, 'filename'):
             if REQUEST is not None:
-                return self.messageDialog(
-                    message='No file was specified!',
-                    action='index_html')
+                return error_message(self,
+                                     'Upload failed! No file was specified!',
+                                     action='index_html', REQUEST=REQUEST)
             return 0
         else:
             if file.filename.endswith('.zip'):
@@ -496,9 +528,9 @@ class EnvelopeCustomDataflows(Toolz):
         """
         if not file or type(file) is type('') or not hasattr(file, 'filename'):
             if REQUEST is not None:
-                return self.messageDialog(
-                    message='No file was specified!',
-                    action='index_html')
+                return error_message(self,
+                                     'Upload failed! No file was specified!',
+                                     action='index_html', REQUEST=REQUEST)
             return 0
         else:
             l_filename = file.filename.lower()
@@ -552,10 +584,10 @@ class EnvelopeCustomDataflows(Toolz):
                 # test that the archive is not hierarhical
                 if name[-1] == '/' or name[-1] == '\\':
                     if REQUEST is not None:
-                        return self.messageDialog(
-                            message='The zip file you specified is hierarchical. It contains folders.\n'
-                                    'Please upload a non-hierarchical structure of files.',
-                            action='./index_html')
+                        return error_message(self,
+                                             'The zip file you specified is hierarchical. It contains folders.\n'
+                                             'Please upload a non-hierarchical structure of files.',
+                                             action='index_html', REQUEST=REQUEST)
                     else:
                         return 0
 
@@ -600,14 +632,18 @@ class EnvelopeCustomDataflows(Toolz):
                 msg = 'The file(s) in this zip archive were successfully uploaded in the envelope'
 
             if REQUEST is not None:
-                return self.messageDialog(message=msg, action='./manage_main')
+                return error_message(self,
+                                     msg,
+                                     action='./manage_main', REQUEST=REQUEST)
             elif file_ids_not_uploaded:
                 return 2
             else:
                 return 1
 
         elif REQUEST is not None:
-            return self.messageDialog(message="You must specify a file!", action='./manage_main')
+            return error_message(self,
+                                 'You must specify a file!',
+                                 action='./manage_main', REQUEST=REQUEST)
         else:
             return 0
 
@@ -644,28 +680,33 @@ class EnvelopeCustomDataflows(Toolz):
                         file_prj.filename.find('.prj') != -1 and \
                         file_dbf.filename.find('.dbf') != -1 and \
                         file_metainfo.filename.find('.xml') != -1:
+            objs = []
             self.manage_addDocument(file=file_shp)
+            objs.append(getattr(self, file_shp.filename))
             self.manage_addDocument(file=file_shx)
+            objs.append(getattr(self, file_shx.filename))
             self.manage_addDocument(file=file_prj)
+            objs.append(getattr(self, file_prj.filename))
             self.manage_addDocument(file=file_dbf)
+            objs.append(getattr(self, file_dbf.filename))
             self.manage_addDocument(file=file_metainfo)
+            objs.append(getattr(self, file_metainfo.filename))
+
             if REQUEST is not None:
-                return self.messageDialog(
-                    message="Files successfully uploaded!",
-                    action='.')
+                return success_message(self, objs, message="Files successfully uploaded!", action='.', REQUEST=REQUEST)
             else:
                 return 1
         elif file_shp.filename and file_shx.filename and file_prj.filename and \
                 file_dbf.filename and file_metainfo.filename:
             if REQUEST is not None:
-                return self.messageDialog(
-                    message="Files not uploaded! In order for the GIS delivery to be correct and complete, a 'shp', a 'shx', a 'prj', a 'dbf' and an XML file should be present!",
-                    action='.')
+                return error_message(self,
+                                     "Files not uploaded! In order for the GIS delivery to be correct and complete, a 'shp', a 'shx', a 'prj', a 'dbf' and an XML file should be present!",
+                                     action='.', REQUEST=REQUEST)
         else:
             if REQUEST is not None:
-                return self.messageDialog(
-                    message="Files not uploaded! All fields are mandatory! You must specify all files indicated in order for the GIS delivery to be correct and complete!",
-                    action='.')
+                return error_message(self,
+                                     "Files not uploaded! All fields are mandatory! You must specify all files indicated in order for the GIS delivery to be correct and complete!",
+                                     action='.', REQUEST=REQUEST)
         return 0
 
     security.declareProtected('Change Envelopes', 'uploadGISZIPfiles')
@@ -677,9 +718,9 @@ class EnvelopeCustomDataflows(Toolz):
                 zf = ZZipFile(file_gis_zip)
             except:
                 if REQUEST is not None:
-                    return self.messageDialog(
-                        message="Files not uploaded! The file you have specified is not a zip file!",
-                        action='.')
+                    return error_message(self,
+                                     "Files not uploaded! The file you have specified is not a zip file!",
+                                     action='.', REQUEST=REQUEST)
                 else:
                     return 0
 
@@ -695,35 +736,37 @@ class EnvelopeCustomDataflows(Toolz):
                         l_extensions.remove(name[-4:].lower())
             if l_mess:
                 if REQUEST is not None:
-                    return self.messageDialog(
-                        message=l_mess,
-                        action='./index_html')
+                    return error_message(self,
+                                         l_mess,
+                                         action='./index_html', REQUEST=REQUEST)
                 else:
                     return 0
             # test if all types of files have been added in the archive
             elif len(l_extensions) > 0:
                 if REQUEST is not None:
-                    return self.messageDialog(
-                        message="Files not uploaded! Not all the files were present in the archive.\nIn order for the GIS delivery to be correct and complete, a 'shp', a 'shx', a 'prj', a 'dbf' and an XML file should be present!",
-                        action='./index_html')
+                    return error_message(self,
+                                         "Files not uploaded! Not all the files were present in the archive.\nIn order for the GIS delivery to be correct and complete, a 'shp', a 'shx', a 'prj', a 'dbf' and an XML file should be present!",
+                                         action='./index_html', REQUEST=REQUEST)
                 else:
                     return 0
-
+            oids = []
             for name in zf.namelist():
                 zf.setcurrentfile(name)
-                self._add_file_from_zip(zf, name, '')
+                oids.append(self._add_file_from_zip(zf, name, ''))
 
             if REQUEST is not None:
-                return self.messageDialog(
-                    message="Files successfully uploaded!",
-                    action='.')
+                objs = [getattr(self, oid) for oid in oids]
+                return success_message(ctx, objs,
+                                       message="Files successfully uploaded!",
+                                       action='.',
+                                       REQUEST=REQUEST)
             else:
                 return 1
         else:
             if REQUEST is not None:
-                return self.messageDialog(
-                    message="You must specify a zip file containing your GIS delivery!",
-                    action='.')
+                return error_message(self,
+                                     "You must specify a zip file containing your GIS delivery!",
+                                     action='.', REQUEST=REQUEST)
             else:
                 return 0
 
@@ -917,9 +960,9 @@ class EnvelopeCustomDataflows(Toolz):
         """
         if not file or type(file) is type('') or not hasattr(file, 'filename'):
             if REQUEST is not None:
-                return self.messageDialog(
-                    message='No file was specified!',
-                    action='index_html')
+                return error_message(self,
+                                     'No file was specified!',
+                                     action='index_html', REQUEST=REQUEST)
             return 0
         else:
             l_filename = file.filename.lower()
@@ -930,20 +973,22 @@ class EnvelopeCustomDataflows(Toolz):
                 self.manage_delObjects(l_id)
             # upload original file in the envelope
             self.manage_addDocument(id=l_id, file=file, restricted=restricted, REQUEST=REQUEST)
+            objs = []
+            l_doc = getattr(self, l_id)
+            objs.append(l_doc)
 
             # must commit transaction first, otherwise the file is not accessible from outside
             transaction.commit()
             if l_id.split('.')[-1].lower().startswith('xls'):
-                l_doc = getattr(self, l_id)
                 converters = self.unrestrictedTraverse(CONVERTERS_ID)
                 available_local_converters = []
                 converter = None
                 try:
                     available_local_converters = converters._get_local_converters()
                 except Exception as e:
-                    return self.messageDialog(
-                        message="Unable to retrieve local converters. Please try again later! ({})".format(str(e)),
-                        action='.')
+                    return error_message(self,
+                                         "Unable to retrieve local converters. Please try again later! ({})".format(str(e)),
+                                         action='.', REQUEST=REQUEST)
                 for conv_obj in available_local_converters:
                     if conv_obj.title == 'Convert MMR Projections XLS to XML':
                         if l_doc.content_type in conv_obj.ct_input:
@@ -964,13 +1009,13 @@ class EnvelopeCustomDataflows(Toolz):
                                 replace_xml=int(replace_xml),
                                 REQUEST=REQUEST)
                     else:
-                        return self.messageDialog(
-                            message="Files uploaded but conversion to XML failed!",
-                            action='.')
+                        return success_message(self, objs,
+                                               message="Files uploaded but conversion to XML failed!",
+                                               action=".", REQUEST=REQUEST)
             if REQUEST is not None:
-                return self.messageDialog(
-                    message="Files successfully uploaded!",
-                    action='.')
+                return success_message(self, objs,
+                                       message="Files successfully uploaded!",
+                                       action=".", REQUEST=REQUEST)
 
     def update_doc_metadata(self, doc_ids=None, extra_params=''):
         converters = self.unrestrictedTraverse(CONVERTERS_ID)

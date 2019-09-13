@@ -296,6 +296,7 @@ class EnvelopeInstance(CatalogAware, Folder):
                                                 'application/json')
                 data = {
                     'workitem': {
+                        'id': workitem.getId(),
                         'url': workitem.absolute_url(),
                         'actor': workitem.actor,
                         'status': workitem.status

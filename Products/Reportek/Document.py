@@ -74,6 +74,62 @@ logger = logging.getLogger("Reportek")
 manage_addDocumentForm = PageTemplateFile('zpt/document/add', globals())
 
 
+def error_message(ctx, message, action=None, REQUEST=None):
+    if not action:
+        action = ctx.absolute_url()
+    if REQUEST is not None:
+        accept = REQUEST.environ.get("HTTP_ACCEPT")
+        if accept == 'application/json':
+            REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+            error = {
+                'title': 'Error',
+                'description': message
+            }
+            data = {
+                'errors': [error],
+            }
+            return json.dumps(data, indent=4)
+        else:
+            return ctx.messageDialog(
+                message=message,
+                action=action
+            )
+    return ''
+
+
+def success_message(ctx, objs, message=None, errors=None, action=None, REQUEST=None):
+    if not action:
+        action = ctx.absolute_url()
+    if not errors:
+        errors = []
+    if REQUEST is not None:
+        accept = REQUEST.environ.get("HTTP_ACCEPT")
+        if accept == 'application/json':
+            REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+            REQUEST.RESPONSE.setStatus(201)
+            files = []
+            for obj in objs:
+                files.append({
+                    'url': obj.absolute_url(0),
+                    'title': obj.title,
+                    'contentType': obj.content_type,
+                    'schemaURL': obj.xml_schema_location,
+                    'uploadDate': obj.upload_time().HTML4(),
+                    'fileSize': obj.get_size(),
+                    'fileSizeHR': obj.size(),
+                    'isRestricted': 1 if obj.isRestricted() else 0
+                })
+            data = {
+                'files': files,
+                'errors': errors
+            }
+            return json.dumps(data, indent=4)
+        return ctx.messageDialog(
+            message=message,
+            action=action)
+    return ''
+
+
 def manage_addDocument(self, id='', title='', file='', content_type='',
                        filename='', restricted='', disallow='', REQUEST=None,
                        deferred_compress=None):
@@ -81,6 +137,7 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
        set in the session object: default_restricted, force_restricted and
        disallow. This will set the restricted flag in the form or
     """
+
     is_object = hasattr(file, 'read') and (getattr(file, 'filename', None) or filename)
     if is_object and not filename:
         filename = getattr(file, 'filename')
@@ -112,13 +169,7 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
                 if not ext.startswith('.'):
                     ext = ''.join(['.', ext])
                 if id.endswith(ext):
-                    if REQUEST:
-                        return self.messageDialog(
-                            message='{} files are disallowed in this context'.format(ext),
-                            action=self.absolute_url()
-                        )
-                    else:
-                        return ''
+                    return error_message(self, '{} files are disallowed in this context'.format(ext), REQUEST=REQUEST)
 
         # delete the previous file with the same id, if exists
         if self.get(id) and isinstance(self.get(id), Document):
@@ -134,13 +185,7 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
         except SchemaError as e:
             self.manage_delObjects(id)
             logger.exception('The file is an invalid XML (reason: %s)' % str(e.args))
-            if REQUEST:
-                return self.messageDialog(
-                    message='The file is an invalid XML (reason: %s)' % str(e.args),
-                    action=self.absolute_url()
-                    )
-            else:
-                return ''
+            return error_message(self, 'The file is an invalid XML (reason: %s)' % str(e.args), REQUEST=REQUEST)
         if save_id:
             self.manage_delObjects(save_id)
             transaction.commit()
@@ -159,19 +204,13 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
                 if not REQUEST.PARENTS[0].absolute_url(1):
                     pobj = REQUEST.PARENTS[-1]
             ppath = string.join(pobj.getPhysicalPath(), '/')
-            return self.messageDialog(
-                message='The file %s was successfully created!' % id,
-                action=ppath)
+            msg = 'The file %s was successfully created!' % id
+            return success_message(self, [obj], message=msg,
+                                   action=ppath, REQUEST=REQUEST)
         else:
             return id
     else:
-        if REQUEST is not None:
-            return self.messageDialog(
-                message='You must specify a file!',
-                action=self.absolute_url()
-                )
-        else:
-            return ''
+        return error_message(self, 'You must specify a file!', REQUEST=REQUEST)
 
 
 class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):

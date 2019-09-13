@@ -1111,6 +1111,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         """
         id = self.cook_file_id(name)
         self.manage_addDocument(id=id, title=id, file=zipfile, restricted=restricted)
+        return id
 
     security.declareProtected('Add Envelopes', 'manage_addzipfile')
     def manage_addzipfile(self, file='', content_type='', restricted='', REQUEST=None):
