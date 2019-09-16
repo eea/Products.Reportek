@@ -562,6 +562,8 @@ class EnvelopeCustomDataflows(Toolz):
             If you need a function that uploads all files as they are,
             without any schema cheks, use manage_addzipfile
         """
+        failed = False
+        objs = []
         if type(file) is not type('') and hasattr(file, 'filename'):
             replace_xml = int(replace_xml)
             # make a list of all XML files in the envelope and their schemas, they may need to be deleted afterwards
@@ -601,6 +603,7 @@ class EnvelopeCustomDataflows(Toolz):
                     file_ids_not_uploaded.append(id)
                     continue
                 zipped_file = getattr(self, zipped_file_id)
+                objs.append(zipped_file)
                 schemaless_shp_meta = name.endswith('.shp.xml')
                  # for XML files, check if the schema is in the list of accepted schemas for that dataflow
                 # and if the other files in the envlope with this schema should be replaced
@@ -608,6 +611,10 @@ class EnvelopeCustomDataflows(Toolz):
                     if not schemaless_shp_meta and (required_schema and not zipped_file.xml_schema_location in \
                             RepUtils.utConvertLinesToList(required_schema)):
                         # delete this XML file, it has the wrong schema for this dataflow
+                        try:
+                            objs.pop(objs.index(zipped_file))
+                        except ValueError:
+                            pass
                         self.manage_delObjects(zipped_file_id)
                         #print name, zipped_file_id
                         file_ids_not_uploaded.append(zipped_file_id)
@@ -625,6 +632,7 @@ class EnvelopeCustomDataflows(Toolz):
             if file_ids_not_uploaded:
                 if len(file_ids_not_uploaded) == len(zip_file_ids):
                     msg = 'No files were added in the envelope, because their schemas are not correct for this dataflow or file types are not allowed in this context!'
+                    failed = True
                 else:
                     msg = 'Some files from the zip file were not uploaded in the envelope ' \
                           'because their schemas are not correct for this dataflow or certain file types are not allowed in this context!'
@@ -632,9 +640,21 @@ class EnvelopeCustomDataflows(Toolz):
                 msg = 'The file(s) in this zip archive were successfully uploaded in the envelope'
 
             if REQUEST is not None:
-                return error_message(self,
-                                     msg,
-                                     action='./manage_main', REQUEST=REQUEST)
+                if failed:
+                    return error_message(self,
+                                         msg,
+                                         action='./manage_main', REQUEST=REQUEST)
+                else:
+                    errors = []
+                    if msg != 'The file(s) in this zip archive were successfully uploaded in the envelope':
+                        err = {
+                            'title': 'WARNING',
+                            'description': msg
+                        }
+                        errors.append(err)
+                    return success_message(self, objs, message=msg,
+                                           errors=errors, action='./manage_main',
+                                           REQUEST=REQUEST)
             elif file_ids_not_uploaded:
                 return 2
             else:
