@@ -535,7 +535,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
 
         scripts = self.getQAScripts().get(self.id, [])
         engine = self.getEngine()
-        http_pres = getattr(engine, 'qa_httpres', False)
+        http_res = getattr(engine, 'qa_httpres', False)
         online_qa = []
         large_qa = []
         res = {'online_qa': online_qa,
@@ -547,7 +547,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                 online_qa.append(qa)
             else:
                 large_qa.append(qa)
-        res['file'] = parse_uri(self.absolute_url(), http_pres)
+        res['file'] = parse_uri(self.absolute_url(), http_res)
         self.REQUEST.RESPONSE.setHeader('Content-Type',
                                         'application/json')
         return json.dumps(res)

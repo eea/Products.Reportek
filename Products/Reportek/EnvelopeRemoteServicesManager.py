@@ -243,7 +243,7 @@ class EnvelopeRemoteServicesManager:
 
         l_res = {}
         engine = self.getEngine()
-        http_pres = getattr(engine, 'qa_httpres', False)
+        http_res = getattr(engine, 'qa_httpres', False)
         l_valid_schemas = self.getDataflowMappingsContainer().getSchemasForDataflows(self.dataflow_uris)
         for docu in self.objectValues('Report Document'):
             if docu.content_type == 'text/xml' and docu.xml_schema_location and (docu.xml_schema_location in l_valid_schemas or not l_valid_schemas):
