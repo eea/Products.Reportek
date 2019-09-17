@@ -657,6 +657,23 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
     def is_compressed(self):
         return self.data_file.compressed_safe
 
+    def parsed_absolute_url(self):
+        def parse_uri(uri, replace=False):
+            """ Use only http uris if QA http resources is checked in ReportekEngine props
+            """
+            if replace:
+                new_uri = uri.replace('https://', 'http://')
+                logger.info("Original uri: %s has been replaced with uri: %s"
+                            % (uri, new_uri))
+                uri = new_uri
+            return uri
+
+        l_res = {}
+        engine = self.getEngine()
+        http_res = getattr(engine, 'qa_httpres', False)
+
+        return parse_uri(self.absolute_url(), http_res)
+
     manage_uploadForm = PageTemplateFile('zpt/document/upload', globals())
     def manage_file_upload(self, file='', content_type='', REQUEST=None, preserve_mtime=False):
         """ Upload file from local directory """
