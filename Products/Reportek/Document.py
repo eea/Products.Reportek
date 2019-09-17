@@ -96,7 +96,6 @@ def error_message(ctx, message, action=None, REQUEST=None):
             )
     return ''
 
-
 def success_message(ctx, objs, message=None, errors=None, action=None, REQUEST=None):
     if not action:
         action = ctx.absolute_url()
@@ -524,7 +523,19 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
     security.declareProtected('View', 'get_qa_scripts')
     def get_qa_scripts(self):
         """Return the available qa scripts for the file."""
+        def parse_uri(uri, replace=False):
+            """ Use only http uris if QA http resources is checked in ReportekEngine props
+            """
+            if replace:
+                new_uri = uri.replace('https://', 'http://')
+                logger.info("Original uri: %s has been replaced with uri: %s"
+                            % (uri, new_uri))
+                uri = new_uri
+            return uri
+
         scripts = self.getQAScripts().get(self.id, [])
+        engine = self.getEngine()
+        http_pres = getattr(engine, 'qa_httpres', False)
         online_qa = []
         large_qa = []
         res = {'online_qa': online_qa,
@@ -536,7 +547,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                 online_qa.append(qa)
             else:
                 large_qa.append(qa)
-        res['file'] = self.absolute_url()
+        res['file'] = parse_uri(self.absolute_url(), http_pres)
         self.REQUEST.RESPONSE.setHeader('Content-Type',
                                         'application/json')
         return json.dumps(res)

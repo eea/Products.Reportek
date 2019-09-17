@@ -29,6 +29,7 @@ This class which Envelope subclasses from handles the integration with remote sy
 # Zope imports
 from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek.constants import ENGINE_ID
 from AccessControl import ClassSecurityInfo
 from Products.Reportek.Document import Document
 
@@ -37,8 +38,11 @@ from Products.Reportek.Document import Document
 import RepUtils
 from constants import QAREPOSITORY_ID
 from Products.Reportek.exceptions import EnvelopeReleasedException
-
+import logging
 import re
+
+logger = logging.getLogger("Reportek")
+
 
 class EnvelopeRemoteServicesManager:
     """ This class which Envelope subclasses from handles the integration
@@ -227,18 +231,30 @@ class EnvelopeRemoteServicesManager:
         """ Finds all Report Documents of type XML that have to begin/complete a remote operation
             Returns the dictionary of {xml_schema_location:[URL_file]}
         """
+        def parse_uri(uri, replace=False):
+            """ Use only http uris if QA http resources is checked in ReportekEngine props
+            """
+            if replace:
+                new_uri = uri.replace('https://', 'http://')
+                logger.info("Original uri: %s has been replaced with uri: %s"
+                            % (uri, new_uri))
+                uri = new_uri
+            return uri
+
         l_res = {}
+        engine = self.getEngine()
+        http_pres = getattr(engine, 'qa_httpres', False)
         l_valid_schemas = self.getDataflowMappingsContainer().getSchemasForDataflows(self.dataflow_uris)
         for docu in self.objectValues('Report Document'):
             if docu.content_type == 'text/xml' and docu.xml_schema_location and (docu.xml_schema_location in l_valid_schemas or not l_valid_schemas):
                 l_key = str(docu.xml_schema_location)
                 if l_res.has_key(l_key):
-                    l_res[l_key].append(docu.absolute_url())
+                    l_res[l_key].append(parse_uri(docu.absolute_url(), http_res))
                 else:
-                    l_res[l_key] = [docu.absolute_url()]
+                    l_res[l_key] = [parse_uri(docu.absolute_url(), http_res)]
         # add the envelope 'xml' method for each obligation
         for l_dataflow in self.dataflow_uris:
-            l_res[l_dataflow] = [self.absolute_url() + '/xml']
+            l_res[l_dataflow] = [parse_uri(self.absolute_url(), http_res) + '/xml']
         return l_res
 
     security.declareProtected('Use OpenFlow', 'triggerApplication')
