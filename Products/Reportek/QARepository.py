@@ -31,6 +31,7 @@ import xmlrpclib
 from OFS.Folder import Folder
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
+from Products.Reportek.constants import ENGINE_ID
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from RestrictedPython.Eval import RestrictionCapableEval
 import Globals
@@ -207,9 +208,16 @@ class QARepository(Folder):
         """
         l_res_ct = 'text/plain'
         l_res_data = QAResult()
+        engine = self.unrestrictedTraverse(ENGINE_ID)
+        server_url = self.REQUEST.SERVER_URL
+        if engine:
+            http_res = getattr(engine, 'qa_httpres', False)
+            if http_res:
+                server_url = self.REQUEST.SERVER_URL.replace('https://',
+                                                             'http://')
 
         #make sure p_file_url is a real Zope file
-        l_file_relative_url = p_file_url.replace('%s/' % self.REQUEST.SERVER_URL, '')
+        l_file_relative_url = p_file_url.replace('%s/' % server_url, '')
         file_obj = self.unrestrictedTraverse(l_file_relative_url, None)
 
         if file_obj is not None:
