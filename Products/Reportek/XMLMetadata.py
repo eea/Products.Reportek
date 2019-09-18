@@ -29,6 +29,9 @@ from xml.sax.saxutils import XMLGenerator
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.Permissions import view
 from Globals import InitializeClass
+from Products.Reportek.constants import ENGINE_ID
+from Products.Reportek.RepUtils import parse_uri
+
 
 BADATTRS=[ "xsi:noNamespaceSchemaLocation", "xsi:schemaLocation" ]
 
@@ -62,6 +65,11 @@ class XMLMetadata:
     def __init__(self, envelope):
         """ """
         self.envelope = envelope
+        try:
+            engine = envelope.unrestrictedTraverse(ENGINE_ID)
+            self.http_res = getattr(engine, 'exp_httpres', False)
+        except Exception:
+            self.http_res = False
         self._namespaces = NAMESPACES
 
     security.declarePrivate('_get_namespaces')
@@ -103,7 +111,7 @@ class XMLMetadata:
                                             self._xml_encode(document.xml_schema_location),
                                             self._xml_encode(document.title),
                                             restricted,
-                                            document.absolute_url(),
+                                            parse_uri(document.absolute_url(), self.http_res),
                                             document.upload_time().HTML4())
 
     def _document_instance(self, document, restricted):
@@ -120,7 +128,7 @@ class XMLMetadata:
                                             self._xml_encode(document.xml_schema_location),
                                             self._xml_encode(document.title),
                                             restricted,
-                                            document.absolute_url()) )
+                                            parse_uri(document.absolute_url(), self.http_res)))
         outf = StringIO()
         handler = StripSchema(outf)
         parser = make_parser()
@@ -147,7 +155,7 @@ class XMLMetadata:
         if envelope.dataflow_uris:
             for df in envelope.dataflow_uris:
                 xml_a('<obligation>%s</obligation>' % df)
-        xml_a('<link>%s</link>' % envelope.absolute_url())
+        xml_a('<link>%s</link>' % parse_uri(envelope.absolute_url(), self.http_res))
         xml_a('<year>%s</year>' % envelope.year)
         xml_a('<endyear>%s</endyear>' % envelope.endyear)
         xml_a('<partofyear>%s</partofyear>' % self._xml_encode(envelope.partofyear))

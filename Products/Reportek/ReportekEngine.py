@@ -124,6 +124,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     # If this is empty, this Reportek instance does not have a QA system linked to it
     QA_application = ''
     qa_httpres = False
+    exp_httpres = False
     globally_restricted_site = False
     cr_rmq = False
     if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
@@ -254,6 +255,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.webq_before_edit_page = self.REQUEST.get('webq_before_edit_page', self.webq_before_edit_page)
         self.QA_application = self.REQUEST.get('QA_application', self.QA_application)
         self.qa_httpres = bool(self.REQUEST.get('qa_httpres', False))
+        self.exp_httpres = bool(self.REQUEST.get('exp_httpres', False))
         self.globally_restricted_site = bool(self.REQUEST.get('globally_restricted_site',
                                                 self.globally_restricted_site))
 

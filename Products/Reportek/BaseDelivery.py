@@ -5,6 +5,7 @@ from Products.Reportek.RepUtils import xmlEncode
 from Products.Reportek.config import DEPLOYMENT_BDR
 from Products.Reportek.config import REPORTEK_DEPLOYMENT
 from Products.Reportek.interfaces import IBaseDelivery
+from Products.Reportek.RepUtils import parse_uri
 from zope.interface import implements
 
 
@@ -212,6 +213,8 @@ class BaseDelivery(object):
                                    'application/rdf+xml; charset=utf-8')
         res = []
         res_a = res.append
+        engine = self.getEngine()
+        http_res = getattr(engine, 'exp_httpres', False)
 
         res_a('<?xml version="1.0" encoding="utf-8"?>')
         res_a('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"')
@@ -221,7 +224,8 @@ class BaseDelivery(object):
         res_a(' xmlns:cr="http://cr.eionet.europa.eu/ontologies/contreg.rdf#"')
         res_a(' xmlns="http://rod.eionet.europa.eu/schema.rdf#">')
 
-        res_a('<Delivery rdf:about="%s">' % xmlEncode(self.absolute_url()))
+        res_a('<Delivery rdf:about="%s">' % xmlEncode(parse_uri(self.absolute_url(),
+                                                                http_res)))
         res_a('<rdfs:label>%s</rdfs:label>' % xmlEncode(self.title_or_id()))
         res_a('<dct:title>%s</dct:title>' % xmlEncode(self.title_or_id()))
 

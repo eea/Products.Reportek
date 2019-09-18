@@ -39,6 +39,7 @@ from os.path import join, isfile
 from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from Products.Reportek.RepUtils import DFlowCatalogAware
+from Products.Reportek.RepUtils import parse_uri
 from AccessControl.Permissions import view_management_screens
 from OFS.SimpleItem import SimpleItem
 from OFS.ObjectManager import ObjectManager
@@ -357,6 +358,8 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
             If feedback is restricted the 'View' permission flag is removed.
         """
         REQUEST.RESPONSE.setHeader('content-type', 'application/rdf+xml; charset=utf-8')
+        engine = self.getEngine()
+        http_res = getattr(engine, 'exp_httpres', False)
         #if not self.canViewContent():
         #    raise Unauthorized, "Envelope is not available"
 
@@ -369,7 +372,7 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
         res.append(' xmlns:cr="http://cr.eionet.europa.eu/ontologies/contreg.rdf#"')
         res.append(' xmlns="http://rod.eionet.europa.eu/schema.rdf#">')
 
-        res.append('<rdf:Description rdf:about="%s">' % RepUtils.xmlEncode(self.absolute_url()))
+        res.append('<rdf:Description rdf:about="%s">' % RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)))
         res.append('</rdf:Description>')
         res.append('</rdf:RDF>')
         return '\n'.join(res)

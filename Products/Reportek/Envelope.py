@@ -48,6 +48,7 @@ from Products.Reportek import permission_manage_properties_envelopes
 from Products.Reportek.exceptions import ApplicationException
 from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION
 from Products.Reportek.RepUtils import DFlowCatalogAware
+from Products.Reportek.RepUtils import parse_uri
 from Products.PythonScripts.standard import url_quote
 from zExceptions import Forbidden
 from DateTime import DateTime
@@ -1206,17 +1207,19 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         res = []
         objsByType = self._getObjectsForContentRegistry()
         creator = self.getActorDraft()
+        engine = self.getEngine()
+        http_res = getattr(engine, 'exp_httpres', False)
         if not creator:
             creator = self.customer
 
         res.append('<dct:creator>%s</dct:creator>' % RepUtils.xmlEncode(creator))
         res.append('<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</released>' % self.reportingdate.HTML4())
-        res.append('<link>%s</link>' % RepUtils.xmlEncode(self.absolute_url()))
+        res.append('<link>%s</link>' % RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)))
 
         for o in objsByType.get('Report Document', []):
-            res.append('<hasFile rdf:resource="%s"/>' % RepUtils.xmlEncode(o.absolute_url()) )
+            res.append('<hasFile rdf:resource="%s"/>' % RepUtils.xmlEncode(parse_uri(o.absolute_url(), http_res)))
         for o in objsByType.get('Report Feedback', []):
-            res.append('<cr:hasFeedback rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(self.absolute_url()), o.id))
+            res.append('<cr:hasFeedback rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)), o.id))
         res.append('<blockedByQA rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</blockedByQA>' % repr(self.is_blocked).lower())
 
         return res
@@ -1226,19 +1229,20 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         """Return custom child objects metadata for RDF export."""
         res = []
         objsByType = self._getObjectsForContentRegistry()
-
+        engine = self.getEngine()
+        http_res = getattr(engine, 'exp_httpres', False)
         for metatype, objs in objsByType.items():
             for o in objs:
                 xmlChunk = []
                 if metatype == 'Report Document':
                     try:
-                        xmlChunk.append('<File rdf:about="%s">' % o.absolute_url())
+                        xmlChunk.append('<File rdf:about="%s">' % parse_uri(o.absolute_url(), http_res))
                         xmlChunk.append('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(o.title_or_id()))
                         xmlChunk.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(o.title_or_id()))
                         xmlChunk.append('<dcat:byteSize>%s</dcat:byteSize>' % RepUtils.xmlEncode(o.data_file.size))
                         xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.upload_time().HTML4())
                         xmlChunk.append('<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>' % o.upload_time().HTML4())
-                        xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(self.absolute_url()))
+                        xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)))
                         xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % o.content_type)
                         xmlChunk.append('<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>' % repr(o.isRestricted()).lower())
                         if o.content_type == "text/xml":
@@ -1254,34 +1258,34 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                         xmlChunk.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(o.title_or_id()))
                         xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.upload_time().HTML4())
                         xmlChunk.append('<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>' % o.upload_time().HTML4())
-                        xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(self.absolute_url()))
+                        xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)))
                         xmlChunk.append('</File>')
                     except:
                         xmlChunk = []
                 elif metatype == 'Report Feedback':
                     try:
-                        xmlChunk.append('<cr:Feedback rdf:about="%s">' % o.absolute_url())
+                        xmlChunk.append('<cr:Feedback rdf:about="%s">' % parse_uri(o.absolute_url(), http_res))
                         xmlChunk.append('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(o.title_or_id()))
                         xmlChunk.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(o.title_or_id()))
                         xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.postingdate.HTML4())
                         xmlChunk.append('<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</released>' % o.releasedate.HTML4())
-                        xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(self.absolute_url()))
+                        xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)))
                         xmlChunk.append('<cr:feedbackStatus>%s</cr:feedbackStatus>' % RepUtils.xmlEncode(getattr(o, 'feedback_status', '')))
                         xmlChunk.append('<cr:feedbackMessage>%s</cr:feedbackMessage>' % RepUtils.xmlEncode(getattr(o, 'message', '')))
                         xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % o.content_type)
                         xmlChunk.append('<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>' % repr(o.isRestricted()).lower())
                         if o.document_id and o.document_id != 'xml':
-                            xmlChunk.append('<cr:feedbackFor rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(self.absolute_url()),
+                            xmlChunk.append('<cr:feedbackFor rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)),
                                     RepUtils.xmlEncode(url_quote(o.document_id)) ))
                         for attachment in o.objectValues(['File', 'File (Blob)']):
-                            xmlChunk.append('<cr:hasAttachment rdf:resource="%s"/>' % attachment.absolute_url())
+                            xmlChunk.append('<cr:hasAttachment rdf:resource="%s"/>' % parse_uri(attachment.absolute_url(), http_res))
                         xmlChunk.append('</cr:Feedback>')
                         for attachment in o.objectValues(['File', 'File (Blob)']):
-                            xmlChunk.append('<cr:FeedbackAttachment rdf:about="%s">' % attachment.absolute_url())
+                            xmlChunk.append('<cr:FeedbackAttachment rdf:about="%s">' % parse_uri(attachment.absolute_url(), http_res))
                             xmlChunk.append('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(attachment.title_or_id()))
                             xmlChunk.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(attachment.title_or_id()))
                             xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % attachment.content_type)
-                            xmlChunk.append('<cr:attachmentOf rdf:resource="%s"/>' % o.absolute_url())
+                            xmlChunk.append('<cr:attachmentOf rdf:resource="%s"/>' % parse_uri(o.absolute_url(), http_res))
                             xmlChunk.append('</cr:FeedbackAttachment>')
                     except:
                         xmlChunk = []

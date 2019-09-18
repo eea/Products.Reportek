@@ -797,3 +797,14 @@ class DFlowCatalogAware(object):
                 ob._p_deactivate()
 
         print counter
+
+
+def parse_uri(uri, replace=False):
+    """ Use only http uris if QA http resources is checked in ReportekEngine props
+    """
+    if replace:
+        new_uri = uri.replace('https://', 'http://')
+        logger.info("Original uri: %s has been replaced with uri: %s"
+                    % (uri, new_uri))
+        uri = new_uri
+    return uri

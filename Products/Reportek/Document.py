@@ -31,6 +31,7 @@ from os.path import join
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from Products.Reportek.RepUtils import DFlowCatalogAware
+from Products.Reportek.RepUtils import parse_uri
 from time import time
 from StringIO import StringIO
 from webdav.common import rfc1123_date
@@ -523,16 +524,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
     security.declareProtected('View', 'get_qa_scripts')
     def get_qa_scripts(self):
         """Return the available qa scripts for the file."""
-        def parse_uri(uri, replace=False):
-            """ Use only http uris if QA http resources is checked in ReportekEngine props
-            """
-            if replace:
-                new_uri = uri.replace('https://', 'http://')
-                logger.info("Original uri: %s has been replaced with uri: %s"
-                            % (uri, new_uri))
-                uri = new_uri
-            return uri
-
         scripts = self.getQAScripts().get(self.id, [])
         engine = self.getEngine()
         http_res = getattr(engine, 'qa_httpres', False)
@@ -658,16 +649,6 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         return self.data_file.compressed_safe
 
     def parsed_absolute_url(self):
-        def parse_uri(uri, replace=False):
-            """ Use only http uris if QA http resources is checked in ReportekEngine props
-            """
-            if replace:
-                new_uri = uri.replace('https://', 'http://')
-                logger.info("Original uri: %s has been replaced with uri: %s"
-                            % (uri, new_uri))
-                uri = new_uri
-            return uri
-
         l_res = {}
         engine = self.getEngine()
         http_res = getattr(engine, 'qa_httpres', False)

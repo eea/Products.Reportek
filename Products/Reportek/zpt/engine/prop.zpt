@@ -41,9 +41,17 @@
                 Leave this field empty if there is no QA service to link to.
             </p>
             <p class="form-help">
-                <strong><label for="qa_httpres">Enforce http resources </label></strong>
+                <strong><label for="qa_httpres">Enforce http resources</label></strong>
                 <input type="checkbox" name="qa_httpres" id="qa_httpres" tal:attributes="checked here/qa_httpres|nothing" size="5" /><br />
                 Check this to force sending resource URL's with http to QA service
+            </p>
+        </fieldset>
+        <fieldset>
+            <legend>RDF and XML Export</legend>
+            <p class="form-help">
+                <strong><label for="exp_httpres">Enforce http resources in the XML and RDF output</label></strong>
+                <input type="checkbox" name="exp_httpres" id="exp_httpres" tal:attributes="checked here/exp_httpres|nothing" size="5" /><br />
+                Check this to force resource URL's with http in the XML and RDF output
             </p>
         </fieldset>
         <fieldset>
