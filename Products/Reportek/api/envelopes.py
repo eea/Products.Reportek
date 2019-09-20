@@ -179,6 +179,32 @@ class EnvelopesAPI(BrowserView):
 
         return documents_data
 
+    def get_feedbacks(self, env_path=None):
+        """Return envelope's files."""
+        feedbacks = []
+        feedbacks_data = {
+            'feedbacks': feedbacks,
+        }
+        if env_path:
+            envelope = self.context.restrictedTraverse(env_path, None)
+            if envelope:
+                for fb in envelope.objectValues('Report Feedback'):
+                    fb_properties = {
+                        'url': fb.absolute_url(0),
+                        'title': fb.title,
+                        'contentType': fb.content_type,
+                        'documentId': fb.document_id,
+                        'activityId': fb.activity_id,
+                        'postingDate': fb.postingdate.HTML4(),
+                        'feedbackStatus': fb.feedback_status,
+                        'feedbackMessage': fb.message,
+                        'automatic': fb.automatic,
+                    }
+
+                    feedbacks.append(fb_properties)
+
+        return feedbacks_data
+
     def get_isreleased_query(self, value, **kwargs):
         """Return a catalog released query."""
         return int(value)
@@ -548,6 +574,9 @@ class EnvelopesAPI(BrowserView):
                             envelope_data['files'] = files_data.get('documents')
                             if files_data.get('errors'):
                                 errors += files_data.get('errors', [])
+                        elif field == 'feedbacks':
+                            feedbacks_data = self.get_feedbacks(brain.getPath())
+                            envelope_data['feedbacks'] = feedbacks_data.get('feedbacks')
                         elif field == 'history':
                             envelope_data['history'] = self.get_envelope_history(brain)
                         elif field == 'companyId':

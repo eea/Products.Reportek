@@ -49,11 +49,11 @@
 | periodStartYear | string | The starting year of the period for which the envelope has been created. | No |
 | periodEndYear | string | The ending year of the period for which the envelope has been created. | No |
 | countryCode | string | The envelope's country code (ISO Alpha-2). | No |
-| reportingDate | string (dateTime) | The envelope's reporting date. | No |
+| reportingDate | string (dateTime) | The envelope's reporting date. Please note that the reporting date is the creation date when the envelope is not released | No |
 | reportingDateStart | string (dateTime) | Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd or today if reportingDateEnd is missing. | No |
 | reportingDateEnd | string | Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd. If reportingDateStart is missing, all envelopes with reporting date <= reportingDateEnd will be returned. | No |
 | url | string | The envelope's URL. | No |
-| modifiedDate | string (dateTime) | The envelope's modification date. | No |
+| modifiedDate | string (dateTime) | The envelope's modification date. Please note that there are many potential events/actions that can alter the modificationDate of an envelope | No |
 | periodDescription | [PeriodDescription](#perioddescription) |  | No |
 | isReleased | integer | The envelope's release status | No |
 | isBlockedByQCError | integer | Is the envelope blocked by a QC Error. | No |
@@ -72,7 +72,7 @@
 
 | Name | Type | Description | Required |
 | ---- | ---- | ----------- | -------- |
-| contentType | string | The file's content type. | No |
+| contentType | string | The file's content type. The file's content type is determined by file extension, request headers and then falling back to Zope's content type guessing algorithm | No |
 | title | string | The file's title. | No |
 | url | string | The file's URL. | No |
 | uploadDate | string (dateTime) | The file's upload date. | No |
@@ -81,6 +81,20 @@
 | fileSizeHR | string | The size of the file in human readable format. | No |
 | archivedFiles | [ string ] | The list of files that have been archived. Available only if there is an archive attached to the envelope and if it can be opened. | No |
 | isRestricted | integer | The document's restricted status | No |
+
+#### Feedback
+
+| Name | Type | Description | Required |
+| ---- | ---- | ----------- | -------- |
+| contentType | string | The feedback's content type. | No |
+| title | string | The feedback's title. | No |
+| url | string | The feedback's URL. | No |
+| postingDate | string (dateTime) | The feedback's posting date. | No |
+| documentId | string | The file to which the feedback refers to. | No |
+| activityId | string | The activity which generated the automatic feedback | No |
+| automatic | integer | Feedback type. | No |
+| feedbackStatus | string | The feedback status. | No |
+| feedbackMessage | string | The feedback message | No |
 
 #### History
 
