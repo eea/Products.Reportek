@@ -40,6 +40,12 @@ class EnvelopesAPI(BrowserView):
         'modifiedDate': {
             'catalog_mapping': 'bobobase_modification_time',
         },
+        'modifiedDateStart': {
+            'catalog_mapping': 'bobobase_modification_time',
+        },
+        'modifiedDateEnd': {
+            'catalog_mapping': 'bobobase_modification_time',
+        },
         'periodStartYear': {
             'catalog_mapping': '',
         },
@@ -257,6 +263,8 @@ class EnvelopesAPI(BrowserView):
                     'isReleased': self.get_isreleased_query,
                     'reportingDate': self.get_dates_query,
                     'modifiedDate': self.get_dates_query,
+                    'modifiedDateStart': self.get_dates_range_query,
+                    'modifiedDateEnd': self.get_dates_range_query,
                     'url': self.get_url_query,
                     'countryCode': self.get_country_query,
                     'reportingDateStart': self.get_dates_range_query,
@@ -486,6 +494,8 @@ class EnvelopesAPI(BrowserView):
             'obligations',
             'periodDescription',
             'modifiedDate',
+            'modifiedDateStart',
+            'modifiedDateEnd'
         ]
 
         fed_params = {p: self.request.form.get(p)
