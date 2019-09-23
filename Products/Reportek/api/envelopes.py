@@ -172,6 +172,7 @@ class EnvelopesAPI(BrowserView):
                         'fileSize': doc.get_size(),
                         'fileSizeHR': doc.size(),
                         'archivedFiles': archived_files,
+                        'hash': doc.hash,
                         'isRestricted': 1 if doc.isRestricted() else 0
                     }
 

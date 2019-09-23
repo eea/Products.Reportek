@@ -40,6 +40,7 @@ from zope.contenttype import guess_content_type
 from zope.interface import implements
 import Globals
 import IconShow
+import hashlib
 import io
 import json
 import logging
@@ -655,6 +656,28 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
 
         return parse_uri(self.absolute_url(), http_res)
 
+    @property
+    def hash(self):
+        return getattr(self, '_hash', None)
+
+    @hash.setter
+    def hash(self, value):
+        self._hash = value
+
+    def generate_hash(self):
+        """Generate a sha256 hash for the file"""
+
+        BLOCK_SIZE = 65536  # The size of each read from the file
+
+        file_hash = hashlib.sha256()
+        with self.data_file.open('rb') as f:
+            fb = f.read(BLOCK_SIZE)
+            while len(fb) > 0:  # While there is still data being read from the file
+                file_hash.update(fb)  # Update the hash
+                fb = f.read(BLOCK_SIZE)  # Read the next block from the file
+
+        self.hash = file_hash.hexdigest()
+
     manage_uploadForm = PageTemplateFile('zpt/document/upload', globals())
     def manage_file_upload(self, file='', content_type='', REQUEST=None, preserve_mtime=False):
         """ Upload file from local directory """
@@ -683,6 +706,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         else:
             self.xml_schema_location = ''
 
+        self.generate_hash()
         self.accept_time = None
         self.logUpload()
         # update ZCatalog
