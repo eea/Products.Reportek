@@ -79,6 +79,7 @@
 | schemaURL | string | The URL of the file's schema. | No |
 | fileSize | integer | The size of the file in bytes | No |
 | fileSizeHR | string | The size of the file in human readable format. | No |
+| hash | string | The file's sha256 hash | No |
 | archivedFiles | [ string ] | The list of files that have been archived. Available only if there is an archive attached to the envelope and if it can be opened. | No |
 | isRestricted | integer | The document's restricted status | No |
 
