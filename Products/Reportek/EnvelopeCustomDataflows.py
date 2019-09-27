@@ -241,7 +241,7 @@ class EnvelopeCustomDataflows(Toolz):
                              'XML delivery because of a system error: %s') % str(e)
                 err = {
                     'title': l_err.split(':')[0].replace(']','').replace('[', ''),
-                    'description': l_msg
+                    'description': msg
                 }
                 return success_message(self, objs, message=msg,
                                        errors=[err], action='index_html',
