@@ -199,6 +199,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
                 message_dialog = 'Saved changes.'
             if REQUEST.form.get('update_xls_conversion'):
                 self._xls_conversion = REQUEST.form.get('xls_conversion')
+                self.xls_remove_empty_elems = bool(REQUEST.form.get('xls_remove_empty_elems', False))
                 message_dialog = 'XLS Conversion method updated.'
 
         return self._edit(
@@ -213,6 +214,5 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
             self._xls_conversion = 'split'
 
         return getattr(self, '_xls_conversion', None)
-
 
 InitializeClass(DataflowMappingsRecord)

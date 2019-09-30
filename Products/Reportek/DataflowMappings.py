@@ -92,12 +92,13 @@ class DataflowMappings(Folder):
         res = set()
         for brain in brains:
             record = brain.getObject()
-            res.add(record.xls_conversion)
+            res.add((record.xls_conversion,
+                     getattr(record, 'xls_remove_empty_elems', False)))
         # If all records have the same conversion type, return it
         if len(res) == 1:
             return list(res)[-1]
         # Fallback to default 'split'
-        return 'split'
+        return ('split', False)
 
     security.declareProtected('View management screens', 'index_html')
     index_html = PageTemplateFile('zpt/dataflow-mappings/index', globals())

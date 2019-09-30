@@ -160,7 +160,9 @@
         <input name="xls_conversion" id="xls_split" type="radio" value="split" tal:attributes="checked python: context.xls_conversion == 'split';"/>
         <label class="form-label" for="xls_split">Split sheets</label>
         <input name="xls_conversion" id="xls_non_split" type="radio" value="nosplit" tal:attributes="checked python: context.xls_conversion == 'nosplit';"/>
-        <label class="form-label" for="xls_non_split">Don't split sheets</label>
+        <label class="form-label" for="xls_non_split">Don't split sheets</label><br/>
+        <input name="xls_remove_empty_elems" id="xls_remove_empty_elems" type="checkbox" tal:attributes="checked context/xls_remove_empty_elems|nothing"/>
+        <label class="form-label" for="xls_remove_empty_elems">Remove empty elements from the resulting XML</label>
       </td>
     </tr>
     <tr class="row-hilite">

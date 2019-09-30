@@ -67,7 +67,7 @@ ESRI_EXTRAEXTENSIONS = ['.shp', '.shx', '.dbf', '.prj', '.xml']
 def invoke_conversion_service(server_name, method_name, url):
     server = xmlrpclib.ServerProxy(server_name)
     method = getattr(server.ConversionService, method_name)
-    if method_name == 'convertDD_XML_split':
+    if method_name in ['convertDD_XML_split', 'convertDD_XML_split_removeEmptyElems']:
         return method(url, '')
     return method(url)
 
@@ -224,8 +224,10 @@ class EnvelopeCustomDataflows(Toolz):
         dfm = self.getDataflowMappingsContainer()
         if dfm:
             xls_conversion = dfm.get_xls_conversion_type(self.dataflow_uris)
-            method_name = {'split': 'convertDD_XML_split',
-                           'nosplit': 'convertDD_XML'}.get(xls_conversion,
+            method_name = {('split', False): 'convertDD_XML_split',
+                           ('nosplit', False): 'convertDD_XML',
+                           ('split', True): 'convertDD_XML_split_removeEmptyElems',
+                           ('nosplit', True): 'convertDD_XMLremoveEmptyElems'}.get(xls_conversion,
                                                            'convertDD_XML_split')
         try:
             l_ret_list = invoke_conversion_service(l_server_name, method_name, l_url)
