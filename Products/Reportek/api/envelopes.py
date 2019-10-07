@@ -158,7 +158,7 @@ class EnvelopesAPI(BrowserView):
                                 zfile = unicode(zfile, errors='ignore')
                             archived_files.append(zfile.encode('utf-8',
                                                                'ignore'))
-                    except (POSKeyError, StorageError) as e:
+                    except (POSKeyError, StorageError, SystemError) as e:
                         errors.append({
                             'title': 'An error occured trying to access file: {}'.format(doc.absolute_url(0)),
                             'description': str(e)
