@@ -106,7 +106,7 @@ paths:
               - VA
         - name: reportingDate
           in: query
-          description: Return envelopes with this reporting date. format.
+          description: Return envelopes with this reporting date. Please note that the reporting date is the creation date for unreleased envelopes.
           type: string
           format: date
         - name: reportingDateStart
@@ -155,6 +155,16 @@ paths:
         - name: modifiedDate
           in: query
           description: Return envelopes with specified modifiedDate. date format.
+          type: string
+          format: date
+        - name: modifiedDateStart
+          in: query
+          description: Return envelopes that have a modified date in range of modifiedDateStart and modifiedDateEnd or today if modifiedDateEnd is missing.
+          type: string
+          format: date
+        - name: modifiedDateEnd
+          in: query
+          description: Return envelopes that have a modified date in range of modifiedDateStart and modifiedDateEnd or today if modifiedDateStart is missing.
           type: string
           format: date
         - name: status
@@ -346,7 +356,7 @@ definitions:
         description: The envelope's country code (ISO Alpha-2).
       reportingDate:
         type: string
-        description: The envelope's reporting date. Please note that the reporting date is the creation date when the envelope is not released
+        description: The envelope's reporting date. Please note that the reporting date is the creation date for unreleased envelopes.
         format: dateTime
       reportingDateStart:
         type: string
@@ -361,6 +371,14 @@ definitions:
       modifiedDate:
         type: string
         description: The envelope's modification date. Please note that there are many potential events/actions that can alter the modificationDate of an envelope
+        format: dateTime
+      modifiedDateStart:
+        type: string
+        description: Return envelopes that have a modified date in range of modifiedDateStart and modifiedDateEnd or today if modifiedDateEnd is missing.
+        format: dateTime
+      modifiedDateEnd:
+        type: string
+        description: Return envelopes that have a modified date in range of modifiedDateStart and modifiedDateEnd or today if modifiedDateStart is missing.
         format: dateTime
       periodDescription:
         $ref: '#/definitions/PeriodDescription'
