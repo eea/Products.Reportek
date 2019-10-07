@@ -13,12 +13,14 @@
 | isReleased | query | Released(1) or Unreleased(0) envelopes to return | No | integer |
 | url | query | Url of the envelopes or part of to return | No | string |
 | countryCode | query | Country code in ISO "ALPHA-2 Code format for envelopes to return | No | [ string ] |
-| reportingDate | query | Return envelopes with this reporting date. format. | No | date |
+| reportingDate | query | Return envelopes with this reporting date. Please note that the reporting date is the creation date for unreleased envelopes. | No | date |
 | reportingDateStart | query | Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd or today if reportingDateEnd is missing. | No | date |
 | reportingDateEnd | query | Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd. If reportingDateStart is missing, all envelopes with reporting date <= reportingDateEnd will be returned. | No | date |
 | obligations | query | Return envelopes with one of the following obligations | No | [ integer ] |
 | periodDescription | query | Return envelopes with specified periodDescription | No | [ string ] |
 | modifiedDate | query | Return envelopes with specified modifiedDate. date format. | No | date |
+| modifiedDateStart | query | Return envelopes that have a modified date in range of modifiedDateStart and modifiedDateEnd or today if modifiedDateEnd is missing. | No | date |
+| modifiedDateEnd | query | Return envelopes that have a modified date in range of modifiedDateStart and modifiedDateEnd or today if modifiedDateStart is missing. | No | date |
 | status | query | Return envelopes that have the following status - deprecated, please use activity instead | No | [ string ] |
 | statusDate | query | Return envelopes that have a status with the following statusDate. - deprecated, please use activityDate instead | No | date |
 | statusDateStart | query | Return envelopes that have a status date in range of statusDateStart and statusDateEnd or today if statusDateEnd is missing. - deprecated, please use activityDateStart instead | No | date |
@@ -49,11 +51,13 @@
 | periodStartYear | string | The starting year of the period for which the envelope has been created. | No |
 | periodEndYear | string | The ending year of the period for which the envelope has been created. | No |
 | countryCode | string | The envelope's country code (ISO Alpha-2). | No |
-| reportingDate | string (dateTime) | The envelope's reporting date. Please note that the reporting date is the creation date when the envelope is not released | No |
+| reportingDate | string (dateTime) | The envelope's reporting date. Please note that the reporting date is the creation date for unreleased envelopes. | No |
 | reportingDateStart | string (dateTime) | Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd or today if reportingDateEnd is missing. | No |
 | reportingDateEnd | string | Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd. If reportingDateStart is missing, all envelopes with reporting date <= reportingDateEnd will be returned. | No |
 | url | string | The envelope's URL. | No |
 | modifiedDate | string (dateTime) | The envelope's modification date. Please note that there are many potential events/actions that can alter the modificationDate of an envelope | No |
+| modifiedDateStart | string (dateTime) | Return envelopes that have a modified date in range of modifiedDateStart and modifiedDateEnd or today if modifiedDateEnd is missing. | No |
+| modifiedDateEnd | string (dateTime) | Return envelopes that have a modified date in range of modifiedDateStart and modifiedDateEnd or today if modifiedDateStart is missing. | No |
 | periodDescription | [PeriodDescription](#perioddescription) |  | No |
 | isReleased | integer | The envelope's release status | No |
 | isBlockedByQCError | integer | Is the envelope blocked by a QC Error. | No |
