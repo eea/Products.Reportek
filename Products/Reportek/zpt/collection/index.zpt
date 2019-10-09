@@ -72,13 +72,21 @@
               <td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Envelope" i18n:attributes="alt" /></td>
               <td><a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" /></td>
               <tal:block tal:condition="additional_colls">
-                <td class="tcenter additional-env-info">
-                  <span tal:condition="python:item.endyear == ''"
-                      tal:content="python:'%s - %s' %(item.year, here.reporting_year_labels.get(item.partofyear))">
-                  </span>
-                  <span tal:condition="not:python:item.endyear == ''"
-                      tal:content="python:'%s to %s' %(item.year, item.endyear)">
-                  </span>
+                <td class="tcenter additional-env-info"
+                  tal:define="df_prefix python: 'http://rod.eionet.europa.eu/obligations/{}';
+                              is_ods python: df_prefix.format('213') in here.dataflow_uris;
+                              is_fgas python: df_prefix.format('713') in here.dataflow_uris;">
+                  <tal:block tal:condition="python: not is_ods and not is_fgas">
+                    <span tal:condition="python:item.endyear == ''"
+                        tal:content="python:'%s - %s' %(item.year, here.reporting_year_labels.get(item.partofyear))">
+                    </span>
+                    <span tal:condition="not:python:item.endyear == ''"
+                        tal:content="python:'%s to %s' %(item.year, item.endyear)">
+                    </span>
+                  </tal:block>
+                  <tal:block tal:condition="python: is_fgas or is_ods">
+                    <span i18n:translate="">See report</span>
+                  </tal:block>
                 </td>
                 <td class="tcenter additional-env-info">
                   <span i18n:translate="" tal:condition="item/released">Released</span>
