@@ -12,7 +12,8 @@
                        permission_condition python:SecurityManager.checkPermission( 'View management screens', template);
                        df_prefix python: 'http://rod.eionet.europa.eu/obligations/{}';
                        is_ods python: df_prefix.format('213') in here.dataflow_uris;
-                       is_fgas python: df_prefix.format('713') in here.dataflow_uris;">
+                       is_fgas python: df_prefix.format('713') in here.dataflow_uris;
+                       is_fgas_verification python: df_prefix.format('764') in here.dataflow_uris or df_prefix.format('765') in here.dataflow_uris;">
 
       <span tal:replace="structure python:context.envelope_tabs(tab='manage_prop')"/>
 
@@ -27,7 +28,7 @@
             </td>
           </tr>
 
-          <tr tal:attributes="class python: 'hidden-content' if is_fgas or is_ods else ''">
+          <tr tal:attributes="class python: 'hidden-content' if is_fgas or is_ods or is_fgas_verification else ''">
             <th i18n:translate="">Description</th>
             <td>
               <textarea name="descr" rows="5" cols="50"
@@ -36,7 +37,7 @@
             </td>
           </tr>
 
-          <tr tal:attributes="class python: 'hidden-content' if is_fgas or is_ods else ''">
+          <tr tal:attributes="class python: 'hidden-content' if is_fgas or is_ods or is_fgas_verification else ''">
             <th i18n:translate="">Year</th>
             <td>
               <input type="text" name="year" size="4" maxlength="4"
@@ -109,7 +110,7 @@
             </td>
           </tr>
 
-          <tr tal:attributes="class python: 'hidden-content' if is_fgas or is_ods else ''">
+          <tr tal:attributes="class python: 'hidden-content' if is_fgas or is_ods or is_fgas_verification else ''">
             <th i18n:translate="">Coverage note</th>
             <td>
               <input type="text" name="locality" size="50" tal:attributes="value context/locality" />

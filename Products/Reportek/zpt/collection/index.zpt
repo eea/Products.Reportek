@@ -75,8 +75,9 @@
                 <td class="tcenter additional-env-info"
                   tal:define="df_prefix python: 'http://rod.eionet.europa.eu/obligations/{}';
                               is_ods python: df_prefix.format('213') in here.dataflow_uris;
-                              is_fgas python: df_prefix.format('713') in here.dataflow_uris;">
-                  <tal:block tal:condition="python: not is_ods and not is_fgas">
+                              is_fgas python: df_prefix.format('713') in here.dataflow_uris;
+                              is_fgas_verification python: df_prefix.format('764') in here.dataflow_uris or df_prefix.format('765') in here.dataflow_uris;">
+                  <tal:block tal:condition="python: not is_ods and not is_fgas and not is_fgas_verification">
                     <span tal:condition="python:item.endyear == ''"
                         tal:content="python:'%s - %s' %(item.year, here.reporting_year_labels.get(item.partofyear))">
                     </span>
@@ -84,7 +85,7 @@
                         tal:content="python:'%s to %s' %(item.year, item.endyear)">
                     </span>
                   </tal:block>
-                  <tal:block tal:condition="python: is_fgas or is_ods">
+                  <tal:block tal:condition="python: is_fgas or is_ods or is_fgas_verification">
                     <span i18n:translate="">See report</span>
                   </tal:block>
                 </td>
