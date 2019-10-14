@@ -287,7 +287,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         else:
             self.data_file.content_type = value
 
-    def __str__(self): return self.index_html()
+    def __str__(self): return self.index_html(self.REQUEST, self.REQUEST.RESPONSE)
 
     def __len__(self): return 1
 
