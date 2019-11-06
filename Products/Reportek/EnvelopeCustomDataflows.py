@@ -1089,8 +1089,7 @@ class EnvelopeCustomDataflows(Toolz):
         if len(xmls) == 1:
             return getattr(xmls[0], 'metadata')
 
-    # These properties are defined for BDR FGAS reports
-    # TODO: change these to methods instead, due to inconsistent behavior of the properties for some reason
+    # These methods are defined for BDR FGAS/ODS reports
     def get_fgas_activities(self):
         # Activities
         KEY = 'Activities'
@@ -1163,8 +1162,24 @@ class EnvelopeCustomDataflows(Toolz):
         # Return the transaction year
         KEY = 'TransactionYear'
         metadata = self.get_xml_metadata()
+        res = 'N/A'
         if metadata:
-            return metadata.get(KEY, 'N/A')
+            ty = metadata.get(KEY, 'N/A')
+            # ODS specific
+            if 'http://rod.eionet.europa.eu/obligations/213' in self.dataflow_uris:
+                res = ty.get('#text')
+            else:
+                res = ty
+        return res
+
+    def update_envelope_year(self):
+        """Update the envelope year based on the transaction year in the XML"""
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            # Get the transaction year from the XML metadata
+            year = self.get_transaction_year()
+            if year != 'N/A' and (not self.year or int(year) != self.year):
+                self.year = int(year)
+                self.reindex_object()
 
     security.declareProtected('View', 'metadata_json')
 

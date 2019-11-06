@@ -9,7 +9,11 @@
   <metal:block fill-slot="content">
     <tal:block define="SecurityManager modules/AccessControl/getSecurityManager;
                        has_permission python:SecurityManager.checkPermission('View management screens', template);
-                       isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'">
+                       isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR';
+                       df_prefix python: 'http://rod.eionet.europa.eu/obligations/{}';
+                       is_ods python: df_prefix.format('213') in here.dataflow_uris;
+                       is_fgas python: df_prefix.format('713') in here.dataflow_uris;
+                       is_fgas_verification python: df_prefix.format('764') in here.dataflow_uris or df_prefix.format('765') in here.dataflow_uris;">
 
       <tal:block tal:define="hasTerminatedObligations python:here.num_terminated_dataflows()>=1;
                              canCreateEnvelope python: here.allowed_envelopes() and not hasTerminatedObligations;
@@ -43,11 +47,12 @@
                 <th><label for="title" i18n:translate="">Title</label></th>
                 <td><input type="text" id="title" name="title" size="50" value="" /></td>
               </tr>
-              <tr valign="top">
+              <tr valign="top" tal:attributes="class python: 'hidden-content' if is_fgas or is_ods or is_fgas_verification else ''">
                 <th><label for="descr" i18n:translate="">Description</label></th>
                 <td><textarea cols="50" rows="6" id="descr" name="descr"></textarea><br /><br /></td>
               </tr>
-              <tr tal:define="default here/partofyear | nothing; year here/year | nothing; default_year python:test(year, year, (here.ZopeTime()-180).year()) if not isBdrDeployment else None">
+              <tr tal:define="default here/partofyear | nothing; year here/year | nothing; default_year python:test(year, year, (here.ZopeTime()-180).year()) if not isBdrDeployment else None"
+                tal:attributes="class python: 'hidden-content' if is_fgas or is_ods or is_fgas_verification else ''">
                 <th valign="top"><label for="year" i18n:translate="">Relating to which year</label></th>
                 <td>
                   <input type="text" name="year" id="year" size="4" maxlength="4" tal:attributes="value default_year"/>
@@ -73,7 +78,7 @@
                   </tal:block>
                 </td>
               </tr>
-              <tr tal:define="default here/locality | nothing">
+              <tr tal:define="default here/locality | nothing" tal:attributes="class python: 'hidden-content' if is_fgas or is_ods or is_fgas_verification else ''">
                 <th><label for="locality" i18n:translate="">Coverage note</label></th>
                 <td><input type="text" name="locality" id="locality" size="50" tal:attributes="value default" /></td>
               </tr>
