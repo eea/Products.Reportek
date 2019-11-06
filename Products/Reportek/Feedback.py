@@ -38,6 +38,7 @@ from os.path import join, isfile
 # Zope imports
 from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate
 from Products.ZCatalog.CatalogAwareness import CatalogAware
+from Products.Reportek.interfaces import IFeedback
 from Products.Reportek.RepUtils import DFlowCatalogAware
 from Products.Reportek.RepUtils import parse_uri
 from AccessControl.Permissions import view_management_screens
@@ -50,7 +51,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl import getSecurityManager, ClassSecurityInfo
 #from webdav.WriteLockInterface import WriteLockInterface
 from DateTime import DateTime
-
+from zope.interface import implements
 # Product specific imports
 from Products.Reportek.Document import Document
 from Comment import CommentsManager
@@ -106,8 +107,6 @@ def manage_addFeedback(self, id ='', title='', feedbacktext='', file=None, activ
     envelope = self.getMySelf()
 
     envelope._invalidate_zip_cache()
-
-    #if REQUEST is None: REQUEST = self.REQUEST
 
     if engine.UNS_server and not ob.automatic:
         engine.sendNotificationToUNS(envelope, 'Feedback posted', 'Feedback was posted in the envelope %s (%s)' % (envelope.title_or_id(), obj.absolute_url()), self.REQUEST.AUTHENTICATED_USER.getUserName())
@@ -172,6 +171,7 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
     # Create a SecurityInfo for this class. We will use this
     # in the rest of our class definition to make security
     # assertions.
+    implements(IFeedback)
     security = ClassSecurityInfo()
 
     def __init__(self, id, releasedate, title='', feedbacktext='', activity_id='', automatic=0,

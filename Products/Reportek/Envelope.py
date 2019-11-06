@@ -1106,6 +1106,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             if cached_zip_path.isfile():
                 cached_zip_path.unlink()
 
+
     def _add_file_from_zip(self,zipfile,name, restricted=''):
         """ Generate id from filename and make sure,
             there are no spaces in the id.

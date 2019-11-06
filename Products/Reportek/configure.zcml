@@ -89,6 +89,10 @@
                      zope.lifecycleevent.interfaces.IObjectRemovedEvent"
             handler="Products.Reportek.subscribers.handle_document_removed_event" />
 
+    <subscriber for="Products.Reportek.interfaces.IFeedback
+                     zope.lifecycleevent.interfaces.IObjectAddedEvent"
+            handler="Products.Reportek.subscribers.handle_feedback_added_event" />
+
     <i18n:registerTranslations directory="locales" />
 
 </configure>
