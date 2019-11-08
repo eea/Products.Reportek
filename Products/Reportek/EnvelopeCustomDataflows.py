@@ -46,8 +46,7 @@ from constants import CONVERTERS_ID
 from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.config import DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT
-from Products.Reportek.Document import error_message
-from Products.Reportek.Document import success_message
+from Products.Reportek.Document import error_message, success_message
 from Toolz import Toolz
 from XMLInfoParser import SchemaError, detect_single_schema
 from zip_content import ZZipFile
@@ -1158,13 +1157,14 @@ class EnvelopeCustomDataflows(Toolz):
         if acts:
             return [act_map.get(fa, fa) for fa in self.get_fgas_activities()]
 
-    def get_transaction_year(self):
+    def get_transaction_year(self, key=None):
         # Return the transaction year
-        KEY = 'TransactionYear'
+        if not key:
+            key = 'TransactionYear'
         metadata = self.get_xml_metadata()
         res = 'N/A'
         if metadata:
-            ty = metadata.get(KEY, 'N/A')
+            ty = metadata.get(key, 'N/A')
             # ODS specific
             if 'http://rod.eionet.europa.eu/obligations/213' in self.dataflow_uris:
                 res = ty.get('#text')
