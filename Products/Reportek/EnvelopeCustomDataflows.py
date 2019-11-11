@@ -1157,16 +1157,21 @@ class EnvelopeCustomDataflows(Toolz):
         if acts:
             return [act_map.get(fa, fa) for fa in self.get_fgas_activities()]
 
-    def get_transaction_year(self, key=None):
+    def get_transaction_year(self):
         # Return the transaction year
-        if not key:
-            key = 'TransactionYear'
+        key = 'TransactionYear'
+        dfs = self.dataflow_uris
+        ver = 'http://rod.eionet.europa.eu/obligations/765' in dfs or \
+              'http://rod.eionet.europa.eu/obligations/764' in dfs
+        # Verification reports have the transaction year stored under 'Year'
+        if ver:
+            key = 'Year'
         metadata = self.get_xml_metadata()
         res = 'N/A'
         if metadata:
             ty = metadata.get(key, 'N/A')
             # ODS specific
-            if 'http://rod.eionet.europa.eu/obligations/213' in self.dataflow_uris:
+            if 'http://rod.eionet.europa.eu/obligations/213' in dfs:
                 res = ty.get('#text')
             else:
                 res = ty
