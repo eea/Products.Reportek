@@ -54,14 +54,24 @@
                 </tal:block>
               </td>
             </tr>
-            <tr tal:attributes="class python: 'hidden-content' if is_fgas or is_ods or is_fgas_verification else ''">
-              <th i18n:translate="">Period</th>
-              <td tal:condition="python:context.endyear == ''"
-                  tal:content="python:'%s - %s' %(context.year, context.friendlypartofyear)">
-              </td>
-              <td tal:condition="not:python:context.endyear == ''"
-                  tal:content="python:'%s to %s' %(context.year, context.endyear)">
-              </td>
+            <tr>
+              <th>
+                <span tal:condition="python: not (is_fgas or is_ods or is_fgas_verification)" i18n:translate="">Period</span>
+                <span tal:condition="python: is_fgas or is_ods or is_fgas_verification" i18n:translate="">Transaction year</span>
+              </th>
+              <tal:block tal:condition="python: not (is_fgas or is_ods or is_fgas_verification)">
+                <td tal:condition="python:context.endyear == ''"
+                    tal:content="python:'%s - %s' %(context.year, context.friendlypartofyear)">
+                </td>
+                <td tal:condition="not:python:context.endyear == ''"
+                    tal:content="python:'%s to %s' %(context.year, context.endyear)">
+                </td>
+              </tal:block>
+              <tal:block tal:condition="python: is_fgas or is_ods or is_fgas_verification">
+                <td>
+                  <span tal:content="context/get_transaction_year"/>
+                </td>
+              </tal:block>
             </tr>
             <tr>
               <th i18n:translate="">Coverage</th>
