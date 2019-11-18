@@ -1,10 +1,11 @@
 """ Configuration and utilities for RabbitMQ client. Mostly from eea.rabbitmq.plone
 """
+import logging
 import os
 from contextlib import contextmanager
-from eea.rabbitmq.client.rabbitmq import RabbitMQConnector
-import logging
+
 import transaction
+from eea.rabbitmq.client.rabbitmq import RabbitMQConnector
 
 logger = logging.getLogger("Reportek")
 logger.setLevel(logging.DEBUG)
@@ -108,8 +109,9 @@ class MessagesDataManager(object):
         for queue, msg in self.messages:
             try:
                 send_message(msg, queue=queue)
-            except Exception:
+            except Exception as e:
                 logger.exception("RabbitMQ Connection exception")
+                raise Exception("Unable to send message to RabbitMQ! Details: {}".format(str(e)))
 
         self.txn = None
         self.messages = []

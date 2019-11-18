@@ -35,7 +35,9 @@ from Products.ZCatalog.CatalogPathAwareness import CatalogAware
 from time import time
 from DateTime import DateTime
 from Products.Reportek.exceptions import ApplicationException
+from Products.Reportek.rabbitmq import queue_msg
 import json
+import os
 import string
 
 # Product specific imports
@@ -447,6 +449,7 @@ class EnvelopeInstance(CatalogAware, Folder):
         workitem = getattr(self, workitem_id)
         activity = self.getActivity(workitem_id)
         process = self.unrestrictedTraverse(self.process_path)
+        rmq = bool(os.environ.get('RABBITMQ_ENABLED', 'off') == 'on')
         if self.isActiveOrRunning():
             workitem_return_id = None
             if workitem.status in ('active', 'fallout'):
@@ -466,6 +469,8 @@ class EnvelopeInstance(CatalogAware, Folder):
                 if activity.isAutoStart() and not activity.isBundled():
                     self.wf_status = 'forward'
                     self.reindex_object()
+                    if rmq:
+                        queue_msg(self.absolute_url(), queue='fwd_envelopes')
                 # If it's manually started or bundled with previous, forward it manually as we might have template forms that have form values
                 else:
                     self.forwardWorkitem(workitem_id)
@@ -553,6 +558,7 @@ class EnvelopeInstance(CatalogAware, Folder):
         # If it's a previously failed application, retry it, otherwise forward it
         workitem = getattr(self, workitem_id)
         activity = self.getActivity(workitem_id)
+        rmq = bool(os.environ.get('RABBITMQ_ENABLED', 'off') == 'on')
         if self.isActiveOrRunning() and workitem.status == 'inactive' and \
                 getattr(self, 'wf_status', None) == 'forward':
             if activity.isDummy():
@@ -563,6 +569,8 @@ class EnvelopeInstance(CatalogAware, Folder):
                 if activity.isAutoStart():
                     self.wf_status = 'forward'
                     self.reindex_object()
+                    if rmq:
+                        queue_msg(self.absolute_url(), queue='fwd_envelopes')
                     self.startAutomaticApplication(workitem_id)
                 else:
                     self.wf_status = 'manual'
@@ -794,6 +802,7 @@ class EnvelopeInstance(CatalogAware, Folder):
     def manageWorkitemCreation(self, workitem_id):
         """ """
         activity = self.getActivity(workitem_id)
+        rmq = bool(os.environ.get('RABBITMQ_ENABLED', 'off') == 'on')
         if self.status in ('active', 'running'):
             if activity.isDummy():
                 self.manageDummyActivity(workitem_id)
@@ -803,6 +812,8 @@ class EnvelopeInstance(CatalogAware, Folder):
                 if activity.isAutoStart():
                     self.wf_status = 'forward'
                     self.reindex_object()
+                    if rmq:
+                        queue_msg(self.absolute_url(), queue='fwd_envelopes')
                     self.startAutomaticApplication(workitem_id)
                 else:
                     self.wf_status = 'manual'
