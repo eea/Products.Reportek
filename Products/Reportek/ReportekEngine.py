@@ -26,56 +26,55 @@ __doc__ = """
       Added in the Root folder by product's __init__
 """
 
-from path import path
-import tempfile
+import importlib
+import json
+import logging
 import os
+import tempfile
+import xmlrpclib
+from copy import copy
 from operator import itemgetter
+from StringIO import StringIO
+from time import strftime, time
 from urlparse import urlparse
 from zipfile import *
-from StringIO import StringIO
-import json
-
-# Zope imports
-from OFS.Folder import Folder
-from AccessControl import ClassSecurityInfo
-from AccessControl import getSecurityManager
-from AccessControl.SecurityManagement import newSecurityManager, setSecurityManager
-from AccessControl import SpecialUsers
-from AccessControl.Permissions import view_management_screens
-from AccessControl.Permissions import view
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from App.config import getConfiguration
-from config import *
-import Globals
-import Products
-import xlwt
-import xmlrpclib
-from DateTime import DateTime
-from time import time, strftime
-from copy import copy
 
 # product imports
 import constants
-from Products.Reportek.ContentRegistryPingger import ContentRegistryPingger
-from Products.Reportek.BdrAuthorizationMiddleware import BdrAuthorizationMiddleware
-from Products.Reportek.ReportekPropertiedUser import ReportekPropertiedUser
-from Products.Reportek.config import REPORTEK_DEPLOYMENT
-from Products.Reportek.RegistryManagement import BaseRegistryAPI
-from Products.Reportek.RegistryManagement import BDRRegistryAPI
-from Products.Reportek.RegistryManagement import FGASRegistryAPI
+import Globals
+import Products
 import RepUtils
-from Toolz import Toolz
-from DataflowsManager import DataflowsManager
-from CountriesManager import CountriesManager
-from paginator import DiggPaginator, EmptyPage, InvalidPage
-from zope.interface import implements
-from interfaces import IReportekEngine
-from zope.i18n.negotiator import normalize_lang
-from zope.i18n.interfaces import II18nAware, INegotiator
-from zope.component import getUtility
-import logging
-import importlib
 import transaction
+import xlwt
+from AccessControl import ClassSecurityInfo, SpecialUsers, getSecurityManager
+from AccessControl.Permissions import view, view_management_screens
+from AccessControl.SecurityManagement import (newSecurityManager,
+                                              setSecurityManager)
+from App.config import getConfiguration
+from config import *
+from CountriesManager import CountriesManager
+from DataflowsManager import DataflowsManager
+from DateTime import DateTime
+from interfaces import IReportekEngine
+# Zope imports
+from OFS.Folder import Folder
+from paginator import DiggPaginator, EmptyPage, InvalidPage
+from path import path
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek.BdrAuthorizationMiddleware import \
+    BdrAuthorizationMiddleware
+from Products.Reportek.config import REPORTEK_DEPLOYMENT
+from Products.Reportek.ContentRegistryPingger import ContentRegistryPingger
+from Products.Reportek.RegistryManagement import (BaseRegistryAPI,
+                                                  BDRRegistryAPI,
+                                                  FGASRegistryAPI)
+from Products.Reportek.ReportekPropertiedUser import ReportekPropertiedUser
+from Toolz import Toolz
+from zope.component import getUtility
+from zope.i18n.interfaces import II18nAware, INegotiator
+from zope.i18n.negotiator import normalize_lang
+from zope.interface import implements
+
 logger = logging.getLogger("Reportek")
 
 

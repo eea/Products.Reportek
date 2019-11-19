@@ -26,22 +26,29 @@ This class is part of the workflow system
 
 """
 
-# Zope imports
-from AccessControl import getSecurityManager, ClassSecurityInfo
-from Globals import InitializeClass, MessageDialog
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from OFS.Folder import Folder
-from Products.ZCatalog.CatalogPathAwareness import CatalogAware
-from time import time
-from DateTime import DateTime
-from Products.Reportek.exceptions import ApplicationException
-from Products.Reportek.rabbitmq import queue_msg
 import json
+import logging
 import os
 import string
+import sys
+from time import time
 
+import RepUtils
+# Zope imports
+from AccessControl import ClassSecurityInfo, getSecurityManager
+from constants import (APPLICATIONS_FOLDER_ID, CONVERTERS_ID, ENGINE_ID,
+                       WEBQ_XML_REPOSITORY, WORKFLOW_ENGINE_ID)
+from DateTime import DateTime
 # Product specific imports
 from expression import exprNamespace
+from Globals import InitializeClass, MessageDialog
+from OFS.Folder import Folder
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek.exceptions import ApplicationException
+from Products.Reportek.rabbitmq import queue_msg
+from Products.ZCatalog.CatalogPathAwareness import CatalogAware
+from workitem import workitem
+
 try:
     # do you have CMF?
     # if so use its Expression class
@@ -50,11 +57,6 @@ except:
     # I guess you have no CMF...
     # here's a what you need:
     from expression import Expression
-import RepUtils
-from constants import WORKFLOW_ENGINE_ID, WEBQ_XML_REPOSITORY, CONVERTERS_ID, APPLICATIONS_FOLDER_ID, ENGINE_ID
-from workitem import workitem
-import logging
-import sys
 logger = logging.getLogger("Reportek")
 
 
@@ -449,7 +451,7 @@ class EnvelopeInstance(CatalogAware, Folder):
         workitem = getattr(self, workitem_id)
         activity = self.getActivity(workitem_id)
         process = self.unrestrictedTraverse(self.process_path)
-        rmq = bool(os.environ.get('RABBITMQ_ENABLED', 'off') == 'on')
+        rmq = os.environ.get('RABBITMQ_ENABLED', 'off') in ['on', 'true', 1]
         if self.isActiveOrRunning():
             workitem_return_id = None
             if workitem.status in ('active', 'fallout'):
@@ -558,7 +560,7 @@ class EnvelopeInstance(CatalogAware, Folder):
         # If it's a previously failed application, retry it, otherwise forward it
         workitem = getattr(self, workitem_id)
         activity = self.getActivity(workitem_id)
-        rmq = bool(os.environ.get('RABBITMQ_ENABLED', 'off') == 'on')
+        rmq = os.environ.get('RABBITMQ_ENABLED', 'off') in ['on', 'true', 1]
         if self.isActiveOrRunning() and workitem.status == 'inactive' and \
                 getattr(self, 'wf_status', None) == 'forward':
             if activity.isDummy():
@@ -802,7 +804,7 @@ class EnvelopeInstance(CatalogAware, Folder):
     def manageWorkitemCreation(self, workitem_id):
         """ """
         activity = self.getActivity(workitem_id)
-        rmq = bool(os.environ.get('RABBITMQ_ENABLED', 'off') == 'on')
+        rmq = os.environ.get('RABBITMQ_ENABLED', 'off') in ['on', 'true', 1]
         if self.status in ('active', 'running'):
             if activity.isDummy():
                 self.manageDummyActivity(workitem_id)
