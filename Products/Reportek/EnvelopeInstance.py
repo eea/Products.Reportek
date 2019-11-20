@@ -451,7 +451,8 @@ class EnvelopeInstance(CatalogAware, Folder):
         workitem = getattr(self, workitem_id)
         activity = self.getActivity(workitem_id)
         process = self.unrestrictedTraverse(self.process_path)
-        rmq = os.environ.get('RABBITMQ_ENABLED', 'off') in ['on', 'true', 1]
+        engine = self.unrestrictedTraverse(ENGINE_ID, None)
+        rmq = getattr(engine, 'env_fwd_rmq', False)
         if self.isActiveOrRunning():
             workitem_return_id = None
             if workitem.status in ('active', 'fallout'):
@@ -560,7 +561,8 @@ class EnvelopeInstance(CatalogAware, Folder):
         # If it's a previously failed application, retry it, otherwise forward it
         workitem = getattr(self, workitem_id)
         activity = self.getActivity(workitem_id)
-        rmq = os.environ.get('RABBITMQ_ENABLED', 'off') in ['on', 'true', 1]
+        engine = self.unrestrictedTraverse(ENGINE_ID, None)
+        rmq = getattr(engine, 'env_fwd_rmq', False)
         if self.isActiveOrRunning() and workitem.status == 'inactive' and \
                 getattr(self, 'wf_status', None) == 'forward':
             if activity.isDummy():
@@ -804,7 +806,8 @@ class EnvelopeInstance(CatalogAware, Folder):
     def manageWorkitemCreation(self, workitem_id):
         """ """
         activity = self.getActivity(workitem_id)
-        rmq = os.environ.get('RABBITMQ_ENABLED', 'off') in ['on', 'true', 1]
+        engine = self.unrestrictedTraverse(ENGINE_ID, None)
+        rmq = getattr(engine, 'env_fwd_rmq', False)
         if self.status in ('active', 'running'):
             if activity.isDummy():
                 self.manageDummyActivity(workitem_id)

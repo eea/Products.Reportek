@@ -78,7 +78,14 @@
                 Check this box if Content Registry Pings should be done via RabbitMQ. RabbitMQ connection settings need to be set by environment variables.
             </p>
         </fieldset>
-        <br />
+        <fieldset>
+            <legend>Envelopes workflow forwarding</legend>
+            <p class="form-help">
+                <strong><label for="env_fwd_rmq">Publish forwardable envelopes to RabbitMQ</label></strong>
+                <input type="checkbox" name="env_fwd_rmq" id="env_fwd_rmq" tal:attributes="checked here/env_fwd_rmq|nothing" size="5" /><br />
+                Check this to publish forwardable envelopes to RabbitMQ
+            </p>
+        </fieldset>
         <fieldset>
             <legend>Dataflows Manager XMLRPC Properties</legend>
             <p class="form-help">

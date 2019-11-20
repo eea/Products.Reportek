@@ -126,6 +126,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     exp_httpres = False
     globally_restricted_site = False
     cr_rmq = False
+    env_fwd_rmq = False
     if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
         cr_api_url = 'http://cr.eionet.europa.eu/ping'
     else:
@@ -268,6 +269,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         self.cr_api_url = self.REQUEST.get('cr_api_url', self.cr_api_url)
         self.cr_rmq = bool(self.REQUEST.get('cr_rmq', False))
+        self.env_fwd_rmq = bool(self.REQUEST.get('env_fwd_rmq', False))
         if self.cr_api_url:
             self.contentRegistryPingger.api_url = self.cr_api_url
             self.contentRegistryPingger.cr_rmq = self.cr_rmq
