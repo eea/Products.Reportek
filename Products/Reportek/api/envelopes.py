@@ -434,10 +434,12 @@ class EnvelopesAPI(BrowserView):
 
         return result
 
-    def get_envelope_company_id(self, env_brain):
+    def get_envelope_company_metadata(self, env_brain):
         """Return the company ID for the envelope."""
         env = env_brain.getObject()
-        return env.company_id
+        metadata = env.get_export_data()
+        return metadata
+
 
     def has_unknown_qc(self, path):
         """Return true if has a AutomaticQA feedback with UNKNOWN QC."""
@@ -588,8 +590,12 @@ class EnvelopesAPI(BrowserView):
                             envelope_data['feedbacks'] = feedbacks_data.get('feedbacks')
                         elif field == 'history':
                             envelope_data['history'] = self.get_envelope_history(brain)
-                        elif field == 'companyId':
-                            envelope_data['companyId'] = self.get_envelope_company_id(brain)
+                        elif field in ['companyId', 'companyName']:
+                            metadata = self.get_envelope_company_metadata(brain)
+                            if field == 'companyId':
+                                envelope_data['companyId'] = metadata.get('company_id')
+                            if field == 'companyName':
+                                envelope_data['companyName'] = metadata.get('company') if metadata.get('company') != '-' else None
                         elif field in default_props.keys():
                             envelope_data[field] = default_props.get(field)
 
