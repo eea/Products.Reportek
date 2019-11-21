@@ -197,15 +197,15 @@ class EnvelopesAPI(BrowserView):
                         'documentId': fb.document_id,
                         'activityId': fb.activity_id,
                         'postingDate': fb.postingdate.HTML4(),
-                        'feedbackStatus': fb.feedback_status,
-                        'feedbackMessage': fb.message,
+                        'feedbackStatus': getattr(fb, 'feedback_status'),
+                        'feedbackMessage': getattr(fb, 'message'),
                         'automatic': fb.automatic,
                         'isRestricted': 1 if fb.isRestricted() else 0,
                         'attachments': [
                             {
                                 'url': o.absolute_url(),
                                 'title': o.title_or_id(),
-                                'contentType': getattr(o, 'content_type', None),
+                                'contentType': getattr(o, 'content_type'),
                             } for o in fb.objectValues(['File', 'File (Blob)'])
                         ]
                     }
