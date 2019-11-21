@@ -1,12 +1,12 @@
-from DateTime import DateTime
-from Products.Five import BrowserView
-from Products.Reportek.constants import ENGINE_ID
-from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION as rpd
-from ZODB.blob import POSKeyError
-from Products.Reportek.blob import StorageError
-from Products.Reportek.constants import DF_URL_PREFIX
 import datetime
 import json
+
+from DateTime import DateTime
+from Products.Five import BrowserView
+from Products.Reportek.blob import StorageError
+from Products.Reportek.constants import DF_URL_PREFIX, ENGINE_ID
+from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION as rpd
+from ZODB.blob import POSKeyError
 
 
 class EnvelopesAPI(BrowserView):
@@ -200,6 +200,14 @@ class EnvelopesAPI(BrowserView):
                         'feedbackStatus': fb.feedback_status,
                         'feedbackMessage': fb.message,
                         'automatic': fb.automatic,
+                        'isRestricted': 1 if fb.isRestricted() else 0,
+                        'attachments': [
+                            {
+                                'url': o.absolute_url(),
+                                'title': o.title_or_id(),
+                                'contentType': getattr(o, 'content_type', None),
+                            } for o in fb.objectValues(['File', 'File (Blob)'])
+                        ]
                     }
 
                     feedbacks.append(fb_properties)
