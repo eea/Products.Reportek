@@ -589,6 +589,19 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     security.declareProtected('View', 'data_quality')
     data_quality = PageTemplateFile('zpt/envelope/data_quality', globals())
 
+    security.declareProtected('Use OpenFlow', 'get_current_workitem')
+    def get_current_workitem(self, REQUEST=None):
+        """ Return last workitem JSON metadata
+        """
+        wks = self.getListOfWorkitems()
+        if wks:
+            return self.handle_wk_response(wks[-1])
+        if getattr(self, 'REQUEST'):
+            if self.REQUEST.environ.get("HTTP_ACCEPT") == 'application/json':
+                self.REQUEST.RESPONSE.setHeader('Content-Type',
+                                                'application/json')
+        return json.dumps({})
+
 
     security.declareProtected('Release Envelopes', 'content_registry_ping')
     def content_registry_ping(self, delete=False, async=False, wk=None, silent=True):

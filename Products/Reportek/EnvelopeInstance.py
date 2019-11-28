@@ -26,20 +26,27 @@ This class is part of the workflow system
 
 """
 
-# Zope imports
-from AccessControl import getSecurityManager, ClassSecurityInfo
-from Globals import InitializeClass, MessageDialog
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from OFS.Folder import Folder
-from Products.ZCatalog.CatalogPathAwareness import CatalogAware
-from time import time
-from DateTime import DateTime
-from Products.Reportek.exceptions import ApplicationException
 import json
+import logging
 import string
+import sys
+from time import time
 
+import RepUtils
+# Zope imports
+from AccessControl import ClassSecurityInfo, getSecurityManager
+from constants import (APPLICATIONS_FOLDER_ID, CONVERTERS_ID, ENGINE_ID,
+                       WEBQ_XML_REPOSITORY, WORKFLOW_ENGINE_ID)
+from DateTime import DateTime
 # Product specific imports
 from expression import exprNamespace
+from Globals import InitializeClass, MessageDialog
+from OFS.Folder import Folder
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek.exceptions import ApplicationException
+from Products.ZCatalog.CatalogPathAwareness import CatalogAware
+from workitem import workitem
+
 try:
     # do you have CMF?
     # if so use its Expression class
@@ -48,11 +55,6 @@ except:
     # I guess you have no CMF...
     # here's a what you need:
     from expression import Expression
-import RepUtils
-from constants import WORKFLOW_ENGINE_ID, WEBQ_XML_REPOSITORY, CONVERTERS_ID, APPLICATIONS_FOLDER_ID, ENGINE_ID
-from workitem import workitem
-import logging
-import sys
 logger = logging.getLogger("Reportek")
 
 
@@ -290,23 +292,26 @@ class EnvelopeInstance(CatalogAware, Folder):
     security.declareProtected('Manage OpenFlow', 'handle_wk_response')
     def handle_wk_response(self, workitem):
         # Handle responses for wk actions
+        data = {
+            'workitem': {
+                'id': workitem.getId(),
+                'activityId': workitem.activity_id,
+                'activeTime': workitem.active_time,
+                'url': workitem.absolute_url(),
+                'actor': workitem.actor,
+                'status': workitem.status
+            }
+        }
         if getattr(self, 'REQUEST'):
             if self.REQUEST.environ.get("HTTP_ACCEPT") == 'application/json':
                 self.REQUEST.RESPONSE.setHeader('Content-Type',
                                                 'application/json')
-                data = {
-                    'workitem': {
-                        'id': workitem.getId(),
-                        'url': workitem.absolute_url(),
-                        'actor': workitem.actor,
-                        'status': workitem.status
-                    }
-                }
                 return json.dumps(data, indent=4)
             if self.REQUEST.has_key('DestinationURL'):
                 self.REQUEST.RESPONSE.redirect(self.REQUEST['DestinationURL'])
             else:
                 self.REQUEST.RESPONSE.redirect(self.REQUEST['HTTP_REFERER'])
+        return json.dumps(data, indent=4)
 
     security.declareProtected('Manage OpenFlow', 'terminateInstance')
     def terminateInstance(self, REQUEST=None):

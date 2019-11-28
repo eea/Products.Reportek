@@ -25,34 +25,35 @@ $Id$"""
 
 __version__='$Revision$'[11:-2]
 
-from AccessControl import getSecurityManager, ClassSecurityInfo
-from AccessControl.Permissions import change_permissions
-from AccessControl.Permissions import manage_users
+import os
+import string
+import time
+import types
+from datetime import datetime
+
+import AccessControl.Role
+import constants
+# product imports
+import Envelope
+import Globals
+import Products
+import Referral
+import RepUtils
+import webdav.Collection
+from AccessControl import ClassSecurityInfo, getSecurityManager
+from AccessControl.Permissions import change_permissions, manage_users
 from AccessControl.requestmethod import requestmethod
 from Acquisition import aq_base
 from ComputedAttribute import ComputedAttribute
-from DateTime import DateTime
-from datetime import datetime
-from OFS.Folder import Folder
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Products.Reportek import permission_manage_properties_collections
-from Products.Reportek.RepUtils import DFlowCatalogAware
-from Products.ZCatalog.CatalogAwareness import CatalogAware
-import AccessControl.Role, webdav.Collection
-import Globals
-import Products
-import time, types, os, string
-
-# product imports
-import Envelope
-import RepUtils
-import constants
-import Referral
-
 from CountriesManager import CountriesManager
 from DataflowsManager import DataflowsManager
-from Products.Reportek import REPORTEK_DEPLOYMENT
-from Products.Reportek import DEPLOYMENT_BDR
+from DateTime import DateTime
+from OFS.Folder import Folder
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek import (DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT,
+                               permission_manage_properties_collections)
+from Products.Reportek.RepUtils import DFlowCatalogAware
+from Products.ZCatalog.CatalogAwareness import CatalogAware
 from Toolz import Toolz
 
 manage_addCollectionForm = PageTemplateFile('zpt/collection/add', globals())
