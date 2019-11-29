@@ -66,8 +66,10 @@ The output for this request is:
 {
     "workitem": {
         "url": "https://cdrtest.eionet.europa.eu/ro/colwydrga/envxde78w/0", 
+        "activeTime": 0,
         "status": "active", 
         "id": "0", 
+        "activityId": "Draft",
         "actor": "user"
     }
 }
@@ -92,8 +94,10 @@ The output for this request is:
 {
     "workitem": {
         "url": "https://cdrtest.eionet.europa.eu/ro/colwsyg9g/envxxzquw/0", 
-        "status": "inactive", 
+        "status": "inactive",
+        "activeTime": 47.59759497642517,
         "id": "0", 
+        "activityId": "Draft",
         "actor": "" 
     }
 }
@@ -150,9 +154,11 @@ output:
 {
     "workitem": {
         "url": "https://cdrtest.eionet.europa.eu/ro/colwydrga/envxde78w/0", 
+        "activeTime": 4731.688959121704,
         "status": "complete", 
         "id": "0", 
-        "actor": "user"
+        "actor": "user",
+        "activityId": "AutomaticQA"
     }
 }
 ```
@@ -291,26 +297,36 @@ This returns the following:
         {
             "feedbacks": [
                 {
-                    "activityId": "AutomaticQA", 
                     "contentType": "text/html;charset=UTF-8", 
+                    "attachments": [], 
+                    "feedbackMessage": "XML Schema validation passed without errors.", 
+                    "documentId": "test.xml", 
                     "feedbackStatus": "INFO", 
                     "title": "AutomaticQA result for file test.xml: XML Schema validation", 
-                    "url": "https://cdrtest.eionet.europa.eu/ro/colwydrga/envxde78w/AutomaticQA_47976", 
-                    "automatic": 1, 
-                    "postingDate": "2019-11-22T12:54:01Z", 
-                    "documentId": "test.xml", 
-                    "feedbackMessage": "XML Schema validation passed without errors."
+                    "url": "https://cdrtest.eionet.europa.eu/ro/colwydrga/envxde78w/AutomaticQA_48383", 
+                    "postingDate": "2019-11-29T08:53:00Z", 
+                    "activityId": "AutomaticQA", 
+                    "isRestricted": 1, 
+                    "automatic": 1
                 }, 
                 {
-                    "activityId": "AutomaticQA", 
                     "contentType": "text/html", 
+                    "attachments": [
+                        {
+                            "url": "https://cdrtest.eionet.europa.eu/ro/colwydrga/envxde78w/AutomaticQA_48384/qa-output", 
+                            "contentType": "text/html", 
+                            "title": "qa-output"
+                        }
+                    ], 
+                    "feedbackMessage": "This XML file did NOT pass the following BLOCKER check(s): E02,E06,E11,E12,E25,E26", 
+                    "documentId": "test.xml", 
                     "feedbackStatus": "BLOCKER", 
                     "title": "AutomaticQA result for file test.xml: Check AQR obligations", 
-                    "url": "https://cdrtest.eionet.europa.eu/ro/colwydrga/envxde78w/AutomaticQA_47977", 
-                    "automatic": 1, 
-                    "postingDate": "2019-11-22T12:59:01Z", 
-                    "documentId": "test.xml", 
-                    "feedbackMessage": "This XML file did NOT pass the following BLOCKER check(s): E02,E06,E11,E12,E25,E26"
+                    "url": "https://cdrtest.eionet.europa.eu/ro/colwydrga/envxde78w/AutomaticQA_48384", 
+                    "postingDate": "2019-11-29T08:58:03Z", 
+                    "activityId": "AutomaticQA", 
+                    "isRestricted": 1, 
+                    "automatic": 1
                 }
             ]
         }
