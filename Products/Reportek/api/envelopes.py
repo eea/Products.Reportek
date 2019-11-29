@@ -1,12 +1,12 @@
-from DateTime import DateTime
-from Products.Five import BrowserView
-from Products.Reportek.constants import ENGINE_ID
-from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION as rpd
-from ZODB.blob import POSKeyError
-from Products.Reportek.blob import StorageError
-from Products.Reportek.constants import DF_URL_PREFIX
 import datetime
 import json
+
+from DateTime import DateTime
+from Products.Five import BrowserView
+from Products.Reportek.blob import StorageError
+from Products.Reportek.constants import DF_URL_PREFIX, ENGINE_ID
+from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION as rpd
+from ZODB.blob import POSKeyError
 
 
 class EnvelopesAPI(BrowserView):
@@ -197,9 +197,17 @@ class EnvelopesAPI(BrowserView):
                         'documentId': fb.document_id,
                         'activityId': fb.activity_id,
                         'postingDate': fb.postingdate.HTML4(),
-                        'feedbackStatus': fb.feedback_status,
-                        'feedbackMessage': fb.message,
+                        'feedbackStatus': getattr(fb, 'feedback_status', None),
+                        'feedbackMessage': getattr(fb, 'message', None),
                         'automatic': fb.automatic,
+                        'isRestricted': 1 if fb.isRestricted() else 0,
+                        'attachments': [
+                            {
+                                'url': o.absolute_url(),
+                                'title': o.title_or_id(),
+                                'contentType': getattr(o, 'content_type', None),
+                            } for o in fb.objectValues(['File', 'File (Blob)'])
+                        ]
                     }
 
                     feedbacks.append(fb_properties)
@@ -426,10 +434,12 @@ class EnvelopesAPI(BrowserView):
 
         return result
 
-    def get_envelope_company_id(self, env_brain):
+    def get_envelope_company_metadata(self, env_brain):
         """Return the company ID for the envelope."""
         env = env_brain.getObject()
-        return env.company_id
+        metadata = env.get_export_data()
+        return metadata
+
 
     def has_unknown_qc(self, path):
         """Return true if has a AutomaticQA feedback with UNKNOWN QC."""
@@ -580,8 +590,12 @@ class EnvelopesAPI(BrowserView):
                             envelope_data['feedbacks'] = feedbacks_data.get('feedbacks')
                         elif field == 'history':
                             envelope_data['history'] = self.get_envelope_history(brain)
-                        elif field == 'companyId':
-                            envelope_data['companyId'] = self.get_envelope_company_id(brain)
+                        elif field in ['companyId', 'companyName']:
+                            metadata = self.get_envelope_company_metadata(brain)
+                            if field == 'companyId':
+                                envelope_data['companyId'] = metadata.get('company_id')
+                            if field == 'companyName':
+                                envelope_data['companyName'] = metadata.get('company') if metadata.get('company') != '-' else None
                         elif field in default_props.keys():
                             envelope_data[field] = default_props.get(field)
 

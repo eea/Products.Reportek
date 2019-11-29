@@ -254,6 +254,7 @@ paths:
               - hasUnknownQC
               - history
               - companyId
+              - companyName
           collectionFormat: csv
       responses:
         '200':
@@ -306,6 +307,11 @@ paths:
                       postingDate: 2013-04-13T23:20:50.520Z
                       feedbackStatus: ''
                       feedbackMessage: ''
+                      isRestricted: 0
+                      attachments:
+                        - url: 'http://foo/bar/my_envelope/feedback_1527576363/qa-output'
+                          title: 'qa-output'
+                          contentType: text/html
                   periodEndYear: 2014
                   status: Release
                   countryCode: RO
@@ -324,6 +330,7 @@ paths:
                       blocker: false
                       modified: 2013-04-13T01:20:50.530Z
                   companyId: '18006,'
+                  companyName: 'Test company'
                   isReleased: 1
                   title: My Envelope
                   reportingDate: 2013-04-13T01:20:50.530Z
@@ -437,7 +444,10 @@ definitions:
           $ref: '#/definitions/History'
       companyId:
         type: string
-        description: The company ID associated with with the envelope's parent Collection
+        description: The company ID associated with the envelope's parent Collection
+      companyName:
+        type: string
+        description: The company name associated with the envelope's parent Collection
   File:
     type: object
     properties:
@@ -510,7 +520,28 @@ definitions:
         description: The feedback status.
       feedbackMessage:
         type: string
-        description: The feedback message
+        description: The feedback message.
+      isRestricted:
+        type: integer
+        description: The feedback's restricted status.
+        enum:
+          - 0
+          - 1
+      attachments:
+        type: array
+        description: The list of feedback attachments.
+        items:
+          type: object
+          properties:
+            url:
+              type: string
+              description: The attachment's URL.
+            title:
+              type: string
+              description: The attachment's title.
+            contentType:
+              type: string
+              description: The attachment's content type.
   History:
     type: object
     properties:

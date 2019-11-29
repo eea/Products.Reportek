@@ -70,7 +70,8 @@
 | hasUnknownQC | integer | Is there an AutomaticQA feedback with no valid feedback status | No |
 | files | [ [File](#file) ] | The list of files attached to the envelope. | No |
 | history | [ [History](#history) ] | The workflow history of the envelope. | No |
-| companyId | string | The company ID associated with with the envelope's parent Collection | No |
+| companyId | string | The company ID associated with the envelope's parent Collection | No |
+| companyName | string | The company name associated with the envelope's parent Collection | No |
 
 #### File
 
@@ -99,7 +100,9 @@
 | activityId | string | The activity which generated the automatic feedback | No |
 | automatic | integer | Feedback type. | No |
 | feedbackStatus | string | The feedback status. | No |
-| feedbackMessage | string | The feedback message | No |
+| feedbackMessage | string | The feedback message. | No |
+| isRestricted | integer | The feedback's restricted status. | No |
+| attachments | [ object ] | The list of feedback attachments. | No |
 
 #### History
 

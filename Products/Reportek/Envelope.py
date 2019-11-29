@@ -30,61 +30,61 @@ $Id$"""
 __version__='$Revision$'[11:-2]
 
 
-import os, types, tempfile, string
-from path import path
-from zipstream import ZipFile
-from zipstream import ZIP_DEFLATED
-from zipfile import BadZipfile
-
-import Globals, OFS.SimpleItem, OFS.ObjectManager
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate
-from AccessControl.Permissions import view_management_screens
-import AccessControl.Role
-
-from AccessControl import ClassSecurityInfo, Unauthorized
-from AccessControl.SecurityManagement import getSecurityManager
-from Products.Reportek import permission_manage_properties_envelopes
-from Products.Reportek.exceptions import ApplicationException
-from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION
-from Products.Reportek.RepUtils import DFlowCatalogAware
-from Products.Reportek.RepUtils import parse_uri
-from Products.PythonScripts.standard import url_quote
-from zExceptions import Forbidden
-from DateTime import DateTime
-from DateTime.interfaces import SyntaxError
-from StringIO import StringIO
-from ZPublisher.Iterators import filestream_iterator
 import json
 import logging
-import xlwt
-logger = logging.getLogger("Reportek")
+import os
+import string
+import tempfile
+import types
+from exceptions import InvalidPartOfYear
+from StringIO import StringIO
+from zipfile import BadZipfile
 
+import AccessControl.Role
+import Document
+import Feedback
+import Globals
+import Hyperlink
+import OFS.ObjectManager
+import OFS.SimpleItem
+import RepUtils
+import transaction
+import xlwt
+from AccessControl import ClassSecurityInfo, Unauthorized
+from AccessControl.Permissions import view_management_screens
+from AccessControl.SecurityManagement import getSecurityManager
+from constants import ENGINE_ID, WORKFLOW_ENGINE_ID
+from DateTime import DateTime
+from DateTime.interfaces import SyntaxError
 # Product specific imports
 from EnvelopeCustomDataflows import EnvelopeCustomDataflows
 from EnvelopeInstance import EnvelopeInstance
 from EnvelopeRemoteServicesManager import EnvelopeRemoteServicesManager
-from Products.Reportek import Document
-from Products.Reportek import Feedback
-from Products.Reportek import Hyperlink
-from Products.Reportek import RepUtils
-from Products.Reportek import zip_content
-from Products.Reportek.BaseDelivery import BaseDelivery
-from Products.Reportek.RepUtils import get_zip_cache
-from Products.Reportek.config import XLS_HEADINGS
-from Products.Reportek.config import ZIP_CACHE_ENABLED
-from Products.Reportek.config import ZIP_CACHE_THRESHOLD
-from Products.Reportek.constants import DF_URL_PREFIX
-from constants import WORKFLOW_ENGINE_ID, ENGINE_ID
-from exceptions import InvalidPartOfYear
 from interfaces import IEnvelope
 from paginator import DiggPaginator, EmptyPage, InvalidPage
+from path import path
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate
+from Products.PythonScripts.standard import url_quote
+from Products.Reportek import (Document, Feedback, Hyperlink, RepUtils,
+                               permission_manage_properties_envelopes,
+                               zip_content)
+from Products.Reportek.BaseDelivery import BaseDelivery
+from Products.Reportek.config import (DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT,
+                                      XLS_HEADINGS, ZIP_CACHE_ENABLED,
+                                      ZIP_CACHE_THRESHOLD)
+from Products.Reportek.constants import DF_URL_PREFIX
+from Products.Reportek.exceptions import ApplicationException
+from Products.Reportek.RepUtils import (DFlowCatalogAware, get_zip_cache,
+                                        parse_uri)
+from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION
+from zExceptions import Forbidden
+from zipstream import ZIP_DEFLATED, ZipFile
 from zope.interface import implements
-import Document
-import Feedback
-import Hyperlink
-import RepUtils
-import transaction
+from ZPublisher.Iterators import filestream_iterator
+
+logger = logging.getLogger("Reportek")
+
 
 
 def error_response(exc, message, REQUEST):
@@ -191,6 +191,13 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
                 'periodEndYear': ob.endyear,
                 'periodDescription': REPORTING_PERIOD_DESCRIPTION.get(ob.partofyear),
             }
+            if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+                metadata = ob.get_export_data()
+                c_id = metadata.get('company_id')
+                c_name = metadata.get('company')
+                if c_id and c_name:
+                    env['companyId'] = c_id
+                    env['companyName'] = c_name
             data = {
                 'envelopes': [env],
                 'errors': [],
@@ -581,6 +588,19 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
     security.declareProtected('View', 'data_quality')
     data_quality = PageTemplateFile('zpt/envelope/data_quality', globals())
+
+    security.declareProtected('Use OpenFlow', 'get_current_workitem')
+    def get_current_workitem(self, REQUEST=None):
+        """ Return last workitem JSON metadata
+        """
+        wks = self.getListOfWorkitems()
+        if wks:
+            return self.handle_wk_response(wks[-1])
+        if getattr(self, 'REQUEST'):
+            if self.REQUEST.environ.get("HTTP_ACCEPT") == 'application/json':
+                self.REQUEST.RESPONSE.setHeader('Content-Type',
+                                                'application/json')
+        return json.dumps({})
 
 
     security.declareProtected('Release Envelopes', 'content_registry_ping')
