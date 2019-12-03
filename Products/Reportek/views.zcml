@@ -189,11 +189,27 @@
     attribute="stuck_envelopes"/>
 
   <browser:page
+    name="get_forwardable_envelopes"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ReportekEnvelopesManager"
+    class=".views.EnvelopeUtils"
+    attribute="forwardable_envelopes"/>
+
+  <browser:page
     name="get_lr_aqa_envelopes"
     for=".interfaces.IReportekUtilities"
     permission="zope2.ReportekEnvelopesManager"
     class=".views.EnvelopeUtils"
     attribute="env_long_running_aqa"/>
+
+  <browser:page
+    name="envelopes.forwardable"
+    menu="reportek_utilities"
+    title="Forwardable envelopes"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ReportekEnvelopesManager"
+    class=".views.EnvelopeUtils"
+    template="zpt/utilities/envelopes_forwardable.zpt"/>
 
   <browser:page
     name="referrals.management"

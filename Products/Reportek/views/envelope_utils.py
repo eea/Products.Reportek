@@ -1,9 +1,11 @@
 import json
+from urllib import unquote
+
 from base_admin import BaseAdmin
 from DateTime import DateTime
-from urllib import unquote
-from Products.Reportek.constants import WORKFLOW_ENGINE_ID
 from Products.Reportek.catalog import searchResults
+from Products.Reportek.constants import ENGINE_ID, WORKFLOW_ENGINE_ID
+from Products.Reportek.rabbitmq import send_message
 
 
 class EnvelopeUtils(BaseAdmin):
@@ -14,6 +16,8 @@ class EnvelopeUtils(BaseAdmin):
             self.auto_complete_envelopes()
         if self.request.get('btn.search'):
             self.get_not_completed_workitems()
+        if self.request.get('btn.publish'):
+            self.forwardable_envelopes()
         return self.index()
 
     def get_envelope_status(self):
@@ -250,4 +254,67 @@ class EnvelopeUtils(BaseAdmin):
                         },
                         's_date': DateTime(act_start).strftime('%d/%m/%Y %H:%M:%S')
                     })
+        return json.dumps(envelopes)
+
+    def forwardable_envelopes(self):
+        pub_envs = self.request.get('envelopes', [])
+        if pub_envs:
+            results = []
+            engine = self.context.unrestrictedTraverse(ENGINE_ID, None)
+            rmq = getattr(engine, 'env_fwd_rmq', False)
+            if rmq:
+                for env in pub_envs:
+                    try:
+                        send_message(env, queue='fwd_envelopes')
+                        results.append({
+                            'envelope': env,
+                            'published': True,
+                            'error': None
+                        })
+                    except Exception as e:
+                        results.append({
+                            'envelope': env,
+                            'published': False,
+                            'error': Exception("Unable to send message to RabbitMQ! Details: {}".format(str(e)))
+                        })
+            self.request['op_results'] = results
+
+        catalog = self.context.Catalog
+        query = {
+            'meta_type': 'Report Envelope',
+            'wf_status': 'forward'
+        }
+        brains = searchResults(catalog, query,
+                               admin_check=self.should_check_permission())
+        envelopes = []
+        for b in brains:
+            env = b.getObject()
+            wks = env.getListOfWorkitems()
+            last_wk = wks[-1]
+            activity = env.getActivity(last_wk.getId())
+            process = env.getProcess()
+            activity_url = process_url = ''
+            activity_title = process_title = 'Not available'
+            if activity:
+                activity_url = activity.absolute_url()
+                activity_title = activity.title_or_id()
+            if process:
+                process_url = process.absolute_url()
+                process_title = process.title_or_id()
+            envelopes.append({
+                'env': {
+                    'url': env.absolute_url(),
+                    'path': env.getPath()
+                },
+                'process': {
+                    'url': process_url,
+                    'title': process_title
+                },
+                'activity': {
+                    'url': activity_url,
+                    'title': activity_title
+                },
+                's_date': DateTime(last_wk.event_log[-1].get('time')).strftime('%d/%m/%Y %H:%M:%S')
+            })
+
         return json.dumps(envelopes)

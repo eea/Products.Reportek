@@ -1,11 +1,11 @@
+import json
 from collections import defaultdict
 from operator import itemgetter
-from Products.Five import BrowserView
-from zope.browsermenu.menu import getMenu
-import json
 
+from Products.Five import BrowserView
 from Products.Reportek import config, constants
 from Products.Reportek.catalog import searchResults
+from zope.browsermenu.menu import getMenu
 
 
 class BaseAdmin(BrowserView):
@@ -280,4 +280,3 @@ class BaseAdmin(BrowserView):
 
     def get_available_menu_items(self):
         return getMenu('reportek_utilities', self.context, self.request)
-

@@ -1,13 +1,15 @@
-from BeautifulSoup import BeautifulSoup as bs
 import logging
-logger = logging.getLogger("Reportek")
-import requests
+import pickle
 import threading
 import time
+
+import requests
+from BeautifulSoup import BeautifulSoup as bs
 from config import *
 from constants import PING_ENVELOPES_REDIS_KEY
 from Products.Reportek.rabbitmq import send_message
-import pickle
+
+logger = logging.getLogger("Reportek")
 
 class ContentRegistryPingger(object):
 
