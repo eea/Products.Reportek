@@ -37,7 +37,6 @@
   </div>
   <tal:block tal:condition="python: request.get('op_results', 'Not set') != 'Not set'"
    tal:define="results python: request.get('op_results')">
-    <span>Publish to RabbitMQ results: </span>
     <metal:block use-macro="here/info_message/macros/info-message">
       <div metal:fill-slot="info-message-container" class="info-message info-message-info">
         <div class="im-controls im-controls-right">
@@ -49,6 +48,7 @@
           Nothing ticked in the previous screen
         </div>
         <tal:block tal:condition="python: len(results) > 0">
+          <span>Publish to RabbitMQ results: </span>
           <tal:rep tal:repeat="res results">
             <div class="im-message msg-success" tal:condition="python: not res.get('error')">
               <div class="info-message-content">

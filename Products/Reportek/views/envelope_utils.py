@@ -258,6 +258,8 @@ class EnvelopeUtils(BaseAdmin):
 
     def forwardable_envelopes(self):
         pub_envs = self.request.get('envelopes', [])
+        if self.request.get('btn.publish') and not pub_envs:
+            self.request['op_results'] = []
         if pub_envs:
             results = []
             engine = self.context.unrestrictedTraverse(ENGINE_ID, None)
