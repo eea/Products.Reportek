@@ -262,9 +262,7 @@ class EnvelopeUtils(BaseAdmin):
             self.request['op_results'] = []
         if pub_envs:
             results = []
-            engine = self.context.unrestrictedTraverse(ENGINE_ID, None)
-            rmq = getattr(engine, 'env_fwd_rmq', False)
-            if rmq:
+            if self.rmq_fwd:
                 for env in pub_envs:
                     try:
                         send_message(env, queue='fwd_envelopes')

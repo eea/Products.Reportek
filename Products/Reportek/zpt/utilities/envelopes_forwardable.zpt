@@ -89,7 +89,7 @@
         <tbody>
         </tbody>
       </table>
-      <div>
+      <div tal:condition="view/rmq_fwd">
         <input type="submit" name="btn.publish" value="Publish to RabbitMQ">
       </div>
   </form>

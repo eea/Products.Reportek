@@ -33,6 +33,11 @@ class BaseAdmin(BrowserView):
         return engine.getDeploymentType()
 
     @property
+    def rmq_fwd(self):
+        engine = self.context.unrestrictedTraverse(constants.ENGINE_ID, None)
+        return getattr(engine, 'env_fwd_rmq', False)
+
+    @property
     def localities_rod(self):
         if not self._localities_rod:
             engine = getattr(self.context, constants.ENGINE_ID)
