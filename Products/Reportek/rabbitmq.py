@@ -110,8 +110,8 @@ class MessagesDataManager(object):
             try:
                 send_message(msg, queue=queue)
             except Exception as e:
-                logger.exception("RabbitMQ Connection exception")
-                raise Exception("Unable to send message to RabbitMQ! Details: {}".format(str(e)))
+                logger.exception("RabbitMQ Connection exception: {}".format(str(e)))
+                raise Exception("Unable to send message to RabbitMQ! Please click the browser's back button and try again.")
 
         self.txn = None
         self.messages = []
