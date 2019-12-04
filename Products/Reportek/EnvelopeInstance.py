@@ -471,8 +471,6 @@ class EnvelopeInstance(CatalogAware, Folder):
                 if activity.isAutoStart() and not activity.isBundled():
                     self.wf_status = 'forward'
                     self.reindex_object()
-                    if rmq:
-                        queue_msg(self.absolute_url(), queue='fwd_envelopes')
                 # If it's manually started or bundled with previous, forward it manually as we might have template forms that have form values
                 else:
                     self.forwardWorkitem(workitem_id)
