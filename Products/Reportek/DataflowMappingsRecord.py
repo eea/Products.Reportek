@@ -1,20 +1,19 @@
 __doc__ = """ Multiple dataflow mappings for a single obligation """
 
-from os import environ
 import logging
 import xmlrpclib
-import requests
-from OFS.SimpleItem import SimpleItem
-from Globals import InitializeClass
-from AccessControl import ClassSecurityInfo
-from AccessControl.Permissions import view_management_screens
-from ZODB.PersistentList import PersistentList
-
-from Products.ZCatalog.CatalogAwareness import CatalogAware
-from Products.Five.browser import BrowserView
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from os import environ
 
 import messages
+import requests
+from AccessControl import ClassSecurityInfo
+from AccessControl.Permissions import view_management_screens
+from Globals import InitializeClass
+from OFS.SimpleItem import SimpleItem
+from Products.Five.browser import BrowserView
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.ZCatalog.CatalogAwareness import CatalogAware
+from ZODB.PersistentList import PersistentList
 
 log = logging.getLogger(__name__)
 
@@ -196,6 +195,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
             if REQUEST.form.get('update'):
                 self.title = REQUEST.form['title']
                 self.dataflow_uri = REQUEST.form['dataflow_uris']
+                self.reindex_object()
                 message_dialog = 'Saved changes.'
             if REQUEST.form.get('update_xls_conversion'):
                 self._xls_conversion = REQUEST.form.get('xls_conversion')
