@@ -28,22 +28,20 @@ This class is part of the workflow system
 
 import json
 import logging
-import string
-import sys
 from time import time
 
-import RepUtils
 # Zope imports
-from AccessControl import ClassSecurityInfo, getSecurityManager
+from AccessControl import ClassSecurityInfo
 from constants import (APPLICATIONS_FOLDER_ID, CONVERTERS_ID, ENGINE_ID,
                        WEBQ_XML_REPOSITORY, WORKFLOW_ENGINE_ID)
 from DateTime import DateTime
 # Product specific imports
 from expression import exprNamespace
-from Globals import InitializeClass, MessageDialog
+from Globals import InitializeClass
 from OFS.Folder import Folder
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.exceptions import ApplicationException
+from Products.Reportek.rabbitmq import queue_msg
 from Products.ZCatalog.CatalogPathAwareness import CatalogAware
 from workitem import workitem
 
@@ -452,6 +450,8 @@ class EnvelopeInstance(CatalogAware, Folder):
         workitem = getattr(self, workitem_id)
         activity = self.getActivity(workitem_id)
         process = self.unrestrictedTraverse(self.process_path)
+        engine = self.unrestrictedTraverse(ENGINE_ID, None)
+        rmq = getattr(engine, 'env_fwd_rmq', False)
         if self.isActiveOrRunning():
             workitem_return_id = None
             if workitem.status in ('active', 'fallout'):
@@ -558,6 +558,8 @@ class EnvelopeInstance(CatalogAware, Folder):
         # If it's a previously failed application, retry it, otherwise forward it
         workitem = getattr(self, workitem_id)
         activity = self.getActivity(workitem_id)
+        engine = self.unrestrictedTraverse(ENGINE_ID, None)
+        rmq = getattr(engine, 'env_fwd_rmq', False)
         if self.isActiveOrRunning() and workitem.status == 'inactive' and \
                 getattr(self, 'wf_status', None) == 'forward':
             if activity.isDummy():
@@ -568,6 +570,8 @@ class EnvelopeInstance(CatalogAware, Folder):
                 if activity.isAutoStart():
                     self.wf_status = 'forward'
                     self.reindex_object()
+                    if rmq:
+                        queue_msg(self.absolute_url(), queue='fwd_envelopes')
                     self.startAutomaticApplication(workitem_id)
                 else:
                     self.wf_status = 'manual'
@@ -799,6 +803,8 @@ class EnvelopeInstance(CatalogAware, Folder):
     def manageWorkitemCreation(self, workitem_id):
         """ """
         activity = self.getActivity(workitem_id)
+        engine = self.unrestrictedTraverse(ENGINE_ID, None)
+        rmq = getattr(engine, 'env_fwd_rmq', False)
         if self.status in ('active', 'running'):
             if activity.isDummy():
                 self.manageDummyActivity(workitem_id)
@@ -808,6 +814,8 @@ class EnvelopeInstance(CatalogAware, Folder):
                 if activity.isAutoStart():
                     self.wf_status = 'forward'
                     self.reindex_object()
+                    if rmq:
+                        queue_msg(self.absolute_url(), queue='fwd_envelopes')
                     self.startAutomaticApplication(workitem_id)
                 else:
                     self.wf_status = 'manual'

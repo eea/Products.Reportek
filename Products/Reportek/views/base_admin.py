@@ -1,11 +1,11 @@
+import json
 from collections import defaultdict
 from operator import itemgetter
-from Products.Five import BrowserView
-from zope.browsermenu.menu import getMenu
-import json
 
+from Products.Five import BrowserView
 from Products.Reportek import config, constants
 from Products.Reportek.catalog import searchResults
+from zope.browsermenu.menu import getMenu
 
 
 class BaseAdmin(BrowserView):
@@ -31,6 +31,11 @@ class BaseAdmin(BrowserView):
     def get_deployment(self):
         engine = getattr(self.context, constants.ENGINE_ID)
         return engine.getDeploymentType()
+
+    @property
+    def rmq_fwd(self):
+        engine = self.context.unrestrictedTraverse(constants.ENGINE_ID, None)
+        return getattr(engine, 'env_fwd_rmq', False)
 
     @property
     def localities_rod(self):
@@ -280,4 +285,3 @@ class BaseAdmin(BrowserView):
 
     def get_available_menu_items(self):
         return getMenu('reportek_utilities', self.context, self.request)
-
