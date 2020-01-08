@@ -596,6 +596,35 @@ class RemoteApplication(SimpleItem):
                 }
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                                p_getResult=l_getResultDict)
+
+        # An XML-RPC fault package - retry later
+        # The agreed errors from the XQuery service are embedded
+        # in this error type
+        except (xmlrpclib.Fault, xmlrpclib.ProtocolError) as l_err:
+            l_nRetries = int(l_wk_prop['getResult'][p_jobID]['retries_left'])
+            retry = self.retryJobFrequency if self.retryJobFrequency else self.retryFrequency
+            if l_nRetries == 0:
+                l_workitem.addEvent('Error in the %s, job #%s for file %s: %s' %
+                                    (self.app_name, p_jobID, l_file_id, str(l_err)))
+                l_workitem.failure = True
+                l_getResultDict = {p_jobID: {'code': -2, 'last_error': str(err)}}
+                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
+                                               p_getResult=l_getResultDict)
+            else:
+                next_run = DateTime(int(l_wk_prop['getResult'][p_jobID]['next_run']) +
+                                    int(retry))
+                err = 'Code: {}\nDescription: {}'.format(str(l_err.faultCode),
+                                                         str(l_err.faultString))
+                l_getResultDict = {
+                    p_jobID: {
+                        'code': 0,
+                        'last_error': err,
+                        'retries_left': l_nRetries - 1,
+                        'next_run': next_run
+                    }
+                }
+                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
+                                               p_getResult=l_getResultDict)
         # Fatal error - do not retry
         except Exception as err:
             feedback_log.exception("Error saving remote feedback, job #%s",
@@ -606,6 +635,7 @@ class RemoteApplication(SimpleItem):
             l_getResultDict = {p_jobID: {'code': -2, 'last_error': str(err)}}
             self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                            p_getResult=l_getResultDict)
+
         return l_getResultDict
 
     ##############################################
