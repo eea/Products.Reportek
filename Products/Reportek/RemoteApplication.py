@@ -18,35 +18,35 @@
 # Contributor(s):
 # Miruna Badescu, Eau de Web
 
-## RemoteApplication
-##
+# RemoteApplication
+#
 
-from threading import Thread
-import tempfile
 import logging
-from Products.ZCatalog.CatalogAwareness import CatalogAware
-from OFS.SimpleItem import SimpleItem
-from Globals import InitializeClass
-from AccessControl import getSecurityManager, ClassSecurityInfo
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+import string
+import tempfile
+import urllib
+import xmlrpclib
+
+import transaction
+from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from DateTime import DateTime
-import xmlrpclib
-import string
-import urllib
-from Products.PythonScripts.standard import html_quote
 from Document import Document
-import transaction
-
+from Globals import InitializeClass
+from OFS.SimpleItem import SimpleItem
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
 feedback_log = logging.getLogger(__name__ + '.feedback')
 
-FEEDBACKTEXT_LIMIT = 1024 * 16 # 16KB
+FEEDBACKTEXT_LIMIT = 1024 * 16  # 16KB
 
 
-manage_addRemoteApplicationForm = PageTemplateFile('zpt/remote/application_add', globals())
+manage_addRemoteApplicationForm = PageTemplateFile('zpt/remote/application_add',
+                                                   globals())
 
-def manage_addRemoteApplication(self, id='', title='', RemoteServer='', RemoteService='', app_name='', REQUEST=None):
+
+def manage_addRemoteApplication(self, id='', title='', RemoteServer='',
+                                RemoteService='', app_name='', REQUEST=None):
     """ Generic application that calls a remote service
     """
 
@@ -55,6 +55,7 @@ def manage_addRemoteApplication(self, id='', title='', RemoteServer='', RemoteSe
 
     if REQUEST is not None:
         return self.manage_main(self, REQUEST, update_menu=1)
+
 
 class RemoteApplication(SimpleItem):
     """ A computerised application, executed by an activity.
@@ -93,30 +94,37 @@ class RemoteApplication(SimpleItem):
     security = ClassSecurityInfo()
     meta_type = 'Remote Application'
 
-    manage_options = ( ( {'label' : 'Settings', 'action' : 'manage_settings_html'}, )
-                + SimpleItem.manage_options
-                )
+    manage_options = (({'label': 'Settings',
+                        'action': 'manage_settings_html'},) +
+                      SimpleItem.manage_options
+                      )
 
-    def __init__(self, id, title, RemoteServer, RemoteService, app_name, nRetries=5, retryFrequency=300, nTimeBetweenCalls=60):
+    def __init__(self, id, title, RemoteServer, RemoteService, app_name,
+                 nRetries=5, nJobRetries=5, retryFrequency=300,
+                 retryJobFrequency=300):
         """ Initialize a new instance of Document """
         self.id = id
         self.title = title
         self.RemoteServer = RemoteServer
         self.RemoteService = RemoteService
         self.app_name = app_name
-        self.nRetries = nRetries                    # integer
-        self.retryFrequency = retryFrequency        # integer - seconds
-        self.nTimeBetweenCalls = nTimeBetweenCalls  # integer - seconds
+        self.nRetries = nRetries                            # integer
+        self.nJobRetries = nJobRetries                      # integer
+        self.retryFrequency = retryFrequency                # integer - seconds
+        self.retryJobFrequency = retryJobFrequency          # integer - seconds
 
-    def manage_settings(self, title, RemoteServer, RemoteService, app_name, nRetries, retryFrequency, nTimeBetweenCalls):
+    def manage_settings(self, title, RemoteServer, RemoteService, app_name,
+                        nRetries, nJobRetries, retryFrequency,
+                        retryJobFrequency):
         """ Change properties of the QA Application """
         self.title = title
         self.RemoteServer = RemoteServer
         self.RemoteService = RemoteService
         self.nRetries = nRetries
+        self.nJobRetries = nJobRetries
         self.app_name = app_name
         self.retryFrequency = retryFrequency
-        self.nTimeBetweenCalls = nTimeBetweenCalls
+        self.retryJobFrequency = retryJobFrequency
 
     security.declareProtected('Use OpenFlow', '__call__')
     def __call__(self, workitem_id, REQUEST=None):
@@ -136,7 +144,8 @@ class RemoteApplication(SimpleItem):
         l_dict = self.getDocumentsForRemoteService()
 
         if not l_dict:
-            self.__manageAutomaticProperty(p_workitem_id=workitem_id, p_analyze={'code':2})
+            self.__manageAutomaticProperty(p_workitem_id=workitem_id,
+                                           p_analyze={'code': 2})
             l_workitem.addEvent('Operation completed: no files to analyze')
             if REQUEST is not None:
                 REQUEST.set('RemoteApplicationSucceded', 1)
@@ -152,7 +161,8 @@ class RemoteApplication(SimpleItem):
                 self.__finishApplication(workitem_id, REQUEST)
             # see if it's any point to go on
             elif getattr(l_workitem, self.app_name)['analyze']['code'] == -2:
-                l_workitem.addEvent('Operation failed: error calling the remote service')
+                l_workitem.addEvent('Operation failed:\
+                                     error calling the remote service')
                 if REQUEST is not None:
                     REQUEST.set('RemoteApplicationSucceded', 0)
                     REQUEST.set('actor', 'openflow_engine')
@@ -165,7 +175,8 @@ class RemoteApplication(SimpleItem):
         l_workitem = getattr(self, workitem_id)
         # dictionary of {xml_schema_location: [URL_file]}
         l_dict = self.getDocumentsForRemoteService()
-        # get the property of the workitem which keeps all the instance data for this operation
+        # get the property of the workitem which keeps all the instance data
+        # for this operation
         l_wk_prop = getattr(l_workitem, self.app_name)
 
         # test if analyze should be called
@@ -180,49 +191,34 @@ class RemoteApplication(SimpleItem):
             self.__finishApplication(workitem_id, REQUEST)
             return 1
 
-        # TODO fix this if you want parallel threads
-        #Exception in thread LocalQAThread:
-        #Traceback (most recent call last):
-        #File "/usr/local/Python-2.7.3/lib/python2.7/threading.py", line 551, in __bootstrap_inner
-        #    self.run()
-        #File "/usr/local/Python-2.7.3/lib/python2.7/threading.py", line 504, in run
-        #    self.__target(*self.__args, **self.__kwargs)
-        #File "/var/local/cdr/src/Products.Reportek.git/Products/Reportek/RemoteApplication.py", line 265, in runAutomaticLocalApps
-        #    wk_status['localQARunning'] = True
-        #File "/var/local/common/eggs/transaction-1.1.1-py2.7.egg/transaction/_manager.py", line 89, in commit
-        #    return self.get().commit()
-        #File "/var/local/common/eggs/transaction-1.1.1-py2.7.egg/transaction/_transaction.py", line 329, in commit
-        #    self._commitResources()
-        #File "/var/local/common/eggs/transaction-1.1.1-py2.7.egg/transaction/_transaction.py", line 443, in _commitResources
-        #    rm.commit(self)
-        #File "/var/local/common/eggs/ZODB3-3.10.5-py2.7-linux-x86_64.egg/ZODB/Connection.py", line 567, in commit
-        #    self._commit(transaction)
-        #File "/var/local/common/eggs/ZODB3-3.10.5-py2.7-linux-x86_64.egg/ZODB/Connection.py", line 615, in _commit
-        #    raise ConflictError(object=obj)
-        #ConflictError: database conflict error (oid 0xed0305, class Products.Reportek.workitem.workitem)
         self.runAutomaticLocalApps(l_workitem)
         # test if getResult should be called
         l_files_success = {}
         l_files_failed = {}
         for l_jobID, l_job_details in l_wk_prop['getResult'].items():
             if l_job_details['code'] == 0 and l_job_details['next_run'].lessThanEqualTo(DateTime()):
-                l_ret_step2 = self.__getResult4XQueryServiceJob(workitem_id, l_jobID)
+                l_ret_step2 = self.__getResult4XQueryServiceJob(workitem_id,
+                                                                l_jobID)
                 l_fn = l_job_details['fileURL'].split('/')[-1]
                 if l_ret_step2[l_jobID]['code'] == 1:
-                    if l_files_success.has_key(l_fn): l_files_success[l_fn] += ', #%s' % l_jobID
-                    else: l_files_success[l_fn] = '#%s' % l_jobID
+                    if l_fn in l_files_success:
+                        l_files_success[l_fn] += ', #%s' % l_jobID
+                    else:
+                        l_files_success[l_fn] = '#%s' % l_jobID
                 else:
-                    if l_files_failed.has_key(l_fn): l_files_failed[l_fn] += ', #%s' % l_jobID
-                    else: l_files_failed[l_fn] = '#%s' % l_jobID
+                    if l_fn in l_files_failed:
+                        l_files_failed[l_fn] += ', #%s' % l_jobID
+                    else:
+                        l_files_failed[l_fn] = '#%s' % l_jobID
         # log the results from local QA
         for filename, scripts in l_wk_prop['localQA'].items():
             success = []
             fail = []
             for script, status in scripts.items():
                 if status == 'done':
-                    success.append("#"+script)
+                    success.append("#" + script)
                 else:
-                    fail.append('#'+script)
+                    fail.append('#' + script)
             success = ', '.join(success)
             fail = ', '.join(fail)
             # if we have some stuff logged from above
@@ -240,7 +236,8 @@ class RemoteApplication(SimpleItem):
             l_filenames_jobs = ''
             for x in l_files_success.keys():
                 l_filenames_jobs += '<li>%s for file %s</li>' % (l_files_success[x], x)
-            l_workitem.addEvent('%s job(s) completed: <ul>%s</ul>' % (self.app_name, l_filenames_jobs))
+            l_workitem.addEvent('%s job(s) completed: <ul>%s</ul>' %
+                                (self.app_name, l_filenames_jobs))
         # Check if the application has done its job
         l_complete = 1
         l_failed = 0
@@ -266,7 +263,8 @@ class RemoteApplication(SimpleItem):
                 l_filenames_jobs = ''
                 for x in l_files_failed.keys():
                     l_filenames_jobs += '<li>%s for file %s</li>' % (l_files_failed[x], x)
-                l_workitem.addEvent('Giving up on %s job(s): <ul>%s</ul>' % (self.app_name, l_filenames_jobs))
+                l_workitem.addEvent('Giving up on %s job(s): <ul>%s</ul>' %
+                                    (self.app_name, l_filenames_jobs))
                 l_workitem.failure = True
             if REQUEST is not None:
                 REQUEST.set('RemoteApplicationSucceded', 1 - l_failed)
@@ -290,12 +288,14 @@ class RemoteApplication(SimpleItem):
         script_title = qa_repo[script_id].title
 
         feedback_id = '{0}_{1}_{2}'.format(self.app_name, script_id, file_id)
-        feedback_title= '{0} result for file {1}: {2}'.format(self.app_name, file_id, script_title)
+        feedback_title = '{0} result for file {1}: {2}'.format(self.app_name,
+                                                               file_id,
+                                                               script_title)
 
         envelope.manage_addFeedback(id=feedback_id,
-                title= feedback_title,
-                activity_id=workitem.activity_id,
-                automatic=1)
+                                    title=feedback_title,
+                                    activity_id=workitem.activity_id,
+                                    automatic=1)
 
         feedback_ob = envelope[feedback_id]
         content = result[1].data
@@ -316,8 +316,6 @@ class RemoteApplication(SimpleItem):
             feedback_ob.feedbacktext = content
             feedback_ob.content_type = content_type
 
-
-
     def _runLocalQAScripts(self, workitem):
         # 'localQA': {'file_name':{'script_name': 'status',
         #                          'script_name2': 'status'},
@@ -328,9 +326,9 @@ class RemoteApplication(SimpleItem):
         if 'localQA' not in wk_status:
             wk_status['localQA'] = {}
         localQA = wk_status['localQA']
-        for xml in ( x for x in self.aq_parent.objectValues(Document.meta_type)
-                     if x.content_type == 'text/xml'
-                        and x.xml_schema_location ):
+        xmls = (x for x in self.aq_parent.objectValues(Document.meta_type)
+                if x.content_type == 'text/xml' and x.xml_schema_location)
+        for xml in xmls:
             if xml.id not in localQA:
                 localQA[xml.id] = {}
             resultsForXml = localQA[xml.id]
@@ -358,10 +356,12 @@ class RemoteApplication(SimpleItem):
     ##############################################
 
     def __analyzeDocuments(self, p_workitem_id, p_files_dict):
-        """ Makes an XML/RPC call to the 'analyzeXMLFiles' function from the XQuery service
+        """ Makes an XML/RPC call to the 'analyzeXMLFiles' function from
+            the XQuery service
         """
         l_workitem = getattr(self, p_workitem_id)
-        # get the property of the workitem which keeps all the instance data for this operation
+        # get the property of the workitem which keeps all the instance data
+        # for this operation
         l_wk_prop = getattr(l_workitem, self.app_name)
 
         try:
@@ -371,69 +371,122 @@ class RemoteApplication(SimpleItem):
 
             # if there were no files to assess, return 0 so the work can go on
             if not l_ret:
-                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_analyze={'code':2})
+                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
+                                               p_analyze={'code': 2})
                 return 0
-            # How much to wait before making next XML/RPC call in days
-            l_tmp = float(self.nTimeBetweenCalls) / (60 * 60 * 24)
-            # Operation succedded, the XQuery service got the call and it returned [(jobID, fileURL)]
+            # Operation succedded, the XQuery service got the call
+            # and it returned [(jobID, fileURL)]
             l_getResult = {}
             l_files = {}
+            # Setting up jobs metadata
+            job_ret = self.nJobsRetries if self.nJobsRetries else self.nRetries
             for l_job, l_file in l_ret:
-                l_getResult[str(l_job)] = {'code':0, 'retries_left':self.nRetries, 'last_error':None, 'next_run':DateTime(), 'fileURL':l_file}
+                l_getResult[str(l_job)] = {
+                    'code': 0,
+                    'retries_left': job_ret,
+                    'last_error': None,
+                    'next_run': DateTime(),
+                    'fileURL': l_file
+                }
                 l_filename = l_file.split('/')[-1]
-                if l_files.has_key(l_filename):
+                if l_filename in l_files:
                     l_files[l_filename] += ', #' + str(l_job)
                 else:
                     l_files[l_filename] = '#' + str(l_job)
-            self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_analyze={'code':1}, p_getResult=l_getResult)
-            # Write in the envelope's log which files were sent to be analyzed and their QA jobs
+            self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
+                                           p_analyze={'code': 1},
+                                           p_getResult=l_getResult)
+            # Write in the envelope's log which files were sent to be analyzed
+            # and their QA jobs
             l_filenames_jobs = ''
             for x in l_files.keys():
                 l_filenames_jobs += '<li>%s for file %s</li>' % (l_files[x], x)
-            l_workitem.addEvent('%s job(s) in progress: <ul>%s</ul>' % (self.app_name, l_filenames_jobs))
+            l_workitem.addEvent('%s job(s) in progress: <ul>%s</ul>' %
+                                (self.app_name, l_filenames_jobs))
 
         # An XML-RPC fault package - retry later
-        # The agreed errors from the XQuery service are embedded in this error type
-        except xmlrpclib.Fault, l_fault:
+        # The agreed errors from the XQuery service are embedded
+        # in this error type
+        except xmlrpclib.Fault as l_fault:
             l_nRetries = int(l_wk_prop['analyze']['retries_left'])
             if l_nRetries == 0:
-                l_workitem.addEvent('Error in sending files to %s: %s' % (self.app_name, str(l_fault.faultString)))
+                l_workitem.addEvent('Error in sending files to %s: %s' %
+                                    (self.app_name, str(l_fault.faultString)))
                 l_workitem.failure = True
+                err = 'Code: {}\nDescription: {}'.format(str(l_fault.faultCode),
+                                                         str(l_fault.faultString))
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                        p_analyze={'code':-2, 'last_error':'Code: ' + str(l_fault.faultCode) + '\nDescription: ' + str(l_fault.faultString)})
+                                               p_analyze={
+                                                   'code': -2,
+                                                   'last_error': err
+                                               })
             else:
-                next_run = DateTime(int(l_wk_prop['analyze']['next_run']) + int(self.retryFrequency))
+                next_run = DateTime(int(l_wk_prop['analyze']['next_run']) +
+                                    int(self.retryFrequency))
+                err = 'Code: {}\nDescription: {}'.format(str(l_fault.faultCode),
+                                                         str(l_fault.faultString))
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                        p_analyze={'code':0, 'last_error':'Code: ' + str(l_fault.faultCode) + '\nDescription: ' + str(l_fault.faultString), 'retries_left':l_nRetries - 1, 'next_run':next_run})
+                                               p_analyze={
+                                                   'code': 0,
+                                                   'last_error': err,
+                                                   'retries_left': l_nRetries - 1,
+                                                   'next_run': next_run
+                                               })
         # An HTTP protocol error - retry later
-        except xmlrpclib.ProtocolError, l_protocol:
+        except xmlrpclib.ProtocolError as l_protocol:
             l_nRetries = int(l_wk_prop['analyze']['retries_left'])
             if l_nRetries == 0:
-                l_workitem.addEvent('Error in sending files to %s: %s' % (self.app_name, str(l_protocol.errmsg)))
+                l_workitem.addEvent('Error in sending files to %s: %s' %
+                                    (self.app_name, str(l_protocol.errmsg)))
                 l_workitem.failure = True
+                err = 'Code: {}\nDescription: {}'.format(str(l_protocol.errcode),
+                                                         str(l_protocol.errmsg))
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                        p_analyze={'code':-2, 'last_error':'Code: ' + str(l_protocol.errcode) + '\nDescription: ' + str(l_protocol.errmsg)})
+                                               p_analyze={
+                                                   'code': -2,
+                                                   'last_error': err
+                                               })
             else:
-                next_run = DateTime(int(l_wk_prop['analyze']['next_run']) + int(self.retryFrequency))
+                next_run = DateTime(int(l_wk_prop['analyze']['next_run']) +
+                                    int(self.retryFrequency))
+                err = 'Code: {}\nDescription: {}'.format(str(l_protocol.errcode),
+                                                         str(l_protocol.errmsg))
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                        p_analyze={'code':0, 'last_error':'Code: ' + str(l_protocol.errcode) + '\nDescription: ' + str(l_protocol.errmsg), 'retries_left':l_nRetries - 1, 'next_run':next_run})
+                                               p_analyze={
+                                                   'code': 0,
+                                                   'last_error': err,
+                                                   'retries_left': l_nRetries - 1,
+                                                   'next_run': next_run
+                                               })
         # A broken response package - critical, do not retry
-        except xmlrpclib.ResponseError, l_response:
-            l_workitem.addEvent('Error in sending files to %s: %s' % (self.app_name, str(l_response)))
+        except xmlrpclib.ResponseError as l_response:
+            l_workitem.addEvent('Error in sending files to %s: %s' %
+                                (self.app_name, str(l_response)))
             l_workitem.failure = True
             self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                     p_analyze={'code':-2, 'last_error':'Response error\nDescription: ' + str(l_response)})
+                                           p_analyze={
+                                               'code': -2,
+                                               'last_error': 'Response error\nDescription: ' + str(l_response)
+                                           })
         # Generic client error - critical, do not retry
-        except xmlrpclib.Error, err:
-            l_workitem.addEvent('Error in sending files to %s: %s' % (self.app_name, str(err)))
+        except xmlrpclib.Error as err:
+            l_workitem.addEvent('Error in sending files to %s: %s' %
+                                (self.app_name, str(err)))
             l_workitem.failure = True
             self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                     p_analyze={'code':-2, 'last_error':str(err)})
-        except Exception, err:
-            l_workitem.addEvent('Error in sending files to %s: %s' % (self.app_name, str(err)))
+                                           p_analyze={
+                                               'code': -2,
+                                               'last_error': str(err)
+                                           })
+        except Exception as err:
+            l_workitem.addEvent('Error in sending files to %s: %s' %
+                                (self.app_name, str(err)))
             l_workitem.failure = True
             self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                     p_analyze={'code':-2, 'last_error':str(err)})
+                                           p_analyze={
+                                               'code': -2,
+                                               'last_error': str(err)
+                                           })
         return 1
 
     def __getResult4XQueryServiceJob(self, p_workitem_id, p_jobID):
@@ -460,11 +513,14 @@ class RemoteApplication(SimpleItem):
                     l_filename = ' result for file %s: ' % l_file_id
                 envelope = self.aq_parent
                 feedback_id = '{0}_{1}'.format(self.app_name, p_jobID)
+                fb_title = ''.join([self.app_name,
+                                    l_filename,
+                                    l_ret['SCRIPT_TITLE']])
                 envelope.manage_addFeedback(id=feedback_id,
-                        title= self.app_name + l_filename + l_ret['SCRIPT_TITLE'],
-                        activity_id=l_workitem.activity_id,
-                        automatic=1,
-                        document_id=l_file_id)
+                                            title=fb_title,
+                                            activity_id=l_workitem.activity_id,
+                                            automatic=1,
+                                            document_id=l_file_id)
                 feedback_ob = envelope[feedback_id]
 
                 content = l_ret['VALUE']
@@ -474,7 +530,8 @@ class RemoteApplication(SimpleItem):
                     with tempfile.TemporaryFile() as tmp:
                         tmp.write(content.encode('utf-8'))
                         tmp.seek(0)
-                        feedback_ob.manage_uploadFeedback(tmp, filename='qa-output')
+                        feedback_ob.manage_uploadFeedback(tmp,
+                                                          filename='qa-output')
                     feedback_attach = feedback_ob.objectValues()[0]
                     feedback_attach.data_file.content_type = content_type
                     feedback_ob.feedbacktext = (
@@ -486,9 +543,8 @@ class RemoteApplication(SimpleItem):
                     feedback_ob.feedbacktext = content
                     feedback_ob.content_type = content_type
 
-                # l_workitem.feedback_status = l_ret['FEEDBACK_STATUS']
                 feedback_ob.message = l_ret.get('FEEDBACK_MESSAGE', '')
-                feedback_ob.feedback_status=l_ret.get('FEEDBACK_STATUS', '')
+                feedback_ob.feedback_status = l_ret.get('FEEDBACK_STATUS', '')
 
                 if l_ret['FEEDBACK_STATUS'] == 'BLOCKER':
                     l_workitem.blocker = True
@@ -497,31 +553,59 @@ class RemoteApplication(SimpleItem):
                 feedback_ob._p_changed = 1
                 feedback_ob.reindex_object()
 
-                l_getResultDict = {p_jobID: {'code':1, 'fileURL':l_file_url}}
-                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_getResult=l_getResultDict)
+                l_getResultDict = {p_jobID: {'code': 1, 'fileURL': l_file_url}}
+                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
+                                               p_getResult=l_getResultDict)
             # not ready
             elif l_ret['CODE'] == '1':
                 l_nRetries = int(l_wk_prop['getResult'][p_jobID]['retries_left'])
+                retry = self.jobRetryFrequency if self.jobRetryFrequency else self.retryFrequency
+                next_run = DateTime(int(l_wk_prop['getResult'][p_jobID]['next_run']) +
+                                    int(retry))
                 if l_nRetries > 0:
-                    l_getResultDict = {p_jobID: {'code':0, 'retries_left':l_nRetries - 1, 'last_error':l_ret['VALUE'], 'next_run':DateTime()}}
-                    self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_getResult=l_getResultDict)
+                    l_getResultDict = {
+                        p_jobID: {
+                            'code': 0,
+                            'retries_left': l_nRetries - 1,
+                            'last_error': l_ret['VALUE'],
+                            'next_run': next_run
+                        }
+                    }
+                    self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
+                                                   p_getResult=l_getResultDict)
                 else:
-                    l_workitem.addEvent('Error in the %s, job #%s for file %s: %s' % (self.app_name, p_jobID, l_file_id, l_ret['VALUE']))
-                    l_getResultDict = {p_jobID: {'code':-2, 'last_error':l_ret['VALUE']}}
-                    self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_getResult=l_getResultDict)
+                    l_workitem.addEvent('Error in the %s, job #%s for file %s: %s' %
+                                        (self.app_name, p_jobID, l_file_id, l_ret['VALUE']))
+                    l_getResultDict = {
+                        p_jobID: {
+                            'code': -2,
+                            'last_error': l_ret['VALUE']
+                        }
+                    }
+                    self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
+                                                   p_getResult=l_getResultDict)
             # error, do not retry
             else:
-                l_workitem.addEvent('Error in the %s, job #%s for file %s: %s' % (self.app_name, p_jobID, l_file_id, l_ret['VALUE']))
-                l_getResultDict = {p_jobID: {'code':-2, 'last_error':l_ret['VALUE']}}
-                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_getResult=l_getResultDict)
+                l_workitem.addEvent('Error in the %s, job #%s for file %s: %s' %
+                                    (self.app_name, p_jobID, l_file_id, l_ret['VALUE']))
+                l_getResultDict = {
+                    p_jobID: {
+                        'code': -2,
+                        'last_error': l_ret['VALUE']
+                    }
+                }
+                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
+                                               p_getResult=l_getResultDict)
         # Fatal error - do not retry
-        except Exception, err:
+        except Exception as err:
             feedback_log.exception("Error saving remote feedback, job #%s",
                                    p_jobID)
-            l_workitem.addEvent('Error in the %s, job #%s for file %s: %s' % (self.app_name, p_jobID, l_file_id, str(err)))
+            l_workitem.addEvent('Error in the %s, job #%s for file %s: %s' %
+                                (self.app_name, p_jobID, l_file_id, str(err)))
             l_workitem.failure = True
-            l_getResultDict = {p_jobID: {'code':-2, 'last_error':str(err)}}
-            self.__manageAutomaticProperty(p_workitem_id=p_workitem_id, p_getResult=l_getResultDict)
+            l_getResultDict = {p_jobID: {'code': -2, 'last_error': str(err)}}
+            self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
+                                           p_getResult=l_getResultDict)
         return l_getResultDict
 
     ##############################################
@@ -568,18 +652,20 @@ class RemoteApplication(SimpleItem):
             l_qa['analyze'][l_key] = p_analyze[l_key]
 
         for l_job, l_value in p_getResult.items():
-            if not l_qa['getResult'].has_key(l_job): l_qa['getResult'][l_job] = {}
+            if l_job not in l_qa['getResult']:
+                l_qa['getResult'][l_job] = {}
             l_qa['getResult'][l_job].update(l_value)
         # make sure it saves the object
         l_workitem._p_changed = 1
 
-
     def __finishApplication(self, p_workitem_id, REQUEST=None):
         """ Completes the workitem and forwards it """
         self.activateWorkitem(p_workitem_id, actor='openflow_engine')
-        self.completeWorkitem(p_workitem_id, actor='openflow_engine', REQUEST=REQUEST)
+        self.completeWorkitem(p_workitem_id, actor='openflow_engine',
+                              REQUEST=REQUEST)
 
     security.declareProtected(view_management_screens, 'manage_settings_html')
-    manage_settings_html = PageTemplateFile('zpt/remote/application_edit', globals())
+    manage_settings_html = PageTemplateFile('zpt/remote/application_edit',
+                                            globals())
 
 InitializeClass(RemoteApplication)

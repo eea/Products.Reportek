@@ -1,17 +1,16 @@
 import unittest
-from StringIO import StringIO
 import zipfile
+from StringIO import StringIO
+
+from common import BaseTest, ConfigureReportek
 from DateTime import DateTime
 from mock import Mock, patch
-from utils import (create_fake_root, create_upload_file,
-                  create_envelope, add_document)
-from Products.Reportek.ReportekEngine import ReportekEngine
-from Products.Reportek.Envelope import Envelope
+from Products.Reportek import Converters, constants
 from Products.Reportek.Collection import Collection
-from Products.Reportek import constants
-from Products.Reportek import Converters
-from common import BaseTest
-from common import ConfigureReportek
+from Products.Reportek.Envelope import Envelope
+from Products.Reportek.ReportekEngine import ReportekEngine
+from utils import (add_document, create_envelope, create_fake_root,
+                   create_upload_file)
 
 
 class ReportekEngineTest(BaseTest, ConfigureReportek):

@@ -34,6 +34,7 @@ import time
 import traceback
 from copy import deepcopy
 from datetime import datetime
+from types import FunctionType
 from urllib import FancyURLopener
 
 from AccessControl.ImplPython import rolesForPermissionOn
@@ -49,7 +50,6 @@ from Products.Five import BrowserView
 from Products.Reportek.config import XLS_HEADINGS, ZIP_CACHE_PATH
 from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.Reportek.permissions import reportek_dataflow_admin
-from types import FunctionType
 from webdav.common import rfc1123_date
 
 

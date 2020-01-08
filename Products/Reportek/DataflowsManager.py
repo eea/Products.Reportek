@@ -32,11 +32,12 @@
 
 """
 
-from plone.memoize import ram
-from RepUtils import inline_replace
 from time import time
-from XMLRPCMethod import XMLRPCMethod
+
+from plone.memoize import ram
 from Products.Reportek.constants import CUSTOM_DFLOWS
+from RepUtils import inline_replace
+from XMLRPCMethod import XMLRPCMethod
 
 
 class ServiceTemporarilyUnavailableException(Exception):

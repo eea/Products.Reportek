@@ -1,15 +1,16 @@
+import logging
+from time import time
+
+import Products
+import requests
 from AccessControl import ClassSecurityInfo
 from interfaces import IRegistryManagement
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
-from Products.Reportek.constants import DF_URL_PREFIX
 from plone.memoize import ram
+from Products.Reportek.constants import DF_URL_PREFIX
 from requests.exceptions import RequestException
-from time import time
 from zope.interface import implementer
-import logging
-import Products
-import requests
 
 logger = logging.getLogger("Reportek")
 
