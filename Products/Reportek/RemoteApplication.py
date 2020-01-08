@@ -559,7 +559,7 @@ class RemoteApplication(SimpleItem):
             # not ready
             elif l_ret['CODE'] == '1':
                 l_nRetries = int(l_wk_prop['getResult'][p_jobID]['retries_left'])
-                retry = self.jobRetryFrequency if self.jobRetryFrequency else self.retryFrequency
+                retry = self.retryJobFrequency if self.retryJobFrequency else self.retryFrequency
                 next_run = DateTime(int(l_wk_prop['getResult'][p_jobID]['next_run']) +
                                     int(retry))
                 if l_nRetries > 0:
