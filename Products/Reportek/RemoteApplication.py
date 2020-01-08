@@ -379,7 +379,7 @@ class RemoteApplication(SimpleItem):
             l_getResult = {}
             l_files = {}
             # Setting up jobs metadata
-            job_ret = self.nJobsRetries if self.nJobsRetries else self.nRetries
+            job_ret = self.nJobRetries if self.nJobRetries else self.nRetries
             for l_job, l_file in l_ret:
                 l_getResult[str(l_job)] = {
                     'code': 0,
