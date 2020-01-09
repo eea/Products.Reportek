@@ -613,8 +613,7 @@ class RemoteApplication(SimpleItem):
             else:
                 next_run = DateTime(int(l_wk_prop['getResult'][p_jobID]['next_run']) +
                                     int(retry))
-                err = 'Code: {}\nDescription: {}'.format(str(l_err.faultCode),
-                                                         str(l_err.faultString))
+                err = 'Error retrieving job #{} result: {}'.format(p_jobID, str(l_err))
                 l_getResultDict = {
                     p_jobID: {
                         'code': 0,
