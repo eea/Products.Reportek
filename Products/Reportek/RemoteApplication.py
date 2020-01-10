@@ -559,7 +559,7 @@ class RemoteApplication(SimpleItem):
             # not ready
             elif l_ret['CODE'] == '1':
                 l_nRetries = int(l_wk_prop['getResult'][p_jobID]['retries_left'])
-                retry = self.retryJobFrequency if self.retryJobFrequency else self.retryFrequency
+                retry = self.retryJobFrequency if getattr(self, 'retryJobFrequency', None) else self.retryFrequency
                 next_run = DateTime(int(l_wk_prop['getResult'][p_jobID]['next_run']) +
                                     int(retry))
                 if l_nRetries > 0:
@@ -602,7 +602,7 @@ class RemoteApplication(SimpleItem):
         # in this error type
         except (xmlrpclib.Fault, xmlrpclib.ProtocolError) as l_err:
             l_nRetries = int(l_wk_prop['getResult'][p_jobID]['retries_left'])
-            retry = self.retryJobFrequency if self.retryJobFrequency else self.retryFrequency
+            retry = self.retryJobFrequency if getattr(self, 'retryJobFrequency', None) else self.retryFrequency
             if l_nRetries == 0:
                 l_workitem.addEvent('Error in the %s, job #%s for file %s: %s' %
                                     (self.app_name, p_jobID, l_file_id, str(l_err)))
