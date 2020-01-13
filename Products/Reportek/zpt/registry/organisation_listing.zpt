@@ -50,6 +50,7 @@
           <th>ID</th>
           <th>ODS account</th>
           <th>Company name</th>
+          <th>Status</th>
           <th>Reporters</th>
           <th>Country</th>
           <th>EORI number</th>

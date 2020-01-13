@@ -91,6 +91,7 @@ reportek.utils.fcs = {
             { "width": "5%" },
             { "width": "5%" },
             { "width": "20%" },
+            { "width": "5%" },
             { "width": "13%" },
             { "width": "15%" },
             { "width": "12%" },
@@ -100,6 +101,7 @@ reportek.utils.fcs = {
             { "mData": "company_id" },  // for User Detail
             { "mData": "oldcompany_account" },
             { "mData": "name" },
+            { "mData": "status" },
             { "mData": "users" },
             { "mData": "address.country.name" },
             { "mData": "vat" },
@@ -121,7 +123,7 @@ reportek.utils.fcs = {
             },
             {
               "width": "13%",
-              "targets": 3,
+              "targets": 4,
               "data": "users",
               "render": function (data, type, full) {
                 var result = "";
