@@ -90,7 +90,12 @@
               <td>
                 <tal:block condition="not:python:context.status in ('running', 'active')">
                   <span i18n:translate="">
-                    Envelope is <span i18n:name="status" tal:replace="context/status"></span>
+                    Envelope is <span i18n:name="status" tal:replace="context/status"></span> 
+                    <tal:def tal:define="fb_ta python: context.get('feedbackTA');
+                                         fb_cor python: context.get('feedbackCoR');
+                                         ff_fb python: fb_ta or fb_cor">
+                      <span tal:condition="python: ff_fb"> (<span tal:content="ff_fb/title_or_id|nothing"/>)</span>
+                    </tal:def>
                   </span>
                   <br/>
                 </tal:block>
