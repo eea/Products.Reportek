@@ -54,6 +54,10 @@
           </div>
         </div>
         <hr>
+        <tal:block condition="company/representative" define="representative company/representative">
+          <h2>EU Legal representative</h2>
+          <tal:block metal:use-macro="here/partials/macros/representative_details" />
+        </tal:block>
         <h2>Reporting folder</h2>
         <span>
           You can see the company deliveries here:
@@ -61,12 +65,7 @@
           tal:condition="company/path"
           tal:content="company/path" />
         </span>
-        <tal:block condition="company/representative" define="representative company/representative">
-          <h2>EU Legal representative</h2>
-          <tal:block metal:use-macro="here/partials/macros/representative_details" />
-        </tal:block>
         <h2 id="persons">Reporters</h2>
-
         <div>
           <div tal:condition="company/warning" class="legend clearfix">
             <strong>Legend</strong>

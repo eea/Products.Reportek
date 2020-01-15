@@ -1,11 +1,12 @@
+import json
+import logging
+import re
+
+import xmltodict
 from base_admin import BaseAdmin
+from plone.memoize.ram import global_cache
 from Products.Reportek.constants import ENGINE_ID
 from Products.Reportek.RepUtils import fix_json_from_id, replace_keys
-from plone.memoize.ram import global_cache
-import xmltodict
-import json
-import re
-import logging
 
 logger = logging.getLogger("Reportek")
 
@@ -346,7 +347,8 @@ class SatelliteRegistryManagement(BaseAdmin):
             return None
 
         settings = api.getSettings()
-        return settings["BASE_URL"]
+        if settings:
+            return settings["BASE_URL"]
 
     def get_emails(self):
         api = self.get_api()

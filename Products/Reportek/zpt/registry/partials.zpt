@@ -134,8 +134,24 @@
         </td>
       </tr>
       <tr>
-        <th>Date created</th>
+        <th>Date created (European Registry)</th>
         <td tal:content="company/date_created|nothing" />
+      </tr>
+      <tr>
+        <th>Date updated (European Registry)</th>
+        <td tal:content="company/date_updated|nothing" />
+      </tr>
+      <tr>
+        <th>Date created (Cache Registry)</th>
+        <td tal:content="company/date_created_in_ecr|nothing" />
+      </tr>
+      <tr>
+        <th>Date updated (Cache Registry)</th>
+        <td tal:content="company/date_updated_in_ecr|nothing" />
+      </tr>
+      <tr>
+        <th>Reporting checks passed</th>
+        <td tal:content="company/check_passed|nothing" />
       </tr>
     </table>
   </div>
