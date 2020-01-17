@@ -25,6 +25,7 @@ $Id$"""
 
 __version__='$Revision$'[11:-2]
 
+import json
 import os
 import string
 import time
@@ -606,6 +607,65 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
                 return data.get('status', 'N/A')
 
         return status
+
+    security.declareProtected('View', 'aggregated_licenses')
+    def aggregated_licenses(self):
+        """ Return the ODS licenses for the company
+        """
+        res = {}
+        self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            engine = self.getEngine()
+            registry = engine.get_registry(self)
+
+            if self.company_id and registry:
+                registry_name = getattr(registry, 'registry_name', None)
+                if registry_name == 'FGAS Registry':
+                    domain = 'FGAS'
+                    for obl in self.dataflow_uris:
+                        if obl in engine.er_ods_obligations:
+                            domain = 'ODS'
+                            break
+
+                    data = json.loads(self.REQUEST.get("BODY") or "{}")
+                    if not isinstance(data, dict):
+                        raise ValueError("Malformed body")
+                    if 'year' in data:
+                        year = str(data.get('year'))
+                        del data['year']
+                    else:
+                        # Default to the previous year
+                        year = str(DateTime().year() - 1)
+                    res = registry.get_company_licenses(self.company_id,
+                                                        domain=domain,
+                                                        year=year,
+                                                        data=data)
+
+        return json.dumps(res, indent=4)
+
+    security.declareProtected('View', 'company_details_short')
+    def company_details_short(self):
+        """ Return the short company details
+        """
+        res = {}
+        self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            engine = self.getEngine()
+            registry = engine.get_registry(self)
+
+            if self.company_id and registry:
+                registry_name = getattr(registry, 'registry_name', None)
+                if registry_name == 'FGAS Registry':
+                    domain = 'FGAS'
+                    for obl in self.dataflow_uris:
+                        if obl in engine.er_ods_obligations:
+                            domain = 'ODS'
+                            break
+
+                    res = registry.get_company_details_short(self.company_id,
+                                                             domain=domain)
+
+        return json.dumps(res, indent=4)
 
     security.declareProtected('View', 'company_types')
     def company_types(self):

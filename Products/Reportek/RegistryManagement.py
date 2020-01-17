@@ -99,6 +99,22 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if response:
             return response.json()
 
+    def get_company_details_short(self, company_id, domain='FGAS'):
+        url = '/'.join([self.baseUrl, 'undertaking', domain, company_id,
+                        'details-short'])
+        response = self.do_api_request(url,
+                                       headers={'Authorization': self.token})
+        if response:
+            return response.json()
+
+    def get_company_licenses(self, company_id, year, data, domain='FGAS'):
+        url = '/'.join([self.baseUrl, 'undertaking', domain, company_id,
+                        'licenses', year, 'aggregated'])
+        response = self.do_api_request(url, method='post', data=data,
+                                       headers={'Authorization': self.token})
+        if response:
+            return response.json()
+
     def getCompanyDetailsById(self, companyId, domain='FGAS'):
         details = self.get_company_details(companyId, domain=domain)
         keysToVerify = ['domain', 'address', 'company_id', 'collection_id']
