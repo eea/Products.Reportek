@@ -612,7 +612,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
     def aggregated_licenses(self):
         """ Return the ODS licenses for the company
         """
-        res = {}
+        res = []
         self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             engine = self.getEngine()

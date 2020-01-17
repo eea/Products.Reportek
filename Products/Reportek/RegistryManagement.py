@@ -109,7 +109,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
     def get_company_licenses(self, company_id, year, data, domain='FGAS'):
         url = '/'.join([self.baseUrl, 'undertaking', domain, company_id,
-                        'licenses', year, 'aggregated'])
+                        'licences', year, 'aggregated'])
         response = self.do_api_request(url, method='post', data=data,
                                        headers={'Authorization': self.token})
         if response:
