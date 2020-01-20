@@ -73,12 +73,18 @@ class SatelliteRegistryManagement(BaseAdmin):
 
             return self.index(error='Specify an email address.')
 
-        if self.request.method == "POST" and self.request.get('orgaction') == 'statusupdate':
+        if self.request.method == "POST" and self.request.get('orgaction') in ['statusupdate', 'sync']:
             status = self.request.get('newval')
             orgid = self.request.get('orgid')
             if orgid and status:
                 if not api.updateCompanyStatus(orgid, status.upper(), domain=domain):
                     return self.index(error='Unable to change company status')
+                else:
+                    # We need to clear the company_details cache
+                    global_cache.invalidate('Products.Reportek.RegistryManagement.get_company_details')
+            if self.request.get('orgaction') == 'sync':
+                if not api.sync_company(orgid, domain=domain):
+                    return self.index(error='Unable to sync company')
                 else:
                     # We need to clear the company_details cache
                     global_cache.invalidate('Products.Reportek.RegistryManagement.get_company_details')

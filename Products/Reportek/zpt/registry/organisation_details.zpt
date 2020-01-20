@@ -21,6 +21,9 @@
     <p class="important-msg" tal:condition="request/done | nothing">
       Operations completed succesfully.
     </p>
+    <p class="important-msg" tal:condition="options/error | nothing">
+      <span tal:content="options/error"/>
+    </p>
     <tal:block define="company view/get_company_details">
 
       <div id="operations">
@@ -48,6 +51,9 @@
                 </li>
                 <li tal:condition="python: status != 'VALID'">
                   <a class="org-action" id="valid_status-action" href="#">Validate company</a>
+                </li>
+                <li>
+                  <a class="org-action" id="sync-action" href="#">Sync company</a>
                 </li>
               </ul>
             </form>
@@ -112,6 +118,8 @@
             if (action.split('_status').length > 1) {
               newval = action.split('_status')[0];
               org_action = 'statusupdate';
+            } else if (action === "sync") {
+              org_action = 'sync';
             }
             var confirmation = false;
             var form = $("#action-form");
@@ -122,11 +130,17 @@
               } else if (newval === "valid") {
                 confirmation = confirm("Are you sure you want to set the company's status to VALID?");
               }
-              if (confirmation) {
+            } else if (org_action === "sync") {
+                confirmation = confirm("Are you sure you want to trigger manual company sync?");
+            }
+            if (confirmation) {
+              if (newval !== "sync") {
                 $("input[name='newval']").val(newval);
                 $("input[name='orgaction'").val(org_action);
-                form.submit();
+              } else if (newval === "sync") {
+                $("input[name='orgaction'").val(newval);
               }
+              form.submit();
             }
           });
         </script>
