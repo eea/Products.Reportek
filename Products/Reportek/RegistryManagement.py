@@ -121,7 +121,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
             "ODS": "ods"
         }
         url = '/'.join([self.baseUrl, 'sync', d_map.get(domain)])
-        response = self.do_api_request(url, data={"id": company_id},
+        response = self.do_api_request(url, params={"id": company_id},
                                        headers={'Authorization': self.token})
         if response:
             return response.json()
