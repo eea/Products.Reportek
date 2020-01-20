@@ -115,6 +115,17 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if response:
             return response.json()
 
+    def sync_company(self, company_id, domain):
+        d_map = {
+            "FGAS": "fgases",
+            "ODS": "ods"
+        }
+        url = '/'.join([self.baseUrl, 'sync', d_map.get(domain)])
+        response = self.do_api_request(url, data={"id": company_id},
+                                       headers={'Authorization': self.token})
+        if response:
+            return response.json()
+
     def getCompanyDetailsById(self, companyId, domain='FGAS'):
         details = self.get_company_details(companyId, domain=domain)
         keysToVerify = ['domain', 'address', 'company_id', 'collection_id']
