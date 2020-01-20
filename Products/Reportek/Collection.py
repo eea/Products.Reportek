@@ -639,7 +639,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
                     res = registry.get_company_licenses(self.company_id,
                                                         domain=domain,
                                                         year=year,
-                                                        data=data)
+                                                        data=json.dumps(data))
 
         return json.dumps(res, indent=4)
 
