@@ -83,11 +83,14 @@ class SatelliteRegistryManagement(BaseAdmin):
                     # We need to clear the company_details cache
                     global_cache.invalidate('Products.Reportek.RegistryManagement.get_company_details')
             if self.request.get('orgaction') == 'sync':
-                if not api.sync_company(orgid, domain=domain):
+                sync_res = api.sync_company(orgid, domain=domain)
+                if not sync_res:
                     return self.index(error='Unable to sync company')
                 else:
                     # We need to clear the company_details cache
                     global_cache.invalidate('Products.Reportek.RegistryManagement.get_company_details')
+                    return self.index(info_message=sync_res.get('message'),
+                                      error=False)
         return self.index(error=False)
 
     def get_api(self):

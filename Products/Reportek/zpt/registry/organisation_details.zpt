@@ -24,6 +24,9 @@
     <p class="important-msg" tal:condition="options/error | nothing">
       <span tal:content="options/error"/>
     </p>
+        <p class="important-msg" tal:condition="options/info_message | nothing">
+      <span tal:content="options/info_message"/>
+    </p>
     <tal:block define="company view/get_company_details">
 
       <div id="operations">
