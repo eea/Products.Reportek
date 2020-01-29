@@ -44,7 +44,7 @@
         </tr>
 
         <tr>
-          <th i18n:translate="">VAT number</th>
+          <th i18n:translate="" tal:content="python: {'FGAS': 'VAT Number', 'ODS': 'EORI Number'}.get(company.get('domain', 'FGAS')">VAT number</th>
           <td tal:content="company/vat" />
         </tr>
 
