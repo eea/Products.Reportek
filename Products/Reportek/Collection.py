@@ -608,9 +608,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
 
         return status
 
-    security.declareProtected('View', 'aggregated_licenses')
-    def aggregated_licenses(self):
-        """ Return the ODS licenses for the company
+    security.declareProtected('View', 'aggregated_licences')
+    def aggregated_licences(self):
+        """ Return the ODS licences for the company
         """
         res = []
         self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
@@ -636,7 +636,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
                     else:
                         # Default to the previous year
                         year = str(DateTime().year() - 1)
-                    res = registry.get_company_licenses(self.company_id,
+                    res = registry.get_company_licences(self.company_id,
                                                         domain=domain,
                                                         year=year,
                                                         data=json.dumps(data))
