@@ -65,7 +65,13 @@
                 <td></td>
                 <td></td>
               </tal:block>
-              <td class="tcenter" tal:content="python:item.bobobase_modification_time().strftime('%d %b %Y')" />
+              <td class="tcenter" tal:condition="not: isBdrDeployment" tal:content="python:item.bobobase_modification_time().strftime('%d %b %Y')" />
+              <td class="tcenter" tal:condition="isBdrDeployment">
+                <tal:def tal:define="last_rep_date python: item.get_latest_env_reportingdate();
+                                     m_date python: last_rep_date if last_rep_date else item.bobobase_modification_time()">
+                  <span tal:content="python: m_date.strftime('%d %b %Y')" tal-omit-tag="" />
+                </tal:def>
+              </td>
             </tr>
             <tr valign="top" tal:repeat="item python:here.tlzSortByAttr(envs, 'reportingdate', 1)">
               <td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>

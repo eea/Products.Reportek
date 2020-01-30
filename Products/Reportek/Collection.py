@@ -825,6 +825,17 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
 
         return envs
 
+    def get_latest_env_reportingdate(self):
+        path = '/'.join(self.getPhysicalPath())
+        query = {'meta_type': 'Report Envelope',
+                 'sort_on': 'reportingdate',
+                 'sort_order': 'reverse',
+                 'path': path
+                 }
+        envs = self.Catalog(**query)
+        if envs:
+            return envs[0].reportingdate
+
     def is_newest_released(self, env_id):
         """ Return True if it's the newest released envelope in the collection"""
         envs = self.get_released_envelopes()
