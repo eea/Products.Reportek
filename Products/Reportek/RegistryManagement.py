@@ -42,7 +42,7 @@ class BaseRegistryAPI(SimpleItem):
         self.token = token
 
     def do_api_request(self, url, method='get', data=None, cookies=None,
-                       headers=None, params=None, timeout=None):
+                       headers=None, params=None, timeout=None, raw=None):
         api_req = requests.get
         if method == 'post':
             api_req = requests.post
@@ -58,6 +58,8 @@ class BaseRegistryAPI(SimpleItem):
             return None
         if response.status_code != requests.codes.ok:
             logger.warning("Retrieved a %s status code when contacting SatelliteRegistry's url: %s " % (response.status_code, url))
+            if raw:
+                return response
             return None
 
         return response
@@ -111,9 +113,9 @@ class FGASRegistryAPI(BaseRegistryAPI):
         url = '/'.join([self.baseUrl, 'undertaking', domain, company_id,
                         'licences', year, 'aggregated'])
         response = self.do_api_request(url, method='post', data=data,
-                                       headers={'Authorization': self.token})
-        if response:
-            return response.json()
+                                       headers={'Authorization': self.token},
+                                       raw=True)
+        return response
 
     def sync_company(self, company_id, domain):
         d_map = {

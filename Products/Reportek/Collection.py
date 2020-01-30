@@ -40,6 +40,7 @@ import Globals
 import Products
 import Referral
 import RepUtils
+import requests
 import webdav.Collection
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.Permissions import change_permissions, manage_users
@@ -612,7 +613,11 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
     def aggregated_licences(self):
         """ Return the ODS licences for the company
         """
-        res = []
+        res = {
+            "licences": [],
+            "result": "Ok",
+            "message": ""
+        }
         self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             engine = self.getEngine()
@@ -629,17 +634,29 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
 
                     data = json.loads(self.REQUEST.get("BODY") or "{}")
                     if not isinstance(data, dict):
-                        raise ValueError("Malformed body")
+                        res["result"] = "Fail"
+                        res["message"] = "Malformed body"
                     if 'year' in data:
                         year = str(data.get('year'))
                         del data['year']
                     else:
                         # Default to the previous year
                         year = str(DateTime().year() - 1)
-                    res = registry.get_company_licences(self.company_id,
-                                                        domain=domain,
-                                                        year=year,
-                                                        data=json.dumps(data))
+                    response = registry.get_company_licences(self.company_id,
+                                                             domain=domain,
+                                                             year=year,
+                                                             data=json.dumps(data))
+                    if response:
+                        if response.status_code != requests.codes.ok:
+                            res["result"] = "Fail"
+                            res["message"] = response.reason
+                        else:
+                            res.update(response.json())
+                            res["result"] = "Ok"
+                            res["message"] = ""
+                    else:
+                        res["result"] = "Fail"
+                        res["message"] = None
 
         return json.dumps(res, indent=4)
 
