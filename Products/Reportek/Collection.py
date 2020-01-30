@@ -646,7 +646,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
                                                              domain=domain,
                                                              year=year,
                                                              data=json.dumps(data))
-                    if response:
+                    if response is not None:
                         if response.status_code != requests.codes.ok:
                             res["result"] = "Fail"
                             res["message"] = response.reason
