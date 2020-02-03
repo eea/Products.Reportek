@@ -5,13 +5,6 @@
   xmlns:zcml="http://namespaces.zope.org/zcml">
 
   <browser:page
-      name="envelopes.autocomplete"
-      for=".interfaces.IReportekUtilities"
-      permission="zope2.ViewManagementScreens"
-      class=".views.EnvelopeUtils"
-      template="zpt/utilities/envelopes_autocomplete.zpt"/>
-
-  <browser:page
       name="index_html"
       for=".interfaces.IRegistryManagement"
       permission="zope2.FgasesRegistryAdministration"
