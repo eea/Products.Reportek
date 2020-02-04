@@ -237,7 +237,7 @@
   <browser:page
     name="obligations"
     for="Products.Reportek.interfaces.IReportekAPI"
-    permission="zope2.ReportekAPI"
+    permission="zope2.View"
     class=".views.misc.MiscAPI"
     attribute="get_obligations"
   />
