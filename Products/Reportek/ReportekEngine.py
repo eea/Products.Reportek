@@ -537,22 +537,38 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         else:
             pass
 
-    security.declareProtected('View', 'globalworklist')
+    if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+        security.declareProtected('Audit Envelopes', 'globalworklist')
+        security.declareProtected('Audit Envelopes', 'searchfeedbacks')
+        security.declareProtected('Audit Envelopes', 'resultsfeedbacks')
+        security.declareProtected('Audit Envelopes', 'recent')
+        security.declareProtected('Audit Envelopes', 'searchxml')
+        security.declareProtected('Audit Envelopes', 'resultsxml')
+        security.declareProtected('Audit Envelopes', 'search_dataflow')
+        security.declareProtected('Audit Envelopes', 'search_dataflow_url')
+        security.declareProtected('Audit Envelopes', 'lookup_last_delivery')
+        security.declareProtected('Audit Envelopes', 'getEnvelopesInfo')
+        security.declareProtected('Audit Envelopes', 'getSearchResults')
+        security.declareProtected('Audit Envelopes', 'getUniqueValuesFor')
+    else:
+        security.declareProtected('View', 'globalworklist')
+        security.declareProtected('View', 'searchfeedbacks')
+        security.declareProtected('View', 'resultsfeedbacks')
+        security.declareProtected('View', 'recent')
+        security.declareProtected('View', 'searchxml')
+        security.declareProtected('View', 'resultsxml')
+        security.declareProtected('View', 'search_dataflow')
+        security.declareProtected('View', 'search_dataflow_url')
+        security.declareProtected('View', 'lookup_last_delivery')
+        security.declareProtected('View', 'getEnvelopesInfo')
+        security.declareProtected('View', 'getSearchResults')
+        security.declareProtected('View', 'getUniqueValuesFor')
+
     globalworklist = PageTemplateFile('zpt/engineGlobalWorklist', globals())
-
-    security.declareProtected('View', 'searchfeedbacks')
     searchfeedbacks = PageTemplateFile('zpt/engineSearchFeedbacks', globals())
-
-    security.declareProtected('View', 'resultsfeedbacks')
     resultsfeedbacks = PageTemplateFile('zpt/engineResultsFeedbacks', globals())
-
-    security.declareProtected('View', 'recent')
     recent = PageTemplateFile('zpt/engineRecentUploads', globals())
-
-    security.declareProtected('View', 'searchxml')
     searchxml = PageTemplateFile('zpt/engineSearchXml', globals())
-
-    security.declareProtected('View', 'resultsxml')
     resultsxml = PageTemplateFile('zpt/engineResultsXml', globals())
 
     security.declarePublic('languages_box')
@@ -560,7 +576,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     _searchdataflow = PageTemplateFile('zpt/searchdataflow', globals())
 
-    security.declareProtected('View', 'search_dataflow')
     search_dataflow = PageTemplateFile('zpt/search_dataflow', globals())
 
     def get_query_args(self):
@@ -699,7 +714,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         return envelopeObjects
 
-    security.declareProtected('View', 'search_dataflow_url')
     def search_dataflow_url(self):
         """Search the ZCatalog for Report Envelopes,
         show results and keep displaying the form """
@@ -1035,7 +1049,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 l_result.append(l_obj)
         return l_result
 
-    security.declareProtected('View', 'lookup_last_delivery')
     def lookup_last_delivery(self, dataflow_uris, country, reporting_period=''):
         """ Find the newest delivery with the same location and dataflows,
             but is older than the reporting_period in the argument
@@ -1068,7 +1081,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     #
     ################################################################################
 
-    security.declareProtected('View', 'getEnvelopesInfo')
     def getEnvelopesInfo(self, obligation):
         """ Returns a list with all information about envelopes for a certain obligation,
             including the XML files inside
@@ -1340,13 +1352,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """ Generate exception to check that it's handled properly """
         raise ValueError('hello world')
 
-    security.declareProtected('View', 'getSearchResults')
     def getSearchResults(self, **kwargs):
         [kwargs.pop(el) for el in kwargs.keys() if not kwargs[el]]
         catalog = self.Catalog(**kwargs)
         return catalog
 
-    security.declareProtected('View', 'getUniqueValuesFor')
     def getUniqueValuesFor(self, value):
         return self.Catalog.uniqueValuesFor(value)
 
