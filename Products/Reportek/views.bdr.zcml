@@ -190,7 +190,7 @@
       name="collections_json"
       for=".interfaces.IReportekAPI"
       class=".views.ReportekApi"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       attribute="collections_json"/>
 
 </configure>

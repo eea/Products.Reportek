@@ -237,7 +237,7 @@
   <browser:page
     name="obligations"
     for="Products.Reportek.interfaces.IReportekAPI"
-    permission="zope2.View"
+    permission="zope2.ReportekAPI"
     class=".views.misc.MiscAPI"
     attribute="get_obligations"
   />
@@ -245,7 +245,7 @@
   <browser:page
     name="assigned_obligations"
     for="Products.Reportek.interfaces.IReportekAPI"
-    permission="zope2.View"
+    permission="zope2.ReportekAPI"
     class=".views.misc.MiscAPI"
     attribute="get_assigned_obligations"
   />
@@ -253,7 +253,7 @@
   <browser:page
     name="obligations_json"
     for="Products.Reportek.interfaces.IReportekAPI"
-    permission="zope2.View"
+    permission="zope2.ReportekAPI"
     class=".views.misc.MiscAPI"
     attribute="get_obligations_json"
   />
