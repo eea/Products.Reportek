@@ -38,11 +38,20 @@
                          envs python: here.objectValues(['Report Envelope']);
                          refs python: here.objectValues(['Repository Referral']);
                          additional_colls python: isBdrDeployment and envs;
-                         visible python: colls or envs or refs;">
+                         visible python: colls or envs or refs;
+                         df_prefix python: 'http://rod.eionet.europa.eu/obligations/{}';">
       <form method="post" tal:attributes="action string:${request/URL1}/">
         <div class="filessection">
           <h2 i18n:translate="" tal:condition="not: isBdrDeployment">Envelopes and subcollections</h2>
-          <h2 i18n:translate="" tal:condition="python: isBdrDeployment and colls">Subcollections</h2>
+          <tal:block tal:condition="python: isBdrDeployment and colls">
+            <h2 i18n:translate=""
+              tal:define="fgas_ver_colls python: [col for col in colls
+                                                  if df_prefix.format('764') in col.dataflow_uris or df_prefix.format('765') in col.dataflow_uris];
+                          are_verification python: len(colls) == len(fgas_ver_colls);
+                          col_head python: {True: 'F-gas Regulation Article 19 verification reporting',
+                                            False: 'Subcollections'}.get(are_verification)"
+              tal:content="col_head"/>
+          </tal:block>
           <table style="width: 100%; border: 0" class="collection-table-listing">
             <thead tal:condition="visible">
               <th style="width: 16px" tal:condition="permission_chgcoll" />
@@ -58,8 +67,7 @@
             <tbody tal:condition="visible">
               <tal:rep tal:repeat="item python:test(here.allow_envelopes==1, here.tlzSortObjsListByMethod(colls, 'bobobase_modification_time', 1), here.tlzSortByAttr(colls, 'title'))">
                 <tr valign="top"
-                  tal:define="df_prefix python: 'http://rod.eionet.europa.eu/obligations/{}';
-                              is_fgas_verification python: df_prefix.format('764') in item.dataflow_uris or df_prefix.format('765') in item.dataflow_uris;"
+                  tal:define="is_fgas_verification python: df_prefix.format('764') in item.dataflow_uris or df_prefix.format('765') in item.dataflow_uris;"
                   tal:attributes="class python: 'ver-col' if is_fgas_verification else ''">
                   <td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>
                   <td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Collection" i18n:attributes="alt" /></td>
@@ -80,7 +88,8 @@
               </tal:rep>
               <tr tal:condition="python: isBdrDeployment and envs">
                 <td colspan="7">
-                  <h2 i18n:translate="">Envelopes</h2>
+                  <h2 i18n:translate="" tal:condition="not: colls">Envelopes</h2>
+                  <h2 i18n:translate="" tal:condition="colls">F-gas Regulation Article 19 data reporting</h2>
                 </td>
               </tr>
               <tr valign="top" tal:repeat="item python:here.tlzSortByAttr(envs, 'reportingdate', 1)">
