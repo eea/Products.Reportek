@@ -9,13 +9,18 @@
                            permission_allow_referrals python:here.are_referrals_allowed() and SecurityManager.checkPermission('Add Envelopes', here);
                            permission_chgcoll python:SecurityManager.checkPermission('Change Collections', here);
                            has_descr python:here.descr!=''; has_dataflow_uris python:len(here.dataflow_uris)>0;
-                           isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'">
+                           isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR';
+                           df_prefix python: 'http://rod.eionet.europa.eu/obligations/{}';
+                           is_fgas python: isBdrDeployment and has_dataflow_uris and df_prefix.format('713') in here.dataflow_uris;
+                           is_fgas_ver python: isBdrDeployment and has_dataflow_uris and (df_prefix.format('764') in here.dataflow_uris or df_prefix.format('765') in here.dataflow_uris);
+                           new_env_label python: 'New data report' if is_fgas else 'New envelope';
+                           ">
 
     <div id="operations" tal:condition="python:permission_allow_envelopes or permission_allow_collections or permission_allow_referrals">
       <ul>
         <li tal:condition="permission_allow_referrals"><a href="manage_addReferralForm" title="Create a new Referral if a certain delivery data is not stored on this system, in which case specify another location for it." i18n:attributes="title" i18n:translate="">New referral</a></li>
         <li tal:condition="permission_allow_collections"><a href="manage_addCollectionForm" title="Collections are folders that define the structure for the Data Repository, grouping Envelopes by country and by the reporting obligations they respond to." i18n:attributes="title" i18n:translate="">New collection</a></li>
-        <li tal:condition="permission_allow_envelopes"><a href="manage_addEnvelopeForm" title="Envelopes store all the information about a delivery" i18n:attributes="title" i18n:translate="">New envelope</a></li>
+        <li tal:condition="permission_allow_envelopes"><a href="manage_addEnvelopeForm" title="Envelopes store all the information about a delivery" i18n:attributes="title" i18n:translate=""><span tal:content="new_env_label" tal-omit-tag=""/></a></li>
       </ul>
     </div>
 
@@ -38,8 +43,7 @@
                          envs python: here.objectValues(['Report Envelope']);
                          refs python: here.objectValues(['Repository Referral']);
                          additional_colls python: isBdrDeployment and envs;
-                         visible python: colls or envs or refs;
-                         df_prefix python: 'http://rod.eionet.europa.eu/obligations/{}';">
+                         visible python: colls or envs or refs;">
       <form method="post" tal:attributes="action string:${request/URL1}/">
         <div class="filessection">
           <h2 i18n:translate="" tal:condition="not: isBdrDeployment">Envelopes and subcollections</h2>
