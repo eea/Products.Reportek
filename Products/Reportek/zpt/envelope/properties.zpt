@@ -23,8 +23,9 @@
         <table class="rform-table">
           <tr>
             <th i18n:translate="">Title</th>
-            <td>
-              <input type="text" size="50" name="title" tal:attributes="value context/title"/>
+            <td tal:define="readonly python: 'readonly' if (is_fgas or is_ods or is_fgas_verification) and context.released and not permission_condition else '';
+                            ">
+              <input type="text" size="50" name="title" tal:attributes="value context/title; readonly readonly"/>
             </td>
           </tr>
 
