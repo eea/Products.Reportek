@@ -68,11 +68,15 @@
           <tal:block metal:use-macro="here/partials/macros/representative_details" />
         </tal:block>
         <h2>Reporting folder</h2>
-        <span>
-          You can see the company deliveries here:
-          <a tal:attributes="href company/path"
-          tal:condition="company/path"
-          tal:content="company/path" />
+        <span tal:condition="company/path">
+          <tal:block tal:condition="python: not '/non-eu/' in company.get('path', '')">
+            You can see the company deliveries here:
+            <a tal:attributes="href company/path"
+              tal:content="company/path" />
+          </tal:block>
+          <tal:block tal:condition="python: '/non-eu/' in company.get('path', '')">
+            NON-EU companies with no legal representative are not required to report.
+          </tal:block>
         </span>
         <h2 id="persons">Reporters</h2>
         <div>
