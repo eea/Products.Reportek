@@ -42,7 +42,7 @@
     <tal:def tal:define="colls python: here.objectValues(['Report Collection']);
                          envs python: here.objectValues(['Report Envelope']);
                          refs python: here.objectValues(['Repository Referral']);
-                         additional_colls python: isBdrDeployment and envs;
+                         bdr_has_envs python: isBdrDeployment and envs;
                          visible python: colls or envs or refs;">
       <form method="post" tal:attributes="action string:${request/URL1}/">
         <div class="filessection">
@@ -61,9 +61,10 @@
               <th style="width: 16px" tal:condition="permission_chgcoll" />
               <th style="width: 18px" />
               <th></th>
-              <th tal:condition="additional_colls" class="tcenter additional-env-info">Reporting year</th>
-              <th tal:condition="additional_colls" class="tcenter additional-env-info">Status</th>
-              <th tal:condition="additional_colls" class="tcenter additional-env-info">Acceptability</th>
+              <th tal:condition="bdr_has_envs" class="tcenter additional-env-info">Reporting year</th>
+              <th tal:condition="bdr_has_envs" class="tcenter additional-env-info">Status</th>
+              <th tal:condition="bdr_has_envs" class="tcenter additional-env-info">Acceptability</th>
+              <th tal:condition="python: envs and not isBdrDeployment" class="tcenter additional-env-info" style="width: 25%"> Envelope status</th>
               <th style="width: 7em" class="tcenter">
                 <span tal:condition="isBdrDeployment">Updated</span>
               </th>
@@ -76,9 +77,9 @@
                   <td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>
                   <td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Collection" i18n:attributes="alt" /></td>
                   <td><a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" /></td>
-                  <tal:block tal:condition="additional_colls">
-                    <td></td>
-                    <td></td>
+                  <tal:block tal:condition="envs">
+                    <td tal:condition="isBdrDeployment"></td>
+                    <td tal:condition="isBdrDeployment"></td>
                     <td></td>
                   </tal:block>
                   <td class="tcenter" tal:condition="not: isBdrDeployment" tal:content="python:item.bobobase_modification_time().strftime('%d %b %Y')" />
@@ -100,8 +101,8 @@
                 <td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>
                 <td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Envelope" i18n:attributes="alt" /></td>
                 <td><a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" /></td>
-                <tal:block tal:condition="additional_colls">
-                  <td class="tcenter additional-env-info"
+                <tal:block tal:condition="envs">
+                  <td class="tcenter additional-env-info" tal:condition="isBdrDeployment"
                     tal:define="df_prefix python: 'http://rod.eionet.europa.eu/obligations/{}';
                                 is_ods python: df_prefix.format('213') in here.dataflow_uris;
                                 is_fgas python: df_prefix.format('713') in here.dataflow_uris;
@@ -118,12 +119,20 @@
                       <span i18n:translate="">See report</span>
                     </tal:block>
                   </td>
-                  <td class="tcenter additional-env-info">
+                  <td tal:condition="isBdrDeployment" class="tcenter additional-env-info">
                     <span i18n:translate="" tal:condition="item/released">Released</span>
                     <span i18n:translate="" tal:condition="not: item/released">Not released</span>
                   </td>
                   <td class="tcenter additional-env-info">
-                    <span i18n:translate="" tal:content="python: {True: 'Acceptable', False: 'Not acceptable', None: 'N/A'}.get(item.is_acceptable() and item.successful_qa, '')" />
+                    <span tal:condition="isBdrDeployment" i18n:translate="" tal:content="python: {True: 'Acceptable', False: 'Not acceptable', None: 'N/A'}.get(item.is_acceptable() and item.successful_qa, '')" />
+                    <tal:block tal:condition="not: isBdrDeployment">
+                      <tal:def tal:define="fb_ta python: item.get('feedbackTA');
+                                           fb_cor python: item.get('feedbackCoR');
+                                           ff_fb python: fb_ta or fb_cor">
+                        <span tal:content="python: item.status.capitalize()"/> 
+                        <span tal:condition="python: ff_fb"> (<span tal:content="ff_fb/title_or_id|nothing"/>)</span>
+                      </tal:def>
+                    </tal:block>
                   </td>
                 </tal:block>
                 <td class="tcenter" tal:content="python:item.reportingdate.strftime('%d %b %Y')" />
@@ -132,7 +141,7 @@
                 <td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>
                 <td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Repository Referral" i18n:attributes="alt" /></td>
                 <td><a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" /></td>
-                <tal:block tal:condition="additional_colls">
+                <tal:block tal:condition="bdr_has_envs">
                   <td></td>
                   <td></td>
                   <td></td>
