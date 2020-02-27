@@ -128,8 +128,10 @@
                     <tal:block tal:condition="not: isBdrDeployment">
                       <tal:def tal:define="fb_ta python: item.get('feedbackTA');
                                            fb_cor python: item.get('feedbackCoR');
-                                           ff_fb python: fb_ta or fb_cor">
-                        <span tal:content="python: item.status.capitalize()"/> 
+                                           ff_fb python: fb_ta or fb_cor;
+                                           wks python: item.getListOfWorkitems();
+                                           cur_wk python: wks[-1] if wks else None">
+                        <span tal:content="python: cur_wk.activity_id if cur_wk else ''"/> 
                         <span tal:condition="python: ff_fb"> (<span tal:content="ff_fb/title_or_id|nothing"/>)</span>
                       </tal:def>
                     </tal:block>
