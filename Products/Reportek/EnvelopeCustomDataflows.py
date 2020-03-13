@@ -1242,5 +1242,21 @@ class EnvelopeCustomDataflows(Toolz):
             }
 
         return json.dumps(result, indent=4, ensure_ascii=False)
+
+    @RepUtils.manage_as_owner
+    def copy_prefill(self, src, REQUEST=None):
+        """Copies prefill files from src to the envelope"""
+
+        prefill_folder = context.unrestrictedTraverse(src)
+        fxmls = [x for x in prefill_folder.objectValues('File')]
+        w0 = getattr(self, workitem_id)
+
+        for fxml in fxmls:
+            fl = self.manage_addDocument(id=str(fxml.getId()),
+                                         file=str(fxml.data),
+                                         REQUEST=REQUEST,
+                                         deferred_compress=None)
+            w0.addEvent("Prefill %s added to the envelope" % str(fxml.getId()))
+
 # Initialize the class in order the security assertions be taken into account
 InitializeClass(EnvelopeCustomDataflows)
