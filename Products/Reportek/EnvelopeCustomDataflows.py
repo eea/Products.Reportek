@@ -1247,7 +1247,7 @@ class EnvelopeCustomDataflows(Toolz):
     def copy_prefill(self, src, REQUEST=None):
         """Copies prefill files from src to the envelope"""
 
-        prefill_folder = context.unrestrictedTraverse(src)
+        prefill_folder = self.unrestrictedTraverse(src)
         fxmls = [x for x in prefill_folder.objectValues('File')]
         w0 = getattr(self, workitem_id)
 
