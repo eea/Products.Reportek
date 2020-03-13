@@ -1244,7 +1244,7 @@ class EnvelopeCustomDataflows(Toolz):
         return json.dumps(result, indent=4, ensure_ascii=False)
 
     @RepUtils.manage_as_owner
-    def copy_prefill(self, src, REQUEST=None):
+    def copy_prefill(self, src, workitem_id, REQUEST=None):
         """Copies prefill files from src to the envelope"""
 
         prefill_folder = self.unrestrictedTraverse(src)
