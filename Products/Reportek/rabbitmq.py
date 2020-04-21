@@ -107,11 +107,15 @@ class MessagesDataManager(object):
         self._checkTransaction(txn)
 
         for queue, msg in self.messages:
-            try:
-                send_message(msg, queue=queue)
-            except Exception as e:
-                logger.exception("RabbitMQ Connection exception: {}".format(str(e)))
-                raise Exception("Unable to send message to RabbitMQ! Please click the browser's back button and try again.")
+            count = 0
+            for attempt in transaction.manager.attempts():
+                try:
+                    send_message(msg, queue=queue)
+                except Exception as e:
+                    count += 1
+                    if count >= 3:
+                        logger.exception("RabbitMQ Connection exception: {}".format(str(e)))
+                        raise Exception("Unable to send message to RabbitMQ! Please click the browser's back button and try again.")
 
         self.txn = None
         self.messages = []
