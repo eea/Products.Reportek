@@ -68,6 +68,7 @@
         <th>Schema</th>
         <th>Name</th>
         <th>Has WebForm</th>
+        <th>Webform edit URL</th>
       </tr>
 
       <tr tal:repeat="schema options/schemas">
@@ -80,10 +81,11 @@
         </td>
         <td tal:content="schema/name" />
         <td align="center" tal:content="schema/has_webform" />
+        <td align="center" tal:content="schema/wf_edit_url|string: Default" />
       </tr>
       <tr class="row-hilite">
         <td></td>
-        <td colspan="3">
+        <td colspan="4">
           <input type="submit" name="delete" value="Delete" />
         </td>
       </tr>
@@ -132,9 +134,17 @@
         <label class="form-label" for="has_webform_auto">Figure it out from WebQ</label>
       </td>
     </tr>
+    <tr>
+      <td>
+        <label class="form-label" for="wf_edit_url">Webform edit URL</label>
+      </td>
+      <td colspan="2">
+        <input type="text" id="wf_edit_url" name="wf_edit_url" size="100" />
+      </td>
+    </tr>
     <tr class="row-hilite">
       <td></td>
-      <td colspan="2">
+      <td colspan="3">
         <input type="submit" name="add" value="Add" />
       </td>
     </tr>

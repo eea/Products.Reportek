@@ -9,9 +9,12 @@
         <tal:block condition="python:context.canViewContent()" define="canChangeFile python:context.canChangeEnvelope() and not context.get_accept_time();
               isLimited context/isRestricted;
               valid_schemas context/getValidXMLSchemas;
-              beforeEditForm context/getWebQ_BeforeEditForm_URL;
+              has_valid_schema python: context.xml_schema_location in context.getValidXMLSchemas(web_form_only=True);
+              wf_schema python: context.xml_schema_location if context.xml_schema_location in context.getValidXMLSchemas(web_form_only=True) else None;
+              beforeEditForm python: context.getWebQ_BeforeEditForm_URL(schema=wf_schema);
               can_view_or_edit_with_webq
-              python:context.getWebQ_BeforeEditForm_URL() and context.xml_schema_location in context.getValidXMLSchemas(web_form_only=True)">
+              python:context.getWebQ_BeforeEditForm_URL(schema=wf_schema) and context.xml_schema_location in context.getValidXMLSchemas(web_form_only=True)">
+            <span tal:content="canChangeFile"/>
             <div id="operations">
                 <ul>
                     <li>
@@ -44,8 +47,8 @@
                     <ul>
                         <tal:block condition="can_view_or_edit_with_webq">
                             <li>
-                                <a tal:attributes="
-                   href string:${beforeEditForm}?mode=edit&amp;language=En&amp;schema=${context/xml_schema_location}&amp;instance=${context/absolute_url}&amp;instance_title=${context/title_or_id}" i18n:translate="">Edit the file with Webform</a>
+                                <a tal:attributes="href string:${beforeEditForm}"
+                                   i18n:translate="">Edit the file with Webform</a>
                             </li>
                         </tal:block>
                         <tal:block condition="not: can_view_or_edit_with_webq">

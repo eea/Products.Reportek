@@ -1,14 +1,14 @@
 __doc__ = """Container for mappings between dataflows and XML schemas"""
 
-from OFS.Folder import Folder
-from Globals import InitializeClass
-from AccessControl import ClassSecurityInfo
-from AccessControl.Permissions import view_management_screens
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from UserList import UserList
 
+from AccessControl import ClassSecurityInfo
+from AccessControl.Permissions import view_management_screens
 from constants import DATAFLOW_MAPPINGS, ENGINE_ID
 from DataflowMappingsRecord import DataflowMappingsRecord
+from Globals import InitializeClass
+from OFS.Folder import Folder
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
 
 class DataflowMappings(Folder):
@@ -79,6 +79,19 @@ class DataflowMappings(Folder):
         """
         schemaObjects = self.getSchemaObjectsForDataflows(dataflow_uris, web_form_only)
         return [ schema['url'] for schema in schemaObjects ]
+
+    def get_webform_url_for_schema(self, schema, dataflow_uris=None, web_form_only=False):
+        """Return the webform base url for schema"""
+
+        schemaObjects = self.getSchemaObjectsForDataflows(dataflow_uris, web_form_only)
+        for schema_obj in schemaObjects:
+            if schema_obj.get('url') == schema:
+                return schema_obj.get('wf_edit_url')
+
+    security.declarePublic('dataflows_select')
+    dataflows_select = PageTemplateFile(
+            'zpt/dataflow-mappings/dataflows_select',
+            globals())
 
     security.declarePublic('dataflows_select')
     dataflows_select = PageTemplateFile(

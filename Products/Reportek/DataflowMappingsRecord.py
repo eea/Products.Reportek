@@ -142,6 +142,8 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
         schema_uri = REQUEST.form.get('schema', '').strip()
         schema_name = REQUEST.form.get('name', '').strip()
         has_webform = REQUEST.form.get('has_webform', None)
+        wf_edit_url = REQUEST.form.get('wf_edit_url', None)
+
         if not schema_uri or not schema_name:
             return 'Schema and name cannot be empty!'
         # go through the getter to obtain an object
@@ -164,6 +166,8 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
             'name': schema_name,
             'has_webform': has_webform,
         }
+        if has_webform and wf_edit_url:
+            form_data['wf_edit_url'] = wf_edit_url
         self._mappings.append(form_data)
         return 'Schema successfully added'
 

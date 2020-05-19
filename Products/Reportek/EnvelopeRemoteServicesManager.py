@@ -26,20 +26,19 @@ This class which Envelope subclasses from handles the integration with remote sy
 
 """
 
+import logging
+import re
+
+# Product specific imports
+import RepUtils
+from AccessControl import ClassSecurityInfo
+from constants import QAREPOSITORY_ID
 # Zope imports
 from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.constants import ENGINE_ID
-from AccessControl import ClassSecurityInfo
 from Products.Reportek.Document import Document
-
-
-# Product specific imports
-import RepUtils
-from constants import QAREPOSITORY_ID
 from Products.Reportek.exceptions import EnvelopeReleasedException
-import logging
-import re
 
 logger = logging.getLogger("Reportek")
 
@@ -373,9 +372,29 @@ class EnvelopeRemoteServicesManager:
         return mappings_c.getSchemasForDataflows(self.dataflow_uris,
                                                  web_form_only=web_form_only)
 
-    def getWebQ_BeforeEditForm_URL(self):
+    security.declarePublic('get_webform_for_schema')
+    def get_webform_for_schema(self, schema):
+        mappings_c = self.getDataflowMappingsContainer()
+        wf_cust = mappings_c.get_webform_url_for_schema(schema,
+                                                        self.dataflow_uris,
+                                                        web_form_only=True)
+        return wf_cust or self.getEngine().webq_before_edit_page
+
+    def getWebQ_BeforeEditForm_URL(self, schema=None, custom_params=False):
         """ Retrieves the URL to the edit for of the XML file - if any """
-        return self.getEngine().webq_before_edit_page
+        attributes = {
+            'instance': self.absolute_url(),
+            'envelope': self.absolute_url(),
+            'schema': schema,
+            'obligation': self.dataflow_uris[0],
+            'language': 'En',
+            'companyId': self.company_id,
+            'countrycode': self.getCountryCode(self.country) if getattr(self, 'country', '') else None
+        }
+        form_url = self.get_webform_for_schema(schema).format(**attributes)
+        if custom_params:
+            return form_url.split('?')[0]
+        return form_url
 
     def getWebQ_MenuEnvelope_URL(self):
         """ Retrieves the URL to the edit for of the XML file - if any """
