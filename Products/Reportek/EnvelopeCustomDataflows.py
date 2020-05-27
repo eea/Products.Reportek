@@ -167,7 +167,7 @@ class EnvelopeCustomDataflows(Toolz):
 
     security.declareProtected('Change Envelopes', 'convert_excel_file')
 
-    def convert_excel_file(self, file, restricted='', strict_check=0, conversion_function='', REQUEST=None):
+    def convert_excel_file(self, file, restricted='', strict_check=0, conversion_function='', disallow='', REQUEST=None):
         """ Uploads the original spreadsheet to the envelope,
             deleting the file with the same id, if exists.
             Attempts the conversion of the DD-based spreadsheet
@@ -202,7 +202,7 @@ class EnvelopeCustomDataflows(Toolz):
             l_original_type = 'Data file'
 
         # upload original file in the envelope
-        self.manage_addDocument(id=l_id, title=l_original_type, file=l_original_content, restricted=restricted)
+        self.manage_addDocument(id=l_id, title=l_original_type, file=l_original_content, restricted=restricted, disallow=disallow)
         if strict_check and l_original_type == 'Data file':
             if REQUEST is not None:
                 return success_message(self, [obj],
@@ -405,7 +405,7 @@ class EnvelopeCustomDataflows(Toolz):
 
     security.declareProtected('Change Envelopes', 'replace_dd_xml')
 
-    def replace_dd_xml(self, file, filename=None, check_schema=True, restricted='', required_schema=[], replace_xml=1, REQUEST=None):
+    def replace_dd_xml(self, file, filename=None, check_schema=True, restricted='', required_schema=[], replace_xml=1, disallow='', REQUEST=None):
         """ Cheks if the schema id of the file is either empty or is in the 'required_schema' list.
             If yes, it adds the new file; if there are XML files in the envelope with the same schema, those are deleted first.
             If no, it doesn't upload the file and complains.
@@ -462,6 +462,7 @@ class EnvelopeCustomDataflows(Toolz):
                                                file=file, filename=filename,
                                                content_type=content_type,
                                                restricted=restricted,
+                                               disallow=disallow,
                                                REQUEST=REQUEST)
             else:
                 if REQUEST is not None:
@@ -520,7 +521,7 @@ class EnvelopeCustomDataflows(Toolz):
 
     security.declareProtected('Change Envelopes', 'manage_addDDFile')
 
-    def manage_addDDFile(self, file, restricted='', required_schema=[], replace_xml=1, REQUEST=None):
+    def manage_addDDFile(self, file, restricted='', required_schema=[], replace_xml=1, disallow='', REQUEST=None):
         """ Adds a file created using a DD template as follows:
             - if the file is a spreadsheet, it calls convert_excel_file
             - if the file XML, it calls replace_dd_xml
@@ -536,15 +537,15 @@ class EnvelopeCustomDataflows(Toolz):
         else:
             l_filename = file.filename.lower()
             if l_filename.endswith('.xls') or l_filename.endswith('.xlsx') or l_filename.endswith('.ods'):
-                return self.convert_excel_file(file=file, restricted=restricted, REQUEST=REQUEST)
+                return self.convert_excel_file(file=file, restricted=restricted, disallow=disallow, REQUEST=REQUEST)
             elif re.search(self.fileTypeByName_pattern, l_filename):
                 return self.replace_dd_xml(file=file, restricted=restricted, required_schema=required_schema,
-                                           replace_xml=int(replace_xml), REQUEST=REQUEST)
+                                           replace_xml=int(replace_xml), disallow=disallow, REQUEST=REQUEST)
             elif l_filename.endswith('.zip'):
                 return self.manage_addDDzipfile(file=file, restricted=restricted, required_schema=required_schema,
-                                                replace_xml=int(replace_xml), REQUEST=REQUEST)
+                                                replace_xml=int(replace_xml), disallow=disallow, REQUEST=REQUEST)
             else:
-                return self.manage_addDocument(file=file, restricted=restricted, REQUEST=REQUEST)
+                return self.manage_addDocument(file=file, restricted=restricted, disallow=disallow, REQUEST=REQUEST)
 
     security.declareProtected('Add Envelopes', 'manage_addDDzipfile')
     def manage_addDDzipfile(self, file='', content_type='', restricted='',
