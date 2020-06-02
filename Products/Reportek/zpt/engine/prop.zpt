@@ -16,7 +16,7 @@
         <br />
         <fieldset>
             <legend>WebQuestionnaire</legend>
-            <p class="form-help">The properties below are relevant to the WebQuestionnaire. If there is no such aplication available, leave the fields below empty.</p>
+            <p class="form-help">The properties below are relevant to the WebQuestionnaire settings, used in the Draft pages and document editing page for all dataflows. For the dataflows that use other webforms engine, the <strong>WebQ before edit URL</strong> settings can be overridden in the <a href="/DataflowMappings">DataflowMappings</a> of each such dataflow. If there is no such aplication available, leave the fields below empty.</p>
             <p class="form-help">
                 <strong><label for="webq_url">WebQ XML-RPC server</label></strong>
                 <input type="text" size="50" id="webq_url" name="webq_url" tal:attributes="value here/webq_url" />

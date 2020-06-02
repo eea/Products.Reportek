@@ -104,6 +104,7 @@
 <p class="form-help">
   To add a new mapping, enter a schema, a name, check if there is a
   webform for this schema or not, and click the "Add" button.
+  If this dataflow uses a different webforms engine than the <a href="/ReportekEngine">website's default setting</a>, use the <strong>Webform edit URL</strong> to specify the link to the webform for editing each type of XML file.
 </p>
 
 
