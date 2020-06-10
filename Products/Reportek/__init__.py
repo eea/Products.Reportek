@@ -23,43 +23,46 @@
 __doc__ = """Reportek __init__ """
 __version__ = '$Rev$'[6:-2]
 
-from config import *
-import monitoring
-from traceback import format_exception_only
 import logging
-logger = logging.getLogger("Reportek")
-
+from traceback import format_exception_only
+from config import *
+import Collection
+import constants
+import Converter
+import Converters
+import DataflowMappings
+import monitoring
+import OpenFlowEngine
+import QARepository
+import QAScript
+import Referral
+import RemoteApplication
+import RemoteFMEConversionApplication
+import RemoteRESTApplication
+import ReportekAPI
+import ReportekEngine
+import ReportekUtilities
 # Zope imports
 import Zope2
+from AccessControl.Permissions import manage_users as ManageUsers
 from App.ImageFile import ImageFile
+from Products.PluggableAuthService.PluggableAuthService import \
+    registerMultiPlugin
+from Products.Reportek.ReportekUserFactoryPlugin import (
+    ReportekUserFactoryPlugin, addReportekUserFactoryPlugin,
+    manage_addReportekUserFactoryPluginForm)
 from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCTextIndex.ZCTextIndex import PLexicon
+from zope.i18nmessageid import MessageFactory
+
+logger = logging.getLogger("Reportek")
+
 
 # Product imports
 
-import QARepository
-import QAScript
-import Converters
-import Converter
-import Collection
-import Referral
-import OpenFlowEngine
-import RemoteApplication
-import RemoteRESTApplication
-import DataflowMappings
-import ReportekEngine
-import ReportekUtilities
-import ReportekAPI
-from Products.Reportek.ReportekUserFactoryPlugin import ReportekUserFactoryPlugin
-from Products.Reportek.ReportekUserFactoryPlugin import addReportekUserFactoryPlugin
-from Products.Reportek.ReportekUserFactoryPlugin import manage_addReportekUserFactoryPluginForm
-from Products.PluggableAuthService.PluggableAuthService import registerMultiPlugin
 
-from AccessControl.Permissions import manage_users as ManageUsers
 
-import constants
 
-from zope.i18nmessageid import MessageFactory
 MessageFactory = MessageFactory('Reportek')
 
 maintenance_options = (
@@ -373,6 +376,15 @@ def initialize(context):
            constructors = (
                 RemoteRESTApplication.manage_addRemoteRESTApplicationForm,
                 RemoteRESTApplication.manage_addRemoteRESTApplication),
+           icon = 'www/qa_application.gif'
+           )
+
+        context.registerClass(
+           RemoteFMEConversionApplication.RemoteFMEConversionApplication,
+           permission='Add Remote Application',
+           constructors = (
+                RemoteFMEConversionApplication.manage_addRemoteFMEConversionApplicationForm,
+                RemoteFMEConversionApplication.manage_addRemoteFMEConversionApplication),
            icon = 'www/qa_application.gif'
            )
 

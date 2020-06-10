@@ -583,22 +583,22 @@ class EnvelopeCustomDataflows(Toolz):
             zip_file_ids = zf.namelist()
             file_ids_not_uploaded = []
             file_ids_to_delete = []
-
-            for name in zip_file_ids:
-                # test that the archive is not hierarhical
-                if name[-1] == '/' or name[-1] == '\\':
-                    if REQUEST is not None:
-                        return error_message(self,
-                                             'The zip file you specified is hierarchical. It contains folders.\n'
-                                             'Please upload a non-hierarchical structure of files.',
-                                             action='index_html', REQUEST=REQUEST)
-                    else:
-                        return 0
+            files_only = [f_id for f_id in zip_file_ids
+                          if f_id[-1] != '/' and f_id[-1] != '\\']
+            if not files_only:
+                if REQUEST is not None:
+                    return error_message(self,
+                                         'The zip file you specified is hierarchical. It contains folders.\n'
+                                         'Please upload a non-hierarchical structure of files.',
+                                         action='index_html', REQUEST=REQUEST)
+                else:
+                    return 0
+            zip_file_ids = files_only
 
             for name in zip_file_ids:
                 id = self.cook_file_id(name)
                 zf.setcurrentfile(name)
-                zipped_file_id = self.manage_addDocument(id=id, title=id, file=zf, restricted=restricted, disallow=disallow)
+                zipped_file_id = self.manage_addDocument(id=id, title=id, file=zf, filename=id, restricted=restricted, disallow=disallow)
                 transaction.commit()
                 if not zipped_file_id:
                     # something happened with the file upload and the upload didn't go through
