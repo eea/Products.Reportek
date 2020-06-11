@@ -451,7 +451,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         results = storage.get('results')
         if upload_storage.get('status') != 'completed' and upload_storage.get('retries_left'):
             self.upload_to_fme(workitem_id)
-        else:
+        elif upload_storage.get('status') != 'completed' and not upload_storage.get('retries_left'):
             self.__finish(workitem_id)
         if results:
             poll = [j for j in results
