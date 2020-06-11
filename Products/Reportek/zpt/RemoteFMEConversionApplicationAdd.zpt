@@ -1,6 +1,6 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
   <metal:block fill-slot="content">
-    <h1>Add Remote REST Application</h1>
+    <h1>Add Remote FME Conversion Application</h1>
 
     <form action="manage_addRemoteFMEConversionApplication" method="post" enctype="multipart/form-data" name="form">
     <table>
