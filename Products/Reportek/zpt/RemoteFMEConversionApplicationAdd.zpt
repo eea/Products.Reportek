@@ -65,21 +65,21 @@
     <tr>
       <th>FME Workspace exec parameters (JSON template)</th>
       <td colspan="2">
-        <textarea name="FMEWorkspaceParams" rows="5" size="40" >
+        <textarea name="FMEWorkspaceParams" rows="10" cols="40" size="40" >
         </textarea>
       </td>
     </tr>
     <tr>
       <th>FME Upload parameters (one per line)</th>
       <td colspan="2">
-        <textarea name="FMEUploadParams" rows="5" size="40" >
+        <textarea name="FMEUploadParams" rows="5" cols="40" size="40" >
         </textarea>
       </td>
     </tr>
     <tr>
       <th>FME Convert filetypes (extension, one per line)</th>
       <td colspan="2">
-        <textarea name="FMEFileTypes" rows="5" size="40">
+        <textarea name="FMEFileTypes" rows="5" cols="40" size="40">
         </textarea>
       </td>
     </tr>
