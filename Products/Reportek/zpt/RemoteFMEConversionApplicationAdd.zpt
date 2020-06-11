@@ -59,6 +59,17 @@
       <td colspan="2"><input type="text" name="FMETransformation" size="40" /></td>
     </tr>
     <tr>
+      <th>FME Workspace</th>
+      <td colspan="2"><input type="text" name="FMEWorkspace" size="40" /></td>
+    </tr>
+    <tr>
+      <th>FME Workspace exec parameters (JSON template)</th>
+      <td colspan="2">
+        <textarea name="FMEWorkspaceParams" rows="5" size="40" >
+        </textarea>
+      </td>
+    </tr>
+    <tr>
       <th>FME Upload parameters (one per line)</th>
       <td colspan="2">
         <textarea name="FMEUploadParams" rows="5" size="40" >
@@ -77,17 +88,6 @@
       <td colspan="2">
         <input type="checkbox" name="FMEUploadAll" />
       </td>
-    </tr>
-    <tr>
-      <th>FME Workspace exec parameters (JSON)</th>
-      <td colspan="2">
-        <textarea name="FMEWorkspaceParams" rows="5" size="40" >
-        </textarea>
-      </td>
-    </tr>
-    <tr>
-      <th>FME Workspace</th>
-      <td colspan="2"><input type="text" name="FMEWorkspace" size="40" /></td>
     </tr>
     <tr>
       <th>FME Post Conversion Cleanup</th>

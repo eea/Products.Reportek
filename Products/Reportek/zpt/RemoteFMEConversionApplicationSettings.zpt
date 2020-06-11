@@ -73,7 +73,7 @@
                tal:attributes="value here/FMEWorkspace|nothing" size="80" /></td>
   </tr>
   <tr>
-    <th align="left">FME Workspace exec parameters (JSON)</th>
+    <th align="left">FME Workspace exec parameters (JSON template)</th>
     <td colspan="2">
       <textarea name="FMEWorkspaceParams" rows="5" size="80"
         tal:content="here/FMEWorkspaceParams|nothing" >
