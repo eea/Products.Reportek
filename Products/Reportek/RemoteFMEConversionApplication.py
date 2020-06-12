@@ -337,7 +337,7 @@ class RemoteFMEConversionApplication(SimpleItem):
             wks_params = self.FMEWorkspaceParams.format(GET_FILES_URLS=file_list,
                                                         GET_FILES=self.get_uploaded_files(workitem_id),
                                                         GET_FILE=self.get_uploaded_files(workitem_id, single_file=True),
-                                                        GET_SHAPEFILE=self.get_uploaded_files(workitem, shapefile=True),
+                                                        GET_SHAPEFILE=self.get_uploaded_files(workitem_id, shapefile=True),
                                                         ENVPATHTOKENIZED=self.get_env_path_tokenized(workitem_id))
             wks_params = json.loads(wks_params.replace("'", '"'))
         try:
