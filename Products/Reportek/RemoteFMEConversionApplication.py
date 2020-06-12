@@ -354,14 +354,16 @@ class RemoteFMEConversionApplication(SimpleItem):
                     'next_run': DateTime(),
                     'status': 'pending'
                 }
-
+                self.__update_storage(workitem, 'fmw_exec', status='completed')
+            else:
+                err = 'HTTP: {}: {}'.format(res.status_code, res.content)
+                self.__update_storage(workitem, 'fmw_exec',
+                                      status='retry',
+                                      err=err, dec_retry=True)
         except Exception as e:
-            results[res.json().get('id')] = {
-                'retries_left': self.nRetries - 1,
-                'last_error': str(e),
-                'next_run': DateTime(),
-                'status': 'retry'
-            }
+            self.__update_storage(workitem, 'fmw_exec',
+                                  status='retry',
+                                  err=e, dec_retry=True)
 
     def poll_results(self, workitem_id):
         """Polls for results"""
@@ -454,9 +456,14 @@ class RemoteFMEConversionApplication(SimpleItem):
         storage = getattr(workitem, self.app_name, {})
         upload_storage = storage.get('upload')
         results = storage.get('results')
+        fmw_exec = storage.get('fmw_exec')
         if upload_storage.get('status') != 'completed' and upload_storage.get('retries_left'):
             self.upload_to_fme(workitem_id)
         elif upload_storage.get('status') != 'completed' and not upload_storage.get('retries_left'):
+            self.__finish(workitem_id)
+        if fmw_exec.get('status') != 'completed' and fmw_exec.get('retries_left'):
+            self.execute_workspace(workitem_id)
+        elif fmw_exec.get('status') != 'completed' and not fmw_exec.get('retries_left'):
             self.__finish(workitem_id)
         if results:
             poll = [j for j in results
@@ -485,6 +492,12 @@ class RemoteFMEConversionApplication(SimpleItem):
                 'next_run': DateTime(),
                 'status': 'pending'
             },
+            'fmw_exec': {
+                'retries_left': self.nRetries,
+                'last_error': None,
+                'next_run': DateTime(),
+                'status': 'pending'
+            },
             'results': {},
             'cleanup': {
                 'retries_left': self.nRetries,
@@ -494,8 +507,8 @@ class RemoteFMEConversionApplication(SimpleItem):
             }
         })
 
-    def __update_storage(self, workitem, step, paths=None, jobid=None, status=None,
-                         err=None, dec_retry=False):
+    def __update_storage(self, workitem, step, paths=None, jobid=None,
+                         status=None, err=None, dec_retry=False):
         if jobid and step == 'results':
             storage = getattr(workitem, self.app_name)[step][jobid]
         else:
