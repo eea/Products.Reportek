@@ -312,12 +312,16 @@ class RemoteFMEConversionApplication(SimpleItem):
             for file in files:
                 file[-1][-1].close()
 
-    def get_uploaded_files(self, workitem_id, single_file=False):
+    def get_uploaded_files(self, workitem_id, single_file=False, shapefile=False):
         """Return a list of uploaded files"""
         workitem = getattr(self, workitem_id)
         upload_storage = getattr(workitem, self.app_name, {}).get('upload')
         if single_file and upload_storage['paths']:
             return upload_storage['paths'][0]
+        if shapefile and upload_storage['paths']:
+            for p in upload_storage['paths']:
+                if p.endswith('.shp'):
+                    return p
         return upload_storage['paths']
 
     def execute_workspace(self, workitem_id):
@@ -333,6 +337,7 @@ class RemoteFMEConversionApplication(SimpleItem):
             wks_params = self.FMEWorkspaceParams.format(GET_FILES_URLS=file_list,
                                                         GET_FILES=self.get_uploaded_files(workitem_id),
                                                         GET_FILE=self.get_uploaded_files(workitem_id, single_file=True),
+                                                        GET_SHAPEFILE=self.get_uploaded_files(workitem, shapefile=True),
                                                         ENVPATHTOKENIZED=self.get_env_path_tokenized(workitem_id))
             wks_params = json.loads(wks_params.replace("'", '"'))
         try:
