@@ -181,7 +181,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         workitem = getattr(self, workitem_id)
         # If we have explicit FMEToken, override the auto token generation
         if self.FMEToken:
-            return self.FMEToken
+            return {'token': self.FMEToken}
         token = getattr(workitem, '__token', {})
         expires = token.get('expires')
         if not expires or expires <= DateTime():
@@ -461,10 +461,11 @@ class RemoteFMEConversionApplication(SimpleItem):
             self.upload_to_fme(workitem_id)
         elif upload_storage.get('status') != 'completed' and not upload_storage.get('retries_left'):
             self.__finish(workitem_id)
-        if fmw_exec.get('status') != 'completed' and fmw_exec.get('retries_left'):
-            self.execute_workspace(workitem_id)
-        elif fmw_exec.get('status') != 'completed' and not fmw_exec.get('retries_left'):
-            self.__finish(workitem_id)
+        if upload_storage.get('status') == 'completed':
+            if fmw_exec.get('status') != 'completed' and fmw_exec.get('retries_left'):
+                self.execute_workspace(workitem_id)
+            elif fmw_exec.get('status') != 'completed' and not fmw_exec.get('retries_left'):
+                self.__finish(workitem_id)
         if results:
             poll = [j for j in results
                     if results[j].get('status') not in ['completed', 'failed']]
