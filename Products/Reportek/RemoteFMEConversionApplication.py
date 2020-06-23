@@ -96,7 +96,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                  FMETokenTimeUnit, FMEUploadEndpoint, FMEUploadDir,
                  FMETransformation, FMEUploadParams, FMEFileTypes,
                  FMEUploadAll, FMEWorkspace, FMEWorkspaceParams,
-                 FMEConvCleanup, retryFrequency, app_name, nRetries=5):
+                 FMEConvCleanup, retryFrequency, app_name, nRetries=50):
         """ Initialize a new instance of Document """
         self.id = id
         self.title = title
@@ -480,11 +480,13 @@ class RemoteFMEConversionApplication(SimpleItem):
         workitem = getattr(self, p_workitem_id)
         setattr(workitem, self.app_name, {})
         storage = getattr(workitem, self.app_name)
-        token = self.get_fme_token()
 
-        if token:
-            setattr(workitem, '__token', token)
-            workitem._p_changed = 1
+        if not self.FMEToken:
+            token = self.get_fme_token()
+
+            if token:
+                setattr(workitem, '__token', token)
+                workitem._p_changed = 1
 
         storage.update({
             'upload': {
