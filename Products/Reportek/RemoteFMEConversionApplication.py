@@ -315,13 +315,17 @@ class RemoteFMEConversionApplication(SimpleItem):
     def get_uploaded_files(self, workitem_id, single_file=False, shapefile=False):
         """Return a list of uploaded files"""
         workitem = getattr(self, workitem_id)
+        env = workitem.getMySelf()
         upload_storage = getattr(workitem, self.app_name, {}).get('upload')
         if single_file and upload_storage['paths']:
             return upload_storage['paths'][0]
         if shapefile and upload_storage['paths']:
             for p in upload_storage['paths']:
                 if p.endswith('.shp'):
-                    return p
+                    gmls = [fid.split('.')[0] for fid in env.objectIds('Report Document')
+                            if fid.endswith('.gml')]
+                    if not [x for x in gmls if p.split('.')[0] in x]:
+                        return p
         return upload_storage['paths']
 
     def execute_workspace(self, workitem_id):

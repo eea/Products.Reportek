@@ -103,6 +103,10 @@ class EnvelopeCustomDataflows(Toolz):
     security.declareProtected('Change Envelopes', 'upload_mmr_file')
     upload_mmr_file = PageTemplateFile('zpt/envelope/upload_mmr_file', globals())
 
+    # generic method that uploads a zipped shapefile and completes the current workitem
+    security.declareProtected('Change Envelopes', 'manage_addzipshapefile')
+    manage_addzipshapefile = PageTemplateFile('zpt/envelope/add_zipshapefile', globals())
+
     def _get_xml_files_by_schema(self, schema):
         """ Returns the list of XML files with the given schema from that envelope """
         return [doc.id for doc in self.objectValues('Report Document') if doc.xml_schema_location == schema]
@@ -669,6 +673,37 @@ class EnvelopeCustomDataflows(Toolz):
         else:
             return 0
 
+    security.declareProtected('Add Envelopes', 'manage_addShapezipfile')
+    def manage_addShapezipfile(self, file='', content_type='', restricted='',
+                               required_schema=[], replace_xml=0, disallow='',
+                               REQUEST=None):
+        """Adds a zipped shapefile to the envelope and completes the workitem"""
+        if self.manage_addDDzipfile(
+                    file=file,
+                    restricted=restricted,
+                    required_schema=required_schema,
+                    replace_xml=int(replace_xml),
+                    disallow=disallow,
+                    ) == 1:
+            wks = self.getWorkitemsActiveForMe(self.REQUEST)
+            action = '/'.join([self.absolute_url(), 'completeWorkitem'])
+            params = [
+                {
+                    'name': 'workitem_id',
+                    'value': wks[-1].getId()
+                },
+                {
+                    'name': 'fme_conversion',
+                    'value': 1
+                },
+                {
+                    'name': 'DestinationURL',
+                    'value': self.absolute_url()
+                },
+            ]
+            return self.messageDialog(message='Shapefiles upload successful. Conversion in progress!',
+                                      action=action,
+                                      params=params)
     security.declareProtected('View', 'subscribe_all_actors')
     def subscribe_all_actors(self, event_type=''):
         """ Calls UNS for all actors it has found in the work items in the envelope

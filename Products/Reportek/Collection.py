@@ -525,9 +525,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
         return cname(self)
 
     security.declareProtected('View', 'messageDialog')
-    def messageDialog(self, message='', action='', REQUEST=None):
+    def messageDialog(self, message='', action='', params=None, REQUEST=None):
         """ displays a message dialog """
-        return self.message_dialog(message=message, action=action)
+        return self.message_dialog(message=message, action=action, params=params)
 
     message_dialog = PageTemplateFile('zpt/message_dialog', globals())
 
