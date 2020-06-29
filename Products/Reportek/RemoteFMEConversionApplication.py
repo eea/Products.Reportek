@@ -312,7 +312,7 @@ class RemoteFMEConversionApplication(SimpleItem):
             for file in files:
                 file[-1][-1].close()
 
-    def get_uploaded_files(self, workitem_id, single_file=False, shapefile=False):
+    def get_uploaded_files(self, workitem_id, single_file=False, shapefile=False, zipped=False):
         """Return a list of uploaded files"""
         workitem = getattr(self, workitem_id)
         env = workitem.getMySelf()
@@ -321,7 +321,7 @@ class RemoteFMEConversionApplication(SimpleItem):
             return upload_storage['paths'][0]
         if shapefile and upload_storage['paths']:
             for p in upload_storage['paths']:
-                if p.endswith('.shp'):
+                if (not zipped and p.endswith('.shp')) or (zipped and p.endswith('.zip')):
                     gmls = [fid.split('.')[0] for fid in env.objectIds('Report Document')
                             if fid.endswith('.gml')]
                     if not [x for x in gmls if p.split('.')[0] in x]:
@@ -342,6 +342,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                                                         GET_FILES=self.get_uploaded_files(workitem_id),
                                                         GET_FILE=self.get_uploaded_files(workitem_id, single_file=True),
                                                         GET_SHAPEFILE=self.get_uploaded_files(workitem_id, shapefile=True),
+                                                        GET_ZIPPEDSHAPEFILE=self.get_uploaded_files(workitem_id, shapefile=True, zipped=True),
                                                         ENVPATHTOKENIZED=self.get_env_path_tokenized(workitem_id))
             wks_params = json.loads(wks_params.replace("'", '"'))
         try:

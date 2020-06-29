@@ -676,34 +676,32 @@ class EnvelopeCustomDataflows(Toolz):
     security.declareProtected('Add Envelopes', 'manage_addShapezipfile')
     def manage_addShapezipfile(self, file='', content_type='', restricted='',
                                required_schema=[], replace_xml=0, disallow='',
-                               REQUEST=None):
+                               unpack=0, REQUEST=None):
         """Adds a zipped shapefile to the envelope and completes the workitem"""
-        if self.manage_addDDzipfile(
+
+        trigger = False
+        if unpack:
+            if self.manage_addDDzipfile(
                     file=file,
                     restricted=restricted,
                     required_schema=required_schema,
                     replace_xml=int(replace_xml),
                     disallow=disallow,
                     ) == 1:
+                trigger = True
+        else:
+            f_id = self.manage_addDocument(file=file, restricted=restricted)
+            if f_id:
+                trigger = True
+        if trigger:
             wks = self.getWorkitemsActiveForMe(self.REQUEST)
-            action = '/'.join([self.absolute_url(), 'completeWorkitem'])
-            params = [
-                {
-                    'name': 'workitem_id',
-                    'value': wks[-1].getId()
-                },
-                {
-                    'name': 'fme_conversion',
-                    'value': 1
-                },
-                {
-                    'name': 'DestinationURL',
-                    'value': self.absolute_url()
-                },
-            ]
-            return self.messageDialog(message='Shapefiles upload successful. Conversion in progress!',
-                                      action=action,
-                                      params=params)
+            action = '/'.join([self.absolute_url(), 'completeWorkitem?workitem_id={}&fme_conversion=&DestinationURL={}'.format(wks[-1].getId(), self.absolute_url())])
+            return self.REQUEST.RESPONSE.redirect(action)
+        else:
+            return error_message(self,
+                                 'Something went wrong, please try again in a few seconds!',
+                                 action='index_html', REQUEST=REQUEST)
+
     security.declareProtected('View', 'subscribe_all_actors')
     def subscribe_all_actors(self, event_type=''):
         """ Calls UNS for all actors it has found in the work items in the envelope

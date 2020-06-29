@@ -37,6 +37,13 @@
         </tr>
 
         <tr>
+          <th align="left" i18n:translate="">Unpack files in the envelope</th>
+          <td align="left">
+              <input type="checkbox" name="unpack"/>
+          </td>
+        </tr>
+
+        <tr>
           <td>
             <input tal:condition="force_restricted" type="hidden" name="restricted" value="on"/>
             <input tal:condition="disallow" type="hidden" name="disallow"
