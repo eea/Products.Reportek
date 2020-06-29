@@ -695,8 +695,8 @@ class EnvelopeCustomDataflows(Toolz):
                 trigger = True
         if trigger:
             wks = self.getWorkitemsActiveForMe(self.REQUEST)
-            action = '/'.join([self.absolute_url(), 'completeWorkitem?workitem_id={}&fme_conversion=&DestinationURL={}'.format(wks[-1].getId(), self.absolute_url())])
-            return self.REQUEST.RESPONSE.redirect(action)
+            redir = '/'.join([self.absolute_url(), 'completeWorkitem?workitem_id={}&fme_conversion=1&DestinationURL={}'.format(wks[-1].getId(), self.absolute_url())])
+            return self.REQUEST.RESPONSE.redirect(redir)
         else:
             return error_message(self,
                                  'Something went wrong, please try again in a few seconds!',
