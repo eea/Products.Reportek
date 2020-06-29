@@ -318,9 +318,9 @@ class RemoteFMEConversionApplication(SimpleItem):
         env = workitem.getMySelf()
         upload_storage = getattr(workitem, self.app_name, {}).get('upload')
         if single_file and upload_storage['paths']:
-            return upload_storage['paths'][0]
+            return upload_storage['paths'][-1]
         if shapefile and upload_storage['paths']:
-            for p in upload_storage['paths']:
+            for p in reversed(upload_storage['paths']):
                 if (not zipped and p.endswith('.shp')) or (zipped and p.endswith('.zip')):
                     gmls = [fid.split('.')[0] for fid in env.objectIds('Report Document')
                             if fid.endswith('.gml')]
