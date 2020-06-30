@@ -465,11 +465,13 @@ class RemoteFMEConversionApplication(SimpleItem):
         if upload_storage.get('status') != 'completed' and upload_storage.get('retries_left'):
             self.upload_to_fme(workitem_id)
         elif upload_storage.get('status') != 'completed' and not upload_storage.get('retries_left'):
+            self.__post_feedback(workitem, 'upload', 'Conversion failed, aborting')
             self.__finish(workitem_id)
         if upload_storage.get('status') == 'completed':
             if fmw_exec.get('status') != 'completed' and fmw_exec.get('retries_left'):
                 self.execute_workspace(workitem_id)
             elif fmw_exec.get('status') != 'completed' and not fmw_exec.get('retries_left'):
+                self.__post_feedback(workitem, 'fmw_exec', 'Conversion failed, aborting')
                 self.__finish(workitem_id)
         if results:
             poll = [j for j in results
