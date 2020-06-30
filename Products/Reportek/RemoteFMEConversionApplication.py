@@ -414,6 +414,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                                     if job_status == 'SUCCESS':
                                         try:
                                             self.handle_res_zip_download(workitem_id)
+                                            workitem.addEvent('Conversion successful')
                                             self.__post_feedback(workitem, job_id, 'Conversion successful')
                                             self.__update_storage(workitem, 'results',
                                                                   jobid=job_id,
@@ -435,6 +436,8 @@ class RemoteFMEConversionApplication(SimpleItem):
                                                       jobid=job_id,
                                                       status='failed',
                                                       err=err, dec_retry=True)
+                                workitem.addEvent(err)
+                                workitem.failure = True
                                 self.__post_feedback(workitem, job_id, 'Conversion failed, aborting')
 
                     except Exception as e:
@@ -465,13 +468,19 @@ class RemoteFMEConversionApplication(SimpleItem):
         if upload_storage.get('status') != 'completed' and upload_storage.get('retries_left'):
             self.upload_to_fme(workitem_id)
         elif upload_storage.get('status') != 'completed' and not upload_storage.get('retries_left'):
-            self.__post_feedback(workitem, 'upload', 'Conversion failed, aborting')
+            err = 'File upload failed! Aborting.'
+            workitem.addEvent(err)
+            workitem.failure = True
+            self.__post_feedback(workitem, 'upload', err)
             self.__finish(workitem_id)
         if upload_storage.get('status') == 'completed':
             if fmw_exec.get('status') != 'completed' and fmw_exec.get('retries_left'):
                 self.execute_workspace(workitem_id)
             elif fmw_exec.get('status') != 'completed' and not fmw_exec.get('retries_left'):
-                self.__post_feedback(workitem, 'fmw_exec', 'Conversion failed, aborting')
+                err = 'FME Workspace execution failed! Aborting.'
+                workitem.addEvent(err)
+                workitem.failure = True
+                self.__post_feedback(workitem, 'fmw_exec', err)
                 self.__finish(workitem_id)
         if results:
             poll = [j for j in results
@@ -480,6 +489,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                 self.poll_results(workitem_id)
             else:
                 self.handle_cleanup(workitem_id)
+                workitem.addEvent('FME Cleanup completed.')
                 self.__finish(workitem_id)
 
     def __initialize(self, p_workitem_id):
