@@ -124,7 +124,10 @@
                     <span i18n:translate="" tal:condition="not: item/released">Not released</span>
                   </td>
                   <td class="tcenter additional-env-info">
-                    <span tal:condition="isBdrDeployment" i18n:translate="" tal:content="python: {True: 'Acceptable', False: 'Not acceptable', None: 'N/A'}.get(item.is_acceptable() and item.successful_qa, '')" />
+                    <span tal:condition="isBdrDeployment" i18n:translate=""
+                      tal:define="ok_acceptable python: item.is_acceptable() and item.successful_qa;
+                                  unknown python: item.has_unknown_qa_result and ok_acceptable;"
+                      tal:content="python: 'N/A' if unknown else {True: 'Acceptable', False: 'Not acceptable', None: 'N/A'}.get(ok_acceptable, '')" />
                     <tal:block tal:condition="not: isBdrDeployment">
                       <tal:def tal:define="fb_ta python: item.get('feedbackTA');
                                            fb_cor python: item.get('feedbackCoR');

@@ -140,8 +140,10 @@
                 <td tal:define="statuses
                                    python:{
                                         True: 'Data delivery is acceptable',
-                                        False: 'Data delivery is not acceptable',};"
-                    tal:content="python:statuses.get(context.is_acceptable() and context.successful_qa, 'N/A')">
+                                        False: 'Data delivery is not acceptable',};
+                                ok_acceptable python: context.is_acceptable() and context.successful_qa;
+                                unknown python: context.has_unknown_qa_result and ok_acceptable;"
+                    tal:content="python: 'N/A' if unknown else statuses.get(context.is_acceptable() and context.successful_qa, 'N/A')">
                 </td>
             </tr>
           </tbody>
