@@ -4,6 +4,8 @@
   xmlns:meta="http://namespaces.zope.org/meta"
   xmlns:zcml="http://namespaces.zope.org/zcml">
 
+  <include file="api/views.bdr.zcml" />
+
   <browser:page
       name="index_html"
       for=".interfaces.IRegistryManagement"
