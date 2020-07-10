@@ -265,7 +265,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         if res.status_code == 200:
             z = StringIO(res.content)
             z.filename = 'resources.zip'
-            env.manage_addDDzipfile(file=z)
+            return env.manage_addDDzipfile(file=z)
 
     def upload_to_fme(self, workitem_id):
         """Upload the file(s) to the fme data upload"""
@@ -359,6 +359,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                     'next_run': DateTime(),
                     'status': 'pending'
                 }
+                workitem.addEvent('FME job id: {} started'.format(res.json().get('id')))
                 self.__update_storage(workitem, 'fmw_exec', status='completed')
             else:
                 err = 'HTTP: {}: {}'.format(res.status_code, res.content)
@@ -413,12 +414,21 @@ class RemoteFMEConversionApplication(SimpleItem):
                                     job_status = response['result'].get('status')
                                     if job_status == 'SUCCESS':
                                         try:
-                                            self.handle_res_zip_download(workitem_id)
-                                            workitem.addEvent('Conversion successful')
-                                            self.__post_feedback(workitem, job_id, 'Conversion successful')
-                                            self.__update_storage(workitem, 'results',
-                                                                  jobid=job_id,
-                                                                  status='completed')
+                                            workitem.addEvent('FME job id: {} finished'.format(job_id))
+                                            if self.handle_res_zip_download(workitem_id) != 1:
+                                                msg = 'Something went wrong saving the converted file(s) in the envelope. Aborting'
+                                                workitem.addEvent(msg)
+                                                self.__post_feedback(workitem, job_id, msg)
+                                                self.__update_storage(workitem, 'results',
+                                                                      jobid=job_id,
+                                                                      status='failed',
+                                                                      err=err, dec_retry=True)
+                                            else:
+                                                workitem.addEvent('Conversion successful')
+                                                self.__post_feedback(workitem, job_id, 'Conversion successful')
+                                                self.__update_storage(workitem, 'results',
+                                                                      jobid=job_id,
+                                                                      status='completed')
                                         except Exception as e:
                                             self.__update_storage(workitem, 'results',
                                                                   jobid=job_id,
