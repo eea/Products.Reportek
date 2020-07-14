@@ -11,4 +11,20 @@
     attribute="manage_ownership"
   />
 
+  <browser:page
+    name="create_organisation_folder"
+    for="Products.Reportek.interfaces.IReportekAPI"
+    permission="zope2.ReportekAPI"
+    class=".api.org_collections.OrgCollections"
+    attribute="create_organisation_folder"
+  />
+
+  <browser:page
+    name="update_organisation_name"
+    for="Products.Reportek.interfaces.IReportekAPI"
+    permission="zope2.ReportekAPI"
+    class=".api.org_collections.OrgCollections"
+    attribute="update_organisation_name"
+  />
+
 </configure>
