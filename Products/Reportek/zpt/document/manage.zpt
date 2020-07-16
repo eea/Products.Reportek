@@ -14,7 +14,6 @@
               beforeEditForm python: context.getWebQ_BeforeEditForm_URL(schema=wf_schema);
               can_view_or_edit_with_webq
               python:context.getWebQ_BeforeEditForm_URL(schema=wf_schema) and context.xml_schema_location in context.getValidXMLSchemas(web_form_only=True)">
-            <span tal:content="canChangeFile"/>
             <div id="operations">
                 <ul>
                     <li>
