@@ -355,6 +355,7 @@ class EnvelopeInstance(CatalogAware, Folder):
     def assignWorkitem(self, workitem_id, actor, REQUEST=None):
         """ Assign the specified workitem of the specified instance to the specified actor (string)"""
         workitem = getattr(self, workitem_id)
+        activity = self.getActivity(workitem_id)
         user_is_ok = (REQUEST==None or
                       [r for r in REQUEST.AUTHENTICATED_USER.getRoles() if r in workitem.push_roles] or \
                       ([r for r in REQUEST.AUTHENTICATED_USER.getRoles() if r in workitem.pull_roles] and activity.isSelfAssignable()))

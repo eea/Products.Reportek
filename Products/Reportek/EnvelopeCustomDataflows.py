@@ -103,9 +103,9 @@ class EnvelopeCustomDataflows(Toolz):
     security.declareProtected('Change Envelopes', 'upload_mmr_file')
     upload_mmr_file = PageTemplateFile('zpt/envelope/upload_mmr_file', globals())
 
-    # generic method that uploads a zipped shapefile and completes the current workitem
-    security.declareProtected('Change Envelopes', 'manage_addzipshapefile')
-    manage_addzipshapefile = PageTemplateFile('zpt/envelope/add_zipshapefile', globals())
+    # generic method that uploads a fme convertible file and completes the current workitem
+    security.declareProtected('Change Envelopes', 'manage_addfmeconvfile')
+    manage_addfmeconvfile = PageTemplateFile('zpt/envelope/add_fmeconvfile', globals())
 
     def _get_xml_files_by_schema(self, schema):
         """ Returns the list of XML files with the given schema from that envelope """
@@ -673,11 +673,11 @@ class EnvelopeCustomDataflows(Toolz):
         else:
             return 0
 
-    security.declareProtected('Add Envelopes', 'manage_addShapezipfile')
-    def manage_addShapezipfile(self, file='', content_type='', restricted='',
+    security.declareProtected('Add Envelopes', 'manage_addFMEConvFile')
+    def manage_addFMEConvFile(self, file='', content_type='', restricted='',
                                required_schema=[], replace_xml=0, disallow='',
                                unpack=0, REQUEST=None):
-        """Adds a zipped shapefile to the envelope and completes the workitem"""
+        """Adds a FME Convertible fileto the envelope and completes the workitem"""
 
         trigger = False
         if unpack:

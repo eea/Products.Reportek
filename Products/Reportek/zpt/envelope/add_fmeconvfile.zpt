@@ -1,9 +1,10 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
 
   <metal:block fill-slot="content">
-    <h1 i18n:translate="">Upload zipped shapefile archive</h1>
+    <h1 i18n:translate="">Upload FME convertible</h1>
 
-    <p i18n:translate="">The zipfile upload makes it possible for you to add a large number of files in one upload. The zipfile will be uploaded and unwrapped.</p>
+    <p i18n:translate="">This can either be a zip archive or a single file.
+    The zipfile upload makes it possible for you to add a large number of files in one upload. The zipfile will be uploaded and unwrapped if the Unpack files in the envelope is checked.</p>
 
     <tal:block define="
       default_restricted python:request.SESSION.get('default_restricted', '');
@@ -12,7 +13,7 @@
       required_schema python:request.SESSION.get('required_schema', []);
       disallow python: request.SESSION.get('disallow', '')">
 
-      <form action="manage_addShapezipfile" method="post" enctype="multipart/form-data" name="form">
+      <form action="manage_addFMEConvFile" method="post" enctype="multipart/form-data" name="form">
 
       <tal:block tal:repeat="item required_schema">
           <input type="hidden" name="required_schema:list" tal:attributes="value item" />
@@ -21,7 +22,7 @@
 
       <table cellspacing="5" cellpadding="0">
         <tr>
-          <th align="left" valign="top" i18n:translate="">Zip file</th>
+          <th align="left" valign="top" i18n:translate="">File</th>
           <td align="left" valign="top"><input type="file" name="file" size="25" value="" /></td>
         </tr>
         <tr>

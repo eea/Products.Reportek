@@ -312,16 +312,30 @@ class RemoteFMEConversionApplication(SimpleItem):
             for file in files:
                 file[-1][-1].close()
 
-    def get_uploaded_files(self, workitem_id, single_file=False, shapefile=False, zipped=False):
+    def get_uploaded_files(self, workitem_id, single_file=False, shapefile=False):
         """Return a list of uploaded files"""
         workitem = getattr(self, workitem_id)
         env = workitem.getMySelf()
         upload_storage = getattr(workitem, self.app_name, {}).get('upload')
         if single_file and upload_storage['paths']:
+            if self.FMEFileTypes:
+                files = []
+                for f_ext in self.FMEFileTypes.splitlines():
+                    files.extend([f for f in upload_storage['paths']
+                                  if f.lower().endswith('.' + f_ext.lower())])
+                    if files:
+                        return files[-1]
+            zips = [f for f in upload_storage['paths']
+                    if f.lower().endswith('.zip')]
+            convs = [f for f in upload_storage['paths']
+                     if f.split('.')[0] in zips]
+            for z in zips:
+                if z not in convs:
+                    return z
             return upload_storage['paths'][-1]
         if shapefile and upload_storage['paths']:
             for p in reversed(upload_storage['paths']):
-                if (not zipped and p.endswith('.shp')) or (zipped and p.endswith('.zip')):
+                if p.endswith('.shp') or p.endswith('.zip'):
                     gmls = [fid.split('.')[0] for fid in env.objectIds('Report Document')
                             if fid.endswith('.gml')]
                     if not [x for x in gmls if p.split('.')[0] in x]:
@@ -342,7 +356,6 @@ class RemoteFMEConversionApplication(SimpleItem):
                                                         GET_FILES=self.get_uploaded_files(workitem_id),
                                                         GET_FILE=self.get_uploaded_files(workitem_id, single_file=True),
                                                         GET_SHAPEFILE=self.get_uploaded_files(workitem_id, shapefile=True),
-                                                        GET_ZIPPEDSHAPEFILE=self.get_uploaded_files(workitem_id, shapefile=True, zipped=True),
                                                         ENVPATHTOKENIZED=self.get_env_path_tokenized(workitem_id))
             wks_params = json.loads(wks_params.replace("'", '"'))
         try:
