@@ -265,7 +265,14 @@ class RemoteFMEConversionApplication(SimpleItem):
         if res.status_code == 200:
             z = StringIO(res.content)
             z.filename = 'resources.zip'
-            return env.manage_addDDzipfile(file=z)
+            add = env.manage_addDDzipfile(file=z)
+            RESULTS = {
+                1: 'SUCCESS',
+                2: 'One or more files have not been added to the envelope'
+            }
+            return (add, RESULTS.get(add, 'Something went wrong while saving the converted file(s) in the envelope'))
+        else:
+            return (res.status_code, 'Something went wrong while retrieving the converted file(s)')
 
     def upload_to_fme(self, workitem_id):
         """Upload the file(s) to the fme data upload"""
@@ -428,14 +435,15 @@ class RemoteFMEConversionApplication(SimpleItem):
                                     if job_status == 'SUCCESS':
                                         try:
                                             workitem.addEvent('FME job id: {} finished'.format(job_id))
-                                            if self.handle_res_zip_download(workitem_id) != 1:
-                                                msg = 'Something went wrong saving the converted file(s) in the envelope. Aborting'
+                                            dl_res = self.handle_res_zip_download(workitem_id)
+                                            if dl_res[0] != 1:
+                                                msg = '{}: {}'.format(dl_res[0], dl_res[1])
                                                 workitem.addEvent(msg)
                                                 self.__post_feedback(workitem, job_id, msg)
                                                 self.__update_storage(workitem, 'results',
                                                                       jobid=job_id,
                                                                       status='failed',
-                                                                      err=err, dec_retry=True)
+                                                                      err=msg, dec_retry=True)
                                             else:
                                                 workitem.addEvent('Conversion successful')
                                                 self.__post_feedback(workitem, job_id, 'Conversion successful')
@@ -454,6 +462,10 @@ class RemoteFMEConversionApplication(SimpleItem):
                                                       status='retry',
                                                       err=err, dec_retry=True)
                             elif fme_status in abort:
+                                dl_res = self.handle_res_zip_download(workitem_id)
+                                if dl_res[0] != 1:
+                                    msg = '{}: {}'.format(dl_res[0], dl_res[1])
+                                    workitem.addEvent(msg)
                                 err = 'FME Status: {}. Aborting'.format(fme_status)
                                 self.__update_storage(workitem, 'results',
                                                       jobid=job_id,
@@ -576,6 +588,21 @@ class RemoteFMEConversionApplication(SimpleItem):
                                     activity_id=workitem.activity_id,
                                     automatic=1,
                                     feedbacktext=messages)
+        feedback_ob = getattr(envelope, feedback_id)
+        conv_res_id = 'conversion_log_{}'.format(jobid)
+        for doc_id in envelope.objectIds('Report Document'):
+            if conv_res_id in doc_id:
+                doc = getattr(envelope, doc_id)
+                with doc.data_file.open() as f:
+                    feedback_ob.manage_uploadFeedback(f, filename='qa-output')
+                    feedback_attach = feedback_ob.objectValues()[0]
+                    feedback_attach.data_file.content_type = doc.content_type
+                    feedback_ob.feedbacktext = '{}</br>{}'.format(feedback_ob.feedbacktext, (
+                        'Feedback too large for inline display; '
+                        '<a href="qa-output/view">see attachment</a>.'))
+                    feedback_ob.content_type = 'text/html'
+                envelope.manage_delObjects([doc.getId()])
+                # Get the file, post if as attachment and delete it afterwards
 
     def __finish(self, workitem_id, REQUEST=None):
         """ Completes the workitem and forwards it """
