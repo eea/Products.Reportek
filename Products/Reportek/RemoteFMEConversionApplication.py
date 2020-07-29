@@ -31,12 +31,14 @@ from urlparse import urlparse
 import requests
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
+from BeautifulSoup import BeautifulSoup as bs
 from DateTime import DateTime
 from Globals import InitializeClass
 from OFS.SimpleItem import SimpleItem
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
 logger = logging.getLogger(__name__ + '.FME')
+FEEDBACKTEXT_LIMIT = 1024 * 16  # 16KB
 
 manage_addRemoteFMEConversionApplicationForm = PageTemplateFile('zpt/RemoteFMEConversionApplicationAdd',globals())
 
@@ -365,6 +367,12 @@ class RemoteFMEConversionApplication(SimpleItem):
                                                         GET_SHAPEFILE=self.get_uploaded_files(workitem_id, shapefile=True),
                                                         ENVPATHTOKENIZED=self.get_env_path_tokenized(workitem_id))
             wks_params = json.loads(wks_params.replace("'", '"'))
+            # Get the used inputfile
+            inputfile = None
+            params = wks_params.get('publishedParameters')
+            for param in params:
+                if param.get('name') == 'inputfile':
+                    inputfile = param.get('value')
         try:
             # params should be passed in the body of the request
             res = requests.post(url, data=json.dumps(wks_params), headers=self.get_headers(workitem_id))
@@ -377,7 +385,8 @@ class RemoteFMEConversionApplication(SimpleItem):
                     'retries_left': self.nRetries,
                     'last_error': None,
                     'next_run': DateTime(),
-                    'status': 'pending'
+                    'status': 'pending',
+                    'inputfile': inputfile
                 }
                 workitem.addEvent('FME job id: {} started'.format(res.json().get('id')))
                 self.__update_storage(workitem, 'fmw_exec', status='completed')
@@ -400,6 +409,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         if results:
             for job_id in results.keys():
                 if results[job_id].get('status') not in ['completed', 'failed'] and results[job_id].get('retries_left'):
+                    inputfile = results[job_id].get('inputfile')
                     url = '/'.join([self.FMEServer, rest_endpoint, str(job_id)])
                     try:
                         res = requests.get(url, headers=self.get_headers(workitem_id))
@@ -439,14 +449,20 @@ class RemoteFMEConversionApplication(SimpleItem):
                                             if dl_res[0] != 1:
                                                 msg = '{}: {}'.format(dl_res[0], dl_res[1])
                                                 workitem.addEvent(msg)
-                                                self.__post_feedback(workitem, job_id, msg)
+                                                self.__post_feedback(workitem,
+                                                                     job_id,
+                                                                     msg,
+                                                                     inputfile=inputfile)
                                                 self.__update_storage(workitem, 'results',
                                                                       jobid=job_id,
                                                                       status='failed',
                                                                       err=msg, dec_retry=True)
                                             else:
                                                 workitem.addEvent('Conversion successful')
-                                                self.__post_feedback(workitem, job_id, 'Conversion successful')
+                                                self.__post_feedback(workitem,
+                                                                     job_id,
+                                                                     'Conversion successful',
+                                                                     inputfile=inputfile)
                                                 self.__update_storage(workitem, 'results',
                                                                       jobid=job_id,
                                                                       status='completed')
@@ -473,7 +489,10 @@ class RemoteFMEConversionApplication(SimpleItem):
                                                       err=err, dec_retry=True)
                                 workitem.addEvent(err)
                                 workitem.failure = True
-                                self.__post_feedback(workitem, job_id, 'Conversion failed, aborting')
+                                self.__post_feedback(workitem,
+                                                     job_id,
+                                                     'Conversion failed, aborting',
+                                                     inputfile=inputfile)
 
                     except Exception as e:
                         self.__update_storage(workitem, 'results',
@@ -580,27 +599,51 @@ class RemoteFMEConversionApplication(SimpleItem):
                                        int(self.retryFrequency))
         workitem._p_changed = 1
 
-    def __post_feedback(self, workitem, jobid, messages, attach=None):
+    def __post_feedback(self, workitem, jobid, messages, inputfile=None, attach=None):
         envelope = self.aq_parent
         feedback_id = '{0}_{1}'.format(self.app_name, jobid)
+        if inputfile:
+            feedback_id = 'conversion_log_{}'.format(inputfile)
         envelope.manage_addFeedback(id=feedback_id, file=attach,
                                     title='%s results' % self.app_name,
                                     activity_id=workitem.activity_id,
                                     automatic=1,
-                                    feedbacktext=messages)
+                                    feedbacktext=messages,
+                                    document_id=inputfile)
         feedback_ob = getattr(envelope, feedback_id)
         conv_res_id = 'conversion_log_{}'.format(jobid)
         for doc_id in envelope.objectIds('Report Document'):
             if conv_res_id in doc_id:
                 doc = getattr(envelope, doc_id)
+                fb_status = None
+                fb_message = None
                 with doc.data_file.open() as f:
-                    feedback_ob.manage_uploadFeedback(f, filename='qa-output')
-                    feedback_attach = feedback_ob.objectValues()[0]
-                    feedback_attach.data_file.content_type = doc.content_type
-                    feedback_ob.feedbacktext = '{}</br>{}'.format(feedback_ob.feedbacktext, (
-                        'Feedback too large for inline display; '
-                        '<a href="qa-output/view">see attachment</a>.'))
-                    feedback_ob.content_type = 'text/html'
+                    content = f.read()
+                    if doc.content_type == 'text/html':
+                        soup = bs(content)
+                        log_sum = soup.find('span', attrs={'id' : 'feedbackStatus'})
+                        fb_status = log_sum.get('class', 'UNKNOWN')
+                        fb_message = log_sum.text
+                    if len(content) > FEEDBACKTEXT_LIMIT:
+                        f.seek(0)
+                        feedback_ob.manage_uploadFeedback(f, filename='qa-output')
+                        feedback_attach = feedback_ob.objectValues()[0]
+                        feedback_attach.data_file.content_type = doc.content_type
+                        feedback_ob.feedbacktext = '{}</br>{}'.format(feedback_ob.feedbacktext, (
+                            'Feedback too large for inline display; '
+                            '<a href="qa-output/view">see attachment</a>.'))
+                        feedback_ob.content_type = 'text/html'
+                    else:
+                        feedback_ob.feedbacktext = content
+                        feedback_ob.content_type = doc.content_type
+                if fb_status and fb_message:
+                    if fb_status == 'BLOCKER':
+                        workitem.blocker = True
+                    feedback_ob.message = fb_message
+                    feedback_ob.feedback_status = fb_status
+                    feedback_ob._p_changed = 1
+                    feedback_ob.reindex_object()
+
                 envelope.manage_delObjects([doc.getId()])
                 # Get the file, post if as attachment and delete it afterwards
 
