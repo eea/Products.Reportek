@@ -1402,26 +1402,48 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 'rw': [],
                 'ro': []
             }
+            def get_colls(paths):
+                """Paths is a dictionary {'paths': [], 'prev_paths': []}"""
+                acc_paths = list(set(user_paths.get('paths') + user_paths.get('prev_paths')))
+                colls = {
+                    'rw': [],
+                    'ro': []
+                }
+                for colPath in acc_paths:
+                    try:
+                        if colPath in user_paths.get('paths'):
+                            colls['rw'].append(self.unrestrictedTraverse('/'+str(colPath)))
+                        else:
+                            colls['ro'].append(self.unrestrictedTraverse('/'+str(colPath)))
+                    except:
+                        logger.warning("Cannot traverse path: %s" % ('/'+str(colPath)))
+
+                return colls
+
             logger.debug("Attempt to interrogate middleware for authorizations for user:id %s:%s" % (username, ecas_user_id))
             if ecas_user_id:
                 user_paths = self.authMiddleware.getUserCollectionPaths(ecas_user_id,
                             recheck_interval=self.authMiddleware.recheck_interval)
-                acc_paths = list(set(user_paths.get('paths') + user_paths.get('prev_paths')))
-
-                for colPath in acc_paths:
-                    try:
-                        if colPath in user_paths.get('paths'):
-                            middleware_collections['rw'].append(self.unrestrictedTraverse('/'+str(colPath)))
-                        else:
-                            middleware_collections['ro'].append(self.unrestrictedTraverse('/'+str(colPath)))
-                    except:
-                        logger.warning("Cannot traverse path: %s" % ('/'+str(colPath)))
+                colls = get_colls(user_paths)
+                middleware_collections['rw'] += [col for col in colls.get('rw')
+                                                 if col not in middleware_collections['rw']]
+                middleware_collections['ro'] += [col for col in colls.get('rw')
+                                                 if col not in middleware_collections['ro']]
             catalog = getattr(self, constants.DEFAULT_CATALOG)
 
-            middleware_collections['rw'] += [ br.getObject() for br in catalog(id=username) ]
+            middleware_collections['rw'] += [ br.getObject() for br in catalog(id=username)
+                                            if not br.getObject() in middleware_collections['rw']]
+
+            # check BDR registry
+            user_paths = self.BDRRegistryAPI.getCollectionPaths(username)
+            colls = get_colls(user_paths)
+            middleware_collections['rw'] += [col for col in colls.get('rw')
+                                             if col not in middleware_collections['rw']]
+            middleware_collections['ro'] += [col for col in colls.get('rw')
+                                             if col not in middleware_collections['ro']]
 
             collections['Reporter'] = middleware_collections
-            local_roles = ['Auditor', 'ClientFG', 'ClientODS', 'ClientCARS']
+            local_roles = ['Auditor', 'ClientFG', 'ClientODS', 'ClientCARS', 'ClientHDV']
             local_r_col = catalog(meta_type='Report Collection',
                                   local_unique_roles=local_roles)
 
@@ -1430,7 +1452,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                        and len(br.getPath().split('/')) == 3]
 
             def is_client(l_roles):
-                c_roles = ['ClientFG', 'ClientODS', 'ClientCARS']
+                c_roles = ['ClientFG', 'ClientODS', 'ClientCARS', 'ClientHDV']
                 return [role for role in l_roles if role in c_roles]
 
             client = [br.getObject() for br in local_r_col

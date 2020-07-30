@@ -8,7 +8,7 @@ from interfaces import IRegistryManagement
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
 from plone.memoize import ram
-from Products.Reportek.constants import DF_URL_PREFIX
+from Products.Reportek.constants import DF_URL_PREFIX, ENGINE_ID
 from requests.exceptions import RequestException
 from zope.interface import implementer
 
@@ -436,7 +436,7 @@ class BDRRegistryAPI(BaseRegistryAPI):
         except RequestException as e:
             logger.warning("Unable to retrieve csrf: %s" % str(e))
 
-        engine = self.getEngine()
+        engine = self.unrestrictedTraverse(ENGINE_ID)
 
         data = {
             'username': getattr(engine, 'bdr_registry_username', ''),
@@ -495,3 +495,29 @@ class BDRRegistryAPI(BaseRegistryAPI):
 
         if response:
             return response.json()
+
+    @ram.cache(lambda *args, **kwargs: args[2] + str(time() // (10 * 60)))
+    def get_user_details(self, username):
+        """Get details for username"""
+        url = self.baseUrl + '/management/username/companies/'
+        params = {
+            "username": username
+        }
+        response = self.do_api_request(url, params=params)
+        # [{"company_name": "test company hdv Diana", "reporting_folder": "", "has_reporting_folder": false, "registry_url": "https://bdr-test.eionet.europa.eu/registry/company/55"}]
+        if response:
+            return response.json()
+
+    def getCollectionPaths(self, username):
+        """ Get collections accessible by the user """
+        usr_details = self.get_user_details(username)
+        rep_paths = {
+            'paths': [],
+            'prev_paths': []
+        }
+        if usr_details:
+            for res in usr_details:
+                if res.get('has_reporting_folder'):
+                    rep_paths['paths'].append(res.get('reporting_folder'))
+
+        return rep_paths
