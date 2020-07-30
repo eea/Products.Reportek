@@ -1405,7 +1405,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
             def get_colls(paths):
                 """Paths is a dictionary {'paths': [], 'prev_paths': []}"""
-                acc_paths = list(set(user_paths.get('paths') + user_paths.get('prev_paths')))
+                acc_paths = list(set(paths.get('paths') + paths.get('prev_paths')))
                 colls = {
                     'rw': [],
                     'ro': []
@@ -1413,7 +1413,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 for colPath in acc_paths:
                     path = str(colPath) if colPath.startswith('/') else '/{}'.format(str(colPath))
                     try:
-                        if path in user_paths.get('paths'):
+                        if path in paths.get('paths'):
                             colls['rw'].append(self.unrestrictedTraverse(path))
                         else:
                             colls['ro'].append(self.unrestrictedTraverse(path))
