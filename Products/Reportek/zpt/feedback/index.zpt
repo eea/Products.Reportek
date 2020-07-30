@@ -88,7 +88,7 @@
 
       <tal:def tal:define="not_applicable_titles python: ['Confirmation of receipt', 'You didn\'t upload!', 'Cover letter', 'Natura 2000 electronic data submission'];
                            applicable python: not (context.title in not_applicable_titles or
-                                                   context.getId().startswith('conversion_log')) or
+                                                   (context.getId().startswith('conversion_log') and not getattr(context, 'feedback_status', None))) or
                                                    context.getId().startswith('Receipt of delivery');">
         <tal:block tal:condition="python: context.automatic and applicable">
           <tr>
