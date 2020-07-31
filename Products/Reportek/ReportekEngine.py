@@ -1429,7 +1429,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 colls = get_colls(user_paths)
                 middleware_collections['rw'] += [col for col in colls.get('rw')
                                                  if col not in middleware_collections['rw']]
-                middleware_collections['ro'] += [col for col in colls.get('rw')
+                middleware_collections['ro'] += [col for col in colls.get('ro')
                                                  if col not in middleware_collections['ro']]
             catalog = getattr(self, constants.DEFAULT_CATALOG)
 
