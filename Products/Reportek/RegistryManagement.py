@@ -505,8 +505,9 @@ class BDRRegistryAPI(BaseRegistryAPI):
         }
         response = self.do_api_request(url, params=params)
         # [{"company_name": "test company hdv Diana", "reporting_folder": "", "has_reporting_folder": false, "registry_url": "https://bdr-test.eionet.europa.eu/registry/company/55"}]
-        if response:
+        if response and response.status_code == requests.codes.ok:
             return response.json()
+        return []
 
     def getCollectionPaths(self, username):
         """ Get collections accessible by the user """
