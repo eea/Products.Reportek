@@ -1413,7 +1413,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 for colPath in acc_paths:
                     path = str(colPath) if colPath.startswith('/') else '/{}'.format(str(colPath))
                     try:
-                        if path in paths.get('paths'):
+                        if colPath in paths.get('paths'):
                             colls['rw'].append(self.unrestrictedTraverse(path))
                         else:
                             colls['ro'].append(self.unrestrictedTraverse(path))
