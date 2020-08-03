@@ -16,7 +16,8 @@
 # Rights Reserved.
 #
 # Contributor(s):
-# Miruna Badescu, Finsiel Romania
+# Miruna Badescu, Eau de Web
+# Olimpiu Rob, Eau de Web
 
 """
 Feedback module
@@ -37,6 +38,9 @@ from os.path import join, isfile
 # Zope imports
 from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate
 from Products.ZCatalog.CatalogAwareness import CatalogAware
+from Products.Reportek.interfaces import IFeedback
+from Products.Reportek.RepUtils import DFlowCatalogAware
+from Products.Reportek.RepUtils import parse_uri
 from AccessControl.Permissions import view_management_screens
 from OFS.SimpleItem import SimpleItem
 from OFS.ObjectManager import ObjectManager
@@ -47,7 +51,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl import getSecurityManager, ClassSecurityInfo
 #from webdav.WriteLockInterface import WriteLockInterface
 from DateTime import DateTime
-
+from zope.interface import implements
 # Product specific imports
 from Products.Reportek.Document import Document
 from Comment import CommentsManager
@@ -104,8 +108,6 @@ def manage_addFeedback(self, id ='', title='', feedbacktext='', file=None, activ
 
     envelope._invalidate_zip_cache()
 
-    #if REQUEST is None: REQUEST = self.REQUEST
-
     if engine.UNS_server and not ob.automatic:
         engine.sendNotificationToUNS(envelope, 'Feedback posted', 'Feedback was posted in the envelope %s (%s)' % (envelope.title_or_id(), obj.absolute_url()), self.REQUEST.AUTHENTICATED_USER.getUserName())
 
@@ -137,7 +139,7 @@ def manage_addManualQAFeedback(self, id ='', title='', feedbacktext='', file=Non
         return self.messageDialog(message="The Feedback %s was successfully created!" % id,
                                   action=self.absolute_url())
 
-class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, CommentsManager):
+class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, CommentsManager, DFlowCatalogAware):
     """
         Feedback objects are created in envelopes either manually (by Clients)
         or automatically (by activities such as the Automatic QA or Confirmation Receipt).
@@ -169,6 +171,7 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
     # Create a SecurityInfo for this class. We will use this
     # in the rest of our class definition to make security
     # assertions.
+    implements(IFeedback)
     security = ClassSecurityInfo()
 
     def __init__(self, id, releasedate, title='', feedbacktext='', activity_id='', automatic=0,
@@ -212,20 +215,27 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
         return y
 
     security.declareProtected('Change Feedback', 'manage_editFeedback')
-    def manage_editFeedback(self, title='', feedbacktext='', content_type='', document_id=None, applyRestriction='', restricted='', REQUEST=None):
+    def manage_editFeedback(self, title='', feedbacktext='', content_type='', document_id=None, applyRestriction='', restricted='', feedback_status='', message='', REQUEST=None):
         """ Edits the properties """
-        self.title = title
-        tmp = StringIO.StringIO(feedbacktext)
-        convs = getattr(self.getPhysicalRoot(), constants.CONVERTERS_ID, None)
-        # if Local Conversion Service is down
-        # the next line of code will raise an exception
-        # because we don't want to save unsecure html
-        sanitizer = convs['safe_html']
-        self.feedbacktext = sanitizer.convert(tmp, sanitizer.id).text
+        if title:
+            self.title = title
+        if feedbacktext:
+            tmp = StringIO.StringIO(feedbacktext)
+            convs = getattr(self.getPhysicalRoot(), constants.CONVERTERS_ID, None)
+            # if Local Conversion Service is down
+            # the next line of code will raise an exception
+            # because we don't want to save unsecure html
+            sanitizer = convs['safe_html']
+            self.feedbacktext = sanitizer.convert(tmp, sanitizer.id).text
         if content_type:
             self.content_type = content_type
         if document_id != 'None':
             self.document_id = document_id
+        if feedback_status:
+            self.feedback_status = feedback_status
+        if message:
+            self.message = message
+
         if applyRestriction:
             if restricted:
                 self.manage_restrictFeedback()
@@ -348,6 +358,8 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
             If feedback is restricted the 'View' permission flag is removed.
         """
         REQUEST.RESPONSE.setHeader('content-type', 'application/rdf+xml; charset=utf-8')
+        engine = self.getEngine()
+        http_res = getattr(engine, 'exp_httpres', False)
         #if not self.canViewContent():
         #    raise Unauthorized, "Envelope is not available"
 
@@ -360,7 +372,7 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
         res.append(' xmlns:cr="http://cr.eionet.europa.eu/ontologies/contreg.rdf#"')
         res.append(' xmlns="http://rod.eionet.europa.eu/schema.rdf#">')
 
-        res.append('<rdf:Description rdf:about="%s">' % RepUtils.xmlEncode(self.absolute_url()))
+        res.append('<rdf:Description rdf:about="%s">' % RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)))
         res.append('</rdf:Description>')
         res.append('</rdf:RDF>')
         return '\n'.join(res)

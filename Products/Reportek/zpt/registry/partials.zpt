@@ -17,6 +17,10 @@
         <td tal:content="candidate/vat_number" />
       </tr>
       <tr>
+        <th>EORI number</th>
+        <td tal:content="candidate/eori|nothing" />
+      </tr>
+      <tr>
         <th>Reporting folder</th>
         <td>
           <a tal:condition="candidate/account"
@@ -54,6 +58,20 @@
       </tr>
 
       <tr>
+        <th>Company id</th>
+        <td tal:content="company/company_id|nothing" />
+      </tr>
+
+      <tr>
+        <th>Old company id</th>
+        <td tal:content="company/oldcompany_id|nothing" />
+      </tr>
+
+      <tr>
+        <th>Old company account</th>
+        <td tal:content="company/oldcompany_account|nothing" />
+      </tr>
+      <tr>
         <th>Status</th>
         <td tal:content="company/status" />
       </tr>
@@ -73,8 +91,9 @@
         <td tal:content="company/address/zipcode" />
       </tr>
 
-      <tr>
-        <th>VAT number</th>
+      <tr tal:define="domain company/domain">
+        <th tal:condition="python: domain == 'ODS'">EORI number</th>
+        <th tal:condition="python: domain != 'ODS'">VAT number</th>
         <td tal:content="company/vat" />
       </tr>
 
@@ -95,6 +114,44 @@
              tal:condition="company/website"
              tal:content="company/website" />
         </td>
+      </tr>
+      <tr>
+        <th>Types</th>
+        <td tal:define="types company/types|nothing;
+                        types python: types.split(',') if types else [];">
+          <ul class="types">
+            <li tal:repeat="type types" tal:content="type"/>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <th>Business profile</th>
+        <td tal:define="profiles company/businessprofile|nothing;
+                        profiles python: profiles.split(',') if profiles else [];">
+          <ul class="types">
+            <li tal:repeat="profile profiles" tal:content="profile"/>
+          </ul>
+        </td>
+      </tr>
+      <tr>
+        <th>Date created (European Registry)</th>
+        <td tal:content="company/date_created|nothing" />
+      </tr>
+      <tr>
+        <th>Date updated (European Registry)</th>
+        <td tal:content="company/date_updated|nothing" />
+      </tr>
+      <tr>
+        <th>Date created (Cache Registry)</th>
+        <td tal:content="company/date_created_in_ecr|nothing" />
+      </tr>
+      <tr>
+        <th>Date updated (Cache Registry)</th>
+        <td tal:content="company/date_updated_in_ecr|nothing" />
+      </tr>
+      <tr>
+        <th>Reporting checks passed</th>
+        <td tal:content="company/check_passed|nothing" />
       </tr>
     </table>
   </div>

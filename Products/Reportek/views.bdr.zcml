@@ -4,12 +4,7 @@
   xmlns:meta="http://namespaces.zope.org/meta"
   xmlns:zcml="http://namespaces.zope.org/zcml">
 
-  <browser:page
-      name="envelopes.autocomplete"
-      for=".interfaces.IReportekUtilities"
-      permission="zope2.ViewManagementScreens"
-      class=".views.EnvelopeUtils"
-      template="zpt/utilities/envelopes_autocomplete.zpt"/>
+  <include file="api/views.bdr.zcml" />
 
   <browser:page
       name="index_html"
@@ -38,6 +33,13 @@
       permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"
       attribute="get_company_json"/>
+
+  <browser:page
+      name="organisations"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.FgasesRegistryAdministration"
+      class=".views.SatelliteRegistryManagement"
+      attribute="get_organisations_xml"/>
 
   <browser:page
       name="get_candidates"
@@ -190,7 +192,7 @@
       name="collections_json"
       for=".interfaces.IReportekAPI"
       class=".views.ReportekApi"
-      permission="zope2.ViewManagementScreens"
+      permission="zope2.FgasesRegistryAdministration"
       attribute="collections_json"/>
 
 </configure>

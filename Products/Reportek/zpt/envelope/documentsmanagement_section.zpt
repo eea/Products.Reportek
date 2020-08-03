@@ -2,6 +2,7 @@
                        menuEnvelope here/getWebQ_MenuEnvelope_URL;
                        canChangeEnvelope here/canChangeEnvelope;
                        showFormButtons python:here.is_active_for_me(request) and canChangeEnvelope and not here.released;
+                       drafthideformbuttons python: getattr(request, 'drafthideformbuttons', False);
                        qa_4_files python:test(showFormButtons, here.canRunQAOnFiles(), {});
                        documents python:here.tlzSortByAttr(here.objectValues(['Report Document']), 'id');
                        hyperlinks  python:here.tlzSortByAttr(here.objectValues(['Report Hyperlink']), 'id');
@@ -42,7 +43,7 @@
               <tal:block tal:repeat="script_item python:qa_4_files[item.id]">
                 <tal:block tal:condition="python:item.canHaveOnlineQA(script_item[3])">
                   <tal:block tal:condition="python:script_item[0] != -1" tal:define="script_item_id python:script_item[0]; script_item_title python:script_item[1];">
-                    <a tal:attributes="href string:${item/absolute_url}/runQAScript?p_file_url=${item/absolute_url}&amp;p_script_id=${script_item_id}; title string:Run ${script_item_title}" class="test_button">Run QA #<span tal:replace="python:path('repeat/script_item/index')+1" /></a>
+                    <a tal:attributes="href string:${item/absolute_url}/runQAScript?p_file_url=${item/parsed_absolute_url}&amp;p_script_id=${script_item_id}; title string:Run ${script_item_title}" class="test_button">Run QA #<span tal:replace="python:path('repeat/script_item/index')+1" /></a>
                   </tal:block>
                 </tal:block>
                 <tal:block tal:condition="python:not item.canHaveOnlineQA(script_item[3])">
@@ -79,7 +80,7 @@
         </tr>
       </tbody>
       </table>
-      <tal:block tal:condition="showFormButtons">
+      <tal:block tal:condition="python: showFormButtons and not drafthideformbuttons">
         <tal:block tal:condition="python:len(documents)>0 or len(hyperlinks)>0">
           <p>
             <input type="submit" class="fileop" name="manage_renameForm:method" value="Rename" title="Select some files to rename them" i18n:attributes="value;title" />

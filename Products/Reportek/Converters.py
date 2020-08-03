@@ -123,14 +123,18 @@ class Converters(Folder):
                                 LOCAL_CONVERTERS_HOST,
                                 LOCAL_CONVERTERS_PORT)
 
-    def _http_params(self):
+    def _http_params(self, exclude_internal=False):
         url = self.get_local_http_converters_url() + 'params'
         resp = requests.get(url)
-        return resp.json()['list']
+        result = resp.json()['list']
+        if exclude_internal:
+            # Exclude converters that are for internal usage only
+            result = [c for c in result if not c[-1]]
+        return result
 
-    def _get_local_converters(self):
+    def _get_local_converters(self, exclude_internal=False):
         local_converters = []
-        for attrs in self._http_params():
+        for attrs in self._http_params(exclude_internal=exclude_internal):
             conv = Converter.LocalHttpConverter(*attrs).__of__(self)
             local_converters.append(conv)
         return local_converters
@@ -166,7 +170,7 @@ class Converters(Folder):
         return remote_converters
 
     security.declarePublic('displayPossibleConversions')
-    def displayPossibleConversions(self, contentType, doc_schema='', filename=''):
+    def displayPossibleConversions(self, contentType, doc_schema='', filename='', exclude_internal=False):
         """ Finds the converters available for a type of document. """
         local_converters = []
         remote_converters = []
@@ -174,7 +178,7 @@ class Converters(Folder):
         if filesuffix == '': filesuffix='totally-unlikely-suffix.'
         # Find in list of local converters
         try:
-            available_local_converters = self._get_local_converters()
+            available_local_converters = self._get_local_converters(exclude_internal=exclude_internal)
         except requests.ConnectionError as ex:
             if doc_schema:
                 remote_converters = self.get_remote_converters_for_schema(doc_schema)
@@ -283,9 +287,13 @@ class Converters(Folder):
                     return result.content
 
         if source == 'remote':
-            conv = Converter.RemoteConverter(converter_id).__of__(self)
-            return conv(file_url)
+            return self.run_remote_conversion(file_url, converter_id)
 
+    security.declarePublic('run_remote_conversion')
+    def run_remote_conversion(
+            self, file_url, converter_id, write_to_response=True):
+        conv = Converter.RemoteConverter(converter_id).__of__(self)
+        return conv(file_url, write_to_response=write_to_response)
 
 
 Globals.InitializeClass(Converters)

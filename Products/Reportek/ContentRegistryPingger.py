@@ -1,12 +1,15 @@
-from BeautifulSoup import BeautifulSoup as bs
 import logging
-logger = logging.getLogger("Reportek")
-import requests
+import pickle
 import threading
 import time
+
+import requests
+from BeautifulSoup import BeautifulSoup as bs
 from config import *
 from constants import PING_ENVELOPES_REDIS_KEY
-import pickle
+from Products.Reportek.rabbitmq import send_message
+
+logger = logging.getLogger("Reportek")
 
 class ContentRegistryPingger(object):
 
@@ -18,8 +21,9 @@ class ContentRegistryPingger(object):
                                  port=REDIS_PORT,
                                  db=REDIS_DATABASE)
 
-    def __init__(self, api_url):
+    def __init__(self, api_url, cr_rmq=False):
         self.api_url = api_url
+        self.cr_rmq = cr_rmq
 
     def _log_ping(self, success, message, url, ping_argument=None):
         if not ping_argument or ping_argument == 'create':
@@ -28,13 +32,13 @@ class ContentRegistryPingger(object):
             action = 'delete'
         messageBody = self.content_registry_pretty_message(message)
         if success:
-            logger.info("Content Registry (%s) pingged OK for the %s of %s\nResponse was: %s"
+            logger.info("Content Registry (%s) pingged OK for the %s of %s. Response was: %s"
                         % (self.api_url, action, url, messageBody))
         else:
-            logger.warning("Content Registry (%s) ping unsuccessful for the %s of %s\nResponse was: %s"
+            logger.warning("Content Registry (%s) ping unsuccessful for the %s of %s. Response was: %s"
                             % (self.api_url, action, url, messageBody))
 
-    def content_registry_ping(self, uris, ping_argument=None, envPathName=None):
+    def content_registry_ping(self, uris, ping_argument=None, envPathName=None, wk=None):
         """ Pings the Content Registry to harvest a new envelope almost immediately after the envelope is released or revoked
             with the name of the envelope's RDF output
         """
@@ -49,30 +53,43 @@ class ContentRegistryPingger(object):
             return uri
 
         allOk = True
+        ping_res = ''
+        http_code = None
         if not ping_argument:
             ping_argument = 'create'
-        if envPathName and self.PING_STORE:
+        if envPathName and self.PING_STORE and not self.cr_rmq:
             ts = self._start_ping(envPathName, op=ping_argument)
         for uri in uris:
             uri = parse_uri(uri)
-            success, message = self._content_registry_ping(uri, ping_argument=ping_argument)
-            self._log_ping(success, message, uri, ping_argument)
+            success, response = self._content_registry_ping(uri, ping_argument=ping_argument)
+            ping_res = getattr(response, 'text', '')
+            http_code = getattr(response, 'status_code', None)
+            self._log_ping(success, ping_res, uri, ping_argument)
+            if wk:
+                msgs = {
+                    True: "CR Ping successful for the {} of {} (HTTP status: {})".format(ping_argument, uri, http_code),
+                    False: "CR Ping failed for the {} of {} (HTTP status: {})".format(ping_argument, uri, http_code)
+                }
+                wk.addEvent(msgs.get(success))
             allOk = allOk and success
-            if envPathName and self.PING_STORE and not self._check_ping(envPathName, ts):
-                allOk = False
-                break
-        if envPathName and self.PING_STORE:
+            if envPathName and self.PING_STORE and not self.cr_rmq:
+                if not self._check_ping(envPathName, ts):
+                    allOk = False
+                    break
+        if envPathName and self.PING_STORE and not self.cr_rmq:
             self._stop_ping(envPathName, ts)
-        return allOk
 
-    def content_registry_ping_async(self, uris, ping_argument=None, envPathName=None):
+        return allOk, ping_res
+
+    def content_registry_ping_async(self, uris, ping_argument=None, envPathName=None, wk=None):
         # delegate this to fire and forget thread - don't keep the user (browser) waiting
 
         pingger = threading.Thread(target=ContentRegistryPingger.content_registry_ping,
                          name='contentRegistryPing',
                          args=(self, uris),
                          kwargs={'ping_argument': ping_argument,
-                                 'envPathName': envPathName})
+                                 'envPathName': envPathName,
+                                 'wk': wk})
         pingger.setDaemon(True)
         pingger.start()
         return
@@ -83,13 +100,24 @@ class ContentRegistryPingger(object):
             params['create'] = 'true'
         elif ping_argument == 'delete':
             params['delete'] = 'true'
-        resp = requests.get(self.api_url, params=params)
-        if resp.status_code == 200:
-            return (True, resp.text)
-        return (False, resp.text)
+        if not getattr(self, 'cr_rmq', None):
+            resp = requests.get(self.api_url, params=params)
+            if resp.status_code == 200:
+                return (True, resp)
+        else:
+            options = {}
+            options['create'] = ping_argument
+            options['service_to_ping'] = self.api_url
+            options['obj_url'] = uri
+            resp = self.ping_RabbitMQ(options)
+            if resp:
+                return (True, 'Queued')
+
+        return (False, resp)
 
     @classmethod
     def content_registry_pretty_message(cls, message):
+        messageBody = ''
         try:
             if '<html' in message:
                 messageBody = bs(message).find('body').text
@@ -137,3 +165,13 @@ class ContentRegistryPingger(object):
             envPingStatus = {'op': None, 'ts': 0}
         envPingStatus = pickle.dumps(envPingStatus)
         self.PING_STORE.hset(PING_ENVELOPES_REDIS_KEY, envPathName, envPingStatus)
+
+    def ping_RabbitMQ(self, options):
+        """ Ping the CR/SDS service via RabbitMQ
+        """
+        msg = "{create}|{service_to_ping}|{obj_url}".format(**options)
+        try:
+            send_message(msg, queue="cr_queue")
+            return True
+        except Exception as err:
+            logger.error("Sending '%s' in 'cr_queue' FAILED: %s", msg, err)

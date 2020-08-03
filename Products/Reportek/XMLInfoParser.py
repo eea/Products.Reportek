@@ -47,7 +47,7 @@ def detect_schema(src):
     otherwise throw an SchemaError exception in order to reject the file.
     """
     try:
-        iterparser = lxml.etree.iterparse(src)
+        iterparser = lxml.etree.iterparse(src, huge_tree=True)
         iterparser = iter(iterparser)
         event, element = next(iterparser)
         doc = element.getroottree()

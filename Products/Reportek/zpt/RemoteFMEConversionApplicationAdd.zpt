@@ -1,0 +1,109 @@
+<metal:block use-macro="container/standard_template.pt/macros/page">
+  <metal:block fill-slot="content">
+    <h1>Add Remote FME Conversion Application</h1>
+
+    <form action="manage_addRemoteFMEConversionApplication" method="post" enctype="multipart/form-data" name="form">
+    <table>
+    <tr>
+      <th>Id</th>
+      <td colspan="2"><input type="text" name="id" size="40" /></td>
+    </tr>
+    <tr>
+      <th>Title</th>
+      <td colspan="2"><input type="text" name="title" size="40" /></td>
+    </tr>
+    <tr>
+      <th>FME Server</th>
+      <td colspan="2"><input type="text" name="FMEServer" size="40" /></td>
+    </tr>
+    <tr>
+      <th>FME Token Endpoint</th>
+      <td colspan="2"><input type="text" name="FMETokenEndpoint" size="40" /></td>
+    </tr>
+    <tr>
+      <th>FME Token (Overrides automatic generation)</th>
+      <td colspan="2">
+        <input type="text" name="FMEToken" size="40" />
+      </td>
+    </tr>
+    <tr>
+      <th>FME Username</th>
+      <td colspan="2"><input type="text" name="FMEUser" size="40" /></td>
+    </tr>
+    <tr>
+      <th>FME Password</th>
+      <td colspan="2"><input type="password" name="FMEPassword" size="40" /></td>
+    </tr>
+    <tr>
+      <th>FME Token Expiration</th>
+      <td colspan="1"><input type="text" name="FMETokenExpiration" style="width: 100%"/></td>
+      <td colspan="1">
+        <select name="FMETokenTimeUnit" style="width: 100%">
+          <option value="second" i18n:translate="">Second(s)</option>
+          <option value="minute" i18n:translate="">Minute(s)</option>
+          <option value="hour" i18n:translate="">Hour(s)</option>
+          <option value="day" i18n:translate="">Day(s)</option>
+        </select>
+      </td>
+    </tr>
+    <tr>
+      <th>FME Upload endpoint</th>
+      <td colspan="2"><input type="text" name="FMEUploadEndpoint" size="40" /></td>
+    </tr>
+    <tr>
+      <th>FME Upload directory (relative to FME Upload Endpoint)</th>
+      <td colspan="2"><input type="text" name="FMEUploadDir" size="40" /></td>
+    </tr>
+    <tr>
+      <th>FME Transformation path</th>
+      <td colspan="2"><input type="text" name="FMETransformation" size="40" /></td>
+    </tr>
+    <tr>
+      <th>FME Workspace</th>
+      <td colspan="2"><input type="text" name="FMEWorkspace" size="40" /></td>
+    </tr>
+    <tr>
+      <th>FME Workspace exec parameters (JSON template)</th>
+      <td colspan="2">
+        <textarea name="FMEWorkspaceParams" rows="10" cols="40" size="40" >
+        </textarea>
+      </td>
+    </tr>
+    <tr>
+      <th>FME Upload parameters (one per line)</th>
+      <td colspan="2">
+        <textarea name="FMEUploadParams" rows="5" cols="40" size="40" >
+        </textarea>
+      </td>
+    </tr>
+    <tr>
+      <th>FME Convert filetypes (extension, one per line)</th>
+      <td colspan="2">
+        <textarea name="FMEFileTypes" rows="5" cols="40" size="40">
+        </textarea>
+      </td>
+    </tr>
+    <tr>
+      <th>FME Upload all files in the envelope</th>
+      <td colspan="2">
+        <input type="checkbox" name="FMEUploadAll" />
+      </td>
+    </tr>
+    <tr>
+      <th>FME Post Conversion Cleanup</th>
+      <td colspan="2">
+        <input type="checkbox" name="FMEConvCleanup" />
+      </td>
+    </tr>
+    <tr>
+      <th>Activity ID</th>
+      <td colspan="2"><input type="text" name="app_name" size="40" /></td>
+    </tr>
+    <tr>
+      <td style="border: none;"></td>
+      <td style="border: none;"><input type="submit" value=" Add " /></td>
+      </tr>
+    </table>
+    </form>
+  </metal:block>
+</metal:block>

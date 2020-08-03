@@ -553,7 +553,8 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         self._check_controls(self.browser.contents)
 
         # We have an ajax call that we need to see the result of
-        ajax_url = self.app.absolute_url() + '/api.get_users_by_path'
+        r_utilities = getattr(self.app, constants.REPORTEK_UTILITIES)
+        ajax_url = r_utilities.absolute_url() + '/api.get_users_by_path'
         self.browser.post(ajax_url, 'obligation=8&role=&countries%5B%5D=tc')
         expected_result = ('{"data": [{"obligations": ['
                           '["http://nohost/obligations/1", '
@@ -563,6 +564,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
                           '"uid": "test_user_1_"}}, '
                           '"collection": {"path": "/tc", '
                           '"type": "Report Collection", '
+                          '"company_id": null, '
                           '"title": "Test Country"}}]}')
         self.assertEqual(expected_result, self.browser.contents)
 

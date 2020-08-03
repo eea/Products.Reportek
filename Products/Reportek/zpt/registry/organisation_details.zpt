@@ -6,8 +6,7 @@
 
     <script type="text/javascript" charset="utf8"
           src="++resource++static/jquery-1.11.2.min.js"></script>
-    <script type="text/javascript" charset="utf8"
-          src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" charset="utf8" src="++resource++static/datatables.min.js"></script>
     <script src="++resource++static/select2-3.5.0/select2.js"></script>
     <script src="++resource++static/utils.js"></script>
     <script src="++resource++static/moment.min.js"></script>
@@ -21,6 +20,12 @@
   <metal:block fill-slot="content">
     <p class="important-msg" tal:condition="request/done | nothing">
       Operations completed succesfully.
+    </p>
+    <p class="important-msg" tal:condition="options/error | nothing">
+      <span tal:content="options/error"/>
+    </p>
+        <p class="important-msg" tal:condition="options/info_message | nothing">
+      <span tal:content="options/info_message"/>
     </p>
     <tal:block define="company view/get_company_details">
 
@@ -50,24 +55,30 @@
                 <li tal:condition="python: status != 'VALID'">
                   <a class="org-action" id="valid_status-action" href="#">Validate company</a>
                 </li>
+                <li>
+                  <a class="org-action" id="sync-action" href="#">Sync company</a>
+                </li>
               </ul>
             </form>
           </div>
         </div>
         <hr>
-        <h2>Reporting folder</h2>
-        <span>
-          You can see the company deliveries here:
-          <a tal:attributes="href company/path"
-          tal:condition="company/path"
-          tal:content="company/path" />
-        </span>
         <tal:block condition="company/representative" define="representative company/representative">
           <h2>EU Legal representative</h2>
           <tal:block metal:use-macro="here/partials/macros/representative_details" />
         </tal:block>
+        <h2>Reporting folder</h2>
+        <span tal:condition="company/path">
+          <tal:block tal:condition="python: not '/non-eu/' in company.get('path', '')">
+            You can see the company deliveries here:
+            <a tal:attributes="href company/path"
+              tal:content="company/path" />
+          </tal:block>
+          <tal:block tal:condition="python: '/non-eu/' in company.get('path', '')">
+            NON-EU companies with no legal representative are not required to report.
+          </tal:block>
+        </span>
         <h2 id="persons">Reporters</h2>
-
         <div>
           <div tal:condition="company/warning" class="legend clearfix">
             <strong>Legend</strong>
@@ -76,7 +87,7 @@
               </dt>
               <dd>
                 User can not report yet, because he/she never logged in
-                <a tal:attributes="href view/get_url">FGAS portal</a>.
+                <a tal:attributes="href view/get_url">European registry</a>.
               </dd>
             </dl>
           </div>
@@ -114,6 +125,8 @@
             if (action.split('_status').length > 1) {
               newval = action.split('_status')[0];
               org_action = 'statusupdate';
+            } else if (action === "sync") {
+              org_action = 'sync';
             }
             var confirmation = false;
             var form = $("#action-form");
@@ -124,11 +137,17 @@
               } else if (newval === "valid") {
                 confirmation = confirm("Are you sure you want to set the company's status to VALID?");
               }
-              if (confirmation) {
+            } else if (org_action === "sync") {
+                confirmation = confirm("Are you sure you want to trigger manual company sync?");
+            }
+            if (confirmation) {
+              if (newval !== "sync") {
                 $("input[name='newval']").val(newval);
                 $("input[name='orgaction'").val(org_action);
-                form.submit();
+              } else if (newval === "sync") {
+                $("input[name='orgaction'").val(newval);
               }
+              form.submit();
             }
           });
         </script>

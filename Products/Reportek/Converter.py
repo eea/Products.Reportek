@@ -32,6 +32,9 @@ from AccessControl.Permissions import view_management_screens, view
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from RestrictedPython.Eval import RestrictionCapableEval
 from zExceptions import Redirect
+from ZODB.POSException import POSKeyError
+from Products.Reportek.blob import StorageError
+from copy import deepcopy
 import Globals
 import RepUtils
 import constants
@@ -66,7 +69,7 @@ class Converter(SimpleItem):
         SimpleItem.manage_options
     )
 
-    def __init__(self, id, title, convert_url, ct_input, ct_output, ct_schema, ct_extraparams, description, suffix=''):
+    def __init__(self, id, title, convert_url, ct_input, ct_output, ct_schema, ct_extraparams, description, suffix='', internal=False):
         """ """
         self.id = id
         self.title = title
@@ -77,12 +80,13 @@ class Converter(SimpleItem):
         self.ct_extraparams = ct_extraparams
         self.description = description
         self.suffix = suffix[suffix.find('.')+1:] # Drop everything up to period.
+        self.internal=internal
 
     #security stuff
     security = ClassSecurityInfo()
 
     security.declareProtected(view_management_screens, 'manage_settings')
-    def manage_settings(self, title='', ct_input='', ct_output='', ct_schema='', convert_url='', ct_extraparams='', description='', suffix='', REQUEST=None):
+    def manage_settings(self, title='', ct_input='', ct_output='', ct_schema='', convert_url='', ct_extraparams='', description='', suffix='', internal=False, REQUEST=None):
         """ """
         self.title = title
         self.convert_url = convert_url
@@ -92,6 +96,7 @@ class Converter(SimpleItem):
         self.ct_extraparams = RepUtils.utConvertLinesToList(ct_extraparams)
         self.description = description
         self.suffix = suffix[suffix.find('.')+1:] # Drop everything up to period.
+        self.internal = internal
         self._p_changed = 1
         if REQUEST:
             message="Content changed."
@@ -168,46 +173,71 @@ class RemoteConverter(Converter):
         super(Converter, self).__init__(converter_id)
         self.id = converter_id
 
-    def __call__(self, file_url):
+    def __call__(self, file_url, write_to_response=True):
         file_obj = self.getPhysicalRoot().restrictedTraverse(file_url, None)
         if not getSecurityManager().checkPermission(view, file_obj):
-            raise Unauthorized, ('You are not authorized to view this document')
-        return self.convert(file_obj)
+            raise Unauthorized('You are not authorized to view this document')
+
+        if write_to_response:
+            converter = self.convert
+        else:
+            converter = self.convert_for_script
+
+        return converter(file_obj)
+
+    def _do_conversion(self, file_url):
+        url = '/'.join([self.api_url, 'convert'])
+        data = dict(convert_id=self.id, url=file_url)
+        return requests.post(url, data=data)
+
+    def convert_for_script(self, file_obj):
+        result = self._do_conversion(file_obj.absolute_url())
+        result.raise_for_status()
+        return result.content
 
     def convert(self, file_obj):
         try:
-            url = '/'.join([self.api_url, 'convert'])
-            result = requests.post(url, data={'convert_id': self.id,
-                                              'url': file_obj.absolute_url(0)})
+            result = self._do_conversion(file_obj.absolute_url())
             result.raise_for_status()
-            #
-            # let zope add the transfer-encoding: chuncked header if required
-            # (that is if the connection is not closed so there is more to come)
+            headers = deepcopy(result.headers)
+            # Let Zope add the transfer-encoding: chuncked header if
+            # required (that is if the connection is not closed, so there is
+            # more to come).
+
             # TODO what if the requests does not decode payload?
-            # it handles chunked and gzip automatically, but what about the rest?
-            #
-            # result.headers is a case insensitive dict
-            #
-            if result.headers.get('transfer-encoding'):
-                result.headers.pop('transfer-encoding')
-            self.REQUEST.RESPONSE.headers.update(result.headers)
+            # it handles chunked and gzip automatically, but what
+            # about the rest?
+
+            if headers.get('Transfer-Encoding'):
+                headers.pop('Transfer-Encoding')
+            # Due to https://taskman.eionet.europa.eu/issues/96712. The recent
+            # changes to converters allow the converters to return gzip content.
+            # However, requests automatically decompresses the content and we
+            # need to replace the 'Content-Encoding' value with none.
+            if headers.get('Content-Encoding') == 'gzip':
+                headers['Content-Encoding'] = 'none'
+            self.REQUEST.RESPONSE.headers.update(headers)
             for chunk in result.iter_content(chunk_size=64*1024):
                 self.REQUEST.RESPONSE.write(chunk)
             return self.REQUEST.RESPONSE
 
         except Exception, error:
-            note_title = 'Error in conversion'
-            l_tmp = string.maketrans('<>', '  ')
-            message = str(error).translate(l_tmp)
+            self.REQUEST.SESSION.set('note_title', 'Error in conversion')
             if isinstance(error, requests.HTTPError):
                 message = result.text
+            else:
+                l_tmp = string.maketrans('<>', '  ')
+                message = str(error).translate(l_tmp)
             message.replace(r'\n', '<br />')
-            note_text = 'The operation could not be completed because of '\
-                        'the following error:<br /><br />{}'.format(message)
-            redirect_to = self.REQUEST['HTTP_REFERER']
-            return file_obj.note(note_title=note_title,
-                                 note_text=note_text,
-                                 redirect_to=redirect_to)
+            self.REQUEST.SESSION.set('note_text', (
+                'The operation could not be completed because of '
+                'the following error:<br /><br />%s'
+                ) % message
+            )
+            self.REQUEST.SESSION.set(
+                'redirect_to', self.REQUEST['HTTP_REFERER']
+            )
+            return file_obj.note()
 
 
 class ConversionResult(object):
@@ -237,13 +267,18 @@ class LocalHttpConverter(Converter):
     def get_file_data(self, file_obj):
         data_file = getattr(file_obj, 'data_file', None)
         if (data_file and isinstance(data_file, blob.FileContainer)):
-            return data_file.open()
+            try:
+                return data_file.open()
+            except (POSKeyError, StorageError):
+                return ''
         else:
             return file_obj
 
-    def convert(self, file_obj, converter_id):
+    def convert(self, file_obj, converter_id, extra_params=None):
         url = '%s%s' % (self.get_local_http_converters_url(), self.convert_url)
-        extra_params = request_params(self.ct_extraparams, obj=file_obj)
+        # We could have a valid '' here
+        if extra_params is None:
+            extra_params = request_params(self.ct_extraparams, obj=file_obj)
         data = self.get_file_data(file_obj)
         files = {'file': data}
         accepts_shp = any(map(lambda item: 'shp' in item, self.ct_input))
@@ -256,10 +291,8 @@ class LocalHttpConverter(Converter):
                                         '.'.join([file_name, 'dbf']))
             files['shx'] = self.get_file_data(shx_file)
             files['dbf'] = self.get_file_data(dbf_file)
-        resp = requests.post(
-                   url,
-                   files=files,
-                   data={'extraparams': extra_params})
+        resp = requests.post(url, files=files,
+                             data={'extraparams': extra_params})
 
         response = ConversionResult(resp)
         return response

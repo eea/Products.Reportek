@@ -1,10 +1,11 @@
+import json
 from collections import defaultdict
 from operator import itemgetter
-from Products.Five import BrowserView
-from zope.browsermenu.menu import getMenu
-import json
 
+from Products.Five import BrowserView
 from Products.Reportek import config, constants
+from Products.Reportek.catalog import searchResults
+from zope.browsermenu.menu import getMenu
 
 
 class BaseAdmin(BrowserView):
@@ -19,14 +20,22 @@ class BaseAdmin(BrowserView):
     def __call__(self, *args, **kwargs):
         super(BaseAdmin, self).__call__(*args, **kwargs)
 
-        engine = getattr(self.context, constants.ENGINE_ID)
-        deployment_type = engine.getDeploymentType()
+        deployment_type = self.get_deployment()
         if deployment_type == config.DEPLOYMENT_BDR:
             is_bdr = True
         else:
             is_bdr = False
 
         return self.index(is_bdr=is_bdr)
+
+    def get_deployment(self):
+        engine = getattr(self.context, constants.ENGINE_ID)
+        return engine.getDeploymentType()
+
+    @property
+    def rmq_fwd(self):
+        engine = self.context.unrestrictedTraverse(constants.ENGINE_ID, None)
+        return getattr(engine, 'env_fwd_rmq', False)
 
     @property
     def localities_rod(self):
@@ -122,6 +131,11 @@ class BaseAdmin(BrowserView):
             'obligations': obligations
         }
 
+    def should_check_permission(self):
+        deployment_type = self.get_deployment()
+        if deployment_type == config.DEPLOYMENT_BDR:
+            return True
+
     def search_catalog(self, obligations, countries, role, users=None, path=None):
         if len(countries) == len(self.localities_rod):
             country_codes = None
@@ -143,7 +157,8 @@ class BaseAdmin(BrowserView):
         if path:
             query['path'] = path
 
-        return self.context.Catalog(query)
+        return searchResults(self.context.Catalog, query,
+                             admin_check=self.should_check_permission())
 
     def get_collections(self):
         obligations = self.request.get('dataflow_uris', [])
@@ -270,4 +285,3 @@ class BaseAdmin(BrowserView):
 
     def get_available_menu_items(self):
         return getMenu('reportek_utilities', self.context, self.request)
-

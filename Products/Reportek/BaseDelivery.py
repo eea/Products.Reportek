@@ -1,10 +1,11 @@
 from AccessControl import ClassSecurityInfo
 from AccessControl import getSecurityManager
 from DateTime import DateTime
-from Products.Reportek.interfaces import IBaseDelivery
-from Products.Reportek.config import REPORTEK_DEPLOYMENT
-from Products.Reportek.config import DEPLOYMENT_BDR
 from Products.Reportek.RepUtils import xmlEncode
+from Products.Reportek.config import DEPLOYMENT_BDR
+from Products.Reportek.config import REPORTEK_DEPLOYMENT
+from Products.Reportek.interfaces import IBaseDelivery
+from Products.Reportek.RepUtils import parse_uri
 from zope.interface import implements
 
 
@@ -32,6 +33,7 @@ class BaseDelivery(object):
         if not dataflow_uris:
             dataflow_uris = []
         self.dataflow_uris = dataflow_uris
+
 
     def getStartDate(self):
         """ returns the start date in DateTime format
@@ -170,20 +172,21 @@ class BaseDelivery(object):
                         accepted = False
 
                 company_id = '-'
+                company_meta = self.aq_parent.get_zope_company_meta()
                 if (hasattr(self.aq_parent, 'company_id')):
                     company_id = self.aq_parent.company_id
                 company = '-'
                 userid = '-'
                 if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-                    company = self.aq_parent.title.decode('utf-8')
-                    userid = self.aq_parent.id
+                    company = company_meta[0] if company_meta[0] else self.aq_parent.title
+                    userid = company_meta[1] if company_meta[1] else self.aq_parent.id
                 obligations = [obl[0] for obl in self.getObligations()]
 
                 env_data = {
                     'company_id': company_id,
                     'path': self.absolute_url_path(),
                     'country': self.getCountryName(),
-                    'company': company,
+                    'company': company.decode('utf-8'),
                     'userid': userid,
                     'title': self.title.decode('utf-8'),
                     'id': self.id,
@@ -200,6 +203,9 @@ class BaseDelivery(object):
         """Return custom child objects metadata for RDF export."""
         return []
 
+    def get_dflow_uris(self):
+        return [df for df in self.dataflow_uris]
+
     security.declareProtected('View', 'rdf')
     def rdf(self, REQUEST):
         """Returns the delivery metadata in RDF format."""
@@ -207,6 +213,8 @@ class BaseDelivery(object):
                                    'application/rdf+xml; charset=utf-8')
         res = []
         res_a = res.append
+        engine = self.getEngine()
+        http_res = getattr(engine, 'exp_httpres', False)
 
         res_a('<?xml version="1.0" encoding="utf-8"?>')
         res_a('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"')
@@ -216,7 +224,8 @@ class BaseDelivery(object):
         res_a(' xmlns:cr="http://cr.eionet.europa.eu/ontologies/contreg.rdf#"')
         res_a(' xmlns="http://rod.eionet.europa.eu/schema.rdf#">')
 
-        res_a('<Delivery rdf:about="%s">' % xmlEncode(self.absolute_url()))
+        res_a('<Delivery rdf:about="%s">' % xmlEncode(parse_uri(self.absolute_url(),
+                                                                http_res)))
         res_a('<rdfs:label>%s</rdfs:label>' % xmlEncode(self.title_or_id()))
         res_a('<dct:title>%s</dct:title>' % xmlEncode(self.title_or_id()))
 

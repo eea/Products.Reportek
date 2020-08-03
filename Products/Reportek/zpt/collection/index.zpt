@@ -9,13 +9,18 @@
                            permission_allow_referrals python:here.are_referrals_allowed() and SecurityManager.checkPermission('Add Envelopes', here);
                            permission_chgcoll python:SecurityManager.checkPermission('Change Collections', here);
                            has_descr python:here.descr!=''; has_dataflow_uris python:len(here.dataflow_uris)>0;
-                           isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR'">
+                           isBdrDeployment python: here.ReportekEngine.getDeploymentType() == 'BDR';
+                           df_prefix python: 'http://rod.eionet.europa.eu/obligations/{}';
+                           is_fgas python: isBdrDeployment and has_dataflow_uris and df_prefix.format('713') in here.dataflow_uris;
+                           is_fgas_ver python: isBdrDeployment and has_dataflow_uris and (df_prefix.format('764') in here.dataflow_uris or df_prefix.format('765') in here.dataflow_uris);
+                           new_env_label python: 'New data report' if is_fgas else 'New envelope';
+                           ">
 
     <div id="operations" tal:condition="python:permission_allow_envelopes or permission_allow_collections or permission_allow_referrals">
       <ul>
         <li tal:condition="permission_allow_referrals"><a href="manage_addReferralForm" title="Create a new Referral if a certain delivery data is not stored on this system, in which case specify another location for it." i18n:attributes="title" i18n:translate="">New referral</a></li>
         <li tal:condition="permission_allow_collections"><a href="manage_addCollectionForm" title="Collections are folders that define the structure for the Data Repository, grouping Envelopes by country and by the reporting obligations they respond to." i18n:attributes="title" i18n:translate="">New collection</a></li>
-        <li tal:condition="permission_allow_envelopes"><a href="manage_addEnvelopeForm" title="Envelopes store all the information about a delivery" i18n:attributes="title" i18n:translate="">New envelope</a></li>
+        <li tal:condition="permission_allow_envelopes"><a href="manage_addEnvelopeForm" title="Envelopes store all the information about a delivery" i18n:attributes="title" i18n:translate=""><span tal:content="new_env_label" tal-omit-tag=""/></a></li>
       </ul>
     </div>
 
@@ -34,84 +39,131 @@
         </tbody>
       </table>
     </div>
-
-    <form method="post" tal:attributes="action string:${request/URL1}/">
-      <div class="filessection">
-        <h2 i18n:translate="">Envelopes and subcollections</h2>
-        <table style="width: 100%; border: 0" class="collection-table-listing"
-          tal:define="colls python: here.objectValues(['Report Collection']);
-                      envs python: here.objectValues(['Report Envelope']);
-                      refs python: here.objectValues(['Repository Referral']);
-                      additional_colls python: isBdrDeployment and envs;
-                      visible python: colls or envs or refs;">
-          <thead tal:condition="visible">
-            <th style="width: 16px" tal:condition="permission_chgcoll" />
-            <th style="width: 18px" />
-            <th></th>
-            <th tal:condition="additional_colls" class="tcenter additional-env-info">Reporting year</th>
-            <th tal:condition="additional_colls" class="tcenter additional-env-info">Status</th>
-            <th tal:condition="additional_colls" class="tcenter additional-env-info">Acceptability</th>
-            <th style="width: 7em" class="tcenter">
-              <span tal:condition="isBdrDeployment">Updated</span>
-            </th>
-          </thead>
-          <tbody tal:condition="visible">
-            <tr valign="top" tal:repeat="item python:test(here.allow_envelopes==1, here.tlzSortObjsListByMethod(colls, 'bobobase_modification_time', 1), here.tlzSortByAttr(colls, 'title'))">
-              <td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>
-              <td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Collection" i18n:attributes="alt" /></td>
-              <td><a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" /></td>
-              <tal:block tal:condition="additional_colls">
-                <td></td>
-                <td></td>
-                <td></td>
-              </tal:block>
-              <td class="tcenter" tal:content="python:item.bobobase_modification_time().strftime('%d %b %Y')" />
-            </tr>
-            <tr valign="top" tal:repeat="item python:here.tlzSortByAttr(envs, 'reportingdate', 1)">
-              <td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>
-              <td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Envelope" i18n:attributes="alt" /></td>
-              <td><a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" /></td>
-              <tal:block tal:condition="additional_colls">
-                <td class="tcenter additional-env-info">
-                  <span tal:condition="python:item.endyear == ''"
-                      tal:content="python:'%s - %s' %(item.year, here.reporting_year_labels.get(item.partofyear))">
-                  </span>
-                  <span tal:condition="not:python:item.endyear == ''"
-                      tal:content="python:'%s to %s' %(item.year, item.endyear)">
-                  </span>
+    <tal:def tal:define="colls python: here.objectValues(['Report Collection']);
+                         envs python: here.objectValues(['Report Envelope']);
+                         refs python: here.objectValues(['Repository Referral']);
+                         bdr_has_envs python: isBdrDeployment and envs;
+                         visible python: colls or envs or refs;">
+      <form method="post" tal:attributes="action string:${request/URL1}/">
+        <div class="filessection">
+          <h2 i18n:translate="" tal:condition="not: isBdrDeployment">Envelopes and subcollections</h2>
+          <tal:block tal:condition="python: isBdrDeployment and colls">
+            <h2 i18n:translate=""
+              tal:define="fgas_ver_colls python: [col for col in colls
+                                                  if df_prefix.format('764') in col.dataflow_uris or df_prefix.format('765') in col.dataflow_uris];
+                          are_verification python: len(colls) == len(fgas_ver_colls);
+                          col_head python: {True: 'F-gas Regulation Article 19 verification reporting',
+                                            False: 'Subcollections'}.get(are_verification)"
+              tal:content="col_head"/>
+          </tal:block>
+          <table style="width: 100%; border: 0" class="collection-table-listing">
+            <thead tal:condition="visible">
+              <th style="width: 16px" tal:condition="permission_chgcoll" />
+              <th style="width: 18px" />
+              <th></th>
+              <th tal:condition="bdr_has_envs" class="tcenter additional-env-info">Reporting year</th>
+              <th tal:condition="bdr_has_envs" class="tcenter additional-env-info">Status</th>
+              <th tal:condition="bdr_has_envs" class="tcenter additional-env-info">Acceptability</th>
+              <th tal:condition="python: envs and not isBdrDeployment" class="tcenter additional-env-info" style="width: 25%"> Envelope status</th>
+              <th style="width: 7em" class="tcenter">
+                <span tal:condition="isBdrDeployment">Updated</span>
+              </th>
+            </thead>
+            <tbody tal:condition="visible">
+              <tal:rep tal:repeat="item python:test(here.allow_envelopes==1, here.tlzSortObjsListByMethod(colls, 'bobobase_modification_time', 1), here.tlzSortByAttr(colls, 'title'))">
+                <tr valign="top"
+                  tal:define="is_fgas_verification python: df_prefix.format('764') in item.dataflow_uris or df_prefix.format('765') in item.dataflow_uris;"
+                  tal:attributes="class python: 'ver-col' if is_fgas_verification else ''">
+                  <td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>
+                  <td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Collection" i18n:attributes="alt" /></td>
+                  <td><a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" /></td>
+                  <tal:block tal:condition="envs">
+                    <td tal:condition="isBdrDeployment"></td>
+                    <td tal:condition="isBdrDeployment"></td>
+                    <td></td>
+                  </tal:block>
+                  <td class="tcenter" tal:condition="not: isBdrDeployment" tal:content="python:item.bobobase_modification_time().strftime('%d %b %Y')" />
+                  <td class="tcenter" tal:condition="isBdrDeployment">
+                    <tal:def tal:define="last_rep_date python: item.get_latest_env_reportingdate();
+                                         m_date python: last_rep_date if last_rep_date else item.bobobase_modification_time()">
+                      <span tal:content="python: m_date.strftime('%d %b %Y')" tal-omit-tag="" />
+                    </tal:def>
+                  </td>
+                </tr>
+              </tal:rep>
+              <tr tal:condition="python: isBdrDeployment and envs">
+                <td colspan="7">
+                  <h2 i18n:translate="" tal:condition="not: colls">Envelopes</h2>
+                  <h2 i18n:translate="" tal:condition="colls">F-gas Regulation Article 19 data reporting</h2>
                 </td>
-                <td class="tcenter additional-env-info">
-                  <span i18n:translate="" tal:condition="item/released">Released</span>
-                  <span i18n:translate="" tal:condition="not: item/released">Not released</span>
-                </td>
-                <td class="tcenter additional-env-info">
-                  <span i18n:translate="" tal:content="python: {True: 'Acceptable', False: 'Not acceptable', None: 'N/A'}.get(item.is_acceptable(), '')" />
-                </td>
-              </tal:block>
-              <td class="tcenter" tal:content="python:item.reportingdate.strftime('%d %b %Y')" />
-            </tr>
-            <tr valign="top" tal:repeat="item python:here.tlzSortByAttr(refs, 'title')">
-              <td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>
-              <td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Repository Referral" i18n:attributes="alt" /></td>
-              <td><a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" /></td>
-              <tal:block tal:condition="additional_colls">
-                <td></td>
-                <td></td>
-                <td></td>
-              </tal:block>
-              <td class="tcenter" tal:content="python:item.bobobase_modification_time().strftime('%d %b %Y')" />
-            </tr>
-          </tbody>
-        </table>
-        <tal:block tal:condition="permission_chgcoll">
-          <input type="submit" class="fileop" name="manage_cutObjects:method" value="Cut" title="Select some files to cut them" i18n:attributes="value,title" />
-          <input type="submit" class="fileop" name="manage_copyObjects:method" value="Copy" title="Select some files to copy them" i18n:attributes="value,title" />
-          <input tal:condition="here/cb_dataValid" type="submit" class="fileop" name="manage_pasteObjects:method" value="Paste" title="Paste previously selected files to this envelope" i18n:attributes="value,title" />
-          <input type="submit" class="fileop" name="manage_delObjects:method" value="Delete" title="Select some files to delete them" i18n:attributes="value,title" />
-        </tal:block>
-      </div>
-    </form>
-
+              </tr>
+              <tr valign="top" tal:repeat="item python:here.tlzSortByAttr(envs, 'reportingdate', 1)">
+                <td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>
+                <td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Envelope" i18n:attributes="alt" /></td>
+                <td><a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" /></td>
+                <tal:block tal:condition="envs">
+                  <td class="tcenter additional-env-info" tal:condition="isBdrDeployment"
+                    tal:define="df_prefix python: 'http://rod.eionet.europa.eu/obligations/{}';
+                                is_ods python: df_prefix.format('213') in here.dataflow_uris;
+                                is_fgas python: df_prefix.format('713') in here.dataflow_uris;
+                                is_fgas_verification python: df_prefix.format('764') in here.dataflow_uris or df_prefix.format('765') in here.dataflow_uris;">
+                    <tal:block tal:condition="python: not is_ods and not is_fgas and not is_fgas_verification">
+                      <span tal:condition="python:item.endyear == ''"
+                          tal:content="python:'%s - %s' %(item.year, here.reporting_year_labels.get(item.partofyear))">
+                      </span>
+                      <span tal:condition="not:python:item.endyear == ''"
+                          tal:content="python:'%s to %s' %(item.year, item.endyear)">
+                      </span>
+                    </tal:block>
+                    <tal:block tal:condition="python: is_fgas or is_ods or is_fgas_verification">
+                      <span i18n:translate="">See report</span>
+                    </tal:block>
+                  </td>
+                  <td tal:condition="isBdrDeployment" class="tcenter additional-env-info">
+                    <span i18n:translate="" tal:condition="item/released">Released</span>
+                    <span i18n:translate="" tal:condition="not: item/released">Not released</span>
+                  </td>
+                  <td class="tcenter additional-env-info">
+                    <span tal:condition="isBdrDeployment" i18n:translate=""
+                      tal:define="ok_acceptable python: item.is_acceptable() and item.successful_qa;
+                                  unknown python: item.has_unknown_qa_result and ok_acceptable;"
+                      tal:content="python: 'N/A' if unknown else {True: 'Acceptable', False: 'Not acceptable', None: 'N/A'}.get(ok_acceptable, '')" />
+                    <tal:block tal:condition="not: isBdrDeployment">
+                      <tal:def tal:define="fb_ta python: item.get('feedbackTA');
+                                           fb_cor python: item.get('feedbackCoR');
+                                           ff_fb python: fb_ta or fb_cor;
+                                           wks python: item.getListOfWorkitems();
+                                           cur_wk python: wks[-1] if wks else None">
+                        <span tal:content="python: cur_wk.activity_id if cur_wk else ''"/> 
+                        <span tal:condition="python: ff_fb"> (<span tal:content="ff_fb/title_or_id|nothing"/>)</span>
+                      </tal:def>
+                    </tal:block>
+                  </td>
+                </tal:block>
+                <td class="tcenter" tal:content="python:item.reportingdate.strftime('%d %b %Y')" />
+              </tr>
+              <tr valign="top" tal:repeat="item python:here.tlzSortByAttr(refs, 'title')">
+                <td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>
+                <td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Repository Referral" i18n:attributes="alt" /></td>
+                <td><a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" /></td>
+                <tal:block tal:condition="bdr_has_envs">
+                  <td></td>
+                  <td></td>
+                  <td></td>
+                </tal:block>
+                <td class="tcenter" tal:content="python:item.bobobase_modification_time().strftime('%d %b %Y')" />
+              </tr>
+            </tbody>
+          </table>
+          <tal:block tal:condition="permission_chgcoll">
+            <input type="submit" class="fileop" name="manage_cutObjects:method" value="Cut" title="Select some files to cut them" i18n:attributes="value,title" />
+            <input type="submit" class="fileop" name="manage_copyObjects:method" value="Copy" title="Select some files to copy them" i18n:attributes="value,title" />
+            <input tal:condition="here/cb_dataValid" type="submit" class="fileop" name="manage_pasteObjects:method" value="Paste" title="Paste previously selected files to this envelope" i18n:attributes="value,title" />
+            <input type="submit" class="fileop" name="manage_delObjects:method" value="Delete" title="Select some files to delete them" i18n:attributes="value,title" />
+          </tal:block>
+        </div>
+      </form>
+      </tal:def>
     </tal:block>
   </metal:block>
 </metal:block>

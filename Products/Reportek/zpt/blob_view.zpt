@@ -1,6 +1,6 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
   <metal:block fill-slot="content">
-    <tal:block define="envelope python:context.getMySelf()"
+    <tal:block define="envelope context/getMySelf|nothing"
                condition="envelope">
       <div id="operations">
         <ul><li>

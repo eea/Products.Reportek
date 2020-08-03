@@ -22,4 +22,39 @@
     title="Reportek API Access"
   />
 
+  <permission
+    id="zope2.ODSCompanies"
+    title="Access to ODS Companies"
+  />
+
+  <permission
+    id="zope2.ReportekUtilitiesUser"
+    title="ReportekUtilities User"
+  />
+
+  <permission
+    id="zope2.ReportekUsersManager"
+    title="Reportek Users Manager"
+  />
+
+  <permission
+    id="zope2.ReportekCollectionsManager"
+    title="Reportek Collections Manager"
+  />
+
+  <permission
+    id="zope2.ReportekEnvelopesManager"
+    title="Reportek Envelopes Manager"
+  />
+
+  <permission
+    id="zope2.ReportekReferralsManager"
+    title="Reportek Referrals Manager"
+  />
+
+  <permission
+    id="zope2.ReportekDataflowAdmin"
+    title="Reportek Dataflow Admin"
+  />
+
 </configure>

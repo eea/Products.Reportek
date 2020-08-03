@@ -20,30 +20,47 @@
 # Soren Roug, EEA
 
 """ Generic functions module """
-
-from AccessControl.SecurityManagement import getSecurityManager
-from AccessControl.SecurityManagement import newSecurityManager
-from AccessControl.SecurityManagement import setSecurityManager
-from ComputedAttribute import ComputedAttribute
-from DateTime import DateTime
-from Products.Five import BrowserView
-from Products.Reportek.config import XLS_HEADINGS
-from Products.Reportek.config import ZIP_CACHE_PATH
-from copy import deepcopy
-from datetime import datetime
-from path import path
-from types import FunctionType
-from urllib import FancyURLopener
-from webdav.common import rfc1123_date
+# from AccessControl.PermissionRole import rolesForPermissionOn
+import base64
 import json
+import logging
 import operator
 import os
 import re
-import string,base64,time
+import string
 import sys
 import tempfile
 import time
 import traceback
+from copy import deepcopy
+from datetime import datetime
+from types import FunctionType
+from urllib import FancyURLopener
+
+from AccessControl.ImplPython import rolesForPermissionOn
+from AccessControl.SecurityManagement import (getSecurityManager,
+                                              newSecurityManager,
+                                              setSecurityManager)
+from AccessControl.User import UnrestrictedUser as BaseUnrestrictedUser
+from AccessControl.User import nobody
+from ComputedAttribute import ComputedAttribute
+from DateTime import DateTime
+from path import path
+from Products.Five import BrowserView
+from Products.Reportek.config import XLS_HEADINGS, ZIP_CACHE_PATH
+from Products.Reportek.constants import DEFAULT_CATALOG
+from Products.Reportek.permissions import reportek_dataflow_admin
+from webdav.common import rfc1123_date
+
+
+class UnrestrictedUser(BaseUnrestrictedUser):
+    """Unrestricted user that still has an id.
+    """
+
+    def getId(self):
+        """Return the ID of the user.
+        """
+        return self.getUserName()
 
 
 def formatException(self, error):
@@ -58,7 +75,6 @@ def formatException(self, error):
          lines[1:1] = traceback.format_stack(error[2].tb_frame.f_back)
      return ''.join(lines)
 
-import logging
 logger = logging.getLogger('Reportek.RepUtils')
 #logger.setLevel(logging.DEBUG)
 logging.Formatter.formatException = formatException
@@ -143,7 +159,10 @@ def cleanup_id(name):
             name = name.encode('ascii')
         except UnicodeEncodeError as e:
             name = name[:e.start].encode('ascii')
-    return string.translate(name, TRANSMAP)
+    name = string.translate(name, TRANSMAP)
+    valid_fn_chars = "-_.() %s%s" % (string.ascii_letters, string.digits)
+    return ''.join(c for c in name if c in valid_fn_chars)
+
 
 def generate_id(template):
     """ Generate a unique string
@@ -608,6 +627,54 @@ def manage_as_owner(func):
     return inner
 
 
+def execute_under_special_role(portal, role, function, *args, **kwargs):
+    """ Execute code under special role privileges.
+
+    Example how to call::
+
+        execute_under_special_role(portal, "Manager",
+            doSomeNormallyNotAllowedStuff,
+            source_folder, target_folder)
+
+
+    @param portal: Reference to ISiteRoot object whose access controls we are using
+
+    @param function: Method to be called with special privileges
+
+    @param role: User role for the security context when calling the privileged code; e.g. "Manager".
+
+    @param args: Passed to the function
+
+    @param kwargs: Passed to the function
+    """
+
+    sm = getSecurityManager()
+
+    try:
+        try:
+            # Clone the current user and assign a new role.
+            # Note that the username (getId()) is left in exception
+            # tracebacks in the error_log,
+            # so it is an important thing to store.
+            tmp_user = UnrestrictedUser(
+                sm.getUser().getId(), '', [role], ''
+                )
+
+            # Wrap the user in the acquisition context of the portal
+            tmp_user = tmp_user.__of__(portal.acl_users)
+            newSecurityManager(None, tmp_user)
+
+            # Call the function
+            return function(*args, **kwargs)
+
+        except:
+            # If special exception handlers are needed, run them here
+            raise
+    finally:
+        # Restore the old security manager
+        setSecurityManager(sm)
+
+
 def get_zip_cache():
     zc_path = ZIP_CACHE_PATH or CLIENT_HOME
     zip_cache = path(zc_path)/'zip_cache'
@@ -654,3 +721,103 @@ class CrashMe(BrowserView):
 
     def __call__(self):
         raise RuntimeError("Crashing as requested by you")
+
+
+class DFlowCatalogAware(object):
+    """DFlowCatalogAware class to allow for reportek_dataflow_admin permission
+       indexing.
+    """
+    _security_indexes = ('allowedAdminRolesAndUsers',)
+
+    def _mergedLocalRoles(self, object):
+        """Returns a merging of object and its ancestors'
+        __ac_local_roles__."""
+        # Modified from AccessControl.User.getRolesInContext().
+        merged = {}
+        object = getattr(object, 'aq_inner', object)
+        while 1:
+            if hasattr(object, '__ac_local_roles__'):
+                dict = object.__ac_local_roles__ or {}
+                if callable(dict):
+                    dict = dict()
+                for k, v in dict.items():
+                    if k in merged:
+                        merged[k] = merged[k] + v
+                    else:
+                        merged[k] = v
+            if hasattr(object, 'aq_parent'):
+                object = object.aq_parent
+                object = getattr(object, 'aq_inner', object)
+                continue
+            if hasattr(object, 'im_self'):
+                object = object.im_self
+                object = getattr(object, 'aq_inner', object)
+                continue
+            break
+
+        return deepcopy(merged)
+
+    def allowedAdminRolesAndUsers(self):
+        """
+        Return a list of roles and users with reportek_dataflow_admin
+        permission. Used by Catalog to filter out items you're not 
+        allowed to see.
+        """
+        ob = self
+        allowed = {}
+        for r in rolesForPermissionOn(reportek_dataflow_admin, ob):
+            allowed[r] = 1
+        localroles = self._mergedLocalRoles(ob)
+        for user, roles in localroles.items():
+            for role in roles:
+                if role in allowed:
+                    allowed['user:' + user] = 1
+        if 'Owner' in allowed:
+            del allowed['Owner']
+
+        return list(allowed.keys())
+
+    def reindexObjectSecurity(self, skip_self=False):
+        """ Reindex security-related indexes on the object.
+        """
+        catalog = getattr(self, DEFAULT_CATALOG, None)
+        if catalog is None:
+            return
+        path = '/'.join(self.getPhysicalPath())
+        counter = 0
+        for brain in catalog.searchResults(path=path):
+            brain_path = brain.getPath()
+            if brain_path == path and skip_self:
+                continue
+            # Get the object
+            try:
+                ob = brain._unrestrictedGetObject()
+            except (AttributeError, KeyError):
+                # don't fail on catalog inconsistency
+                continue
+            if ob is None:
+                # BBB: Ignore old references to deleted objects.
+                # Can happen only when using
+                # catalog-getObject-raises off in Zope 2.8
+                logger.warning("reindexObjectSecurity: Cannot get %s from "
+                               "catalog", brain_path)
+                continue
+            counter += 1
+            # Recatalog with the same catalog uid.
+            s = getattr(ob, '_p_changed', 0)
+            catalog.catalog_object(ob, brain_path, self._security_indexes, 0)
+            if s is None:
+                ob._p_deactivate()
+
+        print counter
+
+
+def parse_uri(uri, replace=False):
+    """ Use only http uris if QA http resources is checked in ReportekEngine props
+    """
+    if replace:
+        new_uri = uri.replace('https://', 'http://')
+        logger.info("Original uri: %s has been replaced with uri: %s"
+                    % (uri, new_uri))
+        uri = new_uri
+    return uri

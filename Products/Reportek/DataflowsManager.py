@@ -32,9 +32,11 @@
 
 """
 
-from plone.memoize import ram
-from RepUtils import inline_replace
 from time import time
+
+from plone.memoize import ram
+from Products.Reportek.constants import CUSTOM_DFLOWS
+from RepUtils import inline_replace
 from XMLRPCMethod import XMLRPCMethod
 
 
@@ -77,10 +79,19 @@ class DataflowsManager:
         if xmlrpc_dataflow:
             return getattr(xmlrpc_dataflow, 'timeout', None)
 
+    def get_custom_dataflows(self):
+        result = []
+        custom_dfs = self.unrestrictedTraverse(CUSTOM_DFLOWS, None)
+        if custom_dfs:
+            result = custom_dfs()
+        return result
+
+
     @ram.cache(lambda *args:time() // (60*60*12))
     def dataflow_rod(self):
         """ """
-        return self.xmlrpc_dataflow.call_method()
+        dflows = self.xmlrpc_dataflow.call_method()
+        return dflows + self.get_custom_dataflows()
 
     def dataflow_table(self):
         """ """

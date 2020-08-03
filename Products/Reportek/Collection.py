@@ -25,32 +25,37 @@ $Id$"""
 
 __version__='$Revision$'[11:-2]
 
-from AccessControl import getSecurityManager, ClassSecurityInfo
-from AccessControl.Permissions import change_permissions
-from AccessControl.Permissions import manage_users
-from AccessControl.requestmethod import requestmethod
-from ComputedAttribute import ComputedAttribute
-from DateTime import DateTime
+import json
+import os
+import string
+import time
+import types
 from datetime import datetime
-from OFS.Folder import Folder
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Products.Reportek import permission_manage_properties_collections
-from Products.ZCatalog.CatalogAwareness import CatalogAware
-import AccessControl.Role, webdav.Collection
-import Globals
-import Products
-import time, types, os, string
 
+import AccessControl.Role
+import constants
 # product imports
 import Envelope
-import RepUtils
-import constants
+import Globals
+import Products
 import Referral
-
+import RepUtils
+import requests
+import webdav.Collection
+from AccessControl import ClassSecurityInfo, getSecurityManager
+from AccessControl.Permissions import change_permissions, manage_users
+from AccessControl.requestmethod import requestmethod
+from Acquisition import aq_base
+from ComputedAttribute import ComputedAttribute
 from CountriesManager import CountriesManager
 from DataflowsManager import DataflowsManager
-from Products.Reportek import REPORTEK_DEPLOYMENT
-from Products.Reportek import DEPLOYMENT_BDR
+from DateTime import DateTime
+from OFS.Folder import Folder
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek import (DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT,
+                               permission_manage_properties_collections)
+from Products.Reportek.RepUtils import DFlowCatalogAware
+from Products.ZCatalog.CatalogAwareness import CatalogAware
 from Toolz import Toolz
 
 manage_addCollectionForm = PageTemplateFile('zpt/collection/add', globals())
@@ -82,7 +87,7 @@ def manage_addCollection(self, title, descr, year, endyear, partofyear,
         return REQUEST.RESPONSE.redirect(self.absolute_url())
 
 
-class Collection(CatalogAware, Folder, Toolz):
+class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
     """
     Collections are basic container objects that provide a standard
     interface for object management. Collection objects also implement
@@ -192,7 +197,11 @@ class Collection(CatalogAware, Folder, Toolz):
 
     _get_users_list = PageTemplateFile('zpt/collection/users', globals())
 
+    security.declareProtected('View', 'company_details')
     company_details = PageTemplateFile('zpt/collection/company_details', globals())
+
+    security.declareProtected('View', 'other_reports')
+    other_reports = PageTemplateFile('zpt/collection/other_reports', globals())
 
     def local_defined_roles(self):
         return self.__ac_local_roles__
@@ -501,10 +510,24 @@ class Collection(CatalogAware, Folder, Toolz):
     def company_id(self, value):
         self._company_id = value
 
+    def get_zope_company_meta(self):
+        """Return the company meta attached to the collection"""
+        def cname(obj):
+            try:
+                parent = obj.getParentNode()
+            except Exception as e:
+                return (None, None)
+            if hasattr(obj, '_company_id') and not hasattr(parent, '_company_id'):
+                return (obj.title, obj.getId())
+            else:
+                return cname(parent)
+
+        return cname(self)
+
     security.declareProtected('View', 'messageDialog')
-    def messageDialog(self, message='', action='', REQUEST=None):
+    def messageDialog(self, message='', action='', params=None, REQUEST=None):
         """ displays a message dialog """
-        return self.message_dialog(message=message, action=action)
+        return self.message_dialog(message=message, action=action, params=params)
 
     message_dialog = PageTemplateFile('zpt/message_dialog', globals())
 
@@ -526,6 +549,9 @@ class Collection(CatalogAware, Folder, Toolz):
         if REQUEST is not None:
             if hasattr(self, 'reindex_object'):
                 self.reindex_object()
+            if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+                if hasattr(aq_base(self), 'reindexObjectSecurity'):
+                    self.reindexObjectSecurity()
             stat='Your changes have been saved.'
             return self.manage_listLocalRoles(self, REQUEST, stat=stat)
 
@@ -536,6 +562,9 @@ class Collection(CatalogAware, Folder, Toolz):
         if REQUEST is not None:
             if hasattr(self, 'reindex_object'):
                 self.reindex_object()
+            if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+                if hasattr(aq_base(self), 'reindexObjectSecurity'):
+                    self.reindexObjectSecurity()
             stat='Your changes have been saved.'
             return self.manage_listLocalRoles(self, REQUEST, stat=stat)
 
@@ -549,9 +578,19 @@ class Collection(CatalogAware, Folder, Toolz):
             registry = engine.get_registry(self)
 
             if self.company_id and registry:
-                data = registry.get_company_details(self.company_id)
+                registry_name = getattr(registry, 'registry_name', None)
+                if registry_name == 'FGAS Registry':
+                    domain = 'FGAS'
+                    for obl in self.dataflow_uris:
+                        if obl in engine.er_ods_obligations:
+                            domain = 'ODS'
+                            break
+                    data = registry.get_company_details(self.company_id,
+                                                        domain=domain)
+                else:
+                    data = registry.get_company_details(self.company_id)
                 if data:
-                    data['registry'] = getattr(registry, 'registry_name', None)
+                    data['registry'] = registry_name
 
                 return data
 
@@ -566,10 +605,84 @@ class Collection(CatalogAware, Folder, Toolz):
                 if data.get('active'):
                     status = 'VALID'
             else:
-                if data.get('status') == 'VALID':
-                    status = 'VALID'
+                return data.get('status', 'N/A')
 
         return status
+
+    security.declareProtected('View', 'aggregated_licences')
+    def aggregated_licences(self):
+        """ Return the ODS licences for the company
+        """
+        res = {
+            "licences": [],
+            "result": "Ok",
+            "message": ""
+        }
+        self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            engine = self.getEngine()
+            registry = engine.get_registry(self)
+
+            if self.company_id and registry:
+                registry_name = getattr(registry, 'registry_name', None)
+                if registry_name == 'FGAS Registry':
+                    domain = 'FGAS'
+                    for obl in self.dataflow_uris:
+                        if obl in engine.er_ods_obligations:
+                            domain = 'ODS'
+                            break
+
+                    data = json.loads(self.REQUEST.get("BODY") or "{}")
+                    if not isinstance(data, dict):
+                        res["result"] = "Fail"
+                        res["message"] = "Malformed body"
+                    if 'year' in data:
+                        year = str(data.get('year'))
+                        del data['year']
+                    else:
+                        # Default to the previous year
+                        year = str(DateTime().year() - 1)
+                    response = registry.get_company_licences(self.company_id,
+                                                             domain=domain,
+                                                             year=year,
+                                                             data=json.dumps(data))
+                    if response is not None:
+                        if response.status_code != requests.codes.ok:
+                            res["result"] = "Fail"
+                            res["message"] = response.reason
+                        else:
+                            res.update(response.json())
+                            res["result"] = "Ok"
+                            res["message"] = ""
+                    else:
+                        res["result"] = "Fail"
+                        res["message"] = None
+
+        return json.dumps(res, indent=4)
+
+    security.declareProtected('View', 'company_details_short')
+    def company_details_short(self):
+        """ Return the short company details
+        """
+        res = {}
+        self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            engine = self.getEngine()
+            registry = engine.get_registry(self)
+
+            if self.company_id and registry:
+                registry_name = getattr(registry, 'registry_name', None)
+                if registry_name == 'FGAS Registry':
+                    domain = 'FGAS'
+                    for obl in self.dataflow_uris:
+                        if obl in engine.er_ods_obligations:
+                            domain = 'ODS'
+                            break
+
+                    res = registry.get_company_details_short(self.company_id,
+                                                             domain=domain)
+
+        return json.dumps(res, indent=4)
 
     security.declareProtected('View', 'company_types')
     def company_types(self):
@@ -614,7 +727,7 @@ class Collection(CatalogAware, Folder, Toolz):
             company_status = self.company_status()
 
             if company_status:
-                if company_status == 'DISABLED':
+                if company_status != 'VALID':
                     return False
 
         return True
@@ -630,13 +743,36 @@ class Collection(CatalogAware, Folder, Toolz):
                     return True
         return False
 
+    def has_company_checks_failed(self):
+        """ Return True if BDR deployment and associated company checks failed
+        """
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            raw_data = self.get_company_data()
+            if raw_data:
+                checks_passed = raw_data.get('check_passed', False)
+                registry = raw_data.get('registry')
+                if not checks_passed and registry == 'FGAS Registry':
+                    return True
+        return False
+
     def allowed_envelopes(self):
         """ Return False if the collection's associated company is disabled
         """
         if not self.is_valid():
-            return False
+            if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+                # For FGAS we also need to accept reporting from companies in REVISION
+                uris = self.dataflow_uris
+                is_fgas = 'http://rod.eionet.europa.eu/obligations/713' in uris or\
+                          'http://rod.eionet.europa.eu/obligations/765' in uris or\
+                          'http://rod.eionet.europa.eu/obligations/764' in uris
+                c_status = self.company_status()
+                if not is_fgas or (is_fgas and c_status not in ['REVISION', 'VALID']):
+                    return False
 
         if self.is_manufacturer():
+            return False
+
+        if self.has_company_checks_failed():
             return False
 
         return self.allow_envelopes
@@ -667,7 +803,6 @@ class Collection(CatalogAware, Folder, Toolz):
                                 raw_data.get('address', {}).get('city'))
             country = raw_data.get('country',
                                    raw_data.get('country_code'))
-
             data = {
                 'name': raw_data.get('name'),
                 'status': self.company_status(),
@@ -678,10 +813,43 @@ class Collection(CatalogAware, Folder, Toolz):
                 'country': country.upper(),
                 'vat': raw_data.get('vat_number', raw_data.get('vat')),
                 'portal_registration_date': self.portal_registration_date(),
-                'registry': raw_data.get('registry')
+                'registry': {'FGAS Registry': 'European Registry'}.get(raw_data.get('registry'),
+                                                                       raw_data.get('registry')),
+                'businessprofile': raw_data.get('businessprofile', []),
+                'domain': raw_data.get('domain', '')
             }
 
         return data
+
+    def get_released_envelopes(self):
+        path = '/'.join(self.getPhysicalPath())
+        query = {'meta_type': 'Report Envelope',
+                 'released': 1,
+                 'sort_on': 'reportingdate',
+                 'sort_order': 'reverse',
+                 'path': path
+                 }
+        envs = self.Catalog(**query)
+
+        return envs
+
+    def get_latest_env_reportingdate(self):
+        path = '/'.join(self.getPhysicalPath())
+        query = {'meta_type': 'Report Envelope',
+                 'sort_on': 'reportingdate',
+                 'sort_order': 'reverse',
+                 'path': path
+                 }
+        envs = self.Catalog(**query)
+        if envs:
+            return envs[0].reportingdate
+
+    def is_newest_released(self, env_id):
+        """ Return True if it's the newest released envelope in the collection"""
+        envs = self.get_released_envelopes()
+        if envs and envs[0].id == env_id:
+            return True
+        return False
 
     @property
     def Description(self):
@@ -689,5 +857,12 @@ class Collection(CatalogAware, Folder, Toolz):
             return self.descr.encode('utf-8')
 
         return self.descr
+
+    def add_envelope(self, **kwargs):
+        # Add envelope with the Manager role. To be called by Applications.
+        RepUtils.execute_under_special_role(self, "Manager",
+                                            self.manage_addEnvelope,
+                                            **kwargs)
+
 
 Globals.InitializeClass(Collection)

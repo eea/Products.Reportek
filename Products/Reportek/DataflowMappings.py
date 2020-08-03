@@ -1,15 +1,14 @@
 __doc__ = """Container for mappings between dataflows and XML schemas"""
 
-from OFS.Folder import Folder
-from Globals import InitializeClass
-from AccessControl import ClassSecurityInfo
-from AccessControl.Permissions import view_management_screens
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Products.Reportek.constants import DATAFLOW_MAPPINGS
 from UserList import UserList
 
+from AccessControl import ClassSecurityInfo
+from AccessControl.Permissions import view_management_screens
 from constants import DATAFLOW_MAPPINGS, ENGINE_ID
 from DataflowMappingsRecord import DataflowMappingsRecord
+from Globals import InitializeClass
+from OFS.Folder import Folder
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 
 
 class DataflowMappings(Folder):
@@ -41,7 +40,7 @@ class DataflowMappings(Folder):
         """Return the mapping records for the dataflow_uris."""
         query = {
             'meta_type': DataflowMappingsRecord.meta_type,
-            'path': '/{}'.format(DATAFLOW_MAPPINGS)
+            'path': '/DataflowMappings'
         }
         if dataflow_uris:
             if isinstance(dataflow_uris, UserList):
@@ -81,6 +80,19 @@ class DataflowMappings(Folder):
         schemaObjects = self.getSchemaObjectsForDataflows(dataflow_uris, web_form_only)
         return [ schema['url'] for schema in schemaObjects ]
 
+    def get_webform_url_for_schema(self, schema, dataflow_uris=None, web_form_only=False):
+        """Return the webform base url for schema"""
+
+        schemaObjects = self.getSchemaObjectsForDataflows(dataflow_uris, web_form_only)
+        for schema_obj in schemaObjects:
+            if schema_obj.get('url') == schema:
+                return schema_obj.get('wf_edit_url')
+
+    security.declarePublic('dataflows_select')
+    dataflows_select = PageTemplateFile(
+            'zpt/dataflow-mappings/dataflows_select',
+            globals())
+
     security.declarePublic('dataflows_select')
     dataflows_select = PageTemplateFile(
             'zpt/dataflow-mappings/dataflows_select',
@@ -93,12 +105,13 @@ class DataflowMappings(Folder):
         res = set()
         for brain in brains:
             record = brain.getObject()
-            res.add(record.xls_conversion)
+            res.add((record.xls_conversion,
+                     getattr(record, 'xls_remove_empty_elems', False)))
         # If all records have the same conversion type, return it
         if len(res) == 1:
             return list(res)[-1]
         # Fallback to default 'split'
-        return 'split'
+        return ('split', False)
 
     security.declareProtected('View management screens', 'index_html')
     index_html = PageTemplateFile('zpt/dataflow-mappings/index', globals())

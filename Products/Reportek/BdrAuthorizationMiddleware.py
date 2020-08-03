@@ -34,7 +34,10 @@ class BdrAuthorizationMiddleware(SimpleItem):
             logger.warning("This collection is locked down: %s!" % path)
             return False
         accessiblePaths = self.getUserCollectionPaths(username, recheck_interval=self.recheck_interval)
-        return path in accessiblePaths
+        if path in accessiblePaths.get('paths'):
+            return "RW"
+        if path in accessiblePaths.get('prev_paths'):
+            return "RO"
 
     def lockDownCollection(self, path, user):
         if path not in self.lockedDownCollections:

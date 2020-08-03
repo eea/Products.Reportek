@@ -1,8 +1,11 @@
 import json
+from urllib import unquote
+
 from base_admin import BaseAdmin
 from DateTime import DateTime
-from urllib import unquote
-from Products.Reportek.constants import WORKFLOW_ENGINE_ID
+from Products.Reportek.catalog import searchResults
+from Products.Reportek.constants import ENGINE_ID, WORKFLOW_ENGINE_ID
+from Products.Reportek.rabbitmq import send_message
 
 
 class EnvelopeUtils(BaseAdmin):
@@ -13,6 +16,8 @@ class EnvelopeUtils(BaseAdmin):
             self.auto_complete_envelopes()
         if self.request.get('btn.search'):
             self.get_not_completed_workitems()
+        if self.request.get('btn.publish'):
+            self.forwardable_envelopes()
         return self.index()
 
     def get_envelope_status(self):
@@ -94,7 +99,6 @@ class EnvelopeUtils(BaseAdmin):
             if activity == 'Draft' and workitem.status == 'inactive':
                 continue
 
-
             wf = self.get_env_workflow(workitem)
             next_activities = self.get_next_activities(wf, workitem)
             if wf:
@@ -168,7 +172,11 @@ class EnvelopeUtils(BaseAdmin):
                            if act.complete_automatically == 1 and
                            act.start_mode == 1 and act.finish_mode == 1}
         # Get all inactive workitems
-        inactive_brains = catalog(meta_type='Workitem', status='inactive')
+        query = {
+            'meta_type': 'Workitem',
+            'status': 'inactive'}
+        inactive_brains = searchResults(catalog, query,
+                                        admin_check=self.should_check_permission())
         envelopes = []
         for b in inactive_brains:
             obj = b.getObject()
@@ -210,10 +218,14 @@ class EnvelopeUtils(BaseAdmin):
         """Return a list of envelopes with long running Automatic QA"""
 
         catalog = self.context.Catalog
+        query = {
+            'meta_type': 'Workitem',
+            'activity_id': 'AutomaticQA',
+            'status': 'active'
+        }
         # Get all active workitems
-        aqa_brains = catalog(meta_type='Workitem',
-                             activity_id='AutomaticQA',
-                             status='active')
+        aqa_brains = searchResults(catalog, query,
+                                   admin_check=self.should_check_permission())
         try:
             age = int(self.request.get('age', 30))
         except Exception:
@@ -242,5 +254,68 @@ class EnvelopeUtils(BaseAdmin):
                         },
                         's_date': DateTime(obj.event_log[-1].get('time')).strftime('%d/%m/%Y %H:%M:%S')
                     })
+
+        return json.dumps(envelopes)
+
+    def forwardable_envelopes(self):
+        pub_envs = self.request.get('envelopes', [])
+        if self.request.get('btn.publish') and not pub_envs:
+            self.request['op_results'] = []
+        if pub_envs:
+            results = []
+            if self.rmq_fwd:
+                for env in pub_envs:
+                    try:
+                        send_message(env, queue='fwd_envelopes')
+                        results.append({
+                            'envelope': env,
+                            'published': True,
+                            'error': None
+                        })
+                    except Exception as e:
+                        results.append({
+                            'envelope': env,
+                            'published': False,
+                            'error': Exception("Unable to send message to RabbitMQ! Details: {}".format(str(e)))
+                        })
+            self.request['op_results'] = results
+
+        catalog = self.context.Catalog
+        query = {
+            'meta_type': 'Report Envelope',
+            'wf_status': 'forward'
+        }
+        brains = searchResults(catalog, query,
+                               admin_check=self.should_check_permission())
+        envelopes = []
+        for b in brains:
+            env = b.getObject()
+            wks = env.getListOfWorkitems()
+            last_wk = wks[-1]
+            activity = env.getActivity(last_wk.getId())
+            process = env.getProcess()
+            activity_url = process_url = ''
+            activity_title = process_title = 'Not available'
+            if activity:
+                activity_url = activity.absolute_url()
+                activity_title = activity.title_or_id()
+            if process:
+                process_url = process.absolute_url()
+                process_title = process.title_or_id()
+            envelopes.append({
+                'env': {
+                    'url': env.absolute_url(),
+                    'path': env.getPath()
+                },
+                'process': {
+                    'url': process_url,
+                    'title': process_title
+                },
+                'activity': {
+                    'url': activity_url,
+                    'title': activity_title
+                },
+                's_date': DateTime(last_wk.event_log[-1].get('time')).strftime('%d/%m/%Y %H:%M:%S')
+            })
 
         return json.dumps(envelopes)

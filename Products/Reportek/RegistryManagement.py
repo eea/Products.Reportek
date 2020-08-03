@@ -1,15 +1,16 @@
+import logging
+from time import time
+
+import Products
+import requests
 from AccessControl import ClassSecurityInfo
 from interfaces import IRegistryManagement
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
-from Products.Reportek.constants import DF_URL_PREFIX
 from plone.memoize import ram
+from Products.Reportek.constants import DF_URL_PREFIX
 from requests.exceptions import RequestException
-from time import time
 from zope.interface import implementer
-import logging
-import Products
-import requests
 
 logger = logging.getLogger("Reportek")
 
@@ -41,7 +42,7 @@ class BaseRegistryAPI(SimpleItem):
         self.token = token
 
     def do_api_request(self, url, method='get', data=None, cookies=None,
-                       headers=None, params=None, timeout=None):
+                       headers=None, params=None, timeout=None, raw=None):
         api_req = requests.get
         if method == 'post':
             api_req = requests.post
@@ -57,6 +58,8 @@ class BaseRegistryAPI(SimpleItem):
             return None
         if response.status_code != requests.codes.ok:
             logger.warning("Retrieved a %s status code when contacting SatelliteRegistry's url: %s " % (response.status_code, url))
+            if raw:
+                return response
             return None
 
         return response
@@ -74,7 +77,8 @@ class FGASRegistryAPI(BaseRegistryAPI):
     }
     COUNTRY_TO_FOLDER = {
         'uk': 'gb',
-        'el': 'gr'
+        'el': 'gr',
+        'non_eu': 'non-eu'
     }
 
     def get_registry_companies(self, domain='FGAS', detailed=False):
@@ -97,14 +101,52 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if response:
             return response.json()
 
+    def get_company_details_short(self, company_id, domain='FGAS'):
+        url = '/'.join([self.baseUrl, 'undertaking', domain, company_id,
+                        'details-short'])
+        response = self.do_api_request(url,
+                                       headers={'Authorization': self.token})
+        if response:
+            return response.json()
+
+    def get_company_licences(self, company_id, year, data, domain='FGAS'):
+        url = '/'.join([self.baseUrl, 'undertaking', domain, company_id,
+                        'licences', year, 'aggregated'])
+        response = self.do_api_request(url, method='post', data=data,
+                                       headers={'Authorization': self.token},
+                                       raw=True)
+        return response
+
+    def sync_company(self, company_id, domain):
+        d_map = {
+            "FGAS": "fgases",
+            "ODS": "ods"
+        }
+        url = '/'.join([self.baseUrl, 'sync', d_map.get(domain)])
+        response = self.do_api_request(url, params={"id": company_id},
+                                       headers={'Authorization': self.token})
+        if response:
+            return response.json()
+
     def getCompanyDetailsById(self, companyId, domain='FGAS'):
         details = self.get_company_details(companyId, domain=domain)
         keysToVerify = ['domain', 'address', 'company_id', 'collection_id']
         if details:
             if reduce(lambda i, x: i and x in details, keysToVerify, True):
+                country_code = details.get('country_code')
+                # If we have a NONEU_TYPE company with a legal representative, 
+                # use the country_code from the legal representative
+                c_type = details.get('address', {}).get('country', {}).get('type')
+                rep = details.get('representative')
+                if c_type == 'NONEU_TYPE' and rep:
+                    address = rep.get('address')
+                    if address:
+                        country = address.get('country')
+                        if country:
+                            country_code = country.get('code')
                 path = self.buildCollectionPath(
                     details['domain'],
-                    details['country_code'],
+                    country_code,
                     str(details['company_id']),
                     details['collection_id']
                 )
@@ -117,20 +159,44 @@ class FGASRegistryAPI(BaseRegistryAPI):
         url = self.baseUrl + '/user/' + username + '/companies'
         response = self.do_api_request(url,
                                        headers={'Authorization': self.token})
+        rep_paths = {}
         paths = []
+        prev_paths = []
+
+        def build_paths(c, c_code):
+            path = None
+            try:
+                path = self.buildCollectionPath(c['domain'], c_code,
+                                    str(c['company_id']), c['collection_id'])
+                if not path:
+                    raise ValueError("Cannot form path with company data: %s" % str(c))
+            except Exception as e:
+                logger.warning("Error in company data received from SatelliteRegistry: %s" % repr(e))
+
+            return path
+
         if response:
             companies = response.json()
             for c in companies:
-                try:
-                    path = self.buildCollectionPath(c['domain'], c['country'],
-                                        str(c['company_id']), c['collection_id'])
-                    if not path:
-                        raise ValueError("Cannot form path with company data: %s" % str(c))
+                c_code = c.get('country')
+                if c.get('representative_country'):
+                    c_code = c.get('representative_country')
+                path = build_paths(c, c_code)
+                if path:
                     paths.append(path)
-                except Exception as e:
-                    logger.warning("Error in company data received from SatelliteRegistry: %s" % repr(e))
+                for lr in c.get('represent_history', []):
+                    lr_address = lr.get('address', {})
+                    lr_c = lr_address.get('country')
+                    if lr_c:
+                        lr_c_code = lr_c.get('code')
+                        prev_path = build_paths(c, lr_c_code)
+                        if prev_path:
+                            prev_paths.append(prev_path)
 
-        return paths
+        rep_paths['paths'] = paths
+        rep_paths['prev_paths'] = prev_paths
+        return rep_paths
+
 
     def existsCompany(self, params, domain='FGAS'):
         url = '/'.join([self.baseUrl, 'undertaking', domain, 'filter'])

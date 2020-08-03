@@ -15,7 +15,8 @@
 
       <tal:block define="
         default_restricted python:request.SESSION.get('default_restricted', '');
-        force_restricted python:request.SESSION.get('force_restricted', '')">
+        force_restricted python:request.SESSION.get('force_restricted', '');
+        disallow python: request.SESSION.get('disallow', '')">
 
       <form action="manage_addDocument" method="post" enctype="multipart/form-data" name="form">
         <table cellspacing="5" cellpadding="0">
@@ -44,6 +45,8 @@
         <tr>
           <td>
             <input tal:condition="force_restricted" type="hidden" name="restricted" value="on"/>
+            <input tal:condition="disallow" type="hidden" name="disallow"
+              tal:attributes="value disallow"/>
           </td>
           <td><input type="submit" value="Add" i18n:attributes="value" /></td>
         </tr>

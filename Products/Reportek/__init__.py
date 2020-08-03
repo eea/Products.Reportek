@@ -23,44 +23,46 @@
 __doc__ = """Reportek __init__ """
 __version__ = '$Rev$'[6:-2]
 
-from config import *
-import monitoring
-from traceback import format_exception_only
 import logging
-logger = logging.getLogger("Reportek")
-
+from traceback import format_exception_only
+from config import *
+import Collection
+import constants
+import Converter
+import Converters
+import DataflowMappings
+import monitoring
+import OpenFlowEngine
+import QARepository
+import QAScript
+import Referral
+import RemoteApplication
+import RemoteFMEConversionApplication
+import RemoteRESTApplication
+import ReportekAPI
+import ReportekEngine
+import ReportekUtilities
 # Zope imports
 import Zope2
+from AccessControl.Permissions import manage_users as ManageUsers
 from App.ImageFile import ImageFile
+from Products.PluggableAuthService.PluggableAuthService import \
+    registerMultiPlugin
+from Products.Reportek.ReportekUserFactoryPlugin import (
+    ReportekUserFactoryPlugin, addReportekUserFactoryPlugin,
+    manage_addReportekUserFactoryPluginForm)
 from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCTextIndex.ZCTextIndex import PLexicon
+from zope.i18nmessageid import MessageFactory
+
+logger = logging.getLogger("Reportek")
+
 
 # Product imports
 
-import QARepository
-import QAScript
-import Converters
-import Converter
-import Collection
-import Referral
-import OpenFlowEngine
-import DataflowMappings
-import ReportekEngine
-import ReportekUtilities
-import ReportekAPI
-from Products.Reportek import RemoteApplication
-from Products.Reportek import RemoteRESTApplication
-from Products.Reportek import RemoteRESTAPIApplication
-from Products.Reportek.ReportekUserFactoryPlugin import ReportekUserFactoryPlugin
-from Products.Reportek.ReportekUserFactoryPlugin import addReportekUserFactoryPlugin
-from Products.Reportek.ReportekUserFactoryPlugin import manage_addReportekUserFactoryPluginForm
-from Products.PluggableAuthService.PluggableAuthService import registerMultiPlugin
 
-from AccessControl.Permissions import manage_users as ManageUsers
 
-import constants
 
-from zope.i18nmessageid import MessageFactory
 MessageFactory = MessageFactory('Reportek')
 
 maintenance_options = (
@@ -169,39 +171,40 @@ def _strip_protocol_domain(full_url):
 def ping_remaining_envelopes(app, crPingger):
     import redis
     import pickle
-    try:
-        rs = redis.Redis(host=REDIS_HOSTNAME,
-                         port=REDIS_PORT,
-                         db=REDIS_DATABASE)
-        envPathNames = rs.hkeys(constants.PING_ENVELOPES_REDIS_KEY)
-    except Exception as e:
-        lines = format_exception_only(e.__class__, e)
-        lines.insert(0, "Could not get to redis server")
-        logger.warn('. '.join(lines))
-        return
+    if REDIS_DATABASE and REDIS_HOSTNAME and REDIS_PORT:
+        try:
+            rs = redis.Redis(host=REDIS_HOSTNAME,
+                             port=REDIS_PORT,
+                             db=REDIS_DATABASE)
+            envPathNames = rs.hkeys(constants.PING_ENVELOPES_REDIS_KEY)
+        except Exception as e:
+            lines = format_exception_only(e.__class__, e)
+            lines.insert(0, "Could not get to redis server")
+            logger.warn('. '.join(lines))
+            return
 
-    for envPathName in envPathNames:
-        # get this fresh on every iteration
-        envStatus = rs.hget(constants.PING_ENVELOPES_REDIS_KEY, envPathName)
-        envStatus = pickle.loads(envStatus)
-        if not envStatus['op']:
-            continue
-        envPathOnly, proto_domain = _strip_protocol_domain(envPathName)
-        env = app.unrestrictedTraverse(envPathOnly, None)
-        uris = [envPathName + '/rdf']
-        if not env:
-            logger.warning("Envelope {} no longer exists in the zope "
-                           "environment. Setting cr ping argument to "
-                           "'delete'".format(envPathName))
-            envStatus['op'] = 'delete'
-        else:
-            innerObjsByMetatype = env._getObjectsForContentRegistry()
-            # as we are not called from browser there is no domain part in the absolute_url
-            uris.extend(proto_domain + '/' + o.absolute_url(1)
-                        for objs in innerObjsByMetatype.values()
-                            for o in objs)
-        crPingger.content_registry_ping(uris, ping_argument=envStatus['op'],
-                                        envPathName=envPathName)
+        for envPathName in envPathNames:
+            # get this fresh on every iteration
+            envStatus = rs.hget(constants.PING_ENVELOPES_REDIS_KEY, envPathName)
+            envStatus = pickle.loads(envStatus)
+            if not envStatus['op']:
+                continue
+            envPathOnly, proto_domain = _strip_protocol_domain(envPathName)
+            env = app.unrestrictedTraverse(envPathOnly, None)
+            uris = [envPathName + '/rdf']
+            if not env:
+                logger.warning("Envelope {} no longer exists in the zope "
+                               "environment. Setting cr ping argument to "
+                               "'delete'".format(envPathName))
+                envStatus['op'] = 'delete'
+            else:
+                innerObjsByMetatype = env._getObjectsForContentRegistry()
+                # as we are not called from browser there is no domain part in the absolute_url
+                uris.extend(proto_domain + '/' + o.absolute_url(1)
+                            for objs in innerObjsByMetatype.values()
+                                for o in objs)
+            crPingger.content_registry_ping(uris, ping_argument=envStatus['op'],
+                                            envPathName=envPathName)
 
 def add_index(name, catalog, meta_type, meta=False):
     if name not in catalog.indexes():
@@ -238,9 +241,7 @@ def create_reportek_indexes(catalog):
     if not hasattr(catalog, 'lexicon'):
         add_lexicon(catalog)
     add_index('id', catalog, 'FieldIndex', meta=True)
-
     add_index('title', catalog, 'ZCTextIndex', meta=True)
-
     add_index('meta_type', catalog, 'FieldIndex', meta=True)
     add_index('bobobase_modification_time', catalog, 'DateIndex', meta=True)
     add_index('activity_id', catalog, 'FieldIndex', meta=True)
@@ -261,24 +262,22 @@ def create_reportek_indexes(catalog):
     add_index('years', catalog, 'KeywordIndex', meta=True)
     add_index('local_unique_roles', catalog, 'KeywordIndex')
     add_index('local_defined_users', catalog, 'KeywordIndex', meta=True)
-
     add_index('Description', catalog, 'ZCTextIndex', meta=True)
-
     add_index('blocker', catalog, 'FieldIndex', meta=True)
     add_index('feedback_status', catalog, 'FieldIndex', meta=True)
-
+    add_index('allowedAdminRolesAndUsers', catalog, 'KeywordIndex', meta=True)
+    add_index('wf_status', catalog, 'FieldIndex', meta=True)
     if 'activation_log' not in catalog.schema():
         catalog.addColumn('activation_log')
-
     if 'local_defined_roles' not in catalog.schema():
         catalog.addColumn('local_defined_roles')
     add_index('document_id', catalog, 'FieldIndex')
-    add_index('is_blocked', catalog, 'FieldIndex', meta=True)
-    add_index('getActorDraft', catalog, 'FieldIndex', meta=True)
-    add_index('has_unknown_qa_result', catalog, 'FieldIndex', meta=True)
-    add_index('bobobase_modification_time', catalog, 'DateIndex', meta=True)
-    add_index('dataflow_uris', catalog, 'KeywordIndex', meta=True)
-    add_index('reportingdate', catalog, 'FieldIndex', meta=True)
+    if config.REPORTEK_DEPLOYMENT == config.DEPLOYMENT_BDR:
+        add_index('get_fgas_activities', catalog, 'FieldIndex', meta=True)
+        add_index('get_fgas_reported_gases', catalog, 'FieldIndex', meta=True)
+        add_index('get_fgas_i_authorisations', catalog, 'FieldIndex', meta=True)
+        add_index('get_fgas_a_authorisations', catalog, 'FieldIndex', meta=True)
+        add_index('company_id', catalog, 'FieldIndex', meta=True)
 
 
 class Empty:
@@ -381,11 +380,11 @@ def initialize(context):
            )
 
         context.registerClass(
-           RemoteRESTAPIApplication.RemoteRESTAPIApplication,
-           permission='Add Remote REST API Application',
+           RemoteFMEConversionApplication.RemoteFMEConversionApplication,
+           permission='Add Remote Application',
            constructors = (
-                RemoteRESTAPIApplication.manage_addRemoteRESTAPIApplicationForm,
-                RemoteRESTAPIApplication.manage_addRemoteRESTAPIApplication),
+                RemoteFMEConversionApplication.manage_addRemoteFMEConversionApplicationForm,
+                RemoteFMEConversionApplication.manage_addRemoteFMEConversionApplication),
            icon = 'www/qa_application.gif'
            )
 

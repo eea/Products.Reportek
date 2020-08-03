@@ -3,7 +3,7 @@ info:
   version: 1.0.0
   title: Envelopes
   description: ''
-host: 'cdrdev.eionet.europa.eu'
+host: cdrdev.eionet.europa.eu
 basePath: /api
 schemes:
   - http
@@ -106,24 +106,17 @@ paths:
               - VA
         - name: reportingDate
           in: query
-          description: Return envelopes with this reporting date. format.
+          description: Return envelopes with this reporting date. Please note that the reporting date is the creation date for unreleased envelopes.
           type: string
           format: date
         - name: reportingDateStart
           in: query
-          description: >-
-            Return envelopes that have a reporting date in range of
-            reportingDateStart and reportingDateEnd or today if reportingDateEnd
-            is missing.
+          description: Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd or today if reportingDateEnd is missing.
           type: string
           format: date
         - name: reportingDateEnd
           in: query
-          description: >-
-            Return envelopes that have a reporting date in range of
-            reportingDateStart and reportingDateEnd. If reportingDateStart is
-            missing, all envelopes with reporting date <= reportingDateEnd will
-            be returned.
+          description: Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd. If reportingDateStart is missing, all envelopes with reporting date <= reportingDateEnd will be returned.
           type: string
           format: date
         - name: obligations
@@ -164,9 +157,19 @@ paths:
           description: Return envelopes with specified modifiedDate. date format.
           type: string
           format: date
+        - name: modifiedDateStart
+          in: query
+          description: Return envelopes that have a modified date in range of modifiedDateStart and modifiedDateEnd or today if modifiedDateEnd is missing.
+          type: string
+          format: date
+        - name: modifiedDateEnd
+          in: query
+          description: Return envelopes that have a modified date in range of modifiedDateStart and modifiedDateEnd or today if modifiedDateStart is missing.
+          type: string
+          format: date
         - name: status
           in: query
-          description: Return envelopes that have the following status
+          description: Return envelopes that have the following status - deprecated, please use activity instead
           type: array
           items:
             type: string
@@ -174,7 +177,49 @@ paths:
           in: query
           type: string
           format: date
-          description: Return envelopes that have a status with the following statusDate.
+          description: Return envelopes that have a status with the following statusDate. - deprecated, please use activityDate instead
+        - name: statusDateStart
+          in: query
+          description: Return envelopes that have a status date in range of statusDateStart and statusDateEnd or today if statusDateEnd is missing. - deprecated, please use activityDateStart instead
+          type: string
+          format: date
+        - name: statusDateEnd
+          in: query
+          description: Return envelopes that have a status date in range of statusDateStart and statusDateEnd or today if statusDateStart is missing. - deprecated, please use activityDateEnd instead
+          type: string
+          format: date
+        - name: activity
+          in: query
+          description: Return envelopes that have the following activity
+          type: array
+          items:
+            type: string
+        - name: activityDate
+          in: query
+          type: string
+          format: date
+          description: Return envelopes that have an activity with the following activityDate.
+        - name: activityDateStart
+          in: query
+          description: Return envelopes that have an activity date in range of activityDateStart and activityDateEnd or today if activityDateEnd is missing.
+          type: string
+          format: date
+        - name: activityDateEnd
+          in: query
+          description: Return envelopes that have an activity date in range of activityDateStart and activityDateEnd or today if activityDateStart is missing.
+          type: string
+          format: date
+        - name: activityStatus
+          in: query
+          description: Return envelopes with activity status of.
+          type: array
+          items:
+            type: string
+            enum:
+              - active
+              - complete
+              - fallout
+              - inactive
         - name: fields
           in: query
           description: Return envelopes with only the fields specified
@@ -183,6 +228,7 @@ paths:
             type: string
             enum:
               - files
+              - feedbacks
               - url
               - title
               - description
@@ -197,10 +243,18 @@ paths:
               - isBlockedByQCError
               - status
               - statusDate
+              - statusDateStart
+              - statusDateEnd
+              - activity
+              - activityDate
+              - activityDateStart
+              - activityDateEnd
+              - activityStatus
               - creator
               - hasUnknownQC
               - history
               - companyId
+              - companyName
           collectionFormat: csv
       responses:
         '200':
@@ -217,7 +271,7 @@ paths:
                 items:
                   $ref: '#/definitions/Error'
           examples:
-            'application/json':
+            application/json:
               errors:
                 - title: Error title
                   description: This is a generic error description
@@ -228,21 +282,45 @@ paths:
                         - File1.xml
                         - File2.xml
                       contentType: application/xml
-                      uploadDate: 2013-04-12T23:20:50.52Z
-                      url: http://foo/bar/my_envelope/my_envelope_file.xml
-                      schemaURL: http://foo/bar/schema.xsd
+                      uploadDate: 2013-04-12T23:20:50.520Z
+                      url: 'http://foo/bar/my_envelope/my_envelope_file.xml'
+                      schemaURL: 'http://foo/bar/schema.xsd'
                       fileSize: 3679181
                       fileSizeHR: 3.51 MB
+                      hash: c1bb4e1433f1bba2f94202b7ae704a95b01ca4bb93d39dc5807635329b310ca0
                       isRestricted: 0
+                - feedbacks:
+                    - title: 'AutomaticQA result for: XML File validation'
+                      url: 'http://foo/bar/my_envelope/AutomaticQA_406509'
+                      contentType: text/html
+                      documentId: "my_envelope_file.xml"
+                      activityId: AutomaticQA
+                      postingDate: 2013-04-12T23:20:50.520Z
+                      feedbackStatus: INFO
+                      feedbackMessage: XML File validations passed without errors.
+                      automatic: 1
+                    - title: 'Final Feedback'
+                      url: 'http://foo/bar/my_envelope/feedback_1527576363'
+                      contentType: text/plain
+                      documentId: null
+                      activityId: ''
+                      postingDate: 2013-04-13T23:20:50.520Z
+                      feedbackStatus: ''
+                      feedbackMessage: ''
+                      isRestricted: 0
+                      attachments:
+                        - url: 'http://foo/bar/my_envelope/feedback_1527576363/qa-output'
+                          title: 'qa-output'
+                          contentType: text/html
                   periodEndYear: 2014
                   status: Release
                   countryCode: RO
-                  statusDate: 2013-04-13T01:20:50.53Z
+                  statusDate: 2013-04-13T01:20:50.530Z
                   obligations:
                     - '701'
                   isBlockedByQCError: 0
-                  url: http://foo/bar/my_envelope
-                  modifiedDate: 2013-04-13T01:20:50.53Z
+                  url: 'http://foo/bar/my_envelope'
+                  modifiedDate: 2013-04-13T01:20:50.530Z
                   creator: foo
                   history:
                     - id: 0
@@ -250,11 +328,12 @@ paths:
                       activity_id: Release
                       activity_status: complete
                       blocker: false
-                      modified: 2013-04-13T01:20:50.53Z
-                  companyId: 18006,
+                      modified: 2013-04-13T01:20:50.530Z
+                  companyId: '18006,'
+                  companyName: 'Test company'
                   isReleased: 1
                   title: My Envelope
-                  reportingDate: 2013-04-13T01:20:50.53Z
+                  reportingDate: 2013-04-13T01:20:50.530Z
                   periodStartYear: 2013
                   description: A description for my envelope
                   periodDescription: Whole Year
@@ -274,9 +353,7 @@ definitions:
         items:
           type: integer
       periodStartYear:
-        description: >-
-          The starting year of the period for which the envelope has been
-          created.
+        description: The starting year of the period for which the envelope has been created.
         type: string
       periodEndYear:
         type: string
@@ -286,14 +363,29 @@ definitions:
         description: The envelope's country code (ISO Alpha-2).
       reportingDate:
         type: string
-        description: The envelope's reporting date.
+        description: The envelope's reporting date. Please note that the reporting date is the creation date for unreleased envelopes.
         format: dateTime
+      reportingDateStart:
+        type: string
+        description: Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd or today if reportingDateEnd is missing.
+        format: dateTime
+      reportingDateEnd:
+        type: string
+        description: Return envelopes that have a reporting date in range of reportingDateStart and reportingDateEnd. If reportingDateStart is missing, all envelopes with reporting date <= reportingDateEnd will be returned.
       url:
         type: string
         description: The envelope's URL.
       modifiedDate:
         type: string
-        description: The envelope's modification date.
+        description: The envelope's modification date. Please note that there are many potential events/actions that can alter the modificationDate of an envelope
+        format: dateTime
+      modifiedDateStart:
+        type: string
+        description: Return envelopes that have a modified date in range of modifiedDateStart and modifiedDateEnd or today if modifiedDateEnd is missing.
+        format: dateTime
+      modifiedDateEnd:
+        type: string
+        description: Return envelopes that have a modified date in range of modifiedDateStart and modifiedDateEnd or today if modifiedDateStart is missing.
         format: dateTime
       periodDescription:
         $ref: '#/definitions/PeriodDescription'
@@ -311,14 +403,35 @@ definitions:
           - 1
       status:
         type: string
-        description: The workflow status of the envelope.
+        description: The workflow status of the envelope - deprecated, please use activity instead.
       statusDate:
         type: string
         format: dateTime
-        description: The date the workflow status has been set.
+        description: The date the workflow status has been set. - deprecated, please use activityDate instead.
+      activity:
+        type: string
+        description: The workflow activity of the envelope.
+      activityDate:
+        type: string
+        format: dateTime
+        description: The date the workflow activity has been set.
+      activityStatus:
+        type: string
+        description: The status of the activity
+        enum:
+          - active
+          - complete
+          - fallout
+          - inactive
       creator:
         type: string
         description: The envelope's creator.
+      hasUnknownQC:
+        type: integer
+        description: Is there an AutomaticQA feedback with no valid feedback status
+        enum:
+          - 0
+          - 1
       files:
         type: array
         description: The list of files attached to the envelope.
@@ -331,13 +444,16 @@ definitions:
           $ref: '#/definitions/History'
       companyId:
         type: string
-        description: The company ID associated with with the envelope's parent Collection
+        description: The company ID associated with the envelope's parent Collection
+      companyName:
+        type: string
+        description: The company name associated with the envelope's parent Collection
   File:
     type: object
     properties:
       contentType:
         type: string
-        description: The file's content type.
+        description: The file's content type. The file's content type is determined by file extension, request headers and then falling back to Zope's content type guessing algorithm
       title:
         type: string
         description: The file's title.
@@ -357,11 +473,12 @@ definitions:
       fileSizeHR:
         type: string
         description: The size of the file in human readable format.
+      hash:
+        type: string
+        description: The file's sha256 hash
       archivedFiles:
         type: array
-        description: >-
-          The list of files that have been archived. Available only if there is
-          an archive attached to the envelope and if it can be opened.
+        description: The list of files that have been archived. Available only if there is an archive attached to the envelope and if it can be opened.
         items:
           type: string
       isRestricted:
@@ -370,6 +487,61 @@ definitions:
         enum:
           - 0
           - 1
+  Feedback:
+    type: object
+    properties:
+      contentType:
+        type: string
+        description: The feedback's content type.
+      title:
+        type: string
+        description: The feedback's title.
+      url:
+        type: string
+        description: The feedback's URL.
+      postingDate:
+        type: string
+        description: The feedback's posting date.
+        format: dateTime
+      documentId:
+        type: string
+        description: The file to which the feedback refers to.
+      activityId:
+        type: string
+        description: The activity which generated the automatic feedback
+      automatic:
+        type: integer
+        description: Feedback type.
+        enum:
+          - 0
+          - 1
+      feedbackStatus:
+        type: string
+        description: The feedback status.
+      feedbackMessage:
+        type: string
+        description: The feedback message.
+      isRestricted:
+        type: integer
+        description: The feedback's restricted status.
+        enum:
+          - 0
+          - 1
+      attachments:
+        type: array
+        description: The list of feedback attachments.
+        items:
+          type: object
+          properties:
+            url:
+              type: string
+              description: The attachment's URL.
+            title:
+              type: string
+              description: The attachment's title.
+            contentType:
+              type: string
+              description: The attachment's content type.
   History:
     type: object
     properties:

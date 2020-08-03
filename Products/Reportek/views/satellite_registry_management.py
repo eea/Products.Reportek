@@ -1,10 +1,12 @@
-from base_admin import BaseAdmin
-from Products.Reportek.constants import ENGINE_ID
-from Products.Reportek.RepUtils import fix_json_from_id
-from plone.memoize.ram import global_cache
 import json
-import re
 import logging
+import re
+
+import xmltodict
+from base_admin import BaseAdmin
+from plone.memoize.ram import global_cache
+from Products.Reportek.constants import ENGINE_ID
+from Products.Reportek.RepUtils import fix_json_from_id, replace_keys
 
 logger = logging.getLogger("Reportek")
 
@@ -71,7 +73,7 @@ class SatelliteRegistryManagement(BaseAdmin):
 
             return self.index(error='Specify an email address.')
 
-        if self.request.method == "POST" and self.request.get('orgaction') == 'statusupdate':
+        if self.request.method == "POST" and self.request.get('orgaction') in ['statusupdate', 'sync']:
             status = self.request.get('newval')
             orgid = self.request.get('orgid')
             if orgid and status:
@@ -80,6 +82,15 @@ class SatelliteRegistryManagement(BaseAdmin):
                 else:
                     # We need to clear the company_details cache
                     global_cache.invalidate('Products.Reportek.RegistryManagement.get_company_details')
+            if self.request.get('orgaction') == 'sync':
+                sync_res = api.sync_company(orgid, domain=domain)
+                if not sync_res:
+                    return self.index(error='Unable to sync company')
+                else:
+                    # We need to clear the company_details cache
+                    global_cache.invalidate('Products.Reportek.RegistryManagement.get_company_details')
+                    return self.index(info_message=sync_res.get('message'),
+                                      error=False)
         return self.index(error=False)
 
     def get_api(self):
@@ -104,7 +115,8 @@ class SatelliteRegistryManagement(BaseAdmin):
             return None
         domain = self.request.form.get('domain', 'FGAS')
         if self.is_permitted(domain):
-            companies = api.get_registry_companies(domain=domain)
+            companies = api.get_registry_companies(domain=domain,
+                                                   detailed=True)
             self.request.response.setHeader('Content-Type', 'application/json')
             return json.dumps(companies, indent=2)
 
@@ -136,6 +148,92 @@ class SatelliteRegistryManagement(BaseAdmin):
                                                                    domain=domain))
 
             return json.dumps(details, indent=2)
+
+    def prep_company_xml(self, company):
+        cc_override = {
+            'UK': 'GB',
+            'EL': 'GR'
+        }
+        keys = [
+            'account',
+            'active',
+            'addr_place1',
+            'addr_place2',
+            'addr_postalcode',
+            'addr_street',
+            'country',
+            'eori',
+            'name',
+            'obligation',
+            'person',
+            'pk',
+        ]
+        replace_keys({
+            'users': 'person',
+        }, company)
+        address = company.get('address', {})
+        company['pk'] = '-1'  # We don't have pk from european registry
+        street = address.get('street', '') if address.get('street', '') else ''
+        number = address.get('number', '') if address.get('number', '') else ''
+        city = address.get('city', '') if address.get('city', '') else ''
+        company['addr_street'] = ' '.join([street, number, city])
+        company['addr_postalcode'] = address.get('zipcode', '')
+        company['obligation'] = {
+            '@name': 'Ozone depleting substances',
+            '#text': company.get('domain').lower()
+        }
+        country = address.get('country')
+
+        company['country'] = {
+            '@name': country.get('name'),
+            '#text': cc_override.get(country.get('code'), country.get('code'))
+        }
+        company['eori'] = company.get('vat')
+        company['account'] = company['company_id']
+        if company.get('oldcompany_account'):
+            company['account'] = company['oldcompany_account']
+        company['addr_place1'] = ''
+        company['addr_place2'] = ''
+        company['active'] = {'VALID': True,
+                             'DISABLED': False}.get(company.get('status'), False)
+        for person in company.get('person'):
+            first_name = person.get('first_name', '') if person.get('first_name', '') else ''
+            last_name = person.get('last_name', '') if person.get('last_name', '') else ''
+            person['name'] = ' '.join([first_name, last_name])
+            person['phone'] = ''
+            person['fax'] = ''
+            del person['first_name']
+            del person['last_name']
+            del person['username']
+
+        for key in company.keys():
+            if key not in keys:
+                del company[key]
+        return company
+
+    def get_organisations_xml(self):
+        """Return ODS companies in xml format"""
+        self.request.response.setHeader('Content-Type', 'application/xml')
+        api = self.get_api()
+        account_uid = self.request.get('account_uid')
+        result = []
+        companies = api.get_registry_companies(detailed=True,
+                                               domain='ODS')
+        if account_uid:
+            # Search for oldcompany_account first
+            company = [company for company in companies
+                       if str(company.get('oldcompany_account')) == account_uid]
+            if not company:
+                # Fallback to search for new company id
+                company = [company for company in companies
+                           if str(company.get('company_id')) == account_uid]
+            if company:
+                result.append(self.prep_company_xml(company[0]))
+        else:
+            result = [self.prep_company_xml(company)
+                      for company in companies]
+        xml = xmltodict.unparse({'organisations': {'organisation': result}})
+        return xml
 
     def get_company_details(self):
         if 'id' not in self.request:
@@ -258,7 +356,8 @@ class SatelliteRegistryManagement(BaseAdmin):
             return None
 
         settings = api.getSettings()
-        return settings["BASE_URL"]
+        if settings:
+            return settings["BASE_URL"]
 
     def get_emails(self):
         api = self.get_api()

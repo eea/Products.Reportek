@@ -72,6 +72,8 @@
 						<div>
 							<input type="checkbox" id="start_mode" name="start_mode:int" value="1" tal:attributes="checked here/start_mode" /> <label for="start_mode">Automatic start</label><br />
 							<div style="padding-left:2em">If checked: upon workitem arrival in the activity, the activity application will be automatically started.</div>
+							<input type="checkbox" id="bundle_mode" name="bundle_mode:int" value="1" tal:attributes="checked here/bundle_mode|nothing" /> <label for="bundle_mode">Bundle with the previous request</label><br />
+							<div style="padding-left:2em">If checked: the activity application will be automatically started when the previous was completed, in the same request.</div>
 							<input type="checkbox" id="complete_automatically" name="complete_automatically" tal:attributes="checked here/complete_automatically" /> <label for="complete_automatically">Complete automatically</label><br />
 							<div style="padding-left:2em">If checked: upon the automatic start, the workitem will be also automatically completed.</div>
 						</div>

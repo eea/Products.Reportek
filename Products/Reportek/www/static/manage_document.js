@@ -26,10 +26,17 @@ reportek.documents = {
         $("#c_container").remove();
         $.ajax({
             url: "get_possible_conversions",
-        }).done(function(data) {
-            self.update_conversions(data);
-            $("#c_spinner").addClass("hidden-content");
-            $("#conv-status").addClass("hidden-content");
+            data: {exclude_internal: true},
+            success: function(data) {
+                self.update_conversions(data);
+                $("#c_spinner").addClass("hidden-content");
+                $("#conv-status").addClass("hidden-content");
+            },
+            error: function() {
+                $("#c_spinner").addClass("hidden-content");
+                $("#conv-status").addClass("hidden-content");
+                $(".remote-conversions").text("An error occured while retrieving results. Please try again later!");
+            }
         });
     },
     update_conversions: function(data) {
@@ -90,10 +97,16 @@ reportek.documents = {
         $("#qa_spinner").removeClass("hidden-content");
         $.ajax({
             url: "get_qa_scripts",
-        }).done(function(data) {
-            self.update_qa_scripts(data);
-            $("#qa_spinner").addClass("hidden-content");
-            $("#qa-status").addClass("hidden-content");
+            success: function(data) {
+                self.update_qa_scripts(data);
+                $("#qa_spinner").addClass("hidden-content");
+                $("#qa-status").addClass("hidden-content");
+            },
+            error: function() {
+                $("#qa_spinner").addClass("hidden-content");
+                $("#qa-status").addClass("hidden-content");
+                $(".quality-assessment").text("An error occured while retrieving results. Please try again later!")
+            }
         });
     },
     update_qa_scripts: function(data) {

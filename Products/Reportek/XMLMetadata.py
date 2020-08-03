@@ -29,6 +29,9 @@ from xml.sax.saxutils import XMLGenerator
 from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.Permissions import view
 from Globals import InitializeClass
+from Products.Reportek.constants import ENGINE_ID
+from Products.Reportek.RepUtils import parse_uri
+
 
 BADATTRS=[ "xsi:noNamespaceSchemaLocation", "xsi:schemaLocation" ]
 
@@ -62,6 +65,11 @@ class XMLMetadata:
     def __init__(self, envelope):
         """ """
         self.envelope = envelope
+        try:
+            engine = envelope.unrestrictedTraverse(ENGINE_ID)
+            self.http_res = getattr(engine, 'exp_httpres', False)
+        except Exception:
+            self.http_res = False
         self._namespaces = NAMESPACES
 
     security.declarePrivate('_get_namespaces')
@@ -87,9 +95,8 @@ class XMLMetadata:
 
     def _document_data(self, document, inline):
         """ return the document metadata """
-        if getSecurityManager().checkPermission(view, document):
-            restricted = 'no'
-        else:
+        restricted = 'no'
+        if document.isRestricted():
             restricted = 'yes'
         if inline == 'true' and document.content_type == 'text/xml':
             #FIXME: Only if the user has permission to get the content
@@ -104,7 +111,7 @@ class XMLMetadata:
                                             self._xml_encode(document.xml_schema_location),
                                             self._xml_encode(document.title),
                                             restricted,
-                                            document.absolute_url(),
+                                            parse_uri(document.absolute_url(), self.http_res),
                                             document.upload_time().HTML4())
 
     def _document_instance(self, document, restricted):
@@ -121,7 +128,7 @@ class XMLMetadata:
                                             self._xml_encode(document.xml_schema_location),
                                             self._xml_encode(document.title),
                                             restricted,
-                                            document.absolute_url()) )
+                                            parse_uri(document.absolute_url(), self.http_res)))
         outf = StringIO()
         handler = StripSchema(outf)
         parser = make_parser()
@@ -148,7 +155,7 @@ class XMLMetadata:
         if envelope.dataflow_uris:
             for df in envelope.dataflow_uris:
                 xml_a('<obligation>%s</obligation>' % df)
-        xml_a('<link>%s</link>' % envelope.absolute_url())
+        xml_a('<link>%s</link>' % parse_uri(envelope.absolute_url(), self.http_res))
         xml_a('<year>%s</year>' % envelope.year)
         xml_a('<endyear>%s</endyear>' % envelope.endyear)
         xml_a('<partofyear>%s</partofyear>' % self._xml_encode(envelope.partofyear))
@@ -163,7 +170,30 @@ class XMLMetadata:
         doc_objs = [ doc for doc in self.envelope.objectValues('Report Document') ]
 
         xml_a('<?xml version="1.0" encoding="utf-8"?>')
-        xml_a('<envelope released="%s" %s>' % (tf[self.envelope.released], self._get_namespaces()))
+        p_coll = self.envelope.getParentNode()
+        company_id = getattr(p_coll, '_company_id', None)
+        old_company_id = getattr(p_coll, 'old_company_id', None)
+        a_mapping = {
+            None: 'unknown',
+            True: 'true',
+            False: 'false'
+        }
+        acceptable = a_mapping.get(self.envelope.is_acceptable())
+        if company_id:
+            if old_company_id:
+                r_env = '<envelope released="%s" company_id="%s" old_company_id="%s" acceptable="%s" %s>' % (tf[self.envelope.released],
+                                                                                                             company_id,
+                                                                                                             old_company_id,
+                                                                                                             acceptable,
+                                                                                                             self._get_namespaces())
+            else:
+                r_env = '<envelope released="%s" company_id="%s" acceptable="%s" %s>' % (tf[self.envelope.released],
+                                                                                         company_id,
+                                                                                         acceptable,
+                                                                                         self._get_namespaces())
+        else:
+            r_env = '<envelope released="%s" acceptable="%s" %s>' % (tf[self.envelope.released], acceptable, self._get_namespaces())
+        xml_a(r_env)
         xml_a(self._envelope_metadata(self.envelope, doc_objs))
         if not self.envelope.canViewContent():
             inline = "false"

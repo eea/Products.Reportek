@@ -31,15 +31,15 @@
 # Contributor(s):
 #
 
-from datetime import datetime
 import importlib
 import inspect
-import pytz
 import time
+from datetime import datetime
 
+import pytz
 import transaction
-
 from Products.Reportek.constants import ENGINE_ID, MIGRATION_ID
+
 
 def checkMigration(module_name):
     """Decorate a migration function to track migrations inside Data.fs

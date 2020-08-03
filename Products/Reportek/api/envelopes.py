@@ -1,17 +1,17 @@
-from DateTime import DateTime
-from Products.Five import BrowserView
-from Products.Reportek.constants import ENGINE_ID
-from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION as rpd
-from ZODB.blob import POSKeyError
-from Products.Reportek.blob import StorageError
-from Products.Reportek.constants import DF_URL_PREFIX
 import datetime
 import json
+
+from DateTime import DateTime
+from Products.Five import BrowserView
+from Products.Reportek.blob import StorageError
+from Products.Reportek.constants import DF_URL_PREFIX, ENGINE_ID
+from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION as rpd
+from ZODB.blob import POSKeyError
 
 
 class EnvelopesAPI(BrowserView):
     """Envelopes API"""
-    MAX_RESULTS = 10000
+    MAX_RESULTS = 5000
     AVAILABLE_FILTERS = {
         'url': {
             'catalog_mapping': 'path',
@@ -40,6 +40,12 @@ class EnvelopesAPI(BrowserView):
         'modifiedDate': {
             'catalog_mapping': 'bobobase_modification_time',
         },
+        'modifiedDateStart': {
+            'catalog_mapping': 'bobobase_modification_time',
+        },
+        'modifiedDateEnd': {
+            'catalog_mapping': 'bobobase_modification_time',
+        },
         'periodStartYear': {
             'catalog_mapping': '',
         },
@@ -53,8 +59,9 @@ class EnvelopesAPI(BrowserView):
             'catalog_mapping': 'dataflow_uris',
         },
         'isBlockedByQCError': {
-            'catalog_mapping': 'is_blocked',
+            'catalog_mapping': '',
         },
+        # Deprecated as it was improperly called status. activity set of filters are the suggested filters to be used
         'status': {
             'catalog_mapping': '',
         },
@@ -67,11 +74,27 @@ class EnvelopesAPI(BrowserView):
         'statusDateEnd': {
             'catalog_mapping': '',
         },
+        # activity* and status* filters return the same values
+        'activity': {
+            'catalog_mapping': '',
+        },
+        'activityDate': {
+            'catalog_mapping': '',
+        },
+        'activityDateStart': {
+            'catalog_mapping': '',
+        },
+        'activityDateEnd': {
+            'catalog_mapping': '',
+        },
+        'activityStatus': {
+            'catalog_mapping': '',
+        },
         'creator': {
-            'catalog_mapping': 'getActorDraft',
+            'catalog_mapping': '',
         },
         'hasUnknownQC': {
-            'catalog_mapping': 'has_unknown_qa_result',
+            'catalog_mapping': '',
         }
     }
 
@@ -149,12 +172,47 @@ class EnvelopesAPI(BrowserView):
                         'fileSize': doc.get_size(),
                         'fileSizeHR': doc.size(),
                         'archivedFiles': archived_files,
+                        'hash': doc.hash,
                         'isRestricted': 1 if doc.isRestricted() else 0
                     }
 
                     documents.append(doc_properties)
 
         return documents_data
+
+    def get_feedbacks(self, env_path=None):
+        """Return envelope's files."""
+        feedbacks = []
+        feedbacks_data = {
+            'feedbacks': feedbacks,
+        }
+        if env_path:
+            envelope = self.context.restrictedTraverse(env_path, None)
+            if envelope:
+                for fb in envelope.objectValues('Report Feedback'):
+                    fb_properties = {
+                        'url': fb.absolute_url(0),
+                        'title': fb.title,
+                        'contentType': fb.content_type,
+                        'documentId': fb.document_id,
+                        'activityId': fb.activity_id,
+                        'postingDate': fb.postingdate.HTML4(),
+                        'feedbackStatus': getattr(fb, 'feedback_status', None),
+                        'feedbackMessage': getattr(fb, 'message', None),
+                        'automatic': fb.automatic,
+                        'isRestricted': 1 if fb.isRestricted() else 0,
+                        'attachments': [
+                            {
+                                'url': o.absolute_url(),
+                                'title': o.title_or_id(),
+                                'contentType': getattr(o, 'content_type', None),
+                            } for o in fb.objectValues(['File', 'File (Blob)'])
+                        ]
+                    }
+
+                    feedbacks.append(fb_properties)
+
+        return feedbacks_data
 
     def get_isreleased_query(self, value, **kwargs):
         """Return a catalog released query."""
@@ -217,18 +275,6 @@ class EnvelopesAPI(BrowserView):
         """Return a catalog periodDescription query."""
         return [v.upper().replace(' ', '_') for v in value]
 
-    def get_blocked_query(self, value, **kwargs):
-        """Return an is_blocked catalog query."""
-        return int(value)
-
-    def get_unknown_qc_query(self, value, **kwargs):
-        """Return an has_unknown_qa_result catalog query"""
-        return bool(int(value))
-
-    def get_creator_query(self, value, **kwargs):
-        """Return an actor catalog query"""
-        return value
-
     def build_catalog_query(self, valid_filters, fed_params):
         """Return a catalog query dictionary based on query params."""
         catalog_field_map = {}
@@ -249,18 +295,17 @@ class EnvelopesAPI(BrowserView):
         for param in valid_filters:
             if fed_params.get(param):
                 cases = {
-                    'countryCode': self.get_country_query,
-                    'creator': self.get_creator_query,
-                    'hasUnknownQC': self.get_unknown_qc_query,
-                    'isBlockedByQCError': self.get_blocked_query,
                     'isReleased': self.get_isreleased_query,
-                    'modifiedDate': self.get_dates_query,
-                    'obligations': self.get_obligations_query,
-                    'periodDescription': self.get_periodd_query,
                     'reportingDate': self.get_dates_query,
-                    'reportingDateEnd': self.get_dates_range_query,
-                    'reportingDateStart': self.get_dates_range_query,
+                    'modifiedDate': self.get_dates_query,
+                    'modifiedDateStart': self.get_dates_range_query,
+                    'modifiedDateEnd': self.get_dates_range_query,
                     'url': self.get_url_query,
+                    'countryCode': self.get_country_query,
+                    'reportingDateStart': self.get_dates_range_query,
+                    'reportingDateEnd': self.get_dates_range_query,
+                    'obligations': self.get_obligations_query,
+                    'periodDescription': self.get_periodd_query
                 }
                 c_idx = catalog_field_map.get(param)
                 value = fed_params.get(param)
@@ -270,6 +315,7 @@ class EnvelopesAPI(BrowserView):
                 if get_value:
                     query[c_idx] = get_value(value, param=param, query=query,
                                              c_idx=c_idx)
+
         return query
 
     def get_env_children(self, path, children_type):
@@ -313,14 +359,16 @@ class EnvelopesAPI(BrowserView):
         if datev:
             datev = datetime.datetime.strptime(str(datev)[:10], '%Y-%m-%d')
         sdatesrange = ('statusDateStart' in additional_filters or
-                       'statusDateEnd' in additional_filters)
+                       'statusDateEnd' in additional_filters or
+                       'activityDateStart' in additional_filters or
+                       'activityDateEnd' in additional_filters)
         if sdatesrange:
             sds = None
             sde = None
-            sds = fed_params.get('statusDateStart')
+            sds = fed_params.get('statusDateStart') or fed_params.get('activityDateStart')
             if sds:
                 sds = datetime.datetime.strptime(sds, '%Y-%m-%d')
-            sde = fed_params.get('statusDateEnd')
+            sde = fed_params.get('statusDateEnd') or fed_params.get('activityDateEnd')
             if sde:
                 sde = datetime.datetime.strptime(sde, '%Y-%m-%d')
             elif sds:
@@ -332,13 +380,13 @@ class EnvelopesAPI(BrowserView):
 
         for afilter in additional_filters:
             afilter_v = fed_params.get(afilter)
-            if afilter_v and afilter not in ['statusDateStart', 'statusDateEnd']:
-                if afilter == 'statusDate':
+            if afilter_v and afilter not in ['statusDateStart', 'statusDateEnd', 'activityDateStart', 'activityDateEnd']:
+                if afilter == 'statusDate' or afilter == 'activityDate':
                     startd = datetime.datetime.strptime(afilter_v, '%Y-%m-%d')
                     endd = startd + datetime.timedelta(days=1)
                     if not self.is_in_range(datev, startd, endd):
                         return True
-                elif afilter == 'status':
+                elif afilter == 'status' or afilter == 'activity':
                     filter_vs = afilter_v.split(',')
                     res = [afv for afv in filter_vs
                            if afv.upper() != str(default_props.get(afilter)).upper()]
@@ -386,10 +434,12 @@ class EnvelopesAPI(BrowserView):
 
         return result
 
-    def get_envelope_company_id(self, env_brain):
+    def get_envelope_company_metadata(self, env_brain):
         """Return the company ID for the envelope."""
         env = env_brain.getObject()
-        return env.company_id
+        metadata = env.get_export_data()
+        return metadata
+
 
     def has_unknown_qc(self, path):
         """Return true if has a AutomaticQA feedback with UNKNOWN QC."""
@@ -402,7 +452,6 @@ class EnvelopesAPI(BrowserView):
             'OK',
             'WARNING',
             'ERROR',
-            'FAILED',
             'BLOCKER'
         ]
 
@@ -422,46 +471,44 @@ class EnvelopesAPI(BrowserView):
                 for obl in brain.dataflow_uris]
 
         return {
-            'countryCode': self.getCountryCode(brain.country),
+            'url': brain.getURL(),
+            'title': brain.title,
             'description': brain.Description,
+            'countryCode': self.getCountryCode(brain.country),
             'isReleased': brain.released,
+            'reportingDate': brain.reportingdate.HTML4(),
             'modifiedDate': brain.bobobase_modification_time.HTML4(),
             'obligations': obls,
-            'periodDescription': rpd.get(brain.partofyear),
-            'periodEndYear': endyear,
             'periodStartYear': startyear,
-            'reportingDate': brain.reportingdate.HTML4(),
-            'title': brain.title,
-            'url': brain.getURL(),
+            'periodEndYear': endyear,
+            'periodDescription': rpd.get(brain.partofyear),
         }
 
-    def get_additional_props(self, brain, req_props):
+    def get_additional_props(self, brain):
         """Return additional envelope properties."""
         last_status_d = None
-        res = {}
         wk_brains = self.get_env_children(brain.getPath(), 'Workitem')
         actors = [wk.actor for wk in wk_brains if wk.activity_id == 'Draft']
         creator = None
         if actors:
             creator = actors[-1]
 
-        res = {
-            'status': wk_brains[-1].activity_id,
-            'creator': creator or 'Not assigned'
-        }
         if brain.activation_log:
-            if [prop for prop in req_props if prop.startswith('statusDate')]:
-                last_status_d = brain.activation_log[-1].get('start')
-                if last_status_d:
-                    last_status_d = datetime.datetime.fromtimestamp(last_status_d)
-                    last_status_d = DateTime(last_status_d).HTML4()
-                    res['statusDate'] = last_status_d
-        if 'isBlockedByQCError' in req_props:
-            res['isBlockedByQCError'] = self.is_env_blocked(wk_brains)
-        if 'hasUnknownQC' in req_props:
-            res['hasUnknownQC'] = self.has_unknown_qc(brain.getPath())
-
-        return res
+            last_status_d = brain.activation_log[-1].get('start')
+            if last_status_d:
+                last_status_d = datetime.datetime.fromtimestamp(last_status_d)
+                last_status_d = DateTime(last_status_d).HTML4()
+        last_wk = wk_brains[-1].getObject()
+        return {
+            'isBlockedByQCError': self.is_env_blocked(wk_brains),
+            'status': wk_brains[-1].activity_id,
+            'activity': wk_brains[-1].activity_id,
+            'statusDate': last_status_d,
+            'activityDate': last_status_d,
+            'activityStatus': getattr(last_wk, 'status'),
+            'creator': creator or 'Not assigned',
+            'hasUnknownQC': self.has_unknown_qc(brain.getPath())
+        }
 
     def get_envelopes(self):
         """Return envelopes."""
@@ -475,18 +522,17 @@ class EnvelopesAPI(BrowserView):
         fields = self.request.form.get('fields')
 
         valid_catalog_filters = [
+            'url',
             'countryCode',
-            'creator',
-            'hasUnknownQC',
-            'isBlockedByQCError',
             'isReleased',
-            'modifiedDate',
+            'reportingDate',
+            'reportingDateStart',
+            'reportingDateEnd',
             'obligations',
             'periodDescription',
-            'reportingDate',
-            'reportingDateEnd',
-            'reportingDateStart',
-            'url',
+            'modifiedDate',
+            'modifiedDateStart',
+            'modifiedDateEnd'
         ]
 
         fed_params = {p: self.request.form.get(p)
@@ -506,6 +552,7 @@ class EnvelopesAPI(BrowserView):
             })
         if query:
             brains = list(self.context.Catalog(**query))
+
             if len(brains) > self.MAX_RESULTS:
                 error = 'There are too many possible results for your query. '\
                         'Please use additional filters.'
@@ -516,9 +563,6 @@ class EnvelopesAPI(BrowserView):
                 additional_filters = [key for key in self.AVAILABLE_FILTERS.keys()
                                       if key not in valid_catalog_filters]
                 for brain in brains:
-                    # Skip the envelope if it has never been activated
-                    if not brain.activation_log:
-                        continue
                     default_props = self.get_default_props(brain)
                     envelope_data = {}
                     if not fields:
@@ -527,9 +571,9 @@ class EnvelopesAPI(BrowserView):
                                            if param not in default_props]
                     additional_p_filters = [param for param in fed_params.keys()
                                             if param not in default_props]
+
                     if additional_p_fields or additional_p_filters:
-                        req_props = list(set(additional_p_fields + additional_p_filters))
-                        additional_props = self.get_additional_props(brain, req_props)
+                        additional_props = self.get_additional_props(brain)
                         default_props.update(additional_props)
 
                     if self.is_filtered_out(default_props, additional_filters, fed_params):
@@ -541,10 +585,17 @@ class EnvelopesAPI(BrowserView):
                             envelope_data['files'] = files_data.get('documents')
                             if files_data.get('errors'):
                                 errors += files_data.get('errors', [])
+                        elif field == 'feedbacks':
+                            feedbacks_data = self.get_feedbacks(brain.getPath())
+                            envelope_data['feedbacks'] = feedbacks_data.get('feedbacks')
                         elif field == 'history':
                             envelope_data['history'] = self.get_envelope_history(brain)
-                        elif field == 'companyId':
-                            envelope_data['companyId'] = self.get_envelope_company_id(brain)
+                        elif field in ['companyId', 'companyName']:
+                            metadata = self.get_envelope_company_metadata(brain)
+                            if field == 'companyId':
+                                envelope_data['companyId'] = metadata.get('company_id')
+                            if field == 'companyName':
+                                envelope_data['companyName'] = metadata.get('company') if metadata.get('company') != '-' else None
                         elif field in default_props.keys():
                             envelope_data[field] = default_props.get(field)
 

@@ -96,6 +96,7 @@
 				<th>Application name</th>
 				<th>Push application</th>
 				<th>Start mode</th>
+				<th>Bundle mode</th>
 				<th>Finish mode</th>
 				<th>Subflow process</th>
 			</tr>
@@ -112,6 +113,7 @@
 					<td tal:content="item/application" />
 					<td align="center" tal:content="item/push_application" />
 					<td align="center" tal:content="python:test(item.start_mode, 'Automatic', 'Manual')" />
+					<td align="center" tal:content="python:test(getattr(item, 'bundle_mode', 0), 'Automatic', 'Manual')" />
 					<td align="center" tal:content="python:test(item.finish_mode, 'Automatic', 'Manual')" />
 				</tal:block>
 				<tal:block tal:condition="python:item.kind!='standard'">

@@ -16,14 +16,19 @@ setup(
         'lxml',
         'path.py',
         'plone.memoize',
-        'requests==2.11.1',
+        'requests',
         'xlwt',
         'zipstream',
+        'xmltodict==0.11.0',
+        'eea.rabbitmq.client',
+        'contextlib2'
     ],
     entry_points="""
           # -*- Entry points: -*-
           [console_scripts]
           zip_cache_cleanup = Products.Reportek.RepUtils:cleanup_zip_cache
           automatic_qa = Products.Reportek.scripts.automatic_qa:main
+          auto_fallin = Products.Reportek.scripts.auto_fallin:main
+          auto_cleanup = Products.Reportek.scripts.auto_cleanup:main
           """,
 )

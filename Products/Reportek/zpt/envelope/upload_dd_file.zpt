@@ -33,7 +33,8 @@
         <input type="hidden" name="required_schema:list" tal:attributes="value item" />
       </tal:block>
       <input type="hidden" name="replace_xml" tal:attributes="value python:request.SESSION.get('replace_xml', 0)" />
-
+      <input type="hidden" name="disallow"
+              tal:attributes="value python:request.SESSION.get('disallow', '')"/>
       <label for="file" i18n:translate="">File</label>
       <input type="file" name="file" id="file" size="25" value="" />
       <br />
@@ -48,6 +49,9 @@
     </tal:block>
     <tal:block tal:condition="python:request.SESSION.has_key('replace_xml')">
       <tal:block tal:replace="python:request.SESSION.delete('replace_xml')" />
+    </tal:block>
+    <tal:block tal:condition="python:request.SESSION.has_key('disallow')">
+      <tal:block tal:replace="python:request.SESSION.delete('disallow')" />
     </tal:block>
   </metal:block>
 </metal:block>

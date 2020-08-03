@@ -123,32 +123,41 @@
 
           <metal:block use-macro="here/engineMacros/macros/resultsTable">
             <metal:block fill-slot="resultsTableHead">
-              <tal:block condition="isBdrDeployment"
-                content="structure python:context.sortable_table((
-                {'id': 'zip', 'title': '', 'sortable':0},
-                {'id': 'company_id', 'title': 'Company ID', 'sortable':0},
-                {'id':'getCountryName','title':'Country','sortable':1},
-                {'id':'company','title':'Company','sortable':0},
-                {'id':'userid','title':'User ID','sortable':0},
-                {'id':'title','title':'Title','sortable':0},
-                {'id':'envurl','title':'URL','sortable':0},
-                {'id':'years','title':'Years','sortable':1},
-                {'id':'dataflow_uris','title':'Obligation','sortable':1},
-                {'id':'reportingdate','title':'Reported','sortable':1},
-                {'id':'files','title':'Files','sortable':0},
-                {'id':'accepted','title':'Accepted','sortable':0}),
-                sort_on=request.get('sort_on','reportingdate'),
-                sort_order=request.get('sort_order', 'reverse'))"/>
-              <tal:block condition="not: isBdrDeployment"
-                content="structure python:context.sortable_table((
-                {'id': 'zip', 'title': '', 'sortable':0},
-                {'id':'getCountryName','title':'Country','sortable':1},
-                {'id':'title','title':'Title','sortable':0},
-                {'id':'years','title':'Years','sortable':1},
-                {'id':'dataflow_uris','title':'Obligation','sortable':1},
-                {'id':'reportingdate','title':'Reported','sortable':1}),
-                sort_on=request.get('sort_on','reportingdate'),
-                sort_order=request.get('sort_order', 'reverse'))"/>
+              <tal:def tal:define="generic_headers python: ({'id': 'zip', 'title': '', 'sortable':0},
+                                                            {'id':'getCountryName','title':'Country','sortable':1},
+                                                            {'id':'title','title':'Title','sortable':0},
+                                                            {'id':'years','title':'Years','sortable':1},
+                                                            {'id':'dataflow_uris','title':'Obligation','sortable':1},
+                                                            {'id':'reportingdate','title':'Reported','sortable':1});
+                                    bdr_generic_headers python: ({'id': 'zip', 'title': '', 'sortable':0},
+                                                                 {'id': 'company_id', 'title': 'Company ID', 'sortable':0},
+                                                                 {'id':'getCountryName','title':'Country','sortable':1},
+                                                                 {'id':'company','title':'Company','sortable':0},
+                                                                 {'id':'userid','title':'User ID','sortable':0},
+                                                                 {'id':'title','title':'Title','sortable':0},
+                                                                 {'id':'envurl','title':'URL','sortable':0},
+                                                                 {'id':'years','title':'Years','sortable':1},
+                                                                 {'id':'dataflow_uris','title':'Obligation','sortable':1},
+                                                                 {'id':'reportingdate','title':'Reported','sortable':1},
+                                                                 {'id':'files','title':'Files','sortable':0},
+                                                                 {'id':'accepted','title':'Accepted','sortable':0});
+                                    bdr_fgas python: ({'id':'activities','title':'Activities','sortable':0},
+                                                      {'id':'gases','title':'Reported gases','sortable':0},
+                                                      {'id':'i_authorisations','title':'Issued authorisations','sortable':0},
+                                                      {'id':'a_authorisations','title':'Available authorisations','sortable':0});">
+                <tal:block condition="python: isBdrDeployment and 'http://rod.eionet.europa.eu/obligations/713' == options['dataflow_uris']"
+                  content="structure python:context.sortable_table(bdr_generic_headers + bdr_fgas,
+                  sort_on=request.get('sort_on','reportingdate'),
+                  sort_order=request.get('sort_order', 'reverse'))"/>
+                <tal:block condition="python: isBdrDeployment and 'http://rod.eionet.europa.eu/obligations/713' != options['dataflow_uris']"
+                  content="structure python:context.sortable_table(bdr_generic_headers,
+                  sort_on=request.get('sort_on','reportingdate'),
+                  sort_order=request.get('sort_order', 'reverse'))"/>
+                <tal:block condition="not: isBdrDeployment"
+                  content="structure python:context.sortable_table(generic_headers,
+                  sort_on=request.get('sort_on','reportingdate'),
+                  sort_order=request.get('sort_order', 'reverse'))"/>
+              </tal:def>
             </metal:block>
 
             <metal:block fill-slot="resultsTableRowFormat">
@@ -164,13 +173,17 @@
                 <tal:block tal:condition="not: python:hasattr(obj.aq_parent, 'company_id')" tal:content="string:-">
                 </tal:block>
               </td>
-              <td tal:content="python:obj.getCountryName()">country name</td>
-              <td tal:condition="isBdrDeployment"
-                tal:content="python:obj.aq_parent.title">company name
-              </td>
-              <td tal:condition="isBdrDeployment"
-                tal:content="python:obj.aq_parent.id">user id ?
-              </td>
+              <tal:def tal:define="company_meta python: obj.aq_parent.get_zope_company_meta()">
+                <td tal:content="python:obj.getCountryName()">country name</td>
+                <td tal:condition="isBdrDeployment"
+                  tal:define="company_name python: company_meta[0] if company_meta[0] else obj.aq_parent.title"
+                  tal:content="company_name">company name
+                </td>
+                <td tal:condition="isBdrDeployment"
+                    tal:define="user_id python:company_meta[1] if company_meta[1] else obj.aq_parent.getId()"
+                  tal:content="user_id">user id ?
+                </td>
+              </tal:def>
               <td>
                 <img tal:attributes="src obj/icon;
                                      alt obj/meta_type"
@@ -199,6 +212,30 @@
               <tal:block condition="isBdrDeployment">
                 <tal:block replace="structure python: context.resultsdataflow_files(obj)"/>
                 <tal:block replace="structure python: context.resultsdataflow_accepted(obj)"/>
+                <td tal:condition="python: 'http://rod.eionet.europa.eu/obligations/713' == options['dataflow_uris']">
+                  <ul tal:condition="obj/get_fgas_activities">
+                    <li tal:repeat="act obj/get_pretty_activities" tal:content="act"/>
+                  </ul>
+              </td>
+              <td tal:condition="python: 'http://rod.eionet.europa.eu/obligations/713' == options['dataflow_uris']">
+                <ul tal:condition="obj/get_fgas_reported_gases"
+                  tal:repeat="gas python: obj.get_fgas_reported_gases()">
+                  <li>
+                    Gas name: <span tal:content="python: gas.get('Name').split(' ')[0]"/><br/>
+                    Gas ID: <span tal:content="python: gas.get('GasId')"/><br/>
+                    Gas group: <span tal:content="python: gas.get('GasGroup')"/><br/>
+                    Gas group ID: <span tal:content="python: gas.get('GasGroupId')"/><br/>
+                  </li>
+                </ul>
+              </td>
+              <td tal:condition="python: 'http://rod.eionet.europa.eu/obligations/713' == options['dataflow_uris']"
+                  tal:define="i_auth python: obj.get_fgas_i_authorisations();
+                              i_auth python: i_auth if i_auth else 'N/A'"
+                  tal:content="i_auth"/>
+              <td tal:condition="python: 'http://rod.eionet.europa.eu/obligations/713' == options['dataflow_uris']"
+                  tal:define="a_auth python: obj.get_fgas_a_authorisations();
+                              a_auth python: a_auth if a_auth else 'N/A'" 
+                  tal:content="a_auth"/>
               </tal:block>
             </metal:block>
           </metal:block>

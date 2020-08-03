@@ -80,6 +80,8 @@
 						<div bgcolor="#E0E0E0">
 							<input type="checkbox" id="start_mode" name="start_mode:int" value="1" /> <label for="start_mode">Automatic start</label>
 							<p>If checked: upon workitem arrival in the activity, the activity application will be automatically started.</p>
+							<input type="checkbox" id="bundle_mode" name="bundle_mode:int" value="1" /> <label for="bundle_mode">Bundle with the previous request</label>
+							<p>If checked: the activity application will be automatically started when the previous was completed, in the same request.</p>
 							<input type="checkbox" id="complete_automatically" name="complete_automatically:int" value="1" /> <label for="complete_automatically">complete automatically</label>
 							<p>If checked: upon the automatic start, the workitem will be also automatically completed.</p>
 						</div>

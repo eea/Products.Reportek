@@ -58,6 +58,14 @@ class ListUsers(BaseAdmin):
             user = ecas.getEcasUserId(username)
         return user
 
+    def get_ecas_email(self, username):
+        email = None
+        ecas_path = '/acl_users/' + ECAS_ID
+        ecas = self.context.unrestrictedTraverse(ecas_path, None)
+        if ecas:
+            email = ecas.getEcasIDEmail(username)
+        return email
+
     def is_local_user(self, username):
         acl_users = self.context.acl_users
         if acl_users.getUserById(username):
@@ -82,12 +90,12 @@ class ListUsers(BaseAdmin):
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             user = self.get_ecas_user(username)
             if user:
-                r['email'] = user.email
+                r['email'] = self.get_ecas_email(user)
 
         user = self.is_ldap_user(username)
         if user:
-            r['fullname'] = user.cn
-            r['email'] = user.mail
+            r['fullname'] = getattr(user, 'cn', 'N/A')
+            r['email'] = getattr(user, 'mail', 'N/A')
 
         return r
 
@@ -112,6 +120,42 @@ class ListUsers(BaseAdmin):
                                'email': user_details['email']})
 
         return json.dumps(users_type)
+
+    def get_ecas_reporters_by_path(self, REQUEST):
+        paths = REQUEST.get('paths[]', [])
+        if not isinstance(paths, list):
+            paths = [paths]
+        middleware = self.get_middleware()
+        users = {}
+        for path in paths:
+            col = self.context.unrestrictedTraverse(path, None)
+            users[path] = []
+            if col and getattr(col, 'company_id', None):
+                col_obligations = []
+                for uri in list(col.dataflow_uris):
+                    try:
+                        title = self.get_obligations_title()[uri]
+                    except KeyError:
+                        title = 'Unknown/Deleted obligation'
+                    col_obligations.append((uri, title))
+                c_data = col.get_company_data()
+
+                if c_data:
+                    role_map = {
+                        'RW': 'Reporter (Owner)',
+                        'RO': 'Reader'
+                    }
+                    check_path = path[1:] if path.startswith('/') else path
+                    users[path] = [{'uid': u.get('username'),
+                                    'role': role_map.get(middleware.authorizedUser(u.get('username'), check_path)),
+                                    'collection': col.title,
+                                    'path': path,
+                                    'obligations': col_obligations,
+                                    'email': u.get('email'),
+                                    'username': u.get('username'),
+                                    'fullname': ' '.join([u.get('first_name'), u.get('last_name')])}
+                                   for u in c_data.get('users', [])]
+        return json.dumps(users)
 
     def get_records(self, REQUEST):
 
@@ -169,40 +213,18 @@ class ListUsers(BaseAdmin):
                     if 'bdr_folder_agent' in users.keys():
                         del users['bdr_folder_agent']
 
-                    middleware = self.get_middleware()
-                    ecas_path = '/acl_users/' + ECAS_ID
-                    ecas = self.context.unrestrictedTraverse(ecas_path, None)
-
-                    if ecas:
-                        ecas_users = getattr(ecas, '_ecas_id', {})
-                        for ecas_user_id, user in ecas_users.iteritems():
-
-                            # Normalize path object path
-                            obj_path = brain.getPath()
-                            if obj_path.startswith('/'):
-                                obj_path = obj_path[1:]
-
-                            if middleware.authorizedUser(ecas_user_id, obj_path):
-                                username = getattr(user, 'username', None)
-                                if username:
-                                    uid = username
-                                else:
-                                    uid = getattr(user, 'email', None)
-                                users[uid] = {
-                                    'uid': uid,
-                                    'role': 'Reporter (Owner)'
-                                }
-                if not users:
+                if not users and role != 'Reporter (Owner)':
                     continue
 
                 yield {
                     'collection': {
                         'path': brain.getPath(),
                         'title': brain.title,
-                        'type': brain.meta_type
+                        'type': brain.meta_type,
+                        'company_id': getattr(brain, 'company_id', None)
                     },
                     'obligations': col_obligations,
-                    'users':  users}
+                    'users': users}
 
     def getUsersByPath(self, REQUEST):
         return json.dumps({"data": list(self.get_records(REQUEST))})

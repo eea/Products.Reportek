@@ -21,4 +21,13 @@ window.jQuery(document).ready(function () {
       var elems = $(".select2-enabled");
       elems.val([]).trigger('change');
     });
+
+    $(".select2-enabled").on('change', function (e) {
+      var sync_process = $("input[name='sync_process']");
+      if (sync_process.length) {
+        if (sync_process.prop('disabled')) {
+          sync_process.prop("disabled", false);
+        }
+      }
+    });
 });

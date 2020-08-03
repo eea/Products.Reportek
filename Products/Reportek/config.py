@@ -44,7 +44,11 @@ BDR_XLS_HEADINGS = [
     ('Obligation', 'obligation'),
     ('Reported', 'reported'),
     ('Files', 'files'),
-    ('Accepted', 'accepted')
+    ('Accepted', 'accepted'),
+    ('Activities', 'activities'),
+    ('Reported Gases', 'gases'),
+    ('Issued authorisations', 'i_authorisations'),
+    ('Available authorisations', 'a_authorisations')
 ]
 
 CDR_XLS_HEADINGS = [
@@ -74,7 +78,10 @@ elif REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
     permission_manage_properties_envelopes = 'Manage properties'
     XLS_HEADINGS = BDR_XLS_HEADINGS
 if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
-    REDIS_DATABASE = int(os.environ.get('REDIS_DATABASE'))
+    try:
+        REDIS_DATABASE = int(os.environ.get('REDIS_DATABASE'))
+    except (ValueError, TypeError):
+        REDIS_DATABASE = None
     REDIS_HOSTNAME = os.environ.get('REDIS_HOSTNAME', 'localhost')
     REDIS_PORT = os.environ.get('REDIS_PORT', '6379')
     __all__.extend(['REDIS_DATABASE', 'REDIS_HOSTNAME', 'REDIS_PORT'])

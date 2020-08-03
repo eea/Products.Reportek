@@ -30,56 +30,83 @@ $Id$"""
 __version__='$Revision$'[11:-2]
 
 
-import os, types, tempfile, string
-from path import path
-from zipstream import ZipFile
-from zipstream import ZIP_DEFLATED
+import json
+import logging
+import os
+import string
+import tempfile
+import types
+from exceptions import InvalidPartOfYear
+from StringIO import StringIO
 from zipfile import BadZipfile
 
-import Globals, OFS.SimpleItem, OFS.ObjectManager
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from AccessControl.Permissions import view_management_screens
 import AccessControl.Role
-
+import Document
+import Feedback
+import Globals
+import Hyperlink
+import OFS.ObjectManager
+import OFS.SimpleItem
+import RepUtils
+import transaction
+import xlwt
 from AccessControl import ClassSecurityInfo, Unauthorized
+from AccessControl.Permissions import view_management_screens
 from AccessControl.SecurityManagement import getSecurityManager
-from Products.Reportek import permission_manage_properties_envelopes
-from Products.Reportek.exceptions import ApplicationException
-from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION
-from Products.PythonScripts.standard import url_quote
-from zExceptions import Forbidden
+from constants import ENGINE_ID, WORKFLOW_ENGINE_ID
 from DateTime import DateTime
 from DateTime.interfaces import SyntaxError
-from StringIO import StringIO
-from ZPublisher.Iterators import filestream_iterator
-import logging
-import xlwt
-logger = logging.getLogger("Reportek")
-
 # Product specific imports
-from Products.Reportek import RepUtils
-from Products.Reportek import Document
-from Products.Reportek import Hyperlink
-from Products.Reportek import Feedback
-from Products.Reportek.BaseDelivery import BaseDelivery
-from Products.Reportek.config import ZIP_CACHE_THRESHOLD
-from Products.Reportek.config import ZIP_CACHE_ENABLED
-from Products.Reportek.RepUtils import get_zip_cache
-import RepUtils
-import Document
-import Hyperlink
-import Feedback
-from constants import WORKFLOW_ENGINE_ID, ENGINE_ID
-from exceptions import InvalidPartOfYear
+from EnvelopeCustomDataflows import EnvelopeCustomDataflows
 from EnvelopeInstance import EnvelopeInstance
 from EnvelopeRemoteServicesManager import EnvelopeRemoteServicesManager
-from EnvelopeCustomDataflows import EnvelopeCustomDataflows
-import zip_content
-from zope.interface import implements
 from interfaces import IEnvelope
 from paginator import DiggPaginator, EmptyPage, InvalidPage
-from Products.Reportek.config import XLS_HEADINGS
-import transaction
+from path import path
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate
+from Products.PythonScripts.standard import url_quote
+from Products.Reportek import (Document, Feedback, Hyperlink, RepUtils,
+                               permission_manage_properties_envelopes,
+                               zip_content)
+from Products.Reportek.BaseDelivery import BaseDelivery
+from Products.Reportek.config import (DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT,
+                                      XLS_HEADINGS, ZIP_CACHE_ENABLED,
+                                      ZIP_CACHE_THRESHOLD)
+from Products.Reportek.constants import DF_URL_PREFIX
+from Products.Reportek.exceptions import ApplicationException
+from Products.Reportek.RepUtils import (DFlowCatalogAware, get_zip_cache,
+                                        parse_uri)
+from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION
+from zExceptions import Forbidden
+from zipstream import ZIP_DEFLATED, ZipFile
+from zope.interface import implements
+from ZPublisher.Iterators import filestream_iterator
+
+logger = logging.getLogger("Reportek")
+
+
+
+def error_response(exc, message, REQUEST):
+    """Return an error"""
+    if REQUEST is not None:
+        accept = REQUEST.environ.get("HTTP_ACCEPT")
+        if accept == 'application/json':
+            REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+            if hasattr(exc, '__name__'):
+                error_type = exc.__name__
+            else:
+                error_type = str(exc)
+            error = {
+                'title': error_type,
+                'description': message
+            }
+            data = {
+                'errors': [error],
+            }
+            return json.dumps(data, indent=4)
+
+    raise exc(message)
 
 
 manage_addEnvelopeForm = PageTemplateFile('zpt/envelope/add', globals())
@@ -98,7 +125,7 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
     if l_err_code == 0:
         process = self.unrestrictedTraverse(l_result, None)
     else:
-        raise l_result[0], l_result[1]
+        return error_response(l_result[0], l_result[1], REQUEST)
 
     if valid_year(year):
         year = int(year)
@@ -119,12 +146,12 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
             preliminary_obl = True
 
     if year and year > now.year() and not preliminary_obl:
-        if REQUEST is not None:
+        if REQUEST is not None and 'manage_addEnvelopeForm' in REQUEST.environ.get("HTTP_REFERER"):
             error_msg = 'You cannot submit a report which relates to a future\
                          year. Please fill in the correct year!'
             return self.manage_addEnvelopeForm(error=error_msg)
         else:
-            raise ValueError('Cannot create envelope which relates to a future year')
+            return error_response(ValueError, 'Cannot create envelope which relates to a future year', REQUEST)
 
     year_parts = ['WHOLE_YEAR', 'FIRST_HALF', 'SECOND_HALF',
                   'FIRST_QUARTER', 'SECOND_QUARTER', 'THIRD_QUARTER',
@@ -133,9 +160,9 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
               "AUGUST", "SEPTEMBER", "OCTOBER", "NOVEMBER", "DECEMBER"]
 
     if partofyear and not partofyear in (year_parts + months):
-        raise InvalidPartOfYear
+        return error_response(InvalidPartOfYear, 'Invalid Part of Year', REQUEST)
 
-    dataflow_uris = getattr(self,'dataflow_uris',[])   # Get it from collection
+    dataflow_uris = getattr(self, 'dataflow_uris', [])  # Get it from collection
     ob = Envelope(process, title, actor, year, endyear, partofyear, self.country, locality, descr, dataflow_uris)
     ob.id = id
     self._setObject(id, ob)
@@ -146,6 +173,36 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
         ob.manage_pasteObjects(l_data)
     ob.startInstance(REQUEST)  # Start the instance
     if REQUEST is not None:
+        if REQUEST.environ.get("HTTP_ACCEPT") == 'application/json':
+            REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+            REQUEST.RESPONSE.setStatus(201)
+            obls = [obl.split(DF_URL_PREFIX)[-1]
+                    for obl in ob.dataflow_uris]
+            env = {
+                'url': ob.absolute_url(),
+                'title': ob.title,
+                'description': ob.descr,
+                'countryCode': self.getCountryCode(ob.country),
+                'isReleased': ob.released,
+                'reportingDate': ob.reportingdate.HTML4(),
+                'modifiedDate': ob.bobobase_modification_time().HTML4(),
+                'obligations': obls,
+                'periodStartYear': ob.year,
+                'periodEndYear': ob.endyear,
+                'periodDescription': REPORTING_PERIOD_DESCRIPTION.get(ob.partofyear),
+            }
+            if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+                metadata = ob.get_export_data()
+                c_id = metadata.get('company_id')
+                c_name = metadata.get('company')
+                if c_id and c_name:
+                    env['companyId'] = c_id
+                    env['companyName'] = c_name
+            data = {
+                'envelopes': [env],
+                'errors': [],
+            }
+            return json.dumps(data, indent=4)
         return REQUEST.RESPONSE.redirect(self.absolute_url())
     else:
         return ob.absolute_url()
@@ -171,7 +228,7 @@ def get_first_accept(req_dict):
     firstseg = segs[0].split(';')
     return firstseg[0].strip()
 
-class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDataflows, BaseDelivery):
+class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDataflows, BaseDelivery, DFlowCatalogAware):
     """ Envelopes are basic container objects that provide a standard
         interface for object management. Envelope objects also implement
         a management interface
@@ -451,11 +508,12 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             application = self.getPhysicalRoot().restrictedTraverse(l_application_url)
             params = {
                 'workitem_id': l_default_tab,
-                'client': self,
-                'document_title': application.title,
                 'REQUEST': REQUEST,
-                'RESPONSE': REQUEST.RESPONSE
             }
+            if isinstance(application, ZopePageTemplate):
+                params['client'] = self
+                params['document_title'] = application.title
+                params['RESPONSE'] = REQUEST.RESPONSE
             try:
                 return application(**params)
             except Exception as e:
@@ -533,9 +591,22 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     security.declareProtected('View', 'data_quality')
     data_quality = PageTemplateFile('zpt/envelope/data_quality', globals())
 
+    security.declareProtected('Use OpenFlow', 'get_current_workitem')
+    def get_current_workitem(self, REQUEST=None):
+        """ Return last workitem JSON metadata
+        """
+        wks = self.getListOfWorkitems()
+        if wks:
+            return self.handle_wk_response(wks[-1])
+        if getattr(self, 'REQUEST'):
+            if self.REQUEST.environ.get("HTTP_ACCEPT") == 'application/json':
+                self.REQUEST.RESPONSE.setHeader('Content-Type',
+                                                'application/json')
+        return json.dumps({})
+
 
     security.declareProtected('Release Envelopes', 'content_registry_ping')
-    def content_registry_ping(self, delete=False, async=True):
+    def content_registry_ping(self, delete=False, async=False, wk=None, silent=True):
         """ Instruct ReportekEngine to ping CR.
 
             `delete` instructs the envelope to don't ping CR on
@@ -545,6 +616,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             Note that on delete, CR does not actually fetch envelope contents
             from CDR thus we can make the CR calls async even in that case
             when the envelope would not be available to the public anymore.
+            Return a message with the state of the ping
         """
 
         engine = getattr(self, ENGINE_ID)
@@ -561,10 +633,15 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         uris.extend( o.absolute_url() for objs in innerObjsByMetatype.values() for o in objs )
         if async:
             crPingger.content_registry_ping_async(uris,
-                    ping_argument=ping_argument, envPathName=self.absolute_url())
+                    ping_argument=ping_argument, envPathName=self.absolute_url(),
+                    wk=wk)
+            message = "Async content registry ping requested"
         else:
-            crPingger.content_registry_ping(uris, ping_argument=ping_argument)
-        return
+            success, message = crPingger.content_registry_ping(uris, ping_argument=ping_argument, wk=wk)
+            if not silent and not success:
+                raise Exception('CR Ping failed! Please try again later!')
+
+        return message
 
 
     ##################################################
@@ -592,11 +669,6 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             # update ZCatalog
             self.reindex_object()
             self._invalidate_zip_cache()
-            # make this change visible right away (for the CR ping following this call for instance)
-            # otherwise the envelope will really be released only after the calling view
-            # of this function will finish, and ZPublisher will commit automatically
-            transaction.commit()
-            logger.debug("Releasing Envelope: %s" % self.absolute_url())
         if self.REQUEST is not None:
             return self.messageDialog(
                             message="The envelope has now been released to the public!",
@@ -644,7 +716,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     security.declareProtected(permission_manage_properties_envelopes, 'manage_editEnvelope')
     def manage_editEnvelope(self, title, descr,
             year, endyear, partofyear, country, locality, dataflow_uris=[],
-            REQUEST=None):
+            sync_process='', REQUEST=None):
         """ Manage the edited values
         """
         if not dataflow_uris:
@@ -655,6 +727,21 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                         action='./manage_prop')
                 return
         else:
+            # If sync workflow is checked, change the workflow if required and 
+            # fallin to the first activity of the new workflow
+            if sync_process == 'sync':
+                wf_engine = self.unrestrictedTraverse(WORKFLOW_ENGINE_ID, None)
+                if wf_engine:
+                    obl_process = wf_engine.findProcess(dataflow_uris, country)
+                    obl_process = self.unrestrictedTraverse(obl_process[-1], None)
+                    if obl_process and obl_process.absolute_url(1) != self.process_path and self.status != 'complete':
+                        self.setProcess(obl_process.absolute_url(1))
+                        begin_act = obl_process.begin
+                        wk = self.getListOfWorkitems()[-1]
+                        self.falloutWorkitem(wk.id)
+                        self.fallinWorkitem(wk.id, begin_act)
+                        self.endFallinWorkitem(wk.id)
+
             self.dataflow_uris = dataflow_uris
 
         self.title=title
@@ -911,12 +998,12 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
     @RepUtils.manage_as_owner
     def delete_feedbacks(self, fb_ids):
-        """Delete the feedbacks with fb_ids."""
+        # Delete the feedbacks with fb_ids.
         self.manage_delObjects(fb_ids)
 
     @RepUtils.manage_as_owner
     def add_feedback(self, **kwargs):
-        """Add feedback. To be called by Applications."""
+        # Add feedback. To be called by Applications.
         self.manage_addFeedback(**kwargs)
 
     security.declareProtected('Add Feedback', 'manage_addFeedbackForm')
@@ -1041,12 +1128,14 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             if cached_zip_path.isfile():
                 cached_zip_path.unlink()
 
+
     def _add_file_from_zip(self,zipfile,name, restricted=''):
         """ Generate id from filename and make sure,
             there are no spaces in the id.
         """
         id = self.cook_file_id(name)
         self.manage_addDocument(id=id, title=id, file=zipfile, restricted=restricted)
+        return id
 
     security.declareProtected('Add Envelopes', 'manage_addzipfile')
     def manage_addzipfile(self, file='', content_type='', restricted='', REQUEST=None):
@@ -1086,7 +1175,10 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         """ Lists the contents of a zip file """
         files = []
         # FIXME Why is application/octet-stream here? this might fix a glitch, so we'll keep it for now
-        if document.content_type in ['application/octet-stream', 'application/zip', 'application/x-compressed']:
+        if document.content_type in ['application/octet-stream',
+                                     'application/zip',
+                                     'application/x-compressed',
+                                     'application/x-zip-compressed']:
             try:
                 data_file = document.data_file.open()
                 zf = zip_content.ZZipFile(data_file)
@@ -1138,17 +1230,19 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         res = []
         objsByType = self._getObjectsForContentRegistry()
         creator = self.getActorDraft()
+        engine = self.getEngine()
+        http_res = getattr(engine, 'exp_httpres', False)
         if not creator:
             creator = self.customer
 
         res.append('<dct:creator>%s</dct:creator>' % RepUtils.xmlEncode(creator))
         res.append('<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</released>' % self.reportingdate.HTML4())
-        res.append('<link>%s</link>' % RepUtils.xmlEncode(self.absolute_url()))
+        res.append('<link>%s</link>' % RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)))
 
         for o in objsByType.get('Report Document', []):
-            res.append('<hasFile rdf:resource="%s"/>' % RepUtils.xmlEncode(o.absolute_url()) )
+            res.append('<hasFile rdf:resource="%s"/>' % RepUtils.xmlEncode(parse_uri(o.absolute_url(), http_res)))
         for o in objsByType.get('Report Feedback', []):
-            res.append('<cr:hasFeedback rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(self.absolute_url()), o.id))
+            res.append('<cr:hasFeedback rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)), o.id))
         res.append('<blockedByQA rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</blockedByQA>' % repr(self.is_blocked).lower())
 
         return res
@@ -1158,19 +1252,20 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         """Return custom child objects metadata for RDF export."""
         res = []
         objsByType = self._getObjectsForContentRegistry()
-
+        engine = self.getEngine()
+        http_res = getattr(engine, 'exp_httpres', False)
         for metatype, objs in objsByType.items():
             for o in objs:
                 xmlChunk = []
                 if metatype == 'Report Document':
                     try:
-                        xmlChunk.append('<File rdf:about="%s">' % o.absolute_url())
+                        xmlChunk.append('<File rdf:about="%s">' % parse_uri(o.absolute_url(), http_res))
                         xmlChunk.append('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(o.title_or_id()))
                         xmlChunk.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(o.title_or_id()))
                         xmlChunk.append('<dcat:byteSize>%s</dcat:byteSize>' % RepUtils.xmlEncode(o.data_file.size))
                         xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.upload_time().HTML4())
                         xmlChunk.append('<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>' % o.upload_time().HTML4())
-                        xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(self.absolute_url()))
+                        xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)))
                         xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % o.content_type)
                         xmlChunk.append('<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>' % repr(o.isRestricted()).lower())
                         if o.content_type == "text/xml":
@@ -1186,34 +1281,34 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                         xmlChunk.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(o.title_or_id()))
                         xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.upload_time().HTML4())
                         xmlChunk.append('<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>' % o.upload_time().HTML4())
-                        xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(self.absolute_url()))
+                        xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)))
                         xmlChunk.append('</File>')
                     except:
                         xmlChunk = []
                 elif metatype == 'Report Feedback':
                     try:
-                        xmlChunk.append('<cr:Feedback rdf:about="%s">' % o.absolute_url())
+                        xmlChunk.append('<cr:Feedback rdf:about="%s">' % parse_uri(o.absolute_url(), http_res))
                         xmlChunk.append('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(o.title_or_id()))
                         xmlChunk.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(o.title_or_id()))
                         xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.postingdate.HTML4())
                         xmlChunk.append('<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</released>' % o.releasedate.HTML4())
-                        xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(self.absolute_url()))
+                        xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)))
                         xmlChunk.append('<cr:feedbackStatus>%s</cr:feedbackStatus>' % RepUtils.xmlEncode(getattr(o, 'feedback_status', '')))
                         xmlChunk.append('<cr:feedbackMessage>%s</cr:feedbackMessage>' % RepUtils.xmlEncode(getattr(o, 'message', '')))
                         xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % o.content_type)
                         xmlChunk.append('<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>' % repr(o.isRestricted()).lower())
                         if o.document_id and o.document_id != 'xml':
-                            xmlChunk.append('<cr:feedbackFor rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(self.absolute_url()),
+                            xmlChunk.append('<cr:feedbackFor rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)),
                                     RepUtils.xmlEncode(url_quote(o.document_id)) ))
                         for attachment in o.objectValues(['File', 'File (Blob)']):
-                            xmlChunk.append('<cr:hasAttachment rdf:resource="%s"/>' % attachment.absolute_url())
+                            xmlChunk.append('<cr:hasAttachment rdf:resource="%s"/>' % parse_uri(attachment.absolute_url(), http_res))
                         xmlChunk.append('</cr:Feedback>')
                         for attachment in o.objectValues(['File', 'File (Blob)']):
-                            xmlChunk.append('<cr:FeedbackAttachment rdf:about="%s">' % attachment.absolute_url())
+                            xmlChunk.append('<cr:FeedbackAttachment rdf:about="%s">' % parse_uri(attachment.absolute_url(), http_res))
                             xmlChunk.append('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(attachment.title_or_id()))
                             xmlChunk.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(attachment.title_or_id()))
                             xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % attachment.content_type)
-                            xmlChunk.append('<cr:attachmentOf rdf:resource="%s"/>' % o.absolute_url())
+                            xmlChunk.append('<cr:attachmentOf rdf:resource="%s"/>' % parse_uri(o.absolute_url(), http_res))
                             xmlChunk.append('</cr:FeedbackAttachment>')
                     except:
                         xmlChunk = []
@@ -1250,6 +1345,36 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                     'reported': self.reportingdate.strftime('%Y-%m-%d'),
                     'files': self.get_files_info(),
                 })
+                if 'http://rod.eionet.europa.eu/obligations/713' in self.dataflow_uris:
+                    acts = self.get_pretty_activities()
+                    gases = self.get_fgas_reported_gases()
+                    gas_tmpl = (u"Gas name: {}\n"
+                                "Gas ID: {}\n"
+                                "Gas Group: {}\n"
+                                "Gas Group ID: {}\n\n"
+                                )
+                    pretty_gases = ''
+
+                    def parse_gas_data(data):
+                        if not data:
+                            data = 'N/A'
+                        return data
+
+                    if gases:
+                        pretty_gases = ''.join([gas_tmpl.format(parse_gas_data(g.get('Name')),
+                                                                parse_gas_data(g.get('GasId')),
+                                                                parse_gas_data(g.get('GasGroup')),
+                                                                parse_gas_data(g.get('GasGroupId'))) for g in gases])
+                    if not acts:
+                        acts = ''
+                    else:
+                        acts = ', '.join(self.get_pretty_activities())
+                    env_data.update({
+                        'activities': acts,
+                        'gases': pretty_gases,
+                        'i_authorisations': str(self.get_fgas_i_authorisations()),
+                        'a_authorisations': str(self.get_fgas_a_authorisations())
+                    })
 
         return env_data
 

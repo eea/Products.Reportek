@@ -6,8 +6,7 @@
 
     <script type="text/javascript" charset="utf8"
           src="++resource++static/jquery-1.11.2.min.js"></script>
-    <script type="text/javascript" charset="utf8"
-          src="++resource++static/datatables-1.10.4/media/js/jquery.dataTables.js"></script>
+    <script type="text/javascript" charset="utf8" src="++resource++static/datatables.min.js"></script>
     <script src="++resource++static/select2-3.5.0/select2.js"></script>
     <script src="++resource++static/utils.js"></script>
     <script src="++resource++static/utils_fcs.js"></script>
@@ -39,27 +38,28 @@
     Excel</a> or <a class="export" href="organisations_json">JSON </a> format or reporters in <a class="export" href="users_xls">Excel</a> format.
     </p>
     <div class="obligation-select-container">
-    <label for="domain">Filter companies by obligation:</label>
-    <select id="domain" name="domain">
-      <option tal:condition="fgas_allowed" value="FGAS">FGAS</option>
-      <option tal:condition="ods_allowed" value="ODS">ODS</option>
-    </select>
+      <label for="domain">Filter companies by obligation:</label>
+      <select id="domain" name="domain">
+        <option tal:condition="ods_allowed" value="ODS">ODS</option>
+        <option tal:condition="fgas_allowed" value="FGAS">FGAS</option>
+      </select>
     </div>
-   <table id="comp-table" width="100%">
+    <table id="comp-table" width="100%">
       <thead>
         <tr>
           <th>ID</th>
+          <th>ODS account</th>
           <th>Company name</th>
+          <th>Status</th>
           <th>Reporters</th>
           <th>Country</th>
-          <th>VAT number</th>
+          <th>EORI number</th>
           <th>Date registered</th>
         </tr>
       </thead>
       <tbody>
       </tbody>
     </table>
-
 
   </metal:block>
 

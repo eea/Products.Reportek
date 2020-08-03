@@ -76,11 +76,24 @@ class ManageRoles(BaseAdmin):
             roles.add(role)
             obj.manage_setLocalRoles(cur_entity, list(roles))
             obj.reindex_object()
+            # Sync role assignment to associated transfers folder
+            if path in self.request.get('sync_transfers', []):
+                transfer_path = '/'.join(['/transfers'] + path.split('/')[1:])
+                transfer = self.context.unrestrictedTraverse(transfer_path, None)
+                if transfer:
+                    t_roles = set(transfer.get_local_roles_for_userid(cur_entity))
+                    t_roles.add(role)
+                    transfer.manage_setLocalRoles(cur_entity, list(t_roles))
+                    results.append({
+                        'entity': cur_entity,
+                        'path': transfer_path,
+                        'role': role
+                    })
             results.append({
                 'entity': cur_entity,
                 'path': path,
                 'role': role
-                })
+            })
 
         if results:
             results.sort(key=itemgetter('path'))
@@ -94,8 +107,10 @@ class ManageRoles(BaseAdmin):
         role = self.request.get('role', '')
         match_groups = []
         results = []
+        sync_transfers = False
 
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            sync_transfers = True
             if role == 'Reporter (Owner)':
                 role = 'Owner'
 
@@ -120,11 +135,33 @@ class ManageRoles(BaseAdmin):
             if roles:
                 obj.manage_setLocalRoles(entity, list(roles))
             obj.reindex_object()
+            # Remove certain roles from transfer folders
+            if sync_transfers:
+                transfer_path = '/'.join(['/transfers'] + path.split('/')[1:])
+                transfer = self.context.unrestrictedTraverse(transfer_path, None)
+                removed = False
+                if transfer:
+                    t_roles = set(transfer.get_local_roles_for_userid(entity))
+                    revocable = [r for r in revoke_roles
+                                 if r in ['ClientFG', 'ClientODS', 'ClientCARS']]
+                    for role in revocable:
+                        if role in t_roles:
+                            t_roles.remove(role)
+                            removed = True
+                    transfer.manage_delLocalRoles([entity])
+                    if t_roles:
+                        transfer.manage_setLocalRoles(entity, list(t_roles))
+                    if removed:
+                        results.append({
+                            'entity': entity,
+                            'path': transfer_path,
+                            'role': role
+                        })
             results.append({
                 'entity': entity,
                 'path': path,
                 'role': role
-                })
+            })
 
         if results:
             results.sort(key=itemgetter('path'))

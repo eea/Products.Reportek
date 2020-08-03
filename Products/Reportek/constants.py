@@ -37,6 +37,7 @@ REGISTRY_MANAGEMENT = 'european_registry'
 REPORTEK_API = 'api'
 ECAS_ID = 'eCas'
 MIGRATION_ID = 'Migrations'
+CUSTOM_DFLOWS = 'custom_dflows.py'
 
 DF_URL_PREFIX = 'http://rod.eionet.europa.eu/obligations/'
 

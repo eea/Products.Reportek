@@ -16,7 +16,7 @@
         <br />
         <fieldset>
             <legend>WebQuestionnaire</legend>
-            <p class="form-help">The properties below are relevant to the WebQuestionnaire. If there is no such aplication available, leave the fields below empty.</p>
+            <p class="form-help">The properties below are relevant to the WebQuestionnaire settings, used in the Draft pages and document editing page for all dataflows. For the dataflows that use other webforms engine, the <strong>WebQ before edit URL</strong> settings can be overridden in the <a href="/DataflowMappings">DataflowMappings</a> of each such dataflow. If there is no such aplication available, leave the fields below empty.</p>
             <p class="form-help">
                 <strong><label for="webq_url">WebQ XML-RPC server</label></strong>
                 <input type="text" size="50" id="webq_url" name="webq_url" tal:attributes="value here/webq_url" />
@@ -40,6 +40,19 @@
                 <input type="text" size="50" id="QA_application" name="QA_application" tal:attributes="value here/QA_application" /><br />
                 Leave this field empty if there is no QA service to link to.
             </p>
+            <p class="form-help">
+                <strong><label for="qa_httpres">Enforce http resources</label></strong>
+                <input type="checkbox" name="qa_httpres" id="qa_httpres" tal:attributes="checked here/qa_httpres|nothing" size="5" /><br />
+                Check this to force sending resource URL's with http to QA service
+            </p>
+        </fieldset>
+        <fieldset>
+            <legend>RDF and XML Export</legend>
+            <p class="form-help">
+                <strong><label for="exp_httpres">Enforce http resources in the XML and RDF output</label></strong>
+                <input type="checkbox" name="exp_httpres" id="exp_httpres" tal:attributes="checked here/exp_httpres|nothing" size="5" /><br />
+                Check this to force resource URL's with http in the XML and RDF output
+            </p>
         </fieldset>
         <fieldset>
             <legend>Globally restricted site</legend>
@@ -59,8 +72,20 @@
                 <span>(leave it empty if Content Registry is not to be pingged)
                 <br />
             </p>
+            <p class="form-help">
+                <strong><label for="cr_rmq">Use RabbitMQ for CR</label></strong>
+                <input type="checkbox" id="cr_rmq" name="cr_rmq" tal:attributes="checked here/cr_rmq" /><br />
+                Check this box if Content Registry Pings should be done via RabbitMQ. RabbitMQ connection settings need to be set by environment variables.
+            </p>
         </fieldset>
-        <br />
+        <fieldset>
+            <legend>Envelopes workflow forwarding</legend>
+            <p class="form-help">
+                <strong><label for="env_fwd_rmq">Publish forwardable envelopes to RabbitMQ</label></strong>
+                <input type="checkbox" name="env_fwd_rmq" id="env_fwd_rmq" tal:attributes="checked here/env_fwd_rmq|nothing" size="5" /><br />
+                Check this to publish forwardable envelopes to RabbitMQ
+            </p>
+        </fieldset>
         <fieldset>
             <legend>Dataflows Manager XMLRPC Properties</legend>
             <p class="form-help">
@@ -174,31 +199,42 @@
                 </p>
             </fieldset>
             <fieldset>
-                <legend>FGAS Registry Cache API</legend>
+                <legend>European Registry Cache API</legend>
                 <p class="form-help">
-                    <label for='fgas_registry_url'><strong>FGAS Cache Registry API URL</strong></label>
-                    <input type="text" size="50" id="fgas_registry_url" name="fgas_registry_url"
-                           tal:attributes="value here/fgas_registry_url" />
+                    <label for='er_url'><strong>European Cache Registry API URL</strong></label>
+                    <input type="text" size="50" id="er_url" name="er_url"
+                           tal:attributes="value here/er_url" />
+                    <br />
+                    <span>(leave it empty if European Cache Registry API is not to be used)
+                    <br />
+                </p>
+                <p class="form-help">
+                    <label for='er_token'><strong>European Cache Registry API TOKEN</strong></label>
+                    <input type="text" size="50" id="er_token" name="er_token"
+                           tal:attributes="value here/er_token" />
                     <br />
                     <span>(leave it empty if FGAS Cache Registry API is not to be used)
                     <br />
                 </p>
                 <p class="form-help">
-                    <label for='fgas_registry_token'><strong>FGAS Cache Registry API TOKEN</strong></label>
-                    <input type="text" size="50" id="fgas_registry_token" name="fgas_registry_token"
-                           tal:attributes="value here/fgas_registry_token" />
+                    <label for='er_fgas_obligations'><strong>European Registry FGAS obligations</strong></label>
                     <br />
-                    <span>(leave it empty if FGAS Cache Registry API is not to be used)
-                    <br />
-                </p>
-                <p class="form-help">
-                    <label for='fgas_registry_obligations'><strong>FGAS Registry obligations</strong></label>
-                    <br />
-                    <select name="fgas_registry_obligations:list" size="5" multiple="">
+                    <select name="er_fgas_obligations:list" size="5" multiple="">
                         <option tal:repeat="fgas_o python: obligations"
                             tal:attributes="value python: fgas_o[0];
-                                            selected python: fgas_o[0] in here.fgas_registry_obligations"
+                                            selected python: fgas_o[0] in here.er_fgas_obligations"
                             tal:content="python: fgas_o[1]" />
+                    </select>
+
+                </p>
+                <p class="form-help">
+                    <label for='er_ods_obligations'><strong>European Registry ODS obligations</strong></label>
+                    <br />
+                    <select name="er_ods_obligations:list" size="5" multiple="">
+                        <option tal:repeat="ods_o python: obligations"
+                            tal:attributes="value python: ods_o[0];
+                                            selected python: ods_o[0] in here.er_ods_obligations"
+                            tal:content="python: ods_o[1]" />
                     </select>
 
                 </p>

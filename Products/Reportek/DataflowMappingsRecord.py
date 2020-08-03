@@ -1,20 +1,19 @@
 __doc__ = """ Multiple dataflow mappings for a single obligation """
 
-from os import environ
 import logging
 import xmlrpclib
-import requests
-from OFS.SimpleItem import SimpleItem
-from Globals import InitializeClass
-from AccessControl import ClassSecurityInfo
-from AccessControl.Permissions import view_management_screens
-from ZODB.PersistentList import PersistentList
-
-from Products.ZCatalog.CatalogAwareness import CatalogAware
-from Products.Five.browser import BrowserView
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from os import environ
 
 import messages
+import requests
+from AccessControl import ClassSecurityInfo
+from AccessControl.Permissions import view_management_screens
+from Globals import InitializeClass
+from OFS.SimpleItem import SimpleItem
+from Products.Five.browser import BrowserView
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.ZCatalog.CatalogAwareness import CatalogAware
+from ZODB.PersistentList import PersistentList
 
 log = logging.getLogger(__name__)
 
@@ -143,6 +142,8 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
         schema_uri = REQUEST.form.get('schema', '').strip()
         schema_name = REQUEST.form.get('name', '').strip()
         has_webform = REQUEST.form.get('has_webform', None)
+        wf_edit_url = REQUEST.form.get('wf_edit_url', None)
+
         if not schema_uri or not schema_name:
             return 'Schema and name cannot be empty!'
         # go through the getter to obtain an object
@@ -165,6 +166,8 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
             'name': schema_name,
             'has_webform': has_webform,
         }
+        if has_webform and wf_edit_url:
+            form_data['wf_edit_url'] = wf_edit_url
         self._mappings.append(form_data)
         return 'Schema successfully added'
 
@@ -187,7 +190,6 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
         message_dialog = ''
 
         if REQUEST.method == 'POST':
-
             if REQUEST.form.get('add'):
                 message_dialog = self.add_schema(REQUEST)
 
@@ -197,9 +199,11 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
             if REQUEST.form.get('update'):
                 self.title = REQUEST.form['title']
                 self.dataflow_uri = REQUEST.form['dataflow_uris']
+                self.reindex_object()
                 message_dialog = 'Saved changes.'
             if REQUEST.form.get('update_xls_conversion'):
                 self._xls_conversion = REQUEST.form.get('xls_conversion')
+                self.xls_remove_empty_elems = bool(REQUEST.form.get('xls_remove_empty_elems', False))
                 message_dialog = 'XLS Conversion method updated.'
 
         return self._edit(
@@ -214,6 +218,5 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
             self._xls_conversion = 'split'
 
         return getattr(self, '_xls_conversion', None)
-
 
 InitializeClass(DataflowMappingsRecord)

@@ -5,14 +5,37 @@
         <tal:block tal:condition="python:SecurityManager.checkPermission('Use OpenFlow', here)">
             <li tal:attributes="id python:test(tab=='worklist', 'currenttab', None)"><a href="worklist" i18n:translate="">Task list</a></li>
         </tal:block>
+        <tal:block tal:condition="python: isBdrDeployment and SecurityManager.checkPermission('View', here) and here.company_id">
+            <li tal:attributes="id python:test(tab=='other_reports', 'currenttab', None)"><a href="other_reports" i18n:translate="">Other reports</a></li>
+        </tal:block>
         <tal:block  tal:condition="python:SecurityManager.checkPermission('Change Collections', here)">
             <li tal:attributes="id python:test(tab=='manage_prop', 'currenttab', None)"><a href="manage_prop" i18n:translate="">Edit properties</a></li>
         </tal:block>
         <tal:block  tal:condition="python:SecurityManager.checkPermission('Manage users', here)">
             <li tal:attributes="id python:test(tab=='get_users_list', 'currenttab', None)"><a href="get_users_list" i18n:translate="">List of reporters</a></li>
         </tal:block>
-        <tal:block  tal:condition="python: isBdrDeployment and SecurityManager.checkPermission('Add envelopes', here) and here.company_id">
+        <tal:block  tal:condition="python: isBdrDeployment and SecurityManager.checkPermission('Add Envelopes', here) and here.company_id">
             <li tal:attributes="id python:test(tab=='company_details', 'currenttab', None)"><a href="company_details" i18n:translate="">Company details</a></li>
+        </tal:block>
+        <tal:block tal:condition="python:isBdrDeployment and not here.company_id"
+            tal:define="user python: request.AUTHENTICATED_USER;
+                        is_manager python: 'Manager' in user.getRolesInContext(here);
+                        is_ods_client python: 'ClientODS' in user.getRolesInContext(here);
+                        is_fgas_client python: 'ClientFG' in user.getRolesInContext(here);
+                        is_cars_client python: 'ClientCars' in user.getRolesInContext(here);
+                        fgas_allowed python: is_manager or is_fgas_client;
+                        ods_allowed python: is_manager or is_ods_client;
+                        cars_allowed python: is_manager or is_cars_client;
+                        df_prefix python: 'http://rod.eionet.europa.eu/obligations/{}';
+                        is_ods python: df_prefix.format('213') in here.dataflow_uris;
+                        is_fgas python: df_prefix.format('713') in here.dataflow_uris;
+                        is_cars python: df_prefix.format('655') in here.dataflow_uris or df_prefix.format('665') in here.dataflow_uris;
+                        allowed python: is_ods and ods_allowed or is_fgas and fgas_allowed or is_cars and cars_allowed;">
+            <tal:block tal:condition="python: allowed">
+                <li tal:attributes="id python:test(tab=='transfers', 'currenttab', None)">
+                    <a tal:define="tr_url python: '/'.join(['/transfers', here.absolute_url(1)])" tal:attributes="href tr_url" i18n:translate="">Transfers</a>
+                </li>
+            </tal:block>
         </tal:block>
     </ul>
 </div>

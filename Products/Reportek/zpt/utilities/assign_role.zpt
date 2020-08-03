@@ -105,6 +105,7 @@
                     <tr>
                       <th><input id="toggleAllCB" type="checkbox" /></th>
                       <th>Country</th>
+                      <th tal:condition="python: deployment == 'BDR' and request.get('role', '') in ['ClientFG', 'ClientODS', 'ClientCARS']">Sync transfers</th>
                       <th tal:condition="python: request.get('use-subgroups')">LDAP Groups</th>
                       <th>Path</th>
                       <th>Obligations</th>
@@ -122,6 +123,9 @@
                           </tal:block>
                         </td>
                         <td tal:content="collection/country" />
+                        <td class="basic-input" tal:condition="python: deployment == 'BDR' and request.get('role', '') in ['ClientFG', 'ClientODS', 'ClientCARS']">
+                          <input tal:condition="python: len(collection.get('path').split('/')) == 3" class="sync-transfers" name="sync_transfers:list" type="checkbox" tal:attributes="value python: collection.get('path')"/>
+                        </td>
                         <td tal:condition="use_subgroups">
                           <span tal:condition="matched_group" tal:content="matched_group" tal:omit-tag=""/>
                           <span tal:condition="not: matched_group" tal:omit-tag="" i18n:translate="">

@@ -1062,7 +1062,7 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         self.pingger = self.engine.contentRegistryPingger
         self.assertTrue(bool(self.pingger))
         ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async = Mock()
-        ContentRegistryPingger.ContentRegistryPingger.content_registry_ping = Mock()
+        ContentRegistryPingger.ContentRegistryPingger.content_registry_ping = Mock(return_value=(True, 'Pinged'))
         # add subobjects of type document, feedback, hyperlink
         content = 'test content for our document'
         self.doc = add_document(self.envelope, create_upload_file(content, 'foo.txt'))
@@ -1096,8 +1096,8 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         ])
         self.envelope.content_registry_ping()
 
-        self.assertTrue(ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.called)
-        call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.call_args
+        self.assertTrue(ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called)
+        call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.call_args
         args = call_args[0]
         kwargs = call_args[1]
         self.assertEqual(len(args), 1)
@@ -1117,8 +1117,8 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         ])
         self.envelope.content_registry_ping(delete=True)
 
-        self.assertTrue(ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.called)
-        call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async.call_args
+        self.assertTrue(ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called)
+        call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.call_args
         args = call_args[0]
         kwargs = call_args[1]
         self.assertEqual(len(args), 1)
@@ -1146,6 +1146,6 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         uris = args[0]
         self.assertEqual(len(uris), 4)
         self.assertEqual(set(uris), expectedUris)
-        self.assertEqual(len(kwargs), 1)
+        self.assertEqual(len(kwargs), 2)
         ping_argument = kwargs.get('ping_argument')
         self.assertEqual(ping_argument, 'create')

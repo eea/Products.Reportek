@@ -68,6 +68,7 @@
         <th>Schema</th>
         <th>Name</th>
         <th>Has WebForm</th>
+        <th>Webform edit URL</th>
       </tr>
 
       <tr tal:repeat="schema options/schemas">
@@ -80,10 +81,11 @@
         </td>
         <td tal:content="schema/name" />
         <td align="center" tal:content="schema/has_webform" />
+        <td align="center" tal:content="schema/wf_edit_url|string: Default" />
       </tr>
       <tr class="row-hilite">
         <td></td>
-        <td colspan="3">
+        <td colspan="4">
           <input type="submit" name="delete" value="Delete" />
         </td>
       </tr>
@@ -102,6 +104,7 @@
 <p class="form-help">
   To add a new mapping, enter a schema, a name, check if there is a
   webform for this schema or not, and click the "Add" button.
+  If this dataflow uses a different webforms engine than the <a href="/ReportekEngine">website's default setting</a>, use the <strong>Webform edit URL</strong> to specify the link to the webform for editing each type of XML file.
 </p>
 
 
@@ -132,9 +135,17 @@
         <label class="form-label" for="has_webform_auto">Figure it out from WebQ</label>
       </td>
     </tr>
+    <tr>
+      <td>
+        <label class="form-label" for="wf_edit_url">Webform edit URL</label>
+      </td>
+      <td colspan="2">
+        <input type="text" id="wf_edit_url" name="wf_edit_url" size="100" />
+      </td>
+    </tr>
     <tr class="row-hilite">
       <td></td>
-      <td colspan="2">
+      <td colspan="3">
         <input type="submit" name="add" value="Add" />
       </td>
     </tr>
@@ -160,7 +171,9 @@
         <input name="xls_conversion" id="xls_split" type="radio" value="split" tal:attributes="checked python: context.xls_conversion == 'split';"/>
         <label class="form-label" for="xls_split">Split sheets</label>
         <input name="xls_conversion" id="xls_non_split" type="radio" value="nosplit" tal:attributes="checked python: context.xls_conversion == 'nosplit';"/>
-        <label class="form-label" for="xls_non_split">Don't split sheets</label>
+        <label class="form-label" for="xls_non_split">Don't split sheets</label><br/>
+        <input name="xls_remove_empty_elems" id="xls_remove_empty_elems" type="checkbox" tal:attributes="checked context/xls_remove_empty_elems|nothing"/>
+        <label class="form-label" for="xls_remove_empty_elems">Remove empty elements from the resulting XML</label>
       </td>
     </tr>
     <tr class="row-hilite">

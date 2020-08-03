@@ -26,19 +26,22 @@ This class which Envelope subclasses from handles the integration with remote sy
 
 """
 
-# Zope imports
-from Globals import InitializeClass
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from AccessControl import ClassSecurityInfo
-from Products.Reportek.Document import Document
-
+import logging
+import re
 
 # Product specific imports
 import RepUtils
+from AccessControl import ClassSecurityInfo
 from constants import QAREPOSITORY_ID
+# Zope imports
+from Globals import InitializeClass
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek.constants import ENGINE_ID
+from Products.Reportek.Document import Document
 from Products.Reportek.exceptions import EnvelopeReleasedException
 
-import re
+logger = logging.getLogger("Reportek")
+
 
 class EnvelopeRemoteServicesManager:
     """ This class which Envelope subclasses from handles the integration
@@ -64,7 +67,8 @@ class EnvelopeRemoteServicesManager:
 
     def getFilesForSchema(self, schema_uri):
         """Return a list of Documents names in this envelope that are bound to the schema_uri."""
-        return [ doc.id for doc in self.objectValues(Document.meta_type) ]
+        return [doc for doc in self.objectValues(Document.meta_type)
+                if doc.xml_schema_location == schema_uri]
 
 
     # FIXME condition racing - concurent threads on the same envelope will collide
@@ -144,35 +148,35 @@ class EnvelopeRemoteServicesManager:
         """
         l_qa_app = getattr(self, QAREPOSITORY_ID).getQAApplication()
         if not l_qa_app:
-            if return_inline:
-                return 'System error.'
-            return self.note(note_content_type='text/html',
-                             note_title='Error',
-                             note_text='The operation could not be completed.')
+            if return_inline: return 'System error.'
+            REQUEST.SESSION.set('note_content_type', 'text/html')
+            REQUEST.SESSION.set('note_title', 'Error')
+            REQUEST.SESSION.set('note_text', 'The operation could not be completed.')
+            REQUEST.RESPONSE.redirect('note')
         try:
             l_file_id, l_tmp = getattr(self, QAREPOSITORY_ID)._runQAScript(p_file_url, p_script_id)
-            if return_inline:
-                return l_tmp.get('feedbackContent')
-            note_content_type = l_tmp.get('feedbackContentType')
-            if l_file_id != 'xml':
-                note_title = 'QA result for file %s' % l_file_id
+            if not l_tmp:
+                REQUEST.SESSION.set('note_content_type', 'text/html')
+                REQUEST.SESSION.set('note_title', 'Error')
+                REQUEST.SESSION.set('note_text', 'QA Service returned an empty result running script_id: {}, for file: {}.'.format(p_script_id, p_file_url))
+                REQUEST.RESPONSE.redirect('note')
             else:
-                note_title = 'QA result for envelope'
-            note_tip = 'This page is only temporary. The page URL address can not be used as a reference to the result. <br /><br />Please use the "<em>File >> Save As</em>" option within your browser to save the validation results.'
-            note_text = l_tmp.get('feedbackContent')
-            return self.note(note_content_type=note_content_type,
-                             note_title=note_title,
-                             note_text=note_text,
-                             note_tip=note_tip)
+                if return_inline: return l_tmp[1].data
+                REQUEST.SESSION.set('note_content_type', l_tmp[0])
+                if l_file_id != 'xml':
+                    REQUEST.SESSION.set('note_title', 'QA result for file %s' %l_file_id)
+                else:
+                    REQUEST.SESSION.set('note_title', 'QA result for envelope')
+                REQUEST.SESSION.set('note_tip', 'This page is only temporary. The page URL address can not be used as a reference to the result. <br /><br />Please use the "<em>File >> Save As</em>" option within your browser to save the validation results.')
+                REQUEST.SESSION.set('note_text', l_tmp[1].data)
+                REQUEST.RESPONSE.redirect('note')
         except Exception, err:
             l_err = str(err).replace('<', '&lt;')
-            if return_inline:
-                return 'The operation could not be completed because of the following error: %s' % l_err
-            return self.note(note_content_type='text/html',
-                             note_title='Error',
-                             note_text='The operation could not be'
-                                       ' completed because of the '
-                                       'following error: %s' % l_err)
+            if return_inline: return 'The operation could not be completed because of the following error: %s' % l_err
+            REQUEST.SESSION.set('note_content_type', 'text/html')
+            REQUEST.SESSION.set('note_title', 'Error')
+            REQUEST.SESSION.set('note_text', 'The operation could not be completed because of the following error: %s' % l_err)
+            REQUEST.RESPONSE.redirect('note')
 
     security.declareProtected('View', 'runQAScripts')
     def runQAScripts(self, REQUEST):
@@ -226,18 +230,30 @@ class EnvelopeRemoteServicesManager:
         """ Finds all Report Documents of type XML that have to begin/complete a remote operation
             Returns the dictionary of {xml_schema_location:[URL_file]}
         """
+        def parse_uri(uri, replace=False):
+            """ Use only http uris if QA http resources is checked in ReportekEngine props
+            """
+            if replace:
+                new_uri = uri.replace('https://', 'http://')
+                logger.info("Original uri: %s has been replaced with uri: %s"
+                            % (uri, new_uri))
+                uri = new_uri
+            return uri
+
         l_res = {}
+        engine = self.getEngine()
+        http_res = getattr(engine, 'qa_httpres', False)
         l_valid_schemas = self.getDataflowMappingsContainer().getSchemasForDataflows(self.dataflow_uris)
         for docu in self.objectValues('Report Document'):
             if docu.content_type == 'text/xml' and docu.xml_schema_location and (docu.xml_schema_location in l_valid_schemas or not l_valid_schemas):
                 l_key = str(docu.xml_schema_location)
                 if l_res.has_key(l_key):
-                    l_res[l_key].append(docu.absolute_url())
+                    l_res[l_key].append(parse_uri(docu.absolute_url(), http_res))
                 else:
-                    l_res[l_key] = [docu.absolute_url()]
+                    l_res[l_key] = [parse_uri(docu.absolute_url(), http_res)]
         # add the envelope 'xml' method for each obligation
         for l_dataflow in self.dataflow_uris:
-            l_res[l_dataflow] = [self.absolute_url() + '/xml']
+            l_res[l_dataflow] = [parse_uri(self.absolute_url(), http_res) + '/xml']
         return l_res
 
     security.declareProtected('Use OpenFlow', 'triggerApplication')
@@ -356,9 +372,29 @@ class EnvelopeRemoteServicesManager:
         return mappings_c.getSchemasForDataflows(self.dataflow_uris,
                                                  web_form_only=web_form_only)
 
-    def getWebQ_BeforeEditForm_URL(self):
+    security.declarePublic('get_webform_for_schema')
+    def get_webform_for_schema(self, schema):
+        mappings_c = self.getDataflowMappingsContainer()
+        wf_cust = mappings_c.get_webform_url_for_schema(schema,
+                                                        self.dataflow_uris,
+                                                        web_form_only=True)
+        return wf_cust or self.getEngine().webq_before_edit_page
+
+    def getWebQ_BeforeEditForm_URL(self, schema=None, custom_params=False):
         """ Retrieves the URL to the edit for of the XML file - if any """
-        return self.getEngine().webq_before_edit_page
+        attributes = {
+            'instance': self.absolute_url(),
+            'envelope': self.absolute_url(),
+            'schema': schema,
+            'obligation': self.dataflow_uris[0],
+            'language': 'En',
+            'companyId': self.company_id,
+            'countrycode': self.getCountryCode(self.country) if getattr(self, 'country', '') else None
+        }
+        form_url = self.get_webform_for_schema(schema).format(**attributes)
+        if custom_params:
+            return form_url.split('?')[0]
+        return form_url
 
     def getWebQ_MenuEnvelope_URL(self):
         """ Retrieves the URL to the edit for of the XML file - if any """

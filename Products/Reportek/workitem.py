@@ -7,8 +7,10 @@ from OFS.PropertyManager import PropertyManager
 from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.CatalogPathAwareness import CatalogAware
+from Products.Reportek.RepUtils import DFlowCatalogAware
 
-class workitem(CatalogAware, SimpleItem, PropertyManager):
+
+class workitem(CatalogAware, SimpleItem, PropertyManager, DFlowCatalogAware):
     """ describes a single workitem of the history graph """
 
     meta_type = 'Workitem'

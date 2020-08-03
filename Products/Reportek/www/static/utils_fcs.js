@@ -43,6 +43,15 @@ reportek.utils.fcs = {
         return self.base_url + self.endpoints[endpoint] + '?' + $.param( params );
 
     },
+    handle_domain_change: function() {
+      // Hide ODS ID column for FGAS companies
+      var self = reportek.utils.fcs;
+      if (self.domain === 'FGAS') {
+        $(".old-id").addClass("hidden-content");
+      } else {
+        $(".old-id").removeClass("hidden-content");
+      }
+    },
     bind_obl_select: function() {
       var self = reportek.utils.fcs;
       $("#domain").on("change", {self:this}, function(evt){
@@ -53,6 +62,7 @@ reportek.utils.fcs = {
         var endpoint = self.tbl_endpoint.split('/')[self.tbl_endpoint.split('/').length-1].split('?')[0];
         self.tbl.ajax.url(self.get_endpoint_url(endpoint)).load();
         self.update_domain_param();
+        self.handle_domain_change();
       });
     },
     init_companies: function() {
@@ -71,12 +81,17 @@ reportek.utils.fcs = {
             "type": "GET",
             "dataSrc":"",
           },
+          "drawCallback": function( settings ) {
+            self.handle_domain_change();
+          },
           "processing": true,
           "autowidth": false,
           "order": [[ 0, "desc" ]],
           "columns": [
-            { "width": "5%%" },
-            { "width": "25%" },
+            { "width": "5%" },
+            { "width": "5%" },
+            { "width": "20%" },
+            { "width": "5%" },
             { "width": "13%" },
             { "width": "15%" },
             { "width": "12%" },
@@ -84,7 +99,9 @@ reportek.utils.fcs = {
           ],
           "aoColumns": [
             { "mData": "company_id" },  // for User Detail
+            { "mData": "oldcompany_account" },
             { "mData": "name" },
+            { "mData": "status" },
             { "mData": "users" },
             { "mData": "address.country.name" },
             { "mData": "vat" },
@@ -92,8 +109,12 @@ reportek.utils.fcs = {
           ],
           "columnDefs": [
             {
+            "targets": 1,
+            "className": "old-id"
+            },
+            {
               "width": "25%",
-              "targets": 1,
+              "targets": 2,
               "data": "name",
               "render": function (data, type, full) {
                 return "<a href='" + self.get_endpoint_url('organisation_details') + "&id=" +
@@ -102,7 +123,7 @@ reportek.utils.fcs = {
             },
             {
               "width": "13%",
-              "targets": 2,
+              "targets": 4,
               "data": "users",
               "render": function (data, type, full) {
                 var result = "";

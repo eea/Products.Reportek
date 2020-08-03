@@ -3,6 +3,11 @@
 
     <form tal:attributes="action options/action" method="get" name="frmMessage">
     <table border="0" width="100%" cellpadding="10">
+        <tal:rep tal:condition="options/params" tal:repeat="qp options/params">
+            <input type="hidden"
+                tal:attributes="name qp/name;
+                                value qp/value"/>
+        </tal:rep>
         <tr>
             <td valign="top">
                 <span style="text-align: center; font-weight: bold; font-size: 50px; color: #77003b;">!</span>

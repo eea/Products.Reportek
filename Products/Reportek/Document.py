@@ -30,6 +30,8 @@ from OFS.SimpleItem import SimpleItem
 from os.path import join
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.CatalogAwareness import CatalogAware
+from Products.Reportek.RepUtils import DFlowCatalogAware
+from Products.Reportek.RepUtils import parse_uri
 from time import time
 from StringIO import StringIO
 from webdav.common import rfc1123_date
@@ -38,6 +40,8 @@ from zope.contenttype import guess_content_type
 from zope.interface import implements
 import Globals
 import IconShow
+import hashlib
+import io
 import json
 import logging
 import os
@@ -72,22 +76,82 @@ logger = logging.getLogger("Reportek")
 manage_addDocumentForm = PageTemplateFile('zpt/document/add', globals())
 
 
+def error_message(ctx, message, action=None, REQUEST=None):
+    if not action:
+        action = ctx.absolute_url()
+    if REQUEST is not None:
+        accept = REQUEST.environ.get("HTTP_ACCEPT")
+        if accept == 'application/json':
+            REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+            error = {
+                'title': 'Error',
+                'description': message
+            }
+            data = {
+                'errors': [error],
+            }
+            return json.dumps(data, indent=4)
+        else:
+            return ctx.messageDialog(
+                message=message,
+                action=action
+            )
+    return ''
+
+def success_message(ctx, objs, message=None, errors=None, action=None, REQUEST=None):
+    if not action:
+        action = ctx.absolute_url()
+    if not errors:
+        errors = []
+    if REQUEST is not None:
+        accept = REQUEST.environ.get("HTTP_ACCEPT")
+        if accept == 'application/json':
+            REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+            REQUEST.RESPONSE.setStatus(201)
+            files = []
+            for obj in objs:
+                files.append({
+                    'url': obj.absolute_url(0),
+                    'title': obj.title,
+                    'contentType': obj.content_type,
+                    'schemaURL': obj.xml_schema_location,
+                    'uploadDate': obj.upload_time().HTML4(),
+                    'fileSize': obj.get_size(),
+                    'fileSizeHR': obj.size(),
+                    'isRestricted': 1 if obj.isRestricted() else 0
+                })
+            data = {
+                'files': files,
+                'errors': errors
+            }
+            return json.dumps(data, indent=4)
+        return ctx.messageDialog(
+            message=message,
+            action=action)
+    return ''
+
+
 def manage_addDocument(self, id='', title='', file='', content_type='',
-                       restricted='', REQUEST=None, deferred_compress=None):
-    """Add a Document to a folder. The form can be called with two variables
-       set in the session object: default_restricted and force_restricted.
-       This will set the restricted flag in the form.
+                       filename='', restricted='', disallow='', REQUEST=None,
+                       deferred_compress=None):
+    """Add a Document to a folder. The form can be called with three variables
+       set in the session object: default_restricted, force_restricted and
+       disallow. This will set the restricted flag in the form or
     """
-    is_object = hasattr(file, 'filename') and file.filename
+
+    is_object = hasattr(file, 'read') and (getattr(file, 'filename', None) or filename)
+    if is_object and not filename:
+        filename = getattr(file, 'filename')
     is_str = file and isinstance(file, basestring)
 
     if is_object:
+
         if not id:
-            id = file.filename
+            id = filename
         else:
             _, ext = os.path.splitext(id)
             if not ext:
-                _, ext = os.path.splitext(file.filename)
+                _, ext = os.path.splitext(filename)
                 id += ext
 
     if (is_str or is_object) and id:
@@ -98,6 +162,15 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
                     ) + 1:]
         id = id.strip()
         id = RepUtils.cleanup_id(id)
+
+        # Check to see if file has an extension which is disallowed
+        if disallow:
+            disallow = disallow.replace(' ', '').split(',')
+            for ext in disallow:
+                if not ext.startswith('.'):
+                    ext = ''.join(['.', ext])
+                if id.endswith(ext):
+                    return error_message(self, '{} files are disallowed in this context'.format(ext), REQUEST=REQUEST)
 
         # delete the previous file with the same id, if exists
         if self.get(id) and isinstance(self.get(id), Document):
@@ -113,13 +186,7 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
         except SchemaError as e:
             self.manage_delObjects(id)
             logger.exception('The file is an invalid XML (reason: %s)' % str(e.args))
-            if REQUEST:
-                return self.messageDialog(
-                    message='The file is an invalid XML (reason: %s)' % str(e.args),
-                    action=self.absolute_url()
-                    )
-            else:
-                return ''
+            return error_message(self, 'The file is an invalid XML (reason: %s)' % str(e.args), REQUEST=REQUEST)
         if save_id:
             self.manage_delObjects(save_id)
             transaction.commit()
@@ -131,24 +198,23 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
             obj.manage_restrictDocument()
         obj.reindex_object()
         if REQUEST is not None:
-            pobj = REQUEST.PARENTS[0]
+            # This is an ugly hack, sometimes the PARENTS are in reverse order
+            # TODO: Find a better way to handle the issue
+            if len(REQUEST.PARENTS) > 1:
+                pobj = REQUEST.PARENTS[0]
+                if not REQUEST.PARENTS[0].absolute_url(1):
+                    pobj = REQUEST.PARENTS[-1]
             ppath = string.join(pobj.getPhysicalPath(), '/')
-            return self.messageDialog(
-                message='The file %s was successfully created!' % id,
-                action=ppath)
+            msg = 'The file %s was successfully created!' % id
+            return success_message(self, [obj], message=msg,
+                                   action=ppath, REQUEST=REQUEST)
         else:
             return id
     else:
-        if REQUEST is not None:
-            return self.messageDialog(
-                message='You must specify a file!',
-                action=self.absolute_url()
-                )
-        else:
-            return ''
+        return error_message(self, 'You must specify a file!', REQUEST=REQUEST)
 
 
-class Document(CatalogAware, SimpleItem, IconShow.IconShow):
+class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
     """ An External Document allows indexing and conversions.
 
     .. attribute:: data_file
@@ -221,7 +287,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         else:
             self.data_file.content_type = value
 
-    def __str__(self): return self.index_html()
+    def __str__(self): return self.index_html(self.REQUEST, self.REQUEST.RESPONSE)
 
     def __len__(self): return 1
 
@@ -281,13 +347,10 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             The workitems' event logs are used since these are displayed
             on the envelope's history tab
         """
-        for l_w in self.getWorkitemsActiveForMe(self.REQUEST):
-            l_w.addEvent('file upload', 'File: {0} ({1})'
-                            .format(
-                                self.id,
-                                self.data_file.human_readable(self.data_file.size)
-                            )
-                        )
+        if self.REQUEST and getattr(self.REQUEST, 'AUTHENTICATED_USER', None):
+            for l_w in self.getWorkitemsActiveForMe(self.REQUEST):
+                l_w.addEvent('file upload', 'File: {0} ({1})'.format(self.id,
+                                                                     self.data_file.human_readable(self.data_file.size)))
 
     def index_html(self, REQUEST, RESPONSE, icon=0):
         """ Returns the contents of the file.  Also, sets the
@@ -370,10 +433,17 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
 
     def getFeedbacksForDocument(self):
         """ Returns the Feedback objects associated with this document """
-        return [f.getObject() for f
-                in self.Catalog(meta_type='Report Feedback',
-                                document_id=self.id,
-                                path=self.getParentNode().absolute_url(1))]
+        fbs = []
+        brains = self.Catalog(meta_type='Report Feedback',
+                              document_id=self.id,
+                              path=self.getParentNode().absolute_url(1))
+        for brain in brains:
+            try:
+                fbs.append(brain.getObject())
+            except KeyError as e:
+                logger.error("Error retrieving feedback object: {} from catalog brain: {}".format(brain.getPath(), str(e)))
+
+        return fbs
 
     def getExtendedFeedbackForDocument(self):
         """ Returns the feedback relevant for a document - URL and title """
@@ -428,6 +498,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     security.declareProtected('View', 'get_possible_conversions')
     def get_possible_conversions(self):
         """Return possible conversions for the file"""
+        exclude_internal = True if self.REQUEST.get('exclude_internal') else False
         local_converters = []
         remote_converters = []
         warning_message = ''
@@ -435,7 +506,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             (local_converters, remote_converters) = \
                 self.Converters.displayPossibleConversions(self.content_type,
                                                            self.xml_schema_location,
-                                                           self.id
+                                                           self.id,
+                                                           exclude_internal=exclude_internal
                                                            )
         except requests.ConnectionError as ex:
            local_converters, remote_converters = ex.results
@@ -454,6 +526,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     def get_qa_scripts(self):
         """Return the available qa scripts for the file."""
         scripts = self.getQAScripts().get(self.id, [])
+        engine = self.getEngine()
+        http_res = getattr(engine, 'qa_httpres', False)
         online_qa = []
         large_qa = []
         res = {'online_qa': online_qa,
@@ -465,7 +539,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
                 online_qa.append(qa)
             else:
                 large_qa.append(qa)
-        res['file'] = self.absolute_url()
+        res['file'] = parse_uri(self.absolute_url(), http_res)
         self.REQUEST.RESPONSE.setHeader('Content-Type',
                                         'application/json')
         return json.dumps(res)
@@ -575,8 +649,37 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
     def is_compressed(self):
         return self.data_file.compressed_safe
 
+    def parsed_absolute_url(self):
+        l_res = {}
+        engine = self.getEngine()
+        http_res = getattr(engine, 'qa_httpres', False)
+
+        return parse_uri(self.absolute_url(), http_res)
+
+    @property
+    def hash(self):
+        return getattr(self, '_hash', None)
+
+    @hash.setter
+    def hash(self, value):
+        self._hash = value
+
+    def generate_hash(self):
+        """Generate a sha256 hash for the file"""
+
+        BLOCK_SIZE = 65536  # The size of each read from the file
+
+        file_hash = hashlib.sha256()
+        with self.data_file.open('rb') as f:
+            fb = f.read(BLOCK_SIZE)
+            while len(fb) > 0:  # While there is still data being read from the file
+                file_hash.update(fb)  # Update the hash
+                fb = f.read(BLOCK_SIZE)  # Read the next block from the file
+
+        self.hash = file_hash.hexdigest()
+
     manage_uploadForm = PageTemplateFile('zpt/document/upload', globals())
-    def manage_file_upload(self, file='', content_type='', REQUEST=None):
+    def manage_file_upload(self, file='', content_type='', REQUEST=None, preserve_mtime=False):
         """ Upload file from local directory """
 
         if not content_type:
@@ -590,8 +693,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             skip_compress = True
             crc = file.CRC
 
-        with self.data_file.open('wb', orig_size=orig_size, skip_decompress=skip_compress, crc=crc) as data_file_handle:
-            if hasattr(file, 'filename'):
+        with self.data_file.open('wb', orig_size=orig_size, skip_decompress=skip_compress, crc=crc, preserve_mtime=preserve_mtime) as data_file_handle:
+            if hasattr(file, 'read'):
                 for chunk in RepUtils.iter_file_data(file):
                     data_file_handle.write(chunk)
             else:
@@ -603,6 +706,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         else:
             self.xml_schema_location = ''
 
+        self.generate_hash()
         self.accept_time = None
         self.logUpload()
         # update ZCatalog
@@ -651,17 +755,21 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
         elif name.endswith('.rar'):
             return 'application/x-rar-compressed'
 
+        h_ctype = None
         if headers and 'content-type' in headers:
-            return headers['content-type']
+            h_ctype = headers['content-type']
 
         # This will discard only utf8 BOM in case it is there
         # zope mime type guessing fails if BOM present
         body = RepUtils.discard_utf8_bom(body)
         content_type, enc = guess_content_type(name, body)
+        if content_type == 'text/x-unknown-content-type' and h_ctype:
+            return h_ctype
+
         return content_type
 
     def _compute_uncompressed_size(self, file_or_content):
-        if isinstance(file_or_content, FileUpload):
+        if isinstance(file_or_content, FileUpload) or isinstance(file_or_content, file):
             pos = file_or_content.tell()
             file_or_content.seek(0, 2)
             size = file_or_content.tell()
@@ -677,6 +785,16 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow):
             return file_or_content.tell()
         else:
             raise RuntimeError("Unable to compute uncompressed size")
+
+    def export_to_file(self, dst_path, file_id=None):
+        """Export the document's file to a File in dst_path"""
+        dst = self.unrestrictedTraverse(dst_path)
+        if not file_id:
+            file_id = self.getId()
+        f = getattr(self, 'data_file')
+        fc = f.open()
+        dst.manage_addFile(file_id, file=fc.read())
+        fc.close()
 
 
 Globals.InitializeClass(Document)
