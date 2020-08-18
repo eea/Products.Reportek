@@ -391,6 +391,9 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         else:
             return False
 
+    def uns_notifications_are_on(self):
+        return bool(os.environ.get('UNS_NOTIFICATIONS', 'off') == 'on')
+
     def has_blocker_feedback(self, REQUEST=None):
         """ web callable version of is_blocked """
         return self.is_blocked
