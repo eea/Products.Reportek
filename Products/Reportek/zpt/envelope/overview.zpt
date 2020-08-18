@@ -150,7 +150,7 @@
         </table>
       </div>
 
-      <div class="note-msg" tal:condition="context/uns_is_set">
+      <div class="note-msg" tal:condition="context/uns_notifications_are_on">
         <strong i18n:translate="">Note</strong>
         <p i18n:translate="">
           If you want to stay updated about events in this envelope

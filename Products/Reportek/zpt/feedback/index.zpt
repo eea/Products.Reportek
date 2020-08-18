@@ -138,7 +138,7 @@
         </tal:block>
       </tal:block>
       <tal:block condition="not:context/automatic">
-        <div class="important-msg" tal:condition="context/uns_is_set">
+        <div class="important-msg" tal:condition="context/uns_notifications_are_on">
           <strong i18n:translate="">Important notice</strong>
           <p i18n:translate="">
             If you want to be notified when other feedback is added to this envelope or comments are posted on feedback items,
