@@ -179,6 +179,11 @@
                     <br />
                 </p>
                 <p class="form-help">
+                    <label for='bdr_registry_token'><strong>Bdr Registry API TOKEN</strong></label>
+                    <input type="text" size="50" id="bdr_registry_token" name="bdr_registry_token"
+                           tal:attributes="value here/bdr_registry_token" />
+                </p>
+                <p class="form-help">
                     <label for='bdr_registry_obligations'><strong>Bdr Registry obligations</strong></label>
                     <br />
                     <select name="bdr_registry_obligations:list" size="5" multiple="">
@@ -187,15 +192,6 @@
                                          selected python: bdr_o[0] in here.bdr_registry_obligations"
                          tal:content="python: bdr_o[1]" />
                     </select>
-                </p>
-                <p class="form-help">
-                    <label for='bdr_registry_username'><strong>Bdr Registry username</strong></label>
-                    <input type="text" size="50" id="bdr_registry_username" name="bdr_registry_username" tal:attributes="value here/bdr_registry_username" />
-                </p>
-                <p class="form-help">
-                    <label for='bdr_registry_password'><strong>Bdr Registry password</strong></label>
-                    <input type="password" size="50" id="bdr_registry_password" name="bdr_registry_password"
-                           tal:attributes="value here/bdr_registry_password" />
                 </p>
             </fieldset>
             <fieldset>

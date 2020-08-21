@@ -133,8 +133,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         cr_api_url = ''
     auth_middleware_url = ''
     bdr_registry_url = ''
-    bdr_registry_username = ''
-    bdr_registry_password = ''
+    bdr_registry_token=''
     bdr_registry_obligations = []
     er_fgas_obligations = []
     er_ods_obligations = []
@@ -279,8 +278,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             self.auth_middleware_recheck_interval = int(self.REQUEST.get('auth_middleware_recheck_interval', self.auth_middleware_recheck_interval))
             self.authMiddleware.setServiceRecheckInterval(self.auth_middleware_recheck_interval)
         self.bdr_registry_url = self.REQUEST.get('bdr_registry_url', self.bdr_registry_url)
-        self.bdr_registry_username = self.REQUEST.get('bdr_registry_username', self.bdr_registry_username)
-        self.bdr_registry_password = self.REQUEST.get('bdr_registry_password', self.bdr_registry_password)
+        self.bdr_registry_token = self.REQUEST.get('bdr_registry_token', self.bdr_registry_token)
         self.bdr_registry_obligations = self.REQUEST.get('bdr_registry_obligations', self.bdr_registry_obligations)
         self.er_url = self.REQUEST.get('er_url', self.er_url)
         self.er_token = self.REQUEST.get('er_token', self.er_token)
