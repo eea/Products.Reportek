@@ -60,6 +60,7 @@ from interfaces import IReportekEngine
 from OFS.Folder import Folder
 from paginator import DiggPaginator, EmptyPage, InvalidPage
 from path import path
+from plone.memoize import ram
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BdrAuthorizationMiddleware import \
     BdrAuthorizationMiddleware
@@ -1569,6 +1570,14 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         finally:
             # Restore the old security manager
             setSecurityManager(sm)
+
+    @ram.cache(lambda *args: time() // (60 * 60 * 12)) #  12 hours
+    def get_main_cols(self):
+        root = self.getPhysicalRoot()
+        collections = root.objectValues('Report Collection')
+        collections.sort(key=lambda x: x.title_or_id().lower())
+
+        return collections
 
 
 Globals.InitializeClass(ReportekEngine)
