@@ -285,6 +285,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.er_fgas_obligations = self.REQUEST.get('er_fgas_obligations', self.er_fgas_obligations)
         self.er_ods_obligations = self.REQUEST.get('er_ods_obligations', self.er_ods_obligations)
         xls_max_rows = self.REQUEST.get('xls_max_rows', self.XLS_max_rows)
+        try:
+            self.rdf_export_envs_age = int(self.REQUEST.get('rdf_export_envs_age', None))
+        except ValueError:
+            self.rdf_export_envs_age = None
 
         try:
             xls_max_rows = int(xls_max_rows)
@@ -540,6 +544,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         security.declareProtected('Audit Envelopes', 'searchfeedbacks')
         security.declareProtected('Audit Envelopes', 'resultsfeedbacks')
         security.declareProtected('Audit Envelopes', 'recent')
+        security.declareProtected('Audit Envelopes', 'recent_released')
         security.declareProtected('Audit Envelopes', 'searchxml')
         security.declareProtected('Audit Envelopes', 'resultsxml')
         security.declareProtected('Audit Envelopes', 'search_dataflow')
@@ -553,6 +558,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         security.declareProtected('View', 'searchfeedbacks')
         security.declareProtected('View', 'resultsfeedbacks')
         security.declareProtected('View', 'recent')
+        security.declareProtected('View', 'recent_released')
         security.declareProtected('View', 'searchxml')
         security.declareProtected('View', 'resultsxml')
         security.declareProtected('View', 'search_dataflow')
@@ -566,6 +572,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     searchfeedbacks = PageTemplateFile('zpt/engineSearchFeedbacks', globals())
     resultsfeedbacks = PageTemplateFile('zpt/engineResultsFeedbacks', globals())
     recent = PageTemplateFile('zpt/engineRecentUploads', globals())
+    recent_released = PageTemplateFile('zpt/engineRecentReleased', globals())
     searchxml = PageTemplateFile('zpt/engineSearchXml', globals())
     resultsxml = PageTemplateFile('zpt/engineResultsXml', globals())
 

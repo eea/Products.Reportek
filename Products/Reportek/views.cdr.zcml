@@ -23,4 +23,10 @@
     class=".views.BuildCollections"
     template="zpt/utilities/build_collections.zpt"/>
 
+  <browser:page
+    name="renvelopes.rdf"
+    for="*"
+    permission="zope2.View"
+    class=".views.EnvelopesRDF"/>
+
 </configure>

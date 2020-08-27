@@ -244,6 +244,14 @@
                        tal:attributes="value here/XLS_max_rows" />
             </p>
         </fieldset>
+        <fieldset>
+            <legend>RDF renvelopes.rdf</legend>
+            <p class="form-help">
+                <label for='rdf_export_envs_age'><strong>Export envelopes released in the last x days. Leave empty for all released envelopes</strong></label>
+                <input type="text" size="50" id="rdf_export_envs_age" name="rdf_export_envs_age"
+                       tal:attributes="value here/rdf_export_envs_age|nothing" />
+            </p>
+        </fieldset>
         <br/>
         <input type="submit" value="Save changes" />
     </tal:def>
