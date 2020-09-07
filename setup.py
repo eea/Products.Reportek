@@ -1,4 +1,4 @@
-from setuptools import setup, find_packages
+from setuptools import find_packages, setup
 
 setup(
     name='Products.Reportek',
@@ -15,6 +15,8 @@ setup(
         'collective.monkeypatcher',
         'lxml',
         'path.py',
+        'plone.caching',
+        'plone.cachepurging',
         'plone.memoize',
         'requests',
         'xlwt',

@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from DateTime import DateTime
+from z3c.caching.purge import Purge
+from zope.event import notify
+
 
 def handle_document_removed_event(obj, event):
     """Delete associated feedback objects when file is deleted"""

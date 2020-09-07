@@ -54,9 +54,11 @@ from OFS.Folder import Folder
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import (DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT,
                                permission_manage_properties_collections)
+from Products.Reportek.interfaces import ICollection
 from Products.Reportek.RepUtils import DFlowCatalogAware
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from Toolz import Toolz
+from zope.interface import implements
 
 manage_addCollectionForm = PageTemplateFile('zpt/collection/add', globals())
 
@@ -87,7 +89,12 @@ def manage_addCollection(self, title, descr, year, endyear, partofyear,
         return REQUEST.RESPONSE.redirect(self.absolute_url())
 
 
-class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
+class BaseCollection(object):
+    """BaseCollection class."""
+    implements(ICollection)
+
+
+class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection):
     """
     Collections are basic container objects that provide a standard
     interface for object management. Collection objects also implement
@@ -95,7 +102,6 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware):
     """
 
     meta_type = 'Report Collection'
-
     security = ClassSecurityInfo()
 
     manage_options = Folder.manage_options[:3] + \

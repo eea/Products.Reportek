@@ -1,0 +1,32 @@
+<configure
+  xmlns="http://namespaces.zope.org/zope"
+  xmlns:browser="http://namespaces.zope.org/browser"
+  xmlns:five="http://namespaces.zope.org/five">
+
+    <adapter factory=".operations.BaseCaching" name="Products.Reportek.caching.baseCaching" />
+    <utility component=".operations.BaseCaching" name="Products.Reportek.caching.baseCaching" />
+
+    <adapter factory=".operations.WeakCaching" name="Products.Reportek.caching.weakCaching" />
+    <utility component=".operations.WeakCaching" name="Products.Reportek.caching.weakCaching" />
+
+    <adapter factory=".operations.ModerateCaching" name="Products.Reportek.caching.moderateCaching" />
+    <utility component=".operations.ModerateCaching" name="Products.Reportek.caching.moderateCaching" />
+
+
+    <!-- ILastModified adapters -->
+    <adapter factory=".lastmodified.PageTemplateDelegateLastModified" />
+    <adapter factory=".lastmodified.OFSFileLastModified" />
+    <adapter factory=".lastmodified.DCTimesLastModified" />
+    <adapter factory=".lastmodified.ResourceLastModified" />
+    <adapter factory=".lastmodified.BaseDeliveryLastModified" />
+    <adapter factory=".lastmodified.CollectionLastModified" />
+    <adapter factory=".lastmodified.FeedbackLastModified" />
+    <adapter factory=".lastmodified.DocumentLastModified" />
+
+    <!-- Purge paths definition -->
+    <adapter factory=".urls.ObjectViewPurgePaths" name="Products.Reportek.objectview" />
+
+    <!-- Need this because there are issues retrieving the REQUEST from plone.cachepurging hook -->
+    <subscriber handler=".urls.queuePurge" />
+
+</configure>
