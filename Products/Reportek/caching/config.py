@@ -6,7 +6,7 @@ from plone.registry import Record, field
 
 def get_bool_env(value):
     if value.lower() in ('true', 'yes', 'y', '1'):
-        value = True
+        return True
     return False
 
 # To be set via environment variables
