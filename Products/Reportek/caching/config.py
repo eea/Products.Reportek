@@ -3,12 +3,18 @@ import os
 from plone.caching.interfaces import ICacheSettings
 from plone.registry import Record, field
 
+
+def get_bool_env(value):
+    if value.lower() in ('true', 'yes', 'y', '1'):
+        value = True
+    return False
+
 # To be set via environment variables
-CACHE_SETTINGS_ENABLED = os.environ.get('CACHE_SETTINGS_ENABLED', False)
-CACHE_PURGING_ENABLED = os.environ.get('CACHE_PURGING_ENABLED', False)
+CACHE_SETTINGS_ENABLED = get_bool_env(os.environ.get('CACHE_SETTINGS_ENABLED', 'false'))
+CACHE_PURGING_ENABLED = get_bool_env(os.environ.get('CACHE_PURGING_ENABLED', 'false'))
 CACHE_PURGING_PROXY = os.environ.get('CACHE_PURGING_PROXY', '')
 CACHE_PURGING_PROXY_PORT = os.environ.get('CACHE_PURGING_PROXY_PORT', '')
-CACHE_PURGING_VHOST = os.environ.get('CACHE_PURGING_VHOST', False)
+CACHE_PURGING_VHOST = get_bool_env(os.environ.get('CACHE_PURGING_VHOST', 'false'))
 CACHE_PURGING_DOMAIN = os.environ.get('CACHE_PURGING_DOMAIN', '')
 
 CACHE_PROXY = (u"{}:{}".format(CACHE_PURGING_PROXY, CACHE_PURGING_PROXY_PORT),) if CACHE_PURGING_PROXY and CACHE_PURGING_PROXY_PORT else ()
