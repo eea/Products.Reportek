@@ -39,6 +39,11 @@
       ruleset="plone.contentTypes"
   />
 
+  <cache:ruleset
+      for=".interfaces.IWorkitem"
+      ruleset="plone.contentTypes"
+  />
+
   <browser:menu
     id="reportek_utilities"
     title="Reportek Utilities"

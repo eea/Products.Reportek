@@ -64,3 +64,8 @@ class IFeedback(Interface):
 class IReportekContent(Interface):
     """ Marker interface for Reportek Content-ish
     """
+
+
+class IWorkitem(Interface):
+    """ Marker interface for workitems
+    """

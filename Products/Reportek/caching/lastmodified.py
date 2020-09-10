@@ -6,7 +6,7 @@ from dateutil.tz import tzlocal
 from OFS.Image import File
 from Products.Reportek.interfaces import (IBaseDelivery, ICollection,
                                           IDocument, IFeedback, IReportekAPI,
-                                          IReportekUtilities)
+                                          IReportekUtilities, IWorkitem)
 from z3c.caching.interfaces import ILastModified
 from zope.browserresource.interfaces import IResource
 from zope.component import adapter
@@ -129,6 +129,20 @@ class CollectionLastModified(object):
 @implementer(ILastModified)
 @adapter(IDocument)
 class DocumentLastModified(object):
+    def __init__(self, context):
+        self.context = context
+
+    def __call__(self):
+        context = aq_base(self.context)
+        mtime = getattr(context, '_p_mtime', None)
+        if mtime is not None and mtime > 0:
+            return datetime.fromtimestamp(mtime, tzlocal())
+        return None
+
+
+@implementer(ILastModified)
+@adapter(IWorkitem)
+class WorkitemLastModified(object):
     def __init__(self, context):
         self.context = context
 

@@ -22,11 +22,14 @@
     <adapter factory=".lastmodified.CollectionLastModified" />
     <adapter factory=".lastmodified.FeedbackLastModified" />
     <adapter factory=".lastmodified.DocumentLastModified" />
+    <adapter factory=".lastmodified.WorkitemLastModified" />
 
     <!-- Purge paths definition -->
     <adapter factory=".urls.ObjectViewPurgePaths" name="Products.Reportek.objectview" />
 
     <!-- Need this because there are issues retrieving the REQUEST from plone.cachepurging hook -->
     <subscriber handler=".urls.queuePurge" />
+
+    <subscriber handler=".urls.purgeParent" />
 
 </configure>

@@ -2,8 +2,10 @@
 from plone.cachepurging.utils import getPathsToPurge, isCachePurgingEnabled
 from Products.Reportek.interfaces import IReportekContent
 from z3c.caching.interfaces import IPurgeEvent, IPurgePaths
+from z3c.caching.purge import Purge
 from zope.annotation.interfaces import IAnnotations
 from zope.component import adapter, adapts
+from zope.event import notify
 from zope.globalrequest import getRequest
 from zope.interface import implementer
 
@@ -48,3 +50,10 @@ class ObjectViewPurgePaths(object):
 
     def getAbsolutePaths(self):
         return []
+
+
+@adapter(IReportekContent, IPurgeEvent)
+def purgeParent(object, IPurgeEvent):
+    parent = object.__parent__
+    if parent is not None:
+        notify(Purge(parent))

@@ -1,16 +1,19 @@
+from time import time
+
 import constants
 from AccessControl import ClassSecurityInfo
 from DateTime import DateTime
-from time import time
-from OFS.SimpleItem import SimpleItem 
-from OFS.PropertyManager import PropertyManager
 from Globals import InitializeClass
+from OFS.PropertyManager import PropertyManager
+from OFS.SimpleItem import SimpleItem
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Products.ZCatalog.CatalogPathAwareness import CatalogAware
+from Products.Reportek.interfaces import IWorkitem
 from Products.Reportek.RepUtils import DFlowCatalogAware
+from Products.ZCatalog.CatalogPathAwareness import CatalogAware
+from zope.interface import implements
 
 
-class workitem(CatalogAware, SimpleItem, PropertyManager, DFlowCatalogAware):
+class workitem(CatalogAware, object, SimpleItem, PropertyManager, DFlowCatalogAware):
     """ describes a single workitem of the history graph """
 
     meta_type = 'Workitem'
@@ -19,6 +22,7 @@ class workitem(CatalogAware, SimpleItem, PropertyManager, DFlowCatalogAware):
     # in the rest of our class definition to make security
     # assertions.
     security = ClassSecurityInfo()
+    implements(IWorkitem)
 
     def __init__(self, id, instance_id, activity_id, blocked,
                  priority=0, workitems_from=[], workitems_to=[],

@@ -94,6 +94,11 @@
         <implements interface=".interfaces.IReportekContent" />
     </class>
 
+    <class class=".workitem.workitem">
+        <implements interface="z3c.caching.interfaces.IPurgeable" />
+        <implements interface=".interfaces.IReportekContent" />
+    </class>
+
     <subscriber for="ZPublisher.interfaces.IPubFailure"
             handler=".monitoring.log_pub_failure" />
 
