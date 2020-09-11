@@ -54,6 +54,9 @@ class ObjectViewPurgePaths(object):
 
 @adapter(IReportekContent, IPurgeEvent)
 def purgeParent(object, IPurgeEvent):
-    parent = object.__parent__
+    try:
+        parent = getattr(object, '__parent__', object.getParentNode())
+    except Exception:
+        parent = None
     if parent is not None:
         notify(Purge(parent))

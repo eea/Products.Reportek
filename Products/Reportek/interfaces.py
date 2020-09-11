@@ -69,3 +69,7 @@ class IReportekContent(Interface):
 class IWorkitem(Interface):
     """ Marker interface for workitems
     """
+    id = Attribute('id')
+    activity_id = Attribute('activity_id')
+    event_log = Attribute('event_log')
+    status = Attribute('status')

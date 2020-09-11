@@ -10,7 +10,9 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.interfaces import IWorkitem
 from Products.Reportek.RepUtils import DFlowCatalogAware
 from Products.ZCatalog.CatalogPathAwareness import CatalogAware
+from zope.event import notify
 from zope.interface import implements
+from zope.lifecycleevent import ObjectModifiedEvent
 
 
 class workitem(CatalogAware, object, SimpleItem, PropertyManager, DFlowCatalogAware):
@@ -166,6 +168,7 @@ class workitem(CatalogAware, object, SimpleItem, PropertyManager, DFlowCatalogAw
         """ """
         self.event_log.append({'event' : event, 'time' : DateTime(), 'comment': comment})
         self._p_changed=1
+        notify(ObjectModifiedEvent(self))
 
     security.declareProtected('View management screens', 'addEventOnTime')
     def addEventOnTime(self, event, p_time, comment=''):
