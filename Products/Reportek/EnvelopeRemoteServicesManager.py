@@ -391,6 +391,12 @@ class EnvelopeRemoteServicesManager:
             'companyId': self.company_id,
             'countrycode': self.getCountryCode(self.country) if getattr(self, 'country', '') else None
         }
+        if schema:
+            sch_files = self.getFilesForSchema(schema)
+            if sch_files:
+                attributes['file_id'] = sch_files[0].id
+                attributes['file_url'] = sch_files[0].absolute_url()
+
         form_url = self.get_webform_for_schema(schema).format(**attributes)
         if custom_params:
             return form_url.split('?')[0]
