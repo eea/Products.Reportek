@@ -2,6 +2,7 @@ from time import time
 
 import constants
 from AccessControl import ClassSecurityInfo
+from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
 from Globals import InitializeClass
 from OFS.PropertyManager import PropertyManager
@@ -13,6 +14,12 @@ from Products.ZCatalog.CatalogPathAwareness import CatalogAware
 from zope.event import notify
 from zope.interface import implements
 from zope.lifecycleevent import ObjectModifiedEvent
+
+
+def computed_attribute_decorator(level=0):
+    def computed_attribute_wrapper(func):
+        return ComputedAttribute(func, level)
+    return computed_attribute_wrapper
 
 
 class workitem(CatalogAware, object, SimpleItem, PropertyManager, DFlowCatalogAware):
@@ -279,6 +286,15 @@ class workitem(CatalogAware, object, SimpleItem, PropertyManager, DFlowCatalogAw
     @failure.setter
     def failure(self, value):
         self._failure = bool(value)
+
+    # ComputedAttributes needed in order to retrieve attributes from parent
+    @computed_attribute_decorator(level=1)
+    def reportingdate(self):
+        return getattr(self.getParentNode(), 'reportingdate')
+
+    @computed_attribute_decorator(level=1)
+    def dataflow_uris(self):
+        return getattr(self.getParentNode(), 'dataflow_uris')
 
 
 InitializeClass(workitem)

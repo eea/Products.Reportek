@@ -57,11 +57,6 @@ def registry_setup(registry):
     if settings.operationMapping is None: # initialise if not set already
         settings.operationMapping = {}
     settings.operationMapping['plone.contentTypes'] = 'Products.Reportek.caching.moderateCaching'
-    # registry_setup(registry)
-    # import transaction; transaction.commit()
-    # import pdb;pdb.set_trace()
-        # registry['plone.caching.operations.chain.plone.contentTypes.operations'] = \
-    # ['plone.caching.tests.maxage']
 
     # Turn on Cache Purging Settings
     registry['plone.cachepurging.interfaces.ICachePurgingSettings.enabled'] = CACHE_PURGING_ENABLED

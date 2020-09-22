@@ -65,6 +65,7 @@
     <include package="plone.caching" />
     <include package="plone.cachepurging" />
     <include package=".caching" />
+    <include package=".indexer" />
     
 
     <configure zcml:condition="installed zope.container">
@@ -85,6 +86,11 @@
     </class>
 
     <class class=".Envelope.Envelope">
+        <implements interface="z3c.caching.interfaces.IPurgeable" />
+        <implements interface=".interfaces.IReportekContent" />
+    </class>
+
+    <class class=".Feedback.ReportFeedback">
         <implements interface="z3c.caching.interfaces.IPurgeable" />
         <implements interface=".interfaces.IReportekContent" />
     </class>

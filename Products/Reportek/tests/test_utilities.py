@@ -1,22 +1,22 @@
+import os
+from datetime import date, timedelta
+
+import Products.Five
+import Products.GenericSetup
+import transaction
 from AccessControl.Permissions import view_management_screens
+from OFS.Folder import Folder
+from OFS.Image import manage_addFile
+from OFS.SimpleItem import SimpleItem
 from Products.Five import zcml
 from Products.Five.testbrowser import Browser
 from Products.PageTemplates.ZopePageTemplate import manage_addPageTemplate
 from Products.PythonScripts.PythonScript import manage_addPythonScript
-from Testing import ZopeTestCase as ztc
-import os
-import Products.Five
-import Products.GenericSetup
-import transaction
-
-from OFS.Folder import Folder
-from OFS.Image import manage_addFile
-from OFS.SimpleItem import SimpleItem
-from Products.Reportek import create_reportek_indexes, create_reportek_objects
-from Products.Reportek import constants
+from Products.Reportek import (constants, create_reportek_indexes,
+                               create_reportek_objects)
 from Products.Reportek.config import *
 from Products.Reportek.ReportekEngine import ReportekEngine
-from datetime import date, timedelta
+from Testing import ZopeTestCase as ztc
 
 ztc.installProduct('PluginIndexes')
 ztc.installProduct('PythonScripts')
