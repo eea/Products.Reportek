@@ -40,6 +40,7 @@ import Referral
 import RemoteApplication
 import RemoteFMEConversionApplication
 import RemoteRESTApplication
+import RemoteRestQaApplication
 import ReportekAPI
 import ReportekEngine
 import ReportekUtilities
@@ -389,6 +390,15 @@ def initialize(context):
            constructors = (
                 RemoteApplication.manage_addRemoteApplicationForm,
                 RemoteApplication.manage_addRemoteApplication),
+           icon = 'www/qa_application.gif'
+           )
+
+        context.registerClass(
+           RemoteRestQaApplication.RemoteRestQaApplication,
+           permission='Add Remote Application',
+           constructors = (
+                RemoteRestQaApplication.manage_addRemoteApplicationForm,
+                RemoteRestQaApplication.manage_addRemoteApplication),
            icon = 'www/qa_application.gif'
            )
 
