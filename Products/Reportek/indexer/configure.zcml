@@ -1,0 +1,7 @@
+<configure xmlns="http://namespaces.zope.org/zope">
+    <adapter factory=".indexers.dummy_released" name="released" />
+    <adapter factory=".indexers.envelope_released" name="released" />
+    <adapter factory=".indexers.dummy_activity_id" name="activity_id" />
+    <adapter factory=".indexers.fb_activity_id" name="activity_id" />
+    <adapter factory=".indexers.wk_activity_id" name="activity_id" />
+</configure>

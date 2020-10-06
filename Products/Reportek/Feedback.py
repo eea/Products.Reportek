@@ -31,32 +31,33 @@ Feedback objects are sub-objects of Report Envelopes.
 
 __version__='$Rev$'[6:-2]
 import os
-import tempfile
 import StringIO
-from os.path import join, isfile
+import tempfile
+from os.path import isfile, join
 
-# Zope imports
-from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate
-from Products.ZCatalog.CatalogAwareness import CatalogAware
-from Products.Reportek.interfaces import IFeedback
-from Products.Reportek.RepUtils import DFlowCatalogAware
-from Products.Reportek.RepUtils import parse_uri
+import RepUtils
+from AccessControl import ClassSecurityInfo, getSecurityManager
 from AccessControl.Permissions import view_management_screens
-from OFS.SimpleItem import SimpleItem
-from OFS.ObjectManager import ObjectManager
 from blob import add_OfsBlobFile
-from OFS.PropertyManager import PropertyManager
-from Globals import MessageDialog, InitializeClass
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from AccessControl import getSecurityManager, ClassSecurityInfo
+from Comment import CommentsManager
 #from webdav.WriteLockInterface import WriteLockInterface
 from DateTime import DateTime
-from zope.interface import implements
+from Globals import InitializeClass, MessageDialog
+from OFS.ObjectManager import ObjectManager
+from OFS.PropertyManager import PropertyManager
+from OFS.SimpleItem import SimpleItem
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+# Zope imports
+from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate
+from Products.Reportek import constants
 # Product specific imports
 from Products.Reportek.Document import Document
-from Comment import CommentsManager
-import RepUtils
-from Products.Reportek import constants
+from Products.Reportek.interfaces import IFeedback
+from Products.Reportek.RepUtils import DFlowCatalogAware, parse_uri
+from Products.ZCatalog.CatalogAwareness import CatalogAware
+from zope.event import notify
+from zope.interface import implements
+from zope.lifecycleevent import ObjectModifiedEvent
 
 manage_addFeedbackForm = PageTemplateFile('zpt/feedback/add', globals())
 
@@ -241,6 +242,7 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
                 self.manage_restrictFeedback()
             else:
                 self.manage_unrestrictFeedback()
+        notify(ObjectModifiedEvent(self))
         if REQUEST is not None:
             REQUEST.RESPONSE.redirect('index_html')
 

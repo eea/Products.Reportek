@@ -1,16 +1,28 @@
+from time import time
+
 import constants
 from AccessControl import ClassSecurityInfo
+from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
-from time import time
-from OFS.SimpleItem import SimpleItem 
-from OFS.PropertyManager import PropertyManager
 from Globals import InitializeClass
+from OFS.PropertyManager import PropertyManager
+from OFS.SimpleItem import SimpleItem
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Products.ZCatalog.CatalogPathAwareness import CatalogAware
+from Products.Reportek.interfaces import IWorkitem
 from Products.Reportek.RepUtils import DFlowCatalogAware
+from Products.ZCatalog.CatalogPathAwareness import CatalogAware
+from zope.event import notify
+from zope.interface import implements
+from zope.lifecycleevent import ObjectModifiedEvent
 
 
-class workitem(CatalogAware, SimpleItem, PropertyManager, DFlowCatalogAware):
+def computed_attribute_decorator(level=0):
+    def computed_attribute_wrapper(func):
+        return ComputedAttribute(func, level)
+    return computed_attribute_wrapper
+
+
+class workitem(CatalogAware, object, SimpleItem, PropertyManager, DFlowCatalogAware):
     """ describes a single workitem of the history graph """
 
     meta_type = 'Workitem'
@@ -19,6 +31,7 @@ class workitem(CatalogAware, SimpleItem, PropertyManager, DFlowCatalogAware):
     # in the rest of our class definition to make security
     # assertions.
     security = ClassSecurityInfo()
+    implements(IWorkitem)
 
     def __init__(self, id, instance_id, activity_id, blocked,
                  priority=0, workitems_from=[], workitems_to=[],
@@ -162,6 +175,7 @@ class workitem(CatalogAware, SimpleItem, PropertyManager, DFlowCatalogAware):
         """ """
         self.event_log.append({'event' : event, 'time' : DateTime(), 'comment': comment})
         self._p_changed=1
+        notify(ObjectModifiedEvent(self))
 
     security.declareProtected('View management screens', 'addEventOnTime')
     def addEventOnTime(self, event, p_time, comment=''):
@@ -272,6 +286,15 @@ class workitem(CatalogAware, SimpleItem, PropertyManager, DFlowCatalogAware):
     @failure.setter
     def failure(self, value):
         self._failure = bool(value)
+
+    # ComputedAttributes needed in order to retrieve attributes from parent
+    @computed_attribute_decorator(level=1)
+    def reportingdate(self):
+        return getattr(self.getParentNode(), 'reportingdate')
+
+    @computed_attribute_decorator(level=1)
+    def dataflow_uris(self):
+        return getattr(self.getParentNode(), 'dataflow_uris')
 
 
 InitializeClass(workitem)

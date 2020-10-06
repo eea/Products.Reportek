@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from DateTime import DateTime
 
+
 def handle_document_removed_event(obj, event):
     """Delete associated feedback objects when file is deleted"""
     fbs_id = [fb.getId() for fb in obj.getFeedbacksForDocument()]

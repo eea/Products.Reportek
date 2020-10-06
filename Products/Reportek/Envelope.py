@@ -80,7 +80,9 @@ from Products.Reportek.RepUtils import (DFlowCatalogAware, get_zip_cache,
 from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION
 from zExceptions import Forbidden
 from zipstream import ZIP_DEFLATED, ZipFile
+from zope.event import notify
 from zope.interface import implements
+from zope.lifecycleevent import ObjectModifiedEvent
 from ZPublisher.Iterators import filestream_iterator
 
 logger = logging.getLogger("Reportek")
@@ -393,6 +395,9 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         else:
             return False
 
+    def uns_notifications_are_on(self):
+        return bool(os.environ.get('UNS_NOTIFICATIONS', 'off') == 'on')
+
     def has_blocker_feedback(self, REQUEST=None):
         """ web callable version of is_blocked """
         return self.is_blocked
@@ -669,6 +674,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             # update ZCatalog
             self.reindex_object()
             self._invalidate_zip_cache()
+            notify(ObjectModifiedEvent(self))
         if self.REQUEST is not None:
             return self.messageDialog(
                             message="The envelope has now been released to the public!",
@@ -694,6 +700,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             self.reindex_object()
             transaction.commit()
             logger.debug("UNReleasing Envelope: %s" % self.absolute_url())
+            notify(ObjectModifiedEvent(self))
         if self.REQUEST is not None:
             return self.messageDialog(
                             message="The envelope is no longer available to the public!",
@@ -756,6 +763,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         self.descr=descr
         # update ZCatalog
         self.reindex_object()
+        notify(ObjectModifiedEvent(self))
         if REQUEST is not None:
             return self.messageDialog(
                             message="The properties of %s have been changed!" % self.id,
@@ -787,6 +795,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             self.descr=descr
         # update ZCatalog
         self.reindex_object()
+        notify(ObjectModifiedEvent(self))
         if REQUEST is not None:
             return self.messageDialog(
                             message="The properties of %s have been changed!" % self.id,

@@ -56,7 +56,7 @@ except:
 logger = logging.getLogger("Reportek")
 
 
-class EnvelopeInstance(CatalogAware, Folder):
+class EnvelopeInstance(CatalogAware, Folder, object):
     """ The Envelope class subclasses from EnvelopeInstance which implements the workflow operations
         Each envelope follows a certain workflow process established at creation time.
     """

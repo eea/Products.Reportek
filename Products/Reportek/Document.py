@@ -22,41 +22,41 @@
 
 __version__ = '$Rev$'[6:-2]
 
-from ZPublisher.HTTPRequest import FileUpload
-from AccessControl import getSecurityManager, ClassSecurityInfo
-from DateTime import DateTime
-from Globals import package_home
-from OFS.SimpleItem import SimpleItem
-from os.path import join
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Products.ZCatalog.CatalogAwareness import CatalogAware
-from Products.Reportek.RepUtils import DFlowCatalogAware
-from Products.Reportek.RepUtils import parse_uri
-from time import time
-from StringIO import StringIO
-from webdav.common import rfc1123_date
-from zExceptions import Redirect
-from zope.contenttype import guess_content_type
-from zope.interface import implements
-import Globals
-import IconShow
 import hashlib
 import io
 import json
 import logging
 import os
-import requests
 import string
-import transaction
+from os.path import join
+from StringIO import StringIO
+from time import time
 
+import Globals
+import IconShow
+import RepUtils
+import requests
+import transaction
+from AccessControl import ClassSecurityInfo, getSecurityManager
 # Product imports
 from blob import FileContainer, StorageError
-from constants import QAREPOSITORY_ID, ENGINE_ID
+from constants import ENGINE_ID, QAREPOSITORY_ID
+from DateTime import DateTime
+from Globals import package_home
 from interfaces import IDocument
-from XMLInfoParser import detect_schema, SchemaError
+from OFS.SimpleItem import SimpleItem
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek.RepUtils import DFlowCatalogAware, parse_uri
+from Products.ZCatalog.CatalogAwareness import CatalogAware
+from webdav.common import rfc1123_date
+from XMLInfoParser import SchemaError, detect_schema
+from zExceptions import Redirect
 from zip_content import ZZipFile, ZZipFileRaw
-import RepUtils
-
+from zope.contenttype import guess_content_type
+from zope.event import notify
+from zope.interface import implements
+from zope.lifecycleevent import ObjectModifiedEvent
+from ZPublisher.HTTPRequest import FileUpload
 
 FLAT = 0
 SYNC_ZODB = 1
@@ -563,10 +563,10 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         if self.canChangeEnvelope() and not self.get_accept_time() and not self.released: editable = 'editable'
         else: editable = ''
         return """<script language="javascript" type="text/javascript">
-	<!--
-	var absolute_url = '%s', country_code = '%s', editable = '%s';
-	// -->
-	</script>""" % (self.absolute_url(), self.getParentNode().getCountryCode(), editable)
+    <!--
+    var absolute_url = '%s', country_code = '%s', editable = '%s';
+    // -->
+    </script>""" % (self.absolute_url(), self.getParentNode().getCountryCode(), editable)
 
     security.declareProtected('Change Envelopes', 'manage_restrictDocument')
     def manage_restrictDocument(self, REQUEST=None):
@@ -641,6 +641,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                 else:
                     self.manage_unrestrictDocument()
         self.reindex_object()  # update ZCatalog
+        notify(ObjectModifiedEvent(self))
         if REQUEST is not None:
             return self.messageDialog(
                             message="The properties of %s have been changed!" % self.id,

@@ -1,7 +1,48 @@
 <configure
   xmlns="http://namespaces.zope.org/zope"
   xmlns:browser="http://namespaces.zope.org/browser"
-  xmlns:five="http://namespaces.zope.org/five">
+  xmlns:five="http://namespaces.zope.org/five"
+  xmlns:cache="http://namespaces.zope.org/cache">
+
+  <include package="z3c.caching" file="meta.zcml" />
+
+  <cache:ruleset
+    for=".interfaces.IReportekUtilities"
+    ruleset="plone.contentTypes"
+  />
+  <cache:ruleset
+      for=".interfaces.IBaseDelivery"
+      ruleset="plone.contentTypes"
+  />
+  <cache:ruleset
+      for=".interfaces.IReportekEngine"
+      ruleset="plone.contentTypes"
+  />
+
+  <cache:ruleset
+      for="zope.pagetemplate.interfaces.IPageTemplate"
+      ruleset="plone.contentTypes"
+  />
+
+  <cache:ruleset
+      for=".interfaces.IFeedback"
+      ruleset="plone.contentTypes"
+  />
+
+  <cache:ruleset
+      for=".interfaces.ICollection"
+      ruleset="plone.contentTypes"
+  />
+
+  <cache:ruleset
+      for=".interfaces.IDocument"
+      ruleset="plone.contentTypes"
+  />
+
+  <cache:ruleset
+      for=".interfaces.IWorkitem"
+      ruleset="plone.contentTypes"
+  />
 
   <browser:menu
     id="reportek_utilities"

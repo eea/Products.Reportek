@@ -8,7 +8,7 @@ from interfaces import IRegistryManagement
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
 from plone.memoize import ram
-from Products.Reportek.constants import DF_URL_PREFIX
+from Products.Reportek.constants import DF_URL_PREFIX, ENGINE_ID
 from requests.exceptions import RequestException
 from zope.interface import implementer
 
@@ -423,66 +423,12 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
 class BDRRegistryAPI(BaseRegistryAPI):
 
-    def do_login(self):
-        """ Login to BDR Registry. Credentials come from
-            ReportekEngine properties
-        """
-        url = self.baseUrl + '/accounts/login'
-
-        client = requests.session()
-        csrf = None
-        try:
-            csrf = client.get(url).cookies.get('csrftoken')
-        except RequestException as e:
-            logger.warning("Unable to retrieve csrf: %s" % str(e))
-
-        engine = self.getEngine()
-
-        data = {
-            'username': getattr(engine, 'bdr_registry_username', ''),
-            'password': getattr(engine, 'bdr_registry_password', ''),
-            'csrfmiddlewaretoken': csrf,
-            'next': '/'
-        }
-        try:
-            resp = client.post(url, data=data, headers=dict(Referer=url))
-        except RequestException as e:
-            logger.warning("Unable to login to BDRRegistry: %s" % str(e))
-            return None
-
-        if resp:
-            if resp.status_code == 200:
-                # I see no other way of getting the sessionid
-                cookies = resp.request.headers.get('Cookie').split(';')
-                for cookie in cookies:
-                    cookie = cookie.strip()
-                    session = cookie.split('sessionid=')
-                    if len(session) == 2:
-                        sessionid = session[-1]
-                        self.cookies = dict(sessionid=sessionid)
-                        return self.cookies
-
-
-    def do_api_request(self, url, method='get', data=None, cookies=None, headers=None, params=None):
-        """ Do login to BDR Registry before api calls
-        """
-        if not cookies:
-            cookies = self.do_login()
-
-        return super(BDRRegistryAPI, self).do_api_request(url,
-                                                          method=method,
-                                                          data=data,
-                                                          cookies=cookies,
-                                                          headers=headers,
-                                                          params=params
-                                                          )
-
     def get_registry_companies(self):
         """ Get the list of companies from the Registry
         """
         url = self.baseUrl + '/management/companies/export/json'
 
-        response = self.do_api_request(url)
+        response = self.do_api_request(url, headers={'Authorization': self.bdr_registry_token})
         if response:
             return response.json()
 
@@ -491,7 +437,34 @@ class BDRRegistryAPI(BaseRegistryAPI):
         """ Get company details from Registry
         """
         url = self.baseUrl + '/management/companies/account/{0}'.format(company_id)
-        response = self.do_api_request(url)
+        response = self.do_api_request(url, headers={'Authorization': self.bdr_registry_token})
 
         if response:
             return response.json()
+
+    @ram.cache(lambda *args, **kwargs: args[2] + str(time() // (10 * 60)))
+    def get_user_details(self, username):
+        """Get details for username"""
+        url = self.baseUrl + '/management/username/companies/'
+        params = {
+            "username": username
+        }
+        response = self.do_api_request(url, params=params, headers={'Authorization': self.bdr_registry_token})
+        # [{"company_name": "test company hdv Diana", "reporting_folder": "", "has_reporting_folder": false, "registry_url": "https://bdr-test.eionet.europa.eu/registry/company/55"}]
+        if response and response.status_code == requests.codes.ok:
+            return response.json()
+        return []
+
+    def getCollectionPaths(self, username):
+        """ Get collections accessible by the user """
+        usr_details = self.get_user_details(username)
+        rep_paths = {
+            'paths': [],
+            'prev_paths': []
+        }
+        if usr_details:
+            for res in usr_details:
+                if res.get('has_reporting_folder'):
+                    rep_paths['paths'].append(res.get('reporting_folder'))
+
+        return rep_paths

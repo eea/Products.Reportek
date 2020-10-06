@@ -60,6 +60,7 @@ from interfaces import IReportekEngine
 from OFS.Folder import Folder
 from paginator import DiggPaginator, EmptyPage, InvalidPage
 from path import path
+from plone.memoize import ram
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BdrAuthorizationMiddleware import \
     BdrAuthorizationMiddleware
@@ -133,8 +134,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         cr_api_url = ''
     auth_middleware_url = ''
     bdr_registry_url = ''
-    bdr_registry_username = ''
-    bdr_registry_password = ''
+    bdr_registry_token=''
     bdr_registry_obligations = []
     er_fgas_obligations = []
     er_ods_obligations = []
@@ -279,14 +279,17 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             self.auth_middleware_recheck_interval = int(self.REQUEST.get('auth_middleware_recheck_interval', self.auth_middleware_recheck_interval))
             self.authMiddleware.setServiceRecheckInterval(self.auth_middleware_recheck_interval)
         self.bdr_registry_url = self.REQUEST.get('bdr_registry_url', self.bdr_registry_url)
-        self.bdr_registry_username = self.REQUEST.get('bdr_registry_username', self.bdr_registry_username)
-        self.bdr_registry_password = self.REQUEST.get('bdr_registry_password', self.bdr_registry_password)
+        self.bdr_registry_token = self.REQUEST.get('bdr_registry_token', self.bdr_registry_token)
         self.bdr_registry_obligations = self.REQUEST.get('bdr_registry_obligations', self.bdr_registry_obligations)
         self.er_url = self.REQUEST.get('er_url', self.er_url)
         self.er_token = self.REQUEST.get('er_token', self.er_token)
         self.er_fgas_obligations = self.REQUEST.get('er_fgas_obligations', self.er_fgas_obligations)
         self.er_ods_obligations = self.REQUEST.get('er_ods_obligations', self.er_ods_obligations)
         xls_max_rows = self.REQUEST.get('xls_max_rows', self.XLS_max_rows)
+        try:
+            self.rdf_export_envs_age = int(self.REQUEST.get('rdf_export_envs_age', None))
+        except ValueError:
+            self.rdf_export_envs_age = None
 
         try:
             xls_max_rows = int(xls_max_rows)
@@ -542,6 +545,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         security.declareProtected('Audit Envelopes', 'searchfeedbacks')
         security.declareProtected('Audit Envelopes', 'resultsfeedbacks')
         security.declareProtected('Audit Envelopes', 'recent')
+        security.declareProtected('Audit Envelopes', 'recent_released')
         security.declareProtected('Audit Envelopes', 'searchxml')
         security.declareProtected('Audit Envelopes', 'resultsxml')
         security.declareProtected('Audit Envelopes', 'search_dataflow')
@@ -555,6 +559,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         security.declareProtected('View', 'searchfeedbacks')
         security.declareProtected('View', 'resultsfeedbacks')
         security.declareProtected('View', 'recent')
+        security.declareProtected('View', 'recent_released')
         security.declareProtected('View', 'searchxml')
         security.declareProtected('View', 'resultsxml')
         security.declareProtected('View', 'search_dataflow')
@@ -568,6 +573,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     searchfeedbacks = PageTemplateFile('zpt/engineSearchFeedbacks', globals())
     resultsfeedbacks = PageTemplateFile('zpt/engineResultsFeedbacks', globals())
     recent = PageTemplateFile('zpt/engineRecentUploads', globals())
+    recent_released = PageTemplateFile('zpt/engineRecentReleased', globals())
     searchxml = PageTemplateFile('zpt/engineSearchXml', globals())
     resultsxml = PageTemplateFile('zpt/engineResultsXml', globals())
 
@@ -1402,26 +1408,50 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 'rw': [],
                 'ro': []
             }
+
+            def get_colls(paths):
+                """Paths is a dictionary {'paths': [], 'prev_paths': []}"""
+                acc_paths = list(set(paths.get('paths') + paths.get('prev_paths')))
+                colls = {
+                    'rw': [],
+                    'ro': []
+                }
+                for colPath in acc_paths:
+                    path = str(colPath) if colPath.startswith('/') else '/{}'.format(str(colPath))
+                    try:
+                        if colPath in paths.get('paths'):
+                            colls['rw'].append(self.unrestrictedTraverse(path))
+                        else:
+                            colls['ro'].append(self.unrestrictedTraverse(path))
+                    except:
+                        logger.warning("Cannot traverse path: %s" % (path))
+
+                return colls
+
             logger.debug("Attempt to interrogate middleware for authorizations for user:id %s:%s" % (username, ecas_user_id))
             if ecas_user_id:
                 user_paths = self.authMiddleware.getUserCollectionPaths(ecas_user_id,
                             recheck_interval=self.authMiddleware.recheck_interval)
-                acc_paths = list(set(user_paths.get('paths') + user_paths.get('prev_paths')))
-
-                for colPath in acc_paths:
-                    try:
-                        if colPath in user_paths.get('paths'):
-                            middleware_collections['rw'].append(self.unrestrictedTraverse('/'+str(colPath)))
-                        else:
-                            middleware_collections['ro'].append(self.unrestrictedTraverse('/'+str(colPath)))
-                    except:
-                        logger.warning("Cannot traverse path: %s" % ('/'+str(colPath)))
+                colls = get_colls(user_paths)
+                middleware_collections['rw'] += [col for col in colls.get('rw')
+                                                 if col not in middleware_collections['rw']]
+                middleware_collections['ro'] += [col for col in colls.get('ro')
+                                                 if col not in middleware_collections['ro']]
             catalog = getattr(self, constants.DEFAULT_CATALOG)
 
-            middleware_collections['rw'] += [ br.getObject() for br in catalog(id=username) ]
+            middleware_collections['rw'] += [ br.getObject() for br in catalog(id=username)
+                                            if not br.getObject() in middleware_collections['rw']]
+
+            # check BDR registry
+            user_paths = self.BDRRegistryAPI.getCollectionPaths(username)
+            colls = get_colls(user_paths)
+            middleware_collections['rw'] += [col for col in colls.get('rw')
+                                             if col not in middleware_collections['rw']]
+            middleware_collections['ro'] += [col for col in colls.get('ro')
+                                             if col not in middleware_collections['ro']]
 
             collections['Reporter'] = middleware_collections
-            local_roles = ['Auditor', 'ClientFG', 'ClientODS', 'ClientCARS']
+            local_roles = ['Auditor', 'ClientFG', 'ClientODS', 'ClientCARS', 'ClientHDV']
             local_r_col = catalog(meta_type='Report Collection',
                                   local_unique_roles=local_roles)
 
@@ -1430,7 +1460,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                        and len(br.getPath().split('/')) == 3]
 
             def is_client(l_roles):
-                c_roles = ['ClientFG', 'ClientODS', 'ClientCARS']
+                c_roles = ['ClientFG', 'ClientODS', 'ClientCARS', 'ClientHDV']
                 return [role for role in l_roles if role in c_roles]
 
             client = [br.getObject() for br in local_r_col
@@ -1540,6 +1570,14 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         finally:
             # Restore the old security manager
             setSecurityManager(sm)
+
+    @ram.cache(lambda *args: time() // (60 * 60 * 12)) #  12 hours
+    def get_main_cols(self):
+        root = self.getPhysicalRoot()
+        collections = root.objectValues('Report Collection')
+        collections.sort(key=lambda x: x.title_or_id().lower())
+
+        return collections
 
 
 Globals.InitializeClass(ReportekEngine)

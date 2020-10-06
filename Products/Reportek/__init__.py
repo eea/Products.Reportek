@@ -26,6 +26,7 @@ __version__ = '$Rev$'[6:-2]
 import logging
 from traceback import format_exception_only
 from config import *
+
 import Collection
 import constants
 import Converter
@@ -39,6 +40,7 @@ import Referral
 import RemoteApplication
 import RemoteFMEConversionApplication
 import RemoteRESTApplication
+import RemoteRestQaApplication
 import ReportekAPI
 import ReportekEngine
 import ReportekUtilities
@@ -46,13 +48,17 @@ import ReportekUtilities
 import Zope2
 from AccessControl.Permissions import manage_users as ManageUsers
 from App.ImageFile import ImageFile
+from plone.registry.interfaces import IRegistry
 from Products.PluggableAuthService.PluggableAuthService import \
     registerMultiPlugin
+from Products.Reportek.caching.config import registry_setup
 from Products.Reportek.ReportekUserFactoryPlugin import (
     ReportekUserFactoryPlugin, addReportekUserFactoryPlugin,
     manage_addReportekUserFactoryPluginForm)
 from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCTextIndex.ZCTextIndex import PLexicon
+from registry import Registry
+from zope.component import getGlobalSiteManager, getUtility
 from zope.i18nmessageid import MessageFactory
 
 logger = logging.getLogger("Reportek")
@@ -157,6 +163,23 @@ def create_reportek_objects(app):
                                         constants.REGISTRY_MANAGEMENT,
                                         'FGases registry')
             app._setObject(constants.REGISTRY_MANAGEMENT, registry_management)
+
+    #Add portal_registry
+    try:
+        portal_registry = getattr(app, constants.REGISTRY)
+    except AttributeError:
+        portal_registry = Registry(constants.REGISTRY, 'Portal Registry')
+        app._setObject(constants.REGISTRY, portal_registry)
+
+    # Register the named utility
+    gsm = getGlobalSiteManager()
+    # gsm.registerUtility(portal_registry, IRegistry, name=constants.REGISTRY)
+    gsm.registerUtility(portal_registry, IRegistry)
+
+    registry = getUtility(IRegistry)
+    # setup registry for caching purposes
+    registry_setup(registry)
+
 
 def _strip_protocol_domain(full_url):
     """ Take a full url and return a tuple of path part and protocol+domain part."""
@@ -367,6 +390,15 @@ def initialize(context):
            constructors = (
                 RemoteApplication.manage_addRemoteApplicationForm,
                 RemoteApplication.manage_addRemoteApplication),
+           icon = 'www/qa_application.gif'
+           )
+
+        context.registerClass(
+           RemoteRestQaApplication.RemoteRestQaApplication,
+           permission='Add Remote Application',
+           constructors = (
+                RemoteRestQaApplication.manage_addRemoteApplicationForm,
+                RemoteRestQaApplication.manage_addRemoteApplication),
            icon = 'www/qa_application.gif'
            )
 

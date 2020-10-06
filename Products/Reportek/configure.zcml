@@ -62,6 +62,11 @@
     <include file="views.zcml" />
     <include package=".patches" />
     <include package=".api" />
+    <include package="plone.caching" />
+    <include package="plone.cachepurging" />
+    <include package=".caching" />
+    <include package=".indexer" />
+    
 
     <configure zcml:condition="installed zope.container">
         <subscriber for="Products.Reportek.interfaces.IEnvelope
@@ -74,6 +79,31 @@
                         zope.app.container.interfaces.IObjectMovedEvent"
                 handler="Products.Reportek.Envelope.movedEnvelope" />
     </configure>
+
+    <class class=".Collection.Collection">
+        <implements interface="z3c.caching.interfaces.IPurgeable" />
+        <implements interface=".interfaces.IReportekContent" />
+    </class>
+
+    <class class=".Envelope.Envelope">
+        <implements interface="z3c.caching.interfaces.IPurgeable" />
+        <implements interface=".interfaces.IReportekContent" />
+    </class>
+
+    <class class=".Feedback.ReportFeedback">
+        <implements interface="z3c.caching.interfaces.IPurgeable" />
+        <implements interface=".interfaces.IReportekContent" />
+    </class>
+
+    <class class=".Document.Document">
+        <implements interface="z3c.caching.interfaces.IPurgeable" />
+        <implements interface=".interfaces.IReportekContent" />
+    </class>
+
+    <class class=".workitem.workitem">
+        <implements interface="z3c.caching.interfaces.IPurgeable" />
+        <implements interface=".interfaces.IReportekContent" />
+    </class>
 
     <subscriber for="ZPublisher.interfaces.IPubFailure"
             handler=".monitoring.log_pub_failure" />
@@ -94,5 +124,18 @@
             handler="Products.Reportek.subscribers.handle_feedback_added_event" />
 
     <i18n:registerTranslations directory="locales" />
+
+    <five:registerClass
+        class=".registry.Registry"
+        meta_type="Plone Configuration Registry"
+        permission="zope2.ViewManagementScreens"
+        />
+
+    <class class=".registry.Registry">
+        <require
+            permission="zope2.ViewManagementScreens"
+            interface="plone.registry.interfaces.IRegistry"
+            />
+    </class>
 
 </configure>

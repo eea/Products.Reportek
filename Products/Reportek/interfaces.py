@@ -1,4 +1,4 @@
-from zope.interface import Interface, Attribute
+from zope.interface import Attribute, Interface
 
 
 class IDocument(Interface):
@@ -7,6 +7,10 @@ class IDocument(Interface):
     title = Attribute('title')
     content_type = Attribute('content_type')
     xml_schema_location = Attribute('needed for XML files')
+
+
+class ICollection(Interface):
+    """ Reportek Collection marker interface"""
 
 
 class IBaseDelivery(Interface):
@@ -51,6 +55,21 @@ class IProcess(Interface):
     """ Process marker interface
     """
 
+
 class IFeedback(Interface):
     """ Feedback marker interface
     """
+
+
+class IReportekContent(Interface):
+    """ Marker interface for Reportek Content-ish
+    """
+
+
+class IWorkitem(Interface):
+    """ Marker interface for workitems
+    """
+    id = Attribute('id')
+    activity_id = Attribute('activity_id')
+    event_log = Attribute('event_log')
+    status = Attribute('status')
