@@ -703,8 +703,8 @@ class RemoteApplication(SimpleItem):
     def delete_job(self, job_id, workitem_id):
         """ Make a request to delete the job """
         # https://converters-staging.eionet.europa.eu/restapi/asynctasks/qajobs/delete/{jobId}
-        url = "{}/{}/".format(self.RemoteServer.split('/RpcRouter')[0],
-                              '/restapi/asynctasks/qajobs/delete',
+        url = "{}/{}/{}".format(self.RemoteServer.split('/RpcRouter')[0],
+                              'restapi/asynctasks/qajobs/delete',
                               job_id)
         l_workitem = getattr(self, workitem_id)
 
