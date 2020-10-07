@@ -678,7 +678,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                         if res.status_code == 204:
                             workitem.addEvent('FME job id: {} deleted successfully'.format(job_id))
                         else:
-                            workitem.addEvent('FME job id: {} delete failed'.format(job_id))
+                            workitem.addEvent('FME job id: {} delete failed: {}'.format(job_id, res.status_code))
                     except Exception as e:
                         workitem.addEvent('FME job id: {} delete failed: {}'.format(job_id, str(e)))
                 elif fme_status in running:
@@ -690,7 +690,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                         if res.status_code == 204:
                             workitem.addEvent('FME job id: {} deleted successfully'.format(job_id))
                         else:
-                            workitem.addEvent('FME job id: {} delete failed'.format(job_id))
+                            workitem.addEvent('FME job id: {} delete failed: {}'.format(job_id. res.status_code))
                     except Exception as e:
                         workitem.addEvent('FME job id: {} delete failed: {}'.format(job_id, str(e)))
         except Exception as e:
