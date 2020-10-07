@@ -407,6 +407,5 @@ class EnvelopeRemoteServicesManager:
         return self.getEngine().webq_envelope_menu
 
 
-
 # Initialize the class in order the security assertions be taken into account
 InitializeClass(EnvelopeRemoteServicesManager)
