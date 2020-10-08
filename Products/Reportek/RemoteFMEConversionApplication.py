@@ -682,7 +682,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                     except Exception as e:
                         workitem.addEvent('FME job id: {} delete failed: {}'.format(job_id, str(e)))
                 elif fme_status in running:
-                    running_endpoint = '/fmerest/v3/transformations/jobs/queued'
+                    running_endpoint = '/fmerest/v3/transformations/jobs/running'
                     url = '/'.join([self.FMEServer, running_endpoint, str(job_id)])
                     try:
                         res = requests.delete(url,
