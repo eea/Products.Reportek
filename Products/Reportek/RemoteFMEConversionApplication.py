@@ -660,6 +660,7 @@ class RemoteFMEConversionApplication(SimpleItem):
             if res.status_code == 204:
                 workitem.addEvent('FME job id: {} deleted successfully'.format(job_id))
             else:
+                running_endpoint = '/fmerest/v3/transformations/jobs/running'
                 url = '/'.join([self.FMEServer, running_endpoint, str(job_id)])
                 res = requests.delete(url,
                                       headers=self.get_headers(workitem_id))
