@@ -22,6 +22,10 @@
 	<td><input type="text" name="RemoteService" id="RemoteService" size="40" /></td>
 </tr>
 <tr>
+	<th><label for="token">JWT Token (used for job cancelation)</label></th>
+	<td><input type="text" name="token" id="token" size="40" /></td>
+</tr>
+<tr>
 	<th><label for="app_name">Activity ID</label></th>
 	<td><input type="text" name="app_name" id="app_name" size="40" /></td>
 </tr>

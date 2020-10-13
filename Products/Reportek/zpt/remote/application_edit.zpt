@@ -23,6 +23,10 @@
         <td colspan="2"><input type="text" name="RemoteService" id="RemoteService" tal:attributes="value here/RemoteService" size="40" /></td>
     </tr>
     <tr>
+        <th align="left"><label for="token">JWT Token (used for job cancelation)</label></th>
+        <td colspan="2"><input type="text" name="token" id="token" tal:attributes="value here/token|nothing" size="40" /></td>
+    </tr>
+    <tr>
         <th align="left"><label for="app_name">Activity ID</label></th>
         <td colspan="2"><input type="text" name="app_name" id="app_name" tal:attributes="value here/app_name" size="40" /></td>
     </tr>

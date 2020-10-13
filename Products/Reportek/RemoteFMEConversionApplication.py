@@ -647,6 +647,32 @@ class RemoteFMEConversionApplication(SimpleItem):
                 envelope.manage_delObjects([doc.getId()])
                 # Get the file, post if as attachment and delete it afterwards
 
+    def delete_job(self, job_id, workitem_id):
+        """ Make a request to delete the job """
+        # Get the status of the job with GET:
+        # /fmerest/v3/transformations/jobs/id/<job_id>
+        workitem = getattr(self, workitem_id)
+        queued_endpoint = 'fmerest/v3/transformations/jobs/queued'
+        url = '/'.join([self.FMEServer, queued_endpoint, str(job_id)])
+        try:
+            res = requests.delete(url,
+                                  headers=self.get_headers(workitem_id))
+            if res.status_code == 204:
+                workitem.addEvent('FME job id: {} deleted successfully'.format(job_id))
+            else:
+                running_endpoint = 'fmerest/v3/transformations/jobs/running'
+                url = '/'.join([self.FMEServer, running_endpoint, str(job_id)])
+                res = requests.delete(url,
+                                      headers=self.get_headers(workitem_id))
+                if res.status_code == 204:
+                    workitem.addEvent('FME job id: {} deleted successfully'.format(job_id))
+                else:
+                    workitem.addEvent('FME job id: {} delete failed: {}'.format(job_id, res.status_code))
+        except Exception as e:
+            workitem.addEvent('FME job id: {} delete failed: {}'.format(job_id, str(e)))
+
+        self.__finish(workitem_id)
+
     def __finish(self, workitem_id, REQUEST=None):
         """ Completes the workitem and forwards it """
         self.activateWorkitem(workitem_id, actor='openflow_engine')

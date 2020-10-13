@@ -901,4 +901,28 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         if activity:
             return activity.activity_id
 
+    security.declareProtected('Use OpenFlow', 'cancel_activity')
+    def cancel_activity(self, workitem_id, actor=None, REQUEST=None):
+        """Cancel the current activity"""
+        wk = getattr(self, workitem_id)
+        if wk.activity_id.startswith('Automatic'):
+            qa_prop = getattr(wk, "AutomaticQA")
+            if qa_prop:
+                jobs = qa_prop.get('getResult', {})
+                app_url = self.getApplicationUrl(wk.id)
+                app = self.unrestrictedTraverse(app_url)
+                for job in jobs.keys():
+                    app.delete_job(job, workitem_id)
+        elif wk.activity_id.startswith('FMEConversion'):
+            fme_prop = getattr(wk, 'FMEConversion')
+            if fme_prop:
+                jobs = fme_prop.get('results', {})
+                app_url = self.getApplicationUrl(wk.id)
+                app = self.unrestrictedTraverse(app_url)
+                for job in jobs:
+                    app.delete_job(job, workitem_id)
+        self.falloutWorkitem(workitem_id)
+        self.fallinWorkitem(workitem_id=workitem_id, activity_id='Draft')
+        self.endFallinWorkitem(workitem_id=workitem_id)
+
 InitializeClass(EnvelopeInstance)

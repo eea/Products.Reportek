@@ -27,6 +27,7 @@ import tempfile
 import urllib
 import xmlrpclib
 
+import requests
 import transaction
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
@@ -101,7 +102,7 @@ class RemoteApplication(SimpleItem):
 
     def __init__(self, id, title, RemoteServer, RemoteService, app_name,
                  nRetries=5, nJobRetries=5, retryFrequency=300,
-                 retryJobFrequency=300):
+                 retryJobFrequency=300, token=None):
         """ Initialize a new instance of Document """
         self.id = id
         self.title = title
@@ -112,14 +113,16 @@ class RemoteApplication(SimpleItem):
         self.nJobRetries = nJobRetries                      # integer
         self.retryFrequency = retryFrequency                # integer - seconds
         self.retryJobFrequency = retryJobFrequency          # integer - seconds
+        self.token = token
 
-    def manage_settings(self, title, RemoteServer, RemoteService, app_name,
-                        nRetries, nJobRetries, retryFrequency,
+    def manage_settings(self, title, RemoteServer, RemoteService, token,
+                        app_name, nRetries, nJobRetries, retryFrequency,
                         retryJobFrequency):
         """ Change properties of the QA Application """
         self.title = title
         self.RemoteServer = RemoteServer
         self.RemoteService = RemoteService
+        self.token = token
         self.nRetries = nRetries
         self.nJobRetries = nJobRetries
         self.app_name = app_name
@@ -696,5 +699,23 @@ class RemoteApplication(SimpleItem):
     security.declareProtected(view_management_screens, 'manage_settings_html')
     manage_settings_html = PageTemplateFile('zpt/remote/application_edit',
                                             globals())
+
+    def delete_job(self, job_id, workitem_id):
+        """ Make a request to delete the job """
+        url = "{}/{}/{}".format(self.RemoteServer.split('/RpcRouter')[0],
+                                'restapi/asynctasks/qajobs/delete',
+                                job_id)
+        l_workitem = getattr(self, workitem_id)
+
+        try:
+            res = requests.post(url, headers={'Authorization': self.token},
+                                verify=False)
+            message = res.json().get('message')
+            l_workitem.addEvent('#{} job cancelation triggered - {}: {}'.format(job_id,
+                                                                   res.status_code,
+                                                                   message))
+        except Exception as e:
+            l_workitem.addEvent('#{} job cancelation failed with: {}: {}.'.format(job_id, res.status_code, str(e)))
+
 
 InitializeClass(RemoteApplication)
