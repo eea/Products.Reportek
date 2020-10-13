@@ -21,15 +21,16 @@
 # RemoteApplication
 #
 
+import json
 import logging
 import string
 import tempfile
 import urllib
 import xmlrpclib
+
 import requests
-import json
-import transaction
 import requests.exceptions
+import transaction
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from DateTime import DateTime
@@ -679,5 +680,20 @@ class RemoteRestQaApplication(SimpleItem):
     security.declareProtected(view_management_screens, 'manage_settings_html')
     manage_settings_html = PageTemplateFile('zpt/remote/application_edit_rest_qa',
                                             globals())
+
+    def delete_job(self, job_id, workitem_id):
+        """ Make a request to delete the job """
+        url = 'asynctasks/qajobs/delete/{}'.format(job_id)
+        l_workitem = getattr(self, workitem_id)
+
+        try:
+            res = self.makeHTTPRequest(url, method='POST')
+            message = res.json().get('message')
+            l_workitem.addEvent('#{} job cancelation triggered - {}: {}'.format(job_id,
+                                                                   res.status_code,
+                                                                   message))
+        except Exception as e:
+            l_workitem.addEvent('#{} job cancelation failed with: {}: {}.'.format(job_id, res.status_code, str(e)))
+
 
 InitializeClass(RemoteRestQaApplication)
