@@ -538,10 +538,19 @@ class RemoteFMEConversionApplication(SimpleItem):
                 self.__finish(workitem_id)
         if results:
             poll = [j for j in results
-                    if results[j].get('status') not in ['completed', 'failed']]
+                    if results[j].get('status') not in ['completed', 'failed'] and
+                    results[j].get('retries_left') > 0]
             if poll:
                 self.poll_results(workitem_id)
             else:
+                exhausted = [j for j in results
+                             if results[j].get('status')== 'retry' and
+                             results[j].get('retries_left') == 0]
+                if exhausted:
+                    err = 'FME Result polling max retries exhausted! Aborting.'
+                    workitem.addEvent(err)
+                    workitem.failure = True
+                    self.__post_feedback(workitem, 'results', err)
                 self.handle_cleanup(workitem_id)
                 workitem.addEvent('FME Cleanup completed.')
                 self.__finish(workitem_id)
