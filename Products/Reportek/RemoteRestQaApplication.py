@@ -693,7 +693,7 @@ class RemoteRestQaApplication(SimpleItem):
                                                                    res.status_code,
                                                                    message))
         except Exception as e:
-            l_workitem.addEvent('#{} job cancelation failed with: {}: {}.'.format(job_id, res.status_code, str(e)))
+            l_workitem.addEvent('#{} job cancelation failed with: {}.'.format(job_id, str(e)))
 
 
 InitializeClass(RemoteRestQaApplication)
