@@ -280,7 +280,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         """Upload the file(s) to the fme data upload"""
         workitem = getattr(self, workitem_id)
         upload_storage = getattr(workitem, self.app_name, {}).get('upload')
-        if upload_storage.get('retries_left'):
+        if upload_storage.get('retries_left') and upload_storage.get('next_run').lessThanEqualTo(DateTime()):
             url = '/'.join([self.FMEServer,
                             self.FMEUploadEndpoint,
                             self.UP_METHOD,
@@ -408,7 +408,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         rest_endpoint = 'fmerest/v3/transformations/jobs/id'
         if results:
             for job_id in results.keys():
-                if results[job_id].get('status') not in ['completed', 'failed'] and results[job_id].get('retries_left'):
+                if results[job_id].get('status') not in ['completed', 'failed'] and results[job_id].get('retries_left') and results[job_id].get('next_run').lessThanEqualTo(DateTime()):
                     inputfile = results[job_id].get('inputfile')
                     url = '/'.join([self.FMEServer, rest_endpoint, str(job_id)])
                     try:
@@ -528,7 +528,7 @@ class RemoteFMEConversionApplication(SimpleItem):
             self.__post_feedback(workitem, 'upload', err)
             self.__finish(workitem_id)
         if upload_storage.get('status') == 'completed':
-            if fmw_exec.get('status') != 'completed' and fmw_exec.get('retries_left'):
+            if fmw_exec.get('status') != 'completed' and fmw_exec.get('retries_left') and fmw_exec.get('next_run').lessThanEqualTo(DateTime()):
                 self.execute_workspace(workitem_id)
             elif fmw_exec.get('status') != 'completed' and not fmw_exec.get('retries_left'):
                 err = 'FME Workspace execution failed! Aborting.'
@@ -538,10 +538,19 @@ class RemoteFMEConversionApplication(SimpleItem):
                 self.__finish(workitem_id)
         if results:
             poll = [j for j in results
-                    if results[j].get('status') not in ['completed', 'failed']]
+                    if results[j].get('status') not in ['completed', 'failed'] and
+                    results[j].get('retries_left') > 0]
             if poll:
                 self.poll_results(workitem_id)
             else:
+                exhausted = [j for j in results
+                             if results[j].get('status')== 'retry' and
+                             results[j].get('retries_left') == 0]
+                if exhausted:
+                    err = 'FME Result polling max retries exhausted! Aborting.'
+                    workitem.addEvent(err)
+                    workitem.failure = True
+                    self.__post_feedback(workitem, 'results', err)
                 self.handle_cleanup(workitem_id)
                 workitem.addEvent('FME Cleanup completed.')
                 self.__finish(workitem_id)
