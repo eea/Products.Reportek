@@ -374,7 +374,7 @@ class RemoteRestQaApplication(SimpleItem):
         """ Makes an XML/RPC call to the 'analyzeXMLFiles' function from
             the XQuery service
         """
-        
+
         l_workitem = getattr(self, p_workitem_id)
         # get the property of the workitem which keeps all the instance data
         # for this operation
@@ -432,8 +432,8 @@ class RemoteRestQaApplication(SimpleItem):
         # in this error type
         except (requests.exceptions.HTTPError):
             l_nRetries = int(l_wk_prop['analyze']['retries_left'])
-            code_err = response.content.get('httpStatusCode', '')
-            code_message = response.content.get('errorMessage', '')
+            code_err = response.status_code
+            code_message = response.json().get('errorMessage', '')
             if l_nRetries == 0:
                 l_workitem.addEvent('Error in sending files to %s: %s' %
                                     (self.app_name, str(code_message)))
