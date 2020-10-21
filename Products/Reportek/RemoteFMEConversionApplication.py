@@ -370,9 +370,7 @@ class RemoteFMEConversionApplication(SimpleItem):
         # Load the params setup on an application level
         if self.FMEWorkspaceParams:
             file_list = [f.absolute_url() for f in self.get_files(workitem_id)]
-            wks_params = self.FMEWorkspaceParams.format(GET_FILES_URLS=file_list,
-                                                        GET_FILES=self.get_uploaded_files(workitem_id),
-                                                        GET_FILE=self.get_uploaded_files(workitem_id, single_file=True),
+            wks_params = self.FMEWorkspaceParams.format(GET_FILE=self.get_uploaded_files(workitem_id, single_file=True),
                                                         GET_SHAPEFILE=self.get_uploaded_files(workitem_id, shapefile=True),
                                                         ENVPATHTOKENIZED=self.get_env_path_tokenized(workitem_id),
                                                         FMEUPLOADDIR=self.FMEUploadDir,

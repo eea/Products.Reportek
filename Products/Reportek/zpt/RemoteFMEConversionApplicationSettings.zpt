@@ -73,11 +73,23 @@
                tal:attributes="value here/FMEWorkspace|nothing" size="80" /></td>
   </tr>
   <tr>
-    <th align="left">FME Workspace exec parameters (JSON template)</th>
+    <th align="left">
+      FME Workspace exec parameters (JSON template)
+    </th>
     <td colspan="2">
       <textarea name="FMEWorkspaceParams" rows="20" cols="80 "size="80"
         tal:content="here/FMEWorkspaceParams|nothing" >
       </textarea>
+    </td>
+    <td>
+      Available variables: 
+      <ul>
+        <li><strong>GET_FILE</strong> - The last uploaded envelope file of the required filetype</li>
+        <li><strong>GET_SHAPEFILE</strong> - The last uploaded shapefile (last .shp or .zip)</li>
+        <li><strong>FMEUPLOADDIR</strong> -  The FME Upload directory value</li>
+        <li><strong>GET_ENV_OBLIGATION</strong> - The obligation number of the envelope (e.g. 780)</li>
+        <li><strong>ENVPATHTOKENIZED</strong> - The tokenized path of the envelope (e.g. /ro/eu/envelope_id = ro_eu_envelope_id)</li>
+      </ul>
     </td>
   </tr>
   <tr>
