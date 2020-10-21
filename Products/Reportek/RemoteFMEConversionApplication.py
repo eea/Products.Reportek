@@ -93,6 +93,9 @@ class RemoteFMEConversionApplication(SimpleItem):
     security.declareProtected(view_management_screens, 'manage_settings_html')
     manage_settings_html = PageTemplateFile('zpt/RemoteFMEConversionApplicationSettings', globals())
 
+    security.declareProtected('Use OpenFlow', 'index_html')
+    index_html = PageTemplateFile('zpt/RemoteFMEConversionApplicationView', globals())
+
     def __init__(self, id, title, FMEServer, FMETokenEndpoint,
                  FMEToken, FMEUser, FMEPassword, FMETokenExpiration,
                  FMETokenTimeUnit, FMEUploadEndpoint, FMEUploadDir,
