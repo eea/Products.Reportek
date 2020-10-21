@@ -228,6 +228,12 @@ class RemoteFMEConversionApplication(SimpleItem):
         workitem = getattr(self, workitem_id)
         return workitem.getMySelf().getPath().replace('/', '_')[1:]
 
+    def get_env_obligation(self, workitem_id):
+        """Return the envelope obligation"""
+        workitem = getattr(self, workitem_id)
+        df = workitem.getMySelf().dataflow_uris[0]
+        return df.split('/')[-1]
+
     def handle_cleanup(self, workitem_id):
         """ Delete the temporary folder on FME."""
         workitem = getattr(self, workitem_id)
@@ -368,7 +374,9 @@ class RemoteFMEConversionApplication(SimpleItem):
                                                         GET_FILES=self.get_uploaded_files(workitem_id),
                                                         GET_FILE=self.get_uploaded_files(workitem_id, single_file=True),
                                                         GET_SHAPEFILE=self.get_uploaded_files(workitem_id, shapefile=True),
-                                                        ENVPATHTOKENIZED=self.get_env_path_tokenized(workitem_id))
+                                                        ENVPATHTOKENIZED=self.get_env_path_tokenized(workitem_id),
+                                                        FMEUPLOADDIR=self.FMEUploadDir,
+                                                        GET_ENV_OBLIGATION=self.get_env_obligation(workitem_id))
             wks_params = json.loads(wks_params.replace("'", '"'))
             # Get the used inputfile
             inputfile = None
