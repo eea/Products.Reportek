@@ -99,12 +99,10 @@ class QAScriptTest(unittest.TestCase):
                     mock_proc = Mock(stdout=StringIO('test output'))
                     mock_sp.Popen.return_value = mock_proc
                     ret = self.qa_repository._runQAScript(file_url, 'loc_myscript')
-                (file_id, res) = ret
-                content_type = res.get('feedbackContentType')
-                result = res.get('feedbackContent')
+                (file_id, [content_type, result]) = ret
                 self.assertEqual(len(mock_sp.Popen.mock_calls), 1)
 
-        self.assertEqual('test output', result)
+        self.assertEqual('test output', result.data)
         self.assertEqual(
                 ['ls', '-l', 'test_file'],
                 mock_sp.Popen.mock_calls[0][1][0])

@@ -325,7 +325,6 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             if fb_status not in VALID_FB_STATUSES:
                 return True
 
-        return False
 
     @property
     def has_unacceptable_qa_result(self):
@@ -1086,7 +1085,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                 try:
                     for doc in public_docs:
                         outzd.write_iter(doc.getId(),
-                                         RepUtils.read_file_chunked(doc.data_file))
+                                         RepUtils.iter_file_data(doc.data_file.open()))
 
                     for fdbk in self.objectValues('Report Feedback'):
                         if getSecurityManager().checkPermission('View', fdbk):
@@ -1096,7 +1095,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                             for attachment in fdbk.objectValues(['File', 'File (Blob)']):
                                 if attachment.meta_type == 'File (Blob)':
                                     outzd.write_iter(attachment.getId(),
-                                                     RepUtils.read_file_chunked(attachment.data_file))
+                                                     RepUtils.iter_file_data(attachment.data_file.open()))
                                 else:
                                     outzd.write_iter(attachment.getId(),
                                                      RepUtils.iter_ofs_file_data(attachment))

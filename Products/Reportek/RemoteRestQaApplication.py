@@ -44,12 +44,12 @@ feedback_log = logging.getLogger(__name__ + '.feedback')
 FEEDBACKTEXT_LIMIT = 1024 * 16  # 16KB
 
 
-manage_addRemoteApplicationForm = PageTemplateFile('zpt/remote/application_add_rest_qa',
-                                                   globals())
+manage_addRemoteRESTQAApplicationForm = PageTemplateFile('zpt/remote/application_add_rest_qa',
+                                                         globals())
 
 
-def manage_addRemoteApplication(self, id='', title='', RemoteServer='',
-                                app_name='', REQUEST=None):
+def manage_addRemoteRESTQAApplication(self, id='', title='', RemoteServer='',
+                                      app_name='', REQUEST=None):
     """ Generic application that calls a remote service
     """
 
@@ -580,7 +580,7 @@ class RemoteRestQaApplication(SimpleItem):
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                                p_getResult=l_getResultDict)
 
-        # # An XML-RPC fault package - retry later
+        # # A client generated exception  - retry later
         # # The agreed errors from the XQuery service are embedded
         # # in this error type
         except (requests.exceptions.HTTPError):

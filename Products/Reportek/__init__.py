@@ -397,8 +397,8 @@ def initialize(context):
            RemoteRestQaApplication.RemoteRestQaApplication,
            permission='Add Remote Application',
            constructors = (
-                RemoteRestQaApplication.manage_addRemoteApplicationForm,
-                RemoteRestQaApplication.manage_addRemoteApplication),
+                RemoteRestQaApplication.manage_addRemoteRESTQAApplicationForm,
+                RemoteRestQaApplication.manage_addRemoteRESTQAApplication),
            icon = 'www/qa_application.gif'
            )
 
