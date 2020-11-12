@@ -93,6 +93,9 @@ class RemoteFMEConversionApplication(SimpleItem):
     security.declareProtected(view_management_screens, 'manage_settings_html')
     manage_settings_html = PageTemplateFile('zpt/RemoteFMEConversionApplicationSettings', globals())
 
+    security.declareProtected('View configuration', 'index_html')
+    index_html = PageTemplateFile('zpt/RemoteFMEConversionApplicationView', globals())
+
     def __init__(self, id, title, FMEServer, FMETokenEndpoint,
                  FMEToken, FMEUser, FMEPassword, FMETokenExpiration,
                  FMETokenTimeUnit, FMEUploadEndpoint, FMEUploadDir,
@@ -224,6 +227,12 @@ class RemoteFMEConversionApplication(SimpleItem):
         """Return tokenized envelope path."""
         workitem = getattr(self, workitem_id)
         return workitem.getMySelf().getPath().replace('/', '_')[1:]
+
+    def get_env_obligation(self, workitem_id):
+        """Return the envelope obligation"""
+        workitem = getattr(self, workitem_id)
+        df = workitem.getMySelf().dataflow_uris[0]
+        return df.split('/')[-1]
 
     def handle_cleanup(self, workitem_id):
         """ Delete the temporary folder on FME."""
@@ -361,11 +370,11 @@ class RemoteFMEConversionApplication(SimpleItem):
         # Load the params setup on an application level
         if self.FMEWorkspaceParams:
             file_list = [f.absolute_url() for f in self.get_files(workitem_id)]
-            wks_params = self.FMEWorkspaceParams.format(GET_FILES_URLS=file_list,
-                                                        GET_FILES=self.get_uploaded_files(workitem_id),
-                                                        GET_FILE=self.get_uploaded_files(workitem_id, single_file=True),
+            wks_params = self.FMEWorkspaceParams.format(GET_FILE=self.get_uploaded_files(workitem_id, single_file=True),
                                                         GET_SHAPEFILE=self.get_uploaded_files(workitem_id, shapefile=True),
-                                                        ENVPATHTOKENIZED=self.get_env_path_tokenized(workitem_id))
+                                                        ENVPATHTOKENIZED=self.get_env_path_tokenized(workitem_id),
+                                                        FMEUPLOADDIR=self.FMEUploadDir,
+                                                        GET_ENV_OBLIGATION=self.get_env_obligation(workitem_id))
             wks_params = json.loads(wks_params.replace("'", '"'))
             # Get the used inputfile
             inputfile = None
