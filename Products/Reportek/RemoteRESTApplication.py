@@ -36,7 +36,7 @@ from OFS.SimpleItem import SimpleItem
 
 logger = logging.getLogger(__name__ + '.gisqa')
 
-manage_addRemoteRESTApplicationForm = PageTemplateFile('zpt/RemoteRESTApplicationAdd',globals())
+manage_addRemoteRESTApplicationForm = PageTemplateFile('zpt/rest_add',globals())
 
 
 def manage_addRemoteRESTApplication(self, id='', title='', ServiceSubmitURL='', ServiceCheckURL='', app_name='', REQUEST=None):
@@ -59,7 +59,7 @@ class RemoteRESTApplication(SimpleItem):
     )
 
     security.declareProtected(view_management_screens, 'manage_settings_html')
-    manage_settings_html = PageTemplateFile('zpt/RemoteRESTApplicationSettings', globals())
+    manage_settings_html = PageTemplateFile('zpt/rest_edit', globals())
 
     def __init__(self, id, title, ServiceSubmitURL, ServiceCheckURL, app_name, nRetries=5):
         """ Initialize a new instance of Document """

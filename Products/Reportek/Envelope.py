@@ -325,6 +325,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             if fb_status not in VALID_FB_STATUSES:
                 return True
 
+
     @property
     def has_unacceptable_qa_result(self):
         """Return True if AutomaticQA feedback object has an 'ERROR', 'BLOCKER'

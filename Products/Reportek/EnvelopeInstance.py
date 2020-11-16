@@ -906,7 +906,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """Cancel the current activity"""
         wk = getattr(self, workitem_id)
         if wk.activity_id.startswith('Automatic'):
-            qa_prop = getattr(wk, "AutomaticQA")
+            qa_prop = getattr(wk, wk.activity_id)
             if qa_prop:
                 jobs = qa_prop.get('getResult', {})
                 app_url = self.getApplicationUrl(wk.id)
