@@ -906,7 +906,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """Cancel the current activity"""
         wk = getattr(self, workitem_id)
         if wk.activity_id.startswith('Automatic'):
-            qa_prop = getattr(wk, wk.activity_id)
+            qa_prop = getattr(wk, wk.activity_id, None)
             if qa_prop:
                 jobs = qa_prop.get('getResult', {})
                 app_url = self.getApplicationUrl(wk.id)
@@ -921,8 +921,16 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 app = self.unrestrictedTraverse(app_url)
                 for job in jobs:
                     app.delete_job(job, workitem_id)
-        self.falloutWorkitem(workitem_id)
-        self.fallinWorkitem(workitem_id=workitem_id, activity_id='Draft')
-        self.endFallinWorkitem(workitem_id=workitem_id)
+        if wk.wf_status == 'forward':
+            self.fallinWorkitem(workitem_id=workitem_id, activity_id='Draft')
+            if wk.status != 'complete':
+                self.falloutWorkitem(workitem_id)
+                self.endFallinWorkitem(workitem_id=workitem_id)
+        if REQUEST:
+            if 'DestinationURL' in REQUEST:
+                REQUEST.RESPONSE.redirect(REQUEST['DestinationURL'])
+            else:
+                REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
+
 
 InitializeClass(EnvelopeInstance)
