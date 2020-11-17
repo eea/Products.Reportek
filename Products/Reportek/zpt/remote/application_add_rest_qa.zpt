@@ -1,9 +1,9 @@
 <tal:block tal:replace="structure context/manage_page_header"/>
-<tal:block tal:replace="structure python:context.manage_form_title(template, context, form_title='Add Remote Application', help_product='Reportek', help_topic='')"/>
+<tal:block tal:replace="structure python:context.manage_form_title(template, context, form_title='Add Remote REST QA Application', help_product='Reportek', help_topic='')"/>
 
-<h1>Add Remote Application</h1>
+<h1>Add Remote REST QA Application</h1>
 
-<form action="manage_addRemoteApplication" method="post" enctype="multipart/form-data" name="form">
+<form action="manage_addRemoteRESTQAApplication" method="post" enctype="multipart/form-data" name="form">
 <table>
 <tr>
 	<th><label for="id">Id</label></th>
