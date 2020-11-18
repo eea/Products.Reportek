@@ -297,6 +297,14 @@ class RemoteRestQaApplication(SimpleItem):
             wk_status['localQA'][file_id][script_id] = 'done'
             transaction.commit()
 
+    def get_restricted_status(self, env, file_id):
+        if file_id == 'xml' and env.areRestrictions():
+            return True
+        doc = env.unrestrictedTraverse(file_id, None)
+        if doc and isinstance(doc, Document) and doc.isRestricted():
+            return True
+        return False
+
     def _addFeedback(self, file_id, result, workitem, script_id):
         envelope = self.aq_parent
         qa_repo = self.QARepository
@@ -306,15 +314,11 @@ class RemoteRestQaApplication(SimpleItem):
         feedback_title = '{0} result for file {1}: {2}'.format(self.app_name,
                                                                file_id,
                                                                script_title)
-        restricted = False
-        doc = getattr(envelope, file_id, None)
-        if (doc and doc.isRestricted()) or (file_id == 'xml' and envelope.areRestrictions()):
-            restricted = True
         envelope.manage_addFeedback(id=feedback_id,
                                     title=feedback_title,
                                     activity_id=workitem.activity_id,
                                     automatic=1,
-                                    restricted=restricted)
+                                    restricted=self.get_restricted_status(envelope, file_id))
 
         feedback_ob = envelope[feedback_id]
         content = result[1].data
@@ -503,16 +507,13 @@ class RemoteRestQaApplication(SimpleItem):
                 fb_title = ''.join([self.app_name,
                                     l_filename,
                                     data['scriptTitle']])
-                restricted = False
-                doc = getattr(envelope, l_file_id, None)
-                if (doc and doc.isRestricted()) or (l_file_id == 'xml' and envelope.areRestrictions()):
-                    restricted = True
+
                 envelope.manage_addFeedback(id=feedback_id,
                                             title=fb_title,
                                             activity_id=l_workitem.activity_id,
                                             automatic=1,
                                             document_id=l_file_id,
-                                            restricted=restricted)
+                                            restricted=self.get_restricted_status(envelope, l_file_id))
                 feedback_ob = envelope[feedback_id]
 
                 content = data['feedbackContent']
