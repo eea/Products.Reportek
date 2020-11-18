@@ -294,11 +294,15 @@ class RemoteApplication(SimpleItem):
         feedback_title = '{0} result for file {1}: {2}'.format(self.app_name,
                                                                file_id,
                                                                script_title)
-
+        restricted = False
+        doc = getattr(envelope, file_id, None)
+        if (doc and doc.isRestricted()) or (file_id == 'xml' and envelope.areRestrictions()):
+            restricted = True
         envelope.manage_addFeedback(id=feedback_id,
                                     title=feedback_title,
                                     activity_id=workitem.activity_id,
-                                    automatic=1)
+                                    automatic=1,
+                                    restricted=restricted)
 
         feedback_ob = envelope[feedback_id]
         content = result[1].data
@@ -519,11 +523,16 @@ class RemoteApplication(SimpleItem):
                 fb_title = ''.join([self.app_name,
                                     l_filename,
                                     l_ret['SCRIPT_TITLE']])
+                restricted = False
+                doc = getattr(envelope, l_file_id, None)
+                if (doc and doc.isRestricted()) or (l_file_id == 'xml' and envelope.areRestrictions()):
+                    restricted = True
                 envelope.manage_addFeedback(id=feedback_id,
                                             title=fb_title,
                                             activity_id=l_workitem.activity_id,
                                             automatic=1,
-                                            document_id=l_file_id)
+                                            document_id=l_file_id,
+                                            restricted=restricted)
                 feedback_ob = envelope[feedback_id]
 
                 content = l_ret['VALUE']
