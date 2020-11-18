@@ -49,11 +49,11 @@ manage_addRemoteRESTQAApplicationForm = PageTemplateFile('zpt/remote/application
 
 
 def manage_addRemoteRESTQAApplication(self, id='', title='', RemoteServer='',
-                                      app_name='', REQUEST=None):
+                                      JwtToken='', app_name='', REQUEST=None):
     """ Generic application that calls a remote service
     """
 
-    ob = RemoteRestQaApplication(id, title, RemoteServer, app_name)
+    ob = RemoteRestQaApplication(id, title, RemoteServer, JwtToken, app_name)
     self._setObject(id, ob)
 
     if REQUEST is not None:
@@ -102,7 +102,7 @@ class RemoteRestQaApplication(SimpleItem):
                       SimpleItem.manage_options
                       )
 
-    def __init__(self, id, title, RemoteServer, app_name, JwtToken='',
+    def __init__(self, id, title, RemoteServer, JwtToken, app_name,
                  nRetries=5, nJobRetries=5, retryFrequency=300, 
                  retryJobFrequency=300):
         """ Initialize a new instance of Document """
