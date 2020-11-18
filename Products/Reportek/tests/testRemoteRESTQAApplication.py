@@ -1,11 +1,12 @@
 # -*- coding: utf-8 -*-
-import unittest
 import json
+import unittest
+
 from mock import Mock, patch
-from Products.Reportek import constants
-from Products.Reportek import Converters
+from Products.Reportek import Converters, constants
 from Products.Reportek.RemoteRestQaApplication import RemoteRestQaApplication
-from utils import create_fake_root, create_envelope
+from utils import create_envelope, create_fake_root
+
 
 class RemoteApplicationFeedbackTest(unittest.TestCase):
 
@@ -16,7 +17,7 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
         self.envelope.getEngine = Mock()
         self.envelope.REQUEST = Mock()
 
-        self.remoteapp = RemoteRestQaApplication('remoteapp', '', '',
+        self.remoteapp = RemoteRestQaApplication('remoteapp', '', '', '',
                                                  'the_app').__of__(self.envelope)
         self.remoteapp.the_workitem = Mock(the_app={
             'getResult': {
