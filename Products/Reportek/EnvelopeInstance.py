@@ -483,11 +483,18 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         result = {}
         engine = getattr(self, ENGINE_ID)
         if getattr(self, 'wf_status', None) == 'forward':
-            wk = self.getListOfWorkitems()[-1]
+            wks = self.getListOfWorkitems()
+            wk = wks[-1]
+            forwardable = [wk for wk in wks
+                           if wk.status == 'complete' and not
+                           (wk.activity_id == 'End' or wk.workitems_to)]
+            if forwardable:
+                wk = forwardable[0]
             if wk.status in ['complete', 'inactive']:
                 self.handleWorkitem(wk.id)
                 result['forwarded'] = wk.activity_id
-                latest_wk = self.getListOfWorkitems()[-1]
+                wks = self.getListOfWorkitems()
+                latest_wk = wks[-1]
                 if wk != latest_wk:
                     result['triggerable'] = latest_wk.activity_id
             else:
