@@ -908,6 +908,17 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         if activity:
             return activity.activity_id
 
+    def get_viable_cancel_fallin(self):
+        """Looks over the envelope's history and determines the manual activity
+        to which it can fall into
+        """
+        wks = self.getListOfWorkitems()[:-1]
+        for wk in reversed(wks):
+            activity = self.getActivity(wk.getId())
+            if not activity.isAutoStart():
+                return wk.activity_id
+        return 'Draft'
+
     security.declareProtected('Use OpenFlow', 'cancel_activity')
     def cancel_activity(self, workitem_id, actor=None, REQUEST=None):
         """Cancel the current activity"""
@@ -929,7 +940,8 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 for job in jobs:
                     app.delete_job(job, workitem_id)
         if wk.wf_status == 'forward':
-            self.fallinWorkitem(workitem_id=workitem_id, activity_id='Draft')
+            fallinto = self.get_viable_cancel_fallin()
+            self.fallinWorkitem(workitem_id=workitem_id, activity_id=fallinto)
             if wk.status != 'complete':
                 self.falloutWorkitem(workitem_id)
                 self.endFallinWorkitem(workitem_id=workitem_id)
