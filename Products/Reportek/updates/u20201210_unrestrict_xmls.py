@@ -55,7 +55,7 @@ def unrestrict_docs(app):
 
 
 @MigrationBase.checkMigration(__name__)
-def update(app, skipMigrationCheck=True):
+def update(app, skipMigrationCheck=False):
     if not unrestrict_docs(app):
         return
 
