@@ -56,6 +56,13 @@
       attribute="get_companies"/>
 
   <browser:page
+      name="get_stocks"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.FgasesRegistryAdministration"
+      class=".views.SatelliteRegistryManagement"
+      attribute="get_stocks"/>
+
+  <browser:page
       name="organisation_unverify"
       for=".interfaces.IRegistryManagement"
       permission="zope2.FgasesRegistryAdministration"
@@ -117,6 +124,13 @@
       permission="zope2.FgasesRegistryAdministration"
       class=".views.SatelliteRegistryManagement"
       template="zpt/registry/data_sync_log.zpt"/>
+
+  <browser:page
+      name="stocks_listing"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.FgasesRegistryAdministration"
+      class=".views.SatelliteRegistryManagement"
+      template="zpt/registry/stocks_listing.zpt"/>
 
   <browser:page
       name="notifications_settings"

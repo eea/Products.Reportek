@@ -316,6 +316,14 @@ class SatelliteRegistryManagement(BaseAdmin):
             response = api.getCompaniesExcelExport(domain=domain)
             return response.content
 
+    def get_stocks(self):
+        api = self.get_api()
+        if not api:
+            return None
+        stocks = api.get_stocks()
+        self.request.response.setHeader('Content-Type', 'application/json')
+        return json.dumps(stocks, indent=2)
+
     def get_companies_json(self):
         api = self.get_api()
         if not api:

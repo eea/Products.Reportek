@@ -93,6 +93,14 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if response:
             return response.json()
 
+    def get_stocks(self):
+        page = 'stocks'
+        url = '/'.join([self.baseUrl, page])
+        response = self.do_api_request(url,
+                                       headers={'Authorization': self.token})
+        if response:
+            return response.json()
+
     def get_company_details(self, company_id, domain='FGAS'):
         url = '/'.join([self.baseUrl, 'undertaking', domain, company_id,
                         'details'])
@@ -113,6 +121,13 @@ class FGASRegistryAPI(BaseRegistryAPI):
         url = '/'.join([self.baseUrl, 'undertaking', domain, company_id,
                         'licences', year, 'aggregated'])
         response = self.do_api_request(url, method='post', data=data,
+                                       headers={'Authorization': self.token},
+                                       raw=True)
+        return response
+
+    def get_company_stocks(self, company_id):
+        url = '/'.join([self.baseUrl, 'stocks', company_id])
+        response = self.do_api_request(url, method='post',
                                        headers={'Authorization': self.token},
                                        raw=True)
         return response
