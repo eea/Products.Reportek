@@ -24,11 +24,11 @@ try:
     SCHEDULE_START = DateTime(SCHEDULE_START)
 except Exception:
     SCHEDULE_START = DateTime()
-
-
-class AutoFallinException(Exception):
-    """Raised when an exception happens with the auto_fallin script"""
-
+try:
+    from raven import Client
+    client = Client(os.environ.get('SENTRY'))
+except Exception:
+    client = None
 
 now = DateTime()
 should_run = False
@@ -96,7 +96,6 @@ def main():
         parser.print_help()
         sys.exit()
 
-    should_raise = False
     if should_run:
         obls = args.obligations
         df_prefix = 'http://rod.eionet.europa.eu/obligations/{}'
@@ -130,14 +129,13 @@ def main():
                     except Exception as e:
                         entry_savepoint.rollback()
                         print "Error while attempting to forward {}: {}".format(env.absolute_url(1), str(e))
-                        should_raise = True
+                        if client:
+                            client.captureException()
             transaction.commit()
         except Exception as error:
             savepoint.rollback()
             print "Error while attempting to forward envelopes: {}".format(str(error))
-            should_raise = True
+            if client:
+                client.captureException()
     else:
         print "Defined SCHEDULE date is not today, aborting..."
-
-    if should_raise:
-        raise AutoFallinException("An error occured while running scheduled auto-fallin job.")
