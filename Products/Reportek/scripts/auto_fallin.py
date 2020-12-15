@@ -96,6 +96,8 @@ def main():
         parser.print_help()
         sys.exit()
 
+    should_raise = False
+
     if should_run:
         obls = args.obligations
         df_prefix = 'http://rod.eionet.europa.eu/obligations/{}'
@@ -129,13 +131,18 @@ def main():
                     except Exception as e:
                         entry_savepoint.rollback()
                         print "Error while attempting to forward {}: {}".format(env.absolute_url(1), str(e))
+                        should_raise = True
                         if client:
                             client.captureException()
             transaction.commit()
         except Exception as error:
             savepoint.rollback()
             print "Error while attempting to forward envelopes: {}".format(str(error))
+            should_raise = True
             if client:
                 client.captureException()
     else:
         print "Defined SCHEDULE date is not today, aborting..."
+
+    if should_raise and client:
+        client.captureMessage('CRON-AUTO-FALLIN: Scheduled auto-fallin job failed')
