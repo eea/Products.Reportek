@@ -666,6 +666,37 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
         return json.dumps(res, indent=4)
 
+    security.declareProtected('View', 'stocks')
+    def stocks(self):
+        """ Return the ODS licences for the company
+        """
+        res = {
+            "result": "Ok",
+            "message": ""
+        }
+        self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            engine = self.getEngine()
+            registry = engine.get_registry(self)
+
+            if self.company_id and registry:
+                registry_name = getattr(registry, 'registry_name', None)
+                if registry_name == 'FGAS Registry':
+                    response = registry.get_company_stocks(self.company_id)
+                    if response is not None:
+                        if response.status_code != requests.codes.ok:
+                            res["result"] = "Fail"
+                            res["message"] = response.reason
+                        else:
+                            res.update(response.json())
+                            res["result"] = "Ok"
+                            res["message"] = ""
+                    else:
+                        res["result"] = "Fail"
+                        res["message"] = None
+
+        return json.dumps(res, indent=4)
+
     security.declareProtected('View', 'company_details_short')
     def company_details_short(self):
         """ Return the short company details

@@ -13,6 +13,7 @@ reportek.utils.fcs = {
                 'get_candidates': '/get_candidates',
                 'organisation_details': '/organisation_details',
                 'organisation_verification': '/organisation_verification',
+                'get_stocks': '/get_stocks',
                 'get_matching_log': '/get_matching_log',
                 'get_datasync_log': '/get_datasync_log'},
     domain: 'FGAS',
@@ -135,6 +136,48 @@ reportek.utils.fcs = {
               }
             }
           ]
+        });
+      }
+
+      if ($("#stocks-table").length){
+        self.tbl_endpoint = self.get_endpoint_url('get_stocks');
+        self.tbl = $("#stocks-table").DataTable({
+          "iDisplayLength": 20,
+          "language": {
+              processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>",
+          },
+          "ajax": {
+            "url": self.tbl_endpoint,
+            "contentType": "application/json",
+            "type": "GET",
+            "dataSrc":"",
+          },
+          "drawCallback": function( settings ) {
+            self.handle_domain_change();
+          },
+          "processing": true,
+          "autoWidth": false,
+          "order": [[ 0, "desc" ]],
+          "columns": [
+            { "width": "25px" },
+            { "width": "25px" },
+            { "width": "450px" },
+            { "width": "20px" },
+            { "width": "20px" },
+            { "width": "20px" },
+            { "width": "20px" },
+            { "width": "20px" }
+          ],
+          "aoColumns": [
+            { "mData": "year" },
+            { "mData": "company_id"},
+            { "mData": "type" },
+            { "mData": "substance_name_form" },
+            { "mData": "is_virgin" },
+            { "mData": "code" },
+            { "mData": "company_name" },
+            { "mData": "result" }
+          ],
         });
       }
     },
