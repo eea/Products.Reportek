@@ -21,8 +21,6 @@
   <metal:block fill-slot="content" tal:define="user python: request.AUTHENTICATED_USER;
                                                is_manager python: 'Manager' in user.getRolesInContext(context);
                                                is_ods_client python: 'ClientODS' in user.getRolesInContext(context);
-                                               is_fgas_client python: 'ClientFG' in user.getRolesInContext(context);
-                                               fgas_allowed python: is_manager or is_fgas_client;
                                                ods_allowed python: is_manager or is_ods_client;">
     <style>
       table {
@@ -31,7 +29,17 @@
       }
     </style>
 
-    <h1>Stocks</h1>
+
+    <h1>ODS Stocks</h1>
+
+    <p>Stocks can be imported in the application using the form bellow. A dummy of the JSON file that should be imported is available <a href="stocks_json_dummy">here</a>.
+
+    <form method="post" action="stock_export" name="frmSetBulk" enctype="multipart/form-data">
+      <label>JSON File:</label>
+      <input type="file" name="file" size="25" value="">
+      <input type="submit" class="fileop" value="Upload" />
+    </form>
+
     <table id="stocks-table" width="100%">
       <thead>
         <tr>

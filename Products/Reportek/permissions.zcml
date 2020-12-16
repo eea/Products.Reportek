@@ -13,6 +13,11 @@
   />
 
   <permission
+    id="zope2.ODSStocksAdministration"
+    title="ODS Stocks Administration"
+  />
+
+  <permission
     id="zope2.ReportekSecurityOverview"
     title="Reportek Security Overview"
   />

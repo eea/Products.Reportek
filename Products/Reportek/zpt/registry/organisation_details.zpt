@@ -72,6 +72,13 @@
             You can see the company deliveries here:
             <a tal:attributes="href company/path"
               tal:content="company/path" />
+            <p tal:condition="company/previous_paths"><strong>Previous reporting folders:</strong></p>
+            <ul>
+             <tal:block repeat="path company/previous_paths">
+              <li><a tal:attributes="href path"
+                 tal:content="path" /></li>
+              </tal:block>
+            </ul>
           </tal:block>
           <tal:block tal:condition="python: '/non-eu/' in company.get('path', '')">
             NON-EU companies with no legal representative are not required to report.

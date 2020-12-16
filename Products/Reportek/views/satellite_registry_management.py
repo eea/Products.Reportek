@@ -324,6 +324,28 @@ class SatelliteRegistryManagement(BaseAdmin):
         self.request.response.setHeader('Content-Type', 'application/json')
         return json.dumps(stocks, indent=2)
 
+    def stocks_json_dummy(self):
+        api = self.get_api()
+        if not api:
+            return None
+        json_dummy = api.get_stocks_dummy()
+        self.request.response.setHeader('Content-Type', 'application/json')
+        return json.dumps(json_dummy, indent=2)
+
+    def stock_export(self):
+        api = self.get_api()
+        if not api:
+            return None
+        page = 'stocks/import'
+        url = '/'.join([api.baseUrl, page])
+        filename = self.request.file.filename
+        response = api.do_api_request(
+            url, method='post', files={'file': (filename, self.request.file.read())},
+            headers={'Authorization': api.token}
+        )
+        if response:
+            return response.json()
+
     def get_companies_json(self):
         api = self.get_api()
         if not api:
