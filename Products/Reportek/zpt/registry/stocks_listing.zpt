@@ -18,10 +18,7 @@
   </metal:block>
 
 
-  <metal:block fill-slot="content" tal:define="user python: request.AUTHENTICATED_USER;
-                                               is_manager python: 'Manager' in user.getRolesInContext(context);
-                                               is_ods_client python: 'ClientODS' in user.getRolesInContext(context);
-                                               ods_allowed python: is_manager or is_ods_client;">
+  <metal:block fill-slot="content">
     <style>
       table {
         font-size:0.9em;
