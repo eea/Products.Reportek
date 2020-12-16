@@ -483,11 +483,18 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         result = {}
         engine = getattr(self, ENGINE_ID)
         if getattr(self, 'wf_status', None) == 'forward':
-            wk = self.getListOfWorkitems()[-1]
+            wks = self.getListOfWorkitems()
+            wk = wks[-1]
+            forwardable = [wk for wk in wks
+                           if wk.status == 'complete' and not
+                           (wk.activity_id == 'End' or wk.workitems_to)]
+            if forwardable:
+                wk = forwardable[0]
             if wk.status in ['complete', 'inactive']:
                 self.handleWorkitem(wk.id)
                 result['forwarded'] = wk.activity_id
-                latest_wk = self.getListOfWorkitems()[-1]
+                wks = self.getListOfWorkitems()
+                latest_wk = wks[-1]
                 if wk != latest_wk:
                     result['triggerable'] = latest_wk.activity_id
             else:
@@ -901,12 +908,23 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         if activity:
             return activity.activity_id
 
+    def get_viable_cancel_fallin(self):
+        """Looks over the envelope's history and determines the manual activity
+        to which it can fall into
+        """
+        wks = self.getListOfWorkitems()[:-1]
+        for wk in reversed(wks):
+            activity = self.getActivity(wk.getId())
+            if not activity.isAutoStart():
+                return wk.activity_id
+        return 'Draft'
+
     security.declareProtected('Use OpenFlow', 'cancel_activity')
     def cancel_activity(self, workitem_id, actor=None, REQUEST=None):
         """Cancel the current activity"""
         wk = getattr(self, workitem_id)
         if wk.activity_id.startswith('Automatic'):
-            qa_prop = getattr(wk, wk.activity_id)
+            qa_prop = getattr(wk, wk.activity_id, None)
             if qa_prop:
                 jobs = qa_prop.get('getResult', {})
                 app_url = self.getApplicationUrl(wk.id)
@@ -921,8 +939,17 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 app = self.unrestrictedTraverse(app_url)
                 for job in jobs:
                     app.delete_job(job, workitem_id)
-        self.falloutWorkitem(workitem_id)
-        self.fallinWorkitem(workitem_id=workitem_id, activity_id='Draft')
-        self.endFallinWorkitem(workitem_id=workitem_id)
+        if wk.wf_status == 'forward':
+            fallinto = self.get_viable_cancel_fallin()
+            self.fallinWorkitem(workitem_id=workitem_id, activity_id=fallinto)
+            if wk.status != 'complete':
+                self.falloutWorkitem(workitem_id)
+                self.endFallinWorkitem(workitem_id=workitem_id)
+        if REQUEST:
+            if 'DestinationURL' in REQUEST:
+                REQUEST.RESPONSE.redirect(REQUEST['DestinationURL'])
+            else:
+                REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
+
 
 InitializeClass(EnvelopeInstance)

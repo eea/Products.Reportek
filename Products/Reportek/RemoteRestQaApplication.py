@@ -49,11 +49,11 @@ manage_addRemoteRESTQAApplicationForm = PageTemplateFile('zpt/remote/application
 
 
 def manage_addRemoteRESTQAApplication(self, id='', title='', RemoteServer='',
-                                      app_name='', REQUEST=None):
+                                      JwtToken='', app_name='', REQUEST=None):
     """ Generic application that calls a remote service
     """
 
-    ob = RemoteRestQaApplication(id, title, RemoteServer, app_name)
+    ob = RemoteRestQaApplication(id, title, RemoteServer, JwtToken, app_name)
     self._setObject(id, ob)
 
     if REQUEST is not None:
@@ -102,7 +102,7 @@ class RemoteRestQaApplication(SimpleItem):
                       SimpleItem.manage_options
                       )
 
-    def __init__(self, id, title, RemoteServer, app_name, JwtToken='',
+    def __init__(self, id, title, RemoteServer, JwtToken, app_name,
                  nRetries=5, nJobRetries=5, retryFrequency=300, 
                  retryJobFrequency=300):
         """ Initialize a new instance of Document """
@@ -297,6 +297,14 @@ class RemoteRestQaApplication(SimpleItem):
             wk_status['localQA'][file_id][script_id] = 'done'
             transaction.commit()
 
+    def get_restricted_status(self, env, file_id):
+        if file_id == 'xml' and env.areRestrictions():
+            return True
+        doc = env.unrestrictedTraverse(file_id, None)
+        if doc and isinstance(doc, Document) and doc.isRestricted():
+            return True
+        return False
+
     def _addFeedback(self, file_id, result, workitem, script_id):
         envelope = self.aq_parent
         qa_repo = self.QARepository
@@ -306,11 +314,11 @@ class RemoteRestQaApplication(SimpleItem):
         feedback_title = '{0} result for file {1}: {2}'.format(self.app_name,
                                                                file_id,
                                                                script_title)
-
         envelope.manage_addFeedback(id=feedback_id,
                                     title=feedback_title,
                                     activity_id=workitem.activity_id,
-                                    automatic=1)
+                                    automatic=1,
+                                    restricted=self.get_restricted_status(envelope, file_id))
 
         feedback_ob = envelope[feedback_id]
         content = result[1].data
@@ -499,11 +507,13 @@ class RemoteRestQaApplication(SimpleItem):
                 fb_title = ''.join([self.app_name,
                                     l_filename,
                                     data['scriptTitle']])
+
                 envelope.manage_addFeedback(id=feedback_id,
                                             title=fb_title,
                                             activity_id=l_workitem.activity_id,
                                             automatic=1,
-                                            document_id=l_file_id)
+                                            document_id=l_file_id,
+                                            restricted=self.get_restricted_status(envelope, l_file_id))
                 feedback_ob = envelope[feedback_id]
 
                 content = data['feedbackContent']

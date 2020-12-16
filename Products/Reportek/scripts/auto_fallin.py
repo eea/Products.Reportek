@@ -8,14 +8,15 @@ It has multiple entry points that all do different things:
     bin/instance run bin/auto_fallin 
 
 """
-from Products.Reportek.constants import ENGINE_ID, DEFAULT_CATALOG
-from Products.Reportek.scripts import get_zope_site
-from DateTime import DateTime
-import sys
-import transaction
 import argparse
-import os
 import math
+import os
+import sys
+
+import transaction
+from DateTime import DateTime
+from Products.Reportek.constants import DEFAULT_CATALOG, ENGINE_ID
+from Products.Reportek.scripts import get_zope_site
 
 SCHEDULE_START = os.environ.get('SCHEDULE_START', DateTime())
 SCHEDULE_PERIOD = os.environ.get('SCHEDULE_PERIOD', 'daily')
@@ -23,6 +24,11 @@ try:
     SCHEDULE_START = DateTime(SCHEDULE_START)
 except Exception:
     SCHEDULE_START = DateTime()
+try:
+    from raven import Client
+    client = Client(os.environ.get('SENTRY'))
+except Exception:
+    client = None
 
 now = DateTime()
 should_run = False
@@ -90,6 +96,8 @@ def main():
         parser.print_help()
         sys.exit()
 
+    should_raise = False
+
     if should_run:
         obls = args.obligations
         df_prefix = 'http://rod.eionet.europa.eu/obligations/{}'
@@ -123,9 +131,18 @@ def main():
                     except Exception as e:
                         entry_savepoint.rollback()
                         print "Error while attempting to forward {}: {}".format(env.absolute_url(1), str(e))
+                        should_raise = True
+                        if client:
+                            client.captureException()
             transaction.commit()
         except Exception as error:
             savepoint.rollback()
             print "Error while attempting to forward envelopes: {}".format(str(error))
+            should_raise = True
+            if client:
+                client.captureException()
     else:
         print "Defined SCHEDULE date is not today, aborting..."
+
+    if should_raise and client:
+        client.captureMessage('CRON-AUTO-FALLIN: Scheduled auto-fallin job failed')

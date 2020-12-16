@@ -7,6 +7,15 @@
 	printing a document and so on.
 </p>
 
+<script>
+function warn(s_id) {
+    val = document.getElementById(s_id).value;
+    if (val === 'and') {
+      alert("Be aware that selecting 'And' mode can cause unexpected behavior for the workflow!");
+    }
+}
+</script>
+
 <form action="addActivity" method="post">
 <table border="0" style="width:100%">
 	<col style="width:10em"/>
@@ -27,14 +36,14 @@
 		<td class="form-label">Workitem handling</td>
 		<td>
 			<label for="join_mode">Join kind:</label>
-			<select name="join_mode" id="join_mode">
+			<select name="join_mode" id="join_mode" onchange="warn('join_mode')">
 				<option value="and">And</option>
-				<option value="xor">Xor</option>
+				<option value="xor" selected="selected">Xor</option>
 			</select>
 			<label for="split_mode">Split kind:</label>
-			<select name="split_mode" id="split_mode">
+			<select name="split_mode" id="split_mode" onchange="warn('join_mode')">
 				<option value="and">And</option>
-				<option value="xor">Xor</option>
+				<option value="xor" selected="selected">Xor</option>
 			</select>
 		</td>
 	</tr>
@@ -91,7 +100,7 @@
 						</div>
 					</td>
 				</tr>
-				<tr>
+				<tr style="display: none;">
 					<td>
 						<input type="radio" id="subflowkind" name="kind:string" value="subflow" />
 						<label for="subflowkind" class="form-label">Subprocess</label>
