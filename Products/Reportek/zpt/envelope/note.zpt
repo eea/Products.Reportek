@@ -46,7 +46,18 @@
       <tal:block condition="python:request.SESSION.has_key('redirect_to')">
         <tal:block define="dummy python:request.SESSION.delete('redirect_to')"/>
       </tal:block>
-
+      <tal:block condition="python:request.SESSION.has_key('note_content')">
+        <tal:block define="dummy python:request.SESSION.delete('note_content')"/>
+      </tal:block>
+      <tal:block condition="python:request.SESSION.has_key('note_title')">
+        <tal:block define="dummy python:request.SESSION.delete('note_title')"/>
+      </tal:block>
+      <tal:block condition="python:request.SESSION.has_key('note_text')">
+        <tal:block define="dummy python:request.SESSION.delete('note_text')"/>
+      </tal:block>
+      <tal:block condition="python:request.SESSION.has_key('note_tip')">
+        <tal:block define="dummy python:request.SESSION.delete('note_tip')"/>
+      </tal:block>
     </tal:block>
   </metal:block>
 </metal:block>
