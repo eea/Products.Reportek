@@ -77,6 +77,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
     }
     COUNTRY_TO_FOLDER = {
         'uk': 'gb',
+        'uk_gb': 'gb',
         'el': 'gr',
         'non_eu': 'non-eu'
     }

@@ -58,6 +58,8 @@ class OrgCollections(BrowserView):
         updated = False
         COUNTRY_TO_FOLDER = {
             'uk': 'gb',
+            'gb': 'gb',
+            'uk_gb': 'gb',
             'el': 'gr',
             'non_eu': 'non-eu'
         }
