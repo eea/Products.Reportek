@@ -109,7 +109,7 @@
           </tr>
         </thead>
         <tbody tal:define="country_codes view/get_all_country_codes;
-                           com_exceptions python: ['uk', 'el'];
+                           com_exceptions python: ['uk', 'uk_gb', 'el'];
                            all_country_codes python: country_codes + com_exceptions">
           <tr tal:repeat="group groups">
             <tal:block tal:define="dn python: group.get('dn', '');
