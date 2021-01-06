@@ -26,7 +26,6 @@ __doc__ = """
 
 import shlex
 import subprocess
-import xmlrpclib
 
 import constants
 import Globals
@@ -70,8 +69,18 @@ class QARepository(Folder):
     )
 
     def getQAApplication(self):
-        """ """
-        return self.unrestrictedTraverse(self.QA_application, None)
+        """Default to the AutomaticQA application setup in the properties"""
+        aqa_path = self.QA_application
+        try:
+            env = self.getMySelf()
+            process = env.getProcess()
+            if 'AutomaticQA' in process.listActivities():
+                aqa_act = getattr(process, 'AutomaticQA')
+                aqa_path = aqa_act.mapped_application_details()['path']
+        except Exception:
+            pass
+
+        return self.unrestrictedTraverse(aqa_path, None)
 
     def _get_local_qa_scripts(self, p_schema=None, dataflow_uris=None,
             content_type_in=''):
@@ -105,14 +114,11 @@ class QARepository(Folder):
         l_qa_app = self.getQAApplication()
         if not l_qa_app:
             return []
-        l_server_url = l_qa_app.RemoteServer
-        l_remote_server = l_qa_app.RemoteService
-        try:
-            l_server = xmlrpclib.ServerProxy(l_server_url, allow_none=True)
-            l_server_service = getattr(l_server, l_remote_server)
-            return l_server_service.listQueries(p_schema)
-        except:
-            return []
+        r_scripts = l_qa_app.listQAScripts(p_schema, short=False)
+        if not r_scripts:
+            r_scripts = []
+
+        return r_scripts
 
     def getQAScriptsDescriptions(self):
         """ Loops all local and remote QA scripts for display """
@@ -131,15 +137,9 @@ class QARepository(Folder):
         # remote scripts
         l_qa_app = self.getQAApplication()
         if l_qa_app:
-            l_server_url = l_qa_app.RemoteServer
-            l_remote_server = l_qa_app.RemoteService
-            try:
-                l_server = xmlrpclib.ServerProxy(l_server_url)
-                l_server_service = getattr(l_server, l_remote_server)
-                l_tmp = l_server_service.listQAScripts(p_schema)
+            l_tmp = l_qa_app.listQAScripts(p_schema)
+            if l_tmp:
                 l_ret.extend([x[0] for x in l_tmp])
-            except:
-                pass
         return l_ret
 
     def getDataflowMappingsContainer(self):

@@ -709,7 +709,7 @@ class RemoteRestQaApplication(SimpleItem):
             l_workitem.addEvent('#{} job cancelation failed with: {}.'.format(job_id, str(e)))
 
 
-    def listQAScripts(self, file_schema):
+    def listQAScripts(self, file_schema, short=True):
         """Return a list of QA scripts for file schema"""
         # /restapi/qascripts
         url = 'qascripts'
@@ -721,14 +721,29 @@ class RemoteRestQaApplication(SimpleItem):
             response = self.makeHTTPRequest(url, params=params)
             if response.status_code == 200:
                 scripts = response.json()
-                # [['31', 'aqr obligations', '23 Jun 2020 12:28', '10'],
-                # ['16', 'Check XLINK references', '15 Apr 2020 15:21', '10'],
-                # ['17', 'XML Schema validation', '15 Apr 2020 15:21', '400']]
-                result = [[script.get('id').encode('utf-8'),
-                           script.get('name').encode('utf-8'),
-                           '',
-                           script.get('runOnDemandMaxFileSizeMB').encode('utf-8')]
-                          for script in scripts]
+                if short:
+                    result = [[script.get('id').encode('utf-8'),
+                               script.get('name').encode('utf-8'),
+                               '',
+                               script.get('runOnDemandMaxFileSizeMB').encode('utf-8')]
+                              for script in scripts]
+                else:
+                    compat = {
+                        'outputType': 'content_type_id',
+                        'name': 'short_name',
+                        'description': 'description',
+                        'isActive': 'isActive',
+                        'type': 'type',
+                        'url': 'query',
+                        'schemaUrl': 'xml_schema',
+                        'runOnDemandMaxFileSizeMB': 'upper_limit',
+                        'content_type_out': 'outputType'
+                    }
+                    result = []
+                    for script in scripts:
+                        remapped = {compat[name]: val for name, val in script.iteritems() if compat.get(name)}
+                        remapped['content_type_out'] = script.get('outputType')
+                        result.append(remapped)
         except Exception:
             pass
 
