@@ -1,11 +1,11 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
   <metal:block fill-slot="content">
     <tal:block define="
-      the_content_type options/note_content_type | string:text/html;
+      the_content_type options/note_content_type | python:request.SESSION.get('note_content', 'text/html');
       redirect_to options/redirect_to | python:request.SESSION.get('redirect_to', context.getMySelf().absolute_url());
-      note_title options/note_title|nothing;
-      note_text options/note_text|string:This page has expired. Restart the intended action from the beginning.;
-      note_tip options/note_tip|nothing;
+      note_title options/note_title|python:request.SESSION.get('note_title', '');
+      note_text options/note_text|python:request.SESSION.get('note_text', 'This page has expired. Restart the intended action from the beginning.');
+      note_tip options/note_tip|python:request.SESSION.get('note_tip', '');
       ">
       <!-- if -->
       <tal:block condition="python:the_content_type.find('text/html') != -1 or the_content_type.find('text/plain') != -1">
@@ -46,8 +46,18 @@
       <tal:block condition="python:request.SESSION.has_key('redirect_to')">
         <tal:block define="dummy python:request.SESSION.delete('redirect_to')"/>
       </tal:block>
-
+      <tal:block condition="python:request.SESSION.has_key('note_content')">
+        <tal:block define="dummy python:request.SESSION.delete('note_content')"/>
+      </tal:block>
+      <tal:block condition="python:request.SESSION.has_key('note_title')">
+        <tal:block define="dummy python:request.SESSION.delete('note_title')"/>
+      </tal:block>
+      <tal:block condition="python:request.SESSION.has_key('note_text')">
+        <tal:block define="dummy python:request.SESSION.delete('note_text')"/>
+      </tal:block>
+      <tal:block condition="python:request.SESSION.has_key('note_tip')">
+        <tal:block define="dummy python:request.SESSION.delete('note_tip')"/>
+      </tal:block>
     </tal:block>
   </metal:block>
 </metal:block>
-  

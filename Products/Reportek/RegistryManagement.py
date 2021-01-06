@@ -161,6 +161,21 @@ class FGASRegistryAPI(BaseRegistryAPI):
                 # use the country_code from the legal representative
                 c_type = details.get('address', {}).get('country', {}).get('type')
                 rep = details.get('representative')
+                previous_paths = []
+                for representative in details.get('represent_history', []):
+                    address = representative.get('address')
+                    if address:
+                        country = address.get('country')
+                        if country:
+                            country_code = country.get('code')
+                            previous_paths.append(self.buildCollectionPath(
+                                details['domain'],
+                                country_code,
+                                str(details['company_id']),
+                                details['collection_id'],
+
+                            ))
+                details['previous_paths'] = previous_paths
                 if c_type == 'NONEU_TYPE' and rep:
                     address = rep.get('address')
                     if address:
