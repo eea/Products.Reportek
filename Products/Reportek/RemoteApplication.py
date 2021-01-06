@@ -729,6 +729,19 @@ class RemoteApplication(SimpleItem):
         except Exception as e:
             l_workitem.addEvent('#{} job cancelation failed with: {}.'.format(job_id, str(e)))
 
+    def listQAScripts(self, file_schema):
+        """Retrieve the available QA scripts for file schema"""
+        l_server_url = self.RemoteServer
+        l_remote_server = self.RemoteService
+        l_server = xmlrpclib.ServerProxy(l_server_url)
+        try:
+            l_server = xmlrpclib.ServerProxy(l_server_url)
+            l_server_service = getattr(l_server, l_remote_server)
+            l_tmp = l_server_service.listQAScripts(file_schema)
+            return l_tmp
+        except Exception:
+            pass
+
     def runQAScript(self, p_file_url, p_script_id):
         """On demand QA"""
         l_server_url = self.RemoteServer
