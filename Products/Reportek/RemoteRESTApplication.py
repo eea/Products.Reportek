@@ -21,18 +21,20 @@
 ## RemoteApplication
 ##
 
-import re
 import logging
-import requests
-from DateTime import DateTime
+import re
 from StringIO import StringIO
 from urlparse import urlparse
 
-from Globals import InitializeClass
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+import requests
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
+from DateTime import DateTime
+from Globals import InitializeClass
 from OFS.SimpleItem import SimpleItem
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek.interfaces import IQAApplication
+from zope.interface import implements
 
 logger = logging.getLogger(__name__ + '.gisqa')
 
@@ -52,6 +54,7 @@ def manage_addRemoteRESTApplication(self, id='', title='', ServiceSubmitURL='', 
 class RemoteRESTApplication(SimpleItem):
 
     security = ClassSecurityInfo()
+    implements(IQAApplication)
     meta_type = 'Remote REST Application'
     manage_options = (
         ( {'label' : 'Settings', 'action' : 'manage_settings_html'}, ) +

@@ -24,21 +24,20 @@ __doc__ = """
       checks of the Report Documents.
 """
 
-import subprocess
 import shlex
+import subprocess
 import xmlrpclib
 
-from OFS.Folder import Folder
-from AccessControl import ClassSecurityInfo
-from AccessControl.Permissions import view_management_screens
-from Products.Reportek.constants import ENGINE_ID
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from RestrictedPython.Eval import RestrictionCapableEval
-import Globals
-
 import constants
+import Globals
 import QAScript
 import RepUtils
+from AccessControl import ClassSecurityInfo
+from AccessControl.Permissions import view_management_screens
+from OFS.Folder import Folder
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek.constants import ENGINE_ID
+from RestrictedPython.Eval import RestrictionCapableEval
 
 
 class QARepository(Folder):
@@ -155,9 +154,6 @@ class QARepository(Folder):
         l_ret = {}
         #calculate remote service URL
         l_qa_app = self.getQAApplication()
-        if l_qa_app:
-            l_server_url = l_qa_app.RemoteServer
-            l_remote_server = l_qa_app.RemoteService
 
         for l_file in files:
             # get the valid schemas for the envelope's dataflows
@@ -170,14 +166,7 @@ class QARepository(Folder):
                 self._get_local_qa_scripts(dataflow_uris=l_file.dataflow_uris)):
                 #remote scripts
                 if l_qa_app:
-                    try:
-                        l_server = xmlrpclib.ServerProxy(l_server_url)
-                        l_server_service = getattr(l_server, l_remote_server)
-                        l_tmp = l_server_service.listQAScripts(l_file.xml_schema_location)
-                        if len(l_tmp):
-                            l_ret[l_file.id] = l_tmp
-                    except:
-                        pass
+                    l_ret[l_file.id] = l_qa_app.listQAScripts(l_file.xml_schema_location)
                 #local scripts
                 l_buff = [
                     ['loc_%s' % y.id, y.title, y.bobobase_modification_time(),
@@ -265,11 +254,8 @@ class QARepository(Folder):
             # remote script
             else:
                 l_qa_app = self.getQAApplication()
-                l_server_url = l_qa_app.RemoteServer
-                l_remote_server = l_qa_app.RemoteService
-                l_server = xmlrpclib.ServerProxy(l_server_url)
-                l_server_service = getattr(l_server, l_remote_server)
-                l_tmp = l_server_service.runQAScript(p_file_url, p_script_id)
+                if l_qa_app:
+                    l_tmp = l_qa_app.runQAScript(p_file_url, p_script_id)
         else:
             #invalid or missing file
             l_file_id = ''
