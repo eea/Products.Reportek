@@ -73,3 +73,8 @@ class IWorkitem(Interface):
     activity_id = Attribute('activity_id')
     event_log = Attribute('event_log')
     status = Attribute('status')
+
+
+class IQAApplication(Interface):
+    """ Marker interface for QA Applications
+    """

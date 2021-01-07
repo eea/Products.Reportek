@@ -38,6 +38,8 @@ from Document import Document
 from Globals import InitializeClass
 from OFS.SimpleItem import SimpleItem
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek.interfaces import IQAApplication
+from zope.interface import implements
 
 feedback_log = logging.getLogger(__name__ + '.feedback')
 
@@ -95,6 +97,7 @@ class RemoteRestQaApplication(SimpleItem):
     # in the rest of our class definition to make security
     # assertions.
     security = ClassSecurityInfo()
+    implements(IQAApplication)
     meta_type = 'Remote Rest QA Application'
 
     manage_options = (({'label': 'Settings',
@@ -172,16 +175,16 @@ class RemoteRestQaApplication(SimpleItem):
                 self.__finishApplication(workitem_id, REQUEST)
         return 1
 
-    def makeHTTPRequest(self, url, method='', params=None):
+    def makeHTTPRequest(self, url, method='GET', data=None, params=None):
         headers = {
             'Authorization': self.JwtToken,
             'Content-type': 'application/json',
         }
         url = "/".join([self.RemoteServer, url])
         if method == 'GET':
-            response = requests.get(url, headers=headers, data=json.dumps(params))
+            response = requests.get(url, headers=headers, data=json.dumps(data), params=params)
         elif method == 'POST':
-            response = requests.post(url, headers=headers, data=json.dumps(params))
+            response = requests.post(url, headers=headers, data=json.dumps(data), params=params)
         return response
 
 
@@ -390,12 +393,13 @@ class RemoteRestQaApplication(SimpleItem):
         envelope_url = l_workitem.getMySelf().absolute_url()
         try:
             url = 'asynctasks/qajobs/batch'
-            params = {
+            data = {
               "envelopeUrl": envelope_url
             }
-            response = self.makeHTTPRequest(url, method='POST', params=params)
+            response = self.makeHTTPRequest(url, method='POST', data=data)
             # if there were no files to assess, return 0 so the work can go on
             data = json.loads(response.content)
+            feedback_log.info("Response: {}".format(response.content))
             response.raise_for_status()
             data = data['jobs']
             if len(data) == 0:
@@ -488,7 +492,7 @@ class RemoteRestQaApplication(SimpleItem):
         l_file_id = urllib.unquote(string.split(l_file_url, '/')[-1])
         try:
             url = 'asynctasks/qajobs/{}'.format(str(p_jobID))
-            response = self.makeHTTPRequest(url, method='GET', params={})
+            response = self.makeHTTPRequest(url, method='GET', data={})
             data = json.loads(response.content)
             response.raise_for_status()
             code = data.get('executionStatus', '')
@@ -705,5 +709,68 @@ class RemoteRestQaApplication(SimpleItem):
         except Exception as e:
             l_workitem.addEvent('#{} job cancelation failed with: {}.'.format(job_id, str(e)))
 
+
+    def listQAScripts(self, file_schema, short=True):
+        """Return a list of QA scripts for file schema"""
+        # /restapi/qascripts
+        url = 'qascripts'
+        params = {
+          'schema': file_schema
+        }
+        result = []
+        try:
+            response = self.makeHTTPRequest(url, params=params)
+            if response.status_code == 200:
+                scripts = response.json()
+                if short:
+                    result = [[script.get('id').encode('utf-8'),
+                               script.get('name').encode('utf-8'),
+                               '',
+                               script.get('runOnDemandMaxFileSizeMB').encode('utf-8')]
+                              for script in scripts]
+                else:
+                    compat = {
+                        'outputType': 'content_type_id',
+                        'name': 'short_name',
+                        'description': 'description',
+                        'isActive': 'isActive',
+                        'type': 'type',
+                        'url': 'query',
+                        'schemaUrl': 'xml_schema',
+                        'runOnDemandMaxFileSizeMB': 'upper_limit',
+                        'content_type_out': 'outputType'
+                    }
+                    result = []
+                    for script in scripts:
+                        remapped = {compat[name]: val for name, val in script.iteritems() if compat.get(name)}
+                        remapped['content_type_out'] = script.get('outputType')
+                        result.append(remapped)
+        except Exception:
+            pass
+
+        return result
+
+    def runQAScript(self, p_file_url, p_script_id):
+        """
+        """
+        url = 'qajobs'
+        data = {
+            "sourceUrl": p_file_url,
+            "scriptId": p_script_id
+        }
+
+        try:
+            res = self.makeHTTPRequest(url, method='POST', data=data)
+            if res.status_code == 200:
+                result = res.json()
+                c_type = result.get('feedbackContentType', 'text/html')
+                # Creating a class here to preserve backwards compatibility
+                class ODQA(object):
+                    pass
+                odqa = ODQA()
+                setattr(odqa, 'data', result.get('feedbackContent', ''))
+                return c_type, odqa
+        except Exception:
+            pass
 
 InitializeClass(RemoteRestQaApplication)

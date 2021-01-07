@@ -36,6 +36,8 @@ from Document import Document
 from Globals import InitializeClass
 from OFS.SimpleItem import SimpleItem
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek.interfaces import IQAApplication
+from zope.interface import implements
 
 feedback_log = logging.getLogger(__name__ + '.feedback')
 
@@ -94,6 +96,7 @@ class RemoteApplication(SimpleItem):
     # assertions.
     security = ClassSecurityInfo()
     meta_type = 'Remote Application'
+    implements(IQAApplication)
 
     manage_options = (({'label': 'Settings',
                         'action': 'manage_settings_html'},) +
@@ -726,5 +729,30 @@ class RemoteApplication(SimpleItem):
         except Exception as e:
             l_workitem.addEvent('#{} job cancelation failed with: {}.'.format(job_id, str(e)))
 
+    def listQAScripts(self, file_schema, short=True):
+        """Retrieve the available QA scripts for file schema"""
+        l_server_url = self.RemoteServer
+        l_remote_server = self.RemoteService
+        l_server = xmlrpclib.ServerProxy(l_server_url)
+        try:
+            l_server = xmlrpclib.ServerProxy(l_server_url)
+            l_server_service = getattr(l_server, l_remote_server)
+            if short:
+                l_tmp = l_server_service.listQAScripts(file_schema)
+            else:
+                l_tmp = l_server_service.listQueries(file_schema)
+            return l_tmp
+        except Exception:
+            pass
+
+    def runQAScript(self, p_file_url, p_script_id):
+        """On demand QA"""
+        l_server_url = self.RemoteServer
+        l_remote_server = self.RemoteService
+        l_server = xmlrpclib.ServerProxy(l_server_url)
+        l_server_service = getattr(l_server, l_remote_server)
+        l_tmp = l_server_service.runQAScript(p_file_url, p_script_id)
+
+        return l_tmp
 
 InitializeClass(RemoteApplication)
