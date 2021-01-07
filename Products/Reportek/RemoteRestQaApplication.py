@@ -393,12 +393,13 @@ class RemoteRestQaApplication(SimpleItem):
         envelope_url = l_workitem.getMySelf().absolute_url()
         try:
             url = 'asynctasks/qajobs/batch'
-            params = {
+            data = {
               "envelopeUrl": envelope_url
             }
-            response = self.makeHTTPRequest(url, method='POST', params=params)
+            response = self.makeHTTPRequest(url, method='POST', data=data)
             # if there were no files to assess, return 0 so the work can go on
             data = json.loads(response.content)
+            feedback_log.info("Response: {}".format(response.content))
             response.raise_for_status()
             data = data['jobs']
             if len(data) == 0:
@@ -491,7 +492,7 @@ class RemoteRestQaApplication(SimpleItem):
         l_file_id = urllib.unquote(string.split(l_file_url, '/')[-1])
         try:
             url = 'asynctasks/qajobs/{}'.format(str(p_jobID))
-            response = self.makeHTTPRequest(url, method='GET', params={})
+            response = self.makeHTTPRequest(url, method='GET', data={})
             data = json.loads(response.content)
             response.raise_for_status()
             code = data.get('executionStatus', '')
