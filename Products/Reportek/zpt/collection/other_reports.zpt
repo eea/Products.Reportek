@@ -2,7 +2,9 @@
   <metal:block fill-slot="content">
     <span tal:replace="structure python:here.collection_tabs(tab='other_reports')" />
     <h1 i18n:translate="">Other reports</h1>
-    <div tal:define="owncolls here/ReportekEngine/getUserCollections;
+    <div tal:define="SecurityManager modules/AccessControl/getSecurityManager;
+                     is_manager python:SecurityManager.checkPermission('View management screens', template);
+                     owncolls python: {'Reporter': here.get_company_collections()} if is_manager else here.ReportekEngine.getUserCollections();
                      rep_colls python: owncolls.get('Reporter', {});
                      rw_colls python: rep_colls.get('rw', []);
                      ro_colls python: rep_colls.get('ro', []);
