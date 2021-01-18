@@ -898,7 +898,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                         paths = [path] if path else []
                         data = get_colls({
                             'paths': paths,
-                            'prev_paths': c_data.get('prev_paths')
+                            'prev_paths': c_data.get('previous_paths')
                         })
                         return data
 
