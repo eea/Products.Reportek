@@ -41,7 +41,7 @@
           </li>
         </ul>
       </div>
-      <div tal:condition="python: ro_colls">
+      <div tal:condition="python: ro_colls and not is_manager">
         <p i18n:translate="">Previous reports (for archive purposes, excluding the current context):</p>
         <ul tal:repeat="col ro_colls">
           <li tal:condition="python: col not in comp_ro_colls">
