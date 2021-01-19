@@ -32,7 +32,7 @@
           </li>
         </ul>
       </div>
-      <h2 tal:condition="python: rw_colls or ro_colls">Reports for other companies where the user is a reporter</h2>
+      <h2 tal:condition="python: rw_colls or ro_colls and not is_manager">Reports for other companies where the user is a reporter</h2>
       <div tal:condition="python: rw_colls">
         <p i18n:translate="">Current active reports (excluding the current context):</p>
         <ul tal:repeat="col rw_colls">
