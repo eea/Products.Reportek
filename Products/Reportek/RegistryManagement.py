@@ -198,7 +198,8 @@ class FGASRegistryAPI(BaseRegistryAPI):
                 )
                 if path:
                     details['path'] = '/' + path
-
+                    details['licences_path'] = '/' + path + '/aggregated_licences'
+                    details['stocks_path'] = '/' + path + '/stocks'
             return details
 
     def getCollectionPaths(self, username):
