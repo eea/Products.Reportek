@@ -15,3 +15,6 @@ class EnvelopeReleasedException(Exception):
 
 class ApplicationException(Exception):
     """Raised when an Zope Python Application fails"""
+
+class UploadValidationException(Exception):
+    """Raised when a file contains a virus"""

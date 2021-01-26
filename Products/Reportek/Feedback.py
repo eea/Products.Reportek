@@ -50,6 +50,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 # Zope imports
 from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate
 from Products.Reportek import constants
+from Products.Reportek.clamav import check_file
 # Product specific imports
 from Products.Reportek.Document import Document
 from Products.Reportek.interfaces import IFeedback
@@ -253,6 +254,7 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
         """
         if filename is None:
             filename = RepUtils.getFilename(file.filename)
+        check_file(file)
         add_OfsBlobFile(self, filename, file)
         if REQUEST:
             REQUEST.RESPONSE.redirect('%s/manage_editFeedbackForm' % self.absolute_url())
