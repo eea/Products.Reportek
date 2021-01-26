@@ -11,11 +11,12 @@ def check_file(file):
     """POST the file to the clamav-rest service"""
     clamav_host = os.environ.get('CLAMAV_HOST')
     if clamav_host:
-        files = {'file': getattr(file, 'filename', 'file')}
+        file.seek(0)
+        files = {'file': file.read()}
         data = {'name': getattr(file, 'filename', 'file')}
         response = requests.post('http://%s:8080/scan' % clamav_host,
                                  files=files, data=data)
-
+        file.seek(0)
         if 'Everything ok : true' not in response.text:
-            logger.info('File %s is dangerous, preventing upload' % file.name)
+            logger.info('File %s is dangerous, preventing upload' % getattr(file, 'filename', 'file'))
             raise UploadValidationException('Virus found in the file')
