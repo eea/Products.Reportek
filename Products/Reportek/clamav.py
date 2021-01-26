@@ -11,8 +11,8 @@ def check_file(file):
     """POST the file to the clamav-rest service"""
     clamav_host = os.environ.get('CLAMAV_HOST')
     if clamav_host:
-        files = {'file': file.name}
-        data = {'name': file.name}
+        files = {'file': getattr(file, 'filename', 'file')}
+        data = {'name': getattr(file, 'filename', 'file')}
         response = requests.post('http://%s:8080/scan' % clamav_host,
                                  files=files, data=data)
 
