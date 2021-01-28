@@ -20,6 +20,7 @@ setup(
         'plone.memoize',
         'requests',
         'xlwt',
+        'clamd',
         'zipstream',
         'xmltodict==0.11.0',
         'eea.rabbitmq.client',

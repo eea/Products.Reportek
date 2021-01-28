@@ -252,6 +252,29 @@
                        tal:attributes="value here/rdf_export_envs_age|nothing" />
             </p>
         </fieldset>
+        <fieldset>
+            <legend>AV Service</legend>
+            <p class="form-help">
+                <label for='clamav_rest_host'><strong>Clamav REST Host (leave empty if using ClamD)</strong></label>
+                <input type="text" size="50" id="clamav_rest_host" name="clamav_rest_host"
+                       tal:attributes="value here/clamav_rest_host" />
+            </p>
+            <p class="form-help">
+                <label for='clamd_host'><strong>ClamD host (leave empty if using Clamav REST Host)</strong></label>
+                <input type="text" size="50" id="clamd_host" name="clamd_host"
+                       tal:attributes="value here/clamd_host" />
+            </p>
+            <p class="form-help">
+                <label for='clamd_port'><strong>ClamD port</strong></label>
+                <input type="text" size="50" id="clamd_port" name="clamd_port"
+                       tal:attributes="value here/clamd_port" />
+            </p>
+            <p class="form-help">
+                <label for='clamd_timeout'><strong>ClamD timeout (empty for no timeout)</strong></label>
+                <input type="text" size="50" id="clamd_timeout" name="clamd_timeout"
+                       tal:attributes="value here/clamd_timeout" />
+            </p>
+        </fieldset>
         <br/>
         <input type="submit" value="Save changes" />
     </tal:def>

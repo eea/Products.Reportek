@@ -64,6 +64,7 @@ from plone.memoize import ram
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BdrAuthorizationMiddleware import \
     BdrAuthorizationMiddleware
+from Products.Reportek.clamav import AVService
 from Products.Reportek.config import REPORTEK_DEPLOYMENT
 from Products.Reportek.ContentRegistryPingger import ContentRegistryPingger
 from Products.Reportek.RegistryManagement import (BaseRegistryAPI,
@@ -143,6 +144,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     er_token = ''
     auth_middleware_recheck_interval = 300
     XLS_max_rows = 1000
+    clamav_rest_host = ''
+    clamd_host = ''
+    clamd_port = 3310
+    clamd_timeout = None
 
     def all_meta_types(self, interfaces=None):
         """
@@ -299,6 +304,20 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         self.preliminary_obligations = self.REQUEST.get('preliminary_obligations', self.preliminary_obligations)
 
+        self.clamav_rest_host = self.REQUEST.get('clamav_rest_host', self.clamav_rest_host)
+        self.clamd_host = self.REQUEST.get('clamd_host', self.clamd_host)
+        try:
+            self.clamd_port = int(self.REQUEST.get('clamd_port', self.clamd_port))
+        except ValueError:
+            self.clamd_port = 3310
+        try:
+            self.clamd_timeout = self.REQUEST.get('clamd_timeout', self.clamd_timeout)
+        except (ValueError, TypeError):
+            self.clamd_timeout = None
+        self._AVService = AVService(self.clamav_rest_host,
+                            self.clamd_host,
+                            self.clamd_port,
+                            self.clamd_timeout)
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             self.BDRRegistryAPI.set_base_url(self.bdr_registry_url)
             self.FGASRegistryAPI.set_base_url(self.er_url, self.er_token)
@@ -344,6 +363,15 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if not getattr(self, '_BDRRegistryAPI', None):
             self._BDRRegistryAPI = BDRRegistryAPI('BDR Registry', self.bdr_registry_url)
         return self._BDRRegistryAPI
+
+    @property
+    def AVService(self):
+        if not getattr(self, '_AVService', None):
+            self._AVService = AVService(self.clamav_rest_host,
+                                        self.clamd_host,
+                                        self.clamd_port,
+                                        self.clamd_timeout)
+        return self._AVService
 
     def get_registry(self, collection):
         registry = ''
