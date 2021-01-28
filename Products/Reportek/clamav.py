@@ -57,7 +57,7 @@ class AVService(SimpleItem):
     def _check_file_clamd(self, file, checks=0):
         """Check file with clamd server"""
         try:
-            return self.clamd.instream(file.read())
+            return self.clamd.instream(file)
         except Exception:
             checks += 1
             if checks == 3:

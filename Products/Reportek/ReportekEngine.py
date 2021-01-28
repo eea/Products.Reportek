@@ -311,7 +311,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         except ValueError:
             self.clamd_port = 3310
         try:
-            self.clamd_timeout = self.REQUEST.get('clamd_timeout', self.clamd_timeout)
+            self.clamd_timeout = float(self.REQUEST.get('clamd_timeout', self.clamd_timeout))
         except (ValueError, TypeError):
             self.clamd_timeout = None
         self._AVService = AVService(self.clamav_rest_host,
