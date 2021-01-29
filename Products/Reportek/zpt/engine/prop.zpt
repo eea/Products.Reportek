@@ -274,6 +274,11 @@
                 <input type="text" size="50" id="clamd_timeout" name="clamd_timeout"
                        tal:attributes="value here/clamd_timeout" />
             </p>
+            <p class="form-help">
+                <label for='clam_max_file_size'><strong>Maximum file size</strong></label>
+                <input type="text" size="50" id="clam_max_file_size" name="clam_max_file_size"
+                       tal:attributes="value here/clam_max_file_size" />
+            </p>
         </fieldset>
         <br/>
         <input type="submit" value="Save changes" />

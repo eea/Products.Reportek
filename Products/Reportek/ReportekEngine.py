@@ -148,6 +148,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     clamd_host = ''
     clamd_port = 3310
     clamd_timeout = None
+    clam_max_file_size = None
 
     def all_meta_types(self, interfaces=None):
         """
@@ -314,10 +315,15 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             self.clamd_timeout = float(self.REQUEST.get('clamd_timeout', self.clamd_timeout))
         except (ValueError, TypeError):
             self.clamd_timeout = None
+        try:
+            self.clam_max_file_size = int(self.REQUEST.get('clam_max_file_size', self.clam_max_file_size))
+        except (ValueError, TypeError):
+            self.self.clam_max_file_size = None
         self._AVService = AVService(self.clamav_rest_host,
-                            self.clamd_host,
-                            self.clamd_port,
-                            self.clamd_timeout)
+                                    self.clamd_host,
+                                    self.clamd_port,
+                                    self.clamd_timeout,
+                                    self.clam_max_file_size)
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             self.BDRRegistryAPI.set_base_url(self.bdr_registry_url)
             self.FGASRegistryAPI.set_base_url(self.er_url, self.er_token)

@@ -1,4 +1,5 @@
 import logging
+import os
 import time
 
 import clamd
@@ -13,11 +14,12 @@ class AVService(SimpleItem):
     """AV Service"""
 
     def __init__(self, clamav_rest_host=None, clamd_host=None,
-                 clamd_port=3310, clamd_timeout=None):
+                 clamd_port=3310, clamd_timeout=None, clam_max_file_size=None):
         self.clamav_rest_host = clamav_rest_host
         self.clamd_host = clamd_host
         self.clamd_port = clamd_port
         self.clamd_timeout = clamd_timeout
+        self.clam_max_file_size = clam_max_file_size
         self.clamd = None
         self.scanning = None
         if clamav_rest_host:
@@ -28,31 +30,40 @@ class AVService(SimpleItem):
                                                   port=self.clamd_port,
                                                   timeout=self.clamd_timeout)
 
+    def get_size(self, file):
+        file.seek(0, os.SEEK_END)
+        size = file.tell()
+        file.seek(0)
+
+        return size
+
     def scan(self, file):
         file.seek(0)
         result = None
         v_found = False
-        if self.scanning == 'rest':
-            try:
-                result = self._check_file_rest(file)
-            except requests.exceptions.RequestException as e:
-                logger.error('Unable to establish connection with the clamav rest service: {}'.format(str(e)))
-            if result and 'Everything ok : true' not in result.text:
-                log_message = 'Virus found in the file "{}"'.format(getattr(file, 'filename', 'file'))
-                v_found = True
-        elif self.scanning == 'clamd':
-            try:
-                result = self._check_file_clamd(file)
-            except Exception as e:
-                logger.error('Connection to ClamD was lost: {}'.format(str(e)))
-            if result and result.get('stream')[0] == 'FOUND':
-                sig = result.get('stream')[1]
-                log_message = 'Virus found: "{}" in the file "{}"'.format(sig, getattr(file, 'filename', 'file'))
-                v_found = True
-        file.seek(0)
-        if v_found:
-            logger.error(log_message)
-            raise UploadValidationException(log_message)
+
+        if self.clam_max_file_size and self.get_size(file) <= self.clam_max_file_size:
+            if self.scanning == 'rest':
+                try:
+                    result = self._check_file_rest(file)
+                except requests.exceptions.RequestException as e:
+                    logger.error('Unable to establish connection with the clamav rest service: {}'.format(str(e)))
+                if result and 'Everything ok : true' not in result.text:
+                    log_message = 'Virus found in the file "{}"'.format(getattr(file, 'filename', 'file'))
+                    v_found = True
+            elif self.scanning == 'clamd':
+                try:
+                    result = self._check_file_clamd(file)
+                except Exception as e:
+                    logger.error('Connection to ClamD was lost: {}'.format(str(e)))
+                if result and result.get('stream')[0] == 'FOUND':
+                    sig = result.get('stream')[1]
+                    log_message = 'Virus found: "{}" in the file "{}"'.format(sig, getattr(file, 'filename', 'file'))
+                    v_found = True
+            file.seek(0)
+            if v_found:
+                logger.error(log_message)
+                raise UploadValidationException(log_message)
 
     def _check_file_clamd(self, file, checks=0):
         """Check file with clamd server"""
