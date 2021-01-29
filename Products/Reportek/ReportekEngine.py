@@ -318,7 +318,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         try:
             self.clam_max_file_size = int(self.REQUEST.get('clam_max_file_size', self.clam_max_file_size))
         except (ValueError, TypeError):
-            self.self.clam_max_file_size = None
+            self.clam_max_file_size = None
         self._AVService = AVService(self.clamav_rest_host,
                                     self.clamd_host,
                                     self.clamd_port,
