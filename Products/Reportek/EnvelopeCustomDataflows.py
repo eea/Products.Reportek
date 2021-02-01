@@ -1216,9 +1216,12 @@ class EnvelopeCustomDataflows(Toolz):
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             # Get the transaction year from the XML metadata
             year = self.get_transaction_year()
-            if year != 'N/A' and (not self.year or int(year) != self.year):
-                self.year = int(year)
-                self.reindex_object()
+            if year and year != 'N/A' and (not self.year or int(year) != self.year):
+                try:
+                    self.year = int(year)
+                    self.reindex_object()
+                except Exception:
+                    conversion_log.error("Unable to extract year from xml metadata.")
 
     security.declareProtected('View', 'metadata_json')
 

@@ -2,7 +2,9 @@
   <metal:block fill-slot="content">
     <span tal:replace="structure python:here.collection_tabs(tab='other_reports')" />
     <h1 i18n:translate="">Other reports</h1>
-    <div tal:define="owncolls here/ReportekEngine/getUserCollections;
+    <div tal:define="SecurityManager modules/AccessControl/getSecurityManager;
+                     is_manager python:SecurityManager.checkPermission('View management screens', template);
+                     owncolls python: {'Reporter': here.get_company_collections()} if is_manager else here.ReportekEngine.getUserCollections();
                      rep_colls python: owncolls.get('Reporter', {});
                      rw_colls python: rep_colls.get('rw', []);
                      ro_colls python: rep_colls.get('ro', []);
@@ -30,7 +32,7 @@
           </li>
         </ul>
       </div>
-      <h2 tal:condition="python: rw_colls or ro_colls">Reports for other companies where the user is a reporter</h2>
+      <h2 tal:condition="python: rw_colls or ro_colls and not is_manager">Reports for other companies where the user is a reporter</h2>
       <div tal:condition="python: rw_colls">
         <p i18n:translate="">Current active reports (excluding the current context):</p>
         <ul tal:repeat="col rw_colls">
@@ -39,7 +41,7 @@
           </li>
         </ul>
       </div>
-      <div tal:condition="python: ro_colls">
+      <div tal:condition="python: ro_colls and not is_manager">
         <p i18n:translate="">Previous reports (for archive purposes, excluding the current context):</p>
         <ul tal:repeat="col ro_colls">
           <li tal:condition="python: col not in comp_ro_colls">

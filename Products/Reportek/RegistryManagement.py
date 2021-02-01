@@ -77,6 +77,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
     }
     COUNTRY_TO_FOLDER = {
         'uk': 'gb',
+        'uk_gb': 'gb',
         'el': 'gr',
         'non_eu': 'non-eu'
     }
@@ -157,8 +158,9 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if details:
             if reduce(lambda i, x: i and x in details, keysToVerify, True):
                 country_code = details.get('country_code')
-                # If we have a NONEU_TYPE company with a legal representative, 
-                # use the country_code from the legal representative
+                # If we have a NONEU_TYPE or AMBIGUOUS_TYPE company with a
+                # legal representative, use the country_code from the
+                # legal representative
                 c_type = details.get('address', {}).get('country', {}).get('type')
                 rep = details.get('representative')
                 previous_paths = []
@@ -173,10 +175,16 @@ class FGASRegistryAPI(BaseRegistryAPI):
                                 country_code,
                                 str(details['company_id']),
                                 details['collection_id'],
-
+                            ))
+                for c_hist in details.get('country_history', []):
+                    previous_paths.append(self.buildCollectionPath(
+                                details['domain'],
+                                c_hist,
+                                str(details['company_id']),
+                                details['collection_id'],
                             ))
                 details['previous_paths'] = previous_paths
-                if c_type == 'NONEU_TYPE' and rep:
+                if c_type in ['NONEU_TYPE', 'AMBIGUOUS_TYPE'] and rep:
                     address = rep.get('address')
                     if address:
                         country = address.get('country')
@@ -190,7 +198,8 @@ class FGASRegistryAPI(BaseRegistryAPI):
                 )
                 if path:
                     details['path'] = '/' + path
-
+                    details['licences_path'] = '/' + path + '/aggregated_licences'
+                    details['stocks_path'] = '/' + path + '/stocks'
             return details
 
     def getCollectionPaths(self, username):
@@ -230,6 +239,8 @@ class FGASRegistryAPI(BaseRegistryAPI):
                         prev_path = build_paths(c, lr_c_code)
                         if prev_path:
                             prev_paths.append(prev_path)
+                for c_hist in c.get('country_history', []):
+                    prev_paths.append(build_paths(c, c_hist))
 
         rep_paths['paths'] = paths
         rep_paths['prev_paths'] = prev_paths

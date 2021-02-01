@@ -858,6 +858,50 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
         return data
 
+    def get_company_collections(self):
+        """Get the company collections, to be used by other_reports for Managers
+        """
+        def get_colls(paths):
+            """Paths is a dictionary {'paths': [], 'prev_paths': []}"""
+            acc_paths = list(set(paths.get('paths') + paths.get('prev_paths')))
+            colls = {
+                'rw': [],
+                'ro': []
+            }
+            for colPath in acc_paths:
+                path = str(colPath) if colPath.startswith('/') else '/{}'.format(str(colPath))
+                try:
+                    if colPath in paths.get('paths'):
+                        colls['rw'].append(self.unrestrictedTraverse(path))
+                    else:
+                        colls['ro'].append(self.unrestrictedTraverse(path))
+                except Exception:
+                    pass
+
+            return colls
+
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            engine = self.getEngine()
+            registry = engine.get_registry(self)
+            if self.company_id and registry:
+                registry_name = getattr(registry, 'registry_name', None)
+                if registry_name == 'FGAS Registry':
+                    domain = 'FGAS'
+                    for obl in self.dataflow_uris:
+                        if obl in engine.er_ods_obligations:
+                            domain = 'ODS'
+                            break
+                    c_data = registry.getCompanyDetailsById(self.company_id,
+                                                            domain=domain)
+                    if c_data:
+                        path = c_data.get('path', None)
+                        paths = [path] if path else []
+                        data = get_colls({
+                            'paths': paths,
+                            'prev_paths': c_data.get('previous_paths')
+                        })
+                        return data
+
     def get_released_envelopes(self):
         path = '/'.join(self.getPhysicalPath())
         query = {'meta_type': 'Report Envelope',

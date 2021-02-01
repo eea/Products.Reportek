@@ -714,39 +714,40 @@ class RemoteRestQaApplication(SimpleItem):
         """Return a list of QA scripts for file schema"""
         # /restapi/qascripts
         url = 'qascripts'
-        params = {
-          'schema': file_schema
-        }
         result = []
-        try:
-            response = self.makeHTTPRequest(url, params=params)
-            if response.status_code == 200:
-                scripts = response.json()
-                if short:
-                    result = [[script.get('id').encode('utf-8'),
-                               script.get('name').encode('utf-8'),
-                               '',
-                               script.get('runOnDemandMaxFileSizeMB').encode('utf-8')]
-                              for script in scripts]
-                else:
-                    compat = {
-                        'outputType': 'content_type_id',
-                        'name': 'short_name',
-                        'description': 'description',
-                        'isActive': 'isActive',
-                        'type': 'type',
-                        'url': 'query',
-                        'schemaUrl': 'xml_schema',
-                        'runOnDemandMaxFileSizeMB': 'upper_limit',
-                        'content_type_out': 'outputType'
-                    }
-                    result = []
-                    for script in scripts:
-                        remapped = {compat[name]: val for name, val in script.iteritems() if compat.get(name)}
-                        remapped['content_type_out'] = script.get('outputType')
-                        result.append(remapped)
-        except Exception:
-            pass
+        if file_schema:
+            params = {
+              'schema': file_schema
+            }
+            try:
+                response = self.makeHTTPRequest(url, params=params)
+                if response.status_code == 200:
+                    scripts = response.json()
+                    if short:
+                        result = [[script.get('id').encode('utf-8'),
+                                   script.get('name').encode('utf-8'),
+                                   '',
+                                   script.get('runOnDemandMaxFileSizeMB').encode('utf-8')]
+                                  for script in scripts]
+                    else:
+                        compat = {
+                            'outputType': 'content_type_id',
+                            'name': 'short_name',
+                            'description': 'description',
+                            'isActive': 'isActive',
+                            'type': 'type',
+                            'url': 'query',
+                            'schemaUrl': 'xml_schema',
+                            'runOnDemandMaxFileSizeMB': 'upper_limit',
+                            'content_type_out': 'outputType'
+                        }
+                        result = []
+                        for script in scripts:
+                            remapped = {compat[name]: val for name, val in script.iteritems() if compat.get(name)}
+                            remapped['content_type_out'] = script.get('outputType')
+                            result.append(remapped)
+            except Exception:
+                pass
 
         return result
 

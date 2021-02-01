@@ -152,6 +152,7 @@ class SatelliteRegistryManagement(BaseAdmin):
     def prep_company_xml(self, company):
         cc_override = {
             'UK': 'GB',
+            'UK_GB': 'GB',
             'EL': 'GR'
         }
         keys = [

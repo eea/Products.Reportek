@@ -84,6 +84,13 @@
             NON-EU companies with no legal representative are not required to report.
           </tal:block>
         </span>
+        <h2 id="licences-stocks">Licences and Stocks</h2>
+        <span tal:condition="company/path">
+          <ul>
+            <li><a tal:attributes="href company/licences_path">Licences</a></li>
+            <li><a tal:attributes="href company/stocks_path">Stocks</a></li>
+          </ul>
+        </span>
         <h2 id="persons">Reporters</h2>
         <div>
           <div tal:condition="company/warning" class="legend clearfix">
