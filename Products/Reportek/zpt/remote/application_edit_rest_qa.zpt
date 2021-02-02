@@ -21,7 +21,7 @@
     <tr>
         <th align="left"><label for="token">JWT Token</label></th>
         <td colspan="2">
-            <input type="text" name="token" id="token" tal:attributes="value here/token" size="40" />
+            <input type="text" name="token" id="token" tal:attributes="value here/token|nothing" size="40" />
         </td>
     </tr>
     <tr>
