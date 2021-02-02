@@ -31,11 +31,22 @@ class AVService(SimpleItem):
                                                   timeout=self.clamd_timeout)
 
     def get_size(self, file):
-        file.seek(0, os.SEEK_END)
+        try:
+            file.seek(0, os.SEEK_END)
+        except Exception:
+            # Zip files can't seek to end
+            file.seek(0)
         size = file.tell()
         file.seek(0)
 
         return size
+
+    def get_filename(self, file):
+        f_name = getattr(file, 'filename', None)
+        if not f_name:
+            f_name = getattr(file, 'currentFilename', 'n/a')
+
+        return f_name
 
     def scan(self, file):
         file.seek(0)
@@ -49,7 +60,7 @@ class AVService(SimpleItem):
                 except requests.exceptions.RequestException as e:
                     logger.error('Unable to establish connection with the clamav rest service: {}'.format(str(e)))
                 if result and 'Everything ok : true' not in result.text:
-                    log_message = 'Virus found in the file "{}"'.format(getattr(file, 'filename', 'file'))
+                    log_message = 'Virus found in the file "{}"'.format(self.get_filename(file))
                     v_found = True
             elif self.scanning == 'clamd':
                 try:
@@ -58,7 +69,7 @@ class AVService(SimpleItem):
                     logger.error('Connection to ClamD was lost: {}'.format(str(e)))
                 if result and result.get('stream')[0] == 'FOUND':
                     sig = result.get('stream')[1]
-                    log_message = 'Virus found: "{}" in the file "{}"'.format(sig, getattr(file, 'filename', 'file'))
+                    log_message = 'Virus found: "{}" in the file "{}"'.format(sig, self.get_filename(file))
                     v_found = True
             file.seek(0)
             if v_found:
