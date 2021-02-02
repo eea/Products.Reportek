@@ -51,11 +51,11 @@ manage_addRemoteRESTQAApplicationForm = PageTemplateFile('zpt/remote/application
 
 
 def manage_addRemoteRESTQAApplication(self, id='', title='', RemoteServer='',
-                                      JwtToken='', app_name='', REQUEST=None):
+                                      token='', app_name='', REQUEST=None):
     """ Generic application that calls a remote service
     """
 
-    ob = RemoteRestQaApplication(id, title, RemoteServer, JwtToken, app_name)
+    ob = RemoteRestQaApplication(id, title, RemoteServer, token, app_name)
     self._setObject(id, ob)
 
     if REQUEST is not None:
@@ -105,7 +105,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                       SimpleItem.manage_options
                       )
 
-    def __init__(self, id, title, RemoteServer, JwtToken, app_name,
+    def __init__(self, id, title, RemoteServer, token, app_name,
                  nRetries=5, nJobRetries=5, retryFrequency=300, 
                  retryJobFrequency=300):
         """ Initialize a new instance of Document """
@@ -115,11 +115,11 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         self.app_name = app_name
         self.nRetries = nRetries                            # integer
         self.nJobRetries = nJobRetries                      # integer
-        self.JwtToken = JwtToken
+        self.token = token
         self.retryFrequency = retryFrequency                # integer - seconds
         self.retryJobFrequency = retryJobFrequency          # integer - seconds
 
-    def manage_settings(self, title, RemoteServer, app_name,JwtToken,
+    def manage_settings(self, title, RemoteServer, app_name,token,
                         nRetries, nJobRetries, retryFrequency,
                         retryJobFrequency):
         """ Change properties of the QA Application """
@@ -127,7 +127,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         self.RemoteServer = RemoteServer
         self.nRetries = nRetries
         self.nJobRetries = nJobRetries
-        self.JwtToken = JwtToken
+        self.token = token
         self.app_name = app_name
         self.retryFrequency = retryFrequency
         self.retryJobFrequency = retryJobFrequency
@@ -177,7 +177,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
 
     def makeHTTPRequest(self, url, method='GET', data=None, params=None):
         headers = {
-            'Authorization': self.JwtToken,
+            'Authorization': self.token,
             'Content-type': 'application/json',
         }
         url = "/".join([self.RemoteServer, url])
