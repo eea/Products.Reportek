@@ -18,8 +18,8 @@
 	<td><input type="text" name="RemoteServer" id="RemoteServer" size="40" /></td>
 </tr>
 <tr>
-	<th><label for="JwtToken">JWT Token</label></th>
-	<td><input type="text" name="JwtToken" id="JwtToken" size="40" /></td>
+	<th><label for="token">JWT Token</label></th>
+	<td><input type="text" name="token" id="token" size="40" /></td>
 </tr>
 <tr>
 	<th><label for="app_name">Activity ID</label></th>
