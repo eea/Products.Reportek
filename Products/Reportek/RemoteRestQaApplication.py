@@ -505,7 +505,8 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                 r_files = data.get('REMOTE_FILES')
                 if r_files:
                     for r_file in r_files:
-                        self.handle_remote_file(r_file, l_file_id, p_workitem_id, data)
+                        e_data = {'SCRIPT_TITLE': data.get('scriptTitle')}
+                        self.handle_remote_file(r_file, l_file_id, p_workitem_id, e_data)
                         l_getResultDict = {p_jobID: {'code': 1, 'fileURL': l_file_url}}
                         self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                                        p_getResult=l_getResultDict)
