@@ -693,8 +693,9 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         if isinstance(file, ZZipFileRaw) and file.allowRaw:
             skip_compress = True
             crc = file.CRC
-        engine = getattr(self.getPhysicalRoot(), ENGINE_ID, None)
-        engine.AVService.scan(file)
+        engine = getattr(self, ENGINE_ID, None)
+        if engine:
+            engine.AVService.scan(file)
         with self.data_file.open('wb', orig_size=orig_size, skip_decompress=skip_compress, crc=crc, preserve_mtime=preserve_mtime) as data_file_handle:
             if hasattr(file, 'read'):
                 for chunk in RepUtils.iter_file_data(file):
