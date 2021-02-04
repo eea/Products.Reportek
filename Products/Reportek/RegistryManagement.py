@@ -30,7 +30,7 @@ class RegistryManagement(Folder):
 
 class BaseRegistryAPI(SimpleItem):
 
-    TIMEOUT = 20
+    TIMEOUT = 120
 
     def __init__(self, registry_name, url, token=None):
         self.registry_name = registry_name
