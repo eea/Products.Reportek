@@ -1,17 +1,23 @@
+import logging
 import os.path
 from gzip import GzipFile
-from gzipraw import GzipFileRaw
-from time import time, strftime, localtime
-from ZODB.blob import Blob, POSKeyError
-from App.config import getConfiguration
-from persistent import Persistent
+from StringIO import StringIO
+from time import localtime, strftime, time
+
 import Globals
+import OFS.SimpleItem as _SimpleItem
+import RepUtils
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view
-import OFS.SimpleItem as _SimpleItem
+from App.config import getConfiguration
+from gzipraw import GzipFileRaw
+from persistent import Persistent
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-import RepUtils
-import logging
+from Products.Reportek.zip_content import ZZipFile, ZZipFileRaw
+from ZODB.blob import Blob, POSKeyError
+from zope.contenttype import guess_content_type
+from ZPublisher.HTTPRequest import FileUpload
+
 logger = logging.getLogger("Reportek")
 
 
@@ -285,15 +291,102 @@ class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
 Globals.InitializeClass(OfsBlobFile)
 
 
+def get_content_type(file_or_content):
+    """ Determine the mime-type from metadata (file name, headers)
+    and eventually the actual content (Note that zope's guess_content_type does a poor
+    job detecting from content - it's main detection is based on name/ext
+    """
+    name = None
+    headers = None
+    if hasattr(file_or_content, 'filename'):
+        name = file_or_content.filename
+        headers = getattr(file_or_content, 'headers', None)
+        readCount = 100
+        body = file_or_content.read(readCount)
+        is_ZipRaw = isinstance(file_or_content, ZZipFileRaw)
+        is_zip = isinstance(file_or_content, ZZipFile)
+        if is_ZipRaw or is_zip:
+            name = getattr(file_or_content, 'currentFilename', name)
+        if (is_ZipRaw and file_or_content.allowRaw and
+           (readCount < 0 or
+                readCount >= ZZipFileRaw.SKIP_RAW_THRESHOLD)):
+            file_or_content.rewindRaw()
+        else:
+            file_or_content.seek(0)
+    else:
+        body = file_or_content[:100]
+
+    name = name.lower()
+    if name.endswith('.gml'):
+        return 'text/xml'
+    elif name.endswith('.rar'):
+        return 'application/x-rar-compressed'
+
+    h_ctype = None
+    if headers and 'content-type' in headers:
+        h_ctype = headers['content-type']
+
+    # This will discard only utf8 BOM in case it is there
+    # zope mime type guessing fails if BOM present
+    body = RepUtils.discard_utf8_bom(body)
+    content_type, enc = guess_content_type(name, body)
+    if content_type == 'text/x-unknown-content-type' and h_ctype:
+        return h_ctype
+
+    return content_type
+
+
+def compute_uncompressed_size(file_or_content):
+    if isinstance(file_or_content, FileUpload) or isinstance(file_or_content, file):
+        pos = file_or_content.tell()
+        file_or_content.seek(0, 2)
+        size = file_or_content.tell()
+        file_or_content.seek(pos)
+        return size
+    elif isinstance(file_or_content, basestring):
+        return len(file_or_content)
+    elif isinstance(file_or_content, StringIO):
+        return file_or_content.len
+    elif isinstance(file_or_content, ZZipFileRaw):
+        return file_or_content.orig_size
+    elif isinstance(file_or_content, ZZipFile):
+        return file_or_content.tell()
+    else:
+        raise RuntimeError("Unable to compute uncompressed size")
+
+
 def add_OfsBlobFile(parent, name, data_file=None, content_type=None):
     ob = OfsBlobFile(name)
     parent[name] = ob
-    if data_file is not None:
-        with ob.data_file.open('wb') as f:
-            for chunk in RepUtils.iter_file_data(data_file):
-                f.write(chunk)
-    if content_type is not None:
-        ob.data_file.content_type = content_type
+    if isinstance(data_file, ZZipFileRaw) and data_file.allowRaw:
+        skip_compress = True
+        crc = data_file.CRC
+        orig_size = compute_uncompressed_size(data_file)
+
+        with ob.data_file.open('wb', orig_size=orig_size, skip_decompress=skip_compress, crc=crc, preserve_mtime=False) as data_file_handle:
+            if hasattr(data_file, 'read'):
+                for chunk in RepUtils.iter_file_data(data_file):
+                    data_file_handle.write(chunk)
+            else:
+                data_file_handle.write(data_file)
+            if not content_type:
+                data_file.seek(0)
+                content_type = get_content_type(data_file)
+                ob.data_file.content_type = content_type
+    else:
+        if data_file is not None:
+            with ob.data_file.open('wb') as f:
+                for chunk in RepUtils.iter_file_data(data_file):
+                    f.write(chunk)
+            if not content_type:
+                try:
+                    data_file.seek(0)
+                    content_type = get_content_type(data_file)
+                    ob.data_file.content_type = content_type
+                except Exception:
+                    pass
+            else:
+                ob.data_file.content_type = content_type
     return parent[name]
 
 

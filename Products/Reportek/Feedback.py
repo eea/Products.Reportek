@@ -54,6 +54,7 @@ from Products.Reportek import constants
 from Products.Reportek.Document import Document
 from Products.Reportek.interfaces import IFeedback
 from Products.Reportek.RepUtils import DFlowCatalogAware, parse_uri
+from Products.Reportek.zip_content import ZZipFileRaw
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from zope.event import notify
 from zope.interface import implements

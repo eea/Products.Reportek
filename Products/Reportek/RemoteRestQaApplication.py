@@ -26,7 +26,6 @@ import logging
 import string
 import tempfile
 import urllib
-import xmlrpclib
 
 import requests
 import requests.exceptions
@@ -38,6 +37,7 @@ from Document import Document
 from Globals import InitializeClass
 from OFS.SimpleItem import SimpleItem
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek.BaseRemoteApplication import BaseRemoteApplication
 from Products.Reportek.interfaces import IQAApplication
 from zope.interface import implements
 
@@ -51,18 +51,18 @@ manage_addRemoteRESTQAApplicationForm = PageTemplateFile('zpt/remote/application
 
 
 def manage_addRemoteRESTQAApplication(self, id='', title='', RemoteServer='',
-                                      JwtToken='', app_name='', REQUEST=None):
+                                      token='', app_name='', REQUEST=None):
     """ Generic application that calls a remote service
     """
 
-    ob = RemoteRestQaApplication(id, title, RemoteServer, JwtToken, app_name)
+    ob = RemoteRestQaApplication(id, title, RemoteServer, token, app_name)
     self._setObject(id, ob)
 
     if REQUEST is not None:
         return self.manage_main(self, REQUEST, update_menu=1)
 
 
-class RemoteRestQaApplication(SimpleItem):
+class RemoteRestQaApplication(BaseRemoteApplication):
     """ A computerised application, executed by an activity.
         It executes a set of operations on a remote server and generates a feedback object
         into the envelope as result of these.
@@ -105,7 +105,7 @@ class RemoteRestQaApplication(SimpleItem):
                       SimpleItem.manage_options
                       )
 
-    def __init__(self, id, title, RemoteServer, JwtToken, app_name,
+    def __init__(self, id, title, RemoteServer, token, app_name,
                  nRetries=5, nJobRetries=5, retryFrequency=300, 
                  retryJobFrequency=300):
         """ Initialize a new instance of Document """
@@ -115,11 +115,11 @@ class RemoteRestQaApplication(SimpleItem):
         self.app_name = app_name
         self.nRetries = nRetries                            # integer
         self.nJobRetries = nJobRetries                      # integer
-        self.JwtToken = JwtToken
+        self.token = token
         self.retryFrequency = retryFrequency                # integer - seconds
         self.retryJobFrequency = retryJobFrequency          # integer - seconds
 
-    def manage_settings(self, title, RemoteServer, app_name,JwtToken,
+    def manage_settings(self, title, RemoteServer, app_name,token,
                         nRetries, nJobRetries, retryFrequency,
                         retryJobFrequency):
         """ Change properties of the QA Application """
@@ -127,7 +127,7 @@ class RemoteRestQaApplication(SimpleItem):
         self.RemoteServer = RemoteServer
         self.nRetries = nRetries
         self.nJobRetries = nJobRetries
-        self.JwtToken = JwtToken
+        self.token = token
         self.app_name = app_name
         self.retryFrequency = retryFrequency
         self.retryJobFrequency = retryJobFrequency
@@ -177,7 +177,7 @@ class RemoteRestQaApplication(SimpleItem):
 
     def makeHTTPRequest(self, url, method='GET', data=None, params=None):
         headers = {
-            'Authorization': self.JwtToken,
+            'Authorization': self.token,
             'Content-type': 'application/json',
         }
         url = "/".join([self.RemoteServer, url])
@@ -500,59 +500,68 @@ class RemoteRestQaApplication(SimpleItem):
                 code = code.get('statusId', '')
             else:
                 code == ''
-            if code == '0':
             # job ready
-                if l_file_id == 'xml':
-                    l_filename = ' result for: '
+            if code == '0':
+                r_files = data.get('REMOTE_FILES')
+                if r_files:
+                    for r_file in r_files:
+                        e_data = {'SCRIPT_TITLE': data.get('scriptTitle')}
+                        self.handle_remote_file(r_file, l_file_id, p_workitem_id, e_data)
+                        l_getResultDict = {p_jobID: {'code': 1, 'fileURL': l_file_url}}
+                        self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
+                                                       p_getResult=l_getResultDict)
                 else:
-                    l_filename = ' result for file %s: ' % l_file_id
-                envelope = self.aq_parent
-                feedback_id = '{0}_{1}'.format(self.app_name, p_jobID)
-                fb_title = ''.join([self.app_name,
-                                    l_filename,
-                                    data['scriptTitle']])
+                    if l_file_id == 'xml':
+                        l_filename = ' result for: '
+                    else:
+                        l_filename = ' result for file %s: ' % l_file_id
+                    envelope = self.aq_parent
+                    feedback_id = '{0}_{1}'.format(self.app_name, p_jobID)
+                    fb_title = ''.join([self.app_name,
+                                        l_filename,
+                                        data['scriptTitle']])
 
-                envelope.manage_addFeedback(id=feedback_id,
-                                            title=fb_title,
-                                            activity_id=l_workitem.activity_id,
-                                            automatic=1,
-                                            document_id=l_file_id,
-                                            restricted=self.get_restricted_status(envelope, l_file_id))
-                feedback_ob = envelope[feedback_id]
+                    envelope.manage_addFeedback(id=feedback_id,
+                                                title=fb_title,
+                                                activity_id=l_workitem.activity_id,
+                                                automatic=1,
+                                                document_id=l_file_id,
+                                                restricted=self.get_restricted_status(envelope, l_file_id))
+                    feedback_ob = envelope[feedback_id]
 
-                content = data['feedbackContent']
-                content_type = data['feedbackContentType']
+                    content = data['feedbackContent']
+                    content_type = data['feedbackContentType']
 
-                if len(content) > FEEDBACKTEXT_LIMIT:
-                    with tempfile.TemporaryFile() as tmp:
-                        tmp.write(content.encode('utf-8'))
-                        tmp.seek(0)
-                        feedback_ob.manage_uploadFeedback(tmp,
-                                                          filename='qa-output')
-                    feedback_attach = feedback_ob.objectValues()[0]
-                    feedback_attach.data_file.content_type = content_type
-                    feedback_ob.feedbacktext = (
-                        'Feedback too large for inline display; '
-                        '<a href="qa-output/view">see attachment</a>.')
-                    feedback_ob.content_type = 'text/html'
+                    if len(content) > FEEDBACKTEXT_LIMIT:
+                        with tempfile.TemporaryFile() as tmp:
+                            tmp.write(content.encode('utf-8'))
+                            tmp.seek(0)
+                            feedback_ob.manage_uploadFeedback(tmp,
+                                                              filename='qa-output')
+                        feedback_attach = feedback_ob.objectValues()[0]
+                        feedback_attach.data_file.content_type = content_type
+                        feedback_ob.feedbacktext = (
+                            'Feedback too large for inline display; '
+                            '<a href="qa-output/view">see attachment</a>.')
+                        feedback_ob.content_type = 'text/html'
 
-                else:
-                    feedback_ob.feedbacktext = content
-                    feedback_ob.content_type = content_type
+                    else:
+                        feedback_ob.feedbacktext = content
+                        feedback_ob.content_type = content_type
 
-                feedback_ob.message = data.get('feedbackMessage', '')
-                feedback_ob.feedback_status = data.get('feedbackStatus', '')
+                    feedback_ob.message = data.get('feedbackMessage', '')
+                    feedback_ob.feedback_status = data.get('feedbackStatus', '')
 
-                if data['feedbackStatus'] == 'BLOCKER':
-                    l_workitem.blocker = True
+                    if data['feedbackStatus'] == 'BLOCKER':
+                        l_workitem.blocker = True
 
-                feedback_ob.message = data.get('feedbackMessage', '')
-                feedback_ob._p_changed = 1
-                feedback_ob.reindex_object()
+                    feedback_ob.message = data.get('feedbackMessage', '')
+                    feedback_ob._p_changed = 1
+                    feedback_ob.reindex_object()
 
-                l_getResultDict = {p_jobID: {'code': 1, 'fileURL': l_file_url}}
-                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                               p_getResult=l_getResultDict)
+                    l_getResultDict = {p_jobID: {'code': 1, 'fileURL': l_file_url}}
+                    self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
+                                                   p_getResult=l_getResultDict)
             # not ready
             elif code == '1':
                 l_nRetries = int(l_wk_prop['getResult'][p_jobID]['retries_left'])

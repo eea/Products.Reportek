@@ -36,6 +36,7 @@ from Document import Document
 from Globals import InitializeClass
 from OFS.SimpleItem import SimpleItem
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek.BaseRemoteApplication import BaseRemoteApplication
 from Products.Reportek.interfaces import IQAApplication
 from zope.interface import implements
 
@@ -60,7 +61,7 @@ def manage_addRemoteApplication(self, id='', title='', RemoteServer='',
         return self.manage_main(self, REQUEST, update_menu=1)
 
 
-class RemoteApplication(SimpleItem):
+class RemoteApplication(BaseRemoteApplication):
     """ A computerised application, executed by an activity.
         It executes a set of operations on a remote server and generates a feedback object
         into the envelope as result of these.
@@ -521,56 +522,64 @@ class RemoteApplication(SimpleItem):
 
             # job ready
             if l_ret['CODE'] == '0':
-                if l_file_id == 'xml':
-                    l_filename = ' result for: '
+                r_files = l_ret.get('REMOTE_FILES')
+                if r_files:
+                    for r_file in r_files:
+                        self.handle_remote_file(r_file, l_file_id, p_workitem_id, l_ret)
+                        l_getResultDict = {p_jobID: {'code': 1, 'fileURL': l_file_url}}
+                        self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
+                                                       p_getResult=l_getResultDict)
                 else:
-                    l_filename = ' result for file %s: ' % l_file_id
-                envelope = self.aq_parent
-                feedback_id = '{0}_{1}'.format(self.app_name, p_jobID)
-                fb_title = ''.join([self.app_name,
-                                    l_filename,
-                                    l_ret['SCRIPT_TITLE']])
-                envelope.manage_addFeedback(id=feedback_id,
-                                            title=fb_title,
-                                            activity_id=l_workitem.activity_id,
-                                            automatic=1,
-                                            document_id=l_file_id,
-                                            restricted=self.get_restricted_status(envelope, l_file_id))
-                feedback_ob = envelope[feedback_id]
+                    if l_file_id == 'xml':
+                        l_filename = ' result for: '
+                    else:
+                        l_filename = ' result for file %s: ' % l_file_id
+                    envelope = self.aq_parent
+                    feedback_id = '{0}_{1}'.format(self.app_name, p_jobID)
+                    fb_title = ''.join([self.app_name,
+                                        l_filename,
+                                        l_ret['SCRIPT_TITLE']])
+                    envelope.manage_addFeedback(id=feedback_id,
+                                                title=fb_title,
+                                                activity_id=l_workitem.activity_id,
+                                                automatic=1,
+                                                document_id=l_file_id,
+                                                restricted=self.get_restricted_status(envelope, l_file_id))
+                    feedback_ob = envelope[feedback_id]
 
-                content = l_ret['VALUE']
-                content_type = l_ret['METATYPE']
+                    content = l_ret['VALUE']
+                    content_type = l_ret['METATYPE']
 
-                if len(content) > FEEDBACKTEXT_LIMIT:
-                    with tempfile.TemporaryFile() as tmp:
-                        tmp.write(content.encode('utf-8'))
-                        tmp.seek(0)
-                        feedback_ob.manage_uploadFeedback(tmp,
-                                                          filename='qa-output')
-                    feedback_attach = feedback_ob.objectValues()[0]
-                    feedback_attach.data_file.content_type = content_type
-                    feedback_ob.feedbacktext = (
-                        'Feedback too large for inline display; '
-                        '<a href="qa-output/view">see attachment</a>.')
-                    feedback_ob.content_type = 'text/html'
+                    if len(content) > FEEDBACKTEXT_LIMIT:
+                        with tempfile.TemporaryFile() as tmp:
+                            tmp.write(content.encode('utf-8'))
+                            tmp.seek(0)
+                            feedback_ob.manage_uploadFeedback(tmp,
+                                                              filename='qa-output')
+                        feedback_attach = feedback_ob.objectValues()[0]
+                        feedback_attach.data_file.content_type = content_type
+                        feedback_ob.feedbacktext = (
+                            'Feedback too large for inline display; '
+                            '<a href="qa-output/view">see attachment</a>.')
+                        feedback_ob.content_type = 'text/html'
 
-                else:
-                    feedback_ob.feedbacktext = content
-                    feedback_ob.content_type = content_type
+                    else:
+                        feedback_ob.feedbacktext = content
+                        feedback_ob.content_type = content_type
 
-                feedback_ob.message = l_ret.get('FEEDBACK_MESSAGE', '')
-                feedback_ob.feedback_status = l_ret.get('FEEDBACK_STATUS', '')
+                    feedback_ob.message = l_ret.get('FEEDBACK_MESSAGE', '')
+                    feedback_ob.feedback_status = l_ret.get('FEEDBACK_STATUS', '')
 
-                if l_ret['FEEDBACK_STATUS'] == 'BLOCKER':
-                    l_workitem.blocker = True
+                    if l_ret['FEEDBACK_STATUS'] == 'BLOCKER':
+                        l_workitem.blocker = True
 
-                feedback_ob.message = l_ret.get('FEEDBACK_MESSAGE', '')
-                feedback_ob._p_changed = 1
-                feedback_ob.reindex_object()
+                    feedback_ob.message = l_ret.get('FEEDBACK_MESSAGE', '')
+                    feedback_ob._p_changed = 1
+                    feedback_ob.reindex_object()
 
-                l_getResultDict = {p_jobID: {'code': 1, 'fileURL': l_file_url}}
-                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                               p_getResult=l_getResultDict)
+                    l_getResultDict = {p_jobID: {'code': 1, 'fileURL': l_file_url}}
+                    self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
+                                                   p_getResult=l_getResultDict)
             # not ready
             elif l_ret['CODE'] == '1':
                 l_nRetries = int(l_wk_prop['getResult'][p_jobID]['retries_left'])
