@@ -141,9 +141,8 @@ class FGASRegistryAPI(BaseRegistryAPI):
                                        raw=True)
         return response
 
-    def get_company_paus(self, company_id, year, domain='ODS'):
-        url = '/'.join([self.baseUrl, 'undertaking', domain, company_id,
-                        year, 'pau'])
+    def get_company_paus(self, company_id, domain='ODS'):
+        url = '/'.join([self.baseUrl, 'undertaking', domain, company_id, 'pau'])
         response = self.do_api_request(url, method='post',
                                        headers={'Authorization': self.token},
                                        raw=True)

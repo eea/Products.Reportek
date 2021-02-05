@@ -667,7 +667,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         return json.dumps(res, indent=4)
 
     security.declareProtected('View', 'process_agent_uses')
-    def get_process_agent_uses(self):
+    def process_agent_uses(self):
         """ Return the ODS process agent uses for the company
         """
         res = {
@@ -692,16 +692,8 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                     if not isinstance(data, dict):
                         res["result"] = "Fail"
                         res["message"] = "Malformed body"
-                    if 'year' in data:
-                        year = str(data.get('year'))
-                        del data['year']
-                    else:
-                        # Default to the previous year
-                        year = str(DateTime().year() - 1)
                     response = registry.get_company_paus(self.company_id,
-                                                         domain=domain,
-                                                         year=year,
-                                                         data=json.dumps(data))
+                                                         domain=domain)
                     if response is not None:
                         if response.status_code != requests.codes.ok:
                             res["result"] = "Fail"
