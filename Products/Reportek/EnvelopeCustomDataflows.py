@@ -1313,7 +1313,8 @@ class EnvelopeCustomDataflows(Toolz):
             for k in envs.keys():
                 c_colls = colls.get(k, [])
                 for col in c_colls:
-                    envs[k] = envs[k] + [env for env in col.objectValues('Report Envelope')]
+                    if col.company_id == self.company_id:
+                        envs[k] = envs[k] + [env for env in col.objectValues('Report Envelope')]
 
         return envs
 
