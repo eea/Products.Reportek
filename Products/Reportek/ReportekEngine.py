@@ -447,18 +447,23 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             parent_coll.reindex_object()
         return sc
 
-    def create_fgas_collections(self, ctx, country_uri, company_id, name):
+    def create_fgas_collections(self, ctx, country_uri, company_id, name, old_company_id=None):
         # Hardcoded obligations should be fixed and retrieved automatically
         parent_coll_df = ['http://rod.eionet.europa.eu/obligations/713']
         eq_imports_df = ['http://rod.eionet.europa.eu/obligations/765']
         bulk_imports_df = ['http://rod.eionet.europa.eu/obligations/764']
+        if old_company_id:
+            main_env_id = old_company_id
+        else:
+            main_env_id = company_id
         ctx.manage_addCollection(dataflow_uris=parent_coll_df,
                             country=country_uri,
-                            id=company_id,
+                            id=main_env_id,
                             title=name,
                             allow_collections=1, allow_envelopes=1,
-                            descr='', locality='', partofyear='', year='', endyear='')
-        coll = getattr(ctx, company_id)
+                            descr='', locality='', partofyear='', year='', endyear='',
+                            old_company_id=old_company_id)
+        coll = getattr(ctx, main_env_id)
         coll.company_id = company_id
         ei_id = ''.join([RepUtils.generate_id('col'), 'ei'])
         coll.manage_addCollection(dataflow_uris=eq_imports_df,
@@ -466,14 +471,16 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                             id=ei_id,
                             title='Upload of verification documents (equipment importers)',
                             allow_collections=0, allow_envelopes=1,
-                            descr='', locality='', partofyear='', year='', endyear='')
+                            descr='', locality='', partofyear='', year='', endyear='',
+                            old_company_id=old_company_id)
         bi_id = ''.join([RepUtils.generate_id('col'), 'bi'])
         coll.manage_addCollection(dataflow_uris=bulk_imports_df,
                             country=country_uri,
                             id=bi_id,
                             title='Upload of verification documents (HFC producers and bulk importers)',
                             allow_collections=0, allow_envelopes=1,
-                            descr='', locality='', partofyear='', year='', endyear='')
+                            descr='', locality='', partofyear='', year='', endyear='',
+                            old_company_id=old_company_id)
         ei = getattr(coll, ei_id)
         ei.company_id = company_id
         ei.reindex_object()
@@ -527,47 +534,40 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 resp['message'] = msg
                 return json.dumps(resp)
 
-            # old type of collection
+            coll_id = company_id
             if old_collection_id:
-                coll = getattr(country_folder, old_collection_id, None)
-                if coll:
-                    coll.company_id = company_id
-                    coll.old_company_id = old_collection_id
-                    coll.dataflow_uris = [ self.FGASRegistryAPI.DOMAIN_TO_OBLIGATION[domain] ]
-                    coll.reindex_object()
-                else:
-                    msg = "Cannot update collection %s Old style collection not found" % coll_path
-                    logger.warning(msg)
+                coll_id = old_collection_id
+
+            coll = getattr(country_folder, coll_id, None)
+            if not coll:
+                try:
+                    country_uri = getattr(country_folder, 'country', '')
+                    if domain == 'FGAS':
+                        self.create_fgas_collections(country_folder,
+                                                     country_uri,
+                                                     company_id,
+                                                     name,
+                                                     old_company_id=old_collection_id)
+                    else:
+                        country_folder.manage_addCollection(dataflow_uris=[ self.FGASRegistryAPI.DOMAIN_TO_OBLIGATION[domain] ],
+                                                            country=country_uri,
+                                                            id=company_id,
+                                                            title=name,
+                                                            allow_collections=0, allow_envelopes=1,
+                                                            descr='', locality='', partofyear='', year='', endyear='',
+                                                            old_company_id=old_collection_id)
+                    coll = getattr(country_folder, coll_id)
+                except Exception as e:
+                    msg = "Cannot create collection %s. " % coll_path
+                    logger.warning(msg + str(e))
+                    # return failure (404) to the service calling us
                     self.REQUEST.RESPONSE.setStatus(404)
                     resp['message'] = msg
                     return json.dumps(resp)
-            else:
-                coll = getattr(country_folder, coll_id, None)
-                if not coll:
-                    try:
-                        country_uri = getattr(country_folder, 'country', '')
-                        if domain == 'FGAS':
-                            self.create_fgas_collections(country_folder,
-                                                         country_uri,
-                                                         company_id,
-                                                         name)
-                        else:
-                            country_folder.manage_addCollection(dataflow_uris=[ self.FGASRegistryAPI.DOMAIN_TO_OBLIGATION[domain] ],
-                                                                country=country_uri,
-                                                                id=company_id,
-                                                                title=name,
-                                                                allow_collections=0, allow_envelopes=1,
-                                                                descr='', locality='', partofyear='', year='', endyear='')
-                        coll = getattr(country_folder, company_id)
-                    except Exception as e:
-                        msg = "Cannot create collection %s. " % coll_path
-                        logger.warning(msg + str(e))
-                        # return failure (404) to the service calling us
-                        self.REQUEST.RESPONSE.setStatus(404)
-                        resp['message'] = msg
-                        return json.dumps(resp)
-                coll.company_id = company_id
-                coll.reindex_object()
+            coll.company_id = company_id
+            if old_collection_id:
+                coll.old_company_id = old_collection_id
+            coll.reindex_object()
             resp['status'] = 'success'
             resp['message'] = 'Collection %s updated/created succesfully' % coll_path
             return json.dumps(resp)
