@@ -1307,6 +1307,9 @@ class EnvelopeCustomDataflows(Toolz):
                 colls = self.get_company_collections()
             else:
                 colls = engine.getUserCollections()
+                if colls:
+                    colls = colls.get('Reporter')
+
             for k in envs.keys():
                 c_colls = colls.get(k, [])
                 for col in c_colls:
