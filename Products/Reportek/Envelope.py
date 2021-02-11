@@ -1142,7 +1142,11 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             there are no spaces in the id.
         """
         id = self.cook_file_id(name)
-        self.manage_addDocument(id=id, title=id, file=zipfile, restricted=restricted)
+        filename = getattr(zipfile, 'filename', None)
+        if not filename:
+            filename = id
+        self.manage_addDocument(id=id, title=id, file=zipfile,
+                                filename=filename, restricted=restricted)
         return id
 
     security.declareProtected('Add Envelopes', 'manage_addzipfile')

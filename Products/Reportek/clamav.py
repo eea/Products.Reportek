@@ -51,20 +51,26 @@ class AVService(SimpleItem):
     def is_file_like(self, obj):
         return hasattr(obj, 'read') and hasattr(obj, 'seek')
 
-    def scan(self, file):
+    def scan(self, file, filesize=None, filename=None):
         if self.is_file_like(file):
             file.seek(0)
             result = None
             v_found = False
 
-            if self.clam_max_file_size and self.get_size(file) <= self.clam_max_file_size:
+            if not filesize:
+                filesize = self.get_size(file)
+
+            if not filename:
+                filename = self.get_filename(file)
+
+            if self.clam_max_file_size and filesize <= self.clam_max_file_size:
                 if self.scanning == 'rest':
                     try:
                         result = self._check_file_rest(file)
                     except requests.exceptions.RequestException as e:
                         logger.error('Unable to establish connection with the clamav rest service: {}'.format(str(e)))
                     if result and 'Everything ok : true' not in result.text:
-                        log_message = 'Virus found in the file "{}"'.format(self.get_filename(file))
+                        log_message = 'Virus found in the file "{}"'.format(filename)
                         v_found = True
                 elif self.scanning == 'clamd':
                     try:
@@ -73,7 +79,7 @@ class AVService(SimpleItem):
                         logger.error('Connection to ClamD was lost: {}'.format(str(e)))
                     if result and result.get('stream')[0] == 'FOUND':
                         sig = result.get('stream')[1]
-                        log_message = 'Virus found: "{}" in the file "{}"'.format(sig, self.get_filename(file))
+                        log_message = 'Virus found: "{}" in the file "{}"'.format(sig, filename)
                         v_found = True
                 file.seek(0)
                 if v_found:

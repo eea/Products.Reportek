@@ -141,6 +141,13 @@ class FGASRegistryAPI(BaseRegistryAPI):
                                        raw=True)
         return response
 
+    def get_company_paus(self, company_id, domain='ODS'):
+        url = '/'.join([self.baseUrl, 'undertaking', domain, company_id, 'pau'])
+        response = self.do_api_request(url, method='post',
+                                       headers={'Authorization': self.token},
+                                       raw=True)
+        return response
+
     def sync_company(self, company_id, domain):
         d_map = {
             "FGAS": "fgases",

@@ -693,9 +693,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         if isinstance(file, ZZipFileRaw) and file.allowRaw:
             skip_compress = True
             crc = file.CRC
-        engine = getattr(self, ENGINE_ID, None)
-        if engine:
-            engine.AVService.scan(file)
+
         with self.data_file.open('wb', orig_size=orig_size, skip_decompress=skip_compress, crc=crc, preserve_mtime=preserve_mtime) as data_file_handle:
             if hasattr(file, 'read'):
                 for chunk in RepUtils.iter_file_data(file):
@@ -703,11 +701,14 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             else:
                 data_file_handle.write(file)
 
-        if self.content_type == 'text/xml':
-            with self.data_file.open('rb') as data_file_handle:
+        with self.data_file.open('rb') as data_file_handle:
+            engine = getattr(self, ENGINE_ID, None)
+            if engine:
+                engine.AVService.scan(data_file_handle, filename=self.getId())
+            if self.content_type == 'text/xml':
                 self.xml_schema_location = detect_schema(data_file_handle)
-        else:
-            self.xml_schema_location = ''
+            else:
+                self.xml_schema_location = ''
 
         self.generate_hash()
         self.accept_time = None

@@ -549,6 +549,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             transition_list = self.getNextTransitions(workitem_id)
         destinations = []
         process = self.unrestrictedTraverse(self.process_path)
+
         for transition_id in transition_list:
             activity_to_id = getattr(process, transition_id).To
             activity_to = getattr(process, activity_to_id)
@@ -950,6 +951,5 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 REQUEST.RESPONSE.redirect(REQUEST['DestinationURL'])
             else:
                 REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
-
 
 InitializeClass(EnvelopeInstance)

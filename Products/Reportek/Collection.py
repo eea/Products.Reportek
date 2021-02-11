@@ -666,9 +666,51 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
         return json.dumps(res, indent=4)
 
+    security.declareProtected('View', 'process_agent_uses')
+    def process_agent_uses(self):
+        """ Return the ODS process agent uses for the company
+        """
+        res = {
+            "result": "Ok",
+            "message": ""
+        }
+        self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            engine = self.getEngine()
+            registry = engine.get_registry(self)
+
+            if self.company_id and registry:
+                registry_name = getattr(registry, 'registry_name', None)
+                if registry_name == 'FGAS Registry':
+                    domain = 'FGAS'
+                    for obl in self.dataflow_uris:
+                        if obl in engine.er_ods_obligations:
+                            domain = 'ODS'
+                            break
+
+                    data = json.loads(self.REQUEST.get("BODY") or "{}")
+                    if not isinstance(data, dict):
+                        res["result"] = "Fail"
+                        res["message"] = "Malformed body"
+                    response = registry.get_company_paus(self.company_id,
+                                                         domain=domain)
+                    if response is not None:
+                        if response.status_code != requests.codes.ok:
+                            res["result"] = "Fail"
+                            res["message"] = response.reason
+                        else:
+                            res.update(response.json())
+                            res["result"] = "Ok"
+                            res["message"] = ""
+                    else:
+                        res["result"] = "Fail"
+                        res["message"] = None
+
+        return json.dumps(res, indent=4)
+
     security.declareProtected('View', 'stocks')
     def stocks(self):
-        """ Return the ODS licences for the company
+        """ Return the ODS stocks for the company
         """
         res = {
             "result": "Ok",
