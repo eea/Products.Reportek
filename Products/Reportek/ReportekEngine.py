@@ -149,6 +149,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     clamd_port = 3310
     clamd_timeout = None
     clam_max_file_size = None
+    dfm_type = 'dfm_xmlrpc'
+    cm_type = 'cm_xmlrpc'
 
     def all_meta_types(self, interfaces=None):
         """
@@ -179,7 +181,23 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declareProtected(view_management_screens, 'index_html')
     index_html = PageTemplateFile('zpt/engine_index', globals())
 
-    # Setters for the XMLRPC Methods properties
+    # Setters for the Dataflows and Country Manager properties
+    @DataflowsManager.dfm_type.setter
+    def dfm_type(self, value):
+        self._dfm_type = value
+
+    @DataflowsManager.dfm_rest_url.setter
+    def dfm_rest_url(self, value):
+        self._dfm_rest_url = value
+
+    @DataflowsManager.dfm_obl_url_prefix.setter
+    def dfm_obl_url_prefix(self, value):
+        self._dfm_obl_url_prefix = value
+
+    @DataflowsManager.dfm_rest_timeout.setter
+    def dfm_rest_timeout(self, value):
+        self._dfm_rest_timeout = value
+
     @DataflowsManager.dfm_title.setter
     def dfm_title(self, value):
         xmlrpc_dataflow = getattr(self, 'xmlrpc_dataflow', None)
@@ -203,6 +221,18 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         xmlrpc_dataflow = getattr(self, 'xmlrpc_dataflow', None)
         if xmlrpc_dataflow:
             self.xmlrpc_dataflow.timeout = float(value)
+
+    @CountriesManager.cm_type.setter
+    def cm_type(self, value):
+        self._cm_type = value
+
+    @CountriesManager.cm_rest_url.setter
+    def cm_rest_url(self, value):
+        self._cm_rest_url = value
+
+    @CountriesManager.cm_rest_timeout.setter
+    def cm_rest_timeout(self, value):
+        self._cm_rest_timeout = value
 
     @CountriesManager.cm_title.setter
     def cm_title(self, value):
@@ -264,14 +294,20 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.exp_httpres = bool(self.REQUEST.get('exp_httpres', False))
         self.globally_restricted_site = bool(self.REQUEST.get('globally_restricted_site',
                                                 self.globally_restricted_site))
-
         self.dfm_url = self.REQUEST.get('dfm_url', self.dfm_url)
+        self.dfm_type = self.REQUEST.get('dfm_type', self.dfm_type)
         self.dfm_method = self.REQUEST.get('dfm_method', self.dfm_method)
+        self.dfm_obl_url_prefix = self.REQUEST.get('dfm_obl_url_prefix', self.dfm_obl_url_prefix)
         self.dfm_timeout = self.REQUEST.get('dfm_timeout', self.dfm_timeout)
+        self.dfm_rest_url = self.REQUEST.get('dfm_rest_url', self.dfm_rest_url)
+        self.dfm_rest_timeout = self.REQUEST.get('dfm_rest_timeout', self.dfm_rest_timeout)
 
+        self.cm_type = self.REQUEST.get('cm_type', self.cm_type)
         self.cm_url = self.REQUEST.get('cm_url', self.cm_url)
         self.cm_method = self.REQUEST.get('cm_method', self.cm_method)
         self.cm_timeout = self.REQUEST.get('cm_timeout', self.cm_timeout)
+        self.cm_rest_url = self.REQUEST.get('cm_rest_url', self.cm_rest_url)
+        self.cm_rest_timeout = self.REQUEST.get('cm_rest_timeout', self.cm_rest_timeout)
 
         self.cr_api_url = self.REQUEST.get('cr_api_url', self.cr_api_url)
         self.cr_rmq = bool(self.REQUEST.get('cr_rmq', False))

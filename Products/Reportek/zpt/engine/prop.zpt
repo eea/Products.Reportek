@@ -87,48 +87,114 @@
             </p>
         </fieldset>
         <fieldset>
-            <legend>Dataflows Manager XMLRPC Properties</legend>
+            <legend>Dataflows Manager Properties</legend>
+            <p class="form-help">
+                <strong><label for="dfm_type">Use XMLRPC Method</label></strong>
+                <input type="radio" name="dfm_type" id="dfm_xmlrpc"
+                  tal:attributes="checked python: getattr(here, 'dfm_type', None) == 'dfm_xmlrpc'"
+                  size="5"
+                  value="dfm_xmlrpc" /><br />
+                Use XMLRPC Method to retrieve the dataflows
+            </p>
             <p class="form-help">
                 <label for='dfm_url'><strong>Dataflows Manager XMLRPC URL</strong></label>
                 <input type="text" size="50" id="dfm_url" name="dfm_url"
-                       tal:attributes="value here/dfm_url" />
+                       tal:attributes="value here/dfm_url|nothing" />
                 <br />
             </p>
             <p class="form-help">
                 <label for='dfm_method'><strong>Dataflows Manager XMLRPC method</strong></label>
                 <input type="text" size="50" id="dfm_method" name="dfm_method"
-                       tal:attributes="value here/dfm_method" />
+                       tal:attributes="value here/dfm_method|nothing" />
                 <br />
             </p>
             <p class="form-help">
                 <label for='dfm_timeout'><strong>Dataflows Manager XMLRPC timeout</strong></label>
                 <input type="text" size="50" id="dfm_timeout" name="dfm_timeout"
-                       tal:attributes="value here/dfm_timeout" />
+                       tal:attributes="value here/dfm_timeout|nothing" />
                 <br />
                 <span>(Dataflows Manager XMLRPC timeout in seconds)
                 <br />
             </p>
+            <br/>
+            <p class="form-help">
+                <strong><label for="dfm_type">Use REST API</label></strong>
+                <input type="radio" name="dfm_type" id="dfm_rest"
+                  tal:attributes="checked python: getattr(here, 'dfm_type', None) == 'dfm_rest'"
+                  size="5"
+                  value="dfm_rest" /><br />
+                Use XMLRPC Method to retrieve the dataflows
+            </p>
+            <p class="form-help">
+                <label for='dfm_url'><strong>Dataflows REST URL</strong></label>
+                <input type="text" size="50" id="dfm_rest_url" name="dfm_rest_url"
+                       tal:attributes="value here/dfm_rest_url|nothing" />
+                <br />
+            </p>
+            <p class="form-help">
+                <label for='dfm_obl_url_prefix'><strong>Dataflows obligations URL Prefix</strong></label>
+                <input type="text" size="50" id="dfm_obl_url_prefix" name="dfm_obl_url_prefix"
+                       tal:attributes="value here/dfm_obl_url_prefix|nothing" />
+                <br />
+            </p>
+            <p class="form-help">
+                <label for='dfm_timeout'><strong>Dataflows Manager REST timeout</strong></label>
+                <input type="text" size="50" id="dfm_rest_timeout" name="dfm_rest_timeout"
+                       tal:attributes="value here/dfm_rest_timeout|nothing" />
+                <br />
+                <span>(Dataflows Manager REST timeout in seconds)
+                <br />
+            </p>
         </fieldset>
         <fieldset>
-            <legend>Countries Manager XMLRPC Properties</legend>
+            <legend>Countries Manager Properties</legend>
+            <p class="form-help">
+                <strong><label for="cm_type">Use XMLRPC Method</label></strong>
+                <input type="radio" name="cm_type" id="cm_xmlrpc"
+                  tal:attributes="checked python: getattr(here, 'cm_type', None) == 'cm_xmlrpc'"
+                  value="cm_xmlrpc" size="5" /><br />
+                Use XMLRPC Method to retrieve the countries
+            </p>
             <p class="form-help">
                 <label for='cm_url'><strong>Countries Manager XMLRPC URL</strong></label>
                 <input type="text" size="50" id="cm_url" name="cm_url"
-                       tal:attributes="value here/cm_url" />
+                       tal:attributes="value here/cm_url|nothing" />
                 <br />
             </p>
             <p class="form-help">
                 <label for='cm_method'><strong>Countries Manager XMLRPC method</strong></label>
                 <input type="text" size="50" id="cm_method" name="cm_method"
-                       tal:attributes="value here/cm_method" />
+                       tal:attributes="value here/cm_method|nothing" />
                 <br />
             </p>
             <p class="form-help">
                 <label for='cm_timeout'><strong>Countries Manager XMLRPC timeout</strong></label>
                 <input type="text" size="50" id="cm_timeout" name="cm_timeout"
-                       tal:attributes="value here/cm_timeout" />
+                       tal:attributes="value here/cm_timeout|nothing" />
                 <br />
                 <span>(Countries Manager XMLRPC timeout in seconds)
+                <br />
+            </p>
+            <br/>
+            <p class="form-help">
+                <strong><label for="cm_type">Use REST API</label></strong>
+                <input type="radio" name="cm_type" id="cm_rest"
+                  tal:attributes="checked python: getattr(here, 'cm_type', None) == 'cm_rest'"
+                  value="cm_rest" size="5" /><br />
+                Use REST API to retrieve the countries
+            </p>
+            <p class="form-help">
+                <label for='cm_rest_url'><strong>Countries Manager REST URL</strong></label>
+                <input type="text" size="50" id="cm_rest_url" name="cm_rest_url"
+                       tal:attributes="value here/cm_rest_url|nothing" />
+                <br />
+            </p>
+            <p class="form-help">
+                <label for='cm_rest_timeout'><strong>Countries Manager REST timeout</strong></label>
+                <input type="text" size="50" id="cm_rest_timeout" name="cm_rest_timeout"
+                       tal:attributes="value here/cm_rest_timeout|nothing" />
+                <br />
+                <span>(Countries Manager REST timeout in seconds)
                 <br />
             </p>
         </fieldset>
