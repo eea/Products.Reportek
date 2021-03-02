@@ -136,6 +136,8 @@
                 <input type="text" size="50" id="dfm_obl_url_prefix" name="dfm_obl_url_prefix"
                        tal:attributes="value here/dfm_obl_url_prefix|nothing" />
                 <br />
+                <span>(Dataflows obligations URL prefix e.g. http://rod.eionet.europa.eu)</span>
+                <br />
             </p>
             <p class="form-help">
                 <label for='dfm_timeout'><strong>Dataflows Manager REST timeout</strong></label>
