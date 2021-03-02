@@ -811,17 +811,6 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
         return True
 
-    def is_manufacturer(self):
-        """ Return True if BDR deployment and associated company type is
-            only FGAS_MANUFACTURER_OF_EQUIPMENT_HFCS, otherwise False
-        """
-        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-            types = self.company_types()
-            if len(types) == 1:
-                if types[0] == 'FGAS_MANUFACTURER_OF_EQUIPMENT_HFCS':
-                    return True
-        return False
-
     def has_company_checks_failed(self):
         """ Return True if BDR deployment and associated company checks failed
         """
@@ -847,9 +836,6 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                 c_status = self.company_status()
                 if not is_fgas or (is_fgas and c_status not in ['REVISION', 'VALID']):
                     return False
-
-        if self.is_manufacturer():
-            return False
 
         if self.has_company_checks_failed():
             return False
