@@ -1278,7 +1278,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                         xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.upload_time().HTML4())
                         xmlChunk.append('<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>' % o.upload_time().HTML4())
                         xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)))
-                        xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % o.content_type)
+                        xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % RepUtils.xmlEncode(o.content_type))
                         xmlChunk.append('<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>' % repr(o.isRestricted()).lower())
                         if o.content_type == "text/xml":
                             for location in RepUtils.xmlEncode(o.xml_schema_location).split():
@@ -1307,7 +1307,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                         xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)))
                         xmlChunk.append('<cr:feedbackStatus>%s</cr:feedbackStatus>' % RepUtils.xmlEncode(getattr(o, 'feedback_status', '')))
                         xmlChunk.append('<cr:feedbackMessage>%s</cr:feedbackMessage>' % RepUtils.xmlEncode(getattr(o, 'message', '')))
-                        xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % o.content_type)
+                        xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % RepUtils.xmlEncode(o.content_type))
                         xmlChunk.append('<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>' % repr(o.isRestricted()).lower())
                         if o.document_id and o.document_id != 'xml':
                             xmlChunk.append('<cr:feedbackFor rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)),
@@ -1319,7 +1319,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                             xmlChunk.append('<cr:FeedbackAttachment rdf:about="%s">' % parse_uri(attachment.absolute_url(), http_res))
                             xmlChunk.append('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(attachment.title_or_id()))
                             xmlChunk.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(attachment.title_or_id()))
-                            xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % attachment.content_type)
+                            xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % RepUtils.xmlEncode(attachment.content_type))
                             xmlChunk.append('<cr:attachmentOf rdf:resource="%s"/>' % parse_uri(o.absolute_url(), http_res))
                             xmlChunk.append('</cr:FeedbackAttachment>')
                     except:
