@@ -105,7 +105,7 @@ class RemoteApplication(BaseRemoteApplication):
                       )
 
     def __init__(self, id, title, RemoteServer, RemoteService, app_name,
-                 nRetries=5, nJobRetries=5, retryFrequency=300,
+                 nRetries=5, nJobRetries=5, requestTimeout=5, retryFrequency=300,
                  retryJobFrequency=300, token=None):
         """ Initialize a new instance of Document """
         self.id = id
@@ -115,13 +115,14 @@ class RemoteApplication(BaseRemoteApplication):
         self.app_name = app_name
         self.nRetries = nRetries                            # integer
         self.nJobRetries = nJobRetries                      # integer
+        self.requestTimeout=requestTimeout                  # integer - seconds
         self.retryFrequency = retryFrequency                # integer - seconds
         self.retryJobFrequency = retryJobFrequency          # integer - seconds
         self.token = token
 
     def manage_settings(self, title, RemoteServer, RemoteService, token,
-                        app_name, nRetries, nJobRetries, retryFrequency,
-                        retryJobFrequency):
+                        app_name, nRetries, nJobRetries, requestTimeout,
+                        retryFrequency, retryJobFrequency):
         """ Change properties of the QA Application """
         self.title = title
         self.RemoteServer = RemoteServer
@@ -130,6 +131,7 @@ class RemoteApplication(BaseRemoteApplication):
         self.nRetries = nRetries
         self.nJobRetries = nJobRetries
         self.app_name = app_name
+        self.requestTimeout = requestTimeout
         self.retryFrequency = retryFrequency
         self.retryJobFrequency = retryJobFrequency
 
@@ -729,8 +731,9 @@ class RemoteApplication(BaseRemoteApplication):
         l_workitem = getattr(self, workitem_id)
 
         try:
+            timeout = int(getattr(self, 'requestTimeout', 5))
             res = requests.post(url, headers={'Authorization': self.token},
-                                verify=False)
+                                timeout=timeout, verify=False)
             message = res.json().get('message')
             l_workitem.addEvent('#{} job cancelation triggered - {}: {}'.format(job_id,
                                                                    res.status_code,

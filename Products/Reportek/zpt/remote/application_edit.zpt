@@ -41,6 +41,12 @@
         <td align="left"><input type="text" name="nJobRetries" id="nJobRetries" tal:attributes="value here/nJobRetries|here/nRetries" size="5" /></td>
     </tr>
     <tr>
+        <th align="left"><label for="requestTimeout">Request timeout</label></th>
+        <td colspan="2">
+            <input type="text" name="requestTimeout" id="requestTimeout" tal:attributes="value here/requestTimeout|nothing" size="5" />
+        </td>
+    </tr>
+    <tr>
         <th align="left"><label>Frequency of retry (seconds)</label></th>
         <td align="left">
             <input type="text" name="retryFrequency" id="retryFrequency" tal:attributes="value here/retryFrequency" size="5" /> 
