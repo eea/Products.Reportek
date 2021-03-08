@@ -106,7 +106,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                       )
 
     def __init__(self, id, title, RemoteServer, token, app_name,
-                 nRetries=5, nJobRetries=5, retryFrequency=300, 
+                 nRetries=5, nJobRetries=5, requestTimeout=5,retryFrequency=300,
                  retryJobFrequency=300):
         """ Initialize a new instance of Document """
         self.id = id
@@ -115,12 +115,13 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         self.app_name = app_name
         self.nRetries = nRetries                            # integer
         self.nJobRetries = nJobRetries                      # integer
+        self.requestTimeout=requestTimeout                  # integer - seconds
         self.token = token
         self.retryFrequency = retryFrequency                # integer - seconds
         self.retryJobFrequency = retryJobFrequency          # integer - seconds
 
     def manage_settings(self, title, RemoteServer, app_name,token,
-                        nRetries, nJobRetries, retryFrequency,
+                        nRetries, nJobRetries, requestTimeout, retryFrequency,
                         retryJobFrequency):
         """ Change properties of the QA Application """
         self.title = title
@@ -129,6 +130,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         self.nJobRetries = nJobRetries
         self.token = token
         self.app_name = app_name
+        self.requestTimeout=requestTimeout
         self.retryFrequency = retryFrequency
         self.retryJobFrequency = retryJobFrequency
 
@@ -181,10 +183,13 @@ class RemoteRestQaApplication(BaseRemoteApplication):
             'Content-type': 'application/json',
         }
         url = "/".join([self.RemoteServer, url])
+        timeout = int(getattr(self, 'requestTimeout', 5))
         if method == 'GET':
-            response = requests.get(url, headers=headers, data=json.dumps(data), params=params)
+            response = requests.get(url, headers=headers, data=json.dumps(data),
+                                    params=params, timeout=timeout)
         elif method == 'POST':
-            response = requests.post(url, headers=headers, data=json.dumps(data), params=params)
+            response = requests.post(url, headers=headers, data=json.dumps(data),
+                                     timeout=timeout,params=params)
         return response
 
 

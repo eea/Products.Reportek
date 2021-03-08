@@ -24,9 +24,11 @@
     'uri': string
     'name': string
 """
+from time import time
+
+import requests
 from plone.memoize import ram
 from RepUtils import inline_replace
-from time import time
 from XMLRPCMethod import XMLRPCMethod
 
 
@@ -64,10 +66,39 @@ class CountriesManager:
         if xmlrpc_localities:
             return getattr(xmlrpc_localities, 'timeout', None)
 
+    def get_countries_rest(self):
+        res = requests.get(self.cm_rest_url,
+                           timeout=self.cm_timeout,
+                           verify=False)
+        if res.status_code == 200:
+            prefix = "http://{}/spatial".format(self.cm_rest_url.split('://')[-1].split('/')[0])
+            countries = [{'iso': c.get('twoLetter'),
+                          'name': c.get('name'),
+                          'uri': "{}/{}".format(prefix, c.get('spatialId'))  } for c in res.json()]
+            return countries
+
+    @property
+    def cm_type(self):
+        return getattr(self, '_cm_type', None)
+
+    @property
+    def cm_rest_url(self):
+        return getattr(self, '_cm_rest_url', None)
+
+    @property
+    def cm_rest_timeout(self):
+        return getattr(self, '_cm_rest_timeout', None)
+
+
     @ram.cache(lambda *args:time() // (60*60*12))
     def localities_rod(self):
         """ """
-        return self.xmlrpc_localities.call_method()
+        if self.cm_type == 'cm_rest':
+            countries = self.get_countries_rest()
+        else:
+            countries = self.xmlrpc_localities.call_method()
+
+        return countries
 
     def localities_table(self):
         """ """
@@ -85,5 +116,3 @@ class CountriesManager:
         if country:
             return l_ldict.get(country, dummy)
         return l_ldict
-
-

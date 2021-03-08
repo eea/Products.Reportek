@@ -34,6 +34,7 @@
 
 from time import time
 
+import requests
 from plone.memoize import ram
 from Products.Reportek.constants import CUSTOM_DFLOWS
 from RepUtils import inline_replace
@@ -79,6 +80,22 @@ class DataflowsManager:
         if xmlrpc_dataflow:
             return getattr(xmlrpc_dataflow, 'timeout', None)
 
+    @property
+    def dfm_type(self):
+        return getattr(self, '_dfm_type', None)
+
+    @property
+    def dfm_rest_url(self):
+        return getattr(self, '_dfm_rest_url', None)
+
+    @property
+    def dfm_obl_url_prefix(self):
+        return getattr(self, '_dfm_obl_url_prefix', None)
+
+    @property
+    def dfm_rest_timeout(self):
+        return getattr(self, '_dfm_rest_timeout', None)
+
     def get_custom_dataflows(self):
         result = []
         custom_dfs = self.unrestrictedTraverse(CUSTOM_DFLOWS, None)
@@ -90,8 +107,29 @@ class DataflowsManager:
     @ram.cache(lambda *args:time() // (60*60*12))
     def dataflow_rod(self):
         """ """
-        dflows = self.xmlrpc_dataflow.call_method()
+        if self.dfm_type == 'dfm_rest':
+            dflows = self.get_dataflows_rest()
+        else:
+            dflows = self.xmlrpc_dataflow.call_method()
         return dflows + self.get_custom_dataflows()
+
+    def get_dataflows_rest(self):
+        res = requests.get(self.dfm_rest_url,
+                           timeout=self.dfm_timeout,
+                           verify=False)
+        dflows = []
+        if res.status_code == 200:
+            prefix = "{}/obligations".format(self.dfm_obl_url_prefix)
+            dflows = [{'LAST_UPDATE': c.get('lastUpdate').encode('utf-8'),
+                       'PK_RA_ID': str(c.get('obligationId')),
+                       'PK_SOURCE_ID': str(c.get('sourceId')),
+                       'SOURCE_TITLE': c.get('sourceAlias'),
+                       'TITLE': c.get('oblTitle'),
+                       'details_url': '{}/{}'.format(prefix, c.get('obligationId')),
+                       'terminated': '1' if c.get('terminate').encode('utf-8') == 'Y' else '0',
+                       'uri': '{}/{}'.format(prefix, c.get('obligationId'))} for c in res.json()]
+
+        return dflows
 
     def dataflow_table(self):
         """ """

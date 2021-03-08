@@ -149,6 +149,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     clamd_port = 3310
     clamd_timeout = None
     clam_max_file_size = None
+    dfm_type = 'dfm_xmlrpc'
+    cm_type = 'cm_xmlrpc'
 
     def all_meta_types(self, interfaces=None):
         """
@@ -179,7 +181,23 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     security.declareProtected(view_management_screens, 'index_html')
     index_html = PageTemplateFile('zpt/engine_index', globals())
 
-    # Setters for the XMLRPC Methods properties
+    # Setters for the Dataflows and Country Manager properties
+    @DataflowsManager.dfm_type.setter
+    def dfm_type(self, value):
+        self._dfm_type = value
+
+    @DataflowsManager.dfm_rest_url.setter
+    def dfm_rest_url(self, value):
+        self._dfm_rest_url = value
+
+    @DataflowsManager.dfm_obl_url_prefix.setter
+    def dfm_obl_url_prefix(self, value):
+        self._dfm_obl_url_prefix = value
+
+    @DataflowsManager.dfm_rest_timeout.setter
+    def dfm_rest_timeout(self, value):
+        self._dfm_rest_timeout = value
+
     @DataflowsManager.dfm_title.setter
     def dfm_title(self, value):
         xmlrpc_dataflow = getattr(self, 'xmlrpc_dataflow', None)
@@ -203,6 +221,18 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         xmlrpc_dataflow = getattr(self, 'xmlrpc_dataflow', None)
         if xmlrpc_dataflow:
             self.xmlrpc_dataflow.timeout = float(value)
+
+    @CountriesManager.cm_type.setter
+    def cm_type(self, value):
+        self._cm_type = value
+
+    @CountriesManager.cm_rest_url.setter
+    def cm_rest_url(self, value):
+        self._cm_rest_url = value
+
+    @CountriesManager.cm_rest_timeout.setter
+    def cm_rest_timeout(self, value):
+        self._cm_rest_timeout = value
 
     @CountriesManager.cm_title.setter
     def cm_title(self, value):
@@ -264,14 +294,20 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.exp_httpres = bool(self.REQUEST.get('exp_httpres', False))
         self.globally_restricted_site = bool(self.REQUEST.get('globally_restricted_site',
                                                 self.globally_restricted_site))
-
         self.dfm_url = self.REQUEST.get('dfm_url', self.dfm_url)
+        self.dfm_type = self.REQUEST.get('dfm_type', self.dfm_type)
         self.dfm_method = self.REQUEST.get('dfm_method', self.dfm_method)
+        self.dfm_obl_url_prefix = self.REQUEST.get('dfm_obl_url_prefix', self.dfm_obl_url_prefix)
         self.dfm_timeout = self.REQUEST.get('dfm_timeout', self.dfm_timeout)
+        self.dfm_rest_url = self.REQUEST.get('dfm_rest_url', self.dfm_rest_url)
+        self.dfm_rest_timeout = self.REQUEST.get('dfm_rest_timeout', self.dfm_rest_timeout)
 
+        self.cm_type = self.REQUEST.get('cm_type', self.cm_type)
         self.cm_url = self.REQUEST.get('cm_url', self.cm_url)
         self.cm_method = self.REQUEST.get('cm_method', self.cm_method)
         self.cm_timeout = self.REQUEST.get('cm_timeout', self.cm_timeout)
+        self.cm_rest_url = self.REQUEST.get('cm_rest_url', self.cm_rest_url)
+        self.cm_rest_timeout = self.REQUEST.get('cm_rest_timeout', self.cm_rest_timeout)
 
         self.cr_api_url = self.REQUEST.get('cr_api_url', self.cr_api_url)
         self.cr_rmq = bool(self.REQUEST.get('cr_rmq', False))
@@ -447,18 +483,23 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             parent_coll.reindex_object()
         return sc
 
-    def create_fgas_collections(self, ctx, country_uri, company_id, name):
+    def create_fgas_collections(self, ctx, country_uri, company_id, name, old_company_id=None):
         # Hardcoded obligations should be fixed and retrieved automatically
         parent_coll_df = ['http://rod.eionet.europa.eu/obligations/713']
         eq_imports_df = ['http://rod.eionet.europa.eu/obligations/765']
         bulk_imports_df = ['http://rod.eionet.europa.eu/obligations/764']
+        if old_company_id:
+            main_env_id = old_company_id
+        else:
+            main_env_id = company_id
         ctx.manage_addCollection(dataflow_uris=parent_coll_df,
                             country=country_uri,
-                            id=company_id,
+                            id=main_env_id,
                             title=name,
                             allow_collections=1, allow_envelopes=1,
-                            descr='', locality='', partofyear='', year='', endyear='')
-        coll = getattr(ctx, company_id)
+                            descr='', locality='', partofyear='', year='', endyear='',
+                            old_company_id=old_company_id)
+        coll = getattr(ctx, main_env_id)
         coll.company_id = company_id
         ei_id = ''.join([RepUtils.generate_id('col'), 'ei'])
         coll.manage_addCollection(dataflow_uris=eq_imports_df,
@@ -466,14 +507,16 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                             id=ei_id,
                             title='Upload of verification documents (equipment importers)',
                             allow_collections=0, allow_envelopes=1,
-                            descr='', locality='', partofyear='', year='', endyear='')
+                            descr='', locality='', partofyear='', year='', endyear='',
+                            old_company_id=old_company_id)
         bi_id = ''.join([RepUtils.generate_id('col'), 'bi'])
         coll.manage_addCollection(dataflow_uris=bulk_imports_df,
                             country=country_uri,
                             id=bi_id,
                             title='Upload of verification documents (HFC producers and bulk importers)',
                             allow_collections=0, allow_envelopes=1,
-                            descr='', locality='', partofyear='', year='', endyear='')
+                            descr='', locality='', partofyear='', year='', endyear='',
+                            old_company_id=old_company_id)
         ei = getattr(coll, ei_id)
         ei.company_id = company_id
         ei.reindex_object()
@@ -527,47 +570,40 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 resp['message'] = msg
                 return json.dumps(resp)
 
-            # old type of collection
+            coll_id = company_id
             if old_collection_id:
-                coll = getattr(country_folder, old_collection_id, None)
-                if coll:
-                    coll.company_id = company_id
-                    coll.old_company_id = old_collection_id
-                    coll.dataflow_uris = [ self.FGASRegistryAPI.DOMAIN_TO_OBLIGATION[domain] ]
-                    coll.reindex_object()
-                else:
-                    msg = "Cannot update collection %s Old style collection not found" % coll_path
-                    logger.warning(msg)
+                coll_id = old_collection_id
+
+            coll = getattr(country_folder, coll_id, None)
+            if not coll:
+                try:
+                    country_uri = getattr(country_folder, 'country', '')
+                    if domain == 'FGAS':
+                        self.create_fgas_collections(country_folder,
+                                                     country_uri,
+                                                     company_id,
+                                                     name,
+                                                     old_company_id=old_collection_id)
+                    else:
+                        country_folder.manage_addCollection(dataflow_uris=[ self.FGASRegistryAPI.DOMAIN_TO_OBLIGATION[domain] ],
+                                                            country=country_uri,
+                                                            id=company_id,
+                                                            title=name,
+                                                            allow_collections=0, allow_envelopes=1,
+                                                            descr='', locality='', partofyear='', year='', endyear='',
+                                                            old_company_id=old_collection_id)
+                    coll = getattr(country_folder, coll_id)
+                except Exception as e:
+                    msg = "Cannot create collection %s. " % coll_path
+                    logger.warning(msg + str(e))
+                    # return failure (404) to the service calling us
                     self.REQUEST.RESPONSE.setStatus(404)
                     resp['message'] = msg
                     return json.dumps(resp)
-            else:
-                coll = getattr(country_folder, coll_id, None)
-                if not coll:
-                    try:
-                        country_uri = getattr(country_folder, 'country', '')
-                        if domain == 'FGAS':
-                            self.create_fgas_collections(country_folder,
-                                                         country_uri,
-                                                         company_id,
-                                                         name)
-                        else:
-                            country_folder.manage_addCollection(dataflow_uris=[ self.FGASRegistryAPI.DOMAIN_TO_OBLIGATION[domain] ],
-                                                                country=country_uri,
-                                                                id=company_id,
-                                                                title=name,
-                                                                allow_collections=0, allow_envelopes=1,
-                                                                descr='', locality='', partofyear='', year='', endyear='')
-                        coll = getattr(country_folder, company_id)
-                    except Exception as e:
-                        msg = "Cannot create collection %s. " % coll_path
-                        logger.warning(msg + str(e))
-                        # return failure (404) to the service calling us
-                        self.REQUEST.RESPONSE.setStatus(404)
-                        resp['message'] = msg
-                        return json.dumps(resp)
-                coll.company_id = company_id
-                coll.reindex_object()
+            coll.company_id = company_id
+            if old_collection_id:
+                coll.old_company_id = old_collection_id
+            coll.reindex_object()
             resp['status'] = 'success'
             resp['message'] = 'Collection %s updated/created succesfully' % coll_path
             return json.dumps(resp)

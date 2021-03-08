@@ -30,7 +30,7 @@ class RegistryManagement(Folder):
 
 class BaseRegistryAPI(SimpleItem):
 
-    TIMEOUT = 20
+    TIMEOUT = 120
 
     def __init__(self, registry_name, url, token=None):
         self.registry_name = registry_name
@@ -136,6 +136,13 @@ class FGASRegistryAPI(BaseRegistryAPI):
 
     def get_company_stocks(self, company_id):
         url = '/'.join([self.baseUrl, 'stocks', company_id])
+        response = self.do_api_request(url, method='post',
+                                       headers={'Authorization': self.token},
+                                       raw=True)
+        return response
+
+    def get_company_paus(self, company_id, domain='ODS'):
+        url = '/'.join([self.baseUrl, 'undertaking', domain, company_id, 'pau'])
         response = self.do_api_request(url, method='post',
                                        headers={'Authorization': self.token},
                                        raw=True)

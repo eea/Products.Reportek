@@ -41,7 +41,7 @@ from xml.dom.minidom import parseString
 import RepUtils
 import transaction
 import zip_content
-from AccessControl import ClassSecurityInfo
+from AccessControl import ClassSecurityInfo, getSecurityManager
 from constants import CONVERTERS_ID
 from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -1294,6 +1294,29 @@ class EnvelopeCustomDataflows(Toolz):
                                          REQUEST=REQUEST,
                                          deferred_compress=None)
             w0.addEvent("Prefill %s added to the envelope" % str(fxml.getId()))
+
+    def get_previous_deliveries(self):
+        """Return a list of previous company deliveries"""
+        engine = self.getEngine()
+        envs = {
+            'rw': [],
+            'ro': []
+        }
+        if engine:
+            if getSecurityManager().checkPermission('View management screens', self):
+                colls = self.get_company_collections()
+            else:
+                colls = engine.getUserCollections()
+                if colls:
+                    colls = colls.get('Reporter')
+
+            for k in envs.keys():
+                c_colls = colls.get(k, [])
+                for col in c_colls:
+                    if col.company_id == self.company_id:
+                        envs[k] = envs[k] + [env for env in col.objectValues('Report Envelope')]
+
+        return envs
 
 # Initialize the class in order the security assertions be taken into account
 InitializeClass(EnvelopeCustomDataflows)
