@@ -78,7 +78,7 @@ class process(CatalogAware, Folder):
 
     @property
     def restricted(self):
-        return self._restricted
+        return getattr(self, '_restricted', False)
 
     @restricted.setter
     def restricted(self, value):
