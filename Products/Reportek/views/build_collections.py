@@ -1,6 +1,7 @@
-from base_admin import BaseAdmin
-from operator import itemgetter
 from collections import defaultdict
+from operator import itemgetter
+
+from base_admin import BaseAdmin
 from Products.Reportek.constants import ENGINE_ID
 
 
@@ -40,11 +41,11 @@ class BuildCollections(BaseAdmin):
             # get country uri
             country = filter(lambda c: c.get('iso') == iso, self.localities_rod)[0]
             if country:
-                target_path = country['iso'].lower()
+                target_path = str(country['iso'].lower())
                 try:
                     if pattern:
                         pattern = engine.clean_pattern(pattern)
-                        target_path = '/'.join([country['iso'].lower(), pattern])
+                        target_path = '/'.join([str(country['iso'].lower()), pattern])
 
                     target = engine.getPhysicalRoot().restrictedTraverse(target_path)
                     kwargs = {
