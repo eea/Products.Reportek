@@ -62,9 +62,6 @@
                         </tal:block>
                     </ul>
                 </fieldset>
-                xxx
-                <span tal:content="has_permission"/>
-                <span tal:content="context/is_workflow_restricted"/>
                 <fieldset tal:condition="canChangeFile">
                     <legend i18n:translate="">Edit file properties</legend>
                     <form name="edit" id="edit" tal:attributes="action request/URL1" method="post">
