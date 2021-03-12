@@ -34,7 +34,7 @@
         </tr>
 
         <tr tal:condition="
-          not:python:force_restricted or getattr(context.ReportekEngine, 'globally_restricted_site', False)">
+          not:python:force_restricted or getattr(context.ReportekEngine, 'globally_restricted_site', False) or (context.is_workflow_restricted() and not has_permission)">
           <th align="left" i18n:translate="">Restricted from public view</th>
           <td align="left">
               <input tal:condition="default_restricted" type="checkbox" name="restricted" checked="checked" />

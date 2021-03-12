@@ -920,6 +920,18 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 return wk.activity_id
         return 'Draft'
 
+    def is_globally_restricted(self):
+        """Return True if is globally restricted"""
+        engine = self.unrestrictedTraverse(ENGINE_ID, None)
+        if getattr(engine, 'globally_restricted_site', False):
+            return True
+
+    def is_workflow_restricted(self):
+        """Return True if is workflow restricted"""
+        process = self.getProcess()
+        if getattr(process, 'restricted', False):
+            return True
+
     security.declareProtected('Use OpenFlow', 'cancel_activity')
     def cancel_activity(self, workitem_id, actor=None, REQUEST=None):
         """Cancel the current activity"""

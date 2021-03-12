@@ -33,6 +33,12 @@
       <th><label for="priority">Priority</label></th>
       <td><input type="text" name="priority:int" id="priority" size="3" value="0" /> (0 = lowest priority)</td>
     </tr>
+    <tr>
+      <td colspan="2">
+        <input type="checkbox" name="restricted:bool" id="restricted" />
+        <label for="restricted">Automatically restrict envelope files</label>
+      </td>
+    </tr>
   </table>
   <input type="submit" name="submit" value="Add process" />
 </form>
