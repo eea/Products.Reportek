@@ -1,5 +1,12 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
   <metal:block fill-slot="content">
+    <tal:block define="SecurityManager
+                       modules/AccessControl/getSecurityManager;
+                       has_permission
+                       python:SecurityManager.checkPermission('View management screens', template);
+                       default_restricted python:request.SESSION.get('default_restricted', '');
+                       force_restricted python:request.SESSION.get('force_restricted', '');
+                       disallow python: request.SESSION.get('disallow', '')">
     <div id="operations">
       <ul>
         <li>
@@ -37,8 +44,12 @@
       <label for="file" i18n:translate="">File</label>
       <input type="file" name="file" id="file" size="25" value="" />
       <br />
-      <label for="restricted" i18n:translate="">Restricted from public view</label>
-      <input type="checkbox" name="restricted" id="restricted" />
+      <tal:block tal:condition="
+        not:python:force_restricted or getattr(context.ReportekEngine, 'globally_restricted_site', False) or (context.is_workflow_restricted() and not has_permission)">
+        <span i18n:translate="">Restricted from public view</span>
+        <input tal:condition="default_restricted" type="checkbox" name="restricted" checked="checked" />
+        <input tal:condition="not:default_restricted" type="checkbox" name="restricted" />
+      </tal:block>
       <br /><br />
       <input type="submit" value="Add" i18n:attributes="value" />
     </form>
@@ -49,5 +60,6 @@
     <tal:block tal:condition="python:request.SESSION.has_key('replace_xml')">
       <tal:block tal:replace="python:request.SESSION.delete('replace_xml')" />
     </tal:block>
+  </tal:block>
   </metal:block>
 </metal:block>

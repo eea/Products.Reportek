@@ -1,48 +1,57 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
   <metal:block fill-slot="content">
+    <tal:block define="SecurityManager
+                       modules/AccessControl/getSecurityManager;
+                       has_permission
+                       python:SecurityManager.checkPermission('View management screens', template);
+                       default_restricted python:request.SESSION.get('default_restricted', '');
+                       force_restricted python:request.SESSION.get('force_restricted', '');
+                       disallow python: request.SESSION.get('disallow', '')">
+      <div id="operations">
+        <ul>
+          <li>
+            <a tal:attributes="href python:'%s/'% here.getMySelf().absolute_url()" title="Go back to envelope" i18n:attributes="title" i18n:translate="">Back to envelope</a>
+          </li>
+        </ul>
+      </div>
 
-    <div id="operations">
-      <ul>
-        <li>
-          <a tal:attributes="href python:'%s/'% here.getMySelf().absolute_url()" title="Go back to envelope" i18n:attributes="title" i18n:translate="">Back to envelope</a>
-        </li>
-      </ul>
-    </div>
+      <h1 i18n:translate="">Upload file</h1>
 
-    <h1 i18n:translate="">Upload file</h1>
-
-    <p i18n:translate="">
-      If you filled the file from the correct Data Dictionary template (.XLS or .ODS), the conversion facility will extract
-      the information from it and convert the delivery to XML format. You can quality check each part of your delivery and
-      edit using the webforms or correct offline and redeliver.
-    </p>
-
-    <div class="note-msg">
-      <strong i18n:translate="">Note:</strong>
       <p i18n:translate="">
-        If the conversion succeeds, all XML files already existing in this envelope
-        and the previous delivery in the original format (if any) will be first deleted.
+        If you filled the file from the correct Data Dictionary template (.XLS or .ODS), the conversion facility will extract
+        the information from it and convert the delivery to XML format. You can quality check each part of your delivery and
+        edit using the webforms or correct offline and redeliver.
       </p>
-    </div>
 
-    <form action="convert_excel_file" method="post" enctype="multipart/form-data" name="form">
-      <table cellspacing="5">
-      <tr>
-        <th style="text-align: left; vertical-align: top;"><label for="file" i18n:translate="">File</label></th>
-        <td style="text-align: left; vertical-align: top;"><input type="file" name="file" id="file" size="25" value="" /></td>
-      </tr>
-      <tr>
-        <th style="text-align: left;"><label for="restricted" i18n:translate="">Restricted from public view</label></th>
-        <td style="text-align: left;">
-          <input type="checkbox" name="restricted" id="restricted" />
-          <input type="hidden" name="strict_check" id="strict_check" tal:attributes="value python:test(request.has_key('strict_check'), 1, '')" />
-        </td>
-      </tr>
-      <tr>
-        <td></td>
-        <td><input type="submit" value="Add" i18n:attributes="value" /></td>
-      </tr>
-      </table>
-    </form>
+      <div class="note-msg">
+        <strong i18n:translate="">Note:</strong>
+        <p i18n:translate="">
+          If the conversion succeeds, all XML files already existing in this envelope
+          and the previous delivery in the original format (if any) will be first deleted.
+        </p>
+      </div>
+
+      <form action="convert_excel_file" method="post" enctype="multipart/form-data" name="form">
+        <table cellspacing="5">
+        <tr>
+          <th style="text-align: left; vertical-align: top;"><label for="file" i18n:translate="">File</label></th>
+          <td style="text-align: left; vertical-align: top;"><input type="file" name="file" id="file" size="25" value="" /></td>
+        </tr>
+        <tr tal:condition="
+          not:python:force_restricted or getattr(context.ReportekEngine, 'globally_restricted_site', False) or (context.is_workflow_restricted() and not has_permission)">
+          <th style="text-align: left;"><label for="restricted" i18n:translate="">Restricted from public view</label></th>
+          <td style="text-align: left;">
+            <input tal:condition="default_restricted" type="checkbox" name="restricted" checked="checked" />
+            <input tal:condition="not:default_restricted" type="checkbox" name="restricted" />
+            <input type="hidden" name="strict_check" id="strict_check" tal:attributes="value python:test(request.has_key('strict_check'), 1, '')" />
+          </td>
+        </tr>
+        <tr>
+          <td></td>
+          <td><input type="submit" value="Add" i18n:attributes="value" /></td>
+        </tr>
+        </table>
+      </form>
+    </tal:block>
   </metal:block>
 </metal:block>
