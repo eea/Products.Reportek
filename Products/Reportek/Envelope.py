@@ -830,6 +830,31 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             l_ids = [x[1:-1] for x in l_ids]
         else:
             l_ids = ids
+        process = None
+        restricted = []
+        if getattr(self, 'process_path'):
+            process = self.unrestrictedTraverse(self.process_path)
+        else:
+            # finds the (a !) process suited for this envelope
+            l_err_code, l_result = getattr(self, WORKFLOW_ENGINE_ID).findProcess(self.dataflow_uris, self.country)
+            if l_err_code == 0:
+                process = self.unrestrictedTraverse(l_result, None)
+        if not process:
+            return error_response(ValueError, 'Unable to find the workflow associated with this envelope', REQUEST)
+
+        if process.restricted and not getSecurityManager().checkPermission('View management screens', self):
+            for oid in l_ids:
+                obj = self.unrestrictedTraverse(oid)
+                if isinstance(obj, Document.Document):
+                    restricted.append(oid)
+        if restricted:
+            msg = 'This is a restricted workflow, unable to make objects public!'
+            l_ids = [oid for oid in l_ids if oid not in restricted]
+            if l_ids:
+                self._set_restrictions(l_ids,roles=[], acquire=1, permission='View')
+                msg = 'This is a restricted workflow, Report Documents restricted status have not been altered!'
+            return error_response(ValueError, msg, REQUEST)
+
         return self._set_restrictions(l_ids,roles=[], acquire=1, permission='View', REQUEST=REQUEST)
 
     security.declareProtected('Change Envelopes', 'restrict_editing_files')

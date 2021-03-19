@@ -1,29 +1,28 @@
 from StringIO import StringIO
-from path import path
-import requests
 
+import requests
 # Zope imports
 from AccessControl import ClassSecurityInfo
-from Globals import InitializeClass
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from OFS.Folder import Folder
-from DateTime import DateTime
-from Products.ZCatalog.CatalogPathAwareness import CatalogAware
-from zope.interface import implements
-
 # Product imports
 from activity import activity
-from transition import transition
+from DateTime import DateTime
+from Globals import InitializeClass
+from OFS.Folder import Folder
+from path import path
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
 from Products.Reportek.interfaces import IProcess
+from Products.ZCatalog.CatalogPathAwareness import CatalogAware
+from transition import transition
+from zope.interface import implements
 
 CycleError = 'CycleError' # For _topsort()
 
 manage_addProcessForm = PageTemplateFile('zpt/Workflow/process_add.zpt', globals())
 
-def manage_addProcess(self, id, title='', description='', BeginEnd=None, priority=0, begin=None, end=None, REQUEST=None, app_folder=None):
+def manage_addProcess(self, id, title='', description='', BeginEnd=None, priority=0, begin=None, end=None, REQUEST=None, app_folder=None, restricted=False):
     """ """
-    p = process(id, title, description, BeginEnd, priority, begin, end)
+    p = process(id, title, description, BeginEnd, priority, begin, end, restricted=restricted)
     self._setObject(id, p)
     if app_folder:
         app_folder_path = '/' + constants.APPLICATIONS_FOLDER_ID
@@ -46,7 +45,8 @@ class process(CatalogAware, Folder):
             {'id':'description', 'type':'text', 'mode':'w'},
             {'id':'begin', 'type':'selection', 'mode':'w', 'select_variable': 'listActivities'},
             {'id':'end', 'type':'selection', 'mode':'w', 'select_variable': 'listActivities'},
-            {'id':'priority', 'type':'int', 'mode':'w'}
+            {'id':'priority', 'type':'int', 'mode':'w'},
+            {'id': 'restricted', 'type': 'boolean', 'mode': 'w'}
     )
 
     manage_options = (
@@ -54,12 +54,13 @@ class process(CatalogAware, Folder):
             {'label' : 'Roles', 'action' : 'manage_role_table'},
         ) + Folder.manage_options[0:1] + Folder.manage_options[2:]
 
-    def __init__(self, id, title, description, BeginEnd, priority, begin, end):
+    def __init__(self, id, title, description, BeginEnd, priority, begin, end, restricted=False):
         self.id = id
         self.title = title
         self.description = description
         self.created = DateTime()
         self.priority = priority
+        self._restricted = restricted
         if BeginEnd:
             self.addActivity('Begin')
             self.addActivity('End')
@@ -74,6 +75,14 @@ class process(CatalogAware, Folder):
                 self.end = end
             else:
                 self.end = ''
+
+    @property
+    def restricted(self):
+        return getattr(self, '_restricted', False)
+
+    @restricted.setter
+    def restricted(self, value):
+        self._restricted = value
 
     security.declareProtected('Manage OpenFlow', 'manage_addActivityForm')
     manage_addActivityForm = PageTemplateFile('zpt/Workflow/activity_add.zpt', globals())

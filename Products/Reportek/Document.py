@@ -192,9 +192,8 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
             transaction.commit()
             self.manage_renameObject(id, save_id)
             id = save_id
-        engine = getattr(self.getPhysicalRoot(), ENGINE_ID, None)
-        globally_restricted_site = getattr(engine, 'globally_restricted_site', False)
-        if restricted or globally_restricted_site:
+        r_enabled = (hasattr(self, 'is_globally_restricted') and self.is_globally_restricted()) or (hasattr(self, 'is_workflow_restricted') and self.is_workflow_restricted())
+        if restricted or r_enabled:
             obj.manage_restrictDocument()
         obj.reindex_object()
         if REQUEST is not None:
@@ -630,9 +629,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             self.xml_schema_location = xml_schema_location
         if self.title!=title:
             self.title = title
-        engine = getattr(self.getPhysicalRoot(), ENGINE_ID, None)
-        globally_restricted_site = getattr(engine, 'globally_restricted_site', False)
-        if globally_restricted_site:
+        if hasattr(self, 'is_globally_restricted') and self.is_globally_restricted():
             self.manage_restrictDocument()
         else:
             if applyRestriction:

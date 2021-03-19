@@ -1,66 +1,78 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
   <metal:block fill-slot="content">
-    <div id="operations">
-      <ul>
-        <li>
-          <a tal:attributes="href python:context.getMySelf().absolute_url()" title="Go back to envelope"
-             i18n:attributes="title go-back-title"
-             i18n:translate="">
-            Back to envelope
-          </a>
-        </li>
-      </ul>
-    </div>
+    <tal:block define="SecurityManager
+                       modules/AccessControl/getSecurityManager;
+                       has_permission
+                       python:SecurityManager.checkPermission('View management screens', template);
+                       default_restricted python:request.SESSION.get('default_restricted', '');
+                       force_restricted python:request.SESSION.get('force_restricted', '');
+                       disallow python: request.SESSION.get('disallow', '')">
+      <div id="operations">
+        <ul>
+          <li>
+            <a tal:attributes="href python:context.getMySelf().absolute_url()" title="Go back to envelope"
+               i18n:attributes="title go-back-title"
+               i18n:translate="">
+              Back to envelope
+            </a>
+          </li>
+        </ul>
+      </div>
 
-    <h1 i18n:translate="">Add file</h1>
+      <h1 i18n:translate="">Add file</h1>
 
-    <p i18n:translate="">
-      You can upload one single file or a non-hierarchical <em>.zip</em> archive.
-      The zip archive will be unpacked and its content uploaded into the envelope.
-    </p>
-    <div class="note-msg">
-      <strong i18n:translate="">Warning:</strong>
       <p i18n:translate="">
-        Files with the same filename as ones already existing in the envelope will be overwritten.
+        You can upload one single file or a non-hierarchical <em>.zip</em> archive.
+        The zip archive will be unpacked and its content uploaded into the envelope.
       </p>
-    </div>
+      <div class="note-msg">
+        <strong i18n:translate="">Warning:</strong>
+        <p i18n:translate="">
+          Files with the same filename as ones already existing in the envelope will be overwritten.
+        </p>
+      </div>
 
-    <form method="post" action="manage_addDocOrZip" enctype="multipart/form-data" name="frmAddOtherFile">
-      <tal:block tal:repeat="item python:request.SESSION.get('required_schema', [])">
-        <input type="hidden" name="required_schema:list" tal:attributes="value item" />
+      <form method="post" action="manage_addDocOrZip" enctype="multipart/form-data" name="frmAddOtherFile">
+        <tal:block tal:repeat="item python:request.SESSION.get('required_schema', [])">
+          <input type="hidden" name="required_schema:list" tal:attributes="value item" />
+        </tal:block>
+        <input type="hidden" name="replace_xml" tal:attributes="value python:request.SESSION.get('replace_xml', 0)" />
+
+        <span style="height: 2em; width: 17em; font-weight: 700; float: left;"
+              i18n:translate="">Title</span>
+        <input type="text" name="title" size="40" />
+        <br clear="all" />
+
+        <span style="height: 2em; width: 17em; font-weight: 700; float: left;"
+              i18n:translate="">File</span>
+        <input type="file" name="file" size="25" value="" style="margin-top: 0.5em" />
+        <br clear="all" />
+
+        <span style="height: 2em; width: 17em; font-weight: 700; float: left;"
+              i18n:translate="">Id</span>
+        <input type="text" name="id" size="40" style="margin-top: 0.5em" />
+        <span style="font-size: 0.8em" i18n:translate="">(optional)</span>
+        <br clear="all" />
+
+        <tal:block tal:condition="
+          not:python:force_restricted or getattr(context.ReportekEngine, 'globally_restricted_site', False) or (context.is_workflow_restricted() and not has_permission)">
+          <span style="height: 2em; width: 17em; font-weight: 700; float: left;"
+                i18n:translate="">Restricted from public view</span>
+              <input tal:condition="default_restricted" type="checkbox" name="restricted" checked="checked" />
+              <input tal:condition="not:default_restricted" type="checkbox" name="restricted" />
+        </tal:block>
+        <br clear="all" />
+
+        <input type="submit" value="Add" i18n:attributes="value add-button" />
+      </form>
+
+      <tal:block tal:condition="python:request.SESSION.has_key('required_schema')">
+        <tal:block tal:replace="python:request.SESSION.delete('required_schema')" />
       </tal:block>
-      <input type="hidden" name="replace_xml" tal:attributes="value python:request.SESSION.get('replace_xml', 0)" />
+      <tal:block tal:condition="python:request.SESSION.has_key('replace_xml')">
+        <tal:block tal:replace="python:request.SESSION.delete('replace_xml')" />
+      </tal:block>
 
-      <span style="height: 2em; width: 17em; font-weight: 700; float: left;"
-            i18n:translate="">Title</span>
-      <input type="text" name="title" size="40" />
-      <br clear="all" />
-
-      <span style="height: 2em; width: 17em; font-weight: 700; float: left;"
-            i18n:translate="">File</span>
-      <input type="file" name="file" size="25" value="" style="margin-top: 0.5em" />
-      <br clear="all" />
-
-      <span style="height: 2em; width: 17em; font-weight: 700; float: left;"
-            i18n:translate="">Id</span>
-      <input type="text" name="id" size="40" style="margin-top: 0.5em" />
-      <span style="font-size: 0.8em" i18n:translate="">(optional)</span>
-      <br clear="all" />
-
-      <span style="height: 2em; width: 17em; font-weight: 700; float: left;"
-            i18n:translate="">Restricted from public view</span>
-      <input type="checkbox" name="restricted" />
-      <br clear="all" />
-
-      <input type="submit" value="Add" i18n:attributes="value add-button" />
-    </form>
-
-    <tal:block tal:condition="python:request.SESSION.has_key('required_schema')">
-      <tal:block tal:replace="python:request.SESSION.delete('required_schema')" />
     </tal:block>
-    <tal:block tal:condition="python:request.SESSION.has_key('replace_xml')">
-      <tal:block tal:replace="python:request.SESSION.delete('replace_xml')" />
-    </tal:block>
-
   </metal:block>
 </metal:block>
