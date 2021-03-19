@@ -176,10 +176,10 @@ class FGASRegistryAPI(BaseRegistryAPI):
                     if address:
                         country = address.get('country')
                         if country:
-                            country_code = country.get('code')
+                            rep_country_code = country.get('code')
                             previous_paths.append(self.buildCollectionPath(
                                 details['domain'],
-                                country_code,
+                                rep_country_code,
                                 str(details['company_id']),
                                 details['collection_id'],
                             ))
