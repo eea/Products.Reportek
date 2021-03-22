@@ -826,17 +826,6 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
     def allowed_envelopes(self):
         """ Return False if the collection's associated company is disabled
         """
-        if not self.is_valid():
-            if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-                # For FGAS we also need to accept reporting from companies in REVISION
-                uris = self.dataflow_uris
-                is_fgas = 'http://rod.eionet.europa.eu/obligations/713' in uris or\
-                          'http://rod.eionet.europa.eu/obligations/765' in uris or\
-                          'http://rod.eionet.europa.eu/obligations/764' in uris
-                c_status = self.company_status()
-                if not is_fgas or (is_fgas and c_status not in ['REVISION', 'VALID']):
-                    return False
-
         if self.has_company_checks_failed():
             return False
 
