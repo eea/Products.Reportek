@@ -13,7 +13,11 @@
     <h1><tal:block i18n:translate="">Edit Feedback</tal:block> <span tal:replace="context/id"/></h1>
 
     <fieldset><legend i18n:translate="">Edit properties</legend>
-    <form id="edit" tal:attributes="action request/URL1" method="post">
+    <form id="edit" tal:attributes="action request/URL1" method="post"
+      tal:define="SecurityManager
+                  modules/AccessControl/getSecurityManager;
+                  has_permission
+                  python:SecurityManager.checkPermission('View management screens', template);">
     <table>
     <tr>
       <th align="left" i18n:translate="">Title</th>
@@ -25,7 +29,8 @@
           <textarea id="ckeditor-textarea" name="feedbacktext:utf8:ustring" cols="60" rows="20"><tal:block replace="context/feedbacktext"/></textarea>
         </td>
     </tr>
-    <tr>
+    <tr tal:condition="
+    python:not getattr(context.ReportekEngine, 'globally_restricted_site', False) and not (context.is_workflow_restricted() and not has_permission)">
       <th i18n:translate="">Restricted from public view</th>
       <td>
         <input type="hidden" name="applyRestriction" value="1" />

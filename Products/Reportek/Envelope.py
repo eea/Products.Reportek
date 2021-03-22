@@ -845,14 +845,19 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         if process.restricted and not getSecurityManager().checkPermission('View management screens', self):
             for oid in l_ids:
                 obj = self.unrestrictedTraverse(oid)
-                if isinstance(obj, Document.Document):
+                m_types = [
+                    'Report Document',
+                    'Report Feedback',
+                    'Report Hyperlink'
+                ]
+                if getattr(obj, 'meta_type', None) in m_types:
                     restricted.append(oid)
         if restricted:
             msg = 'This is a restricted workflow, unable to make objects public!'
             l_ids = [oid for oid in l_ids if oid not in restricted]
             if l_ids:
                 self._set_restrictions(l_ids,roles=[], acquire=1, permission='View')
-                msg = 'This is a restricted workflow, Report Documents restricted status have not been altered!'
+                msg = 'This is a restricted workflow, some object types restricted status have not been altered!'
             return error_response(ValueError, msg, REQUEST)
 
         return self._set_restrictions(l_ids,roles=[], acquire=1, permission='View', REQUEST=REQUEST)
