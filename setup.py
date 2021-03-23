@@ -1,8 +1,19 @@
+import os
+from os.path import join
+
 from setuptools import find_packages, setup
 
-setup(
-    name='Products.Reportek',
-    version='3.8.4',
+NAME = 'Products.Reportek'
+PATH = NAME.split('.') + ['version.txt']
+VERSION = open(join(*PATH)).read().strip()
+setup(name=NAME,
+      version=VERSION,
+      description="Products Reportek",
+      long_description_content_type="text/x-rst",
+      long_description=(
+          open("README.rst").read() + "\n" +
+          open(os.path.join("docs", "changelog.rst")).read()
+      ),
     author='Eau de Web',
     author_email='office@eaudeweb.ro',
     url='https://github.com/eea/Products.Reportek',
