@@ -1,6 +1,6 @@
-4.0.0-dev0 (unreleased)
------------------------
-* Back to eggs
+4.0.0 (2021-03-23)
+------------------
+* Back to egg releases
 * Bug fix: Properly retrieve company meta in searchdsearchdataflow [olimpiurob #100356]
 * Feature: Added auto_cleanup console script
 * Feature: Enabled huge_tree support for xml parser [olimpiurob refs #92438]
