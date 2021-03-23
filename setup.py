@@ -19,6 +19,7 @@ setup(name=NAME,
       url='https://github.com/eea/Products.Reportek',
       packages=find_packages(),
       include_package_data=True,
+      license='MPL',
       zip_safe=False,
       install_requires=[
           'Products.PluggableAuthService',
