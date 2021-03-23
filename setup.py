@@ -14,30 +14,30 @@ setup(name=NAME,
           open("README.rst").read() + "\n" +
           open(os.path.join("docs", "changelog.rst")).read()
       ),
-    author='Eau de Web',
-    author_email='office@eaudeweb.ro',
-    url='https://github.com/eea/Products.Reportek',
-    packages=find_packages(),
-    include_package_data=True,
-    zip_safe=False,
-    install_requires=[
-        'Products.PluggableAuthService',
-        'Zope2',
-        'collective.monkeypatcher',
-        'lxml',
-        'path.py',
-        'plone.caching',
-        'plone.cachepurging',
-        'plone.memoize',
-        'requests',
-        'xlwt',
-        'clamd',
-        'zipstream',
-        'xmltodict==0.11.0',
-        'eea.rabbitmq.client',
-        'contextlib2'
-    ],
-    entry_points="""
+      author='European Environment Agency: DIS1 P-Team',
+      author_email='eea-edw-c-team-alerts@googlegroups.com',
+      url='https://github.com/eea/Products.Reportek',
+      packages=find_packages(),
+      include_package_data=True,
+      zip_safe=False,
+      install_requires=[
+          'Products.PluggableAuthService',
+          'Zope2',
+          'collective.monkeypatcher',
+          'lxml',
+          'path.py',
+          'plone.caching',
+          'plone.cachepurging',
+          'plone.memoize',
+          'requests',
+          'xlwt',
+          'clamd',
+          'zipstream',
+          'xmltodict==0.11.0',
+          'eea.rabbitmq.client',
+          'contextlib2'
+      ],
+      entry_points="""
           # -*- Entry points: -*-
           [console_scripts]
           zip_cache_cleanup = Products.Reportek.RepUtils:cleanup_zip_cache

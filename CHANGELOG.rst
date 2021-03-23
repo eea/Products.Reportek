@@ -1,5 +1,5 @@
-4.0.0-dev (unreleased)
-----------------------
+4.0.0-dev0 (unreleased)
+-----------------------
 * Back to eggs
 * Bug fix: Properly retrieve company meta in searchdsearchdataflow [olimpiurob #100356]
 * Feature: Added auto_cleanup console script
