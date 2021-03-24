@@ -252,7 +252,7 @@ class EnvelopeUtils(BaseAdmin):
                             'url': activity.absolute_url(),
                             'title': activity.title_or_id()
                         },
-                        's_date': DateTime(obj.event_log[-1].get('time')).strftime('%d/%m/%Y %H:%M:%S')
+                        's_date': DateTime(wk.event_log[-1].get('time')).strftime('%d/%m/%Y %H:%M:%S')
                     })
 
         return json.dumps(envelopes)

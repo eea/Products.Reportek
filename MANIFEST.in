@@ -1,1 +1,9 @@
 recursive-include Products *
+recursive-include docs *
+global-exclude *.pyc
+global-exclude *~
+global-exclude *.un~
+global-include *.mo
+include *.txt
+include *.md
+include *.rst
