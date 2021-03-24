@@ -1,5 +1,6 @@
 4.0.2-dev0 (unreleased)
 -----------------------
+* Updated MANIFEST file to include missing CHANGELOG.rst and docs
 
 4.0.1 (2021-03-24)
 ------------------
