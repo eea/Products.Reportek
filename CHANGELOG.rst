@@ -1,3 +1,7 @@
+4.0.1-dev0 (unreleased)
+-----------------------
+* Updated Manifest file
+
 4.0.0 (2021-03-23)
 ------------------
 * Back to egg releases
