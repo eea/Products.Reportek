@@ -1,3 +1,7 @@
+4.0.3-dev0 (unreleased)
+-----------------------
+* Don't crash organisation_details if we have no path [olimpiurob refs #130580]
+
 4.0.2 (2021-03-24)
 ------------------
 * Updated MANIFEST file to include missing CHANGELOG.rst and docs
