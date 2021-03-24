@@ -67,14 +67,18 @@
           <tal:block metal:use-macro="here/partials/macros/representative_details" />
         </tal:block>
         <h2>Reporting folder</h2>
-        <span tal:condition="company/path|nothing">
-          <tal:block tal:condition="python: not '/non-eu/' in company.get('path', '')">
+        <span tal:define="active_path python: company.get('path', '');
+                          previous_paths python: company.get('previous_paths', []);">
+          <tal:block tal:condition="python: not '/non-eu/' in active_path">
             You can see the company deliveries here:
-            <a tal:attributes="href company/path"
-              tal:content="company/path" />
-            <p tal:condition="company/previous_paths"><strong>Previous reporting folders:</strong></p>
+            <a tal:condition="active_path" tal:attributes="href active_path"
+              tal:content="active_path" />
+            <span tal:condition="python: not active_path">
+              Company does not have an active reporting folder
+            </span>
+            <p tal:condition="previous_paths"><strong>Previous reporting folders:</strong></p>
             <ul>
-             <tal:block repeat="path company/previous_paths">
+             <tal:block repeat="path previous_paths">
               <li><a tal:attributes="href path"
                  tal:content="path" /></li>
               </tal:block>

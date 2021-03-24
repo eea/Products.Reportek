@@ -1,5 +1,7 @@
 4.0.3-dev0 (unreleased)
 -----------------------
+* Display previous reporting folders in organisation details if there
+  is no active path [olimpiurob refs #130580]
 * Don't crash organisation_details if we have no path [olimpiurob refs #130580]
 
 4.0.2 (2021-03-24)
