@@ -954,6 +954,12 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                     app = self.unrestrictedTraverse(app_url)
                     for job in jobs:
                         app.delete_job(job, workitem_id)
+            else:
+                if REQUEST:
+                    REQUEST.SESSION.set('note_content_type', 'text/html')
+                    REQUEST.SESSION.set('note_title', 'Error')
+                    REQUEST.SESSION.set('note_text', 'Unable to cancel this activity. Activity id is: {}'.format(wk.activity_id))
+                    REQUEST.RESPONSE.redirect('note')
             if wk.wf_status == 'forward':
                 fallinto = self.get_viable_cancel_fallin()
                 self.fallinWorkitem(workitem_id=workitem_id, activity_id=fallinto)
@@ -969,7 +975,18 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             if REQUEST:
                 REQUEST.SESSION.set('note_content_type', 'text/html')
                 REQUEST.SESSION.set('note_title', 'Error')
-                REQUEST.SESSION.set('note_text', 'Unable to cancel as this activity is no longer active')
+                REQUEST.SESSION.set('note_text', 'Unable to cancel activity. Activity status is: {}'.format(wk.status))
                 REQUEST.RESPONSE.redirect('note')
+
+    def is_cancellable(self, workitem_id):
+        """Return True if activity is cancellable"""
+        wk = getattr(self, workitem_id, None)
+        if wk:
+            is_lr = wk.activity_id.startswith('Automatic') or \
+                    wk.activity_id.startswith('FMEConversion')
+            unfinished = wk.status != 'complete' and \
+                         self.getActiveWorkitems() > 0
+            if is_lr and unfinished:
+                return True
 
 InitializeClass(EnvelopeInstance)
