@@ -290,15 +290,6 @@ class SatelliteRegistryManagement(BaseAdmin):
             self.request.response.setHeader('Content-Type', 'application/json')
             return json.dumps(sync_logs, indent=2)
 
-    def company_ids_match(self):
-        api = self.get_api()
-        if not api:
-            return None
-        companyId = self.request.form.get('new_id', '')
-        oldCompanyId = self.request.form.get('old_id', '')
-        json_data = api.companyNewOldIdCheck(companyId, oldCompanyId)
-        return json.dumps(json_data, indent=2)
-
     def unverify(self):
         details = {}
         if self.request.get('id'):

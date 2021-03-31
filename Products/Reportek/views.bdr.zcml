@@ -118,19 +118,12 @@
     class=".views.SatelliteRegistryManagement"
     attribute="get_matching_log"/>
 
-    <browser:page
-      name="get_datasync_log"
-      for=".interfaces.IRegistryManagement"
-      permission="zope2.FgasesRegistryAdministration"
-      class=".views.SatelliteRegistryManagement"
-      attribute="get_datasync_log"/>
-
-    <browser:page
-      name="company_ids_match"
-      for=".interfaces.IRegistryManagement"
-      permission="zope2.FgasesRegistryAdministration"
-      class=".views.SatelliteRegistryManagement"
-      attribute="company_ids_match"/>
+  <browser:page
+    name="get_datasync_log"
+    for=".interfaces.IRegistryManagement"
+    permission="zope2.FgasesRegistryAdministration"
+    class=".views.SatelliteRegistryManagement"
+    attribute="get_datasync_log"/>
 
   <browser:page
     name="is_company_locked"

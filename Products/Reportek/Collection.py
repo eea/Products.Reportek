@@ -739,6 +739,27 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
         return json.dumps(res, indent=4)
 
+    security.declareProtected('View', 'company_ids_match')
+    def company_ids_match(self):
+        """ Return the ODS stocks for the company
+        """
+        res = {
+            "match": 0,
+        }
+        self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            engine = self.getEngine()
+            registry = engine.get_registry(self)
+            new_id = self.REQUEST.get('new_id', '')
+            old_id = self.REQUEST.get('old_id', '')
+            new_company_id = getattr(self, '_company_id', '')
+            old_company_id = getattr(self, 'old_company_id', '')
+            if new_id and new_company_id and old_id and old_company_id:
+                if new_id == new_company_id and old_id == old_company_id:
+                    res['match'] = 1
+
+        return json.dumps(res, indent=4)
+
     security.declareProtected('View', 'company_details_short')
     def company_details_short(self):
         """ Return the short company details
