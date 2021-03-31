@@ -315,10 +315,19 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if response:
             return response.json()
 
+    def companyNewOldIdCheck(self, companyId='', oldCompanyId=''):
+        url = '/'.join([self.baseUrl,
+                        'candidate/verify-matching-ids/{0}/{1}'.format(
+                            companyId, oldCompanyId)])
+        response = self.do_api_request(url,
+                                       method="get",
+                                       headers={'Authorization': self.token})
+        return response.json()
+
     def unverifyCompany(self, companyId, userId, domain='FGAS'):
         co = self.get_company_details(companyId, domain)
         if co:
-            url = '/'.join([self.baseUrl + 'candidate', domain,
+            url = '/'.join([self.baseUrl, 'candidate', domain,
                             'unverify/{0}/'.format(companyId)])
             data = {'user': userId}
             response = self.do_api_request(url,
