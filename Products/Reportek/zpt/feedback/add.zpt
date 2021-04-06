@@ -31,7 +31,14 @@
     <tal:block condition="python: context.released and not context.canAddFeedback()">
       <p i18n:translate="">A manual feedback already exists for this envelope!</p>
     </tal:block>
-    <tal:block condition="python:context.canAddFeedback()">
+    <tal:block condition="python:context.canAddFeedback()"
+               define="SecurityManager
+                       modules/AccessControl/getSecurityManager;
+                       has_permission
+                       python:SecurityManager.checkPermission('View management screens', template);
+                       default_restricted python:request.SESSION.get('default_restricted', '');
+                       force_restricted python:request.SESSION.get('force_restricted', '');
+                       disallow python: request.SESSION.get('disallow', '')">
       <p class="form-help" i18n:translate="">Use the form to submit feedback to this delivery. You can attach one file to this feedback now and add othe files later by editing the feedback.
       </p>
 
@@ -60,9 +67,13 @@
             <td></td>
             <td><input type="submit" name="file_upload" value="Upload" i18n:attributes="value" /></td>
           </tr>
-          <tr>
+          <tr tal:condition="
+            not:python:getattr(context.ReportekEngine, 'globally_restricted_site', False) or (context.is_workflow_restricted() and not has_permission)">
             <th align="left" i18n:translate="">Restricted from public view</th>
-            <td align="left"><input type="checkbox" name="restricted" /></td>
+            <td align="left">
+                <input tal:condition="default_restricted" type="checkbox" name="restricted" checked="checked" />
+                <input tal:condition="not:default_restricted" type="checkbox" name="restricted" />
+            </td>
           </tr>
 
           <tr>

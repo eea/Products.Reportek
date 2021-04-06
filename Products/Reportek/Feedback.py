@@ -94,8 +94,8 @@ def manage_addFeedback(self, id ='', title='', feedbacktext='', file=None, activ
     self._setObject(id, ob)
     obj = self._getOb(id)
 
-    # Restricted from public
-    if restricted:
+    r_enabled = (hasattr(self, 'is_globally_restricted') and self.is_globally_restricted()) or (hasattr(self, 'is_workflow_restricted') and self.is_workflow_restricted())
+    if restricted or r_enabled:
         obj.manage_restrictFeedback()
     else:
         if document_id not in [None, 'xml']:

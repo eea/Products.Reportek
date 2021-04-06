@@ -1,5 +1,22 @@
-3.8.7-dev (unreleased)
-----------------------
+4.0.3-dev0 (unreleased)
+-----------------------
+* Restrict cancellable activities to AutomaticQA and FMEConversion app
+  [olimpiurob refs #129250]
+* Display previous reporting folders in organisation details if there
+  is no active path [olimpiurob refs #130580]
+* Don't crash organisation_details if we have no path [olimpiurob refs #130580]
+
+4.0.2 (2021-03-24)
+------------------
+* Updated MANIFEST file to include missing CHANGELOG.rst and docs
+
+4.0.1 (2021-03-24)
+------------------
+* Updated Manifest file
+
+4.0.0 (2021-03-23)
+------------------
+* Back to egg releases
 * Bug fix: Properly retrieve company meta in searchdsearchdataflow [olimpiurob #100356]
 * Feature: Added auto_cleanup console script
 * Feature: Enabled huge_tree support for xml parser [olimpiurob refs #92438]
