@@ -87,11 +87,6 @@ pipeline {
     }
 
     stage('Report to SonarQube') {
-      when {
-        allOf {
-          environment name: 'CHANGE_ID', value: ''
-        }
-      }
       steps {
         node(label: 'Products.Reportek') {
           script{
@@ -117,7 +112,7 @@ pipeline {
           }
         }
       }
-}
+    }
 
 
 
