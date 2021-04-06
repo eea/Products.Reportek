@@ -1,19 +1,19 @@
-## Script (Python) "Assign_client"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
-##parameters=REQUEST=None, **kwargs
-##title=
+# Script (Python) "Assign_client"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
+# parameters=REQUEST=None, **kwargs
+# title=
 ##
 if REQUEST:
     kwargs.update(REQUEST.form)
 
-crole = kwargs.get('crole','Client')
+crole = kwargs.get('crole', 'Client')
 query = {
-  'dataflow_uris': kwargs.get('cobligation', ''),
-  'meta_type': 'Report Collection',
+    'dataflow_uris': kwargs.get('cobligation', ''),
+    'meta_type': 'Report Collection',
 }
 
 catalog = context.Catalog
@@ -30,6 +30,6 @@ for brain in brains:
     if country.lower() not in countries:
         continue
     for user in kwargs.get('dns', []):
-        doc.manage_setLocalRoles(user, [crole,])
+        doc.manage_setLocalRoles(user, [crole, ])
     res.append(doc)
 return res

@@ -1,19 +1,19 @@
-## Script (Python) "dataflow_table"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
-##parameters=
-##title=
+# Script (Python) "dataflow_table"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
+# parameters=
+# title=
 ##
 class ServiceTemporarilyUnavailableException(Exception):
     pass
 
 
 def inline_replace(x):
-   x['uri'] = x['uri'].replace('eionet.eu.int', 'eionet.europa.eu')
-   return x
+    x['uri'] = x['uri'].replace('eionet.eu.int', 'eionet.europa.eu')
+    return x
 
 
 try:

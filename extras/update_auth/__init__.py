@@ -23,20 +23,18 @@ testing, you can call add_PAS directly:
 """
 import Products.PluggableAuthService.interfaces.plugins as plugin_interfaces
 from Products.LDAPMultiPlugins.LDAPMultiPlugin import LDAPMultiPlugin
-from Products.LDAPUserFolder.LDAPUserFolder import (manage_addLDAPUserFolder,
-                                                    LDAPUserFolder)
-
+from Products.LDAPUserFolder.LDAPUserFolder import (LDAPUserFolder,
+                                                    manage_addLDAPUserFolder)
 from Products.Reportek.auth import add_PAS
-
 from update_auth.ldapfolder_migration import (exportLDAPUserFolder,
                                               importLDAPUserFolder)
-
 
 LDAPMULTIPLUGIN_ID = 'ldapmultiplugin'
 
 
 def add_ldap_plugin(pas):
-    """ Adds LDAPMultiPlugin to PluggableAuthService, without LDAPUserFolder """
+    """ Adds LDAPMultiPlugin to PluggableAuthService, without LDAPUserFolder
+    """
     ldap_plugin_id = LDAPMULTIPLUGIN_ID
     lmp = LDAPMultiPlugin(ldap_plugin_id, 'LDAP Multi Plugin')
     pas._setObject(ldap_plugin_id, lmp)
@@ -58,11 +56,10 @@ def add_ldap_plugin(pas):
 
 def update_authentication(app):
     """
-    This must be called in debug for full migration from LDAPUserFolder 2.9 to PAS
-    After migration, Products.LDAPUserFolder 2.23 can be used
-
+    This must be called in debug for full migration from LDAPUserFolder 2.9 to
+    PAS. After migration, Products.LDAPUserFolder 2.23 can be used
     """
-    setattr(LDAPUserFolder, '_hash', 'mock-this') # can not unpickle
+    setattr(LDAPUserFolder, '_hash', 'mock-this')  # can not unpickle
     exportLDAPUserFolder(app)
     delattr(LDAPUserFolder, '_hash')
 
@@ -75,8 +72,8 @@ def update_authentication(app):
     for user_id in local_users:
         user = local_users[user_id]
         pas['users'].addUser(user_id=user_id,
-                            login_name=user_id,
-                            password=user['pass'])
+                             login_name=user_id,
+                             password=user['pass'])
         pas['roles'].assignRoleToPrincipal(role_id=user['role'],
                                            principal_id=user_id)
 
@@ -84,8 +81,8 @@ def update_authentication(app):
     manage_addLDAPUserFolder(lmp)
     importLDAPUserFolder(lmp)
     # From Products.LDAPMultiPlugins:
-    ## clean out the __allow_groups__ bit because it is not needed here
-    ## and potentially harmful
+    # clean out the __allow_groups__ bit because it is not needed here
+    # and potentially harmful
     if hasattr(lmp, '__allow_groups__'):
         del lmp.__allow_groups__
 
@@ -96,5 +93,5 @@ def update_authentication(app):
         if role not in ('Anonymous', 'Authenticated'):
             lmp.acl_users.manage_addGroupMapping(role, role)
 
-    #del app.loggedin
-    #del app.loggedout
+    # del app.loggedin
+    # del app.loggedout

@@ -1,11 +1,11 @@
-## Script (Python) "EnvelopeArt8CoverLetter"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
+# Script (Python) "EnvelopeArt8CoverLetter"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
 ##parameters=workitem_id, REQUEST
-##title=Cover letter for WFD reporting (currently: Art. 13)
+# title=Cover letter for WFD reporting (currently: Art. 13)
 ##
 from DateTime import DateTime
 
@@ -46,7 +46,8 @@ DK 1050 Copenhagen K
 <ol>""" % (context.getMySelf().dataflow_lookup(list(context.getMySelf().dataflow_uris)[0])['TITLE'], list(context.getMySelf().dataflow_uris)[0], list(context.getMySelf().dataflow_uris)[0], context.getMySelf().getCountryName(), DateTime().strftime('%d %B %Y'), context.getMySelf().title_or_id(), context.getMySelf().absolute_url(), context.getMySelf().absolute_url())
 
 
-documents_list = context.getMySelf().objectValues(['Report Document', 'Report Hyperlink'])
+documents_list = context.getMySelf().objectValues(
+    ['Report Document', 'Report Hyperlink'])
 documents_list.sort(key=lambda ob: ob.getId().lower())
 for f in documents_list:
     l_ret += '<li>%s</li>' % (f.title_or_id())
@@ -70,7 +71,8 @@ l_ret += """
 
 <p>According to the WISE Reporting Arrangements agreed at the WFD Regulatory Committee in March 2007, this cover letter is generated to be printed and sent officially to the European Commission as proof of reporting delivery.</p>
 
-""" % (context.getMySelf().getLDAPUserCanonicalName(context.getMySelf().getLDAPUser(context.getMySelf().getPreviousActor(str(int(workitem_id) - 2)))),context.getMySelf().getPreviousActor(str(int(workitem_id) - 2)))
+""" % (context.getMySelf().getLDAPUserCanonicalName(context.getMySelf().getLDAPUser(context.getMySelf().getPreviousActor(str(int(workitem_id) - 2)))), context.getMySelf().getPreviousActor(str(int(workitem_id) - 2)))
 
-context.getMySelf().manage_addFeedback(title="Confirmation of receipt", feedbacktext=l_ret, automatic=1, content_type='text/html')
+context.getMySelf().manage_addFeedback(title="Confirmation of receipt",
+                                       feedbacktext=l_ret, automatic=1, content_type='text/html')
 context.getMySelf().completeWorkitem(workitem_id)

@@ -1,11 +1,11 @@
-## Script (Python) "EUETS_Art21_ReportingManual_V1.pdf"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
-##parameters=
-##title=Redirects to the Article 21 manual, requested by the Commission
+# Script (Python) "EUETS_Art21_ReportingManual_V1.pdf"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
+# parameters=
+# title=Redirects to the Article 21 manual, requested by the Commission
 ##
 request = container.REQUEST
 

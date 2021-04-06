@@ -1,21 +1,25 @@
-## Script (Python) "ReceiptConfirmationNegative"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
+# Script (Python) "ReceiptConfirmationNegative"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
 ##parameters=workitem_id, REQUEST
-##title=Data delivery is not acceptable
+# title=Data delivery is not acceptable
 ##
 from DateTime import DateTime
 l_envelope = context.getMySelf()
 
+
 def getActorDraft():
-    latestDraftWokitem = [wi for wi in context.getListOfWorkitems() if wi.activity_id == 'Draft'][-1]
+    latestDraftWokitem = [
+        wi for wi in context.getListOfWorkitems() if wi.activity_id == 'Draft'][-1]
     return latestDraftWokitem.actor
+
 
 def getFeedbackForEnvelope():
     return [x.absolute_url() for x in l_envelope.objectValues('Report Feedback') if x.title.find('envelope') > -1][0]
+
 
 def getFeedbackForFiles(ptype):
     if ptype == 'species':
@@ -26,18 +30,22 @@ def getFeedbackForFiles(ptype):
         lschema = 'http://bd.eionet.europa.eu/schemas/Art12Art17_reporting_2013/art12_birds.xsd'
     else:
         lschema = 'http://bd.eionet.europa.eu/schemas/Art12Art17_reporting_2013/art17_habitats.xsd'
-    lfiles = [x for x in l_envelope.objectValues('Report Document') if x.xml_schema_location == lschema]
+    lfiles = [x for x in l_envelope.objectValues(
+        'Report Document') if x.xml_schema_location == lschema]
     lret = []
     for x in lfiles:
-        lret.extend(['<a href="%s">%s</a>' % (f.absolute_url(), f.title_or_id()) for f in l_envelope.objectValues('Report Feedback') if f.document_id == x.id and f.title.find('XML Schema validation') != -1])
+        lret.extend(['<a href="%s">%s</a>' % (f.absolute_url(), f.title_or_id()) for f in l_envelope.objectValues(
+            'Report Feedback') if f.document_id == x.id and f.title.find('XML Schema validation') != -1])
     if not lret:
-         return '(no feedback available for the %s report)' % ptype
+        return '(no feedback available for the %s report)' % ptype
     return '(see %s)' % ', '.join(lret)
+
 
 list_of_obligations = []
 
 for obl in context.dataflow_uris:
-    list_of_obligations.append("""<strong>%s</strong> (<a href="%s">%s</a>)""" % (context.dataflow_lookup(obl)['TITLE'], obl.replace('eionet.eu.int','eionet.europa.eu'), obl.replace('eionet.eu.int','eionet.europa.eu')))
+    list_of_obligations.append("""<strong>%s</strong> (<a href="%s">%s</a>)""" % (context.dataflow_lookup(obl)[
+                               'TITLE'], obl.replace('eionet.eu.int', 'eionet.europa.eu'), obl.replace('eionet.eu.int', 'eionet.europa.eu')))
 
 obligations_para = "<br/>\n".join(list_of_obligations)
 
@@ -94,5 +102,6 @@ else:
 
 l_ret = l_ret_head + l_ret_body + l_ret_foot
 
-context.manage_addFeedback(title="Automatic validation: Data delivery was not acceptable", feedbacktext=l_ret, automatic=1, content_type='text/html')
+context.manage_addFeedback(title="Automatic validation: Data delivery was not acceptable",
+                           feedbacktext=l_ret, automatic=1, content_type='text/html')
 context.completeWorkitem(workitem_id)

@@ -21,7 +21,7 @@ for hit in hits:
                     obj.bobobase_modification_time().Date(),
                     obj.users_with_local_role(role),
                     list(obj.dataflow_uris)
-    ))
+                    ))
 
 root_obj = context.restrictedTraverse(['', ])
 results.append((root_obj.absolute_url(0),
@@ -29,7 +29,7 @@ results.append((root_obj.absolute_url(0),
                 root_obj.bobobase_modification_time().Date(),
                 root_obj.users_with_local_role(role),
                 []
-))
+                ))
 
 for hit in results:
     members = hit[3]
@@ -62,7 +62,7 @@ for account, paths in pitems:
         err = 'Spaces&nbsp;in&nbsp;userid! '
     print '''<tr%s><td valign="top">%s<a href="http://www.eionet.europa.eu/directory/user?uid=%s">%s</a></td>
 <td valign="top">%s</td>
-</tr>''' % (evenstr, err, account, account, string.join(paths, '<br/>') )
+</tr>''' % (evenstr, err, account, account, string.join(paths, '<br/>'))
     if evenstr == '':
         evenstr = ' class="zebraeven"'
     else:

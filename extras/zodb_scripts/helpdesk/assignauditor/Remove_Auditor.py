@@ -1,18 +1,18 @@
-## Script (Python) "Remove_Auditor"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
-##parameters=REQUEST=None, **kwargs
-##title=Remove 'Auditor' role
+# Script (Python) "Remove_Auditor"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
+# parameters=REQUEST=None, **kwargs
+# title=Remove 'Auditor' role
 ##
 if REQUEST:
     kwargs.update(REQUEST.form)
 
 query = {
-  'dataflow_uris': kwargs.get('cobligation', ''),
-  'meta_type': 'Report Collection',
+    'dataflow_uris': kwargs.get('cobligation', ''),
+    'meta_type': 'Report Collection',
 }
 
 catalog = context.Catalog
@@ -29,10 +29,11 @@ for brain in brains:
     if country.lower() not in countries:
         continue
     for user in kwargs.get('dns', []):
-        local_roles = [role for role in doc.get_local_roles_for_userid(user) if role != 'Auditor']
+        local_roles = [role for role in doc.get_local_roles_for_userid(
+            user) if role != 'Auditor']
         if local_roles:
             doc.manage_setLocalRoles(user, local_roles)
         else:
-            doc.manage_delLocalRoles(userids=[user,])
+            doc.manage_delLocalRoles(userids=[user, ])
     res.append(doc)
 return res

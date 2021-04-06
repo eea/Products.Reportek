@@ -1,15 +1,15 @@
-## Script (Python) "void.rdf"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
-##parameters=
-##title=Extract all envelopes in RDF format for one year back
+# Script (Python) "void.rdf"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
+# parameters=
+# title=Extract all envelopes in RDF format for one year back
 ##
 from Products.PythonScripts.standard import html_quote
 request = container.REQUEST
-RESPONSE =  request.RESPONSE
+RESPONSE = request.RESPONSE
 
 RESPONSE.setHeader('content-type', 'application/rdf+xml;charset=utf-8')
 
@@ -47,10 +47,10 @@ print """<void:Linkset rdf:ID="D2O">
 """ % serverurl
 
 for item in container.Catalog(meta_type='Report Envelope', released=1):
-  try:
-    print """<void:dataDump rdf:resource="%s%s"/>""" % ( serverurl, html_quote(item.getPath()) )
-  except:
-    print """<!-- deleted envelope %s -->""" % item.id;
+    try:
+        print """<void:dataDump rdf:resource="%s%s"/>""" % (serverurl, html_quote(item.getPath()))
+    except:
+        print """<!-- deleted envelope %s -->""" % item.id
 
 print """</void:Dataset>
 </rdf:RDF>"""

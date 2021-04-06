@@ -1,11 +1,11 @@
-## Script (Python) "form26"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
-##parameters=languages
-##title=
+# Script (Python) "form26"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
+# parameters=languages
+# title=
 ##
 return '''<?xml version="1.0" encoding="UTF-8"?>
 <form26

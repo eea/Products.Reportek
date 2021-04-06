@@ -33,7 +33,8 @@ for group in groups:
     group_label = group if len(group) <= 80 else group[:77]
     print """<optgroup label="%s">""" % group_label
     for item in items[group]:
-        extra_attributes = 'class="terminated"' if item.get('terminated', None) == '1' else ''
+        extra_attributes = 'class="terminated"' if item.get(
+            'terminated', None) == '1' else ''
         if item['uri'] == filtered_obl:
             extra_attributes = extra_attributes + ' selected="selected"'
         print """<option value="%s" %s>""" % (item['uri'], extra_attributes)
@@ -65,7 +66,7 @@ for hit in hits:
                         obj.bobobase_modification_time().Date(),
                         obj.users_with_local_role(role),
                         list(obj.dataflow_uris)
-        ))
+                        ))
 
 root_obj = context.restrictedTraverse(['', ])
 results.append((root_obj.absolute_url(0),
@@ -73,7 +74,7 @@ results.append((root_obj.absolute_url(0),
                 root_obj.bobobase_modification_time().Date(),
                 root_obj.users_with_local_role(role),
                 []
-))
+                ))
 
 results.sort(pathcompare)
 evenstr = ''
@@ -92,7 +93,7 @@ for hit in results:
         print """<td><a href="%s">%s</a></td>
     <td>%s</td>
     <td title="%s">%s</td>
-    <td>""" % ( hit[0], hit[1][:40], hit[2], hover, obl )
+    <td>""" % (hit[0], hit[1][:40], hit[2], hover, obl)
         for m in members:
             print """<a href="http://www.eionet.europa.eu/directory/user?uid=%s">%s</a>""" % (m, m)
             if not persons.has_key(m):

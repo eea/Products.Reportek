@@ -1,18 +1,18 @@
-## Script (Python) "EnvelopeAdd_Art17_GR_Instancefile"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
+# Script (Python) "EnvelopeAdd_Art17_GR_Instancefile"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
 ##parameters=workitem_id, REQUEST
-##title=Add an empty instance
+# title=Add an empty instance
 ##
 # Notice: Maintain the instancefile under /xmlexports, then cut-and-paste it to here
 # when changed
-transmap = string.maketrans(' ','-')
+transmap = string.maketrans(' ', '-')
 
-filename="general-report.xml"
-title="General report for Art 17"
+filename = "general-report.xml"
+title = "General report for Art 17"
 filecontent = []
 
 bioregions = {
@@ -34,7 +34,7 @@ filecontent.append("""<?xml version="1.0" encoding="UTF-8"?>
   <legal-framework label="1. Legal Framework">
     <legal-texts label="List of legal texts that transpose the Directive at national and/or regional level (Can be replaced by Internet address)"/>
   </legal-framework>
-""" )
+""")
 for r in ['ALP', 'ATL', 'BOR']:
     filecontent.append("""
    <regional label="2. State of designation of Natura 2000">
@@ -60,7 +60,7 @@ for r in ['ALP', 'ATL', 'BOR']:
       </areas-of-conservation>
     </marine>
   </regional>
-""" % (bioregions[r], r) )
+""" % (bioregions[r], r))
 filecontent.append("""
   <management-tools label="3. Management tools - Art. 6(1)">
     <management-plans label="3.1 Management plans &amp; management Bodies">
@@ -177,6 +177,7 @@ filecontent.append("""
   </supporting-measures>
 </report>
 """)
-context.manage_addDocument(filename, title, ''.join(filecontent), 'text/xml','')
+context.manage_addDocument(
+    filename, title, ''.join(filecontent), 'text/xml', '')
 
 context.completeWorkitem(workitem_id)

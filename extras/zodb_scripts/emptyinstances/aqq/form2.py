@@ -1,17 +1,17 @@
-## Script (Python) "form2"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
+# Script (Python) "form2"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
 ##parameters=languages, country
-##title=
+# title=
 ##
 file_ob = getattr(context.zones, 'zones-%s.xml' % country.upper(), '')
 if file_ob:
-  return str(file_ob.data) % languages
+    return str(file_ob.data) % languages
 else:
-  return '''<?xml version="1.0" encoding="UTF-8"?>
+    return '''<?xml version="1.0" encoding="UTF-8"?>
 <form2 xsi:noNamespaceSchemaLocation="http://air-climate.eionet.europa.eu/schemas/AirQualityQuestionnaire/AirQualityQuestionnaire-form2.xsd"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  xml:lang="%s">
 	<form2-row>

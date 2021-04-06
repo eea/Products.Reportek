@@ -1,11 +1,11 @@
-## Script (Python) "form9"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
-##parameters=languages
-##title=
+# Script (Python) "form9"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
+# parameters=languages
+# title=
 ##
 return '''<?xml version="1.0" encoding="UTF-8"?>
 <form9 xsi:noNamespaceSchemaLocation="http://air-climate.eionet.europa.eu/schemas/AirQualityQuestionnaire/AirQualityQuestionnaire-form9.xsd"
