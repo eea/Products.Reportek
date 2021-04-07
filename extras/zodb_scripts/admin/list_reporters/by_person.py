@@ -1,6 +1,6 @@
 # Import a standard function, and get the HTML request and response objects.
 # from Products.PythonScripts.standard import string
-REQUEST = container.REQUEST
+REQUEST = container.REQUEST  # noqa: F821
 RESPONSE = REQUEST.RESPONSE
 role = 'Reporter'
 
@@ -9,11 +9,11 @@ def pathcompare(p1, p2):
     return cmp(p1[0], p2[0])
 
 
-print context.standard_html_header(context, context.REQUEST)
+print context.standard_html_header(context, context.REQUEST)  # noqa: F821
 
 persons = {}
 results = []
-hits = container.Catalog(meta_type='Report Collection')
+hits = container.Catalog(meta_type='Report Collection')  # noqa: F821
 for hit in hits:
     obj = hit.getObject()
     results.append((obj.absolute_url(0),
@@ -23,7 +23,7 @@ for hit in hits:
                     list(obj.dataflow_uris)
                     ))
 
-root_obj = context.restrictedTraverse(['', ])
+root_obj = context.restrictedTraverse(['', ])  # noqa: F821
 results.append((root_obj.absolute_url(0),
                 '/',
                 root_obj.bobobase_modification_time().Date(),
@@ -35,7 +35,7 @@ for hit in results:
     members = hit[3]
     if members != []:
         for m in members:
-            if not persons.has_key(m):
+            if m not in persons:
                 persons[m] = []
             persons[m].append(hit[1])
 
@@ -58,17 +58,18 @@ pitems = persons.items()
 pitems.sort()
 for account, paths in pitems:
     err = ''
-    if string.find(account, ' ') >= 0:
+    if string.find(account, ' ') >= 0:  # noqa: F821
         err = 'Spaces&nbsp;in&nbsp;userid! '
-    print '''<tr%s><td valign="top">%s<a href="http://www.eionet.europa.eu/directory/user?uid=%s">%s</a></td>
+    print '''<tr%s><td valign="top">%s<a\
+     href="http://www.eionet.europa.eu/directory/user?uid=%s">%s</a></td>
 <td valign="top">%s</td>
-</tr>''' % (evenstr, err, account, account, string.join(paths, '<br/>'))
+</tr>''' % (evenstr, err, account, account, string.join(paths, '<br/>'))  # noqa: F821
     if evenstr == '':
         evenstr = ' class="zebraeven"'
     else:
         evenstr = ''
 
 print "</table>"
-print context.standard_html_footer(context, context.REQUEST)
+print context.standard_html_footer(context, context.REQUEST)  # noqa: F821
 
-return printed
+return printed  # noqa: F999

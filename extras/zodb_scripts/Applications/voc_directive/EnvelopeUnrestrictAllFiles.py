@@ -4,11 +4,13 @@
 # bind namespace=
 # bind script=script
 # bind subpath=traverse_subpath
-##parameters=workitem_id, REQUEST
+# parameters=workitem_id, REQUEST
 # title=
 ##
-# This script removes restrictions from all files that aren't already unrestricted.
+# This script removes restrictions from all files that aren't already
+# unrestricted.
 # It is to be called just before 'End' activity.
-# It requires the user to have 'Change Feedback' permission, which the 'Client' role has.
-if context.getMySelf().areRestrictions():
-    context.getMySelf().manage_unrestrict(context.getMySelf().objectIds())
+# It requires the user to have 'Change Feedback' permission, which the
+# 'Client' role has.
+if context.getMySelf().areRestrictions():  # noqa: F821
+    context.getMySelf().manage_unrestrict(context.getMySelf().objectIds())  # noqa: F821

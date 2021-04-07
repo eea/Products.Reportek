@@ -8,9 +8,9 @@
 # title=
 ##
 results = []
-for brain in context.Catalog(meta_type='Report Collection'):
+for brain in context.Catalog(meta_type='Report Collection'):  # noqa: F821
     coll = brain.getObject()
-    local_roles = coll.get_local_roles_for_userid(username)
+    local_roles = coll.get_local_roles_for_userid(username)  # noqa: F821
     if local_roles:
         results.append({
             'country': coll.getCountryName,
@@ -18,4 +18,4 @@ for brain in context.Catalog(meta_type='Report Collection'):
             'roles': ', '.join([role for role in local_roles])
         })
 
-return results
+return results  # noqa: F999

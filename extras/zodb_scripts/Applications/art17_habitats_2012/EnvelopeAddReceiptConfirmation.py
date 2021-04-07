@@ -4,14 +4,14 @@
 # bind namespace=
 # bind script=script
 # bind subpath=traverse_subpath
-##parameters=workitem_id, REQUEST
+# parameters=workitem_id, REQUEST
 # title=Add a confirmation of receipt
 ##
 from DateTime import DateTime
 
 list_of_obligations = []
 obligations_titles = []
-l_envelope = context.getMySelf()
+l_envelope = context.getMySelf()  # noqa: F821
 
 l_country = l_envelope.getCountryName()
 if l_envelope.locality:
@@ -23,19 +23,27 @@ l_country = l_country.replace('Russian Federation', 'Russia')
 for obl in list(l_envelope.dataflow_uris):
     obligations_titles.append(l_envelope.dataflow_lookup(obl)['TITLE'])
     if obl == 'http://rod.eionet.europa.eu/obligations/269':
-        list_of_obligations.append("""<strong>%s</strong> (<a href="%s">%s</a>)""" % (l_envelope.dataflow_lookup(obl)[
-                                   'TITLE'] + ' (Report on implementation of the measures under Council Directive 92/43/EEC, including main results of surveillance under Article 11 of the Directive)', obl, obl))
+        list_of_obligations.append("""
+            <strong>%s</strong> (<a href="%s">%s</a>)""" %
+                                   (l_envelope.dataflow_lookup(obl)['TITLE'] +
+                                    ' (Report on implementation of the \
+                                    measures under Council Directive \
+                                    92/43/EEC, including main results of \
+                                    surveillance under Article 11 of the \
+                                    Directive)', obl, obl))
     else:
-        list_of_obligations.append("""<strong>%s</strong> (<a href="%s">%s</a>)""" %
-                                   (l_envelope.dataflow_lookup(obl)['TITLE'], obl, obl))
+        list_of_obligations.append("""
+            <strong>%s</strong> (<a href="%s">%s</a>)""" %
+                                   (l_envelope.dataflow_lookup(obl)['TITLE'],
+                                    obl, obl))
 
 obligations_para = "<br/>\n".join(list_of_obligations)
 obligations_title = ", ".join(obligations_titles)
 
 
 def getActorDraft():
-    latestDraftWokitem = [
-        wi for wi in context.getListOfWorkitems() if wi.activity_id == 'Draft'][-1]
+    latestDraftWokitem = [wi for wi in context.getListOfWorkitems()  # noqa: F821
+                          if wi.activity_id == 'Draft'][-1]
     return latestDraftWokitem.actor
 
 
@@ -50,26 +58,31 @@ DK 1050 Copenhagen K
 
 <p><strong>To Whom It May Concern</strong></p>
 
-<p>This is a confirmation of receipt for national data submissions under the European Reporting Obligation</p>
+<p>This is a confirmation of receipt for national data submissions under the
+ European Reporting Obligation</p>
 
 <p>%s</p>
 
-<p>The following delivery has been submitted for <strong>%s</strong> to the Reportnet Central Data Repository (CDR) and was finalized on <strong>%s</strong>.</p>
+<p>The following delivery has been submitted for <strong>%s</strong> to the
+ Reportnet Central Data Repository (CDR) and was finalized on
+  <strong>%s</strong>.</p>
 
 <table>
-	<tr>
-		<th>Envelope:</th>
-		<td>%s</td>
-	</tr>
-	<tr>
-		<th>Location:</th>
-		<td><a href="%s">%s</a></td>
-	</tr>
+    <tr>
+        <th>Envelope:</th>
+        <td>%s</td>
+    </tr>
+    <tr>
+        <th>Location:</th>
+        <td><a href="%s">%s</a></td>
+    </tr>
 </table>
 
 <p>List of files:</p>
 
-<ul>""" % (obligations_para, l_country, DateTime().strftime('%d %B %Y'), l_envelope.title_or_id(), l_envelope.absolute_url(), l_envelope.absolute_url())
+<ul>""" % (obligations_para, l_country, DateTime().strftime('%d %B %Y'),
+           l_envelope.title_or_id(), l_envelope.absolute_url(),
+           l_envelope.absolute_url())
 
 documents_list = l_envelope.objectValues(
     ['Report Document', 'Report Hyperlink'])
@@ -80,7 +93,8 @@ for f in documents_list:
         zip_files = l_envelope.getZipInfo(f)
         if zip_files:
             l_ret += '<div class="zip_content">'
-            l_ret += '<em>files contained inside the ' + f.title_or_id() + ' archive:</em>'
+            l_ret += '<em>files contained inside the ' + f.title_or_id() +\
+                     ' archive:</em>'
             l_ret += '<ul>'
             for file in zip_files:
                 l_ret += '<li>%s</li>' % file
@@ -88,17 +102,28 @@ for f in documents_list:
             l_ret += '</div>'
 l_ret += """
 </ul>
-<p>The above-mentioned files were submitted by: <em>%s</em> (user name: <em>%s</em>)</p>
-""" % (l_envelope.getLDAPUserCanonicalName(context.getLDAPUser(getActorDraft())), getActorDraft())
+<p>The above-mentioned files were submitted by: <em>%s</em>\
+ (user name: <em>%s</em>)</p>
+""" % (
+    l_envelope.getLDAPUserCanonicalName(context.getLDAPUser(getActorDraft())),  # noqa: F821
+    getActorDraft())
 
-if l_envelope.dataflow_uris in [['http://rod.eionet.europa.eu/obligations/269'], ['http://rod.eionet.europa.eu/obligations/278']]:
-    l_ret += """<p>In order to officially confirm this electronic data submission, please append this receipt to the communication from your Permanent Representation to the European Union
+if l_envelope.dataflow_uris in [
+    ['http://rod.eionet.europa.eu/obligations/269'],
+    ['http://rod.eionet.europa.eu/obligations/278']
+]:
+    l_ret += """<p>In order to officially confirm this electronic data \
+    submission, please append this receipt to the communication from your \
+    Permanent Representation to the European Union
 to the European Commission.</p>"""
 
-l_ret += """<p><em>This confirmation letter is electronically generated by the Reportnet system and therefore not signed.</em></p>"""
+l_ret += """<p><em>This confirmation letter is electronically generated by \
+the Reportnet system and therefore not signed.</em></p>"""
 
-l_title = "Receipt of delivery of the %s %s" % ((' national contribution to' if l_envelope.dataflow_uris == [
-                                                'http://rod.eionet.europa.eu/obligations/690'] else ''), obligations_title)
+dfs = ['http://rod.eionet.europa.eu/obligations/690']
+l_title = "Receipt of delivery of the %s %s" % (
+    (' national contribution to' if l_envelope.dataflow_uris == dfs else ''),
+    obligations_title)
 l_envelope.manage_addFeedback(
     title=l_title, feedbacktext=l_ret, automatic=1, content_type='text/html')
-l_envelope.completeWorkitem(workitem_id)
+l_envelope.completeWorkitem(workitem_id)  # noqa: F821

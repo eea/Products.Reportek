@@ -7,4 +7,4 @@
 # parameters=uri
 # title=
 ##
-return uri.split('/')[-1]
+return uri.split('/')[-1]  # noqa: F999
