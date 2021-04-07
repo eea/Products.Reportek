@@ -7,7 +7,7 @@
 # parameters=
 # title=
 ##
-for k in container.objectValues('Report Envelope'):
+for k in container.objectValues('Report Envelope'):  # noqa: F821
     print k.id, k.title, k.released
 
-return printed
+return printed  # noqa: F999

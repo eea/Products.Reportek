@@ -7,7 +7,7 @@
 # parameters=
 # title=Redirects to the Article 21 manual, requested by the Commission
 ##
-request = container.REQUEST
+request = container.REQUEST  # noqa: F821
 
 request.response.redirect(
     'http://cdr.eionet.europa.eu/help/EUETS_Art21_ReportingManual_V2.pdf')
