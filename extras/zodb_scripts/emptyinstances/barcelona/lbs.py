@@ -7,11 +7,11 @@
 # parameters=language
 # title=
 ##
-return """<?xml version="1.0" encoding="UTF-8"?>
+return """<?xml version="1.0" encoding="UTF-8"?>  # noqa: F999
 <lbs 
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
     xmlns:xi="http://www.w3.org/2001/XInclude"
-    xsi:noNamespaceSchemaLocation="http://biodiversity.eionet.europa.eu/schemas/barcelona_convention/lbs.xsd" 
+    xsi:noNamespaceSchemaLocation="http://biodiversity.eionet.europa.eu/schemas/barcelona_convention/lbs.xsd"  # noqa: E501
     xml:lang="%s">
  <reporting-party>
     <contracting-party/>

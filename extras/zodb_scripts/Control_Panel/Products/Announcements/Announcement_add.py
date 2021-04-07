@@ -8,9 +8,9 @@
 # title=Announcement constructor
 ##
 # Add a new instance of the ZClass
-request = context.REQUEST
+request = context.REQUEST  # noqa: F821
 request.set('released', 1)
-instance = container.Announcement.createInObjectManager(request['id'], request)
+instance = container.Announcement.createInObjectManager(request['id'], request)  # noqa: F821
 
 
 instance.propertysheets.Basic.manage_editProperties(request)

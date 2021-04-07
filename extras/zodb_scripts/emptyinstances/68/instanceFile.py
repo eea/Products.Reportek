@@ -7,6 +7,6 @@
 # parameters=
 # title=Empty instance for the Waste oils directive
 ##
-l_parent = context.xmlexports.oilwaste
+l_parent = context.xmlexports.oilwaste  # noqa: F821
 l_file = getattr(l_parent, 'emptyinstance_75439.xml')
-return l_file
+return l_file  # noqa: F999
