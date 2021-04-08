@@ -122,7 +122,7 @@
         <table id="dataflow-table" class="dataTable">
             <thead>
                 <tr>
-                    <th tal:content=" "/>
+                    <th> </th>
                     <th tal:condition="isBdrDeployment"
                         tal:content="string: Company ID"/>
                     <th tal:content="string: Country"/>

@@ -33,8 +33,9 @@
                     style="color:red;">replace activity name</strong>
             (<span tal:define="date python:item.lastActivityDate().strftime('%Y/%m/%d')"
                    tal:replace="string:${item/status} ${date}"></span>
-           <span tal:condition="python:item.actor not in ['', 'Anonymous
-             User', 'openflow_engine']" tal:content="string: by ${item/actor}"></span>)
+           <span 
+             tal:condition="python:item.actor not in ['', 'Anonymous User', 'openflow_engine']"
+             tal:content="string: by ${item/actor}"></span>)
           <div tal:replace="structure item/workitemDetails"/>
         </td>
         </tal:block>
@@ -58,8 +59,9 @@
                     style="color:red;"> replace with activity name</strong>
             (<span tal:define="date python:item.lastActivityDate().strftime('%Y/%m/%d')"
                    tal:replace="string:${item/status} ${date}"></span>
-             <span tal:condition="python:item.actor not in ['', 'Anonymous
-               User', 'openflow_engine']" tal:content="string: by ${item/actor}"></span>)
+             <span 
+               tal:condition="python:item.actor not in ['', 'Anonymous User', 'openflow_engine']"
+               tal:content="string: by ${item/actor}"></span>)
           </td>
         </tal:block>
 
