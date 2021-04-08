@@ -180,7 +180,7 @@
             "targets": 0,
             "render": function (data, type, full, meta) {
               if (full.released) {
-                return '<input type="checkbox" name="envelopes" value="' + full.path + '" />'
+                return '<input type="checkbox" name="envelopes" value="' + full.path + '" />';
               }
               return '';
             }
@@ -195,12 +195,12 @@
           {
             "targets": 6,
             "render": function (data, type, full, meta) {
-              var result = ''
+              var result = '';
               if (data.start)
                 result += data.start;
               if (data.end)
                 if (data.start)
-                  result += ' - '
+                  result += ' - ';
                 result += data.end;
               return result;
             }
@@ -275,7 +275,7 @@
             "targets": 0,
             "render": function (data, type, full, meta) {
               if (full.released) {
-                return '<input type="checkbox" name="envelopes" value="' + full.path + '" />'
+                return '<input type="checkbox" name="envelopes" value="' + full.path + '" />';
               }
               return '';
             }
@@ -290,12 +290,12 @@
           {
             "targets": 3,
             "render": function (data, type, full, meta) {
-              var result = ''
+              var result = '';
               if (data.start)
                 result += data.start;
               if (data.end)
                 if (data.start)
-                  result += ' - '
+                  result += ' - ';
                 result += data.end;
               return result;
             }
