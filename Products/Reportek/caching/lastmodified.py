@@ -5,8 +5,7 @@ from Acquisition import aq_base
 from dateutil.tz import tzlocal
 from OFS.Image import File
 from Products.Reportek.interfaces import (IBaseDelivery, ICollection,
-                                          IDocument, IFeedback, IReportekAPI,
-                                          IReportekUtilities, IWorkitem)
+                                          IDocument, IFeedback, IWorkitem)
 from z3c.caching.interfaces import ILastModified
 from zope.browserresource.interfaces import IResource
 from zope.component import adapter

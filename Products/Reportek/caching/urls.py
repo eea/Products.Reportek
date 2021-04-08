@@ -16,7 +16,8 @@ KEY = "plone.cachepurging.urls"
 def queuePurge(event):
     """Find URLs to purge and queue them for later
     """
-    # plone.cachepurging queuePurge uses getRequest which returns None, fallback to the REQUEST on the object
+    # plone.cachepurging queuePurge uses getRequest which returns None,
+    # fallback to the REQUEST on the object
     request = getRequest() or getattr(event.object, 'REQUEST', None)
     if request is None:
         return

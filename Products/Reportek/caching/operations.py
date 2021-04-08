@@ -59,7 +59,7 @@ class BaseCaching(object):
 
     def interceptResponse(self, rulename, response, class_=None):
 
-        anonOnly = self.anonOnly
+        # anonOnly = self.anonOnly
         lastModified = self.lastModified
 
         lastModified = getLastModifiedAnnotation(
@@ -75,7 +75,7 @@ class BaseCaching(object):
                     pass
                 else:
                     del self.request.environ['HTTP_RANGE']
-            # If-Range check is done here so we could remove it from the request
+            # If-Range check is done here so we could remove it from request
             del self.request.environ['HTTP_IF_RANGE']
 
         # Check for cache stop request variables
@@ -98,7 +98,7 @@ class BaseCaching(object):
         maxage = self.maxage
         smaxage = self.smaxage
 
-        anonOnly = self.anonOnly
+        # anonOnly = self.anonOnly
         vary = self.vary
 
         lastModified = getLastModifiedAnnotation(
