@@ -24,7 +24,6 @@
 import logging
 import re
 from StringIO import StringIO
-from urlparse import urlparse
 
 import requests
 from AccessControl import ClassSecurityInfo
