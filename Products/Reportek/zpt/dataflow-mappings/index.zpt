@@ -40,7 +40,7 @@
                    tal:attributes="checked python: {True: 'checked'}.get(schema.get('has_webform'))"
                    disabled />
                   Webform
-                </label
+                </label>
                 </td>
             </tr>
           </tbody>
