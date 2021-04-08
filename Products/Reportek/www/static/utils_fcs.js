@@ -286,7 +286,7 @@ reportek.utils.fcs = {
                                          domain: full.domain }, function(data){
                       locked = data;
                     } );
-                    result = "<a class='test_button' href='"
+                    result = "<a class='test_button' href='";
                     if (locked) {
                       result += "unlockCompany?company_id=" + full.company_id + "&old_collection_id=" + full.oldcompany_account + "&country_code=" + full.country_code + "&domain=" + full.domain + "&user=" + full.user + "&came_from=" + window.location.href + "'>Unlock</a><br/>";
                     } else {

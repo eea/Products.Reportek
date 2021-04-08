@@ -229,7 +229,7 @@ reportek.utils.users = {
         if (table_type === "grouped_by_member") {
           var record = {};
           record[this.uid] = {"role": this.role,
-                              "uid": this.uid}
+                              "uid": this.uid};
           ddata.push({"collection": {"path": this.path, "title": this.collection},
                       "obligations": this.obligations,
                       "users": record});
@@ -238,7 +238,7 @@ reportek.utils.users = {
             self.appendRowUsers(row, user);
           }
         }
-      })
+      });
       row.find('.spinner-container').css("display", "none");
     }
     if (ddata.length > 0) {
@@ -465,7 +465,7 @@ reportek.utils.users = {
     var self = reportek.utils.users;
     var regrouped = [];
     if (!data) {
-      var data = self.table_data;
+      data = self.table_data;
     }
     $.each(data, function(idx, record) {
       var newRec = $.extend({}, record);

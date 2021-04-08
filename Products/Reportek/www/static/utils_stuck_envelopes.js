@@ -34,7 +34,7 @@ reportek.utils.stuck_envelopes = {
         if (isInt(age) && age > 0) {
           self.update_table_values();
         } else {
-          alert("Please enter the number of days!")
+          alert("Please enter the number of days!");
           return;
         }
       }
@@ -45,7 +45,7 @@ reportek.utils.stuck_envelopes = {
         self.update_table_values();
         $("#age_info").text($("#age").val());
       } else {
-          alert("Please enter the number of days!")
+          alert("Please enter the number of days!");
           return;
       }
     });

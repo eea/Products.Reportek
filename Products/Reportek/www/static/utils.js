@@ -190,7 +190,7 @@ reportek.utils = {
 
     if (open_ctl.hasClass("im-ctl-inherit-icon")) {
       open_ctl.css("background-image", close_ctl.css("background-image"));
-    };
+    }
 
     var data_info = elem.find(".im-message").attr("data-info");
     open_ctl.off("click").on("click", function(evt){

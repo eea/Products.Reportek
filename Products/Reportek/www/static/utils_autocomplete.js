@@ -42,7 +42,7 @@ reportek.utils.autocomplete = {
       if (selected.length > 0) {
         var workflows = selected.data()["workflows"];
         if (workflows.length > 0) {
-          workflows = workflows.split(',')
+          workflows = workflows.split(',');
         }
         var wfoptions = $("#workflow > option");
         for (var i=0; i < wfoptions.length; i++) {
@@ -58,7 +58,7 @@ reportek.utils.autocomplete = {
         }
       }
     }
-}
+};
 
 $(document).ready(function () {
     reportek.utils.autocomplete.load();

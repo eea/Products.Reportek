@@ -105,7 +105,7 @@ reportek.documents = {
             error: function() {
                 $("#qa_spinner").addClass("hidden-content");
                 $("#qa-status").addClass("hidden-content");
-                $(".quality-assessment").text("An error occured while retrieving results. Please try again later!")
+                $(".quality-assessment").text("An error occured while retrieving results. Please try again later!");
             }
         });
     },

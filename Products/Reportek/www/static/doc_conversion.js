@@ -7,7 +7,7 @@ var _init = function init(event){
     conv_source = trigger_obj.getAttribute('conv_source');
     conv_file = trigger_obj.getAttribute('conv_file');
     url_string = '/Converters/run_conversion?conv={0}&source={1}&file_url={2}&ajax_call=1'.format(
-                conv_id, conv_source, conv_file)
+                conv_id, conv_source, conv_file);
     $.ajax({
         url: url_string,
         beforeSend: function(){
@@ -57,7 +57,7 @@ var _init = function init(event){
 
 
             var headless_tables = $('table:not(table:has(thead))', result);
-            var first_rows = $('tr:first-child', headless_tables).remove()
+            var first_rows = $('tr:first-child', headless_tables).remove();
 
             /* create a thead for tables without one */
             $(headless_tables).prepend($('<thead></thead>'));
@@ -86,11 +86,11 @@ var _init = function init(event){
             $('table > tbody > tr', result).removeClass('xx');
 
             tables = $('table', result);
-            var i=0;
+            i=0;
             $('table', result).replaceWith(function(){
                 var placeholder = $('<div class="placeholder" id="ph{0}"></div>'.format(i));
                 i++;
-                return $(placeholder)
+                return $(placeholder);
             });
             $(result).insertAfter('#operations', result);
 
@@ -98,15 +98,15 @@ var _init = function init(event){
             var img = $("<img />").attr('src', '++resource++static/ajax-loader.gif');
             $('.placeholder', result).html(img);
             $('#container').replaceWith($(result));
-            info = $('<div>')
+            info = $('<div>');
             function dT(i){
                 if(i>=tables.length){
                     return false;
                 }
                 table = $(tables[i]).wrap('<div/>');//.dataTable()
                 $('#result #ph{0}'.format(i)).replaceWith(table);
-                var p_info = $('<p>')
-                var p_warn = $('<p>')
+                var p_info = $('<p>');
+                var p_warn = $('<p>');
                 try{
                     $(info).append(
                         $(p_info).text(
@@ -133,7 +133,7 @@ var _init = function init(event){
                 i++;
                 window.setTimeout(function(){dT(i);}, 0);
             }
-            var i=0;
+            i=0;
             dT(i);
             $(info).insertAfter($(operations));
         },
@@ -144,7 +144,7 @@ var _init = function init(event){
                     var message = 'UNABLE TO CONVERT';
                     if(data.getResponseHeader('Content-Type')=='image/png'){
                       message = "<img src='data:image/png;base64,{0}'/>".format(data.responseText);
-                    };
+                    }
                     $('#spinner').replaceWith(result_div.format(content.format(message)));
                     $('#result').prepend(operations_html);
                     $('#operations a').text('Back to document');
@@ -152,7 +152,7 @@ var _init = function init(event){
         }
     });
     return false;
-}
+};
 
 $(document).ready(function() {
     container_html = $('#container').html();
