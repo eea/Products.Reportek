@@ -1058,7 +1058,6 @@ class EnvelopeCustomDataflows(Toolz):
                                      action='index_html', REQUEST=REQUEST)
             return 0
         else:
-            l_filename = file.filename.lower()
             l_id = self.cook_file_id(file.filename)
 
             # delete previous version of file if exists

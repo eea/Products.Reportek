@@ -1,7 +1,7 @@
 from base_admin import BaseAdmin
 from operator import itemgetter
 from Products.Reportek.constants import ENGINE_ID, ECAS_ID
-from Products.Reportek.config import *
+from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
 
 
 class ManageRoles(BaseAdmin):
@@ -79,9 +79,11 @@ class ManageRoles(BaseAdmin):
             # Sync role assignment to associated transfers folder
             if path in self.request.get('sync_transfers', []):
                 transfer_path = '/'.join(['/transfers'] + path.split('/')[1:])
-                transfer = self.context.unrestrictedTraverse(transfer_path, None)
+                transfer = self.context.unrestrictedTraverse(
+                    transfer_path, None)
                 if transfer:
-                    t_roles = set(transfer.get_local_roles_for_userid(cur_entity))
+                    t_roles = set(
+                        transfer.get_local_roles_for_userid(cur_entity))
                     t_roles.add(role)
                     transfer.manage_setLocalRoles(cur_entity, list(t_roles))
                     results.append({
@@ -138,7 +140,8 @@ class ManageRoles(BaseAdmin):
             # Remove certain roles from transfer folders
             if sync_transfers:
                 transfer_path = '/'.join(['/transfers'] + path.split('/')[1:])
-                transfer = self.context.unrestrictedTraverse(transfer_path, None)
+                transfer = self.context.unrestrictedTraverse(
+                    transfer_path, None)
                 removed = False
                 if transfer:
                     t_roles = set(transfer.get_local_roles_for_userid(entity))
@@ -311,7 +314,7 @@ class ManageRoles(BaseAdmin):
                 results.append({
                     'entity': member,
                     'path': path,
-                    })
+                })
 
         if results:
             results.sort(key=itemgetter('path'))

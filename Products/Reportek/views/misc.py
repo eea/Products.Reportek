@@ -1,13 +1,14 @@
 from collections import defaultdict
 from plone.memoize import ram
 from Products.Five import BrowserView
-from Products.Reportek import config, constants
+from Products.Reportek import constants
 import json
 import time
 
 
 class MiscAPI(BrowserView):
     """Miscellaneous API"""
+
     def __init__(self, *args, **kwargs):
         super(MiscAPI, self).__init__(*args, **kwargs)
 

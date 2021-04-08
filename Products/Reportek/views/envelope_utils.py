@@ -4,7 +4,7 @@ from urllib import unquote
 from base_admin import BaseAdmin
 from DateTime import DateTime
 from Products.Reportek.catalog import searchResults
-from Products.Reportek.constants import ENGINE_ID, WORKFLOW_ENGINE_ID
+from Products.Reportek.constants import WORKFLOW_ENGINE_ID
 from Products.Reportek.rabbitmq import send_message
 
 
@@ -74,8 +74,8 @@ class EnvelopeUtils(BaseAdmin):
 
         if age:
             query['reportingdate'] = {
-                        'query': DateTime() - age,
-                        'range': 'max'}
+                'query': DateTime() - age,
+                'range': 'max'}
 
         if obligations:
             if not isinstance(obligations, list):

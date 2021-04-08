@@ -18,44 +18,45 @@
 # Contributor(s):
 # Cornel Nitu, Eau de Web
 
+from conversion_registry import request_params
+from RepUtils import extension
+import blob
+import string
+import requests
+import os
+import constants
+import RepUtils
+import Globals
+from copy import deepcopy
+from Products.Reportek.blob import StorageError
+from ZODB.POSException import POSKeyError
+from zExceptions import Redirect
+from RestrictedPython.Eval import RestrictionCapableEval
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from AccessControl.Permissions import view_management_screens, view
+from AccessControl import ClassSecurityInfo, getSecurityManager, Unauthorized
+from OFS.SimpleItem import SimpleItem
 __doc__ = """
       Converter product module.
       The Converter defines a conversion from one type of file to another
 
       $Id$
 """
-__version__='$Rev$'[6:-2]
+__version__ = '$Rev$'[6:-2]
 
-from OFS.SimpleItem import SimpleItem
-from AccessControl import ClassSecurityInfo, getSecurityManager, Unauthorized
-from AccessControl.Permissions import view_management_screens, view
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from RestrictedPython.Eval import RestrictionCapableEval
-from zExceptions import Redirect
-from ZODB.POSException import POSKeyError
-from Products.Reportek.blob import StorageError
-from copy import deepcopy
-import Globals
-import RepUtils
-import constants
-import os
-import re
-import requests
-import string
-import xmlrpclib
 
-import blob
-from RepUtils import extension
-from conversion_registry import request_params
+manage_addConverterForm = PageTemplateFile(
+    'zpt/converters/item_add', globals())
 
-manage_addConverterForm = PageTemplateFile('zpt/converters/item_add', globals())
 
 def manage_addConverter(self, id, title='', convert_url='', ct_input='', ct_output='', ct_schema='', ct_extraparams='', description='', suffix='', REQUEST=None):
     """ add a new converter object """
-    ob = Converter(id, title, convert_url, ct_input, ct_output, ct_schema, RepUtils.utConvertLinesToList(ct_extraparams), description, suffix)
+    ob = Converter(id, title, convert_url, ct_input, ct_output, ct_schema,
+                   RepUtils.utConvertLinesToList(ct_extraparams), description, suffix)
     self._setObject(id, ob)
     if REQUEST is not None:
         return self.manage_main(self, REQUEST, update_menu=1)
+
 
 class Converter(SimpleItem):
     """ """
@@ -63,7 +64,7 @@ class Converter(SimpleItem):
 
     manage_options = (
         (
-            {'label' : 'Settings', 'action' : 'manage_settings_html'},
+            {'label': 'Settings', 'action': 'manage_settings_html'},
         )
         +
         SimpleItem.manage_options
@@ -79,13 +80,15 @@ class Converter(SimpleItem):
         self.ct_schema = ct_schema
         self.ct_extraparams = ct_extraparams
         self.description = description
-        self.suffix = suffix[suffix.find('.')+1:] # Drop everything up to period.
-        self.internal=internal
+        # Drop everything up to period.
+        self.suffix = suffix[suffix.find('.')+1:]
+        self.internal = internal
 
-    #security stuff
+    # security stuff
     security = ClassSecurityInfo()
 
     security.declareProtected(view_management_screens, 'manage_settings')
+
     def manage_settings(self, title='', ct_input='', ct_output='', ct_schema='', convert_url='', ct_extraparams='', description='', suffix='', internal=False, REQUEST=None):
         """ """
         self.title = title
@@ -95,20 +98,23 @@ class Converter(SimpleItem):
         self.ct_schema = ct_schema
         self.ct_extraparams = RepUtils.utConvertLinesToList(ct_extraparams)
         self.description = description
-        self.suffix = suffix[suffix.find('.')+1:] # Drop everything up to period.
+        # Drop everything up to period.
+        self.suffix = suffix[suffix.find('.')+1:]
         self.internal = internal
         self._p_changed = 1
         if REQUEST:
-            message="Content changed."
-            return self.manage_settings_html(self,REQUEST,manage_tabs_message=message)
+            message = "Content changed."
+            return self.manage_settings_html(self, REQUEST, manage_tabs_message=message)
 
     security.declareProtected(view_management_screens, 'getExtraParameters')
+
     def getExtraParameters(self):
         """ """
         return RepUtils.utConvertListToLines(self.ct_extraparams)
 
     security.declareProtected(view_management_screens, 'manage_settings_html')
-    manage_settings_html = PageTemplateFile('zpt/converters/item_edit', globals())
+    manage_settings_html = PageTemplateFile(
+        'zpt/converters/item_edit', globals())
 
     def __call__(self, file_url, converter_id, output_file_name='', REQUEST=None):
         file_obj = self.getPhysicalRoot().restrictedTraverse(file_url, None)
@@ -128,14 +134,17 @@ class Converter(SimpleItem):
         if file_obj.content_type[0:6] == 'image/':
             raise Redirect, file_obj.absolute_url()
         if converter_obj.ct_output == "flash":
-            self.REQUEST.RESPONSE.redirect("%s/%s" % (file_obj.absolute_url(), converter_obj.convert_url))
+            self.REQUEST.RESPONSE.redirect(
+                "%s/%s" % (file_obj.absolute_url(), converter_obj.convert_url))
         if converter_obj.ct_output and not converter_obj.ct_output == "flash":
-            self.REQUEST.RESPONSE.setHeader('Content-Type', converter_obj.ct_output)
+            self.REQUEST.RESPONSE.setHeader(
+                'Content-Type', converter_obj.ct_output)
 
-            #generate 'filename'
+            # generate 'filename'
             if not output_file_name:
                 if converter_obj.ct_output in constants.CONTENT_TYPES.keys():
-                    output_file_name = "%s%s" % (file_obj.id[:file_obj.id.rfind('.')], constants.CONTENT_TYPES[converter_obj.ct_output])
+                    output_file_name = "%s%s" % (file_obj.id[:file_obj.id.rfind(
+                        '.')], constants.CONTENT_TYPES[converter_obj.ct_output])
                 else:
                     output_file_name = "convertDocument"
 
@@ -143,8 +152,8 @@ class Converter(SimpleItem):
                 tmp_copy = RepUtils.temporary_named_copy(doc_file)
 
             with tmp_copy:
-                #generate extra-parameters
-                #the file path is set default as first parameter
+                # generate extra-parameters
+                # the file path is set default as first parameter
                 params = [tmp_copy.name]
                 eval_map = {
                     'file_obj': file_obj,
@@ -159,7 +168,7 @@ class Converter(SimpleItem):
                 data = os.popen(command).read()
 
             self.REQUEST.RESPONSE.setHeader('Content-Disposition',
-                                'inline; filename=%s' % output_file_name)
+                                            'inline; filename=%s' % output_file_name)
             return data
 
         else:
@@ -232,7 +241,7 @@ class RemoteConverter(Converter):
             self.REQUEST.SESSION.set('note_text', (
                 'The operation could not be completed because of '
                 'the following error:<br /><br />%s'
-                ) % message
+            ) % message
             )
             self.REQUEST.SESSION.set(
                 'redirect_to', self.REQUEST['HTTP_REFERER']
@@ -286,9 +295,9 @@ class LocalHttpConverter(Converter):
             shp_container = file_obj.aq_parent
             file_name = file_obj.id.split('.')[0]
             shx_file = shp_container.unrestrictedTraverse(
-                                        '.'.join([file_name, 'shx']))
+                '.'.join([file_name, 'shx']))
             dbf_file = shp_container.unrestrictedTraverse(
-                                        '.'.join([file_name, 'dbf']))
+                '.'.join([file_name, 'dbf']))
             files['shx'] = self.get_file_data(shx_file)
             files['dbf'] = self.get_file_data(dbf_file)
         resp = requests.post(url, files=files,

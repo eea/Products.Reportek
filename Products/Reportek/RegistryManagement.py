@@ -8,8 +8,7 @@ from interfaces import IRegistryManagement
 from OFS.Folder import Folder
 from OFS.SimpleItem import SimpleItem
 from plone.memoize import ram
-from Products.Reportek.constants import DF_URL_PREFIX, ENGINE_ID
-from requests.exceptions import RequestException
+from Products.Reportek.constants import DF_URL_PREFIX
 from zope.interface import implementer
 
 logger = logging.getLogger("Reportek")

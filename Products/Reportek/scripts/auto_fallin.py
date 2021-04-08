@@ -15,7 +15,7 @@ import sys
 
 import transaction
 from DateTime import DateTime
-from Products.Reportek.constants import DEFAULT_CATALOG, ENGINE_ID
+from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.Reportek.scripts import get_zope_site
 
 SCHEDULE_START = os.environ.get('SCHEDULE_START', DateTime())
@@ -76,7 +76,7 @@ def main():
     parser.add_argument('--obligations',
                         help='Obligation(s), e.g. 673 or http://rod.eionet.europa.eu/obligations/673',
                         dest='obligations',
-                        nargs = '*')
+                        nargs='*')
     parser.add_argument('--act_from',
                         help='Activity from which to forward, e.g. FinalFeedback',
                         dest='act_from')
@@ -145,4 +145,5 @@ def main():
         print "Defined SCHEDULE date is not today, aborting..."
 
     if should_raise and client:
-        client.captureMessage('CRON-AUTO-FALLIN: Scheduled auto-fallin job failed')
+        client.captureMessage(
+            'CRON-AUTO-FALLIN: Scheduled auto-fallin job failed')
