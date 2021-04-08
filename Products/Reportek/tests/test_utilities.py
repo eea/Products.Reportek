@@ -14,7 +14,7 @@ from Products.PageTemplates.ZopePageTemplate import manage_addPageTemplate
 from Products.PythonScripts.PythonScript import manage_addPythonScript
 from Products.Reportek import (constants, create_reportek_indexes,
                                create_reportek_objects)
-from Products.Reportek.config import *
+from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
 from Products.Reportek.ReportekEngine import ReportekEngine
 from Testing import ZopeTestCase as ztc
 
@@ -110,6 +110,7 @@ class MockedLDAPUser(SimpleItem):
     def uid(self, value):
         self._uid = value
 
+
 SCRIPTS = [
     {
         'script_id': 'buttons_loginout',
@@ -172,6 +173,7 @@ def get_dataflow_rod(self):
             'PK_SOURCE_ID': '142'
         }
     ]
+
 
 orig_localities_rod = ReportekEngine.localities_rod
 orig_dataflow_rod = ReportekEngine.dataflow_rod
@@ -253,7 +255,8 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
                                     partofyear='WHOLE_YEAR',
                                     country='http://nohost/spatial/1',
                                     locality='',
-                                    dataflow_uris=['http://nohost/obligations/1'],
+                                    dataflow_uris=[
+                                        'http://nohost/obligations/1'],
                                     allow_collections=1,
                                     allow_envelopes=1)
         dict = collection.__ac_local_roles__
@@ -273,7 +276,8 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
                                     partofyear='WHOLE_YEAR',
                                     country='http://nohost/spatial/2',
                                     locality='',
-                                    dataflow_uris=['http://nohost/obligations/1'],
+                                    dataflow_uris=[
+                                        'http://nohost/obligations/1'],
                                     allow_collections=1,
                                     allow_envelopes=1)
         dict = collection.__ac_local_roles__
@@ -293,7 +297,8 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
                                     partofyear='WHOLE_YEAR',
                                     country='http://nohost/spatial/2',
                                     locality='',
-                                    dataflow_uris=['http://nohost/obligations/1'],
+                                    dataflow_uris=[
+                                        'http://nohost/obligations/1'],
                                     allow_collections=1,
                                     allow_envelopes=1)
         dict = collection.__ac_local_roles__
@@ -313,7 +318,8 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
                                     partofyear='WHOLE_YEAR',
                                     country='http://nohost/spatial/2',
                                     locality='',
-                                    dataflow_uris=['http://nohost/obligations/1'],
+                                    dataflow_uris=[
+                                        'http://nohost/obligations/1'],
                                     allow_collections=1,
                                     allow_envelopes=1)
         dict = collection.__ac_local_roles__
@@ -388,49 +394,57 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             self.assertTrue('Build collections' in self.browser.contents)
 
             # Select test obligation
-            o_controls = self.browser.getControl(name='dataflow_uris:list').controls
+            o_controls = self.browser.getControl(
+                name='dataflow_uris:list').controls
             for o_control in o_controls:
                 if o_control.optionValue == '8':
                     o_control.selected = True
 
             # Select test country
-            c_controls = self.browser.getControl(name='countries:list').controls
+            c_controls = self.browser.getControl(
+                name='countries:list').controls
             for c_ctl in c_controls:
                 if c_ctl.optionValue == 'tc':
                     c_ctl.selected = True
 
             self.browser.getControl(name='cid').value = 'test'
             self.browser.getControl(name='btn.submit').click()
-            self.assertTrue('Successfully created collection for' in self.browser.contents)
+            self.assertTrue(
+                'Successfully created collection for' in self.browser.contents)
             self.assertTrue('Test Country' in self.browser.contents)
 
             # Test with multiple countries
             # Select test obligation
-            o_controls = self.browser.getControl(name='dataflow_uris:list').controls
+            o_controls = self.browser.getControl(
+                name='dataflow_uris:list').controls
             for o_control in o_controls:
                 if o_control.optionValue == '8':
                     o_control.selected = True
 
             # Select test country
-            c_controls = self.browser.getControl(name='countries:list').controls
+            c_controls = self.browser.getControl(
+                name='countries:list').controls
             for c_ctl in c_controls:
                 c_ctl.selected = True
 
             self.browser.getControl(name='cid').value = 'test1'
             self.browser.getControl(name='btn.submit').click()
-            self.assertTrue('Successfully created collection for' in self.browser.contents)
+            self.assertTrue(
+                'Successfully created collection for' in self.browser.contents)
             self.assertTrue('Test Country' in self.browser.contents)
             self.assertTrue('Other Country' in self.browser.contents)
 
             # Test inexistent path
             # Select test obligation
-            o_controls = self.browser.getControl(name='dataflow_uris:list').controls
+            o_controls = self.browser.getControl(
+                name='dataflow_uris:list').controls
             for o_control in o_controls:
                 if o_control.optionValue == '8':
                     o_control.selected = True
 
             # Select test country
-            c_controls = self.browser.getControl(name='countries:list').controls
+            c_controls = self.browser.getControl(
+                name='countries:list').controls
             for c_ctl in c_controls:
                 if c_ctl.optionValue == 'tc':
                     c_ctl.selected = True
@@ -438,18 +452,21 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             self.browser.getControl(name='cid').value = 'test2'
             self.browser.getControl(name='pattern').value = 'eea'
             self.browser.getControl(name='btn.submit').click()
-            self.assertTrue('the specified path does not exist' in self.browser.contents)
+            self.assertTrue(
+                'the specified path does not exist' in self.browser.contents)
             self.assertTrue('Test Country' in self.browser.contents)
 
             # Test existent path
             # Select test obligation
-            o_controls = self.browser.getControl(name='dataflow_uris:list').controls
+            o_controls = self.browser.getControl(
+                name='dataflow_uris:list').controls
             for o_control in o_controls:
                 if o_control.optionValue == '8':
                     o_control.selected = True
 
             # Select test country
-            c_controls = self.browser.getControl(name='countries:list').controls
+            c_controls = self.browser.getControl(
+                name='countries:list').controls
             for c_ctl in c_controls:
                 if c_ctl.optionValue == 'oc':
                     c_ctl.selected = True
@@ -457,18 +474,21 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             self.browser.getControl(name='cid').value = 'test2'
             self.browser.getControl(name='pattern').value = 'eea'
             self.browser.getControl(name='btn.submit').click()
-            self.assertTrue('Successfully created collection for' in self.browser.contents)
+            self.assertTrue(
+                'Successfully created collection for' in self.browser.contents)
             self.assertTrue('Other Country' in self.browser.contents)
 
             # Test existent multilevel path
             # Select test obligation
-            o_controls = self.browser.getControl(name='dataflow_uris:list').controls
+            o_controls = self.browser.getControl(
+                name='dataflow_uris:list').controls
             for o_control in o_controls:
                 if o_control.optionValue == '8':
                     o_control.selected = True
 
             # Select test country
-            c_controls = self.browser.getControl(name='countries:list').controls
+            c_controls = self.browser.getControl(
+                name='countries:list').controls
             for c_ctl in c_controls:
                 if c_ctl.optionValue == 'oc':
                     c_ctl.selected = True
@@ -476,18 +496,21 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             self.browser.getControl(name='cid').value = 'test3'
             self.browser.getControl(name='pattern').value = 'eea/requests'
             self.browser.getControl(name='btn.submit').click()
-            self.assertTrue('Successfully created collection for' in self.browser.contents)
+            self.assertTrue(
+                'Successfully created collection for' in self.browser.contents)
             self.assertTrue('Other Country' in self.browser.contents)
 
             # Test existent path with leading slash
             # Select test obligation
-            o_controls = self.browser.getControl(name='dataflow_uris:list').controls
+            o_controls = self.browser.getControl(
+                name='dataflow_uris:list').controls
             for o_control in o_controls:
                 if o_control.optionValue == '8':
                     o_control.selected = True
 
             # Select test country
-            c_controls = self.browser.getControl(name='countries:list').controls
+            c_controls = self.browser.getControl(
+                name='countries:list').controls
             for c_ctl in c_controls:
                 if c_ctl.optionValue == 'oc':
                     c_ctl.selected = True
@@ -495,18 +518,21 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             self.browser.getControl(name='cid').value = 'test4'
             self.browser.getControl(name='pattern').value = '/eea'
             self.browser.getControl(name='btn.submit').click()
-            self.assertTrue('Successfully created collection for' in self.browser.contents)
+            self.assertTrue(
+                'Successfully created collection for' in self.browser.contents)
             self.assertTrue('Other Country' in self.browser.contents)
 
             # Test existent path with backslash
             # Select test obligation
-            o_controls = self.browser.getControl(name='dataflow_uris:list').controls
+            o_controls = self.browser.getControl(
+                name='dataflow_uris:list').controls
             for o_control in o_controls:
                 if o_control.optionValue == '8':
                     o_control.selected = True
 
             # Select test country
-            c_controls = self.browser.getControl(name='countries:list').controls
+            c_controls = self.browser.getControl(
+                name='countries:list').controls
             for c_ctl in c_controls:
                 if c_ctl.optionValue == 'oc':
                     c_ctl.selected = True
@@ -514,7 +540,8 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             self.browser.getControl(name='cid').value = 'test5'
             self.browser.getControl(name='pattern').value = '\eea'
             self.browser.getControl(name='btn.submit').click()
-            self.assertTrue('Successfully created collection for' in self.browser.contents)
+            self.assertTrue(
+                'Successfully created collection for' in self.browser.contents)
             self.assertTrue('Other Country' in self.browser.contents)
 
     def _check_controls(self, contents):
@@ -530,14 +557,16 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         self.assertEqual(self.browser.url, index_url)
 
         # Go to users that have access
-        users_access_link = self.browser.getLink(text='Show where users have roles')
+        users_access_link = self.browser.getLink(
+            text='Show where users have roles')
         users_access_link.click()
         self._check_controls(self.browser.contents)
         self.assertTrue('Yearly report to the Fictive Convention' in
                         self.browser.contents)
 
         # Select test obligation
-        o_controls = self.browser.getControl(name='dataflow_uris:list').controls
+        o_controls = self.browser.getControl(
+            name='dataflow_uris:list').controls
         for o_control in o_controls:
             if o_control.optionValue == '8':
                 o_control.selected = True
@@ -557,15 +586,15 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
         ajax_url = r_utilities.absolute_url() + '/api.get_users_by_path'
         self.browser.post(ajax_url, 'obligation=8&role=&countries%5B%5D=tc')
         expected_result = ('{"data": [{"obligations": ['
-                          '["http://nohost/obligations/1", '
-                          '"Yearly report to the Fictive Convention"]], '
-                          '"users": {"test_user_1_": {'
-                          '"role": ["Owner", "Reporter"], '
-                          '"uid": "test_user_1_"}}, '
-                          '"collection": {"path": "/tc", '
-                          '"type": "Report Collection", '
-                          '"company_id": null, '
-                          '"title": "Test Country"}}]}')
+                           '["http://nohost/obligations/1", '
+                           '"Yearly report to the Fictive Convention"]], '
+                           '"users": {"test_user_1_": {'
+                           '"role": ["Owner", "Reporter"], '
+                           '"uid": "test_user_1_"}}, '
+                           '"collection": {"path": "/tc", '
+                           '"type": "Report Collection", '
+                           '"company_id": null, '
+                           '"title": "Test Country"}}]}')
         self.assertEqual(expected_result, self.browser.contents)
 
         # Go back to ReportekUtilities index_html
@@ -586,13 +615,15 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
                     ctl.selected = True
 
             # Select our test country
-            c_controls = self.browser.getControl(name='countries:list').controls
+            c_controls = self.browser.getControl(
+                name='countries:list').controls
             for c_ctl in c_controls:
                 if c_ctl.optionValue == 'tc':
                     c_ctl.selected = True
 
             # Select our test obligation
-            o_controls = self.browser.getControl(name='dataflow_uris:list').controls
+            o_controls = self.browser.getControl(
+                name='dataflow_uris:list').controls
             for o_control in o_controls:
                 if o_control.optionValue == '8':
                     o_control.selected = True
@@ -605,7 +636,8 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
 
             # Get available collections
             self.browser.getControl(name='btn.find_collections').click()
-            col_controls = self.browser.getControl(name='collections:list').controls
+            col_controls = self.browser.getControl(
+                name='collections:list').controls
             self.assertEqual(col_controls[0].optionValue, '/tc,')
             self.assertTrue('(Owner, Reporter)' in self.browser.contents)
             col_controls[0].selected = True
@@ -618,23 +650,29 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             search_term_ctl = self.browser.getControl(name='search_term')
             search_term_ctl.value = 'test_user_1_'
             self.browser.getControl(name='btnFind').click()
-            self.browser.getControl(name='username').controls[0].selected = True
-            self.browser.getControl(name='countries:list').controls[0].selected = True
-            self.browser.getControl(name='dataflow_uris:list').controls[0].selected = True
+            self.browser.getControl(
+                name='username').controls[0].selected = True
+            self.browser.getControl(
+                name='countries:list').controls[0].selected = True
+            self.browser.getControl(
+                name='dataflow_uris:list').controls[0].selected = True
             r_controls = self.browser.getControl(name='role').controls
             for r_control in r_controls:
                 if r_control.optionValue == 'Client':
                     r_control.selected = True
             self.browser.getControl(name='btn.find_collections').click()
-            self.assertTrue('(Owner, Client, Reporter)' in self.browser.contents)
+            self.assertTrue(
+                '(Owner, Client, Reporter)' in self.browser.contents)
 
             # Go to ReportekUtilities
             self.browser.goBack(count=6)
 
             # Go to search Search for collection with obligation view
-            self.browser.getLink(text='Search for collections and create envelopes').click()
+            self.browser.getLink(
+                text='Search for collections and create envelopes').click()
             self._check_controls(self.browser.contents)
-            self.browser.getControl(name='dataflow_uris:list').controls[0].selected = True
+            self.browser.getControl(
+                name='dataflow_uris:list').controls[0].selected = True
             self.browser.getControl(name='btn.search').click()
             self.assertTrue('Test Country' in self.browser.contents)
 
@@ -649,7 +687,8 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             self.browser.goBack(count=3)
 
             # Go the Collections allocated to the wrong country view
-            self.browser.getLink(text='Collections allocated to the wrong country').click()
+            self.browser.getLink(
+                text='Collections allocated to the wrong country').click()
             self._check_controls(self.browser.contents)
             self.assertTrue('All the collections in this site have the correct country.' in
                             self.browser.contents)
@@ -657,7 +696,8 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             self.browser.goBack(count=1)
 
             # Go to Envelopes allocated to the wrong country view
-            self.browser.getLink(text='Envelopes allocated to the wrong country').click()
+            self.browser.getLink(
+                text='Envelopes allocated to the wrong country').click()
             self.assertTrue('All the envelopes in this site have the correct country.' in
                             self.browser.contents)
 
@@ -668,13 +708,15 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             self._check_controls(self.browser.contents)
 
             # Select our test country
-            c_controls = self.browser.getControl(name='countries:list').controls
+            c_controls = self.browser.getControl(
+                name='countries:list').controls
             for c_ctl in c_controls:
                 if c_ctl.optionValue == 'tc':
                     c_ctl.selected = True
 
             # Select our test obligation
-            o_controls = self.browser.getControl(name='dataflow_uris:list').controls
+            o_controls = self.browser.getControl(
+                name='dataflow_uris:list').controls
             for o_control in o_controls:
                 if o_control.optionValue == '8':
                     o_control.selected = True
@@ -687,27 +729,33 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             self.browser.getControl(name='btn.search').click()
             self.assertTrue('Test envelope' in self.browser.contents)
             # Test with end date
-            self.browser.getControl(name='enddate').value = min_date.strftime('%Y-%m-%d')
+            self.browser.getControl(
+                name='enddate').value = min_date.strftime('%Y-%m-%d')
             self.browser.getControl(name='btn.search').click()
             self.assertTrue('No envelopes.' in self.browser.contents)
             # Test with start date
-            self.browser.getControl(name='startdate').value = min_date.strftime('%Y-%m-%d')
+            self.browser.getControl(
+                name='startdate').value = min_date.strftime('%Y-%m-%d')
             self.browser.getControl(name='btn.search').click()
             self.assertTrue('Test envelope' in self.browser.contents)
             # Test with start and end dates
-            self.browser.getControl(name='startdate').value = min_date.strftime('%Y-%m-%d')
-            self.browser.getControl(name='enddate').value = max_date.strftime('%Y-%m-%d')
+            self.browser.getControl(
+                name='startdate').value = min_date.strftime('%Y-%m-%d')
+            self.browser.getControl(
+                name='enddate').value = max_date.strftime('%Y-%m-%d')
             self.browser.getControl(name='btn.search').click()
             self.assertTrue('Test envelope' in self.browser.contents)
             # Test with start and end dates
-            self.browser.getControl(name='startdate').value = min_date.strftime('%Y-%m-%d')
-            self.browser.getControl(name='enddate').value = mid_date.strftime('%Y-%m-%d')
+            self.browser.getControl(
+                name='startdate').value = min_date.strftime('%Y-%m-%d')
+            self.browser.getControl(
+                name='enddate').value = mid_date.strftime('%Y-%m-%d')
             self.browser.getControl(name='btn.search').click()
             self.assertTrue('No envelopes.' in self.browser.contents)
             self.browser.goBack(count=6)
 
             # FIXME test config does not include views.cdr.zcml
-            #if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
+            # if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
             #    # Go to statistics view
             #    self.browser.getLink(text='Statistics').click()
             #    self.assertTrue('<li>Number of envelopes: <span>4</span></li>' in
@@ -718,7 +766,8 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             self._check_controls(self.browser.contents)
 
             # Search our inactive test envelope
-            self.browser.getControl(name='dataflow_uris:list').controls[0].selected = True
+            self.browser.getControl(
+                name='dataflow_uris:list').controls[0].selected = True
             status = self.browser.getControl(name='status').controls
             for status_ctl in status:
                 if status_ctl.optionValue == 'Inactive':

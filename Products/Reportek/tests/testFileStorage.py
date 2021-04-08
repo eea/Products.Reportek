@@ -61,7 +61,8 @@ class FileStorageTest(BaseTest):
         root.REQUEST = BaseTest.create_mock_request()
         root.REQUEST.physicalPathToVirtualPath = lambda x: x
 
-        doc_id = Document.manage_addDocument(root, file=create_upload_file(data))
+        doc_id = Document.manage_addDocument(
+            root, file=create_upload_file(data))
         self.assertEqual(doc_id, 'testfile.txt')
         doc = root[doc_id]
 
@@ -69,7 +70,8 @@ class FileStorageTest(BaseTest):
         request.RESPONSE.setHeader = Mock()
         doc.index_html(request, request.RESPONSE)
         self.assertEqual(request.RESPONSE._data.getvalue(), data)
-        self.assertNotIn(call('content-encoding', 'gzip'), request.RESPONSE.setHeader.call_args_list)
+        self.assertNotIn(call('content-encoding', 'gzip'),
+                         request.RESPONSE.setHeader.call_args_list)
 
     def test_get_AE_gzip(self):
         data = 'hello world, file for test!'
@@ -79,7 +81,8 @@ class FileStorageTest(BaseTest):
         root.REQUEST = BaseTest.create_mock_request()
         root.REQUEST.physicalPathToVirtualPath = lambda x: x
 
-        doc_id = Document.manage_addDocument(root, file=create_upload_file(data))
+        doc_id = Document.manage_addDocument(
+            root, file=create_upload_file(data))
         self.assertEqual(doc_id, 'testfile.txt')
         doc = root[doc_id]
         compressed_size = doc.compressed_size()[0]
@@ -88,9 +91,11 @@ class FileStorageTest(BaseTest):
         request.getHeader = Mock(return_value='gzip,bla')
         request.RESPONSE.setHeader = Mock()
         doc.index_html(request, request.RESPONSE)
-        self.assertEqual(len(request.RESPONSE._data.getvalue()), compressed_size)
+        self.assertEqual(
+            len(request.RESPONSE._data.getvalue()), compressed_size)
         self.assertTrue(request.RESPONSE.setHeader.called)
-        self.assertIn(call('content-encoding', 'gzip'), request.RESPONSE.setHeader.call_args_list)
+        self.assertIn(call('content-encoding', 'gzip'),
+                      request.RESPONSE.setHeader.call_args_list)
 
     def test_get_zip_info(self):
         root = create_fake_root()
@@ -169,7 +174,6 @@ class FileStorageTest(BaseTest):
         # test fetching the data back
         read_data = doc.data_file.open('rb', skip_decompress=True).read()
         self.assertTrue(len(read_data) == compressed_size)
-
 
 
 class DataFileApiTest(unittest.TestCase):
@@ -262,7 +266,8 @@ def download_envelope_zip(envelope):
     with envelope_patch as envelope_get_security:
         with zip_patch as zip_get_security:
             checkPermission = Mock(return_value=True)
-            envelope_get_security.return_value = Mock(return_value=checkPermission)
+            envelope_get_security.return_value = Mock(
+                return_value=checkPermission)
             zip_get_security.return_value = Mock(return_value=checkPermission)
             REQUEST = envelope.REQUEST
             return envelope.envelope_zip(REQUEST, REQUEST.RESPONSE)
@@ -299,8 +304,7 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
     def test_one_document(self, mock_commit):
         data = 'hello world, file for test!'
         file_1 = create_upload_file(data)
-        doc_id = Document.manage_addDocument(self.envelope, file=file_1)
-        doc = self.envelope[doc_id]
+        Document.manage_addDocument(self.envelope, file=file_1)
         self.envelope.release_envelope()
 
         zip_download = self.download_zip(self.envelope)
@@ -314,8 +318,8 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         mock_ZipFile.side_effect = zipstream.ZipFile
 
         file_1 = create_upload_file('data one')
-        doc_id = Document.manage_addDocument(self.envelope, file=file_1)
-        doc = self.envelope[doc_id]
+        Document.manage_addDocument(self.envelope, file=file_1)
+
         self.envelope.release_envelope()
 
         zip_download_1 = self.download_zip(self.envelope)
@@ -354,8 +358,7 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         self.root.getEngine = Mock()
 
         file_1 = create_upload_file('data one')
-        doc_id = Document.manage_addDocument(self.envelope, file=file_1)
-        doc = self.envelope[doc_id]
+        Document.manage_addDocument(self.envelope, file=file_1)
         self.envelope.release_envelope()
 
         zip_download = self.download_zip(self.envelope)
@@ -385,7 +388,7 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         self.envelope.manage_addFeedback('feedback', title="good work")
         feedback = self.envelope['feedback']
 
-        data = ('asdfqwer1234567 ' * 64) * 1024 # 1MB
+        data = ('asdfqwer1234567 ' * 64) * 1024  # 1MB
         feedback.manage_uploadFeedback(create_upload_file(data, 'opinion.txt'))
 
         self.envelope.release_envelope()
@@ -437,7 +440,7 @@ class FileContainerTest(unittest.TestCase):
             self.assertEqual(f.read(), '')
 
     def test_compression_ok(self):
-        blb = blob.FileContainer(compress='auto')
+        blob.FileContainer(compress='auto')
 
 
 class OfsBlobFileTest(unittest.TestCase):
@@ -490,7 +493,7 @@ class OfsBlobFileTest(unittest.TestCase):
         myfile.data_file.content_type = 'image/jpeg'
 
         out = StringIO()
-        resp = publish_view(myfile, {'_stdout': out})
+        publish_view(myfile, {'_stdout': out})
         (headers_str, body) = out.getvalue().split('\r\n\r\n', 1)
         headers = {}
         for line in headers_str.splitlines():
@@ -516,7 +519,6 @@ class OfsBlobFileTest(unittest.TestCase):
     def test_update_content_type(self):
         from Products.Reportek.blob import OfsBlobFile
 
-        content = 'hello blobby world!\n'
         myfile = OfsBlobFile('myfile')
 
         myfile.manage_edit(Mock(form={'content_type': 'image/png'}), Mock())

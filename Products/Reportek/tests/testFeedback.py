@@ -1,21 +1,23 @@
 # -*- coding: utf-8 -*-
+from Products.Reportek import Converters
+from utils import create_fake_root, create_envelope
+from fileuploadmock import FileUploadMock
+from common import BaseTest, ConfigureReportek
 import unittest
 from Products.Reportek import constants
 from mock import Mock, patch
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
-from common import BaseTest, ConfigureReportek
-from fileuploadmock import FileUploadMock
-from utils import create_fake_root, create_envelope
-from Products.Reportek import Converters
 
 
 class MockResponse:
     def __init__(self):
         self.headers = {}
+
     def setHeader(self, name, value):
         self.headers[name] = value
+
     def write(self, data):
         pass
 
@@ -43,7 +45,7 @@ class FeedbackTestCase(BaseTest, ConfigureReportek):
         """
         adder = self.envelope.manage_addProduct['Reportek']
         adder.manage_addFeedback('feedbackid', 'Title',
-            'Feedback text', '','WorkflowEngine/begin_end', 1)
+                                 'Feedback text', '', 'WorkflowEngine/begin_end', 1)
         self.feedback = self.envelope.feedbackid
 
     def testCreation(self):
@@ -62,8 +64,8 @@ class FeedbackTestCase(BaseTest, ConfigureReportek):
 
     def testNationalChars(self):
         self.envelope.manage_addProduct['Reportek'].manage_addFeedback('feedbackid',
-          'Æblegrød title',
-          'ÐBlåbærgrød content text', '','Script URL', 0)
+                                                                       'Æblegrød title',
+                                                                       'ÐBlåbærgrød content text', '', 'Script URL', 0)
 
     def testZipNational(self):
         self.testNationalChars()
@@ -79,7 +81,7 @@ class FeedbackTestCase(BaseTest, ConfigureReportek):
         """
         self.create_feedback()
         # Create a file inside it
-        file = FileUploadMock('C:\\TEMP\\testfile.txt','content here')
+        file = FileUploadMock('C:\\TEMP\\testfile.txt', 'content here')
         self.feedback.manage_uploadFeedback(file)
         self.assertTrue(hasattr(self.feedback, 'testfile.txt'),
                         'File did not get created')
@@ -87,10 +89,10 @@ class FeedbackTestCase(BaseTest, ConfigureReportek):
             self.assertEqual(f.read(), 'content here')
 
     def test_add_feedback_with_attached_file(self):
-        upload_file = FileUploadMock('testfile.txt','content here')
+        upload_file = FileUploadMock('testfile.txt', 'content here')
         adder = self.envelope.manage_addProduct['Reportek']
         adder.manage_addFeedback('feedbackid', 'Title',
-            'Feedback text', upload_file,'WorkflowEngine/begin_end', 1)
+                                 'Feedback text', upload_file, 'WorkflowEngine/begin_end', 1)
         feedback = self.envelope.feedbackid
         self.assertTrue(hasattr(feedback, 'testfile.txt'),
                         'File did not get created')
@@ -120,20 +122,21 @@ class FeedbackTestCase(BaseTest, ConfigureReportek):
         """
         self.create_feedback()
         # Create a file inside it
-        file = FileUploadMock('C:\\TEMP\\testfile.txt','content here')
+        file = FileUploadMock('C:\\TEMP\\testfile.txt', 'content here')
         self.feedback.manage_uploadFeedback(file)
         self.assertTrue(hasattr(self.feedback, 'testfile.txt'),
                         'File did not get created')
 
         # Replace the file content
-        file2 = FileUploadMock('C:\\TEMP\\anotherfile.txt','something else here')
+        FileUploadMock('C:\\TEMP\\anotherfile.txt', 'something else here')
         self.feedback.manage_uploadAttFeedback('testfile.txt', file)
         self.assertTrue(hasattr(self.feedback, 'testfile.txt'))
         self.assertFalse(hasattr(self.feedback, 'anotherfile.txt'))
 
         # Delete the attachment
         self.app.REQUEST.set('go', "Delete")
-        self.feedback.manage_deleteAttFeedback('testfile.txt', self.app.REQUEST)
+        self.feedback.manage_deleteAttFeedback(
+            'testfile.txt', self.app.REQUEST)
         self.assertFalse(hasattr(self.feedback, 'testfile.txt'))
 
     def test_restrictFeedback(self):
@@ -156,7 +159,7 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
         self.envelope.REQUEST = Mock()
 
         self.remoteapp = RemoteApplication('remoteapp', '', '',
-            'the_service', 'the_app').__of__(self.envelope)
+                                           'the_service', 'the_app').__of__(self.envelope)
         self.remoteapp.the_workitem = Mock(the_app={
             'getResult': {
                 'the_jobid': {
@@ -219,7 +222,7 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
         })
 
         from Products.Reportek.Document import Document
-        doc = Document('name with spaces.txt', '', content_type= "text/plain")
+        doc = Document('name with spaces.txt', '', content_type="text/plain")
         doc = doc.__of__(self.envelope)
         self.envelope._setObject('name with spaces.txt', doc)
 
@@ -242,9 +245,9 @@ class BlockerFeedbackTest(unittest.TestCase):
         self.envelope.addWorkitem('AutomaticQA', False)
 
         self.remoteapp = RemoteApplication('remoteapp', '', '',
-            'the_service', 'the_app').__of__(self.envelope)
+                                           'the_service', 'the_app').__of__(self.envelope)
         workitem = getattr(self.envelope, '0')
-        workitem.the_app = the_app={
+        workitem.the_app = {
             'getResult': {
                 'the_jobid': {
                     'fileURL': 'http://example.com/results_file',
@@ -270,8 +273,8 @@ class BlockerFeedbackTest(unittest.TestCase):
     def test_workitem_blocker_attr_is_set_to_True(self):
         text = 'blocker feedback'
         [workitem] = self.envelope.objectValues('Workitem')
-        #assert the workitem has the 'blocker' attribute
-        #and is False by default
+        # assert the workitem has the 'blocker' attribute
+        # and is False by default
         self.assertEqual(False, getattr(workitem, 'blocker', None))
         result = {
             'CODE': '0',
@@ -282,14 +285,14 @@ class BlockerFeedbackTest(unittest.TestCase):
             'FEEDBACK_MESSAGE': 'Blocker error'
         }
         self.receive_feedback(text, result)
-        #assert 'blocker' is set to True due to errors in feedback
+        # assert 'blocker' is set to True due to errors in feedback
         self.assertEqual(True, workitem.blocker)
 
     def test_workitem_blocker_attr_remains_False(self):
         text = 'blocker feedback'
         [workitem] = self.envelope.objectValues('Workitem')
-        #assert the workitem has the 'blocker' attribute
-        #and is False by default
+        # assert the workitem has the 'blocker' attribute
+        # and is False by default
         self.assertEqual(False, getattr(workitem, 'blocker', None))
         result = {
             'CODE': '0',
@@ -300,7 +303,7 @@ class BlockerFeedbackTest(unittest.TestCase):
             'FEEDBACK_MESSAGE': 'Non blocker error'
         }
         self.receive_feedback(text, result)
-        #assert 'blocker' is set to True due to errors in feedback
+        # assert 'blocker' is set to True due to errors in feedback
         self.assertEqual(False, workitem.blocker)
 
     def test_envelope_blocked_by_feedback(self):
@@ -320,8 +323,8 @@ class BlockerFeedbackTest(unittest.TestCase):
     def test_envelope_is_blocked_by_feedback(self):
         text = 'blocker feedback'
         [workitem] = self.envelope.objectValues('Workitem')
-        #assert the workitem has the 'blocker' attribute
-        #and is False by default
+        # assert the workitem has the 'blocker' attribute
+        # and is False by default
         self.assertEqual(False, getattr(workitem, 'blocker', None))
         result = {
             'CODE': '0',
@@ -338,76 +341,65 @@ class BlockerFeedbackTest(unittest.TestCase):
 class GetAllFeedbackTest(RemoteApplicationFeedbackTest):
 
     def test_feedback_objects_details_small_file(self):
-        result = {
-            'CODE': '0',
-            'VALUE': 'AQ feedback',
-            'SCRIPT_TITLE': "mock script",
-            'METATYPE': 'application/x-mock',
-            'FEEDBACK_STATUS': 'BLOCKER',
-            'FEEDBACK_MESSAGE': 'Blocker error'
-        }
         self.receive_feedback('AQ feedback')
         from DateTime import DateTime
         self.maxDiff = None
         [feedback] = self.envelope.getFeedbacks()
         self.assertEqual(
             {'feedbacks':
-              [
-                {
-                  'title'         : feedback.title,
-                  'releasedate'   : feedback.releasedate.HTML4(),
-                  'isautomatic'   : feedback.automatic,
-                  'content_type'  : feedback.content_type,
-                  'referred_file' : '%s/%s' %(self.envelope.absolute_url(), feedback.document_id),
-                  'qa_output_url' : "%s" %feedback.absolute_url()
-                },
-              ]
-            },
+             [
+                 {
+                     'title': feedback.title,
+                     'releasedate': feedback.releasedate.HTML4(),
+                     'isautomatic': feedback.automatic,
+                     'content_type': feedback.content_type,
+                     'referred_file': '%s/%s' % (self.envelope.absolute_url(), feedback.document_id),
+                     'qa_output_url': "%s" % feedback.absolute_url()
+                 },
+             ]
+             },
             self.envelope.feedback_objects_details()
         )
 
     def test_feedback_objects_details_big_file(self):
         self.maxDiff = None
-        from DateTime import DateTime
         text = "large automatic feedback: " + (u"[10 chąṛŝ]" * 10240)
         self.receive_feedback(text)
         [feedback] = self.envelope.objectValues()
-        attach = feedback.get('qa-output')
         self.assertEqual(
             {'feedbacks':
-              [
-                {
-                  'title'         : feedback.title,
-                  'releasedate'   : feedback.releasedate.HTML4(),
-                  'isautomatic'   : feedback.automatic,
-                  'content_type'  : feedback.content_type,
-                  'referred_file' : '%s/%s' %(self.envelope.absolute_url(), feedback.document_id),
-                  'qa_output_url' : "%s/qa-output" %feedback.absolute_url()
-                },
-              ]
-            },
+             [
+                 {
+                     'title': feedback.title,
+                     'releasedate': feedback.releasedate.HTML4(),
+                     'isautomatic': feedback.automatic,
+                     'content_type': feedback.content_type,
+                     'referred_file': '%s/%s' % (self.envelope.absolute_url(), feedback.document_id),
+                     'qa_output_url': "%s/qa-output" % feedback.absolute_url()
+                 },
+             ]
+             },
             self.envelope.feedback_objects_details()
         )
 
     def test_feedback_objects_details_without_reffered_file(self):
         self.maxDiff = None
-        from DateTime import DateTime
         text = "short text"
         self.receive_feedback(text)
         [feedback] = self.envelope.objectValues()
         feedback.document_id = None
         self.assertEqual(
             {'feedbacks':
-              [
-                {
-                  'title'         : feedback.title,
-                  'releasedate'   : feedback.releasedate.HTML4(),
-                  'isautomatic'   : feedback.automatic,
-                  'content_type'  : feedback.content_type,
-                  'referred_file' : '',
-                  'qa_output_url' : "%s" %feedback.absolute_url()
-                },
-              ]
-            },
+             [
+                 {
+                     'title': feedback.title,
+                     'releasedate': feedback.releasedate.HTML4(),
+                     'isautomatic': feedback.automatic,
+                     'content_type': feedback.content_type,
+                     'referred_file': '',
+                     'qa_output_url': "%s" % feedback.absolute_url()
+                 },
+             ]
+             },
             self.envelope.feedback_objects_details()
         )
