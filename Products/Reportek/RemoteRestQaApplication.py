@@ -106,7 +106,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                       )
 
     def __init__(self, id, title, RemoteServer, token, app_name,
-                 nRetries=5, nJobRetries=5, requestTimeout=5,retryFrequency=300,
+                 nRetries=5, nJobRetries=5, requestTimeout=5, retryFrequency=300,
                  retryJobFrequency=300):
         """ Initialize a new instance of Document """
         self.id = id
@@ -115,12 +115,12 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         self.app_name = app_name
         self.nRetries = nRetries                            # integer
         self.nJobRetries = nJobRetries                      # integer
-        self.requestTimeout=requestTimeout                  # integer - seconds
+        self.requestTimeout = requestTimeout                  # integer - seconds
         self.token = token
         self.retryFrequency = retryFrequency                # integer - seconds
         self.retryJobFrequency = retryJobFrequency          # integer - seconds
 
-    def manage_settings(self, title, RemoteServer, app_name,token,
+    def manage_settings(self, title, RemoteServer, app_name, token,
                         nRetries, nJobRetries, requestTimeout, retryFrequency,
                         retryJobFrequency):
         """ Change properties of the QA Application """
@@ -130,11 +130,12 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         self.nJobRetries = nJobRetries
         self.token = token
         self.app_name = app_name
-        self.requestTimeout=requestTimeout
+        self.requestTimeout = requestTimeout
         self.retryFrequency = retryFrequency
         self.retryJobFrequency = retryJobFrequency
 
     security.declareProtected('Use OpenFlow', '__call__')
+
     def __call__(self, workitem_id, REQUEST=None):
         """ Runs the Remote Aplication for the first time """
         # The workitem taken by aquisition
@@ -189,11 +190,11 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                                     params=params, timeout=timeout)
         elif method == 'POST':
             response = requests.post(url, headers=headers, data=json.dumps(data),
-                                     timeout=timeout,params=params)
+                                     timeout=timeout, params=params)
         return response
 
-
     security.declareProtected('Use OpenFlow', 'callApplication')
+
     def callApplication(self, workitem_id, REQUEST=None):
         """ Called on regular basis """
         l_workitem = getattr(self, workitem_id)
@@ -250,15 +251,18 @@ class RemoteRestQaApplication(BaseRemoteApplication):
             if filename in l_files_failed and fail:
                 fail = ', ' + fail
             if success:
-                l_files_success[filename] = l_files_success.get(filename, '') + success
+                l_files_success[filename] = l_files_success.get(
+                    filename, '') + success
             if fail:
-                l_files_failed[filename] = l_files_failed.get(filename, '') + fail
+                l_files_failed[filename] = l_files_failed.get(
+                    filename, '') + fail
 
         # write to log the list of file that succeded
         if l_files_success:
             l_filenames_jobs = ''
             for x in l_files_success.keys():
-                l_filenames_jobs += '<li>%s for file %s</li>' % (l_files_success[x], x)
+                l_filenames_jobs += '<li>%s for file %s</li>' % (
+                    l_files_success[x], x)
             l_workitem.addEvent('%s job(s) completed: <ul>%s</ul>' %
                                 (self.app_name, l_filenames_jobs))
         # Check if the application has done its job
@@ -285,7 +289,8 @@ class RemoteRestQaApplication(BaseRemoteApplication):
             if l_files_failed:
                 l_filenames_jobs = ''
                 for x in l_files_failed.keys():
-                    l_filenames_jobs += '<li>%s for file %s</li>' % (l_files_failed[x], x)
+                    l_filenames_jobs += '<li>%s for file %s</li>' % (
+                        l_files_failed[x], x)
                 l_workitem.addEvent('Giving up on %s job(s): <ul>%s</ul>' %
                                     (self.app_name, l_filenames_jobs))
                 l_workitem.failure = True
@@ -367,7 +372,8 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                 if script.id not in resultsForXml or resultsForXml[script.id] == 'failed':
                     resultsForXml[script.id] = 'in progress'
                     transaction.commit()
-                    file_id, result = qa_repo._runQAScript(xml.absolute_url(1), 'loc_%s' % script.id)
+                    file_id, result = qa_repo._runQAScript(
+                        xml.absolute_url(1), 'loc_%s' % script.id)
                     yield file_id, result, script.id
                     # else, don't yield - nothing will happen in parent's loop
 
@@ -377,7 +383,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
             return False
         for script_results in localQA.values():
             # any bad status present?
-            if any( ( bad_status for bad_status in script_results.values() if bad_status != 'done' ) ):
+            if any((bad_status for bad_status in script_results.values() if bad_status != 'done')):
                 return False
         # truly no bad statuses (including no script -> status pairs) because we check this after join
         return True
@@ -399,7 +405,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         try:
             url = 'asynctasks/qajobs/batch'
             data = {
-              "envelopeUrl": envelope_url
+                "envelopeUrl": envelope_url
             }
             response = self.makeHTTPRequest(url, method='POST', data=data)
             # if there were no files to assess, return 0 so the work can go on
@@ -417,7 +423,8 @@ class RemoteRestQaApplication(BaseRemoteApplication):
             l_files = {}
 
             # Setting up jobs metadata
-            job_ret = self.nJobRetries if getattr(self, 'nJobRetries', None) else self.nRetries
+            job_ret = self.nJobRetries if getattr(
+                self, 'nJobRetries', None) else self.nRetries
             for entry in data:
                 l_job = entry['jobId']
                 l_file = entry['fileUrl']
@@ -511,8 +518,10 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                 if r_files:
                     for r_file in r_files:
                         e_data = {'SCRIPT_TITLE': data.get('scriptTitle')}
-                        self.handle_remote_file(r_file, l_file_id, p_workitem_id, e_data)
-                        l_getResultDict = {p_jobID: {'code': 1, 'fileURL': l_file_url}}
+                        self.handle_remote_file(
+                            r_file, l_file_id, p_workitem_id, e_data)
+                        l_getResultDict = {
+                            p_jobID: {'code': 1, 'fileURL': l_file_url}}
                         self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                                        p_getResult=l_getResultDict)
                 else:
@@ -555,7 +564,8 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                         feedback_ob.content_type = content_type
 
                     feedback_ob.message = data.get('feedbackMessage', '')
-                    feedback_ob.feedback_status = data.get('feedbackStatus', '')
+                    feedback_ob.feedback_status = data.get(
+                        'feedbackStatus', '')
 
                     if data['feedbackStatus'] == 'BLOCKER':
                         l_workitem.blocker = True
@@ -564,13 +574,16 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                     feedback_ob._p_changed = 1
                     feedback_ob.reindex_object()
 
-                    l_getResultDict = {p_jobID: {'code': 1, 'fileURL': l_file_url}}
+                    l_getResultDict = {
+                        p_jobID: {'code': 1, 'fileURL': l_file_url}}
                     self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                                    p_getResult=l_getResultDict)
             # not ready
             elif code == '1':
-                l_nRetries = int(l_wk_prop['getResult'][p_jobID]['retries_left'])
-                retry = self.retryJobFrequency if getattr(self, 'retryJobFrequency', None) else self.retryFrequency
+                l_nRetries = int(
+                    l_wk_prop['getResult'][p_jobID]['retries_left'])
+                retry = self.retryJobFrequency if getattr(
+                    self, 'retryJobFrequency', None) else self.retryFrequency
                 next_run = DateTime(int(l_wk_prop['getResult'][p_jobID]['next_run']) +
                                     int(retry))
                 if l_nRetries > 0:
@@ -614,18 +627,21 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         except (requests.exceptions.HTTPError):
             l_err = data.get('errorMessage', '')
             l_nRetries = int(l_wk_prop['getResult'][p_jobID]['retries_left'])
-            retry = self.retryJobFrequency if getattr(self, 'retryJobFrequency', None) else self.retryFrequency
+            retry = self.retryJobFrequency if getattr(
+                self, 'retryJobFrequency', None) else self.retryFrequency
             if l_nRetries == 0:
                 l_workitem.addEvent('Error in the %s, job #%s for file %s: %s' %
                                     (self.app_name, p_jobID, l_file_id, str(l_err)))
                 l_workitem.failure = True
-                l_getResultDict = {p_jobID: {'code': -2, 'last_error': str(err)}}
+                l_getResultDict = {
+                    p_jobID: {'code': -2, 'last_error': str(l_err)}}
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                                p_getResult=l_getResultDict)
             else:
                 next_run = DateTime(int(l_wk_prop['getResult'][p_jobID]['next_run']) +
                                     int(retry))
-                err = 'Error retrieving job #{} result: {}'.format(p_jobID, str(l_err))
+                err = 'Error retrieving job #{} result: {}'.format(
+                    p_jobID, str(l_err))
                 l_getResultDict = {
                     p_jobID: {
                         'code': 0,
@@ -718,11 +734,11 @@ class RemoteRestQaApplication(BaseRemoteApplication):
             res = self.makeHTTPRequest(url, method='POST')
             message = res.json().get('message')
             l_workitem.addEvent('#{} job cancelation triggered - {}: {}'.format(job_id,
-                                                                   res.status_code,
-                                                                   message))
+                                                                                res.status_code,
+                                                                                message))
         except Exception as e:
-            l_workitem.addEvent('#{} job cancelation failed with: {}.'.format(job_id, str(e)))
-
+            l_workitem.addEvent(
+                '#{} job cancelation failed with: {}.'.format(job_id, str(e)))
 
     def listQAScripts(self, file_schema, short=True):
         """Return a list of QA scripts for file schema"""
@@ -731,7 +747,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         result = []
         if file_schema:
             params = {
-              'schema': file_schema
+                'schema': file_schema
             }
             try:
                 response = self.makeHTTPRequest(url, params=params)
@@ -757,8 +773,10 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                         }
                         result = []
                         for script in scripts:
-                            remapped = {compat[name]: val for name, val in script.iteritems() if compat.get(name)}
-                            remapped['content_type_out'] = script.get('outputType')
+                            remapped = {
+                                compat[name]: val for name, val in script.iteritems() if compat.get(name)}
+                            remapped['content_type_out'] = script.get(
+                                'outputType')
                             result.append(remapped)
             except Exception:
                 pass
@@ -780,6 +798,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                 result = res.json()
                 c_type = result.get('feedbackContentType', 'text/html')
                 # Creating a class here to preserve backwards compatibility
+
                 class ODQA(object):
                     pass
                 odqa = ODQA()
@@ -787,5 +806,6 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                 return c_type, odqa
         except Exception:
             pass
+
 
 InitializeClass(RemoteRestQaApplication)

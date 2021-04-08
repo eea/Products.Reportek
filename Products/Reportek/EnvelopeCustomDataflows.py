@@ -32,10 +32,8 @@ When writing in this class, specify the name of the dataflow as comment first
 import json
 import logging
 import re
-import string
 import tempfile
 import xmlrpclib
-from collections import defaultdict
 from xml.dom.minidom import parseString
 
 import RepUtils
@@ -75,7 +73,8 @@ class EnvelopeCustomDataflows(Toolz):
     """ This class which Envelope subclasses from contains functions specific to one or more dataflows.
     """
 
-    fileTypeByName_pattern = re.compile(r'\.(xml|xlf|xslt?|xsd|gml)$', flags=re.I)
+    fileTypeByName_pattern = re.compile(
+        r'\.(xml|xlf|xslt?|xsd|gml)$', flags=re.I)
     security = ClassSecurityInfo()
 
     ##################################################
@@ -85,11 +84,13 @@ class EnvelopeCustomDataflows(Toolz):
     # generic method that converts Excel files (XLS or ODS) to XML
     # if the Excel template comes from Data Dictionary
     security.declareProtected('Change Envelopes', 'upload_excel_file')
-    upload_excel_file = PageTemplateFile('zpt/envelope/upload_excel_file', globals())
+    upload_excel_file = PageTemplateFile(
+        'zpt/envelope/upload_excel_file', globals())
 
     # generic method that converts Excel files (XLS or ODS) to XML
     security.declareProtected('Change Envelopes', 'upload_generic_excel_file')
-    upload_generic_excel_file = PageTemplateFile('zpt/envelope/upload_generic_excel_file', globals())
+    upload_generic_excel_file = PageTemplateFile(
+        'zpt/envelope/upload_generic_excel_file', globals())
 
     # generic method that uploads a DD file or accompanying data
     security.declareProtected('Change Envelopes', 'upload_dd_file')
@@ -97,15 +98,18 @@ class EnvelopeCustomDataflows(Toolz):
 
     # generic method that uploads a single file or a zip
     security.declareProtected('Change Envelopes', 'upload_doc_or_zip')
-    upload_doc_or_zip = PageTemplateFile('zpt/envelope/upload_doc_or_zip', globals())
+    upload_doc_or_zip = PageTemplateFile(
+        'zpt/envelope/upload_doc_or_zip', globals())
 
     # generic method that uploads a MMR file or accompanying data
     security.declareProtected('Change Envelopes', 'upload_mmr_file')
-    upload_mmr_file = PageTemplateFile('zpt/envelope/upload_mmr_file', globals())
+    upload_mmr_file = PageTemplateFile(
+        'zpt/envelope/upload_mmr_file', globals())
 
     # generic method that uploads a fme convertible file and completes the current workitem
     security.declareProtected('Change Envelopes', 'manage_addfmeconvfile')
-    manage_addfmeconvfile = PageTemplateFile('zpt/envelope/add_fmeconvfile', globals())
+    manage_addfmeconvfile = PageTemplateFile(
+        'zpt/envelope/add_fmeconvfile', globals())
 
     def _get_xml_files_by_schema(self, schema):
         """ Returns the list of XML files with the given schema from that envelope """
@@ -119,9 +123,9 @@ class EnvelopeCustomDataflows(Toolz):
             for l_w in self.getWorkitemsActiveForMe(self.REQUEST):
                 l_w.addEvent('file conversion', 'File: {0} ; ({1})'
                              .format(
-                    filename,
-                    result
-                )
+                                 filename,
+                                 result
+                             )
                              )
 
     security.declareProtected('Change Envelopes', 'get_conv_results')
@@ -147,7 +151,8 @@ class EnvelopeCustomDataflows(Toolz):
                         fc_log['code'] = ''
                         fc_log['message'] = msg
                         if len(msg.split('Code: ')) > 1:
-                            fc_log['code'] = msg.split('Code: ')[-1].rstrip(')')
+                            fc_log['code'] = msg.split(
+                                'Code: ')[-1].rstrip(')')
                         wk_fc_log[filename] = fc_log
                 conv_results[wk.getId()] = wk_fc_log
         return conv_results
@@ -206,10 +211,13 @@ class EnvelopeCustomDataflows(Toolz):
             l_original_type = 'Data file'
 
         # upload original file in the envelope
-        self.manage_addDocument(id=l_id, title=l_original_type, file=l_original_content, restricted=restricted, disallow=disallow)
+        self.manage_addDocument(id=l_id, title=l_original_type,
+                                file=l_original_content, restricted=restricted,
+                                disallow=disallow)
+        l_doc = getattr(self, l_id)
         if strict_check and l_original_type == 'Data file':
             if REQUEST is not None:
-                return success_message(self, [obj],
+                return success_message(self, [l_doc],
                                        message='The file was successfully uploaded in the envelope.',
                                        action='index_html', REQUEST=REQUEST)
             else:
@@ -217,7 +225,6 @@ class EnvelopeCustomDataflows(Toolz):
 
         # must commit transaction first, otherwise the file is not accessible from outside
         transaction.commit()
-        l_doc = getattr(self, l_id)
         objs = [l_doc]
         # XML/RPC call to the converter
         l_server_name = getattr(self, CONVERTERS_ID).remote_converter
@@ -231,9 +238,10 @@ class EnvelopeCustomDataflows(Toolz):
                            ('nosplit', False): 'convertDD_XML',
                            ('split', True): 'convertDD_XML_split_removeEmptyElems',
                            ('nosplit', True): 'convertDD_XMLremoveEmptyElems'}.get(xls_conversion,
-                                                           'convertDD_XML_split')
+                                                                                   'convertDD_XML_split')
         try:
-            l_ret_list = invoke_conversion_service(l_server_name, method_name, l_url)
+            l_ret_list = invoke_conversion_service(
+                l_server_name, method_name, l_url)
         except Exception as e:
             if REQUEST is not None:
                 conversion_log.error(
@@ -242,10 +250,10 @@ class EnvelopeCustomDataflows(Toolz):
                 l_err = '[ERROR]: Conversion failed due to a system error.'
                 self.log_file_conversion(l_id, l_err)
                 msg = ('The file was successfully uploaded in the '
-                             'envelope, but not converted into an '
-                             'XML delivery because of a system error: %s') % str(e)
+                       'envelope, but not converted into an '
+                       'XML delivery because of a system error: %s') % str(e)
                 err = {
-                    'title': l_err.split(':')[0].replace(']','').replace('[', ''),
+                    'title': l_err.split(':')[0].replace(']', '').replace('[', ''),
                     'description': msg
                 }
                 return success_message(self, objs, message=msg,
@@ -296,16 +304,19 @@ class EnvelopeCustomDataflows(Toolz):
                 if REQUEST is not None:
                     if len(l_converted_files) == 0:
                         l_msg = 'The file was successfully uploaded in the envelope, but not converted into an XML delivery because the file contains no data.'
-                        c_log = '[ERROR]: File contains no data (Code: {})'.format(l_result)
+                        c_log = '[ERROR]: File contains no data (Code: {})'.format(
+                            l_result)
                     elif l_result == '1':
                         l_msg = 'The file was successfully uploaded in the envelope and converted into an XML delivery. The conversion contains validation warnings - see the Feedback posted for this file for details.'
-                        c_log = '[WARNING]: Conversion contains validation warnings (Code: {})'.format(l_result)
+                        c_log = '[WARNING]: Conversion contains validation warnings (Code: {})'.format(
+                            l_result)
                     else:
                         l_msg = 'The file was successfully uploaded in the envelope and converted into an XML delivery.'
-                        c_log = '[INFO]: Conversion successful'.format(l_result)
+                        c_log = '[INFO]: Conversion successful'.format(
+                            l_result)
                     self.log_file_conversion(l_id, c_log)
                     err = {
-                        'title': c_log.split(':')[0].replace(']','').replace('[', ''),
+                        'title': c_log.split(':')[0].replace(']', '').replace('[', ''),
                         'description': l_msg
                     }
                     return success_message(self, objs, message=l_msg,
@@ -330,12 +341,13 @@ class EnvelopeCustomDataflows(Toolz):
                         l_ret_list.get('resultDescription',
                                        'Error in converting file at %s' % l_doc.absolute_url())
                     )
-                    l_err = '[ERROR]: Conversion failed due to a system error. (Code: {})'.format(l_result)
+                    l_err = '[ERROR]: Conversion failed due to a system error. (Code: {})'.format(
+                        l_result)
                     self.log_file_conversion(l_id, l_err)
                     msg = 'The file was successfully uploaded in the envelope, but not converted into an XML delivery. See the Feedback posted for this file for details.'
                     err = {
-                         'title': l_err.split(':')[0].replace(']','').replace('[', ''),
-                         'description': msg
+                        'title': l_err.split(':')[0].replace(']', '').replace('[', ''),
+                        'description': msg
                     }
                     return success_message(self, objs, message=msg,
                                            errors=[err], action='index_html',
@@ -356,12 +368,14 @@ class EnvelopeCustomDataflows(Toolz):
                                         content_type='text/html',
                                         document_id=l_id)
                 if REQUEST is not None:
-                    l_err = '[ERROR]: Conversion failed due missing or expired reporting schema. (Code: {})'.format(l_result)
+                    l_err = '[ERROR]: Conversion failed due missing or expired reporting schema. (Code: {})'.format(
+                        l_result)
                     self.log_file_conversion(l_id, l_err)
-                    msg = 'The file was successfully uploaded in the envelope, but not converted into an XML delivery, because you are not using the most recent reporting template - %s. See the feedback posted for this file for details.' % l_ret_list['resultDescription']
+                    msg = 'The file was successfully uploaded in the envelope, but not converted into an XML delivery, because you are not using the most recent reporting template - %s. See the feedback posted for this file for details.' % l_ret_list[
+                        'resultDescription']
                     err = {
-                         'title': l_err.split(':')[0].replace(']','').replace('[', ''),
-                         'description': msg
+                        'title': l_err.split(':')[0].replace(']', '').replace('[', ''),
+                        'description': msg
                     }
                     return success_message(self, objs, message=msg,
                                            errors=[err], action='index_html',
@@ -375,8 +389,8 @@ class EnvelopeCustomDataflows(Toolz):
                     self.log_file_conversion(l_id, l_err)
                     msg = 'Incorrect result from the Conversion service. The file was successfully uploaded in the envelope, but not converted into an XML delivery.'
                     err = {
-                         'title': l_err.split(':')[0].replace(']','').replace('[', ''),
-                         'description': msg
+                        'title': l_err.split(':')[0].replace(']', '').replace('[', ''),
+                        'description': msg
                     }
                     return success_message(self, objs, message=msg,
                                            errors=[err], action='index_html',
@@ -398,8 +412,8 @@ class EnvelopeCustomDataflows(Toolz):
                 msg = 'The file was successfully uploaded in the envelope, but not converted into an XML delivery because of a system error: %s' % str(
                       err)
                 err = {
-                     'title': l_err.split(':')[0].replace(']','').replace('[', ''),
-                     'description': msg
+                    'title': l_err.split(':')[0].replace(']', '').replace('[', ''),
+                    'description': msg
                 }
                 return success_message(self, objs, message=msg,
                                        errors=[err], action='index_html',
@@ -446,7 +460,8 @@ class EnvelopeCustomDataflows(Toolz):
                     if REQUEST:
                         return error_message(self,
                                              "The file you are trying to upload does not have valid schema location."
-                                             " File not uploaded! Reason: %s" % str(e.args),
+                                             " File not uploaded! Reason: %s" % str(
+                                                 e.args),
                                              action='index_html', REQUEST=REQUEST)
             file.seek(0)
             # if no list of schemas were specified, or if the current XML schema is part of the given list
@@ -552,6 +567,7 @@ class EnvelopeCustomDataflows(Toolz):
                 return self.manage_addDocument(file=file, restricted=restricted, disallow=disallow, REQUEST=REQUEST)
 
     security.declareProtected('Add Envelopes', 'manage_addDDzipfile')
+
     def manage_addDDzipfile(self, file='', content_type='', restricted='',
                             required_schema=[], replace_xml=0, disallow='',
                             REQUEST=None):
@@ -575,7 +591,8 @@ class EnvelopeCustomDataflows(Toolz):
             # make a list of all XML files in the envelope and their schemas, they may need to be deleted afterwards
             # if the zip file contains XML files with the same schema and the flag 'replace_xml' is 1
             xml_f = {}
-            l = [(x.xml_schema_location, x.id) for x in self.objectValues('Report Document') if x.xml_schema_location]
+            l = [(x.xml_schema_location, x.id) for x in self.objectValues(
+                'Report Document') if x.xml_schema_location]
             for i, j in l:
                 if xml_f.has_key(i):
                     xml_f[i].append(j)
@@ -602,7 +619,8 @@ class EnvelopeCustomDataflows(Toolz):
             for name in zip_file_ids:
                 id = self.cook_file_id(name)
                 zf.setcurrentfile(name)
-                zipped_file_id = self.manage_addDocument(id=id, title=id, file=zf, filename=id, restricted=restricted, disallow=disallow)
+                zipped_file_id = self.manage_addDocument(
+                    id=id, title=id, file=zf, filename=id, restricted=restricted, disallow=disallow)
                 transaction.commit()
                 if not zipped_file_id:
                     # something happened with the file upload and the upload didn't go through
@@ -611,18 +629,18 @@ class EnvelopeCustomDataflows(Toolz):
                 zipped_file = getattr(self, zipped_file_id)
                 objs.append(zipped_file)
                 schemaless_shp_meta = name.endswith('.shp.xml')
-                 # for XML files, check if the schema is in the list of accepted schemas for that dataflow
+                # for XML files, check if the schema is in the list of accepted schemas for that dataflow
                 # and if the other files in the envlope with this schema should be replaced
                 if re.search(self.fileTypeByName_pattern, id):
-                    if not schemaless_shp_meta and (required_schema and not zipped_file.xml_schema_location in \
-                            RepUtils.utConvertLinesToList(required_schema)):
+                    if not schemaless_shp_meta and (required_schema and not zipped_file.xml_schema_location in
+                                                    RepUtils.utConvertLinesToList(required_schema)):
                         # delete this XML file, it has the wrong schema for this dataflow
                         try:
                             objs.pop(objs.index(zipped_file))
                         except ValueError:
                             pass
                         self.manage_delObjects(zipped_file_id)
-                        #print name, zipped_file_id
+                        # print name, zipped_file_id
                         file_ids_not_uploaded.append(zipped_file_id)
                         transaction.commit()
 
@@ -633,8 +651,9 @@ class EnvelopeCustomDataflows(Toolz):
 
             # if 'replace_xml', delete all XML files with the same schemas as files just uploaded
             file_ids_to_delete = list(set(file_ids_to_delete))
-            #print file_ids_to_delete
-            self.manage_delObjects([x for x in file_ids_to_delete if x not in zip_file_ids])
+            # print file_ids_to_delete
+            self.manage_delObjects(
+                [x for x in file_ids_to_delete if x not in zip_file_ids])
             if file_ids_not_uploaded:
                 if len(file_ids_not_uploaded) == len(zip_file_ids):
                     msg = 'No files were added in the envelope, because their schemas are not correct for this dataflow or file types are not allowed in this context!'
@@ -674,9 +693,10 @@ class EnvelopeCustomDataflows(Toolz):
             return 0
 
     security.declareProtected('Add Envelopes', 'manage_addFMEConvFile')
+
     def manage_addFMEConvFile(self, file='', content_type='', restricted='',
-                               required_schema=[], replace_xml=0, disallow='',
-                               unpack=0, REQUEST=None):
+                              required_schema=[], replace_xml=0, disallow='',
+                              unpack=0, REQUEST=None):
         """Adds a FME Convertible fileto the envelope and completes the workitem"""
 
         trigger = False
@@ -687,7 +707,7 @@ class EnvelopeCustomDataflows(Toolz):
                     required_schema=required_schema,
                     replace_xml=int(replace_xml),
                     disallow=disallow,
-                    ) == 1:
+            ) == 1:
                 trigger = True
         else:
             f_id = self.manage_addDocument(file=file, restricted=restricted)
@@ -695,7 +715,8 @@ class EnvelopeCustomDataflows(Toolz):
                 trigger = True
         if trigger:
             wks = self.getWorkitemsActiveForMe(self.REQUEST)
-            redir = '/'.join([self.absolute_url(), 'completeWorkitem?workitem_id={}&fme_conversion=1&DestinationURL={}'.format(wks[-1].getId(), self.absolute_url())])
+            redir = '/'.join([self.absolute_url(), 'completeWorkitem?workitem_id={}&fme_conversion=1&DestinationURL={}'.format(
+                wks[-1].getId(), self.absolute_url())])
             return self.REQUEST.RESPONSE.redirect(redir)
         else:
             return error_message(self,
@@ -703,6 +724,7 @@ class EnvelopeCustomDataflows(Toolz):
                                  action='index_html', REQUEST=REQUEST)
 
     security.declareProtected('View', 'subscribe_all_actors')
+
     def subscribe_all_actors(self, event_type=''):
         """ Calls UNS for all actors it has found in the work items in the envelope
             and subscribes them to receive notifications to a specified event if the parameter is provided
@@ -714,7 +736,8 @@ class EnvelopeCustomDataflows(Toolz):
                 if w.actor != 'openflow_engine' and w.actor not in actors:
                     actors.append(w.actor)
             filters = []
-            country_name = str(engine.localities_dict().get(self.country, {'name': 'Unknown'})['name'])
+            country_name = str(engine.localities_dict().get(
+                self.country, {'name': 'Unknown'})['name'])
             for df in self.dataflow_uris:
                 if event_type:
                     filters.append({'http://rod.eionet.europa.eu/schema.rdf#locality': country_name,
@@ -727,14 +750,15 @@ class EnvelopeCustomDataflows(Toolz):
             engine.uns_subscribe_actors(actors, filters)
 
     security.declareProtected('Change Envelopes', 'uploadGISfiles')
+
     def uploadGISfiles(self, file_shp=None, file_shx=None, file_prj=None, file_dbf=None, file_metainfo=None,
                        REQUEST=None):
         """ """
         if file_shp.filename.find('.shp') != -1 and \
-                        file_shx.filename.find('.shx') != -1 and \
-                        file_prj.filename.find('.prj') != -1 and \
-                        file_dbf.filename.find('.dbf') != -1 and \
-                        file_metainfo.filename.find('.xml') != -1:
+                file_shx.filename.find('.shx') != -1 and \
+                file_prj.filename.find('.prj') != -1 and \
+                file_dbf.filename.find('.dbf') != -1 and \
+                file_metainfo.filename.find('.xml') != -1:
             objs = []
             self.manage_addDocument(file=file_shp)
             objs.append(getattr(self, file_shp.filename))
@@ -765,6 +789,7 @@ class EnvelopeCustomDataflows(Toolz):
         return 0
 
     security.declareProtected('Change Envelopes', 'uploadGISZIPfiles')
+
     def uploadGISZIPfiles(self, file_gis_zip=None, REQUEST=None):
         """ """
         if file_gis_zip.filename:
@@ -774,8 +799,8 @@ class EnvelopeCustomDataflows(Toolz):
             except:
                 if REQUEST is not None:
                     return error_message(self,
-                                     "Files not uploaded! The file you have specified is not a zip file!",
-                                     action='.', REQUEST=REQUEST)
+                                         "Files not uploaded! The file you have specified is not a zip file!",
+                                         action='.', REQUEST=REQUEST)
                 else:
                     return 0
 
@@ -811,7 +836,7 @@ class EnvelopeCustomDataflows(Toolz):
 
             if REQUEST is not None:
                 objs = [getattr(self, oid) for oid in oids]
-                return success_message(ctx, objs,
+                return success_message(self, objs,
                                        message="Files successfully uploaded!",
                                        action='.',
                                        REQUEST=REQUEST)
@@ -831,14 +856,16 @@ class EnvelopeCustomDataflows(Toolz):
 
     def getShapeFiles(self):
         """ Returns all the shape file names from the envelope """
-        self.REQUEST.RESPONSE.setHeader('content-type', 'text/xml; charset=utf-8')
+        self.REQUEST.RESPONSE.setHeader(
+            'content-type', 'text/xml; charset=utf-8')
         xml = []
         xml_a = xml.append
         xml_a('<?xml version="1.0" encoding="utf-8"?>')
         xml_a("<files>")
         for doc in self.objectValues('Report Document'):
             if doc.id.endswith('.shp'):
-                xml_a('<file id="' + doc.id + '" url="' + doc.absolute_url() + '" />')
+                xml_a('<file id="' + doc.id + '" url="' +
+                      doc.absolute_url() + '" />')
         xml_a("</files>")
         return ''.join(xml)
 
@@ -851,17 +878,22 @@ class EnvelopeCustomDataflows(Toolz):
         rows = dom.getElementsByTagName("form2-row")
         for row in rows:
             region_name = self.getXMLNodeData(row, "region-name")
-            if region_name not in regions: regions.append(region_name)
+            if region_name not in regions:
+                regions.append(region_name)
 
         # for each of the forms from 3 to 27, generate a region specific xml
         region_template = "<reporting-regions>\n\t<region>%s</region>\n</reporting-regions>"
-        aqq_empty_instances = self.restrictedTraverse("/", None)["emptyinstances"]["aqq"]
+        aqq_empty_instances = self.restrictedTraverse(
+            "/", None)["emptyinstances"]["aqq"]
         for xml_number in range(x, y):
             for region in regions:
                 xml_filename = "form%s_%s.xml" % (xml_number, region)
-                xml_filecontent = aqq_empty_instances["form%s" % xml_number](language)
-                xml_filecontent = xml_filecontent.replace("$$$REGION_DATA$$$", region_template % region)
-                self.manage_addDocument(xml_filename, "", xml_filecontent, "text/xml", "")
+                xml_filecontent = aqq_empty_instances["form%s" % xml_number](
+                    language)
+                xml_filecontent = xml_filecontent.replace(
+                    "$$$REGION_DATA$$$", region_template % region)
+                self.manage_addDocument(
+                    xml_filename, "", xml_filecontent, "text/xml", "")
 
     def getZonesForRegion(self, form_name=None, aqq_rule=None):
         """
@@ -873,7 +905,8 @@ class EnvelopeCustomDataflows(Toolz):
       If no rule is specified, defaults to True, including the zone within the result
       @see https://svn.eionet.europa.eu/projects/Reportnet/ticket/1759
       """
-        self.REQUEST.RESPONSE.setHeader('content-type', 'text/xml; charset=utf-8')
+        self.REQUEST.RESPONSE.setHeader(
+            'content-type', 'text/xml; charset=utf-8')
         ret = []
         ret.append('<?xml version="1.0" encoding="utf-8"?>')
         ret.append('<response>')
@@ -898,11 +931,12 @@ class EnvelopeCustomDataflows(Toolz):
                     # b) Apply the second type of rule, filter zone by its checked compounds (in form 2)
                     if self.matchAQQCompoundRules(zone, aqq_rule):
                         ret.append('<zone>')
-                        ret.append('<name>%s</name>' % self.getXMLNodeData(zone, 'full-zone-name'))
-                        ret.append('<code>%s</code>' % self.getXMLNodeData(zone, 'zone-code'))
+                        ret.append('<name>%s</name>' %
+                                   self.getXMLNodeData(zone, 'full-zone-name'))
+                        ret.append('<code>%s</code>' %
+                                   self.getXMLNodeData(zone, 'zone-code'))
                         ret.append('</zone>')
-        except:
-            traceback.print_exc()
+        except Exception:
             print 'Error parsing files from envelope: form2.xml or %s' % form_name
         ret.append('</response>')
         return ''.join(ret)
@@ -947,7 +981,8 @@ class EnvelopeCustomDataflows(Toolz):
         xsls_ids = [x['convert_id'] for x in xsls_valid]
 
         if not xsls_ids:
-            raise ValueError('Could not find a valid converter (%s) for schema: %s' % (req_xsl, xml_schema))
+            raise ValueError(
+                'Could not find a valid converter (%s) for schema: %s' % (req_xsl, xml_schema))
 
         file_url = '/{}'.format(file_url) if not file_url.startswith('/') else file_url
         return converters.run_remote_conversion(file_url=file_url,
@@ -999,14 +1034,17 @@ class EnvelopeCustomDataflows(Toolz):
                     transaction.commit()
                 except Exception as e:
                     do_log("error",
-                           "An error occured during the sanitization process: {}".format(str(e)),
-                            wk)
+                           "An error occured during the sanitization process: {}".format(
+                               str(e)),
+                           wk)
             else:
                 do_log("warning",
-                       "Sanitization process skipped for {} for not matching the required schema(s).".format(xml_file.getId()),
+                       "Sanitization process skipped for {} for not matching the required schema(s).".format(
+                           xml_file.getId()),
                        wk)
 
     security.declareProtected('Change Envelopes', 'manage_addMMRXLSFile')
+
     def manage_addMMRXLSFile(self, file='', restricted='', required_schema=[], replace_xml=1, REQUEST=None):
         """ Adds an XLS file based on the MMR template:
             - if the file is a spreadsheet, it will call the local converters to convert it to XML
@@ -1027,7 +1065,8 @@ class EnvelopeCustomDataflows(Toolz):
             if hasattr(self, l_id):
                 self.manage_delObjects(l_id)
             # upload original file in the envelope
-            self.manage_addDocument(id=l_id, file=file, restricted=restricted, REQUEST=REQUEST)
+            self.manage_addDocument(
+                id=l_id, file=file, restricted=restricted, REQUEST=REQUEST)
             objs = []
             l_doc = getattr(self, l_id)
             objs.append(l_doc)
@@ -1042,7 +1081,8 @@ class EnvelopeCustomDataflows(Toolz):
                     available_local_converters = converters._get_local_converters()
                 except Exception as e:
                     return error_message(self,
-                                         "Unable to retrieve local converters. Please try again later! ({})".format(str(e)),
+                                         "Unable to retrieve local converters. Please try again later! ({})".format(
+                                             str(e)),
                                          action='.', REQUEST=REQUEST)
                 for conv_obj in available_local_converters:
                     if conv_obj.title == 'Convert MMR Projections XLS to XML':
@@ -1090,11 +1130,13 @@ class EnvelopeCustomDataflows(Toolz):
                 docs = [self.unrestrictedTraverse(doc_id) for doc_id in doc_ids
                         if self.unrestrictedTraverse(doc_id).content_type == 'text/xml']
             for doc in docs:
-                conv = converter.convert(doc, converter.id, extra_params=extra_params)
+                conv = converter.convert(
+                    doc, converter.id, extra_params=extra_params)
                 try:
                     r_metadata = json.loads(conv.content)
-                except Exception as e:
-                    conversion_log.error("Unable to extract metadata for {}, with converter: {}".format(doc.getId(), converter.id))
+                except Exception:
+                    conversion_log.error("Unable to extract metadata for {}, with converter: {}".format(
+                        doc.getId(), converter.id))
                     return
                 if extra_params:
                     metadata = {}
@@ -1221,7 +1263,8 @@ class EnvelopeCustomDataflows(Toolz):
                     self.year = int(year)
                     self.reindex_object()
                 except Exception:
-                    conversion_log.error("Unable to extract year from xml metadata.")
+                    conversion_log.error(
+                        "Unable to extract year from xml metadata.")
 
     security.declareProtected('View', 'metadata_json')
 
@@ -1289,10 +1332,10 @@ class EnvelopeCustomDataflows(Toolz):
         w0 = getattr(self, workitem_id)
 
         for fxml in fxmls:
-            fl = self.manage_addDocument(id=str(fxml.getId()),
-                                         file=str(fxml.data),
-                                         REQUEST=REQUEST,
-                                         deferred_compress=None)
+            self.manage_addDocument(id=str(fxml.getId()),
+                                    file=str(fxml.data),
+                                    REQUEST=REQUEST,
+                                    deferred_compress=None)
             w0.addEvent("Prefill %s added to the envelope" % str(fxml.getId()))
 
     def get_previous_deliveries(self):
@@ -1314,9 +1357,12 @@ class EnvelopeCustomDataflows(Toolz):
                 c_colls = colls.get(k, [])
                 for col in c_colls:
                     if col.company_id == self.company_id:
-                        envs[k] = envs[k] + [env for env in col.objectValues('Report Envelope')]
+                        envs[k] = envs[k] + \
+                            [env for env in col.objectValues(
+                                'Report Envelope')]
 
         return envs
+
 
 # Initialize the class in order the security assertions be taken into account
 InitializeClass(EnvelopeCustomDataflows)
