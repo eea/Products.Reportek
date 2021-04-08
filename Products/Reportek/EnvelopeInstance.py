@@ -512,9 +512,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         if getattr(self, 'wf_status', None) == 'forward':
             wks = self.getListOfWorkitems()
             wk = wks[-1]
-            forwardable = [wk for wk in wks
-                           if wk.status == 'complete' and not
-                           (wk.activity_id == 'End' or wk.workitems_to)]
+            forwardable = [w for w in wks
+                           if w.status == 'complete' and not
+                           (w.activity_id == 'End' or w.workitems_to)]
             if forwardable:
                 wk = forwardable[0]
             if wk.status in ['complete', 'inactive']:

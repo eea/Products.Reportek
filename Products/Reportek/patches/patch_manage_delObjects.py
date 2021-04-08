@@ -5,7 +5,6 @@ from App.Dialogs import MessageDialog
 from cgi import escape
 from App.special_dtml import HTML
 from Products.Reportek.interfaces import IProcess
-from Products.Reportek.interfaces import IDocument
 from Products.Reportek.constants import APPLICATIONS_FOLDER_ID
 from webdav.Lockable import ResourceLockedError
 from zExceptions import BadRequest
@@ -65,7 +64,6 @@ def patched_manage_delObjects(self, ids=[], REQUEST=None):
     try:    p=self._reserved_names
     except: p=()
     processes = []
-    fbs = []
     for n in ids:
         if n in p:
             return MessageDialog(title='Not Deletable',

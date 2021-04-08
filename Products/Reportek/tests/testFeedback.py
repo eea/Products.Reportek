@@ -342,7 +342,6 @@ class GetAllFeedbackTest(RemoteApplicationFeedbackTest):
 
     def test_feedback_objects_details_small_file(self):
         self.receive_feedback('AQ feedback')
-        from DateTime import DateTime
         self.maxDiff = None
         [feedback] = self.envelope.getFeedbacks()
         self.assertEqual(

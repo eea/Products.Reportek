@@ -7,7 +7,7 @@
 ##parameters=
 ##title=Buttons for login and out
 ##
-request = container.REQUEST
+request = container.REQUEST  # noqa: F821
 RESPONSE =  request.RESPONSE
 
 if request.has_key('AUTHENTICATED_USER') and request['AUTHENTICATED_USER'].getUserName() != 'Anonymous User':
@@ -16,4 +16,4 @@ if request.has_key('AUTHENTICATED_USER') and request['AUTHENTICATED_USER'].getUs
 else:
     print """<a id="loginlink" href="/loggedin">Login</a>"""
 #   print """<a id="loginlink" href="http://%s/loggedin">Login</a>""" % request.get('HTTP_X_FORWARDED_HOST','')
-return printed
+return printed  # noqa: F999

@@ -27,66 +27,55 @@ Envelopes are the basic container objects and are analogous to directories.
 
 $Id$"""
 
-__version__='$Revision$'[11:-2]
-
-
-import json
-import logging
-import os
-import string
-import tempfile
-import types
-from exceptions import InvalidPartOfYear
-from StringIO import StringIO
-from zipfile import BadZipfile
-
-import AccessControl.Role
-import Document
-import Feedback
-import Globals
-import Hyperlink
-import OFS.ObjectManager
-import OFS.SimpleItem
-import RepUtils
-import transaction
-import xlwt
-from AccessControl import ClassSecurityInfo, Unauthorized
-from AccessControl.Permissions import view_management_screens
-from AccessControl.SecurityManagement import getSecurityManager
-from constants import ENGINE_ID, WORKFLOW_ENGINE_ID
-from DateTime import DateTime
-from DateTime.interfaces import SyntaxError
-# Product specific imports
-from EnvelopeCustomDataflows import EnvelopeCustomDataflows
-from EnvelopeInstance import EnvelopeInstance
-from EnvelopeRemoteServicesManager import EnvelopeRemoteServicesManager
-from interfaces import IEnvelope
-from paginator import DiggPaginator, EmptyPage, InvalidPage
-from path import path
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate
-from Products.PythonScripts.standard import url_quote
+from ZPublisher.Iterators import filestream_iterator
+from zope.lifecycleevent import ObjectModifiedEvent
+from zope.interface import implements
+from zope.event import notify
+from zipstream import ZIP_DEFLATED, ZipFile
+from zExceptions import Forbidden
+from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION
+from Products.Reportek.RepUtils import (DFlowCatalogAware, get_zip_cache,
+                                        parse_uri)
+from Products.Reportek.constants import DF_URL_PREFIX
+from Products.Reportek.config import (DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT,
+                                      ZIP_CACHE_ENABLED,
+                                      ZIP_CACHE_THRESHOLD)
+from Products.Reportek.BaseDelivery import BaseDelivery
 from Products.Reportek import (Document, Feedback, Hyperlink, RepUtils,
                                permission_manage_properties_envelopes,
                                zip_content)
-from Products.Reportek.BaseDelivery import BaseDelivery
-from Products.Reportek.config import (DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT,
-                                      XLS_HEADINGS, ZIP_CACHE_ENABLED,
-                                      ZIP_CACHE_THRESHOLD)
-from Products.Reportek.constants import DF_URL_PREFIX
-from Products.Reportek.exceptions import ApplicationException
-from Products.Reportek.RepUtils import (DFlowCatalogAware, get_zip_cache,
-                                        parse_uri)
-from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION
-from zExceptions import Forbidden
-from zipstream import ZIP_DEFLATED, ZipFile
-from zope.event import notify
-from zope.interface import implements
-from zope.lifecycleevent import ObjectModifiedEvent
-from ZPublisher.Iterators import filestream_iterator
+from Products.PythonScripts.standard import url_quote
+from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from paginator import DiggPaginator, EmptyPage, InvalidPage
+from interfaces import IEnvelope
+from EnvelopeRemoteServicesManager import EnvelopeRemoteServicesManager
+from EnvelopeInstance import EnvelopeInstance
+from EnvelopeCustomDataflows import EnvelopeCustomDataflows
+from DateTime.interfaces import SyntaxError
+from DateTime import DateTime
+from constants import ENGINE_ID, WORKFLOW_ENGINE_ID
+from AccessControl.SecurityManagement import getSecurityManager
+from AccessControl.Permissions import view_management_screens
+from AccessControl import ClassSecurityInfo, Unauthorized
+import xlwt
+import transaction
+import OFS.SimpleItem
+import OFS.ObjectManager
+import Globals
+import AccessControl.Role
+from zipfile import BadZipfile
+from exceptions import InvalidPartOfYear
+import tempfile
+import os
+import logging
+import json
+__version__ = '$Revision$'[11:-2]
+
+
+# Product specific imports
 
 logger = logging.getLogger("Reportek")
-
 
 
 def error_response(exc, message, REQUEST):
@@ -113,17 +102,19 @@ def error_response(exc, message, REQUEST):
 
 manage_addEnvelopeForm = PageTemplateFile('zpt/envelope/add', globals())
 
+
 def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
-        REQUEST=None, previous_delivery=''):
+                       REQUEST=None, previous_delivery=''):
     """ Add a new Envelope object with id *id*.
     """
-    id= RepUtils.generate_id('env')
+    id = RepUtils.generate_id('env')
     if not REQUEST:
         actor = self.REQUEST.AUTHENTICATED_USER.getUserName()
     else:
         actor = REQUEST.AUTHENTICATED_USER.getUserName()
     # finds the (a !) process suited for this envelope
-    l_err_code, l_result = getattr(self, WORKFLOW_ENGINE_ID).findProcess(self.dataflow_uris, self.country)
+    l_err_code, l_result = getattr(self, WORKFLOW_ENGINE_ID).findProcess(
+        self.dataflow_uris, self.country)
     if l_err_code == 0:
         process = self.unrestrictedTraverse(l_result, None)
     else:
@@ -164,14 +155,17 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
     if partofyear and not partofyear in (year_parts + months):
         return error_response(InvalidPartOfYear, 'Invalid Part of Year', REQUEST)
 
-    dataflow_uris = getattr(self, 'dataflow_uris', [])  # Get it from collection
-    ob = Envelope(process, title, actor, year, endyear, partofyear, self.country, locality, descr, dataflow_uris)
+    dataflow_uris = getattr(self, 'dataflow_uris', []
+                            )  # Get it from collection
+    ob = Envelope(process, title, actor, year, endyear, partofyear,
+                  self.country, locality, descr, dataflow_uris)
     ob.id = id
     self._setObject(id, ob)
     ob = self._getOb(id)
     if previous_delivery:
         l_envelope = self.restrictedTraverse(previous_delivery)
-        l_data = l_envelope.manage_copyObjects(l_envelope.objectIds('Report Document'))
+        l_data = l_envelope.manage_copyObjects(
+            l_envelope.objectIds('Report Document'))
         ob.manage_pasteObjects(l_data)
     ob.startInstance(REQUEST)  # Start the instance
     if REQUEST is not None:
@@ -212,8 +206,8 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
 
 def valid_year(year_str):
     try:
-        year = int(year_str) #Checks conversion
-        DateTime('%s/01/01' %year) #Raises SyntaxError below year 1000
+        year = int(year_str)  # Checks conversion
+        DateTime('%s/01/01' % year)  # Raises SyntaxError below year 1000
         return True
     except ValueError as ex:
         return False
@@ -225,10 +219,11 @@ def get_first_accept(req_dict):
     """ Figures out which type of content the webbrowser prefers
         If it is 'application/rdf+xml', then send RDF
     """
-    s = req_dict.get_header('HTTP_ACCEPT','*/*')
+    s = req_dict.get_header('HTTP_ACCEPT', '*/*')
     segs = s.split(',')
     firstseg = segs[0].split(';')
     return firstseg[0].strip()
+
 
 class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDataflows, BaseDelivery, DFlowCatalogAware):
     """ Envelopes are basic container objects that provide a standard
@@ -236,7 +231,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         a management interface
     """
     implements(IEnvelope)
-    meta_type='Report Envelope'
+    meta_type = 'Report Envelope'
     icon = 'misc_/Reportek/envelope.gif'
 
     # location of the file-repository
@@ -246,16 +241,18 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
     security.setPermissionDefault('Audit Envelopes', ('Manager', 'Owner'))
 
-    manage_options=(
-        (OFS.ObjectManager.ObjectManager.manage_options[0],)+
+    manage_options = (
+        (OFS.ObjectManager.ObjectManager.manage_options[0],) +
         (
-        {'label':'View', 'action':'index_html', 'help':('OFSP','Envelope_View.stx')},
-        {'label':'Properties', 'action':'manage_prop', 'help':('OFSP','Envelope_View.stx')},
-        )+
-        EnvelopeInstance.manage_options+
-        AccessControl.Role.RoleManager.manage_options+
+            {'label': 'View', 'action': 'index_html',
+                'help': ('OFSP', 'Envelope_View.stx')},
+            {'label': 'Properties', 'action': 'manage_prop',
+                'help': ('OFSP', 'Envelope_View.stx')},
+        ) +
+        EnvelopeInstance.manage_options +
+        AccessControl.Role.RoleManager.manage_options +
         OFS.SimpleItem.Item.manage_options
-        )
+    )
 
     security.declareProtected('Change Envelopes', 'manage_cutObjects')
     security.declareProtected('Change Envelopes', 'manage_copyObjects')
@@ -324,7 +321,6 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             fb_status = getattr(fb, 'feedback_status', 'UNKNOWN')
             if fb_status not in VALID_FB_STATUSES:
                 return True
-
 
     @property
     def has_unacceptable_qa_result(self):
@@ -411,32 +407,36 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             return False
         completed_automaticQA_workitems = [
             wi for wi in self.getMySelf().getListOfWorkitems()
-               if wi.activity_id == 'AutomaticQA' and wi.status == 'complete'
+            if wi.activity_id == 'AutomaticQA' and wi.status == 'complete'
         ]
         if completed_automaticQA_workitems:
             return True
         else:
             return None
 
-    def all_meta_types( self, interfaces=None ):
+    def all_meta_types(self, interfaces=None):
         """ Called by Zope to determine what kind of object the envelope can contain
         """
-        y = [  {'name': 'Report Document', 'action': 'manage_addDocumentForm', 'permission': 'Add Envelopes'},
-               {'name': 'Report Hyperlink', 'action': 'manage_addHyperlinkForm', 'permission': 'Add Envelopes'},
-               {'name': 'Report Feedback', 'action': 'manage_addFeedbackForm', 'permission': 'Add Feedback'}]
+        y = [{'name': 'Report Document', 'action': 'manage_addDocumentForm', 'permission': 'Add Envelopes'},
+             {'name': 'Report Hyperlink', 'action': 'manage_addHyperlinkForm',
+              'permission': 'Add Envelopes'},
+             {'name': 'Report Feedback', 'action': 'manage_addFeedbackForm', 'permission': 'Add Feedback'}]
         return y
 
     # This next lines are bogus but needed for Zope to register the permission
     security.declareProtected('Audit Envelopes', 'bogus_function')
+
     def bogus_function(self):
         return
 
     security.declarePublic('getMySelf')
+
     def getMySelf(self):
         """ Used to retrieve the envelope object from the workitem """
         return self
 
     security.declarePublic('getActorDraft')
+
     def getActorDraft(self):
         """ Used to retrieve draft Actor """
         draft_workitems = [wi for wi in self.getListOfWorkitems()
@@ -447,6 +447,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             return latestDraftWorkitem.actor
 
     security.declareProtected('View', 'getSubmittedDocs')
+
     def getSubmittedDocs(self):
         documents_list = self.objectValues(['Report Document',
                                             'Report Hyperlink'])
@@ -454,26 +455,29 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         return documents_list
 
     security.declarePublic('getEnvelopeOwner')
+
     def getEnvelopeOwner(self):
         """ """
         return self.getOwner()
 
     security.declareProtected('Change Envelopes', 'manage_copyDelivery')
+
     def manage_copyDelivery(self, previous_delivery, REQUEST=None):
         """ Copies files from another envelope """
         l_envelope = self.unrestrictedTraverse(previous_delivery)
-        l_files_ids = l_envelope.objectIds(['Report Document','Report Hyperlink'])
+        l_files_ids = l_envelope.objectIds(
+            ['Report Document', 'Report Hyperlink'])
         if len(l_files_ids) > 0:
             l_data = l_envelope.manage_copyObjects(l_files_ids)
             self.manage_pasteObjects(l_data)
             if REQUEST is not None:
                 return self.messageDialog(
-                                message="The files were copied here",
-                                action=REQUEST['HTTP_REFERER'])
+                    message="The files were copied here",
+                    action=REQUEST['HTTP_REFERER'])
         else:
-                return self.messageDialog(
-                                message="No files available for this delivery",
-                                action=REQUEST['HTTP_REFERER'])
+            return self.messageDialog(
+                message="No files available for this delivery",
+                action=REQUEST['HTTP_REFERER'])
 
     ##################################################
     # Interface components
@@ -486,6 +490,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     overview = PageTemplateFile('zpt/envelope/overview', globals())
 
     security.declareProtected('View', 'index_html')
+
     def index_html(self, REQUEST=None):
         """ """
         if REQUEST is None:
@@ -496,13 +501,14 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         status_extra = None
         browser_accept_type = get_first_accept(REQUEST)
         if browser_accept_type == 'application/rdf+xml':
-            REQUEST.RESPONSE.redirect(self.absolute_url() + '/rdf', status=303) # The Linked Data guys want status 303
+            # The Linked Data guys want status 303
+            REQUEST.RESPONSE.redirect(self.absolute_url() + '/rdf', status=303)
             return ''
 
         l_current_actor = REQUEST['AUTHENTICATED_USER'].getUserName()
         l_no_active_workitems = 0
         for w in self.objectValues('Workitem'):
-            if w.status == 'active' and w.actor!= 'openflow_engine' and (w.actor == l_current_actor or getSecurityManager().checkPermission('Change Envelopes', self)):
+            if w.status == 'active' and w.actor != 'openflow_engine' and (w.actor == l_current_actor or getSecurityManager().checkPermission('Change Envelopes', self)):
                 l_application_url = self.getApplicationUrl(w.id)
                 if l_application_url:
                     # if more workitems are active for the current user, the overview is returned
@@ -538,11 +544,12 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     EnvelopeInstance.manage_main._setName('manage_main')
 
     security.declareProtected('View', 'manage_main')
-    def manage_main(self,*args,**kw):
+
+    def manage_main(self, *args, **kw):
         """ Define manage main to be context aware """
 
-        if getSecurityManager().checkPermission('View management screens',self):
-            return apply(self.manage_main_inh,(self,)+ args,kw)
+        if getSecurityManager().checkPermission('View management screens', self):
+            return apply(self.manage_main_inh, (self,) + args, kw)
         else:
             # args is a tuple, the first element being the object instance, the second the REQUEST
             if len(args) > 1:
@@ -551,11 +558,15 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                 return apply(self.index_html, ())
 
     security.declareProtected('View', 'getDocuments')
+
     def getDocuments(self, REQUEST):
         """ return the list of documents """
-        documents_list = self.objectValues(['Report Document', 'Report Hyperlink'])
+        documents_list = self.objectValues(
+            ['Report Document', 'Report Hyperlink'])
         documents_list.sort(key=lambda ob: ob.getId().lower())
-        paginator = DiggPaginator(documents_list, 20, body=5, padding=2, orphans=5)   #Show 10 documents per page
+        # Show 10 documents per page
+        paginator = DiggPaginator(
+            documents_list, 20, body=5, padding=2, orphans=5)
 
         # Make sure page request is an int. If not, deliver first page.
         try:
@@ -572,16 +583,20 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         return documents
 
     security.declareProtected('View', 'documents_section')
-    documents_section = PageTemplateFile('zpt/envelope/documents_section', globals())
+    documents_section = PageTemplateFile(
+        'zpt/envelope/documents_section', globals())
 
     security.declareProtected('View', 'documents_pagination')
-    documents_pagination = PageTemplateFile('zpt/envelope/documents_pagination', globals())
+    documents_pagination = PageTemplateFile(
+        'zpt/envelope/documents_pagination', globals())
 
     security.declareProtected('View', 'documents_management_section')
-    documents_management_section = PageTemplateFile('zpt/envelope/documentsmanagement_section', globals())
+    documents_management_section = PageTemplateFile(
+        'zpt/envelope/documentsmanagement_section', globals())
 
     security.declareProtected('View', 'feedback_section')
-    feedback_section = PageTemplateFile('zpt/envelope/feedback_section', globals())
+    feedback_section = PageTemplateFile(
+        'zpt/envelope/feedback_section', globals())
 
     security.declareProtected('View', 'envelope_tabs')
     envelope_tabs = PageTemplateFile('zpt/envelope/tabs', globals())
@@ -590,12 +605,14 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     manage_prop = PageTemplateFile('zpt/envelope/properties', globals())
 
     security.declareProtected('Change Envelopes', 'envelope_previous')
-    envelope_previous = PageTemplateFile('zpt/envelope/earlierreleases', globals())
+    envelope_previous = PageTemplateFile(
+        'zpt/envelope/earlierreleases', globals())
 
     security.declareProtected('View', 'data_quality')
     data_quality = PageTemplateFile('zpt/envelope/data_quality', globals())
 
     security.declareProtected('Use OpenFlow', 'get_current_workitem')
+
     def get_current_workitem(self, REQUEST=None):
         """ Return last workitem JSON metadata
         """
@@ -608,8 +625,8 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                                                 'application/json')
         return json.dumps({})
 
-
     security.declareProtected('Release Envelopes', 'content_registry_ping')
+
     def content_registry_ping(self, delete=False, async=False, wk=None, silent=True):
         """ Instruct ReportekEngine to ping CR.
 
@@ -631,29 +648,32 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
         ping_argument = 'delete' if delete else 'create'
         # the main uri - the rdf listing everything inside
-        uris = [ self.absolute_url() + '/rdf' ]
+        uris = [self.absolute_url() + '/rdf']
         innerObjsByMetatype = self._getObjectsForContentRegistry()
         # ping CR for inner uris
-        uris.extend( o.absolute_url() for objs in innerObjsByMetatype.values() for o in objs )
+        uris.extend(o.absolute_url()
+                    for objs in innerObjsByMetatype.values() for o in objs)
         if async:
             crPingger.content_registry_ping_async(uris,
-                    ping_argument=ping_argument, envPathName=self.absolute_url(),
-                    wk=wk)
+                                                  ping_argument=ping_argument, envPathName=self.absolute_url(),
+                                                  wk=wk)
             message = "Async content registry ping requested"
         else:
-            success, message = crPingger.content_registry_ping(uris, ping_argument=ping_argument, wk=wk)
+            success, message = crPingger.content_registry_ping(
+                uris, ping_argument=ping_argument, wk=wk)
             if not silent and not success:
                 raise Exception('CR Ping failed! Please try again later!')
 
         return message
-
 
     ##################################################
     # Manage release status
     # The release-flag locks the envelope from getting new files.
     # It thereby prevents the clients from downloading incomplete envelopes.
     ##################################################
-    security.declareProtected(view_management_screens, 'release_envelope_manual')
+    security.declareProtected(view_management_screens,
+                              'release_envelope_manual')
+
     def release_envelope_manual(self):
         """ Releases an envelope to the public
             Must also set the "View" permission on the object?
@@ -665,6 +685,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     # Releases an envelope to the public
     # Must also set the "View" permission on the object?
     ##################################################
+
     def release_envelope(self):
         # no doc string - don't call this from browser
         if self.released != 1:
@@ -676,10 +697,12 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             notify(ObjectModifiedEvent(self))
         if self.REQUEST is not None:
             return self.messageDialog(
-                            message="The envelope has now been released to the public!",
-                            action='./manage_main')
+                message="The envelope has now been released to the public!",
+                action='./manage_main')
 
-    security.declareProtected(view_management_screens, 'unrelease_envelope_manual')
+    security.declareProtected(view_management_screens,
+                              'unrelease_envelope_manual')
+
     def unrelease_envelope_manual(self):
         """ Unreleases an envelope to the public
             Must also remove the "View" permission on the object?
@@ -691,6 +714,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     # Unreleases an envelope to the public
     # Must also remove the "View" permission on the object?
     ##################################################
+
     def unrelease_envelope(self):
         # no doc string - don't call this from browser
         if self.released != 0:
@@ -702,11 +726,12 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             notify(ObjectModifiedEvent(self))
         if self.REQUEST is not None:
             return self.messageDialog(
-                            message="The envelope is no longer available to the public!",
-                            action='./manage_main')
+                message="The envelope is no longer available to the public!",
+                action='./manage_main')
 
     # See if this is really used somewhere
     security.declareProtected('View', 'delivery_status')
+
     def delivery_status(self):
         """ Status value of the delivery envelope
             Used for security reasons managing access rights,
@@ -719,10 +744,12 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     # Edit metadata
     ##################################################
 
-    security.declareProtected(permission_manage_properties_envelopes, 'manage_editEnvelope')
+    security.declareProtected(
+        permission_manage_properties_envelopes, 'manage_editEnvelope')
+
     def manage_editEnvelope(self, title, descr,
-            year, endyear, partofyear, country, locality, dataflow_uris=[],
-            sync_process='', REQUEST=None):
+                            year, endyear, partofyear, country, locality, dataflow_uris=[],
+                            sync_process='', REQUEST=None):
         """ Manage the edited values
         """
         if not dataflow_uris:
@@ -733,13 +760,14 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                         action='./manage_prop')
                 return
         else:
-            # If sync workflow is checked, change the workflow if required and 
+            # If sync workflow is checked, change the workflow if required and
             # fallin to the first activity of the new workflow
             if sync_process == 'sync':
                 wf_engine = self.unrestrictedTraverse(WORKFLOW_ENGINE_ID, None)
                 if wf_engine:
                     obl_process = wf_engine.findProcess(dataflow_uris, country)
-                    obl_process = self.unrestrictedTraverse(obl_process[-1], None)
+                    obl_process = self.unrestrictedTraverse(
+                        obl_process[-1], None)
                     if obl_process and obl_process.absolute_url(1) != self.process_path and self.status != 'complete':
                         self.setProcess(obl_process.absolute_url(1))
                         begin_act = obl_process.begin
@@ -750,55 +778,65 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
             self.dataflow_uris = dataflow_uris
 
-        self.title=title
-        try: self.year = int(year)
-        except: self.year = ''
-        try: self.endyear = int(endyear)
-        except: self.endyear = ''
+        self.title = title
+        try:
+            self.year = int(year)
+        except:
+            self.year = ''
+        try:
+            self.endyear = int(endyear)
+        except:
+            self.endyear = ''
         self._check_year_range()
-        self.partofyear=partofyear
-        self.country=country
-        self.locality=locality
-        self.descr=descr
+        self.partofyear = partofyear
+        self.country = country
+        self.locality = locality
+        self.descr = descr
         # update ZCatalog
         self.reindex_object()
         notify(ObjectModifiedEvent(self))
         if REQUEST is not None:
             return self.messageDialog(
-                            message="The properties of %s have been changed!" % self.id,
-                            action='./')
+                message="The properties of %s have been changed!" % self.id,
+                action='./')
 
-    security.declareProtected(permission_manage_properties_envelopes, 'manage_changeEnvelope')
+    security.declareProtected(
+        permission_manage_properties_envelopes, 'manage_changeEnvelope')
+
     def manage_changeEnvelope(self, title=None, descr=None,
-            year=None, endyear=None, country=None, dataflow_uris=None,
-            reportingdate=None,
-            REQUEST=None):
+                              year=None, endyear=None, country=None, dataflow_uris=None,
+                              reportingdate=None,
+                              REQUEST=None):
         """ Manage the changed values
         """
         if title is not None:
-            self.title=title
+            self.title = title
         if year is not None:
-            try: self.year = int(year)
-            except: self.year = ''
+            try:
+                self.year = int(year)
+            except:
+                self.year = ''
         if endyear is not None:
-            try: self.endyear = int(endyear)
-            except: self.endyear = ''
+            try:
+                self.endyear = int(endyear)
+            except:
+                self.endyear = ''
         self._check_year_range()
         if country is not None:
-            self.country=country
+            self.country = country
         if dataflow_uris is not None:
             self.dataflow_uris = dataflow_uris
         if reportingdate is not None:
             self.reportingdate = DateTime(reportingdate)
         if descr is not None:
-            self.descr=descr
+            self.descr = descr
         # update ZCatalog
         self.reindex_object()
         notify(ObjectModifiedEvent(self))
         if REQUEST is not None:
             return self.messageDialog(
-                            message="The properties of %s have been changed!" % self.id,
-                            action='./')
+                message="The properties of %s have been changed!" % self.id,
+                action='./')
 
     ##################################################
     # These methods represent the outcome of the CDR discussion.
@@ -807,6 +845,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     ##################################################
 
     security.declareProtected('Change Envelopes', 'manage_restrict')
+
     def manage_restrict(self, ids=None, REQUEST=None):
         """
             Restrict access to the named objects.
@@ -815,11 +854,14 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         """
         vr = list(self.valid_roles())
         for item in ('Anonymous', 'Authenticated'):
-            try: vr.remove(item)
-            except: pass
+            try:
+                vr.remove(item)
+            except:
+                pass
         return self._set_restrictions(ids, roles=vr, acquire=0, permission='View', REQUEST=REQUEST)
 
     security.declareProtected('Change Envelopes', 'manage_unrestrict')
+
     def manage_unrestrict(self, ids=None, REQUEST=None):
         """
             Remove access restriction to the named objects.
@@ -836,7 +878,8 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             process = self.unrestrictedTraverse(self.process_path)
         else:
             # finds the (a !) process suited for this envelope
-            l_err_code, l_result = getattr(self, WORKFLOW_ENGINE_ID).findProcess(self.dataflow_uris, self.country)
+            l_err_code, l_result = getattr(self, WORKFLOW_ENGINE_ID).findProcess(
+                self.dataflow_uris, self.country)
             if l_err_code == 0:
                 process = self.unrestrictedTraverse(l_result, None)
         if not process:
@@ -856,13 +899,15 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             msg = 'This is a restricted workflow, unable to make objects public!'
             l_ids = [oid for oid in l_ids if oid not in restricted]
             if l_ids:
-                self._set_restrictions(l_ids,roles=[], acquire=1, permission='View')
+                self._set_restrictions(
+                    l_ids, roles=[], acquire=1, permission='View')
                 msg = 'This is a restricted workflow, some object types restricted status have not been altered!'
             return error_response(ValueError, msg, REQUEST)
 
-        return self._set_restrictions(l_ids,roles=[], acquire=1, permission='View', REQUEST=REQUEST)
+        return self._set_restrictions(l_ids, roles=[], acquire=1, permission='View', REQUEST=REQUEST)
 
     security.declareProtected('Change Envelopes', 'restrict_editing_files')
+
     def restrict_editing_files(self, REQUEST=None):
         """
             Restrict permission to change files' content.
@@ -870,11 +915,14 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         ids = self.objectIds('Document')
         vr = list(self.valid_roles())
         for item in ('Anonymous', 'Authenticated'):
-            try: vr.remove(item)
-            except: pass
+            try:
+                vr.remove(item)
+            except:
+                pass
         return self._set_restrictions(ids, roles=vr, acquire=0, permission='Change Reporting Documents', REQUEST=REQUEST)
 
     security.declareProtected('Change Envelopes', 'unrestrict_editing_files')
+
     def unrestrict_editing_files(self, REQUEST=None):
         """
             Remove restriction to change files' content.
@@ -889,24 +937,25 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         """
         if ids is None and REQUEST is not None:
             return self.messageDialog(
-                            message="You must select one or more items to perform this operation.",
-                            action='manage_main')
+                message="You must select one or more items to perform this operation.",
+                action='manage_main')
         elif ids is None:
             raise ValueError, 'ids must be specified'
 
         if type(ids) is type(''):
-            ids=[ids]
+            ids = [ids]
         for id in ids:
-            ob=self._getOb(id)
+            ob = self._getOb(id)
             ob.manage_permission(permission, roles=roles, acquire=acquire)
         if REQUEST is not None:
             return self.messageDialog(
-                            message="The files are now restricted!")
+                message="The files are now restricted!")
 
     security.declarePublic('areRestrictions')
+
     def areRestrictions(self):
         """ Returns 1 if at least a file is restricted from the public, 0 otherwise """
-        for doc in self.objectValues(['Report Document','Report Hyperlink']):
+        for doc in self.objectValues(['Report Document', 'Report Hyperlink']):
             if not doc.acquiredRolesAreUsedBy('View'):
                 return 1
         return 0
@@ -916,20 +965,23 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     ##################################################
 
     security.declarePublic('canViewContent')
+
     def canViewContent(self):
         """ Determine whether or not the content of the envelope can be seen by the current user """
         hasThisPermission = getSecurityManager().checkPermission
         return hasThisPermission('Change Envelopes', self) or hasThisPermission('Release Envelopes', self) \
-                or hasThisPermission('Audit Envelopes', self) or hasThisPermission('Add Feedback', self) \
-                or self.released
+            or hasThisPermission('Audit Envelopes', self) or hasThisPermission('Add Feedback', self) \
+            or self.released
 
     security.declarePublic('canAddFiles')
+
     def canAddFiles(self):
         """ Determine whether or not the content of the envelope can be seen by the current user """
         hasThisPermission = getSecurityManager().checkPermission
         return hasThisPermission('Change Envelopes', self) and not self.released
 
     security.declarePublic('canAddFeedback')
+
     def canAddFeedback(self):
         """ Determine whether or not the current user can add manual feedback """
         hasThisPermission = getSecurityManager().checkPermission
@@ -945,12 +997,14 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         return hasThisPermission('Add Feedback', self) and (self.released or can_add_fb)
 
     security.declarePublic('canEditFeedback')
+
     def canEditFeedback(self):
         """ Determine whether or not the current user can edit existing manual feedback """
         hasThisPermission = getSecurityManager().checkPermission
         return hasThisPermission('Change Feedback', self) and self.released
 
     security.declarePublic('canChangeEnvelope')
+
     def canChangeEnvelope(self):
         """ Determine whether or not the current user can change the properties of the envelope """
         hasThisPermission = getSecurityManager().checkPermission
@@ -961,37 +1015,41 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     ##################################################
 
     security.declareProtected('View', 'getFeedbacks')
+
     def getFeedbacks(self):
         """ return all the feedbacks """
         return self.objectValues('Report Feedback')
 
     security.declareProtected('View', 'feedback_objects_details')
+
     def feedback_objects_details(self):
         """ xml-rpc interface to get feedbacks details """
         result = {'feedbacks': []}
         feedbacks = self.objectValues('Report Feedback')
         for item in feedbacks:
             if item.document_id:
-                referred_file = '%s/%s' %(self.absolute_url(), item.document_id)
+                referred_file = '%s/%s' % (self.absolute_url(),
+                                           item.document_id)
             else:
                 referred_file = ''
             if 'qa-output' in item.objectIds():
-                qa_output_url = '%s/qa-output' %item.absolute_url()
+                qa_output_url = '%s/qa-output' % item.absolute_url()
             else:
-                qa_output_url = '%s' %item.absolute_url()
+                qa_output_url = '%s' % item.absolute_url()
             result['feedbacks'].append(
                 {
-                  'title'         : item.title,
-                  'releasedate'   : item.releasedate.HTML4(),
-                  'isautomatic'   : item.automatic,
-                  'content_type'  : item.content_type,
-                  'referred_file' : referred_file,
-                  'qa_output_url' : qa_output_url
+                    'title': item.title,
+                    'releasedate': item.releasedate.HTML4(),
+                    'isautomatic': item.automatic,
+                    'content_type': item.content_type,
+                    'referred_file': referred_file,
+                    'qa_output_url': qa_output_url
                 },
             )
         return result
 
     security.declareProtected('View', 'getFeedbackObjects')
+
     def getFeedbackObjects(self):
         """ return sorted feedbacks by their 'title' property, the manual feedback if always first """
         res = []
@@ -999,14 +1057,15 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         manual_feedback = self.getManualFeedback()
         if manual_feedback:
             res.append(manual_feedback)
-            auto_feedbacks = RepUtils.utSortByAttr(self.getFeedbacks(), 'title')
+            auto_feedbacks = RepUtils.utSortByAttr(feedback_list, 'title')
             auto_feedbacks.remove(manual_feedback)
             res.extend(auto_feedbacks)
         else:
-            res = RepUtils.utSortByAttr(self.getFeedbacks(), 'title')
+            res = RepUtils.utSortByAttr(feedback_list, 'title')
         return res
 
     security.declareProtected('View', 'getManualFeedback')
+
     def getManualFeedback(self):
         """ return manual feedback"""
         res = None
@@ -1016,8 +1075,9 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                 break
         return res
 
-    #obsolete
+    # obsolete
     security.declareProtected('View', 'hasFeedbackForThisRelease')
+
     def hasFeedbackForThisRelease(self):
         """ Returns true if the envelope contains a Report Feedback
             for the current release date
@@ -1029,6 +1089,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         return bResult
 
     security.declareProtected('Add Feedback', 'manage_deleteFeedback')
+
     def manage_deleteFeedback(self, file_id='', REQUEST=None):
         """ """
         self.manage_delObjects(file_id)
@@ -1048,10 +1109,12 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     manage_addFeedbackForm = Feedback.manage_addFeedbackForm
     security.declareProtected('Add Feedback', 'manage_addFeedback')
     manage_addFeedback = Feedback.manage_addFeedback
-    security.declareProtected('View management screens', 'manage_addManualQAFeedback')
+    security.declareProtected(
+        'View management screens', 'manage_addManualQAFeedback')
     manage_addManualQAFeedback = Feedback.manage_addManualQAFeedback
     security.declareProtected('Add Feedback', 'manage_deleteFeedbackForm')
-    manage_deleteFeedbackForm = PageTemplateFile('zpt/feedback/delete', globals())
+    manage_deleteFeedbackForm = PageTemplateFile(
+        'zpt/feedback/delete', globals())
 
     security.declareProtected('Change Envelopes', 'manage_addDocumentForm')
     manage_addDocumentForm = Document.manage_addDocumentForm
@@ -1071,6 +1134,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     manage_addzipfileform = PageTemplateFile('zpt/envelope/add_zip', globals())
 
     security.declareProtected('View', 'envelope_zip')
+
     def envelope_zip(self, REQUEST, RESPONSE):
         """ Go through the envelope and find all the external documents
             then zip them and send the result to the user.
@@ -1145,7 +1209,8 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                         tmpfile.write(data)
 
                 except Exception as e:
-                    raise ValueError("An error occurred while preparing the zip file. {}".format(str(e)))
+                    raise ValueError(
+                        "An error occurred while preparing the zip file. {}".format(str(e)))
 
                 else:
                     # only save cache file if greater than threshold
@@ -1166,8 +1231,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             if cached_zip_path.isfile():
                 cached_zip_path.unlink()
 
-
-    def _add_file_from_zip(self,zipfile,name, restricted=''):
+    def _add_file_from_zip(self, zipfile, name, restricted=''):
         """ Generate id from filename and make sure,
             there are no spaces in the id.
         """
@@ -1180,6 +1244,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         return id
 
     security.declareProtected('Add Envelopes', 'manage_addzipfile')
+
     def manage_addzipfile(self, file='', content_type='', restricted='', REQUEST=None):
         """ Expands a zipfile into a number of Documents.
             Goes through the zipfile and calls manageaddDocument
@@ -1187,15 +1252,15 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             use manage_addDDzipfile for that
         """
 
-        if type(file) is not type('') and hasattr(file,'filename'):
+        if type(file) is not type('') and hasattr(file, 'filename'):
             # According to the zipfile.py ZipFile just needs a file-like object
             zf = zip_content.ZZipFileRaw(file)
             for name in zf.namelist():
                 # test that the archive is not hierarhical
                 if name[-1] == '/' or name[-1] == '\\':
                     return self.messageDialog(
-                                    message="The zip file you specified is hierarchical. It contains folders.\nPlease upload a non-hierarchical structure of files.",
-                                    action='./index_html')
+                        message="The zip file you specified is hierarchical. It contains folders.\nPlease upload a non-hierarchical structure of files.",
+                        action='./index_html')
 
             for name in zf.namelist():
                 zf.setcurrentfile(name)
@@ -1204,15 +1269,16 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
             if REQUEST is not None:
                 return self.messageDialog(
-                                message="The file(s) were successfully created!",
-                                action='./manage_main')
+                    message="The file(s) were successfully created!",
+                    action='./manage_main')
 
         elif REQUEST is not None:
             return self.messageDialog(
-                            message="You must specify a file!",
-                            action='./manage_main')
+                message="You must specify a file!",
+                action='./manage_main')
 
     security.declareProtected('View', 'getZipInfo')
+
     def getZipInfo(self, document):
         """ Lists the contents of a zip file """
         files = []
@@ -1239,6 +1305,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     ##################################################
 
     security.declareProtected('View', 'xml')
+
     def xml(self, inline='false', REQUEST=None):
         """ Returns the envelope metadata in XML format.
             It is meant for web services, so it only filters what the account
@@ -1253,20 +1320,22 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         objByMetatype = {}
         metatypes = ['Report Document', 'Report Hyperlink', 'Report Feedback']
         for t in metatypes:
-            objByMetatype[t] = [ o for o in self.objectValues(t) ]
+            objByMetatype[t] = [o for o in self.objectValues(t)]
         return objByMetatype
 
     security.declareProtected('View', 'get_custom_rdf_meta')
+
     def get_custom_rdf_meta(self):
         """Return custom envelope type metadata for RDF export."""
-        objsByType = self._getObjectsForContentRegistry()
         res = []
         creator = self.getActorDraft()
         if not creator:
             creator = self.customer
-        res.append('<dct:creator>%s</dct:creator>' % RepUtils.xmlEncode(creator))
+        res.append('<dct:creator>%s</dct:creator>' %
+                   RepUtils.xmlEncode(creator))
 
     security.declareProtected('View', 'get_custom_delivery_rdf_meta')
+
     def get_custom_delivery_rdf_meta(self):
         """Return custom content type metadata for RDF export."""
         res = []
@@ -1277,19 +1346,26 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         if not creator:
             creator = self.customer
 
-        res.append('<dct:creator>%s</dct:creator>' % RepUtils.xmlEncode(creator))
-        res.append('<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</released>' % self.reportingdate.HTML4())
-        res.append('<link>%s</link>' % RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)))
+        res.append('<dct:creator>%s</dct:creator>' %
+                   RepUtils.xmlEncode(creator))
+        res.append('<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</released>' %
+                   self.reportingdate.HTML4())
+        res.append('<link>%s</link>' %
+                   RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)))
 
         for o in objsByType.get('Report Document', []):
-            res.append('<hasFile rdf:resource="%s"/>' % RepUtils.xmlEncode(parse_uri(o.absolute_url(), http_res)))
+            res.append('<hasFile rdf:resource="%s"/>' %
+                       RepUtils.xmlEncode(parse_uri(o.absolute_url(), http_res)))
         for o in objsByType.get('Report Feedback', []):
-            res.append('<cr:hasFeedback rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)), o.id))
-        res.append('<blockedByQA rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</blockedByQA>' % repr(self.is_blocked).lower())
+            res.append('<cr:hasFeedback rdf:resource="%s/%s"/>' %
+                       (RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)), o.id))
+        res.append('<blockedByQA rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</blockedByQA>' %
+                   repr(self.is_blocked).lower())
 
         return res
 
     security.declareProtected('View', 'get_custom_cobjs_rdf_meta')
+
     def get_custom_cobjs_rdf_meta(self):
         """Return custom child objects metadata for RDF export."""
         res = []
@@ -1301,56 +1377,88 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                 xmlChunk = []
                 if metatype == 'Report Document':
                     try:
-                        xmlChunk.append('<File rdf:about="%s">' % parse_uri(o.absolute_url(), http_res))
-                        xmlChunk.append('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(o.title_or_id()))
-                        xmlChunk.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(o.title_or_id()))
-                        xmlChunk.append('<dcat:byteSize>%s</dcat:byteSize>' % RepUtils.xmlEncode(o.data_file.size))
-                        xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.upload_time().HTML4())
-                        xmlChunk.append('<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>' % o.upload_time().HTML4())
-                        xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)))
-                        xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % RepUtils.xmlEncode(o.content_type))
-                        xmlChunk.append('<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>' % repr(o.isRestricted()).lower())
+                        xmlChunk.append('<File rdf:about="%s">' %
+                                        parse_uri(o.absolute_url(), http_res))
+                        xmlChunk.append('<rdfs:label>%s</rdfs:label>' %
+                                        RepUtils.xmlEncode(o.title_or_id()))
+                        xmlChunk.append('<dct:title>%s</dct:title>' %
+                                        RepUtils.xmlEncode(o.title_or_id()))
+                        xmlChunk.append('<dcat:byteSize>%s</dcat:byteSize>' %
+                                        RepUtils.xmlEncode(o.data_file.size))
+                        xmlChunk.append(
+                            '<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.upload_time().HTML4())
+                        xmlChunk.append(
+                            '<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>' % o.upload_time().HTML4())
+                        xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' %
+                                        RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)))
+                        xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' %
+                                        RepUtils.xmlEncode(o.content_type))
+                        xmlChunk.append(
+                            '<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>' % repr(o.isRestricted()).lower())
                         if o.content_type == "text/xml":
                             for location in RepUtils.xmlEncode(o.xml_schema_location).split():
-                                xmlChunk.append('<cr:xmlSchema rdf:resource="%s"/>' % location)
+                                xmlChunk.append(
+                                    '<cr:xmlSchema rdf:resource="%s"/>' % location)
                         xmlChunk.append('</File>')
                     except:
                         xmlChunk = []
                 elif metatype == 'Report Hyperlink':
                     try:
-                        xmlChunk.append('<File rdf:about="%s">' % o.hyperlinkurl())
-                        xmlChunk.append('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(o.title_or_id()))
-                        xmlChunk.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(o.title_or_id()))
-                        xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.upload_time().HTML4())
-                        xmlChunk.append('<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>' % o.upload_time().HTML4())
-                        xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)))
+                        xmlChunk.append('<File rdf:about="%s">' %
+                                        o.hyperlinkurl())
+                        xmlChunk.append('<rdfs:label>%s</rdfs:label>' %
+                                        RepUtils.xmlEncode(o.title_or_id()))
+                        xmlChunk.append('<dct:title>%s</dct:title>' %
+                                        RepUtils.xmlEncode(o.title_or_id()))
+                        xmlChunk.append(
+                            '<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.upload_time().HTML4())
+                        xmlChunk.append(
+                            '<dct:date rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:date>' % o.upload_time().HTML4())
+                        xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' %
+                                        RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)))
                         xmlChunk.append('</File>')
                     except:
                         xmlChunk = []
                 elif metatype == 'Report Feedback':
                     try:
-                        xmlChunk.append('<cr:Feedback rdf:about="%s">' % parse_uri(o.absolute_url(), http_res))
-                        xmlChunk.append('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(o.title_or_id()))
-                        xmlChunk.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(o.title_or_id()))
-                        xmlChunk.append('<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.postingdate.HTML4())
-                        xmlChunk.append('<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</released>' % o.releasedate.HTML4())
-                        xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' % RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)))
-                        xmlChunk.append('<cr:feedbackStatus>%s</cr:feedbackStatus>' % RepUtils.xmlEncode(getattr(o, 'feedback_status', '')))
-                        xmlChunk.append('<cr:feedbackMessage>%s</cr:feedbackMessage>' % RepUtils.xmlEncode(getattr(o, 'message', '')))
-                        xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % RepUtils.xmlEncode(o.content_type))
-                        xmlChunk.append('<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>' % repr(o.isRestricted()).lower())
+                        xmlChunk.append('<cr:Feedback rdf:about="%s">' %
+                                        parse_uri(o.absolute_url(), http_res))
+                        xmlChunk.append('<rdfs:label>%s</rdfs:label>' %
+                                        RepUtils.xmlEncode(o.title_or_id()))
+                        xmlChunk.append('<dct:title>%s</dct:title>' %
+                                        RepUtils.xmlEncode(o.title_or_id()))
+                        xmlChunk.append(
+                            '<dct:issued rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</dct:issued>' % o.postingdate.HTML4())
+                        xmlChunk.append(
+                            '<released rdf:datatype="http://www.w3.org/2001/XMLSchema#dateTime">%s</released>' % o.releasedate.HTML4())
+                        xmlChunk.append('<dct:isPartOf rdf:resource="%s"/>' %
+                                        RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)))
+                        xmlChunk.append('<cr:feedbackStatus>%s</cr:feedbackStatus>' %
+                                        RepUtils.xmlEncode(getattr(o, 'feedback_status', '')))
+                        xmlChunk.append('<cr:feedbackMessage>%s</cr:feedbackMessage>' %
+                                        RepUtils.xmlEncode(getattr(o, 'message', '')))
+                        xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' %
+                                        RepUtils.xmlEncode(o.content_type))
+                        xmlChunk.append(
+                            '<restricted rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">%s</restricted>' % repr(o.isRestricted()).lower())
                         if o.document_id and o.document_id != 'xml':
                             xmlChunk.append('<cr:feedbackFor rdf:resource="%s/%s"/>' % (RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)),
-                                    RepUtils.xmlEncode(url_quote(o.document_id)) ))
+                                                                                        RepUtils.xmlEncode(url_quote(o.document_id))))
                         for attachment in o.objectValues(['File', 'File (Blob)']):
-                            xmlChunk.append('<cr:hasAttachment rdf:resource="%s"/>' % parse_uri(attachment.absolute_url(), http_res))
+                            xmlChunk.append('<cr:hasAttachment rdf:resource="%s"/>' %
+                                            parse_uri(attachment.absolute_url(), http_res))
                         xmlChunk.append('</cr:Feedback>')
                         for attachment in o.objectValues(['File', 'File (Blob)']):
-                            xmlChunk.append('<cr:FeedbackAttachment rdf:about="%s">' % parse_uri(attachment.absolute_url(), http_res))
-                            xmlChunk.append('<rdfs:label>%s</rdfs:label>' % RepUtils.xmlEncode(attachment.title_or_id()))
-                            xmlChunk.append('<dct:title>%s</dct:title>' % RepUtils.xmlEncode(attachment.title_or_id()))
-                            xmlChunk.append('<cr:mediaType>%s</cr:mediaType>' % RepUtils.xmlEncode(attachment.content_type))
-                            xmlChunk.append('<cr:attachmentOf rdf:resource="%s"/>' % parse_uri(o.absolute_url(), http_res))
+                            xmlChunk.append('<cr:FeedbackAttachment rdf:about="%s">' % parse_uri(
+                                attachment.absolute_url(), http_res))
+                            xmlChunk.append('<rdfs:label>%s</rdfs:label>' %
+                                            RepUtils.xmlEncode(attachment.title_or_id()))
+                            xmlChunk.append('<dct:title>%s</dct:title>' %
+                                            RepUtils.xmlEncode(attachment.title_or_id()))
+                            xmlChunk.append(
+                                '<cr:mediaType>%s</cr:mediaType>' % RepUtils.xmlEncode(attachment.content_type))
+                            xmlChunk.append(
+                                '<cr:attachmentOf rdf:resource="%s"/>' % parse_uri(o.absolute_url(), http_res))
                             xmlChunk.append('</cr:FeedbackAttachment>')
                     except:
                         xmlChunk = []
@@ -1359,6 +1467,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         return res
 
     security.declareProtected('View', 'rdf')
+
     def rdf(self, REQUEST):
         """ Returns the envelope metadata in RDF format.
             This includes files and feedback objects.
@@ -1376,6 +1485,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         return REPORTING_PERIOD_DESCRIPTION.get(self.partofyear)
 
     security.declareProtected('View', 'get_export_data')
+
     def get_export_data(self, format='xls'):
         """ Return data for export
         """
@@ -1404,8 +1514,10 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
                     if gases:
                         pretty_gases = ''.join([gas_tmpl.format(parse_gas_data(g.get('Name')),
-                                                                parse_gas_data(g.get('GasId')),
-                                                                parse_gas_data(g.get('GasGroup')),
+                                                                parse_gas_data(
+                                                                    g.get('GasId')),
+                                                                parse_gas_data(
+                                                                    g.get('GasGroup')),
                                                                 parse_gas_data(g.get('GasGroupId'))) for g in gases])
                     if not acts:
                         acts = ''
@@ -1421,6 +1533,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
         return env_data
 
     security.declareProtected('View', 'get_files_info')
+
     def get_files_info(self):
         files = []
         for fileObj in self.objectValues('Report Document'):
@@ -1428,8 +1541,8 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
         return files
 
-
     security.declareProtected('View', 'xls')
+
     def xls(self):
         """ xls export view
         """
@@ -1453,43 +1566,58 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
     ##################################################
 
     security.declareProtected('Change Feedback', 'envelope_status')
-    envelope_status = PageTemplateFile('zpt/envelope/statuses_section', globals())
+    envelope_status = PageTemplateFile(
+        'zpt/envelope/statuses_section', globals())
 
     security.declareProtected('Change Feedback', 'envelope_status_bulk')
-    envelope_status_bulk = PageTemplateFile('zpt/envelope/statusesbulk', globals())
+    envelope_status_bulk = PageTemplateFile(
+        'zpt/envelope/statusesbulk', globals())
 
     security.declareProtected('Change Feedback', 'getEnvelopeDocuments')
+
     def getEnvelopeDocuments(self, sortby='id', how='desc', start=1, howmany=10):
         """ """
-        if how == 'desc': how = 0
-        else:             how = 1
+        if how == 'desc':
+            how = 0
+        else:
+            how = 1
         objects = self.objectValues(['Report Document'])
         objects = RepUtils.utSortByAttr(objects, sortby, how)
-        try: start = abs(int(start))
-        except: start = 1
-        try: howmany = abs(int(howmany))
-        except: howmany = 10
+        try:
+            start = abs(int(start))
+        except:
+            start = 1
+        try:
+            howmany = abs(int(howmany))
+        except:
+            howmany = 10
         pginf = DiggPaginator(objects, howmany, body=5, padding=1, margin=2)
-        if start<=0: start = 1
-        if start>pginf.num_pages: start = pginf.num_pages
+        if start <= 0:
+            start = 1
+        if start > pginf.num_pages:
+            start = pginf.num_pages
         pg = pginf.page(start)
         return {'total': pginf.count, 'num_pages': pginf.num_pages, 'pages': pg.page_range, 'start': pg.number,
-            'start_index': pg.start_index(), 'end_index': pg.end_index(),
-            'has_next': pg.has_next(), 'next_page_number': pg.next_page_number(),
-            'has_previous': pg.has_previous(), 'previous_page_number': pg.previous_page_number(),
-            'result': pg.object_list}
+                'start_index': pg.start_index(), 'end_index': pg.end_index(),
+                'has_next': pg.has_next(), 'next_page_number': pg.next_page_number(),
+                'has_previous': pg.has_previous(), 'previous_page_number': pg.previous_page_number(),
+                'result': pg.object_list}
 
     security.declareProtected('Change Feedback', 'setAcceptTime')
+
     def setAcceptTime(self, ids='', sortby='id', how='desc', qs=1, size=20,  REQUEST=None):
         """ set accepted status """
         for k in self.getEnvelopeDocuments(sortby, how, qs, size)['result']:
-            if k.id in ids: k.set_accept_time()
-            else:           k.set_accept_time(0)
-        if REQUEST: REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
+            if k.id in ids:
+                k.set_accept_time()
+            else:
+                k.set_accept_time(0)
+        if REQUEST:
+            REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
 
     def bulkAcceptTime(self, ids, action, REQUEST=None):
         """ """
-        msg = {'info':{}, 'err':{}}
+        msg = {'info': {}, 'err': {}}
 
         for k in RepUtils.utConvertLinesToList(ids):
             doc = getattr(self, k, None)
@@ -1508,6 +1636,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
 
     security.declareProtected('View', 'has_permission')
+
     def has_permission(self, *args, **kwargs):
         return self.acquiredRolesAreUsedBy(*args, **kwargs)
 
@@ -1518,8 +1647,10 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
         return self.descr
 
+
 # Initialize the class in order the security assertions be taken into account
 Globals.InitializeClass(Envelope)
+
 
 def movedEnvelope(ob, event):
     """ A Reportek Document was removed.

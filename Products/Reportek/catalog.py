@@ -8,8 +8,6 @@ reporting.
 import logging
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl.SecurityManagement import getSecurityManager
-from Products.ZCatalog.ZCatalog import ZCatalog
-from DateTime import DateTime
 from Products.Five.browser import BrowserView
 from OFS.interfaces import IObjectManager
 
@@ -17,31 +15,31 @@ from OFS.interfaces import IObjectManager
 log = logging.getLogger(__name__)
 
 REPORTEK_META_TYPES = [
-        'Report Collection',
-        'Report Envelope',
-        'Report Document',
-        'Report Feedback',
-        'Report Feedback Comment',
-        'Report Hyperlink',
-        'Repository Referral',
-        'Remote Application',
-        'Process',
-        'Activity',
-        'Workitem',
-        'Converter',
-        'QAScript',
-        'Reportek Dataflow Mappings',
-        'Dataflow Mappings Record',
-        'DTML Document',
-        'DTML Method',
-        'File',
-        'File (Blob)',
-        'Folder',
-        'Image',
-        'Page Template',
-        'Script (Python)',
-        'XMLRPC Method',
-        'Workflow Engine']
+    'Report Collection',
+    'Report Envelope',
+    'Report Document',
+    'Report Feedback',
+    'Report Feedback Comment',
+    'Report Hyperlink',
+    'Repository Referral',
+    'Remote Application',
+    'Process',
+    'Activity',
+    'Workitem',
+    'Converter',
+    'QAScript',
+    'Reportek Dataflow Mappings',
+    'Dataflow Mappings Record',
+    'DTML Document',
+    'DTML Method',
+    'File',
+    'File (Blob)',
+    'Folder',
+    'Image',
+    'Page Template',
+    'Script (Python)',
+    'XMLRPC Method',
+    'Workflow Engine']
 
 
 def catalog_rebuild(root, catalog='Catalog'):
@@ -52,7 +50,7 @@ def catalog_rebuild(root, catalog='Catalog'):
     def add_to_catalog(ob):
         try:
             catalog.catalog_object(ob, '/'.join(ob.getPhysicalPath()))
-        except Exception as e:
+        except Exception:
             log.warning("Unable to catalog object: {}".format(ob))
 
     catalog.manage_catalogClear()
@@ -69,6 +67,7 @@ class MaintenanceView(BrowserView):
     def __call__(self):
         return maintenance.__of__(self.aq_parent)()
 
+
 maintenance = PageTemplateFile('zpt/manage_maintenance.zpt', globals())
 
 
@@ -79,7 +78,8 @@ class RebuildView(BrowserView):
         catalog = self.context
         catalog_rebuild(catalog.unrestrictedTraverse('/'))
 
-        self.request.RESPONSE.redirect(catalog.absolute_url() + '/manage_maintenance')
+        self.request.RESPONSE.redirect(
+            catalog.absolute_url() + '/manage_maintenance')
 
 
 def walk_folder(folder):
@@ -112,6 +112,7 @@ def searchResults(catalog, query, admin_check=False):
     """
     if admin_check:
         user = getSecurityManager().getUser()
-        query['allowedAdminRolesAndUsers'] = listAllowedAdminRolesAndUsers(user)
+        query['allowedAdminRolesAndUsers'] = listAllowedAdminRolesAndUsers(
+            user)
 
     return catalog.searchResults(**query)

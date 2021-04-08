@@ -1,16 +1,17 @@
+from utils import publish_view
+import os
+import transaction
+from mock import Mock, patch
+from utils import (create_temp_reposit, HtmlPage, MockDatabase,
+                   break_document_data_file)
+from fileuploadmock import FileUploadMock
+from common import BaseTest, ConfigureReportek
 import unittest
 from zExceptions import Redirect
 from StringIO import StringIO
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
-from common import BaseTest, ConfigureReportek
-from fileuploadmock import FileUploadMock
-from utils import (create_temp_reposit, HtmlPage, MockDatabase,
-                   break_document_data_file)
-from mock import Mock, patch
-import transaction
-import os
 
 
 class DocumentTestCase(BaseTest, ConfigureReportek):
@@ -26,7 +27,8 @@ class DocumentTestCase(BaseTest, ConfigureReportek):
 
         self.createStandardDependencies()
         self.createStandardCollection()
-        self.assertTrue(hasattr(self.app, 'collection'),'Collection did not get created')
+        self.assertTrue(hasattr(self.app, 'collection'),
+                        'Collection did not get created')
         self.assertNotEqual(self.app.collection, None)
         self.envelope = self.createStandardEnvelope()
 
@@ -94,17 +96,19 @@ class DocumentTestCase(BaseTest, ConfigureReportek):
     def test_create_xml_document(self):
         """ Create a simple XML document, and then verify the schema got sniffed correctly
         """
-        myfile = FileUploadMock('C:\\TEMP\\testfile.xml','''<?xml version="1.0" encoding="UTF-8"?>
+        myfile = FileUploadMock('C:\\TEMP\\testfile.xml', '''<?xml version="1.0" encoding="UTF-8"?>
         <report xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xml:lang="de"
         xsi:noNamespaceSchemaLocation="http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd">
          </report>''')
         self.envelope.manage_addProduct['Reportek'].manage_addDocument('documentid',
-          'Title', myfile)
-        self.assertTrue(hasattr(self.envelope, 'documentid.xml'), 'Document did not get created')
+                                                                       'Title', myfile)
+        self.assertTrue(hasattr(self.envelope, 'documentid.xml'),
+                        'Document did not get created')
         document = getattr(self.envelope, 'documentid.xml')
         self.assertEquals('text/xml', document.content_type)
-        self.assertEquals('http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd', document.xml_schema_location)
+        self.assertEquals(
+            'http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd', document.xml_schema_location)
 
     def test_create_gml_document(self):
         """ Verify the application discovers a GML document
@@ -131,12 +135,12 @@ xmlns:met="http://biodiversity.eionet.europa.eu/schemas/dir9243eec">
 
         myfile = FileUploadMock(filename, content)
         self.envelope.manage_addProduct['Reportek'].manage_addDocument('documentid',
-          'Title', myfile)
+                                                                       'Title', myfile)
         _, ext = os.path.splitext(filename)
         document = getattr(self.envelope, 'documentid' + ext)
         self.assertEquals('text/xml', document.content_type)
         self.assertEquals('http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd',
-            document.xml_schema_location)
+                          document.xml_schema_location)
 
     def test_restrict_document(self):
         self.create_text_document()
@@ -157,10 +161,8 @@ xmlns:met="http://biodiversity.eionet.europa.eu/schemas/dir9243eec">
 
     def test_view_image_or_file_exception(self):
         self.create_text_document()
-        with self.assertRaises(Redirect) as raised:
+        with self.assertRaises(Redirect):
             self.document.view_image_or_file()
-
-from utils import publish_view
 
 
 class HttpRequestTest(unittest.TestCase):

@@ -1,7 +1,5 @@
-from Testing.makerequest import makerequest
 from AccessControl.SecurityManagement import newSecurityManager, noSecurityManager
 from AccessControl.User import User, UnrestrictedUser, SpecialUser
-from AccessControl.unauthorized import Unauthorized
 
 def loginAnonymous():
     """ """
