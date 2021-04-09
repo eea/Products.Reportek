@@ -4,12 +4,10 @@
 #  >>> from Products.Reportek.updates import u20180307_migrate_double_fgases_xml; u20180307_migrate_double_fgases_xml.update(app)
 
 from decimal import Decimal
-from Products.Reportek.blob import add_OfsBlobFile
 from Products.Reportek.config import DEPLOYMENT_BDR
 from Products.Reportek.updates import MigrationBase
 import logging
 import lxml.etree
-import requests
 import transaction
 
 logger = logging.getLogger(__name__)
@@ -113,7 +111,6 @@ def migrate_fgases_xml(app):
     for xml in ALL_XML_LIST:
         xml_filename = xml.split('/')[-1]
         env_path = xml.split(xml_filename)[0]
-        env = app.unrestrictedTraverse(env_path)
         try:
             xml_file = app.unrestrictedTraverse(xml)
         except Exception:

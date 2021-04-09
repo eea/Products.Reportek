@@ -37,7 +37,7 @@ from operator import itemgetter
 from StringIO import StringIO
 from time import strftime, time
 from urlparse import urlparse
-from zipfile import *
+from zipfile import ZipFile, ZIP_DEFLATED
 
 # product imports
 import constants
@@ -50,8 +50,7 @@ from AccessControl import ClassSecurityInfo, SpecialUsers, getSecurityManager
 from AccessControl.Permissions import view, view_management_screens
 from AccessControl.SecurityManagement import (newSecurityManager,
                                               setSecurityManager)
-from App.config import getConfiguration
-from config import *
+from config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR, DEPLOYMENT_CDR
 from CountriesManager import CountriesManager
 from DataflowsManager import DataflowsManager
 from DateTime import DateTime
@@ -59,18 +58,14 @@ from interfaces import IReportekEngine
 # Zope imports
 from OFS.Folder import Folder
 from paginator import DiggPaginator, EmptyPage, InvalidPage
-from path import path
 from plone.memoize import ram
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BdrAuthorizationMiddleware import \
     BdrAuthorizationMiddleware
 from Products.Reportek.clamav import AVService
-from Products.Reportek.config import REPORTEK_DEPLOYMENT
 from Products.Reportek.ContentRegistryPingger import ContentRegistryPingger
-from Products.Reportek.RegistryManagement import (BaseRegistryAPI,
-                                                  BDRRegistryAPI,
+from Products.Reportek.RegistryManagement import (BDRRegistryAPI,
                                                   FGASRegistryAPI)
-from Products.Reportek.ReportekPropertiedUser import ReportekPropertiedUser
 from Toolz import Toolz
 from zope.component import getUtility
 from zope.i18n.interfaces import II18nAware, INegotiator
@@ -89,26 +84,27 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     security = ClassSecurityInfo()
 
-    manage_options = ( (
-        {'label':'View', 'action': 'index_html'},
-        {'label':'Properties', 'action': 'manage_properties'},
-        {'label':'UNS settings', 'action': 'uns_settings'},
-        {'label':'Migrations', 'action': 'migration_table'},
-        ) + Folder.manage_options[3:]
+    manage_options = ((
+        {'label': 'View', 'action': 'index_html'},
+        {'label': 'Properties', 'action': 'manage_properties'},
+        {'label': 'UNS settings', 'action': 'uns_settings'},
+        {'label': 'Migrations', 'action': 'migration_table'},
+    ) + Folder.manage_options[3:]
     )
 
-    _properties = ({'id':'title', 'type':'string', 'mode':'w', 'label':'Title'},
-            {'id':'webq_url', 'type':'string', 'mode':'w'},
-            {'id':'webq_envelope_menu', 'type':'string', 'mode':'w'},
-            {'id':'webq_before_edit_page', 'type':'string', 'mode':'w'},
-            {'id':'UNS_server', 'type':'string', 'mode':'w'},
-            {'id':'UNS_username', 'type':'string', 'mode':'w'},
-            {'id':'UNS_password', 'type':'string', 'mode':'w'},
-            {'id':'UNS_channel_id', 'type':'string', 'mode':'w'},
-            {'id':'UNS_notification_types', 'type':'lines', 'mode':'w'},
-            {'id':'QA_application', 'type':'string', 'mode':'w'},
-            {'id':'globally_restricted_site', 'type':'tokens', 'mode':'w'}
-    )
+    _properties = ({'id': 'title', 'type': 'string', 'mode': 'w', 'label': 'Title'},
+                   {'id': 'webq_url', 'type': 'string', 'mode': 'w'},
+                   {'id': 'webq_envelope_menu', 'type': 'string', 'mode': 'w'},
+                   {'id': 'webq_before_edit_page', 'type': 'string', 'mode': 'w'},
+                   {'id': 'UNS_server', 'type': 'string', 'mode': 'w'},
+                   {'id': 'UNS_username', 'type': 'string', 'mode': 'w'},
+                   {'id': 'UNS_password', 'type': 'string', 'mode': 'w'},
+                   {'id': 'UNS_channel_id', 'type': 'string', 'mode': 'w'},
+                   {'id': 'UNS_notification_types', 'type': 'lines', 'mode': 'w'},
+                   {'id': 'QA_application', 'type': 'string', 'mode': 'w'},
+                   {'id': 'globally_restricted_site',
+                       'type': 'tokens', 'mode': 'w'}
+                   )
 
     # The URL to the WebQ XML-RPC server
     # Empty means no WebQ available
@@ -135,7 +131,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         cr_api_url = ''
     auth_middleware_url = ''
     bdr_registry_url = ''
-    bdr_registry_token=''
+    bdr_registry_token = ''
     bdr_registry_obligations = []
     er_fgas_obligations = []
     er_ods_obligations = []
@@ -157,7 +153,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             What can you put inside me? Checks if the legal products are
             actually installed in Zope
         """
-        types = ['Script (Python)', 'DTML Method', 'DTML Document', 'Page Template']
+        types = ['Script (Python)', 'DTML Method',
+                 'DTML Document', 'Page Template']
 
         l_result = []
         for l_type in Products.meta_types:
@@ -176,7 +173,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.UNS_password = ''
         self.UNS_channel_id = ''
         self.UNS_notification_types = ['Envelope release', 'Envelope revoke']
-        #self.UNS_notification_types = ['Envelope complete', 'Envelope release', 'Envelope revoke', 'Manual feedback posted', 'Quality assessment finished']
 
     security.declareProtected(view_management_screens, 'index_html')
     index_html = PageTemplateFile('zpt/engine_index', globals())
@@ -258,18 +254,21 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if xmlrpc_localities:
             self.xmlrpc_localities.timeout = float(value)
 
-    #security stuff
+    # security stuff
     security = ClassSecurityInfo()
 
     security.declarePublic('getDeploymentType')
+
     def getDeploymentType(self):
         return Products.Reportek.REPORTEK_DEPLOYMENT
 
     security.declareProtected('View', 'get_rod_obligations')
+
     def get_rod_obligations(self):
         """ Returns a sorted list of obligations from ROD
         """
-        obligations = [(o.get('uri'), o.get('TITLE')) for o in self.dataflow_rod()]
+        obligations = [(o.get('uri'), o.get('TITLE'))
+                       for o in self.dataflow_rod()]
         data = []
 
         if obligations:
@@ -280,6 +279,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     _manage_properties = PageTemplateFile('zpt/engine/prop', globals())
 
     security.declareProtected(view_management_screens, 'manage_properties')
+
     def manage_properties(self):
         """ Manage the edited values """
         if self.REQUEST['REQUEST_METHOD'] == 'GET':
@@ -287,27 +287,33 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         self.title = self.REQUEST.get('title', self.title)
         self.webq_url = self.REQUEST.get('webq_url', self.webq_url)
-        self.webq_envelope_menu = self.REQUEST.get('webq_envelope_menu', self.webq_envelope_menu)
-        self.webq_before_edit_page = self.REQUEST.get('webq_before_edit_page', self.webq_before_edit_page)
-        self.QA_application = self.REQUEST.get('QA_application', self.QA_application)
+        self.webq_envelope_menu = self.REQUEST.get(
+            'webq_envelope_menu', self.webq_envelope_menu)
+        self.webq_before_edit_page = self.REQUEST.get(
+            'webq_before_edit_page', self.webq_before_edit_page)
+        self.QA_application = self.REQUEST.get(
+            'QA_application', self.QA_application)
         self.qa_httpres = bool(self.REQUEST.get('qa_httpres', False))
         self.exp_httpres = bool(self.REQUEST.get('exp_httpres', False))
         self.globally_restricted_site = bool(self.REQUEST.get('globally_restricted_site',
-                                                self.globally_restricted_site))
+                                                              self.globally_restricted_site))
         self.dfm_url = self.REQUEST.get('dfm_url', self.dfm_url)
         self.dfm_type = self.REQUEST.get('dfm_type', self.dfm_type)
         self.dfm_method = self.REQUEST.get('dfm_method', self.dfm_method)
-        self.dfm_obl_url_prefix = self.REQUEST.get('dfm_obl_url_prefix', self.dfm_obl_url_prefix)
+        self.dfm_obl_url_prefix = self.REQUEST.get(
+            'dfm_obl_url_prefix', self.dfm_obl_url_prefix)
         self.dfm_timeout = self.REQUEST.get('dfm_timeout', self.dfm_timeout)
         self.dfm_rest_url = self.REQUEST.get('dfm_rest_url', self.dfm_rest_url)
-        self.dfm_rest_timeout = self.REQUEST.get('dfm_rest_timeout', self.dfm_rest_timeout)
+        self.dfm_rest_timeout = self.REQUEST.get(
+            'dfm_rest_timeout', self.dfm_rest_timeout)
 
         self.cm_type = self.REQUEST.get('cm_type', self.cm_type)
         self.cm_url = self.REQUEST.get('cm_url', self.cm_url)
         self.cm_method = self.REQUEST.get('cm_method', self.cm_method)
         self.cm_timeout = self.REQUEST.get('cm_timeout', self.cm_timeout)
         self.cm_rest_url = self.REQUEST.get('cm_rest_url', self.cm_rest_url)
-        self.cm_rest_timeout = self.REQUEST.get('cm_rest_timeout', self.cm_rest_timeout)
+        self.cm_rest_timeout = self.REQUEST.get(
+            'cm_rest_timeout', self.cm_rest_timeout)
 
         self.cr_api_url = self.REQUEST.get('cr_api_url', self.cr_api_url)
         self.cr_rmq = bool(self.REQUEST.get('cr_rmq', False))
@@ -316,20 +322,29 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             self.contentRegistryPingger.api_url = self.cr_api_url
             self.contentRegistryPingger.cr_rmq = self.cr_rmq
 
-        self.auth_middleware_url = self.REQUEST.get('auth_middleware_url', self.auth_middleware_url)
+        self.auth_middleware_url = self.REQUEST.get(
+            'auth_middleware_url', self.auth_middleware_url)
         if self.auth_middleware_url:
-            self.auth_middleware_recheck_interval = int(self.REQUEST.get('auth_middleware_recheck_interval', self.auth_middleware_recheck_interval))
-            self.authMiddleware.setServiceRecheckInterval(self.auth_middleware_recheck_interval)
-        self.bdr_registry_url = self.REQUEST.get('bdr_registry_url', self.bdr_registry_url)
-        self.bdr_registry_token = self.REQUEST.get('bdr_registry_token', self.bdr_registry_token)
-        self.bdr_registry_obligations = self.REQUEST.get('bdr_registry_obligations', self.bdr_registry_obligations)
+            self.auth_middleware_recheck_interval = int(self.REQUEST.get(
+                'auth_middleware_recheck_interval', self.auth_middleware_recheck_interval))
+            self.authMiddleware.setServiceRecheckInterval(
+                self.auth_middleware_recheck_interval)
+        self.bdr_registry_url = self.REQUEST.get(
+            'bdr_registry_url', self.bdr_registry_url)
+        self.bdr_registry_token = self.REQUEST.get(
+            'bdr_registry_token', self.bdr_registry_token)
+        self.bdr_registry_obligations = self.REQUEST.get(
+            'bdr_registry_obligations', self.bdr_registry_obligations)
         self.er_url = self.REQUEST.get('er_url', self.er_url)
         self.er_token = self.REQUEST.get('er_token', self.er_token)
-        self.er_fgas_obligations = self.REQUEST.get('er_fgas_obligations', self.er_fgas_obligations)
-        self.er_ods_obligations = self.REQUEST.get('er_ods_obligations', self.er_ods_obligations)
+        self.er_fgas_obligations = self.REQUEST.get(
+            'er_fgas_obligations', self.er_fgas_obligations)
+        self.er_ods_obligations = self.REQUEST.get(
+            'er_ods_obligations', self.er_ods_obligations)
         xls_max_rows = self.REQUEST.get('xls_max_rows', self.XLS_max_rows)
         try:
-            self.rdf_export_envs_age = int(self.REQUEST.get('rdf_export_envs_age', None))
+            self.rdf_export_envs_age = int(
+                self.REQUEST.get('rdf_export_envs_age', None))
         except ValueError:
             self.rdf_export_envs_age = None
 
@@ -339,20 +354,25 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             xls_max_rows = None
         self.XLS_max_rows = xls_max_rows
 
-        self.preliminary_obligations = self.REQUEST.get('preliminary_obligations', self.preliminary_obligations)
+        self.preliminary_obligations = self.REQUEST.get(
+            'preliminary_obligations', self.preliminary_obligations)
 
-        self.clamav_rest_host = self.REQUEST.get('clamav_rest_host', self.clamav_rest_host)
+        self.clamav_rest_host = self.REQUEST.get(
+            'clamav_rest_host', self.clamav_rest_host)
         self.clamd_host = self.REQUEST.get('clamd_host', self.clamd_host)
         try:
-            self.clamd_port = int(self.REQUEST.get('clamd_port', self.clamd_port))
+            self.clamd_port = int(self.REQUEST.get(
+                'clamd_port', self.clamd_port))
         except ValueError:
             self.clamd_port = 3310
         try:
-            self.clamd_timeout = float(self.REQUEST.get('clamd_timeout', self.clamd_timeout))
+            self.clamd_timeout = float(self.REQUEST.get(
+                'clamd_timeout', self.clamd_timeout))
         except (ValueError, TypeError):
             self.clamd_timeout = None
         try:
-            self.clam_max_file_size = int(self.REQUEST.get('clam_max_file_size', self.clam_max_file_size))
+            self.clam_max_file_size = int(self.REQUEST.get(
+                'clam_max_file_size', self.clam_max_file_size))
         except (ValueError, TypeError):
             self.clam_max_file_size = None
         self._AVService = AVService(self.clamav_rest_host,
@@ -380,7 +400,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if pingger:
             return pingger
         else:
-            self._contentRegistryPingger = ContentRegistryPingger(self.cr_api_url, self.cr_rmq)
+            self._contentRegistryPingger = ContentRegistryPingger(
+                self.cr_api_url, self.cr_rmq)
             return self._contentRegistryPingger
 
     @property
@@ -391,19 +412,22 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if api:
             return api
         else:
-            self._authMiddleware = BdrAuthorizationMiddleware(self.auth_middleware_url)
+            self._authMiddleware = BdrAuthorizationMiddleware(
+                self.auth_middleware_url)
             return self._authMiddleware
 
     @property
     def FGASRegistryAPI(self):
         if not getattr(self, '_FGASRegistryAPI', None):
-            self._FGASRegistryAPI = FGASRegistryAPI('FGAS Registry', self.er_url, self.er_token)
+            self._FGASRegistryAPI = FGASRegistryAPI(
+                'FGAS Registry', self.er_url, self.er_token)
         return self._FGASRegistryAPI
 
     @property
     def BDRRegistryAPI(self):
         if not getattr(self, '_BDRRegistryAPI', None):
-            self._BDRRegistryAPI = BDRRegistryAPI('BDR Registry', self.bdr_registry_url)
+            self._BDRRegistryAPI = BDRRegistryAPI(
+                'BDR Registry', self.bdr_registry_url)
         return self._BDRRegistryAPI
 
     @property
@@ -431,30 +455,34 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return getattr(self, registry, None)
 
     security.declarePublic('getPartsOfYear')
+
     def getPartsOfYear(self):
         """ """
         return [''] + self.partofyear_table
 
-    security.declareProtected(view_management_screens, 'update_company_collection')
+    security.declareProtected(view_management_screens,
+                              'update_company_collection')
 
     security.declareProtected(view_management_screens, 'change_ownership')
+
     def change_ownership(self, obj, newuser, deluser):
         """ """
-        owner = obj.getOwner()   #get the actual owner
+        owner = obj.getOwner()  # get the actual owner
         if str(owner) == deluser.strip():
             owners = RepUtils.utConvertToList(owner.getId())
             user = self.acl_users.getUser(newuser)
             wrapped_user = user.__of__(self.acl_users)
             if wrapped_user:
-                obj.changeOwnership(wrapped_user)   #change ownership
-                obj.manage_delLocalRoles(owners)    #delete the old owner
-                obj.manage_setLocalRoles(wrapped_user.getId(),['Owner',])   #set local role to the new user
+                obj.changeOwnership(wrapped_user)  # change ownership
+                obj.manage_delLocalRoles(owners)  # delete the old owner
+                # set local role to the new user
+                obj.manage_setLocalRoles(wrapped_user.getId(), ['Owner', ])
 
     def create_subcollection(self, parent_coll, title, dataflow_uris,
-                              company_id=None, allow_envelopes=1,
-                              allow_collections=1, suffix=None,
-                              descr='', locality='', partofyear='',
-                              year='', endyear=''):
+                             company_id=None, allow_envelopes=1,
+                             allow_collections=1, suffix=None,
+                             descr='', locality='', partofyear='',
+                             year='', endyear=''):
         """Create subcollection in parent_coll"""
         for coll in parent_coll.objectValues('Report Collection'):
             if coll.title == title:
@@ -493,30 +521,30 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         else:
             main_env_id = company_id
         ctx.manage_addCollection(dataflow_uris=parent_coll_df,
-                            country=country_uri,
-                            id=main_env_id,
-                            title=name,
-                            allow_collections=1, allow_envelopes=1,
-                            descr='', locality='', partofyear='', year='', endyear='',
-                            old_company_id=old_company_id)
+                                 country=country_uri,
+                                 id=main_env_id,
+                                 title=name,
+                                 allow_collections=1, allow_envelopes=1,
+                                 descr='', locality='', partofyear='', year='', endyear='',
+                                 old_company_id=old_company_id)
         coll = getattr(ctx, main_env_id)
         coll.company_id = company_id
         ei_id = ''.join([RepUtils.generate_id('col'), 'ei'])
         coll.manage_addCollection(dataflow_uris=eq_imports_df,
-                            country=country_uri,
-                            id=ei_id,
-                            title='Upload of verification documents (equipment importers)',
-                            allow_collections=0, allow_envelopes=1,
-                            descr='', locality='', partofyear='', year='', endyear='',
-                            old_company_id=old_company_id)
+                                  country=country_uri,
+                                  id=ei_id,
+                                  title='Upload of verification documents (equipment importers)',
+                                  allow_collections=0, allow_envelopes=1,
+                                  descr='', locality='', partofyear='', year='', endyear='',
+                                  old_company_id=old_company_id)
         bi_id = ''.join([RepUtils.generate_id('col'), 'bi'])
         coll.manage_addCollection(dataflow_uris=bulk_imports_df,
-                            country=country_uri,
-                            id=bi_id,
-                            title='Upload of verification documents (HFC producers and bulk importers)',
-                            allow_collections=0, allow_envelopes=1,
-                            descr='', locality='', partofyear='', year='', endyear='',
-                            old_company_id=old_company_id)
+                                  country=country_uri,
+                                  id=bi_id,
+                                  title='Upload of verification documents (HFC producers and bulk importers)',
+                                  allow_collections=0, allow_envelopes=1,
+                                  descr='', locality='', partofyear='', year='', endyear='',
+                                  old_company_id=old_company_id)
         ei = getattr(coll, ei_id)
         ei.company_id = company_id
         ei.reindex_object()
@@ -527,7 +555,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         coll.reindex_object()
 
     def update_company_collection(self, company_id, domain, country,
-                                name, old_collection_id=None):
+                                  name, old_collection_id=None):
         """Update information on an existing old-type collection (say, 'fgas30001')
         mainly setting it's `company_id` (the id internal to Fgas Portal for instance)
         If no `old_collection_id` is provided then a new collection will be created with
@@ -543,11 +571,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     'message': ''}
 
             coll_path = self.FGASRegistryAPI.buildCollectionPath(
-                    domain, country, company_id, old_collection_id)
+                domain, country, company_id, old_collection_id)
 
             if not coll_path:
                 msg = ("Cannot form path to collection, with details domain:"
-                    " %s, country: %s, company_id: %s, old_collection_id: %s.") % (
+                       " %s, country: %s, company_id: %s, old_collection_id: %s.") % (
                     domain, country, company_id, old_collection_id)
                 logger.warning(msg)
                 # return failure (404) to the service calling us
@@ -585,7 +613,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                                                      name,
                                                      old_company_id=old_collection_id)
                     else:
-                        country_folder.manage_addCollection(dataflow_uris=[ self.FGASRegistryAPI.DOMAIN_TO_OBLIGATION[domain] ],
+                        country_folder.manage_addCollection(dataflow_uris=[self.FGASRegistryAPI.DOMAIN_TO_OBLIGATION[domain]],
                                                             country=country_uri,
                                                             id=company_id,
                                                             title=name,
@@ -641,7 +669,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     globalworklist = PageTemplateFile('zpt/engineGlobalWorklist', globals())
     searchfeedbacks = PageTemplateFile('zpt/engineSearchFeedbacks', globals())
-    resultsfeedbacks = PageTemplateFile('zpt/engineResultsFeedbacks', globals())
+    resultsfeedbacks = PageTemplateFile(
+        'zpt/engineResultsFeedbacks', globals())
     recent = PageTemplateFile('zpt/engineRecentUploads', globals())
     recent_released = PageTemplateFile('zpt/engineRecentReleased', globals())
     searchxml = PageTemplateFile('zpt/engineSearchXml', globals())
@@ -704,6 +733,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return catalog_args
 
     security.declareProtected('View', 'searchdataflow')
+
     def searchdataflow(self, batch_size=None):
         """Search the ZCatalog for Report Envelopes,
         show results and keep displaying the form """
@@ -726,6 +756,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                                     **self.REQUEST.form)
 
     security.declareProtected('View', 'get_df_objects')
+
     def get_df_objects(self, catalog_args):
         """ Query the catalog with the provided catalog_args
         """
@@ -759,7 +790,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                         countryName = obj.getCountryName()
                     else:
                         try:
-                            countryName = obj.localities_dict()[obj.country]['name']
+                            countryName = obj.localities_dict()[
+                                obj.country]['name']
                         except KeyError:
                             countryName = "Unknown"
 
@@ -797,7 +829,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         catalog_args = self.get_query_args()
         if self.REQUEST.get('countries'):
             isos = self.REQUEST.get('countries')
-            countries = filter(lambda c: c.get('iso') in isos, self.localities_rod())
+            countries = filter(lambda c: c.get(
+                'iso') in isos, self.localities_rod())
             catalog_args['country'] = [country['uri'] for country in countries]
         if self.REQUEST.get('obligations'):
             obligations = self.REQUEST.get('obligations')
@@ -816,13 +849,14 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         doc.manage_setLocalRoles(user, local_roles)
 
     def remove_roles(self, user, role, local_roles, doc):
-        doc.manage_delLocalRoles(userids=[user,])
+        doc.manage_delLocalRoles(userids=[user, ])
         if role in local_roles:
             local_roles.remove(role)
         if local_roles:
             doc.manage_setLocalRoles(user, local_roles)
 
     security.declareProtected(view_management_screens, 'show_local_roles')
+
     def show_local_roles(self, userid=None, REQUEST=None):
         """ REST API to get local roles for user id """
 
@@ -871,33 +905,35 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         messages = []
         for country in ccountries:
             query = {
-              'dataflow_uris': dataflow_uris,
-              'meta_type': 'Report Collection',
-              'country': country
+                'dataflow_uris': dataflow_uris,
+                'meta_type': 'Report Collection',
+                'country': country
             }
 
             catalog = self.Catalog
             brains = catalog(**query)
             if not brains:
-                message = fail_pattern %(
-                            crole,
-                            ', '.join(users),
-                            self.localities_dict().get(country, {'name': 'Unknown'})['name']
+                message = fail_pattern % (
+                    crole,
+                    ', '.join(users),
+                    self.localities_dict().get(
+                        country, {'name': 'Unknown'})['name']
                 )
                 messages.append({
                     'status': 'fail',
                     'message': message
                 })
                 break
-            res = []
             collections = []
             for brain in brains:
                 doc = brain.getObject()
                 for user in users:
-                    local_roles = [role for role in doc.get_local_roles_for_userid(user) if role != 'Client']
+                    local_roles = [role for role in doc.get_local_roles_for_userid(
+                        user) if role != 'Client']
                     modifier(user, crole, local_roles, doc)
-                collections.append('<li>%s</li>' %doc.absolute_url())
-            message = success_pattern %( crole, ', '.join(users), ''.join(collections))
+                collections.append('<li>%s</li>' % doc.absolute_url())
+            message = success_pattern % (
+                crole, ', '.join(users), ''.join(collections))
             messages.append({
                 'status': 'success',
                 'message': message
@@ -905,26 +941,30 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return messages
 
     security.declareProtected('View', 'getCountriesList')
+
     def getCountriesList(self):
         """ """
         l_countries = self.getParentNode().objectValues('Report Collection')
         return RepUtils.utSortByAttr(l_countries, 'title')
 
     security.declarePrivate('sitemap_filter')
+
     def sitemap_filter(self, objs):
         return [x for x in objs if x.meta_type in ['Report Collection', 'Report Envelope', 'Repository Referral']]
 
     security.declareProtected('View', 'getSitemap')
+
     def getSitemap(self, tree_root=None, tree_pre='tree'):
         from ZTUtils import SimpleTreeMaker
-        if tree_root is None: tree_root = self.getPhysicalRoot()
+        if tree_root is None:
+            tree_root = self.getPhysicalRoot()
         tm = SimpleTreeMaker(tree_pre)
         tm.setChildAccess(filter=self.sitemap_filter)
         tm.setSkip('')
         try:
             tree, rows = tm.cookieTree(tree_root)
         except ValueError:
-            #invalid parameter; clear request and try again
+            # invalid parameter; clear request and try again
             tree_root.REQUEST.form.clear()
             tree, rows = tm.cookieTree(tree_root)
         rows.pop(0)
@@ -934,6 +974,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     sitemap = PageTemplateFile('zpt/engine/sitemap', globals())
 
     security.declarePublic('getWebQURL')
+
     def getWebQURL(self):
         """ return '' if there's no WebQuestionnaire attached to this application """
         return self.webq_url
@@ -945,10 +986,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         catalog = getattr(self, constants.DEFAULT_CATALOG)
 
         query = {
-            'meta_type':'Workitem',
-            'status':['active','inactive','fallout'],
-            'sort_on':sortby
-            }
+            'meta_type': 'Workitem',
+            'status': ['active', 'inactive', 'fallout'],
+            'sort_on': sortby
+        }
 
         if how == 'desc':
             query['sort_order'] = 'reverse'
@@ -959,7 +1000,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             return [ob.getObject() for ob in workitems]
 
         else:
-            paginator = DiggPaginator(workitems, 20, body=5, padding=2, orphans=5)
+            paginator = DiggPaginator(
+                workitems, 20, body=5, padding=2, orphans=5)
 
             try:
                 page = int(REQUEST.get('page', '1'))
@@ -971,7 +1013,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             except (EmptyPage, InvalidPage):
                 workitems = paginator.page(paginator.num_pages)
 
-            workitems.object_list = [ob.getObject() for ob in workitems.object_list]
+            workitems.object_list = [ob.getObject()
+                                     for ob in workitems.object_list]
             return workitems
 
     def zipEnvelopes(self, envelopes=[], REQUEST=None, RESPONSE=None):
@@ -986,8 +1029,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if len(envelopes) == 0:
             return
 
-        #get envelopes
-        env_objs = [ self.unrestrictedTraverse(env, None) for env in envelopes ]
+        # get envelopes
+        env_objs = [self.unrestrictedTraverse(env, None) for env in envelopes]
 
         outzd = ZipFile(tmpfile, "w", ZIP_DEFLATED)
 
@@ -1006,19 +1049,19 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                             outzd.write(tmp_copy.name,
                                         "%s/%s" % (env_name, str(doc.getId())))
 
-                #write metadata.txt
+                # write metadata.txt
                 metadata_file = RepUtils.TmpFile(
                     zip_content.get_metadata_content(env_ob))
                 outzd.write(str(metadata_file),
                             "%s/%s" % (env_name, 'metadata.txt'))
 
-                #write README.txt
+                # write README.txt
                 readme_file = RepUtils.TmpFile(
                     zip_content.get_readme_content(env_ob))
                 outzd.write(str(readme_file),
                             "%s/%s" % (env_name, 'README.txt'))
 
-                #write history.txt
+                # write history.txt
                 history_file = RepUtils.TmpFile(
                     zip_content.get_history_content(env_ob))
                 outzd.write(str(history_file),
@@ -1029,7 +1072,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         RESPONSE.setHeader('Content-Type', 'application/x-zip')
         RESPONSE.setHeader('Content-Disposition',
-             'attachment; filename="%s.zip"' % 'envelopes')
+                           'attachment; filename="%s.zip"' % 'envelopes')
         RESPONSE.setHeader('Content-Length', stat[6])
         RepUtils.copy_file(tmpfile, RESPONSE)
         os.unlink(tmpfile)
@@ -1134,7 +1177,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             l_reporting_period = DateTime(reporting_period)
         else:
             l_reporting_period = DateTime()
-        l_deliveries = self._xmlrpc_search_delivery(dataflow_uris=dataflow_uris, country=country)
+        l_deliveries = self._xmlrpc_search_delivery(
+            dataflow_uris=dataflow_uris, country=country)
         if l_deliveries:
             # order all envelopes by start data in reverse and
             # filter only the ones that have the start date previous than l_reporting_period
@@ -1142,6 +1186,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return []
 
     security.declareProtected(view_management_screens, 'harvestXforms')
+
     def harvestXforms(self):
         """ Deprecated - use (with care) load_from_dd() on each DataflowMappingsRecord object for similar result
 
@@ -1149,7 +1194,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             for the haswebform attribute
             To be called on regular basis by a cron job
         """
-        raise DeprecationWarning('DataflowMappingRecord objects have been deprecated, use DataflowMappingsRecord objects instead')
+        raise DeprecationWarning(
+            'DataflowMappingRecord objects have been deprecated, use DataflowMappingsRecord objects instead')
 
     ################################################################################
     #
@@ -1163,22 +1209,23 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """
         reslist = []
         l_catalog = getattr(self, constants.DEFAULT_CATALOG)
-        l_params = {'meta_type':'Report Envelope', 'dataflow_uris':obligation, 'released':1}
+        l_params = {'meta_type': 'Report Envelope',
+                    'dataflow_uris': obligation, 'released': 1}
 
         for obj in self.__getObjects(l_catalog.searchResults(l_params)):
-            res = { 'url': obj.absolute_url(0),
-                'title': obj.title,
-                'description': obj.descr,
-                'dataflow_uris': obj.dataflow_uris,
-                'country': obj.country,
-                'country_name': obj.getCountryName(),
-                'country_code': obj.getCountryCode(),
-                'locality': obj.locality,
-                'released': obj.reportingdate.HTML4(),
-                'startyear': obj.year,
-                'endyear': obj.endyear,
-                'partofyear': obj.partofyear,
-            }
+            res = {'url': obj.absolute_url(0),
+                   'title': obj.title,
+                   'description': obj.descr,
+                   'dataflow_uris': obj.dataflow_uris,
+                   'country': obj.country,
+                   'country_name': obj.getCountryName(),
+                   'country_code': obj.getCountryCode(),
+                   'locality': obj.locality,
+                   'released': obj.reportingdate.HTML4(),
+                   'startyear': obj.year,
+                   'endyear': obj.endyear,
+                   'partofyear': obj.partofyear,
+                   }
             filelist = []
             for file in obj.objectValues('Report Document'):
                 if file.content_type == 'text/xml':
@@ -1186,7 +1233,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                         restricted = 0
                     else:
                         restricted = 1
-                    filelist.append([file.id,file.content_type,file.xml_schema_location, file.title, restricted])
+                    filelist.append(
+                        [file.id, file.content_type, file.xml_schema_location, file.title, restricted])
             res['files'] = filelist
             reslist.append(res)
         return reslist
@@ -1198,19 +1246,23 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     ################################################################################
 
     security.declareProtected('View', 'subscriptions_html')
-    subscriptions_html = PageTemplateFile('zpt/engine/subscriptions', globals())
+    subscriptions_html = PageTemplateFile(
+        'zpt/engine/subscriptions', globals())
 
     security.declareProtected('View', 'uns_settings')
     uns_settings = PageTemplateFile('zpt/engine/unsinterface', globals())
 
-    _migration_table = PageTemplateFile('zpt/engine/migration_table', globals())
+    _migration_table = PageTemplateFile(
+        'zpt/engine/migration_table', globals())
 
     security.declareProtected('View management screens', 'migration_table')
+
     def migration_table(self):
         """List all migrations applied to this deployment and their details"""
         do_update = self.REQUEST.form.get('update')
         if do_update:
-            upd_module = importlib.import_module('.'.join(['Products.Reportek.updates', do_update]))
+            upd_module = importlib.import_module(
+                '.'.join(['Products.Reportek.updates', do_update]))
             app = self.unrestrictedTraverse('/')
             upd_module.update(app)
 
@@ -1235,7 +1287,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         for f in set(upd_files):
             applicable = False
             if f not in applied:
-                upd_module = importlib.import_module('.'.join(['Products.Reportek.updates', f]))
+                upd_module = importlib.import_module(
+                    '.'.join(['Products.Reportek.updates', f]))
                 if REPORTEK_DEPLOYMENT in upd_module.APPLIES_TO:
                     applicable = True
                 todo_rows.append({
@@ -1248,20 +1301,25 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return self._migration_table(todo_migrationRows=todo_rows,
                                      done_migrationRows=done_rows)
 
-    security.declareProtected('View management screens', 'manage_editUNSInterface')
+    security.declareProtected(
+        'View management screens', 'manage_editUNSInterface')
+
     def manage_editUNSInterface(self, UNS_server, UNS_username, UNS_password, UNS_password_confirmation, UNS_channel_id, UNS_notification_types, REQUEST=None):
         """ Edit the UNS related properties """
         if UNS_password != UNS_password_confirmation:
             if REQUEST is not None:
-                REQUEST.RESPONSE.redirect('uns_settings?manage_tabs_message=Password and confirmation do not match!')
+                REQUEST.RESPONSE.redirect(
+                    'uns_settings?manage_tabs_message=Password and confirmation do not match!')
             return 0
         self.UNS_server = UNS_server
         self.UNS_username = UNS_username
         self.UNS_password = UNS_password
         self.UNS_channel_id = UNS_channel_id
-        self.UNS_notification_types = [x for x in UNS_notification_types if x != '']
+        self.UNS_notification_types = [
+            x for x in UNS_notification_types if x != '']
         if REQUEST is not None:
-            REQUEST.RESPONSE.redirect('uns_settings?manage_tabs_message=Saved changes')
+            REQUEST.RESPONSE.redirect(
+                'uns_settings?manage_tabs_message=Saved changes')
         return 1
 
     def uns_notifications_enabled(self):
@@ -1271,6 +1329,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return bool(os.environ.get('RABBITMQ_ENABLED', 'off') == 'on')
 
     security.declarePrivate('get_uns_xmlrpc_server')
+
     def get_uns_xmlrpc_server(self):
         if self.uns_notifications_enabled():
             url = self.UNS_server + '/rpcrouter'
@@ -1281,6 +1340,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             return xmlrpclib.Server(url)
 
     security.declareProtected('View', 'canUserSubscribeToUNS')
+
     def canUserSubscribeToUNS(self, user_id='', REQUEST=None):
         """ Indicates if the user given as parameter or authenticated
             is allowed to subscribe to UNS for this channel
@@ -1302,6 +1362,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             return 0
 
     security.declareProtected('View', 'subscribeToUNS')
+
     def subscribeToUNS(self, filter_country='', dataflow_uris=[], filter_event_types=[], REQUEST=None):
         """ Creates new or updates existing subscription to the specified
             If there is a request, returns a message, otherwise, returns
@@ -1313,12 +1374,14 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             for df_uri in dataflow_uris:
                 df_title = self.dataflow_lookup(df_uri)['TITLE']
                 if filter_country:
-                    l_filters.append({'http://rod.eionet.europa.eu/schema.rdf#obligation': df_title, \
-                        'http://rod.eionet.europa.eu/schema.rdf#locality':filter_country})
+                    l_filters.append({'http://rod.eionet.europa.eu/schema.rdf#obligation': df_title,
+                                      'http://rod.eionet.europa.eu/schema.rdf#locality': filter_country})
                 else:
-                    l_filters.append({'http://rod.eionet.europa.eu/schema.rdf#obligation': df_title})
+                    l_filters.append(
+                        {'http://rod.eionet.europa.eu/schema.rdf#obligation': df_title})
         elif filter_country:
-            l_filters.append({'http://rod.eionet.europa.eu/schema.rdf#locality':filter_country})
+            l_filters.append(
+                {'http://rod.eionet.europa.eu/schema.rdf#locality': filter_country})
 
         l_filters_final = []
         if l_filters != []:
@@ -1329,22 +1392,26 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     l_filters_final.append(l_tmp)
         else:
             for l_filter_event_type in filter_event_types:
-                l_filters_final.append({'http://rod.eionet.europa.eu/schema.rdf#event_type':l_filter_event_type})
+                l_filters_final.append(
+                    {'http://rod.eionet.europa.eu/schema.rdf#event_type': l_filter_event_type})
 
         try:
             l_server = self.get_uns_xmlrpc_server()
             if l_server is not None:
-                #l_ret = l_server.UNSService.makeSubscription(self.UNS_channel_id, self.REQUEST['AUTHENTICATED_USER'].getUserName(), l_filters)
-                l_ret = l_server.UNSService.makeSubscription(self.UNS_channel_id, self.REQUEST['AUTHENTICATED_USER'].getUserName(), l_filters_final)
+                l_server.UNSService.makeSubscription(
+                    self.UNS_channel_id, self.REQUEST['AUTHENTICATED_USER'].getUserName(), l_filters_final)
                 if REQUEST is not None:
-                    REQUEST.RESPONSE.redirect('subscriptions_html?info_title=Information&info_msg=Subscription made successfully')
+                    REQUEST.RESPONSE.redirect(
+                        'subscriptions_html?info_title=Information&info_msg=Subscription made successfully')
                 return (1, '')
         except Exception, err:
             if REQUEST is not None:
-                REQUEST.RESPONSE.redirect('subscriptions_html?info_title=Error&info_msg=Your subscription could not be made because of the following error: %s' % str(err))
+                REQUEST.RESPONSE.redirect(
+                    'subscriptions_html?info_title=Error&info_msg=Your subscription could not be made because of the following error: %s' % str(err))
             return (0, str(err))
 
     security.declareProtected('View', 'sendNotificationToUNS')
+
     def sendNotificationToUNS(self, envelope, notification_type, notification_label, actor='system', description=''):
         """ Sends events data to the specified UNS's push channel """
         res = 0
@@ -1354,23 +1421,33 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             # Envelope URL + time + notification_type
             if l_server is not None:
                 l_time = str(time())
-                l_id = "%s/events#ts%s" % (envelope.absolute_url(), l_time )
-                #l_id = "http://rod.eionet.europa.eu/events/%s" % l_time
+                l_id = "%s/events#ts%s" % (envelope.absolute_url(), l_time)
                 l_res = []
-                l_res.append([l_id, 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type', 'http://rod.eionet.europa.eu/schema.rdf#Workflowevent'])
-                l_res.append([l_id, 'http://purl.org/dc/elements/1.1/title', notification_label])
+                l_res.append([l_id, 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type',
+                              'http://rod.eionet.europa.eu/schema.rdf#Workflowevent'])
+                l_res.append(
+                    [l_id, 'http://purl.org/dc/elements/1.1/title', notification_label])
                 if description:
-                    l_res.append([l_id, 'http://purl.org/dc/elements/1.1/description', description])
-                l_res.append([l_id, 'http://purl.org/dc/elements/1.1/identifier', envelope.absolute_url()])
-                l_res.append([l_id, 'http://purl.org/dc/elements/1.1/date', strftime('%Y-%b-%d %H:%M:%S')])
-                #l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#label', notification_label])
-                l_dataflows = [self.dataflow_lookup(x)['TITLE'] for x in envelope.dataflow_uris]
+                    l_res.append(
+                        [l_id, 'http://purl.org/dc/elements/1.1/description', description])
+                l_res.append(
+                    [l_id, 'http://purl.org/dc/elements/1.1/identifier', envelope.absolute_url()])
+                l_res.append(
+                    [l_id, 'http://purl.org/dc/elements/1.1/date', strftime('%Y-%b-%d %H:%M:%S')])
+                # l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#label', notification_label])
+                l_dataflows = [self.dataflow_lookup(
+                    x)['TITLE'] for x in envelope.dataflow_uris]
                 for l_dataflow in l_dataflows:
-                    l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#obligation', str(l_dataflow)])
-                l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#locality', str(envelope.getCountryName())])
-                l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#actor', actor])
-                l_res.append([l_id, 'http://rod.eionet.europa.eu/schema.rdf#event_type', notification_type])
-                l_ret = l_server.UNSService.sendNotification(self.UNS_channel_id, l_res)
+                    l_res.append(
+                        [l_id, 'http://rod.eionet.europa.eu/schema.rdf#obligation', str(l_dataflow)])
+                l_res.append(
+                    [l_id, 'http://rod.eionet.europa.eu/schema.rdf#locality', str(envelope.getCountryName())])
+                l_res.append(
+                    [l_id, 'http://rod.eionet.europa.eu/schema.rdf#actor', actor])
+                l_res.append(
+                    [l_id, 'http://rod.eionet.europa.eu/schema.rdf#event_type', notification_type])
+                l_server.UNSService.sendNotification(
+                    self.UNS_channel_id, l_res)
                 res = 1
         except Exception as e:
             logger.warning("Unable to send UNS notification for: {0}: {1}"
@@ -1379,13 +1456,14 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return res
 
     security.declarePrivate('uns_subscribe_actors')
+
     def uns_subscribe_actors(self, actors, filters):
         l_server = self.get_uns_xmlrpc_server()
         for act in actors:
             try:
                 if l_server is not None:
                     l_server.UNSService.makeSubscription(self.UNS_channel_id,
-                                                       act, filters)
+                                                         act, filters)
                     return 1
             except Exception as e:
                 logger.warning("Unable to subscribe actors: {0} to UNS: {1}"
@@ -1407,6 +1485,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             yield group, [x for x in ob_list if x.get(key, '') == group]
 
     security.declareProtected('View', 'messageDialog')
+
     def messageDialog(self, message='', action='', REQUEST=None):
         """ displays a message dialog """
         return self.message_dialog(message=message, action=action)
@@ -1414,6 +1493,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     message_dialog = PageTemplateFile('zpt/message_dialog', globals())
 
     security.declarePublic('getEnvelopeByURL')
+
     def getEnvelopeByURL(self, file_url, REQUEST=None):
         """ return the URL of an envelope based on a contained object URL """
         REQUEST.RESPONSE.setHeader('Content-type', 'text/xml')
@@ -1423,7 +1503,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             <rel_uri>/%s</rel_uri>
         </envelope>""" % file_obj.getMySelf().absolute_url(1)
 
-    security.declareProtected('View management screens', 'manage_raise_exception')
+    security.declareProtected(
+        'View management screens', 'manage_raise_exception')
+
     def manage_raise_exception(self):
         """ Generate exception to check that it's handled properly """
         raise ValueError('hello world')
@@ -1437,6 +1519,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return self.Catalog.uniqueValuesFor(value)
 
     security.declarePublic('getAvailableLanguages')
+
     def getAvailableLanguages(self):
         """Get avalilable languages as their .mo files are found in locales/<ln_code> folders
         map them to their localized name."""
@@ -1444,6 +1527,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return negociator.getAvailableLanguages()
 
     security.declarePublic('getSelectedLanguage')
+
     def getSelectedLanguage(self):
         """Get selected language for this requester. The lang is selected by
         HTTP headers, cookie or stored default"""
@@ -1451,7 +1535,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return negociator.getSelectedLanguage(self.REQUEST)
 
     # public access
-    #security.declarePublic('setCookieLanguage')
+    # security.declarePublic('setCookieLanguage')
     def setCookieLanguage(self):
         """Sets the language of the site by cookie.
         negotiator will read this pref from cookie on every request
@@ -1459,12 +1543,14 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         new_lang = self.REQUEST.get('chlang')
         if new_lang:
             new_lang = normalize_lang(new_lang)
-            self.REQUEST.RESPONSE.setCookie('reportek_language', new_lang, path='/')
+            self.REQUEST.RESPONSE.setCookie(
+                'reportek_language', new_lang, path='/')
             self.REQUEST.RESPONSE.redirect(self.REQUEST['HTTP_REFERER'])
 
     if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
         # make it accessible from browser
         security.declarePublic('getUserCollections')
+
         def getUserCollections(self):
             if not getattr(self, 'REQUEST', None):
                 return []
@@ -1481,13 +1567,15 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
             def get_colls(paths):
                 """Paths is a dictionary {'paths': [], 'prev_paths': []}"""
-                acc_paths = list(set(paths.get('paths') + paths.get('prev_paths')))
+                acc_paths = list(
+                    set(paths.get('paths') + paths.get('prev_paths')))
                 colls = {
                     'rw': [],
                     'ro': []
                 }
                 for colPath in acc_paths:
-                    path = str(colPath) if colPath.startswith('/') else '/{}'.format(str(colPath))
+                    path = str(colPath) if colPath.startswith(
+                        '/') else '/{}'.format(str(colPath))
                     try:
                         if colPath in paths.get('paths'):
                             colls['rw'].append(self.unrestrictedTraverse(path))
@@ -1498,10 +1586,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
                 return colls
 
-            logger.debug("Attempt to interrogate middleware for authorizations for user:id %s:%s" % (username, ecas_user_id))
+            logger.debug("Attempt to interrogate middleware for authorizations for user:id %s:%s" % (
+                username, ecas_user_id))
             if ecas_user_id:
                 user_paths = self.authMiddleware.getUserCollectionPaths(ecas_user_id,
-                            recheck_interval=self.authMiddleware.recheck_interval)
+                                                                        recheck_interval=self.authMiddleware.recheck_interval)
                 colls = get_colls(user_paths)
                 middleware_collections['rw'] += [col for col in colls.get('rw')
                                                  if col not in middleware_collections['rw']]
@@ -1509,8 +1598,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                                                  if col not in middleware_collections['ro']]
             catalog = getattr(self, constants.DEFAULT_CATALOG)
 
-            middleware_collections['rw'] += [ br.getObject() for br in catalog(id=username)
-                                            if not br.getObject() in middleware_collections['rw']]
+            middleware_collections['rw'] += [br.getObject() for br in catalog(id=username)
+                                             if not br.getObject() in middleware_collections['rw']]
 
             # check BDR registry
             user_paths = self.BDRRegistryAPI.getCollectionPaths(username)
@@ -1521,7 +1610,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                                              if col not in middleware_collections['ro']]
 
             collections['Reporter'] = middleware_collections
-            local_roles = ['Auditor', 'ClientFG', 'ClientODS', 'ClientCARS', 'ClientHDV']
+            local_roles = ['Auditor', 'ClientFG',
+                           'ClientODS', 'ClientCARS', 'ClientHDV']
             local_r_col = catalog(meta_type='Report Collection',
                                   local_unique_roles=local_roles)
 
@@ -1548,6 +1638,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             raise RuntimeError('Method not allowed on this distribution.')
 
     security.declareProtected('View', 'xls_export')
+
     def xls_export(self, envelopes=None, catalog_args=None):
         """ XLS Export for catalog results
         """
@@ -1555,7 +1646,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         if envelopes:
             envelopes = RepUtils.utConvertToList(envelopes)
-            env_objs = [self.unrestrictedTraverse(env, None) for env in envelopes]
+            env_objs = [self.unrestrictedTraverse(
+                env, None) for env in envelopes]
         else:
             if not catalog_args:
                 catalog_args = self.get_query_args()
@@ -1587,6 +1679,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return self.download_xls(wb, 'searchresults.xls')
 
     security.declareProtected('View', 'download_xls')
+
     def download_xls(self, wb, filename):
         """ Return an .xls file
         """
@@ -1604,17 +1697,20 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return xls.read()
 
     security.declareProtected('View management screens', 'zip_cache_cleanup')
+
     def zip_cache_cleanup(self, days=7):
         """Deletes files older than days."""
         return RepUtils.cleanup_zip_cache(days=days)
 
     security.declareProtected('View', 'jsonify')
+
     def jsonify(self, value, ensure_ascii=False):
         """Return the value as JSON"""
         self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
         return json.dumps(value, indent=4, ensure_ascii=ensure_ascii)
 
     security.declareProtected('View management screens', 'get_left_menu_tmpl')
+
     def get_left_menu_tmpl(self, username=None):
         """Get the left menu template for username."""
         sm = getSecurityManager()
@@ -1641,7 +1737,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             # Restore the old security manager
             setSecurityManager(sm)
 
-    @ram.cache(lambda *args: time() // (60 * 60 * 12)) #  12 hours
+    @ram.cache(lambda *args: time() // (60 * 60 * 12))  # 12 hours
     def get_main_cols(self):
         root = self.getPhysicalRoot()
         collections = root.objectValues('Report Collection')
