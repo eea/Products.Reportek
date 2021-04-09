@@ -52,7 +52,8 @@ def has_backup(app, xml):
     env_path = xml.split(xml_filename)[0]
     env = app.unrestrictedTraverse(env_path)
     folder_name = '_'.join([env.company_id, env_path.split('/')[-2]])
-    bck_xml_file = '/'.join(['/backed_up_double_gases_xml', folder_name, xml_filename])
+    bck_xml_file = '/'.join(['/backed_up_double_gases_xml',
+                             folder_name, xml_filename])
 
     if app.unrestrictedTraverse(bck_xml_file, None):
         return True
@@ -115,7 +116,7 @@ def migrate_fgases_xml(app):
         env = app.unrestrictedTraverse(env_path)
         try:
             xml_file = app.unrestrictedTraverse(xml)
-        except Exception as e:
+        except Exception:
             log_msg('Unable to get xml file: {}'.format(xml))
             continue
         fixed_xml = None
