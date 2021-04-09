@@ -25,6 +25,7 @@ def migrate_AuthMiddleWareApi(app):
         print 'Migration of lockedDownCollections and cleanup of old\
               _authmiddlewareApi done'
 
+
 def add_company_id_to_collections(app):
     catalog = getattr(app, 'Catalog')
     paths = ['/fgases', '/ods', '/cars', '/vans']
@@ -44,6 +45,7 @@ def add_company_id_to_collections(app):
                 obj.reindex_object()
 
         transaction.commit()
+
 
 @MigrationBase.checkMigration(__name__)
 def update(app, skipMigrationCheck=False):

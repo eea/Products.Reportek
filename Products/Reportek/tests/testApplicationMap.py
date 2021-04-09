@@ -1,14 +1,11 @@
+from Products.Reportek import constants
+from OFS.SimpleItem import SimpleItem
+from OFS.Folder import Folder
+from common import WorkflowTestCase, BaseTest
+from common import ConfigureReportek
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
-
-from common import ConfigureReportek
-
-from common import WorkflowTestCase, BaseTest
-from OFS.Folder import Folder
-from OFS.SimpleItem import SimpleItem
-from Products.Reportek import constants
-
 
 
 class ApplicationsTestCase(BaseTest, ConfigureReportek):
@@ -27,12 +24,14 @@ class ApplicationsTestCase(BaseTest, ConfigureReportek):
     def test_application(self):
         """ Test that listApplications() returns the applications sorted on name """
         self.wf.addApplication(name="alpha_app", link="pyAuto")
-        self.assertEquals( [{'name':'alpha_app','link':'pyAuto'}], self.wf.listApplications())
+        self.assertEquals(
+            [{'name': 'alpha_app', 'link': 'pyAuto'}], self.wf.listApplications())
         self.wf.addApplication(name="delta_app", link="delta")
         self.wf.addApplication(name="beta_app", link="beta")
         self.assertEquals([{'link': 'pyAuto', 'name': 'alpha_app'},
-            {'link': 'beta', 'name': 'beta_app'},
-            {'link': 'delta', 'name': 'delta_app'}] , self.wf.listApplications())
+                           {'link': 'beta', 'name': 'beta_app'},
+                           {'link': 'delta', 'name': 'delta_app'}], self.wf.listApplications())
+
 
 class ActivityApplicationMapping(WorkflowTestCase):
     """
@@ -78,7 +77,8 @@ class ActivityApplicationMapping(WorkflowTestCase):
         activity = self.wf.proc1.act1
         result = activity.mapped_application_details()
         self.assertEqual('Applications/proc1/act1', result['path'])
-        self.assertEqual('http://nohost/Applications/proc1', result['parent_url'])
+        self.assertEqual('http://nohost/Applications/proc1',
+                         result['parent_url'])
         self.assertEqual(True, result['mapped_by_path'])
         self.assertEqual(False, result['missing'])
 
@@ -93,7 +93,8 @@ class ActivityApplicationMapping(WorkflowTestCase):
         self.apps_folder.Common._setOb('act1', ob)
         result = activity.mapped_application_details()
         self.assertEqual('Applications/Common/act1', result['path'])
-        self.assertEqual('http://nohost/Applications/Common', result['parent_url'])
+        self.assertEqual('http://nohost/Applications/Common',
+                         result['parent_url'])
         self.assertEqual(True, result['mapped_by_path'])
         self.assertEqual(False, result['missing'])
 

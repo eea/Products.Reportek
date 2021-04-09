@@ -6,7 +6,7 @@
 
 # One only needs to provide module level VERSION integer variable
 # and to decorate the update function with the module level __name__
-# 
+#
 # No boilerplate added to the definition of update function
 # one can use
 # VERSION = 2
@@ -14,17 +14,17 @@
 # def upd(app):
 #     pass
 # and it works
-# 
+#
 # Additionally one can tweak the behaviour at definition time
 # def upd(app, version=100, skipMigrationCheck=True):
 # and at call time:
 # >>> upd(app, other_positional, version=101)
-# 
+#
 # or at call time only
 # def upd(app, other_positional, other_named=dflt): # no version argument mentioned
 # >>> upd(app, other_positional, version=10)
 # without worring that undeclared `version` argument reaches upd
-# 
+#
 # Of course all these override defaults from VERSION, etc
 #
 # Author: Daniel Mihai Bărăgan, daniel.baragan@eaudeweb.ro

@@ -1,5 +1,5 @@
-#this is meant to be run from instance debug
-#>>> from Products.Reportek.updates import blob_size_correction; blob_size_correction.update(app)
+# this is meant to be run from instance debug
+# >>> from Products.Reportek.updates import blob_size_correction; blob_size_correction.update(app)
 
 import transaction
 
@@ -14,17 +14,17 @@ def update(app):
 
             old_FileContainer = not hasattr(data_file, 'compressed')
             if (not old_FileContainer and data_file.compressed
-                and data_file.size == data_file.compressed_size):
+                    and data_file.size == data_file.compressed_size):
                 with data_file.open() as df:
                     data_file.size = len(df.read())
 
-                print ("On %s" % ob.absolute_url())
+                print("On %s" % ob.absolute_url())
                 print "Correcting size %d to %d" % (data_file.compressed_size, data_file.size)
                 transaction.commit()
         except Exception as e:
             try:
-                print ("On %s" % ob.absolute_url())
+                print("On %s" % ob.absolute_url())
             except:
                 pass
-            print (repr(e) + '\n' + '(%s: %s)' % (str(e), str(e.args)))
+            print(repr(e) + '\n' + '(%s: %s)' % (str(e), str(e.args)))
             transaction.abort()

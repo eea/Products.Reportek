@@ -38,6 +38,7 @@ __all__ = ['update']
 
 g_translatable_vars = ['feedback-not-acceptable']
 
+
 def do_update(o, app, bySrc, safeMatchOnly=True):
     feedbacktext = o.feedbacktext
     try:
@@ -58,7 +59,7 @@ def do_update(o, app, bySrc, safeMatchOnly=True):
         # but the initial text is being escaped, so a plain . is \.
         # r'<(?P<initial_open_tag>[^<>]+)>
         #   The following delivery has been submitted for <(?P<inner_open_tag_1>[^<>]+)>
-        #   (?P<var_default_1>[^<>]+)</(?P<inner_close_tag_1>[^<>]+)> and was finalized on 
+        #   (?P<var_default_1>[^<>]+)</(?P<inner_close_tag_1>[^<>]+)> and was finalized on
         #   <(?P<inner_open_tag_2>[^<>]+)>(?P<var_default_2>[^<>]+)</(?P<inner_close_tag_2>[^<>]+)>
         #   .</(?P<initial_close_tag>[^<>]+)>'
         toFindSafe = None
@@ -73,22 +74,22 @@ def do_update(o, app, bySrc, safeMatchOnly=True):
             toFindSafe = '>' + lookForThis + '<'
         elif not safeMatchOnly:
             varPat = r'<(?P<initial_open_tag>[^<>]+)>'
-            replStr = r'<\g<initial_open_tag> i18n:translate="%s">'%block.msgidOrSrc
+            replStr = r'<\g<initial_open_tag> i18n:translate="%s">' % block.msgidOrSrc
             for i, var in enumerate(block.i18n_vars):
                 inner_open_tags_regrefs.append('inner_open_tag_'+str(i+1))
                 inner_close_tags_regrefs.append('inner_close_tag_'+str(i+1))
                 var_defaults_regrefs.append('var_default_'+str(i+1))
                 varPat += (re.escape(block.msgidOrSrc_parts[i].strip())
-                        + r'<(?P<%s>[^<>]+)>'%inner_open_tags_regrefs[-1]
-                        + r'(?P<%s>[^<>]*)'%var_defaults_regrefs[-1]
-                        + r'</(?P<%s>[^<>]+)>'%inner_close_tags_regrefs[-1])
+                           + r'<(?P<%s>[^<>]+)>' % inner_open_tags_regrefs[-1]
+                           + r'(?P<%s>[^<>]*)' % var_defaults_regrefs[-1]
+                           + r'</(?P<%s>[^<>]+)>' % inner_close_tags_regrefs[-1])
                 tr = ''
                 if var in g_translatable_vars:
-                    tr = ' i18n:translate="%s"'%var
+                    tr = ' i18n:translate="%s"' % var
                 replStr += (block.msgidOrSrc_parts[i]
-                            + r'<\g<%s> i18n:name="%s"%s>'%(inner_open_tags_regrefs[-1], var, tr)
-                            + r'\g<%s>'%var_defaults_regrefs[-1]
-                            + r'</\g<%s>>'%inner_close_tags_regrefs[-1])
+                            + r'<\g<%s> i18n:name="%s"%s>' % (inner_open_tags_regrefs[-1], var, tr)
+                            + r'\g<%s>' % var_defaults_regrefs[-1]
+                            + r'</\g<%s>>' % inner_close_tags_regrefs[-1])
             # add last msg part
             varPat += re.escape(block.msgidOrSrc_parts[-1].strip())
             replStr += block.msgidOrSrc_parts[-1]
@@ -112,12 +113,13 @@ def do_update(o, app, bySrc, safeMatchOnly=True):
             if last_open_angular_bracket_idx < 0:
                 # weird
                 continue
-            part_including_tag = feedbacktext[last_open_angular_bracket_idx : pot_text_idx]
+            part_including_tag = feedbacktext[last_open_angular_bracket_idx: pot_text_idx]
             if 'i18n' in part_including_tag:
                 continue
-            part_including_tag = part_including_tag.replace('>', ' i18n:translate="">')
+            part_including_tag = part_including_tag.replace(
+                '>', ' i18n:translate="">')
             feedbacktext = (feedbacktext[:last_open_angular_bracket_idx]
-                        + part_including_tag + feedbacktext[pot_text_idx:])
+                            + part_including_tag + feedbacktext[pot_text_idx:])
         elif varPat:
             # ...<tag ...>some pot text...var...some pot text...var2...some pot t</tag>
             # TODO do fine grain check for i18n attrs here,
@@ -131,15 +133,17 @@ def do_update(o, app, bySrc, safeMatchOnly=True):
     # add line endings back
     return bs(feedbacktext.encode('utf-8')).prettify()
 
+
 def update(app):
     po_filename = 'default.pot'
     po_header = []
     bySrc = {}
-    po_load(po_filename, poHeader=po_header, bySrc=bySrc, noPerifericQuotes=True)
+    po_load(po_filename, poHeader=po_header,
+            bySrc=bySrc, noPerifericQuotes=True)
 
     for brain in app.Catalog(meta_type='Report Feedback'):
         o = brain.getObject()
-        #if o.id not in ['feedback1389098996','feedback1372226406']:
+        # if o.id not in ['feedback1389098996','feedback1372226406']:
         #    continue
         if 'html' in o.content_type:
             print 'Updating feed:', o.id
@@ -151,4 +155,3 @@ def update(app):
                 trans.abort()
                 print "Error on feed:", o.id
                 raise
-

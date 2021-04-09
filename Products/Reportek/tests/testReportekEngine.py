@@ -19,7 +19,7 @@ class ReportekEngineTest(BaseTest, ConfigureReportek):
         super(ReportekEngineTest, self).afterSetUp()
         self.createStandardCatalog()
 
-        self.engine.localities_dict=Mock(return_value={
+        self.engine.localities_dict = Mock(return_value={
             'http://rod.eionet.eu.int/spatial/2': {'name': 'Albania'},
             'http://rod.eionet.eu.int/spatial/3': {'name': 'Austria'}
         })
@@ -74,19 +74,19 @@ class ReportekEngineTest(BaseTest, ConfigureReportek):
         process = Mock()
         process.absolute_url = Mock(return_value='/ProcessURL')
         first_envelope = Envelope(process=process,
-                            title='FirstEnvelope',
-                            authUser='TestUser',
-                            year=2012,
-                            endyear=2013,
-                            partofyear='JANUARY',
-                            country='http://example.com/country/1',
-                            locality='TestLocality',
-                            descr='TestDescription')
+                                  title='FirstEnvelope',
+                                  authUser='TestUser',
+                                  year=2012,
+                                  endyear=2013,
+                                  partofyear='JANUARY',
+                                  country='http://example.com/country/1',
+                                  locality='TestLocality',
+                                  descr='TestDescription')
         first_envelope._content_registry_ping = Mock()
         first_envelope.id = 'first_envelope'
         self.root._setObject(first_envelope.id, first_envelope)
         self.root[first_envelope.id].manage_changeEnvelope(
-                dataflow_uris='http://example.com/dataflow/1'
+            dataflow_uris='http://example.com/dataflow/1'
         )
         results = self.engine.getUniqueValuesFor('dataflow_uris')
         self.assertEqual(results, ('http://example.com/dataflow/1',))
@@ -113,7 +113,7 @@ class ReportekEngineTest(BaseTest, ConfigureReportek):
         """
         # FIXME
         self.engine.ZopeTime = Mock(return_value=DateTime())
-        self.engine.title='Before Title'
+        self.engine.title = 'Before Title'
         self.engine.manage_editEngine(title='After Title', REQUEST=None)
         self.assertEqual('After Title', self.engine.title)
 
@@ -126,8 +126,9 @@ class ReportekEngineTest(BaseTest, ConfigureReportek):
         # FIXME
         self.root.REQUEST['REQUEST_METHOD'] = 'POST'
         self.engine.ZopeTime = Mock(return_value=DateTime())
-        self.engine.title='Before Title'
-        self.engine.manage_editEngine(title='After Title', REQUEST=self.root.REQUEST)
+        self.engine.title = 'Before Title'
+        self.engine.manage_editEngine(
+            title='After Title', REQUEST=self.root.REQUEST)
         self.assertEqual('After Title', self.engine.title)
 
 
@@ -140,18 +141,19 @@ class SearchResultsTest(BaseTest, ConfigureReportek):
         process = Mock()
         process.absolute_url = Mock(return_value='/ProcessURL')
         first_envelope = Envelope(process=process,
-                            title='FirstEnvelope',
-                            authUser='TestUser',
-                            year=2012,
-                            endyear=2013,
-                            partofyear='JANUARY',
-                            country='http://example.com/country/1',
-                            locality='TestLocality',
-                            descr='TestDescription')
+                                  title='FirstEnvelope',
+                                  authUser='TestUser',
+                                  year=2012,
+                                  endyear=2013,
+                                  partofyear='JANUARY',
+                                  country='http://example.com/country/1',
+                                  locality='TestLocality',
+                                  descr='TestDescription')
         first_envelope._content_registry_ping = Mock()
         first_envelope.id = 'first_envelope'
         self.root._setObject(first_envelope.id, first_envelope)
-        self.root[first_envelope.id].manage_changeEnvelope(dataflow_uris='http://example.com/dataflow/1')
+        self.root[first_envelope.id].manage_changeEnvelope(
+            dataflow_uris='http://example.com/dataflow/1')
         self.root['first_envelope'].getEngine = Mock()
         setattr(
             self.root.getPhysicalRoot(),
@@ -161,25 +163,26 @@ class SearchResultsTest(BaseTest, ConfigureReportek):
         getattr(self.root.getPhysicalRoot(),
                 constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
         self.root['first_envelope'].manage_addFeedback('feedbackid', 'Title',
-                                                       'Feedback text', '','WorkflowEngine/begin_end', 1)
+                                                       'Feedback text', '', 'WorkflowEngine/begin_end', 1)
         self.root['first_envelope'].manage_addFeedback('feedback5', 'Title',
-                                                       'Feedback text', '','WorkflowEngine/begin_end', 1)
+                                                       'Feedback text', '', 'WorkflowEngine/begin_end', 1)
         self.root['first_envelope'].manage_addFeedback('feedback10', 'Title',
-                                                       'Feedback text', '','WorkflowEngine/begin_end', 1)
+                                                       'Feedback text', '', 'WorkflowEngine/begin_end', 1)
 
         second_envelope = Envelope(process=process,
-                            title='SecondEnvelope',
-                            authUser='TestUser',
-                            year=2012,
-                            endyear=2013,
-                            partofyear='JUNE',
-                            country='http://example.com/country/2',
-                            locality='TestLocality',
-                            descr='TestDescription')
+                                   title='SecondEnvelope',
+                                   authUser='TestUser',
+                                   year=2012,
+                                   endyear=2013,
+                                   partofyear='JUNE',
+                                   country='http://example.com/country/2',
+                                   locality='TestLocality',
+                                   descr='TestDescription')
         second_envelope._content_registry_ping = Mock()
         second_envelope.id = 'second_envelope'
         self.root._setObject(second_envelope.id, second_envelope)
-        self.root[second_envelope.id].manage_changeEnvelope(dataflow_uris='http://example.com/dataflow/2')
+        self.root[second_envelope.id].manage_changeEnvelope(
+            dataflow_uris='http://example.com/dataflow/2')
 
     def test_returns_all(self):
         results = self.engine.getSearchResults()
@@ -198,33 +201,35 @@ class SearchResultsTest(BaseTest, ConfigureReportek):
                                 self.root.first_envelope['feedback10']])
 
     def test_filter_by_dataflow_uris(self):
-        results = self.engine.getSearchResults(dataflow_uris='http://example.com/dataflow/2')
+        results = self.engine.getSearchResults(
+            dataflow_uris='http://example.com/dataflow/2')
         envs = [el.getObject() for el in results]
         self.assertEqual(envs, [self.root.second_envelope])
 
     def test_filter_by_country(self):
-        results = self.engine.getSearchResults(country='http://example.com/country/1')
+        results = self.engine.getSearchResults(
+            country='http://example.com/country/1')
         res = [el.getObject() for el in results]
         self.assertEqual(res, [self.root.first_envelope,
-                                self.root.first_envelope['feedbackid'],
-                                self.root.first_envelope['feedback5'],
-                                self.root.first_envelope['feedback10']])
+                               self.root.first_envelope['feedbackid'],
+                               self.root.first_envelope['feedback5'],
+                               self.root.first_envelope['feedback10']])
 
     def test_filter_by_id(self):
         results = self.engine.getSearchResults(id={'range': 'min:max',
-                                                   'query': ['feedback0','feedback9']})
+                                                   'query': ['feedback0', 'feedback9']})
         feedbacks = [el.getObject() for el in results]
         self.assertEqual(feedbacks, [self.root.first_envelope['feedback5'],
-                                self.root.first_envelope['feedback10']])
+                                     self.root.first_envelope['feedback10']])
 
     def test_filter_by_reportingdate(self):
         self.root['first_envelope'].manage_changeEnvelope(
-                                reportingdate=DateTime("2010/07/02 00:00:00 GMT+2"))
+            reportingdate=DateTime("2010/07/02 00:00:00 GMT+2"))
         results = self.engine.getSearchResults(
-                    reportingdate={'range': 'min:max',
-                                   'query': [DateTime("2010/07/01 00:00:00 GMT+2"),
-                                             DateTime("2010/07/03 00:00:00 GMT+2")]
-                                  })
+            reportingdate={'range': 'min:max',
+                           'query': [DateTime("2010/07/01 00:00:00 GMT+2"),
+                                     DateTime("2010/07/03 00:00:00 GMT+2")]
+                           })
         envs = [el.getObject() for el in results]
         self.assertEqual(envs, [self.root.first_envelope])
 

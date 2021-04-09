@@ -23,7 +23,8 @@ APPLIES_TO = [
 
 def migrate_partofyear(app, ctype):
     catalog = getattr(app, 'Catalog')
-    brains = list(catalog(meta_type=ctype))  # Convert the LazyMap to list otherwise we can't loop over all items for some reason
+    # Convert the LazyMap to list otherwise we can't loop over all items for some reason
+    brains = list(catalog(meta_type=ctype))
     logger.info("Total number of {} type objects is: {}".format(ctype,
                                                                 len(brains)))
     count = 0
@@ -37,12 +38,14 @@ def migrate_partofyear(app, ctype):
                 obj.reindex_object()
                 changed_count += 1
             except Exception as e:
-                logger.error("Unable to change value {} for {} due to {}".format(obj.partofyear, obj.absolute_url(), str(e)))
+                logger.error("Unable to change value {} for {} due to {}".format(
+                    obj.partofyear, obj.absolute_url(), str(e)))
             if (count % 1000) == 0:
                 logger.info("Savepoint at: {} objects".format(count))
                 transaction.savepoint()
             count += 1
-    logger.info("Total number of changed {} type objects: {}".format(ctype, changed_count))
+    logger.info("Total number of changed {} type objects: {}".format(
+        ctype, changed_count))
     transaction.commit()
 
 

@@ -1,12 +1,12 @@
+from Products.Reportek.Converters import Converters
+from mock import patch, Mock
+from fileuploadmock import FileUploadMock
+from common import BaseTest, ConfigureReportek
 import os
 from StringIO import StringIO
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
-from common import BaseTest, ConfigureReportek
-from fileuploadmock import FileUploadMock
-from mock import patch, Mock
-from Products.Reportek.Converters import Converters
 
 TESTDIR = os.path.abspath(os.path.dirname(__file__))
 
@@ -18,7 +18,8 @@ class SpreadsheetTestCase(BaseTest, ConfigureReportek):
         self.createStandardDependencies()
         self.app._setObject('Converters', Converters())
         self.createStandardCollection()
-        self.assertTrue(hasattr(self.app, 'collection'),'Collection did not get created')
+        self.assertTrue(hasattr(self.app, 'collection'),
+                        'Collection did not get created')
         self.assertNotEqual(self.app.collection, None)
         self.envelope = self.createStandardEnvelope()
         self.envelope.manage_addFeedback = Mock(return_value='feedbacktext')
@@ -45,7 +46,7 @@ class SpreadsheetTestCase(BaseTest, ConfigureReportek):
             'resultCode': '2',
             'resultDescription': 'whatever error',
         }
-        myfile = FileUploadMock('C:\\TEMP\\testfile.txt','content here')
+        myfile = FileUploadMock('C:\\TEMP\\testfile.txt', 'content here')
         res = self.envelope.convert_excel_file(myfile)
         self.assertEquals(0, res)
         # Test the *effect* of the call.
@@ -59,7 +60,7 @@ class SpreadsheetTestCase(BaseTest, ConfigureReportek):
             Verify the content_type is 'application/vnd.ms-excel'
             The expected result is 0
         """
-        myfile = FileUploadMock('C:\\TEMP\\testfile.xml','''<?xml version="1.0" encoding="UTF-8"?>
+        myfile = FileUploadMock('C:\\TEMP\\testfile.xml', '''<?xml version="1.0" encoding="UTF-8"?>
         <report xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xml:lang="de"
         xsi:noNamespaceSchemaLocation="http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd">
@@ -83,7 +84,8 @@ class SpreadsheetTestCase(BaseTest, ConfigureReportek):
         self.assertEquals(1, res)
         document = self.envelope['Rivers_empty.xls']
         self.assertEquals('application/vnd.ms-excel', document.content_type)
-        self.assertEquals([], [x for x in self.envelope.objectValues('Report Document') if x.content_type == 'text/xml'])
+        self.assertEquals([], [x for x in self.envelope.objectValues(
+            'Report Document') if x.content_type == 'text/xml'])
 
     @patch('transaction.commit')
     @patch('Products.Reportek.EnvelopeCustomDataflows.invoke_conversion_service')
@@ -116,7 +118,8 @@ class SpreadsheetTestCase(BaseTest, ConfigureReportek):
         myfile.filename = 'Rivers_2011.xls'
         res = self.envelope.convert_excel_file(myfile)
         self.assertEquals(1, res)
-        self.assertEquals(5, len(self.envelope.objectValues('Report Document')))
+        self.assertEquals(
+            5, len(self.envelope.objectValues('Report Document')))
         document = self.envelope['Rivers_2011.xls']
         self.assertEquals('application/vnd.ms-excel', document.content_type)
         document = self.envelope['Rivers_2011_StationsRivers.xml']
@@ -127,9 +130,10 @@ class SpreadsheetTestCase(BaseTest, ConfigureReportek):
         #feedback = self.envelope['conversion_log_Rivers_2011.xls']
         #self.assertEquals(feedback.meta_type, 'Report Feedback')
 
-        #Now try it again to make sure there's no error in deleting old files
+        # Now try it again to make sure there's no error in deleting old files
         myfile = StringIO('-- some reporting data --')
         myfile.filename = 'Rivers_2011.xls'
         res = self.envelope.convert_excel_file(myfile)
         self.assertEquals(1, res)
-        self.assertEquals(5, len(self.envelope.objectValues('Report Document')))
+        self.assertEquals(
+            5, len(self.envelope.objectValues('Report Document')))

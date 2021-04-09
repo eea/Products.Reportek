@@ -29,7 +29,8 @@ def migrate_referrals_attributes(app):
         try:
             obj = brain.getObject()
         except Exception as e:
-            logger.error('Unable to retrieve object: {} due to {}'.format(brain.getURL(), str(e)))
+            logger.error('Unable to retrieve object: {} due to {}'.format(
+                brain.getURL(), str(e)))
         if obj and hasattr(obj, 'setstate'):
             del obj.setstate
             obj._p_changed = 1

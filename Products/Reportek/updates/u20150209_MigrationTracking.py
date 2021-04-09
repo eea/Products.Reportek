@@ -20,6 +20,7 @@ APPLIES_TO = [
     DEPLOYMENT_MDR
 ]
 
+
 @MigrationBase.checkMigration(__name__)
 def update(app, skipMigrationCheck=True):
     """    Create the mapping holding the migration history on ReportekEngine object in Data.fs

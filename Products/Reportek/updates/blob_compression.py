@@ -1,5 +1,5 @@
-#this is meant to be run from instance debug
-#>>> from Products.Reportek.updates import blob_compression; blob_compression.update(app)
+# this is meant to be run from instance debug
+# >>> from Products.Reportek.updates import blob_compression; blob_compression.update(app)
 
 import sys
 import transaction
@@ -15,11 +15,13 @@ import transaction
 
 from time import strftime
 
+
 def update(app, outName='blob_compression.log'):
     out = sys.stderr
     if outName:
         out = open(outName, 'a')
-        out.write(" --- Begin log (%s) ---\n" % strftime("%a, %d %b %Y %H:%M:%S"))
+        out.write(" --- Begin log (%s) ---\n" %
+                  strftime("%a, %d %b %Y %H:%M:%S"))
     for brain in app.Catalog(meta_type=['Report Document', 'File (Blob)']):
         try:
             ob = brain.getObject()
@@ -53,18 +55,20 @@ def update(app, outName='blob_compression.log'):
             # new type of object that was created with no compression while solving #20539
             if (not old_FileContainer
                 and ob.meta_type == 'Report Document'
-                and data_file._toCompress == 'no'):
+                    and data_file._toCompress == 'no'):
                 data_file._toCompress = 'auto'
                 skipped_FileContainer = True
-                out.write("Reactivating new type object %s \n" % ob.absolute_url())
+                out.write("Reactivating new type object %s \n" %
+                          ob.absolute_url())
 
             # new type of objects that were set to deferred compression
             if (not old_FileContainer
                 and ob.meta_type == 'Report Document'
-                and data_file._toCompress == 'deferred'):
+                    and data_file._toCompress == 'deferred'):
                 data_file._toCompress = 'auto'
                 skipped_FileContainer = True
-                out.write("Setting deferred new type object to auto-compress %s \n" % ob.absolute_url())
+                out.write(
+                    "Setting deferred new type object to auto-compress %s \n" % ob.absolute_url())
 
             # keep changes so far
             transaction.commit()
@@ -78,7 +82,8 @@ def update(app, outName='blob_compression.log'):
                 with data_file.open('wb', orig_size=data_file.size, preserve_mtime=True) as file_handle:
                     file_handle.write(content)
                 print "Compressing %s, path: %s (%d:%d)" % (ob.absolute_url(), path, data_file.size, data_file.compressed_size)
-                out.write("Compressing %s, path: %s (%d:%d)\n" % (ob.absolute_url(), path, data_file.size, data_file.compressed_size))
+                out.write("Compressing %s, path: %s (%d:%d)\n" % (
+                    ob.absolute_url(), path, data_file.size, data_file.compressed_size))
 
             transaction.commit()
         except Exception as e:
@@ -89,5 +94,6 @@ def update(app, outName='blob_compression.log'):
             out.write(repr(e) + '\n' + '(%s: %s)\n' % (str(e), str(e.args)))
             transaction.abort()
     if outName:
-        out.write(" --- End log (%s) ---\n" % strftime("%a, %d %b %Y %H:%M:%S"))
+        out.write(" --- End log (%s) ---\n" %
+                  strftime("%a, %d %b %Y %H:%M:%S"))
         out.close()

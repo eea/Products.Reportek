@@ -39,7 +39,8 @@ def migrate_aqa_envs(app):
         try:
             env = brain.getObject().getParentNode()
         except Exception as e:
-            log_msg('Unable to retrieve object: {} due to {}'.format(brain.getURL(), str(e)), level='ERROR')
+            log_msg('Unable to retrieve object: {} due to {}'.format(
+                brain.getURL(), str(e)), level='ERROR')
         if env and getattr(env, 'status') != 'complete':
             env.wf_status = 'forward'
             env.reindex_object()

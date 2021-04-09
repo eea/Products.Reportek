@@ -1,5 +1,5 @@
 #from Testing import ZopeTestCase
-#ZopeTestCase.installProduct('Reportek')
+# ZopeTestCase.installProduct('Reportek')
 from common import BaseTest, ConfigureReportek
 
 
@@ -8,6 +8,7 @@ class InitialisationTestCase(BaseTest, ConfigureReportek):
     """ This simple test checks that when you start Zope, everything is created
         as expected
     """
+
     def afterSetUp(self):
         super(InitialisationTestCase, self).afterSetUp()
         self.createStandardCatalog()

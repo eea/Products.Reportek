@@ -49,13 +49,16 @@ def hash_it(app):
         if not doc.hash:
             try:
                 doc.generate_hash()
-                log_msg("{} generated hash: {}".format(doc.absolute_url(), doc.hash))
+                log_msg("{} generated hash: {}".format(
+                    doc.absolute_url(), doc.hash))
                 transaction.commit()
                 results.append(doc.absolute_url())
             except Exception as e:
-                log_msg('Unable to set hash for: {} due to: {}'.format(doc.absolute_url(), str(e)))
+                log_msg('Unable to set hash for: {} due to: {}'.format(
+                    doc.absolute_url(), str(e)))
 
-    log_msg("Successfully generated hashes for: {} files.\n{}".format(len(results), results))
+    log_msg("Successfully generated hashes for: {} files.\n{}".format(
+        len(results), results))
     return True
 
 

@@ -1,6 +1,6 @@
-#this is meant to be run from instance debug
-#>>> from Products.Reportek.updates import add_auditor_to_view_for_documents
-#>>> add_auditor_to_view_for_documents.update(app)
+# this is meant to be run from instance debug
+# >>> from Products.Reportek.updates import add_auditor_to_view_for_documents
+# >>> add_auditor_to_view_for_documents.update(app)
 
 import transaction
 from AccessControl.Permission import Permission

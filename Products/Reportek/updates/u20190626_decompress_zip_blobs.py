@@ -53,7 +53,8 @@ def decompress_zip_blobs(app):
             file_handle.close()
             with data_file.open('wb', orig_size=data_file.size, preserve_mtime=True) as file_handle:
                 file_handle.write(content)
-            log_msg('Decompressing blob: {}. Size: {}. Compressed: {}. Path: {}'.format(path, data_file.size, data_file.compressed_size, doc.absolute_url()))
+            log_msg('Decompressing blob: {}. Size: {}. Compressed: {}. Path: {}'.format(
+                path, data_file.size, data_file.compressed_size, doc.absolute_url()))
             results.append(doc)
             transaction.commit()
         except Exception as e:

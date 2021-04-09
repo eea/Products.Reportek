@@ -4,6 +4,7 @@ from Products.Reportek.negotiator import CustomNegotiator
 from ZPublisher.HTTPRequest import HTTPRequest
 from zope.i18n.negotiator import normalize_lang
 
+
 class TestCustomNegotiator(unittest.TestCase):
     # not normalized languages
     AVAILABLE_LANGS = [
@@ -16,6 +17,7 @@ class TestCustomNegotiator(unittest.TestCase):
         u'Rom\xe2n\u0103',
         u'Fran\xe7ais',
     ]
+
     def setUp(self):
         self.negotiator = CustomNegotiator()
 
@@ -63,4 +65,3 @@ class TestCustomNegotiator(unittest.TestCase):
         self.assertEqual(langs, dict(zip(
             [normalize_lang(l) for l in self.AVAILABLE_LANGS],
             self.AVAILABLE_LANGS_NAME)))
-

@@ -1,6 +1,6 @@
-#this is meant to be run from instance debug
-#>>> from Products.Reportek.updates import blob_analyze; blob_analyze.report(app, 'report.name')
-#>>> blob_analyze.report(app, 'report.name')
+# this is meant to be run from instance debug
+# >>> from Products.Reportek.updates import blob_analyze; blob_analyze.report(app, 'report.name')
+# >>> blob_analyze.report(app, 'report.name')
 try:
     from ZODB.POSException import POSKeyError
 except:
@@ -25,6 +25,7 @@ class RepDocStats(object):
         self.size += size
 
     UNITS = ['B', 'KB', 'MB', 'GB', 'TB']
+
     @classmethod
     def human_readable(cls, size):
         compact_size = size
@@ -35,6 +36,7 @@ class RepDocStats(object):
         return "%.2f %s" % (compact_size, cls.UNITS[step])
 
     SIZE_PATTERN = re.compile(r'(?P<size>[\d.]+) (?P<unit>[A-Z]{1,2})', re.I)
+
     @classmethod
     def computer_readable(cls, size_str):
         m = cls.SIZE_PATTERN.match(size_str)
@@ -50,7 +52,7 @@ class RepDocStats(object):
 
     def __str__(self):
         return "{count: %d, size: %d, hrSize: %s}" % (self.count, self.size,
-                                            self.human_readable(self.size))
+                                                      self.human_readable(self.size))
 
     def __repr__(self):
         return self.__str__()
@@ -60,6 +62,7 @@ class RepDocStats(object):
                 'size': self.size,
                 'hrSize': self.human_readable(self.size)
                 }
+
 
 def report(app, out):
     try:
@@ -91,7 +94,6 @@ def report(app, out):
             except POSKeyError:
                 missing = True
 
-
             byDocumentType[doc.content_type].add(data_file.size)
             total_count += 1
             total += data_file.size
@@ -109,7 +111,8 @@ def report(app, out):
     prn = pprint.PrettyPrinter(stream=o)
     prn.pprint('byDocumentType:')
     prn.pprint(dict(byDocumentType))
-    prn.pprint('total: %d: %s' % (total_count, RepDocStats.human_readable(total)))
+    prn.pprint('total: %d: %s' %
+               (total_count, RepDocStats.human_readable(total)))
     prn.pprint('byDocumentTypeMissingBlob:')
     prn.pprint(dict(byDocumentTypeMissingBlob))
     prn.pprint('total: %s' % RepDocStats.human_readable(total_missing))
@@ -118,10 +121,9 @@ def report(app, out):
     prn.pprint('total: %s' % RepDocStats.human_readable(total_blob))
     o.close()
 
-    j = {'byDocumentType': OrderedDict(sorted(( (k, v.to_dict()) for k, v in byDocumentType.iteritems()), key=sort_by_size, reverse=True)),
-         'byDocumentTypeMissingBlob': OrderedDict(sorted(( (k, v.to_dict()) for k, v in byDocumentTypeMissingBlob.iteritems()), key=sort_by_size, reverse=True)),
-         'byBlobType': OrderedDict(sorted(( (k, v.to_dict()) for k, v in byBlobType.iteritems()), key=sort_by_size, reverse=True)),
+    j = {'byDocumentType': OrderedDict(sorted(((k, v.to_dict()) for k, v in byDocumentType.iteritems()), key=sort_by_size, reverse=True)),
+         'byDocumentTypeMissingBlob': OrderedDict(sorted(((k, v.to_dict()) for k, v in byDocumentTypeMissingBlob.iteritems()), key=sort_by_size, reverse=True)),
+         'byBlobType': OrderedDict(sorted(((k, v.to_dict()) for k, v in byBlobType.iteritems()), key=sort_by_size, reverse=True)),
          }
     json.dump(j, oj, indent=2)
     oj.close()
-

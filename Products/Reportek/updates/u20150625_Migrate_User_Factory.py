@@ -51,7 +51,8 @@ def update(app, skipMigrationCheck=False):
                     # Let's set the Group to LDAP server
                     ldapfolder._setProperty('_local_groups', False)
                     # Set groups_base to ou=Roles
-                    ldapfolder._setProperty('groups_base', 'ou=Roles,o=EIONET,l=Europe')
+                    ldapfolder._setProperty(
+                        'groups_base', 'ou=Roles,o=EIONET,l=Europe')
                     local_users = ldapfolder.getLocalUsers()
                     for user in local_users:
                         success = doMigrateLocalUser(acl_users, user)
@@ -78,7 +79,7 @@ def doMigrateLocalUser(acl_users, user_data):
             assigned = role_mgr.listAssignedPrincipals(role)
 
             if (user_id not in [principal[0] for principal in assigned] and
-               role_mgr.listAvailablePrincipals(role, user_id)):
+                    role_mgr.listAvailablePrincipals(role, user_id)):
                 if role not in list(role_mgr.listRoleIds()):
                     role_mgr.addRole(role)
                 if role_mgr.assignRoleToPrincipal(role, user_id):

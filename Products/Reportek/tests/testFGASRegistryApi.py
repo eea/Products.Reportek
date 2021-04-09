@@ -25,6 +25,7 @@ class FGASRegistryAPITest(ZopeTestCase.ZopeTestCase):
       "collection_id": null}
     ]
     """
+
     def setUp(self):
         self.api = FGASRegistryAPI('FGASRegistryAPI', 'http://localhost:5000')
 
@@ -44,5 +45,6 @@ class FGASRegistryAPITest(ZopeTestCase.ZopeTestCase):
 
         paths = self.api.getCollectionPaths(username)
 
-        self.assertEqual(req_mock.call_args[0][0], self.api.baseUrl + '/user/' + username + '/companies')
+        self.assertEqual(
+            req_mock.call_args[0][0], self.api.baseUrl + '/user/' + username + '/companies')
         self.assertEqual(paths, expectedPaths)

@@ -1,6 +1,6 @@
-#this is meant to be run from instance debug
-#>>> from Products.Reportek.updates import cleanup_admin_utilities
-#>>> cleanup_admin_utilities.update(app)
+# this is meant to be run from instance debug
+# >>> from Products.Reportek.updates import cleanup_admin_utilities
+# >>> cleanup_admin_utilities.update(app)
 import transaction
 
 __all__ = ['update']
