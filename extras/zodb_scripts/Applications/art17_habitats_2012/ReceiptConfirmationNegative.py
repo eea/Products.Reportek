@@ -37,9 +37,9 @@ def getFeedbackForFiles(ptype):
     for x in lfiles:
         lret.extend(['<a href="%s">%s</a>' % (f.absolute_url(),
                                               f.title_or_id())
-                    for f in l_envelope.objectValues('Report Feedback')
-                    if f.document_id == x.id and
-                    f.title.find('XML Schema validation') != -1])
+                     for f in l_envelope.objectValues('Report Feedback')
+                     if f.document_id == x.id and
+                     f.title.find('XML Schema validation') != -1])
     if not lret:
         return '(no feedback available for the %s report)' % ptype
     return '(see %s)' % ', '.join(lret)

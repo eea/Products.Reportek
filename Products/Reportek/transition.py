@@ -26,7 +26,7 @@ This class is part of the workflow system
 
 """
 
-#Zope imports
+# Zope imports
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -37,8 +37,8 @@ from Products.ZCatalog.CatalogPathAwareness import CatalogAware
 class transition(CatalogAware, SimpleItem):
     """ Links two activities """
 
-    manage_options = ( {'label' : 'Properties', 'action' : 'manage_editTransitionForm'},
-                      {'label' : 'View', 'action' : 'index_html'},
+    manage_options = ({'label': 'Properties', 'action': 'manage_editTransitionForm'},
+                      {'label': 'View', 'action': 'index_html'},
                       ) + SimpleItem.manage_options
 
     def __init__(self, id, From, To, condition='', description=''):
@@ -54,15 +54,18 @@ class transition(CatalogAware, SimpleItem):
     security = ClassSecurityInfo()
 
     security.declareProtected('Manage OpenFlow', 'manage_editTransitionForm')
-    manage_editTransitionForm = PageTemplateFile('zpt/Workflow/transition_edit.zpt', globals())
+    manage_editTransitionForm = PageTemplateFile(
+        'zpt/Workflow/transition_edit.zpt', globals())
 
 #   security.declareProtected('Use OpenFlow', 'index_html')
-    index_html = PageTemplateFile('zpt/Workflow/transition_index.zpt', globals())
+    index_html = PageTemplateFile(
+        'zpt/Workflow/transition_index.zpt', globals())
 
     meta_type = 'Transition'
     icon = 'misc_/Reportek/Transition.gif'
 
     security.declareProtected('Manage OpenFlow', 'edit')
+
     def edit(self, condition, From, To, description, REQUEST=None):
         """  """
         self.condition = condition
@@ -71,7 +74,8 @@ class transition(CatalogAware, SimpleItem):
         self.description = description
         self.reindex_object()
         if REQUEST:
-            REQUEST.RESPONSE.redirect('manage_editTransitionForm?manage_tabs_message=Saved changes.')
+            REQUEST.RESPONSE.redirect(
+                'manage_editTransitionForm?manage_tabs_message=Saved changes.')
 
 
 InitializeClass(transition)

@@ -74,7 +74,7 @@ class FileContainer(Persistent):
         self.compressed = False
         self.compressed_size = None
 
-    ## Remove this after migration is complete
+    # Remove this after migration is complete
     @property
     def compressed_safe(self):
         return getattr(self, 'compressed', None)
@@ -83,7 +83,7 @@ class FileContainer(Persistent):
     def compressed_safe(self, value):
         if hasattr(self, 'compressed'):
             self.compressed = value
-    ## Remove this after migration is complete
+    # Remove this after migration is complete
 
     def open(self, mode='rb', orig_size=0, preserve_mtime=False, skip_decompress=False, crc=None):
         '''
@@ -112,7 +112,8 @@ class FileContainer(Persistent):
                 if self.compressed_safe and not skip_decompress:
                     file_handle = GzipFile(fileobj=file_handle)
                 elif self.compressed_safe:
-                    logger.debug("Serving %s compressed as client asked for AE gzip")
+                    logger.debug(
+                        "Serving %s compressed as client asked for AE gzip")
             elif mode[0] == 'w':
                 # GzipFile will not call fileobj.close() on its own
                 # because the user that called open should also handle close...
@@ -120,7 +121,8 @@ class FileContainer(Persistent):
                 zip_close = None
                 # The buffer is already compressed, avoid double compression
                 if skip_decompress:
-                    file_handle = GzipFileRaw(mode='w', fileobj=file_handle, crc=crc, orig_size=orig_size)
+                    file_handle = GzipFileRaw(
+                        mode='w', fileobj=file_handle, crc=crc, orig_size=orig_size)
                     zip_close = file_handle.close
                     self.compressed_safe = True
                 # The file could have been compressed but we excluded it
@@ -132,33 +134,34 @@ class FileContainer(Persistent):
                     self.compressed_safe = True
                 else:
                     self.compressed_safe = False
+
                 def close_and_update_metadata():
                     if zip_close:
                         zip_close()
                     orig_close()
-                    self._update_metadata(file_handle.name, orig_size, preserve_mtime)
+                    self._update_metadata(
+                        file_handle.name, orig_size, preserve_mtime)
                 file_handle.close = close_and_update_metadata
             return file_handle
         except (IOError, POSKeyError):
             raise StorageError
 
     def _update_metadata(self, fs_path, orig_size, preserve_mtime):
-        ## Remove this after migration is complete
+        # Remove this after migration is complete
         if not preserve_mtime:
             self.mtime = os.path.getmtime(fs_path)
         self.size = orig_size if orig_size else os.path.getsize(fs_path)
         if self.compressed_safe:
             self.compressed_size = os.path.getsize(fs_path)
 
-
     def _shouldCompress(self):
-        ## Remove this after migration is complete
+        # Remove this after migration is complete
         if not hasattr(self, 'compressed'):
             return False
-        ## Remove this after migration is complete
+        # Remove this after migration is complete
         if (self._toCompress == 'yes'
             or self._toCompress == 'auto'
-               and self.content_type.split(';')[0] in self.COMPRESSIBLE_TYPES):
+                and self.content_type.split(';')[0] in self.COMPRESSIBLE_TYPES):
             return True
         return False
 
@@ -196,10 +199,12 @@ class FileContainer(Persistent):
     @classmethod
     def get_blob_dir(cls):
         config = getConfiguration()
-        factory = config.dbtab.getDatabaseFactory(name=config.dbtab.getName('/'))
+        factory = config.dbtab.getDatabaseFactory(
+            name=config.dbtab.getName('/'))
         return factory.config.storage.config.blob_dir
 
     UNITS = ['B', 'KB', 'MB', 'GB', 'TB']
+
     @classmethod
     def human_readable(cls, size, threeDigitsOnly=True):
         compact_size = size
@@ -243,6 +248,7 @@ class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
         return strftime("%d %B %Y, %H:%M", localtime(self.data_file.mtime))
 
     security.declareProtected(view, 'index_html')
+
     def index_html(self, REQUEST, RESPONSE):
         """ download file content """
         with self.data_file.open() as data_file_handle:
@@ -254,6 +260,7 @@ class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
     _view_tmpl = PageTemplateFile('zpt/blob_view.zpt', globals())
 
     security.declareProtected(view, 'view')
+
     def view(self, REQUEST, RESPONSE):
         """ View the content in a web page """
         if self.data_file.content_type.startswith('text/html'):
@@ -288,6 +295,7 @@ class OfsBlobFile(_SimpleItem.Item_w__name__, _SimpleItem.SimpleItem):
             self.data_file.content_type = form['content_type']
         RESPONSE.redirect(self.absolute_url() + '/manage_workspace')
 
+
 Globals.InitializeClass(OfsBlobFile)
 
 
@@ -308,7 +316,7 @@ def get_content_type(file_or_content):
         if is_ZipRaw or is_zip:
             name = getattr(file_or_content, 'currentFilename', name)
         if (is_ZipRaw and file_or_content.allowRaw and
-           (readCount < 0 or
+            (readCount < 0 or
                 readCount >= ZZipFileRaw.SKIP_RAW_THRESHOLD)):
             file_or_content.rewindRaw()
         else:
@@ -391,6 +399,7 @@ def add_OfsBlobFile(parent, name, data_file=None, content_type=None):
 
 
 manage_addOfsBlobFile_html = PageTemplateFile('zpt/blob_add.zpt', globals())
+
 
 def manage_addOfsBlobFile(ctx, REQUEST, RESPONSE):
     """ add a new OfsBlobFile object to `parent` """

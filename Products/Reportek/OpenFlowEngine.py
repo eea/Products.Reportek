@@ -50,6 +50,7 @@ from exceptions import CannotPickProcess, NoProcessAvailable
 import logging
 logger = logging.getLogger("Reportek")
 
+
 def manage_addOpenFlowEngine(self, id, title, REQUEST=None):
     """Add a new OpenFlowEngine object
     """
@@ -62,41 +63,45 @@ def manage_addOpenFlowEngine(self, id, title, REQUEST=None):
 class OpenFlowEngineImportError(ValueError):
     pass
 
+
 class OpenFlowEngine(Folder, Toolz):
     """ A openflow contains all the processes of the openflow """
 
     #__implements__ = (WriteLockInterface,)
     icon = 'misc_/Reportek/openflowEngine_gif'
-    meta_type='Workflow Engine'
+    meta_type = 'Workflow Engine'
 
     security = ClassSecurityInfo()
 
     manage_options = Folder.manage_options[0:1] + \
-                 ( {'label': 'Roles', 'action': 'Roles', 'help' : ('Reportek', 'roles.stx')},
-                   {'label': 'Import/Export', 'action': 'workflow_impex'},
-                  {'label': 'Applications', 'action': 'Applications', 'help' : ('Reportek', 'applications.stx')},
-                  {'label':'Map processes', 'action':'workflow_map_processes'}) + \
-                 Folder.manage_options[2:]
+        ({'label': 'Roles', 'action': 'Roles', 'help': ('Reportek', 'roles.stx')},
+         {'label': 'Import/Export', 'action': 'workflow_impex'},
+         {'label': 'Applications', 'action': 'Applications',
+             'help': ('Reportek', 'applications.stx')},
+         {'label': 'Map processes', 'action': 'workflow_map_processes'}) + \
+        Folder.manage_options[2:]
 
     def __init__(self, id, title=''):
         """ constructor """
         self.id = id
         self.title = title
         self._applications = {}
-        self._activitiesPushableOnRole={}
-        self._activitiesPullableOnRole={}
-        # process_mappings: dictionary that keeps the way every process 
+        self._activitiesPushableOnRole = {}
+        self._activitiesPullableOnRole = {}
+        # process_mappings: dictionary that keeps the way every process
         # is fit for a subset of dataflows and countries
         self.process_mappings = {}
 
-    def all_meta_types( self, interfaces=None ):
+    def all_meta_types(self, interfaces=None):
         """
             What can you put inside me? Checks if the legal products are
             actually installed in Zope
         """
-        types = ['LDAPUserFolder','User Folder', 'Script (Python)', 'DTML Method', 'DTML Document', 'Page Template']
+        types = ['LDAPUserFolder', 'User Folder',
+                 'Script (Python)', 'DTML Method', 'DTML Document', 'Page Template']
 
-        y = [  {'name': 'Process', 'action': 'manage_addProcessForm', 'permission': 'Manage OpenFlow'} ]
+        y = [{'name': 'Process', 'action': 'manage_addProcessForm',
+              'permission': 'Manage OpenFlow'}]
 
         for x in Products.meta_types:
             if x['name'] in types:
@@ -110,40 +115,50 @@ class OpenFlowEngine(Folder, Toolz):
     manage_addProcessForm = process.manage_addProcessForm
 
     security.declareProtected('Manage OpenFlow', 'manage_addApplicationForm')
-    manage_addApplicationForm = PageTemplateFile('zpt/Workflow/application_add', globals())
+    manage_addApplicationForm = PageTemplateFile(
+        'zpt/Workflow/application_add', globals())
 
     security.declareProtected('Manage OpenFlow', 'manage_editApplicationForm')
-    manage_editApplicationForm = PageTemplateFile('zpt/Workflow/application_edit', globals())
+    manage_editApplicationForm = PageTemplateFile(
+        'zpt/Workflow/application_edit', globals())
 
-    security.declareProtected('Manage OpenFlow', 'manage_editActivitiesPushableOnRole')
-    manage_editActivitiesPushableOnRole = PageTemplateFile('zpt/Workflow/manage_editActivitiesPushableOnRole', globals())
+    security.declareProtected(
+        'Manage OpenFlow', 'manage_editActivitiesPushableOnRole')
+    manage_editActivitiesPushableOnRole = PageTemplateFile(
+        'zpt/Workflow/manage_editActivitiesPushableOnRole', globals())
 
-    security.declareProtected('Manage OpenFlow', 'manage_editActivitiesPullableOnRole')
-    manage_editActivitiesPullableOnRole = PageTemplateFile('zpt/Workflow/manage_editActivitiesPullableOnRole', globals())
+    security.declareProtected(
+        'Manage OpenFlow', 'manage_editActivitiesPullableOnRole')
+    manage_editActivitiesPullableOnRole = PageTemplateFile(
+        'zpt/Workflow/manage_editActivitiesPullableOnRole', globals())
 
     security.declareProtected('Manage OpenFlow', 'Roles')
     Roles = PageTemplateFile('zpt/Workflow/workflowRoles', globals())
 
     security.declareProtected('Manage OpenFlow', 'Applications')
-    Applications = PageTemplateFile('zpt/Workflow/workflowApplications', globals())
+    Applications = PageTemplateFile(
+        'zpt/Workflow/workflowApplications', globals())
 
     ##################################################
     # Openflow specific functions                    #
     ##################################################
 
-    security.declareProtected('Manage OpenFlow', 'editActivitiesPushableOnRole')
+    security.declareProtected(
+        'Manage OpenFlow', 'editActivitiesPushableOnRole')
+
     def editActivitiesPushableOnRole(self, role, process, activities=None, REQUEST=None):
         """ Edit the link between a role and activities of a process """
-        if activities == None: activities = []
+        if activities == None:
+            activities = []
         process_path = self.id + '/' + process
         if self._activitiesPushableOnRole.has_key(role) and \
-               self._activitiesPushableOnRole[role].has_key(process):
+                self._activitiesPushableOnRole[role].has_key(process):
             old_activities = self._activitiesPushableOnRole[role][process]
         else:
             old_activities = []
         removeList = [x for x in old_activities if x not in activities]
         if removeList:
-            for i in self.Catalog.searchResults(meta_type='Workitem',process_path=process_path, activity_id=removeList):
+            for i in self.Catalog.searchResults(meta_type='Workitem', process_path=process_path, activity_id=removeList):
                 w = i.getObject()
                 if w and role in w.push_roles:
                     w.push_roles.remove(role)
@@ -164,14 +179,18 @@ class OpenFlowEngine(Folder, Toolz):
         else:
             self.deleteProcessWithActivitiesPushableOnRole(role, process)
         self._p_changed = 1
-        if REQUEST: REQUEST.RESPONSE.redirect('Roles')
+        if REQUEST:
+            REQUEST.RESPONSE.redirect('Roles')
 
     security.declareProtected('Manage OpenFlow', 'getActivitiesPushableOnRole')
+
     def getActivitiesPushableOnRole(self):
         """ """
         return self._activitiesPushableOnRole
 
-    security.declareProtected('Manage OpenFlow', 'deleteProcessWithActivitiesPushableOnRole')
+    security.declareProtected(
+        'Manage OpenFlow', 'deleteProcessWithActivitiesPushableOnRole')
+
     def deleteProcessWithActivitiesPushableOnRole(self, role, process):
         """ Delete the link between a role and activities of a process """
         if self._activitiesPushableOnRole.has_key(role):
@@ -181,32 +200,39 @@ class OpenFlowEngine(Folder, Toolz):
                     self.deleteRoleWithActivitiesPushable(role)
         self._p_changed = 1
 
-    security.declareProtected('Manage OpenFlow', 'deleteRoleWithActivitiesPushable')
+    security.declareProtected(
+        'Manage OpenFlow', 'deleteRoleWithActivitiesPushable')
+
     def deleteRoleWithActivitiesPushable(self, role):
         """ Delete a role """
         if self._activitiesPushableOnRole.has_key(role):
             del self._activitiesPushableOnRole[role]
         self._p_changed = 1
 
-    security.declareProtected('Manage OpenFlow', 'addRoleWithActivitiesPushable')
+    security.declareProtected(
+        'Manage OpenFlow', 'addRoleWithActivitiesPushable')
+
     def addRoleWithActivitiesPushable(self, role, process):
         """ Add a role """
         self._activitiesPushableOnRole[role] = {}
         self._p_changed = 1
 
-    security.declareProtected('Manage OpenFlow', 'editActivitiesPullableOnRole')
+    security.declareProtected(
+        'Manage OpenFlow', 'editActivitiesPullableOnRole')
+
     def editActivitiesPullableOnRole(self, role, process, activities=None, REQUEST=None):
         """ Edit the link between a role and activities of a process """
         process_path = self.id + '/' + process
-        if activities == None: activities = []
+        if activities == None:
+            activities = []
         if self._activitiesPullableOnRole.has_key(role) and \
-               self._activitiesPullableOnRole[role].has_key(process):
+                self._activitiesPullableOnRole[role].has_key(process):
             old_activities = self._activitiesPullableOnRole[role][process]
         else:
             old_activities = []
         removeList = [x for x in old_activities if x not in activities]
         if removeList:
-            for i in self.Catalog.searchResults(meta_type='Workitem',process_path=process_path, activity_id=removeList):
+            for i in self.Catalog.searchResults(meta_type='Workitem', process_path=process_path, activity_id=removeList):
                 w = i.getObject()
                 if w and role in w.pull_roles:
                     w.pull_roles.remove(role)
@@ -227,14 +253,18 @@ class OpenFlowEngine(Folder, Toolz):
         else:
             self.deleteProcessWithActivitiesPullableOnRole(role, process)
         self._p_changed = 1
-        if REQUEST: REQUEST.RESPONSE.redirect('Roles')
+        if REQUEST:
+            REQUEST.RESPONSE.redirect('Roles')
 
     security.declareProtected('Manage OpenFlow', 'getActivitiesPullableOnRole')
+
     def getActivitiesPullableOnRole(self):
         """ """
         return self._activitiesPullableOnRole
 
-    security.declareProtected('Manage OpenFlow', 'deleteProcessWithActivitiesPullableOnRole')
+    security.declareProtected(
+        'Manage OpenFlow', 'deleteProcessWithActivitiesPullableOnRole')
+
     def deleteProcessWithActivitiesPullableOnRole(self, role, process):
         """ Delete the link between a role and activities of a process """
         if self._activitiesPullableOnRole.has_key(role):
@@ -244,33 +274,39 @@ class OpenFlowEngine(Folder, Toolz):
                     self.deleteRoleWithActivitiesPullable(role)
         self._p_changed = 1
 
-    security.declareProtected('Manage OpenFlow', 'deleteRoleWithActivitiesPullable')
+    security.declareProtected(
+        'Manage OpenFlow', 'deleteRoleWithActivitiesPullable')
+
     def deleteRoleWithActivitiesPullable(self, role):
         """ Delete a role """
         if self._activitiesPullableOnRole.has_key(role):
             del self._activitiesPullableOnRole[role]
         self._p_changed = 1
 
-    security.declareProtected('Manage OpenFlow', 'addRoleWithActivitiesPullable')
+    security.declareProtected(
+        'Manage OpenFlow', 'addRoleWithActivitiesPullable')
+
     def addRoleWithActivitiesPullable(self, role, process):
         """ Add a role """
         self._activitiesPullableOnRole[role] = {}
         self._p_changed = 1
 
     security.declareProtected('Use OpenFlow', 'usersAssignableTo')
+
     def usersAssignableTo(self, process_id, activity_id):
         """ List all user name assignable to activity in the process """
-        result=[]
-        current=self
+        result = []
+        current = self
         apon = self._activitiesPullableOnRole
-        pullable_roles = [r for r in apon.keys() \
-                          if apon[r].has_key(process_id) and \
+        pullable_roles = [r for r in apon.keys()
+                          if apon[r].has_key(process_id) and
                           activity_id in apon[r][process_id]]
         while current is not None:
             if hasattr(current, 'acl_users'):
                 for user in getattr(current, 'acl_users').getUsers():
                     name = user.getUserName()
-                    roles_ok = [r for r in user.getRoles() if r in pullable_roles]
+                    roles_ok = [
+                        r for r in user.getRoles() if r in pullable_roles]
                     if roles_ok and name not in result:
                         result.append(name)
             try:
@@ -284,16 +320,19 @@ class OpenFlowEngine(Folder, Toolz):
         l_activitiespullableonrole = self.getActivitiesPullableOnRole()
         for l_role in p_roles:
             if l_activitiespullableonrole.has_key(l_role):
-                l_activities_ids = l_activitiespullableonrole[l_role].get(p_process_id, [])
+                l_activities_ids = l_activitiespullableonrole[l_role].get(
+                    p_process_id, [])
                 if p_activity_id in l_activities_ids:
                     return 1
         return 0
 
     security.declareProtected('Manage OpenFlow', 'deleteProcess')
+
     def deleteProcess(self, proc_ids=None, REQUEST=None):
         """ removes specified process """
         self.manage_delObjects(proc_ids)
-        if REQUEST: REQUEST.RESPONSE.redirect(REQUEST.HTTP_REFERER)
+        if REQUEST:
+            REQUEST.RESPONSE.redirect(REQUEST.HTTP_REFERER)
 
     def getPushRoles(self, process_id, activity_id):
         """ """
@@ -320,8 +359,8 @@ class OpenFlowEngine(Folder, Toolz):
             and sorts them by last modification time
         """
         ret_list = self.Catalog.searchResults(meta_type='Workitem',
-                            process_path=process_path,
-                            status=statuses_list)
+                                              process_path=process_path,
+                                              status=statuses_list)
         return RepUtils.utSortByAttr(ret_list, 'bobobase_modification_time')
 
     ##################################################
@@ -329,10 +368,11 @@ class OpenFlowEngine(Folder, Toolz):
     ##################################################
 
     security.declareProtected('Manage OpenFlow', 'addApplication')
+
     def addApplication(self, name, link, REQUEST=None):
         """ adds an application declaration """
         if name not in self._applications:
-            self._applications[name] = {'url' : link}
+            self._applications[name] = {'url': link}
             self._p_changed = 1
             if REQUEST:
                 REQUEST.RESPONSE.redirect('Applications')
@@ -341,37 +381,42 @@ class OpenFlowEngine(Folder, Toolz):
         return False
 
     security.declareProtected('Manage OpenFlow', 'deleteApplication')
+
     def deleteApplication(self, app_ids=None, REQUEST=None):
         """ removes an application """
         for name in app_ids:
             self._applications.pop(name, None)
         self._p_changed = 1
-        if REQUEST: REQUEST.RESPONSE.redirect(REQUEST.HTTP_REFERER)
+        if REQUEST:
+            REQUEST.RESPONSE.redirect(REQUEST.HTTP_REFERER)
 
     security.declareProtected('Manage OpenFlow', 'editApplication')
+
     def editApplication(self, name, link, REQUEST=None):
         """ edits an application declaration """
         if name not in self._applications:
             return
-        self._applications[name] = {'url' : link}
+        self._applications[name] = {'url': link}
         self._p_changed = 1
         if REQUEST:
             REQUEST.RESPONSE.redirect('Applications')
 
     security.declareProtected('Use OpenFlow', 'listApplications')
+
     def listApplications(self):
         """ List application declaration;
             returns a list of dictionaries with keys: name, link
         """
-        return map(lambda x, self=self: {'name' : x,
-                                         'link' : self._applications[x]['url']},
-                                         sorted(self._applications.keys()))
+        return map(lambda x, self=self: {'name': x,
+                                         'link': self._applications[x]['url']},
+                   sorted(self._applications.keys()))
 
     ##################################################
     # IMPORT/EXPORT functions                        #
     ##################################################
     def _applicationDetails(self, url):
-        typesWithContent = ['Script (Python)', 'DTML Method', 'DTML Document', 'Page Template']
+        typesWithContent = [
+            'Script (Python)', 'DTML Method', 'DTML Document', 'Page Template']
         try:
             url = str(url)
             if not url.startswith('/'):
@@ -392,8 +437,8 @@ class OpenFlowEngine(Folder, Toolz):
 
         return app_type, checksum
 
-
     security.declareProtected(view_management_screens, 'exportToJson')
+
     def exportToJson(self, proc='', REQUEST=None):
         """ Export Workflow structure to an .json file
             If proc parameter is missing then
@@ -406,13 +451,15 @@ class OpenFlowEngine(Folder, Toolz):
         }
         if proc:
             filename = '%s.json' % proc
-            procs = [ getattr(self, proc) ]
+            procs = [getattr(self, proc)]
         else:
             filename = 'workflows.json'
             procs = self.objectValues('Process')
         if REQUEST:
-            REQUEST.RESPONSE.setHeader('content-type', 'application/json; charset=UTF-8')
-            REQUEST.RESPONSE.setHeader('Content-Disposition', 'attachment; filename=%s' % filename)
+            REQUEST.RESPONSE.setHeader(
+                'content-type', 'application/json; charset=UTF-8')
+            REQUEST.RESPONSE.setHeader(
+                'Content-Disposition', 'attachment; filename=%s' % filename)
 
         applications_for_these_processes = set()
         for pr in procs:
@@ -442,8 +489,8 @@ class OpenFlowEngine(Folder, Toolz):
                     'push_application': act.push_application,
                     'application': act.application,
                     'parameters': act.parameters,
-                    'pushable_roles': [ pushR for pushR in self.getPushRoles(pr.id, act.id) ],
-                    'pullable_roles': [ pullR for pullR in self.getPullRoles(pr.id, act.id) ],
+                    'pushable_roles': [pushR for pushR in self.getPushRoles(pr.id, act.id)],
+                    'pullable_roles': [pullR for pullR in self.getPullRoles(pr.id, act.id)],
                 }
                 process['activities'].append(activity)
                 applications_for_these_processes.add(act.application)
@@ -485,7 +532,8 @@ class OpenFlowEngine(Folder, Toolz):
                 pr_id = str(pr['rid'])
                 checkValidId(self, pr_id)
             except Exception as e:
-                raise OpenFlowEngineImportError('Invalid rid', pr.get('rid', None), e.args)
+                raise OpenFlowEngineImportError(
+                    'Invalid rid', pr.get('rid', None), e.args)
 
             self.manage_addProcess(pr_id, title=pr['title'],
                                    description=pr['description'], BeginEnd=None,
@@ -500,11 +548,15 @@ class OpenFlowEngine(Folder, Toolz):
                     act_id = str(act['rid'])
                     checkValidId(process, act_id)
                 except:
-                    raise OpenFlowEngineImportError('Invalid rid', act.get('rid', None))
+                    raise OpenFlowEngineImportError(
+                        'Invalid rid', act.get('rid', None))
                 process.addActivity(act_id, act['split_mode'], act['join_mode'],
-                    int(act['self_assignable']), int(act['start_mode']), int(act['finish_mode']),
-                    str(act['subflow']), str(act['push_application']),
-                    str(act['application']), act['title'], str(act['parameters']),
+                                    int(act['self_assignable']), int(
+                                        act['start_mode']), int(act['finish_mode']),
+                                    str(act['subflow']), str(
+                                        act['push_application']),
+                                    str(act['application']), act['title'], str(
+                    act['parameters']),
                     act['description'], str(act['kind']), int(act['complete_automatically']))
                 for pushR in act['pushable_roles']:
                     if pushR:
@@ -525,9 +577,10 @@ class OpenFlowEngine(Folder, Toolz):
                     trans_id = str(trans['rid'])
                     checkValidId(process, trans_id)
                 except:
-                    raise OpenFlowEngineImportError('Invalid rid', trans.get('rid', None))
+                    raise OpenFlowEngineImportError(
+                        'Invalid rid', trans.get('rid', None))
                 process.addTransition(trans_id, str(trans['from']), str(trans['to']),
-                    str(trans['condition']), trans['description'])
+                                      str(trans['condition']), trans['description'])
 
         applications = obj.get('applications', [])
         try:
@@ -540,23 +593,24 @@ class OpenFlowEngine(Folder, Toolz):
                     app['targetPath'] = self._applications[app['rid']]['url']
         except:
             raise OpenFlowEngineImportError('Error adding application',
-                        app.get('rid', None), app.get('url', None))
+                                            app.get('rid', None), app.get('url', None))
 
         return applications
 
-
     security.declareProtected('Manage OpenFlow', 'importFromJson')
+
     def importFromJson(self, file, REQUEST=None):
         """ Reconstructs the workflow from a .json file """
 
-        message="Imported successfully"
+        message = "Imported successfully"
         problem_apps = []
         try:
             imported_applications = self._importFromJson(file)
             for app in imported_applications:
                 # We shall compare the source path with the already existing path on target
                 targetPath = app.get('targetPath', app['url'])
-                existing_type, existing_checksum = self._applicationDetails(targetPath)
+                existing_type, existing_checksum = self._applicationDetails(
+                    targetPath)
                 if not existing_type:
                     cmp_result = 'missing'
                 elif existing_type == app['type']:
@@ -588,15 +642,17 @@ class OpenFlowEngine(Folder, Toolz):
                         }
                         problem_apps.append(app_cmp)
         except OpenFlowEngineImportError as e:
-            logger.error("Workflow Import/Export: Failed to import OpenFlowEngine json. Reason: %s" % unicode(e.args))
+            logger.error(
+                "Workflow Import/Export: Failed to import OpenFlowEngine json. Reason: %s" % unicode(e.args))
             if 'Invalid rid' in e.args[0]:
                 message = u"Failed to import. Id %s is invalid or already exists." % e.args[1]
             else:
-                message=u"Failed to import. Is your json file the result of Export to JSON functionality?"
+                message = u"Failed to import. Is your json file the result of Export to JSON functionality?"
             transaction.abort()
         except Exception as e:
-            logger.error("Workflow Import/Export: Failed to import OpenFlowEngine json. Reason: %s" % unicode(e.args))
-            message="Failed to import."
+            logger.error(
+                "Workflow Import/Export: Failed to import OpenFlowEngine json. Reason: %s" % unicode(e.args))
+            message = "Failed to import."
             transaction.abort()
 
         if problem_apps:
@@ -607,15 +663,15 @@ class OpenFlowEngine(Folder, Toolz):
                 else:
                     additionalPathInfo = ""
                 msg = "App %s with path: %s is <b>%s</b>%s" % (app['name'],
-                            app['path'], app['cmp_result'], additionalPathInfo)
+                                                               app['path'], app['cmp_result'], additionalPathInfo)
                 msg_parts.append(msg)
                 logger.warning("Workflow Import/Export: App %s with path: %s is %s%s" % (app['name'],
-                            app['path'], app['cmp_result'], additionalPathInfo))
+                                                                                         app['path'], app['cmp_result'], additionalPathInfo))
             msg_parts.append("")
             message = "\n".join(msg_parts)
 
         if REQUEST:
-            return self.workflow_impex(self,REQUEST,manage_tabs_message=message)
+            return self.workflow_impex(self, REQUEST, manage_tabs_message=message)
 
     security.declareProtected('Manage OpenFlow', 'workflow_impex')
     workflow_impex = PageTemplateFile('zpt/Workflow/workflowImpEx', globals())
@@ -625,6 +681,7 @@ class OpenFlowEngine(Folder, Toolz):
     ##################################################
 
     security.declarePublic('getProcessMappings')
+
     def getProcessMappings(self):
         """ returns a dictionary with the valid process mappings
             remembers mappings for erased processes - you never know when it's useful
@@ -638,16 +695,19 @@ class OpenFlowEngine(Folder, Toolz):
                 # FIXME - superfluous operations here.
                 # Could this hide a bug? Do we need a copy of process_mappings?!?
                 # because we currently don't actually have a copy but a reference...
-                self.process_mappings[l_process_id] = {'dataflows':[], 'countries':[]}
-                l_return_dict[l_process_id] = {'dataflows':[], 'countries':[]}
+                self.process_mappings[l_process_id] = {
+                    'dataflows': [], 'countries': []}
+                l_return_dict[l_process_id] = {
+                    'dataflows': [], 'countries': []}
             else:
                 l_return_dict[l_process_id] = self.process_mappings[l_process_id]
         return l_return_dict
 
     security.declareProtected('Manage OpenFlow', 'setProcessMappings')
+
     def setProcessMappings(self, p_process, p_dataflows_all, p_countries_all, p_dataflows=None, p_countries=None, REQUEST=None):
         """ sets a process mappings according to the REQUEST """
-        l_ret_dict = {'dataflows':[], 'countries':[]}
+        l_ret_dict = {'dataflows': [], 'countries': []}
         if p_dataflows_all == '1':
             l_ret_dict['dataflows'] = ['*']
         else:
@@ -659,9 +719,11 @@ class OpenFlowEngine(Folder, Toolz):
         self.process_mappings[p_process] = l_ret_dict
         self._p_changed = 1
         if REQUEST:
-            REQUEST.RESPONSE.redirect('workflow_map_processes?manage_tabs_message=Properties changed')
+            REQUEST.RESPONSE.redirect(
+                'workflow_map_processes?manage_tabs_message=Properties changed')
 
     security.declarePublic('findProcess')
+
     def findProcess(self, dataflow_uris, country_code):
         """ Finds the process suited for an envelope and retrieves its absolute_url
             If there's no process or more than one, an error code and the description are returned
@@ -691,31 +753,37 @@ class OpenFlowEngine(Folder, Toolz):
             # further filter the processes by scores and return the one with the high score
             # or an error if there are more than one with the highest score
             l_highest_score = max(l_result.values())
-            l_best_fits = [x[0] for x in l_result.items() if x[1] == l_highest_score]
+            l_best_fits = [x[0]
+                           for x in l_result.items() if x[1] == l_highest_score]
             if len(l_best_fits) > 1:
                 return (1, (CannotPickProcess, 'More than one process associated with this envelope'))
             else:
                 return (0, l_best_fits[0])
 
     security.declarePublic('getDataflows')
+
     def getDataflows(self):
         """ dataflow_table is acquired from ReportekEngine"""
         return getattr(self, constants.ENGINE_ID).dataflow_table()
 
     security.declarePublic('getCountries')
+
     def getCountries(self):
         """ countries table is aquired from root of ZODB 
         """
         return getattr(self, constants.ENGINE_ID).localities_table()
 
-
     security.declareProtected('Manage OpenFlow', 'workflow_map_processes')
-    workflow_map_processes = PageTemplateFile('zpt/Workflow/workflowMapProcesses', globals())
+    workflow_map_processes = PageTemplateFile(
+        'zpt/Workflow/workflowMapProcesses', globals())
 
     security.declareProtected('Manage OpenFlow', 'workflow_map_process')
-    workflow_map_process = PageTemplateFile('zpt/Workflow/workflowMapProcess', globals())
+    workflow_map_process = PageTemplateFile(
+        'zpt/Workflow/workflowMapProcess', globals())
 
-    security.declareProtected('Manage OpenFlow', 'handle_workflow_map_processes')
+    security.declareProtected(
+        'Manage OpenFlow', 'handle_workflow_map_processes')
+
     def handle_workflow_map_processes(self, REQUEST=None):
         """ Handler for workflow_map_processes form
         """
@@ -737,9 +805,11 @@ class OpenFlowEngine(Folder, Toolz):
                 for p_id in processes:
                     self.process_mappings.pop(p_id, None)
                     self._p_changed = 1
-                REQUEST.RESPONSE.redirect('workflow_map_processes?manage_tabs_message=Mapping deleted')
+                REQUEST.RESPONSE.redirect(
+                    'workflow_map_processes?manage_tabs_message=Mapping deleted')
 
     security.declarePublic('getApplicationToActivitiesMapping')
+
     def getApplicationToActivitiesMapping(self):
         out = defaultdict(list)
         for process in self.objectValues(['Process']):
@@ -748,7 +818,9 @@ class OpenFlowEngine(Folder, Toolz):
                     out[activity.application].append(activity)
         return dict(out)
 
+
 InitializeClass(OpenFlowEngine)
+
 
 def handle_application_move_events(obj):
     """
@@ -766,26 +838,26 @@ def handle_application_move_events(obj):
     - A list with all the ids of activities for that process is pulled from WorkflowEngine
     - In order to be valid, the new name of the application must match one of the ids in the list
     """
-    expr = re.compile('^/(%s)/(.*)(?:/(.*))$' %constants.APPLICATIONS_FOLDER_ID)
+    expr = re.compile('^/(%s)/(.*)(?:/(.*))$' %
+                      constants.APPLICATIONS_FOLDER_ID)
 
     old_path = ''
     new_path = ''
 
     if obj.oldParent:
         old_path = '/'.join([
-                        obj.oldParent.absolute_url_path(),
-                        obj.oldName
-                   ])
+            obj.oldParent.absolute_url_path(),
+            obj.oldName
+        ])
 
     if obj.newParent:
         try:
             new_path = '/'.join([
-                            obj.newParent.absolute_url_path(),
-                            obj.newName
-                       ])
+                obj.newParent.absolute_url_path(),
+                obj.newName
+            ])
         except TypeError:
             new_path = ''
-
 
     match_old = expr.match(old_path)
     match_new = expr.match(new_path)
@@ -814,48 +886,48 @@ def handle_application_move_events(obj):
 
     if obj.oldName and obj.newName and not obj.oldParent == obj.newParent and match_old:
         messages.append(
-            'Application %s moved!' %(
+            'Application %s moved!' % (
                 obj.oldName
             )
         )
     if obj.oldName and not obj.newName:
         messages.append(
-            'Application %s deleted!' %(
+            'Application %s deleted!' % (
                 obj.oldName
             )
         )
     if valid_old_ids:
         if obj.oldName not in valid_old_ids:
             messages.append(
-                'Id %s was not mapped by path to any activity.'%(
+                'Id %s was not mapped by path to any activity.' % (
                     obj.oldName
                 )
             )
         else:
             messages.append(
-                'Activity %s has no application mapped by path now.' %(
+                'Activity %s has no application mapped by path now.' % (
                     proc_old.get(obj.oldName).absolute_url_path()
                 )
             )
     if valid_new_ids:
         if obj.newName in valid_new_ids:
             messages.append(
-                'Application %s mapped by path to activity %s.' %(
+                'Application %s mapped by path to activity %s.' % (
                     obj.newName,
                     proc_new.get(obj.newName).absolute_url_path())
             )
         else:
             messages.append(
-                'Id %s does not match any activity name in process %s.' %(
+                'Id %s does not match any activity name in process %s.' % (
                     obj.newName,
                     proc_new.absolute_url_path())
             )
             messages.append(
-                'Choose a valid name from this list: %s' %(
+                'Choose a valid name from this list: %s' % (
                     ', '.join(valid_new_ids))
             )
     try:
-        root.REQUEST['manage_tabs_message'] =  ' '.join(messages)
+        root.REQUEST['manage_tabs_message'] = ' '.join(messages)
     except TypeError:
         # skip, not a real REQUEST
         pass

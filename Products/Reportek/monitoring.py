@@ -36,6 +36,7 @@ def log_pub_failure(event):
                                     event.request.method,
                                     exc_info=event.exc_info)
 
+
 def initialize():
     env = getattr(getConfiguration(), 'environment', {})
     sentry_url = env.get('REPORTEK_ERROR_SENTRY_URL')

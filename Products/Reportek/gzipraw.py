@@ -7,11 +7,13 @@ class GzipFileRaw(gzip.GzipFile):
                  compresslevel=9, fileobj=None, mtime=None, crc=None, orig_size=None):
         if mode != 'w' and mode != 'wb':
             raise NotImplementedError("GzipFileRaw is only for writing")
-        #if not (filename and fileobj):
+        # if not (filename and fileobj):
         #    raise ValueError("Need to know the name of the file inside zip. provide both filename and fileobj")
         if not (crc and orig_size):
-            ValueError("Supply CRC and original size from the already compressed archive the content stems from")
-        super(GzipFileRaw, self).__init__(filename, mode, compresslevel, fileobj, mtime)
+            ValueError(
+                "Supply CRC and original size from the already compressed archive the content stems from")
+        super(GzipFileRaw, self).__init__(
+            filename, mode, compresslevel, fileobj, mtime)
         self.crc = crc
         self.size = orig_size
 

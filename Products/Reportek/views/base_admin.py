@@ -225,7 +225,8 @@ class BaseAdmin(BrowserView):
                 }
 
                 if match_groups:
-                    c_code = self.get_country_code(brain.getCountryName).lower()
+                    c_code = self.get_country_code(
+                        brain.getCountryName).lower()
                     c_codes = [c_code]
                     c_exc = {'gb': ['uk', 'uk_gb'],
                              'gr': ['el']}.get(c_code)

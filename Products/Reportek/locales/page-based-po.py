@@ -6,7 +6,7 @@
 # (zpt, py, dtml) are added to that specific html.po
 
 # Note that a message may be found in more than one source, and not knowing
-# which of them is used in that particular html, the neighbours from all 
+# which of them is used in that particular html, the neighbours from all
 # sources will be added to that html.po - creating more text to be transalaed than
 # necessary.
 # The neighbour feature is important because an html may conditionally omit some
@@ -16,14 +16,14 @@
 # (of form msg-id-thing) will cause collisons in alghorithm, and more false neighbours adding.
 # e.g:
 
-#. Default: Add
+# . Default: Add
 #: zpt1:100
-#msgid "add-button"
-#msgstr "add translation"
+# msgid "add-button"
+# msgstr "add translation"
 
 #: zpt2:200
-#msgid "Add"
-#msgstr "add translation"
+# msgid "Add"
+# msgstr "add translation"
 
 # This will cause a collision - the "Add" text found in html cand not be correctly tracked
 # to its source, thus its neighbours
@@ -31,34 +31,36 @@
 # Note that the "Some text ${some var} some more text" messages will add fuzziness
 # to the matching, and could result in more false neighbours.
 
-# All this eurhistics will make rebuilding the main .po file out of the .xlfs received 
+# All this eurhistics will make rebuilding the main .po file out of the .xlfs received
 # from translators at least tricky, if not slightly unreliable...
 
 # All this happes because, having the html as input - we cannot track
 # which zpts, dtml, pys, etc were used to generate it, and scan those.
 # Thus we scan the main .po file with the above drawbacks
 
+from poParsing import po_load
+import os.path
+import os
+import codecs
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
-import codecs
-import os
-import os.path
 
-from poParsing import po_load
 
 g_result_dir = None
 
+
 def usage():
     "\tUsage: %s <main.po> <html directory>" % sys.argv[0]
+
 
 def play(po_header, bySrc):
     print '\n'.join(po_header)
     for block in bySrc.itervalues():
         print block.getBlockText()
-        #print block.msgidOrSrc
-        #print block.msgidOrSrc_trimmed
-        #if block.default_message:
+        # print block.msgidOrSrc
+        # print block.msgidOrSrc_trimmed
+        # if block.default_message:
         #    print block.default_message
         #    print block.default_message_trimmed
 
@@ -108,7 +110,6 @@ if __name__ == '__main__':
     if html_dir.endswith('/'):
         html_dir = html_dir[:-1]
     g_result_dir = mk_result_dir(html_dir)
-
 
     po_header = []
     bySrc = {}

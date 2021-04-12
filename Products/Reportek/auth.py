@@ -12,6 +12,7 @@ import Products.PluggableAuthService.interfaces.plugins as plugin_interfaces
 
 LOGIN_LINK = '/acl_users/cookie_auth/login_form'
 
+
 def add_PAS(app, cookie_auth=True):
     """
     Full configuration of PluggableAuthService:
@@ -57,6 +58,7 @@ def add_PAS(app, cookie_auth=True):
 
     return pas
 
+
 class LoginView(BrowserView):
     def __call__(self):
         """ Login View, not used; prerequisity for cookie auth """
@@ -67,6 +69,7 @@ class LoginView(BrowserView):
         goto = "%s?%s" % (LOGIN_LINK, urlencode({'came_from': came_from}))
         self.request.RESPONSE.redirect(goto)
 
+
 class LogoutView(BrowserView):
     def __call__(self):
         """ Logout View, not used; prerequisity for cookie auth """
@@ -74,6 +77,6 @@ class LogoutView(BrowserView):
         pas = self.context.unrestrictedTraverse("/acl_users")
         return pas.logout(self.request)
         #came_from = self.request.get('HTTP_REFERER')
-        #if not came_from:
+        # if not came_from:
         #    came_from = '/'
-        #self.request.RESPONSE.redirect(came_from)
+        # self.request.RESPONSE.redirect(came_from)

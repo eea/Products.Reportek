@@ -18,33 +18,35 @@
 # Contributor(s):
 # Cornel Nitu, Finsiel Romania
 
+import RepUtils
+import Globals
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from AccessControl.Permissions import view_management_screens
+from AccessControl import ClassSecurityInfo
+from OFS.SimpleItem import SimpleItem
 __doc__ = """
       QAScript product module.
       The QAScript define a quality assurance script type.
 """
-__version__='$Rev$'[6:-2]
+__version__ = '$Rev$'[6:-2]
 
-from OFS.SimpleItem import SimpleItem
-from AccessControl import ClassSecurityInfo
-from AccessControl.Permissions import view_management_screens
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-import Globals
-import RepUtils
 
 manage_addQAScriptForm = PageTemplateFile('zpt/qa/script_add', globals())
 
+
 def manage_addQAScript(self, id, title='', description='', xml_schema='',
-        workflow=None, content_type_in='', content_type_out='',
-        script_url='', max_size=10, qa_extraparams='', REQUEST=None):
+                       workflow=None, content_type_in='', content_type_out='',
+                       script_url='', max_size=10, qa_extraparams='', REQUEST=None):
     """ add a new QAScript object """
     ob = QAScript(
-            id, title, description, xml_schema, workflow,
-            content_type_in, content_type_out, script_url,
-            float(max_size),
-            RepUtils.utConvertLinesToList(qa_extraparams))
+        id, title, description, xml_schema, workflow,
+        content_type_in, content_type_out, script_url,
+        float(max_size),
+        RepUtils.utConvertLinesToList(qa_extraparams))
     self._setObject(id, ob)
     if REQUEST is not None:
         return self.manage_main(self, REQUEST, update_menu=1)
+
 
 class QAScript(SimpleItem):
     """ """
@@ -52,14 +54,14 @@ class QAScript(SimpleItem):
 
     manage_options = (
         (
-            {'label' : 'Settings', 'action' : 'manage_settings_html'},
+            {'label': 'Settings', 'action': 'manage_settings_html'},
         )
         +
         SimpleItem.manage_options
     )
 
     def __init__(self, id, title, description, xml_schema, workflow,
-            content_type_in, content_type_out, script_url, max_size,
+                 content_type_in, content_type_out, script_url, max_size,
                  qa_extraparams):
         self.id = id
         self.title = title
@@ -72,14 +74,15 @@ class QAScript(SimpleItem):
         self.max_size = max_size
         self.qa_extraparams = qa_extraparams
 
-    #security stuff
+    # security stuff
     security = ClassSecurityInfo()
 
     security.declareProtected(view_management_screens, 'manage_settings')
+
     def manage_settings(self, title='', description='', xml_schema='',
-            workflow=None, content_type_in='',
-            content_type_out='', script_url='', max_size=10,
-            qa_extraparams='', REQUEST=None):
+                        workflow=None, content_type_in='',
+                        content_type_out='', script_url='', max_size=10,
+                        qa_extraparams='', REQUEST=None):
         """ """
         self.title = title
         self.description = description
@@ -92,20 +95,23 @@ class QAScript(SimpleItem):
         self.qa_extraparams = RepUtils.utConvertLinesToList(qa_extraparams)
         self._p_changed = 1
         if REQUEST:
-            message="Content changed."
-            return self.manage_settings_html(self,REQUEST,manage_tabs_message=message)
+            message = "Content changed."
+            return self.manage_settings_html(self, REQUEST, manage_tabs_message=message)
 
     security.declareProtected('Use OpenFlow', '__call__')
+
     def __call__(self, workitem_id, REQUEST=None):
         """ """
         pass
 
     security.declareProtected(view_management_screens, 'getExtraParameters')
+
     def getExtraParameters(self):
         """ """
         return RepUtils.utConvertListToLines(self.qa_extraparams)
 
     security.declareProtected(view_management_screens, 'manage_settings_html')
     manage_settings_html = PageTemplateFile('zpt/qa/script_edit', globals())
+
 
 Globals.InitializeClass(QAScript)

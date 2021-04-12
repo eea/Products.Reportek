@@ -70,7 +70,7 @@ class OrgCollections(BrowserView):
         account = self.request.form.get('account_uid')
         org_name = self.request.form.get('organisation_name')
         if (not country_folder or not obligation_code or not account
-           or not org_name):
+                or not org_name):
             self.request.response.setStatus(400)
             return json.dumps({"updated": False})
         if isinstance(org_name, unicode):

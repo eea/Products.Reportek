@@ -115,7 +115,7 @@ class RemoteApplication(BaseRemoteApplication):
         self.app_name = app_name
         self.nRetries = nRetries                            # integer
         self.nJobRetries = nJobRetries                      # integer
-        self.requestTimeout=requestTimeout                  # integer - seconds
+        self.requestTimeout = requestTimeout                  # integer - seconds
         self.retryFrequency = retryFrequency                # integer - seconds
         self.retryJobFrequency = retryJobFrequency          # integer - seconds
         self.token = token
@@ -136,6 +136,7 @@ class RemoteApplication(BaseRemoteApplication):
         self.retryJobFrequency = retryJobFrequency
 
     security.declareProtected('Use OpenFlow', '__call__')
+
     def __call__(self, workitem_id, REQUEST=None):
         """ Runs the Remote Aplication for the first time """
         # The workitem taken by aquisition
@@ -179,6 +180,7 @@ class RemoteApplication(BaseRemoteApplication):
         return 1
 
     security.declareProtected('Use OpenFlow', 'callApplication')
+
     def callApplication(self, workitem_id, REQUEST=None):
         """ Called on regular basis """
         l_workitem = getattr(self, workitem_id)
@@ -236,15 +238,18 @@ class RemoteApplication(BaseRemoteApplication):
             if filename in l_files_failed and fail:
                 fail = ', ' + fail
             if success:
-                l_files_success[filename] = l_files_success.get(filename, '') + success
+                l_files_success[filename] = l_files_success.get(
+                    filename, '') + success
             if fail:
-                l_files_failed[filename] = l_files_failed.get(filename, '') + fail
+                l_files_failed[filename] = l_files_failed.get(
+                    filename, '') + fail
 
         # write to log the list of file that succeded
         if l_files_success:
             l_filenames_jobs = ''
             for x in l_files_success.keys():
-                l_filenames_jobs += '<li>%s for file %s</li>' % (l_files_success[x], x)
+                l_filenames_jobs += '<li>%s for file %s</li>' % (
+                    l_files_success[x], x)
             l_workitem.addEvent('%s job(s) completed: <ul>%s</ul>' %
                                 (self.app_name, l_filenames_jobs))
         # Check if the application has done its job
@@ -271,7 +276,8 @@ class RemoteApplication(BaseRemoteApplication):
             if l_files_failed:
                 l_filenames_jobs = ''
                 for x in l_files_failed.keys():
-                    l_filenames_jobs += '<li>%s for file %s</li>' % (l_files_failed[x], x)
+                    l_filenames_jobs += '<li>%s for file %s</li>' % (
+                        l_files_failed[x], x)
                 l_workitem.addEvent('Giving up on %s job(s): <ul>%s</ul>' %
                                     (self.app_name, l_filenames_jobs))
                 l_workitem.failure = True
@@ -353,7 +359,8 @@ class RemoteApplication(BaseRemoteApplication):
                 if script.id not in resultsForXml or resultsForXml[script.id] == 'failed':
                     resultsForXml[script.id] = 'in progress'
                     transaction.commit()
-                    file_id, result = qa_repo._runQAScript(xml.absolute_url(1), 'loc_%s' % script.id)
+                    file_id, result = qa_repo._runQAScript(
+                        xml.absolute_url(1), 'loc_%s' % script.id)
                     yield file_id, result, script.id
                     # else, don't yield - nothing will happen in parent's loop
 
@@ -363,7 +370,7 @@ class RemoteApplication(BaseRemoteApplication):
             return False
         for script_results in localQA.values():
             # any bad status present?
-            if any( ( bad_status for bad_status in script_results.values() if bad_status != 'done' ) ):
+            if any((bad_status for bad_status in script_results.values() if bad_status != 'done')):
                 return False
         # truly no bad statuses (including no script -> status pairs) because we check this after join
         return True
@@ -396,7 +403,8 @@ class RemoteApplication(BaseRemoteApplication):
             l_getResult = {}
             l_files = {}
             # Setting up jobs metadata
-            job_ret = self.nJobRetries if getattr(self, 'nJobRetries', None) else self.nRetries
+            job_ret = self.nJobRetries if getattr(
+                self, 'nJobRetries', None) else self.nRetries
             for l_job, l_file in l_ret:
                 l_getResult[str(l_job)] = {
                     'code': 0,
@@ -527,8 +535,10 @@ class RemoteApplication(BaseRemoteApplication):
                 r_files = l_ret.get('REMOTE_FILES')
                 if r_files:
                     for r_file in r_files:
-                        self.handle_remote_file(r_file, l_file_id, p_workitem_id, l_ret)
-                        l_getResultDict = {p_jobID: {'code': 1, 'fileURL': l_file_url}}
+                        self.handle_remote_file(
+                            r_file, l_file_id, p_workitem_id, l_ret)
+                        l_getResultDict = {
+                            p_jobID: {'code': 1, 'fileURL': l_file_url}}
                         self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                                        p_getResult=l_getResultDict)
                 else:
@@ -570,7 +580,8 @@ class RemoteApplication(BaseRemoteApplication):
                         feedback_ob.content_type = content_type
 
                     feedback_ob.message = l_ret.get('FEEDBACK_MESSAGE', '')
-                    feedback_ob.feedback_status = l_ret.get('FEEDBACK_STATUS', '')
+                    feedback_ob.feedback_status = l_ret.get(
+                        'FEEDBACK_STATUS', '')
 
                     if l_ret['FEEDBACK_STATUS'] == 'BLOCKER':
                         l_workitem.blocker = True
@@ -579,13 +590,16 @@ class RemoteApplication(BaseRemoteApplication):
                     feedback_ob._p_changed = 1
                     feedback_ob.reindex_object()
 
-                    l_getResultDict = {p_jobID: {'code': 1, 'fileURL': l_file_url}}
+                    l_getResultDict = {
+                        p_jobID: {'code': 1, 'fileURL': l_file_url}}
                     self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                                    p_getResult=l_getResultDict)
             # not ready
             elif l_ret['CODE'] == '1':
-                l_nRetries = int(l_wk_prop['getResult'][p_jobID]['retries_left'])
-                retry = self.retryJobFrequency if getattr(self, 'retryJobFrequency', None) else self.retryFrequency
+                l_nRetries = int(
+                    l_wk_prop['getResult'][p_jobID]['retries_left'])
+                retry = self.retryJobFrequency if getattr(
+                    self, 'retryJobFrequency', None) else self.retryFrequency
                 next_run = DateTime(int(l_wk_prop['getResult'][p_jobID]['next_run']) +
                                     int(retry))
                 if l_nRetries > 0:
@@ -628,18 +642,21 @@ class RemoteApplication(BaseRemoteApplication):
         # in this error type
         except (xmlrpclib.Fault, xmlrpclib.ProtocolError) as l_err:
             l_nRetries = int(l_wk_prop['getResult'][p_jobID]['retries_left'])
-            retry = self.retryJobFrequency if getattr(self, 'retryJobFrequency', None) else self.retryFrequency
+            retry = self.retryJobFrequency if getattr(
+                self, 'retryJobFrequency', None) else self.retryFrequency
             if l_nRetries == 0:
                 l_workitem.addEvent('Error in the %s, job #%s for file %s: %s' %
                                     (self.app_name, p_jobID, l_file_id, str(l_err)))
                 l_workitem.failure = True
-                l_getResultDict = {p_jobID: {'code': -2, 'last_error': str(l_err)}}
+                l_getResultDict = {
+                    p_jobID: {'code': -2, 'last_error': str(l_err)}}
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                                p_getResult=l_getResultDict)
             else:
                 next_run = DateTime(int(l_wk_prop['getResult'][p_jobID]['next_run']) +
                                     int(retry))
-                err = 'Error retrieving job #{} result: {}'.format(p_jobID, str(l_err))
+                err = 'Error retrieving job #{} result: {}'.format(
+                    p_jobID, str(l_err))
                 l_getResultDict = {
                     p_jobID: {
                         'code': 0,
@@ -736,10 +753,11 @@ class RemoteApplication(BaseRemoteApplication):
                                 timeout=timeout, verify=False)
             message = res.json().get('message')
             l_workitem.addEvent('#{} job cancelation triggered - {}: {}'.format(job_id,
-                                                                   res.status_code,
-                                                                   message))
+                                                                                res.status_code,
+                                                                                message))
         except Exception as e:
-            l_workitem.addEvent('#{} job cancelation failed with: {}.'.format(job_id, str(e)))
+            l_workitem.addEvent(
+                '#{} job cancelation failed with: {}.'.format(job_id, str(e)))
 
     def listQAScripts(self, file_schema, short=True):
         """Retrieve the available QA scripts for file schema"""
@@ -766,5 +784,6 @@ class RemoteApplication(BaseRemoteApplication):
         l_tmp = l_server_service.runQAScript(p_file_url, p_script_id)
 
         return l_tmp
+
 
 InitializeClass(RemoteApplication)

@@ -103,8 +103,7 @@ class DataflowsManager:
             result = custom_dfs()
         return result
 
-
-    @ram.cache(lambda *args:time() // (60*60*12))
+    @ram.cache(lambda *args: time() // (60*60*12))
     def dataflow_rod(self):
         """ """
         if self.dfm_type == 'dfm_rest':
@@ -153,11 +152,11 @@ class DataflowsManager:
             return self.dataflow_dict()[uri]
         except KeyError:
             return {'uri': uri,
-                'details_url': '',
-                'TITLE': 'Unknown/Deleted obligation',
-                'terminated':'1',
-                'SOURCE_TITLE': 'Unknown obligations',
-                'PK_RA_ID': '0'}
+                    'details_url': '',
+                    'TITLE': 'Unknown/Deleted obligation',
+                    'terminated': '1',
+                    'SOURCE_TITLE': 'Unknown obligations',
+                    'PK_RA_ID': '0'}
 
     def getDataflowDict(self, dataflow_uri):
         """ returns all properties of a dataflow as dictionary given the uri """

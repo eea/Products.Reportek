@@ -56,7 +56,7 @@ def filter_objects(root, filter_level=0):
     for node in nodes:
         if validate(node, validators):
             yield node
-        if node.meta_type in ['Report Collection', \
+        if node.meta_type in ['Report Collection',
                               'Reportek Dataflow Mappings']:
             for sub_node in filter_objects(node, filter_level):
                 if validate(sub_node, validators):

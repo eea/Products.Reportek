@@ -3,7 +3,8 @@ from path import path
 import codecs
 import sys
 
-meta_types = ['DTML Document', 'DTML Method', 'Script (Python)', 'Page Template']
+meta_types = ['DTML Document', 'DTML Method',
+              'Script (Python)', 'Page Template']
 ext_map = {
     'DTML Document': '.dtml-doc',
     'DTML Method': '.dtml-meth',
@@ -31,7 +32,7 @@ def get_zodb_scripts(app):
 def dump_code(app):
     zodb_scripts = get_zodb_scripts(app)
     if repo.exists():
-        repo.rmtree() # TODO keep files, change content, remove only the extras
+        repo.rmtree()  # TODO keep files, change content, remove only the extras
     repo.mkdir()
     for zodb_path, (meta_type, src) in zodb_scripts.items():
         ext = ext_map[meta_type]

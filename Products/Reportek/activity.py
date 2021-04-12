@@ -20,7 +20,7 @@
 # Miruna Badescu, Finsiel Romania
 
 
-#Zope imports
+# Zope imports
 from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -36,8 +36,8 @@ class activity(CatalogAware, SimpleItem):
     meta_type = 'Activity'
     icon = 'misc_/Reportek/Activity.gif'
 
-    manage_options = ({'label' : 'Properties', 'action' : 'manage_editForm'},
-                      {'label' : 'View', 'action' : 'index_html'},
+    manage_options = ({'label': 'Properties', 'action': 'manage_editForm'},
+                      {'label': 'View', 'action': 'index_html'},
                       ) + SimpleItem.manage_options
 
     security = ClassSecurityInfo()
@@ -79,11 +79,13 @@ class activity(CatalogAware, SimpleItem):
         self.complete_automatically = complete_automatically
 
     security.declareProtected('Manage OpenFlow', 'manage_editForm')
-    manage_editForm = PageTemplateFile('zpt/Workflow/activity_edit.zpt', globals())
+    manage_editForm = PageTemplateFile(
+        'zpt/Workflow/activity_edit.zpt', globals())
 
     index_html = PageTemplateFile('zpt/Workflow/activity_index.zpt', globals())
 
     security.declareProtected('Manage OpenFlow', 'edit')
+
     def edit(self,
              split_mode=None,
              join_mode=None,
@@ -91,7 +93,7 @@ class activity(CatalogAware, SimpleItem):
              start_mode=None,
              bundle_mode=None,
              finish_mode=None,
-             subflow = None,
+             subflow=None,
              push_application=None,
              application=None,
              title=None,
@@ -138,15 +140,17 @@ class activity(CatalogAware, SimpleItem):
             self.description = description
         self.reindex_object()
         if REQUEST:
-            REQUEST.RESPONSE.redirect('manage_editForm?manage_tabs_message=Saved changes.')
+            REQUEST.RESPONSE.redirect(
+                'manage_editForm?manage_tabs_message=Saved changes.')
 
     security.declareProtected('Manage OpenFlow', 'title_or_id')
+
     def title_or_id(self):
-      """ """
-      if self.title:
-        return self.title
-      else:
-        return self.id
+        """ """
+        if self.title:
+            return self.title
+        else:
+            return self.id
 
     def mapped_application_details(self):
         root = self.getPhysicalRoot()
@@ -162,7 +166,8 @@ class activity(CatalogAware, SimpleItem):
 
         # check in Applications/Common/
         try:
-            app_path = '%s/%s/%s' %(constants.APPLICATIONS_FOLDER_ID, 'Common', self.id)
+            app_path = '%s/%s/%s' % (constants.APPLICATIONS_FOLDER_ID,
+                                     'Common', self.id)
             application = root.unrestrictedTraverse(app_path)
             if application and not mapped_by_path:
                 mapped_by_path = True
@@ -171,7 +176,8 @@ class activity(CatalogAware, SimpleItem):
 
         # check in Applications/proc_name/
         try:
-            app_path = '%s/%s/%s' %(constants.APPLICATIONS_FOLDER_ID, proc.id, self.id)
+            app_path = '%s/%s/%s' % (constants.APPLICATIONS_FOLDER_ID,
+                                     proc.id, self.id)
             application = root.unrestrictedTraverse(app_path)
             if application:
                 mapped_by_path = True
@@ -221,54 +227,57 @@ class activity(CatalogAware, SimpleItem):
             resp['mapped_by_path'] = False
             return resp
 
-
     def getIncomingTransitionsNumber(self):
         """ returns all the process transition objects that go to the specified activity """
-        return len(filter(lambda x, activity_id=self.id : x.To==activity_id, self.aq_parent.objectValues('Transition')))
-
+        return len(filter(lambda x, activity_id=self.id: x.To == activity_id, self.aq_parent.objectValues('Transition')))
 
     security.declareProtected('Manage OpenFlow', 'isAutoStart')
+
     def isAutoStart(self):
         """ returns true if the activity start mode is automatic"""
         return self.start_mode and self.kind == 'standard'
 
     security.declareProtected('Manage OpenFlow', 'isBundled')
+
     def isBundled(self):
         """ returns true if the activity start mode is automatic"""
         return getattr(self, 'bundle_mode', 0) and self.kind == 'standard'
 
     security.declareProtected('Manage OpenFlow', 'isSelfAssignable')
+
     def isSelfAssignable(self):
         """ returns true if the activity is assignable to self"""
-        return self.self_assignable and self.kind=='standard'
-
+        return self.self_assignable and self.kind == 'standard'
 
     security.declareProtected('Manage OpenFlow', 'isAutoFinish')
+
     def isAutoFinish(self):
         """ returns true if the activity finish mode is automatic"""
         return self.finish_mode == 1
 
-
     security.declareProtected('Manage OpenFlow', 'isStandard')
+
     def isStandard(self):
         """ returns true if the activity is of 'standard' kind """
         return self.kind == 'standard'
 
-
     security.declareProtected('Manage OpenFlow', 'isSubflow')
+
     def isSubflow(self):
         """ returns true if the activity is a subflow  """
         return self.subflow != ''
 
-
     security.declareProtected('Manage OpenFlow', 'isDummy')
+
     def isDummy(self):
         """ returns true if the activity is a dummy  """
         return self.kind == 'dummy'
 
     security.declareProtected('Manage OpenFlow', 'isAutoPush')
+
     def isAutoPush(self):
         """ returns true if the activity push mode is automatic"""
-        return self.push_application and self.kind=='standard'
+        return self.push_application and self.kind == 'standard'
+
 
 InitializeClass(activity)

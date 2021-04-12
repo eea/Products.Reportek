@@ -70,7 +70,8 @@ class ReportekApi(BrowserView):
             for doc in env.objectValues('Report Document'):
                 if doc.get_accept_time() is not None:
                     accepttime = doc.get_accept_time().HTML4()
-                else: accepttime = ''
+                else:
+                    accepttime = ''
 
                 doc_properties = {
                     'id': doc.id,
@@ -90,7 +91,6 @@ class ReportekApi(BrowserView):
 
         return json.dumps(results, indent=4)
 
-
     def get_released_envelopes(self, obligation, start_date=None, end_date=None):
         """
         Get the released envelopes for a given obligation.
@@ -100,7 +100,6 @@ class ReportekApi(BrowserView):
         return self.search_envelopes(obligation, start_date=start_date,
                                      end_date=end_date)
 
-
     def get_unreleased_envelopes(self, obligation, start_date=None, end_date=None):
         """
         Get the un-released envelopes for a given obligation.
@@ -109,7 +108,6 @@ class ReportekApi(BrowserView):
 
         return self.search_envelopes(obligation, released=False,
                                      start_date=start_date, end_date=end_date)
-
 
     def get_rejected_envelopes(self, obligation, start_date=None, end_date=None):
         """
@@ -143,4 +141,3 @@ class ReportekApi(BrowserView):
 
         self.request.RESPONSE.setHeader("Content-Type", "application/json")
         return json.dumps(results, indent=4)
-

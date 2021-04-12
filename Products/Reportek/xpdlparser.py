@@ -42,11 +42,11 @@ class WorkflowHandler(ContentHandler):
         self.__transitions = []
 
     def startElement(self, name, attrs):
-        #build a dictionary with all attributes
+        # build a dictionary with all attributes
         attrs_dict = {}
         for attr in attrs.keys():
             attrs_dict[attr] = attrs[attr]
-        #parse tags
+        # parse tags
         if name == 'process':
             self.__process = {}
             self.__activities = []
@@ -65,6 +65,7 @@ class WorkflowHandler(ContentHandler):
             self.__process['activities'] = self.__activities
             self.__process['transitions'] = self.__transitions
             self.processes.append(self.__process)
+
 
 class sxpdlparser:
     """ """

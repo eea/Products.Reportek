@@ -46,13 +46,15 @@ class ReportekPropertiedUser(PropertiedUser):
     def getRolesInContext(self, object):
         """ Return the roles in the context
         """
-        basic_roles = super(ReportekPropertiedUser, self).getRolesInContext(object)
+        basic_roles = super(ReportekPropertiedUser,
+                            self).getRolesInContext(object)
         user_id = self.getId()
         middleware_roles = self.get_roles_for_user_in_context(object, user_id)
         return list(set(basic_roles) | set(middleware_roles))
 
     def allowed(self, object, object_roles=None):
-        basic = super(ReportekPropertiedUser, self).allowed(object, object_roles)
+        basic = super(ReportekPropertiedUser, self).allowed(
+            object, object_roles)
         if basic:
             return 1
 

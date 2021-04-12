@@ -4,6 +4,7 @@
 
 import os
 
+
 def update(pofile):
     """ Update po file
     """
@@ -40,6 +41,7 @@ def update(pofile):
 
     print "\t changed %s broken msgstr" % count
 
+
 def main():
     """ Main
     """
@@ -56,6 +58,7 @@ def main():
         for po in pos:
             path = os.path.join(lc, po)
             update(path)
+
 
 if __name__ == "__main__":
     main()

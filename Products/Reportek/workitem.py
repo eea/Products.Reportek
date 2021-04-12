@@ -96,7 +96,7 @@ class workitem(CatalogAware, object, SimpleItem, PropertyManager,
 
     def title(self):
         return self.activity_id + " by " + self.actor + ", status: " +\
-               self.status
+            self.status
 
     def activity_application(self, activity_id):
         activity = getattr(self.getProcess(), activity_id, None)

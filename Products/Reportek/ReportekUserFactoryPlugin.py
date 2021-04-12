@@ -10,7 +10,7 @@ __all__ = [
     'ReportekUserFactoryPlugin',
     'manage_addReportekUserFactoryPluginForm',
     'addReportekUserFactoryPlugin',
-    ]
+]
 
 
 class ReportekUserFactoryPlugin(BasePlugin):
@@ -19,12 +19,13 @@ class ReportekUserFactoryPlugin(BasePlugin):
     meta_type = 'Reportek User Factory Plugin'
     security = ClassSecurityInfo()
 
-    def __init__( self, id, title=None ):
-        self._setId( id )
+    def __init__(self, id, title=None):
+        self._setId(id)
         self.title = title
 
     security.declarePrivate('createUser')
-    def createUser(self, user_id, name ):
+
+    def createUser(self, user_id, name):
         # here we can check if this user has information in the middleware
         # this is not strictly needed, we can skip this if we want
 
@@ -32,19 +33,19 @@ class ReportekUserFactoryPlugin(BasePlugin):
 
 
 manage_addReportekUserFactoryPluginForm = PageTemplateFile(
-    'zpt/reportekufAdd', globals(), __name__='manage_addReportekUserFactoryPluginForm' )
+    'zpt/reportekufAdd', globals(), __name__='manage_addReportekUserFactoryPluginForm')
 
 
-def addReportekUserFactoryPlugin( dispatcher, id, title='', RESPONSE=None ):
+def addReportekUserFactoryPlugin(dispatcher, id, title='', RESPONSE=None):
     """ Add a Local Role Plugin to 'dispatcher'.
     """
 
-    plugin = ReportekUserFactoryPlugin( id, title )
-    dispatcher._setObject( id, plugin )
+    plugin = ReportekUserFactoryPlugin(id, title)
+    dispatcher._setObject(id, plugin)
 
     if RESPONSE is not None:
-        RESPONSE.redirect( '%s/manage_main?manage_tabs_message=%s' %
-                           ( dispatcher.absolute_url()
-                           , 'ReportekUserFactory+added.' ) )
+        RESPONSE.redirect('%s/manage_main?manage_tabs_message=%s' %
+                          (dispatcher.absolute_url(), 'ReportekUserFactory+added.'))
+
 
 InitializeClass(ReportekUserFactoryPlugin)

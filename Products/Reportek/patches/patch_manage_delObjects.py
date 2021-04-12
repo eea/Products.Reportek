@@ -56,23 +56,27 @@ def patched_manage_delObjects(self, ids=[], REQUEST=None):
 
     The objects specified in 'ids' get deleted.
     """
-    if type(ids) is str: ids=[ids]
+    if type(ids) is str:
+        ids = [ids]
     if not ids:
         return MessageDialog(title='No items specified',
-               message='No items were specified!',
-               action ='./manage_main',)
-    try:    p=self._reserved_names
-    except: p=()
+                             message='No items were specified!',
+                             action='./manage_main',)
+    try:
+        p = self._reserved_names
+    except:
+        p = ()
     processes = []
     for n in ids:
         if n in p:
             return MessageDialog(title='Not Deletable',
-                   message='<EM>%s</EM> cannot be deleted.' % escape(n),
-                   action ='./manage_main',)
+                                 message='<EM>%s</EM> cannot be deleted.' % escape(
+                                     n),
+                                 action='./manage_main',)
 
     while ids:
-        id=ids[-1]
-        v=self._getOb(id, self)
+        id = ids[-1]
+        v = self._getOb(id, self)
         if v.wl_isLocked():
             raise ResourceLockedError, (
                 'Object "%s" is locked via WebDAV' % v.getId())

@@ -23,9 +23,9 @@ def do_cleanup(container, c_type, prefix, threshold):
         for d_id in delete_ids:
             print "Removing {}: {}".format(c_type,
                                            '/'.join([
-                                                     container.absolute_url(1),
-                                                     d_id
-                                                    ]))
+                                               container.absolute_url(1),
+                                               d_id
+                                           ]))
         container.manage_delObjects(delete_ids)
         transaction.commit()
 

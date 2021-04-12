@@ -24,21 +24,24 @@
 
 $Id$"""
 
-__version__='$Revision$'[11:-2]
-
 import lxml.etree
+__version__ = '$Revision$'[11:-2]
+
 
 class SchemaError(ValueError):
     pass
 
+
 def locations_str(locations):
     if isinstance(locations, basestring):
         return locations
-    loc_list = [ loc for loc in locations ]
+    loc_list = [loc for loc in locations]
     return ' '.join(loc_list)
+
 
 def absolute_location(location):
     return location.startswith('http://') or location.startswith('https://')
+
 
 def detect_schema(src):
     """ Detect the schema location of this xml file.

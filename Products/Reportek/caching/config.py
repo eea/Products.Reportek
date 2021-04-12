@@ -25,7 +25,7 @@ CACHE_PROXY = (u"{}:{}".format(CACHE_PURGING_PROXY, CACHE_PURGING_PROXY_PORT),
                ) if CACHE_PURGING_PROXY and CACHE_PURGING_PROXY_PORT else ()
 # ('http://example.com:80`, 'http://www.example.com:80',)
 CACHE_DOMAINS = ((u"http://{}:80".format(CACHE_PURGING_DOMAIN),
-                 u"https://{}:443".format(CACHE_PURGING_DOMAIN),)
+                  u"https://{}:443".format(CACHE_PURGING_DOMAIN),)
                  if CACHE_PURGING_DOMAIN else ())
 
 

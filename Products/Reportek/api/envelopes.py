@@ -400,8 +400,8 @@ class EnvelopesAPI(BrowserView):
                     filter_vs = afilter_v.split(',')
                     res = [afv for afv in filter_vs
                            if afv.upper() != str(
-                            default_props.get(afilter)
-                            ).upper()]
+                               default_props.get(afilter)
+                           ).upper()]
                     if len(res) == len(filter_vs):
                         return True
                 elif afilter_v.upper() != str(

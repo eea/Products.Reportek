@@ -18,7 +18,7 @@
 # Contributor(s):
 # Miruna Badescu, Eau de Web
 
-## RemoteApplication
+# RemoteApplication
 ##
 
 import logging
@@ -37,13 +37,15 @@ from zope.interface import implements
 
 logger = logging.getLogger(__name__ + '.gisqa')
 
-manage_addRemoteRESTApplicationForm = PageTemplateFile('zpt/rest_add',globals())
+manage_addRemoteRESTApplicationForm = PageTemplateFile(
+    'zpt/rest_add', globals())
 
 
 def manage_addRemoteRESTApplication(self, id='', title='', ServiceSubmitURL='', ServiceCheckURL='', app_name='', REQUEST=None):
     """ Generic application that calls a remote REST service """
 
-    ob = RemoteRESTApplication(id, title, ServiceSubmitURL, ServiceCheckURL, app_name)
+    ob = RemoteRESTApplication(
+        id, title, ServiceSubmitURL, ServiceCheckURL, app_name)
     self._setObject(id, ob)
 
     if REQUEST is not None:
@@ -56,7 +58,7 @@ class RemoteRESTApplication(SimpleItem):
     implements(IQAApplication)
     meta_type = 'Remote REST Application'
     manage_options = (
-        ( {'label' : 'Settings', 'action' : 'manage_settings_html'}, ) +
+        ({'label': 'Settings', 'action': 'manage_settings_html'}, ) +
         SimpleItem.manage_options
     )
 
@@ -103,22 +105,23 @@ class RemoteRESTApplication(SimpleItem):
                 data = resp.json()
             except ValueError:
                 workitem.addEvent('%s job request for %s response is not json.'
-                                   % (self.app_name, envelope_url))
+                                  % (self.app_name, envelope_url))
             if data and 'jobId' in data:
                 job_id = data['jobId']
                 self.__update(workitem_id, {'jobid': job_id})
                 job_status = data['jobStatus']
                 if job_status == 'esriJobSubmitted':
                     workitem.addEvent('%s job request for %s successfully submited.'
-                                       % (self.app_name, envelope_url))
+                                      % (self.app_name, envelope_url))
             else:
                 workitem.addEvent('%s job request for %s response is invalid.'
-                                   % (self.app_name, envelope_url))
+                                  % (self.app_name, envelope_url))
         else:
             workitem.addEvent('%s job request for %s returned invalid status code %s.'
-                               % (self.app_name, envelope_url, resp.status_code))
+                              % (self.app_name, envelope_url, resp.status_code))
 
     security.declareProtected('Use OpenFlow', 'callApplication')
+
     def callApplication(self, workitem_id, REQUEST):
         workitem = getattr(self, workitem_id)
         envelope_url = workitem.getMySelf().absolute_url(0)
@@ -135,31 +138,33 @@ class RemoteRESTApplication(SimpleItem):
                 data = resp.json()
             except ValueError:
                 workitem.addEvent('%s job id %s for %s output is not json.'
-                                   % (self.app_name, jobid, envelope_url))
+                                  % (self.app_name, jobid, envelope_url))
             if data and 'jobId' in data:
                 job_status = data['jobStatus']
                 attach = None
                 if job_status == 'esriJobSucceeded':
                     workitem.addEvent('%s job id %s for %s successfully finished.'
-                                       % (self.app_name, jobid, envelope_url))
+                                      % (self.app_name, jobid, envelope_url))
                     try:
                         result_url = data['results']['ResultZip']['paramUrl']
-                        resp = requests.get(self.ServiceCheckURL + '%s/%s' %(str(jobid), result_url), params=params)
+                        resp = requests.get(
+                            self.ServiceCheckURL + '%s/%s' % (str(jobid), result_url), params=params)
                         if resp.status_code == 200:
-                            zip_url = re.sub('(/)*\\\\', '/', resp.json()['value'])
+                            zip_url = re.sub(
+                                '(/)*\\\\', '/', resp.json()['value'])
                             resp = requests.get(zip_url)
                             if resp.status_code == 200:
                                 attach = StringIO(resp.content)
-                                attach.filename = '%s_results.zip' %workitem.getMySelf().id
+                                attach.filename = '%s_results.zip' % workitem.getMySelf().id
                             else:
                                 logger.warning(
                                     'Could not fetch result file from this URL: %s'
-                                        % resp.json()['value']
+                                    % resp.json()['value']
                                 )
                         else:
                             logger.warning(
                                 'Could not fetch results from: %s'
-                                    % result_url
+                                % result_url
                             )
                     except KeyError as err:
                         logger.warning('Unable to find %s in JSON.' % err)
@@ -169,14 +174,15 @@ class RemoteRESTApplication(SimpleItem):
                     self.__finish(workitem_id, REQUEST)
                 elif job_status == 'esriJobFailed':
                     workitem.addEvent('%s job id %s for %s failed.'
-                                       % (self.app_name, jobid, envelope_url))
+                                      % (self.app_name, jobid, envelope_url))
                     messages = (
                         "Your delivery didn't pass validation."
                     )
                     if data:
                         attach = StringIO()
                         for item in data.get('messages'):
-                            attach.write('%s: %s\n' %(item.get('type'), item.get('description')))
+                            attach.write('%s: %s\n' % (
+                                item.get('type'), item.get('description')))
                         attach.flush()
                         attach.seek(0)
                         attach.filename = 'output.log'
@@ -184,19 +190,19 @@ class RemoteRESTApplication(SimpleItem):
                     self.__finish(workitem_id, REQUEST)
                 elif job_status == 'esriJobExecuting':
                     workitem.addEvent('%s job id %s for %s is still running.'
-                                       % (self.app_name, jobid, envelope_url))
+                                      % (self.app_name, jobid, envelope_url))
                     self.__decrease_retries(workitem, REQUEST)
                 else:
                     workitem.addEvent('%s job id %s for %s has status %s.'
-                       % (self.app_name, jobid, envelope_url, job_status))
+                                      % (self.app_name, jobid, envelope_url, job_status))
                     self.__decrease_retries(workitem, REQUEST)
             else:
                 workitem.addEvent('%s job id %s for %s output is invalid.'
-                                   % (self.app_name, jobid, envelope_url))
+                                  % (self.app_name, jobid, envelope_url))
                 self.__finish(workitem_id, REQUEST)
         else:
             workitem.addEvent('%s job id %s for %s returned invalid status code %s.'
-                               % (self.app_name, jobid, envelope_url, resp.status_code))
+                              % (self.app_name, jobid, envelope_url, resp.status_code))
             self.__finish(workitem_id, REQUEST)
 
     def __initialize(self, p_workitem_id):
@@ -207,8 +213,8 @@ class RemoteRESTApplication(SimpleItem):
         storage.update({
             'jobid': None,
             'retries_left': self.nRetries,
-            'last_error':None,
-            'next_run':DateTime()
+            'last_error': None,
+            'next_run': DateTime()
         })
 
     def __update(self, workitem_id, values):
@@ -217,7 +223,7 @@ class RemoteRESTApplication(SimpleItem):
         workitem._p_changed = 1
 
     def __decrease_retries(self, workitem, REQUEST):
-        getattr(workitem, self.app_name)['retries_left']-=1
+        getattr(workitem, self.app_name)['retries_left'] -= 1
         workitem._p_changed = 1
         if getattr(workitem, self.app_name)['retries_left'] == 0:
             self.__finish(workitem.id, REQUEST)
@@ -226,17 +232,19 @@ class RemoteRESTApplication(SimpleItem):
         envelope = self.aq_parent
         feedback_id = '{0}_{1}'.format(self.app_name, jobid)
         envelope.manage_addFeedback(
-                id=feedback_id,
-                file=attach,
-                title='%s results' % self.app_name,
-                activity_id=workitem.activity_id,
-                automatic=1,
-                feedbacktext=messages
+            id=feedback_id,
+            file=attach,
+            title='%s results' % self.app_name,
+            activity_id=workitem.activity_id,
+            automatic=1,
+            feedbacktext=messages
         )
 
     def __finish(self, workitem_id, REQUEST=None):
         """ Completes the workitem and forwards it """
         self.activateWorkitem(workitem_id, actor='openflow_engine')
-        self.completeWorkitem(workitem_id, actor='openflow_engine', REQUEST=REQUEST)
+        self.completeWorkitem(
+            workitem_id, actor='openflow_engine', REQUEST=REQUEST)
+
 
 InitializeClass(RemoteRESTApplication)

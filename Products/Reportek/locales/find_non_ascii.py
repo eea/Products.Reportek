@@ -19,4 +19,3 @@ for i, line in enumerate(f, 1):
             print "Error on line %d" % i
             print str(e)
             print line
-

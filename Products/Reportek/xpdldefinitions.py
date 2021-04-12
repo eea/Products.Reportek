@@ -25,11 +25,13 @@ Parses XML files and extract DTD identifier or XML Schema URL.
 
 """
 
+
 class common:
     def __init__(self, id, name, description):
         self.id = id
         self.name = name
         self.description = description
+
 
 class package:
     def __init__(self):
@@ -38,11 +40,12 @@ class package:
         self.participants = []
         self.process_definitions = []
 
+
 class packageheader:
     def __init__(self):
         self.xpdlversion = 0.0
         self.vendor = ''
-        self.created = '' # datetime
+        self.created = ''  # datetime
         self.version = ''
         self.author = ''
         self.codepage = ''
@@ -56,11 +59,13 @@ class packageheader:
         self.icon = ''
         self.costunit = ''
 
+
 class participant(common):
     def __init__(self, id, name, description):
         common.__dict__['__init__'](self, id, name, description)
         self.extendedattributes = {}
         self.participant_type = ''
+
 
 class application(common):
     def __init__(self, id, name, description):
@@ -68,26 +73,33 @@ class application(common):
         self.extendedattributes = {}
         self.formal_parameters = []
 
+
 class formalparameter:
     def __init__(self):
         self.data_types = []
+
 
 class datafield:
     def __init__(self):
         self.data_types = []
 
+
 class datatype:
     def __init__(self):
         self.basic_types = []
 
+
 class basictype:
     pass
+
 
 class processheader:
     pass
 
+
 class redefinableheader:
     pass
+
 
 class workflowprocess(common):
     def __init__(self, id, name, description):
@@ -103,6 +115,7 @@ class workflowprocess(common):
         self.participants = []
         self.extended_attributes = ()
 
+
 class transition:
     def __init__(self, id, name, from_, to):
         self.id = id
@@ -112,8 +125,10 @@ class transition:
         self.extended_attributes = []
         self.condition = ''
 
+
 class extendedattribute:
     pass
+
 
 class tool:
     def __init__(self, id, type):
@@ -121,11 +136,13 @@ class tool:
         self.type = type
         self.actual_parameters = []
 
+
 class subflow:
     def __init__(self, id, execution):
         self.id = id
         self.execution = execution
         self.actual_parameters = []
+
 
 class loop:
     def __init__(self, kind):
@@ -161,14 +178,17 @@ class activity(common):
         self.waitingtime = ''
         self.workingtime = ''
 
+
 class transitionrestriction:
     def __init__(self):
         self.join = {}
         self.split = None
 
+
 class splittransition:
     def __init__(self):
         self.transition_refs = []
+
 
 class transitionref:
     pass

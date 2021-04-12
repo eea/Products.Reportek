@@ -44,7 +44,7 @@ class QARepository(Folder):
     meta_type = 'Reportek QARepository'
     icon = 'misc_/Reportek/QARepository'
 
-    #security stuff
+    # security stuff
     security = ClassSecurityInfo()
 
     def __init__(self):
@@ -52,7 +52,8 @@ class QARepository(Folder):
         self.id = constants.QAREPOSITORY_ID
         self.QA_application = 'EnvelopeQAApplication'
 
-    meta_types = ({'name': 'QAScript',         'action': 'manage_addQAScriptForm'},)
+    meta_types = (
+        {'name': 'QAScript',         'action': 'manage_addQAScriptForm'},)
     all_meta_types = meta_types
 
     manage_addQAScriptForm = QAScript.manage_addQAScriptForm
@@ -62,7 +63,7 @@ class QARepository(Folder):
         Folder.manage_options[:2]
         +
         (
-            {'label' : 'Remote QA Scripts', 'action' : 'manage_qascripts_html'},
+            {'label': 'Remote QA Scripts', 'action': 'manage_qascripts_html'},
         )
         +
         Folder.manage_options[3:-2]
@@ -83,29 +84,29 @@ class QARepository(Folder):
         return self.unrestrictedTraverse(aqa_path, None)
 
     def _get_local_qa_scripts(self, p_schema=None, dataflow_uris=None,
-            content_type_in=''):
+                              content_type_in=''):
         """ """
         if p_schema and not dataflow_uris:
             return [x for x in self.objectValues('QAScript') if x.xml_schema == p_schema]
         elif p_schema and dataflow_uris and not content_type_in:
             return [x for x in self.objectValues('QAScript')
-                      if (getattr(x, 'workflow', None) in dataflow_uris or
-                          x.xml_schema == p_schema)]
+                    if (getattr(x, 'workflow', None) in dataflow_uris or
+                        x.xml_schema == p_schema)]
         elif p_schema and dataflow_uris and content_type_in:
             return [x for x in self.objectValues('QAScript')
-                      if (getattr(x, 'workflow', None) in dataflow_uris and
-                          content_type_in == getattr(x, 'content_type_in', None)) and
-                          x.xml_schema == p_schema]
+                    if (getattr(x, 'workflow', None) in dataflow_uris and
+                        content_type_in == getattr(x, 'content_type_in', None)) and
+                    x.xml_schema == p_schema]
         elif dataflow_uris and content_type_in:
             return [x for x in self.objectValues('QAScript')
-                      if (getattr(x, 'workflow', None) in dataflow_uris and
-                          content_type_in == getattr(x, 'content_type_in', None))]
+                    if (getattr(x, 'workflow', None) in dataflow_uris and
+                        content_type_in == getattr(x, 'content_type_in', None))]
         elif dataflow_uris and not content_type_in:
             return [x for x in self.objectValues('QAScript')
-                      if (getattr(x, 'workflow', None) in dataflow_uris)]
+                    if (getattr(x, 'workflow', None) in dataflow_uris)]
         elif not dataflow_uris and content_type_in:
             return [x for x in self.objectValues('QAScript')
-                      if (content_type_in == getattr(x, 'content_type_in', None))]
+                    if (content_type_in == getattr(x, 'content_type_in', None))]
         elif not dataflow_uris:
             return self.objectValues('QAScript')
 
@@ -125,6 +126,7 @@ class QARepository(Folder):
         return [self._get_local_qa_scripts(), self._get_remote_qa_scripts()]
 
     security.declareProtected('View', 'getQAScriptsForSchema')
+
     def getQAScriptsForSchema(self, p_schema):
         """ Returns the list of QA script ids available for an XML type
             Used for running the QA scripts on the envelope's 'xml' file
@@ -133,7 +135,8 @@ class QARepository(Folder):
             return []
         l_ret = []
         # local scripts
-        l_ret.extend([x.id for x in self._get_local_qa_scripts() if x.xml_schema == p_schema])
+        l_ret.extend([x.id for x in self._get_local_qa_scripts()
+                      if x.xml_schema == p_schema])
         # remote scripts
         l_qa_app = self.getQAApplication()
         if l_qa_app:
@@ -147,41 +150,43 @@ class QARepository(Folder):
         return getattr(self, constants.DATAFLOW_MAPPINGS)
 
     security.declareProtected('View', 'canRunQAOnFiles')
+
     def canRunQAOnFiles(self, files):
         """ Returns a list of QA script labels
             which can be manually run against the contained XML files
         """
         l_ret = {}
-        #calculate remote service URL
+        # calculate remote service URL
         l_qa_app = self.getQAApplication()
 
         for l_file in files:
             # get the valid schemas for the envelope's dataflows
-            l_valid_schemas = self.getDataflowMappingsContainer().getSchemasForDataflows(l_file.dataflow_uris)
+            l_valid_schemas = self.getDataflowMappingsContainer(
+            ).getSchemasForDataflows(l_file.dataflow_uris)
             # go on only if it's an XML file with a non-empty valid schema or if no valid schemas
             # are defined for those dataflows
-            #NOTE due to updated dataflow_uris, l_valid_schemas is always None
+            # NOTE due to updated dataflow_uris, l_valid_schemas is always None
             if ((l_file.xml_schema_location and
-                (l_file.xml_schema_location in l_valid_schemas or not l_valid_schemas)) or
-                self._get_local_qa_scripts(dataflow_uris=l_file.dataflow_uris)):
-                #remote scripts
+                 (l_file.xml_schema_location in l_valid_schemas or not l_valid_schemas)) or
+                    self._get_local_qa_scripts(dataflow_uris=l_file.dataflow_uris)):
+                # remote scripts
                 if l_qa_app:
-                    l_ret[l_file.id] = l_qa_app.listQAScripts(l_file.xml_schema_location)
-                #local scripts
+                    l_ret[l_file.id] = l_qa_app.listQAScripts(
+                        l_file.xml_schema_location)
+                # local scripts
                 l_buff = [
                     ['loc_%s' % y.id, y.title, y.bobobase_modification_time(),
                      y.max_size] for y in
-                        self._get_local_qa_scripts(
-                            l_file.xml_schema_location,
-                            dataflow_uris=l_file.dataflow_uris,
-                            content_type_in=l_file.content_type)
+                    self._get_local_qa_scripts(
+                        l_file.xml_schema_location,
+                        dataflow_uris=l_file.dataflow_uris,
+                        content_type_in=l_file.content_type)
                 ]
                 if len(l_buff):
                     if l_ret.has_key(l_file.id):
                         l_ret[l_file.id].extend(l_buff)
                     else:
                         l_ret[l_file.id] = l_buff
-
 
         return l_ret
 
@@ -205,7 +210,7 @@ class QARepository(Folder):
                 server_url = self.REQUEST.SERVER_URL.replace('https://',
                                                              'http://')
 
-        #make sure p_file_url is a real Zope file
+        # make sure p_file_url is a real Zope file
         l_file_relative_url = p_file_url.replace('%s/' % server_url, '')
         file_obj = self.unrestrictedTraverse(l_file_relative_url, None)
 
@@ -214,7 +219,8 @@ class QARepository(Folder):
             # local script
             if p_script_id.startswith('loc_'):
 
-                l_script_obj = getattr(self, p_script_id.replace('loc_', ''), None)
+                l_script_obj = getattr(
+                    self, p_script_id.replace('loc_', ''), None)
 
                 if l_script_obj is None:
                     l_res_data.data = 'QA error'
@@ -227,8 +233,8 @@ class QARepository(Folder):
                             tmp_copy = RepUtils.temporary_named_copy(doc_file)
 
                         with tmp_copy:
-                            #generate extra-parameters
-                            #the file path is set default as first parameter
+                            # generate extra-parameters
+                            # the file path is set default as first parameter
                             params = [tmp_copy.name]
                             eval_map = {
                                 'file_obj': file_obj,
@@ -236,18 +242,19 @@ class QARepository(Folder):
                                 'REQUEST': self.REQUEST,
                             }
                             for k in l_script_obj.qa_extraparams:
-                                eval_res = RestrictionCapableEval(k).eval(eval_map)
+                                eval_res = RestrictionCapableEval(
+                                    k).eval(eval_map)
                                 params.append(eval_res)
 
                             command = l_script_obj.script_url % tuple(params)
                             proc = subprocess.Popen(
-                                       shlex.split(command),
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.STDOUT,
-                                       shell=False)
+                                shlex.split(command),
+                                stdout=subprocess.PIPE,
+                                stderr=subprocess.STDOUT,
+                                shell=False)
                             l_res_data.data = proc.stdout.read()
                     else:
-                        l_res_data.data =  'QA error'
+                        l_res_data.data = 'QA error'
 
                 l_tmp = [l_res_ct, l_res_data]
 
@@ -257,7 +264,7 @@ class QARepository(Folder):
                 if l_qa_app:
                     l_tmp = l_qa_app.runQAScript(p_file_url, p_script_id)
         else:
-            #invalid or missing file
+            # invalid or missing file
             l_file_id = ''
             l_res_data.data = 'QA error'
             l_tmp = ['', l_res_data]
@@ -265,13 +272,14 @@ class QARepository(Folder):
         return l_file_id, l_tmp
 
     security.declareProtected(view_management_screens, 'manage_edit')
+
     def manage_edit(self, QA_application, REQUEST=None):
         """ """
         self.QA_application = QA_application
         if REQUEST:
-            message="Content changed"
-            return self.manage_qascripts_html(self,REQUEST,
-                                              manage_tabs_message = message)
+            message = "Content changed"
+            return self.manage_qascripts_html(self, REQUEST,
+                                              manage_tabs_message=message)
 
     security.declareProtected(view_management_screens, 'manage_qascripts_html')
     manage_qascripts_html = PageTemplateFile('zpt/qa/scripts_edit', globals())
@@ -279,10 +287,12 @@ class QARepository(Folder):
     security.declareProtected(view_management_screens, 'index_html')
     index_html = PageTemplateFile('zpt/qa/scripts_index', globals())
 
+
 Globals.InitializeClass(QARepository)
 
 
 class QAResult:
     """ container for QAScript results """
+
     def __init__(self):
         self.data = ''
