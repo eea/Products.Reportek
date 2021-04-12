@@ -39,10 +39,10 @@ from Products.Reportek.RepUtils import (DFlowCatalogAware, get_zip_cache,
 from Products.Reportek.constants import DF_URL_PREFIX
 from Products.Reportek.config import (DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT,
                                       ZIP_CACHE_ENABLED,
-                                      ZIP_CACHE_THRESHOLD)
+                                      ZIP_CACHE_THRESHOLD,
+                                      permission_manage_properties_envelopes)
 from Products.Reportek.BaseDelivery import BaseDelivery
 from Products.Reportek import (Document, Feedback, Hyperlink, RepUtils,
-                               permission_manage_properties_envelopes,
                                zip_content)
 from Products.PythonScripts.standard import url_quote
 from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate

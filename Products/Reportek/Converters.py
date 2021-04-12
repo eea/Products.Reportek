@@ -44,9 +44,9 @@ import Globals
 import Converter
 import constants
 from Products.Reportek.exceptions import LocalConversionException
-from Products.Reportek import LOCAL_CONVERTERS_SCHEME
-from Products.Reportek import LOCAL_CONVERTERS_HOST
-from Products.Reportek import LOCAL_CONVERTERS_PORT
+from Products.Reportek.config import (LOCAL_CONVERTERS_SCHEME,
+                                      LOCAL_CONVERTERS_HOST,
+                                      LOCAL_CONVERTERS_PORT)
 
 detection_log = logging.getLogger(__name__ + '.detection')
 

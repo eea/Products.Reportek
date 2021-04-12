@@ -1,5 +1,5 @@
-# The contents of this file are subject to the Mozilla Public
-# License Version 1.1 (the "License"); you may not use this file
+
+# The contents of this file are subject to the Mozilla Public# License Version 1.1 (the "License"); you may not use this file
 # except in compliance with the License. You may obtain a copy of
 # the License at http://www.mozilla.org/MPL/
 #
@@ -23,15 +23,19 @@ __doc__ = """Reportek __init__ """
 __version__ = '$Rev$'[6:-2]
 
 import logging
+
+from config import DEPLOYMENT_BDR
+from config import DEPLOYMENT_CDR
+from config import REDIS_DATABASE
+from config import REDIS_HOSTNAME
+from config import REDIS_PORT
+from config import REPORTEK_DEPLOYMENT
 from traceback import format_exception_only
-from config import *
 
 import Collection
-import constants
 import Converter
 import Converters
 import DataflowMappings
-import monitoring
 import OpenFlowEngine
 import QARepository
 import QAScript
@@ -43,21 +47,24 @@ import RemoteRestQaApplication
 import ReportekAPI
 import ReportekEngine
 import ReportekUtilities
+import constants
+import monitoring
 # Zope imports
 import Zope2
+
 from AccessControl.Permissions import manage_users as ManageUsers
 from App.ImageFile import ImageFile
-from plone.registry.interfaces import IRegistry
-from Products.PluggableAuthService.PluggableAuthService import \
-    registerMultiPlugin
+from Products.PluggableAuthService.PluggableAuthService import registerMultiPlugin
+from Products.Reportek.ReportekUserFactoryPlugin import ReportekUserFactoryPlugin
+from Products.Reportek.ReportekUserFactoryPlugin import addReportekUserFactoryPlugin
+from Products.Reportek.ReportekUserFactoryPlugin import manage_addReportekUserFactoryPluginForm
 from Products.Reportek.caching.config import registry_setup
-from Products.Reportek.ReportekUserFactoryPlugin import (
-    ReportekUserFactoryPlugin, addReportekUserFactoryPlugin,
-    manage_addReportekUserFactoryPluginForm)
-from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.ZCTextIndex.ZCTextIndex import PLexicon
+from Products.ZCatalog.ZCatalog import ZCatalog
+from plone.registry.interfaces import IRegistry
 from registry import Registry
-from zope.component import getGlobalSiteManager, getUtility
+from zope.component import getGlobalSiteManager
+from zope.component import getUtility
 from zope.i18nmessageid import MessageFactory
 
 logger = logging.getLogger("Reportek")
@@ -296,7 +303,7 @@ def create_reportek_indexes(catalog):
     if 'local_defined_roles' not in catalog.schema():
         catalog.addColumn('local_defined_roles')
     add_index('document_id', catalog, 'FieldIndex')
-    if config.REPORTEK_DEPLOYMENT == config.DEPLOYMENT_BDR:
+    if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
         add_index('get_fgas_activities', catalog, 'FieldIndex', meta=True)
         add_index('get_fgas_reported_gases', catalog, 'FieldIndex', meta=True)
         add_index('get_fgas_i_authorisations',
@@ -429,7 +436,7 @@ def initialize(context):
 
         monitoring.initialize()
 
-    except:
+    except Exception:
         import sys
         import traceback
         import string
@@ -447,28 +454,28 @@ def initialize(context):
 misc_ = {
     "Converters": ImageFile("www/converter.gif", globals()),
     "QARepository": ImageFile("www/qarepo.gif", globals()),
-    "feedback_gif":  ImageFile("www/feedback.gif", globals()),
-    "hyperlink_gif":  ImageFile("www/hyperlink.gif", globals()),
-    "document_gif":  ImageFile("www/document.gif", globals()),
-    "envelope.gif":  ImageFile("www/envelope.gif", globals()),
+    "feedback_gif": ImageFile("www/feedback.gif", globals()),
+    "hyperlink_gif": ImageFile("www/hyperlink.gif", globals()),
+    "document_gif": ImageFile("www/document.gif", globals()),
+    "envelope.gif": ImageFile("www/envelope.gif", globals()),
     "openflowEngine_gif": ImageFile("www/openflowEngine.gif", globals()),
-    "edit_comment_gif":  ImageFile("www/edit_comment.gif", globals()),
-    "delete_comment_gif":  ImageFile("www/delete_comment.gif", globals()),
-    "manage_doc_gif":  ImageFile("www/manage_doc.gif", globals()),
-    "view_doc_gif":  ImageFile("www/view_doc.gif", globals()),
-    "link_gif":  ImageFile("www/link.gif", globals()),
-    "lockicon_gif":  ImageFile("www/lockicon.gif", globals()),
-    "plus_gif":  ImageFile("www/plus.gif", globals()),
-    "minus_gif":  ImageFile("www/minus.gif", globals()),
-    "sort_asc":  ImageFile("www/sort_asc.gif", globals()),
-    "sort_desc":  ImageFile("www/sort_desc.gif", globals()),
-    "sortnot":  ImageFile("www/sortnot.gif", globals()),
-    "accepted":  ImageFile("www/accepted.gif", globals()),
-    "work_in_process":  ImageFile("www/work_in_process.gif", globals()),
+    "edit_comment_gif": ImageFile("www/edit_comment.gif", globals()),
+    "delete_comment_gif": ImageFile("www/delete_comment.gif", globals()),
+    "manage_doc_gif": ImageFile("www/manage_doc.gif", globals()),
+    "view_doc_gif": ImageFile("www/view_doc.gif", globals()),
+    "link_gif": ImageFile("www/link.gif", globals()),
+    "lockicon_gif": ImageFile("www/lockicon.gif", globals()),
+    "plus_gif": ImageFile("www/plus.gif", globals()),
+    "minus_gif": ImageFile("www/minus.gif", globals()),
+    "sort_asc": ImageFile("www/sort_asc.gif", globals()),
+    "sort_desc": ImageFile("www/sort_desc.gif", globals()),
+    "sortnot": ImageFile("www/sortnot.gif", globals()),
+    "accepted": ImageFile("www/accepted.gif", globals()),
+    "work_in_process": ImageFile("www/work_in_process.gif", globals()),
 
-    "Transition.gif":  ImageFile("www/Transition.gif", globals()),
-    "Activity.gif":  ImageFile("www/Activity.gif", globals()),
-    "Process.gif":  ImageFile("www/Process.gif", globals()),
-    "Workitem.gif":  ImageFile("www/Workitem.gif", globals()),
-    "feedback_comment_png":  ImageFile("www/comment.png", globals()),
+    "Transition.gif": ImageFile("www/Transition.gif", globals()),
+    "Activity.gif": ImageFile("www/Activity.gif", globals()),
+    "Process.gif": ImageFile("www/Process.gif", globals()),
+    "Workitem.gif": ImageFile("www/Workitem.gif", globals()),
+    "feedback_comment_png": ImageFile("www/comment.png", globals()),
 }

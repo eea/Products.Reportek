@@ -28,8 +28,8 @@ from Toolz import Toolz
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from Products.Reportek.RepUtils import DFlowCatalogAware
 from Products.Reportek.interfaces import ICollection
-from Products.Reportek import (DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT,
-                               permission_manage_properties_collections)
+from Products.Reportek import DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT
+from Products.Reportek.config import permission_manage_properties_collections
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from OFS.Folder import Folder
 from DateTime import DateTime
