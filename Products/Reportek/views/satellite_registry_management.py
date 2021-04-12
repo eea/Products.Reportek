@@ -13,6 +13,7 @@ logger = logging.getLogger("Reportek")
 
 class SatelliteRegistryManagement(BaseAdmin):
     """ RegistryManagement view """
+
     def __call__(self, *args, **kwargs):
         super(SatelliteRegistryManagement, self).__call__(*args, **kwargs)
 
@@ -54,7 +55,7 @@ class SatelliteRegistryManagement(BaseAdmin):
                 response = api.addEmail(fname, lname, email)
                 if response['success']:
                     return self.request.response.redirect('{0}/{1}?done=1'.format(
-                            self.context.absolute_url(), "notifications_settings"))
+                        self.context.absolute_url(), "notifications_settings"))
                 else:
                     return self.index(error=response['message'])
 
@@ -67,7 +68,7 @@ class SatelliteRegistryManagement(BaseAdmin):
                 response = api.delEmail(email)
                 if response['success']:
                     return self.request.response.redirect('{0}/{1}?done=1'.format(
-                            self.context.absolute_url(), "notifications_settings"))
+                        self.context.absolute_url(), "notifications_settings"))
                 else:
                     return self.index(error=response['message'])
 
@@ -81,14 +82,16 @@ class SatelliteRegistryManagement(BaseAdmin):
                     return self.index(error='Unable to change company status')
                 else:
                     # We need to clear the company_details cache
-                    global_cache.invalidate('Products.Reportek.RegistryManagement.get_company_details')
+                    global_cache.invalidate(
+                        'Products.Reportek.RegistryManagement.get_company_details')
             if self.request.get('orgaction') == 'sync':
                 sync_res = api.sync_company(orgid, domain=domain)
                 if not sync_res:
                     return self.index(error='Unable to sync company')
                 else:
                     # We need to clear the company_details cache
-                    global_cache.invalidate('Products.Reportek.RegistryManagement.get_company_details')
+                    global_cache.invalidate(
+                        'Products.Reportek.RegistryManagement.get_company_details')
                     return self.index(info_message=sync_res.get('message'),
                                       error=False)
         return self.index(error=False)
@@ -134,7 +137,9 @@ class SatelliteRegistryManagement(BaseAdmin):
 
             api = self.get_api()
             self.request.response.setHeader('Content-Type', 'application/json')
-            return json.dumps(api.existsCompany(params, domain=domain), indent=2)
+            return json.dumps(api.existsCompany(params,
+                                                domain=domain),
+                              indent=2)
 
     def get_company_json(self):
         self.request.response.setHeader('Content-Type', 'application/json')
@@ -144,8 +149,9 @@ class SatelliteRegistryManagement(BaseAdmin):
             details = {}
             if self.request.get('id'):
                 companyId = self.request.get('id')
-                details = fix_json_from_id(api.get_company_details(companyId,
-                                                                   domain=domain))
+                details = fix_json_from_id(
+                    api.get_company_details(companyId,
+                                            domain=domain))
 
             return json.dumps(details, indent=2)
 
@@ -198,8 +204,10 @@ class SatelliteRegistryManagement(BaseAdmin):
         company['active'] = {'VALID': True,
                              'DISABLED': False}.get(company.get('status'), False)
         for person in company.get('person'):
-            first_name = person.get('first_name', '') if person.get('first_name', '') else ''
-            last_name = person.get('last_name', '') if person.get('last_name', '') else ''
+            first_name = person.get('first_name', '') if person.get(
+                'first_name', '') else ''
+            last_name = person.get('last_name', '') if person.get(
+                'last_name', '') else ''
             person['name'] = ' '.join([first_name, last_name])
             person['phone'] = ''
             person['fax'] = ''
@@ -222,12 +230,12 @@ class SatelliteRegistryManagement(BaseAdmin):
                                                domain='ODS')
         if account_uid:
             # Search for oldcompany_account first
-            company = [company for company in companies
-                       if str(company.get('oldcompany_account')) == account_uid]
+            company = [c for c in companies
+                       if str(c.get('oldcompany_account')) == account_uid]
             if not company:
                 # Fallback to search for new company id
-                company = [company for company in companies
-                           if str(company.get('company_id')) == account_uid]
+                company = [c for c in companies
+                           if str(c.get('company_id')) == account_uid]
             if company:
                 result.append(self.prep_company_xml(company[0]))
         else:
@@ -298,7 +306,8 @@ class SatelliteRegistryManagement(BaseAdmin):
                 companyId = self.request.get('id')
                 domain = self.request.form.get('domain', 'FGAS')
                 if self.is_permitted(domain):
-                    details = api.unverifyCompany(companyId, self.request.AUTHENTICATED_USER.getUserName(), domain=domain)
+                    details = api.unverifyCompany(
+                        companyId, self.request.AUTHENTICATED_USER.getUserName(), domain=domain)
         return json.dumps(details, indent=2)
 
     def get_companies_excel(self):
@@ -424,7 +433,7 @@ class SatelliteRegistryManagement(BaseAdmin):
         if old_collection_id == 'None':
             old_collection_id = None
         api.lockDownCompany(str(company_id), old_collection_id,
-                                 country_code, domain, user)
+                            country_code, domain, user)
         if came_from:
             return self.request.response.redirect(came_from)
 
@@ -435,6 +444,6 @@ class SatelliteRegistryManagement(BaseAdmin):
         if old_collection_id == 'None':
             old_collection_id = None
         api.unlockCompany(str(company_id), old_collection_id,
-                                 country_code, domain, user)
+                          country_code, domain, user)
         if came_from:
             return self.request.response.redirect(came_from)
