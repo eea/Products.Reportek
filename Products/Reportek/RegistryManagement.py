@@ -127,8 +127,12 @@ class FGASRegistryAPI(BaseRegistryAPI):
             return response.json()
 
     def get_company_licences(self, company_id, year, data, domain='FGAS'):
-        url = '/'.join([self.baseUrl, 'undertaking', domain, company_id,
-                        'licences', year, 'aggregated'])
+        if year:
+            url = '/'.join([self.baseUrl, 'undertaking', domain, company_id,
+                            'licences', year, 'aggregated'])
+        else:
+            url = '/'.join([self.baseUrl, 'undertaking', domain, company_id,
+                            'licences', 'aggregated'])
         response = self.do_api_request(url, method='post', data=data,
                                        headers={'Authorization': self.token},
                                        raw=True)
@@ -205,8 +209,9 @@ class FGASRegistryAPI(BaseRegistryAPI):
                 )
                 if path:
                     details['path'] = '/' + path
-                    details['licences_path'] = '/' + path + '/aggregated_licences'
-                    details['stocks_path'] = '/' + path + '/stocks'
+                    details['licences_path'] = '/' + path + '/aggregated_licences_listing'
+                    details['stocks_path'] = '/' + path + '/stock_listing'
+                    details['paus_path'] = '/' + path + '/process_agent_uses_listing'
             return details
 
     def getCollectionPaths(self, username):

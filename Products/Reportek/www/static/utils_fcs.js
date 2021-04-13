@@ -180,6 +180,98 @@ reportek.utils.fcs = {
           ],
         });
       }
+      if ($("#stocks-company-table").length){
+        self.tbl_endpoint = $("#stocks-company-table").attr("data-href");
+        self.tbl = $("#stocks-company-table").DataTable({
+          "iDisplayLength": 20,
+          "language": {
+              processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>",
+          },
+          "ajax": {
+            "url": self.tbl_endpoint,
+            "contentType": "application/json",
+            "type": "GET",
+            "dataSrc":"",
+          },
+          "drawCallback": function( settings ) {
+            self.handle_domain_change();
+          },
+          "processing": true,
+          "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+          "order": [[ 0, "desc" ]],
+          "autoWidth": true,
+          "aoColumns": [
+            { "mData": "year" },
+            { "mData": "substance_name_form" },
+            { "mData": "type" },
+            { "mData": "is_virgin" },
+            { "mData": "result" }
+          ],
+        });
+      }
+      if ($("#licences-company-table").length){
+        self.tbl_endpoint = $("#licences-company-table").attr("data-href");
+        self.tbl = $("#licences-company-table").DataTable({
+          "iDisplayLength": 20,
+          "language": {
+              processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>",
+          },
+          "ajax": {
+            "url": self.tbl_endpoint,
+            "contentType": "application/json",
+            "type": "GET",
+            "dataSrc":"",
+          },
+          "drawCallback": function( settings ) {
+            self.handle_domain_change();
+          },
+          "processing": true,
+          "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+          "order": [[ 0, "desc" ]],
+          "autoWidth": true,
+          "aoColumns": [
+            { "mData": "year" },
+            { "mData": "substance" },
+            { "mData": "s_orig_country_name" },
+            { "mData": "organization_country_name" },
+            { "mData": "use_kind" },
+            { "mData": "use_desc" },
+            { "mData": "type" },
+            { "mData": "quantity" },
+          ],
+        });
+      }
+      if ($("#paus-company-table").length){
+        self.tbl_endpoint = $("#paus-company-table").attr("data-href");
+        self.tbl = $("#paus-company-table").DataTable({
+          "iDisplayLength": 20,
+          "language": {
+              processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>",
+          },
+          "ajax": {
+            "url": self.tbl_endpoint,
+            "contentType": "application/json",
+            "type": "GET",
+            "dataSrc":"",
+          },
+          "drawCallback": function( settings ) {
+            self.handle_domain_change();
+          },
+          "processing": true,
+          "lengthMenu": [[10, 25, 50, -1], [10, 25, 50, "All"]],
+          "order": [[ 0, "desc" ]],
+          "autoWidth": true,
+          "aoColumns": [
+            { "mData": "year" },
+            { "mData": "substance" },
+            { "mData": "member_state" },
+            { "mData": "process_name" },
+            { "mData": "pau_use" },
+            { "mData": "value" },
+            { "mData": "type" },
+          ],
+        });
+      }
     },
     init_matched_companies: function() {
       var self = reportek.utils.fcs;
