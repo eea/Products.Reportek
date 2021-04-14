@@ -1,3 +1,4 @@
+# flake8: noqa
 ##############################################################################
 #
 # Copyright (c) 2000-2009 Jens Vagelpohl and Contributors. All Rights Reserved.

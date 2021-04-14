@@ -27,8 +27,11 @@ Parses XML files and extract DTD identifier or XML Schema URL.
 
 from StringIO import StringIO
 from xml.sax.handler import ContentHandler
-from xml.sax import *
-from xpdldefinitions import *
+from xml.sax import make_parser, InputSource
+from xpdldefinitions import (package, packageheader, participant, application,
+                             workflowprocess, processheader, activity, tool,
+                             subflow, loop, transitionrestriction,
+                             splittransition, transitionref, transition)
 
 xpdlns_1_0 = "http://www.wfmc.org/2002/XPDL1.0"
 
