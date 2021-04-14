@@ -28,9 +28,8 @@ Parses XML files and extract DTD identifier or XML Schema URL.
 
 # Python imports
 from xml.sax.handler import ContentHandler
-from xml.sax import *
+from xml.sax import make_parser, InputSource
 from cStringIO import StringIO
-from copy import copy
 
 
 class WorkflowHandler(ContentHandler):
