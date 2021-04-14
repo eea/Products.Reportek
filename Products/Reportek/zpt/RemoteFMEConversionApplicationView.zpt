@@ -34,9 +34,9 @@
       <tr>
         <th align="left">FME Workspace exec parameters (JSON template)</th>
         <td colspan="2">
-          <textarea name="FMEWorkspaceParams" rows="20" cols="80 "size="80"
-            tal:content="here/FMEWorkspaceParams|nothing" disabled="disabled">
-          </textarea>
+          <textarea tal:content="here/FMEWorkspaceParams|nothing"
+                    name="FMEWorkspaceParams" rows="20" cols="80 "size="80"
+                    disabled="disabled"></textarea>
         </td>
       </tr>
       <tr>
