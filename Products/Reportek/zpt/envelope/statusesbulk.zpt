@@ -23,7 +23,7 @@
         <input type="radio" name="action" value="accept" checked="checked" id="aaccept"/>
         <label for="aaccept" i18n:translate="">Accept</label><br />
         <input type="radio" name="action" value="unaccept"/ id="aunaccept">
-        <label for="aunaccept"i18n:translate="">Unaccept</label><br /><br />
+        <label for="aunaccept" i18n:translate="">Unaccept</label><br /><br />
         <input type="submit" class="fileop" name="bulkAcceptTime:method" value="Apply" i18n:attributes="value" />
       </form><br />
 
