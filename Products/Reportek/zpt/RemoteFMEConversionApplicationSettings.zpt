@@ -77,8 +77,7 @@
       FME Workspace exec parameters (JSON template)
     </th>
     <td colspan="2">
-      <textarea name="FMEWorkspaceParams" rows="20" cols="80 "size="80" tal:content="here/FMEWorkspaceParams|nothing">
-      </textarea>
+      <textarea name="FMEWorkspaceParams" rows="20" cols="80 "size="80" tal:content="here/FMEWorkspaceParams|nothing">&nbsp</textarea>
     </td>
     <td>
       Available variables: 
