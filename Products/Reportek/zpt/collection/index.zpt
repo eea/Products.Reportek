@@ -158,7 +158,7 @@
           <tal:block tal:condition="permission_chgcoll">
             <input type="submit" class="fileop" name="manage_cutObjects:method" value="Cut" title="Select some files to cut them" i18n:attributes="value,title" />
             <input type="submit" class="fileop" name="manage_copyObjects:method" value="Copy" title="Select some files to copy them" i18n:attributes="value,title" />
-            <input tal:condition="here/cb_dataValid" type="submit" class="fileop" name="manage_pasteObjects:method" value="Paste" title="Paste previously selected files to this envelope" i18n:attributes="value,title" />
+            <input tal:condition="here/cb_dataValid" type="submit" class="fileop" name="manage_pasteObjects:method" value="Paste" title="Paste previously selected files to this envelope" i18n:attributes="value; title" />
             <input type="submit" class="fileop" name="manage_delObjects:method" value="Delete" title="Select some files to delete them" i18n:attributes="value,title" />
           </tal:block>
         </div>
