@@ -43,7 +43,7 @@
         <th align="left">FME Upload Parameters (one per line)</th>
         <td colspan="2">
           <textarea name="FMEUploadParams"
-            tal:content="here/FMEUploadParams|nothing" rows="10"cols="80" size="80" disabled="disabled"></textarea>
+            tal:content="here/FMEUploadParams|nothing" rows="10" cols="80" size="80" disabled="disabled"></textarea>
         </td>
       </tr>
       <tr>
