@@ -1,29 +1,30 @@
-<tal:block content="structure here/manage_page_header"/>
-<tal:block define="manage_tabs_message python:options.get('manage_tabs_message')"
-           content="structure here/manage_tabs" />
+<tal:block tal:content="structure here/manage_page_header"/>
+<tal:block
+  tal:define="manage_tabs_message python:options.get('manage_tabs_message')"
+  tal:content="structure here/manage_tabs" />
 
 <p class="form-help">
-    To change property values, edit the values and click "Save Changes". 
+  To change property values, edit the values and click "Save Changes".
 </p>
 
 <form action="manage_settings" method="post">
-<table>
-  <tr>
-    <th align="left">Title</th>
-    <td colspan="2"><input type="text" name="title" tal:attributes="value here/title" size="80" /></td>
-  </tr>
-  <tr>
-    <th align="left">FME Server</th>
-    <td colspan="2"><input type="text" name="FMEServer"
-               tal:attributes="value here/FMEServer" size="80" />
-    </td>
-  </tr>
-  <tr>
+  <table>
+    <tr>
+      <th align="left">Title</th>
+      <td colspan="2"><input type="text" name="title" tal:attributes="value here/title" size="80" /></td>
+    </tr>
+    <tr>
+      <th align="left">FME Server</th>
+      <td colspan="2"><input type="text" name="FMEServer"
+       tal:attributes="value here/FMEServer" size="80" />
+     </td>
+   </tr>
+   <tr>
     <th align="left">FME Token Endpoint</th>
     <td colspan="2"><input type="text" name="FMETokenEndpoint"
-               tal:attributes="value here/FMETokenEndpoint" size="80" /></td>
-  </tr>
-  <tr>
+     tal:attributes="value here/FMETokenEndpoint" size="80" /></td>
+   </tr>
+   <tr>
     <th align="left">FME Token (Overrides automatic generation)</th>
     <td colspan="2">
       <input type="text" name="FMEToken" size="80" tal:attributes="value here/FMEToken|nothing"/>
@@ -32,18 +33,18 @@
   <tr>
     <th align="left">FME Username</th>
     <td colspan="2"><input type="text" name="FMEUser"
-               tal:attributes="value here/FMEUser" size="80" /></td>
-  </tr>
-    <tr>
+     tal:attributes="value here/FMEUser" size="80" /></td>
+   </tr>
+   <tr>
     <th align="left">FME Password</th>
     <td colspan="2"><input type="password" name="FMEPassword"
-               tal:attributes="value here/FMEPassword" size="80" /></td>
-  </tr>
-    <tr>
+     tal:attributes="value here/FMEPassword" size="80" /></td>
+   </tr>
+   <tr>
     <th align="left">FME Token Expiration</th>
     <td colspan="1"><input type="text" name="FMETokenExpiration"
-               tal:attributes="value here/FMETokenExpiration" style="width: 100%"/></td>
-    <td colspan="1">
+     tal:attributes="value here/FMETokenExpiration" style="width: 100%"/></td>
+     <td colspan="1">
       <select name="FMETokenTimeUnit" style="width: 100%">
         <option value="second" i18n:translate="" tal:attributes="selected python: here.FMETokenTimeUnit == 'second'">Second(s)</option>
         <option value="minute" i18n:translate="" tal:attributes="selected python: here.FMETokenTimeUnit == 'minute'">Minute(s)</option>
@@ -55,24 +56,24 @@
   <tr>
     <th align="left">FME Upload endpoint</th>
     <td colspan="2"><input type="text" name="FMEUploadEndpoint"
-               tal:attributes="value here/FMEUploadEndpoint|nothing" size="80" /></td>
-  </tr>
-  <tr>
+     tal:attributes="value here/FMEUploadEndpoint|nothing" size="80" /></td>
+   </tr>
+   <tr>
     <th align="left">FME Upload directory (relative to FME Upload Endpoint)</th>
     <td colspan="2"><input type="text" name="FMEUploadDir"
-               tal:attributes="value here/FMEUploadDir|nothing" size="80" /></td>
-  </tr>
-  <tr>
+     tal:attributes="value here/FMEUploadDir|nothing" size="80" /></td>
+   </tr>
+   <tr>
     <th align="left">FME Transformation path</th>
     <td colspan="2"><input type="text" name="FMETransformation"
-               tal:attributes="value here/FMETransformation|nothing" size="80" /></td>
-  </tr>
-  <tr>
+     tal:attributes="value here/FMETransformation|nothing" size="80" /></td>
+   </tr>
+   <tr>
     <th align="left">FME Workspace</th>
     <td colspan="2"><input type="text" name="FMEWorkspace"
-               tal:attributes="value here/FMEWorkspace|nothing" size="80" /></td>
-  </tr>
-  <tr>
+     tal:attributes="value here/FMEWorkspace|nothing" size="80" /></td>
+   </tr>
+   <tr>
     <th align="left">
       FME Workspace exec parameters (JSON template)
     </th>
@@ -94,14 +95,14 @@
     <th align="left">FME Upload Parameters (one per line)</th>
     <td colspan="2">
       <textarea name="FMEUploadParams"
-        tal:content="here/FMEUploadParams|nothing" rows="10"cols="80" size="80"></textarea>
+      tal:content="here/FMEUploadParams|nothing" rows="10"cols="80" size="80"></textarea>
     </td>
   </tr>
   <tr>
     <th align="left">FME Convert Filetypes (one per line)</th>
     <td colspan="2">
       <textarea name="FMEFileTypes"
-        tal:content="here/FMEFileTypes|nothing" rows="5" cols="80" size="80"></textarea>
+      tal:content="here/FMEFileTypes|nothing" rows="5" cols="80" size="80"></textarea>
     </td>
   </tr>
   <tr>
@@ -116,25 +117,25 @@
       <input type="checkbox" name="FMEConvCleanup" tal:attributes="checked here/FMEConvCleanup; value here/FMEConvCleanup"/>
     </td>
   </tr>
-    <tr>
-        <th align="left">Activity ID</th>
+  <tr>
+    <th align="left">Activity ID</th>
     <td colspan="2"><input type="text" name="app_name"
-               tal:attributes="value here/app_name" size="80" /></td>
-    </tr>
-    <tr>
-        <th align="left">Maximum number of retries</th>
-        <td colspan="2"><input type="text" name="nRetries" tal:attributes="value here/nRetries" size="5" /></td>
-    </tr>
-    <tr>
-        <th align="left"><label>Frequency of retry (seconds)</label></th>
-        <td align="left">
-            <input type="text" name="retryFrequency" id="retryFrequency" tal:attributes="value here/retryFrequency" size="5" /> 
-        </td>
-    </tr>
-    <tr>
-        <td></td>
-        <td><input type="submit" value="Save Changes" /></td>
-    </tr>
+     tal:attributes="value here/app_name" size="80" /></td>
+   </tr>
+   <tr>
+    <th align="left">Maximum number of retries</th>
+    <td colspan="2"><input type="text" name="nRetries" tal:attributes="value here/nRetries" size="5" /></td>
+  </tr>
+  <tr>
+    <th align="left">Frequency of retry (seconds)</th>
+    <td align="left">
+      <input type="text" name="retryFrequency" id="retryFrequency" tal:attributes="value here/retryFrequency" size="5" />
+    </td>
+  </tr>
+  <tr>
+    <td></td>
+    <td><input type="submit" value="Save Changes" /></td>
+  </tr>
 </table>
 </form>
-<tal:block content="structure here/manage_page_footer"/>
+<tal:block tal:content="structure here/manage_page_footer"/>
