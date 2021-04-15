@@ -1,4 +1,6 @@
 /*global $:false */
+/*global document*/
+/*global window*/
 /*jslint browser:true */
 "use strict";
 var g_isSelected = false;
