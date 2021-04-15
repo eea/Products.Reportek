@@ -2,6 +2,7 @@
 /*global document*/
 /*global window*/
 /*jslint browser:true */
+/* jslint:disable */
 "use strict";
 if (window.reportek === undefined) {
   var reportek = {
