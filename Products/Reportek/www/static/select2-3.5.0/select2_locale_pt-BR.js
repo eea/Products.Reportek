@@ -1,3 +1,4 @@
+/* jslint:disable */
 /**
  * Select2 Brazilian Portuguese translation
  */
