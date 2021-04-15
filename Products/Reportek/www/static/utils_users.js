@@ -210,8 +210,8 @@ reportek.utils.users = {
     user_ul.append($("<li>" + self.renderUsersLI(user) + "</li>"));
     if (self.users[user.username] === undefined) {
       self.users[user.username] = user;
-      self.users[user.username]['checked'] = true;
-      self.users[user.username]['utype'] = "ECAS";
+      self.users[user.username].checked = true;
+      self.users[user.username].utype = "ECAS";
     }
     self.updateUserType(user.username, "ECAS", user.fullname, user.email);
   },
@@ -226,23 +226,25 @@ reportek.utils.users = {
     var ddata = [];
     self.ecas_populated[table_type][page] = true;
     for(var path in users) {
-      var klass = path.slice(1).split("/").join("-");
-      var row = $("."+klass).parents('tr');
-      $.each(users[path], function(idx, user) {
-        if (table_type === "grouped_by_member") {
-          var record = {};
-          record[this.uid] = {"role": this.role,
-                              "uid": this.uid};
-          ddata.push({"collection": {"path": this.path, "title": this.collection},
-                      "obligations": this.obligations,
-                      "users": record});
-        } else {
-          if (user.role === role) {
-            self.appendRowUsers(row, user);
+      if (users.hasOwnProperty(path)) {
+        var klass = path.slice(1).split("/").join("-");
+        var row = $("."+klass).parents('tr');
+        $.each(users[path], function(idx, user) {
+          if (table_type === "grouped_by_member") {
+            var record = {};
+            record[this.uid] = {"role": this.role,
+                                "uid": this.uid};
+            ddata.push({"collection": {"path": this.path, "title": this.collection},
+                        "obligations": this.obligations,
+                        "users": record});
+          } else {
+            if (user.role === role) {
+              self.appendRowUsers(row, user);
+            }
           }
-        }
-      });
-      row.find('.spinner-container').css("display", "none");
+        });
+        row.find('.spinner-container').css("display", "none");
+      }
     }
     if (ddata.length > 0) {
       reportek.utils.spinner.css("display", "block");
