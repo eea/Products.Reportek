@@ -69,7 +69,7 @@ reportek.utils.stuck_envelopes = {
     return urls[key];
   },
 
-  init_table() {
+  init_table: function() {
     var self = reportek.utils.stuck_envelopes;
     $("#s_envs").DataTable({
       "iDisplayLength": 50,
