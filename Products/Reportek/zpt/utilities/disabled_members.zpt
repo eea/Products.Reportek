@@ -99,17 +99,17 @@
                   </td>
                   <td tal:condition="isCdrDeployment" tal:content="search_type"/>
                   <td>
-                    <input type="hidden" tal:attributes="name res; value python: ','.join([path[0] for path in paths])" />
+                    <input type="hidden" tal:attributes="name res; value python: ','.join([p[0] for p in paths])" />
                     <ul>
-                      <li tal:repeat="path paths">
-                        <a tal:attributes="href python: path[0]" tal:content="python: path[0]" />
+                      <li tal:repeat="p paths">
+                        <a tal:attributes="href python: p[0]" tal:content="python: p[0]" />
                       </li>
                     </ul>
                   </td>
                   <td>
                     <ul>
-                      <li tal:repeat="path paths">
-                        <span tal:content="python: ','.join(path[1])" />
+                      <li tal:repeat="p paths">
+                        <span tal:content="python: ','.join(p[1])" />
                       </li>
                   </td>
                 </tal:block>
