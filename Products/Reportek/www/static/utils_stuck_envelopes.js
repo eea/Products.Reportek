@@ -103,7 +103,7 @@ reportek.utils.stuck_envelopes = {
         {
           "targets": 3,
           "data": "s_date"
-        },
+        }
       ]
     });
   },
