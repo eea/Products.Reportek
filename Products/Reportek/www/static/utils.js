@@ -1,4 +1,7 @@
 /*global $, jQuery*/
+/*global document*/
+/*global window*/
+/*jslint browser:true */
 "use strict";
 if (window.reportek === undefined) {
     var reportek = {
@@ -339,7 +342,7 @@ reportek.utils = {
     var results = $("#ajax-results");
 
     var coll_form = $("<form>", {
-      "id": "coll-form",
+      "id": "coll-form"
       });
     results.html("");
 
@@ -462,7 +465,7 @@ reportek.utils = {
       var cb = $(this).parents('tr').find('input[name="collections:list"]');
       cb.prop('checked', $(this).prop('checked'));
     });
-  },
+  }
 };
 
 window.jQuery(document).ready(function () {
