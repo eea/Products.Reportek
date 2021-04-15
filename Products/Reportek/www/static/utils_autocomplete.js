@@ -1,4 +1,7 @@
 /*global $*/
+/*global document*/
+/*global window*/
+/*jslint browser:true */
 "use strict";
 if (window.reportek === undefined) {
   var reportek = {
@@ -12,12 +15,14 @@ reportek.utils.autocomplete = {
       var self = reportek.utils.autocomplete;
       $("#workflow").on("change", function() {
         var selected = $(this).find(":selected");
-        var results = selected.data()['results'];
+        var results = selected.data().results;
         var task = $("#task :selected").val();
         var wfresults = results[task];
         var inspectvals = [];
         for (var prop in wfresults) {
-          inspectvals.push(wfresults[prop]);
+          if (wfresults.hasOwnProperty(prop)) {
+            inspectvals.push(wfresults[prop]);
+          }
         }
         inspectvals.sort();
         inspectvals = $.unique(inspectvals);
@@ -40,7 +45,7 @@ reportek.utils.autocomplete = {
     populateWFSelect: function() {
       var selected = $("#task").find(":selected");
       if (selected.length > 0) {
-        var workflows = selected.data()["workflows"];
+        var workflows = selected.data.workflows;
         if (workflows.length > 0) {
           workflows = workflows.split(',');
         }
