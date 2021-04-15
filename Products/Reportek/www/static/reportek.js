@@ -12,12 +12,14 @@ window.jQuery(document).ready(function () {
     for (var i=0; i<=elems.length; i++) {
       var select = $(elems[i]);
       if (select.length > 0) {
+        /*ignore jslint start*/
         select.select2({
           allowClear: true,
           matcher: function(term, text, option) {
             return text.toUpperCase().indexOf(term.toUpperCase())>=0 || option.val().toUpperCase().indexOf(term.toUpperCase())>=0;
           }
         });
+        /*ignore jslint end*/
       }
     }
     $("input[type='reset']").click(function (){

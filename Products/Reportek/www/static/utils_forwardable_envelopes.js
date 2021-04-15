@@ -98,7 +98,7 @@ reportek.utils.forwardable_envelopes = {
         {
           "targets": 4,
           "data": "s_date"
-        },
+        }
       ]
     });
   },
