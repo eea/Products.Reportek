@@ -1,4 +1,7 @@
 /*global $*/
+/*global document*/
+/*global window*/
+/*jslint browser:true */
 "use strict";
 if (window.reportek === undefined) {
   var reportek = {
@@ -34,7 +37,7 @@ reportek.utils.referrals = {
           },
           success: function (label, element) {
             label.text('').closest('.control-group').removeClass('err');
-          },
+          }
       };
 
       reportek.utils.validate_form(this, valid_obj);
@@ -202,7 +205,7 @@ reportek.utils.referrals = {
     });
     utils.datatable_loading(target, "show");
     dataTable.draw();
-  },
+  }
 };
 
 $(document).ready(function () {

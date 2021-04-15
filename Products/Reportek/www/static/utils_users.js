@@ -1,4 +1,7 @@
 /*global $*/
+/*global document*/
+/*global window*/
+/*jslint browser:true */
 "use strict";
 if (window.reportek === undefined) {
   var reportek = {
@@ -28,10 +31,10 @@ reportek.utils.users = {
     var self = reportek.utils.users;
     $("#datatable").data("table-type", $(".grouping-tabbed-elem.currenttab a").attr("id"));
     self.handleUsersGrouping();
-    if ($("#datatable").length !== 0)
+    if ($("#datatable").length !== 0) {
       self.loadResults();
+    }
   },
-
 
   generateRow: function(row, table_type) {
     var utils = reportek.utils;
@@ -111,14 +114,14 @@ reportek.utils.users = {
       uid_targets = $("[data-uid='" + user + "']");
 
       var tags_fullname = uid_targets.filter('.user-fullname');
-      if (fullname != '') {
+      if (fullname !== '') {
           tags_fullname.parent().html('<small>' + fullname + '</small>');
       } else {
         tags_fullname.parent().remove();
       }
 
       var tags_email = uid_targets.filter('.user-email');
-      if (email != '') {
+      if (email !== '') {
           tags_email.parent().html('<small><a href="mailto:' + email + '">' + email + '</a></small>');
       } else {
         tags_email.parent().remove();
@@ -149,7 +152,7 @@ reportek.utils.users = {
       self.updateUserType(user, self.users[user].utype);
     } else {
       $.ajax({
-        url: url,
+        url: url
       }).success(function(data) {
         self.updateUserTypeMapping(JSON.parse(data));
       });
@@ -163,7 +166,7 @@ reportek.utils.users = {
       $.ajax({
         url: url,
         method: 'POST',
-        data: {users: users},
+        data: {users: users}
         }).done(function(data) {
           var users = JSON.parse(data);
           $.each(users, function(idx, user) {
