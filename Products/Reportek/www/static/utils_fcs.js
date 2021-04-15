@@ -341,7 +341,7 @@ reportek.utils.fcs = {
             "order": [[ 0, "asc" ]]
         });
       }
-    },
+    }
 };
 
 $(document).ready(function () {
