@@ -1,10 +1,10 @@
 <p tal:replace="structure here/manage_page_header" omit-tag="">Header</p>
 <p tal:replace="structure here/manage_tabs" omit-tag="">tabs</p>
-<p class="form-help">
+<p class="form-help" i18n:translate="">
 <em>Pushable activities</em> are activities that the workflow system can assign to you automatically.
 This is done with a push-application in the activity.
 </p>
-<p class="form-help">
+<p class="form-help" i18n:translate="">
 <em>Pullable activities</em> are activities that a user can assign to himself.
 This page sets what roles can do what.
 </p>
@@ -12,16 +12,16 @@ This page sets what roles can do what.
 <table border="1">
 <thead>
 <tr>
-	<th>Role</th>
-	<th>Pushable activities</th>
-	<th>Pullable activities</th>
+	<th i18n:translate="">Role</th>
+	<th i18n:translate="">Pushable activities</th>
+	<th i18n:translate="">Pullable activities</th>
 </tr>
 </thead>
 <tbody>
 <tal:block repeat="role python:here.valid_roles()">
 <tr>
 	<td tal:content="role">Role</td>
-	<td style="text-align: center">
+	<td style="text-align: center" i18n:translate="">
 		<a href="" tal:attributes="href string:manage_editActivitiesPushableOnRole?role=${role}"
 		   tal:condition="python:here.getActivitiesPushableOnRole().has_key(role)">
 		   assigned
@@ -31,7 +31,7 @@ This page sets what roles can do what.
 		   not assigned
 		</a>
 	</td>
-	<td style="text-align: center">
+	<td style="text-align: center" i18n:translate="">
 		<a href="" tal:attributes="href string:manage_editActivitiesPullableOnRole?role=${role}"
 		   tal:condition="python:here.getActivitiesPullableOnRole().has_key(role)">
 		   assigned

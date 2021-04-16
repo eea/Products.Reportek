@@ -3,20 +3,20 @@
 
 <tal:block define="aname python:request.get('name', ''); alink python:request.get('link', '')">
 
-<h1>Edit application <tal:block tal:replace="aname" /></h1>
+<h1 i18n:translate="">Edit application <tal:block tal:replace="aname" /></h1>
 
 <form action="editApplication" method="post">
 <table>
 	<tr>
-		<th><label for="name">Application</label></th>
+		<th><label for="name" i18n:translate="">Application</label></th>
 		<td><tal:block tal:replace="aname" /> <input type="hidden" name="name" tal:attributes="value aname" /></td>
 	</tr>
 	<tr>
-		<th><label for="link">URL</label></th>
+		<th><label for="link" i18n:translate="">URL</label></th>
 		<td><input size="70" type="text" name="link" tal:attributes="value alink" /></td>
 	</tr>
 </table>
-<input type="submit" value="Change" />
+<input type="submit" value="Change" i18n:attributes="value btn-application-change"/>
 </form>
 
 </tal:block>

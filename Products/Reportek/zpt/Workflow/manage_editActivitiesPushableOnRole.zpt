@@ -1,18 +1,18 @@
 <p tal:replace="structure here/manage_page_header" omit-tag="">Header</p>
 <p tal:define="management_view string:Roles" tal:replace="structure here/manage_tabs" omit-tag="">tabs</p>
-<p class="form-help">
+<p class="form-help" i18n:translate="">
 <em>Pushable activities</em> are activities that the workflow system can assign to you automatically.
 This is done with a push-application in the activity.
 </p>
 <tal:block define="global role request/role" />
-<h1>Role: <span tal:replace="role">Name</span></h1>
+<h1 i18n:translate="">Role: <span tal:replace="role">Name</span></h1>
 <table border="1" style="border-collapse:collapse">
 <col style="width: 15em"/>
 <col style="width: 15em"/>
 <col style="width: 5em"/>
 <tr>
-	<th>Process</th>
-	<th style="text-align: center">Pushable Activities</th>
+	<th i18n:translate="">Process</th>
+	<th style="text-align: center" i18n:translate="">Pushable Activities</th>
 	<th>&nbsp;</th>
 </tr>
 <tal:block repeat="process python:here.objectValues('Process')">
@@ -20,7 +20,7 @@ This is done with a push-application in the activity.
 		<input type="hidden" name="role" value="" tal:attributes="value role" />
 		<input type="hidden" name="process" value="" tal:attributes="value process/id" />
 	<tr>
-		<td tal:content="process/id">Process id</td>
+		<td tal:content="process/id" i18n:translate="">Process id</td>
 		<td style="text-align: center">
 			<select multiple="" name="activities:list" style="width:100%">
 				<tal:block repeat="activity python:process.objectValues('Activity')">
@@ -31,11 +31,13 @@ This is done with a push-application in the activity.
 							<option value=""
 									selected=""
 									tal:content="activity/id"
+									i18n:translate=""
 									tal:condition="python:activity.id in list[role][process.id]"
 									tal:attributes="value activity/id">
 								Activity selected
 							</option>
 							<option tal:content="activity/id"
+									i18n:translate=""
 									tal:condition="not:python:activity.id in list[role][process.id]">
 								Activity not selected
 							</option>
@@ -48,6 +50,7 @@ This is done with a push-application in the activity.
 							<option
 								value=""
 								tal:content="activity/id"
+								i18n:translate=""
 								tal:attributes="value activity/id">
 								Activity not selected
 							</option>
@@ -59,6 +62,7 @@ This is done with a push-application in the activity.
 						<option
 								value=""
 								tal:content="activity/id"
+								i18n:translate=""
 								tal:attributes="value activity/id">
 								Activity not selected
 							</option>
@@ -67,7 +71,7 @@ This is done with a push-application in the activity.
 			</select>
 		</td>
 		<td>
-			<input type="submit" value="Update" />
+			<input type="submit" value="Update" i18n:attributes="value btn-update"/>
 		</td>
 	</tr>
 	</form>

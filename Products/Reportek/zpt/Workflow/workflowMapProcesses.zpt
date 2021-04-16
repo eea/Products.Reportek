@@ -5,17 +5,17 @@
   .menu { list-style: none; padding:0; margin:0 }
 </style>
 
-<p class="form-help">Applicability of processes for dataflows and countries.</p>
+<p class="form-help" i18n:translate="">Applicability of processes for dataflows and countries.</p>
 
 <form action="handle_workflow_map_processes" method="post">
   <table border="1" style="width:100%; border-collapse:collapse">
     <thead>
       <tr>
         <th></th>
-        <th>Process</th>
-        <th>Dataflows</th>
-        <th>Countries</th>
-        <th>Action</th>
+        <th i18n:translate="">Process</th>
+        <th i18n:translate="">Dataflows</th>
+        <th i18n:translate="">Countries</th>
+        <th i18n:translate="">Action</th>
       </tr>
     </thead>
     <tbody>
@@ -33,29 +33,29 @@
           </td>
           <td>
              <ul class="menu">
-                <li tal:condition="python:l_dataflows==['*']">All</li>
+                <li tal:condition="python:l_dataflows==['*']" i18n:translate="">All</li>
                 <li tal:repeat="df l_dataflows" tal:attributes="class python:test(path('repeat/df/odd'), 'row-hilite', None)">
                    <tal:block tal:replace="python:here.ReportekEngine.getDataflowTitle(df)" />
-                   (<a tal:attributes="href df" class="list-item" title="Obligation identifier" tal:content="df" />)
+                   (<a tal:attributes="href df" class="list-item" title="Obligation identifier" tal:content="df" i18n:attributes="title title-obl-identifier"/>)
                </li>
-               <li tal:condition="python:len(l_dataflows)==0">None</li>
+               <li tal:condition="python:len(l_dataflows)==0" i18n:translate="">None</li>
            </ul>
           </td>
           <td>
             <ul class="menu">
-              <li tal:condition="python:countries==['*']">All</li>
+              <li tal:condition="python:countries==['*']" i18n:translate="">All</li>
               <tal:block tal:condition="python:countries!=['*']" tal:repeat="country countries">
                 <li tal:attributes="class python:test(path('repeat/country/odd'), 'row-hilite', None)"
                     tal:content="python:here.ReportekEngine.localities_dict(country)['name']" />
               </tal:block>
-              <li tal:condition="not:countries">None</li>
+              <li tal:condition="not:countries" i18n:translate="">None</li>
             </ul>
           </td>
           <td>
             <input type="hidden" tal:attributes="id string:p_process${repeat/item/index};
                                                  name string:p_process_${item/id};
                                                  value item/id" />
-            <input type="submit" value="Edit mapping" tal:attributes="name string:edit_${item/id}" />
+            <input type="submit" value="Edit mapping" tal:attributes="name string:edit_${item/id}" i18n:attributes="value btn-edit-mapping"/>
           </td>
         </tr>
       </tal:block>
@@ -67,7 +67,7 @@
         <td align="left" valign="top" width="16"></td>
         <td align="left" valign="top">
           <div class="form-element">
-            <input type="submit" name="delete" value="Delete mapping" />
+            <input type="submit" name="delete" value="Delete mapping" i18n:attributes="value btn-delete-mapping"/>
           </div>
         </td>
       </tr>

@@ -18,7 +18,7 @@
 </style>
 
 
-<p class="form-help">
+<p class="form-help" i18n:translate="">
 <em>Pullable activities</em> are activities that a user can assign to himself.
 This page sets what roles can do what.
 </p>
@@ -52,7 +52,7 @@ This page sets what roles can do what.
 
 </table>
 
-<button type="submit">save</button>
+<button type="submit" i18n:translate="">save</button>
 
 </form>
 

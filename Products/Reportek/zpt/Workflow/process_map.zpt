@@ -41,24 +41,24 @@
 </style>
 
 <div class="note-msg">
-	<h3><strong>Applications to activities mappings</strong> [<a href="#" style="font-weight: normal;" id="collapse_button">show description</a>]</h3>
+	<h3 i18n:translate=""><strong>Applications to activities mappings</strong> [<a href="#" style="font-weight: normal;" id="collapse_button">show description</a>]</h3>
 	<div id="collapsible" collapsed="true" style="margin-top: 10px;">
 		<hr/>
-		<p>Currently there are two possibilities to map an application to an activity:</p>
+		<p i18n:translate="">Currently there are two possibilities to map an application to an activity:</p>
 		<ul>
-			<li>automatically <span style="color: green;" tal:content="string:[auto]" /> - by path (new)</li>
-			<li>manually <span style="color: orange;" tal:content="string:[man]" /> - by assigning an application instance to the application attribute of the activity (deprecated)</li>
+			<li i18n:translate="">automatically <span style="color: green;" tal:content="string:[auto]" /> - by path (new)</li>
+			<li i18n:translate="">manually <span style="color: orange;" tal:content="string:[man]" /> - by assigning an application instance to the application attribute of the activity (deprecated)</li>
 		</ul>
-		<p>Reportek has a folder structure and mechanism to automatically map applications to activities.</p>
-		<p>
+		<p i18n:translate="">Reportek has a folder structure and mechanism to automatically map applications to activities.</p>
+		<p i18n:translate="">
 			The root folder is <code>/Applications</code>. Each workflow must have a  folder named exactly like its id.<br/>
 			In order to be mapped automatically to an activity, an application must be stored in one of these subfolders and must have a name that matches an activity that's part of the corresponding workflow.
 		</p>
-		<p>
+		<p i18n:translate="">
 			Example of an automatically mapped application: <strong>/Applications/CDDA/Draft.</strong>
 			This application would be mapped to the <strong>Draft</strong> activity in the <strong>CDDA</strong> workflow.
 		</p>
-		<h4>Graph features (not supported in IE):</h4>
+		<h4 i18n:translate="">Graph features (not supported in IE):</h4>
 		<p>
 			<img tal:attributes="src string:${here/absolute_url}/workflow_graph_help" />
 		</p>
@@ -68,8 +68,8 @@
 
 <div style="text-align: right">
 	<form action="." method="post">
-		<input type="submit" name="manage_addActivityForm:method" value="Add Activity" />
-		<input type="submit" name="manage_addTransitionForm:method" value="Add Transition" />
+		<input type="submit" name="manage_addActivityForm:method" value="Add Activity" i18n:attributes="value btn-add-activity"/>
+		<input type="submit" name="manage_addTransitionForm:method" value="Add Transition" i18n:attributes="value btn-add-transition" />
 	</form>
 </div>
 
@@ -83,28 +83,28 @@
 	</table>
 </div>
 
-<h2>Activities</h2>
+<h2 i18n:translate="">Activities</h2>
 <tal:block tal:define="unref_activities here/listUnreferedActivities; activities python:here.tlzSortByAttr(here.objectValues(['Activity']), 'id')">
 	<tal:block tal:condition="python:len(activities)>0">
 		<form action="." method="post">
 		<table border="0" cellpadding="0" cellspacing="0" width="100%">
 			<tr bgcolor="#CCCCCC">
-				<th>Activity</th>
-				<th>Kind</th>
-				<th>Join</th>
-				<th>Split</th>
-				<th>Application name</th>
-				<th>Push application</th>
-				<th>Start mode</th>
-				<th>Bundle mode</th>
-				<th>Finish mode</th>
-				<th>Subflow process</th>
+				<th i18n:translate="">Activity</th>
+				<th i18n:translate="">Kind</th>
+				<th i18n:translate="">Join</th>
+				<th i18n:translate="">Split</th>
+				<th i18n:translate="">Application name</th>
+				<th i18n:translate="">Push application</th>
+				<th i18n:translate="">Start mode</th>
+				<th i18n:translate="">Bundle mode</th>
+				<th i18n:translate="">Finish mode</th>
+				<th i18n:translate="">Subflow process</th>
 			</tr>
 			<tr tal:repeat="item activities" tal:attributes="bgcolor python:test(path('repeat/item/even'), '#fff', '#eee')">
 				<td>
 					<input type="checkbox" name="ids:list" tal:attributes="value item/id" />
 					<a tal:attributes="href string:${item/id}/manage_workspace" tal:content="item/id" />
-					<tal:block tal:condition="python:item.id not in unref_activities"><span style="color: red" title="This activity has no incoming/outcoming transitions">[not used]</span></tal:block>
+					<tal:block tal:condition="python:item.id not in unref_activities"><span style="color: red" title="This activity has no incoming/outcoming transitions" i18n:translate="" i18n:attributes="title title-no-transitions">[not used]</span></tal:block>
 				</td>
 				<td align="center" tal:content="item/kind" />
 				<td align="center" tal:content="item/join_mode" />
@@ -130,24 +130,24 @@
 				<td> </td>
 			</tr>
 		</table>
-		<input type="submit" name="manage_delObjects:method" value="Delete activity" />
+		<input type="submit" name="manage_delObjects:method" value="Delete activity" i18n:attributes="value btn-delete-activity"/>
 		</form>
 	</tal:block>
 	<tal:block tal:condition="python:len(activities)==0">
-		<p>There are no activities yet.</p>
+		<p i18n:translate="">There are no activities yet.</p>
 	</tal:block>
 </tal:block>
 
-<h2>Transitions</h2>
+<h2 i18n:translate="">Transitions</h2>
 <tal:block tal:define="transitions python:here.tlzSortByAttr(here.objectValues(['Transition']), 'id')">
 	<tal:block tal:condition="python:len(transitions)>0">
 		<form action="." method="post">
 		<table border="0" cellpadding="0" cellspacing="0" width="100%">
 			<tr bgcolor="#CCCCCC">
-				<th align="left">Transition</th>
-				<th>Condition</th>
-				<th>From</th>
-				<th>To</th>
+				<th align="left" i18n:translate="">Transition</th>
+				<th i18n:translate="">Condition</th>
+				<th i18n:translate="">From</th>
+				<th i18n:translate="">To</th>
 			</tr>
 			<tr tal:repeat="item transitions" tal:attributes="bgcolor python:test(path('repeat/item/even'), '#fff', '#eee')">
 				<td>
@@ -159,11 +159,11 @@
 				<td tal:content="item/To" />
 			</tr>
 		</table>
-		<input type="submit" name="manage_delObjects:method" value="Delete transition" />
+		<input type="submit" name="manage_delObjects:method" value="Delete transition" i18n:attributes="value btn-delete-transition" />
 		</form>
 	</tal:block>
 	<tal:block tal:condition="python:len(transitions)==0">
-		<p>There are no transitions yet.</p>
+		<p i18n:translate="">There are no transitions yet.</p>
 	</tal:block>
 </tal:block>
 

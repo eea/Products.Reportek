@@ -1,35 +1,36 @@
 <span tal:replace="structure here/manage_page_header" />
 <h1 tal:define="manage_tabs_message request/manage_tabs_message|options/manage_tabs_message|nothing;
       management_view string:Import/Export"
-      tal:replace="structure here/manage_tabs">
+      tal:replace="structure here/manage_tabs"
+      i18n:translate="">
     Tabs
 </h1>
 
-<h2>Import/Export JSON</h2>
+<h2 i18n:translate="">Import/Export JSON</h2>
 
-<fieldset><legend>Import</legend>
+<fieldset><legend i18n:translate="">Import</legend>
 <form action="importFromJson" method="post" enctype="multipart/form-data">
 <table cellspacing="2" cellpadding="2" width="100%">
 	<tr>
-		<td class="form-label" width="20%">Upload JSON file</td>
+		<td class="form-label" width="20%" i18n:translate="">Upload JSON file</td>
 		<td width="80%"><input type="file" name="file" /></td>
 	</tr>
-	<tr><td> </td><td><input type="submit" value="Import" /></td></tr>
+	<tr><td> </td><td><input type="submit" value="Import" i18n:attributes="value btn-import"/></td></tr>
 </table>
 </form>
 </fieldset>
 
-<fieldset><legend>Export</legend>
-<p>Export the applications, processes and their activities and transitions to an JSON file.</p>
+<fieldset><legend i18n:translate="">Export</legend>
+<p i18n:translate="">Export the applications, processes and their activities and transitions to an JSON file.</p>
 <form action="exportToJson" method="post">
-	<label for="proc">Process</label>
+	<label for="proc" i18n:translate="">Process</label>
 	<select name="proc" id="proc">
-		<option value="">all</option>
+		<option value="" i18n:translate="">all</option>
 		<tal:block repeat="proc python:here.objectValues('Process')">
 			<option tal:attributes="value proc/id" tal:content="proc/title_or_id" />
 		</tal:block>
 	</select>
-	<input type="submit" value="Export" />
+	<input type="submit" value="Export" i18n:attributes="value btn-export"/>
 </form>
 </fieldset>
 

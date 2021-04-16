@@ -4,14 +4,14 @@
 <tal:block tal:define="p_process python:request.get('p_process', ''); proc python:getattr(here, p_process);
 	l_mappings here/getProcessMappings; l_dataflows python:l_mappings[p_process]['dataflows']; l_countries python:l_mappings[p_process]['countries']">
 
-<p class="form-help">Applicability of process <a tal:attributes="href string:${proc/absolute_url}/" style="font-weight: bold;" tal:content="proc/title_or_id" /> for dataflows and countries.</p>
+<p class="form-help" i18n:translate="">Applicability of process <a tal:attributes="href string:${proc/absolute_url}/" style="font-weight: bold;" tal:content="proc/title_or_id" /> for dataflows and countries.</p>
 
 <form action="setProcessMappings" method="post">
 <table border="1" style="width:100%; border-collapse:collapse">
 <thead>
 	<tr>
-		<th>Dataflows</th>
-		<th>Countries</th>
+		<th i18n:translate="">Dataflows</th>
+		<th i18n:translate="">Countries</th>
 	</tr>
 </thead>
 <tbody>
@@ -19,10 +19,10 @@
 		<td>
 			<table border="0">
 				<tr>
-					<td colspan="2"><input type="radio" name="p_dataflows_all" id="p_dataflows_all1" value="1" tal:attributes="checked python:l_dataflows == ['*']" /><label for="p_dataflows_all1">All</label></td>
+					<td colspan="2"><input type="radio" name="p_dataflows_all" id="p_dataflows_all1" value="1" tal:attributes="checked python:l_dataflows == ['*']" /><label for="p_dataflows_all1" i18n:translate="">All</label></td>
 				</tr>
 				<tr>
-					<td><input type="radio" name="p_dataflows_all" id="p_dataflows_all0" value="0" tal:attributes="checked python:l_dataflows != ['*']" /><label for="p_dataflows_all0">Pick</label></td>
+					<td><input type="radio" name="p_dataflows_all" id="p_dataflows_all0" value="0" tal:attributes="checked python:l_dataflows != ['*']" /><label for="p_dataflows_all0" i18n:translate="">Pick</label></td>
 					<td tal:define="data here/dataflow_table_grouped; groups python:data[0]; items python:data[1]">
 						<select id="dataflows" size="20" multiple="multiple" name="p_dataflows" id="p_dataflows">
 							<tal:block tal:repeat="group groups">
@@ -43,10 +43,10 @@
 		<td>
 			<table border="0">
 				<tr>
-					<td colspan="2"><input type="radio" name="p_countries_all" id="p_countries_all1" value="1" tal:attributes="checked python:l_countries == ['*']" /> <label for="p_countries_all1">All</label></td>
+					<td colspan="2"><input type="radio" name="p_countries_all" id="p_countries_all1" value="1" tal:attributes="checked python:l_countries == ['*']" /> <label for="p_countries_all1" i18n:translate="">All</label></td>
 				</tr>
 				<tr>
-					<td><input type="radio" name="p_countries_all" id="p_countries_all0" value="0" tal:attributes="checked python:l_countries != ['*']" /> <label for="p_countries_all0">Pick</label></td>
+					<td><input type="radio" name="p_countries_all" id="p_countries_all0" value="0" tal:attributes="checked python:l_countries != ['*']" /> <label for="p_countries_all0" i18n:translate="">Pick</label></td>
 					<td>
 						<select size="20" multiple="multiple" name="p_countries" id="p_countries">
 							<option tal:repeat="item here/getCountries" tal:attributes="value item/uri; selected python:l_countries and item['uri'] in l_countries" tal:content="item/name" />
@@ -59,7 +59,7 @@
 </tbody>
 </table>
 <input type="hidden" name="p_process" id="p_process" tal:attributes="value p_process" />
-<p><input type="submit" value="Save changes" /></p>
+<p><input type="submit" value="Save changes" i18n:attributes="value btn-save-changes"/></p>
 </form>
 </tal:block>
 
