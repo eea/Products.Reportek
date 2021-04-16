@@ -54,8 +54,8 @@
           <td>
             <tal:block repeat="file_item att_file">
               <a tal:attributes="href file_item/absolute_url" title="Download file" tal:content="file_item/getId" i18n:attributes="title">file id</a>
-              <a style="font-size: 0.8em" tal:attributes="href string:manage_uploadAttFeedbackForm?file=${file_item/getId}" title="Edit attached file" i18n:attributes="title">[edit]</a>
-              <a style="font-size: 0.8em" tal:attributes="href string:manage_deleteAttFeedbackForm?file=${file_item/getId}" title="Delete attached file" i18n:attributes="title">[delete]</a><br />
+              <a style="font-size: 0.8em" tal:attributes="href string:manage_uploadAttFeedbackForm?file=${file_item/getId}" title="Edit attached file" i18n:attributes="title" i18n:translate="">[edit]</a>
+              <a style="font-size: 0.8em" tal:attributes="href string:manage_deleteAttFeedbackForm?file=${file_item/getId}" title="Delete attached file" i18n:attributes="title" i18n:translate="">[delete]</a><br />
             </tal:block>
           </td>
         </tr>

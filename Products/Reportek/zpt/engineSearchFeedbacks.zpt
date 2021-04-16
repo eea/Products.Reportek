@@ -10,10 +10,10 @@
   </metal:block>
   <metal:block fill-slot="content">
     <form action="resultsfeedbacks" method="get">
-    <h1>Search Central Data Repository</h1>
+    <h1 i18n:translate="">Search Central Data Repository</h1>
       <table class="formtable">
         <tr>
-          <td><label for="dataflow_uris" class="question">Obligation</label></td>
+          <td><label for="dataflow_uris" class="question" i18n:translate="">Obligation</label></td>
           <td class="select-container" style="width:100%;"
             tal:define="placeholder string:Any obligation;
                         empty_select python: True">
@@ -21,21 +21,21 @@
           </td>
         </tr>
         <tr>
-          <td><label for="startdate" class="question">From date</label></td>
+          <td><label for="startdate" class="question" i18n:translate="">From date</label></td>
           <td>
             <input type="text" id="startdate"
                    name="startdate:date:ignore_empty" size="10" value="" />
           </td>
         </tr>
         <tr>
-          <td><label for="enddate" class="question">End date</label></td>
+          <td><label for="enddate" class="question" i18n:translate="">End date</label></td>
           <td>
             <input type="text" id="enddate" name="enddate:date:ignore_empty"
                    size="10" value="" />
           </td>
         </tr>
         <tr>
-          <td><label for="country" class="question">Country</label></td>
+          <td><label for="country" class="question" i18n:translate="">Country</label></td>
           <td>
             <metal:block metal:use-macro="here/engineMacros/macros/countrySelect"/>
           </td>
