@@ -7,18 +7,18 @@
         return true;
     }
 </script>
-<h4>Migration status</h4>
-<p>This page shows each applied migration for this deployment.</p>
+<h4 i18n:translate="">Migration status</h4>
+<p i18n:translate="">This page shows each applied migration for this deployment.</p>
 
-<h2>Available updates</h2>
+<h2 i18n:translate="">Available updates</h2>
 <form name="migration" action='' method='post'>
     <input type="hidden" name="update" id="update" value=""/>
     <table class="table simple_table" tal:condition="options/todo_migrationRows">
         <tr>
-            <th style="text-align: center;">Name</th>
-            <th style="text-align: center;">Update Version</th>
-            <th style="text-align: center;">Applicable to this deployment</th>
-            <th style="text-align: center;">Apply update</th>
+            <th style="text-align: center;" i18n:translate="">Name</th>
+            <th style="text-align: center;" i18n:translate="">Update Version</th>
+            <th style="text-align: center;" i18n:translate="">Applicable to this deployment</th>
+            <th style="text-align: center;" i18n:translate="">Apply update</th>
         </tr>
         <tal:block repeat="row options/todo_migrationRows">
         <tr>
@@ -28,19 +28,20 @@
             <td style="text-align: center;">
                 <input tal:condition="row/applicable" 
                     type="submit" tal:attributes="name row/name"
+                    i18n:attributes="value btn-apply"
                     value="Apply" onclick="return do_update(this);"/>
             </td>
         </tr>
         </tal:block>
     </table>
 </form>
-<h2>Applied updates</h2>
+<h2 i18n:translate="">Applied updates</h2>
 <table class="table simple_table" tal:condition="options/done_migrationRows">
     <tr>
-        <th style="text-align: center;">Name</th>
-        <th style="text-align: center;">Update Version</th>
-        <th style="text-align: center;">Created</th>
-        <th style="text-align: center;">Updated</th>
+        <th style="text-align: center;" i18n:translate="">Name</th>
+        <th style="text-align: center;" i18n:translate="">Update Version</th>
+        <th style="text-align: center;" i18n:translate="">Created</th>
+        <th style="text-align: center;" i18n:translate="">Updated</th>
     </tr>
     <tal:block repeat="row options/done_migrationRows">
     <tr>

@@ -13,45 +13,48 @@
 
     <div id="operations">
       <ul>
-        <li><a tal:attributes="href request/URL2">Back to feedback</a></li>
+        <li><a tal:attributes="href request/URL2" i18n:translate="">Back to feedback</a></li>
       </ul>
     </div>
 
-    <h1>Edit comment</h1>
+    <h1 i18n:translate="">Edit comment</h1>
 
-    <p>
+    <p i18n:translate="">
       Fill the properties in the form below and click <strong>Submit</strong>.
     </p>
 
-    <fieldset><legend>Edit properties</legend>
+    <fieldset><legend i18n:translate="">Edit properties</legend>
       <form method="post" tal:attributes="action string:${here/absolute_url}/updateComment">
         <div class="field">
-          <label for="title">Subject</label>
+          <label for="title" i18n:translate="">Subject</label>
           <input type="text" name="title:utf8:ustring" id="title" size="50" tal:attributes="value here/title" />
         </div>
         <div class="field">
-          <label for="body">Comment</label>
+          <label for="body" i18n:translate="">Comment</label>
           <textarea id="body" name="body:utf8:ustring" rows="20" cols="72" tal:content="here/body" />
         </div>
         <div class="field">
           <input type="hidden" name="notif" value="" />
-          <input type="submit" value="Submit" />
+          <input type="submit" value="Submit" i18n:attributes="value btn-submit"/>
         </div>
       </form>
     </fieldset>
 
     <fieldset>
       <tal:block define="files python:here.objectValues('File')">
-      <legend>Attached files</legend>
+      <legend i18n:translate="">Attached files</legend>
       <table cellspacing="5" cellpadding="0" border="0" tal:condition="files">
         <tr>
-          <th style="vertical-align: top">Attached files: </th>
+          <th style="vertical-align: top" i18n:translate="">Attached files: </th>
           <td>
             <tal:block repeat="file files">
-            <a tal:attributes="href file/absolute_url" title="Download file" tal:content="file/id" />
+            <a tal:attributes="href file/absolute_url" title="Download file" tal:content="file/id"
+              i18n:attributes="title title-download-file" />
             <div style="font-size: 0.8em; float:right;">
-              <a tal:attributes="href string:comment_upload?file=${file/id}" title="Edit attached file">[edit]</a>
-              <a tal:attributes="href string:comment_delete_file?file=${file/id}" title="Delete attached file">[delete]</a>
+              <a tal:attributes="href string:comment_upload?file=${file/id}" title="Edit attached file"
+                i18n:translate="" i18n:attributes="title title-edit-file">[edit]</a>
+              <a tal:attributes="href string:comment_delete_file?file=${file/id}"
+                title="Delete attached file" i18n:translate="" i18n:attributes="title title-delete-file">[delete]</a>
             </div><br />
             </tal:block>
           </td>
@@ -61,12 +64,12 @@
       <form id="edit" action="uploadFileComment" method="post" enctype="multipart/form-data">
         <table cellspacing="5" cellpadding="0" border="0">
           <tr>
-            <th align="left">Upload new file</th>
+            <th align="left" i18n:translate="">Upload new file</th>
             <td><input type="file" name="file" size="25" value="" /></td>
           </tr>
           <tr>
             <td>&nbsp;</td>
-            <td><input type="submit" name="submit" value="Upload" /></td>
+            <td><input type="submit" name="submit" value="Upload" i18n:attributes="value btn-upload"/></td>
           </tr>
         </table>
       </form>
@@ -74,7 +77,7 @@
     </fieldset>
     </tal:block>
 
-    <p tal:condition="not:here/checkPermissionEditComments">You are not authorized to access this resource</p>
+    <p tal:condition="not:here/checkPermissionEditComments" i18n:translate="">You are not authorized to access this resource</p>
 
     <script>
         CKEDITOR.replace('body');

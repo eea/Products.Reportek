@@ -4,19 +4,19 @@
 
       <div id="operations">
         <ul>
-          <li><a tal:attributes="href string:${here/absolute_url}/comment_edit">Back to comment</a></li>
+          <li><a tal:attributes="href string:${here/absolute_url}/comment_edit" i18n:translate="">Back to comment</a></li>
         </ul>
       </div>
 
-      <h1>Upload new file for <span tal:replace="file_id" /></h1>
+      <h1 i18n:translate="">Upload new file for <span tal:replace="file_id" /></h1>
 
       <form method="POST" name="editFileComment" action="editFileComment" enctype="multipart/form-data">
         <input type="hidden" name="file_id" tal:attributes="value file_id" />
         <input type="file" name="file" size="25" value="" />
-        <input type="submit" name="upload" value="Upload" />
+        <input type="submit" name="upload" value="Upload" i18n:attributes="value btn-upload"/>
       </form>
 
     </tal:block>
-    <p tal:condition="not:here/checkPermissionEditComments">You are not authorized to access this resource</p>
+    <p tal:condition="not:here/checkPermissionEditComments" i18n:translate="">You are not authorized to access this resource</p>
   </metal:block>
 </metal:block>
