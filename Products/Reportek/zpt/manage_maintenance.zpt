@@ -1,16 +1,16 @@
 <tal:block replace="structure context/manage_page_header" />
 <tal:block replace="structure context/manage_tabs" />
 
-<p>
+<p i18n:translate="">
     <strong tal:content="python:len(context)"></strong> objects in catalog.
 </p>
 
 
 <form tal:attributes="action string:${context/absolute_url}/manage_do_rebuild"
       method="post">
-<p>
+<p i18n:translate="">
     Clear catalog and re-populate it by traversing the site:
-    <input type="submit" value="rebuild catalog" />
+    <input type="submit" value="rebuild catalog" i18n:attributes="value btn-rebuild-catalog"/>
 </p>
 </form>
 

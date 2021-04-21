@@ -43,7 +43,7 @@
                     </td>
                 </tal:block>
                 <tal:block condition="not: here/is_compressed">
-                    <td align="left">Not compressed</td>
+                    <td align="left" i18n:translate="">Not compressed</td>
                 </tal:block>
             </tr>
         <tr tal:condition="has_permission">

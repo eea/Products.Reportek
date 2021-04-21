@@ -8,16 +8,16 @@
 
     <metal:block fill-slot="tabs">
       <h5 i18n:translate=""
-       tal:condition="python: deployment == 'BDR' and filtered">The Auditors will have read-only access for country folders and will be country representatives, while Clients (ClientODS, ClientCARS and ClientFG, etc.) have an overview for the entire obligation's collection.</h5>
+       tal:condition="python: deployment == 'BDR' and filtered" i18n:translate="">The Auditors will have read-only access for country folders and will be country representatives, while Clients (ClientODS, ClientCARS and ClientFG, etc.) have an overview for the entire obligation's collection.</h5>
       <div class="tabbedmenu" tal:condition="filtered">
         <ul class="unstyled-list">
           <li class="grouping-tabbed-elem currenttab">
-            <a href="#grouped_by_path" id="grouped_by_path">
+            <a href="#grouped_by_path" id="grouped_by_path" i18n:translate="">
               Grouped by path
             </a>
           </li>
           <li class="grouping-tabbed-elem">
-            <a href="#grouped_by_member" id="grouped_by_member">
+            <a href="#grouped_by_member" id="grouped_by_member" i18n:translate="">
               Grouped by member
             </a>
           </li>

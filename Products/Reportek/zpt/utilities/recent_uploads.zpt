@@ -21,28 +21,28 @@
   <metal:block use-macro="here/util_controls/macros/utilities-controls" />
   <form action="" method="get">
     <div class="filters">
-      <h1>Recent uploads</h1>
+      <h1 i18n:translate="">Recent uploads</h1>
 
-      <h2>1. Select obligations</h2>
+      <h2 i18n:translate="">1. Select obligations</h2>
       <div class="form-group"
         tal:define="multiple string:multiple">
-        <label for="obligations">Obligations</label>
+        <label for="obligations" i18n:translate="">Obligations</label>
         <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
       </div>
 
-      <h2>2. Select one or more countries</h2>
+      <h2 i18n:translate="">2. Select one or more countries</h2>
       <tal:block metal:use-macro="here/filters/macros/countries" />
 
       <div>
-        <label for="start-date">Start date</label>
+        <label for="start-date" i18n:translate="">Start date</label>
         <input type="date" id="start-date" name="startdate"/>
 
-        <label for="end-date">End date</label>
+        <label for="end-date" i18n:translate="">End date</label>
         <input type="date" id="end-date" name="enddate"/>
       </div>
 
       <div>
-        <input type="submit" name="btn.search" value="Search" />
+        <input type="submit" name="btn.search" value="Search" i18n:attributes="value btn-search"/>
       </div>
     </div>
   </form>
@@ -58,17 +58,17 @@
   </style>
   <div tal:condition="request/btn.search | nothing"
         tal:define="envelopes view/get_recent_uploads">
-    <span tal:condition="not: envelopes">No envelopes.</span>
+    <span tal:condition="not: envelopes" i18n:translate="">No envelopes.</span>
     <table id="env-table" tal:condition="envelopes">
       <thead>
         <tr>
-          <th width="10%">Reported</th>
-          <th width="10%">Country</th>
-          <th width="20%">Title</th>
-          <th width="10%">Activity</th>
-          <th width="10%">Status</th>
-          <th width="15%">Feedback</th>
-          <th width="25%">Files</th>
+          <th width="10%" i18n:translate="">Reported</th>
+          <th width="10%" i18n:translate="">Country</th>
+          <th width="20%" i18n:translate="">Title</th>
+          <th width="10%" i18n:translate="">Activity</th>
+          <th width="10%" i18n:translate="">Status</th>
+          <th width="15%" i18n:translate="">Feedback</th>
+          <th width="25%" i18n:translate="">Files</th>
         </tr>
       </thead>
 
@@ -77,10 +77,10 @@
           <td tal:content="env/reportingdate"/>
           <td tal:content="env/country"/>
           <td>
-            <a class="break-all" tal:attributes="href env/link" tal:content="env/title" title="Link to envelope"/>
+            <a class="break-all" tal:attributes="href env/link" tal:content="env/title" title="Link to envelope" i18n:attributes="title title-link-to-envelope"/>
           </td>
           <td>
-            <a tal:condition="python: env['activity'] == 'End'" tal:attributes="href string: ${env/link}/envelope_zip" tal:content="env/activity" title="Zip envelope and download"></a>
+            <a tal:condition="python: env['activity'] == 'End'" tal:attributes="href string: ${env/link}/envelope_zip" tal:content="env/activity" title="Zip envelope and download" i18n:attributes="title title-zip-and-download"></a>
             <span tal:condition="python: env['activity'] != 'End'" tal:content="env/activity"></span>
           </td>
           <td tal:content="env/status"></td>
@@ -88,7 +88,7 @@
             <tal:block tal:condition="env/feedbacks" tal:repeat="feedback env/feedbacks">
               <a class="break-all" tal:content="python: feedback.id[:16]" tal:attributes="href feedback/absolute_url; title feedback/absolute_url"></a><br/>
             </tal:block>
-            <span tal:condition="not: env/feedbacks">No feedback posted</span>
+            <span tal:condition="not: env/feedbacks" i18n:translate="">No feedback posted</span>
           </td>
           <td tal:condition="env/files" >
             <tal:block repeat="file env/files">
@@ -101,7 +101,7 @@
             </tal:block>
           </td>
           <td tal:condition="not: env/files">
-            <span>No files uploaded</span>
+            <span i18n:translate="">No files uploaded</span>
           </td>
         </tr>
       </tbody>

@@ -3,13 +3,13 @@
 
     <div id="operations">
       <ul>
-        <li><a href="/">Frontpage</a></li>
+        <li><a href="/" i18n:translate="">Frontpage</a></li>
       </ul>
     </div>
 
-    <h1>Global task list</h1>
+    <h1 i18n:translate="">Global task list</h1>
 
-    <p>
+    <p i18n:translate="">
       This page represents the TODO list for all users of the website.
       First, this gives you an overview of what tasks you can work on
       next: If there is no user assigned to an envelope, click on the
@@ -31,6 +31,8 @@
           <th tal:condition="python:how=='asc'" class="sorted" scope="col">
               <a rel="nofollow"
                 tal:attributes="href string:${here/absolute_url}/globalworklist?sort=getCountryName&how=desc"
+                i18n:translate=""
+                i18n:attributes="title title-sorted-az-coverage"
                 title="Sorted A..Z by Coverage - Click to reverse" >Coverage
                 <img src="misc_/Reportek/sort_asc" alt="" />
               </a>
@@ -38,6 +40,8 @@
           <th tal:condition="python:how=='desc'" class="sorted" scope="col">
               <a rel="nofollow"
                 tal:attributes="href string:${here/absolute_url}/globalworklist?sort=getCountryName&how=asc"
+                i18n:translate=""
+                i18n:attributes="title title-sorted-za-coverage"
                 title="Sorted Z..A by Coverage - Click to reverse">Coverage
                 <img src="misc_/Reportek/sort_desc" alt="" />
               </a>
@@ -46,17 +50,21 @@
           <th tal:condition="python:sortby!='country'" scope="col">
               <a rel="nofollow"
                 tal:attributes="href string:${here/absolute_url}/globalworklist?sort=getCountryName&how=asc"
+                i18n:translate=""
+                i18n:attributes="title title-sortable"
                 title="Sortable">Coverage
                 <img src="misc_/Reportek/sortnot" alt="" />
               </a>
           </th>
-          <th>Envelope</th>
-          <th>Task</th>
-          <th>Status</th>
+          <th i18n:translate="">Envelope</th>
+          <th i18n:translate="">Task</th>
+          <th i18n:translate="">Status</th>
           <tal:block tal:condition="python:sortby=='actor'">
           <th tal:condition="python:how=='asc'" class="sorted" scope="col">
               <a rel="nofollow"
                 tal:attributes="href string:${here/absolute_url}/globalworklist?sort=actor&how=desc"
+                i18n:translate=""
+                i18n:attributes="title title-sorted-az-user"
                 title="Sorted A..Z by user - Click to reverse" >User
                 <img src="misc_/Reportek/sort_asc" alt="" />
               </a>
@@ -64,6 +72,8 @@
           <th tal:condition="python:how=='desc'" class="sorted" scope="col">
               <a rel="nofollow"
                 tal:attributes="href string:${here/absolute_url}/globalworklist?sort=actor&how=asc"
+                i18n:translate=""
+                i18n:attributes="title title-sorted-za-user"
                 title="Sorted Z..A by user - Click to reverse">User
                 <img src="misc_/Reportek/sort_desc" alt="" />
               </a>
@@ -72,6 +82,8 @@
           <th tal:condition="python:sortby!='actor'" scope="col">
               <a rel="nofollow"
                 tal:attributes="href string:${here/absolute_url}/globalworklist?sort=actor&how=asc"
+                i18n:translate=""
+                i18n:attributes="title title-sortable"
                 title="Sortable">User
                 <img src="misc_/Reportek/sortnot" alt="" />
               </a>
@@ -80,6 +92,8 @@
           <th tal:condition="python:how=='asc'" class="sorted" scope="col">
               <a rel="nofollow"
                 tal:attributes="href string:${here/absolute_url}/globalworklist?sort=reportingdate&how=desc"
+                i18n:translate=""
+                i18n:attributes="title title-sorted-az-reportingdate"
                 title="Sorted A..Z by last reporting date - Click to reverse" >Reported
                 <img src="misc_/Reportek/sort_asc" alt="" />
               </a>
@@ -87,6 +101,8 @@
           <th tal:condition="python:how=='desc'" class="sorted" scope="col">
               <a rel="nofollow"
                 tal:attributes="href string:${here/absolute_url}/globalworklist?sort=reportingdate&how=asc"
+                i18n:translate=""
+                i18n:attributes="title title-sorted-az-reportingdate"
                 title="Sorted A..Z by last reporting date - Click to reverse">Reported
                 <img src="misc_/Reportek/sort_desc" alt="" />
               </a>
@@ -95,6 +111,8 @@
           <th tal:condition="python:sortby!='reportingdate'" scope="col">
               <a rel="nofollow"
                 tal:attributes="href string:${here/absolute_url}/globalworklist?sort=reportingdate&how=asc"
+                i18n:translate=""
+                i18n:attributes="title title-sortable"
                 title="Sortable">Reported
                 <img src="misc_/Reportek/sortnot" alt="" />
               </a>
@@ -121,7 +139,7 @@
         </tbody>
     </table>
 
-    <p tal:condition="not:paginator/object_list">Nothing on the task list</p>
+    <p tal:condition="not:paginator/object_list" i18n:translate="">Nothing on the task list</p>
 
     <tal:block define="records_pagination nocall:here/records_pagination"
                content="structure python:records_pagination(documents=paginator, page_url=page_url)" />

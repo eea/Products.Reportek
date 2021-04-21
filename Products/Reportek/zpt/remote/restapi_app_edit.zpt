@@ -1,62 +1,62 @@
 <tal:block tal:replace="structure context/manage_page_header" />
 <tal:block tal:replace="structure python:context.manage_tabs(management_view='Settings')" />
-<p class="form-help">
+<p class="form-help" i18n:translate="">
     To change property values, edit the values and click "Save Changes".
 </p>
 
 <form action="manage_settings" method="post">
 <table>
     <tr>
-        <th align="left"><label for="title">Title</label></th>
+        <th align="left"><label for="title" i18n:translate="">Title</label></th>
         <td><input type="text" name="title" id="title" tal:attributes="value here/title" size="40" /></td>
     </tr>   
     <tr>
-        <th align="left"><label for="base_url">Remote API base URL</label></th>
+        <th align="left"><label for="base_url" i18n:translate="">Remote API base URL</label></th>
         <td>
             <input type="text" name="base_url" id="base_url" tal:attributes="value here/base_url" size="40" />
         </td>
     </tr>
     <tr>
-        <th align="left"><label for="async_base_url">Remote async API base URL</label></th>
+        <th align="left"><label for="async_base_url" i18n:translate="">Remote async API base URL</label></th>
         <td>
             <input type="text" name="async_base_url" id="async_base_url" tal:attributes="value here/async_base_url" size="40" />
         </td>
     </tr>
     <tr>
-      <th><label for="jobs_endpoint">QA Jobs endpoint relative to Base URL(s)</label></th>
+      <th><label for="jobs_endpoint" i18n:translate="">QA Jobs endpoint relative to Base URL(s)</label></th>
       <td><input type="text" name="jobs_endpoint" id="jobs_endpoint" size="40" tal:attributes="value here/jobs_endpoint" /></td>
     </tr>
     <tr>
-        <th><label for="batch_endpoint">Batch endpoint relative to jobs endpoint</label></th>
+        <th><label for="batch_endpoint" i18n:translate="">Batch endpoint relative to jobs endpoint</label></th>
         <td><input type="text" name="batch_endpoint" id="batch_endpoint" size="40" tal:attributes="value here/batch_endpoint" /></td>
     </tr>
     <tr>
-        <th><label for="qascripts_endpoint">QA Scripts endpoint relative to Base URL(s)</label></th>
+        <th><label for="qascripts_endpoint" i18n:translate="">QA Scripts endpoint relative to Base URL(s)</label></th>
         <td><input type="text" name="qascripts_endpoint" id="qascripts_endpoint" size="40" tal:attributes="value here/qascripts_endpoint" /></td>
     </tr>
     <tr>
-        <th align="left"><label for="token">JWT token (leave empty if it shouldn't be used)</label></th>
+        <th align="left"><label for="token" i18n:translate="">JWT token (leave empty if it shouldn't be used)</label></th>
         <td><input type="text" name="token" id="token" tal:attributes="value here/token|nothing" size="40" /></td>
     </tr>
     <tr>
-        <th align="left"><label for="app_name">Activity ID</label></th>
+        <th align="left"><label for="app_name" i18n:translate="">Activity ID</label></th>
         <td><input type="text" name="app_name" id="app_name" tal:attributes="value here/app_name" size="40" /></td>
     </tr>
     <tr>
-        <th align="left"><label for="retries">Maximum number of retries</label></th>
+        <th align="left"><label for="retries" i18n:translate="">Maximum number of retries</label></th>
         <td><input type="text" name="retries" id="retries" tal:attributes="value here/retries" size="5" /></td>
     </tr>
     <tr>
-        <th align="left"><label for="timeout">Remote API request timeout</label></th>
+        <th align="left"><label for="timeout" i18n:translate="">Remote API request timeout</label></th>
         <td><input type="text" name="timeout" id="timeout" tal:attributes="value here/timeout" size="5" /></td>
     </tr>
     <tr>
-        <th align="left"><label for="timeout">Remote API request retry frequency</label></th>
+        <th align="left"><label for="timeout" i18n:translate="">Remote API request retry frequency</label></th>
         <td><input type="text" name="r_frequency" id="r_frequency" tal:attributes="value here/r_frequency|nothing" size="5" /></td>
     </tr>
     <tr>
         <td></td>
-        <td><input type="submit" value="Save Changes" /></td>
+        <td><input type="submit" value="Save Changes" i18n:attributes="value btn-save-changes"/></td>
     </tr>
 </table>
 </form>

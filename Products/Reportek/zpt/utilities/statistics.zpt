@@ -8,29 +8,29 @@
   </metal:block>
 <metal:block fill-slot="content">
     <metal:block use-macro="here/util_controls/macros/utilities-controls" />
-    <h1>Statistics</h1>
+    <h1 i18n:translate="">Statistics</h1>
     <ul tal:define="total view/totals_per_type">
-        <li>Number of envelopes: <span tal:content="total/envelopes"></span></li>
-        <li>Number of <em>released</em> envelopes: <span tal:content="total/envelopes_released"></span></li>
-        <li>Number of files: <span tal:content="total/files"></span></li>
-        <li>Number of feedbacks: <span tal:content="total/feedbacks"></span></li>
-        <li>Number of hyperlinks: <span tal:content="total/hyperlinks"></span></li>
-        <li>Number of referrals: <span tal:content="total/referrals"></span></li>
+        <li i18n:translate="">Number of envelopes: <span tal:content="total/envelopes"></span></li>
+        <li i18n:translate="">Number of <em>released</em> envelopes: <span tal:content="total/envelopes_released"></span></li>
+        <li i18n:translate="">Number of files: <span tal:content="total/files"></span></li>
+        <li i18n:translate="">Number of feedbacks: <span tal:content="total/feedbacks"></span></li>
+        <li i18n:translate="">Number of hyperlinks: <span tal:content="total/hyperlinks"></span></li>
+        <li i18n:translate="">Number of referrals: <span tal:content="total/referrals"></span></li>
     </ul>
 
     <iframe width='900' height='700' frameBorder="0" src='https://www.eea.europa.eu/data-and-maps/daviz/reportnet-deliveries-per-year-in-totals-1/embed-chart?chart=chart_1&chartWidth=800&chartHeight=600&customStyle=.googlechart_view{margin-left:0px%3B}'></iframe>
 
-    <h2>Total deliveries per country per year</h2>
+    <h2 i18n:translate="">Total deliveries per country per year</h2>
 
     <iframe width='900' height='952' frameBorder="0" src='https://www.eea.europa.eu/data-and-maps/daviz/deliveries-per-country-per-year-1/embed-dashboard?dashboard=dashboard-01&customStyle=.googlechart_view{margin-left:0px%3B}'></iframe>
 
-    <h2>Total deliveries (released envelopes) per country</h2>
+    <h2 i18n:translate="">Total deliveries (released envelopes) per country</h2>
     <table class="datatable"
            tal:define="deliveries view/deliveries_per_country"
            tal:condition="deliveries">
         <tr>
-            <th>Country</th>
-            <th>Deliveries</th>
+            <th i18n:translate="">Country</th>
+            <th i18n:translate="">Deliveries</th>
         </tr>
         <tal:block repeat="delivery deliveries">
             <tr>

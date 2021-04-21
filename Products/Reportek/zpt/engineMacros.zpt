@@ -8,7 +8,7 @@
                       dummy python:values.sort(key=lambda k, u=u: (k.get('uri') in u, k['SOURCE_TITLE'], k['TITLE']));"
           tal:attributes="size obligation_select_size | default">
           <span tal:content="values"/>
-    <option value="">Any obligation</option>
+    <option value="" i18n:translate="">Any obligation</option>
     <tal:block repeat="value values">
       <tal:block
           define="flip python:repeat['value'].start or
@@ -49,9 +49,10 @@
 
 <metal:block define-macro="partOfYearSelect">
   <select id="partofyear" name="partofyear" class="select2-enabled">
-    <option value="">Any part of year</option>
+    <option value="" i18n:translate="">Any part of year</option>
     <option tal:define="given_value partofyear_selected | nothing;"
             tal:repeat="value here/ReportekEngine/partofyear_table"
+            i18n:translate=""
             tal:attributes="value value;
                             selected python: value == given_value;"
             tal:content="python: here.reporting_year_labels.get(value)">
@@ -67,6 +68,7 @@
     <option tal:define="values python:context.localities_table;
                         given_value country_selected | nothing;"
             tal:repeat="value values"
+            i18n:translate=""
             tal:attributes="value value/uri;
                             selected python: value['uri'] == given_value"
             tal:content="value/name" >
@@ -79,7 +81,7 @@
 <metal:block define-macro="formInputFields">
   <input type="hidden" name="sort_on" value="reportingdate"/>
   <input type="hidden" name="sort_order" value="reverse"/>
-  <input type="submit" value="Submit Query" />
+  <input type="submit" value="Submit Query" i18n:attributes="value btn-submi-query"/>
   <input type="reset" value="Reset fields" />
 </metal:block>
 
@@ -91,6 +93,7 @@
 <metal:block define-slot="previous_link">
 <a href="previousbatch" tal:define="p batch/previous"
                         tal:condition="p"
+                        i18n:translate=""
                         tal:attributes="href python:'?query_start=%s&'
                                                     'batch_size=%s&'
                                                     'dataflow_uris=%s&'
@@ -131,7 +134,7 @@
   <tbody>
       <tal:block repeat="result batch">
       <tr tal:attributes="class python:'zebraeven' if not repeat['result'].index%2 else ''">
-        <tal:comment content="nothing">
+        <tal:comment content="nothing" i18n:translate="">
         if result has getObject, then it is a brain, fetch the object
         else it probably is an already fetched object - return function
         that returns the initial object back
@@ -147,6 +150,7 @@
 <metal:block define-slot="next_link">
     <a href="nextbatch" tal:define="n batch/next"
                         tal:condition="n"
+                        i18n:translate=""
                         tal:attributes="href python:'?query_start=%s&'
                                                     'batch_size=%s&'
                                                     'dataflow_uris=%s&'

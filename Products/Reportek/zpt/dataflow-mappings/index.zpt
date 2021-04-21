@@ -1,13 +1,13 @@
 <tal:block content="structure context/manage_page_header" />
 <tal:block content="structure context/manage_tabs" />
 
-<h1>Dataflow mappings in this Data Repository</h1>
+<h1 i18n:translate="">Dataflow mappings in this Data Repository</h1>
 
 <table class="datatable" cellpadding="2" cellpadding="0">
   <thead class="list-header">
-    <th>Dataflow Mapping</th>
-    <th>Obligations</th>
-    <th style="width: 45%;">Schemas</th>
+    <th i18n:translate="">Dataflow Mapping</th>
+    <th i18n:translate="">Obligations</th>
+    <th style="width: 45%;" i18n:translate="">Schemas</th>
   </thead>
   <tbody>
     <tr tal:repeat="mapping python: context.objectValues('Dataflow Mappings Record')"
@@ -34,8 +34,8 @@
                 </a> - 
                 <span tal:content="python:schema.get('name')" />
               </td>
-              <td style="width: 90px;">
-                <label>
+              <td style="width: 90px;" i18n:translate="">
+                <label i18n:translate="">
                   <input type="checkbox"
                    tal:attributes="checked python: {True: 'checked'}.get(schema.get('has_webform'))"
                    disabled />

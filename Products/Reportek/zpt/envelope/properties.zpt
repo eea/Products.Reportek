@@ -46,7 +46,7 @@
               <select name="partofyear" id="partofyear" class="select2-enabled" style="width:35%">
                 <option tal:repeat="item here/partofyear_table" tal:attributes="value item; selected python:item==here.partofyear" tal:content="python: context.reporting_year_labels.get(item)" i18n:translate="" />
               </select>
-              <span class="form-optional">to</span>
+              <span class="form-optional" i18n:translate="">to</span>
               <input type="text" name="endyear" size="4" maxlength="4"
                      tal:attributes="value context/endyear" />
             </td>
@@ -69,7 +69,8 @@
             <td>
               <input type="checkbox" name="sync_process" disabled="disabled"
                 value="sync"
-                title="Warning! The envelope will be forwarded to the first Activity of the new workflow" />
+                title="Warning! The envelope will be forwarded to the first Activity of the new workflow"
+                i18n:attributes="title title-warning-env-forwarded-to-first-act" />
             </td>
           </tr>
 
@@ -121,7 +122,7 @@
           <tr>
             <td></td>
             <td>
-              <input type="submit" name="manage_editEnvelope:method" value="Change" />
+              <input type="submit" name="manage_editEnvelope:method" value="Change" i18n:attributes="value btn-change"/>
             </td>
           </tr>
 

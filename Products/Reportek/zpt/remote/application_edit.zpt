@@ -1,53 +1,53 @@
 <tal:block tal:replace="structure context/manage_page_header" />
 <tal:block tal:replace="structure python:context.manage_tabs(management_view='Settings')" />
 
-<p class="form-help">
+<p class="form-help" i18n:translate="">
     To change property values, edit the values and click "Save Changes".
 </p>
 
 <form action="manage_settings" method="post">
 <table>
     <tr>
-        <th align="left"><label for="title">Title</label></th>
+        <th align="left"><label for="title" i18n:translate="">Title</label></th>
         <td colspan="2"><input type="text" name="title" id="title" tal:attributes="value here/title" size="40" /></td>
     </tr>
     <tr>
-        <th align="left"><label for="RemoteServer">Remote server URL</label></th>
+        <th align="left"><label for="RemoteServer" i18n:translate="">Remote server URL</label></th>
         <td colspan="2">
             <input type="text" name="RemoteServer" id="RemoteServer" tal:attributes="value here/RemoteServer" size="40" />
-            <em>(e.g. http://converters.eionet.europa.eu/RpcRouter)</em>
+            <em i18n:translate="">(e.g. http://converters.eionet.europa.eu/RpcRouter)</em>
         </td>
     </tr>
     <tr>
-        <th align="left"><label for="RemoteService">Service name on remote server</label></th>
+        <th align="left"><label for="RemoteService" i18n:translate="">Service name on remote server</label></th>
         <td colspan="2"><input type="text" name="RemoteService" id="RemoteService" tal:attributes="value here/RemoteService" size="40" /></td>
     </tr>
     <tr>
-        <th align="left"><label for="token">JWT Token (used for job cancelation)</label></th>
+        <th align="left"><label for="token" i18n:translate="">JWT Token (used for job cancelation)</label></th>
         <td colspan="2"><input type="text" name="token" id="token" tal:attributes="value here/token|nothing" size="40" /></td>
     </tr>
     <tr>
-        <th align="left"><label for="app_name">Activity ID</label></th>
+        <th align="left"><label for="app_name" i18n:translate="">Activity ID</label></th>
         <td colspan="2"><input type="text" name="app_name" id="app_name" tal:attributes="value here/app_name" size="40" /></td>
     </tr>
     <tr>
         <th/>
-        <th align="left" style="width:25%"><label>Analyze step</label></th>
-        <th align="left" style="width:25%"><label>Job result polling step</label></th>
+        <th align="left" style="width:25%"><label i18n:translate="">Analyze step</label></th>
+        <th align="left" style="width:25%"><label i18n:translate="">Job result polling step</label></th>
     </tr>
     <tr>
-        <th align="left"><label>Maximum number of retries</label></th>
+        <th align="left"><label i18n:translate="">Maximum number of retries</label></th>
         <td align="left"><input type="text" name="nRetries" id="nRetries" tal:attributes="value here/nRetries" size="5" /></td>
         <td align="left"><input type="text" name="nJobRetries" id="nJobRetries" tal:attributes="value here/nJobRetries|here/nRetries" size="5" /></td>
     </tr>
     <tr>
-        <th align="left"><label for="requestTimeout">Request timeout</label></th>
+        <th align="left"><label for="requestTimeout" i18n:translate="">Request timeout</label></th>
         <td colspan="2">
             <input type="text" name="requestTimeout" id="requestTimeout" tal:attributes="value here/requestTimeout|nothing" size="5" />
         </td>
     </tr>
     <tr>
-        <th align="left"><label>Frequency of retry (seconds)</label></th>
+        <th align="left"><label i18n:translate="">Frequency of retry (seconds)</label></th>
         <td align="left">
             <input type="text" name="retryFrequency" id="retryFrequency" tal:attributes="value here/retryFrequency" size="5" /> 
         </td>
@@ -57,7 +57,7 @@
     </tr>
     <tr>
         <td></td>
-        <td><input type="submit" value="Save Changes" /></td>
+        <td><input type="submit" value="Save Changes" i18n:attributes="value btn-save-changes"/></td>
     </tr>
 </table>
 </form>

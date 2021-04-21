@@ -8,36 +8,36 @@
                     instance_id here/getId;
                     workitems python:here.tlzSortObjsListByMethod(here.objectValues(['Workitem']), 'bobobase_modification_time');
                     workitems_list here/getListOfWorkitems">
-  <p>
+  <p i18n:translate="">
     The instance is <em tal:content="here/status" />.
 
     <tal:block tal:condition="python:here.status=='initiated'">
-      <a tal:attributes="href string:${here/absolute_url}/startInstance?instance_id=${instance_id}">Activate</a> it.
+      <a tal:attributes="href string:${here/absolute_url}/startInstance?instance_id=${instance_id}" i18n:translate="">Activate</a> it.
     </tal:block>
 
     <tal:block tal:condition="python:here.status in ['active', 'initiated', 'running']">
-      <a tal:attributes="href string:${here/absolute_url}/suspendInstance?instance_id=${instance_id}">Suspend</a> it.
+      <a tal:attributes="href string:${here/absolute_url}/suspendInstance?instance_id=${instance_id}" i18n:translate="">Suspend</a> it.
     </tal:block>
 
     <tal:block tal:condition="python:here.status=='suspended'">
-      <a tal:attributes="href string:${here/absolute_url}/resumeInstance?instance_id=${instance_id}">Resume</a> it.
+      <a tal:attributes="href string:${here/absolute_url}/resumeInstance?instance_id=${instance_id}" i18n:translate="">Resume</a> it.
     </tal:block>
 
     <tal:block tal:condition="python:here.status not in ['complete', 'terminated']">
-      <a tal:attributes="href string:${here/absolute_url}/terminateInstance?instance_id=${instance_id}">Terminate</a> it.
+      <a tal:attributes="href string:${here/absolute_url}/terminateInstance?instance_id=${instance_id}" i18n:translate="">Terminate</a> it.
     </tal:block>
   </p>
 
-  <h3>Workflow defined by the process: <a tal:attributes="href here/process_path" tal:content="here/process_path" /></h3>
+  <h3 i18n:translate="">Workflow defined by the process: <a tal:attributes="href here/process_path" tal:content="here/process_path" /></h3>
 
   <tal:block tal:condition="python:here.status in ['complete', 'active', 'running']">
     <table border="1" cellspacing="0" cellpadding="0" style="width:100%; border-collapse:collapse">
       <tr bgcolor="#CCCCCC">
-        <th>Workitem</th>
-        <th>Status</th>
-        <th>Activity</th>
-        <th>Application</th>
-        <th>Action</th>
+        <th i18n:translate="">Workitem</th>
+        <th i18n:translate="">Status</th>
+        <th i18n:translate="">Activity</th>
+        <th i18n:translate="">Application</th>
+        <th i18n:translate="">Action</th>
       </tr>
       <tr bgcolor="#ffffff" tal:repeat="item workitems">
         <td align="center" tal:content="item/id" />
@@ -51,7 +51,7 @@
                                        activity_app_id python:activity_app_url.split('/')[-2];">
           <a tal:attributes="href activity_app_url" tal:content="activity_app_id" />
         </td>
-        <td align="center">&nbsp;
+        <td align="center" i18n:translate="">&nbsp;
           <tal:block tal:condition="python:item.status=='blocked'">
             waiting <strong tal:content="item/blocked" /> arrival/s
           </tal:block>
@@ -59,80 +59,80 @@
             <tal:block tal:condition="item/blocked">
               Blocked - waiting <strong tal:content="item/blocked" /> arrival/s
             </tal:block>
-            <tal:block tal:condition="python:not item.blocked">
-              <a tal:attributes="href string:${item/absolute_url}/assignWorkitem?workitem_id=${item/id}&actor=${UserName}">AUTO assign</a>
+            <tal:block tal:condition="python:not item.blocked" i18n:translate="">
+              <a tal:attributes="href string:${item/absolute_url}/assignWorkitem?workitem_id=${item/id}&actor=${UserName}" i18n:translate="">AUTO assign</a>
               |
-              <a tal:attributes="href string:${item/absolute_url}/unassignWorkitem?workitem_id=${item/id}">unassign</a>
+              <a tal:attributes="href string:${item/absolute_url}/unassignWorkitem?workitem_id=${item/id}" i18n:translate="">unassign</a>
               |
-              <a tal:attributes="href string:${item/absolute_url}/activateWorkitem?workitem_id=${item/id}&actor=${UserName}">activate</a>
+              <a tal:attributes="href string:${item/absolute_url}/activateWorkitem?workitem_id=${item/id}&actor=${UserName}" i18n:translate="">activate</a>
               |
-              <a tal:attributes="href string:${item/absolute_url}/suspendWorkitem?workitem_id=${item/id}">suspend</a>
+              <a tal:attributes="href string:${item/absolute_url}/suspendWorkitem?workitem_id=${item/id}" i18n:translate="">suspend</a>
               |
-              <a tal:attributes="href string:${item/absolute_url}/falloutWorkitem?workitem_id=${item/id}">fallout</a>
+              <a tal:attributes="href string:${item/absolute_url}/falloutWorkitem?workitem_id=${item/id}" i18n:translate="">fallout</a>
             </tal:block>
           </tal:block>
           <tal:block tal:condition="python:item.status=='active'">
-            <a tal:attributes="href string:${item/absolute_url}/completeWorkitem?workitem_id=${item/id}">complete</a>
+            <a tal:attributes="href string:${item/absolute_url}/completeWorkitem?workitem_id=${item/id}" i18n:translate="">complete</a>
             |
-            <a tal:attributes="href string:${item/absolute_url}/inactivateWorkitem?workitem_id=${item/id}">inactivate</a>
+            <a tal:attributes="href string:${item/absolute_url}/inactivateWorkitem?workitem_id=${item/id}" i18n:translate="">inactivate</a>
             |
-            <a tal:attributes="href string:${item/absolute_url}/falloutWorkitem?workitem_id=${item/id}">fallout</a>
+            <a tal:attributes="href string:${item/absolute_url}/falloutWorkitem?workitem_id=${item/id}" i18n:translate="">fallout</a>
           </tal:block>
           <tal:block tal:condition="python:item.status=='complete'">
             <tal:block tal:condition="python:not (item.activity_id=='End' or item.workitems_to)">
-              <a tal:attributes="href string:${item/absolute_url}/forwardWorkitem?workitem_id=${item/id}">forward</a>
+              <a tal:attributes="href string:${item/absolute_url}/forwardWorkitem?workitem_id=${item/id}" i18n:translate="">forward</a>
             </tal:block>
           </tal:block>
           <tal:block tal:condition="python:item.status=='fallout'">
-              <a tal:attributes="href string:${item/absolute_url}/chooseFallin?workitem_id=${item/id}">fallin</a>
+              <a tal:attributes="href string:${item/absolute_url}/chooseFallin?workitem_id=${item/id}" i18n:translate="">fallin</a>
               |
-              <a tal:attributes="href string:${item/absolute_url}/endFallinWorkitem?workitem_id=${item/id}">end fallout</a>
+              <a tal:attributes="href string:${item/absolute_url}/endFallinWorkitem?workitem_id=${item/id}" i18n:translate="">end fallout</a>
           </tal:block>
           <tal:block tal:condition="python:item.status=='suspended'">
-              <a tal:attributes="href string:${item/absolute_url}/resumeWorkitem?workitem_id=${item/id}">resume</a>
+              <a tal:attributes="href string:${item/absolute_url}/resumeWorkitem?workitem_id=${item/id}" i18n:translate="">resume</a>
           </tal:block>
         </td>
       </tr>
-      <tr tal:condition="python:len(workitems)==0">
+      <tr tal:condition="python:len(workitems)==0" i18n:translate="">
         <td colspan="5">There are no <tal:block tal:replace="here/status" /> workitems.</td>
       </tr>
     </table>
   </tal:block>
 
   <tal:block tal:condition="python:len(workitems_list)>0">
-    <h2>Instance history</h2>
+    <h2 i18n:translate="">Instance history</h2>
     <table cellspacing="0" cellpadding="0" border="1" style="width:600px;border-collapse:collapse;margin:0 0 20px;" tal:repeat="item workitems_list">
       <col style="width:100px"/>
       <col style="width:500px"/>
       <tr>
-        <th bgcolor="#CCCCCC">Id</th>
+        <th bgcolor="#CCCCCC" i18n:translate="">Id</th>
         <td tal:content="item/id" />
       </tr>
       <tr>
-        <th bgcolor="#CCCCCC">Activity</th>
-        <td><tal:block tal:replace="item/activity_id" /> (in process <em tal:content="item/process_path" />)</td>
+        <th bgcolor="#CCCCCC" i18n:translate="">Activity</th>
+        <td i18n:translate=""><tal:block tal:replace="item/activity_id" /> (in process <em tal:content="item/process_path" />)</td>
       </tr>
       <tr>
-        <th bgcolor="#CCCCCC">Actor</th>
+        <th bgcolor="#CCCCCC" i18n:translate="">Actor</th>
         <td tal:content="item/actor" />
       </tr>
       <tr>
-        <th bgcolor="#CCCCCC">From</th>
+        <th bgcolor="#CCCCCC" i18n:translate="">From</th>
         <td tal:content="item/workitems_from" />
       </tr>
       <tr>
-        <th bgcolor="#CCCCCC">Status</th>
+        <th bgcolor="#CCCCCC" i18n:translate="">Status</th>
         <td tal:content="item/status" />
       </tr>
       <tr>
-        <th bgcolor="#CCCCCC">To</th>
+        <th bgcolor="#CCCCCC" i18n:translate="">To</th>
         <td tal:content="item/workitems_to" />
       </tr>
       <tr>
-        <th bgcolor="#CCCCCC">Events</th>
+        <th bgcolor="#CCCCCC" i18n:translate="">Events</th>
         <td>
           <ol>
-            <li tal:repeat="event_item item/event_log">
+            <li tal:repeat="event_item item/event_log" i18n:translate="">
               <tal:block tal:replace="event_item/event" /> (<tal:block tal:replace="python:event_item['time'].strftime('%Y/%m/%d %H:%M:%S')" />)
             </li>
           </ol>

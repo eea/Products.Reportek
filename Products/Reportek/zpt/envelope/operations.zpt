@@ -20,7 +20,8 @@
                the task can work on it.
                Afterwards you can click on
                [Deactivate] or [Complete]"
-               i18n:translate="">Activate task</a>
+               i18n:translate=""
+               i18n:attributes="title title-activate-task">Activate task</a>
           </li>
         </tal:block>
         <tal:block condition="
@@ -36,7 +37,8 @@
                  title="Deactivation keeps the work already
                         done, and makes it possible for
                         someone else to take over the task"
-                 i18n:translate="">Deactivate task</a>
+                 i18n:translate=""
+                 i18n:attributes="title title-deactivate-task">Deactivate task</a>
             </li>
         </tal:block>
 <!--           <tal:block condition="

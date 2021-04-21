@@ -63,7 +63,7 @@
                   </select>
                   <label for="endyear" class="form-optional" i18n:translate="">to</label>
                   <input type="text" id="endyear" name="endyear" size="4" maxlength="4" value="" />
-                  <p>Please enter the year covered by the dataset you are reporting</p>
+                  <p i18n:translate="">Please enter the year covered by the dataset you are reporting</p>
                   <br />
                 </td>
               </tr>

@@ -4,19 +4,19 @@
 <form action="manage_addQAScript" method="post">
 <table cellspacing="0" cellpadding="2" border="0">
 	<tr>
-		<th><label class="form-label" for="id">Id</label></th>
+		<th><label class="form-label" for="id" i18n:translate="">Id</label></th>
 		<td><input type="text" name="id" id="id" size="20" /></td>
 	</tr>
 	<tr>
-		<th><label class="form-optional" for="title">Title</label></th>
+		<th><label class="form-optional" for="title" i18n:translate="">Title</label></th>
 		<td><input type="text" name="title" id="title" size="40" /></td>
 	</tr>
 	<tr>
-		<th><label class="form-optional" for="description">Description</label></th>
+		<th><label class="form-optional" for="description" i18n:translate="">Description</label></th>
 		<td><textarea name="description" id="description" cols="40" rows="3"></textarea></td>
 	</tr>
 	<tr>
-		<th><label for="workflow" class="form-optional">Obligation</label></th>
+		<th><label for="workflow" class="form-optional" i18n:translate="">Obligation</label></th>
 		<td tal:define="data here/ReportekEngine/dataflow_table_grouped; groups python:data[0]; items python:data[1]">
 			<select id="workflow" name="workflow">
 				<tal:block tal:repeat="group groups">
@@ -34,28 +34,28 @@
 		</td>
 	</tr>
 	<tr>
-		<th><label class="form-optional" for="content_type_in">Accepted content-type</label></th>
+		<th><label class="form-optional" for="content_type_in" i18n:translate="">Accepted content-type</label></th>
 		<td><input type="text" name="content_type_in" id="content_type_in" size="40" /></td>
 	</tr>
 	<tr>
-		<th><label class="form-optional" for="xml_schema">XML schema</label></th>
+		<th><label class="form-optional" for="xml_schema" i18n:translate="">XML schema</label></th>
 		<td><input type="text" name="xml_schema" id="xml_schema" size="40" /></td>
 	</tr>
 	<tr>
-		<th><label class="form-optional" for="content_type_out">Output content type</label></th>
+		<th><label class="form-optional" for="content_type_out" i18n:translate="">Output content type</label></th>
 		<td><input type="text" name="content_type_out" id="content_type_out" size="40" /></td>
 	</tr>
 	<tr>
-		<th><label class="form-optional" for="script_url">Script path</label></th>
+		<th><label class="form-optional" for="script_url" i18n:translate="">Script path</label></th>
 		<td><input type="text" name="script_url" id="script_url" size="40" /></td>
 	</tr>
 	<tr>
-		<th><label for="max_size" class="form-label">Upper limit for file size</th>
-		<td><input type="text" name="max_size" id="max_size" size="70"
+		<th><label for="max_size" class="form-label" i18n:translate="">Upper limit for file size</th>
+		<td i18n:translate=""><input type="text" name="max_size" id="max_size" size="70"
 						value="10.00" />MB (default 10.00 MB)</td>
 	</tr>
 	<tr>
-		<td colspan="2">
+		<td colspan="2" i18n:translate="">
 			Define the values for the extra parameters to be evaluated as Python expressions
 			in the exact order as they appear in the QA function called.
 			You can use '<code>file_obj</code>' as file context and '<code>l_script_obj<code>'
@@ -64,11 +64,11 @@
 		</td>
 	</tr>
 	<tr>
-		<th><label class="form-optional" for="qa_extraparams">Extra parameters</label></th>
+		<th><label class="form-optional" for="qa_extraparams" i18n:translate="">Extra parameters</label></th>
 		<td align="left" valign="top"><textarea name="qa_extraparams" id="qa_extraparams" rows="5" cols="40"></textarea></td>
 	</tr>
 </table>
-<input class="form-element" type="submit" name="submit" value="Add" />
+<input class="form-element" type="submit" name="submit" value="Add" i18n:attributes="value btn-add"/>
 </form>
 
 <tal:block tal:replace="structure context/manage_page_footer"/>

@@ -8,16 +8,16 @@
   </metal:block>
 <metal:block fill-slot="content">
   <metal:block use-macro="here/util_controls/macros/utilities-controls" />
-  <h1>Envelopes allocated to the wrong country</h1>
+  <h1 i18n:translate="">Envelopes allocated to the wrong country</h1>
 
   <tal:block define="envelopes view/envelopes">
 
     <table tal:condition="envelopes" class="datatable">
       <thead>
         <tr>
-          <th>Collection</th>
-          <th>Current country</th>
-          <th>Correct country value</th>
+          <th i18n:translate="">Collection</th>
+          <th i18n:translate="">Current country</th>
+          <th i18n:translate="">Correct country value</th>
         </tr>
       </thead>
 
@@ -25,7 +25,7 @@
         <tr tal:repeat="env envelopes">
           <td>
             <a tal:condition="not: env/title"
-               tal:attributes="href string: ${env/url}/manage_prop">
+               tal:attributes="href string: ${env/url}/manage_prop" i18n:translate="">
                no title
             </a>
             <a tal:condition="env/title"
@@ -33,13 +33,13 @@
                tal:content="env/title" />
           </td>
           <td>
-            <span tal:condition="not: env/country">unspecified</span>
+            <span tal:condition="not: env/country" i18n:translate="">unspecified</span>
             <a tal:condition="env/country"
                tal:attributes="href env/country"
                tal:content="env/country" />
           </td>
           <td>
-            <span tal:condition="not: env/topCountry">unspecified</span>
+            <span tal:condition="not: env/topCountry" i18n:translate="">unspecified</span>
             <a tal:condition="env/topCountry"
                tal:attributes="href env/topCountry"
                tal:content="env/topCountry" />
@@ -48,7 +48,7 @@
       </tbody>
     </table>
 
-    <p tal:condition="not: envelopes">
+    <p tal:condition="not: envelopes" i18n:translate="">
         All the envelopes in this site have the correct country.
     </p>
 

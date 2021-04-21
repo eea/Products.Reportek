@@ -61,12 +61,12 @@
               <th style="width: 16px" tal:condition="permission_chgcoll" />
               <th style="width: 18px" />
               <th></th>
-              <th tal:condition="bdr_has_envs" class="tcenter additional-env-info">Reporting year</th>
-              <th tal:condition="bdr_has_envs" class="tcenter additional-env-info">Status</th>
-              <th tal:condition="bdr_has_envs" class="tcenter additional-env-info">Acceptability</th>
-              <th tal:condition="python: envs and not isBdrDeployment" class="tcenter additional-env-info" style="width: 25%"> Envelope status</th>
+              <th tal:condition="bdr_has_envs" class="tcenter additional-env-info" i18n:translate="">Reporting year</th>
+              <th tal:condition="bdr_has_envs" class="tcenter additional-env-info" i18n:translate="">Status</th>
+              <th tal:condition="bdr_has_envs" class="tcenter additional-env-info" i18n:translate="">Acceptability</th>
+              <th tal:condition="python: envs and not isBdrDeployment" class="tcenter additional-env-info" style="width: 25%" i18n:translate=""> Envelope status</th>
               <th style="width: 7em" class="tcenter">
-                <span tal:condition="isBdrDeployment">Updated</span>
+                <span tal:condition="isBdrDeployment" i18n:translate="">Updated</span>
               </th>
             </thead>
             <tbody tal:condition="visible">

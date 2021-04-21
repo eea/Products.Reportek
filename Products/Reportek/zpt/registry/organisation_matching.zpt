@@ -22,44 +22,44 @@
                                                fgas_allowed python: is_manager or is_fgas_client;
                                                ods_allowed python: is_manager or is_ods_client;"
                                                >
-    <p class="important-msg" tal:condition="request/done | nothing">
+    <p class="important-msg" tal:condition="request/done | nothing" i18n:translate="">
       Operations completed succesfully.
     </p>
 
-    <h1>Pending Companies</h1>
+    <h1 i18n:translate="">Pending Companies</h1>
 
-    <p>
+    <p i18n:translate="">
       Companies registered in the <a tal:attributes="href view/get_url">FGAS and ODS portal</a>.
       You can match them with old records taken from <a href="/registry">
       BDR-Registry</a>, based on suggestions (candidates) made by the system.
       Please click on the company name to view the suggestions and approve the company.
     </p>
 
-    <p>
+    <p i18n:translate="">
       If you want to revert a change please contact
       <a href="mailto:BDR.helpdesk@eea.europa.eu">BDR Helpdesk</a>.
     </p>
 
-    <p><strong>
+    <p i18n:translate=""><strong>
       You must manually approve companies without candidates. Please contact
       <a href="mailto:BDR.helpdesk@eea.europa.eu">BDR Helpdesk</a>, if you
       want to have them automatically approved by the system.
     </strong></p>
 
     <div class="obligation-select-container">
-      <label for="domain">Filter companies by obligation:</label>
+      <label for="domain" i18n:translate="">Filter companies by obligation:</label>
       <select id="domain" name="domain">
-        <option tal:condition="ods_allowed" value="ODS">ODS</option>
-        <option tal:condition="fgas_allowed" value="FGAS">FGAS</option>
+        <option tal:condition="ods_allowed" value="ODS" i18n:translate="">ODS</option>
+        <option tal:condition="fgas_allowed" value="FGAS" i18n:translate="">FGAS</option>
       </select>
     </div>
     <table class="table" id="matching-table">
       <thead>
         <tr>
-          <th>Company</th>
-          <th>Status</th>
-          <th>Country</th>
-          <th>Date updated</th>
+          <th i18n:translate="">Company</th>
+          <th i18n:translate="">Status</th>
+          <th i18n:translate="">Country</th>
+          <th i18n:translate="">Date updated</th>
         </tr>
       </thead>
       <tbody>

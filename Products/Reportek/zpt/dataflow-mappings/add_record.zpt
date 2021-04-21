@@ -10,14 +10,14 @@
 <script src="++resource++static/select2-3.5.0/select2.js"></script>
 <script src="++resource++static/reportek.js"></script>
 
-<h2>Create a new dataflow mapping table</h2>
+<h2 i18n:translate="">Create a new dataflow mapping table</h2>
 
 <form action="" method="post">
 
   <table cellspacing="0" cellpadding="2" border="0">
     <tr>
       <td>
-        <label class="form-label" for="id">ID</label>
+        <label class="form-label" for="id" i18n:translate="">ID</label>
       </td>
       <td>
         <input class="form-element" id="id" name="id" size="60"/>
@@ -25,7 +25,7 @@
     </tr>
     <tr>
       <td>
-        <label class="form-label" for="title">Title</label>
+        <label class="form-label" for="title" i18n:translate="">Title</label>
       </td>
       <td>
         <input class="form-element" id="title" name="title" size="60"/>
@@ -33,7 +33,7 @@
     </tr>
     <tr>
       <td>
-        <label class="form-label" for="dataflow_uris">Dataflow</label>
+        <label class="form-label" for="dataflow_uris" i18n:translate="">Dataflow</label>
       </td>
       <td>
         <div class="select-container" style="width:50%"
@@ -45,7 +45,7 @@
     <tr class="row-hilite">
       <td></td>
       <td>
-        <button type="submit">Create</button>
+        <button type="submit" i18n:translate="">Create</button>
       </td>
     </tr>
   </table>

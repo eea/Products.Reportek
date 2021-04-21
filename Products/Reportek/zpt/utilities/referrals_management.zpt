@@ -23,41 +23,41 @@
 
     <metal:block fill-slot="content">
       <metal:block use-macro="here/util_controls/macros/utilities-controls" />
-      <h1>Referrals management</h1>
+      <h1 i18n:translate="">Referrals management</h1>
       <form method="post" id="referrals_filters">
         <div class="filters" tal:define="rod_data context/api/@@obligations">
           <div class="form-group"
             tal:define="multiple string:multiple">
-            <label for="obligations">Obligations</label>
+            <label for="obligations" i18n:translate="">Obligations</label>
             <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
           </div>
           <tal:block tal:define="placeholder string:All">
             <tal:block metal:use-macro="here/filters/macros/countries" />
           </tal:block>
           <div class="form-indent">
-            <label for="allow_referrals">Collections with referrals status</label>
-            <label title="Search for collections with any referral status">
+            <label for="allow_referrals" i18n:translate="">Collections with referrals status</label>
+            <label title="Search for collections with any referral status" i18n:translate="" i18n:attributes="title title-search-col-any-referral-status">
               <input type="radio" value="any" name="allow_referrals" checked="checked" />Any
             </label>
-            <label title="Search for collections that allow referrals">
+            <label title="Search for collections that allow referrals" i18n:translate="" i18n:attributes="title title-search-col-referrals">
               <input type="radio" value="true" name="allow_referrals" />Allowed
             </label>
-            <label title="Search for collections that don't allow referrals">
+            <label title="Search for collections that don't allow referrals" i18n:translate="" i18n:attributes="title title-search-col-no-referrals">
               <input type="radio" value="false" name="allow_referrals" />Not allowed
             </label>
           </div>
           <div class="form-indent">
-            <label for="explicit">Collections referrals status is</label>
-            <label title="Referrals status is either explicit or acquired">
+            <label for="explicit" i18n:translate="">Collections referrals status is</label>
+            <label title="Referrals status is either explicit or acquired" i18n:translate="" i18n:attributes="title title-referrals-status">
               <input type="radio" value="any" name="explicit" checked="checked"/>
               Any
             </label>
-            <label title="Referrals status is explicitly set on the collection">
+            <label title="Referrals status is explicitly set on the collection" i18n:translate="" i18n:attributes="title title-referrals-status-explicitly-set">
               <input type="radio" value="false" name="explicit"/>
               <span class="acquired-setting icon-double-angle-down"></span>
               Acquired
             </label>
-            <label title="Referrals status is acquired from a parent collection that has referrals status set explicitly">
+            <label title="Referrals status is acquired from a parent collection that has referrals status set explicitly" i18n:translate="" i18n:attributes="title title-referrals-status-acquired">
               <input type="radio" value="true" name="explicit" />
               <span class="acquired-setting icon-double-angle-right"></span>
               Explicit
@@ -65,7 +65,7 @@
           </div>
         </div>
         <div>
-          <input type="submit" name="btn.submit" value="Search collections" />
+          <input type="submit" name="btn.submit" value="Search collections" i18n:attributes="value btn-search-collections"/>
         </div>
       </form>
       <div id="results">
@@ -77,8 +77,8 @@
             </div>
             <div metal:fill-slot="im-message" class="im-message" data-info="referrals-ack">
               <div class="im-close caution-msg">
-                <strong>Warning</strong>
-                <p>Be aware that changing a collection's referral status will also affect all child collections that acquire the referral status from it.</p>
+                <strong i18n:translate="">Warning</strong>
+                <p i18n:translate="">Be aware that changing a collection's referral status will also affect all child collections that acquire the referral status from it.</p>
               </div>
             </div>
           </metal:block>
@@ -89,7 +89,7 @@
         <form method="post" id="update_referrals" action="api.update_referrals_status">
           <table id="datatable">
           </table>
-          <input type="submit" name="btn.update" value="Apply" class="hidden-content" />
+          <input type="submit" name="btn.update" value="Apply" class="hidden-content" i18n:attributes="value btn-apply"/>
         </form>
       </div>
     </metal:block>

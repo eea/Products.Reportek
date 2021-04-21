@@ -17,7 +17,7 @@
   </metal:block>
 
   <metal:block fill-slot="content">
-    <p class="important-msg" tal:condition="request/done | nothing">
+    <p class="important-msg" tal:condition="request/done | nothing" i18n:translate="">
       Operations completed succesfully.
     </p>
     <p class="important-msg" tal:condition="options/error | nothing">
@@ -31,7 +31,7 @@
       <div id="operations">
         <ul>
           <li>
-            <a tal:attributes="href string:${here/absolute_url}/organisation_listing">Back</a>
+            <a tal:attributes="href string:${here/absolute_url}/organisation_listing" i18n:translate="">Back</a>
           </li>
         </ul>
       </div>
@@ -46,16 +46,16 @@
               <input type="hidden" name="orgid" tal:attributes="value company/company_id" />
               <input type="hidden" name="orgaction" value="" />
               <input type="hidden" name="newval" value="" />
-              <p class="h4 no-margins">Actions:</p>
+              <p class="h4 no-margins" i18n:translate="">Actions:</p>
               <ul tal:define="status company/status">
                 <li tal:condition="python: status == 'VALID'">
-                  <a class="org-action" id="disabled_status-action" href="#">Disable company</a>
+                  <a class="org-action" id="disabled_status-action" href="#" i18n:translate="">Disable company</a>
                 </li>
                 <li tal:condition="python: status != 'VALID'">
-                  <a class="org-action" id="valid_status-action" href="#">Validate company</a>
+                  <a class="org-action" id="valid_status-action" href="#" i18n:translate="">Validate company</a>
                 </li>
                 <li>
-                  <a class="org-action" id="sync-action" href="#">Sync company</a>
+                  <a class="org-action" id="sync-action" href="#" i18n:translate="">Sync company</a>
                 </li>
               </ul>
             </form>
@@ -63,20 +63,20 @@
         </div>
         <hr>
         <tal:block condition="company/representative" define="representative company/representative">
-          <h2>EU Legal representative</h2>
+          <h2 i18n:translate="">EU Legal representative</h2>
           <tal:block metal:use-macro="here/partials/macros/representative_details" />
         </tal:block>
-        <h2>Reporting folder</h2>
+        <h2 i18n:translate="">Reporting folder</h2>
         <span tal:define="active_path python: company.get('path', '');
-                          previous_paths python: company.get('previous_paths', []);">
+                          previous_paths python: company.get('previous_paths', []);" i18n:translate="">
           <tal:block tal:condition="python: not '/non-eu/' in active_path">
             You can see the company deliveries here:
             <a tal:condition="active_path" tal:attributes="href active_path"
               tal:content="active_path" />
-            <span tal:condition="python: not active_path">
+            <span tal:condition="python: not active_path" i18n:translate="">
               Company does not have an active reporting folder
             </span>
-            <p tal:condition="previous_paths"><strong>Previous reporting folders:</strong></p>
+            <p tal:condition="previous_paths"><strong i18n:translate="">Previous reporting folders:</strong></p>
             <ul>
              <tal:block repeat="path previous_paths">
               <li><a tal:attributes="href path"
@@ -88,23 +88,23 @@
             NON-EU companies with no legal representative are not required to report.
           </tal:block>
         </span>
-        <h2 id="licences-stocks">Licences and Stocks</h2>
+        <h2 id="licences-stocks" i18n:translate="">Licences and Stocks</h2>
         <span tal:condition="company/path|nothing">
           <ul>
-            <li><a tal:attributes="href company/licences_path">Licences</a></li>
-            <li><a tal:attributes="href company/stocks_path">Stocks</a></li>
+            <li><a tal:attributes="href company/licences_path" i18n:translate="">Licences</a></li>
+            <li><a tal:attributes="href company/stocks_path" i18n:translate="">Stocks</a></li>
           </ul>
         </span>
-        <h2 id="persons">Reporters</h2>
+        <h2 id="persons" i18n:translate="">Reporters</h2>
         <div>
           <div tal:condition="company/warning" class="legend clearfix">
-            <strong>Legend</strong>
+            <strong i18n:translate="">Legend</strong>
             <dl>
               <dt class="badge match">
               </dt>
-              <dd>
+              <dd i18n:translate="">
                 User can not report yet, because he/she never logged in
-                <a tal:attributes="href view/get_url">European registry</a>.
+                <a tal:attributes="href view/get_url" i18n:translate="">European registry</a>.
               </dd>
             </dl>
           </div>
@@ -112,10 +112,10 @@
           <table class="table">
             <thead>
               <tr>
-                <th>Username</th>
-                <th>First name</th>
-                <th>Last name</th>
-                <th>Email</th>
+                <th i18n:translate="">Username</th>
+                <th i18n:translate="">First name</th>
+                <th i18n:translate="">Last name</th>
+                <th i18n:translate="">Email</th>
               </tr>
             </thead>
             <tbody>
@@ -170,8 +170,8 @@
         </script>
       </tal:block>
       <div class="warning-msg" tal:condition="not: company">
-        <strong>Error</strong>
-        <p>No company found.</p>
+        <strong i18n:translate="">Error</strong>
+        <p i18n:translate="">No company found.</p>
       </div>
     </tal:block>
   </metal:block>

@@ -9,7 +9,7 @@
         tal:condition="batch"
         tal:repeat="feedb_item batch">
         <td style="width:34px">
-          <img src="/misc_/Reportek/feedback_gif" alt="Feedback icon" />
+          <img src="/misc_/Reportek/feedback_gif" alt="Feedback icon" i18n:attributes="alt alt-fb-icon"/>
         </td>
         <td tal:define="SecurityManager modules/AccessControl/getSecurityManager;
                         fb_status python: getattr(feedb_item, 'feedback_status', None)">
@@ -17,7 +17,7 @@
             [<span tal:content="fb_status" />]
           </tal:block>
           <a tal:attributes="href feedb_item/id; title fb_status"
-             tal:content="feedb_item/title_or_id">title_or_id</a>
+             tal:content="feedb_item/title_or_id" i18n:translate="">title_or_id</a>
           <tal:block condition="python:SecurityManager.checkPermission('View', feedb_item)">
             <span
               tal:condition="not:python:context.has_permission('View')"
@@ -25,7 +25,7 @@
           </tal:block>
           <tal:block condition="not:python:SecurityManager.checkPermission('View', feedb_item)">
             <tal:block define="dummy python:request.set('therearerestrictions',1)"></tal:block>
-            <img src="misc_/Reportek/lockicon_gif" alt="No access" style="width: 16px; height: 16px" />
+            <img src="misc_/Reportek/lockicon_gif" alt="No access" style="width: 16px; height: 16px" i18n:attributes="alt alt-no-access"/>
           </tal:block>
           <tal:block condition="feedb_item/automatic"
                      define="postingdate python:feedb_item.postingdate.strftime('%d %b %Y')">
@@ -39,9 +39,9 @@
 
           <tal:block condition="python:context.canEditFeedback() and not feedb_item.automatic">
             <a tal:attributes="href string:${feedb_item/absolute_url}/manage_editFeedbackForm"
-              title="Edit feedback" class="test_button" i18n:translate="">Edit</a>
+              title="Edit feedback" class="test_button" i18n:translate="" i18n:attributes="title title-edit-fb">Edit</a>
             <a tal:attributes="href string:manage_deleteFeedbackForm?id=${feedb_item/id}"
-              title="Delete feedback" class="test_button" i18n:translate="">Delete</a>
+              title="Delete feedback" class="test_button" i18n:translate="" i18n:attributes="title title-delete-fb">Delete</a>
           </tal:block>
         </td>
       </tr>

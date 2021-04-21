@@ -19,7 +19,7 @@
             <div id="operations">
                 <ul>
                     <li>
-                        <a tal:attributes="href python:context.getParentNode().absolute_url()" title="Go back to envelope" i18n:attributes="title go-back-title" i18n:translate="">Back to envelope</a>
+                        <a tal:attributes="href python:context.getParentNode().absolute_url()" title="Go back to envelope" i18n:attributes="title go-back-title" i18n:translate="" i18n:attributes="title title-back-to-envelope">Back to envelope</a>
                     </li>
                 </ul>
             </div>
@@ -34,7 +34,7 @@
                         <li><a tal:attributes="href python:context.absolute_url(0); type context/content_type;" i18n:translate="">Original</a></li>
                     </ul>
                     <div class="remote-conversions">
-                        <span id="conv-status">Loading conversions...</span>
+                        <span id="conv-status" i18n:translate="">Loading conversions...</span>
                         <div class="spinner-container center-spinner" id="c_spinner">
                             <img src="++resource++static/ajax-loader.gif" class="ajax-spinner">
                         </div>
@@ -110,7 +110,7 @@
                                     Document accepted by the client
                                 </td>
                                 <td>
-                                    <img tal:condition="context/get_accept_time" src="misc_/Reportek/accepted" alt="Document accepted by the client" />
+                                    <img tal:condition="context/get_accept_time" src="misc_/Reportek/accepted" alt="Document accepted by the client" i18n:attributes="alt alt-document-accepted"/>
                                     <span i18n:translate="" tal:condition="not:context/get_accept_time">
                   not yet
                 </span>
@@ -161,7 +161,7 @@
                                 Document accepted by the client
                             </td>
                             <td>
-                                <img tal:condition="context/get_accept_time" src="misc_/Reportek/accepted" alt="Document accepted by the client" />
+                                <img tal:condition="context/get_accept_time" src="misc_/Reportek/accepted" alt="Document accepted by the client" i18n:attributes="alt alt-document-accepted"/>
                                 <span i18n:translate="" tal:condition="not:context/get_accept_time">
                   not yet
                 </span>
@@ -172,31 +172,31 @@
                 <fieldset tal:condition="not:context/released">
                     <legend i18n:translate="">Quality assessment</legend>
                     <div class="quality-assessment">
-                        <span id="qa-status">Loading QA Scripts...</span>
+                        <span id="qa-status" i18n:translate="">Loading QA Scripts...</span>
                         <div class="spinner-container center-spinner" id="qa_spinner">
                             <img src="++resource++static/ajax-loader.gif" class="ajax-spinner">
                         </div>
                     </div>
                 </fieldset>
                 <fieldset>
-                    <legend>Feedback posted for this file</legend>
+                    <legend i18n:translate="">Feedback posted for this file</legend>
                     <tal:block define="feedbacks here/getFeedbacksForDocument">
                         <ul>
                             <tal:block repeat="f feedbacks" condition="feedbacks">
                                 <li>
-                                    <a title="View feedback" tal:attributes="href f/absolute_url" tal:content="f/title_or_id" />
+                                    <a title="View feedback" tal:attributes="href f/absolute_url" tal:content="f/title_or_id" i18n:attributes="title title-view-feedback"/>
                                     <tal:block define="fdate python:f.postingdate.strftime('%d %b %Y')">
-                                        <i tal:condition="f/automatic">
+                                        <i tal:condition="f/automatic" i18n:translate="">
                     (Posted automatically on <span tal:replace="fdate" />)
                   </i>
-                                        <i tal:condition="not: f/automatic">
+                                        <i tal:condition="not: f/automatic" i18n:translate="">
                     (For the <span tal:replace="fdate"/> release)
                   </i>
                                     </tal:block>
                                 </li>
                             </tal:block>
                         </ul>
-                        <span tal:condition="not:feedbacks">
+                        <span tal:condition="not:feedbacks" i18n:translate="">
                 No feedback available for this file.
             </span>
                     </tal:block>

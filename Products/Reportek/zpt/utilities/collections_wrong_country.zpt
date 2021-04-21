@@ -8,15 +8,15 @@
   </metal:block>
 <metal:block fill-slot="content">
   <metal:block use-macro="here/util_controls/macros/utilities-controls" />
-    <h1>Collections allocated to the wrong country</h1>
+    <h1 i18n:translate="">Collections allocated to the wrong country</h1>
 
     <tal:block define="colections view/collections">
       <table tal:condition="colections" class="datatable">
         <thead>
           <tr>
-            <th>Collection</th>
-            <th>Current country</th>
-            <th>Correct country value</th>
+            <th i18n:translate="">Collection</th>
+            <th i18n:translate="">Current country</th>
+            <th i18n:translate="">Correct country value</th>
           </tr>
         </thead>
         <tbody>
@@ -26,13 +26,13 @@
                    tal:content="coll/title" />
             </td>
             <td>
-              <span tal:condition="not: coll/country">unspecified</span>
+              <span tal:condition="not: coll/country" i18n:translate="">unspecified</span>
               <a tal:condition="coll/country"
                  tal:attributes="href coll/country"
                  tal:content="coll/country" />
             </td>
             <td>
-              <span tal:condition="not: coll/topCountry">unspecified</span>
+              <span tal:condition="not: coll/topCountry" i18n:translate="">unspecified</span>
               <a tal:condition="coll/topCountry"
                  tal:attributes="href coll/topCountry"
                  tal:content="coll/topCountry" />
@@ -40,7 +40,7 @@
           </tr>
         </tbody>
       </table>
-      <p tal:condition="not: colections">
+      <p tal:condition="not: colections" i18n:translate="">
           All the collections in this site have the correct country.
       </p>
     </tal:block>

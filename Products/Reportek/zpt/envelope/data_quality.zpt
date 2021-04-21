@@ -7,7 +7,7 @@
   <metal:block fill-slot="content">
     <div tal:replace="structure python:context.envelope_tabs(tab='data_quality')"/>
     <h1 i18n:translate="">Results of automatic data quality checks</h1>
-    <p>This page displays summary information from all automatic data quality checks for this envelope. If you want to see more detailed results, just follow the "Show more.." links to the individual feedback items.</p>
+    <p i18n:translate="">This page displays summary information from all automatic data quality checks for this envelope. If you want to see more detailed results, just follow the "Show more.." links to the individual feedback items.</p>
 
     <div id="detailed-qa"
       tal:define="fb_objs context/getFeedbackObjects;
@@ -33,14 +33,14 @@
                                     info python: message if message else default"
                     tal:content="info"/>
                 </span>
-                <a href="#" tal:attributes="href feedback/absolute_url">Show more...</a>
+                <a href="#" tal:attributes="href feedback/absolute_url" i18n:translate="">Show more...</a>
               </li>
             </ul>
           </li>
         </tal:rep>
       </ul>
       <tal:block tal:condition="env_fbs">
-        <strong>Envelope test</strong>
+        <strong i18n:translate="">Envelope test</strong>
         <ul>
           <li tal:repeat="feedback env_fbs">
             <span tal:define="fb_status python: getattr(feedback, 'feedback_status', '')"
@@ -51,7 +51,7 @@
                                 info python: message if message else default"
                 tal:content="info"/>
             </span>
-            <a href="#" tal:attributes="href feedback/absolute_url">Show more...</a>
+            <a href="#" tal:attributes="href feedback/absolute_url" i18n:translate="">Show more...</a>
           </li>
         </ul>
       </tal:block>

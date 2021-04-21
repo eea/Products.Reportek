@@ -3,20 +3,20 @@
                    />
 <tal:block metal:define-macro="filters">
   <form id="find-user-form" action="" method="POST">
-    <h2 tal:condition="isCdrDeployment">1. Search users or groups</h2>
-    <h2 tal:condition="not: isCdrDeployment">1. Search users</h2>
+    <h2 tal:condition="isCdrDeployment" i18n:translate="">1. Search users or groups</h2>
+    <h2 tal:condition="not: isCdrDeployment" i18n:translate="">1. Search users</h2>
     <div class="filters">
       <div class="filters-content">
         <div class="search-type-controls" tal:condition="isCdrDeployment">
           <div class="search-radios">
-            <label>
+            <label i18n:translate="">
               <input type="radio" name="search_type" value="users"
                tal:attributes="checked python: 'users' == request.get('search_type', 'users')"/>
               Users
             </label>
           </div>
           <div class="search-radios">
-            <label>
+            <label i18n:translate="">
               <input type="radio" name="search_type" value="groups"
                 tal:attributes="checked python: 'groups' == request.get('search_type')" />
               LDAP Groups
@@ -26,8 +26,9 @@
         <div class="search-box">
           <input type="text" name="search_term" id="search_term" size="55"
             tal:attributes="value request/search_term | string:"
-            placeholder="You can search on First name, Surname, Userid and Email" />
-          <input type="submit" name="btnFind" value="Search"/>
+            placeholder="You can search on First name, Surname, Userid and Email"
+            i18n:attributes="placeholder placeholder-search-fname-surname-uid-email" />
+          <input type="submit" name="btnFind" value="Search" i18n:attributes="value btn-search"/>
         </div>
       </div>
     </div>
@@ -39,7 +40,7 @@
             define="result view/search_entities">
 
   <p class="error-msg" tal:condition="result/errors | nothing">
-    <strong>ERROR:</strong>
+    <strong i18n:translate="">ERROR:</strong>
     <span tal:content="result/errors"/>
   </p>
 
@@ -48,16 +49,16 @@
     tal:define="users result/users | nothing;
                 groups result/groups | nothing">
     <tal:block tal:condition="users">
-      <h2>2. Select user</h2>
+      <h2 i18n:translate="">2. Select user</h2>
       <table class="datatable">
         <thead>
           <tr>
             <th></th>
-            <th>Type</th>
-            <th>Username</th>
-            <th>Name</th>
-            <th>Email</th>
-            <th>DN</th>
+            <th i18n:translate="">Type</th>
+            <th i18n:translate="">Username</th>
+            <th i18n:translate="">Name</th>
+            <th i18n:translate="">Email</th>
+            <th i18n:translate="">DN</th>
           </tr>
         </thead>
         <tbody>
@@ -71,8 +72,8 @@
                                   checked python: user.get('uid') == request.get('username')"/>
               </td>
               <td>
-                <span tal:condition="dn" tal:omit-tag="">Local/LDAP</span>
-                <span tal:condition="not: dn" tal:omit-tag="">ECAS</span>
+                <span tal:condition="dn" tal:omit-tag="" i18n:translate="">Local/LDAP</span>
+                <span tal:condition="not: dn" tal:omit-tag="" i18n:translate="">ECAS</span>
               </td>
               <td tal:content="user/uid|nothing" />
               <tal:block tal:define="cn user/cn|nothing">
@@ -92,19 +93,19 @@
         </tbody>
       </table>
 
-      <p class="notfound-msg" tal:condition="not: users">
+      <p class="notfound-msg" tal:condition="not: users" i18n:translate="">
         No users found for this criteria.
       </p>
     </tal:block>
 
     <tal:block tal:condition="groups">
-      <h2>2. Select groups</h2>
+      <h2 i18n:translate="">2. Select groups</h2>
       <table class="datatable">
         <thead>
           <tr>
             <th></th>
-            <th>Group name</th>
-            <th>Description</th>
+            <th i18n:translate="">Group name</th>
+            <th i18n:translate="">Description</th>
             <th></th>
           </tr>
         </thead>
@@ -135,7 +136,7 @@
                                   if child.get('cn') in potential_c]">
                 <td>
                   <tal:block tal:condition="python: len(children) > 1">
-                    <label>
+                    <label i18n:translate="">
                       <input type="radio" name="use-subgroups"
                        tal:attributes="value python: ','.join(children);
                                        checked python: ','.join(children) == request.get('use-subgroups')" />
@@ -149,7 +150,7 @@
         </tbody>
       </table>
 
-      <p class="notfound-msg" tal:condition="not: groups">
+      <p class="notfound-msg" tal:condition="not: groups" i18n:translate="">
         No groups found for this criteria.
       </p>
     </tal:block>

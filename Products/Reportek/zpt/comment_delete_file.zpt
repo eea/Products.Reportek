@@ -3,22 +3,22 @@
     <tal:block condition="here/checkPermissionEditComments" define="file_id python:request.get('file', '')">
       <div id="operations">
         <ul>
-          <li><a tal:attributes="href string:${here/absolute_url}/comment_edit">Back to comment</a></li>
+          <li><a tal:attributes="href string:${here/absolute_url}/comment_edit" i18n:translate="">Back to comment</a></li>
         </ul>
       </div>
 
       <tal:block condition="file_id">
-        <h1>Are you sure you want to delete <span tal:replace="file_id" /> file?</h1>
+        <h1 i18n:translate="">Are you sure you want to delete <span tal:replace="file_id" /> file?</h1>
 
         <div>
           <form method="post" name="deleteFileComment" action="deleteFileComment">
             <input type="hidden" name="file_id" tal:attributes="value file_id" />
-            <input type="submit" name="delete" value="Delete" />
-            <input type="submit" name="cancel" value="Cancel" />
+            <input type="submit" name="delete" value="Delete" i18n:attributes="value btn-delete"/>
+            <input type="submit" name="cancel" value="Cancel" i18n:attributes="value btn-cancel"/>
           </form>
         </div>
       </tal:block>
     </tal:block>
-    <p tal:condition="not:here/checkPermissionEditComments">You are not authorized to access this resource</p>
+    <p tal:condition="not:here/checkPermissionEditComments" i18n:translate="">You are not authorized to access this resource</p>
   </metal:block>
 </metal:block>

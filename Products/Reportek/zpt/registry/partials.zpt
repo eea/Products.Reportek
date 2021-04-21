@@ -1,6 +1,6 @@
 <tal:block metal:define-macro="short_organisation_details">
   <div class="company-header clearfix">
-    <label class="btn btn-default pull-left" tal:attributes="for string:id_${candidate/company_id}">
+    <label class="btn btn-default pull-left" tal:attributes="for string:id_${candidate/company_id}" i18n:translate="">
       <input type="radio" name="cid" tal:attributes="value string:${candidate/company_id}; id string:id_${candidate/company_id}">
       Match
     </label>
@@ -9,19 +9,19 @@
   <table class="table-list" tal:condition="candidate">
     <tbody>
       <tr>
-        <th>Date registered</th>
+        <th i18n:translate="">Date registered</th>
         <td tal:content="candidate/date_registered" />
       </tr>
       <tr>
-        <th>VAT number</th>
+        <th i18n:translate="">VAT number</th>
         <td tal:content="candidate/vat_number" />
       </tr>
       <tr>
-        <th>EORI number</th>
+        <th i18n:translate="">EORI number</th>
         <td tal:content="candidate/eori|nothing" />
       </tr>
       <tr>
-        <th>Reporting folder</th>
+        <th i18n:translate="">Reporting folder</th>
         <td>
           <a tal:condition="candidate/account"
             tal:define="domain_folder python: {'FGAS': 'fgases', 'ODS': 'ods'};
@@ -32,11 +32,11 @@
         </td>
       </tr>
       <tr>
-        <th>Country</th>
+        <th i18n:translate="">Country</th>
         <td tal:content="candidate/country" />
       </tr>
       <tr>
-        <th>Website</th>
+        <th i18n:translate="">Website</th>
         <td>
           <a tal:attributes="href python: company['website'] if company['website'].startswith('http') else 'http://' + company['website']"
            tal:condition="company/website"
@@ -46,69 +46,69 @@
     </tbody>
   </table>
 
-  <h3 tal:condition="not: candidate">No information about this candidate</h3>
+  <h3 tal:condition="not: candidate" i18n:translate="">No information about this candidate</h3>
 </tal:block>
 
 <tal:block metal:define-macro="organisation_details">
   <div class="pull-left">
     <table class="table-list">
       <tr>
-        <th>Company name</th>
+        <th i18n:translate="">Company name</th>
         <td tal:content="company/name" />
       </tr>
 
       <tr>
-        <th>Company id</th>
+        <th i18n:translate="">Company id</th>
         <td tal:content="company/company_id|nothing" />
       </tr>
 
       <tr>
-        <th>Old company id</th>
+        <th i18n:translate="">Old company id</th>
         <td tal:content="company/oldcompany_id|nothing" />
       </tr>
 
       <tr>
-        <th>Old company account</th>
+        <th i18n:translate="">Old company account</th>
         <td tal:content="company/oldcompany_account|nothing" />
       </tr>
       <tr>
-        <th>Status</th>
+        <th i18n:translate="">Status</th>
         <td tal:content="company/status" />
       </tr>
 
       <tr>
-        <th>Street and number</th>
+        <th i18n:translate="">Street and number</th>
          <td tal:content="string:${company/address/street} ${company/address/number}" />
       </tr>
 
       <tr>
-        <th>Municipality</th>
+        <th i18n:translate="">Municipality</th>
         <td tal:content="company/address/city" />
       </tr>
 
       <tr>
-        <th>Postal code</th>
+        <th i18n:translate="">Postal code</th>
         <td tal:content="company/address/zipcode" />
       </tr>
 
       <tr tal:define="domain company/domain">
-        <th tal:condition="python: domain == 'ODS'">EORI number</th>
-        <th tal:condition="python: domain != 'ODS'">VAT number</th>
+        <th tal:condition="python: domain == 'ODS'" i18n:translate="">EORI number</th>
+        <th tal:condition="python: domain != 'ODS'" i18n:translate="">VAT number</th>
         <td tal:content="company/vat" />
       </tr>
 
       <tr>
-        <th>Country</th>
+        <th i18n:translate="">Country</th>
         <td tal:content="company/address/country/name" />
       </tr>
 
       <tr>
-        <th>Obligation</th>
+        <th i18n:translate="">Obligation</th>
         <td tal:content="company/domain" />
       </tr>
 
       <tr>
-        <th>Website</th>
+        <th i18n:translate="">Website</th>
         <td>
           <a tal:attributes="href python: company['website'] if company['website'].startswith('http') else 'http://' + company['website']"
              tal:condition="company/website"
@@ -116,7 +116,7 @@
         </td>
       </tr>
       <tr>
-        <th>Types</th>
+        <th i18n:translate="">Types</th>
         <td tal:define="types company/types|nothing;
                         types python: types.split(',') if types else [];">
           <ul class="types">
@@ -125,7 +125,7 @@
         </td>
       </tr>
       <tr>
-        <th>Business profile</th>
+        <th i18n:translate="">Business profile</th>
         <td tal:define="profiles company/businessprofile|nothing;
                         profiles python: profiles.split(',') if profiles else [];">
           <ul class="types">
@@ -134,23 +134,23 @@
         </td>
       </tr>
       <tr>
-        <th>Date created (European Registry)</th>
+        <th i18n:translate="">Date created (European Registry)</th>
         <td tal:content="company/date_created|nothing" />
       </tr>
       <tr>
-        <th>Date updated (European Registry)</th>
+        <th i18n:translate="">Date updated (European Registry)</th>
         <td tal:content="company/date_updated|nothing" />
       </tr>
       <tr>
-        <th>Date created (Cache Registry)</th>
+        <th i18n:translate="">Date created (Cache Registry)</th>
         <td tal:content="company/date_created_in_ecr|nothing" />
       </tr>
       <tr>
-        <th>Date updated (Cache Registry)</th>
+        <th i18n:translate="">Date updated (Cache Registry)</th>
         <td tal:content="company/date_updated_in_ecr|nothing" />
       </tr>
       <tr>
-        <th>Reporting checks passed</th>
+        <th i18n:translate="">Reporting checks passed</th>
         <td tal:content="company/check_passed|nothing" />
       </tr>
     </table>
@@ -160,47 +160,47 @@
 <tal:block metal:define-macro="representative_details">
   <table class="table-list">
     <tr>
-      <th>Company name</th>
+      <th i18n:translate="">Company name</th>
       <td tal:content="representative/name" />
     </tr>
 
     <tr>
-      <th>Street and number</th>
+      <th i18n:translate="">Street and number</th>
        <td tal:content="string:${representative/address/street} ${representative/address/number}" />
     </tr>
 
     <tr>
-      <th>Municipality</th>
+      <th i18n:translate="">Municipality</th>
       <td tal:content="representative/address/city" />
     </tr>
 
     <tr>
-      <th>Postal code</th>
+      <th i18n:translate="">Postal code</th>
       <td tal:content="representative/address/zipcode" />
     </tr>
 
     <tr>
-      <th>VAT number</th>
+      <th i18n:translate="">VAT number</th>
       <td tal:content="representative/vatnumber" />
     </tr>
 
     <tr>
-      <th>Country</th>
+      <th i18n:translate="">Country</th>
       <td tal:content="representative/address/country/name" />
     </tr>
 
     <tr>
-      <th>Contact First Name</th>
+      <th i18n:translate="">Contact First Name</th>
       <td tal:content="representative/contact_first_name" />
     </tr>
 
     <tr>
-      <th>Contact Last Name</th>
+      <th i18n:translate="">Contact Last Name</th>
       <td tal:content="representative/contact_last_name" />
     </tr>
 
     <tr>
-      <th>Contact Email Name</th>
+      <th i18n:translate="">Contact Email Name</th>
       <td>
         <a tal:attributes="href string:mailto:${representative/contact_email}"
            tal:content="representative/contact_email" />

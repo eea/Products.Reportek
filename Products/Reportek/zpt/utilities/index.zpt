@@ -18,7 +18,7 @@
                      generic_actions python: ['@@obligation.recent_uploads', '@@statistics']">
 
       <div class="utils-user-mgmt" tal:condition="python: [action for action in user_mgmt_actions if action in menu_keys]">
-        <h2>User management</h2>
+        <h2 i18n:translate="">User management</h2>
 
         <ul>
           <tal:rep tal:repeat="action user_mgmt_actions">
@@ -30,7 +30,7 @@
       </div>
 
       <div class="utils-collections" tal:condition="python: not isBdrDeployment and [action for action in collections_actions if action in menu_keys]">
-        <h2>Collections</h2>
+        <h2 i18n:translate="">Collections</h2>
 
         <ul>
           <tal:rep tal:repeat="action collections_actions">
@@ -42,7 +42,7 @@
       </div>
 
       <div class="utils-envelopes" tal:condition="python: [action for action in envelopes_actions if action in menu_keys]">
-        <h2>Envelopes</h2>
+        <h2 i18n:translate="">Envelopes</h2>
         <ul>
           <tal:rep tal:repeat="action envelopes_actions">
             <li tal:condition="python: action in menu_keys and (not isBdrDeployment or isBdrDeployment and action == '@@envelopes.stuck')">
@@ -53,7 +53,7 @@
       </div>
 
       <div class="utils-referrals" tal:condition="python: [action for action in referral_actions if action in menu_keys]">
-        <h2 i18n:translate="">Referrals</h2>
+        <h2 i18n:translate="" i18n:translate="">Referrals</h2>
         <ul>
           <tal:rep tal:repeat="action referral_actions">
             <li tal:condition="python: action in menu_keys">
@@ -64,7 +64,7 @@
       </div>
 
       <div class="utils-generic">
-        <h2>Generic</h2>
+        <h2 i18n:translate="">Generic</h2>
 
         <ul>
           <tal:rep tal:repeat="action generic_actions">
@@ -72,7 +72,7 @@
               <a href="" tal:attributes="href action" tal:content="python:menuactions.get(action)"/>
             </li>
           </tal:rep>
-          <li><a href="/ReportekEngine/sitemap">Sitemap</a></li>
+          <li><a href="/ReportekEngine/sitemap" i18n:translate="">Sitemap</a></li>
         </ul>
       </div>
 

@@ -1,32 +1,32 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
   <metal:block fill-slot="content">
-    <h1>Add Remote REST Application</h1>
+    <h1 i18n:translate="">Add Remote REST Application</h1>
 
     <form action="manage_addRemoteRESTApplication" method="post" enctype="multipart/form-data" name="form">
     <table>
     <tr>
-      <th>Id</th>
+      <th i18n:translate="">Id</th>
       <td><input type="text" name="id" size="40" /></td>
     </tr>
     <tr>
-      <th>Title</th>
+      <th i18n:translate="">Title</th>
       <td><input type="text" name="title" size="40" /></td>
     </tr>
     <tr>
-      <th>Submit URL</th>
+      <th i18n:translate="">Submit URL</th>
       <td><input type="text" name="ServiceSubmitURL" size="40" /></td>
     </tr>
     <tr>
-      <th>Check URL</th>
+      <th i18n:translate="">Check URL</th>
       <td><input type="text" name="ServiceCheckURL" size="40" /></td>
     </tr>
     <tr>
-      <th>Activity ID</th>
+      <th i18n:translate="">Activity ID</th>
       <td><input type="text" name="app_name" size="40" /></td>
     </tr>
     <tr>
       <td></td>
-      <td><input type="submit" value=" Add " /></td>
+      <td><input type="submit" value=" Add " i18n:attributes="value btn-add"/></td>
       </tr>
     </table>
     </form>

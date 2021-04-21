@@ -22,24 +22,24 @@
                                                fgas_allowed python: is_manager or is_fgas_client;
                                                ods_allowed python: is_manager or is_ods_client;">
 
-    <h1>Data synchronisation logs</h1>
-    <p>
+    <h1 i18n:translate="">Data synchronisation logs</h1>
+    <p i18n:translate="">
       Latest 100 syncronisation jobs made against
-      <a tal:attributes="href view/get_url">FGAS and ODS portal</a> and the number of companies fetched.
+      <a tal:attributes="href view/get_url" i18n:translate="">FGAS and ODS portal</a> and the number of companies fetched.
     </p>
     <div class="obligation-select-container">
-      <label for="domain">Filter companies by obligation:</label>
+      <label for="domain" i18n:translate="">Filter companies by obligation:</label>
       <select id="domain" name="domain">
-        <option tal:condition="ods_allowed" value="ODS">ODS</option>
-        <option tal:condition="fgas_allowed" value="FGAS">FGAS</option>
+        <option tal:condition="ods_allowed" value="ODS" i18n:translate="">ODS</option>
+        <option tal:condition="fgas_allowed" value="FGAS" i18n:translate="">FGAS</option>
       </select>
     </div>
     <table id="synclog-table" class="table">
       <thead>
         <tr>
-          <th>Date</th>
-          <th>Companies</th>
-          <th>Updated since</th>
+          <th i18n:translate="">Date</th>
+          <th i18n:translate="">Companies</th>
+          <th i18n:translate="">Updated since</th>
         </tr>
       </thead>
       <tbody>
