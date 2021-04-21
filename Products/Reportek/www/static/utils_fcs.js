@@ -188,13 +188,13 @@ reportek.utils.fcs = {
         self.tbl = $("#stocks-company-table").DataTable({
           "iDisplayLength": 20,
           "language": {
-              processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>",
+              processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>"
           },
           "ajax": {
             "url": self.tbl_endpoint,
             "contentType": "application/json",
             "type": "GET",
-            "dataSrc":"",
+            "dataSrc":""
           },
           "drawCallback": function( settings ) {
             self.handle_domain_change();
@@ -209,7 +209,7 @@ reportek.utils.fcs = {
             { "mData": "type" },
             { "mData": "is_virgin" },
             { "mData": "result" }
-          ],
+          ]
         });
       }
       if ($("#licences-company-table").length){
@@ -217,13 +217,13 @@ reportek.utils.fcs = {
         self.tbl = $("#licences-company-table").DataTable({
           "iDisplayLength": 20,
           "language": {
-              processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>",
+              processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>"
           },
           "ajax": {
             "url": self.tbl_endpoint,
             "contentType": "application/json",
             "type": "GET",
-            "dataSrc":"",
+            "dataSrc":""
           },
           "drawCallback": function( settings ) {
             self.handle_domain_change();
@@ -240,8 +240,8 @@ reportek.utils.fcs = {
             { "mData": "use_kind" },
             { "mData": "use_desc" },
             { "mData": "type" },
-            { "mData": "quantity" },
-          ],
+            { "mData": "quantity" }
+          ]
         });
       }
       if ($("#paus-company-table").length){
@@ -249,13 +249,13 @@ reportek.utils.fcs = {
         self.tbl = $("#paus-company-table").DataTable({
           "iDisplayLength": 20,
           "language": {
-              processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>",
+              processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>"
           },
           "ajax": {
             "url": self.tbl_endpoint,
             "contentType": "application/json",
             "type": "GET",
-            "dataSrc":"",
+            "dataSrc":""
           },
           "drawCallback": function( settings ) {
             self.handle_domain_change();
@@ -271,8 +271,8 @@ reportek.utils.fcs = {
             { "mData": "process_name" },
             { "mData": "pau_use" },
             { "mData": "value" },
-            { "mData": "type" },
-          ],
+            { "mData": "type" }
+          ]
         });
       }
     },
