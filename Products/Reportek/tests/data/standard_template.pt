@@ -60,7 +60,7 @@
             <span i18n:translate="">Print</span>
         </a>
 
-        <a id="fullscreenlink" href="javascript:toggleFullScreenMode()" title="Switch to/from full screen mode"i18n:attributes="title title-switch-fullscreen">
+        <a id="fullscreenlink" href="javascript:toggleFullScreenMode()" title="Switch to/from full screen mode" i18n:attributes="title title-switch-fullscreen">
             <span i18n:translate="">Switch to/from full screen mode</span>
         </a>
       </div>
