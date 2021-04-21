@@ -90,20 +90,20 @@
         </span>
         <span tal:condition="company/path|nothing" tal:define="domain company/domain">
           <tal:block tal:condition="python: domain =='ODS'">
-            <h2 id="licences-stocks">Licences and Stocks</h2>
+            <h2 id="licences-stocks" i18n:translate="">Licences and Stocks</h2>
             <ul>
               <li>
-                <a tal:attributes="href string:${here/absolute_url}/organisation_details_licences?&id=${company/company_id}&domain=${company/domain}">
+                <a tal:attributes="href string:${here/absolute_url}/organisation_details_licences?&id=${company/company_id}&domain=${company/domain}" i18n:translate="">
                   Licences
                 </a>
               </li>
               <li>
-                <a tal:attributes="href string:${here/absolute_url}/organisation_details_stocks?&id=${company/company_id}&domain=${company/domain}">
+                <a tal:attributes="href string:${here/absolute_url}/organisation_details_stocks?&id=${company/company_id}&domain=${company/domain}" i18n:translate="">
                   Stocks
                 </a>
               </li>
               <li>
-                <a tal:attributes="href string:${here/absolute_url}/organisation_details_process_agent_uses?&id=${company/company_id}&domain=${company/domain}">
+                <a tal:attributes="href string:${here/absolute_url}/organisation_details_process_agent_uses?&id=${company/company_id}&domain=${company/domain}" i18n:translate="">
                   Process Agent Uses
                 </a>
               </li>

@@ -9,9 +9,9 @@
 </tal:block>
 
 <div class="breadcrumbtrail">
-  <div class="breadcrumbhead">You are here:</div>
+  <div class="breadcrumbhead" i18n:translate="">You are here:</div>
   <div class="breadcrumbitem eionetaccronym">
-    <a href="http://www.eionet.europa.eu/">Eionet</a>
+    <a href="http://www.eionet.europa.eu/" i18n:translate="">Eionet</a>
   </div>
   <tal:block
         define="dummy python:request['PARENTS'].reverse()"

@@ -1,13 +1,13 @@
 <tal:block content="structure python:here.standard_html_header(here, request, request.RESPONSE, layout_columns=3)" />
 
-<p>The Central Data Repository is part of the ReportNet architecture.
+<p i18n:translate="">The Central Data Repository is part of the ReportNet architecture.
 The Central Data Repository is like a bookshelf, with data reports on the environment
 as submitted to international clients.</p>
 
-<p>Each country either has a collection
-(<img src="/misc_/Reportek/collection.gif" alt="collection icon" />)
+<p i18n:translate="">Each country either has a collection
+(<img src="/misc_/Reportek/collection.gif" alt="collection icon" i18n:attributes="alt alt-collection-icon" />)
  for its deliveries or a referral
-(<img src="/misc_/Reportek/referral.gif" alt="referral icon" />) to
+(<img src="/misc_/Reportek/referral.gif" alt="referral icon" i18n:attributes="alt alt-icon"/>) to
 a different preferred repository.
 The data reports within each country collection are arranged
 under the relevant reporting obligations or agreements.</p>
@@ -25,7 +25,7 @@ under the relevant reporting obligations or agreements.</p>
             dummy python:collections.sort(key=lambda x: x.title_or_id().lower())" />
 
 <fieldset>
-    <legend>EEA Member countries</legend>
+    <legend i18n:translate="">EEA Member countries</legend>
     <tal:block repeat="collection collections">
         <div class="countrybox" tal:condition="python:collection.id in eeams">
             <img tal:attributes="src collection/icon;" alt="" />
@@ -35,7 +35,7 @@ under the relevant reporting obligations or agreements.</p>
 </fieldset>
 
 <fieldset>
-    <legend>Other countries and territories</legend>
+    <legend i18n:translate="">Other countries and territories</legend>
     <tal:block repeat="collection collections">
         <div class="countrybox" tal:condition="python:collection.id in noneea">
             <img tal:attributes="src collection/icon;" alt="" />
@@ -45,7 +45,7 @@ under the relevant reporting obligations or agreements.</p>
 </fieldset>
 
 <fieldset>
-    <legend>International organisations</legend>
+    <legend i18n:translate="">International organisations</legend>
     <tal:block repeat="collection collections">
         <div class="countrybox" tal:condition="python:collection.id in int_orgs">
             <img tal:attributes="src collection/icon;" alt="" />
@@ -54,13 +54,13 @@ under the relevant reporting obligations or agreements.</p>
     </tal:block>
 </fieldset>
 
-<p style="clear:left">
+<p style="clear:left" i18n:translate="">
     <strong>Need help?</strong> 
     First try the <a href="/help"><strong>On-line CDR help</strong></a>
     then ask the Eionet helpdesk: <a href="mailto:helpdesk@eionet.europa.eu">helpdesk@eionet.europa.eu</a>.
 </p>
 
-<p>
+<p i18n:translate="">
 Eionet helpdesk will provide assistance for:
   Upload access for new users,
   Password problem,

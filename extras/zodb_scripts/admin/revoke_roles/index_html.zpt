@@ -2,31 +2,32 @@
 
 <div id="operations">
 	<ul>
-		<li><a href="/admin">Administration</a></li>
-		<li><a href="/">Frontpage</a></li>
+		<li><a href="/admin" i18n:translate="">Administration</a></li>
+		<li><a href="/" i18n:translate="">Frontpage</a></li>
 	</ul>
 </div>
 
-<h1>Remove a user from all role assignments</h1>
+<h1 i18n:translate="">Remove a user from all role assignments</h1>
 
-<h2>Find user</h2>
+<h2 i18n:translate="">Find user</h2>
 <form action="" method="post">
-  <label for="search_term">containing</label>
+  <label for="search_term" i18n:translate="">containing</label>
   <input type="text" name="search_term" id="search_term" size="30"
     tal:attributes="value request/search_term | string:">
-  <label for="search_param">matching criteria</label>
+  <label for="search_param" i18n:translate="">matching criteria</label>
   <select name="search_param" id="search_param">
         <tal:block
           tal:repeat="item python:context.acl_users['ldapmultiplugin']['acl_users'].getLDAPSchema()">
         <option
             tal:define="sk python:item[0]; si python:item[1]"
             tal:attributes="value python:sk"
+            i18n:translate=""
             tal:content="python: '%s (%s)' %(si, sk)">
             si (sk)
         </option>
         </tal:block>
   </select>
-  <input type="submit" name="btnFind" value="Search users" />
+  <input type="submit" name="btnFind" value="Search users" i18n:attributes="value btn-search-users"/>
 </form>
 
 <tal:block condition="python: request.get('btnFind') or request.get('btnRoles')">
@@ -36,10 +37,10 @@
       <table class="datatable" style="width:100%;" tal:condition="res">
         <tr>
            <th></th>
-           <th>Username</th>
-           <th>Name</th>
-           <th>Email</th>
-           <th>DN</th>
+           <th i18n:translate="">Username</th>
+           <th i18n:translate="">Name</th>
+           <th i18n:translate="">Email</th>
+           <th i18n:translate="">DN</th>
         </tr>
         <tr tal:repeat="item res">
           <td>
@@ -47,26 +48,26 @@
               tal:attributes="value item/uid;
                               checked python: item['uid'] == request.get('username')"/>
           </td>
-          <td tal:content="item/uid">uid</td>
-          <td tal:content="item/cn">cn</td>
+          <td tal:content="item/uid" i18n:translate="">uid</td>
+          <td tal:content="item/cn" i18n:translate="">cn</td>
           <td>
             <a tal:attributes="href string:mailto:${item/mail}"
-               tal:content="item/mail">email
+               tal:content="item/mail" i18n:translate="">email
             </a>
           </td>
-          <td tal:content="item/dn">dn</td>
+          <td tal:content="item/dn" i18n:translate="">dn</td>
         </tr>
         <tr>
           <td colspan="5">
-            <input type="submit" name="btnRoles" value="Find user roles" />
+            <input type="submit" name="btnRoles" value="Find user roles" i18n:attributes="value btn-find-user-roles"/>
             <input type="hidden" name="search_term" tal:attributes="value request/search_term">
             <input type="hidden" name="search_param" tal:attributes="value request/search_param">
       </table>
-      <span tal:condition="not:res">No users found for this criteria.</span>
+      <span tal:condition="not:res" i18n:translate="">No users found for this criteria.</span>
     </form>
   </tal:block>
   <p tal:condition="python: not request.get('search_term')">
-    <strong>Please enter a search term</strong>
+    <strong i18n:translate="">Please enter a search term</strong>
   </p>
 </tal:block>
 
@@ -76,20 +77,20 @@
     define="username python:request.get('username');
             folders python:request.get('ids');
             dummy python:context.revoke_roles(username=username, paths=folders)">
-    <strong>Local roles successfully revoked</strong>
+    <strong i18n:translate="">Local roles successfully revoked</strong>
   </tal:block>
 </div>
 
 <tal:block condition="python:request.get('btnRoles') and request.get('username')">
-  <h2>Revoke user's local roles</h2>
+  <h2 i18n:translate="">Revoke user's local roles</h2>
   <tal:block define="local_roles python:here.get_user_localroles(request.get('username'))">
     <form action="" method="post" tal:condition="local_roles">
       <table class="datatable" tal:condition="python:request.get('username')">
         <tr>
           <th></th>
-          <th>Country</th>
-          <th>Collection</th>
-          <th>Role</th>
+          <th i18n:translate="">Country</th>
+          <th i18n:translate="">Collection</th>
+          <th i18n:translate="">Role</th>
         </tr>
         <tr tal:repeat="data local_roles">
           <td>
@@ -104,7 +105,7 @@
         </tr>
         <tr>
           <td colspan="4">
-            <input type="submit" name="btnRevoke" value="Revoke roles" />
+            <input type="submit" name="btnRevoke" value="Revoke roles" i18n:attributes="value btn-revoke-roles"/>
             <input type="hidden" name="username" tal:attributes="value request/username">
             <input type="hidden" name="search_term" tal:attributes="value request/search_term">
             <input type="hidden" name="search_param" tal:attributes="value request/search_param">
@@ -114,7 +115,7 @@
       </table>
     </form>
     <p tal:condition="not:local_roles">
-      <strong>No local roles found for username: <em tal:content="request/username" /></strong>
+      <strong i18n:translate="">No local roles found for username: <em tal:content="request/username" /></strong>
     </p>
   </tal:block>
 </tal:block>

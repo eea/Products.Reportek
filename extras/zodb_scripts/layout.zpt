@@ -7,7 +7,7 @@
   <head>
    <meta http-equiv="content-type"
          tal:attributes="content string:"text/html;; charset=${context/management_page_charset}" />
-   <title tal:content="context/title_or_id">Title</title>
+   <title tal:content="context/title_or_id" i18n:translate="">Title</title>
    <!-- meta name="viewport" content="initial-scale=1.0" / -->
    <script type="text/javascript" src="/styles/pageops.js"></script>
    <link rel="stylesheet" type="text/css"
@@ -31,19 +31,19 @@
     <div id="container">
       <div id="toolribbon">
         <div id="lefttools">
-          <a id="eealink" href="http://www.eea.europa.eu/">EEA</a>
-          <a id="ewlink" href="http://ew.eea.europa.eu/">EnviroWindows</a>
+          <a id="eealink" href="http://www.eea.europa.eu/" i18n:translate="">EEA</a>
+          <a id="ewlink" href="http://ew.eea.europa.eu/" i18n:translate="">EnviroWindows</a>
         </div>
         <div id="righttools">
           <tal:block replace="structure context/buttons_loginout"/>
-          <a id="printlink" title="Print this page" href="javascript:this.print();"><span>Print</span></a>
-          <a id="fullscreenlink" href="javascript:toggleFullScreenMode()" title="Switch to/from full screen mode"><span>Switch to/from full screen mode</span></a>
+          <a id="printlink" title="Print this page" href="javascript:this.print();" i18n:attributes="title title-print-page"><span i18n:translate="">Print</span></a>
+          <a id="fullscreenlink" href="javascript:toggleFullScreenMode()" title="Switch to/from full screen mode" i18n:attributes="title title-switch-fullscreen"><span i18n:translate="">Switch to/from full screen mode</span></a>
 
         </div>
       </div> <!-- toolribbon -->
       <div id="pagehead">
-        <a href="/" accesskey="1"><img src="/styles/eea-print-logo.gif" alt="Logo" id="logo" /></a>
-        <div id="networktitle">Eionet</div>
+        <a href="/" accesskey="1"><img src="/styles/eea-print-logo.gif" alt="Logo" id="logo" i18n:attributes="alt alt-logo"/></a>
+        <div id="networktitle" i18n:translate="">Eionet</div>
         <div id="sitetitle"><span tal:replace="context/site_title"/></div>
         <div id="sitetagline"><span tal:replace="context/site_subtitle"/></div>
       </div> <!-- page head -->
@@ -54,15 +54,15 @@
 <tal:block replace="structure context/breadcrumb"/>
 
 <div id="leftcolumn" class="localnav">
-<h2>Navigation</h2>
+<h2 i18n:translate="">Navigation</h2>
 <tal:block replace="structure context/buttons_py"/>
 
-<h2>Account Services</h2>
-I have
+<h2 i18n:translate="">Account Services</h2>
+<span i18n:translate="">I have</span>
 <ul>
-  <li><a href="http://www.eionet.europa.eu/password-reset" title="reset lost password">lost my password</a></li>
+  <li><a href="http://www.eionet.europa.eu/password-reset" title="reset lost password" i18n:translate="" i18n:attributes="title title-reset-password">lost my password</a></li>
 </ul>
-<div class="note-msg" style="padding: 0.5em 0.1em 0.5em 0.3em; margin: 0.2em">
+<div class="note-msg" style="padding: 0.5em 0.1em 0.5em 0.3em; margin: 0.2em" i18n:translate="">
 	<strong style="padding: 0.5em 0.1em 0.5em 30px">Note</strong>
 	<p>
 		<a href="ReportekEngine/subscriptions_html">Subscribe to receive notifications</a> if you want to stay updated about events in this site. 

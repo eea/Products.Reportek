@@ -1,11 +1,11 @@
 <html>
   <head>
-    <title> Login Form </title>
+    <title i18n:translate=""> Login Form </title>
   </head>
 
   <body>
 
-    <h3> Please log in </h3>
+    <h3 i18n:translate=""> Please log in </h3>
 
     <form method="post" action=""
           tal:attributes="action string:${here/absolute_url}/login">
@@ -14,17 +14,17 @@
              tal:attributes="value request/came_from | string:"/>
       <table cellpadding="2">
         <tr>
-          <td><b>Login:</b> </td>
+          <td><b i18n:translate="">Login:</b> </td>
           <td><input type="text" name="__ac_name" size="30" /></td>
         </tr>
         <tr>
-          <td><b>Password:</b></td>
+          <td><b i18n:translate="">Password:</b></td>
           <td><input type="password" name="__ac_password" size="30" /></td>
         </tr>
         <tr>
           <td colspan="2">
             <br />
-            <input type="submit" value=" Log In " />
+            <input type="submit" value=" Log In " i18n:attributes="value btn-login"/>
           </td>
         </tr>
       </table>

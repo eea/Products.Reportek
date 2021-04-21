@@ -1,5 +1,8 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en-US" lang="en-US">
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:i18n="http://xml.zope.org/namespaces/i18n"
+      xmlns:tal="http://xml.zope.org/namespaces/tal"
+      xmlns:metal="http://xml.zope.org/namespaces/metal" lang="en-US" i18n:domain="eea.notranslation">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <style type="text/css">
@@ -154,14 +157,14 @@
       <div style="text-align: center;">
         <strong tal:content="d_title"/> <p><a tal:attributes="href string:https://${host}" tal:content="host"/></p>
         <hr>
-        <h2 style="margin: 12px 0;">Our apologies our website is too popular right now...</h2>
-        <div style="line-height: 28px;">
+        <h2 style="margin: 12px 0;" i18n:translate="">Our apologies our website is too popular right now...</h2>
+        <div style="line-height: 28px;" i18n:translate="">
           <button onclick="window.history.back()">Go Back</button><br>
           or<br>
           Try Refreshing the Page
         </div>
         <hr>
-        <p style="font-style: italic;">If this problem persists <a tal:attributes="href string:mailto:${contact}">Contact <span tal:content="deployment"/> Web Team</a></p>
+        <p style="font-style: italic;" i18n:translate="">If this problem persists <a tal:attributes="href string:mailto:${contact}">Contact <span tal:content="deployment"/> Web Team</a></p>
         <p style="font-size: 90%"><a tal:attributes="href string:https://${host}" tal:content="d_title"/></p>  <br>
       </div>
     </div>
