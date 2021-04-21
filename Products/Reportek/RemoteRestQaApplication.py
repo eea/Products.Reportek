@@ -149,10 +149,8 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         # Initialize the workitem QA specific extra properties
         self.__initializeWorkitem(workitem_id)
 
-        # dictionary of {xml_schema_location: [URL_file]}
-        l_dict = self.getDocumentsForRemoteService()
-
-        if not l_dict:
+        no_of_files = len(l_envelope.objectValues('Report Document'))
+        if not no_of_files:
             self.__manageAutomaticProperty(p_workitem_id=workitem_id,
                                            p_analyze={'code': 2})
             l_workitem.addEvent('Operation completed: no files to analyze')
@@ -168,10 +166,8 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                     REQUEST.set('RemoteApplicationSucceded', 1)
                     REQUEST.set('actor', 'openflow_engine')
                 self.__finishApplication(workitem_id, REQUEST)
-            # see if it's any point to go on
             elif getattr(l_workitem, self.app_name)['analyze']['code'] == -2:
-                l_workitem.addEvent('Operation failed:\
-                                     error calling the remote service')
+                l_workitem.addEvent('Operation failed: error calling the remote service')
                 if REQUEST is not None:
                     REQUEST.set('RemoteApplicationSucceded', 0)
                     REQUEST.set('actor', 'openflow_engine')

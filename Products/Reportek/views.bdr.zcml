@@ -28,6 +28,27 @@
       template="zpt/registry/organisation_details.zpt"/>
 
   <browser:page
+      name="organisation_details_licences"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.FgasesRegistryAdministration"
+      class=".views.SatelliteRegistryManagement"
+      template="zpt/registry/organisation_details_licences.zpt"/>
+
+  <browser:page
+      name="organisation_details_stocks"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.FgasesRegistryAdministration"
+      class=".views.SatelliteRegistryManagement"
+      template="zpt/registry/organisation_details_stocks.zpt"/>
+
+  <browser:page
+      name="organisation_details_process_agent_uses"
+      for=".interfaces.IRegistryManagement"
+      permission="zope2.FgasesRegistryAdministration"
+      class=".views.SatelliteRegistryManagement"
+      template="zpt/registry/organisation_details_process_agent_uses.zpt"/>
+
+  <browser:page
       name="organisation"
       for=".interfaces.IRegistryManagement"
       permission="zope2.FgasesRegistryAdministration"
@@ -118,12 +139,12 @@
     class=".views.SatelliteRegistryManagement"
     attribute="get_matching_log"/>
 
-    <browser:page
-      name="get_datasync_log"
-      for=".interfaces.IRegistryManagement"
-      permission="zope2.FgasesRegistryAdministration"
-      class=".views.SatelliteRegistryManagement"
-      attribute="get_datasync_log"/>
+  <browser:page
+    name="get_datasync_log"
+    for=".interfaces.IRegistryManagement"
+    permission="zope2.FgasesRegistryAdministration"
+    class=".views.SatelliteRegistryManagement"
+    attribute="get_datasync_log"/>
 
   <browser:page
     name="is_company_locked"

@@ -641,7 +641,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
     security.declareProtected('View', 'aggregated_licences')
 
-    def aggregated_licences(self):
+    def aggregated_licences(self, all_years=False):
         """ Return the ODS licences for the company
         """
         res = {
@@ -667,7 +667,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                     if not isinstance(data, dict):
                         res["result"] = "Fail"
                         res["message"] = "Malformed body"
-                    if 'year' in data:
+                    if all_years:
+                        year = ''
+                    elif 'year' in data:
                         year = str(data.get('year'))
                         del data['year']
                     else:
@@ -690,6 +692,17 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                         res["message"] = None
 
         return json.dumps(res, indent=4)
+
+    security.declareProtected('View', 'aggregated_licences_listing')
+    def aggregated_licences_listing(self):
+        """ Licence list for use in the company detail view
+        """
+        data = []
+        raw_data = self.aggregated_licences(all_years=True)
+        if raw_data:
+            raw_data = json.loads(raw_data)
+            data = raw_data['licences']
+        return json.dumps(data, indent=4)
 
     security.declareProtected('View', 'process_agent_uses')
 
@@ -734,6 +747,21 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
         return json.dumps(res, indent=4)
 
+    security.declareProtected('View', 'process_agent_uses_listing')
+    def process_agent_uses_listing(self):
+        """ PAU listing used in company detail view
+        """
+        data = []
+        raw_data = self.process_agent_uses()
+        if raw_data:
+            raw_data = json.loads(raw_data)
+            paus_per_year = raw_data.get(self.company_id)
+            for year, paus in paus_per_year.items():
+                for pau in paus:
+                    pau['year'] = year
+                    data.append(pau)
+        return json.dumps(data, indent=4)
+
     security.declareProtected('View', 'stocks')
 
     def stocks(self):
@@ -763,6 +791,42 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                     else:
                         res["result"] = "Fail"
                         res["message"] = None
+
+        return json.dumps(res, indent=4)
+
+    security.declareProtected('View', 'stock_listing')
+    def stock_listing(self):
+        """ Stock listing used in company detail view
+        """
+        data = []
+        raw_data = self.stocks()
+        if raw_data:
+            raw_data = json.loads(raw_data)
+            stocks_per_year = raw_data.get(self.company_id)
+            for year, stocks in stocks_per_year.items():
+                for stock in stocks:
+                    stock['year'] = year
+                    data.append(stock)
+        return json.dumps(data, indent=4)
+
+    security.declareProtected('View', 'company_ids_match')
+    def company_ids_match(self):
+        """ Return the ODS stocks for the company
+        """
+        res = {
+            "match": 0,
+        }
+        self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+        if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+            engine = self.getEngine()
+            registry = engine.get_registry(self)
+            new_id = self.REQUEST.get('new_id', '')
+            old_id = self.REQUEST.get('old_id', '')
+            new_company_id = getattr(self, '_company_id', '')
+            old_company_id = getattr(self, 'old_company_id', '')
+            if new_id and new_company_id and old_id and old_company_id:
+                if new_id == new_company_id and old_id == old_company_id:
+                    res['match'] = 1
 
         return json.dumps(res, indent=4)
 
