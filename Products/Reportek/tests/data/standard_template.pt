@@ -91,7 +91,7 @@
       <span i18n:translate="">I have</span>
       <ul>
         <li>
-          <a href="http://www.eionet.europa.eu/password-reset" title="reset lost password" i18n:translate=""i18n:attributes="title title-reset-password">lost my password</a>
+          <a href="http://www.eionet.europa.eu/password-reset" title="reset lost password" i18n:translate="" i18n:attributes="title title-reset-password">lost my password</a>
         </li>
       </ul>
 
