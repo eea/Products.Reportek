@@ -1,5 +1,9 @@
 4.0.3-dev0 (unreleased)
 -----------------------
+* Handle multiple zip feedbacks for envelope level checks
+  [olimpiurob refs #123885]
+* Log zip feedbacks file handling errors on workitem and mark the AQA
+  as failure [olimpiurob refs #123885]
 * Restrict cancellable activities to AutomaticQA and FMEConversion app
   [olimpiurob refs #129250]
 * Display previous reporting folders in organisation details if there

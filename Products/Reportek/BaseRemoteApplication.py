@@ -51,32 +51,24 @@ class BaseRemoteApplication(SimpleItem):
                 else:
                     feedback_ob.manage_uploadFeedback(archive, filename=f_name)
 
-    def handle_remote_file(self, url, l_file_id, workitem_id, l_ret):
+    def handle_remote_file(self, url, l_file_id, workitem_id, l_ret, restricted=False):
         """"""
         wk = getattr(self, workitem_id)
-        env = wk.getMySelf()
-        file = env.get(l_file_id)
-        restricted = False
-        if file.isRestricted():
-            restricted = True
-        try:
-            r = requests.get(url, allow_redirects=True,
-                             headers={'Authorization': self.token},
-                             verify=False)
-            from contextlib import closing
-            zip = io.BytesIO(r.content)
-            with closing(r), zip_content.ZZipFile(zip) as archive:
-                fbs = {}
-                for name in archive.namelist():
-                    k = name.split('/')[-1].split('.')[0]
-                    if k:
-                        if k not in fbs.keys():
-                            fbs[k] = [name]
-                        else:
-                            fbs[k].append(name)
-                for fb in fbs:
-                    self.add_zip_feedback(archive, fb, fbs[fb], wk,
-                                          l_file_id, l_ret, restricted=restricted)
-                transaction.commit()
-        except Exception:
-            raise
+        r = requests.get(url, allow_redirects=True,
+                         headers={'Authorization': self.token},
+                         verify=False)
+        from contextlib import closing
+        zip = io.BytesIO(r.content)
+        with closing(r), zip_content.ZZipFile(zip) as archive:
+            fbs = {}
+            for name in archive.namelist():
+                k = name.split('/')[-1].split('.')[0]
+                if k:
+                    if k not in fbs.keys():
+                        fbs[k] = [name]
+                    else:
+                        fbs[k].append(name)
+            for fb in fbs:
+                self.add_zip_feedback(archive, fb, fbs[fb], wk,
+                                      l_file_id, l_ret, restricted=restricted)
+            transaction.commit()

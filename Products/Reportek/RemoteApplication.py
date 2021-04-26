@@ -527,7 +527,9 @@ class RemoteApplication(BaseRemoteApplication):
                 r_files = l_ret.get('REMOTE_FILES')
                 if r_files:
                     for r_file in r_files:
-                        self.handle_remote_file(r_file, l_file_id, p_workitem_id, l_ret)
+                        self.handle_remote_file(r_file, l_file_id,
+                                                p_workitem_id, l_ret,
+                                                restricted=self.get_restricted_status(envelope, l_file_id))
                         l_getResultDict = {p_jobID: {'code': 1, 'fileURL': l_file_url}}
                         self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                                        p_getResult=l_getResultDict)
