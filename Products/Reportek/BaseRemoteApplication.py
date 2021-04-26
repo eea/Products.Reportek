@@ -20,10 +20,11 @@ class BaseRemoteApplication(SimpleItem):
                 fb_message = log_sum.text
         return fb_status, fb_message
 
-    def add_zip_feedback(self, archive, fb, files, wk, l_file_id, l_ret, restricted=False):
+    def add_zip_feedback(self, archive, fb, files, wk, l_file_id, l_ret,
+                         job_id, restricted=False):
         """"""
         envelope = self.aq_parent
-        feedback_id = '{0}_{1}'.format(self.app_name, fb)
+        feedback_id = '{0}_{1}_{2}'.format(self.app_name, fb, job_id)
         if l_file_id == 'xml':
             l_filename = ' result for: '
         else:
@@ -51,7 +52,8 @@ class BaseRemoteApplication(SimpleItem):
                 else:
                     feedback_ob.manage_uploadFeedback(archive, filename=f_name)
 
-    def handle_remote_file(self, url, l_file_id, workitem_id, l_ret, restricted=False):
+    def handle_remote_file(self, url, l_file_id, workitem_id, l_ret, job_id,
+                           restricted=False):
         """"""
         wk = getattr(self, workitem_id)
         r = requests.get(url, allow_redirects=True,
@@ -70,5 +72,6 @@ class BaseRemoteApplication(SimpleItem):
                         fbs[k].append(name)
             for fb in fbs:
                 self.add_zip_feedback(archive, fb, fbs[fb], wk,
-                                      l_file_id, l_ret, restricted=restricted)
+                                      l_file_id, l_ret, job_id,
+                                      restricted=restricted)
             transaction.commit()

@@ -1,5 +1,7 @@
 4.0.3-dev0 (unreleased)
 -----------------------
+* Added job_id suffix in feedback naming for zipped feedbacks
+  [olimpiurob refs #123885]
 * Handle multiple zip feedbacks for envelope level checks
   [olimpiurob refs #123885]
 * Log zip feedbacks file handling errors on workitem and mark the AQA
