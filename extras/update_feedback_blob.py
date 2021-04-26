@@ -1,3 +1,4 @@
+# flake8: noqa
 """ Change feedback attachments from "File" to "File (Blob)".
 
   >>> import update_feedback_blob

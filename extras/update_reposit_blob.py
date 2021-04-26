@@ -1,3 +1,4 @@
+# flake8: noqa
 """ Update the Reportek file repository to use ZODB Blob
 
   >>> import update_reposit_blob
