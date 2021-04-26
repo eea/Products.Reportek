@@ -491,6 +491,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         # find out what file this job was for
         l_file_url = l_wk_prop['getResult'][p_jobID]['fileURL']
         l_file_id = urllib.unquote(string.split(l_file_url, '/')[-1])
+        envelope = self.aq_parent
         try:
             url = 'asynctasks/qajobs/{}'.format(str(p_jobID))
             response = self.makeHTTPRequest(url, method='GET', data={})
@@ -518,7 +519,6 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                         l_filename = ' result for: '
                     else:
                         l_filename = ' result for file %s: ' % l_file_id
-                    envelope = self.aq_parent
                     feedback_id = '{0}_{1}'.format(self.app_name, p_jobID)
                     fb_title = ''.join([self.app_name,
                                         l_filename,
