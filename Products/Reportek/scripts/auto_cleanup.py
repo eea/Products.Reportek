@@ -4,7 +4,9 @@
 
 * Call it with its exported console script main():
 
-    bin/instance run bin/auto_cleanup --container /xmlexports/prefills/designation_types --recursive true --c_type File --prefix copy --threshold 4
+    bin/instance run bin/auto_cleanup --container \
+    /xmlexports/prefills/designation_types --recursive true \
+    --c_type File --prefix copy --threshold 4
 
 """
 from OFS.interfaces import IFolder
@@ -50,7 +52,9 @@ def main():
                         help='Threshold for the number of old c_type objects',
                         dest='threshold')
     args = parser.parse_args(sys.argv[3:])
-    if args.container == None or args.recursive == None or args.c_type == None or args.prefix == None or args.threshold == None:
+    if (args.container is None or args.recursive is None
+            or args.c_type is None or args.prefix is None
+            or args.threshold is None):
         parser.print_help()
         sys.exit()
     site = get_zope_site()
