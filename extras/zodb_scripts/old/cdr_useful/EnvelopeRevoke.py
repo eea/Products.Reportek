@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "EnvelopeRevoke"
 # bind container=container
 # bind context=context

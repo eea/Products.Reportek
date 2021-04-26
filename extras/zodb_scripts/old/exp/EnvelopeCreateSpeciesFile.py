@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "EnvelopeCreateSpeciesFile"
 # bind container=container
 # bind context=context

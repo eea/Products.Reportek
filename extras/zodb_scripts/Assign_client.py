@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "Assign_client"
 # bind container=container
 # bind context=context

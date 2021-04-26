@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "localities_dict"
 # bind container=container
 # bind context=context

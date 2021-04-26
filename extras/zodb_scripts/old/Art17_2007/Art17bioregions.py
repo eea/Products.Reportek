@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "Art17bioregions"
 # bind container=container
 # bind context=context

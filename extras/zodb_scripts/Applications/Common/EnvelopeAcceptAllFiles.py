@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "EnvelopeAcceptAllFiles"
 # bind container=container
 # bind context=context

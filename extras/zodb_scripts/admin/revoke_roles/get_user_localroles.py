@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "get_user_localroles"
 # bind container=container
 # bind context=context

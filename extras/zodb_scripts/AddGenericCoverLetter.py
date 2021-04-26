@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "AddGenericCoverLetter"
 # bind container=container
 # bind context=context

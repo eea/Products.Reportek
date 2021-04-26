@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "testPrj"
 # bind container=container
 # bind context=context

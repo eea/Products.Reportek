@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "revoke_roles"
 # bind container=container
 # bind context=context

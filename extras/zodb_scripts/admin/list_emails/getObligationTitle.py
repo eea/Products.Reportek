@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "getObligationTitle"
 # bind container=container
 # bind context=context

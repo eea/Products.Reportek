@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "searchxmlfiles"
 # bind container=container
 # bind context=context

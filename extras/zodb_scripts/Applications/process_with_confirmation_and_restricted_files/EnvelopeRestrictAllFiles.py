@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "EnvelopeRestrictAllFiles"
 # bind container=container
 # bind context=context

@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "xmlrpc_search_collection"
 # bind container=container
 # bind context=context

@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "find_collections_by_dataflow_py"
 # bind container=container
 # bind context=context

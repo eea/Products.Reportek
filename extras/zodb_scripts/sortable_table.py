@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "sortable_table"
 # bind container=container
 # bind context=context

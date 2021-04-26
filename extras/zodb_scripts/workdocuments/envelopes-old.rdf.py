@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "envelopes-old.rdf"
 # bind container=container
 # bind context=context

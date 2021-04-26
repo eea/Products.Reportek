@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "update_document_schema"
 # bind container=container
 # bind context=context

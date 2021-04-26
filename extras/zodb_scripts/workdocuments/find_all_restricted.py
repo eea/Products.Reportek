@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "find_all_restricted"
 # bind container=container
 # bind context=context

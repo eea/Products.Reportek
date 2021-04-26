@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "index_html"
 # bind container=container
 # bind context=context

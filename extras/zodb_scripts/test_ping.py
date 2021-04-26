@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "test_ping"
 # bind container=container
 # bind context=context

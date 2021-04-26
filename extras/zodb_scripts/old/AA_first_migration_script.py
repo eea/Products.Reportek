@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "AA_first_migration_script"
 # bind container=container
 # bind context=context

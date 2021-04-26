@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "Announcement_add"
 # bind container=container
 # bind context=context

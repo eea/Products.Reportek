@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "form1"
 # bind container=container
 # bind context=context

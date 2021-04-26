@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "EnvelopeCreateEmptyGMLFile"
 # bind container=container
 # bind context=context

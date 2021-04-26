@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "client_access_eu_html"
 # bind container=container
 # bind context=context

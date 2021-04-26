@@ -1,3 +1,4 @@
+# flake8: noqa
 # Script (Python) "fortest"
 # bind container=container
 # bind context=context
