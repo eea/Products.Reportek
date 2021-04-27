@@ -7,13 +7,14 @@
 
 # Note that a message may be found in more than one source, and not knowing
 # which of them is used in that particular html, the neighbours from all
-# sources will be added to that html.po - creating more text to be transalaed than
-# necessary.
-# The neighbour feature is important because an html may conditionally omit some
-# messages otherwise found in its underling zpts, pys, dtmls.
+# sources will be added to that html.po - creating more text to be translated
+# than necessary.
+# The neighbour feature is important because an html may conditionally omit
+# some messages otherwise found in its underling zpts, pys, dtmls.
 
-# Note that the mixed usage of initial english message for msgid AND symbolic msgids
-# (of form msg-id-thing) will cause collisons in alghorithm, and more false neighbours adding.
+# Note that the mixed usage of initial english message for msgid AND symbolic
+# msgids (of form msg-id-thing) will cause collisons in alghorithm, and more
+# false neighbours adding.
 # e.g:
 
 # . Default: Add
@@ -25,14 +26,14 @@
 # msgid "Add"
 # msgstr "add translation"
 
-# This will cause a collision - the "Add" text found in html cand not be correctly tracked
-# to its source, thus its neighbours
+# This will cause a collision - the "Add" text found in html cand not be
+# correctly tracked to its source, thus its neighbours
 
-# Note that the "Some text ${some var} some more text" messages will add fuzziness
-# to the matching, and could result in more false neighbours.
+# Note that the "Some text ${some var} some more text" messages will add
+# fuzziness to the matching, and could result in more false neighbours.
 
-# All this eurhistics will make rebuilding the main .po file out of the .xlfs received
-# from translators at least tricky, if not slightly unreliable...
+# All this eurhistics will make rebuilding the main .po file out of the .xlfs
+# received from translators at least tricky, if not slightly unreliable...
 
 # All this happes because, having the html as input - we cannot track
 # which zpts, dtml, pys, etc were used to generate it, and scan those.
@@ -68,7 +69,7 @@ def play(po_header, bySrc):
 def process_html(html, po_header, bySrc):
     text = codecs.open(html, 'r', 'utf-8').read()
     base_name = os.path.splitext(os.path.basename(html))[0]
-    po = codecs.open(g_result_dir+'/'+base_name+'.po', 'w', 'utf-8')
+    po = codecs.open(g_result_dir + '/' + base_name + '.po', 'w', 'utf-8')
     po.write(u'\n'.join(po_header))
     po.write(u'\n')
 
@@ -94,7 +95,7 @@ def mk_result_dir(html_dir):
     result_dir = os.path.join(dir_name, name+'.po')
     try:
         os.mkdir(result_dir)
-    except:
+    except Exception:
         print "Failed. Dir %s exists?" % result_dir
         sys.exit(1)
 
@@ -114,7 +115,7 @@ if __name__ == '__main__':
     po_header = []
     bySrc = {}
     po_load(main_po, poHeader=po_header, bySrc=bySrc)
-    #play(po_header, bySrc)
+    # play(po_header, bySrc)
 
     for f in os.listdir(html_dir):
         f = os.path.join(html_dir, f)

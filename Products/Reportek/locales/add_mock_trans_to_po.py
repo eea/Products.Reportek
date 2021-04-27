@@ -4,11 +4,12 @@ import codecs
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
-#sys.path.insert(0, '.')
+# sys.path.insert(0, '.')
 
 
 def usage():
-    "\tUsage: %s <po file>\n\tThe result will be in <po file>.out" % sys.argv[0]
+    "\tUsage: %s <po file>\n\tThe result will be in\
+     <po file>.out" % sys.argv[0]
 
 
 if __name__ == '__main__':
@@ -28,7 +29,8 @@ if __name__ == '__main__':
     out_po.write(u'\n')
     for key, block in byMsgid.iteritems():
         if not block.translated:
-            #block.replaceTranslation("__translated__" + block.srcMsg.strip('"') + "__translated__")
+            # block.replaceTranslation("__translated__"
+            # + block.srcMsg.strip('"') + "__translated__")
             block.replaceTranslationPreserveVars()
         out_po.write(block.getBlockText())
         out_po.write(u'\n')
