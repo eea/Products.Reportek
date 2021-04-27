@@ -53,7 +53,7 @@
       </div>
 
       <div class="utils-referrals" tal:condition="python: [action for action in referral_actions if action in menu_keys]">
-        <h2 i18n:translate="" i18n:translate="">Referrals</h2>
+        <h2 i18n:translate="">Referrals</h2>
         <ul>
           <tal:rep tal:repeat="action referral_actions">
             <li tal:condition="python: action in menu_keys">

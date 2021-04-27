@@ -51,10 +51,10 @@ class CommentItem(ObjectManager, SimpleItem, PropertyManager):
 
     # what management options are there?
     manage_options = (
-        (ObjectManager.manage_options[0],) +
-        PropertyManager.manage_options +
-        ({'label': 'View',  'action': 'index_html'}, ) +
-        SimpleItem.manage_options
+        (ObjectManager.manage_options[0],)
+        + PropertyManager.manage_options
+        + ({'label': 'View',  'action': 'index_html'}, )
+        + SimpleItem.manage_options
     )
 
     def __init__(self, id, title, body, author, date, in_reply):
@@ -68,7 +68,8 @@ class CommentItem(ObjectManager, SimpleItem, PropertyManager):
         self.modification_date = None
 
     def all_meta_types(self, interfaces=None):
-        """ Called by Zope to determine what kind of object the envelope can contain
+        """ Called by Zope to determine what kind of object
+        the envelope can contain
         """
         y = [{'name': 'File', 'action': 'manage_addProduct/OFSP/fileAdd',
               'permission': 'Add Envelopes'}]
@@ -89,11 +90,13 @@ class CommentItem(ObjectManager, SimpleItem, PropertyManager):
                 file_ob = self._getOb(file_id)
                 file_ob.manage_upload(file=file)
                 if REQUEST:
-                    return REQUEST.RESPONSE.redirect('%s/comment_edit' % self.absolute_url())
+                    return REQUEST.RESPONSE.redirect(
+                        '%s/comment_edit' % self.absolute_url())
             if REQUEST:
                 return REQUEST.RESPONSE.redirect(REQUEST.HTTP_REFERER)
         else:
-            raise Unauthorized, "You are not authorized to access this resource"
+            raise Unauthorized("You are not authorized\
+                                 to access this resource")
 
     def uploadFileComment(self, file='', REQUEST=None):
         """ Upload an attachment to a comment. """
@@ -102,19 +105,23 @@ class CommentItem(ObjectManager, SimpleItem, PropertyManager):
             if filename:
                 manage_addFile(self, filename, file)
             if REQUEST:
-                return REQUEST.RESPONSE.redirect('%s/comment_edit' % self.absolute_url())
+                return REQUEST.RESPONSE.redirect(
+                    '%s/comment_edit' % self.absolute_url())
         else:
-            raise Unauthorized, "You are not authorized to access this resource"
+            raise Unauthorized("You are not authorized\
+                                 to access this resource")
 
     def deleteFileComment(self, file_id='', REQUEST=None):
         """ Delete an attachment """
         if self.checkPermissionEditComments():
-            if REQUEST.has_key('delete'):
+            if 'delete' in REQUEST:
                 self.manage_delObjects(file_id)
             if REQUEST is not None:
-                return REQUEST.RESPONSE.redirect('%s/comment_edit' % self.absolute_url())
+                return REQUEST.RESPONSE.redirect(
+                    '%s/comment_edit' % self.absolute_url())
         else:
-            raise Unauthorized, "You are not authorized to access this resource"
+            raise Unauthorized("You are not authorized\
+                                 to access this resource")
 
     def updateComment(self, title='', body='', notif=True, REQUEST=None):
         """ Add a comment for this object. """
@@ -135,20 +142,23 @@ class CommentItem(ObjectManager, SimpleItem, PropertyManager):
                 engine = self.getEngine()
                 envelope = self.getMySelf()
                 if engine.UNS_server and not self.automatic:
-                    engine.sendNotificationToUNS(envelope,
-                                                 'Comment to feedback updated',
-                                                 'Comment for the feedback %s was updated (%s#%s)' % (
-                                                     self.title_or_id(), self.absolute_url(), id),
-                                                 self.REQUEST.AUTHENTICATED_USER.getUserName())
+                    engine.sendNotificationToUNS(
+                        envelope,
+                        'Comment to feedback updated',
+                        'Comment for the feedback %s was updated (%s#%s)' % (
+                            self.title_or_id(), self.absolute_url(), id),
+                        self.REQUEST.AUTHENTICATED_USER.getUserName())
             if REQUEST:
                 return REQUEST.RESPONSE.redirect(self.absolute_url())
         else:
-            raise Unauthorized, "You are not authorized to access this resource"
+            raise Unauthorized("You are not authorized\
+                                 to access this resource")
 
     def checkPermissionEditComments(self):
         """ Check for edit comments permission """
         owner = self.getOwner()
-        return getSecurityManager().checkPermission(EDIT_PERMISSION, self) or self.REQUEST.AUTHENTICATED_USER.getUserName() == owner.getId()
+        return getSecurityManager().checkPermission(EDIT_PERMISSION, self) or \
+            self.REQUEST.AUTHENTICATED_USER.getUserName() == owner.getId()
 
     comment_upload = PageTemplateFile('zpt/comment_upload', globals())
     comment_delete_file = PageTemplateFile(
@@ -192,7 +202,8 @@ class CommentsManager:
 
     security.declareProtected(ADD_PERMISSION, 'addComment')
 
-    def addComment(self, id='', title='', body='', author=None, file=None, date=None, in_reply=None, notif=True, REQUEST=None):
+    def addComment(self, id='', title='', body='', author=None, file=None,
+                   date=None, in_reply=None, notif=True, REQUEST=None):
         """ Add a comment for this object. """
         id = cleanup_id(id)
         if not id:
@@ -220,11 +231,12 @@ class CommentsManager:
             engine = self.getEngine()
             envelope = self.getMySelf()
             if engine.UNS_server and not self.automatic:
-                engine.sendNotificationToUNS(envelope,
-                                             'Comment to feedback posted',
-                                             'Comment was posted for the feedback %s (%s#%s)' % (
-                                                 self.title_or_id(), self.absolute_url(), id),
-                                             self.REQUEST.AUTHENTICATED_USER.getUserName())
+                engine.sendNotificationToUNS(
+                    envelope,
+                    'Comment to feedback posted',
+                    'Comment was posted for the feedback %s (%s#%s)' % (
+                        self.title_or_id(), self.absolute_url(), id),
+                    self.REQUEST.AUTHENTICATED_USER.getUserName())
         if REQUEST:
             return REQUEST.RESPONSE.redirect(self.absolute_url())
 
@@ -237,7 +249,7 @@ class CommentsManager:
             return REQUEST.RESPONSE.redirect(REQUEST.HTTP_REFERER)
 
     def showDateTime(self, date):
-        """ @param date: a DateTime object 
+        """ @param date: a DateTime object
             @returns: string 'dd month_name yyyy hh:mm:ss'
         """
         return date.strftime('%d %b %Y %H:%M:%S')

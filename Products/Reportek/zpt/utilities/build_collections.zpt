@@ -75,7 +75,7 @@
 
       <div class="form-group" id="year-input">
         <div class="yearpart">
-          <label class="question" for="year" i18n:translate="" i18n:translate="">Relating to which year</label>
+          <label class="question" for="year" i18n:translate="">Relating to which year</label>
           <input type="text" name="year" id="year" size="4" maxlength="4" />
         </div>
         <div class="partofyear" tal:define="default python: ''">
@@ -86,7 +86,7 @@
           </select>
         </div>
         <div class="endyearpart">
-          <label for="endyear" class="question" i18n:translate="" i18n:translate="">to</label>
+          <label for="endyear" class="question" i18n:translate="">to</label>
           <input type="text" id="endyear" name="endyear" size="4" maxlength="4" value=""/>
         </div>
       </div>
@@ -101,7 +101,7 @@
 
         <label for="allow_collections" i18n:translate="">Collections</label>
         <input type="checkbox" value="1" name="allow_collections" id="allow_collections"/>
-        <label for="allow_referrals" i18n:translate="" i18n:translate="">Referrals</label>
+        <label for="allow_referrals" i18n:translate="">Referrals</label>
         <input type="checkbox" id="allow_referrals" name="allow_referrals" value="1"/>
       </div>
 

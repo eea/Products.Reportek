@@ -22,7 +22,7 @@
   <metal:block fill-slot="content">
     <metal:block use-macro="here/util_controls/macros/utilities-controls" />
 
-    <h1 i18n:translate="" i18n:translate="">Disabled members with assigned roles</h1>
+    <h1 i18n:translate="">Disabled members with assigned roles</h1>
     <tal:block tal:condition="python: request.get('op_results', 'Not set') != 'Not set'"
      tal:define="op_results python: request.get('op_results')">
 
@@ -56,7 +56,7 @@
     <form method="POST">
       <div tal:define="results view/get_assigned_disabled_members">
         <tal:block tal:condition="not: results">
-          <p i18n:translate="" i18n:translate="">There are currently no local roles assigned to disabled LDAP members.</p>
+          <p i18n:translate="">There are currently no local roles assigned to disabled LDAP members.</p>
         </tal:block>
 
         <tal:block tal:condition="results">
@@ -64,7 +64,7 @@
             <p i18n:translate="">The following LDAP members have either been disabled or, in the case of LDAP groups, been deleted or renamed from the LDAP server. The listed members still have local roles on the following collections:</p>
             <p i18n:translate="">The "Type" column can contain "Group" for LDAP Groups and "User" for LDAP Users. </p>
           </tal:block>
-          <p tal:condition="not: isCdrDeployment" i18n:translate="" i18n:translate="">The following LDAP members have been disabled on the LDAP server. They still have local roles on the following collections:</p>
+          <p tal:condition="not: isCdrDeployment" i18n:translate="">The following LDAP members have been disabled on the LDAP server. They still have local roles on the following collections:</p>
 
           <table class="datatable disabled_members">
             <thead>

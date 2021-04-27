@@ -98,7 +98,7 @@
               <tal:block tal:condition="collections">
                 <h2 i18n:translate="">6. Assign role</h2>
 
-                <h5 i18n:translate="" tal:condition="python: deployment == 'BDR'" i18n:translate="">The Auditors will have read-only access for country folders and will be country representatives, while Clients (ClientODS, ClientCARS and ClientFG, etc.) have an overview for the entire obligation's collection.</h5>
+                <h5 tal:condition="python: deployment == 'BDR'" i18n:translate="">The Auditors will have read-only access for country folders and will be country representatives, while Clients (ClientODS, ClientCARS and ClientFG, etc.) have an overview for the entire obligation's collection.</h5>
 
                 <table class="datatable">
                   <thead>
@@ -128,7 +128,7 @@
                         </td>
                         <td tal:condition="use_subgroups">
                           <span tal:condition="matched_group" tal:content="matched_group" tal:omit-tag=""/>
-                          <span tal:condition="not: matched_group" tal:omit-tag="" i18n:translate="" i18n:translate="">
+                          <span tal:condition="not: matched_group" tal:omit-tag="" i18n:translate="">
                             N/A
                           </span>
                         </td>
@@ -164,7 +164,7 @@
                 </div>
               </tal:block>
               <tal:block tal:condition="not: collections">
-                <p i18n:translate="" i18n:translate="">No collections found matching your criteria</p>
+                <p i18n:translate="">No collections found matching your criteria</p>
               </tal:block>
             </tal:def>
 
@@ -173,11 +173,11 @@
           <p class="error-msg" tal:condition="not: view/display_confirmation">
             <span
               tal:condition="isCdrDeployment"
-              i18n:translate="" i18n:translate="">User or Group and role are mandatory fields.
+              i18n:translate="">User or Group and role are mandatory fields.
             </span>
             <span
               tal:condition="not: isCdrDeployment"
-              i18n:translate="" i18n:translate="">User and role are mandatory fields.
+              i18n:translate="">User and role are mandatory fields.
             </span>
           </p>
 
