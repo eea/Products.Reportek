@@ -2,11 +2,16 @@
 from urllib import urlencode
 
 from Products.Five.browser import BrowserView
-from Products.PluggableAuthService.PluggableAuthService import addPluggableAuthService
-from Products.PluggableAuthService.plugins.ZODBRoleManager import addZODBRoleManager
-from Products.PluggableAuthService.plugins.ZODBUserManager import addZODBUserManager
-from Products.PluggableAuthService.plugins.CookieAuthHelper import addCookieAuthHelper
-from Products.PluggableAuthService.plugins.HTTPBasicAuthHelper import addHTTPBasicAuthHelper
+from Products.PluggableAuthService.PluggableAuthService import \
+    addPluggableAuthService
+from Products.PluggableAuthService.plugins.ZODBRoleManager import \
+    addZODBRoleManager
+from Products.PluggableAuthService.plugins.ZODBUserManager import \
+    addZODBUserManager
+from Products.PluggableAuthService.plugins.CookieAuthHelper import \
+    addCookieAuthHelper
+from Products.PluggableAuthService.plugins.HTTPBasicAuthHelper import \
+    addHTTPBasicAuthHelper
 import Products.PluggableAuthService.interfaces.plugins as plugin_interfaces
 
 
@@ -76,7 +81,7 @@ class LogoutView(BrowserView):
 
         pas = self.context.unrestrictedTraverse("/acl_users")
         return pas.logout(self.request)
-        #came_from = self.request.get('HTTP_REFERER')
+        # came_from = self.request.get('HTTP_REFERER')
         # if not came_from:
         #    came_from = '/'
         # self.request.RESPONSE.redirect(came_from)
