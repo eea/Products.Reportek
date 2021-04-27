@@ -524,7 +524,7 @@ class RemoteApplication(BaseRemoteApplication):
         # find out what file this job was for
         l_file_url = l_wk_prop['getResult'][p_jobID]['fileURL']
         l_file_id = urllib.unquote(string.split(l_file_url, '/')[-1])
-
+        envelope = self.aq_parent
         try:
             l_server = xmlrpclib.ServerProxy(self.RemoteServer)
             service = getattr(l_server, self.RemoteService)
@@ -535,10 +535,10 @@ class RemoteApplication(BaseRemoteApplication):
                 r_files = l_ret.get('REMOTE_FILES')
                 if r_files:
                     for r_file in r_files:
-                        self.handle_remote_file(
-                            r_file, l_file_id, p_workitem_id, l_ret)
-                        l_getResultDict = {
-                            p_jobID: {'code': 1, 'fileURL': l_file_url}}
+                        self.handle_remote_file(r_file, l_file_id,
+                                                p_workitem_id, l_ret, p_jobID,
+                                                restricted=self.get_restricted_status(envelope, l_file_id))
+                        l_getResultDict = {p_jobID: {'code': 1, 'fileURL': l_file_url}}
                         self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                                        p_getResult=l_getResultDict)
                 else:
@@ -546,7 +546,6 @@ class RemoteApplication(BaseRemoteApplication):
                         l_filename = ' result for: '
                     else:
                         l_filename = ' result for file %s: ' % l_file_id
-                    envelope = self.aq_parent
                     feedback_id = '{0}_{1}'.format(self.app_name, p_jobID)
                     fb_title = ''.join([self.app_name,
                                         l_filename,
