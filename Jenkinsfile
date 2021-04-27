@@ -3,6 +3,7 @@ pipeline {
 
   environment {
         GIT_NAME = "Products.Reportek"
+        SONARQUBE_TAGS = "bdr.eionet.europa.eu,cdr.eionet.europa.eu,mdr.eionet.europa.eu"
     }
 
   stages {
