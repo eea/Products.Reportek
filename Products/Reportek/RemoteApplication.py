@@ -45,8 +45,8 @@ feedback_log = logging.getLogger(__name__ + '.feedback')
 FEEDBACKTEXT_LIMIT = 1024 * 16  # 16KB
 
 
-manage_addRemoteApplicationForm = PageTemplateFile('zpt/remote/application_add',
-                                                   globals())
+manage_addRemoteApplicationForm = PageTemplateFile(
+    'zpt/remote/application_add', globals())
 
 
 def manage_addRemoteApplication(self, id='', title='', RemoteServer='',
@@ -63,18 +63,20 @@ def manage_addRemoteApplication(self, id='', title='', RemoteServer='',
 
 class RemoteApplication(BaseRemoteApplication):
     """ A computerised application, executed by an activity.
-        It executes a set of operations on a remote server and generates a feedback object
-        into the envelope as result of these.
+        It executes a set of operations on a remote server and generates a
+        feedback object into the envelope as result of these.
         The instance data for the RemoteApplication is stored in the workitem
         as an additional property - app_name - contaning a dictionary like::
 
           {
             'analyze':      {code, retries_left, last_error, next_run},
-            'getResult':    {jobID: {code, retries_left, last_error, next_run, fileURL}}
+            'getResult':    {jobID: {code, retries_left, last_error, next_run,
+                                     fileURL}}
           }
 
-        First, a call is made to the 'analyze' function from the remote service which retireves
-        the list of files that will be analyzed along with their jobIDs
+        First, a call is made to the 'analyze' function from the remote service
+        which retireves the list of files that will be analyzed along with
+        their jobIDs
 
         Second, the 'getResult' remote service function is called for every job
 
@@ -100,13 +102,13 @@ class RemoteApplication(BaseRemoteApplication):
     implements(IQAApplication)
 
     manage_options = (({'label': 'Settings',
-                        'action': 'manage_settings_html'},) +
-                      SimpleItem.manage_options
+                        'action': 'manage_settings_html'},)
+                      + SimpleItem.manage_options
                       )
 
     def __init__(self, id, title, RemoteServer, RemoteService, app_name,
-                 nRetries=5, nJobRetries=5, requestTimeout=5, retryFrequency=300,
-                 retryJobFrequency=300, token=None):
+                 nRetries=5, nJobRetries=5, requestTimeout=5,
+                 retryFrequency=300, retryJobFrequency=300, token=None):
         """ Initialize a new instance of Document """
         self.id = id
         self.title = title
@@ -115,7 +117,7 @@ class RemoteApplication(BaseRemoteApplication):
         self.app_name = app_name
         self.nRetries = nRetries                            # integer
         self.nJobRetries = nJobRetries                      # integer
-        self.requestTimeout = requestTimeout                  # integer - seconds
+        self.requestTimeout = requestTimeout                # integer - seconds
         self.retryFrequency = retryFrequency                # integer - seconds
         self.retryJobFrequency = retryJobFrequency          # integer - seconds
         self.token = token
@@ -194,7 +196,8 @@ class RemoteApplication(BaseRemoteApplication):
         if l_wk_prop['analyze']['code'] == 0:
             self.__analyzeDocuments(workitem_id, l_dict)
         # see if it's any point to go on
-        elif l_wk_prop['analyze']['code'] == -2 and self._local_scripts_done(l_wk_prop.get('localQA')):
+        elif (l_wk_prop['analyze']['code'] == -2
+                and self._local_scripts_done(l_wk_prop.get('localQA'))):
             l_workitem.failure = True
             if REQUEST is not None:
                 REQUEST.set('RemoteApplicationSucceded', 0)
@@ -207,7 +210,8 @@ class RemoteApplication(BaseRemoteApplication):
         l_files_success = {}
         l_files_failed = {}
         for l_jobID, l_job_details in l_wk_prop['getResult'].items():
-            if l_job_details['code'] == 0 and l_job_details['next_run'].lessThanEqualTo(DateTime()):
+            if (l_job_details['code'] == 0
+                    and l_job_details['next_run'].lessThanEqualTo(DateTime())):
                 l_ret_step2 = self.__getResult4XQueryServiceJob(workitem_id,
                                                                 l_jobID)
                 l_fn = l_job_details['fileURL'].split('/')[-1]
@@ -314,11 +318,12 @@ class RemoteApplication(BaseRemoteApplication):
         feedback_title = '{0} result for file {1}: {2}'.format(self.app_name,
                                                                file_id,
                                                                script_title)
-        envelope.manage_addFeedback(id=feedback_id,
-                                    title=feedback_title,
-                                    activity_id=workitem.activity_id,
-                                    automatic=1,
-                                    restricted=self.get_restricted_status(envelope, file_id))
+        envelope.manage_addFeedback(
+            id=feedback_id,
+            title=feedback_title,
+            activity_id=workitem.activity_id,
+            automatic=1,
+            restricted=self.get_restricted_status(envelope, file_id))
 
         feedback_ob = envelope[feedback_id]
         content = result[1].data
@@ -355,8 +360,10 @@ class RemoteApplication(BaseRemoteApplication):
             if xml.id not in localQA:
                 localQA[xml.id] = {}
             resultsForXml = localQA[xml.id]
-            for script in qa_repo._get_local_qa_scripts(xml.xml_schema_location):
-                if script.id not in resultsForXml or resultsForXml[script.id] == 'failed':
+            for script in qa_repo._get_local_qa_scripts(
+                    xml.xml_schema_location):
+                if (script.id not in resultsForXml
+                        or resultsForXml[script.id] == 'failed'):
                     resultsForXml[script.id] = 'in progress'
                     transaction.commit()
                     file_id, result = qa_repo._runQAScript(
@@ -370,9 +377,11 @@ class RemoteApplication(BaseRemoteApplication):
             return False
         for script_results in localQA.values():
             # any bad status present?
-            if any((bad_status for bad_status in script_results.values() if bad_status != 'done')):
+            if any((bad_status for bad_status in script_results.values()
+                    if bad_status != 'done')):
                 return False
-        # truly no bad statuses (including no script -> status pairs) because we check this after join
+        # truly no bad statuses (including no script -> status pairs)
+        # because we check this after join
         return True
 
     ##############################################
@@ -438,8 +447,9 @@ class RemoteApplication(BaseRemoteApplication):
                 l_workitem.addEvent('Error in sending files to %s: %s' %
                                     (self.app_name, str(l_fault.faultString)))
                 l_workitem.failure = True
-                err = 'Code: {}\nDescription: {}'.format(str(l_fault.faultCode),
-                                                         str(l_fault.faultString))
+                err = 'Code: {}\nDescription: {}'.format(
+                    str(l_fault.faultCode),
+                    str(l_fault.faultString))
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                                p_analyze={
                                                    'code': -2,
@@ -448,15 +458,17 @@ class RemoteApplication(BaseRemoteApplication):
             else:
                 next_run = DateTime(int(l_wk_prop['analyze']['next_run']) +
                                     int(self.retryFrequency))
-                err = 'Code: {}\nDescription: {}'.format(str(l_fault.faultCode),
-                                                         str(l_fault.faultString))
-                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                               p_analyze={
-                                                   'code': 0,
-                                                   'last_error': err,
-                                                   'retries_left': l_nRetries - 1,
-                                                   'next_run': next_run
-                                               })
+                err = 'Code: {}\nDescription: {}'.format(
+                    str(l_fault.faultCode),
+                    str(l_fault.faultString))
+                self.__manageAutomaticProperty(
+                    p_workitem_id=p_workitem_id,
+                    p_analyze={
+                        'code': 0,
+                        'last_error': err,
+                        'retries_left': l_nRetries - 1,
+                        'next_run': next_run
+                    })
         # An HTTP protocol error - retry later
         except xmlrpclib.ProtocolError as l_protocol:
             l_nRetries = int(l_wk_prop['analyze']['retries_left'])
@@ -464,8 +476,9 @@ class RemoteApplication(BaseRemoteApplication):
                 l_workitem.addEvent('Error in sending files to %s: %s' %
                                     (self.app_name, str(l_protocol.errmsg)))
                 l_workitem.failure = True
-                err = 'Code: {}\nDescription: {}'.format(str(l_protocol.errcode),
-                                                         str(l_protocol.errmsg))
+                err = 'Code: {}\nDescription: {}'.format(
+                    str(l_protocol.errcode),
+                    str(l_protocol.errmsg))
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                                p_analyze={
                                                    'code': -2,
@@ -474,25 +487,29 @@ class RemoteApplication(BaseRemoteApplication):
             else:
                 next_run = DateTime(int(l_wk_prop['analyze']['next_run']) +
                                     int(self.retryFrequency))
-                err = 'Code: {}\nDescription: {}'.format(str(l_protocol.errcode),
-                                                         str(l_protocol.errmsg))
-                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                               p_analyze={
-                                                   'code': 0,
-                                                   'last_error': err,
-                                                   'retries_left': l_nRetries - 1,
-                                                   'next_run': next_run
-                                               })
+                err = 'Code: {}\nDescription: {}'.format(
+                    str(l_protocol.errcode),
+                    str(l_protocol.errmsg))
+                self.__manageAutomaticProperty(
+                    p_workitem_id=p_workitem_id,
+                    p_analyze={
+                        'code': 0,
+                        'last_error': err,
+                        'retries_left': l_nRetries - 1,
+                        'next_run': next_run
+                    })
         # A broken response package - critical, do not retry
         except xmlrpclib.ResponseError as l_response:
             l_workitem.addEvent('Error in sending files to %s: %s' %
                                 (self.app_name, str(l_response)))
             l_workitem.failure = True
-            self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                           p_analyze={
-                                               'code': -2,
-                                               'last_error': 'Response error\nDescription: ' + str(l_response)
-                                           })
+            self.__manageAutomaticProperty(
+                p_workitem_id=p_workitem_id,
+                p_analyze={
+                    'code': -2,
+                    'last_error': 'Response error\nDescription: ' + str(
+                        l_response)
+                })
         # Generic client error - critical, do not retry
         except xmlrpclib.Error as err:
             l_workitem.addEvent('Error in sending files to %s: %s' %
@@ -515,11 +532,12 @@ class RemoteApplication(BaseRemoteApplication):
         return 1
 
     def __getResult4XQueryServiceJob(self, p_workitem_id, p_jobID):
-        """ Makes an XML/RPC call to the 'getResult' function from the remote service
-            for an existing job
+        """ Makes an XML/RPC call to the 'getResult' function from the remote
+            service for an existing job
         """
         l_workitem = getattr(self, p_workitem_id)
-        # get the property of the workitem which keeps all the instance data for this operation
+        # get the property of the workitem which keeps all the instance data
+        # for this operation
         l_wk_prop = getattr(l_workitem, self.app_name)
         # find out what file this job was for
         l_file_url = l_wk_prop['getResult'][p_jobID]['fileURL']
@@ -535,12 +553,16 @@ class RemoteApplication(BaseRemoteApplication):
                 r_files = l_ret.get('REMOTE_FILES')
                 if r_files:
                     for r_file in r_files:
-                        self.handle_remote_file(r_file, l_file_id,
-                                                p_workitem_id, l_ret, p_jobID,
-                                                restricted=self.get_restricted_status(envelope, l_file_id))
-                        l_getResultDict = {p_jobID: {'code': 1, 'fileURL': l_file_url}}
-                        self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                                       p_getResult=l_getResultDict)
+                        self.handle_remote_file(
+                            r_file, l_file_id,
+                            p_workitem_id, l_ret, p_jobID,
+                            restricted=self.get_restricted_status(envelope,
+                                                                  l_file_id))
+                        l_getResultDict = {p_jobID: {'code': 1,
+                                                     'fileURL': l_file_url}}
+                        self.__manageAutomaticProperty(
+                            p_workitem_id=p_workitem_id,
+                            p_getResult=l_getResultDict)
                 else:
                     if l_file_id == 'xml':
                         l_filename = ' result for: '
@@ -550,12 +572,14 @@ class RemoteApplication(BaseRemoteApplication):
                     fb_title = ''.join([self.app_name,
                                         l_filename,
                                         l_ret['SCRIPT_TITLE']])
-                    envelope.manage_addFeedback(id=feedback_id,
-                                                title=fb_title,
-                                                activity_id=l_workitem.activity_id,
-                                                automatic=1,
-                                                document_id=l_file_id,
-                                                restricted=self.get_restricted_status(envelope, l_file_id))
+                    envelope.manage_addFeedback(
+                        id=feedback_id,
+                        title=fb_title,
+                        activity_id=l_workitem.activity_id,
+                        automatic=1,
+                        document_id=l_file_id,
+                        restricted=self.get_restricted_status(envelope,
+                                                              l_file_id))
                     feedback_ob = envelope[feedback_id]
 
                     content = l_ret['VALUE']
@@ -565,8 +589,9 @@ class RemoteApplication(BaseRemoteApplication):
                         with tempfile.TemporaryFile() as tmp:
                             tmp.write(content.encode('utf-8'))
                             tmp.seek(0)
-                            feedback_ob.manage_uploadFeedback(tmp,
-                                                              filename='qa-output')
+                            feedback_ob.manage_uploadFeedback(
+                                tmp,
+                                filename='qa-output')
                         feedback_attach = feedback_ob.objectValues()[0]
                         feedback_attach.data_file.content_type = content_type
                         feedback_ob.feedbacktext = (
@@ -599,8 +624,9 @@ class RemoteApplication(BaseRemoteApplication):
                     l_wk_prop['getResult'][p_jobID]['retries_left'])
                 retry = self.retryJobFrequency if getattr(
                     self, 'retryJobFrequency', None) else self.retryFrequency
-                next_run = DateTime(int(l_wk_prop['getResult'][p_jobID]['next_run']) +
-                                    int(retry))
+                next_run = DateTime(
+                    int(l_wk_prop['getResult'][p_jobID]['next_run']) +
+                    int(retry))
                 if l_nRetries > 0:
                     l_getResultDict = {
                         p_jobID: {
@@ -613,8 +639,9 @@ class RemoteApplication(BaseRemoteApplication):
                     self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                                    p_getResult=l_getResultDict)
                 else:
-                    l_workitem.addEvent('Error in the %s, job #%s for file %s: %s' %
-                                        (self.app_name, p_jobID, l_file_id, l_ret['VALUE']))
+                    l_workitem.addEvent(
+                        'Error in the %s, job #%s for file %s: %s' %
+                        (self.app_name, p_jobID, l_file_id, l_ret['VALUE']))
                     l_getResultDict = {
                         p_jobID: {
                             'code': -2,
@@ -625,8 +652,9 @@ class RemoteApplication(BaseRemoteApplication):
                                                    p_getResult=l_getResultDict)
             # error, do not retry
             else:
-                l_workitem.addEvent('Error in the %s, job #%s for file %s: %s' %
-                                    (self.app_name, p_jobID, l_file_id, l_ret['VALUE']))
+                l_workitem.addEvent(
+                    'Error in the %s, job #%s for file %s: %s' %
+                    (self.app_name, p_jobID, l_file_id, l_ret['VALUE']))
                 l_getResultDict = {
                     p_jobID: {
                         'code': -2,
@@ -644,16 +672,18 @@ class RemoteApplication(BaseRemoteApplication):
             retry = self.retryJobFrequency if getattr(
                 self, 'retryJobFrequency', None) else self.retryFrequency
             if l_nRetries == 0:
-                l_workitem.addEvent('Error in the %s, job #%s for file %s: %s' %
-                                    (self.app_name, p_jobID, l_file_id, str(l_err)))
+                l_workitem.addEvent(
+                    'Error in the %s, job #%s for file %s: %s' %
+                    (self.app_name, p_jobID, l_file_id, str(l_err)))
                 l_workitem.failure = True
                 l_getResultDict = {
                     p_jobID: {'code': -2, 'last_error': str(l_err)}}
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                                p_getResult=l_getResultDict)
             else:
-                next_run = DateTime(int(l_wk_prop['getResult'][p_jobID]['next_run']) +
-                                    int(retry))
+                next_run = DateTime(
+                    int(l_wk_prop['getResult'][p_jobID]['next_run']) +
+                    int(retry))
                 err = 'Error retrieving job #{} result: {}'.format(
                     p_jobID, str(l_err))
                 l_getResultDict = {
@@ -697,13 +727,15 @@ class RemoteApplication(BaseRemoteApplication):
 
         l_wk_prop['getResult'] = {}
 
-    def __manageAutomaticProperty(self, p_workitem_id, p_analyze={}, p_getResult={}):
+    def __manageAutomaticProperty(self, p_workitem_id, p_analyze={},
+                                  p_getResult={}):
         """
         The instance data for the RemoteApplication is stored in the workitem
         as an additional property - app_name - contaning a dictionary like:
         {
             'analyze':      {code, retries_left, last_error, next_run},
-            'getResult':    {jobID: {code, retries_left, last_error, next_run, fileURL}}
+            'getResult':    {jobID: {code, retries_left, last_error, next_run,
+                                     fileURL}}
         }
         Possible codes for app_name['analyze']:
             0 - started
@@ -751,9 +783,11 @@ class RemoteApplication(BaseRemoteApplication):
             res = requests.post(url, headers={'Authorization': self.token},
                                 timeout=timeout, verify=False)
             message = res.json().get('message')
-            l_workitem.addEvent('#{} job cancelation triggered - {}: {}'.format(job_id,
-                                                                                res.status_code,
-                                                                                message))
+            l_workitem.addEvent(
+                '#{} job cancelation triggered - {}: {}'.format(
+                    job_id,
+                    res.status_code,
+                    message))
         except Exception as e:
             l_workitem.addEvent(
                 '#{} job cancelation failed with: {}.'.format(job_id, str(e)))
