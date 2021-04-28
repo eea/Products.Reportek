@@ -1,3 +1,4 @@
+# flake8: noqa
 # this is meant to be run from instance debug
 # >>> from Products.Reportek.updates import blob_analyze
 # >>> blob_analyze.report(app, 'report.name')

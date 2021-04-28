@@ -17,7 +17,7 @@ def do_update(app):
             'title': ob.title,
             'schema': ob.allowedSchemas,
             'webform': ob.webformSchemas}
-        if dataflows.has_key(ob.dataflow_uri):
+        if ob.dataflow_uri in dataflows:
             dataflows[ob.dataflow_uri].append(data)
         else:
             dataflows[ob.dataflow_uri] = [data]
