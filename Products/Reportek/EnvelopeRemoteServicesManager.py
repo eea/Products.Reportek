@@ -22,7 +22,8 @@
 
 """EnvelopeRemoteServicesManager
 
-This class which Envelope subclasses from handles the integration with remote systems (GDEM, UNS, etc.)
+This class which Envelope subclasses from handles the integration with
+remote systems (GDEM, UNS, etc.)
 
 """
 
@@ -54,25 +55,28 @@ class EnvelopeRemoteServicesManager:
 
     def hasSpecificFile(self, schema):
         """ Checks if an envelope has an XML file with certain schema """
-        return len([x for x in self.objectValues('Report Document') if x.xml_schema_location == schema])
+        return len([x for x in self.objectValues('Report Document')
+                    if x.xml_schema_location == schema])
 
     # duplicate function - check where it is called and remove
     security.declarePublic('hasFilesForSchema')
 
     def hasFilesForSchema(self, p_schema_url):
-        """ If a values was provided for the p_schema_url, determine whether there are
-            XML files in the envelope with a certain schema. Otherwise checks if there are any files at all
+        """ If a values was provided for the p_schema_url, determine whether
+        there are XML files in the envelope with a certain schema.
+        Otherwise checks if there are any files at all
         """
         l_list = [x for x in self.objectValues(
             'Report Document') if x.xml_schema_location == p_schema_url]
         return len(l_list)
 
     def getFilesForSchema(self, schema_uri):
-        """Return a list of Documents names in this envelope that are bound to the schema_uri."""
+        """Return a list of Documents names in this envelope that are bound
+        to the schema_uri.
+        """
         return [doc for doc in self.objectValues(Document.meta_type)
                 if doc.xml_schema_location == schema_uri]
 
-    # FIXME condition racing - concurent threads on the same envelope will collide
     security.declarePublic('getNextDocId')
 
     def getNextDocId(self, schema_uri=None, baseName=None):
@@ -80,7 +84,9 @@ class EnvelopeRemoteServicesManager:
         Could be a new document per schema or another document (multilang)
         for a schema that already has some documents.
         schema_uri - give a name in the familly of this schema
-        baseName - use this as a base for naming the document, otherwise envelope id will be used"""
+        baseName - use this as a base for naming the document, otherwise
+        envelope id will be used
+        """
         if not baseName:
             baseName = self.id
         else:
@@ -97,8 +103,8 @@ class EnvelopeRemoteServicesManager:
 
         docNamesForSchema = None
         if schema_uri:
-            docNamesForSchema = [
-                doc.id for doc in docs if doc.xml_schema_location == schema_uri]
+            docNamesForSchema = [doc.id for doc in docs
+                                 if doc.xml_schema_location == schema_uri]
         # try to add a document in the name__nn.mm.xml familly
         if docNamesForSchema:
             base = None
@@ -137,7 +143,8 @@ class EnvelopeRemoteServicesManager:
         """ Returns a list of QA script labels
             which can be manually run against the contained XML files
         """
-        return getattr(self, QAREPOSITORY_ID).canRunQAOnFiles(self.objectValues('Report Document'))
+        return getattr(self, QAREPOSITORY_ID).canRunQAOnFiles(
+            self.objectValues('Report Document'))
 
     security.declareProtected('View', 'note')
     note = PageTemplateFile('zpt/envelope/note', globals())
@@ -148,8 +155,8 @@ class EnvelopeRemoteServicesManager:
         """ Runs the QA script with the specified id against
             the source XML file
             This method can be only called from the browser and the result is
-            displayed in a temporary page or, in case 'return_inline' is not false,
-            the result is a string
+            displayed in a temporary page or, in case 'return_inline' is not
+            false, the result is a string
         """
         l_qa_app = getattr(self, QAREPOSITORY_ID).getQAApplication()
         if not l_qa_app:
@@ -166,8 +173,11 @@ class EnvelopeRemoteServicesManager:
             if not l_tmp:
                 REQUEST.SESSION.set('note_content_type', 'text/html')
                 REQUEST.SESSION.set('note_title', 'Error')
-                REQUEST.SESSION.set('note_text', 'QA Service returned an empty result running script_id: {}, for file: {}.'.format(
-                    p_script_id, p_file_url))
+                REQUEST.SESSION.set(
+                    'note_text',
+                    '''QA Service returned an empty result running '''
+                    '''script_id: {}, for file: {}.'''.format(p_script_id,
+                                                              p_file_url))
                 REQUEST.RESPONSE.redirect('note')
             else:
                 if return_inline:
@@ -179,18 +189,26 @@ class EnvelopeRemoteServicesManager:
                 else:
                     REQUEST.SESSION.set('note_title', 'QA result for envelope')
                 REQUEST.SESSION.set(
-                    'note_tip', 'This page is only temporary. The page URL address can not be used as a reference to the result. <br /><br />Please use the "<em>File >> Save As</em>" option within your browser to save the validation results.')
+                    'note_tip',
+                    '''This page is only temporary. The page URL address '''
+                    '''can not be used as a reference to the result. <br />'''
+                    '''<br />Please use the "<em>File >> Save As</em>" '''
+                    '''option within your browser to save the '''
+                    '''validation results.''')
                 REQUEST.SESSION.set('note_text', l_tmp[1].data)
                 REQUEST.RESPONSE.redirect('note')
-        except Exception, err:
+        except Exception as err:
             l_err = str(err).replace('<', '&lt;')
             if return_inline:
-                return 'The operation could not be completed because of the following error: %s' % l_err
+                msg = ('''The operation could not be completed because '''
+                       '''of the following error: %s''' % l_err)
+                return msg
             REQUEST.SESSION.set('note_content_type', 'text/html')
             REQUEST.SESSION.set('note_title', 'Error')
             REQUEST.SESSION.set(
                 'note_text',
-                'The operation could not be completed because of the following error: %s' % l_err)
+                '''The operation could not be completed because of '''
+                '''the following error: %s''' % l_err)
             REQUEST.RESPONSE.redirect('note')
 
     security.declareProtected('View', 'runQAScripts')
@@ -202,7 +220,8 @@ class EnvelopeRemoteServicesManager:
 
             Parameters in query string:
             |   file_url1=script_id11,script_id12&...
-            This function assumes that all qa results have the same content type: 'text/html'
+            This function assumes that all qa results have the same
+            content type: 'text/html'
         """
         l_qa_app = getattr(self, QAREPOSITORY_ID).getQAApplication()
 
@@ -240,7 +259,7 @@ class EnvelopeRemoteServicesManager:
             REQUEST.SESSION.set('note_text', ' '.join(l_res))
             REQUEST.RESPONSE.redirect('note')
 
-        except:
+        except Exception:
             REQUEST.SESSION.set('note_content_type', 'text/html')
             REQUEST.SESSION.set('note_title', 'Error in QA service')
             REQUEST.SESSION.set(
@@ -276,7 +295,9 @@ class EnvelopeRemoteServicesManager:
         l_valid_schemas = self.getDataflowMappingsContainer(
         ).getSchemasForDataflows(self.dataflow_uris)
         for docu in self.objectValues('Report Document'):
-            if docu.content_type == 'text/xml' and docu.xml_schema_location and (docu.xml_schema_location in l_valid_schemas or not l_valid_schemas):
+            if (docu.content_type == 'text/xml' and docu.xml_schema_location
+                    and (docu.xml_schema_location in l_valid_schemas
+                         or not l_valid_schemas)):
                 l_key = str(docu.xml_schema_location)
                 if l_key in l_res:
                     l_res[l_key].append(
@@ -357,7 +378,7 @@ class EnvelopeRemoteServicesManager:
             REQUEST.RESPONSE.setHeader('Content-Type', 'text/plain')
             REQUEST.RESPONSE.write('1' + file_id)
             return '1'
-        except Exception, err:
+        except Exception as err:
             REQUEST.RESPONSE.setHeader('Content-Type', 'text/plain')
             REQUEST.RESPONSE.write('0' + str(err))
             return '0'
@@ -388,8 +409,8 @@ class EnvelopeRemoteServicesManager:
 
     def getXMLFiles(self):
         """ Returns a list of the XML files in this envelope.
-            The return value is a struct where the key is the schemaurl and the value is a
-            list of structs containing fileurls and file-titles
+            The return value is a struct where the key is the schemaurl and
+            the value is a list of structs containing fileurls and file-titles
         """
         l_ret_dict = {}
         for l_doc in self.objectValues('Report Document'):
@@ -415,8 +436,8 @@ class EnvelopeRemoteServicesManager:
     security.declarePublic('getValidXMLSchemas')
 
     def getValidXMLSchemas(self, web_form_only=False):
-        """ The purpose is to know if to put an edit button and a record in 'view as...' select
-            next to XML files
+        """ The purpose is to know if to put an edit button and a record in
+            'view as...' select next to XML files
         """
         mappings_c = self.getDataflowMappingsContainer()
         return mappings_c.getSchemasForDataflows(self.dataflow_uris,
@@ -440,7 +461,8 @@ class EnvelopeRemoteServicesManager:
             'obligation': self.dataflow_uris[0],
             'language': 'En',
             'companyId': self.company_id,
-            'countrycode': self.getCountryCode(self.country) if getattr(self, 'country', '') else None
+            'countrycode': (self.getCountryCode(self.country)
+                            if getattr(self, 'country', '') else None)
         }
         if schema:
             sch_files = self.getFilesForSchema(schema)
