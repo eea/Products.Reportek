@@ -49,13 +49,16 @@ METADATA_DOCUMENTS = """
     $id   uploaded on: $date,    size: $size"""
 
 METADATA_RESTRICTED = """
-    $id   uploaded on: $date,    size: $size   (file restricted from public view)"""
+    $id   uploaded on: $date,   size: $size  (file restricted from public view)
+    """
 
-README_CONTENT = """This directory contains the documents included in the envelope "$envelope" at $link.
+README_CONTENT = """This directory contains the documents included in
+ the envelope "$envelope" at $link.
 Also contains the following files:
 
   metadata.txt - descriptive information about the envelope
-  history.txt - log of activities executed since the envelope creation until the moment of the download
+  history.txt - log of activities executed since the envelope creation until
+                the moment of the download
 
 This archive was downloaded at $date
 """
@@ -115,7 +118,8 @@ MANUAL_FEEDBACKS_LIST = """
 """
 
 FEEDBACK_HEADER = """<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
     <title>$title</title>
@@ -381,14 +385,16 @@ def get_feedback_content(ob):
             refered_file = ob.document_id
         else:
             refered_file = ''
-        content = parsed_template(AUTOMATIC_FEEDBACK_CONTENT,
-                                  {'subject': ob.title,
-                                   'posted': ob.postingdate.strftime('%d %b %Y %H:%M'),
-                                   'task': task_name,
-                                   'file': refered_file,
-                                   'content': ob.feedbacktext})
+        content = parsed_template(
+            AUTOMATIC_FEEDBACK_CONTENT,
+            {'subject': ob.title,
+             'posted': ob.postingdate.strftime('%d %b %Y %H:%M'),
+             'task': task_name,
+             'file': refered_file,
+             'content': ob.feedbacktext})
     else:
-        files = ['<a href="%s" title="%s">%s</a>' % (file.getId(), 'Open %s' % file.getId(
+        files = ['<a href="%s" title="%s">%s</a>' % (file.getId(),
+                                                     'Open %s' % file.getId(
         ), file.getId()) for file in ob.objectValues(['File', 'File (Blob)'])]
         content = parsed_template(MANUAL_FEEDBACK_CONTENT,
                                   {'subject': ob.title,
@@ -424,8 +430,11 @@ def get_feedback_list(ob):
     footer = parsed_template(FEEDBACK_FOOTER, {})
     for feedback in _get_feedbacks(ob):
         if getSecurityManager().checkPermission(view, feedback):
-            files = ['<a href="%s" title="%s">%s</a>' % (file.getId(), 'Open %s' % file.getId(
-            ), file.getId()) for file in feedback.objectValues(['File', 'File (Blob)'])]
+            files = ['<a href="%s" title="%s">%s</a>' % (
+                file.getId(),
+                'Open %s' % file.getId(),
+                file.getId())
+                for file in feedback.objectValues(['File', 'File (Blob)'])]
             if feedback.automatic:
                 try:
                     task_name = feedback.getActivityDetails('title')
@@ -438,16 +447,18 @@ def get_feedback_list(ob):
                     refered_file = ''
                 feedbacks.append(parsed_template(
                     AUTOMATIC_FEEDBACKS_LIST,
-                    {'subject': '<a href="%s.html" title="%s">%s</a>' % (feedback.id, feedback.title, feedback.title),
-                                 'posted': feedback.postingdate.strftime('%d %b %Y %H:%M'),
-                                 'task': task_name,
-                                 'file': refered_file}))
+                    {'subject': '<a href="%s.html" title="%s">%s</a>' % (
+                        feedback.id, feedback.title, feedback.title),
+                     'posted': feedback.postingdate.strftime('%d %b %Y %H:%M'),
+                     'task': task_name,
+                     'file': refered_file}))
             else:
                 feedbacks.append(parsed_template(
                     MANUAL_FEEDBACKS_LIST,
-                    {'subject': '<a href="%s.html" title="%s">%s</a>' % (feedback.id, feedback.title, feedback.title),
-                                 'posted': feedback.releasedate,
-                                 'file': ', '.join(files)}))
+                    {'subject': '<a href="%s.html" title="%s">%s</a>' % (
+                        feedback.id, feedback.title, feedback.title),
+                     'posted': feedback.releasedate,
+                     'file': ', '.join(files)}))
     # finally, generate the entire feedback log
     return "%s%s%s" % (header, '\n'.join(feedbacks), footer)
 
@@ -478,7 +489,8 @@ class ZZipFile(ZipFile):
     # for the __del__ mechanics (? see python2.7/zipfile.py)
     zef_file = None
 
-    def __init__(self, file, mode="r", compression=ZIP_STORED, allowZip64=False):
+    def __init__(self, file, mode="r", compression=ZIP_STORED,
+                 allowZip64=False):
         ZipFile.__init__(self, file, mode=mode,
                          compression=compression, allowZip64=allowZip64)
         self.currentFilename = None
@@ -507,9 +519,10 @@ class ZZipFile(ZipFile):
         self.currentFilename = filename
         self.pwd = pwd
         # ZipFile does the open at read.
-        # Since we always expect setcurent file to be called prior to any other operation
-        # we call open/seek here
-        # no need to close, every open just seeks in the same opened file. see (the bloody) zipfile.py
+        # Since we always expect setcurent file to be called prior to any
+        # other operation we call open/seek here
+        # no need to close, every open just seeks in the same opened file.
+        # see (the bloody) zipfile.py
         # zipfile always opens
         self.zef_file = self.open(self.currentFilename, pwd=self.pwd)
         if not self._filePassed:
@@ -517,13 +530,15 @@ class ZZipFile(ZipFile):
 
     def read(self, size=-1):
         # read manually from ZipExtFile
-        # since the decompressor takes care of where the file inside the container ends
-        # (uses an intermediary _readbuffer) we don't care about reading 'too much'
+        # since the decompressor takes care of where the file inside the
+        # container ends
+        # (uses an intermediary _readbuffer) we don't care about reading
+        # 'too much'
         return self.zef_file.read(size)
 
     def seek(self, pos=0):
-        """ Use this only for rewind purposes, as the base class does not provide
-        a seek mechanism. Thus, `pos` should always be 0."""
+        """ Use this only for rewind purposes, as the base class does
+        not provide a seek mechanism. Thus, `pos` should always be 0."""
         if pos != 0:
             raise ValueError("(Z)ZipFile can only seek for start.")
         self.zef_file.close()
@@ -548,7 +563,8 @@ class ZZipFileRaw(ZZipFile):
     ENCRYPTED_FLAG = 0x1
     SKIP_RAW_THRESHOLD = 300
 
-    def __init__(self, file, mode="r", compression=ZIP_STORED, allowZip64=False):
+    def __init__(self, file, mode="r", compression=ZIP_STORED,
+                 allowZip64=False):
         ZZipFile.__init__(self, file, mode=mode,
                           compression=compression, allowZip64=allowZip64)
         self.bytesRead = 0
@@ -621,7 +637,8 @@ class ZZipFileRaw(ZZipFile):
         # seek to the start of deflated data
         if pos:
             raise IOError(
-                'Can only seek at the begining of a file inside a zip archive (pos=0)')
+                '''Can only seek at the begining of a file inside '''
+                '''a zip archive (pos=0)''')
         try:
             if not self.zef_file_raw:
                 self.zef_file_raw = self.openRaw()
@@ -656,8 +673,10 @@ class ZZipFileRaw(ZZipFile):
     def read(self, nbytes=-1, skipRawThreshold=SKIP_RAW_THRESHOLD):
         """ Read `nbytes` from the zip file.
         If the requestet chunk size is -1 then read the whole file.
-        If it is below `skipRawThreshold` (but not whole file, -1) then read those bytes uncompressed
-        (for peeking at a part of the file, see determining content type in Document.py)
+        If it is below `skipRawThreshold` (but not whole file, -1) then read
+        those bytes uncompressed
+        (for peeking at a part of the file, see determining content type
+        in Document.py)
         The nbytes are decompressed buffer length
         In all other cases read `nbytes` of compressed data.
         If the file is not opened it will be opened for reading.
