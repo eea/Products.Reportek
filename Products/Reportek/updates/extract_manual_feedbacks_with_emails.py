@@ -1,3 +1,4 @@
+# flake8: noqa
 # this is meant to be run from instance debug
 # >>> from Products.Reportek.updates.extract_manual_feedbacks_with_emails import update; update(app)
 

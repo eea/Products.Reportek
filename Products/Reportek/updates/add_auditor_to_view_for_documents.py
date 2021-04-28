@@ -26,8 +26,9 @@ def update(app):
                         roles = tuple(roles)
                         try:
                             p.setRoles(roles)
-                            print "Added Auditor to View permission for %s" % doc.absolute_url()
-                        except:
+                            print ("Added Auditor to View permission for %s"
+                                   % doc.absolute_url())
+                        except Exception:
                             print "Failed"
 
     transaction.commit()

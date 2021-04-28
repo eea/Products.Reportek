@@ -1,3 +1,4 @@
+# flake8: noqa
 # -*- coding: utf-8 -*-
 # Generate hash for files
 # Run them from within debug mode like so:

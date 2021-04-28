@@ -1,11 +1,11 @@
 # this is meant to be run from instance debug
-# >>> from Products.Reportek.updates import blob_analyze; blob_analyze.report(app, 'report.name')
+# >>> from Products.Reportek.updates import blob_analyze
 # >>> blob_analyze.report(app, 'report.name')
 try:
     from ZODB.POSException import POSKeyError
-except:
+except Exception:
     pass
-#from Products.Reportek.blob import FileContainer
+# from Products.Reportek.blob import FileContainer
 
 from collections import defaultdict, OrderedDict
 import pprint
@@ -51,8 +51,8 @@ class RepDocStats(object):
         return int(size * 1024**power)
 
     def __str__(self):
-        return "{count: %d, size: %d, hrSize: %s}" % (self.count, self.size,
-                                                      self.human_readable(self.size))
+        return "{count: %d, size: %d, hrSize: %s}" % (
+            self.count, self.size, self.human_readable(self.size))
 
     def __repr__(self):
         return self.__str__()
@@ -67,8 +67,8 @@ class RepDocStats(object):
 def report(app, out):
     try:
         o = open(out, 'w')
-        oj = open(out+'.json', 'w')
-    except:
+        oj = open(out + '.json', 'w')
+    except Exception:
         import sys
         o = sys.stdout
         print "Can't open %s for write. Using stdout instead." % out
@@ -76,7 +76,7 @@ def report(app, out):
     byDocumentType = defaultdict(RepDocStats)
     byBlobType = defaultdict(RepDocStats)
     byDocumentTypeMissingBlob = defaultdict(RepDocStats)
-    #blob_dir = FileContainer.get_blob_dir()
+    # blob_dir = FileContainer.get_blob_dir()
     total_count = 0
     total = 0
     total_blob = 0
@@ -121,9 +121,16 @@ def report(app, out):
     prn.pprint('total: %s' % RepDocStats.human_readable(total_blob))
     o.close()
 
-    j = {'byDocumentType': OrderedDict(sorted(((k, v.to_dict()) for k, v in byDocumentType.iteritems()), key=sort_by_size, reverse=True)),
-         'byDocumentTypeMissingBlob': OrderedDict(sorted(((k, v.to_dict()) for k, v in byDocumentTypeMissingBlob.iteritems()), key=sort_by_size, reverse=True)),
-         'byBlobType': OrderedDict(sorted(((k, v.to_dict()) for k, v in byBlobType.iteritems()), key=sort_by_size, reverse=True)),
+    j = {'byDocumentType': OrderedDict(
+            sorted(((k, v.to_dict()) for k, v in byDocumentType.iteritems()),
+                   key=sort_by_size, reverse=True)),
+         'byDocumentTypeMissingBlob': OrderedDict(
+            sorted(((k, v.to_dict())
+                    for k, v in byDocumentTypeMissingBlob.iteritems()),
+                   key=sort_by_size, reverse=True)),
+         'byBlobType': OrderedDict(
+            sorted(((k, v.to_dict()) for k, v in byBlobType.iteritems()),
+                   key=sort_by_size, reverse=True)),
          }
     json.dump(j, oj, indent=2)
     oj.close()

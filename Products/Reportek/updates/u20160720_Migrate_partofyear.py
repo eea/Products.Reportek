@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 # Migrate partofyear attribute to more sane values
 # Run them from within debug mode like so:
-#  >>> from Products.Reportek.updates import u20160720_Migrate_partofyear; u20160720_Migrate_partofyear.update(app)
+#  >>> from Products.Reportek.updates import u20160720_Migrate_partofyear
+#  >>> u20160720_Migrate_partofyear.update(app)
 
 from Acquisition import aq_base
 from Products.Reportek.updates import MigrationBase
@@ -23,7 +24,8 @@ APPLIES_TO = [
 
 def migrate_partofyear(app, ctype):
     catalog = getattr(app, 'Catalog')
-    # Convert the LazyMap to list otherwise we can't loop over all items for some reason
+    # Convert the LazyMap to list otherwise we can't loop over all items for
+    # some reason
     brains = list(catalog(meta_type=ctype))
     logger.info("Total number of {} type objects is: {}".format(ctype,
                                                                 len(brains)))
@@ -38,8 +40,10 @@ def migrate_partofyear(app, ctype):
                 obj.reindex_object()
                 changed_count += 1
             except Exception as e:
-                logger.error("Unable to change value {} for {} due to {}".format(
-                    obj.partofyear, obj.absolute_url(), str(e)))
+                logger.error("Unable to change value {}\
+                              for {} due to {}".format(obj.partofyear,
+                                                       obj.absolute_url(),
+                                                       str(e)))
             if (count % 1000) == 0:
                 logger.info("Savepoint at: {} objects".format(count))
                 transaction.savepoint()

@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 # Create ReportekUserFactoryPlugin and remove BDRUserFactoryPlugin
 # Run them from within debug mode like so:
-#  >>> from Products.Reportek.updates import u20150625_Migrate_User_Factory; u20150625_Migrate_User_Factory.update(app)
+#  >>> from Products.Reportek.updates import u20150625_Migrate_User_Factory
+#  >>> u20150625_Migrate_User_Factory.update(app)
 
 from Products.Reportek.updates import MigrationBase
-from Products.Reportek.ReportekUserFactoryPlugin import addReportekUserFactoryPlugin
+from Products.Reportek.ReportekUserFactoryPlugin import\
+     addReportekUserFactoryPlugin
 from Products.Reportek.config import REPORTEK_DEPLOYMENT
 from Products.Reportek.config import DEPLOYMENT_CDR
 from Products.Reportek.config import DEPLOYMENT_MDR
@@ -64,7 +66,7 @@ def update(app, skipMigrationCheck=False):
         trans.commit()
         print "All done!"
         return True
-    except:
+    except Exception:
         trans.abort()
         raise
 

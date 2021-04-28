@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 # Migrate fgases_xml
 # Run them from within debug mode like so:
-#  >>> from Products.Reportek.updates import u20180307_migrate_double_fgases_xml; u20180307_migrate_double_fgases_xml.update(app)
+#  >>> from Products.Reportek.updates import\
+#    u20180307_migrate_double_fgases_xml
+#  >>> u20180307_migrate_double_fgases_xml.update(app)
 
 from decimal import Decimal
 from Products.Reportek.config import DEPLOYMENT_BDR
@@ -134,7 +136,8 @@ def migrate_fgases_xml(app):
                 back_it_up(app, xml)
             fixed_xml = remove_unreported_gases(root)
             if fixed_xml is not None:
-                log_msg("Removed unreported gases for F8_S12 in: {}".format(xml))
+                log_msg("Removed unreported gases for F8_S12 in: {}".format(
+                    xml))
                 root = fixed_xml
         if fixed_xml is not None:
             save_xml(xml_file, fixed_xml)

@@ -1,3 +1,4 @@
+# flake8: noqa
 # -*- coding: utf-8 -*-
 # Decompress gzipped zip blob files
 # Run them from within debug mode like so:

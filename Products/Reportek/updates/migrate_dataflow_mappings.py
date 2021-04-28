@@ -3,7 +3,6 @@
 # >>> migrate_dataflow_mappings.update(app)
 
 import transaction
-from Products.Reportek.RepUtils import generate_id
 from Products.Reportek.DataflowMappingsRecord import DataflowMappingsRecord
 
 from string import ascii_uppercase
@@ -53,6 +52,6 @@ def update(app):
         do_update(app)
         trans.note('Update site %s' % app.absolute_url(1))
         trans.commit()
-    except:
+    except Exception:
         trans.abort()
         raise

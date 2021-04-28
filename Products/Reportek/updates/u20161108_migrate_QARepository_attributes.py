@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 # Migrate QARepository attributes
 # Run them from within debug mode like so:
-#  >>> from Products.Reportek.updates import u20161108_migrate_QARepository_attributes; u20161107_migrate_QARepository_attributes.update(app)
+#  >>> from Products.Reportek.updates import\
+#    u20161108_migrate_QARepository_attributes
+#  >>> u20161107_migrate_QARepository_attributes.update(app)
 
 from Products.Reportek.updates import MigrationBase
 from Products.Reportek.config import DEPLOYMENT_CDR

@@ -22,6 +22,6 @@ def update(app):
             trans.note('Update mapping record %s' % ob.id)
             do_update(ob)
             trans.commit()
-        except:
+        except Exception:
             trans.abort()
             raise

@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 # Migrate authMiddlewareApi (BDR Only)
 # Run them from within debug mode like so:
-#  >>> from Products.Reportek.updates import u20151127_Migrate_AuthMiddlewareApi_and_company_ids; u20151127_Migrate_AuthMiddlewareApi_and_company_ids.update(app)
+#  >>> from Products.Reportek.updates import\
+#   u20151127_Migrate_AuthMiddlewareApi_and_company_ids
+#  >>> u20151127_Migrate_AuthMiddlewareApi_and_company_ids.update(app)
 
 from Products.Reportek.updates import MigrationBase
 from Products.Reportek.config import DEPLOYMENT_BDR
@@ -38,10 +40,14 @@ def add_company_id_to_collections(app):
                 obj = brain.getObject()
                 if 'company_id' not in obj.__dict__:
                     obj.old_company_id = obj.getId()
-                    print 'Added old_company_id: {0} to collection: {1}'.format(obj.getId(), obj.absolute_url())
+                    print 'Added old_company_id: {0}\
+                           to collection: {1}'.format(
+                            obj.getId(), obj.absolute_url())
                 else:
                     obj.company_id = obj.__dict__['company_id']
-                    print 'Added company_id: {0} to collection: {1}'.format(obj.company_id, obj.absolute_url())
+                    print 'Added company_id: {0}\
+                           to collection: {1}'.format(obj.company_id,
+                                                      obj.absolute_url())
                 obj.reindex_object()
 
         transaction.commit()

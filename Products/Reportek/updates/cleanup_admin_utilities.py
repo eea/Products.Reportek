@@ -30,6 +30,6 @@ def update(app):
         do_cleanup(app)
         trans.note('Cleanup admin utilities %s' % app.absolute_url(1))
         trans.commit()
-    except:
+    except Exception:
         trans.abort()
         raise

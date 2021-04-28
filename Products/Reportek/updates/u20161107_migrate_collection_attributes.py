@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 # Migrate Collections attributes
 # Run them from within debug mode like so:
-#  >>> from Products.Reportek.updates import u20161107_migrate_collection_attributes; u20161107_migrate_collection_attributes.update(app)
+#  >>> from Products.Reportek.updates import\
+#     u20161107_migrate_collection_attributes
+#  >>> u20161107_migrate_collection_attributes.update(app)
 
 from Products.Reportek.updates import MigrationBase
 from Products.Reportek.config import DEPLOYMENT_CDR
 from Products.Reportek.config import DEPLOYMENT_MDR
 from Products.Reportek.config import DEPLOYMENT_BDR
-from Products.Reportek.constants import DF_URL_PREFIX
 from Products.Reportek.constants import DEFAULT_CATALOG
 import logging
 import transaction

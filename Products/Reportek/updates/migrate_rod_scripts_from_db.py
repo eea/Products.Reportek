@@ -38,6 +38,8 @@ def update(app):
             app.ReportekEngine.xmlrpc_localities = create_localities_rpc_call()
             transaction.commit()
 
-    objects_to_delete = ['dataflow_rod', 'dataflow_dict', 'dataflow_table', 'dataflow_lookup', 'localities_rod',
-                         'localities_dict', 'localities_iso_dict', 'localities_table', 'recent_etc']
+    objects_to_delete = ['dataflow_rod', 'dataflow_dict', 'dataflow_table',
+                         'dataflow_lookup', 'localities_rod',
+                         'localities_dict', 'localities_iso_dict',
+                         'localities_table', 'recent_etc']
     delete_objects(app, objects_to_delete)
