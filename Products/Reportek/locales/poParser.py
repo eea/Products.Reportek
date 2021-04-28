@@ -7,7 +7,7 @@ import re
 class PoBlock(object):
     # > #. Default: "Add"
     varPattern = re.compile(r'\${([\S-]+)}')
-    # > #: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:121
+
     sourcePattern = re.compile(r'^#: (.*\S):\d+')
     comment = u'#'
     default = u'#. Default:'
@@ -95,8 +95,8 @@ class PoBlock(object):
         vars_and_ends = [u'']
         vars_and_ends.extend(["${%s}" % var for var in self.i18n_vars])
         vars_and_ends.append(u'')
-        self.blockLines.append(self.msgstr + ' "' +
-                               trMsg.join(vars_and_ends) + '"\n')
+        self.blockLines.append(self.msgstr + ' "'
+                               + trMsg.join(vars_and_ends) + '"\n')
         self.blockLines.append(u'\n')
 
     def foundInHtml(self, html_base_name):
@@ -125,7 +125,8 @@ class PoBlock(object):
         return allNeighbours
 
 
-def po_load(file_name, poHeader=None, bySrc=None, byMsgid=None, noPerifericQuotes=False):
+def po_load(file_name, poHeader=None, bySrc=None, byMsgid=None,
+            noPerifericQuotes=False):
     # note that in case of bySrc we will have overlappings
     # (because msg-id-stuff was not thoroughly implemented)
     # at the end of the day they reffer to the same message.

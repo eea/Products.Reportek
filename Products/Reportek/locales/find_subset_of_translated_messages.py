@@ -4,11 +4,13 @@ import codecs
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
-#sys.path.insert(0, '.')
+# sys.path.insert(0, '.')
 
 
 def usage():
-    "\tUsage: %s <big po file with tr messages> <small po file that should have msgstr translated>\n\tThe result will be in <po file>.out" % sys.argv[
+    "\tUsage: %s <big po file with tr messages> <small po file that should\
+     have msgstr translated>\n\tThe result\
+      will be in <po file>.out" % sys.argv[
         0]
 
 

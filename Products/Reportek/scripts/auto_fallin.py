@@ -107,8 +107,8 @@ def main():
         default='+0')
     args = parser.parse_args(sys.argv[3:])
 
-    if ((args.obligations == None or args.act_from == None
-            or args.act_to == None) or args.act_wf == None):
+    if ((args.obligations is None or args.act_from is None
+            or args.act_to is None) or args.act_wf is None):
         parser.print_help()
         sys.exit()
 
