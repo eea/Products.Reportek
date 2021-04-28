@@ -1,8 +1,8 @@
 # Copyright (c) Django Software Foundation and individual contributors.
 # All rights reserved.
 #
-# Redistribution and use in source and binary forms, with or without modification,
-# are permitted provided that the following conditions are met:
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
 #
 #    1. Redistributions of source code must retain the above copyright notice,
 #       this list of conditions and the following disclaimer.
@@ -11,18 +11,19 @@
 #       notice, this list of conditions and the following disclaimer in the
 #       documentation and/or other materials provided with the distribution.
 #
-#    3. Neither the name of Django nor the names of its contributors may be used
-#       to endorse or promote products derived from this software without
+#    3. Neither the name of Django nor the names of its contributors may be
+#       used to endorse or promote products derived from this software without
 #       specific prior written permission.
 #
-# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-# ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-# WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR
-# ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-# (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
-# ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
+# THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+# PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
+# CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
+# EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
+# PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+# LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+# ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 # (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
 # SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
@@ -48,7 +49,8 @@ class EmptyPage(InvalidPage):
 
 
 class Paginator(object):
-    def __init__(self, object_list, per_page, orphans=0, allow_empty_first_page=True):
+    def __init__(self, object_list, per_page, orphans=0,
+                 allow_empty_first_page=True):
         self.object_list = object_list
         self.per_page = per_page
         self.orphans = orphans
@@ -205,7 +207,7 @@ class ExPaginator(Paginator):
     def page(self, number, softlimit=False):
         try:
             return super(ExPaginator, self).page(number)
-        except InvalidPage, e:
+        except InvalidPage as e:
             number = self._ensure_int(number, e)
             if number > self.num_pages and softlimit:
                 return self.page(self.num_pages, softlimit=False)
@@ -281,35 +283,48 @@ class DiggPaginator(ExPaginator):
 
     # leading range and main range are combined when close; note how
     # we have varying body and padding values, and their effect.
-    >>> print DiggPaginator(range(1,1000), 10, body=5, padding=2, margin=2).page(3)
+    >>> print DiggPaginator(range(1,1000), 10, body=5,
+                            padding=2, margin=2).page(3)
     1 2 3 4 5 ... 99 100
-    >>> print DiggPaginator(range(1,1000), 10, body=6, padding=2, margin=2).page(4)
+    >>> print DiggPaginator(range(1,1000), 10, body=6,
+                            padding=2, margin=2).page(4)
     1 2 3 4 5 6 ... 99 100
-    >>> print DiggPaginator(range(1,1000), 10, body=5, padding=1, margin=2).page(6)
+    >>> print DiggPaginator(range(1,1000), 10, body=5,
+                            padding=1, margin=2).page(6)
     1 2 3 4 5 6 7 ... 99 100
-    >>> print DiggPaginator(range(1,1000), 10, body=5, padding=2, margin=2).page(7)
+    >>> print DiggPaginator(range(1,1000), 10, body=5,
+                            padding=2, margin=2).page(7)
     1 2 ... 5 6 7 8 9 ... 99 100
-    >>> print DiggPaginator(range(1,1000), 10, body=5, padding=1, margin=2).page(7)
+    >>> print DiggPaginator(range(1,1000), 10, body=5,
+                            padding=1, margin=2).page(7)
     1 2 ... 5 6 7 8 9 ... 99 100
 
     # the trailing range works the same
-    >>> print DiggPaginator(range(1,1000), 10, body=5, padding=2, margin=2, ).page(98)
+    >>> print DiggPaginator(range(1,1000), 10, body=5,
+                            padding=2, margin=2, ).page(98)
     1 2 ... 96 97 98 99 100
-    >>> print DiggPaginator(range(1,1000), 10, body=6, padding=2, margin=2, ).page(97)
+    >>> print DiggPaginator(range(1,1000), 10, body=6,
+                            padding=2, margin=2, ).page(97)
     1 2 ... 95 96 97 98 99 100
-    >>> print DiggPaginator(range(1,1000), 10, body=5, padding=1, margin=2, ).page(95)
+    >>> print DiggPaginator(range(1,1000), 10, body=5,
+                            padding=1, margin=2, ).page(95)
     1 2 ... 94 95 96 97 98 99 100
-    >>> print DiggPaginator(range(1,1000), 10, body=5, padding=2, margin=2, ).page(94)
+    >>> print DiggPaginator(range(1,1000), 10, body=5,
+                            padding=2, margin=2, ).page(94)
     1 2 ... 92 93 94 95 96 ... 99 100
-    >>> print DiggPaginator(range(1,1000), 10, body=5, padding=1, margin=2, ).page(94)
+    >>> print DiggPaginator(range(1,1000), 10, body=5,
+                            padding=1, margin=2, ).page(94)
     1 2 ... 92 93 94 95 96 ... 99 100
 
     # all three ranges may be combined as well
-    >>> print DiggPaginator(range(1,151), 10, body=6, padding=2).page(7)
+    >>> print DiggPaginator(range(1,151), 10, body=6,
+                            padding=2).page(7)
     1 2 3 4 5 6 7 8 9 ... 14 15
-    >>> print DiggPaginator(range(1,151), 10, body=6, padding=2).page(8)
+    >>> print DiggPaginator(range(1,151), 10, body=6,
+                            padding=2).page(8)
     1 2 3 4 5 6 7 8 9 10 11 12 13 14 15
-    >>> print DiggPaginator(range(1,151), 10, body=6, padding=1).page(8)
+    >>> print DiggPaginator(range(1,151), 10, body=6,
+                            padding=1).page(8)
     1 2 3 4 5 6 7 8 9 ... 14 15
 
     # no leading or trailing ranges might be required if there are only
@@ -322,13 +337,17 @@ class DiggPaginator(ExPaginator):
     1 2
 
     # test left align mode
-    >>> print DiggPaginator(range(1,1000), 10, body=5, align_left=True).page(1)
+    >>> print DiggPaginator(range(1,1000), 10, body=5,
+                            align_left=True).page(1)
     1 2 3 4 5
-    >>> print DiggPaginator(range(1,1000), 10, body=5, align_left=True).page(50)
+    >>> print DiggPaginator(range(1,1000), 10, body=5,
+                            align_left=True).page(50)
     1 2 ... 48 49 50 51 52
-    >>> print DiggPaginator(range(1,1000), 10, body=5, align_left=True).page(97)
+    >>> print DiggPaginator(range(1,1000), 10, body=5,
+                            align_left=True).page(97)
     1 2 ... 95 96 97 98 99
-    >>> print DiggPaginator(range(1,1000), 10, body=5, align_left=True).page(100)
+    >>> print DiggPaginator(range(1,1000), 10, body=5,
+                            align_left=True).page(100)
     1 2 ... 96 97 98 99 100
 
     # padding: default value
@@ -418,7 +437,9 @@ class DiggPaginator(ExPaginator):
                     main_range = [1, num_pages]
                 else:
                     main_range = [
-                        min(num_pages-body+1, max(number-padding, main_range[0])), num_pages]
+                        min(num_pages-body+1,
+                            max(number-padding, main_range[0])),
+                        num_pages]
             else:
                 trailing = range(num_pages-tail+1, num_pages+1)
 
@@ -433,7 +454,9 @@ class DiggPaginator(ExPaginator):
         page.leading_range = leading
         page.trailing_range = trailing
         page.page_range = reduce(lambda x, y: x+((x and y) and [False])+y,
-                                 [page.leading_range, page.main_range, page.trailing_range])
+                                 [page.leading_range,
+                                  page.main_range,
+                                  page.trailing_range])
 
         page.__class__ = DiggPage
         return page
