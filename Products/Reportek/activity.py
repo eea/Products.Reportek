@@ -108,7 +108,7 @@ class activity(CatalogAware, SimpleItem):
             self.split_mode = split_mode
         if join_mode:
             self.join_mode = join_mode
-        if self_assignable != None:
+        if self_assignable is not None:
             self.self_assignable = self_assignable
         if start_mode:
             self.start_mode = 1
@@ -122,7 +122,7 @@ class activity(CatalogAware, SimpleItem):
             self.finish_mode = 1
         else:
             self.finish_mode = 0
-        if subflow != None:
+        if subflow is not None:
             self.subflow = subflow
         if kind:
             self.kind = kind
@@ -130,13 +130,13 @@ class activity(CatalogAware, SimpleItem):
             self.complete_automatically = 1
         else:
             self.complete_automatically = 0
-        if application != None:
+        if application is not None:
             self.application = application
-        if push_application != None:
+        if push_application is not None:
             self.push_application = push_application
-        if title != None:
+        if title is not None:
             self.title = title
-        if description != None:
+        if description is not None:
             self.description = description
         self.reindex_object()
         if REQUEST:
@@ -228,8 +228,11 @@ class activity(CatalogAware, SimpleItem):
             return resp
 
     def getIncomingTransitionsNumber(self):
-        """ returns all the process transition objects that go to the specified activity """
-        return len(filter(lambda x, activity_id=self.id: x.To == activity_id, self.aq_parent.objectValues('Transition')))
+        """ returns all the process transition objects that go to the
+            specified activity
+        """
+        return len(filter(lambda x, activity_id=self.id: x.To == activity_id,
+                          self.aq_parent.objectValues('Transition')))
 
     security.declareProtected('Manage OpenFlow', 'isAutoStart')
 
