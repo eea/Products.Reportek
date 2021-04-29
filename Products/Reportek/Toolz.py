@@ -39,7 +39,8 @@ class Toolz:
 
     def __valideIssueProperty(self, param):
         """Check if exists a property with given value"""
-        return param in ['actor', 'country', 'bobobase_modification_time', 'reportingdate']
+        return param in ['actor', 'country', 'bobobase_modification_time',
+                         'reportingdate']
 
     def __validParams(self, sortby, how):
         """Validate sort parameters"""
@@ -53,7 +54,7 @@ class Toolz:
                 res = 0
         return res
 
-    #security.declareProtected('View', 'SearchSortWorkitems')
+    # security.declareProtected('View', 'SearchSortWorkitems')
     def SearchSortWorkitems(self, sortby, how):
         """Returns a sorted list with workitem objects"""
         l_workitems = self.getWorkitemsForWorklist()
@@ -110,12 +111,15 @@ class Toolz:
         # ROOT method dataflow_table returns a list of dictionaries
         # with the following keys: 'terminated', 'PK_RA_ID', 'SOURCE_TITLE',
         # 'details_url', 'TITLE', 'uri', 'LAST_UPDATE', 'PK_SOURCE_ID'
-        # we want to group items by given key, ascendent(desc=0) or descendent(desc=1)
+        # we want to group items by given key, ascendent(desc=0) or
+        # descendent(desc=1)
         r = defaultdict(list)
         for item in RepUtils.utSortListByAttr(
-                getattr(self, constants.ENGINE_ID).dataflow_table(), key, desc):
+                getattr(self, constants.ENGINE_ID).dataflow_table(),
+                key, desc):
             r[item[key]].append(item)
-        # unfortunetely, Zope framework seems not to handle just any Python code (like defaultdict), so ulglify this a little, the zope way...
+        # unfortunetely, Zope framework seems not to handle just any
+        # Python code (like defaultdict), so ulglify this a little
         return sorted(r.keys(), reverse=desc), dict(r)
 
     def partofyear_table(self):
@@ -175,8 +179,12 @@ class Toolz:
         return '%s ...' % text[:77]
 
     def cook_file_id(self, file_id):
-        """ cleans up a file id to make it suitable for a Zope id or a file system id """
+        """ cleans up a file id to make it suitable for a Zope id or a
+            file system id
+        """
         if file_id:
             file_id = file_id[max(
-                rfind(file_id, '/'), rfind(file_id, '\\'), rfind(file_id, ':')) + 1:]
+                rfind(file_id, '/'),
+                rfind(file_id, '\\'),
+                rfind(file_id, ':')) + 1:]
         return RepUtils.cleanup_id(file_id.strip())
