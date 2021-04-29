@@ -28,7 +28,7 @@ from xml.sax.saxutils import XMLGenerator
 from xml.sax import make_parser
 from cStringIO import StringIO
 NAMESPACES = ['xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"',
-              'xsi:noNamespaceSchemaLocation="http://cdr.eionet.europa.eu/schemas/envelope-metadata.xsd"',
+              'xsi:noNamespaceSchemaLocation="http://cdr.eionet.europa.eu/schemas/envelope-metadata.xsd"',  # noqa
               ]
 
 
@@ -56,10 +56,11 @@ class StripSchema(XMLGenerator):
 
 
 class XMLMetadata:
-    """ Implements a method in the envelope that returns the envelope metadata. The
-        metadata must include the list of files, where for each file is reported;
-        filename, content-type, title, access permissions, and if the file is an XML
-        file the schema identifier.
+    """ Implements a method in the envelope that returns the envelope metadata.
+        The metadata must include the list of files, where for each file is
+        reported;
+        filename, content-type, title, access permissions, and if the file is
+        an XML file the schema identifier.
     """
 
     security = ClassSecurityInfo()
@@ -95,10 +96,11 @@ class XMLMetadata:
         return tmp
 
     def _xml_datetime(self, date):
-        """date is a DateTime object. This function returns a string 'dd month_name yyyy hh:mm:ss'"""
+        """date is a DateTime object. This function returns a string
+          'dd month_name yyyy hh:mm:ss'"""
         try:
             return date.strftime('%Y-%m-%dT%H:%M:%SZ')
-        except:
+        except Exception:
             return ''
 
     def _document_data(self, document, inline):
@@ -113,14 +115,14 @@ class XMLMetadata:
             return self._document_metadata(document, restricted)
 
     def _document_metadata(self, document, restricted):
-        return '<file name="%s" type="%s" schema="%s" title="%s" restricted="%s" link="%s" uploaded="%s"/>' % \
-            (self._xml_encode(document.id),
-             self._xml_encode(document.content_type),
-             self._xml_encode(document.xml_schema_location),
-             self._xml_encode(document.title),
-             restricted,
-             parse_uri(document.absolute_url(), self.http_res),
-             document.upload_time().HTML4())
+        return ('<file name="%s" type="%s" schema="%s" title="%s" restricted="%s" link="%s" uploaded="%s"/>' %  # noqa
+                (self._xml_encode(document.id),
+                 self._xml_encode(document.content_type),
+                 self._xml_encode(document.xml_schema_location),
+                 self._xml_encode(document.title),
+                 restricted,
+                 parse_uri(document.absolute_url(), self.http_res),
+                 document.upload_time().HTML4()))
 
     def _document_instance(self, document, restricted):
         """ return the documents cleaned up content (only XML) """
@@ -130,7 +132,7 @@ class XMLMetadata:
             restricted = 'no'
         else:
             restricted = 'yes'
-        xml_a('<instance name="%s" type="%s" schema="%s" title="%s" restricted="%s" link="%s">' %
+        xml_a('<instance name="%s" type="%s" schema="%s" title="%s" restricted="%s" link="%s">' %  # noqa
               (self._xml_encode(document.id),
                self._xml_encode(document.content_type),
                self._xml_encode(document.xml_schema_location),
@@ -141,7 +143,7 @@ class XMLMetadata:
         handler = StripSchema(outf)
         parser = make_parser()
         # In case it is more correct to use namespaces
-        #parser.setFeature( "http://xml.org/sax/features/namespaces", 1 )
+        # parser.setFeature( "http://xml.org/sax/features/namespaces", 1 )
         parser.setContentHandler(handler)
         parser.parse(document.data_file.open())
         outf.seek(0)
@@ -196,16 +198,18 @@ class XMLMetadata:
         acceptable = a_mapping.get(self.envelope.is_acceptable())
         if company_id:
             if old_company_id:
-                r_env = '<envelope released="%s" company_id="%s" old_company_id="%s" acceptable="%s" %s>' % (tf[self.envelope.released],
-                                                                                                             company_id,
-                                                                                                             old_company_id,
-                                                                                                             acceptable,
-                                                                                                             self._get_namespaces())
+                r_env = '<envelope released="%s" company_id="%s" old_company_id="%s" acceptable="%s" %s>' % (  # noqa
+                    tf[self.envelope.released],
+                    company_id,
+                    old_company_id,
+                    acceptable,
+                    self._get_namespaces())
             else:
-                r_env = '<envelope released="%s" company_id="%s" acceptable="%s" %s>' % (tf[self.envelope.released],
-                                                                                         company_id,
-                                                                                         acceptable,
-                                                                                         self._get_namespaces())
+                r_env = '<envelope released="%s" company_id="%s" acceptable="%s" %s>' % (  # noqa
+                    tf[self.envelope.released],
+                    company_id,
+                    acceptable,
+                    self._get_namespaces())
         else:
             r_env = '<envelope released="%s" acceptable="%s" %s>' % (
                 tf[self.envelope.released], acceptable, self._get_namespaces())

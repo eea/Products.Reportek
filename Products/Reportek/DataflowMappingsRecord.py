@@ -1,5 +1,3 @@
-__doc__ = """ Multiple dataflow mappings for a single obligation """
-
 import logging
 import xmlrpclib
 from os import environ
@@ -14,7 +12,7 @@ from Products.Five.browser import BrowserView
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from ZODB.PersistentList import PersistentList
-
+__doc__ = """ Multiple dataflow mappings for a single obligation """
 log = logging.getLogger(__name__)
 
 
@@ -75,8 +73,8 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
 
     def get_mapping(self):
         """ Return the low-level mapping (persistent) list.
-        This is momentarily required by Article 21, workflow, but we should refactor
-        the whole mechanism """
+        This is momentarily required by Article 21, workflow, but we should
+        refactor the whole mechanism """
         return self._mappings
 
     security.declareProtected(view_management_screens, 'mapping')
@@ -110,7 +108,8 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
                 mapping = {
                     'url': row['url'],
                     'name': row['name'],
-                    'has_webform': True if webq_resp.get(row['url']) else False,
+                    'has_webform': (True if webq_resp.get(row['url'])
+                                    else False),
                 }
                 new_mappings.append(mapping)
             self._mappings = new_mappings

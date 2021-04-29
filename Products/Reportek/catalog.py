@@ -83,7 +83,8 @@ class RebuildView(BrowserView):
 
 
 def walk_folder(folder):
-    for idx, ob in folder.ZopeFind(folder, obj_metatypes=REPORTEK_META_TYPES, search_sub=0):
+    for idx, ob in folder.ZopeFind(folder, obj_metatypes=REPORTEK_META_TYPES,
+                                   search_sub=0):
         yield ob
 
         if IObjectManager.providedBy(ob):

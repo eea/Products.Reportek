@@ -23,8 +23,9 @@ class BdrAuthorizationMiddleware(SimpleItem):
     def setServiceRecheckInterval(self, seconds):
         self.recheck_interval = seconds
 
-    @ram.cache(lambda *args, **kwargs: args[2] + str(time() // kwargs['recheck_interval']))
-    def getUserCollectionPaths(self, username, recheck_interval=recheck_interval):
+    @ram.cache(lambda *args, **kwargs: args[2] + str(time() // kwargs['recheck_interval']))  # noqa
+    def getUserCollectionPaths(self, username,
+                               recheck_interval=recheck_interval):
         logger.debug(
             "Get companies from middleware for ecas user: %s" % username)
         accessiblePaths = self.FGASRegistryAPI.getCollectionPaths(username)
