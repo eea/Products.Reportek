@@ -1,5 +1,3 @@
-__doc__ = """Container for mappings between dataflows and XML schemas"""
-
 from UserList import UserList
 
 from AccessControl import ClassSecurityInfo
@@ -9,6 +7,7 @@ from DataflowMappingsRecord import DataflowMappingsRecord
 from Globals import InitializeClass
 from OFS.Folder import Folder
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+__doc__ = """Container for mappings between dataflows and XML schemas"""
 
 
 class DataflowMappings(Folder):
@@ -55,8 +54,10 @@ class DataflowMappings(Folder):
     def getSchemaObjectsForDataflows(self, dataflow_uris, web_form_only):
         """
         Returns schemas for one or many dataflows
-        dataflow_uris - one uri (str) looked after, a list for any uri in it or leave None (False) for all dataflows
-        web_form_only - if True only Schemas that have webforms will be returned
+        dataflow_uris - one uri (str) looked after, a list for any uri in it
+        or leave None (False) for all dataflows
+        web_form_only - if True only Schemas that have webforms will be
+        returned
         return - list of found schema objects
         """
         brains = self.get_dataflow_mapping_records(dataflow_uris,
@@ -65,22 +66,26 @@ class DataflowMappings(Folder):
         for brain in brains:
             for schema in brain.getObject().mapping['schemas']:
                 if not web_form_only or schema['has_webform']:
-                    # yield schema # can't yield here if using dtml; it doesn't know how to iterate
+                    # yield schema # can't yield here if using dtml; it doesn't
+                    # know how to iterate
                     res.append(schema)
         return res
 
     def getSchemasForDataflows(self, dataflow_uris=None, web_form_only=False):
         """
         Returns schemas for one or many dataflows
-        dataflow_uris - one uri (str) looked after, a list for any uri in it or leave None (False) for all dataflows
-        web_form_only - if True only Schemas that have webforms will be returned
+        dataflow_uris - one uri (str) looked after, a list for any uri in it or
+        leave None (False) for all dataflows
+        web_form_only - if True only Schemas that have webforms will be
+        returned
         return - list of found schemas
         """
         schemaObjects = self.getSchemaObjectsForDataflows(
             dataflow_uris, web_form_only)
         return [schema['url'] for schema in schemaObjects]
 
-    def get_webform_url_for_schema(self, schema, dataflow_uris=None, web_form_only=False):
+    def get_webform_url_for_schema(self, schema, dataflow_uris=None,
+                                   web_form_only=False):
         """Return the webform base url for schema"""
 
         schemaObjects = self.getSchemaObjectsForDataflows(

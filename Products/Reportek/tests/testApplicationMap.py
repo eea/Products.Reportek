@@ -22,15 +22,18 @@ class ApplicationsTestCase(BaseTest, ConfigureReportek):
         self.assertTrue(hasattr(self.app, 'WorkflowEngine'))
 
     def test_application(self):
-        """ Test that listApplications() returns the applications sorted on name """
+        """ Test that listApplications() returns the applications sorted on
+            name """
         self.wf.addApplication(name="alpha_app", link="pyAuto")
         self.assertEquals(
-            [{'name': 'alpha_app', 'link': 'pyAuto'}], self.wf.listApplications())
+            [{'name': 'alpha_app', 'link': 'pyAuto'}],
+            self.wf.listApplications())
         self.wf.addApplication(name="delta_app", link="delta")
         self.wf.addApplication(name="beta_app", link="beta")
         self.assertEquals([{'link': 'pyAuto', 'name': 'alpha_app'},
                            {'link': 'beta', 'name': 'beta_app'},
-                           {'link': 'delta', 'name': 'delta_app'}], self.wf.listApplications())
+                           {'link': 'delta', 'name': 'delta_app'}],
+                          self.wf.listApplications())
 
 
 class ActivityApplicationMapping(WorkflowTestCase):
@@ -117,7 +120,7 @@ class ActivityApplicationMapping(WorkflowTestCase):
         activity.application = 'act1'
         self.app._setOb('SomeFolder', Folder('SomeFolder'))
         # app is not there
-        #self.app.SomeFolder._setOb('act1', SimpleItem('act1'))
+        # self.app.SomeFolder._setOb('act1', SimpleItem('act1'))
         result = activity.mapped_application_details()
         # WARNING:
         # app path (from the attribute) doesn't have a leading '/' in this case

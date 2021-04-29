@@ -105,7 +105,7 @@ class QAScriptTest(unittest.TestCase):
                 request.SERVER_URL = 'http://example.com'
                 file_url = 'http://example.com/envelope/foo.txt'
                 with patch('Products.Reportek.QARepository.subprocess') as\
-                     mock_sp:
+                        mock_sp:
                     mock_proc = Mock(stdout=StringIO('test output'))
                     mock_sp.Popen.return_value = mock_proc
                     ret = self.qa_repository._runQAScript(

@@ -102,7 +102,8 @@ class OpenFlow2Xpdl:
             # add attributes
             prozesua.setAttribute('Id', i.getId())
             prozesua.setAttribute('Name', i.title)
-            # add the process header element which contains the basic Workflow Process properties
+            # add the process header element which contains the basic Workflow
+            # Process properties
             self._add_process_header(prozesua, i)
             # ekintzak gehitu
             # add the process additional attributes
@@ -118,9 +119,12 @@ class OpenFlow2Xpdl:
         return prozesuak
 
 #    def gehituAplikazioak(self):
-#        """ Prozesu konkretu bati lotutako aplikazioak gehituko ditu. Pasatzen diren
-#        parametroak produktuarekin probak egin ostean detektatu direnak izan dira, hau da,
-#        aplikazioei pasatzen zaizkien defektuzko parametroak dira - Add applications"""
+#        """ Prozesu konkretu bati lotutako aplikazioak gehituko ditu.
+#         Pasatzen diren
+#        parametroak produktuarekin probak egin ostean detektatu direnak izan
+#        dira, hau da,
+#        aplikazioei pasatzen zaizkien defektuzko parametroak dira -
+#        Add applications"""
 #
 #        aplikazioak = self.xmldoc.createElement('Applications')
 #
@@ -135,13 +139,15 @@ class OpenFlow2Xpdl:
 #                    aplikazioa = self.xmldoc.createElement('Application')
 #                    aplikazioa.setAttribute('Id', i.application)
 #
-#                    # Goian esan bezala ez da inon agertzen zein diren aplikazioei
+#                    # Goian esan bezala ez da inon agertzen zein diren
+#                    # aplikazioei
 #                    # pasatutako parametroak, ondorioz aplikazioa automatikoei
 #                    # pasatzen zaizkien defektuzko 3 parametroak ipini ditut
 #
 #                    # I can't get application parameters neither using the API
 #                    # nor using the attributes.
-#                    # I decided to pass the 3 default parameters OpenFlow passes to
+#                    # I decided to pass the 3 default parameters OpenFlow
+#                    # passes to
 #                    # Automatic applications.
 #
 #                    forpars = self.xmldoc.createElement('FormalParameters')
@@ -263,10 +269,14 @@ class OpenFlow2Xpdl:
             if i.isSubflow():
                 sub = self.xmldoc.createElement('SubFlow')
                 sub.setAttribute('Id', i.subflow)
-                # In the case of *synchronous execution*, the execution of the Activity
-                # is suspenden after a process instance of the referenced Process Definition
-                # is initiated. After execution termination of this process instance the
-                # Activity is resumed. This is what happens in OpenFlow, because the activity
+                # In the case of *synchronous execution*, the execution of the
+                # Activity
+                # is suspenden after a process instance of the referenced
+                # Process Definition
+                # is initiated. After execution termination of this process
+                # instance the
+                # Activity is resumed. This is what happens in OpenFlow,
+                # because the activity
                 # isn't finished before the completion of the subflow
                 sub.setAttribute('Execution', 'SYNCHR')
 
@@ -324,7 +334,7 @@ class OpenFlow2Xpdl:
                             else:
                                 text = text + ', ' + perfor
 
-            if text <> '':
+            if text != '':
                 perf = self.xmldoc.createElement('Performer')
                 perftxt = self.xmldoc.createTextNode(text)
                 perf.appendChild(perftxt)
@@ -382,7 +392,8 @@ class OpenFlow2Xpdl:
         return ekintzak
 
     def gehituTrantsizioak(self, prozesua):
-        """ Prozesu konkretu baten dauden ekintzen arteko trantsizioak gehituko ditu
+        """ Prozesu konkretu baten dauden ekintzen arteko trantsizioak
+            gehituko ditu
             Add transitions between activities of a given process  """
         trantsizioak = self.xmldoc.createElement('Transitions')
         # dagoen trantsizio bakoitzeko
@@ -395,7 +406,7 @@ class OpenFlow2Xpdl:
             trantsizioa.setAttribute('To', i.To)
             # trantsizioa egiteko bete behar den baldintza
             # add the condition
-            if i.condition <> '':
+            if i.condition != '':
                 condition = self.xmldoc.createElement('Condition')
                 condition.setAttribute('Type', 'CONDITION')
 
@@ -430,7 +441,7 @@ class OpenFlow2Xpdl:
         return header
 
     def gehituConformance(self):
-        """ Add Conformance Class declaration 
+        """ Add Conformance Class declaration
             ConformanceClass adierazpena gehitu"""
 
         conformance = self.xmldoc.createElement('ConformanceClass')
@@ -459,7 +470,7 @@ class OpenFlow2Xpdl:
         root.setAttribute(
             'xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance')
         root.setAttribute(
-            'xsi:schemaLocation', 'http://www.wfmc.org/2002/XPDL1.0 http://wfmc.org/standards/docs/TC-1025_schema_10_xpdl.xsd')
+            'xsi:schemaLocation', 'http://www.wfmc.org/2002/XPDL1.0 http://wfmc.org/standards/docs/TC-1025_schema_10_xpdl.xsd')  # noqa
 
         # headera gehitu
         # add header
