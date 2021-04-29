@@ -33,7 +33,8 @@ class ReportekUserFactoryPlugin(BasePlugin):
 
 
 manage_addReportekUserFactoryPluginForm = PageTemplateFile(
-    'zpt/reportekufAdd', globals(), __name__='manage_addReportekUserFactoryPluginForm')
+    'zpt/reportekufAdd', globals(),
+    __name__='manage_addReportekUserFactoryPluginForm')
 
 
 def addReportekUserFactoryPlugin(dispatcher, id, title='', RESPONSE=None):
@@ -45,7 +46,8 @@ def addReportekUserFactoryPlugin(dispatcher, id, title='', RESPONSE=None):
 
     if RESPONSE is not None:
         RESPONSE.redirect('%s/manage_main?manage_tabs_message=%s' %
-                          (dispatcher.absolute_url(), 'ReportekUserFactory+added.'))
+                          (dispatcher.absolute_url(),
+                           'ReportekUserFactory+added.'))
 
 
 InitializeClass(ReportekUserFactoryPlugin)
