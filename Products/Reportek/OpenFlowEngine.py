@@ -154,8 +154,8 @@ class OpenFlowEngine(Folder, Toolz):
         if activities is None:
             activities = []
         process_path = self.id + '/' + process
-        if self._activitiesPushableOnRole.has_key(role) and \
-                self._activitiesPushableOnRole[role].has_key(process):
+        if role in self._activitiesPushableOnRole and \
+                process in self._activitiesPushableOnRole[role]:
             old_activities = self._activitiesPushableOnRole[role][process]
         else:
             old_activities = []
@@ -867,7 +867,8 @@ class OpenFlowEngine(Folder, Toolz):
                     self.process_mappings.pop(p_id, None)
                     self._p_changed = 1
                 REQUEST.RESPONSE.redirect(
-                    'workflow_map_processes?manage_tabs_message=Mapping deleted')
+                    '''workflow_map_processes?manage_tabs_message='''
+                    '''Mapping deleted''')
 
     security.declarePublic('getApplicationToActivitiesMapping')
 

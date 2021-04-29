@@ -22,7 +22,9 @@ manage_addProcessForm = PageTemplateFile(
     'zpt/Workflow/process_add.zpt', globals())
 
 
-def manage_addProcess(self, id, title='', description='', BeginEnd=None, priority=0, begin=None, end=None, REQUEST=None, app_folder=None, restricted=False):
+def manage_addProcess(self, id, title='', description='', BeginEnd=None,
+                      priority=0, begin=None, end=None, REQUEST=None,
+                      app_folder=None, restricted=False):
     """ """
     p = process(id, title, description, BeginEnd, priority,
                 begin, end, restricted=restricted)
@@ -61,7 +63,8 @@ class process(CatalogAware, Folder):
         {'label': 'Roles', 'action': 'manage_role_table'},
     ) + Folder.manage_options[0:1] + Folder.manage_options[2:]
 
-    def __init__(self, id, title, description, BeginEnd, priority, begin, end, restricted=False):
+    def __init__(self, id, title, description, BeginEnd, priority, begin, end,
+                 restricted=False):
         self.id = id
         self.title = title
         self.description = description
@@ -129,7 +132,8 @@ class process(CatalogAware, Folder):
         return sorted(self.objectIds('Activity'))
 
     def listUnreferedActivities(self):
-        """ Returns a list of activities that have no transitions going to them"""
+        """ Returns a list of activities that have no transitions going to them
+        """
         activities = {}  # use dict in order to avoid duplicates
         for t in self.objectValues('Transition'):
             activities[t.From] = ''
@@ -176,7 +180,7 @@ class process(CatalogAware, Folder):
         if numpreds:
             # everything in numpreds has at least one successor ->
             # there's a cycle
-            raise CycleError, (answer, numpreds, successors)
+            raise CycleError(answer, numpreds, successors)
         return answer
 
     security.declarePublic('listActivitiesSorted')
@@ -217,7 +221,9 @@ class process(CatalogAware, Folder):
                     kind='standard',
                     complete_automatically=1,
                     REQUEST=None):
-        """ adds the activity and eventually sets the process begin and end activity """
+        """ adds the activity and eventually sets the process begin and
+            end activity
+        """
         a = activity(id=id,
                      join_mode=join_mode,
                      split_mode=split_mode,
@@ -238,7 +244,8 @@ class process(CatalogAware, Folder):
 
     security.declareProtected('Manage OpenFlow', 'addTransition')
 
-    def addTransition(self, id, From, To, condition=None, description='', REQUEST=None):
+    def addTransition(self, id, From, To, condition=None, description='',
+                      REQUEST=None):
         """ adds a transition """
         t = transition(id, From, To, condition, description)
         self._setObject(t.id, t)
@@ -249,7 +256,8 @@ class process(CatalogAware, Folder):
 
     def manage_delObjects(self, ids=[], REQUEST=None):
         """ override default method to handle better the redirection """
-        for activity_id in [id for id in ids if id in self.objectIds('Activity')]:
+        for activity_id in [id for id in ids
+                            if id in self.objectIds('Activity')]:
             # fallout all the workitems that have this activity id
             for wi in self.Catalog(meta_type='Workitem',
                                    process_path=self.absolute_url(1),
@@ -409,9 +417,8 @@ def process_to_dot(process):
             process.id
         )
         if act.mapped_application_details()['path']:
-            application_url = ('/' +
-                               act.mapped_application_details()['path'] +
-                               '/manage_workspace')
+            application_url = ('/' + act.mapped_application_details()['path']
+                               + '/manage_workspace')
 
         act_color = 'white'
         if act.id == process.begin:
@@ -442,7 +449,7 @@ def process_to_dot(process):
 
         dot.write(
             ' {0} [ tooltip = {1}, labelfontsize="12"] '.format(
-                namify(act.id), act.id, color
+                namify(act.id), act.id
             )
         )
         dot.write(

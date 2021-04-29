@@ -7,7 +7,8 @@ class NoProcessAvailable(Exception):
 
 
 class InvalidPartOfYear(Exception):
-    """ Raised when the Envelope part of year is not in the valid values list """
+    """ Raised when the Envelope part of year is not in the valid values list
+    """
 
 
 class LocalConversionException(Exception):
@@ -15,7 +16,9 @@ class LocalConversionException(Exception):
 
 
 class EnvelopeReleasedException(Exception):
-    """ Raised by saveXML when the Envelope is released and the document cannot be saved. """
+    """ Raised by saveXML when the Envelope is released and the document
+        cannot be saved.
+    """
 
 
 class ApplicationException(Exception):
