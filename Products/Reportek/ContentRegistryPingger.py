@@ -34,14 +34,20 @@ class ContentRegistryPingger(object):
             action = 'delete'
         messageBody = self.content_registry_pretty_message(message)
         if success:
-            logger.info("Content Registry (%s) pingged OK for the %s of %s. Response was: %s"
-                        % (self.api_url, action, url, messageBody))
+            logger.info(
+                '''Content Registry (%s) pingged OK for the %s of %s. '''
+                '''Response was: %s''' % (self.api_url, action, url,
+                                          messageBody))
         else:
-            logger.warning("Content Registry (%s) ping unsuccessful for the %s of %s. Response was: %s"
-                           % (self.api_url, action, url, messageBody))
+            logger.warning(
+                '''Content Registry (%s) ping unsuccessful for the %s '''
+                '''of %s. Response was: %s''' % (self.api_url, action, url,
+                                                 messageBody))
 
-    def content_registry_ping(self, uris, ping_argument=None, envPathName=None, wk=None):
-        """ Pings the Content Registry to harvest a new envelope almost immediately after the envelope is released or revoked
+    def content_registry_ping(self, uris, ping_argument=None, envPathName=None,
+                              wk=None):
+        """ Pings the Content Registry to harvest a new envelope almost
+            immediately after the envelope is released or revoked
             with the name of the envelope's RDF output
         """
         def parse_uri(uri):
@@ -70,8 +76,8 @@ class ContentRegistryPingger(object):
             self._log_ping(success, ping_res, uri, ping_argument)
             if wk:
                 msgs = {
-                    True: "CR Ping successful for the {} of {} (HTTP status: {})".format(ping_argument, uri, http_code),
-                    False: "CR Ping failed for the {} of {} (HTTP status: {})".format(ping_argument, uri, http_code)
+                    True: "CR Ping successful for the {} of {} (HTTP status: {})".format(ping_argument, uri, http_code),  # noqa
+                    False: "CR Ping failed for the {} of {} (HTTP status: {})".format(ping_argument, uri, http_code)  # noqa
                 }
                 wk.addEvent(msgs.get(success))
             allOk = allOk and success
@@ -84,15 +90,19 @@ class ContentRegistryPingger(object):
 
         return allOk, ping_res
 
-    def content_registry_ping_async(self, uris, ping_argument=None, envPathName=None, wk=None):
-        # delegate this to fire and forget thread - don't keep the user (browser) waiting
+    def content_registry_ping_async(self, uris, ping_argument=None,
+                                    envPathName=None, wk=None):
+        """ Delegate this to fire and forget thread
+            don't keep the user (browser) waiting
+        """
 
-        pingger = threading.Thread(target=ContentRegistryPingger.content_registry_ping,
-                                   name='contentRegistryPing',
-                                   args=(self, uris),
-                                   kwargs={'ping_argument': ping_argument,
-                                           'envPathName': envPathName,
-                                           'wk': wk})
+        pingger = threading.Thread(
+            target=ContentRegistryPingger.content_registry_ping,
+            name='contentRegistryPing',
+            args=(self, uris),
+            kwargs={'ping_argument': ping_argument,
+                    'envPathName': envPathName,
+                    'wk': wk})
         pingger.setDaemon(True)
         pingger.start()
         return

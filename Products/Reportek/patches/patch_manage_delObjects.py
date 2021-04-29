@@ -1,3 +1,4 @@
+# flake8: noqa
 """ Patch manage_delObjects to allow for deletion of corresponding Application
 folder when deleting a process
 """

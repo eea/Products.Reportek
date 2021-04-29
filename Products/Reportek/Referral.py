@@ -21,7 +21,7 @@
 
 """Referral object
 
-Referrals are used to tell Reportnet that the delivery is located 
+Referrals are used to tell Reportnet that the delivery is located
 elsewhere. The countries often incorrectly use them to point to
 another location /inside/ CDR.
 
@@ -52,11 +52,11 @@ def manage_addReferral(self, title, descr, referral_url, year, endyear,
     id = RepUtils.generate_id("ref")
     try:
         year = int(year)
-    except:
+    except Exception:
         year = ''
     try:
         endyear = int(endyear)
-    except:
+    except Exception:
         endyear = ''
 
     ob = Referral(title, descr, referral_url, year, endyear, partofyear,
@@ -71,7 +71,8 @@ def manage_addReferral(self, title, descr, referral_url, year, endyear,
         return REQUEST.RESPONSE.redirect(self.absolute_url())
 
 
-class Referral(CatalogAware, SimpleItem, CountriesManager, BaseDelivery, DFlowCatalogAware):
+class Referral(CatalogAware, SimpleItem, CountriesManager, BaseDelivery,
+               DFlowCatalogAware):
     """ Referrals are basic objects that provide a standard
         interface for object management. Referral objects also implement
         a management interface and can have arbitrary properties.
@@ -134,7 +135,8 @@ class Referral(CatalogAware, SimpleItem, CountriesManager, BaseDelivery, DFlowCa
         """ Define manage main to be context aware """
 #       manage_main_inh = Referral.inheritedAttribute ("manage_main")
 
-        if getSecurityManager().checkPermission('View management screens', self):
+        if getSecurityManager().checkPermission('View management screens',
+                                                self):
             return apply(self.manage_prop, (self,) + args, kw)
         else:
             return apply(self.index_html, (self,) + args, kw)
@@ -176,11 +178,11 @@ class Referral(CatalogAware, SimpleItem, CountriesManager, BaseDelivery, DFlowCa
         self.referral_url = referral_url
         try:
             self.year = int(year)
-        except:
+        except Exception:
             self.year = ''
         try:
             self.endyear = int(endyear)
-        except:
+        except Exception:
             self.endyear = ''
         self.partofyear = partofyear
         self.country = country
@@ -190,9 +192,11 @@ class Referral(CatalogAware, SimpleItem, CountriesManager, BaseDelivery, DFlowCa
         # update ZCatalog
         self.reindex_object()
         if REQUEST:
-            # Should use these two lines, but that doesn't work with non-managers
+            # Should use these two lines, but that doesn't work with
+            # non-managers
             #           message="Properties changed"
-            #           return self.manage_prop(self,REQUEST,manage_tabs_message=message)
+            #           return self.manage_prop(
+            # self,REQUEST,manage_tabs_message=message)
             return self.messageDialog(
                 message="The properties of %s have been changed!" % self.id,
                 action='./manage_main')
