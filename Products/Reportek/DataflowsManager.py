@@ -46,7 +46,9 @@ class ServiceTemporarilyUnavailableException(Exception):
 
 
 class DataflowsManager:
-    """ Module that handles the dataflows(obligations) information: dataflow_table """
+    """ Module that handles the dataflows(obligations) information:
+        dataflow_table
+    """
 
     def __init__(self):
         self.xmlrpc_dataflow = XMLRPCMethod(
@@ -124,9 +126,12 @@ class DataflowsManager:
                        'PK_SOURCE_ID': str(c.get('sourceId')),
                        'SOURCE_TITLE': c.get('sourceAlias'),
                        'TITLE': c.get('oblTitle'),
-                       'details_url': '{}/{}'.format(prefix, c.get('obligationId')),
-                       'terminated': '1' if c.get('terminate').encode('utf-8') == 'Y' else '0',
-                       'uri': '{}/{}'.format(prefix, c.get('obligationId'))} for c in res.json()]
+                       'details_url': '{}/{}'.format(prefix,
+                                                     c.get('obligationId')),
+                       'terminated': ('1' if c.get(
+                           'terminate').encode('utf-8') == 'Y' else '0'),
+                       'uri': '{}/{}'.format(prefix, c.get('obligationId'))}
+                      for c in res.json()]
 
         return dflows
 
@@ -135,9 +140,9 @@ class DataflowsManager:
         try:
             return map(inline_replace, self.dataflow_rod())
         except Exception:
-            msg = "Reporting Obligations Database is temporarily unavailable," \
-                  " please try again later"
-            raise ServiceTemporarilyUnavailableException, msg
+            msg = ('''Reporting Obligations Database is temporarily'''
+                   '''unavailable, please try again later''')
+            raise ServiceTemporarilyUnavailableException(msg)
 
     def dataflow_dict(self):
         """ Converts the dataflow table into a dictionary """
@@ -159,11 +164,12 @@ class DataflowsManager:
                     'PK_RA_ID': '0'}
 
     def getDataflowDict(self, dataflow_uri):
-        """ returns all properties of a dataflow as dictionary given the uri """
+        """ returns all properties of a dataflow as dictionary given the uri
+        """
         try:
             return [x for x in self.dataflow_table()
                     if str(x['uri']) == dataflow_uri][0]
-        except:
+        except Exception:
             return {'SOURCE_TITLE': 'Deleted', 'TITLE': 'Unknown obligation'}
 
     # Getters for the dataflow

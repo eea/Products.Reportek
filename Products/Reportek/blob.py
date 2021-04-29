@@ -38,7 +38,7 @@ class FileContainer(Persistent):
         file size in bytes
     """
 
-    COMPRESSIBLE_TYPES = set([
+    COMP_TYPES = set([
         'text/x-unknown-content-type',
         'application/octet-stream',
         'text/xml',
@@ -56,15 +56,17 @@ class FileContainer(Persistent):
         'application/excel',
         'application/vnd.msexcel',
         'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document',  # noqa
         'application/x-msaccess',
         'application/rtf',
     ])
 
     # FIXME - shouldn't default content_type be None?
-    def __init__(self, content_type='application/octet-stream', compress='auto'):
+    def __init__(self, content_type='application/octet-stream',
+                 compress='auto'):
         ''' Initialize an file-like object. see open for usage.
-        @param compress decide whether to compress content on write. 'auto' will decide based on COMPRESSIBLE_TYPES
+        @param compress decide whether to compress content on write.
+        'auto' will decide based on COMP_TYPES
         '''
         self._blob = Blob()
         self.mtime = time()
@@ -85,17 +87,20 @@ class FileContainer(Persistent):
             self.compressed = value
     # Remove this after migration is complete
 
-    def open(self, mode='rb', orig_size=0, preserve_mtime=False, skip_decompress=False, crc=None):
+    def open(self, mode='rb', orig_size=0, preserve_mtime=False,
+             skip_decompress=False, crc=None):
         '''
         Opens and returns a file-like object with Blob's __enter__ and __exit__
         thus 'with FileContainer.open() as x' will work ok.
 
         Make sure we know the content_type prior to writing so that
         we shall know whether to compress it or not...
-        If content_type not set by caller, assume value already set (by __init__)
+        If content_type not set by caller, assume value already set
+         (by __init__)
 
         @param mode string for read or write modes
-        @param orig_size This is the size computed by the caller. used in case of compression.
+        @param orig_size This is the size computed by the caller. used
+         in case of compression.
 
         @return file-like object opened for operation 'mode'
         '''
@@ -122,12 +127,13 @@ class FileContainer(Persistent):
                 # The buffer is already compressed, avoid double compression
                 if skip_decompress:
                     file_handle = GzipFileRaw(
-                        mode='w', fileobj=file_handle, crc=crc, orig_size=orig_size)
+                        mode='w', fileobj=file_handle, crc=crc,
+                        orig_size=orig_size)
                     zip_close = file_handle.close
                     self.compressed_safe = True
                 # The file could have been compressed but we excluded it
-                # from COMPRESSIBLE_TYPES. So if it shouldn't be compressed no more
-                # then it shall become uncompressed on this write
+                # from COMP_TYPES. So if it shouldn't be compressed no
+                # more then it shall become uncompressed on this write
                 elif self._shouldCompress():
                     file_handle = GzipFile(fileobj=file_handle)
                     zip_close = file_handle.close
@@ -160,25 +166,29 @@ class FileContainer(Persistent):
             return False
         # Remove this after migration is complete
         if (self._toCompress == 'yes'
-            or self._toCompress == 'auto'
-                and self.content_type.split(';')[0] in self.COMPRESSIBLE_TYPES):
+                or self._toCompress == 'auto'
+                and self.content_type.split(';')[0] in self.COMP_TYPES):
             return True
         return False
 
     def openAndWrite(self, file_or_content, content_type=None):
-        ''' Write given content to blob file. Also open the target blob for writing.
-        The idea is to have access to the source, determine whether to compress or not
-        and only then open the propper file handle.
+        ''' Write given content to blob file. Also open the target blob for
+            writing. The idea is to have access to the source, determine
+            whether to compress or not and only then open the propper
+            file handle.
 
-        @param file_or_content source; either ZPublisher.HTTPRequest.FileUpload or already loaded string.
-        @param content_type Set object content_type. Based on this the compression decision will be made
+        @param file_or_content source; either ZPublisher.HTTPRequest.FileUpload
+         or already loaded string.
+        @param content_type Set object content_type. Based on this the
+         compression decision will be made
         '''
 
         if content_type:
             self.content_type = content_type
         self.size = self._compute_uncompressed_size(file_or_content)
 
-        # open will detect whether to compress or not and open the propper file handle
+        # open will detect whether to compress or not and open the propper
+        # file handle
         with self.open('wb') as data_file_handle:
             if hasattr(file_or_content, 'filename'):
                 for chunk in RepUtils.iter_file_data(file_or_content):
@@ -193,7 +203,7 @@ class FileContainer(Persistent):
             fs_path = this_data_file.name[len(blob_dir)+1:]
             this_data_file.close()
             return os.path.join(blob_dir, fs_path)
-        except:
+        except Exception:
             return ''
 
     @classmethod
@@ -301,8 +311,9 @@ Globals.InitializeClass(OfsBlobFile)
 
 def get_content_type(file_or_content):
     """ Determine the mime-type from metadata (file name, headers)
-    and eventually the actual content (Note that zope's guess_content_type does a poor
-    job detecting from content - it's main detection is based on name/ext
+    and eventually the actual content (Note that zope's guess_content_type does
+    a poor job detecting from content - it's main detection is based on
+    name/ext
     """
     name = None
     headers = None
@@ -315,9 +326,9 @@ def get_content_type(file_or_content):
         is_zip = isinstance(file_or_content, ZZipFile)
         if is_ZipRaw or is_zip:
             name = getattr(file_or_content, 'currentFilename', name)
-        if (is_ZipRaw and file_or_content.allowRaw and
-            (readCount < 0 or
-                readCount >= ZZipFileRaw.SKIP_RAW_THRESHOLD)):
+        if (is_ZipRaw and file_or_content.allowRaw
+                and (readCount < 0
+                     or readCount >= ZZipFileRaw.SKIP_RAW_THRESHOLD)):
             file_or_content.rewindRaw()
         else:
             file_or_content.seek(0)
@@ -345,7 +356,8 @@ def get_content_type(file_or_content):
 
 
 def compute_uncompressed_size(file_or_content):
-    if isinstance(file_or_content, FileUpload) or isinstance(file_or_content, file):
+    if (isinstance(file_or_content, FileUpload)
+            or isinstance(file_or_content, file)):
         pos = file_or_content.tell()
         file_or_content.seek(0, 2)
         size = file_or_content.tell()
@@ -371,7 +383,9 @@ def add_OfsBlobFile(parent, name, data_file=None, content_type=None):
         crc = data_file.CRC
         orig_size = compute_uncompressed_size(data_file)
 
-        with ob.data_file.open('wb', orig_size=orig_size, skip_decompress=skip_compress, crc=crc, preserve_mtime=False) as data_file_handle:
+        with ob.data_file.open('wb', orig_size=orig_size,
+                               skip_decompress=skip_compress, crc=crc,
+                               preserve_mtime=False) as data_file_handle:
             if hasattr(data_file, 'read'):
                 for chunk in RepUtils.iter_file_data(data_file):
                     data_file_handle.write(chunk)

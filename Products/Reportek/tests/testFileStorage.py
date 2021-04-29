@@ -139,9 +139,9 @@ class FileStorageTest(BaseTest):
     def test_compress_auto_not(self):
         from Products.Reportek.blob import FileContainer
         data = 'hello world, file for test!'
-        FileContainer.COMPRESSIBLE_TYPES.discard('text/plain')
+        FileContainer.COMP_TYPES.discard('text/plain')
         doc = create_document_with_data(data, compression='auto')
-        FileContainer.COMPRESSIBLE_TYPES.add('text/plain')
+        FileContainer.COMP_TYPES.add('text/plain')
 
         # rawsize must be the uncompressed size.
         self.assertEqual(doc.rawsize(), len(data))
@@ -150,9 +150,9 @@ class FileStorageTest(BaseTest):
     def test_compress_yes(self):
         from Products.Reportek.blob import FileContainer
         data = 'hello world, file for test!'
-        FileContainer.COMPRESSIBLE_TYPES.discard('text/plain')
+        FileContainer.COMP_TYPES.discard('text/plain')
         doc = create_document_with_data(data, compression='yes')
-        FileContainer.COMPRESSIBLE_TYPES.add('text/plain')
+        FileContainer.COMP_TYPES.add('text/plain')
 
         # rawsize must be the uncompressed size.
         self.assertEqual(doc.rawsize(), len(data))

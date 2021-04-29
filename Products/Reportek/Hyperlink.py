@@ -105,7 +105,7 @@ class ReportHyperlink(CatalogAware,
     # Compatibility with Document
     security.declarePublic('icon_gif')
     icon_gif = ImageFile("www/hyperlink.gif", globals())
-    #icon_gif = ImageFile("www/hyperlink_big.gif", globals())
+    # icon_gif = ImageFile("www/hyperlink_big.gif", globals())
 
     security.declarePublic('upload_time')
 
