@@ -18,14 +18,6 @@
 # Contributor(s):
 # Soren Roug, EEA
 
-__doc__ = """
-      Hyperlink product module.
-      The Hyperlink is kept as an object along with the Documents
-      .
-
-      $Id$
-"""
-
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from OFS.SimpleItem import SimpleItem
 from OFS.PropertyManager import PropertyManager
@@ -37,6 +29,13 @@ from App.ImageFile import ImageFile
 import RepUtils
 from time import time
 import string
+__doc__ = """
+      Hyperlink product module.
+      The Hyperlink is kept as an object along with the Documents
+      .
+
+      $Id$
+"""
 
 manage_addHyperlinkForm = PageTemplateFile('zpt/hyperlink/add', globals())
 

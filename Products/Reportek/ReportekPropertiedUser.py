@@ -96,13 +96,16 @@ class ReportekPropertiedUser(PropertiedUser):
         return roles
 
     def get_middleware_authorization(self, user_id, base_path):
-        engine = self.unrestrictedTraverse('/'+ENGINE_ID)
+        engine = self.unrestrictedTraverse('/' + ENGINE_ID)
         authMiddleware = engine.authMiddleware
         ecas = self.unrestrictedTraverse('/acl_users/' + ECAS_ID, None)
         if ecas:
             ecas_user_id = ecas.getEcasUserId(user_id)
-            logger.debug(("Attempt to interrogate middleware for authorizations "
-                          "for user:id %s:%s") % (user_id, ecas_user_id))
+            logger.debug((
+                "Attempt to interrogate middleware for "
+                "authorizations for user:id %s:%s") % (
+                                user_id,
+                                ecas_user_id))
             if not ecas_user_id:
                 return False
             if authMiddleware:
