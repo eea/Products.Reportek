@@ -40,7 +40,8 @@ class CatalogTest(BaseTest, ConfigureReportek):
              [workitem_object]),
             ({'meta_type': 'Workitem', 'status': 'TestStatus'},
              [workitem_object]),
-            ({'meta_type': 'Workitem', 'actor': 'TestActor'}, [workitem_object])]
+            ({'meta_type': 'Workitem', 'actor': 'TestActor'},
+             [workitem_object])]
 
         for query, ok_results in definitions:
             results = self.root.Catalog(**query)
@@ -90,7 +91,8 @@ class CatalogTest(BaseTest, ConfigureReportek):
             ({'meta_type': 'Report Envelope'}, [
              first_envelope, second_envelope]),
             ({'meta_type': 'Report Envelope',
-              'dataflow_uris': 'http://example.com/dataflow/1'}, [first_envelope]),
+              'dataflow_uris': 'http://example.com/dataflow/1'},
+             [first_envelope]),
             ({'meta_type': 'Report Envelope',
               'country': 'http://example.com/country/2'}, [second_envelope]),
             ({'meta_type': 'Report Envelope',
@@ -139,7 +141,7 @@ class CatalogTest(BaseTest, ConfigureReportek):
         from Products.Reportek.catalog import catalog_rebuild
 
         process = Mock()
-        #self.root._p_jar = Mock()
+        # self.root._p_jar = Mock()
 
         collection = Collection(id='test_collection')
         self.root._setObject(collection.id, collection)
@@ -191,7 +193,8 @@ class CatalogTest(BaseTest, ConfigureReportek):
         self.root._setObject(second_envelope.id, second_envelope)
 
         definitions = [
-            ({'meta_type': 'Report Envelope', 'sort_on': 'reportingdate', 'sort_order': 'reverse'},
+            ({'meta_type': 'Report Envelope', 'sort_on': 'reportingdate',
+              'sort_order': 'reverse'},
              [second_envelope, first_envelope]),
             ({'meta_type': 'Report Envelope', 'sort_on': 'reportingdate'},
              [first_envelope, second_envelope]),

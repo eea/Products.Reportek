@@ -1,3 +1,4 @@
+# flake8: noqa
 from mock import Mock, call, patch
 import time
 import pickle

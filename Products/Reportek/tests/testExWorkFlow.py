@@ -1,3 +1,4 @@
+# flake8: noqa
 # Those are old tests written by moregale that were renamed to never be executetd
 # for some while; some other tests regarding workflow have been written.
 # in the mean time, none of the test, not even the runnable ones, have been run
@@ -25,11 +26,14 @@ class rolesTestCase(BaseTest, ConfigureReportek):
         # self.login()
 
         # self.app.manage_addProduct['Reportek'].manage_addCollection('title',
-        #    'descr','2003','2004','','http://country', '', [], id='collection')
+        #    'descr','2003','2004','','http://country', '', [],
+        #    id='collection')
         # Create a Process Instance of the Process definition mentioned above
         self.coll = getattr(self.app, 'collection')
-        self.coll.manage_addProduct['Reportek'].manage_addEnvelope('title',
-                                                                   'descr', '2003', '2004', 'WHOLE_YEAR', 'entire country', REQUEST=self.app.REQUEST)
+        self.coll.manage_addProduct['Reportek'].manage_addEnvelope(
+            'title',
+            'descr', '2003', '2004', 'WHOLE_YEAR', 'entire country',
+            REQUEST=self.app.REQUEST)
         self.of = getattr(self.app, 'WorkflowEngine')
 
     def testEditRolePush(self):

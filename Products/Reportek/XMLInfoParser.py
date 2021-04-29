@@ -46,7 +46,8 @@ def absolute_location(location):
 def detect_schema(src):
     """ Detect the schema location of this xml file.
     The schema may be missing completely in which case we return empty string
-    However the xml must be well formmed and the schema location must be in absolute form;
+    However the xml must be well formmed and the schema location must be in
+    absolute form;
     otherwise throw an SchemaError exception in order to reject the file.
     """
     try:
@@ -86,7 +87,8 @@ def detect_schema(src):
             location_list_valid = filter(absolute_location, location_list)
             if len(location_list) != len(location_list_valid):
                 raise SchemaError('Schema location is not a valid URL',
-                                  locations_str(set(location_list) - set(location_list_valid)))
+                                  locations_str(set(location_list) - set(
+                                    location_list_valid)))
         return ' '.join(location_list)
 
     location = doc.docinfo.system_url

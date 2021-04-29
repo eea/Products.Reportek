@@ -6,7 +6,6 @@ from common import BaseTest, ConfigureReportek
 from DateTime import DateTime
 from mock import Mock, patch
 from Products.Reportek import Converters, constants
-from Products.Reportek.Collection import Collection
 from Products.Reportek.Envelope import Envelope
 from Products.Reportek.ReportekEngine import ReportekEngine
 from utils import (add_document, create_envelope, create_fake_root,
@@ -108,8 +107,9 @@ class ReportekEngineTest(BaseTest, ConfigureReportek):
     @unittest.expectedFailure
     def test_manage_editEngine_no_REQUEST(self):
         """
-        This tests simulates a programmatic call to ReportekEngine.manage_editEngine
-        and checks that engine's attributes are changed accordingly
+        This tests simulates a programmatic call to
+        ReportekEngine.manage_editEngine and checks that engine's attributes
+        are changed accordingly
         """
         # FIXME
         self.engine.ZopeTime = Mock(return_value=DateTime())
@@ -161,13 +161,17 @@ class SearchResultsTest(BaseTest, ConfigureReportek):
             Converters.Converters())
         safe_html = Mock(convert=Mock(return_value=Mock(text='feedbacktext')))
         getattr(self.root.getPhysicalRoot(),
-                constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
-        self.root['first_envelope'].manage_addFeedback('feedbackid', 'Title',
-                                                       'Feedback text', '', 'WorkflowEngine/begin_end', 1)
-        self.root['first_envelope'].manage_addFeedback('feedback5', 'Title',
-                                                       'Feedback text', '', 'WorkflowEngine/begin_end', 1)
-        self.root['first_envelope'].manage_addFeedback('feedback10', 'Title',
-                                                       'Feedback text', '', 'WorkflowEngine/begin_end', 1)
+                constants.CONVERTERS_ID).__getitem__ = Mock(
+            return_value=safe_html)
+        self.root['first_envelope'].manage_addFeedback(
+            'feedbackid', 'Title',
+            'Feedback text', '', 'WorkflowEngine/begin_end', 1)
+        self.root['first_envelope'].manage_addFeedback(
+            'feedback5', 'Title',
+            'Feedback text', '', 'WorkflowEngine/begin_end', 1)
+        self.root['first_envelope'].manage_addFeedback(
+            'feedback10', 'Title',
+            'Feedback text', '', 'WorkflowEngine/begin_end', 1)
 
         second_envelope = Envelope(process=process,
                                    title='SecondEnvelope',
@@ -217,7 +221,8 @@ class SearchResultsTest(BaseTest, ConfigureReportek):
 
     def test_filter_by_id(self):
         results = self.engine.getSearchResults(id={'range': 'min:max',
-                                                   'query': ['feedback0', 'feedback9']})
+                                                   'query': ['feedback0',
+                                                             'feedback9']})
         feedbacks = [el.getObject() for el in results]
         self.assertEqual(feedbacks, [self.root.first_envelope['feedback5'],
                                      self.root.first_envelope['feedback10']])
@@ -242,7 +247,7 @@ class ReportekEngineZipTest(unittest.TestCase):
         engine = BaseTest.create_reportek_engine(root)
 
         envelope = create_envelope(root)
-        doc = add_document(envelope, create_upload_file(content, 'foo.txt'))
+        add_document(envelope, create_upload_file(content, 'foo.txt'))
         envelope.released = True
         envelope.title = "TestedEnvelope"
 

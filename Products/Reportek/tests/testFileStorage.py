@@ -130,7 +130,8 @@ class FileStorageTest(BaseTest):
         self.assertTrue(doc.is_compressed())
         compressed_size = doc.compressed_size()[0]
         self.assertTrue(compressed_size > 0)
-        # being such a small file the compressed version will be bigger. don't compare sizes.
+        # being such a small file the compressed version will be bigger.
+        # don't compare sizes.
         self.assertTrue(compressed_size != doc.rawsize())
         # test fetching the data back
         read_data = doc.data_file.open('rb').read()
@@ -169,7 +170,8 @@ class FileStorageTest(BaseTest):
         self.assertTrue(doc.is_compressed())
         compressed_size = doc.compressed_size()[0]
         self.assertTrue(compressed_size > 0)
-        # being such a small file the compressed version will be bigger. don't compare sizes.
+        # being such a small file the compressed version will be bigger.
+        # don't compare sizes.
         self.assertTrue(compressed_size != doc.rawsize())
         # test fetching the data back
         read_data = doc.data_file.open('rb', skip_decompress=True).read()
@@ -283,7 +285,8 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
         self.envelope = self.createStandardEnvelope()
         safe_html = Mock(convert=Mock(text='feedbacktext'))
         getattr(self.app.Converters,
-                constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
+                constants.CONVERTERS_ID).__getitem__ = Mock(
+            return_value=safe_html)
 
     def mock_request(self):
         request = BaseTest.create_mock_request()

@@ -62,7 +62,8 @@ def setupCoreSessions(app=None):
         return appcall(setupCoreSessions)
 
     if not hasattr(app, 'temp_folder'):
-        from Products.TemporaryFolder.TemporaryFolder import MountedTemporaryFolder
+        from Products.TemporaryFolder.TemporaryFolder import\
+            MountedTemporaryFolder
         tf = MountedTemporaryFolder('temp_folder', 'Temporary Folder')
         app._setObject('temp_folder', tf)
         commit = 1
@@ -102,7 +103,7 @@ def setupZGlobals(app=None):
         return appcall(setupZGlobals)
 
     root = app._p_jar.root()
-    if not root.has_key('ZGlobals'):
+    if 'ZGlobals' not in root:
         from BTrees.OOBTree import OOBTree
         root['ZGlobals'] = OOBTree()
         transaction.commit()
@@ -194,11 +195,11 @@ def makelist(arg):
     '''Turns arg into a list. Where arg may be
        list, tuple, or string.
     '''
-    if type(arg) == type([]):
+    if isinstance(arg, list):
         return arg
-    if type(arg) == type(()):
+    if isinstance(arg, tuple):
         return list(arg)
-    if type(arg) == type(''):
+    if isinstance(arg, string):
         return filter(None, [arg])
     raise ValueError('Argument must be list, tuple, or string')
 
@@ -329,7 +330,8 @@ def create_envelope(parent, id='envelope'):
 
 def simple_addEnvelope(parent, *args, **kwargs):
     """
-    def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
+    def manage_addEnvelope(self, title, descr, year, endyear, partofyear,
+            locality,
             REQUEST=None, previous_delivery=''):
     """
     from Products.Reportek.Envelope import manage_addEnvelope
@@ -360,7 +362,8 @@ def add_document(envelope, upload_file, restricted=False, id=''):
     return envelope[doc_id]
 
 
-def add_feedback(envelope, feedbacktext, feedbackId=None, restricted=False, idx=0):
+def add_feedback(envelope, feedbacktext, feedbackId=None, restricted=False,
+                 idx=0):
     from Products.Reportek.Feedback import manage_addFeedback
     restricted_str = 'on' if restricted else ''
     manage_addFeedback(envelope, feedbacktext=feedbacktext, id=feedbackId,

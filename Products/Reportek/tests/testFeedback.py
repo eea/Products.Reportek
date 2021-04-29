@@ -38,14 +38,16 @@ class FeedbackTestCase(BaseTest, ConfigureReportek):
             Converters.Converters())
         safe_html = Mock(convert=Mock(text='feedbacktext'))
         getattr(self.envelope.getPhysicalRoot(),
-                constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
+                constants.CONVERTERS_ID).__getitem__ = Mock(
+            return_value=safe_html)
 
     def create_feedback(self):
         """ Create an automatic feedback in the envelope
         """
         adder = self.envelope.manage_addProduct['Reportek']
         adder.manage_addFeedback('feedbackid', 'Title',
-                                 'Feedback text', '', 'WorkflowEngine/begin_end', 1)
+                                 'Feedback text', '',
+                                 'WorkflowEngine/begin_end', 1)
         self.feedback = self.envelope.feedbackid
 
     def testCreation(self):
@@ -63,9 +65,10 @@ class FeedbackTestCase(BaseTest, ConfigureReportek):
             'application/x-zip'))
 
     def testNationalChars(self):
-        self.envelope.manage_addProduct['Reportek'].manage_addFeedback('feedbackid',
-                                                                       'Æblegrød title',
-                                                                       'ÐBlåbærgrød content text', '', 'Script URL', 0)
+        self.envelope.manage_addProduct['Reportek'].manage_addFeedback(
+            'feedbackid',
+            'Æblegrød title',
+            'ÐBlåbærgrød content text', '', 'Script URL', 0)
 
     def testZipNational(self):
         self.testNationalChars()
@@ -92,7 +95,8 @@ class FeedbackTestCase(BaseTest, ConfigureReportek):
         upload_file = FileUploadMock('testfile.txt', 'content here')
         adder = self.envelope.manage_addProduct['Reportek']
         adder.manage_addFeedback('feedbackid', 'Title',
-                                 'Feedback text', upload_file, 'WorkflowEngine/begin_end', 1)
+                                 'Feedback text', upload_file,
+                                 'WorkflowEngine/begin_end', 1)
         feedback = self.envelope.feedbackid
         self.assertTrue(hasattr(feedback, 'testfile.txt'),
                         'File did not get created')
@@ -117,7 +121,8 @@ class FeedbackTestCase(BaseTest, ConfigureReportek):
 
     def test_AttFeedback(self):
         """ Test the manage_uploadAttFeedback method
-            Replace the content of an existing file with manage_uploadAttFeedback
+            Replace the content of an existing file with
+            manage_uploadAttFeedback
             Test the delete of an attachement
         """
         self.create_feedback()
@@ -158,8 +163,9 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
         self.envelope.getEngine = Mock()
         self.envelope.REQUEST = Mock()
 
-        self.remoteapp = RemoteApplication('remoteapp', '', '',
-                                           'the_service', 'the_app').__of__(self.envelope)
+        self.remoteapp = RemoteApplication(
+            'remoteapp', '', '',
+            'the_service', 'the_app').__of__(self.envelope)
         self.remoteapp.the_workitem = Mock(the_app={
             'getResult': {
                 'the_jobid': {
@@ -173,7 +179,8 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
             Converters.Converters())
         safe_html = Mock(convert=Mock(text='feedbacktext'))
         getattr(self.envelope.getPhysicalRoot(),
-                constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
+                constants.CONVERTERS_ID).__getitem__ = Mock(
+            return_value=safe_html)
 
     @patch('Products.Reportek.RemoteApplication.xmlrpclib')
     def receive_feedback(self, text, mock_xmlrpclib):
@@ -244,8 +251,9 @@ class BlockerFeedbackTest(unittest.TestCase):
         self.envelope.REQUEST = Mock()
         self.envelope.addWorkitem('AutomaticQA', False)
 
-        self.remoteapp = RemoteApplication('remoteapp', '', '',
-                                           'the_service', 'the_app').__of__(self.envelope)
+        self.remoteapp = RemoteApplication(
+            'remoteapp', '', '',
+            'the_service', 'the_app').__of__(self.envelope)
         workitem = getattr(self.envelope, '0')
         workitem.the_app = {
             'getResult': {
@@ -260,7 +268,8 @@ class BlockerFeedbackTest(unittest.TestCase):
             Converters.Converters())
         safe_html = Mock(convert=Mock(text='feedbacktext'))
         getattr(self.envelope.getPhysicalRoot(),
-                constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
+                constants.CONVERTERS_ID).__getitem__ = Mock(
+            return_value=safe_html)
 
     @patch('Products.Reportek.RemoteApplication.xmlrpclib')
     def receive_feedback(self, text, result, mock_xmlrpclib):
@@ -352,7 +361,8 @@ class GetAllFeedbackTest(RemoteApplicationFeedbackTest):
                      'releasedate': feedback.releasedate.HTML4(),
                      'isautomatic': feedback.automatic,
                      'content_type': feedback.content_type,
-                     'referred_file': '%s/%s' % (self.envelope.absolute_url(), feedback.document_id),
+                     'referred_file': '%s/%s' % (self.envelope.absolute_url(),
+                                                 feedback.document_id),
                      'qa_output_url': "%s" % feedback.absolute_url()
                  },
              ]
@@ -373,7 +383,8 @@ class GetAllFeedbackTest(RemoteApplicationFeedbackTest):
                      'releasedate': feedback.releasedate.HTML4(),
                      'isautomatic': feedback.automatic,
                      'content_type': feedback.content_type,
-                     'referred_file': '%s/%s' % (self.envelope.absolute_url(), feedback.document_id),
+                     'referred_file': '%s/%s' % (self.envelope.absolute_url(),
+                                                 feedback.document_id),
                      'qa_output_url': "%s/qa-output" % feedback.absolute_url()
                  },
              ]

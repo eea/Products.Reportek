@@ -1,4 +1,4 @@
-#from Testing import ZopeTestCase
+# from Testing import ZopeTestCase
 # ZopeTestCase.installProduct('Reportek')
 from common import BaseTest, ConfigureReportek
 
@@ -17,9 +17,9 @@ class InitialisationTestCase(BaseTest, ConfigureReportek):
     def testCreation(self):
         """ Check for the correct creation of the WorkflowEngine """
         self.assertTrue(hasattr(self.app, 'WorkflowEngine'))
-        #self.assertTrue(hasattr(self.app, 'Converters'))
-        #self.assertTrue(hasattr(self.app, 'DataflowMappings'))
-        #self.assertTrue(hasattr(self.app, 'QARepository'))
+        # self.assertTrue(hasattr(self.app, 'Converters'))
+        # self.assertTrue(hasattr(self.app, 'DataflowMappings'))
+        # self.assertTrue(hasattr(self.app, 'QARepository'))
         self.assertTrue(hasattr(self.app, 'ReportekEngine'))
         self.assertTrue(hasattr(self.app, 'Catalog'))
 

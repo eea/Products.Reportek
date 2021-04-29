@@ -14,15 +14,18 @@ class ReferralTestCase(BaseTest, ConfigureReportek):
 
     def test_addReferral(self):
         """ To create an referral the following is needed:
-            1) self.REQUEST.AUTHENTICATED_USER.getUserName() must return something
+            1) self.REQUEST.AUTHENTICATED_USER.getUserName() must return
+               something
             2) There must exist a default workflow
         """
         col = self.app.collection
         self.login()  # Login as test_user_1_
         user = getSecurityManager().getUser()
         self.app.REQUEST.AUTHENTICATED_USER = user
-        col.manage_addProduct['Reportek'].manage_addReferral('title', 'description', 'url', '2003', '2004', '',
-                                                             'http://rod.eionet.eu.int/localities/1', '', [], REQUEST=self.app.REQUEST)
+        col.manage_addProduct['Reportek'].manage_addReferral(
+            'title', 'description', 'url', '2003', '2004', '',
+            'http://rod.eionet.eu.int/localities/1', '', [],
+            REQUEST=self.app.REQUEST)
         self.referral = None
         for env in col.objectValues('Repository Referral'):
             self.referral = env
@@ -31,15 +34,18 @@ class ReferralTestCase(BaseTest, ConfigureReportek):
 
     def helpCreateReferral(self, startYear, endYear, duration):
         """ To create an referral the following is needed:
-            1) self.REQUEST.AUTHENTICATED_USER.getUserName() must return something
+            1) self.REQUEST.AUTHENTICATED_USER.getUserName() must return
+               something
             2) There must exist a default workflow
         """
         col = self.app.collection
         self.login()  # Login as test_user_1_
         user = getSecurityManager().getUser()
         self.app.REQUEST.AUTHENTICATED_USER = user
-        col.manage_addProduct['Reportek'].manage_addReferral('title', 'description', 'url', startYear, endYear, duration,
-                                                             'http://rod.eionet.eu.int/localities/1', '', [], REQUEST=self.app.REQUEST)
+        col.manage_addProduct['Reportek'].manage_addReferral(
+            'title', 'description', 'url', startYear, endYear, duration,
+            'http://rod.eionet.eu.int/localities/1', '', [],
+            REQUEST=self.app.REQUEST)
         self.referral = None
         for env in col.objectValues('Repository Referral'):
             self.referral = env

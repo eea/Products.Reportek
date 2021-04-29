@@ -1,3 +1,4 @@
+# flake8: noqa
 from Products.Reportek.Converters import Converters
 from Products.Reportek.constants import CONVERTERS_ID
 from common import BaseTest
@@ -55,8 +56,9 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
             Verify the content_type is text/plain
         """
         myfile = FileUploadMock('C:\\TEMP\\testfile.txt', 'content here')
-        self.envelope.manage_addProduct['Reportek'].manage_addDocument('documentid',
-                                                                       'Title', myfile)
+        self.envelope.manage_addProduct['Reportek'].manage_addDocument(
+            'documentid',
+            'Title', myfile)
         self.document = getattr(self.envelope, 'documentid.txt')
         self.assertEquals('text/plain', self.document.content_type)
 
@@ -66,14 +68,15 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
         mock_http_params.return_value = []
         converters = getattr(self.app, CONVERTERS_ID)
         self.assertNotEqual(None, converters)
-        local_converters, remote_converters = converters.displayPossibleConversions(
+        local_converters, remote_converters = converters.displayPossibleConversions(  # noqa
             'text/plain')
         self.assertEquals(0, len(local_converters))
         self.assertEquals(0, len(remote_converters))
 
     @patch.object(Converters, '_http_params')
     def test_addLocalConverter(self, mock_http_params):
-        """ Add a local converter, check it is found, run a simple conversion """
+        """ Add a local converter, check it is found, run a simple conversion
+        """
         mock_http_params.return_value = [
             [
                 "prettyxml",
@@ -90,7 +93,7 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
             ]
         ]
         converters = getattr(self.app, CONVERTERS_ID)
-        local_converters, remote_converters = converters.displayPossibleConversions(
+        local_converters, remote_converters = converters.displayPossibleConversions(  # noqa
             'text/plain')
         self.assertEquals(1, len(local_converters))
         self.assertEquals(0, len(remote_converters))
@@ -115,18 +118,18 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
         ]
         converters = getattr(self.app, CONVERTERS_ID)
         # Lookup on content-type alone
-        local_converters, remote_converters = converters.displayPossibleConversions(
+        local_converters, remote_converters = converters.displayPossibleConversions(  # noqa
             'text/pdf')
         self.assertEquals(0, len(local_converters))
         self.assertEquals(0, len(remote_converters))
         # Lookup on suffix alone
-        local_converters, remote_converters = converters.displayPossibleConversions(
+        local_converters, remote_converters = converters.displayPossibleConversions(  # noqa
             'text/pdf',
             filename="myfile.pdf")
         self.assertEquals(1, len(local_converters))
         self.assertEquals(0, len(remote_converters))
         # Check that the same converter is only listed once
-        local_converters, remote_converters = converters.displayPossibleConversions(
+        local_converters, remote_converters = converters.displayPossibleConversions(  # noqa
             'application/pdf',
             filename="myfile.pdf")
         self.assertEquals(1, len(local_converters))
@@ -134,7 +137,8 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
 
     @patch('Products.Reportek.Converter.extension')
     @patch.object(Converters, '_http_params')
-    def test_extension_detection_based_on_mimetype(self, mock_http_params, mock_extension):
+    def test_extension_detection_based_on_mimetype(self, mock_http_params,
+                                                   mock_extension):
         mock_http_params.return_value = [
             [
                 "http_test",
@@ -159,19 +163,21 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
 
     @patch.object(Converters, '_http_params')
     def test_nullSuffixConverter(self, mock_http_params):
-        """ Add a local pdf converter, check it is *not* found on suffix, because filename ends with . """
+        """ Add a local pdf converter, check it is *not* found on suffix,
+            because filename ends with . """
         mock_http_params.return_value = []
         converters = getattr(self.app, CONVERTERS_ID)
         converters.manage_addConverter('pdftext', title='Show as text',
-                                       convert_url='pdf2txt %s', ct_input='application/pdf',
+                                       convert_url='pdf2txt %s',
+                                       ct_input='application/pdf',
                                        ct_output='text/plain', suffix="")
         # Some people end the filename with a period - giving an empty suffix
-        local_converters, remote_converters = converters.displayPossibleConversions(
+        local_converters, remote_converters = converters.displayPossibleConversions(  # noqa
             'text/plain', filename="myfile.")
         self.assertEquals(0, len(local_converters))
         self.assertEquals(0, len(remote_converters))
         # Some people has no period in the filename
-        local_converters, remote_converters = converters.displayPossibleConversions(
+        local_converters, remote_converters = converters.displayPossibleConversions(  # noqa
             'text/plain', filename="myfile")
         self.assertEquals(0, len(local_converters))
         self.assertEquals(0, len(remote_converters))
@@ -195,13 +201,15 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
             ]
         ]
         converters = getattr(self.app, CONVERTERS_ID)
-        # Lookup on content-type alone, must work, since converter was added with no schema
-        local_converters, remote_converters = converters.displayPossibleConversions(
+        # Lookup on content-type alone, must work, since converter was added
+        # with no schema
+        local_converters, remote_converters = converters.displayPossibleConversions(  # noqa
             'text/xml')
         self.assertEquals(1, len(local_converters))
         self.assertEquals(0, len(remote_converters))
-        # Lookup on filename, must work, since converter was added with no schema
-        local_converters, remote_converters = converters.displayPossibleConversions(
+        # Lookup on filename, must work, since converter was added with no
+        # schema
+        local_converters, remote_converters = converters.displayPossibleConversions(  # noqa
             'application/octet-stream', filename="xxx.xml")
         self.assertEquals(1, len(local_converters))
         self.assertEquals(0, len(remote_converters))
@@ -230,8 +238,9 @@ class ConvertersTestCase(BaseTest, ConfigureReportek):
         server.ConversionService.listConversions.return_value = []
 
         converters = getattr(self.app, CONVERTERS_ID)
-        # Lookup on content-type alone, not supposed to work as content-type must also match
-        local_converters, remote_converters = converters.displayPossibleConversions(
+        # Lookup on content-type alone, not supposed to work as content-type
+        # must also match
+        local_converters, remote_converters = converters.displayPossibleConversions(  # noqa
             'text/xml')
         self.assertEquals(0, len(local_converters))
         self.assertEquals(0, len(remote_converters))

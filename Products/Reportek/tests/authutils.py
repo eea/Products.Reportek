@@ -1,4 +1,5 @@
-from AccessControl.SecurityManagement import newSecurityManager, noSecurityManager
+from AccessControl.SecurityManagement import (newSecurityManager,
+                                              noSecurityManager)
 from AccessControl.User import User, UnrestrictedUser, SpecialUser
 
 

@@ -15,8 +15,8 @@ FILE3_NAME = 'excel-examples.xls'
 class TestZZipFile(unittest.TestCase):
     def setUp(self):
         self.inputZipPath = path(__file__).parent.abspath() / 'zipMany.zip'
-        #fh = open(self.inputZipPath)
-        #self.zf = ZZipFile(fh)
+        # fh = open(self.inputZipPath)
+        # self.zf = ZZipFile(fh)
 
     def tearDown(self):
         pass
@@ -24,7 +24,7 @@ class TestZZipFile(unittest.TestCase):
     def test_open_zip_fd(self):
         fh = open(self.inputZipPath)
         zf = ZZipFile(fh)
-        #zf = self.zf
+        # zf = self.zf
         fileInZip = zf.namelist()[0]
         self.assertEqual(fileInZip, FILE1_NAME)
 
@@ -163,7 +163,8 @@ class TestZZipFileRaw(unittest.TestCase):
             zf.setcurrentfile(fileInZip)
             self.assertFalse(zf.allowRaw)
         # can't do same thing with testing encryption bail out
-        # and it's much harder to patch the return of zipfile.getinfo(), so skip that
+        # and it's much harder to patch the return of zipfile.getinfo(),
+        # so skip that
 
         zf.close()
 

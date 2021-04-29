@@ -61,7 +61,8 @@ class DFMTestCase(unittest.TestCase):
 
         # Must return empty list as there are no webforms
         self.assertEqual([],
-                         self.mappings.getSchemasForDataflows(obligation, web_form_only=True))
+                         self.mappings.getSchemasForDataflows(
+            obligation, web_form_only=True))
 
     def test_add_multiple_dataflow_mappings_with_webform(self):
 
@@ -78,7 +79,8 @@ class DFMTestCase(unittest.TestCase):
         # Must return list of schemas with webforms
         self.assertEqual(
             [schema1, schema2],
-            self.mappings.getSchemasForDataflows(obligation, web_form_only=True))
+            self.mappings.getSchemasForDataflows(obligation,
+                                                 web_form_only=True))
 
     def test_add_multiple_dataflow_mappings_one_with_webform(self):
 
@@ -100,7 +102,8 @@ class DFMTestCase(unittest.TestCase):
         # Must return list of schemas with webforms - one
         self.assertEqual(
             [schema2],
-            self.mappings.getSchemasForDataflows(obligation, web_form_only=True))
+            self.mappings.getSchemasForDataflows(obligation,
+                                                 web_form_only=True))
 
     def test_multiple_schemas(self):
 
@@ -177,7 +180,7 @@ class DFMTestCase(unittest.TestCase):
         newObligation = 'http://rod.eionet.eu.int/obligations/22_new'
 
         self.mappings.test._edit = Mock()
-        #self.mappings.test.delete_schemas = Mock()
+        # self.mappings.test.delete_schemas = Mock()
         request = Mock(method='POST',
                        form=dict(update=True,
                                  dataflow_uris=newObligation,
@@ -204,7 +207,8 @@ class DFMTestCase(unittest.TestCase):
 
         self.assertEqual(
             [],
-            self.mappings.getSchemasForDataflows(obligation, web_form_only=True))
+            self.mappings.getSchemasForDataflows(obligation,
+                                                 web_form_only=True))
 
     def test_same_schema_multiple_obligations(self):
 
@@ -221,7 +225,8 @@ class DFMTestCase(unittest.TestCase):
         # Must return list of schemas with webforms
         self.assertEqual(
             [schema1, schema2],
-            self.mappings.getSchemasForDataflows(obligation, web_form_only=True))
+            self.mappings.getSchemasForDataflows(obligation,
+                                                 web_form_only=True))
 
     def test_two_mappings_same_obligation(self):
 
@@ -243,7 +248,8 @@ class DFMTestCase(unittest.TestCase):
         # Must return list of schemas with webforms - one
         self.assertEqual(
             [schema_with_form],
-            self.mappings.getSchemasForDataflows(obligation, web_form_only=True))
+            self.mappings.getSchemasForDataflows(obligation,
+                                                 web_form_only=True))
 
     def test_two_mappings_with_empty_schema(self):
 
@@ -263,7 +269,8 @@ class DFMTestCase(unittest.TestCase):
         # Must return empty list as there are no webforms for obl. 22
         self.assertEqual(
             [],
-            self.mappings.getSchemasForDataflows(obligation, web_form_only=True))
+            self.mappings.getSchemasForDataflows(obligation,
+                                                 web_form_only=True))
 
     def test_getSchemaObjectsForDataflow(self):
         obligation = 'http://rod.eionet.eu.int/obligations/22'

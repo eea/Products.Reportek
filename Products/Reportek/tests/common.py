@@ -31,14 +31,18 @@ def _createStandardCollection(app):
     # dataflow_uris,allow_collections=0, allow_envelopes=0, id='', REQUEST=None
     p = app.manage_addProduct['Reportek']
     manage_addCollection(p, 'TestTitle', 'Desc',
-                         '2003', '2004', '', 'http://rod.eionet.eu.int/spatial/2', '', [
-                             'http://rod.eionet.eu.int/obligations/8'],
-                         allow_collections=1, allow_envelopes=1, id='collection')
+                         '2003', '2004', '',
+                         'http://rod.eionet.eu.int/spatial/2', '',
+                         ['http://rod.eionet.eu.int/obligations/8'],
+                         allow_collections=1, allow_envelopes=1,
+                         id='collection')
     return app.collection
 
 
-# TODO BaseTest is supposed to be used in unit tests, it uses Mock objects that are not pickable
-# we need some mechanism to implement functional, vertical tests, like copy paste zodb objects
+# TODO BaseTest is supposed to be used in unit tests, it uses Mock objects
+# that are not pickable
+# we need some mechanism to implement functional, vertical tests, like copy
+# paste zodb objects
 class BaseTest(ZopeTestCase.ZopeTestCase):
     implements(ITraversable)
     provideAdapter(DefaultTraversable,
@@ -59,7 +63,8 @@ class BaseTest(ZopeTestCase.ZopeTestCase):
             'PATH_INFO': '/' + name,
             '_stdout': StringIO(),
         }
-        # root is an aquisition wrapper over app and REQUEST, as if REQUEST agreggates app
+        # root is an aquisition wrapper over app and REQUEST, as if REQUEST
+        # agreggates app
         # some tests use app.REQUEST and some use root
         self.root = makerequest(self.app, new_environ['_stdout'], new_environ)
         self.app.REQUEST = self.root.REQUEST
@@ -104,9 +109,9 @@ class BaseTest(ZopeTestCase.ZopeTestCase):
     @staticmethod
     def create_envelope(col, **kwargs):
         # obj.login() # Login as test_user_1_
-        #user = getSecurityManager().getUser()
-        #obj.app.REQUEST.AUTHENTICATED_USER = user
-        #reportek = obj.app.manage_addProduct['Reportek']
+        # user = getSecurityManager().getUser()
+        # obj.app.REQUEST.AUTHENTICATED_USER = user
+        # reportek = obj.app.manage_addProduct['Reportek']
         if 'year' in kwargs.keys():
             year = kwargs['year']
         else:
@@ -116,7 +121,8 @@ class BaseTest(ZopeTestCase.ZopeTestCase):
         else:
             endyear = '2004'
         env = simple_addEnvelope(col, '', '', year, endyear, '',
-                                 'http://rod.eionet.eu.int/localities/1', REQUEST=None,
+                                 'http://rod.eionet.eu.int/localities/1',
+                                 REQUEST=None,
                                  previous_delivery='')
         env.getCountryName = Mock(return_value='Unknown')
         env.getCountryCode = Mock(return_value='xx')
@@ -176,7 +182,8 @@ class WorkflowTestCase(BaseTest):
 
     @staticmethod
     def create_process(obj, p_id, dataflows=None, countries=None):
-        """Creates a process with explicit dataflows and countries by default"""
+        """Creates a process with explicit dataflows and countries by default
+        """
         obj.app.WorkflowEngine.manage_addProcess(p_id, BeginEnd=1)
         p_dataflows = ['http://rod.eionet.eu.int/obligations/8']
         p_countries = ['http://rod.eionet.eu.int/spatial/2']
@@ -243,7 +250,8 @@ class WorkflowTestCase(BaseTest):
 class ConfigureReportek:
 
     exampledataflows = [
-        {'terminated': '0', 'PK_RA_ID': '8', 'SOURCE_TITLE': 'Basel Convention',
+        {'terminated': '0', 'PK_RA_ID': '8',
+         'SOURCE_TITLE': 'Basel Convention',
          'details_url': 'http://rod.eionet.europa.eu/show.jsv?id=8&mode=A',
          'TITLE': 'Yearly report to the Basel Convention',
          'uri': 'http://rod.eionet.eu.int/obligations/8',
@@ -251,12 +259,14 @@ class ConfigureReportek:
 
         {'terminated': '0', 'PK_RA_ID': '9', 'SOURCE_TITLE': 'LCP Directive',
          'details_url': 'http://rod.eionet.europa.eu/show.jsv?id=9&mode=A',
-         'TITLE': 'Summary  of emission  inventory from large combustion plants (LCP)',
+         'TITLE': '''Summary  of emission  inventory from large'''
+            '''combustion plants (LCP)''',
          'uri': 'http://rod.eionet.eu.int/obligations/9',
          'LAST_UPDATE': '2007-12-11', 'PK_SOURCE_ID': '500'},
         {'terminated': '0', 'PK_RA_ID': '11', 'SOURCE_TITLE': 'LCP Directive',
          'details_url': 'http://rod.eionet.europa.eu/show.jsv?id=11&mode=A',
-         'TITLE': 'Report on programmes on emissions from large combustion plants',
+         'TITLE': '''Report on programmes on emissions from large'''
+            '''combustion plants''',
          'uri': 'http://rod.eionet.eu.int/obligations/11',
          'LAST_UPDATE': '2007-09-25', 'PK_SOURCE_ID': '500'},
         {'terminated': '0', 'PK_RA_ID': '15', 'SOURCE_TITLE': 'EEA AMP',
@@ -272,7 +282,8 @@ class ConfigureReportek:
     ]
 
     examplelocalities = [
-        {'iso': 'AL', 'name': 'Albania', 'uri': 'http://rod.eionet.eu.int/spatial/2'},
+        {'iso': 'AL', 'name': 'Albania',
+         'uri': 'http://rod.eionet.eu.int/spatial/2'},
         {'iso': 'DZ', 'name': 'Algeria',
             'uri': 'http://rod.eionet.eu.int/spatial/110'},
     ]
@@ -280,7 +291,8 @@ class ConfigureReportek:
     def createStandardCatalog(self):
         from Products.ZCatalog.ZCatalog import ZCatalog
         from Products.PluginIndexes.FieldIndex.FieldIndex import FieldIndex
-        from Products.PluginIndexes.KeywordIndex.KeywordIndex import KeywordIndex
+        from Products.PluginIndexes.KeywordIndex.KeywordIndex import\
+            KeywordIndex
         from Products.PluginIndexes.DateIndex.DateIndex import DateIndex
         from Products.PluginIndexes.PathIndex.PathIndex import PathIndex
         from Products.ZCTextIndex.ZCTextIndex import PLexicon, ZCTextIndex
@@ -306,7 +318,8 @@ class ConfigureReportek:
         # Assume the workflow engine was created automatically
         of = getattr(self.app, 'WorkflowEngine')
 
-        # Create a Process Definition with two activity (Begin, End) and one transition.
+        # Create a Process Definition with two activity (Begin, End) and one
+        # transition.
         of.manage_addProcess(id='begin_end', BeginEnd=1)
         pd = getattr(of, 'begin_end')
         pd.addTransition(id='begin_end', From='Begin', To='End')
@@ -316,18 +329,21 @@ class ConfigureReportek:
 
     def createStandardCollection(self):
         # title, descr,year, endyear, partofyear, country, locality,
-        # dataflow_uris,allow_collections=0, allow_envelopes=0, id='', REQUEST=None
+        # dataflow_uris,allow_collections=0, allow_envelopes=0, id='',
+        # REQUEST=None
         from Products.Reportek.Collection import manage_addCollection
         manage_addCollection(self.app, 'Collection Title',
                              'Desc', '2003', '2004', '',
                              'http://rod.eionet.eu.int/spatial/2', '',
                              ['http://rod.eionet.eu.int/obligations/8'],
-                             allow_collections=1, allow_envelopes=1, id='collection')
+                             allow_collections=1, allow_envelopes=1,
+                             id='collection')
         return self.app.collection
 
     def createStandardEnvelope(self):
         """ To create an envelope the following is needed:
-            1) self.REQUEST.AUTHENTICATED_USER.getUserName() must return something
+            1) self.REQUEST.AUTHENTICATED_USER.getUserName() must return
+               something
             2) There must exist a default workflow
         """
         from AccessControl import getSecurityManager
@@ -337,8 +353,10 @@ class ConfigureReportek:
         self.login()
         user = getSecurityManager().getUser()
         self.app.REQUEST.AUTHENTICATED_USER = user
-        # col.manage_addProduct['Reportek'].manage_addEnvelope('Envelope title', '', '2003', '2004', '',
-        # 'http://rod.eionet.eu.int/spatial/2', REQUEST=None, previous_delivery='')
+        # col.manage_addProduct['Reportek'].manage_addEnvelope(
+        #   'Envelope title', '', '2003', '2004', '',
+        # 'http://rod.eionet.eu.int/spatial/2', REQUEST=None,
+        # previous_delivery='')
         # TODO why wrap it in a product dispatcher? what happens if not?
         e = simple_addEnvelope(col.manage_addProduct['Reportek'],
                                '', '', '2003', '2004', '',

@@ -16,7 +16,8 @@ ZopeTestCase.installProduct('PythonScripts')
 
 class DocumentTestCase(BaseTest, ConfigureReportek):
 
-    # Currently the physical document is not renamed if the object in ZODB is moved
+    # Currently the physical document is not renamed if the object in ZODB
+    # is moved
     # That makes it difficult to work in the file system
     # This variable can be set to true when we start to fix this problem
     physpath_must_track_zodb = False
@@ -37,7 +38,8 @@ class DocumentTestCase(BaseTest, ConfigureReportek):
 
     def create_file(self, path, id, title):
         file = FileUploadMock(path, 'content here')
-        add_doc = self.envelope.manage_addProduct['Reportek'].manage_addDocument
+        add_doc = self.envelope.manage_addProduct[
+            'Reportek'].manage_addDocument
         return add_doc(id, title, file)
 
     def test_upload_nothing_without_id(self):
@@ -65,22 +67,26 @@ class DocumentTestCase(BaseTest, ConfigureReportek):
         self.assertEqual(hasattr(self.envelope, 'file.xls'), True)
 
     def test_upload_raw_content_without_id(self):
-        add_doc = self.envelope.manage_addProduct['Reportek'].manage_addDocument
+        add_doc = self.envelope.manage_addProduct[
+            'Reportek'].manage_addDocument
         r = add_doc('', 'Title', 'Some content')
         self.assertEqual(r, '')
 
     def test_upload_raw_content_with_id(self):
-        add_doc = self.envelope.manage_addProduct['Reportek'].manage_addDocument
+        add_doc = self.envelope.manage_addProduct[
+            'Reportek'].manage_addDocument
         r = add_doc('file', 'Title', 'Some content')
         self.assertEqual(r, 'file')
 
     def test_upload_empty_content_with_id(self):
-        add_doc = self.envelope.manage_addProduct['Reportek'].manage_addDocument
+        add_doc = self.envelope.manage_addProduct[
+            'Reportek'].manage_addDocument
         r = add_doc('file', 'Title', '')
         self.assertEqual(r, '')
 
     def test_upload_empty_content_without_id(self):
-        add_doc = self.envelope.manage_addProduct['Reportek'].manage_addDocument
+        add_doc = self.envelope.manage_addProduct[
+            'Reportek'].manage_addDocument
         r = add_doc('', 'Title', '')
         self.assertEqual(r, '')
 
@@ -94,21 +100,25 @@ class DocumentTestCase(BaseTest, ConfigureReportek):
         self.assertEquals('text/plain', self.document.content_type)
 
     def test_create_xml_document(self):
-        """ Create a simple XML document, and then verify the schema got sniffed correctly
+        """ Create a simple XML document, and then verify the schema got
+            sniffed correctly
         """
-        myfile = FileUploadMock('C:\\TEMP\\testfile.xml', '''<?xml version="1.0" encoding="UTF-8"?>
+        myfile = FileUploadMock('C:\\TEMP\\testfile.xml',
+                                '''<?xml version="1.0" encoding="UTF-8"?>
         <report xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xml:lang="de"
         xsi:noNamespaceSchemaLocation="http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd">
          </report>''')
-        self.envelope.manage_addProduct['Reportek'].manage_addDocument('documentid',
-                                                                       'Title', myfile)
+        self.envelope.manage_addProduct[
+            'Reportek'].manage_addDocument('documentid',
+                                           'Title', myfile)
         self.assertTrue(hasattr(self.envelope, 'documentid.xml'),
                         'Document did not get created')
         document = getattr(self.envelope, 'documentid.xml')
         self.assertEquals('text/xml', document.content_type)
         self.assertEquals(
-            'http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd', document.xml_schema_location)
+            'http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd',  # noqa
+            document.xml_schema_location)
 
     def test_create_gml_document(self):
         """ Verify the application discovers a GML document
@@ -134,13 +144,15 @@ xmlns:met="http://biodiversity.eionet.europa.eu/schemas/dir9243eec">
 </gml:FeatureCollection>'''
 
         myfile = FileUploadMock(filename, content)
-        self.envelope.manage_addProduct['Reportek'].manage_addDocument('documentid',
-                                                                       'Title', myfile)
+        self.envelope.manage_addProduct[
+            'Reportek'].manage_addDocument('documentid',
+                                           'Title', myfile)
         _, ext = os.path.splitext(filename)
         document = getattr(self.envelope, 'documentid' + ext)
         self.assertEquals('text/xml', document.content_type)
-        self.assertEquals('http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd',
-                          document.xml_schema_location)
+        self.assertEquals(
+            'http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd',  # noqa
+            document.xml_schema_location)
 
     def test_restrict_document(self):
         self.create_text_document()

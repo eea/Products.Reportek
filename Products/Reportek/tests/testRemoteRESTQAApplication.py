@@ -17,8 +17,9 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
         self.envelope.getEngine = Mock()
         self.envelope.REQUEST = Mock()
 
-        self.remoteapp = RemoteRestQaApplication('remoteapp', '', '', '',
-                                                 'the_app').__of__(self.envelope)
+        self.remoteapp = RemoteRestQaApplication(
+            'remoteapp', '', '', '',
+            'the_app').__of__(self.envelope)
         self.remoteapp.the_workitem = Mock(the_app={
             'getResult': {
                 'the_jobid': {
@@ -32,7 +33,8 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
             Converters.Converters())
         safe_html = Mock(convert=Mock(text='feedbacktext'))
         getattr(self.envelope.getPhysicalRoot(),
-                constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
+                constants.CONVERTERS_ID).__getitem__ = Mock(
+                return_value=safe_html)
 
     @patch('Products.Reportek.RemoteApplication.requests.get')
     def receive_feedback(self, text, mock_requests):
@@ -117,7 +119,8 @@ class GetAllFeedbackTest(RemoteApplicationFeedbackTest):
                      'releasedate': feedback.releasedate.HTML4(),
                      'isautomatic': feedback.automatic,
                      'content_type': feedback.content_type,
-                     'referred_file': '%s/%s' % (self.envelope.absolute_url(), feedback.document_id),
+                     'referred_file': '%s/%s' % (self.envelope.absolute_url(),
+                                                 feedback.document_id),
                      'qa_output_url': "%s" % feedback.absolute_url()
                  },
              ]
@@ -138,7 +141,8 @@ class GetAllFeedbackTest(RemoteApplicationFeedbackTest):
                      'releasedate': feedback.releasedate.HTML4(),
                      'isautomatic': feedback.automatic,
                      'content_type': feedback.content_type,
-                     'referred_file': '%s/%s' % (self.envelope.absolute_url(), feedback.document_id),
+                     'referred_file': '%s/%s' % (self.envelope.absolute_url(),
+                                                 feedback.document_id),
                      'qa_output_url': "%s/qa-output" % feedback.absolute_url()
                  },
              ]

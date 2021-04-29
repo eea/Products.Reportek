@@ -28,7 +28,8 @@ buttons = [
 
 print '<ul>'
 for item in buttons:
-    print '<li><a href="%s" title="%s">%s </a></li>' % (html_quote(item[0]), item[1], item[2])
+    print '<li><a href="%s" title="%s">%s </a></li>' % (html_quote(
+        item[0]), item[1], item[2])
 
 userobj = container.REQUEST['AUTHENTICATED_USER']  # noqa: F821
 if userobj.has_permission("View management screens", container):  # noqa: F821

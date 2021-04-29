@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+# flake8: noqa
 from Products.Reportek.exceptions import CannotPickProcess, NoProcessAvailable
 from common import BaseTest, WorkflowTestCase, ConfigureReportek
 
@@ -107,7 +108,9 @@ class EnvelopePeriodValidationTestCase(BaseTest, ConfigureReportek):
         self.app.standard_html_header = ""
         self.app.standard_html_footer = ""
         self.assertRaises(SyntaxError,
-                          lambda: BaseTest.create_envelope(self.col, year='206', endyear='2008'))
+                          lambda: BaseTest.create_envelope(self.col,
+                                                           year='206',
+                                                           endyear='2008'))
 
     def test_year_not_integer(self):
         envelope = BaseTest.create_envelope(
@@ -127,7 +130,8 @@ class OpenflowEngineTestCase(WorkflowTestCase):
         super(OpenflowEngineTestCase, self).afterSetUp()
 
     def _add_application_content(self, name='script1',
-                                 url='an_application', content=u"return 'blâ'"):
+                                 url='an_application',
+                                 content=u"return 'blâ'"):
         self.app.manage_addFolder('Applications')
         folder = getattr(self.app, 'Applications')
 

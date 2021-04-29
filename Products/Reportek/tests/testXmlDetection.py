@@ -1,12 +1,16 @@
+# flake8: noqa
 import unittest
 from StringIO import StringIO
-from Products.Reportek.XMLInfoParser import detect_schema, detect_single_schema, SchemaError
+from Products.Reportek.XMLInfoParser import (detect_schema,
+                                             detect_single_schema,
+                                             SchemaError)
 
 
 class XmlDetectionTest(unittest.TestCase):
 
     def test_create_xml_document(self):
-        """ Create a simple XML document, and then verify the schema got sniffed correctly
+        """ Create a simple XML document, and then verify the schema got
+            sniffed correctly
         """
         content = '''<?xml version="1.0" encoding="UTF-8"?>
         <report xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -40,8 +44,8 @@ class XmlDetectionTest(unittest.TestCase):
         self.assertEqual(schema_location, 'http://schema.eu/schema.xsd')
 
     def test_create_xml_document_ns1(self):
-        """ Create a XML document with namespaces but with an unusual XSI NS identifier,
-            and then verify the schema got sniffed correctly
+        """ Create a XML document with namespaces but with an unusual XSI NS
+            identifier, and then verify the schema got sniffed correctly
         """
         content = '''<?xml version="1.0" encoding="UTF-8"?>
         <NS1:report xmlns:NS0="http://www.w3.org/2001/XMLSchema-instance" xmlns:NS1="http://ns.org/namespace1"
@@ -51,8 +55,8 @@ class XmlDetectionTest(unittest.TestCase):
         self.assertEqual(schema_location, 'http://schema.eu/schema.xsd')
 
     def test_create_xml_document_ns2(self):
-        """ Create a XML document with namespaces but with an unusual XSI NS identifier,
-            and bad namespace for the schema
+        """ Create a XML document with namespaces but with an unusual XSI NS
+            identifier, and bad namespace for the schema
             and then verify the schema did not get sniffed
         """
         content = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -63,8 +67,8 @@ class XmlDetectionTest(unittest.TestCase):
         self.assertEqual(schema_location, '')
 
     def test_create_xml_document_wrong_ns(self):
-        """ Create a simple XML document but with a bad namespace for the schema
-            and then verify the schema did not get sniffed
+        """ Create a simple XML document but with a bad namespace for the
+            schema and then verify the schema did not get sniffed
         """
         content = '''<?xml version="1.0" encoding="UTF-8"?>
         <report xmlns:xsi="http://www.w3.org/2001/WRONG-XMLSchema-instance"

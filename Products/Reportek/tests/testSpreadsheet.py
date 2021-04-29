@@ -1,3 +1,4 @@
+# flake8: noqa
 from Products.Reportek.Converters import Converters
 from mock import patch, Mock
 from fileuploadmock import FileUploadMock
@@ -34,7 +35,7 @@ class SpreadsheetTestCase(BaseTest, ConfigureReportek):
         self.assertEquals(-1, res)
 
     @patch('transaction.commit')
-    @patch('Products.Reportek.EnvelopeCustomDataflows.invoke_conversion_service')
+    @patch('Products.Reportek.EnvelopeCustomDataflows.invoke_conversion_service')  # noqa
     def test_convert_text(self, mock_invoke, mock_commit):
         """ Create a text document in the envelope and try to convert to XML
             This doesn't work, but the original file is uploaded
@@ -60,7 +61,8 @@ class SpreadsheetTestCase(BaseTest, ConfigureReportek):
             Verify the content_type is 'application/vnd.ms-excel'
             The expected result is 0
         """
-        myfile = FileUploadMock('C:\\TEMP\\testfile.xml', '''<?xml version="1.0" encoding="UTF-8"?>
+        myfile = FileUploadMock('C:\\TEMP\\testfile.xml',
+                                '''<?xml version="1.0" encoding="UTF-8"?>
         <report xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xml:lang="de"
         xsi:noNamespaceSchemaLocation="http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd">

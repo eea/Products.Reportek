@@ -14,7 +14,8 @@ from zope.lifecycleevent import ObjectMovedEvent
 from functools import partial
 from mock import Mock, patch
 from utils import (create_fake_root, create_upload_file, create_envelope,
-                   add_document, add_feedback, add_hyperlink, simple_addEnvelope)
+                   add_document, add_feedback, add_hyperlink,
+                   simple_addEnvelope)
 from DateTime import DateTime
 import unittest
 import lxml.etree
@@ -40,15 +41,17 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
 
     def test_addEnvelope(self):
         """ To create an envelope the following is needed:
-            1) self.REQUEST.AUTHENTICATED_USER.getUserName() must return something
+            1) self.REQUEST.AUTHENTICATED_USER.getUserName() must return
+               something
             2) There must exist a default workflow
         """
         col = self.app.collection
         self.login()  # Login as test_user_1_
         user = getSecurityManager().getUser()
         self.app.REQUEST.AUTHENTICATED_USER = user
-        simple_addEnvelope(col.manage_addProduct['Reportek'], '', '', '2003', '2004', '',
-                           'http://rod.eionet.eu.int/localities/1', REQUEST=None, previous_delivery='')
+        simple_addEnvelope(col.manage_addProduct['Reportek'], '', '', '2003',
+                           '2004', '', 'http://rod.eionet.eu.int/localities/1',
+                           REQUEST=None, previous_delivery='')
         self.envelope = None
         for env in col.objectValues('Report Envelope'):
             self.envelope = env
@@ -57,15 +60,18 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
 
     def helpCreateEnvelope(self, startYear, endYear, duration):
         """ To create an envelope the following is needed:
-            1) self.REQUEST.AUTHENTICATED_USER.getUserName() must return something
+            1) self.REQUEST.AUTHENTICATED_USER.getUserName() must return
+               something
             2) There must exist a default workflow
         """
         col = self.app.collection
         self.login()  # Login as test_user_1_
         user = getSecurityManager().getUser()
         self.app.REQUEST.AUTHENTICATED_USER = user
-        col.manage_addProduct['Reportek'].manage_addEnvelope('', '', startYear, endYear, duration,
-                                                             'http://rod.eionet.eu.int/localities/1', REQUEST=None, previous_delivery='')
+        col.manage_addProduct['Reportek'].manage_addEnvelope(
+            '', '', startYear, endYear, duration,
+            'http://rod.eionet.eu.int/localities/1', REQUEST=None,
+            previous_delivery='')
         self.envelope = None
         for env in col.objectValues('Report Envelope'):
             self.envelope = env
@@ -147,8 +153,10 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
         self.app.REQUEST.AUTHENTICATED_USER = user
         from Products.Reportek import exceptions
         with self.assertRaises(exceptions.InvalidPartOfYear):
-            col.manage_addProduct['Reportek'].manage_addEnvelope('', '', '2003', '2004', 'invalid',
-                                                                 'http://rod.eionet.eu.int/localities/1', REQUEST=None, previous_delivery='')
+            col.manage_addProduct['Reportek'].manage_addEnvelope(
+                '', '', '2003', '2004', 'invalid',
+                'http://rod.eionet.eu.int/localities/1', REQUEST=None,
+                previous_delivery='')
 
     def test_saveXML_on_released_envelope(self):
         from Products.Reportek import exceptions
@@ -187,7 +195,8 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
 
         wfe.addApplication('script1', script1.absolute_url(1))
         wfe.addApplication('script2', script2.absolute_url(1))
-        # this application will not be exported as it is not referenced by any process activity
+        # this application will not be exported as it is not referenced by any
+        # process activity
         wfe.addApplication(
             'script3', '/this/is/not/referenced/by/any/activity')
 
@@ -301,14 +310,15 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
                             roles=[u'Manager']):
 
         obj = {
-            u'applications': [{u'checksum': u'48aaf9f159480ee25a3b56edab1c7f47',
-                               u'rid': app_name_url[0],
-                               u'type': u'Script (Python)',
-                               u'url': app_name_url[1]},
-                              {u'checksum': u'6d440bda5b6bc8f337e611ce7b6a172e',
-                               u'rid': u'script2',
-                               u'type': u'Script (Python)',
-                               u'url': u'Applications/another_application'}],
+            u'applications': [
+                {u'checksum': u'48aaf9f159480ee25a3b56edab1c7f47',
+                 u'rid': app_name_url[0],
+                 u'type': u'Script (Python)',
+                 u'url': app_name_url[1]},
+                {u'checksum': u'6d440bda5b6bc8f337e611ce7b6a172e',
+                 u'rid': u'script2',
+                 u'type': u'Script (Python)',
+                 u'url': u'Applications/another_application'}],
             u'processes': [{u'activities': [{u'application': app_name_url[0],
                                              u'complete_automatically': 1,
                                              u'description': u'',
@@ -347,11 +357,12 @@ class EnvelopeTestCase(BaseTest, ConfigureReportek):
                             u'priority': 0,
                             u'rid': pr_id,
                             u'title': u'Ă title',
-                            u'transitions': [{u'condition': u'python: len([ i for i in xrange(1, 11)])',
-                                              u'description': u'',
-                                              u'from': u'Begin',
-                                              u'rid': transition_id,
-                                              u'to': u'End'}]}]
+                            u'transitions': [
+                                {u'condition': u'python: len([ i for i in xrange(1, 11)])',  # noqa
+                                 u'description': u'',
+                                 u'from': u'Begin',
+                                 u'rid': transition_id,
+                                 u'to': u'End'}]}]
         }
         return StringIO(json.dumps(obj))
 
@@ -704,11 +715,15 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
         Let's say we have an application with this path:
          ``/Applications/wise_soe/Draft``
 
-        In order to be able to map activities to applications, when renaming an application, the new name must pass a validation mechanism.
+        In order to be able to map activities to applications, when renaming
+        an application, the new name must pass a validation mechanism.
 
-        - First, the process id is identified by looking at the application path ``(wise_soe)``
-        - A list with all the ids of activities for that process is pulled from WorkflowEngine
-        - In order to be valid, the new name of the application must match one of the ids in the list
+        - First, the process id is identified by looking at the application
+          path ``(wise_soe)``
+        - A list with all the ids of activities for that process is pulled
+          from WorkflowEngine
+        - In order to be valid, the new name of the application must match
+          one of the ids in the list
         """
         self.create_cepaa_set(1)
         app = SimpleItem('act1').__of__(self.app.Applications.proc1)
@@ -724,7 +739,8 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
         message = 'Id bad_name was not mapped by path to any activity. ' \
-                  'Application act1 mapped by path to activity /WorkflowEngine/proc1/act1.'
+                  'Application act1 mapped by path to activity ' \
+                  '/WorkflowEngine/proc1/act1.'
         self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
 
     def test_application_invalid_to_invalid_rename(self):
@@ -742,7 +758,8 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
         message = 'Id bad_name was not mapped by path to any activity. ' \
-                  'Id still_bad_name does not match any activity name in process /WorkflowEngine/proc1. ' \
+                  'Id still_bad_name does not match any activity ' \
+                  'name in process /WorkflowEngine/proc1. ' \
                   'Choose a valid name from this list: Begin, End, act1'
         self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
 
@@ -761,8 +778,10 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
         )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        message = 'Activity /WorkflowEngine/proc1/act1 has no application mapped by path now. '\
-                  'Application act2 mapped by path to activity /WorkflowEngine/proc1/act2.'
+        message = 'Activity /WorkflowEngine/proc1/act1 has no application ' \
+                  'mapped by path now. '\
+                  'Application act2 mapped by path to activity' \
+                  ' /WorkflowEngine/proc1/act2.'
         self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
 
     def test_application_valid_to_invalid_rename(self):
@@ -779,8 +798,10 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
         )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        message = 'Activity /WorkflowEngine/proc1/act1 has no application mapped by path now. '\
-                  'Id bad_name does not match any activity name in process /WorkflowEngine/proc1. ' \
+        message = 'Activity /WorkflowEngine/proc1/act1 has no application ' \
+                  'mapped by path now. '\
+                  'Id bad_name does not match any activity name in process' \
+                  ' /WorkflowEngine/proc1. ' \
                   'Choose a valid name from this list: Begin, End, act1'
         self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
 
@@ -853,7 +874,8 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
         )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        message = 'Id invalid_id does not match any activity name in process /WorkflowEngine/proc1. ' \
+        message = 'Id invalid_id does not match any activity name ' \
+                  'in process /WorkflowEngine/proc1. ' \
                   'Choose a valid name from this list: Begin, End, act1'
         self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
 
@@ -877,8 +899,10 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
         OpenFlowEngine.handle_application_move_events(event)
         self.assertEqual(
             'Application act1 moved! '
-            'Activity /WorkflowEngine/proc1/act1 has no application mapped by path now. '
-            'Application act1 mapped by path to activity /WorkflowEngine/proc2/act1.',
+            'Activity /WorkflowEngine/proc1/act1 has no application '
+            'mapped by path now. '
+            'Application act1 mapped by path to activity '
+            '/WorkflowEngine/proc2/act1.',
             self.app.REQUEST['manage_tabs_message'])
 
     def test_application_invalid_move_from_one_proc_to_another(self):
@@ -898,8 +922,10 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
         message = 'Application act1 moved! '\
-                  'Activity /WorkflowEngine/proc1/act1 has no application mapped by path now. ' \
-                  'Id act1 does not match any activity name in process /WorkflowEngine/proc2. ' \
+                  'Activity /WorkflowEngine/proc1/act1 has no ' \
+                  'application mapped by path now. ' \
+                  'Id act1 does not match any activity name in ' \
+                  'process /WorkflowEngine/proc2. ' \
                   'Choose a valid name from this list: Begin, End, act2'
         self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
 
@@ -917,8 +943,10 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
         )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        self.assertEqual('Application act1 mapped by path to activity /WorkflowEngine/proc1/act1.',
-                         self.app.REQUEST['manage_tabs_message'])
+        self.assertEqual(
+            'Application act1 mapped by path to activity '
+            '/WorkflowEngine/proc1/act1.',
+            self.app.REQUEST['manage_tabs_message'])
 
     def test_application_invalid_move_from_exterior_to_process_folder(self):
         self.create_cepaa_set(1)
@@ -934,7 +962,8 @@ class ActivityFindsApplicationTestCase(WorkflowTestCase):
         )
         # simulate a ObjectMovedEvent catch
         OpenFlowEngine.handle_application_move_events(event)
-        message = 'Id act2 does not match any activity name in process /WorkflowEngine/proc1. ' \
+        message = 'Id act2 does not match any activity name in process ' \
+                  '/WorkflowEngine/proc1. ' \
                   'Choose a valid name from this list: Begin, End, act1'
         self.assertEqual(message, self.app.REQUEST['manage_tabs_message'])
 
@@ -990,8 +1019,10 @@ class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
         self.login()  # Login as test_user_1_
         user = getSecurityManager().getUser()
         self.app.REQUEST.AUTHENTICATED_USER = user
-        simple_addEnvelope(col.manage_addProduct['Reportek'], '', '', '2003', '2004', '',
-                           'http://rod.eionet.eu.int/localities/1', REQUEST=None, previous_delivery='')
+        simple_addEnvelope(col.manage_addProduct['Reportek'], '', '',
+                           '2003', '2004', '',
+                           'http://rod.eionet.eu.int/localities/1',
+                           REQUEST=None, previous_delivery='')
         self.envelope = None
         for env in col.objectValues('Report Envelope'):
             self.envelope = env
@@ -1003,9 +1034,12 @@ class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
         content = 'test content for our document'
         self.doc = add_document(
             self.envelope, create_upload_file(content, 'foo.txt'))
-        self. doc2 = add_document(self.envelope, create_upload_file(content, 'foo.txt'),
+        self. doc2 = add_document(self.envelope,
+                                  create_upload_file(content, 'foo.txt'),
                                   id='file2', restricted=True)
-        #self.doc = add_document(self.envelope, create_upload_file(content, 'foo space foo.xml'))
+        # self.doc = add_document(self.envelope,
+        # create_upload_file(content,
+        #                   'foo space foo.xml'))
         self.doc.upload_time = Mock(
             return_value=DateTime('2014/05/02 09:58:41 UTC'))
         self.doc2.upload_time = Mock(
@@ -1018,10 +1052,12 @@ class EnvelopeRdfTestCase(BaseTest, ConfigureReportek):
             Converters.Converters())
         safe_html = Mock(convert=Mock(return_value=Mock(text=feedbacktext)))
         getattr(self.root.getPhysicalRoot(),
-                constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
+                constants.CONVERTERS_ID).__getitem__ = Mock(
+            return_value=safe_html)
         self.feed = add_feedback(
             self.envelope, feedbacktext, feedbackId='feedback1399024721')
-        self.feed2 = add_feedback(self.envelope, feedbacktext, feedbackId='feedback1399024722',
+        self.feed2 = add_feedback(self.envelope, feedbacktext,
+                                  feedbackId='feedback1399024722',
                                   restricted=True, idx=1)
         postingdate = DateTime('2014/05/02 09:58:41 UTC')
         self.feed.postingdate = postingdate
@@ -1073,13 +1109,15 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         self.login()  # Login as test_user_1_
         user = getSecurityManager().getUser()
         self.app.REQUEST.AUTHENTICATED_USER = user
-        self.envelope = simple_addEnvelope(col.manage_addProduct['Reportek'], '', '', '2003', '2004', '',
-                                           'http://rod.eionet.eu.int/localities/1', REQUEST=None, previous_delivery='')
+        self.envelope = simple_addEnvelope(
+            col.manage_addProduct['Reportek'], '', '', '2003', '2004', '',
+            'http://rod.eionet.eu.int/localities/1', REQUEST=None,
+            previous_delivery='')
         self.engine.cr_api_url = 'http://none'
         self.pingger = self.engine.contentRegistryPingger
         self.assertTrue(bool(self.pingger))
-        ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async = Mock()
-        ContentRegistryPingger.ContentRegistryPingger.content_registry_ping = Mock(
+        ContentRegistryPingger.ContentRegistryPingger.content_registry_ping_async = Mock()  # noqa
+        ContentRegistryPingger.ContentRegistryPingger.content_registry_ping = Mock(  # noqa
             return_value=(True, 'Pinged'))
         # add subobjects of type document, feedback, hyperlink
         content = 'test content for our document'
@@ -1093,7 +1131,8 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
             Converters.Converters())
         safe_html = Mock(convert=Mock(return_value=Mock(text=feedbacktext)))
         getattr(self.root.getPhysicalRoot(),
-                constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
+                constants.CONVERTERS_ID).__getitem__ = Mock(
+            return_value=safe_html)
         self.feed = add_feedback(self.envelope, feedbacktext)
         self.link = add_hyperlink(self.envelope, 'hyper/link')
 
@@ -1108,7 +1147,7 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
 
     def test_ping_create(self):
         expectedUris = set([
-            self.envelope.absolute_url()+'/rdf',
+            self.envelope.absolute_url() + '/rdf',
             self.doc.absolute_url(),
             self.feed.absolute_url(),
             self.link.absolute_url(),
@@ -1116,8 +1155,8 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         self.envelope.content_registry_ping()
 
         self.assertTrue(
-            ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called)
-        call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.call_args
+            ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called)  # noqa
+        call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.call_args  # noqa
         args = call_args[0]
         kwargs = call_args[1]
         self.assertEqual(len(args), 1)
@@ -1130,7 +1169,7 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
 
     def test_ping_delete(self):
         expectedUris = set([
-            self.envelope.absolute_url()+'/rdf',
+            self.envelope.absolute_url() + '/rdf',
             self.doc.absolute_url(),
             self.feed.absolute_url(),
             self.link.absolute_url(),
@@ -1138,8 +1177,8 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         self.envelope.content_registry_ping(delete=True)
 
         self.assertTrue(
-            ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called)
-        call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.call_args
+            ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called)  # noqa
+        call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.call_args  # noqa
         args = call_args[0]
         kwargs = call_args[1]
         self.assertEqual(len(args), 1)
@@ -1152,7 +1191,7 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
 
     def test_ping_sync(self):
         expectedUris = set([
-            self.envelope.absolute_url()+'/rdf',
+            self.envelope.absolute_url() + '/rdf',
             self.doc.absolute_url(),
             self.feed.absolute_url(),
             self.link.absolute_url(),
@@ -1160,8 +1199,8 @@ class EnvelopeCRTestCase(BaseTest, ConfigureReportek):
         self.envelope.content_registry_ping(async=False)
 
         self.assertTrue(
-            ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called)
-        call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.call_args
+            ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.called)  # noqa
+        call_args = ContentRegistryPingger.ContentRegistryPingger.content_registry_ping.call_args  # noqa
         args = call_args[0]
         kwargs = call_args[1]
         self.assertEqual(len(args), 1)

@@ -9,7 +9,8 @@ class processDefinitionCreationTestCase(ZopeTestCase.ZopeTestCase):
 
     def afterSetUp(self):
 
-        # Create a Process Definition with two activity (Begin, End) and one transition
+        # Create a Process Definition with two activity (Begin, End) and one
+        # transition
         self.pd = process('begin_end', 'Testprocess', '', 0, 0, 0, 0)
 
     def testProcessInstanceCreation(self):
@@ -19,7 +20,8 @@ class processDefinitionCreationTestCase(ZopeTestCase.ZopeTestCase):
         self.pd.addActivity('Act')
         self.pd.addActivity('End')
         self.pd.manage_changeProperties(begin='Begin')
-        assert self.pd.begin == 'Begin', 'Wrong BEGIN activity settings %s' % self.pd.getBegin()
+        assert self.pd.begin == 'Begin', ('Wrong BEGIN activity settings %s'
+                                          % self.pd.getBegin())
         self.pd.manage_changeProperties(end='End')
         assert self.pd.end == 'End', 'Wrong END activity settings'
         self.pd.addTransition(id='begin_act', From='Begin', To='Act')

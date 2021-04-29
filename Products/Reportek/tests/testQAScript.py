@@ -100,10 +100,12 @@ class QAScriptTest(unittest.TestCase):
         self.qa_repository.unrestrictedTraverse = Mock(return_value=file_data)
         with patch('Products.Reportek.QARepository.RepUtils',
                    Mock(temporary_named_copy=Mock(return_value=mock_file))):
-            with patch.object(self.qa_repository, 'REQUEST', create=True) as request:
+            with patch.object(self.qa_repository, 'REQUEST', create=True) as\
+                 request:
                 request.SERVER_URL = 'http://example.com'
                 file_url = 'http://example.com/envelope/foo.txt'
-                with patch('Products.Reportek.QARepository.subprocess') as mock_sp:
+                with patch('Products.Reportek.QARepository.subprocess') as\
+                     mock_sp:
                     mock_proc = Mock(stdout=StringIO('test output'))
                     mock_sp.Popen.return_value = mock_proc
                     ret = self.qa_repository._runQAScript(

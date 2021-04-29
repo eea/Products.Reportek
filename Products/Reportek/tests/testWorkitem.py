@@ -34,4 +34,4 @@ class WorkitemTestCase(ZopeTestCase.ZopeTestCase):
                            workitems_to=[],
                            status='active',
                            actor='openflow_test',
-                           graph_level=0) == None, 'incorrect edit'
+                           graph_level=0) is None, 'incorrect edit'

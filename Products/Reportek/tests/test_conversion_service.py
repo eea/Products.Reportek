@@ -44,8 +44,9 @@ class ConversionServiceTest(unittest.TestCase):
                           .__of__(self.app.Converters))
         mock_local_converters.return_value = converters
         local_converters = self.app.Converters._get_local_converters()
-        self.assertEqual(['%srar2list' % self.prefix, '%slist_7zip' % self.prefix],
-                         [conv.id for conv in local_converters]
+        self.assertEqual(
+            ['%srar2list' % self.prefix, '%slist_7zip' % self.prefix],
+            [conv.id for conv in local_converters]
                          )
 
     @patch.object(Converters, '_get_local_converters')
@@ -60,8 +61,9 @@ class ConversionServiceTest(unittest.TestCase):
             tests = path(__file__).parent.abspath()
             datafile.write((tests / 'onefile.rar').bytes())
 
-        mock_local_converters.return_value = [LocalHttpConverter(**CONVERTER_PARAMS())
-                                              .__of__(self.app.Converters)]
+        mock_local_converters.return_value = [
+            LocalHttpConverter(**CONVERTER_PARAMS())
+            .__of__(self.app.Converters)]
         local_converters = self.app.Converters._get_local_converters()
 
         # assert Anonymous is unauthorized to see this file
@@ -87,8 +89,9 @@ class ConversionServiceTest(unittest.TestCase):
     @patch('Products.Reportek.Converter.requests')
     def test_run_conversion_http(self, mock_requests, mock_local_converters):
         from Products.Reportek.Document import Document
-        mock_local_converters.return_value = [LocalHttpConverter(**CONVERTER_PARAMS())
-                                              .__of__(self.app.Converters)]
+        mock_local_converters.return_value = [
+            LocalHttpConverter(**CONVERTER_PARAMS())
+            .__of__(self.app.Converters)]
         document = Document(
             'testfile', '', content_type="application/x-rar-compressed")
         self.app._setObject('testfile', document)
@@ -102,11 +105,12 @@ class ConversionServiceTest(unittest.TestCase):
         # override normal behaviour
         # allow current user (Anonymous) to see this file
         self.app.testfile._View_Permission = ('Anonymous', )
-        mock_requests.post.return_value = Mock(content='mock conversion', headers={
-                                               'content-type': 'mock/type'})
-        result = converters.run_conversion(self.app.testfile.absolute_url(),
-                                           converter_id='%srar2list' % self.prefix,
-                                           source='local')
+        mock_requests.post.return_value = Mock(
+            content='mock conversion', headers={'content-type': 'mock/type'})
+        result = converters.run_conversion(
+            self.app.testfile.absolute_url(),
+            converter_id='%srar2list' % self.prefix,
+            source='local')
         self.assertEqual('mock conversion', result)
 
     @patch('Products.Reportek.Converter.requests')
@@ -128,7 +132,8 @@ class ConversionServiceTest(unittest.TestCase):
         params = {'file_url': 'Converters/testfile',
                   'converter_id': '',
                   'source': 'remote',
-                  'REQUEST': {'source': 'remote', 'file_url': 'Converters/testfile', 'conv': ''}}
+                  'REQUEST': {'source': 'remote',
+                              'file_url': 'Converters/testfile', 'conv': ''}}
         # assert Anonymous is unauthorized to see this file
         import zExceptions
         with self.assertRaises(zExceptions.Unauthorized):
@@ -219,7 +224,9 @@ class ConversionServiceTest(unittest.TestCase):
     @patch.object(Converters, '_http_params')
     @patch('Products.Reportek.Converter.requests')
     def test_conversion_output_with_extraparams(self,
-                                                mock_requests, mock_http_params, mock_get_country_code):
+                                                mock_requests,
+                                                mock_http_params,
+                                                mock_get_country_code):
         mock_http_params.return_value = [
             [
                 "rar2list",
@@ -302,9 +309,10 @@ class ConversionRegistryTest(unittest.TestCase):
     def setUp(self):
         self.app = create_fake_root()
         self.app._setObject('Converters', Converters())
-        #self.prefix = 'http_'
-        #from ZPublisher.BaseRequest import RequestContainer
-        #self.app = self.app.__of__(RequestContainer(REQUEST=create_mock_request()))
+        # self.prefix = 'http_'
+        # from ZPublisher.BaseRequest import RequestContainer
+        # self.app = self.app.__of__(
+        # RequestContainer(REQUEST=create_mock_request()))
 
     @patch.object(Converters, '_http_params')
     def test_get_country_code(self, mock_http_params):

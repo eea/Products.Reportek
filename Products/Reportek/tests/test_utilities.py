@@ -690,16 +690,18 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             self.browser.getLink(
                 text='Collections allocated to the wrong country').click()
             self._check_controls(self.browser.contents)
-            self.assertTrue('All the collections in this site have the correct country.' in
-                            self.browser.contents)
+            self.assertTrue(
+                'All the collections in this site have the correct country.' in
+                self.browser.contents)
 
             self.browser.goBack(count=1)
 
             # Go to Envelopes allocated to the wrong country view
             self.browser.getLink(
                 text='Envelopes allocated to the wrong country').click()
-            self.assertTrue('All the envelopes in this site have the correct country.' in
-                            self.browser.contents)
+            self.assertTrue(
+                'All the envelopes in this site have the correct country.' in
+                self.browser.contents)
 
             self.browser.goBack(count=1)
 
@@ -758,7 +760,8 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase):
             # if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
             #    # Go to statistics view
             #    self.browser.getLink(text='Statistics').click()
-            #    self.assertTrue('<li>Number of envelopes: <span>4</span></li>' in
+            #    self.assertTrue(
+            # '<li>Number of envelopes: <span>4</span></li>' in
             #                    self.browser.contents)
 
             # Go to evenlopes.autocomplete view

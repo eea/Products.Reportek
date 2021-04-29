@@ -11,7 +11,8 @@ from Products.Reportek.Converters import Converters
 from Products.Reportek.Envelope import Envelope
 from Products.Reportek.ReportekEngine import ReportekEngine
 from Products.Reportek import constants
-from Products.Reportek.RemoteRESTApplication import RemoteRESTApplication, manage_addRemoteRESTApplication
+from Products.Reportek.RemoteRESTApplication import\
+    RemoteRESTApplication, manage_addRemoteRESTApplication
 
 
 class RemoteRESTApplicationProduct(WorkflowTestCase):
@@ -130,7 +131,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         mock_requests.get.return_value = Mock(status_code=201)
         self.create_cepaa_set(1)
         exp = re.compile(
-            '\w+ job request for http:\/\/[\w+\/]+ returned invalid status code 201.$')
+            '\w+ job request for http:\/\/[\w+\/]+ returned invalid status code 201.$')  # noqa
         self.assertRegexpMatches(
             self.app.col1.env1['0'].event_log[1]['event'], exp)
 
@@ -175,7 +176,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         prop = self.app.col1.env1['0'].restapp
         assert prop['jobid'] == 999, 'wrong job id'
         assert prop['last_error'] is None, 'error not expected'
-        assert type(prop['next_run']) == type(DateTime()), 'should be a date'
+        assert isinstance(prop['next_run'], DateTime), 'should be a date'
 
     @patch('Products.Reportek.RemoteRESTApplication.requests')
     def test_job_invalid_status_code(self, mock_requests):
@@ -192,7 +193,7 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
         # Forward state
         self.app.col1.env1.forwardState()
         exp = re.compile(
-            '\w+ job id 1 for http:\/\/[\w+\/]+ returned invalid status code 201.$')
+            '\w+ job id 1 for http:\/\/[\w+\/]+ returned invalid status code 201.$')  # noqa
         self.assertRegexpMatches(
             self.app.col1.env1['0'].event_log[-3]['event'], exp)
 
@@ -322,7 +323,8 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
 
     @patch.object(Converters, '_get_local_converters')
     @patch('Products.Reportek.RemoteRESTApplication.requests')
-    def test_job_success_attaches_zipfile_to_feedback(self, mock_requests, mock_local_converters):
+    def test_job_success_attaches_zipfile_to_feedback(self, mock_requests,
+                                                      mock_local_converters):
         mock_requests.get.return_value = Mock(
             status_code=200,
             json=Mock(return_value={'jobId': 1,
@@ -458,7 +460,8 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
             status_code=200,
             json=Mock(return_value={
                 'jobId': 1, 'jobStatus': 'esriJobFailed',
-                'messages': [{'type': 'success', 'description': 'result messages'}]})
+                'messages': [{'type': 'success',
+                              'description': 'result messages'}]})
         )
         restapp = self.app.Applications.proc1.act1
         self.col1.env1.manage_addFeedback = Mock()
@@ -482,7 +485,8 @@ class RemoteRESTApplicationProduct(WorkflowTestCase):
             status_code=200,
             json=Mock(return_value={
                 'jobId': 1, 'jobStatus': 'esriJobFailed',
-                'messages': [{'type': 'success', 'description': 'result messages'}]})
+                'messages': [{'type': 'success',
+                              'description': 'result messages'}]})
         )
         restapp = self.app.Applications.proc1.act1
         self.col1.env1.manage_addFeedback = Mock()

@@ -46,5 +46,6 @@ class FGASRegistryAPITest(ZopeTestCase.ZopeTestCase):
         paths = self.api.getCollectionPaths(username)
 
         self.assertEqual(
-            req_mock.call_args[0][0], self.api.baseUrl + '/user/' + username + '/companies')
+            req_mock.call_args[0][0],
+            self.api.baseUrl + '/user/' + username + '/companies')
         self.assertEqual(paths, expectedPaths)
