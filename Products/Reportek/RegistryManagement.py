@@ -41,8 +41,9 @@ class BaseRegistryAPI(SimpleItem):
         self.baseUrl = url
         self.token = token
 
-    def do_api_request(self, url, method='get', data=None, files=None, cookies=None,
-                       headers=None, params=None, timeout=None, raw=None):
+    def do_api_request(self, url, method='get', data=None, files=None,
+                       cookies=None, headers=None, params=None, timeout=None,
+                       raw=None):
         api_req = requests.get
         if method == 'post':
             api_req = requests.post
@@ -51,14 +52,17 @@ class BaseRegistryAPI(SimpleItem):
             timeout = self.TIMEOUT
 
         try:
-            response = api_req(url, data=data, files=files, cookies=cookies, headers=headers,
-                               params=params, verify=False, timeout=timeout)
+            response = api_req(url, data=data, files=files, cookies=cookies,
+                               headers=headers, params=params, verify=False,
+                               timeout=timeout)
         except Exception as e:
             logger.warning("Error contacting SatelliteRegistry (%s)" % str(e))
             return None
         if response.status_code != requests.codes.ok:
-            logger.warning("Retrieved a %s status code when contacting SatelliteRegistry's url: %s " % (
-                response.status_code, url))
+            logger.warning(
+                '''Retrieved a %s status code when contacting '''
+                '''SatelliteRegistry's url: %s ''' % (response.status_code,
+                                                      url))
             if raw:
                 return response
             return None
@@ -211,10 +215,12 @@ class FGASRegistryAPI(BaseRegistryAPI):
                     details['collection_id']
                 )
                 if path:
-                    details['path'] = '/' + path
-                    details['licences_path'] = '/' + path + '/aggregated_licences_listing'
-                    details['stocks_path'] = '/' + path + '/stock_listing'
-                    details['paus_path'] = '/' + path + '/process_agent_uses_listing'
+                    details['path'] = '/{}'.format(path)
+                    details['licences_path'] =\
+                        '/{}/aggregated_licences_listing'.format(path)
+                    details['stocks_path'] = '/{}/stock_listing'.format(path)
+                    details['paus_path'] =\
+                        '/{}/process_agent_uses_listing'.format(path)
 
             return details
 
@@ -230,13 +236,15 @@ class FGASRegistryAPI(BaseRegistryAPI):
             path = None
             try:
                 path = self.buildCollectionPath(c['domain'], c_code,
-                                                str(c['company_id']), c['collection_id'])
+                                                str(c['company_id']),
+                                                c['collection_id'])
                 if not path:
                     raise ValueError(
                         "Cannot form path with company data: %s" % str(c))
             except Exception as e:
                 logger.warning(
-                    "Error in company data received from SatelliteRegistry: %s" % repr(e))
+                    '''Error in company data received from '''
+                    '''SatelliteRegistry: %s''' % repr(e))
 
             return path
 
@@ -272,7 +280,8 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if response:
             return response.json()
 
-    def verifyCandidate(self, companyId, userId, candidateId=None, domain='FGAS'):
+    def verifyCandidate(self, companyId, userId, candidateId=None,
+                        domain='FGAS'):
         # use the right pattern for Api url
         verify_endpoint = '/'.join(['candidate', domain, 'verify-none',
                                     companyId])
@@ -343,14 +352,17 @@ class FGASRegistryAPI(BaseRegistryAPI):
             response = self.do_api_request(url,
                                            data=data,
                                            method="post",
-                                           headers={'Authorization': self.token})
+                                           headers={
+                                            'Authorization': self.token})
             if response:
                 unverifyResponse = response.json()
                 if not unverifyResponse:
                     return None
                 # unverify succeeded; proceed with unLock an email alerts
-                path = self._unlockCompany(str(companyId), co['oldcompany_account'],
-                                           co['country_code'], co['domain'], userId)
+                path = self._unlockCompany(str(companyId),
+                                           co['oldcompany_account'],
+                                           co['country_code'], co['domain'],
+                                           userId)
                 email_sending_failed = False
                 url = self.baseUrl + '/alert_lockdown/unmatch'
                 data = {
@@ -361,7 +373,8 @@ class FGASRegistryAPI(BaseRegistryAPI):
                 response = self.do_api_request(url,
                                                data=data,
                                                method="post",
-                                               headers={'Authorization': self.token})
+                                               headers={
+                                                'Authorization': self.token})
                 if not response:
                     email_sending_failed = True
                 if email_sending_failed:
@@ -431,7 +444,8 @@ class FGASRegistryAPI(BaseRegistryAPI):
         if response:
             return response.json()
 
-    def lockDownCompany(self, company_id, old_collection_id, country_code, domain, user):
+    def lockDownCompany(self, company_id, old_collection_id, country_code,
+                        domain, user):
         path = self.buildCollectionPath(domain, country_code,
                                         str(company_id), old_collection_id)
         bdrAuth = self.authMiddleware
@@ -451,14 +465,16 @@ class FGASRegistryAPI(BaseRegistryAPI):
             logger.warning(
                 "Lockdown notification emails of %s not sent" % path)
 
-    def _unlockCompany(self, company_id, old_collection_id, country_code, domain, user):
+    def _unlockCompany(self, company_id, old_collection_id, country_code,
+                       domain, user):
         path = self.buildCollectionPath(
             domain, country_code, str(company_id), old_collection_id)
         bdrAuth = self.authMiddleware
         bdrAuth.unlockCollection(path, user)
         return path
 
-    def unlockCompany(self, company_id, old_collection_id, country_code, domain, user):
+    def unlockCompany(self, company_id, old_collection_id, country_code,
+                      domain, user):
         path = self._unlockCompany(
             company_id, old_collection_id, country_code, domain, user)
 
@@ -479,7 +495,8 @@ class FGASRegistryAPI(BaseRegistryAPI):
             logger.warning(
                 "Lockdown notification emails of %s not sent" % path)
 
-    def lockedCompany(self, company_id, old_collection_id, country_code, domain):
+    def lockedCompany(self, company_id, old_collection_id, country_code,
+                      domain):
         path = self.buildCollectionPath(
             domain, country_code, str(company_id), old_collection_id)
         bdrAuth = self.authMiddleware
@@ -491,12 +508,14 @@ class FGASRegistryAPI(BaseRegistryAPI):
         return cls.COUNTRY_TO_FOLDER.get(country_code, country_code)
 
     @classmethod
-    def buildCollectionPath(cls, domain, country_code, company_id, old_collection_id=None):
+    def buildCollectionPath(cls, domain, country_code, company_id,
+                            old_collection_id=None):
         obligation_folder = cls.DOMAIN_TO_OBLIGATION_FOLDER.get(domain)
         if not obligation_folder or not country_code:
             return None
         country_folder = cls.getCountryFolder(country_code)
-        collection_folder = old_collection_id if old_collection_id else company_id
+        collection_folder = (old_collection_id if old_collection_id
+                             else company_id)
         return '/'.join([obligation_folder, country_folder, collection_folder])
 
 
@@ -531,9 +550,11 @@ class BDRRegistryAPI(BaseRegistryAPI):
         params = {
             "username": username
         }
-        response = self.do_api_request(url, params=params, headers={
-                                       'Authorization': self.bdr_registry_token})
-        # [{"company_name": "test company hdv Diana", "reporting_folder": "", "has_reporting_folder": false, "registry_url": "https://bdr-test.eionet.europa.eu/registry/company/55"}]
+        response = self.do_api_request(
+            url,
+            params=params,
+            headers={
+             'Authorization': self.bdr_registry_token})
         if response and response.status_code == requests.codes.ok:
             return response.json()
         return []
