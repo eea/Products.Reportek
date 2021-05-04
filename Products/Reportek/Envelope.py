@@ -146,7 +146,10 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
                          year. Please fill in the correct year!'
             return self.manage_addEnvelopeForm(error=error_msg)
         else:
-            return error_response(ValueError, 'Cannot create envelope which relates to a future year', REQUEST)
+            return error_response(
+                ValueError,
+                'Cannot create envelope which relates to a future year',
+                REQUEST)
 
     year_parts = ['WHOLE_YEAR', 'FIRST_HALF', 'SECOND_HALF',
                   'FIRST_QUARTER', 'SECOND_QUARTER', 'THIRD_QUARTER',
@@ -1323,7 +1326,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
             use manage_addDDzipfile for that
         """
 
-        if type(file) is not type('') and hasattr(file, 'filename'):
+        if not isinstance(file, str) and hasattr(file, 'filename'):
             # According to the zipfile.py ZipFile just needs a file-like object
             zf = zip_content.ZZipFileRaw(file)
             for name in zf.namelist():
@@ -1724,7 +1727,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
 
         for k in RepUtils.utConvertLinesToList(ids):
             doc = getattr(self, k, None)
-            if doc == None:
+            if doc is None:
                 msg['err'][k] = 1
             else:
                 if action == 'accept':
