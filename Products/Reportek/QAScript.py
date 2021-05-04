@@ -36,7 +36,8 @@ manage_addQAScriptForm = PageTemplateFile('zpt/qa/script_add', globals())
 
 def manage_addQAScript(self, id, title='', description='', xml_schema='',
                        workflow=None, content_type_in='', content_type_out='',
-                       script_url='', max_size=10, qa_extraparams='', REQUEST=None):
+                       script_url='', max_size=10, qa_extraparams='',
+                       REQUEST=None):
     """ add a new QAScript object """
     ob = QAScript(
         id, title, description, xml_schema, workflow,
@@ -56,8 +57,7 @@ class QAScript(SimpleItem):
         (
             {'label': 'Settings', 'action': 'manage_settings_html'},
         )
-        +
-        SimpleItem.manage_options
+        + SimpleItem.manage_options
     )
 
     def __init__(self, id, title, description, xml_schema, workflow,
@@ -96,7 +96,8 @@ class QAScript(SimpleItem):
         self._p_changed = 1
         if REQUEST:
             message = "Content changed."
-            return self.manage_settings_html(self, REQUEST, manage_tabs_message=message)
+            return self.manage_settings_html(self, REQUEST,
+                                             manage_tabs_message=message)
 
     security.declareProtected('Use OpenFlow', '__call__')
 
