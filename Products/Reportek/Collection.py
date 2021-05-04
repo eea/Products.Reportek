@@ -56,8 +56,8 @@ manage_addCollectionForm = PageTemplateFile('zpt/collection/add', globals())
 
 def manage_addCollection(self, title, descr, year, endyear, partofyear,
                          country, locality, dataflow_uris, allow_collections=0,
-                         allow_envelopes=0, allow_referrals=0, id='', REQUEST=None,
-                         old_company_id=None):
+                         allow_envelopes=0, allow_referrals=0, id='',
+                         REQUEST=None, old_company_id=None):
     """Add a new Collection object
     """
     if isinstance(self, Collection) and not self.allow_collections:
@@ -85,7 +85,8 @@ class BaseCollection(object):
     implements(ICollection)
 
 
-class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection):
+class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
+                 BaseCollection):
     """
     Collections are basic container objects that provide a standard
     interface for object management. Collection objects also implement
@@ -111,11 +112,11 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         self.title = title
         try:
             self.year = int(year)
-        except:
+        except Exception:
             self.year = ''
         try:
             self.endyear = int(endyear)
-        except:
+        except Exception:
             self.endyear = ''
         if self.year == '' and self.endyear != '':
             self.year = self.endyear
@@ -152,11 +153,13 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
         if self.allow_collections:
             y.append({'name': 'Report Collection',
-                      'action': 'manage_addCollectionForm', 'permission': 'Add Collections'})
+                      'action': 'manage_addCollectionForm',
+                      'permission': 'Add Collections'})
             types.append('Repository Referral')
         if self.allow_envelopes:
             y.append({'name': 'Report Envelope',
-                      'action': 'manage_addEnvelopeForm', 'permission': 'Add Envelopes'})
+                      'action': 'manage_addEnvelopeForm',
+                      'permission': 'Add Envelopes'})
             if not self.allow_collections:
                 types.append('Repository Referral')
 
@@ -173,7 +176,8 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
     def manage_main(self, *args, **kw):
         """ Define manage main to be context aware """
-        if getSecurityManager().checkPermission('View management screens', self):
+        if getSecurityManager().checkPermission(
+                'View management screens', self):
             return apply(self.manage_main_inh, (self,) + args, kw)
         else:
             return apply(self.index_html, (self,) + args, kw)
@@ -226,7 +230,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
     security.declareProtected(manage_users, 'get_users_list')
 
     def get_users_list(self, REQUEST):
-        """ List accounts with the reporter and client roles for current folder and subfolders """
+        """ List accounts with the reporter and client roles for current
+            folder and subfolders
+        """
         from ldap.dn import explode_dn
         role_param = REQUEST.get('role', '')
         members = {}
@@ -322,9 +328,10 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                 return str([x['name'] for
                             x in engine.localities_table()
                             if str(x['uri']) == country_uri][0])
-            except:
+            except Exception:
                 return dummycounty['name']
-        return str(engine.localities_dict().get(self.country, dummycounty)['name'])
+        return str(
+            engine.localities_dict().get(self.country, dummycounty)['name'])
 
     def getCountryCode(self, country_uri=None):
         """ Returns country ISO code from the country uri
@@ -336,9 +343,10 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                 return str([x['iso'] for
                             x in engine.localities_table()
                             if str(x['uri']) == country_uri][0])
-            except:
+            except Exception:
                 return dummycounty['iso']
-        return str(engine.localities_dict().get(self.country, dummycounty)['iso'])
+        return str(
+            engine.localities_dict().get(self.country, dummycounty)['iso'])
 
     security.declarePublic('num_terminated_dataflows')
 
@@ -357,16 +365,18 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
     def manage_editCollection(self, title, descr,
                               year, endyear, partofyear, locality, country='',
-                              allow_collections=0, allow_envelopes=0, allow_referrals=0, dataflow_uris=[], REQUEST=None):
+                              allow_collections=0, allow_envelopes=0,
+                              allow_referrals=0, dataflow_uris=[],
+                              REQUEST=None):
         """ Manage the edited values """
         self.title = title
         try:
             self.year = int(year)
-        except:
+        except Exception:
             self.year = ''
         try:
             self.endyear = int(endyear)
-        except:
+        except Exception:
             self.endyear = ''
         self.partofyear = partofyear
         self.country = country
@@ -400,8 +410,8 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         permission_manage_properties_collections, 'manage_changeCollection')
 
     def manage_changeCollection(self, title=None,
-                                year=None, endyear=None, partofyear=None, country=None, locality=None,
-                                descr=None,
+                                year=None, endyear=None, partofyear=None,
+                                country=None, locality=None, descr=None,
                                 allow_collections=None, allow_envelopes=None,
                                 dataflow_uris=None, REQUEST=None):
         """ Manage the edited values """
@@ -441,7 +451,8 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
     security.declarePublic('getWorkitemsForWorklist')
 
     def getWorkitemsForWorklist(self, p_ret=None):
-        """ Returns active and inactive workitems from all contained envelopes """
+        """ Returns active and inactive workitems from all contained envelopes
+        """
         if p_ret == None:
             p_ret = []
         # loop the envelopes
@@ -453,8 +464,8 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         return p_ret
 
     def changeQueryString(self, p_query_string, p_parameter, p_value):
-        """ given the QUERY_STRING part of an URL, the function searches for the
-            parameter p_parameter and gives it the value p_value
+        """ given the QUERY_STRING part of an URL, the function searches for
+            the parameter p_parameter and gives it the value p_value
         """
         l_ret = ''
         try:
@@ -463,25 +474,33 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                 l_param, l_value = l_item.split('=')
                 if l_param == p_parameter:
                     l_ret = p_query_string.replace(
-                        p_parameter + '=' + l_value, p_parameter + '=' + str(p_value))
+                        p_parameter + '=' + l_value, p_parameter + '=' + str(
+                            p_value))
                     l_encountered = 1
             if l_encountered == 0:
                 l_ret = p_query_string + '&' + p_parameter + '=' + p_value
-        except:
+        except Exception:
             l_ret = p_parameter + '=' + str(p_value)
         return l_ret
 
-    def changeQueryString2(self, p_query_string, p_parameter=None, p_value=None):
-        """ given the QUERY_STRING part of an URL, the function does the following:
-            - if type(p_parameter) is str  searches for the parameter p_parameter and gives it the value p_value
-            - if type(p_parameter) is dict searches for all the keys in ditionary and gives them the values from the dictionary
-            - if the p_value is in None the key is removed (works the same with dictionary)
+    def changeQueryString2(self, p_query_string, p_parameter=None,
+                           p_value=None):
+        """ given the QUERY_STRING part of an URL, the function does the
+            following:
+            - if type(p_parameter) is str  searches for the parameter
+              p_parameter and gives it the value p_value
+            - if type(p_parameter) is dict searches for all the keys
+              in ditionary and gives them the values from the dictionary
+            - if the p_value is in None the key is removed (works the same
+              with dictionary)
         """
         l_query_array = self.changeQueryString2Dict(
             p_query_string, p_parameter, p_value)
-        return '&'.join(str(x) + '=' + str(l_query_array[x]) for x in l_query_array.keys())
+        return '&'.join(str(x) + '=' + str(l_query_array[x])
+                        for x in l_query_array.keys())
 
-    def changeQueryString2Dict(self, p_query_string, p_parameter=None, p_value=None):
+    def changeQueryString2Dict(self, p_query_string, p_parameter=None,
+                               p_value=None):
         """ returns the array for changeQueryString2 """
         # store the {key,value} pair in a dictionary
         l_query_array = {}
@@ -492,23 +511,23 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
             l_value = '='.join(l_temp[1:])
             l_query_array[l_key] = l_value
 
-        if (type(p_parameter) == type({})):
+        if isinstance(p_parameter, dict):
             # if p_parameter is a dictionary pass through every element
             l_input_array = p_parameter
             for i in l_input_array.keys():
                 if l_input_array[i] == None:
                     try:
                         del(l_query_array[i])
-                    except:
+                    except Exception:
                         pass
                 else:
                     l_query_array[i] = l_input_array[i]
         else:
 
-            if p_value == None:
+            if p_value is None:
                 try:
                     del(l_query_array[p_parameter])
-                except:
+                except Exception:
                     pass
             else:
                 l_query_array[p_parameter] = p_value
@@ -542,7 +561,8 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                 parent = obj.getParentNode()
             except Exception:
                 return (None, None)
-            if hasattr(obj, '_company_id') and not hasattr(parent, '_company_id'):
+            if (hasattr(obj, '_company_id')
+                    and not hasattr(parent, '_company_id')):
                 return (obj.title, obj.getId())
             else:
                 return cname(parent)
@@ -553,7 +573,8 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
 
     def messageDialog(self, message='', action='', params=None, REQUEST=None):
         """ displays a message dialog """
-        return self.message_dialog(message=message, action=action, params=params)
+        return self.message_dialog(
+            message=message, action=action, params=params)
 
     message_dialog = PageTemplateFile('zpt/message_dialog', globals())
 
@@ -675,10 +696,11 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                     else:
                         # Default to the previous year
                         year = str(DateTime().year() - 1)
-                    response = registry.get_company_licences(self.company_id,
-                                                             domain=domain,
-                                                             year=year,
-                                                             data=json.dumps(data))
+                    response = registry.get_company_licences(
+                        self.company_id,
+                        domain=domain,
+                        year=year,
+                        data=json.dumps(data))
                     if response is not None:
                         if response.status_code != requests.codes.ok:
                             res["result"] = "Fail"
@@ -694,6 +716,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         return json.dumps(res, indent=4)
 
     security.declareProtected('View', 'aggregated_licences_listing')
+
     def aggregated_licences_listing(self):
         """ Licence list for use in the company detail view
         """
@@ -748,6 +771,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         return json.dumps(res, indent=4)
 
     security.declareProtected('View', 'process_agent_uses_listing')
+
     def process_agent_uses_listing(self):
         """ PAU listing used in company detail view
         """
@@ -795,6 +819,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         return json.dumps(res, indent=4)
 
     security.declareProtected('View', 'stock_listing')
+
     def stock_listing(self):
         """ Stock listing used in company detail view
         """
@@ -810,6 +835,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         return json.dumps(data, indent=4)
 
     security.declareProtected('View', 'company_ids_match')
+
     def company_ids_match(self):
         """ Return the ODS stocks for the company
         """
@@ -818,8 +844,6 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         }
         self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-            engine = self.getEngine()
-            registry = engine.get_registry(self)
             new_id = self.REQUEST.get('new_id', '')
             old_id = self.REQUEST.get('old_id', '')
             new_company_id = getattr(self, '_company_id', '')
@@ -872,8 +896,8 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
     security.declareProtected('View', 'portal_registration_date')
 
     def portal_registration_date(self):
-        """ Retrieve the portal_registration_date of the collection's associated
-            company
+        """ Retrieve the portal_registration_date of the collection's
+            associated company
         """
         data = self.get_company_data()
 
@@ -961,8 +985,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                 'country': country.upper(),
                 'vat': raw_data.get('vat_number', raw_data.get('vat')),
                 'portal_registration_date': self.portal_registration_date(),
-                'registry': {'FGAS Registry': 'European Registry'}.get(raw_data.get('registry'),
-                                                                       raw_data.get('registry')),
+                'registry': {'FGAS Registry': 'European Registry'}.get(
+                    raw_data.get('registry'),
+                    raw_data.get('registry')),
                 'businessprofile': raw_data.get('businessprofile', []),
                 'domain': raw_data.get('domain', '')
             }
@@ -970,7 +995,8 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         return data
 
     def get_company_collections(self):
-        """Get the company collections, to be used by other_reports for Managers
+        """Get the company collections, to be used by other_reports for
+           Managers
         """
         def get_colls(paths):
             """Paths is a dictionary {'paths': [], 'prev_paths': []}"""
@@ -1038,7 +1064,8 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
             return envs[0].reportingdate
 
     def is_newest_released(self, env_id):
-        """ Return True if it's the newest released envelope in the collection"""
+        """ Return True if it's the newest released envelope in the collection
+        """
         envs = self.get_released_envelopes()
         if envs and envs[0].id == env_id:
             return True
