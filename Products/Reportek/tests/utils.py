@@ -199,7 +199,7 @@ def makelist(arg):
         return arg
     if isinstance(arg, tuple):
         return list(arg)
-    if isinstance(arg, string):  # noqa
+    if isinstance(arg, str):  # noqa
         return filter(None, [arg])
     raise ValueError('Argument must be list, tuple, or string')
 
