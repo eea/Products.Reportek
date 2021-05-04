@@ -41,7 +41,9 @@ manage_addRemoteRESTApplicationForm = PageTemplateFile(
     'zpt/rest_add', globals())
 
 
-def manage_addRemoteRESTApplication(self, id='', title='', ServiceSubmitURL='', ServiceCheckURL='', app_name='', REQUEST=None):
+def manage_addRemoteRESTApplication(self, id='', title='', ServiceSubmitURL='',
+                                    ServiceCheckURL='', app_name='',
+                                    REQUEST=None):
     """ Generic application that calls a remote REST service """
 
     ob = RemoteRESTApplication(
@@ -58,14 +60,16 @@ class RemoteRESTApplication(SimpleItem):
     implements(IQAApplication)
     meta_type = 'Remote REST Application'
     manage_options = (
-        ({'label': 'Settings', 'action': 'manage_settings_html'}, ) +
-        SimpleItem.manage_options
+        ({'label': 'Settings',
+          'action': 'manage_settings_html'}, )
+        + SimpleItem.manage_options
     )
 
     security.declareProtected(view_management_screens, 'manage_settings_html')
     manage_settings_html = PageTemplateFile('zpt/rest_edit', globals())
 
-    def __init__(self, id, title, ServiceSubmitURL, ServiceCheckURL, app_name, nRetries=5):
+    def __init__(self, id, title, ServiceSubmitURL, ServiceCheckURL, app_name,
+                 nRetries=5):
         """ Initialize a new instance of Document """
         self.id = id
         self.title = title
@@ -74,7 +78,8 @@ class RemoteRESTApplication(SimpleItem):
         self.app_name = app_name
         self.nRetries = nRetries                    # integer
 
-    def manage_settings(self, title, ServiceSubmitURL, ServiceCheckURL, app_name, nRetries, REQUEST):
+    def manage_settings(self, title, ServiceSubmitURL, ServiceCheckURL,
+                        app_name, nRetries, REQUEST):
         """ Change properties of the QA REST Application """
         self.title = title
         self.title = title
@@ -83,7 +88,8 @@ class RemoteRESTApplication(SimpleItem):
         self.app_name = app_name
         self.nRetries = nRetries
         if REQUEST is not None:
-            return self.manage_settings_html(manage_tabs_message='Saved changes.')
+            return self.manage_settings_html(
+                manage_tabs_message='Saved changes.')
 
     def __call__(self, workitem_id, REQUEST=None):
         workitem = getattr(self, workitem_id)
@@ -111,14 +117,16 @@ class RemoteRESTApplication(SimpleItem):
                 self.__update(workitem_id, {'jobid': job_id})
                 job_status = data['jobStatus']
                 if job_status == 'esriJobSubmitted':
-                    workitem.addEvent('%s job request for %s successfully submited.'
-                                      % (self.app_name, envelope_url))
+                    workitem.addEvent(
+                        '%s job request for %s successfully submited.'
+                        % (self.app_name, envelope_url))
             else:
                 workitem.addEvent('%s job request for %s response is invalid.'
                                   % (self.app_name, envelope_url))
         else:
-            workitem.addEvent('%s job request for %s returned invalid status code %s.'
-                              % (self.app_name, envelope_url, resp.status_code))
+            workitem.addEvent(
+                '%s job request for %s returned invalid status code %s.'
+                % (self.app_name, envelope_url, resp.status_code))
 
     security.declareProtected('Use OpenFlow', 'callApplication')
 
@@ -143,23 +151,26 @@ class RemoteRESTApplication(SimpleItem):
                 job_status = data['jobStatus']
                 attach = None
                 if job_status == 'esriJobSucceeded':
-                    workitem.addEvent('%s job id %s for %s successfully finished.'
-                                      % (self.app_name, jobid, envelope_url))
+                    workitem.addEvent(
+                        '%s job id %s for %s successfully finished.'
+                        % (self.app_name, jobid, envelope_url))
                     try:
                         result_url = data['results']['ResultZip']['paramUrl']
                         resp = requests.get(
-                            self.ServiceCheckURL + '%s/%s' % (str(jobid), result_url), params=params)
+                            self.ServiceCheckURL + '%s/%s' % (
+                                str(jobid), result_url), params=params)
                         if resp.status_code == 200:
                             zip_url = re.sub(
                                 '(/)*\\\\', '/', resp.json()['value'])
                             resp = requests.get(zip_url)
                             if resp.status_code == 200:
                                 attach = StringIO(resp.content)
-                                attach.filename = '%s_results.zip' % workitem.getMySelf().id
+                                attach.filename = '%s_results.zip'\
+                                    % workitem.getMySelf().id
                             else:
                                 logger.warning(
-                                    'Could not fetch result file from this URL: %s'
-                                    % resp.json()['value']
+                                    '''Could not fetch result file from '''
+                                    '''this URL: %s''' % resp.json()['value']
                                 )
                         else:
                             logger.warning(
@@ -169,7 +180,8 @@ class RemoteRESTApplication(SimpleItem):
                     except KeyError as err:
                         logger.warning('Unable to find %s in JSON.' % err)
 
-                    messages = 'The results for this assessment are attached to this feedback.'
+                    messages = ('''The results for this assessment are '''
+                                '''attached to this feedback.''')
                     self.__post_feedback(workitem, jobid, messages, attach)
                     self.__finish(workitem_id, REQUEST)
                 elif job_status == 'esriJobFailed':
@@ -194,15 +206,17 @@ class RemoteRESTApplication(SimpleItem):
                     self.__decrease_retries(workitem, REQUEST)
                 else:
                     workitem.addEvent('%s job id %s for %s has status %s.'
-                                      % (self.app_name, jobid, envelope_url, job_status))
+                                      % (self.app_name, jobid, envelope_url,
+                                         job_status))
                     self.__decrease_retries(workitem, REQUEST)
             else:
                 workitem.addEvent('%s job id %s for %s output is invalid.'
                                   % (self.app_name, jobid, envelope_url))
                 self.__finish(workitem_id, REQUEST)
         else:
-            workitem.addEvent('%s job id %s for %s returned invalid status code %s.'
-                              % (self.app_name, jobid, envelope_url, resp.status_code))
+            workitem.addEvent(
+                '%s job id %s for %s returned invalid status code %s.'
+                % (self.app_name, jobid, envelope_url, resp.status_code))
             self.__finish(workitem_id, REQUEST)
 
     def __initialize(self, p_workitem_id):
