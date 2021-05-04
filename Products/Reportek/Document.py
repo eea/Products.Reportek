@@ -383,7 +383,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         if ae and ae.lower().startswith('gzip'):
             skip_decomp = True
         with self.data_file.open(skip_decompress=skip_decomp)\
-             as data_file_handle:
+                as data_file_handle:
             size = self.data_file.size
             if skip_decomp and self.is_compressed():
                 # This is hackish. If the client asked for gzip compression
@@ -415,7 +415,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
 
     def view_image_or_file(self):
         """ The default view of the contents of the File or Image. """
-        raise Redirect, self.absolute_url()
+        raise Redirect(self.absolute_url())
 
     def link(self, text='', **args):
         """ return a HTML link tag to the file """

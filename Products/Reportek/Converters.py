@@ -195,7 +195,8 @@ class Converters(Folder):
             raise ex
         possible_good_converters = ''
         for conv_obj in available_local_converters:
-            if contentType in conv_obj.ct_input or conv_obj.suffix == filesuffix:
+            if (contentType in conv_obj.ct_input
+                    or conv_obj.suffix == filesuffix):
                 if doc_schema:
                     if conv_obj.ct_schema:
                         if conv_obj.ct_schema == doc_schema:
@@ -286,7 +287,7 @@ class Converters(Folder):
             converter_id = REQUEST.get('conv', converter_id)
 
         if not self.valid_converter(converter_id, source):
-            raise Redirect, file_url
+            raise Redirect(file_url)
 
         if source == 'local':
             for conv in self._get_local_converters():

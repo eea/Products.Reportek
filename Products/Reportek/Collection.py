@@ -453,7 +453,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
     def getWorkitemsForWorklist(self, p_ret=None):
         """ Returns active and inactive workitems from all contained envelopes
         """
-        if p_ret == None:
+        if p_ret is None:
             p_ret = []
         # loop the envelopes
         for l_env in self.objectValues('Report Envelope'):
@@ -515,7 +515,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
             # if p_parameter is a dictionary pass through every element
             l_input_array = p_parameter
             for i in l_input_array.keys():
-                if l_input_array[i] == None:
+                if l_input_array[i] is None:
                     try:
                         del(l_query_array[i])
                     except Exception:
