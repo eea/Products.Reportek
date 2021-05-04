@@ -18,12 +18,6 @@
 # Contributor(s):
 # Cornel Nitu, Finsiel Romania
 
-__doc__ = """
-      QARepository product module.
-      The QARepository is used to make different type of quality assurance
-      checks of the Report Documents.
-"""
-
 import shlex
 import subprocess
 
@@ -37,6 +31,12 @@ from OFS.Folder import Folder
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.constants import ENGINE_ID
 from RestrictedPython.Eval import RestrictionCapableEval
+
+__doc__ = """
+      QARepository product module.
+      The QARepository is used to make different type of quality assurance
+      checks of the Report Documents.
+"""
 
 
 class QARepository(Folder):
@@ -53,7 +53,7 @@ class QARepository(Folder):
         self.QA_application = 'EnvelopeQAApplication'
 
     meta_types = (
-        {'name': 'QAScript',         'action': 'manage_addQAScriptForm'},)
+        {'name': 'QAScript', 'action': 'manage_addQAScriptForm'},)
     all_meta_types = meta_types
 
     manage_addQAScriptForm = QAScript.manage_addQAScriptForm
@@ -87,26 +87,30 @@ class QARepository(Folder):
                               content_type_in=''):
         """ """
         if p_schema and not dataflow_uris:
-            return [x for x in self.objectValues('QAScript') if x.xml_schema == p_schema]
+            return [x for x in self.objectValues('QAScript')
+                    if x.xml_schema == p_schema]
         elif p_schema and dataflow_uris and not content_type_in:
             return [x for x in self.objectValues('QAScript')
-                    if (getattr(x, 'workflow', None) in dataflow_uris or
-                        x.xml_schema == p_schema)]
+                    if (getattr(x, 'workflow', None) in dataflow_uris
+                        or x.xml_schema == p_schema)]
         elif p_schema and dataflow_uris and content_type_in:
             return [x for x in self.objectValues('QAScript')
-                    if (getattr(x, 'workflow', None) in dataflow_uris and
-                        content_type_in == getattr(x, 'content_type_in', None)) and
-                    x.xml_schema == p_schema]
+                    if ((getattr(x, 'workflow', None) in dataflow_uris
+                        and content_type_in == getattr(x, 'content_type_in',
+                                                       None))
+                        and x.xml_schema == p_schema)]
         elif dataflow_uris and content_type_in:
             return [x for x in self.objectValues('QAScript')
-                    if (getattr(x, 'workflow', None) in dataflow_uris and
-                        content_type_in == getattr(x, 'content_type_in', None))]
+                    if (getattr(x, 'workflow', None) in dataflow_uris
+                        and content_type_in == getattr(x, 'content_type_in',
+                                                       None))]
         elif dataflow_uris and not content_type_in:
             return [x for x in self.objectValues('QAScript')
                     if (getattr(x, 'workflow', None) in dataflow_uris)]
         elif not dataflow_uris and content_type_in:
             return [x for x in self.objectValues('QAScript')
-                    if (content_type_in == getattr(x, 'content_type_in', None))]
+                    if (content_type_in == getattr(x, 'content_type_in',
+                                                   None))]
         elif not dataflow_uris:
             return self.objectValues('QAScript')
 
@@ -163,12 +167,14 @@ class QARepository(Folder):
             # get the valid schemas for the envelope's dataflows
             l_valid_schemas = self.getDataflowMappingsContainer(
             ).getSchemasForDataflows(l_file.dataflow_uris)
-            # go on only if it's an XML file with a non-empty valid schema or if no valid schemas
-            # are defined for those dataflows
+            # go on only if it's an XML file with a non-empty valid schema or
+            # if no valid schemas are defined for those dataflows
             # NOTE due to updated dataflow_uris, l_valid_schemas is always None
-            if ((l_file.xml_schema_location and
-                 (l_file.xml_schema_location in l_valid_schemas or not l_valid_schemas)) or
-                    self._get_local_qa_scripts(dataflow_uris=l_file.dataflow_uris)):
+            if ((l_file.xml_schema_location
+                and (l_file.xml_schema_location in l_valid_schemas
+                     or not l_valid_schemas))
+                    or self._get_local_qa_scripts(
+                        dataflow_uris=l_file.dataflow_uris)):
                 # remote scripts
                 if l_qa_app:
                     l_ret[l_file.id] = l_qa_app.listQAScripts(
@@ -183,7 +189,7 @@ class QARepository(Folder):
                         content_type_in=l_file.content_type)
                 ]
                 if len(l_buff):
-                    if l_ret.has_key(l_file.id):
+                    if l_file.id in l_ret:
                         l_ret[l_file.id].extend(l_buff)
                     else:
                         l_ret[l_file.id] = l_buff
