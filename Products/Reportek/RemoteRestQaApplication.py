@@ -708,7 +708,8 @@ class RemoteRestQaApplication(BaseRemoteApplication):
 
         l_wk_prop['getResult'] = {}
 
-    def __manageAutomaticProperty(self, p_workitem_id, p_analyze={}, p_getResult={}):
+    def __manageAutomaticProperty(self, p_workitem_id, p_analyze={},
+                                  p_getResult={}):
         """
         The instance data for the RemoteApplication is stored in the workitem
         as an additional property - app_name - contaning a dictionary like:

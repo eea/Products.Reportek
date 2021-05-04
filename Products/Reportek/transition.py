@@ -37,7 +37,8 @@ from Products.ZCatalog.CatalogPathAwareness import CatalogAware
 class transition(CatalogAware, SimpleItem):
     """ Links two activities """
 
-    manage_options = ({'label': 'Properties', 'action': 'manage_editTransitionForm'},
+    manage_options = ({'label': 'Properties',
+                       'action': 'manage_editTransitionForm'},
                       {'label': 'View', 'action': 'index_html'},
                       ) + SimpleItem.manage_options
 
