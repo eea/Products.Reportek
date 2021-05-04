@@ -44,13 +44,13 @@ class IconShow:
                'python': 'py.gif'},
               'application':
               {'pdf': 'pdf.gif', 'zip': 'zip.gif', 'tar': 'zip.gif',
-               'msword': 'doc.gif', 'excel': 'xls.gif', 'powerpoint': 'ppt.gif',
+               'msword': 'doc.gif', 'excel': 'xls.gif', 'powerpoint': 'ppt.gif',  # noqa
                'default': 'default.gif',
                'vnd.oasis.opendocument.text': 'openofficeorg-oasis-text.gif',
-               'vnd.oasis.opendocument.presentation': 'openofficeorg-oasis-presentation.gif',
-               'vnd.oasis.opendocument.spreadsheet': 'openofficeorg-oasis-spreadsheet.gif',
-               'vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx.gif',
-               'vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx.gif'
+               'vnd.oasis.opendocument.presentation': 'openofficeorg-oasis-presentation.gif',  # noqa
+               'vnd.oasis.opendocument.spreadsheet': 'openofficeorg-oasis-spreadsheet.gif',  # noqa
+               'vnd.openxmlformats-officedocument.spreadsheetml.sheet': 'xlsx.gif',  # noqa
+               'vnd.openxmlformats-officedocument.wordprocessingml.document': 'docx.gif'  # noqa
                },
               'video':
               {'default': 'default.gif'},
@@ -72,7 +72,7 @@ class IconShow:
             directory shold be used as icon for this file/image
         """
         cat, sub = self._getMIMECatAndSub(self.content_type)
-        if self._types.has_key(cat):
+        if cat in self._types:
             file = self._types[cat]['default']
             for item in self._types[cat].keys():
                 if string.find(sub, item) >= 0:
@@ -90,6 +90,6 @@ class IconShow:
 
 
 # --------
-#h = IconShow()
-#h.content_type = 'video/real'
+# h = IconShow()
+# h.content_type = 'video/real'
 # print h.getIconPath()
