@@ -50,15 +50,16 @@ import RepUtils
 import StringIO
 __version__ = '$Rev$'[6:-2]
 
-#from webdav.WriteLockInterface import WriteLockInterface
+# from webdav.WriteLockInterface import WriteLockInterface
 # Zope imports
 # Product specific imports
 
 manage_addFeedbackForm = PageTemplateFile('zpt/feedback/add', globals())
 
 
-def manage_addFeedback(self, id='', title='', feedbacktext='', file=None, activity_id='', automatic=0,
-                       content_type='text/plain', document_id=None, script_url=None, restricted='',
+def manage_addFeedback(self, id='', title='', feedbacktext='', file=None,
+                       activity_id='', automatic=0, content_type='text/plain',
+                       document_id=None, script_url=None, restricted='',
                        REQUEST=None):
     """Adds feedback as a file to a folder."""
 
@@ -90,8 +91,11 @@ def manage_addFeedback(self, id='', title='', feedbacktext='', file=None, activi
     self._setObject(id, ob)
     obj = self._getOb(id)
 
-    r_enabled = (hasattr(self, 'is_globally_restricted') and self.is_globally_restricted()) or (
-        hasattr(self, 'is_workflow_restricted') and self.is_workflow_restricted())
+    r_enabled = (
+        hasattr(self, 'is_globally_restricted')
+        and self.is_globally_restricted()) or (
+        hasattr(self, 'is_workflow_restricted')
+        and self.is_workflow_restricted())
     if restricted or r_enabled:
         obj.manage_restrictFeedback()
     else:
@@ -108,21 +112,28 @@ def manage_addFeedback(self, id='', title='', feedbacktext='', file=None, activi
     envelope._invalidate_zip_cache()
 
     if engine.UNS_server and not ob.automatic:
-        engine.sendNotificationToUNS(envelope, 'Feedback posted', 'Feedback was posted in the envelope %s (%s)' % (
-            envelope.title_or_id(), obj.absolute_url()), self.REQUEST.AUTHENTICATED_USER.getUserName())
+        engine.sendNotificationToUNS(
+            envelope, 'Feedback posted',
+            'Feedback was posted in the envelope %s (%s)' % (
+                envelope.title_or_id(),
+                obj.absolute_url()),
+            self.REQUEST.AUTHENTICATED_USER.getUserName())
 
     if REQUEST is not None:
         if 'file_upload' in REQUEST.form:
             REQUEST.RESPONSE.redirect(
                 '%s/manage_editFeedbackForm' % obj.absolute_url())
         else:
-            return self.messageDialog(message="The Feedback %s was successfully created!" % id,
-                                      action=self.absolute_url())
+            return self.messageDialog(
+                message="The Feedback %s was successfully created!" % id,
+                action=self.absolute_url())
 
 
-def manage_addManualQAFeedback(self, id='', title='', feedbacktext='', file=None, activity_id='', automatic=0,
-                               content_type='text/plain', document_id=None, script_url=None, restricted='', message='', feedback_status='',
-                               REQUEST=None):
+def manage_addManualQAFeedback(self, id='', title='', feedbacktext='',
+                               file=None, activity_id='', automatic=0,
+                               content_type='text/plain', document_id=None,
+                               script_url=None, restricted='', message='',
+                               feedback_status='', REQUEST=None):
     """Adds a manual QA feedback as a file to a folder. To be used by Managers.
     """
     self.manage_addFeedback(id=id, title=title, feedbacktext=feedbacktext,
@@ -138,18 +149,22 @@ def manage_addManualQAFeedback(self, id='', title='', feedbacktext='', file=None
     obj.message = message
     obj.reindex_object()
     if REQUEST is not None:
-        return self.messageDialog(message="The Feedback %s was successfully created!" % id,
-                                  action=self.absolute_url())
+        return self.messageDialog(
+            message="The Feedback %s was successfully created!" % id,
+            action=self.absolute_url())
 
 
-class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, CommentsManager, DFlowCatalogAware):
+class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager,
+                     CommentsManager, DFlowCatalogAware):
     """
         Feedback objects are created in envelopes either manually (by Clients)
-        or automatically (by activities such as the Automatic QA or Confirmation Receipt).
+        or automatically (by activities such as the Automatic QA or
+        Confirmation Receipt).
 
-        They can refer to the entire delivery, or to a single Document inside it.
-        Feedback items can contain files and have comments posted on them by people
-        discussing the content of the feedback.
+        They can refer to the entire delivery, or to a single Document inside
+        it.
+        Feedback items can contain files and have comments posted on them by
+        people discussing the content of the feedback.
     """
 
     meta_type = 'Report Feedback'
@@ -177,8 +192,9 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
     implements(IFeedback)
     security = ClassSecurityInfo()
 
-    def __init__(self, id, releasedate, title='', feedbacktext='', activity_id='', automatic=0,
-                 content_type='text/plain', document_id=None, message='', feedback_status=''):
+    def __init__(self, id, releasedate, title='', feedbacktext='',
+                 activity_id='', automatic=0, content_type='text/plain',
+                 document_id=None, message='', feedback_status=''):
         """ Initialize a new Feedback instance
         """
         self.id = id
@@ -195,7 +211,8 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
 
     def update_item(self, postingdate=None):
         """ If the parameter is provided, updates the postingdate to it
-            If not, checks if the property exists and sets it to bobobase_modification_time
+            If not, checks if the property exists and sets it to
+            bobobase_modification_time
         """
         if postingdate:
             self.postingdate = postingdate
@@ -205,7 +222,8 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
             self._p_changed = 1
 
     def all_meta_types(self, interfaces=None):
-        """ Called by Zope to determine what kind of object the envelope can contain
+        """ Called by Zope to determine what kind of object the envelope can
+            contain
         """
         y = [
             {'name': 'File',
@@ -219,7 +237,10 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
 
     security.declareProtected('Change Feedback', 'manage_editFeedback')
 
-    def manage_editFeedback(self, title='', feedbacktext='', content_type='', document_id=None, applyRestriction='', restricted='', feedback_status='', message='', REQUEST=None):
+    def manage_editFeedback(self, title='', feedbacktext='', content_type='',
+                            document_id=None, applyRestriction='',
+                            restricted='', feedback_status='', message='',
+                            REQUEST=None):
         """ Edits the properties """
         if title:
             self.title = title
@@ -297,8 +318,8 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
         return pt.__of__(self)()
 
     def compileFeedbacktext(self, REQUEST):
-        """ If the feedbacktext has another content type than plain text or HTML,
-            it will be displayed separately on this page
+        """ If the feedbacktext has another content type than plain text or
+            HTML, it will be displayed separately on this page
         """
         response = REQUEST.RESPONSE
         response.setHeader('Content-type', self.content_type)
@@ -401,7 +422,8 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
         res.append(' xmlns="http://rod.eionet.europa.eu/schema.rdf#">')
 
         res.append('<rdf:Description rdf:about="%s">' %
-                   RepUtils.xmlEncode(parse_uri(self.absolute_url(), http_res)))
+                   RepUtils.xmlEncode(parse_uri(
+                    self.absolute_url(), http_res)))
         res.append('</rdf:Description>')
         res.append('</rdf:RDF>')
         return '\n'.join(res)

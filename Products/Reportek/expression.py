@@ -7,7 +7,7 @@ from Products.PageTemplates.Expressions import getEngine
 try:
     # Up to Zope 2.9
     from Products.PageTemplates.Expressions import _SecureModuleImporter
-except:
+except Exception:
     # Zope 2.10
     from Products.PageTemplates.ZRPythonExpr import _SecureModuleImporter
 
@@ -40,7 +40,8 @@ class Expression (Persistent):
 Globals.InitializeClass(Expression)
 
 
-def exprNamespace(instance, workitem=None, activity=None, process=None, openflow=None):
+def exprNamespace(instance, workitem=None, activity=None, process=None,
+                  openflow=None):
     c = {'instance': instance,
          'workitem': workitem,
          'activity': activity,
