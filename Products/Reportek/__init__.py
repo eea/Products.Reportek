@@ -19,9 +19,6 @@
 # Soren Roug, EEA
 
 
-__doc__ = """Reportek __init__ """
-__version__ = '$Rev$'[6:-2]
-
 import logging
 
 from config import DEPLOYMENT_BDR
@@ -54,10 +51,14 @@ import Zope2
 
 from AccessControl.Permissions import manage_users as ManageUsers
 from App.ImageFile import ImageFile
-from Products.PluggableAuthService.PluggableAuthService import registerMultiPlugin
-from Products.Reportek.ReportekUserFactoryPlugin import ReportekUserFactoryPlugin
-from Products.Reportek.ReportekUserFactoryPlugin import addReportekUserFactoryPlugin
-from Products.Reportek.ReportekUserFactoryPlugin import manage_addReportekUserFactoryPluginForm
+from Products.PluggableAuthService.PluggableAuthService import\
+    registerMultiPlugin
+from Products.Reportek.ReportekUserFactoryPlugin import\
+    ReportekUserFactoryPlugin
+from Products.Reportek.ReportekUserFactoryPlugin import\
+    addReportekUserFactoryPlugin
+from Products.Reportek.ReportekUserFactoryPlugin import\
+    manage_addReportekUserFactoryPluginForm
 from Products.Reportek.caching.config import registry_setup
 from Products.ZCTextIndex.ZCTextIndex import PLexicon
 from Products.ZCatalog.ZCatalog import ZCatalog
@@ -67,6 +68,8 @@ from zope.component import getGlobalSiteManager
 from zope.component import getUtility
 from zope.i18nmessageid import MessageFactory
 
+__doc__ = """Reportek __init__ """
+__version__ = '$Rev$'[6:-2]
 logger = logging.getLogger("Reportek")
 
 
@@ -187,7 +190,9 @@ def create_reportek_objects(app):
 
 
 def _strip_protocol_domain(full_url):
-    """ Take a full url and return a tuple of path part and protocol+domain part."""
+    """ Take a full url and return a tuple of path part and protocol+domain
+        part.
+    """
     parts = full_url.split('/')
     # domain.domain.domain.../abs/abs
     i = 1
@@ -229,12 +234,14 @@ def ping_remaining_envelopes(app, crPingger):
                 envStatus['op'] = 'delete'
             else:
                 innerObjsByMetatype = env._getObjectsForContentRegistry()
-                # as we are not called from browser there is no domain part in the absolute_url
+                # as we are not called from browser there is no domain part in
+                # the absolute_url
                 uris.extend(proto_domain + '/' + o.absolute_url(1)
                             for objs in innerObjsByMetatype.values()
                             for o in objs)
-            crPingger.content_registry_ping(uris, ping_argument=envStatus['op'],
-                                            envPathName=envPathName)
+            crPingger.content_registry_ping(
+                uris, ping_argument=envStatus['op'],
+                envPathName=envPathName)
 
 
 def add_index(name, catalog, meta_type, meta=False):
@@ -426,8 +433,8 @@ def initialize(context):
             RemoteFMEConversionApplication.RemoteFMEConversionApplication,
             permission='Add Remote Application',
             constructors=(
-                RemoteFMEConversionApplication.manage_addRemoteFMEConversionApplicationForm,
-                RemoteFMEConversionApplication.manage_addRemoteFMEConversionApplication),
+                RemoteFMEConversionApplication.manage_addRemoteFMEConversionApplicationForm,  # noqa
+                RemoteFMEConversionApplication.manage_addRemoteFMEConversionApplication),  # noqa
             icon='www/qa_application.gif'
         )
 
