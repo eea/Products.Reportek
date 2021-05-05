@@ -47,7 +47,8 @@ class BuildCollections(BaseAdmin):
                         target_path = '/'.join(
                             [str(country['iso'].lower()), pattern])
 
-                    target = engine.getPhysicalRoot().restrictedTraverse(target_path)
+                    target = engine.getPhysicalRoot().restrictedTraverse(
+                        target_path)
                     kwargs = {
                         'allow_collections': allow_collections,
                         'allow_envelopes': allow_envelopes,
@@ -59,7 +60,7 @@ class BuildCollections(BaseAdmin):
                                                 obligations, **kwargs)
                     messages['success'].append(country['name'])
                 except KeyError:
-                    err = "{0}: the specified path does not exist [{1}]".format(
-                        country['name'], target_path)
+                    err = ('''{0}: the specified path does not exist '''
+                           '''[{1}]'''.format(country['name'], target_path))
                     messages['fail'].append(err)
         return self.index(messages=messages)

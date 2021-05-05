@@ -87,7 +87,8 @@ class ReferralsUtils(BaseAdmin):
                             })
                     except Exception as e:
                         logger.warning(
-                            "Error changing referral status for RID: {} (Error: {})".format(rid, str(e)))
+                            '''Error changing referral status for RID: {} '''
+                            '''(Error: {})'''.format(rid, str(e)))
                         errors.append({
                             'rid': rid,
                             'error': str(e)

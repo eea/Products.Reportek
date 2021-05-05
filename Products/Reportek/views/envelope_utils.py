@@ -42,15 +42,17 @@ class EnvelopeUtils(BaseAdmin):
         return '/'.join([wflow_path, 'default'])
 
     def get_next_activities(self, wfpath, wk):
-        """Return the next possible activities for the envelope with workitem wk
-           and workflow path wf_path.
+        """Return the next possible activities for the envelope with workitem
+           wk and workflow path wf_path.
         """
         wf = self.context.restrictedTraverse(wfpath, None)
         next_transitions = []
         if wf:
             wf_transitions = wf.objectValues('Transition')
-            next_transitions = [(getattr(t, 'To'), getattr(t, 'condition')) for t in wf_transitions
-                                if getattr(t, 'From') == wk.activity_id]
+            next_transitions = [
+                (getattr(t, 'To'),
+                 getattr(t, 'condition')) for t in wf_transitions
+                if getattr(t, 'From') == wk.activity_id]
 
         return next_transitions
 
@@ -175,8 +177,9 @@ class EnvelopeUtils(BaseAdmin):
         query = {
             'meta_type': 'Workitem',
             'status': 'inactive'}
-        inactive_brains = searchResults(catalog, query,
-                                        admin_check=self.should_check_permission())
+        inactive_brains = searchResults(
+            catalog, query,
+            admin_check=self.should_check_permission())
         envelopes = []
         for b in inactive_brains:
             obj = b.getObject()
@@ -209,7 +212,9 @@ class EnvelopeUtils(BaseAdmin):
                             'url': activity_url,
                             'title': activity_title
                         },
-                        's_date': DateTime(obj.event_log[-1].get('time')).strftime('%d/%m/%Y %H:%M:%S')
+                        's_date': DateTime(
+                            obj.event_log[-1].get('time')).strftime(
+                                '%d/%m/%Y %H:%M:%S')
                     })
 
         return json.dumps(envelopes)
@@ -252,7 +257,9 @@ class EnvelopeUtils(BaseAdmin):
                             'url': activity.absolute_url(),
                             'title': activity.title_or_id()
                         },
-                        's_date': DateTime(wk.event_log[-1].get('time')).strftime('%d/%m/%Y %H:%M:%S')
+                        's_date': DateTime(
+                            wk.event_log[-1].get('time')).strftime(
+                                '%d/%m/%Y %H:%M:%S')
                     })
 
         return json.dumps(envelopes)
@@ -276,7 +283,9 @@ class EnvelopeUtils(BaseAdmin):
                         results.append({
                             'envelope': env,
                             'published': False,
-                            'error': Exception("Unable to send message to RabbitMQ! Details: {}".format(str(e)))
+                            'error': Exception(
+                                '''Unable to send message to RabbitMQ! '''
+                                '''Details: {}'''.format(str(e)))
                         })
             self.request['op_results'] = results
 
@@ -315,7 +324,9 @@ class EnvelopeUtils(BaseAdmin):
                     'url': activity_url,
                     'title': activity_title
                 },
-                's_date': DateTime(last_wk.event_log[-1].get('time')).strftime('%d/%m/%Y %H:%M:%S')
+                's_date': DateTime(
+                    last_wk.event_log[-1].get('time')).strftime(
+                        '%d/%m/%Y %H:%M:%S')
             })
 
         return json.dumps(envelopes)

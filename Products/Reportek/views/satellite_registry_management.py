@@ -50,12 +50,15 @@ class SatelliteRegistryManagement(BaseAdmin):
             if fname and lname and email:
 
                 if not re.match('[\.\w]{1,}[@]\w+[.]\w+', email):
-                    return self.index(error="Please use a valid email address.")
+                    return self.index(
+                        error="Please use a valid email address.")
 
                 response = api.addEmail(fname, lname, email)
                 if response['success']:
-                    return self.request.response.redirect('{0}/{1}?done=1'.format(
-                        self.context.absolute_url(), "notifications_settings"))
+                    return self.request.response.redirect(
+                        '{0}/{1}?done=1'.format(
+                            self.context.absolute_url(),
+                            "notifications_settings"))
                 else:
                     return self.index(error=response['message'])
 
@@ -67,23 +70,27 @@ class SatelliteRegistryManagement(BaseAdmin):
             if email:
                 response = api.delEmail(email)
                 if response['success']:
-                    return self.request.response.redirect('{0}/{1}?done=1'.format(
-                        self.context.absolute_url(), "notifications_settings"))
+                    return self.request.response.redirect(
+                        '{0}/{1}?done=1'.format(
+                            self.context.absolute_url(),
+                            "notifications_settings"))
                 else:
                     return self.index(error=response['message'])
 
             return self.index(error='Specify an email address.')
 
-        if self.request.method == "POST" and self.request.get('orgaction') in ['statusupdate', 'sync']:
+        if (self.request.method == "POST"
+                and self.request.get('orgaction') in ['statusupdate', 'sync']):
             status = self.request.get('newval')
             orgid = self.request.get('orgid')
             if orgid and status:
-                if not api.updateCompanyStatus(orgid, status.upper(), domain=domain):
+                if not api.updateCompanyStatus(
+                        orgid, status.upper(), domain=domain):
                     return self.index(error='Unable to change company status')
                 else:
                     # We need to clear the company_details cache
                     global_cache.invalidate(
-                        'Products.Reportek.RegistryManagement.get_company_details')
+                        'Products.Reportek.RegistryManagement.get_company_details')  # noqa
             if self.request.get('orgaction') == 'sync':
                 sync_res = api.sync_company(orgid, domain=domain)
                 if not sync_res:
@@ -91,7 +98,7 @@ class SatelliteRegistryManagement(BaseAdmin):
                 else:
                     # We need to clear the company_details cache
                     global_cache.invalidate(
-                        'Products.Reportek.RegistryManagement.get_company_details')
+                        'Products.Reportek.RegistryManagement.get_company_details')  # noqa
                     return self.index(info_message=sync_res.get('message'),
                                       error=False)
         return self.index(error=False)
@@ -108,7 +115,8 @@ class SatelliteRegistryManagement(BaseAdmin):
         }
         user = self.request.AUTHENTICATED_USER
         user_roles = user.getRolesInContext(self.context)
-        if role_mapping.get(domain, '') in user_roles or 'Manager' in user_roles:
+        if (role_mapping.get(domain, '') in user_roles
+                or 'Manager' in user_roles):
             return True
         return False
 
@@ -202,7 +210,8 @@ class SatelliteRegistryManagement(BaseAdmin):
         company['addr_place1'] = ''
         company['addr_place2'] = ''
         company['active'] = {'VALID': True,
-                             'DISABLED': False}.get(company.get('status'), False)
+                             'DISABLED': False}.get(
+                                company.get('status'), False)
         for person in company.get('person'):
             first_name = person.get('first_name', '') if person.get(
                 'first_name', '') else ''
@@ -307,12 +316,14 @@ class SatelliteRegistryManagement(BaseAdmin):
                 domain = self.request.form.get('domain', 'FGAS')
                 if self.is_permitted(domain):
                     details = api.unverifyCompany(
-                        companyId, self.request.AUTHENTICATED_USER.getUserName(), domain=domain)
+                        companyId,
+                        self.request.AUTHENTICATED_USER.getUserName(),
+                        domain=domain)
         return json.dumps(details, indent=2)
 
     def get_companies_excel(self):
         headers = {
-            'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',  # noqa
             'Content-Disposition': 'attachment; filename=companies_list.xlsx'
         }
         for key, value in headers.iteritems():
@@ -350,7 +361,8 @@ class SatelliteRegistryManagement(BaseAdmin):
         url = '/'.join([api.baseUrl, page])
         filename = self.request.file.filename
         response = api.do_api_request(
-            url, method='post', files={'file': (filename, self.request.file.read())},
+            url, method='post', files={'file': (filename,
+                                                self.request.file.read())},
             headers={'Authorization': api.token}
         )
         if response:
@@ -376,7 +388,7 @@ class SatelliteRegistryManagement(BaseAdmin):
 
     def get_users_excel(self):
         headers = {
-            'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Type': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',  # noqa
             'Content-Disposition': 'attachment; filename=user_list.xlsx'
         }
         for key, value in headers.iteritems():
@@ -406,7 +418,8 @@ class SatelliteRegistryManagement(BaseAdmin):
 
         return api.getAllEmails()
 
-    def lockedCompany(self, company_id, old_collection_id, country_code, domain):
+    def lockedCompany(self, company_id, old_collection_id, country_code,
+                      domain):
         api = self.get_api()
         if not api:
             return None
@@ -425,7 +438,8 @@ class SatelliteRegistryManagement(BaseAdmin):
             return json.dumps(self.lockedCompany(company_id, old_collection_id,
                                                  country_code, domain))
 
-    def lockDownCompany(self, company_id, old_collection_id, country_code, domain, user, came_from):
+    def lockDownCompany(self, company_id, old_collection_id, country_code,
+                        domain, user, came_from):
         api = self.get_api()
         if not api:
             return None
@@ -437,7 +451,8 @@ class SatelliteRegistryManagement(BaseAdmin):
         if came_from:
             return self.request.response.redirect(came_from)
 
-    def unlockCompany(self, company_id, old_collection_id, country_code, domain, user, came_from):
+    def unlockCompany(self, company_id, old_collection_id, country_code,
+                      domain, user, came_from):
         api = self.get_api()
         if not api:
             return None

@@ -24,7 +24,9 @@ class Statistics(BaseAdmin):
         all_unique_country_fields = self.context.Catalog.uniqueValuesFor(
             'country')
         country_urls = [c for c in all_unique_country_fields
-                        if c and c.startswith('http://rod.eionet.europa.eu/spatial')]
+                        if c
+                        and c.startswith('http://rod.eionet.europa.eu/spatial')
+                        ]
         app = self.context.getPhysicalRoot()
         engine = getattr(app, constants.ENGINE_ID)
         localities = engine.localities_dict()
@@ -34,8 +36,9 @@ class Statistics(BaseAdmin):
                 # TODO try a named tupple here
                 country_deliveries.append(
                     {'country': localities[country_url]['name'],
-                     'count': len(self.context.Catalog(meta_type="Report Envelope",
-                                                       released=True,
-                                                       country=country_url))
+                     'count': len(self.context.Catalog(
+                        meta_type="Report Envelope",
+                        released=True,
+                        country=country_url))
                      })
         return country_deliveries

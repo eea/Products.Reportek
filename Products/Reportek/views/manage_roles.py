@@ -146,7 +146,8 @@ class ManageRoles(BaseAdmin):
                 if transfer:
                     t_roles = set(transfer.get_local_roles_for_userid(entity))
                     revocable = [r for r in revoke_roles
-                                 if r in ['ClientFG', 'ClientODS', 'ClientCARS']]
+                                 if r in ['ClientFG', 'ClientODS',
+                                          'ClientCARS']]
                     for role in revocable:
                         if role in t_roles:
                             t_roles.remove(role)

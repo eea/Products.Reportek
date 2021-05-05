@@ -112,8 +112,8 @@ class BaseAdmin(BrowserView):
                 'obligations': obligations}
 
     def get_assigned_rod_obligations(self):
-        """ Returns activities that have already been assigned to collections or
-            envelopes and that exist in ROD
+        """ Returns activities that have already been assigned to collections
+            or envelopes and that exist in ROD
         """
         data = self.get_raw_rod_obligations()
         obligations = defaultdict(list)
@@ -136,7 +136,8 @@ class BaseAdmin(BrowserView):
         if deployment_type == config.DEPLOYMENT_BDR:
             return True
 
-    def search_catalog(self, obligations, countries, role, users=None, path=None):
+    def search_catalog(self, obligations, countries, role, users=None,
+                       path=None):
         if len(countries) == len(self.localities_rod):
             country_codes = None
         else:
