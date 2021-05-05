@@ -421,9 +421,9 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager,
             ' xmlns:cr="http://cr.eionet.europa.eu/ontologies/contreg.rdf#"')
         res.append(' xmlns="http://rod.eionet.europa.eu/schema.rdf#">')
 
-        res.append('<rdf:Description rdf:about="%s">' %
-                   RepUtils.xmlEncode(parse_uri(
-                    self.absolute_url(), http_res)))
+        res.append('<rdf:Description rdf:about="%s">'
+                   % RepUtils.xmlEncode(parse_uri(self.absolute_url(),
+                                                  http_res)))
         res.append('</rdf:Description>')
         res.append('</rdf:RDF>')
         return '\n'.join(res)
