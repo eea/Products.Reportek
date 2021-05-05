@@ -509,7 +509,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         if REQUEST is None:
             REQUEST = self.REQUEST
         session = getattr(REQUEST, 'SESSION', None)
-        if session and 'status_extra' in session:
+        if session and 'status_extra' in session.keys():
             session.delete('status_extra')
         status_extra = None
         browser_accept_type = get_first_accept(REQUEST)
