@@ -34,6 +34,7 @@ import os
 import StringIO
 import tempfile
 from os.path import isfile, join
+import logging
 
 import RepUtils
 from AccessControl import ClassSecurityInfo, getSecurityManager
@@ -59,6 +60,7 @@ from Products.ZCatalog.CatalogAwareness import CatalogAware
 from zope.event import notify
 from zope.interface import implements
 from zope.lifecycleevent import ObjectModifiedEvent
+logger = logging.getLogger("Reportek")
 
 manage_addFeedbackForm = PageTemplateFile('zpt/feedback/add', globals())
 
@@ -284,7 +286,14 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager, C
     def renderFeedbacktext(self):
         pt = ZopePageTemplate(self.id+'_tmp')
         pt.write(self.feedbacktext)
-        return pt.__of__(self)()
+        try:
+            result = pt.__of__(self)()
+        except Exception:
+            result = self.feedbacktext
+            logger.warning(
+                "Unable to render feedbacktext with translations: {}".format(
+                    self.absolute_url()))
+        return result
 
     def compileFeedbacktext(self, REQUEST):
         """ If the feedbacktext has another content type than plain text or HTML,
