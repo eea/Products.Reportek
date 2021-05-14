@@ -48,11 +48,10 @@ from blob import add_OfsBlobFile
 from AccessControl import ClassSecurityInfo
 import RepUtils
 import StringIO
-__version__ = '$Rev$'[6:-2]
+import logging
 
-# from webdav.WriteLockInterface import WriteLockInterface
-# Zope imports
-# Product specific imports
+__version__ = '$Rev$'[6:-2]
+logger = logging.getLogger("Reportek")
 
 manage_addFeedbackForm = PageTemplateFile('zpt/feedback/add', globals())
 
@@ -315,7 +314,14 @@ class ReportFeedback(CatalogAware, ObjectManager, SimpleItem, PropertyManager,
     def renderFeedbacktext(self):
         pt = ZopePageTemplate(self.id+'_tmp')
         pt.write(self.feedbacktext)
-        return pt.__of__(self)()
+        try:
+            result = pt.__of__(self)()
+        except Exception:
+            result = self.feedbacktext
+            logger.warning(
+                "Unable to render feedbacktext with translations: {}".format(
+                    self.absolute_url()))
+        return result
 
     def compileFeedbacktext(self, REQUEST):
         """ If the feedbacktext has another content type than plain text or

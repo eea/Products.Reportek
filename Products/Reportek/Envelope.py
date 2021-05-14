@@ -1044,8 +1044,9 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         if request:
             session = getattr(request, 'SESSION', None)
             if session:
-                can_add_fb = session.get('can_add_feedback_before_release',
-                                         False)
+                can_add_fb = getattr(session,
+                                     'can_add_feedback_before_release',
+                                     False)
 
         return (hasThisPermission('Add Feedback', self)
                 and (self.released or can_add_fb))
