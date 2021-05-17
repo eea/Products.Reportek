@@ -36,4 +36,4 @@ if userobj.has_permission("View management screens", container):  # noqa: F821
     print """<li><a href="manage">Manage </a></li>"""
 
 print '</ul>'
-return printed  # noqa: F999
+return printed  # noqa

@@ -17,4 +17,4 @@ if ('AUTHENTICATED_USER' in request
            """Logout (%s)</a></span>""" % userobj.getUserName())
 else:
     print """<a id="loginlink" href="/loggedin">Login</a>"""
-return printed  # noqa: F999
+return printed  # noqa
