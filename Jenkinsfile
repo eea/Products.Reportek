@@ -94,11 +94,11 @@ pipeline {
             // get the code
             checkout scm
             // get the result of the tests that were run in a previous Jenkins test 
-            dir("xunit-reports") {
-              unstash "xunit-reports" 
-            }
+            // dir("xunit-reports") {
+            //   unstash "xunit-reports" 
+            // }
             // get the result of the cobertura test
-            unstash "coverage.xml" 
+            // unstash "coverage.xml" 
             // get the sonar-scanner binary location 
             def scannerHome = tool 'SonarQubeScanner';
             // get the nodejs binary location 
@@ -106,7 +106,7 @@ pipeline {
             // run with the SonarQube configuration of API and token
             withSonarQubeEnv('Sonarqube') {
                 // make sure you have the same path to the code as in the coverage report
-                sh '''sed -i "s|/plone/instance/src/$GIT_NAME|$(pwd)|g" coverage.xml'''
+                // sh '''sed -i "s|/plone/instance/src/$GIT_NAME|$(pwd)|g" coverage.xml'''
                 // run sonar scanner
                 sh "export PATH=$PATH:${scannerHome}/bin:${nodeJS}/bin; sonar-scanner -Dsonar.python.coverage.reportPaths=coverage.xml -Dsonar.sources=./eea -Dsonar.projectKey=$GIT_NAME-$BRANCH_NAME -Dsonar.projectVersion=$BRANCH_NAME-$BUILD_NUMBER" 
             }
