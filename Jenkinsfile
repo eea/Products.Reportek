@@ -89,7 +89,7 @@ pipeline {
 
     stage('Report to SonarQube') {
       steps {
-        node(label: 'Products.Reportek') {
+        node(label: 'docker') {
           script{
             // get the code
             checkout scm
