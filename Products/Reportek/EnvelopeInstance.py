@@ -48,7 +48,7 @@ try:
     # do you have CMF?
     # if so use its Expression class
     from Products.CMFCore.Expression import Expression
-except:
+except ImportError:
     # I guess you have no CMF...
     # here's a what you need:
     from expression import Expression

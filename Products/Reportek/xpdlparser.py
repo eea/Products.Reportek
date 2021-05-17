@@ -83,5 +83,5 @@ class sxpdlparser:
         try:
             l_parser.parse(l_inpsrc)
             return l_handler
-        except:
+        except Exception:
             return None

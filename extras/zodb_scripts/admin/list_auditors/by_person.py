@@ -61,7 +61,8 @@ for account, paths in pitems:
     print '''<tr%s><td valign="top">%s\
     <a href="http://www.eionet.europa.eu/directory/user?uid=%s">%s</a></td>
 <td valign="top">%s</td>
-</tr>''' % (evenstr, err, account, account, string.join(paths, '<br/>'))  # noqa: F821
+</tr>''' % (evenstr, err, account, account,
+            string.join(paths, '<br/>'))  # noqa: F821
     if evenstr == '':
         evenstr = ' class="zebraeven"'
     else:
@@ -70,4 +71,4 @@ for account, paths in pitems:
 print "</table>"
 print context.standard_html_footer(context, context.REQUEST)  # noqa: F821
 
-return printed  # noqa: F999
+return printed  # noqa

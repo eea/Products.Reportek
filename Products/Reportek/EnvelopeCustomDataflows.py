@@ -358,8 +358,7 @@ class EnvelopeCustomDataflows(Toolz):
                         l_msg = ('''The file was successfully uploaded in '''
                                  '''the envelope and converted into an XML '''
                                  '''delivery.''')
-                        c_log = '[INFO]: Conversion successful'.format(
-                            l_result)
+                        c_log = '[INFO]: Conversion successful'
                     self.log_file_conversion(l_id, c_log)
                     err = {
                         'title': c_log.split(':')[0].replace(']', '').replace(
@@ -700,9 +699,9 @@ class EnvelopeCustomDataflows(Toolz):
             # if the zip file contains XML files with the same schema and
             # the flag 'replace_xml' is 1
             xml_f = {}
-            l = [(x.xml_schema_location, x.id) for x in self.objectValues(
+            docs = [(x.xml_schema_location, x.id) for x in self.objectValues(
                 'Report Document') if x.xml_schema_location]
-            for i, j in l:
+            for i, j in docs:
                 if i in xml_f:
                     xml_f[i].append(j)
                 else:

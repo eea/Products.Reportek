@@ -111,4 +111,4 @@ print "</table>"
 
 print context.standard_html_footer(context, context.REQUEST)  # noqa: F821
 
-return printed  # noqa: F999
+return printed  # noqa

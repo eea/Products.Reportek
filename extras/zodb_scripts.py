@@ -24,7 +24,7 @@ def get_zodb_scripts(app):
         src = ob.document_src()
         try:
             src = codecs.decode(src, 'utf-8')
-        except:
+        except Exception:
             pass
         zodb_scripts[zodb_path] = (ob.meta_type, src)
     return zodb_scripts

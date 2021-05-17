@@ -1144,7 +1144,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         for record in records:
             try:
                 objects.append(l_catalog.getobject(record))
-            except:
+            except Exception:
                 pass
         return objects
 
