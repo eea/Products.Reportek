@@ -22,31 +22,31 @@
 
 import logging
 
-from config import DEPLOYMENT_BDR
-from config import DEPLOYMENT_CDR
-from config import REDIS_DATABASE
-from config import REDIS_HOSTNAME
-from config import REDIS_PORT
-from config import REPORTEK_DEPLOYMENT
+from Products.Reportek.config import (DEPLOYMENT_BDR,
+                                      DEPLOYMENT_CDR,
+                                      REDIS_DATABASE,
+                                      REDIS_HOSTNAME,
+                                      REDIS_PORT,
+                                      REPORTEK_DEPLOYMENT)
 from traceback import format_exception_only
 
-import Collection
-import Converter
-import Converters
-import DataflowMappings
-import OpenFlowEngine
-import QARepository
-import QAScript
-import Referral
-import RemoteApplication
-import RemoteFMEConversionApplication
-import RemoteRESTApplication
-import RemoteRestQaApplication
-import ReportekAPI
-import ReportekEngine
-import ReportekUtilities
-import constants
-import monitoring
+from Products.Reportek import Collection
+from Products.Reportek import Converter
+from Products.Reportek import Converters
+from Products.Reportek import DataflowMappings
+from Products.Reportek import OpenFlowEngine
+from Products.Reportek import QARepository
+from Products.Reportek import QAScript
+from Products.Reportek import Referral
+from Products.Reportek import RemoteApplication
+from Products.Reportek import RemoteFMEConversionApplication
+from Products.Reportek import RemoteRESTApplication
+from Products.Reportek import RemoteRestQaApplication
+from Products.Reportek import ReportekAPI
+from Products.Reportek import ReportekEngine
+from Products.Reportek import ReportekUtilities
+from Products.Reportek import constants
+from Products.Reportek import monitoring
 # Zope imports
 import Zope2
 
