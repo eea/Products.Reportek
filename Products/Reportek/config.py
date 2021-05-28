@@ -78,6 +78,8 @@ elif REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
     permission_manage_properties_collections = 'Manage properties'
     permission_manage_properties_envelopes = 'Manage properties'
     XLS_HEADINGS = BDR_XLS_HEADINGS
+
+REDIS_DATABASE = None
 if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
     try:
         REDIS_DATABASE = int(os.environ.get('REDIS_DATABASE'))
