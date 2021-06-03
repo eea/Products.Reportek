@@ -13,6 +13,7 @@
 # Daniel Mihai Bărăgan, Eau de Web
 
 import os
+from App.config import getConfiguration
 
 __all__ = [
     'REPORTEK_DEPLOYMENT',
@@ -68,7 +69,13 @@ LOCAL_CONVERTERS_SCHEME = os.environ.get('LOCAL_CONVERTERS_SCHEME', 'http')
 ZIP_CACHE_THRESHOLD = int(os.environ.get('ZIP_CACHE_THRESHOLD', 100000000))
 ZIP_CACHE_ENABLED = os.environ.get(
     'ZIP_CACHE_ENABLED', 'True').lower() in ('true', 'yes', 'on', '1')
-ZIP_CACHE_PATH = os.environ.get('ZIP_CACHE_PATH')
+ZIP_CACHE_PATH = os.environ.get('ZIP_CACHE_PATH', None)
+if not ZIP_CACHE_PATH:
+    try:
+        build_env = getattr(getConfiguration(), 'environment', None)
+        ZIP_CACHE_PATH = build_env.get('TMPDIR')
+    except Exception:
+        ZIP_CACHE_PATH = CLIENT_HOME  # noqa
 
 if REPORTEK_DEPLOYMENT in (DEPLOYMENT_CDR, DEPLOYMENT_MDR):
     permission_manage_properties_collections = 'Change Collections'
