@@ -1,7 +1,6 @@
-import unittest
 from path import path
 from utils import create_fake_root
-from common import BaseTest
+from common import BaseTest, BaseUnitTest
 from mock import patch, Mock, MagicMock, call
 from Products.Reportek.Converters import Converters
 from Products.Reportek.Converter import LocalHttpConverter
@@ -23,7 +22,7 @@ def CONVERTER_PARAMS():
         })
 
 
-class ConversionServiceTest(unittest.TestCase):
+class ConversionServiceTest(BaseUnitTest):
 
     def setUp(self):
         self.app = create_fake_root()
@@ -304,7 +303,7 @@ class ConversionServiceTest(unittest.TestCase):
         self.assertEqual(set(['file', 'shx', 'dbf']), set(files.keys()))
 
 
-class ConversionRegistryTest(unittest.TestCase):
+class ConversionRegistryTest(BaseUnitTest):
 
     def setUp(self):
         self.app = create_fake_root()

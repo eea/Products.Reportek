@@ -4,10 +4,10 @@ import json
 
 from mock import Mock, patch
 from Products.Reportek.RegistryManagement import FGASRegistryAPI
-from Testing import ZopeTestCase
+from common import BaseTest
 
 
-class FGASRegistryAPITest(ZopeTestCase.ZopeTestCase):
+class FGASRegistryAPITest(BaseTest):
     userDetailInput = u"""
     [{"company_id": 1234,
       "name": "Blă Brul",

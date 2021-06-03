@@ -1,12 +1,12 @@
 # flake8: noqa
-import unittest
+from common import BaseUnitTest
 from StringIO import StringIO
 from Products.Reportek.XMLInfoParser import (detect_schema,
                                              detect_single_schema,
                                              SchemaError)
 
 
-class XmlDetectionTest(unittest.TestCase):
+class XmlDetectionTest(BaseUnitTest):
 
     def test_create_xml_document(self):
         """ Create a simple XML document, and then verify the schema got
@@ -245,7 +245,7 @@ class XmlDetectionTest(unittest.TestCase):
         self.assertEqual(schema_location, 'http://example.com/my.dtd')
 
 
-class XmlSingleSchemaDetectionTest(unittest.TestCase):
+class XmlSingleSchemaDetectionTest(BaseUnitTest):
 
     def test_single_schema_no_ns(self):
         content = ('<r xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'

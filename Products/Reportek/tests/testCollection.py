@@ -1,10 +1,11 @@
 from Testing import ZopeTestCase
+from common import BaseTest
 ZopeTestCase.installProduct('Reportek')
 
 # from Products.Reportek.Collection import Collection
 
 
-class CollectionTestCase(ZopeTestCase.ZopeTestCase):
+class CollectionTestCase(BaseTest):
 
     #    def testCreation(self):
     #        """ Check for the correct creation of a collection """

@@ -1,9 +1,8 @@
 from Products.Reportek.process import process
-from Testing import ZopeTestCase
-ZopeTestCase.installProduct('Reportek')
+from common import BaseTest
 
 
-class processDefinitionCreationTestCase(ZopeTestCase.ZopeTestCase):
+class processDefinitionCreationTestCase(BaseTest):
 
     _setup_fixture = 0
 

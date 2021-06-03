@@ -1,5 +1,4 @@
-import unittest
-
+from common import BaseUnitTest
 from Products.Reportek.constants import DATAFLOW_MAPPINGS
 from Products.Reportek.DataflowMappingsRecord import DataflowMappingsRecord
 from Products.Reportek.DataflowMappings import DataflowMappings
@@ -7,16 +6,16 @@ from utils import makerequest, create_fake_root, create_catalog
 from mock import Mock
 
 
-class DFMTestCase(unittest.TestCase):
+class DFMTestCase(BaseUnitTest):
 
-    id = DATAFLOW_MAPPINGS
+    tid = DATAFLOW_MAPPINGS
 
     def setUp(self):
         self.app = makerequest(create_fake_root())
         self.catalog = create_catalog(self.app)
         dm = DataflowMappings()
-        self.app._setObject(self.id, dm)
-        self.mappings = self.app[self.id]
+        self.app._setObject(self.tid, dm)
+        self.mappings = self.app[self.tid]
 
     def add_mapping(self, oid, *args, **kwargs):
         ob = DataflowMappingsRecord(

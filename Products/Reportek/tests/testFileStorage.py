@@ -1,5 +1,4 @@
 import time
-import unittest
 from StringIO import StringIO
 import zipfile
 from mock import Mock, patch, call
@@ -11,7 +10,7 @@ from Products.Reportek import constants
 from Products.Reportek.Converters import Converters
 from Products.Reportek import Document
 from Products.Reportek import blob
-from common import BaseTest, ConfigureReportek
+from common import BaseTest, BaseUnitTest, ConfigureReportek
 
 
 def create_document_with_data(data, compression='no'):
@@ -178,7 +177,7 @@ class FileStorageTest(BaseTest):
         self.assertTrue(len(read_data) == compressed_size)
 
 
-class DataFileApiTest(unittest.TestCase):
+class DataFileApiTest(BaseUnitTest):
 
     def tearDown(self):
         transaction.abort()
@@ -427,7 +426,7 @@ class ZipDownloadTest(BaseTest, ConfigureReportek):
             self.assertEqual(encode_zip_name(orig_path, flags), expected)
 
 
-class FileContainerTest(unittest.TestCase):
+class FileContainerTest(BaseUnitTest):
 
     def test_default_attributes(self):
         t0 = int(time.time())
@@ -446,7 +445,7 @@ class FileContainerTest(unittest.TestCase):
         blob.FileContainer(compress='auto')
 
 
-class OfsBlobFileTest(unittest.TestCase):
+class OfsBlobFileTest(BaseUnitTest):
 
     def test_create_file(self):
         from OFS.Folder import Folder

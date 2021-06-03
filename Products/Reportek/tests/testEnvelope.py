@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 import os.path
-from common import BaseTest, WorkflowTestCase, ConfigureReportek
+from common import BaseTest, BaseUnitTest, WorkflowTestCase, ConfigureReportek
 from Products.Reportek.OpenFlowEngine import OpenFlowEngineImportError
 from Products.Reportek import ContentRegistryPingger
 from Products.Reportek import Converters
@@ -17,7 +17,6 @@ from utils import (create_fake_root, create_upload_file, create_envelope,
                    add_document, add_feedback, add_hyperlink,
                    simple_addEnvelope)
 from DateTime import DateTime
-import unittest
 import lxml.etree
 from StringIO import StringIO
 from Testing import ZopeTestCase
@@ -579,7 +578,7 @@ def get_xml_metadata(envelope, inline='false'):
     return lxml.etree.parse(StringIO(xml_data)).getroot()
 
 
-class EnvelopeMetadataTest(unittest.TestCase):
+class EnvelopeMetadataTest(BaseUnitTest):
 
     def setUp(self):
         self.root = create_fake_root()
@@ -617,7 +616,7 @@ class EnvelopeMetadataTest(unittest.TestCase):
         self.assertEqual(xml_instance[0].attrib['title'], "bar")
 
 
-class EnvelopeCustomDataflowsXmlTest(unittest.TestCase):
+class EnvelopeCustomDataflowsXmlTest(BaseUnitTest):
 
     def setUp(self):
         self.root = create_fake_root()

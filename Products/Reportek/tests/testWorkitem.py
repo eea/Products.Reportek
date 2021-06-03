@@ -1,9 +1,10 @@
 from Products.Reportek.workitem import workitem
+from common import BaseTest
 from Testing import ZopeTestCase
 ZopeTestCase.installProduct('Reportek')
 
 
-class WorkitemTestCase(ZopeTestCase.ZopeTestCase):
+class WorkitemTestCase(BaseTest):
 
     _setup_fixture = 0
 

@@ -5,8 +5,7 @@ from mock import Mock, patch
 from utils import (create_temp_reposit, HtmlPage, MockDatabase,
                    break_document_data_file)
 from fileuploadmock import FileUploadMock
-from common import BaseTest, ConfigureReportek
-import unittest
+from common import BaseTest, BaseUnitTest, ConfigureReportek
 from zExceptions import Redirect
 from StringIO import StringIO
 from Testing import ZopeTestCase
@@ -177,7 +176,7 @@ xmlns:met="http://biodiversity.eionet.europa.eu/schemas/dir9243eec">
             self.document.view_image_or_file()
 
 
-class HttpRequestTest(unittest.TestCase):
+class HttpRequestTest(BaseUnitTest):
 
     file_data = 'hello world'
 

@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-from Testing import ZopeTestCase
+from common import BaseTest
 from Products.Reportek import RepUtils
 
 import logging
@@ -11,7 +11,7 @@ BASIC_TEMPLATE = """value:$value"""
 TEMPLATE = """str:$str, num:$num, unicode:$unicode"""
 
 
-class RepUtilsTestCase(ZopeTestCase.ZopeTestCase):
+class RepUtilsTestCase(BaseTest):
 
     def test_parse_template(self):
         """

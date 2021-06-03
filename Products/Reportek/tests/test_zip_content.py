@@ -1,4 +1,4 @@
-import unittest
+from common import BaseUnitTest
 from path import path
 from mock import patch
 import md5
@@ -12,7 +12,7 @@ FILE2_CRC = 2392975974
 FILE3_NAME = 'excel-examples.xls'
 
 
-class TestZZipFile(unittest.TestCase):
+class TestZZipFile(BaseUnitTest):
     def setUp(self):
         self.inputZipPath = path(__file__).parent.abspath() / 'zipMany.zip'
         # fh = open(self.inputZipPath)
@@ -96,7 +96,7 @@ class TestZZipFile(unittest.TestCase):
         self.assertEqual(content, contentSame)
 
 
-class TestZZipFileRaw(unittest.TestCase):
+class TestZZipFileRaw(BaseUnitTest):
 
     fileInfo = {
         FILE1_NAME: {

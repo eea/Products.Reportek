@@ -1,5 +1,5 @@
 # flake8: noqa
-import unittest
+from common import BaseUnitTest
 from mock import Mock, patch, MagicMock
 from Products.Reportek.constants import DF_URL_PREFIX
 
@@ -23,7 +23,7 @@ mock_localities = {
 }
 
 
-class UNSCallsTest(unittest.TestCase):
+class UNSCallsTest(BaseUnitTest):
 
     def setUp(self):
         from Products.Reportek.ReportekEngine import ReportekEngine

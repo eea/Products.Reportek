@@ -1,4 +1,4 @@
-import unittest
+from common import BaseUnitTest
 from datetime import datetime
 from mock import Mock, patch
 from utils import create_fake_root, create_upload_file
@@ -13,7 +13,7 @@ def create_qa_repository(parent, id='qa_repository'):
     return parent[ob.id]
 
 
-class QAScriptTest(unittest.TestCase):
+class QAScriptTest(BaseUnitTest):
 
     def setUp(self):
         self.doc_content = 'test content for our document'

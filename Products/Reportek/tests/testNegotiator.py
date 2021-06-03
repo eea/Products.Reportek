@@ -1,11 +1,11 @@
-import unittest
+from common import BaseUnitTest
 from mock import Mock, patch
 from Products.Reportek.negotiator import CustomNegotiator
 from ZPublisher.HTTPRequest import HTTPRequest
 from zope.i18n.negotiator import normalize_lang
 
 
-class TestCustomNegotiator(unittest.TestCase):
+class TestCustomNegotiator(BaseUnitTest):
     # not normalized languages
     AVAILABLE_LANGS = [
         'eN',

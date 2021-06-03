@@ -14,6 +14,7 @@ from Products.PageTemplates.ZopePageTemplate import manage_addPageTemplate
 from Products.PythonScripts.PythonScript import manage_addPythonScript
 from Products.Reportek import (constants, create_reportek_indexes,
                                create_reportek_objects)
+from common import BaseTest
 from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
 from Products.Reportek.ReportekEngine import ReportekEngine
 from Testing import ZopeTestCase as ztc
@@ -179,7 +180,7 @@ orig_localities_rod = ReportekEngine.localities_rod
 orig_dataflow_rod = ReportekEngine.dataflow_rod
 
 
-class BaseFunctionalTestCase(ztc.FunctionalTestCase):
+class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
     # _setup_fixture = 0
 
     def addObject(self, container, name, id, product='Reportek', **kw):

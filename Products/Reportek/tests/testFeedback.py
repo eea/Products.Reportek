@@ -2,7 +2,7 @@
 from Products.Reportek import Converters
 from utils import create_fake_root, create_envelope
 from fileuploadmock import FileUploadMock
-from common import BaseTest, ConfigureReportek
+from common import BaseTest, BaseUnitTest, ConfigureReportek
 import unittest
 from Products.Reportek import constants
 from mock import Mock, patch
@@ -153,7 +153,7 @@ class FeedbackTestCase(BaseTest, ConfigureReportek):
         assert self.feedback.acquiredRolesAreUsedBy('View') == 'CHECKED'
 
 
-class RemoteApplicationFeedbackTest(unittest.TestCase):
+class RemoteApplicationFeedbackTest(BaseUnitTest):
 
     def setUp(self):
         from Products.Reportek.RemoteApplication import RemoteApplication
@@ -240,7 +240,7 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
         self.assertEqual('name with spaces.txt', feedback.document_id)
 
 
-class BlockerFeedbackTest(unittest.TestCase):
+class BlockerFeedbackTest(BaseUnitTest):
 
     def setUp(self):
         from Products.Reportek.RemoteApplication import RemoteApplication

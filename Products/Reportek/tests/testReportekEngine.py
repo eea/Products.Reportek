@@ -2,7 +2,7 @@ import unittest
 import zipfile
 from StringIO import StringIO
 
-from common import BaseTest, ConfigureReportek
+from common import BaseTest, BaseUnitTest, ConfigureReportek
 from DateTime import DateTime
 from mock import Mock, patch
 from Products.Reportek import Converters, constants
@@ -239,7 +239,7 @@ class SearchResultsTest(BaseTest, ConfigureReportek):
         self.assertEqual(envs, [self.root.first_envelope])
 
 
-class ReportekEngineZipTest(unittest.TestCase):
+class ReportekEngineZipTest(BaseUnitTest):
 
     def test_zip_download(self):
         content = 'test content for our document'

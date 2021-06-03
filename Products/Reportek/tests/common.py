@@ -22,6 +22,7 @@ import os
 from mock import Mock
 from App.Common import package_home
 from Testing import ZopeTestCase
+import unittest
 ZopeTestCase.installProduct('Reportek')
 ZopeTestCase.installProduct('PythonScripts')
 
@@ -39,6 +40,10 @@ def _createStandardCollection(app):
     return app.collection
 
 
+class BaseUnitTest(unittest.TestCase):
+    def getId(self):
+        return self.id()
+
 # TODO BaseTest is supposed to be used in unit tests, it uses Mock objects
 # that are not pickable
 # we need some mechanism to implement functional, vertical tests, like copy
@@ -47,6 +52,9 @@ class BaseTest(ZopeTestCase.ZopeTestCase):
     implements(ITraversable)
     provideAdapter(DefaultTraversable,
                    (interface.Interface,), ITraversable)
+
+    def getId(self):
+        return self.id()
 
     def get_abs_path(self, filename, _prefix=None):
         if _prefix:
