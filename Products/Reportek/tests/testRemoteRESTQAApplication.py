@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import json
-import unittest
 
 from mock import Mock, patch
 from Products.Reportek import Converters, constants

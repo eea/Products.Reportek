@@ -3,7 +3,6 @@ from Products.Reportek import Converters
 from utils import create_fake_root, create_envelope
 from fileuploadmock import FileUploadMock
 from common import BaseTest, BaseUnitTest, ConfigureReportek
-import unittest
 from Products.Reportek import constants
 from mock import Mock, patch
 from Testing import ZopeTestCase

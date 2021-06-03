@@ -44,6 +44,7 @@ class BaseUnitTest(unittest.TestCase):
     def getId(self):
         return self.id()
 
+
 # TODO BaseTest is supposed to be used in unit tests, it uses Mock objects
 # that are not pickable
 # we need some mechanism to implement functional, vertical tests, like copy
