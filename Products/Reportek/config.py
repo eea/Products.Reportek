@@ -72,8 +72,10 @@ ZIP_CACHE_ENABLED = os.environ.get(
 ZIP_CACHE_PATH = os.environ.get('ZIP_CACHE_PATH', None)
 if not ZIP_CACHE_PATH:
     try:
-        build_env = getattr(getConfiguration(), 'environment', None)
-        ZIP_CACHE_PATH = build_env.get('TMPDIR')
+        build_env = getattr(getConfiguration(), 'clienthome', None)
+        # TODO: find a better way to do this
+        bpath = '/'.join(build_env.split('/')[:-2])
+        ZIP_CACHE_PATH = '{}/var'.format(bpath)
     except Exception:
         ZIP_CACHE_PATH = CLIENT_HOME  # noqa
 
