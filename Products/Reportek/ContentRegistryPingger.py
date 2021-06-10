@@ -19,9 +19,12 @@ class ContentRegistryPingger(object):
 
     if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR and REDIS_DATABASE:
         import redis
-        PING_STORE = redis.Redis(host=REDIS_HOSTNAME,
-                                 port=REDIS_PORT,
-                                 db=REDIS_DATABASE)
+        try:
+            PING_STORE = redis.Redis(host=REDIS_HOSTNAME,
+                                     port=REDIS_PORT,
+                                     db=REDIS_DATABASE)
+        except Exception:
+            PING_STORE = None
 
     def __init__(self, api_url, cr_rmq=False):
         self.api_url = api_url
