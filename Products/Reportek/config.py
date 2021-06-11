@@ -94,7 +94,7 @@ REDIS_PORT = '6379'
 
 if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
     try:
-        REDIS_DATABASE = int(os.environ.get('REDIS_DATABASE'))
+        REDIS_DATABASE = int(os.environ.get('REDIS_DATABASE', 2))
     except (ValueError, TypeError):
         REDIS_DATABASE = None
     REDIS_HOSTNAME = os.environ.get('REDIS_HOSTNAME', 'localhost')

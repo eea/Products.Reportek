@@ -256,8 +256,8 @@ class InitCRTest(BaseTest, ConfigureReportek):
             self.pingger._content_registry_ping = Mock(
                 return_value=(200, ok_message))
             redis_mock.return_value = self.pingger.PING_STORE
-
             ping_remaining_envelopes(self.root, self.pingger)
+
             call_args_list = self.pingger._content_registry_ping.call_args_list
             # skip the feedback - it is random name
             self.assertIn(call(self.envelope.absolute_url()+'/rdf',
