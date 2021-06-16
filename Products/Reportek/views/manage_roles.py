@@ -8,7 +8,6 @@ class ManageRoles(BaseAdmin):
 
     def __call__(self, *args, **kwargs):
         super(ManageRoles, self).__call__(*args, **kwargs)
-
         if self.__name__ == 'assign_role':
             if self.request.get('btn.assign'):
                 self.assign_role()
@@ -129,8 +128,12 @@ class ManageRoles(BaseAdmin):
 
             revoke_roles = self.request.get(path.replace('/', '_'), [])
             roles = set(obj.get_local_roles_for_userid(entity))
-            for role in revoke_roles:
-                roles.remove(role)
+            for r in revoke_roles:
+                if (REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR
+                        and r == 'Reporter (Owner)'):
+                    roles.remove('Owner')
+                else:
+                    roles.remove(r)
             obj.manage_delLocalRoles([entity])
             if roles:
                 obj.manage_setLocalRoles(entity, list(roles))
