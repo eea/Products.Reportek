@@ -1347,8 +1347,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         try:
             l_server = self.get_uns_xmlrpc_server()
             if l_server is not None:
+                user_id = self.REQUEST['AUTHENTICATED_USER'].getUserName()
+                if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+                    if self.get_ecas_userid(user_id):
+                        user_id = self.get_ecas_userid(user_id)
                 #l_ret = l_server.UNSService.makeSubscription(self.UNS_channel_id, self.REQUEST['AUTHENTICATED_USER'].getUserName(), l_filters)
-                l_ret = l_server.UNSService.makeSubscription(self.UNS_channel_id, self.REQUEST['AUTHENTICATED_USER'].getUserName(), l_filters_final)
+                l_ret = l_server.UNSService.makeSubscription(self.UNS_channel_id, user_id, l_filters_final)
                 if REQUEST is not None:
                     REQUEST.RESPONSE.redirect('subscriptions_html?info_title=Information&info_msg=Subscription made successfully')
                 return (1, '')
