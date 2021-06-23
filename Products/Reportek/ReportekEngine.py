@@ -65,7 +65,8 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BdrAuthorizationMiddleware import \
     BdrAuthorizationMiddleware
 from Products.Reportek.clamav import AVService
-from Products.Reportek.config import REPORTEK_DEPLOYMENT
+from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
+from Products.Reportek.constants import ECAS_ID
 from Products.Reportek.ContentRegistryPingger import ContentRegistryPingger
 from Products.Reportek.RegistryManagement import (BaseRegistryAPI,
                                                   BDRRegistryAPI,
@@ -1280,6 +1281,15 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 url = url.replace('https://', 'https://'+frag)
             return xmlrpclib.Server(url)
 
+    def get_ecas_userid(self, username):
+        ecas_path = '/acl_users/' + ECAS_ID
+        try:
+            ecas = self.unrestrictedTraverse(ecas_path, None)
+            if ecas:
+                return ecas.getEcasUserId(username)
+        except Exception:
+            logger.info('Unable to get ecas info')
+
     security.declareProtected('View', 'canUserSubscribeToUNS')
     def canUserSubscribeToUNS(self, user_id='', REQUEST=None):
         """ Indicates if the user given as parameter or authenticated
@@ -1293,6 +1303,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         try:
             l_server = self.get_uns_xmlrpc_server()
             if l_server is not None:
+                if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+                    if self.get_ecas_userid(user_id):
+                        user_id = self.get_ecas_userid(user_id)
                 l_ret = l_server.UNSService.canSubscribe(self.UNS_channel_id,
                                                          user_id)
                 return l_ret
@@ -1384,8 +1397,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         for act in actors:
             try:
                 if l_server is not None:
+                    if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+                        if self.get_ecas_userid(act):
+                            act = self.get_ecas_userid(act)
                     l_server.UNSService.makeSubscription(self.UNS_channel_id,
-                                                       act, filters)
+                                                         act, filters)
                     return 1
             except Exception as e:
                 logger.warning("Unable to subscribe actors: {0} to UNS: {1}"
