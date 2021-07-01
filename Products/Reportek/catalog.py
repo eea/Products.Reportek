@@ -8,10 +8,9 @@ reporting.
 import logging
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl.SecurityManagement import getSecurityManager
-from Products.ZCatalog.ZCatalog import ZCatalog
-from DateTime import DateTime
 from Products.Five.browser import BrowserView
 from OFS.interfaces import IObjectManager
+from copy import deepcopy
 
 
 log = logging.getLogger(__name__)
@@ -105,13 +104,45 @@ def listAllowedAdminRolesAndUsers(user):
     return result
 
 
-def searchResults(catalog, query, admin_check=False):
+def searchResults(catalog, query, admin_check=False, security=True):
     """
         Calls catalog.searchResults with extra arguments that
         limit the results to what the user is allowed to see.
     """
+
+    user = getSecurityManager().getUser()
     if admin_check:
-        user = getSecurityManager().getUser()
         query['allowedAdminRolesAndUsers'] = listAllowedAdminRolesAndUsers(user)
+    if security:
+        query['allowedRolesAndUsers'] = listAllowedAdminRolesAndUsers(user)
 
     return catalog.searchResults(**query)
+
+
+def _mergedLocalRoles(object):
+    """Returns a merging of object and its ancestors'
+    __ac_local_roles__."""
+    # Modified from AccessControl.User.getRolesInContext().
+    merged = {}
+    object = getattr(object, 'aq_inner', object)
+    while 1:
+        if hasattr(object, '__ac_local_roles__'):
+            dict = object.__ac_local_roles__ or {}
+            if callable(dict):
+                dict = dict()
+            for k, v in dict.items():
+                if k in merged:
+                    merged[k] = merged[k] + v
+                else:
+                    merged[k] = v
+        if hasattr(object, 'aq_parent'):
+            object = object.aq_parent
+            object = getattr(object, 'aq_inner', object)
+            continue
+        if hasattr(object, '__self__'):
+            object = object.__self__
+            object = getattr(object, 'aq_inner', object)
+            continue
+        break
+
+    return deepcopy(merged)
