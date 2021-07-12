@@ -8,6 +8,7 @@ reporting.
 import logging
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl.SecurityManagement import getSecurityManager
+from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
 from Products.Five.browser import BrowserView
 from OFS.interfaces import IObjectManager
 from copy import deepcopy
@@ -113,7 +114,12 @@ def searchResults(catalog, query, admin_check=False, security=True):
     user = getSecurityManager().getUser()
     if admin_check:
         query['allowedAdminRolesAndUsers'] = listAllowedAdminRolesAndUsers(user)
-    if security:
+        # BDR specific query, return results
+        return catalog.searchResults(**query)
+    if security and REPORTEK_DEPLOYMENT != DEPLOYMENT_BDR:
+        # This cannot be deployed on BDR yet, as the searchresults will be
+        # affected for users with dynamic Owner role.
+        # https://taskman.eionet.europa.eu/issues/118846#note-9
         query['allowedRolesAndUsers'] = listAllowedAdminRolesAndUsers(user)
 
     return catalog.searchResults(**query)
