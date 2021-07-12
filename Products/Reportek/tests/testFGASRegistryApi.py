@@ -4,10 +4,11 @@ import json
 
 from mock import Mock, patch
 from Products.Reportek.RegistryManagement import FGASRegistryAPI
-from Testing import ZopeTestCase
+from Products.Reportek.Collection import Collection
+from common import BaseTest, ConfigureReportek
 
 
-class FGASRegistryAPITest(ZopeTestCase.ZopeTestCase):
+class FGASRegistryAPITest(BaseTest, ConfigureReportek):
     userDetailInput = u"""
     [{"company_id": 1234,
       "name": "Blă Brul",
@@ -25,8 +26,17 @@ class FGASRegistryAPITest(ZopeTestCase.ZopeTestCase):
       "collection_id": null}
     ]
     """
-    def setUp(self):
-        self.api = FGASRegistryAPI('FGASRegistryAPI', 'http://localhost:5000')
+    def afterSetUp(self):
+        super(FGASRegistryAPITest, self).afterSetUp()
+        api = FGASRegistryAPI('FGASRegistryAPI', 'http://localhost:5000')
+        self.root._setObject('api', api)
+        # create the previous collection
+        fgases = Collection(id='fgases')
+        gb = Collection(id='gb')
+        fgases._setObject(gb.id, gb)
+        fgas30001 = Collection(id='fgas30001')
+        gb._setObject(fgas30001.id, fgas30001)
+        self.root._setObject(fgases.id, fgases)
 
     @patch('requests.get')
     def test_getCollectionPaths(self, req_mock):
@@ -39,10 +49,9 @@ class FGASRegistryAPITest(ZopeTestCase.ZopeTestCase):
         username = 'vasile'
         expectedPaths = {
             'paths': [u'fgases/ro/fgas30001', u'fgases/ro/12345'],
-            'prev_paths': [u'fgases/gb/fgas30001']
+            'prev_paths': ['fgases/gb/fgas30001']
         }
 
-        paths = self.api.getCollectionPaths(username)
-
-        self.assertEqual(req_mock.call_args[0][0], self.api.baseUrl + '/user/' + username + '/companies')
+        paths = self.root.api.getCollectionPaths(username)
+        self.assertEqual(req_mock.call_args[0][0], self.root.api.baseUrl + '/user/' + username + '/companies')
         self.assertEqual(paths, expectedPaths)

@@ -493,7 +493,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
             return None
         country_folder = cls.getCountryFolder(country_code)
         collection_folder = old_collection_id if old_collection_id else company_id
-        return '/'.join([obligation_folder, country_folder, collection_folder])
+        return '/'.join([str(obligation_folder), str(country_folder), str(collection_folder)])
 
 
 class BDRRegistryAPI(BaseRegistryAPI):
