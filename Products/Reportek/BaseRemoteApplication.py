@@ -48,6 +48,8 @@ class BaseRemoteApplication(SimpleItem):
                     feedback_ob.content_type = 'text/html'
                     fb_status, fb_message = self.extract_metadata(feedback_ob)
                     feedback_ob.feedback_status = fb_status
+                    if fb_status == 'BLOCKER':
+                        wk.blocker = True
                     feedback_ob.message = fb_message
                 else:
                     feedback_ob.manage_uploadFeedback(archive, filename=f_name)
