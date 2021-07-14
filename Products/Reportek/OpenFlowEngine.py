@@ -36,7 +36,6 @@ from OFS.ObjectManager import checkValidId
 import transaction
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
-from Products.Reportek.catalog import searchResults
 import Products
 #from webdav.WriteLockInterface import WriteLockInterface
 
@@ -144,10 +143,7 @@ class OpenFlowEngine(Folder, Toolz):
             old_activities = []
         removeList = [x for x in old_activities if x not in activities]
         if removeList:
-            for i in searchResults(self.Catalog,
-                                   dict(meta_type='Workitem',
-                                        process_path=process_path,
-                                        activity_id=removeList)):
+            for i in self.Catalog.searchResults(meta_type='Workitem',process_path=process_path, activity_id=removeList):
                 w = i.getObject()
                 if w and role in w.push_roles:
                     w.push_roles.remove(role)
@@ -155,10 +151,7 @@ class OpenFlowEngine(Folder, Toolz):
                     w.reindex_object()
         addList = [x for x in activities if x not in old_activities]
         if addList:
-            for i in searchResults(self.Catalog,
-                                   dict(meta_type='Workitem',
-                                        process_path=process_path,
-                                        activity_id=addList)):
+            for i in self.Catalog.searchResults(meta_type='Workitem', process_path=process_path, activity_id=addList):
                 w = i.getObject()
                 if w and role not in w.push_roles:
                     w.push_roles.append(role)
@@ -213,10 +206,7 @@ class OpenFlowEngine(Folder, Toolz):
             old_activities = []
         removeList = [x for x in old_activities if x not in activities]
         if removeList:
-            for i in searchResults(self.Catalog,
-                                   dict(meta_type='Workitem',
-                                        process_path=process_path,
-                                        activity_id=removeList)):
+            for i in self.Catalog.searchResults(meta_type='Workitem',process_path=process_path, activity_id=removeList):
                 w = i.getObject()
                 if w and role in w.pull_roles:
                     w.pull_roles.remove(role)
@@ -224,10 +214,7 @@ class OpenFlowEngine(Folder, Toolz):
                     w.reindex_object()
         addList = [x for x in activities if x not in old_activities]
         if addList:
-            for i in searchResults(self.Catalog,
-                                   dict(meta_type='Workitem',
-                                        process_path=process_path,
-                                        activity_id=addList)):
+            for i in self.Catalog.searchResults(meta_type='Workitem', process_path=process_path, activity_id=addList):
                 w = i.getObject()
                 if w and role not in w.pull_roles:
                     w.pull_roles.append(role)
@@ -332,10 +319,9 @@ class OpenFlowEngine(Folder, Toolz):
         """ Finds all workitems from a process in certain statuses 
             and sorts them by last modification time
         """
-        ret_list = searchResults(self.Catalog,
-                                 dict(meta_type='Workitem',
-                                      process_path=process_path,
-                                      status=statuses_list))
+        ret_list = self.Catalog.searchResults(meta_type='Workitem',
+                            process_path=process_path,
+                            status=statuses_list)
         return RepUtils.utSortByAttr(ret_list, 'bobobase_modification_time')
 
     ##################################################

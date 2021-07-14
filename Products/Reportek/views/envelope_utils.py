@@ -82,7 +82,7 @@ class EnvelopeUtils(BaseAdmin):
                 obligations = [obligations]
             query['dataflow_uris'] = obligations
 
-        brains = searchResults(self.context.Catalog, query)
+        brains = self.context.Catalog(**query)
 
         wks_data = {}
         tasks = {}
@@ -165,7 +165,7 @@ class EnvelopeUtils(BaseAdmin):
 
     def stuck_envelopes(self):
         catalog = self.context.Catalog
-        brains = searchResults(catalog, dict(meta_type='Activity'))
+        brains = catalog(meta_type='Activity')
         activities = [brain.getObject() for brain in brains]
         # Get all automated activities
         auto_activities = {act.getId() for act in activities

@@ -4,6 +4,4 @@
     <adapter factory=".indexers.dummy_activity_id" name="activity_id" />
     <adapter factory=".indexers.fb_activity_id" name="activity_id" />
     <adapter factory=".indexers.wk_activity_id" name="activity_id" />
-    <adapter factory=".indexers.wk_process_path" name="process_path" />
-    <adapter factory=".indexers.allowedRolesAndUsers" name="allowedRolesAndUsers" />
 </configure>

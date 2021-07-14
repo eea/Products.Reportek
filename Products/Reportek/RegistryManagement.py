@@ -181,23 +181,19 @@ class FGASRegistryAPI(BaseRegistryAPI):
                         country = address.get('country')
                         if country:
                             rep_country_code = country.get('code')
-                            path = self.buildCollectionPath(
+                            previous_paths.append(self.buildCollectionPath(
                                 details['domain'],
                                 rep_country_code,
                                 str(details['company_id']),
                                 details['collection_id'],
-                            )
-                            if self.unrestrictedTraverse(path, None):
-                                previous_paths.append(path)
+                            ))
                 for c_hist in details.get('country_history', []):
-                    path = self.buildCollectionPath(
+                    previous_paths.append(self.buildCollectionPath(
                                 details['domain'],
                                 c_hist,
                                 str(details['company_id']),
                                 details['collection_id'],
-                            )
-                    if self.unrestrictedTraverse(path, None):
-                        previous_paths.append(path)
+                            ))
                 details['previous_paths'] = previous_paths
                 if c_type in ['NONEU_TYPE', 'AMBIGUOUS_TYPE'] and rep:
                     address = rep.get('address')
@@ -225,6 +221,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
         rep_paths = {}
         paths = []
         prev_paths = []
+
         def build_paths(c, c_code):
             path = None
             try:
@@ -252,12 +249,10 @@ class FGASRegistryAPI(BaseRegistryAPI):
                     if lr_c:
                         lr_c_code = lr_c.get('code')
                         prev_path = build_paths(c, lr_c_code)
-                        if self.unrestrictedTraverse(prev_path, None):
+                        if prev_path:
                             prev_paths.append(prev_path)
                 for c_hist in c.get('country_history', []):
-                    path = build_paths(c, c_hist)
-                    if self.unrestrictedTraverse(path, None):
-                        prev_paths.append(path)
+                    prev_paths.append(build_paths(c, c_hist))
 
         rep_paths['paths'] = paths
         rep_paths['prev_paths'] = prev_paths
@@ -493,7 +488,7 @@ class FGASRegistryAPI(BaseRegistryAPI):
             return None
         country_folder = cls.getCountryFolder(country_code)
         collection_folder = old_collection_id if old_collection_id else company_id
-        return '/'.join([str(obligation_folder), str(country_folder), str(collection_folder)])
+        return '/'.join([obligation_folder, country_folder, collection_folder])
 
 
 class BDRRegistryAPI(BaseRegistryAPI):

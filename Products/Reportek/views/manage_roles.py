@@ -1,8 +1,7 @@
 from base_admin import BaseAdmin
 from operator import itemgetter
 from Products.Reportek.constants import ENGINE_ID, ECAS_ID
-from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
-from Products.Reportek.catalog import searchResults
+from Products.Reportek.config import *
 
 
 class ManageRoles(BaseAdmin):
@@ -28,8 +27,7 @@ class ManageRoles(BaseAdmin):
 
     def get_user_localroles(self, username):
         results = []
-        for brain in searchResults(self.context.Catalog,
-                                   dict(meta_type='Report Collection')):
+        for brain in self.context.Catalog(meta_type='Report Collection'):
             coll = brain.getObject()
             local_roles = coll.get_local_roles_for_userid(username)
             if local_roles:
@@ -80,11 +78,9 @@ class ManageRoles(BaseAdmin):
             # Sync role assignment to associated transfers folder
             if path in self.request.get('sync_transfers', []):
                 transfer_path = '/'.join(['/transfers'] + path.split('/')[1:])
-                transfer = self.context.unrestrictedTraverse(transfer_path,
-                                                             None)
+                transfer = self.context.unrestrictedTraverse(transfer_path, None)
                 if transfer:
-                    t_roles = set(
-                        transfer.get_local_roles_for_userid(cur_entity))
+                    t_roles = set(transfer.get_local_roles_for_userid(cur_entity))
                     t_roles.add(role)
                     transfer.manage_setLocalRoles(cur_entity, list(t_roles))
                     results.append({
@@ -145,16 +141,12 @@ class ManageRoles(BaseAdmin):
             # Remove certain roles from transfer folders
             if sync_transfers:
                 transfer_path = '/'.join(['/transfers'] + path.split('/')[1:])
-                transfer = self.context.unrestrictedTraverse(transfer_path,
-                                                             None)
+                transfer = self.context.unrestrictedTraverse(transfer_path, None)
                 removed = False
                 if transfer:
                     t_roles = set(transfer.get_local_roles_for_userid(entity))
                     revocable = [r for r in revoke_roles
-                                 if r in ['ClientFG',
-                                          'ClientODS',
-                                          'ClientCARS',
-                                          'ClientHDV']]
+                                 if r in ['ClientFG', 'ClientODS', 'ClientCARS']]
                     for role in revocable:
                         if role in t_roles:
                             t_roles.remove(role)
@@ -281,7 +273,7 @@ class ManageRoles(BaseAdmin):
         groups = [group[0] for group in groups]
         group_prefixes = tuple({group.split('-')[0] for group in groups})
 
-        brains = searchResults(self.context.Catalog, query)
+        brains = self.context.Catalog(**query)
         for brain in brains:
             local_defined_users = brain.local_defined_users
             if local_defined_users:

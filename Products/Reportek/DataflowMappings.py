@@ -5,7 +5,6 @@ from UserList import UserList
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from constants import DATAFLOW_MAPPINGS, ENGINE_ID
-from Products.Reportek.catalog import searchResults
 from DataflowMappingsRecord import DataflowMappingsRecord
 from Globals import InitializeClass
 from OFS.Folder import Folder
@@ -51,7 +50,7 @@ class DataflowMappings(Folder):
             else:
                 query['dataflow_uri'] = [dataflow_uris]
 
-        return searchResults(self.Catalog, query)
+        return self.Catalog(**query)
 
     def getSchemaObjectsForDataflows(self, dataflow_uris, web_form_only):
         """

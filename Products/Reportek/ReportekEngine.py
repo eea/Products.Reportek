@@ -73,7 +73,6 @@ from Products.Reportek.RegistryManagement import (BaseRegistryAPI,
                                                   FGASRegistryAPI)
 from Products.Reportek.ReportekPropertiedUser import ReportekPropertiedUser
 from Toolz import Toolz
-from Products.Reportek.catalog import searchResults
 from zope.component import getUtility
 from zope.i18n.interfaces import II18nAware, INegotiator
 from zope.i18n.negotiator import normalize_lang
@@ -717,7 +716,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if not catalog_args:
             return
 
-        envelopes = searchResults(self.Catalog, catalog_args)
+        envelopes = self.Catalog(**catalog_args)
         envelopeObjects = []
         for eBrain in envelopes:
             o = eBrain.getObject()
@@ -733,7 +732,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """
         envelopeObjects = []
         if catalog_args:
-            envelopes = searchResults(self.Catalog, catalog_args)
+            envelopes = self.Catalog(**catalog_args)
 
             for eBrain in envelopes:
                 obj = eBrain.getObject()
@@ -879,7 +878,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             }
 
             catalog = self.Catalog
-            brains = searchResults(catalog, query)
+            brains = catalog(**query)
             if not brains:
                 message = fail_pattern %(
                             crole,
@@ -955,7 +954,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if how == 'desc':
             query['sort_order'] = 'reverse'
 
-        workitems = searchResults(catalog, query)
+        workitems = catalog(**query)
 
         if REQUEST is None:
             return [ob.getObject() for ob in workitems]
@@ -1167,20 +1166,20 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         l_catalog = getattr(self, constants.DEFAULT_CATALOG)
         l_params = {'meta_type':'Report Envelope', 'dataflow_uris':obligation, 'released':1}
 
-        for obj in self.__getObjects(searchResults(l_catalog, l_params)):
-            res = {'url': obj.absolute_url(0),
-                   'title': obj.title,
-                   'description': obj.descr,
-                   'dataflow_uris': obj.dataflow_uris,
-                   'country': obj.country,
-                   'country_name': obj.getCountryName(),
-                   'country_code': obj.getCountryCode(),
-                   'locality': obj.locality,
-                   'released': obj.reportingdate.HTML4(),
-                   'startyear': obj.year,
-                   'endyear': obj.endyear,
-                   'partofyear': obj.partofyear,
-                   }
+        for obj in self.__getObjects(l_catalog.searchResults(l_params)):
+            res = { 'url': obj.absolute_url(0),
+                'title': obj.title,
+                'description': obj.descr,
+                'dataflow_uris': obj.dataflow_uris,
+                'country': obj.country,
+                'country_name': obj.getCountryName(),
+                'country_code': obj.getCountryCode(),
+                'locality': obj.locality,
+                'released': obj.reportingdate.HTML4(),
+                'startyear': obj.year,
+                'endyear': obj.endyear,
+                'partofyear': obj.partofyear,
+            }
             filelist = []
             for file in obj.objectValues('Report Document'):
                 if file.content_type == 'text/xml':
@@ -1451,7 +1450,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     def getSearchResults(self, **kwargs):
         [kwargs.pop(el) for el in kwargs.keys() if not kwargs[el]]
-        catalog = searchResults(self.Catalog, kwargs)
+        catalog = self.Catalog(**kwargs)
         return catalog
 
     def getUniqueValuesFor(self, value):
@@ -1530,10 +1529,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                                                  if col not in middleware_collections['ro']]
             catalog = getattr(self, constants.DEFAULT_CATALOG)
 
-            middleware_collections['rw'] += [
-                br.getObject() for br in searchResults(
-                    catalog, dict(id=username))
-                if not br.getObject() in middleware_collections['rw']]
+            middleware_collections['rw'] += [ br.getObject() for br in catalog(id=username)
+                                            if not br.getObject() in middleware_collections['rw']]
 
             # check BDR registry
             user_paths = self.BDRRegistryAPI.getCollectionPaths(username)
@@ -1544,11 +1541,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                                              if col not in middleware_collections['ro']]
 
             collections['Reporter'] = middleware_collections
-            local_roles = ['Auditor', 'ClientFG',
-                           'ClientODS', 'ClientCARS', 'ClientHDV']
-            local_r_col = searchResults(catalog,
-                                        dict(meta_type='Report Collection',
-                                             local_unique_roles=local_roles))
+            local_roles = ['Auditor', 'ClientFG', 'ClientODS', 'ClientCARS', 'ClientHDV']
+            local_r_col = catalog(meta_type='Report Collection',
+                                  local_unique_roles=local_roles)
 
             auditor = [br.getObject() for br in local_r_col
                        if 'Auditor' in br.local_defined_roles.get(username, [])
@@ -1590,7 +1585,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 if self.REQUEST.get('sort_order'):
                     catalog_args['sort_order'] = self.REQUEST['sort_order']
             if catalog_args:
-                brains = searchResults(self.Catalog, catalog_args)
+                brains = self.Catalog(**catalog_args)
                 if brains:
                     env_objs = [brain.getObject() for brain in brains]
 

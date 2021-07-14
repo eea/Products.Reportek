@@ -15,7 +15,6 @@ class SpreadsheetTestCase(BaseTest, ConfigureReportek):
 
     def afterSetUp(self):
         super(SpreadsheetTestCase, self).afterSetUp()
-        self.createStandardCatalog()
         self.createStandardDependencies()
         self.app._setObject('Converters', Converters())
         self.createStandardCollection()

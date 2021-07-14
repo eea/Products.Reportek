@@ -6,7 +6,6 @@ from Products.Five import BrowserView
 from Products.Reportek.blob import StorageError
 from Products.Reportek.constants import DF_URL_PREFIX, ENGINE_ID
 from Products.Reportek.vocabularies import REPORTING_PERIOD_DESCRIPTION as rpd
-from Products.Reportek.catalog import searchResults
 from ZODB.blob import POSKeyError
 
 
@@ -329,7 +328,7 @@ class EnvelopesAPI(BrowserView):
         def getbID(b):
             return int(b.id)
 
-        brains = list(searchResults(self.context.Catalog, query))
+        brains = list(self.context.Catalog(**query))
 
         if children_type == 'Workitem':
             brains.sort(key=getbID)
@@ -552,7 +551,7 @@ class EnvelopesAPI(BrowserView):
                 'description': error
             })
         if query:
-            brains = list(searchResults(self.context.Catalog, query))
+            brains = list(self.context.Catalog(**query))
 
             if len(brains) > self.MAX_RESULTS:
                 error = 'There are too many possible results for your query. '\

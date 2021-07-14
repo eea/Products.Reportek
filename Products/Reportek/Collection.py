@@ -23,31 +23,42 @@
 Collections are the basic container objects and are analogous to directories.
 $Id$"""
 
-from zope.interface import implements
-from Toolz import Toolz
-from Products.ZCatalog.CatalogAwareness import CatalogAware
-from Products.Reportek.RepUtils import DFlowCatalogAware
-from Products.Reportek.interfaces import ICollection
-from Products.Reportek import DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT
-from Products.Reportek.config import permission_manage_properties_collections
-from Products.Reportek.catalog import searchResults
-from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from OFS.Folder import Folder
-from DateTime import DateTime
-from Acquisition import aq_base
-from AccessControl.requestmethod import requestmethod
-from AccessControl.Permissions import change_permissions, manage_users
-from AccessControl import ClassSecurityInfo, getSecurityManager
-import requests
-import RepUtils
-import Referral
-import Products
-import Globals
-import Envelope
-import constants
-from datetime import datetime
+__version__='$Revision$'[11:-2]
+
 import json
-__version__ = '$Revision$'[11:-2]
+import os
+import string
+import time
+import types
+from datetime import datetime
+
+import AccessControl.Role
+import constants
+# product imports
+import Envelope
+import Globals
+import Products
+import Referral
+import RepUtils
+import requests
+import webdav.Collection
+from AccessControl import ClassSecurityInfo, getSecurityManager
+from AccessControl.Permissions import change_permissions, manage_users
+from AccessControl.requestmethod import requestmethod
+from Acquisition import aq_base
+from ComputedAttribute import ComputedAttribute
+from CountriesManager import CountriesManager
+from DataflowsManager import DataflowsManager
+from DateTime import DateTime
+from OFS.Folder import Folder
+from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+from Products.Reportek import (DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT,
+                               permission_manage_properties_collections)
+from Products.Reportek.interfaces import ICollection
+from Products.Reportek.RepUtils import DFlowCatalogAware
+from Products.ZCatalog.CatalogAwareness import CatalogAware
+from Toolz import Toolz
+from zope.interface import implements
 
 manage_addCollectionForm = PageTemplateFile('zpt/collection/add', globals())
 
@@ -240,9 +251,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                                 'roles': [role]
                             }
         # retrieve the local accounts
-        folders = searchResults(catalog,
-                                dict(meta_type=['Report Collection'],
-                                     path=self.absolute_url(1)))
+        folders = catalog(meta_type=['Report Collection'], path=self.absolute_url(1))
         for folder in folders:
             context = catalog.getobject(folder.data_record_id_)
             for member, roles in context.get_local_roles():
@@ -982,7 +991,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                  'sort_order': 'reverse',
                  'path': path
                  }
-        envs = searchResults(self.Catalog, query)
+        envs = self.Catalog(**query)
 
         return envs
 
@@ -993,7 +1002,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                  'sort_order': 'reverse',
                  'path': path
                  }
-        envs = searchResults(self.Catalog, query)
+        envs = self.Catalog(**query)
         if envs:
             return envs[0].reportingdate
 
