@@ -71,6 +71,9 @@ def manage_addCollection(self, title, descr, year, endyear, partofyear,
     if isinstance(self, Collection):
         if allow_referrals != self.are_referrals_allowed():
             ob.prop_allowed_referrals = allow_referrals
+        # If parent collection is restricted, set the child restricted
+        if self.restricted:
+            ob.restricted = True
 
     self._setObject(id, ob)
     if REQUEST is not None:
@@ -1017,5 +1020,23 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
                                             self.manage_addEnvelope,
                                             **kwargs)
 
+    security.declareProtected('View management screens', 'set_restricted')
+    def set_restricted(self, permission, roles, acquire=0, REQUEST=None):
+        """
+            Restrict access to the named objects.
+            Figure out what roles exist, but don't give access to
+            anonymous and authenticated
+        """
+        self.manage_permission(permission_to_manage=permission,
+                               roles=roles, acquire=acquire)
+        self.restricted = True
+
+    @property
+    def restricted(self):
+        return getattr(self, '_restricted', False)
+
+    @restricted.setter
+    def restricted(self, value):
+        self._restricted = bool(value)
 
 Globals.InitializeClass(Collection)

@@ -813,11 +813,32 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
             Figure out what roles exist, but don't give access to
             anonymous and authenticated
         """
+        acquire = 0
         vr = list(self.valid_roles())
+        if self.restricted:
+            # If dealing with a restricted collection:
+            #   - if acquire is 0, get the Roles with assigned View permission
+            col = self.aq_parent
+            if not col.acquiredRolesAreUsedBy('View'):
+                # If the acquire is not set for collection, get the explicitly
+                # set Roles with View Permission
+                vr = [r.get('name') for r in col.rolesOfPermission('View')
+                      if r.get('selected')]
         for item in ('Anonymous', 'Authenticated'):
-            try: vr.remove(item)
-            except: pass
-        return self._set_restrictions(ids, roles=vr, acquire=0, permission='View', REQUEST=REQUEST)
+            try:
+                vr.remove(item)
+            except Exception:
+                pass
+        return self._set_restrictions(ids, roles=vr, acquire=acquire, permission='View', REQUEST=REQUEST)
+
+    security.declareProtected('Change Envelopes', 'apply_restrictions')
+    def apply_restrictions(self):
+        """ Apply restrictions to envelope's contents
+        """
+        ids = self.objectIds(['Report Document',
+                              'Report Feedback',
+                              'Report Hyperlink'])
+        self.manage_restrict(ids)
 
     security.declareProtected('Change Envelopes', 'manage_unrestrict')
     def manage_unrestrict(self, ids=None, REQUEST=None):

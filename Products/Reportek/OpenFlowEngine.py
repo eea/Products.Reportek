@@ -30,6 +30,7 @@ from collections import defaultdict
 # Zope imports
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
+from ZODB.PersistentMapping import PersistentMapping
 from Globals import InitializeClass
 from OFS.Folder import Folder
 from OFS.ObjectManager import checkValidId
@@ -84,8 +85,9 @@ class OpenFlowEngine(Folder, Toolz):
         self.id = id
         self.title = title
         self._applications = {}
-        self._activitiesPushableOnRole={}
-        self._activitiesPullableOnRole={}
+        self._activitiesPushableOnRole = {}
+        self._activitiesPullableOnRole = {}
+        self._restrictionsOnRole = PersistentMapping()
         # process_mappings: dictionary that keeps the way every process 
         # is fit for a subset of dataflows and countries
         self.process_mappings = {}
@@ -246,6 +248,22 @@ class OpenFlowEngine(Folder, Toolz):
     def getActivitiesPullableOnRole(self):
         """ """
         return self._activitiesPullableOnRole
+
+    security.declareProtected('Manage OpenFlow', 'getRestrictionsOnRole')
+    def getRestrictionsOnRole(self):
+        """ """
+        return getattr(self, '_restrictionsOnRole', PersistentMapping())
+
+    security.declareProtected('Manage OpenFlow', 'setRestrictionsOnRole')
+    def setRestrictionsOnRole(self, process, permission, roles, acquire=0,
+                              REQUEST=None):
+        """ Set View restriction mapping """
+        restrictions = self.getRestrictionsOnRole()
+        if process not in restrictions:
+            restrictions[process] = PersistentMapping()
+        restrictions[process][permission] = roles
+        restrictions[process]['Acquire'] = acquire
+        self._restrictionsOnRole = restrictions
 
     security.declareProtected('Manage OpenFlow', 'deleteProcessWithActivitiesPullableOnRole')
     def deleteProcessWithActivitiesPullableOnRole(self, role, process):
@@ -674,6 +692,28 @@ class OpenFlowEngine(Folder, Toolz):
         self._p_changed = 1
         if REQUEST:
             REQUEST.RESPONSE.redirect('workflow_map_processes?manage_tabs_message=Properties changed')
+
+    security.declareProtected('Manage OpenFlow', 'get_process_colls')
+    def get_process_colls(self, process_id):
+        """Return the collections with the dataflow_uris mapped to this
+           process
+        """
+        results = []
+        engine = self.unrestrictedTraverse(constants.ENGINE_ID, None)
+        if engine:
+            try:
+                p_mapping = self.process_mappings[process_id]
+                dataflow_uris = p_mapping.get('dataflows', [])
+            except KeyError:
+                p_mapping = None
+            if p_mapping:
+                query = {
+                    'meta_type': 'Report Collection',
+                    'dataflow_uris': dataflow_uris
+                }
+                results = searchResults(self.Catalog, query)
+
+        return results
 
     security.declarePublic('findProcess')
     def findProcess(self, dataflow_uris, country_code):
