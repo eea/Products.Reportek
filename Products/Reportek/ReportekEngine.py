@@ -1370,7 +1370,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             l_server = self.get_uns_xmlrpc_server()
             # create unique notification identifier
             # Envelope URL + time + notification_type
-            if l_server is not None:
+            if l_server is not None and not envelope.restricted:
                 l_time = str(time())
                 l_id = "%s/events#ts%s" % (envelope.absolute_url(), l_time )
                 #l_id = "http://rod.eionet.europa.eu/events/%s" % l_time

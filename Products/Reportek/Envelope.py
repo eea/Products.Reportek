@@ -625,7 +625,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
         engine = getattr(self, ENGINE_ID)
         crPingger = engine.contentRegistryPingger
-        if not crPingger:
+        if not crPingger or self.restricted:
             logger.debug("Not pingging Content Registry.")
             return
 
