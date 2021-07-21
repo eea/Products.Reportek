@@ -168,7 +168,6 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
     ob = Envelope(process, title, actor, year, endyear, partofyear, self.country, locality, descr, dataflow_uris)
     ob.id = id
     # Get the restricted property from the parent collection
-    ob.restricted = self.restricted
     self._setObject(id, ob)
     ob = self._getOb(id)
     if previous_delivery:
@@ -841,8 +840,6 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                               'Report Feedback',
                               'Report Hyperlink'])
         self.manage_restrict(ids)
-        self.restricted = self.aq_parent.restricted
-        self.reindex_object()
 
     security.declareProtected('Change Envelopes', 'manage_unrestrict')
     def manage_unrestrict(self, ids=None, REQUEST=None):
@@ -1544,16 +1541,6 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
 
         return self.descr
 
-    @property
-    def restricted(self):
-        return getattr(self,
-                       '_restricted',
-                       getattr(self.getParentNode(),
-                               '_restricted', False))
-
-    @restricted.setter
-    def restricted(self, value):
-        self._restricted = bool(value)
 
 # Initialize the class in order the security assertions be taken into account
 Globals.InitializeClass(Envelope)

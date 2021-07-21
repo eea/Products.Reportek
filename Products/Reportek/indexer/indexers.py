@@ -58,6 +58,12 @@ def wk_process_path(obj):
     return obj.process_path
 
 
+@indexer(IEnvelope)
+def env_restricted(obj):
+    """Return True if child of restricted collection"""
+    return obj.restricted
+
+
 @indexer(Interface)
 def allowedRolesAndUsers(obj):
     """Return a list of roles and users with View permission.
