@@ -1450,7 +1450,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         raise ValueError('hello world')
 
     def getSearchResults(self, **kwargs):
-        [kwargs.pop(el) for el in kwargs.keys() if not kwargs[el]]
+        [kwargs.pop(el) for el in kwargs.keys() if kwargs[el] in [None, '']]
         catalog = searchResults(self.Catalog, kwargs)
         return catalog
 

@@ -842,6 +842,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager, EnvelopeCustomDa
                               'Report Hyperlink'])
         self.manage_restrict(ids)
         self.restricted = self.aq_parent.restricted
+        self.reindex_object()
 
     security.declareProtected('Change Envelopes', 'manage_unrestrict')
     def manage_unrestrict(self, ids=None, REQUEST=None):
