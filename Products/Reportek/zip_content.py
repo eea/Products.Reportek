@@ -370,14 +370,14 @@ def get_feedback_content(ob):
                                  'posted': ob.postingdate.strftime('%d %b %Y %H:%M'),
                                  'task': task_name,
                                  'file': refered_file,
-                                 'content': ob.feedbacktext})
+                                 'content': ob.feedbacktext.decode('utf-8')})
     else:
         files = ['<a href="%s" title="%s">%s</a>' % (file.getId(), 'Open %s' % file.getId(), file.getId()) for file in ob.objectValues(['File', 'File (Blob)'])]
         content = parsed_template(MANUAL_FEEDBACK_CONTENT,
                                 {'subject': ob.title,
                                  'posted': ob.releasedate,
                                  'file': ', '.join(files),
-                                 'content': ob.feedbacktext})
+                                 'content': ob.feedbacktext.decode('utf-8')})
     #finally, generate the entire feedback log
     return "%s%s%s" % (header, content, footer)
 
