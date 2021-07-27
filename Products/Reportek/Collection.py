@@ -1030,6 +1030,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware, BaseCollection)
         self.manage_permission(permission_to_manage=permission,
                                roles=roles, acquire=acquire)
         self.restricted = True
+        self.reindex_object()
 
     @property
     def restricted(self):
