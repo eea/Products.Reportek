@@ -166,7 +166,10 @@ class QARepository(Folder):
                 self._get_local_qa_scripts(dataflow_uris=l_file.dataflow_uris)):
                 #remote scripts
                 if l_qa_app:
-                    l_ret[l_file.id] = l_qa_app.listQAScripts(l_file.xml_schema_location)
+                    scripts = l_qa_app.listQAScripts(l_file.xml_schema_location)
+                    # Exclude ZIP output type - refs: 136918
+                    l_ret[l_file.id] = [script for script in scripts
+                                        if script[4] != 'ZIP']
                 #local scripts
                 l_buff = [
                     ['loc_%s' % y.id, y.title, y.bobobase_modification_time(),

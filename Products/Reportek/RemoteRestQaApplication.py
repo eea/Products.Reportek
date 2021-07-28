@@ -739,7 +739,8 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                         result = [[script.get('id').encode('utf-8'),
                                    script.get('name').encode('utf-8'),
                                    '',
-                                   script.get('runOnDemandMaxFileSizeMB').encode('utf-8')]
+                                   script.get('runOnDemandMaxFileSizeMB').encode('utf-8'),
+                                   script.get('outputType').encode('utf-8')]
                                   for script in scripts]
                     else:
                         compat = {

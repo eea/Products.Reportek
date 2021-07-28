@@ -747,14 +747,21 @@ class RemoteApplication(BaseRemoteApplication):
         l_server_url = self.RemoteServer
         l_remote_server = self.RemoteService
         l_server = xmlrpclib.ServerProxy(l_server_url)
+        result = []
         try:
             l_server = xmlrpclib.ServerProxy(l_server_url)
             l_server_service = getattr(l_server, l_remote_server)
+            scripts = l_server_service.listQueries(file_schema)
             if short:
-                l_tmp = l_server_service.listQAScripts(file_schema)
+                result = [[script.get('query_id').encode('utf-8'),
+                           script.get('short_name').encode('utf-8'),
+                           '',
+                           script.get('upper_limit').encode('utf-8'),
+                           script.get('content_type_id').encode('utf-8')]
+                          for script in scripts]
             else:
-                l_tmp = l_server_service.listQueries(file_schema)
-            return l_tmp
+                result = scripts
+            return result
         except Exception:
             pass
 
