@@ -355,6 +355,12 @@ def get_feedback_content(ob):
                             {'title': 'Feedbacks for envelope %s' % ob.title})
     footer = parsed_template(FEEDBACK_FOOTER,
                             {})
+
+    fbtext = ob.feedbacktext
+    if isinstance(fbtext, unicode):
+        fbtext = fbtext.encode('utf-8')
+    elif isinstance(fbtext, str):
+        fbtext = fbtext.decode('utf-8')
     if ob.automatic:
         try:
             task_name = ob.getActivityDetails('title')
@@ -365,19 +371,21 @@ def get_feedback_content(ob):
             refered_file = ob.document_id
         else:
             refered_file = ''
-        content = parsed_template(AUTOMATIC_FEEDBACK_CONTENT,
-                                {'subject': ob.title,
-                                 'posted': ob.postingdate.strftime('%d %b %Y %H:%M'),
-                                 'task': task_name,
-                                 'file': refered_file,
-                                 'content': ob.feedbacktext.decode('utf-8')})
+
+        content = parsed_template(
+            AUTOMATIC_FEEDBACK_CONTENT,
+            {'subject': ob.title,
+             'posted': ob.postingdate.strftime('%d %b %Y %H:%M'),
+             'task': task_name,
+             'file': refered_file,
+             'content': fbtext})
     else:
         files = ['<a href="%s" title="%s">%s</a>' % (file.getId(), 'Open %s' % file.getId(), file.getId()) for file in ob.objectValues(['File', 'File (Blob)'])]
         content = parsed_template(MANUAL_FEEDBACK_CONTENT,
                                 {'subject': ob.title,
                                  'posted': ob.releasedate,
                                  'file': ', '.join(files),
-                                 'content': ob.feedbacktext.decode('utf-8')})
+                                 'content': fbtext})
     #finally, generate the entire feedback log
     return "%s%s%s" % (header, content, footer)
 
