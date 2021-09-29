@@ -351,16 +351,18 @@ def get_feedback_content(ob):
 	  [ Feedback text ]
     """
     parsed_template = RepUtils.parse_template
+    title = ob.title
+    fbtext = ob.feedbacktext
+
+    if isinstance(fbtext, unicode):
+        fbtext = fbtext.encode('utf-8')
+    if isinstance(title, unicode):
+        title = title.encode('utf-8')
     header = parsed_template(FEEDBACK_HEADER,
-                            {'title': 'Feedbacks for envelope %s' % ob.title})
+                            {'title': 'Feedbacks for envelope %s' % title})
     footer = parsed_template(FEEDBACK_FOOTER,
                             {})
 
-    fbtext = ob.feedbacktext
-    if isinstance(fbtext, unicode):
-        fbtext = fbtext.encode('utf-8')
-    elif isinstance(fbtext, str):
-        fbtext = fbtext.decode('utf-8')
     if ob.automatic:
         try:
             task_name = ob.getActivityDetails('title')
@@ -368,13 +370,13 @@ def get_feedback_content(ob):
             task_name = ob.activity_id
 
         if ob.document_id and ob.document_id != 'xml':
-            refered_file = ob.document_id
+            refered_file = ob.document_id.encode('utf-8')
         else:
             refered_file = ''
 
         content = parsed_template(
             AUTOMATIC_FEEDBACK_CONTENT,
-            {'subject': ob.title,
+            {'subject': title,
              'posted': ob.postingdate.strftime('%d %b %Y %H:%M'),
              'task': task_name,
              'file': refered_file,
@@ -382,7 +384,7 @@ def get_feedback_content(ob):
     else:
         files = ['<a href="%s" title="%s">%s</a>' % (file.getId(), 'Open %s' % file.getId(), file.getId()) for file in ob.objectValues(['File', 'File (Blob)'])]
         content = parsed_template(MANUAL_FEEDBACK_CONTENT,
-                                {'subject': ob.title,
+                                {'subject': title,
                                  'posted': ob.releasedate,
                                  'file': ', '.join(files),
                                  'content': fbtext})
