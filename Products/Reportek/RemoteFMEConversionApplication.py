@@ -202,12 +202,30 @@ class RemoteFMEConversionApplication(SimpleItem):
         workitem = getattr(self, workitem_id)
         env = workitem.getMySelf()
         files = []
+        latest = {}
         if not self.FMEUploadAll:
+            ext = []
             for f_ext in self.FMEFileTypes.splitlines():
-                files.extend([f for f in env.objectValues('Report Document')
-                              if f.title_or_id().lower().endswith('.' + f_ext.lower())])
+                if ':' in f_ext:
+                    # split complext filetypes e.g. shapefiles
+                    ext.extend(f_ext.split(':')[-1].strip(' []').split(','))
+                else:
+                    ext.append(f_ext)
+                for e in ext:
+                    e_files = [f for f in env.objectValues('Report Document')
+                               if f.title_or_id().lower().endswith('.' + e.strip().lower())]
+                    if e_files:
+                        for e_file in e_files:
+                            grp_prefix = e_file.title_or_id().split('.')[0]
+                            if not latest.get(grp_prefix) or (latest.get(grp_prefix) and latest.get(grp_prefix).lessThanEqualTo(e_file.bobobase_modification_time())):
+                                latest[grp_prefix] = e_file.bobobase_modification_time()
+                    # e_files.sort(key=lambda item:item.bobobase_modification_time(), reverse=True)
+            up_group = latest.keys()[latest.values().index(sorted(latest.values(), reverse=True)[0])]
+            files = [f for f in env.objectValues('Report Document')
+                     if f.title_or_id().lower().startswith(up_group.lower())]
         else:
             files = env.objectValues('Report Document')
+        files = list(set(files))
 
         return files
 
@@ -315,6 +333,13 @@ class RemoteFMEConversionApplication(SimpleItem):
                     if isinstance(srv_res, list):
                         paths = [f.get('name').encode('utf-8')
                                  for f in srv_res]
+                        up_files = ''
+                        for x in paths:
+                            up_files += '<li>%s</li>' % (x)
+                        workitem.addEvent(
+                            'Files uploaded to FME for conversion: <ul>%s</ul>'
+                            % (up_files))
+
                         self.__update_storage(workitem, 'upload',
                                               paths=paths, status='completed')
 
