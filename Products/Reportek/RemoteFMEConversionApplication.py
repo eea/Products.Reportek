@@ -698,6 +698,12 @@ class RemoteFMEConversionApplication(SimpleItem):
         queued_endpoint = 'fmerest/v3/transformations/jobs/queued'
         url = '/'.join([self.FMEServer, queued_endpoint, str(job_id)])
         try:
+            username = self.REQUEST['AUTHENTICATED_USER'].getUserName()
+        except Exception:
+            username = 'N/A'
+        workitem.addEvent(
+            'FME Conversion application cancelled by: {}'.format(username))
+        try:
             res = requests.delete(url,
                                   headers=self.get_headers(workitem_id))
             if res.status_code == 204:

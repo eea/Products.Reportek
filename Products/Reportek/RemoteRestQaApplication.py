@@ -713,14 +713,22 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         l_workitem = getattr(self, workitem_id)
 
         try:
+            username = self.REQUEST['AUTHENTICATED_USER'].getUserName()
+        except Exception:
+            username = 'N/A'
+        try:
             res = self.makeHTTPRequest(url, method='POST')
             message = res.json().get('message')
-            l_workitem.addEvent('#{} job cancelation triggered - {}: {}'.format(job_id,
-                                                                   res.status_code,
-                                                                   message))
+            l_workitem.addEvent(
+                '#{} job cancelation triggered by: {} - {}: {}'.format(
+                    job_id,
+                    username,
+                    res.status_code,
+                    message))
         except Exception as e:
-            l_workitem.addEvent('#{} job cancelation failed with: {}.'.format(job_id, str(e)))
-
+            l_workitem.addEvent(
+                '#{} job cancelation triggered by: {}, failed with: {}'.format(
+                    job_id, username, str(e)))
 
     def listQAScripts(self, file_schema, short=True):
         """Return a list of QA scripts for file schema"""
