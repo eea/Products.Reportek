@@ -368,7 +368,7 @@ def get_feedback_content(ob):
             task_name = ob.getActivityDetails('title')
         except (AttributeError, KeyError):
             task_name = ob.activity_id
-
+        task_name = task_name.encode('utf-8')
         if ob.document_id and ob.document_id != 'xml':
             refered_file = ob.document_id.encode('utf-8')
         else:
