@@ -502,6 +502,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                 code = code.get('statusId', '')
             else:
                 code == ''
+
             # job ready
             if code == '0':
                 r_files = data.get('REMOTE_FILES')
@@ -511,7 +512,16 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                         self.handle_remote_file(r_file, l_file_id,
                                                 p_workitem_id, e_data, p_jobID,
                                                 restricted=self.get_restricted_status(envelope, l_file_id))
-                        l_getResultDict = {p_jobID: {'code': 1, 'fileURL': l_file_url}}
+                        l_getResultDict = {
+                            p_jobID: {
+                                'code': 1,
+                                'fileURL': l_file_url,
+                                'debug': {
+                                    'c_executionstatus': code,
+                                    'c_feedbackstatus': data.get('feedbackStatus', 'N/A'),
+                                    'c_feedbackmessage': data.get('feedbackMessage', 'N/A')
+                                }
+                            }}
                         self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                                        p_getResult=l_getResultDict)
                 else:
@@ -562,7 +572,16 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                     feedback_ob._p_changed = 1
                     feedback_ob.reindex_object()
 
-                    l_getResultDict = {p_jobID: {'code': 1, 'fileURL': l_file_url}}
+                    l_getResultDict = {
+                        p_jobID: {
+                            'code': 1,
+                            'fileURL': l_file_url,
+                            'debug': {
+                                'c_executionstatus': code,
+                                'c_feedbackstatus': data.get('feedbackStatus', 'N/A'),
+                                'c_feedbackmessage': data.get('feedbackMessage', 'N/A')
+                            }
+                        }}
                     self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                                    p_getResult=l_getResultDict)
             # not ready
@@ -578,6 +597,11 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                             'retries_left': l_nRetries - 1,
                             'last_error': data['feedbackMessage'],
                             'next_run': next_run
+                        },
+                        'debug': {
+                            'c_executionstatus': code,
+                            'c_feedbackstatus': data.get('feedbackStatus', 'N/A'),
+                            'c_feedbackmessage': data.get('feedbackMessage', 'N/A')
                         }
                     }
                     self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
@@ -589,6 +613,11 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                         p_jobID: {
                             'code': -2,
                             'last_error': data['feedbackMessage']
+                        },
+                        'debug': {
+                            'c_executionstatus': code,
+                            'c_feedbackstatus': data.get('feedbackStatus', 'N/A'),
+                            'c_feedbackmessage': data.get('feedbackMessage', 'N/A')
                         }
                     }
                     self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
@@ -601,6 +630,11 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                     p_jobID: {
                         'code': -2,
                         'last_error': data['feedbackMessage']
+                    },
+                    'debug': {
+                        'c_executionstatus': code,
+                        'c_feedbackstatus': data.get('feedbackStatus', 'N/A'),
+                        'c_feedbackmessage': data.get('feedbackMessage', 'N/A')
                     }
                 }
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
@@ -694,6 +728,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
             if l_job not in l_qa['getResult']:
                 l_qa['getResult'][l_job] = {}
             l_qa['getResult'][l_job].update(l_value)
+
         # make sure it saves the object
         l_workitem._p_changed = 1
 
