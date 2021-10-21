@@ -596,12 +596,12 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                             'code': 0,
                             'retries_left': l_nRetries - 1,
                             'last_error': data['feedbackMessage'],
-                            'next_run': next_run
-                        },
-                        'debug': {
-                            'c_executionstatus': code,
-                            'c_feedbackstatus': data.get('feedbackStatus', 'N/A'),
-                            'c_feedbackmessage': data.get('feedbackMessage', 'N/A')
+                            'next_run': next_run,
+                            'debug': {
+                                'c_executionstatus': code,
+                                'c_feedbackstatus': data.get('feedbackStatus', 'N/A'),
+                                'c_feedbackmessage': data.get('feedbackMessage', 'N/A')
+                            }
                         }
                     }
                     self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
@@ -612,12 +612,12 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                     l_getResultDict = {
                         p_jobID: {
                             'code': -2,
-                            'last_error': data['feedbackMessage']
-                        },
-                        'debug': {
-                            'c_executionstatus': code,
-                            'c_feedbackstatus': data.get('feedbackStatus', 'N/A'),
-                            'c_feedbackmessage': data.get('feedbackMessage', 'N/A')
+                            'last_error': data['feedbackMessage'],
+                            'debug': {
+                                'c_executionstatus': code,
+                                'c_feedbackstatus': data.get('feedbackStatus', 'N/A'),
+                                'c_feedbackmessage': data.get('feedbackMessage', 'N/A')
+                            }
                         }
                     }
                     self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
@@ -629,12 +629,12 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                 l_getResultDict = {
                     p_jobID: {
                         'code': -2,
-                        'last_error': data['feedbackMessage']
-                    },
-                    'debug': {
-                        'c_executionstatus': code,
-                        'c_feedbackstatus': data.get('feedbackStatus', 'N/A'),
-                        'c_feedbackmessage': data.get('feedbackMessage', 'N/A')
+                        'last_error': data['feedbackMessage'],
+                        'debug': {
+                            'c_executionstatus': code,
+                            'c_feedbackstatus': data.get('feedbackStatus', 'N/A'),
+                            'c_feedbackmessage': data.get('feedbackMessage', 'N/A')
+                        }
                     }
                 }
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
