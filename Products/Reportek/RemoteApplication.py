@@ -530,7 +530,17 @@ class RemoteApplication(BaseRemoteApplication):
                         self.handle_remote_file(r_file, l_file_id,
                                                 p_workitem_id, l_ret, p_jobID,
                                                 restricted=self.get_restricted_status(envelope, l_file_id))
-                        l_getResultDict = {p_jobID: {'code': 1, 'fileURL': l_file_url}}
+                        l_getResultDict = {
+                            p_jobID: {
+                                'code': 1,
+                                'fileURL': l_file_url,
+                                'debug': {
+                                    'c_executionstatus': l_ret['CODE'],
+                                    'c_feedbackstatus': l_ret.get('feedbackStatus', 'N/A'),
+                                    'c_feedbackmessage': l_ret.get('feedbackMessage', 'N/A')
+                                }
+                            }
+                        }
                         self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                                        p_getResult=l_getResultDict)
                 else:
@@ -580,7 +590,17 @@ class RemoteApplication(BaseRemoteApplication):
                     feedback_ob._p_changed = 1
                     feedback_ob.reindex_object()
 
-                    l_getResultDict = {p_jobID: {'code': 1, 'fileURL': l_file_url}}
+                    l_getResultDict = {
+                        p_jobID: {
+                            'code': 1,
+                            'fileURL': l_file_url,
+                            'debug': {
+                                'c_executionstatus': l_ret['CODE'],
+                                'c_feedbackstatus': l_ret.get('feedbackStatus', 'N/A'),
+                                'c_feedbackmessage': l_ret.get('feedbackMessage', 'N/A')
+                            }
+                        }
+                    }
                     self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                                    p_getResult=l_getResultDict)
             # not ready
@@ -595,7 +615,12 @@ class RemoteApplication(BaseRemoteApplication):
                             'code': 0,
                             'retries_left': l_nRetries - 1,
                             'last_error': l_ret['VALUE'],
-                            'next_run': next_run
+                            'next_run': next_run,
+                            'debug': {
+                                'c_executionstatus': l_ret['CODE'],
+                                'c_feedbackstatus': l_ret.get('feedbackStatus', 'N/A'),
+                                'c_feedbackmessage': l_ret.get('feedbackMessage', 'N/A')
+                            }
                         }
                     }
                     self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
@@ -606,7 +631,12 @@ class RemoteApplication(BaseRemoteApplication):
                     l_getResultDict = {
                         p_jobID: {
                             'code': -2,
-                            'last_error': l_ret['VALUE']
+                            'last_error': l_ret['VALUE'],
+                            'debug': {
+                                'c_executionstatus': l_ret['CODE'],
+                                'c_feedbackstatus': l_ret.get('feedbackStatus', 'N/A'),
+                                'c_feedbackmessage': l_ret.get('feedbackMessage', 'N/A')
+                            }
                         }
                     }
                     self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
@@ -618,7 +648,12 @@ class RemoteApplication(BaseRemoteApplication):
                 l_getResultDict = {
                     p_jobID: {
                         'code': -2,
-                        'last_error': l_ret['VALUE']
+                        'last_error': l_ret['VALUE'],
+                        'debug': {
+                            'c_executionstatus': l_ret['CODE'],
+                            'c_feedbackstatus': l_ret.get('feedbackStatus', 'N/A'),
+                            'c_feedbackmessage': l_ret.get('feedbackMessage', 'N/A')
+                        }
                     }
                 }
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
