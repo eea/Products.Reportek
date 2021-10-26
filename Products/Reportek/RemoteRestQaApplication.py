@@ -188,7 +188,6 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                                      timeout=timeout,params=params)
         return response
 
-
     security.declareProtected('Use OpenFlow', 'callApplication')
     def callApplication(self, workitem_id, REQUEST=None):
         """ Called on regular basis """
@@ -519,7 +518,8 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                                 'debug': {
                                     'c_executionstatus': code,
                                     'c_feedbackstatus': data.get('feedbackStatus', 'N/A'),
-                                    'c_feedbackmessage': data.get('feedbackMessage', 'N/A')
+                                    'c_feedbackmessage': data.get('feedbackMessage', 'N/A'),
+                                    'c_feedbackcontent_len': len(data.get('feedbackContent', ''))
                                 }
                             }}
                         self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
@@ -579,7 +579,8 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                             'debug': {
                                 'c_executionstatus': code,
                                 'c_feedbackstatus': data.get('feedbackStatus', 'N/A'),
-                                'c_feedbackmessage': data.get('feedbackMessage', 'N/A')
+                                'c_feedbackmessage': data.get('feedbackMessage', 'N/A'),
+                                'c_feedbackcontent_len': len(data.get('feedbackContent', ''))
                             }
                         }}
                     self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
@@ -600,7 +601,8 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                             'debug': {
                                 'c_executionstatus': code,
                                 'c_feedbackstatus': data.get('feedbackStatus', 'N/A'),
-                                'c_feedbackmessage': data.get('feedbackMessage', 'N/A')
+                                'c_feedbackmessage': data.get('feedbackMessage', 'N/A'),
+                                'c_feedbackcontent_len': len(data.get('feedbackContent', ''))
                             }
                         }
                     }
@@ -616,7 +618,8 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                             'debug': {
                                 'c_executionstatus': code,
                                 'c_feedbackstatus': data.get('feedbackStatus', 'N/A'),
-                                'c_feedbackmessage': data.get('feedbackMessage', 'N/A')
+                                'c_feedbackmessage': data.get('feedbackMessage', 'N/A'),
+                                'c_feedbackcontent_len': len(data.get('feedbackContent', ''))
                             }
                         }
                     }
@@ -633,7 +636,8 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                         'debug': {
                             'c_executionstatus': code,
                             'c_feedbackstatus': data.get('feedbackStatus', 'N/A'),
-                            'c_feedbackmessage': data.get('feedbackMessage', 'N/A')
+                            'c_feedbackmessage': data.get('feedbackMessage', 'N/A'),
+                            'c_feedbackcontent_len': len(data.get('feedbackContent', ''))
                         }
                     }
                 }

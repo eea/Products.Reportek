@@ -537,7 +537,8 @@ class RemoteApplication(BaseRemoteApplication):
                                 'debug': {
                                     'c_executionstatus': l_ret['CODE'],
                                     'c_feedbackstatus': l_ret.get('feedbackStatus', 'N/A'),
-                                    'c_feedbackmessage': l_ret.get('feedbackMessage', 'N/A')
+                                    'c_feedbackmessage': l_ret.get('feedbackMessage', 'N/A'),
+                                    'c_feedbackcontent_len': len(l_ret.get('VALUE', ''))
                                 }
                             }
                         }
@@ -597,7 +598,8 @@ class RemoteApplication(BaseRemoteApplication):
                             'debug': {
                                 'c_executionstatus': l_ret['CODE'],
                                 'c_feedbackstatus': l_ret.get('feedbackStatus', 'N/A'),
-                                'c_feedbackmessage': l_ret.get('feedbackMessage', 'N/A')
+                                'c_feedbackmessage': l_ret.get('feedbackMessage', 'N/A'),
+                                'c_feedbackcontent_len': len(l_ret.get('VALUE', ''))
                             }
                         }
                     }
@@ -619,7 +621,8 @@ class RemoteApplication(BaseRemoteApplication):
                             'debug': {
                                 'c_executionstatus': l_ret['CODE'],
                                 'c_feedbackstatus': l_ret.get('feedbackStatus', 'N/A'),
-                                'c_feedbackmessage': l_ret.get('feedbackMessage', 'N/A')
+                                'c_feedbackmessage': l_ret.get('feedbackMessage', 'N/A'),
+                                'c_feedbackcontent_len': len(l_ret.get('VALUE', ''))
                             }
                         }
                     }
@@ -635,7 +638,8 @@ class RemoteApplication(BaseRemoteApplication):
                             'debug': {
                                 'c_executionstatus': l_ret['CODE'],
                                 'c_feedbackstatus': l_ret.get('feedbackStatus', 'N/A'),
-                                'c_feedbackmessage': l_ret.get('feedbackMessage', 'N/A')
+                                'c_feedbackmessage': l_ret.get('feedbackMessage', 'N/A'),
+                                'c_feedbackcontent_len': len(l_ret.get('VALUE', ''))
                             }
                         }
                     }
@@ -652,7 +656,8 @@ class RemoteApplication(BaseRemoteApplication):
                         'debug': {
                             'c_executionstatus': l_ret['CODE'],
                             'c_feedbackstatus': l_ret.get('feedbackStatus', 'N/A'),
-                            'c_feedbackmessage': l_ret.get('feedbackMessage', 'N/A')
+                            'c_feedbackmessage': l_ret.get('feedbackMessage', 'N/A'),
+                            'c_feedbackcontent_len': len(l_ret.get('VALUE', ''))
                         }
                     }
                 }
