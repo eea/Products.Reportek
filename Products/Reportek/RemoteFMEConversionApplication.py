@@ -219,7 +219,11 @@ class RemoteFMEConversionApplication(SimpleItem):
                             grp_prefix = e_file.title_or_id().split('.')[0]
                             if not latest.get(grp_prefix) or (latest.get(grp_prefix) and latest.get(grp_prefix).lessThanEqualTo(e_file.bobobase_modification_time())):
                                 latest[grp_prefix] = e_file.bobobase_modification_time()
-                    # e_files.sort(key=lambda item:item.bobobase_modification_time(), reverse=True)
+            if not latest:
+                raise ValueError(
+                    'No convertible files found in the envelope. '
+                    'Convertible file extensions for this workflow: {}.'
+                    .format(', '.join(ext)))
             up_group = latest.keys()[latest.values().index(sorted(latest.values(), reverse=True)[0])]
             files = [f for f in env.objectValues('Report Document')
                      if f.title_or_id().lower().startswith(up_group.lower())]
