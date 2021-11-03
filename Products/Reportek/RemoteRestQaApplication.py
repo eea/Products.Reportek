@@ -508,9 +508,10 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                 if r_files:
                     for r_file in r_files:
                         e_data = {'SCRIPT_TITLE': data.get('scriptTitle')}
-                        self.handle_remote_file(r_file, l_file_id,
-                                                p_workitem_id, e_data, p_jobID,
-                                                restricted=self.get_restricted_status(envelope, l_file_id))
+                        r_res = self.handle_remote_file(
+                            r_file, l_file_id, p_workitem_id, e_data, p_jobID,
+                            restricted=self.get_restricted_status(
+                                envelope, l_file_id))
                         l_getResultDict = {
                             p_jobID: {
                                 'code': 1,
@@ -519,7 +520,8 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                                     'c_executionstatus': code,
                                     'c_feedbackstatus': data.get('feedbackStatus', 'N/A'),
                                     'c_feedbackmessage': data.get('feedbackMessage', 'N/A'),
-                                    'c_feedbackcontent_len': len(data.get('feedbackContent', ''))
+                                    'c_feedbackcontent_len': len(data.get('feedbackContent', '')),
+                                    'remote_files_debug': r_res
                                 }
                             }}
                         self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,

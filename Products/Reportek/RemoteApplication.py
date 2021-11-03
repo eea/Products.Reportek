@@ -527,9 +527,10 @@ class RemoteApplication(BaseRemoteApplication):
                 r_files = l_ret.get('REMOTE_FILES')
                 if r_files:
                     for r_file in r_files:
-                        self.handle_remote_file(r_file, l_file_id,
-                                                p_workitem_id, l_ret, p_jobID,
-                                                restricted=self.get_restricted_status(envelope, l_file_id))
+                        r_res = self.handle_remote_file(
+                            r_file, l_file_id, p_workitem_id, l_ret, p_jobID,
+                            restricted=self.get_restricted_status(envelope,
+                                                                  l_file_id))
                         l_getResultDict = {
                             p_jobID: {
                                 'code': 1,
@@ -538,7 +539,8 @@ class RemoteApplication(BaseRemoteApplication):
                                     'c_executionstatus': l_ret['CODE'],
                                     'c_feedbackstatus': l_ret.get('feedbackStatus', 'N/A'),
                                     'c_feedbackmessage': l_ret.get('feedbackMessage', 'N/A'),
-                                    'c_feedbackcontent_len': len(l_ret.get('VALUE', ''))
+                                    'c_feedbackcontent_len': len(l_ret.get('VALUE', '')),
+                                    'remote_files_debug': r_res
                                 }
                             }
                         }

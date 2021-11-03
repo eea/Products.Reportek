@@ -58,22 +58,36 @@ class BaseRemoteApplication(SimpleItem):
                            restricted=False):
         """"""
         wk = getattr(self, workitem_id)
-        r = requests.get(url, allow_redirects=True,
-                         headers={'Authorization': self.token},
-                         verify=False)
-        from contextlib import closing
-        zip = io.BytesIO(r.content)
-        with closing(r), zip_content.ZZipFile(zip) as archive:
-            fbs = {}
-            for name in archive.namelist():
-                k = name.split('/')[-1].split('.')[0]
-                if k:
-                    if k not in fbs.keys():
-                        fbs[k] = [name]
-                    else:
-                        fbs[k].append(name)
-            for fb in fbs:
-                self.add_zip_feedback(archive, fb, fbs[fb], wk,
-                                      l_file_id, l_ret, job_id,
-                                      restricted=restricted)
-            transaction.commit()
+        result = {}
+        try:
+            r = requests.get(url, allow_redirects=True,
+                             headers={'Authorization': self.token},
+                             verify=False)
+            result['status_code'] = r.status_code
+            result['url'] = url
+            result['content_type'] = r.headers.get('Content-Type', '')
+            result['content_lenght'] = len(r.content)
+            if r.status_code == requests.codes.ok:
+                from contextlib import closing
+                zip = io.BytesIO(r.content)
+                with closing(r), zip_content.ZZipFile(zip) as archive:
+                    fbs = {}
+                    for name in archive.namelist():
+                        k = name.split('/')[-1].split('.')[0]
+                        if k:
+                            if k not in fbs.keys():
+                                fbs[k] = [name]
+                            else:
+                                fbs[k].append(name)
+                    for fb in fbs:
+                        self.add_zip_feedback(archive, fb, fbs[fb], wk,
+                                              l_file_id, l_ret, job_id,
+                                              restricted=restricted)
+                    transaction.commit()
+            else:
+                result['content'] = r.content
+        except Exception as e:
+            # log this
+            result['content'] = str(e)
+
+        return result
