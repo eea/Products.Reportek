@@ -81,7 +81,7 @@
                   <td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Collection" i18n:attributes="alt" /></td>
                   <td>
                     <a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" />
-                    <img tal:condition="item/restricted" src="misc_/Reportek/lockicon_gif" alt="Padlock" width="16" height="16" />
+                    <img tal:condition="item/restricted" src="misc_/Reportek/lockicon_gif" alt="Padlock" width="16" height="16" i18n:attributes="alt" />
                   </td>
                   <tal:block tal:condition="envs">
                     <td tal:condition="isBdrDeployment"></td>
