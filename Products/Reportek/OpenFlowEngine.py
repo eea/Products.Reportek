@@ -92,7 +92,7 @@ class OpenFlowEngine(Folder, Toolz):
         self._activitiesPushableOnRole = {}
         self._activitiesPullableOnRole = {}
         self._restrictionsOnRole = PersistentMapping()
-        # process_mappings: dictionary that keeps the way every process 
+        # process_mappings: dictionary that keeps the way every process
         # is fit for a subset of dataflows and countries
         self.process_mappings = {}
 

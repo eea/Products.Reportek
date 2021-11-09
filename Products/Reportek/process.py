@@ -16,7 +16,6 @@ from Products.ZCatalog.CatalogPathAwareness import CatalogAware
 from Products.Reportek.catalog import searchResults
 from transition import transition
 from zope.interface import implements
-from AccessControl.Permission import Permission
 
 CycleError = 'CycleError'  # For _topsort()
 

@@ -57,7 +57,6 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BdrAuthorizationMiddleware import \
     BdrAuthorizationMiddleware
 from Products.Reportek.clamav import AVService
-from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
 from Products.Reportek.constants import ECAS_ID
 from Products.Reportek.ContentRegistryPingger import ContentRegistryPingger
 from Products.Reportek.RegistryManagement import (BDRRegistryAPI,
@@ -1490,7 +1489,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
                     if self.get_ecas_userid(user_id):
                         user_id = self.get_ecas_userid(user_id)
-                l_ret = l_server.UNSService.makeSubscription(
+                l_server.UNSService.makeSubscription(
                     self.UNS_channel_id, user_id, l_filters_final)
                 if REQUEST is not None:
                     REQUEST.RESPONSE.redirect(
