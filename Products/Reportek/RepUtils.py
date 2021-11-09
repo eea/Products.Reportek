@@ -45,6 +45,7 @@ from DateTime import DateTime
 from path import path
 from Products.Five import BrowserView
 from Products.Reportek.config import XLS_HEADINGS, ZIP_CACHE_PATH
+from Products.Reportek.catalog import _mergedLocalRoles
 from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.Reportek.permissions import reportek_dataflow_admin
 from webdav.common import rfc1123_date
@@ -769,35 +770,7 @@ class DFlowCatalogAware(object):
     """DFlowCatalogAware class to allow for reportek_dataflow_admin permission
        indexing.
     """
-    _security_indexes = ('allowedAdminRolesAndUsers',)
-
-    def _mergedLocalRoles(self, object):
-        """Returns a merging of object and its ancestors'
-        __ac_local_roles__."""
-        # Modified from AccessControl.User.getRolesInContext().
-        merged = {}
-        object = getattr(object, 'aq_inner', object)
-        while 1:
-            if hasattr(object, '__ac_local_roles__'):
-                dict = object.__ac_local_roles__ or {}
-                if callable(dict):
-                    dict = dict()
-                for k, v in dict.items():
-                    if k in merged:
-                        merged[k] = merged[k] + v
-                    else:
-                        merged[k] = v
-            if hasattr(object, 'aq_parent'):
-                object = object.aq_parent
-                object = getattr(object, 'aq_inner', object)
-                continue
-            if hasattr(object, 'im_self'):
-                object = object.im_self
-                object = getattr(object, 'aq_inner', object)
-                continue
-            break
-
-        return deepcopy(merged)
+    _security_indexes = ('allowedAdminRolesAndUsers', 'allowedRolesAndUsers')
 
     def allowedAdminRolesAndUsers(self):
         """
@@ -809,7 +782,7 @@ class DFlowCatalogAware(object):
         allowed = {}
         for r in rolesForPermissionOn(reportek_dataflow_admin, ob):
             allowed[r] = 1
-        localroles = self._mergedLocalRoles(ob)
+        localroles = _mergedLocalRoles(ob)
         for user, roles in localroles.items():
             for role in roles:
                 if role in allowed:

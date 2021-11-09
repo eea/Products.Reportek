@@ -30,12 +30,14 @@ from collections import defaultdict
 # Zope imports
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
+from ZODB.PersistentMapping import PersistentMapping
 from Globals import InitializeClass
 from OFS.Folder import Folder
 from OFS.ObjectManager import checkValidId
 import transaction
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
+from Products.Reportek.catalog import searchResults
 import Products
 # from webdav.WriteLockInterface import WriteLockInterface
 
@@ -89,7 +91,8 @@ class OpenFlowEngine(Folder, Toolz):
         self._applications = {}
         self._activitiesPushableOnRole = {}
         self._activitiesPullableOnRole = {}
-        # process_mappings: dictionary that keeps the way every process
+        self._restrictionsOnRole = PersistentMapping()
+        # process_mappings: dictionary that keeps the way every process 
         # is fit for a subset of dataflows and countries
         self.process_mappings = {}
 
@@ -161,9 +164,10 @@ class OpenFlowEngine(Folder, Toolz):
             old_activities = []
         removeList = [x for x in old_activities if x not in activities]
         if removeList:
-            for i in self.Catalog.searchResults(meta_type='Workitem',
-                                                process_path=process_path,
-                                                activity_id=removeList):
+            for i in searchResults(self.Catalog,
+                                   dict(meta_type='Workitem',
+                                        process_path=process_path,
+                                        activity_id=removeList)):
                 w = i.getObject()
                 if w and role in w.push_roles:
                     w.push_roles.remove(role)
@@ -171,9 +175,10 @@ class OpenFlowEngine(Folder, Toolz):
                     w.reindex_object()
         addList = [x for x in activities if x not in old_activities]
         if addList:
-            for i in self.Catalog.searchResults(meta_type='Workitem',
-                                                process_path=process_path,
-                                                activity_id=addList):
+            for i in searchResults(self.Catalog,
+                                   dict(meta_type='Workitem',
+                                        process_path=process_path,
+                                        activity_id=addList)):
                 w = i.getObject()
                 if w and role not in w.push_roles:
                     w.push_roles.append(role)
@@ -240,9 +245,10 @@ class OpenFlowEngine(Folder, Toolz):
             old_activities = []
         removeList = [x for x in old_activities if x not in activities]
         if removeList:
-            for i in self.Catalog.searchResults(meta_type='Workitem',
-                                                process_path=process_path,
-                                                activity_id=removeList):
+            for i in searchResults(self.Catalog,
+                                   dict(meta_type='Workitem',
+                                        process_path=process_path,
+                                        activity_id=removeList)):
                 w = i.getObject()
                 if w and role in w.pull_roles:
                     w.pull_roles.remove(role)
@@ -250,9 +256,10 @@ class OpenFlowEngine(Folder, Toolz):
                     w.reindex_object()
         addList = [x for x in activities if x not in old_activities]
         if addList:
-            for i in self.Catalog.searchResults(meta_type='Workitem',
-                                                process_path=process_path,
-                                                activity_id=addList):
+            for i in searchResults(self.Catalog,
+                                   dict(meta_type='Workitem',
+                                        process_path=process_path,
+                                        activity_id=addList)):
                 w = i.getObject()
                 if w and role not in w.pull_roles:
                     w.pull_roles.append(role)
@@ -274,8 +281,26 @@ class OpenFlowEngine(Folder, Toolz):
         """ """
         return self._activitiesPullableOnRole
 
-    security.declareProtected(
-        'Manage OpenFlow', 'deleteProcessWithActivitiesPullableOnRole')
+    security.declareProtected('Manage OpenFlow', 'getRestrictionsOnRole')
+
+    def getRestrictionsOnRole(self):
+        """ """
+        return getattr(self, '_restrictionsOnRole', PersistentMapping())
+
+    security.declareProtected('Manage OpenFlow', 'setRestrictionsOnRole')
+
+    def setRestrictionsOnRole(self, process, permission, roles, acquire=0,
+                              REQUEST=None):
+        """ Set View restriction mapping """
+        restrictions = self.getRestrictionsOnRole()
+        if process not in restrictions:
+            restrictions[process] = PersistentMapping()
+        restrictions[process][permission] = roles
+        restrictions[process]['Acquire'] = acquire
+        self._restrictionsOnRole = restrictions
+
+    security.declareProtected('Manage OpenFlow',
+                              'deleteProcessWithActivitiesPullableOnRole')
 
     def deleteProcessWithActivitiesPullableOnRole(self, role, process):
         """ Delete the link between a role and activities of a process """
@@ -370,9 +395,10 @@ class OpenFlowEngine(Folder, Toolz):
         """ Finds all workitems from a process in certain statuses
             and sorts them by last modification time
         """
-        ret_list = self.Catalog.searchResults(meta_type='Workitem',
-                                              process_path=process_path,
-                                              status=statuses_list)
+        ret_list = searchResults(self.Catalog,
+                                 dict(meta_type='Workitem',
+                                      process_path=process_path,
+                                      status=statuses_list))
         return RepUtils.utSortByAttr(ret_list, 'bobobase_modification_time')
 
     ##################################################
@@ -437,7 +463,7 @@ class OpenFlowEngine(Folder, Toolz):
             app_type = app.meta_type
             if app_type in typesWithContent:
                 content = app.read()
-                if isinstance(content, unicode):
+                if isinstance(content, unicode):  # noqa: F821
                     content = content.encode('utf-8')
                 checksum = md5.md5(content).hexdigest()
             else:
@@ -671,7 +697,7 @@ class OpenFlowEngine(Folder, Toolz):
         except OpenFlowEngineImportError as e:
             logger.error(
                 "Workflow Import/Export: Failed to import OpenFlowEngine json.\
-                 Reason: %s" % unicode(e.args))
+                 Reason: %s" % unicode(e.args))  # noqa: F821
             if 'Invalid rid' in e.args[0]:
                 message = u"Failed to import. Id %s is invalid or\
                             already exists." % e.args[1]
@@ -682,7 +708,7 @@ class OpenFlowEngine(Folder, Toolz):
         except Exception as e:
             logger.error(
                 "Workflow Import/Export: Failed to import OpenFlowEngine json.\
-                 Reason: %s" % unicode(e.args))
+                 Reason: %s" % unicode(e.args))  # noqa: F821
             message = "Failed to import."
             transaction.abort()
 
@@ -764,6 +790,29 @@ class OpenFlowEngine(Folder, Toolz):
             REQUEST.RESPONSE.redirect(
                 'workflow_map_processes?manage_tabs_message=Properties changed'
             )
+
+    security.declareProtected('Manage OpenFlow', 'get_process_colls')
+
+    def get_process_colls(self, process_id):
+        """Return the collections with the dataflow_uris mapped to this
+           process
+        """
+        results = []
+        engine = self.unrestrictedTraverse(constants.ENGINE_ID, None)
+        if engine:
+            try:
+                p_mapping = self.process_mappings[process_id]
+                dataflow_uris = p_mapping.get('dataflows', [])
+            except KeyError:
+                p_mapping = None
+            if p_mapping:
+                query = {
+                    'meta_type': 'Report Collection',
+                    'dataflow_uris': dataflow_uris
+                }
+                results = searchResults(self.Catalog, query)
+
+        return results
 
     security.declarePublic('findProcess')
 

@@ -166,6 +166,7 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
     ob = Envelope(process, title, actor, year, endyear, partofyear,
                   self.country, locality, descr, dataflow_uris)
     ob.id = id
+    # Get the restricted property from the parent collection
     self._setObject(id, ob)
     ob = self._getOb(id)
     if previous_delivery:
@@ -663,7 +664,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
 
         engine = getattr(self, ENGINE_ID)
         crPingger = engine.contentRegistryPingger
-        if not crPingger:
+        if not crPingger or self.restricted:
             logger.debug("Not pingging Content Registry.")
             return
 
@@ -880,14 +881,35 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
             Figure out what roles exist, but don't give access to
             anonymous and authenticated
         """
+        acquire = 0
         vr = list(self.valid_roles())
+        if self.restricted:
+            # If dealing with a restricted collection:
+            #   - if acquire is 0, get the Roles with assigned View permission
+            col = self.aq_parent
+            if not col.acquiredRolesAreUsedBy('View'):
+                # If the acquire is not set for collection, get the explicitly
+                # set Roles with View Permission
+                vr = [r.get('name') for r in col.rolesOfPermission('View')
+                      if r.get('selected')]
         for item in ('Anonymous', 'Authenticated'):
             try:
                 vr.remove(item)
             except Exception:
                 pass
-        return self._set_restrictions(ids, roles=vr, acquire=0,
+        return self._set_restrictions(ids, roles=vr, acquire=acquire,
                                       permission='View', REQUEST=REQUEST)
+
+    security.declareProtected('Change Envelopes', 'apply_restrictions')
+
+    def apply_restrictions(self):
+        """ Apply restrictions to envelope's contents
+        """
+        ids = self.objectIds(['Report Document',
+                              'Report Feedback',
+                              'Report Hyperlink'])
+        self.manage_restrict(ids)
+        self.reindex_object()
 
     security.declareProtected('Change Envelopes', 'manage_unrestrict')
 

@@ -2,6 +2,7 @@ import json
 import datetime
 from DateTime import DateTime
 from Products.Five import BrowserView
+from Products.Reportek.catalog import searchResults
 
 
 class ReportekApi(BrowserView):
@@ -45,7 +46,7 @@ class ReportekApi(BrowserView):
         if reportingdate:
             s_query['reportingdate'] = reportingdate
 
-        brains = self.context.Catalog(**s_query)
+        brains = searchResults(self.context.Catalog, s_query)
         for brain in brains:
             env = brain.getObject()
             envelope_properties = {
@@ -134,7 +135,7 @@ class ReportekApi(BrowserView):
         query = {
             'meta_type': 'Report Collection'
         }
-        brains = self.context.Catalog(**query)
+        brains = searchResults(self.context.Catalog, query)
         for brain in brains:
             coll = brain.getObject()
             exp_data = {}

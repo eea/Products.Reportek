@@ -11,6 +11,7 @@ from OFS.SimpleItem import SimpleItem
 from Products.Five.browser import BrowserView
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.CatalogAwareness import CatalogAware
+from Products.Reportek.catalog import searchResults
 from ZODB.PersistentList import PersistentList
 __doc__ = """ Multiple dataflow mappings for a single obligation """
 log = logging.getLogger(__name__)
@@ -33,10 +34,10 @@ class AddForm(BrowserView):
             self.parent.absolute_url() + '/manage_main')
 
     def get_records_by_dataflow(self, dataflow_uri):
-        return self.parent.Catalog(
-            meta_type='Dataflow Mappings Record',
-            dataflow_uri=dataflow_uri,
-            path='/DataflowMappings')
+        return searchResults(self.parent.Catalog,
+                             dict(meta_type='Dataflow Mappings Record',
+                                  dataflow_uri=dataflow_uri,
+                                  path='/DataflowMappings'))
 
     def __call__(self, *args, **kwargs):
         if self.request.method == 'POST':

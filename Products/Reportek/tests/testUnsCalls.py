@@ -122,7 +122,7 @@ class UNSCallsTest(BaseUnitTest):
     def test_send_notification_to_uns(self, mock_strftime, mock_time):
         from utils import create_fake_root
         from Products.Reportek.Envelope import Envelope
-
+        from Products.Reportek.Collection import manage_addCollection
         envelope_uri = 'http://example.com/my/envelope'
         event = "Envelope release"
         label = "The test envelope has been released, ypee!"
@@ -130,6 +130,13 @@ class UNSCallsTest(BaseUnitTest):
         mock_strftime.return_value = '2012-May-28 18:06:30'
 
         root = create_fake_root()
+
+        manage_addCollection(root, 'Collection Title',
+                'Desc', '2003', '2004', '',
+                'http://rod.eionet.eu.int/spatial/2', '',
+                ['http://rod.eionet.eu.int/obligations/8'],
+                allow_collections=1, allow_envelopes=1, id='collection')
+
         process = Mock()
         e = Envelope(process, '', '', '', '', '', '', '', '')
         e._content_registry_ping = Mock()
@@ -140,8 +147,8 @@ class UNSCallsTest(BaseUnitTest):
         e.absolute_url = Mock(return_value=envelope_uri)
         e.getCountryName = Mock(return_value=mock_localities['es']['name'])
         self.engine.dataflow_lookup = Mock(return_value=mock_dataflow)
-        root._setObject(e.id, e)
-        envelope = root[e.id]
+        root.collection._setObject(e.id, e)
+        envelope = root.collection[e.id]
 
         ret = self.engine.sendNotificationToUNS(envelope, event, label)
         self.assertEqual(ret, 1)
@@ -175,7 +182,7 @@ class UNSCallsTest(BaseUnitTest):
         ])
 
     def test_send_notification_to_uns_error(self):
-        envelope = Mock(dataflow_uris=[])
+        envelope = Mock(dataflow_uris=[], restricted=False)
         sendNotification = self.xmlrpc_server.UNSService.sendNotification
         sendNotification.side_effect = ValueError
         ret = self.engine.sendNotificationToUNS(envelope, Mock(), Mock())

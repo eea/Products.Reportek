@@ -57,10 +57,13 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BdrAuthorizationMiddleware import \
     BdrAuthorizationMiddleware
 from Products.Reportek.clamav import AVService
+from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
+from Products.Reportek.constants import ECAS_ID
 from Products.Reportek.ContentRegistryPingger import ContentRegistryPingger
 from Products.Reportek.RegistryManagement import (BDRRegistryAPI,
                                                   FGASRegistryAPI)
 from Toolz import Toolz
+from Products.Reportek.catalog import searchResults
 from zope.component import getUtility
 from zope.i18n.interfaces import II18nAware, INegotiator
 from zope.i18n.negotiator import normalize_lang
@@ -791,7 +794,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if not catalog_args:
             return
 
-        envelopes = self.Catalog(**catalog_args)
+        envelopes = searchResults(self.Catalog, catalog_args)
         envelopeObjects = []
         for eBrain in envelopes:
             o = eBrain.getObject()
@@ -808,7 +811,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """
         envelopeObjects = []
         if catalog_args:
-            envelopes = self.Catalog(**catalog_args)
+            envelopes = searchResults(self.Catalog, catalog_args)
 
             for eBrain in envelopes:
                 obj = eBrain.getObject()
@@ -960,7 +963,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             }
 
             catalog = self.Catalog
-            brains = catalog(**query)
+            brains = searchResults(catalog, query)
             if not brains:
                 message = fail_pattern % (
                     crole,
@@ -1050,7 +1053,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if how == 'desc':
             query['sort_order'] = 'reverse'
 
-        workitems = catalog(**query)
+        workitems = searchResults(catalog, query)
 
         if REQUEST is None:
             return [ob.getObject() for ob in workitems]
@@ -1273,7 +1276,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         l_params = {'meta_type': 'Report Envelope',
                     'dataflow_uris': obligation, 'released': 1}
 
-        for obj in self.__getObjects(l_catalog.searchResults(l_params)):
+        for obj in self.__getObjects(searchResults(l_catalog, l_params)):
             res = {'url': obj.absolute_url(0),
                    'title': obj.title,
                    'description': obj.descr,
@@ -1404,6 +1407,15 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 url = url.replace('https://', 'https://' + frag)
             return xmlrpclib.Server(url)
 
+    def get_ecas_userid(self, username):
+        ecas_path = '/acl_users/' + ECAS_ID
+        try:
+            ecas = self.unrestrictedTraverse(ecas_path, None)
+            if ecas:
+                return ecas.getEcasUserId(username)
+        except Exception:
+            logger.info('Unable to get ecas info')
+
     security.declareProtected('View', 'canUserSubscribeToUNS')
 
     def canUserSubscribeToUNS(self, user_id='', REQUEST=None):
@@ -1418,6 +1430,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         try:
             l_server = self.get_uns_xmlrpc_server()
             if l_server is not None:
+                if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+                    if self.get_ecas_userid(user_id):
+                        user_id = self.get_ecas_userid(user_id)
                 l_ret = l_server.UNSService.canSubscribe(self.UNS_channel_id,
                                                          user_id)
                 return l_ret
@@ -1471,10 +1486,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         try:
             l_server = self.get_uns_xmlrpc_server()
             if l_server is not None:
-                l_server.UNSService.makeSubscription(
-                    self.UNS_channel_id,
-                    self.REQUEST['AUTHENTICATED_USER'].getUserName(),
-                    l_filters_final)
+                user_id = self.REQUEST['AUTHENTICATED_USER'].getUserName()
+                if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+                    if self.get_ecas_userid(user_id):
+                        user_id = self.get_ecas_userid(user_id)
+                l_ret = l_server.UNSService.makeSubscription(
+                    self.UNS_channel_id, user_id, l_filters_final)
                 if REQUEST is not None:
                     REQUEST.RESPONSE.redirect(
                         '''subscriptions_html?info_title=Information'''
@@ -1499,7 +1516,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             l_server = self.get_uns_xmlrpc_server()
             # create unique notification identifier
             # Envelope URL + time + notification_type
-            if l_server is not None:
+            if l_server is not None and not envelope.restricted:
                 l_time = str(time())
                 l_id = "%s/events#ts%s" % (envelope.absolute_url(), l_time)
                 l_res = []
@@ -1554,6 +1571,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         for act in actors:
             try:
                 if l_server is not None:
+                    if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
+                        if self.get_ecas_userid(act):
+                            act = self.get_ecas_userid(act)
                     l_server.UNSService.makeSubscription(self.UNS_channel_id,
                                                          act, filters)
                     return 1
@@ -1603,8 +1623,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         raise ValueError('hello world')
 
     def getSearchResults(self, **kwargs):
-        [kwargs.pop(el) for el in kwargs.keys() if not kwargs[el]]
-        catalog = self.Catalog(**kwargs)
+        [kwargs.pop(el) for el in kwargs.keys() if kwargs[el] in [None, '']]
+        catalog = searchResults(self.Catalog, kwargs)
         return catalog
 
     def getUniqueValuesFor(self, value):
@@ -1698,7 +1718,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             catalog = getattr(self, constants.DEFAULT_CATALOG)
 
             middleware_collections['rw'] += [
-                br.getObject() for br in catalog(id=username)
+                br.getObject() for br in searchResults(
+                    catalog, dict(id=username))
                 if not br.getObject() in middleware_collections['rw']]
 
             # check BDR registry
@@ -1714,8 +1735,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             collections['Reporter'] = middleware_collections
             local_roles = ['Auditor', 'ClientFG',
                            'ClientODS', 'ClientCARS', 'ClientHDV']
-            local_r_col = catalog(meta_type='Report Collection',
-                                  local_unique_roles=local_roles)
+            local_r_col = searchResults(catalog,
+                                        dict(meta_type='Report Collection',
+                                             local_unique_roles=local_roles))
 
             auditor = [br.getObject() for br in local_r_col
                        if 'Auditor' in br.local_defined_roles.get(username, [])
@@ -1759,7 +1781,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 if self.REQUEST.get('sort_order'):
                     catalog_args['sort_order'] = self.REQUEST['sort_order']
             if catalog_args:
-                brains = self.Catalog(**catalog_args)
+                brains = searchResults(self.Catalog, catalog_args)
                 if brains:
                     env_objs = [brain.getObject() for brain in brains]
 

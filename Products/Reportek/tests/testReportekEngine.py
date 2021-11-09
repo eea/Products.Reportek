@@ -191,11 +191,12 @@ class SearchResultsTest(BaseTest, ConfigureReportek):
     def test_returns_all(self):
         results = self.engine.getSearchResults()
         envs = [el.getObject() for el in results]
-        self.assertEqual(envs, [self.root.first_envelope,
-                                self.root.first_envelope['feedbackid'],
-                                self.root.first_envelope['feedback5'],
-                                self.root.first_envelope['feedback10'],
-                                self.root.second_envelope])
+        self.assertEqual(envs, [
+            self.root.first_envelope['feedbackid'],
+            self.root.first_envelope['feedback5'],
+            self.root.first_envelope['feedback10'],
+            self.root.first_envelope,
+            self.root.second_envelope])
 
     def test_filter_by_meta_type(self):
         results = self.engine.getSearchResults(meta_type='Report Feedback')
@@ -214,10 +215,7 @@ class SearchResultsTest(BaseTest, ConfigureReportek):
         results = self.engine.getSearchResults(
             country='http://example.com/country/1')
         res = [el.getObject() for el in results]
-        self.assertEqual(res, [self.root.first_envelope,
-                               self.root.first_envelope['feedbackid'],
-                               self.root.first_envelope['feedback5'],
-                               self.root.first_envelope['feedback10']])
+        self.assertEqual(res, [self.root.first_envelope])
 
     def test_filter_by_id(self):
         results = self.engine.getSearchResults(id={'range': 'min:max',
