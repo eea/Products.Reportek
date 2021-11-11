@@ -4,10 +4,11 @@ Clean unused Catalog indexes and metadata and reindex the Catalog records.
 """
 
 import logging
+
 from Products.Reportek import create_reportek_indexes
+from Products.Reportek.catalog import catalog_rebuild
 from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.Reportek.tests.utils import makerequest
-from Products.Reportek.catalog import catalog_rebuild
 
 handler = logging.StreamHandler()
 
@@ -22,6 +23,7 @@ catalog_log.setLevel(logging.INFO)
 
 def get_catalog(app):
     return getattr(app, DEFAULT_CATALOG)
+
 
 def update_indexes(app):
     """
@@ -55,7 +57,6 @@ def update_indexes(app):
 
     catalog_rebuild(app)
     log.info('Catalog records are reindexed')
-
 
     _catalog = catalog._catalog
     if hasattr(_catalog, '_length') and '__len__' in _catalog.__dict__:

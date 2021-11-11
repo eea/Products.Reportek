@@ -24,26 +24,30 @@
 
 $Id$"""
 
-__version__='$Revision$'[11:-2]
-
 import lxml.etree
+__version__ = '$Revision$'[11:-2]
+
 
 class SchemaError(ValueError):
     pass
 
+
 def locations_str(locations):
     if isinstance(locations, basestring):
         return locations
-    loc_list = [ loc for loc in locations ]
+    loc_list = [loc for loc in locations]
     return ' '.join(loc_list)
+
 
 def absolute_location(location):
     return location.startswith('http://') or location.startswith('https://')
 
+
 def detect_schema(src):
     """ Detect the schema location of this xml file.
     The schema may be missing completely in which case we return empty string
-    However the xml must be well formmed and the schema location must be in absolute form;
+    However the xml must be well formmed and the schema location must be in
+    absolute form;
     otherwise throw an SchemaError exception in order to reject the file.
     """
     try:
@@ -83,7 +87,8 @@ def detect_schema(src):
             location_list_valid = filter(absolute_location, location_list)
             if len(location_list) != len(location_list_valid):
                 raise SchemaError('Schema location is not a valid URL',
-                                  locations_str(set(location_list) - set(location_list_valid)))
+                                  locations_str(set(location_list) - set(
+                                    location_list_valid)))
         return ' '.join(location_list)
 
     location = doc.docinfo.system_url

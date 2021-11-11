@@ -16,7 +16,7 @@
      tal:content="options/message_dialog" />
 
 
-<p class="form-help">
+<p class="form-help" i18n:translate="">
   Choose a title, a dataflow and click "Save Changes".
 </p>
 
@@ -25,7 +25,7 @@
   <table cellspacing="0" cellpadding="2" border="0">
     <tr>
       <td>
-        <label class="form-label" for="title">Title</label>
+        <label class="form-label" for="title" i18n:translate="">Title</label>
       </td>
       <td>
         <input class="form-element" id="title" name="title" size="60"
@@ -34,7 +34,7 @@
     </tr>
     <tr>
       <td>
-        <label class="form-label" for="dataflow_uris">Dataflow</label>
+        <label class="form-label" for="dataflow_uris" i18n:translate="">Dataflow</label>
       </td>
       <td>
         <div class="select-container" style="width:50%"
@@ -47,7 +47,7 @@
     <tr class="row-hilite">
       <td></td>
       <td>
-        <input type="submit" name="update" value="Save Changes" />
+        <input type="submit" name="update" value="Save Changes" i18n:attributes="value btn-save-changes"/>
       </td>
     </tr>
   </table>
@@ -56,7 +56,7 @@
 
   <tal:block condition="options/schemas">
 
-    <p class="form-help">
+    <p class="form-help" i18n:translate="">
       List of available schemas for this dataflow. Check one or more
       records and click the "Delete" button in order to delete them.
     </p>
@@ -65,10 +65,10 @@
           style="width:100%; font-size:0.8em;">
       <tr class="list-header">
         <th></th>
-        <th>Schema</th>
-        <th>Name</th>
-        <th>Has WebForm</th>
-        <th>Webform edit URL</th>
+        <th i18n:translate="">Schema</th>
+        <th i18n:translate="">Name</th>
+        <th i18n:translate="">Has WebForm</th>
+        <th i18n:translate="">Webform edit URL</th>
       </tr>
 
       <tr tal:repeat="schema options/schemas">
@@ -86,7 +86,7 @@
       <tr class="row-hilite">
         <td></td>
         <td colspan="4">
-          <input type="submit" name="delete" value="Delete" />
+          <input type="submit" name="delete" value="Delete" i18n:attributes="value btn-delete"/>
         </td>
       </tr>
     </table>
@@ -94,14 +94,14 @@
   </tal:block>
 
   <p tal:condition="not:options/schemas">
-    <strong>Schemas list is empty.</strong>
+    <strong i18n:translate="">Schemas list is empty.</strong>
   </p>
 
 </form>
 
 <br />
 
-<p class="form-help">
+<p class="form-help" i18n:translate="">
   To add a new mapping, enter a schema, a name, check if there is a
   webform for this schema or not, and click the "Add" button.
   If this dataflow uses a different webforms engine than the <a href="/ReportekEngine">website's default setting</a>, use the <strong>Webform edit URL</strong> to specify the link to the webform for editing each type of XML file.
@@ -112,7 +112,7 @@
   <table cellspacing="0" cellpadding="2" border="0">
     <tr>
       <td>
-        <label class="form-label" for="schema">Schema *</label>
+        <label class="form-label" for="schema" i18n:translate="">Schema *</label>
       </td>
       <td colspan="2">
         <input type="text" id="schema" name="schema" size="100" />
@@ -120,24 +120,24 @@
     </tr>
     <tr>
       <td>
-        <label class="form-label" for="name">Name</label>
+        <label class="form-label" for="name" i18n:translate="">Name</label>
       </td>
       <td>
         <input type="text" id="name" name="name" size="60" />
       </td>
       <td>
-        <span class="form-label">Has Webform:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        <span class="form-label" i18n:translate="">Has Webform:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</span>
         <input name="has_webform" id="has_webform_yes" type="radio" value="yes"/>
-        <label class="form-label" for="has_webform_yes">Yes</label>
+        <label class="form-label" for="has_webform_yes" i18n:translate="">Yes</label>
         <input name="has_webform" id="has_webform_no" type="radio" value="no"/>
-        <label class="form-label" for="has_webform_no">No</label>
+        <label class="form-label" for="has_webform_no" i18n:translate="">No</label>
         <input name="has_webform" id="has_webform_auto" type="radio" value="auto" checked/>
-        <label class="form-label" for="has_webform_auto">Figure it out from WebQ</label>
+        <label class="form-label" for="has_webform_auto" i18n:translate="">Figure it out from WebQ</label>
       </td>
     </tr>
     <tr>
       <td>
-        <label class="form-label" for="wf_edit_url">Webform edit URL</label>
+        <label class="form-label" for="wf_edit_url" i18n:translate="">Webform edit URL</label>
       </td>
       <td colspan="2">
         <input type="text" id="wf_edit_url" name="wf_edit_url" size="100" />
@@ -146,7 +146,7 @@
     <tr class="row-hilite">
       <td></td>
       <td colspan="3">
-        <input type="submit" name="add" value="Add" />
+        <input type="submit" name="add" value="Add" i18n:attributes="value btn-add"/>
       </td>
     </tr>
   </table>
@@ -155,9 +155,9 @@
 <br />
 
 <form action="load_from_dd" method="post">
-  <div class="form-element">
+  <div class="form-element" i18n:translate="">
     Load mappings from DataDictionary and WebQ:
-    <button type="submit">Load</button>
+    <button type="submit" i18n:translate="">Load</button>
   </div>
 </form>
 
@@ -165,20 +165,20 @@
   <table cellspacing="0" cellpadding="2" border="0">
     <tr>
       <td>
-        <label class="form-label" for="xls_conversion">XLS Conversion</label>
+        <label class="form-label" for="xls_conversion" i18n:translate="">XLS Conversion</label>
       </td>
       <td colspan="2">
         <input name="xls_conversion" id="xls_split" type="radio" value="split" tal:attributes="checked python: context.xls_conversion == 'split';"/>
-        <label class="form-label" for="xls_split">Split sheets</label>
+        <label class="form-label" for="xls_split" i18n:translate="">Split sheets</label>
         <input name="xls_conversion" id="xls_non_split" type="radio" value="nosplit" tal:attributes="checked python: context.xls_conversion == 'nosplit';"/>
-        <label class="form-label" for="xls_non_split">Don't split sheets</label><br/>
+        <label class="form-label" for="xls_non_split" i18n:translate="">Don't split sheets</label><br/>
         <input name="xls_remove_empty_elems" id="xls_remove_empty_elems" type="checkbox" tal:attributes="checked context/xls_remove_empty_elems|nothing"/>
-        <label class="form-label" for="xls_remove_empty_elems">Remove empty elements from the resulting XML</label>
+        <label class="form-label" for="xls_remove_empty_elems" i18n:translate="">Remove empty elements from the resulting XML</label>
       </td>
     </tr>
     <tr class="row-hilite">
       <td colspan="2">
-        <input type="submit" name="update_xls_conversion" value="Save" />
+        <input type="submit" name="update_xls_conversion" value="Save" i18n:attributes="value btn-save"/>
       </td>
     </tr>
   </table>

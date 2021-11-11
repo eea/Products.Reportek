@@ -19,11 +19,12 @@
 
 from StringIO import StringIO
 
+
 class FileUploadMock(StringIO):
     """ This is an object to mock up FileUpload in ZPublisher/HTTPRequest.py
         It is much simpler and does not have the next method
     """
+
     def __init__(self, filename, content):
         StringIO.__init__(self, content)
         self.filename = filename
-

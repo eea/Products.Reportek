@@ -53,7 +53,8 @@ class ReportekApi(BrowserView):
                 'url': env.absolute_url(0),
                 'title': env.title,
                 'description': env.descr,
-                'dataflow_uris': env.dataflow_uris if isinstance(env.dataflow_uris, list) else list(env.dataflow_uris),
+                'dataflow_uris': (env.dataflow_uris if isinstance(
+                    env.dataflow_uris, list) else list(env.dataflow_uris)),
                 'country': env.country,
                 'country_name': env.getCountryName(),
                 'country_code': env.getCountryCode(),
@@ -71,7 +72,8 @@ class ReportekApi(BrowserView):
             for doc in env.objectValues('Report Document'):
                 if doc.get_accept_time() is not None:
                     accepttime = doc.get_accept_time().HTML4()
-                else: accepttime = ''
+                else:
+                    accepttime = ''
 
                 doc_properties = {
                     'id': doc.id,
@@ -91,8 +93,8 @@ class ReportekApi(BrowserView):
 
         return json.dumps(results, indent=4)
 
-
-    def get_released_envelopes(self, obligation, start_date=None, end_date=None):
+    def get_released_envelopes(self, obligation, start_date=None,
+                               end_date=None):
         """
         Get the released envelopes for a given obligation.
         Method used by FDB/ODB.
@@ -101,8 +103,8 @@ class ReportekApi(BrowserView):
         return self.search_envelopes(obligation, start_date=start_date,
                                      end_date=end_date)
 
-
-    def get_unreleased_envelopes(self, obligation, start_date=None, end_date=None):
+    def get_unreleased_envelopes(self, obligation, start_date=None,
+                                 end_date=None):
         """
         Get the un-released envelopes for a given obligation.
         Method used by FDB/ODB.
@@ -111,8 +113,8 @@ class ReportekApi(BrowserView):
         return self.search_envelopes(obligation, released=False,
                                      start_date=start_date, end_date=end_date)
 
-
-    def get_rejected_envelopes(self, obligation, start_date=None, end_date=None):
+    def get_rejected_envelopes(self, obligation, start_date=None,
+                               end_date=None):
         """
         Get the rejected envelopes for a given obligation.
         If envelope contains blocker feedback, then it is rejected.
@@ -144,4 +146,3 @@ class ReportekApi(BrowserView):
 
         self.request.RESPONSE.setHeader("Content-Type", "application/json")
         return json.dumps(results, indent=4)
-

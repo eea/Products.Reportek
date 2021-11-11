@@ -1,21 +1,22 @@
-## Script (Python) "EnvelopeCreateGeneralReportFile"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
+# flake8: noqa
+# Script (Python) "EnvelopeCreateGeneralReportFile"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
 ##parameters=language, region=[]
-##title=Art17: Creates a new instance file
+# title=Art17: Creates a new instance file
 ##
 #
-transmap = string.maketrans(' ','-')
+transmap = string.maketrans(' ', '-')
 
 request = context.REQUEST
 response = request.RESPONSE
 SESSION = request.SESSION
 
-filename="general-report.xml"
-title="General report for art 17"
+filename = "general-report.xml"
+title = "General report for art 17"
 filecontent = []
 err_msg = []
 
@@ -82,7 +83,7 @@ for r in region:
 			</marine>
 		</areas-of-conservation>
   </regional>
-""" % (bioregions[r], r) )
+""" % (bioregions[r], r))
 filecontent.append("""
 	<management-tools label="3. Management tools - Art. 6(1)">
 		<management-plans label="3.1 Management plans and Management bodies">
@@ -214,5 +215,6 @@ filecontent.append("""
 	</supporting-measures>
 </report>
 """)
-context.manage_addDocument(filename, title, ''.join(filecontent), 'text/xml','')
+context.manage_addDocument(
+    filename, title, ''.join(filecontent), 'text/xml', '')
 return context.index_html()

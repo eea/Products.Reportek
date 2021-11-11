@@ -33,38 +33,38 @@
 	}
 </style>
 
-<p>Jump to | <a href="#help">Help<a> | <a href="#byprocess">Applications by process<a> | <a href="#manage">Manage Applications<a> |</p>
+<p i18n:translate="">Jump to | <a href="#help" i18n:translate="">Help<a> | <a href="#byprocess" i18n:translate="">Applications by process<a> | <a href="#manage" i18n:translate="">Manage Applications<a> |</p>
 
 <div class="note-msg">
-  <h2><a name="help"></a>Help on Applications to activities mappings
+  <h2 i18n:translate=""><a name="help"></a>Help on Applications to activities mappings
   [<a href="#" style="font-weight: normal;" id="collapse_button">hide</a>]
   </h2>
-  <div id="collapsible" collapsed="false" style="margin-top: 10px;">
+  <div id="collapsible" collapsed="false" style="margin-top: 10px;" i18n:translate="">
       <hr/>
       Currently there are two possibilities to map an application to an
       activity:
       <ul>
-          <li>automatically
+          <li i18n:translate="">automatically
             <span style="color: green;"
                   tal:content="string:[auto]"></span>
           - by path (new)</li>
-          <li>manually
+          <li i18n:translate="">manually
             <span style="color: orange;"
                   tal:content="string:[man]"></span>
           - by assigning an application instance to the
           application attribute of the activity (deprecated)</li>
       </ul>
-      <p>
+      <p i18n:translate="">
       Reportek has a folder structure and mechanism to automatically map
       applications to activities.
-      <p>
+      <p i18n:translate="">
       The root folder is <code>/Applications</code>. Each workflow must have a
       folder named exactly like its id.<br/>
       In order to be mapped automatically to an activity, an application must
       be stored in one of these subfolders and must have a name that matches an activity
       that's part of the corresponding workflow.
       </p>
-      <p>
+      <p i18n:translate="">
           Example of an automatically mapped application:
           <strong>/Applications/CDDA/Draft.</strong>
           This application would be mapped to the <strong>Draft</strong>
@@ -77,22 +77,22 @@
 
 <div style="text-align: right">
 	<form action="manage_addApplicationForm" method="post">
-	<input type="submit" name="submit" value="Add Application" />
+	<input type="submit" name="submit" value="Add Application" i18n:attributes="value btn-add-application" />
 	</form>
 </div>
 
 <tal:block define="apps_list python:[]">
 
-<h2><a name="byprocess"></a>Applications by process</h2>
-<p>HINT: find all automatically assigned applications by using <span
+<h2 i18n:translate=""><a name="byprocess"></a>Applications by process</h2>
+<p i18n:translate="">HINT: find all automatically assigned applications by using <span
             style="color: green;" tal:content="string:[auto]"></span> when searching</p>
 <table class="workflow-applications">
 
 	<thead>
 	<tr>
-		<th>Process</th>
-		<th>Activities</th>
-		<th>Applications</th>
+		<th i18n:translate="">Process</th>
+		<th i18n:translate="">Activities</th>
+		<th i18n:translate="">Applications</th>
 	</tr>
 	</thead>
 
@@ -102,7 +102,7 @@
 	<tr tal:repeat="proc processes">
 		<td>
             <a tal:content="proc/id"
-               tal:attributes="href python: proc.absolute_url()">proc.absolute_url</a>
+               tal:attributes="href python: proc.absolute_url()" i18n:translate="">proc.absolute_url</a>
 		</td>
         <td>
 			<ul>
@@ -111,7 +111,7 @@
 					   tal:content="string:${activity/getId}"></a> 
 				</li>
 			</ul>
-			<em tal:condition="python:not proc.objectValues('Activity')">
+			<em tal:condition="python:not proc.objectValues('Activity')" i18n:translate="">
 				(no activities)
 			</em>
         </td>
@@ -130,6 +130,7 @@
                   <tal:block condition="python:result['path']">
                         <span style="color: red;"
                             tal:condition="python:result['missing']"
+                            i18n:translate=""
                             tal:content="string:${result/path}">
                               MISSING PATH
                         </span>
@@ -137,6 +138,7 @@
                             condition="python:result['parent_url']">
                             <a tal:attributes="href python:result.get('parent_url', '') +
                                       '/manage_workspace'"
+                               i18n:translate=""
                                tal:content="python:result['path']">
                                 application name
                             </a>
@@ -163,7 +165,7 @@
                 </tal:block>
               </tal:block>
 			</ul>
-			<em tal:condition="python:not proc.objectValues('Activity')">
+			<em tal:condition="python:not proc.objectValues('Activity')" i18n:translate="">
 				(n/a)
 			</em>
         </td>
@@ -172,14 +174,14 @@
 	</tbody>
 </table>
 <br style="clear: both" />
-<h2><a name="manage"></a>Manage Applications</h2>
+<h2 i18n:translate=""><a name="manage"></a>Manage Applications</h2>
 
 <form action="deleteApplication" method="post">
 <table style="border: 1px solid grey" cellpadding="2" cellspacing="2">
 	<tr>
-		<th scope="row" style="background-color: #f0f0f0;">#</th>
-		<th scope="row" style="background-color: #f0f0f0;">Application name</th>
-		<th scope="row" style="background-color: #f0f0f0;">URL</th>
+		<th scope="row" style="background-color: #f0f0f0;" i18n:translate="">#</th>
+		<th scope="row" style="background-color: #f0f0f0;" i18n:translate="">Application name</th>
+		<th scope="row" style="background-color: #f0f0f0;" i18n:translate="">URL</th>
 	</tr>
 
 	<tr tal:repeat="applications container/listApplications">
@@ -189,14 +191,15 @@
 				tal:attributes="value applications/name"/>
 			<a align="left"
 				tal:content="applications/name"
+                i18n:translate=""
 				tal:attributes="href string:manage_editApplicationForm?name=${applications/name}&link=${applications/link}">Application Id</a>
 		</td>
-		<td style="border-bottom: 1px solid grey" tal:content="applications/link">Application URL</td>
+		<td style="border-bottom: 1px solid grey" tal:content="applications/link" i18n:translate="">Application URL</td>
 	</tr>
 
 </table>
 
-<input type="submit" name="deleteApplication" value="Delete applications" />
+<input type="submit" name="deleteApplication" value="Delete applications" i18n:attributes="value btn-delete-applications"/>
 </form>
 
 </tal:block>

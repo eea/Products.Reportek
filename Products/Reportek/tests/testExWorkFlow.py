@@ -1,3 +1,4 @@
+# flake8: noqa
 # Those are old tests written by moregale that were renamed to never be
 # executed for some while; some other tests regarding workflow have been
 # written. In the mean time, none of the test, not even the runnable ones,
@@ -6,6 +7,8 @@
 # One can see the rest of them using version control history
 from authutils import loginUnrestricted
 from common import BaseTest, ConfigureReportek
+import unittest
+from Testing import ZopeTestCase
 from Products.Reportek.catalog import searchResults
 import unittest
 from Testing import ZopeTestCase
@@ -37,12 +40,15 @@ class rolesTestCase(BaseTest, ConfigureReportek):
         self.createStandardCollection()
         self.login()
 
-        #self.app.manage_addProduct['Reportek'].manage_addCollection('title',
-        #    'descr','2003','2004','','http://country', '', [], id='collection')
+        # self.app.manage_addProduct['Reportek'].manage_addCollection('title',
+        #    'descr','2003','2004','','http://country', '', [],
+        #    id='collection')
         # Create a Process Instance of the Process definition mentioned above
         self.coll = getattr(self.app, 'collection')
-        self.coll.manage_addProduct['Reportek'].manage_addEnvelope('title',
-            'descr','2003','2004', 'WHOLE_YEAR', 'entire country',REQUEST=self.app.REQUEST)
+        self.coll.manage_addProduct['Reportek'].manage_addEnvelope(
+            'title',
+            'descr', '2003', '2004', 'WHOLE_YEAR', 'entire country',
+            REQUEST=self.app.REQUEST)
         self.of = getattr(self.app, 'WorkflowEngine')
 
     def testEditRolePush(self):
@@ -51,14 +57,14 @@ class rolesTestCase(BaseTest, ConfigureReportek):
         process = 'begin_end'
         activities = ['Begin', 'End']
         self.of.editActivitiesPushableOnRole(role, process, activities)
-        assert self.of._activitiesPushableOnRole == {'testRole':{'begin_end':['Begin', 'End']}},\
-           "Role editing not correct: %s" % self.of._activitiesPushableOnRole[role][process]
+        assert self.of._activitiesPushableOnRole == {'testRole': {'begin_end': ['Begin', 'End']}},\
+            "Role editing not correct: %s" % self.of._activitiesPushableOnRole[role][process]
         self.of.editActivitiesPushableOnRole(role, process, ['Begin'])
-        assert self.of._activitiesPushableOnRole == {'testRole':{'begin_end':['Begin']}},\
-           "Role editing not correct: %s" % self.of._activitiesPushableOnRole
+        assert self.of._activitiesPushableOnRole == {'testRole': {'begin_end': ['Begin']}},\
+            "Role editing not correct: %s" % self.of._activitiesPushableOnRole
         self.of.deleteProcessWithActivitiesPushableOnRole(role, process)
         assert self.of._activitiesPushableOnRole == {},\
-           "Role editing not correct: %s" % self.of._activitiesPushableOnRole
+            "Role editing not correct: %s" % self.of._activitiesPushableOnRole
 
     def testEditRolePull(self):
         # Check edit on role
@@ -66,14 +72,14 @@ class rolesTestCase(BaseTest, ConfigureReportek):
         process = 'begin_end'
         activities = ['Begin', 'End']
         self.of.editActivitiesPullableOnRole(role, process, activities)
-        assert self.of._activitiesPullableOnRole == {'testRole':{'begin_end':['Begin', 'End']}},\
-           "Role editing not correct: %s" % self.of._activitiesPullableOnRole[role][process]
+        assert self.of._activitiesPullableOnRole == {'testRole': {'begin_end': ['Begin', 'End']}},\
+            "Role editing not correct: %s" % self.of._activitiesPullableOnRole[role][process]
         self.of.editActivitiesPullableOnRole(role, process, ['Begin'])
-        assert self.of._activitiesPullableOnRole == {'testRole':{'begin_end':['Begin']}},\
-           "Role editing not correct: %s" % self.of._activitiesPullableOnRole
+        assert self.of._activitiesPullableOnRole == {'testRole': {'begin_end': ['Begin']}},\
+            "Role editing not correct: %s" % self.of._activitiesPullableOnRole
         self.of.deleteProcessWithActivitiesPullableOnRole(role, process)
         assert self.of._activitiesPullableOnRole == {},\
-           "Role editing not correct: %s" % self.of._activitiesPullableOnRole
+            "Role editing not correct: %s" % self.of._activitiesPullableOnRole
 
     def testWorkitemsListForRolePush(self):
         role = 'testRole'
@@ -81,7 +87,8 @@ class rolesTestCase(BaseTest, ConfigureReportek):
         activities = ['Begin', 'End']
         result = searchResults(self.app.Catalog, dict(meta_type='Workitem'))
         assert len(result) == 1, "%s workitems listed instead of 1" % len(result)
-        result = [ o.getObject() for o in result if role in o.getObject().push_roles ]
+        result = [o.getObject()
+                  for o in result if role in o.getObject().push_roles]
         assert len(result) == 0, "%s workitems listed instead of 0" % len(result)
         self.of.editActivitiesPushableOnRole(role, process, activities)
         result = searchResults(self.app.Catalog, dict(meta_type='Workitem'))
@@ -96,7 +103,8 @@ class rolesTestCase(BaseTest, ConfigureReportek):
         result = searchResults(self.app.Catalog, dict(meta_type='Workitem'))
 
         assert len(result) == 1, "%s workitems listed instead of 1" % len(result)
-        result = [ o.getObject() for o in result if role in o.getObject().pull_roles ]
+        result = [o.getObject()
+                  for o in result if role in o.getObject().pull_roles]
         assert len(result) == 0, "%s workitems listed instead of 0" % len(result)
         self.of.editActivitiesPullableOnRole(role, process, activities)
         result = searchResults(self.app.Catalog, dict(meta_type='Workitem'))
@@ -114,7 +122,7 @@ class zopeEnvTestCase(BaseTest, ConfigureReportek):
         self.createStandardCollection()
         self.coll = getattr(self.app, 'collection')
         self.coll.manage_addProduct['Reportek'].manage_addEnvelope('title',
-            'descr','2003','2004', 'WHOLE_YEAR', 'entire country',REQUEST=self.app.REQUEST)
+                                                                   'descr', '2003', '2004', 'WHOLE_YEAR', 'entire country', REQUEST=self.app.REQUEST)
         self.of = getattr(self.app, 'WorkflowEngine')
         self.pd = getattr(self.of, 'begin_end')
 
@@ -135,7 +143,7 @@ class zopeEnvTestCase(BaseTest, ConfigureReportek):
                                              process='begin_end',
                                              activities=['Begin', 'End'])
         assert self.of.usersAssignableTo('begin_end', 'Begin') == ['auser'], \
-               self.of.usersAssignableTo('begin_end', 'Begin')
+            self.of.usersAssignableTo('begin_end', 'Begin')
 
 
 class zopeEnvCopySupport(BaseTest, ConfigureReportek):
@@ -147,7 +155,7 @@ class zopeEnvCopySupport(BaseTest, ConfigureReportek):
         self.createStandardCollection()
         self.coll = getattr(self.app, 'collection')
         self.coll.manage_addProduct['Reportek'].manage_addEnvelope('title',
-            'descr','2003','2004', 'WHOLE_YEAR', 'entire country',REQUEST=self.app.REQUEST)
+                                                                   'descr', '2003', '2004', 'WHOLE_YEAR', 'entire country', REQUEST=self.app.REQUEST)
         self.of = getattr(self.app, 'WorkflowEngine')
         self.pd = getattr(self.of, 'begin_end')
         loginUnrestricted()
@@ -173,7 +181,7 @@ class zopeEnvCopySupport(BaseTest, ConfigureReportek):
     def testChangeUseOpenFlowPermission(self):
         from AccessControl.Permission import Permission
         perms = self.of.ac_inherited_permissions(1)
-        name, value = [p for p in perms if p[0]=='Use OpenFlow'][0][:2]
-        p=Permission(name,value,self.of)
+        name, value = [p for p in perms if p[0] == 'Use OpenFlow'][0][:2]
+        p = Permission(name, value, self.of)
         roles = ['Authenticated']
         p.setRoles(roles)

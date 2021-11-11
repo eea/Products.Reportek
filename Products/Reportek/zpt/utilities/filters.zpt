@@ -4,15 +4,16 @@
       <div class="form-group"
         tal:define="multiple string:multiple;
                     placeholder string:All">
-        <label for="obligations">Obligations</label>
+        <label for="obligations" i18n:translate="">Obligations</label>
         <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
       </div>
 
       <tal:block metal:define-macro="path-filter">
         <div class="form-group" tal:define="placeholder placeholder|nothing;">
-          <label for="path_filter">Path</label>
+          <label for="path_filter" i18n:translate="">Path</label>
           <input id="path_filter" name="path_filter" type="text"
             title="Entering /foo/bar will search in /foo/bar, entering foo/bar will search everywhere for foo/bar in path"
+            i18n:attributes="title title-path-filter"
             tal:attributes="class python: 'placeholder-enabled text-input' if placeholder else 'text-input';
                             value request/path_filter | nothing">
         </div>
@@ -21,7 +22,7 @@
       <tal:block metal:define-macro="role">
         <div class="form-group" tal:define="placeholder placeholder|nothing;
                                             roles roles | view/get_roles">
-          <label for="role">Role</label>
+          <label for="role" i18n:translate="">Role</label>
           <select id="role" name="role" style="width: 200px;"
             tal:attributes="class python: 'select2-enabled placeholder-enabled' if placeholder else 'select2-enabled';
                             data-placeholder placeholder;">
@@ -37,7 +38,7 @@
 
       <tal:block metal:define-macro="countries">
         <div class="form-group" tal:define="placeholder placeholder|nothing;">
-          <label for="countries">Countries</label>
+          <label for="countries" i18n:translate="">Countries</label>
           <select id="countries" name="countries:list" multiple="multiple"
            tal:attributes="class python: 'select2-enabled placeholder-enabled' if placeholder else 'select2-enabled';
                            data-placeholder placeholder;">
@@ -48,17 +49,17 @@
             </option>
           </select>
         <div class="filters-eu">
-          <a onclick="reportek.utils.toggleSelectCountries(this.id);" id="all">All</a>
-          <a onclick="reportek.utils.toggleSelectCountries(this.id);" id="eu28">EU28</a>
-          <a onclick="reportek.utils.toggleSelectCountries(this.id);" id="eea33">EEA33</a>
-          <a onclick="reportek.utils.toggleSelectCountries(this.id);" id="eionet39">Eionet39</a>
+          <a onclick="reportek.utils.toggleSelectCountries(this.id);" id="all" i18n:translate="">All</a>
+          <a onclick="reportek.utils.toggleSelectCountries(this.id);" id="eu28" i18n:translate="">EU28</a>
+          <a onclick="reportek.utils.toggleSelectCountries(this.id);" id="eea33" i18n:translate="">EEA33</a>
+          <a onclick="reportek.utils.toggleSelectCountries(this.id);" id="eionet39" i18n:translate="">Eionet39</a>
         </div>
         </div>
       </tal:block>
 
       <div class="actions">
-        <input type="submit" name="btnFilter" value="Search" />
-        <a onclick="reportek.utils.clear_filters()">Clear filters</a>
+        <input type="submit" name="btnFilter" value="Search" i18n:attributes="value btn-search"/>
+        <a onclick="reportek.utils.clear_filters()" i18n:translate="">Clear filters</a>
       </div>
 
     </div>

@@ -15,9 +15,9 @@
 
   <metal:block fill-slot="content">
 
-    <h1>Add comment</h1>
+    <h1 i18n:translate="">Add comment</h1>
 
-    <p>
+    <p i18n:translate="">
       Fill the properties in the form below and click <strong>Submit</strong>.
     </p>
 
@@ -25,26 +25,26 @@
               in_reply python:here.getComment(id);">
 
     <span tal:condition="in_reply">
-      <strong>Replying to <span tal:replace="in_reply/author" /></strong>
+      <strong i18n:translate="">Replying to <span tal:replace="in_reply/author" /></strong>
       <blockquote tal:content="structure in_reply/body"></blockquote>
     </span>
 
     <form method="post" tal:attributes="action string:${here/absolute_url}/addComment" enctype="multipart/form-data">
       <div class="field">
-        <label for="title">Subject</label>
+        <label for="title" i18n:translate="">Subject</label>
         <input type="text" name="title:utf8:ustring" id="title" size="50" />
       </div>
       <div class="field">
-        <label for="body">Comment</label>
+        <label for="body" i18n:translate="">Comment</label>
         <textarea id="body" name="body:utf8:ustring" rows="20" cols="72"></textarea>
       </div>
       <div class="field">
-        <label for="file">File</label>
+        <label for="file" i18n:translate="">File</label>
         <input type="file" name="file" />
       </div>
       <div class="field">
         <input type="hidden" name="in_reply" tal:attributes="value id" />
-        <input type="submit" value="Submit" />
+        <input type="submit" value="Submit" i18n:attributes="value btn-submit"/>
       </div>
     </form>
 

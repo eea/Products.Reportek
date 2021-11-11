@@ -1,4 +1,4 @@
-import unittest
+from common import BaseUnitTest
 from datetime import datetime
 from mock import Mock, patch
 from utils import create_fake_root, create_upload_file
@@ -13,75 +13,83 @@ def create_qa_repository(parent, id='qa_repository'):
     return parent[ob.id]
 
 
-class QAScriptTest(unittest.TestCase):
+class QAScriptTest(BaseUnitTest):
 
     def setUp(self):
         self.doc_content = 'test content for our document'
         self.root = create_fake_root()
         self.envelope = create_envelope(self.root)
         self.envelope.dataflow_uris = ['dataflow/uri']
-        self.doc = add_document(self.envelope, create_upload_file(self.doc_content, 'foo.txt'))
+        self.doc = add_document(
+            self.envelope, create_upload_file(self.doc_content, 'foo.txt'))
         self.qa_repository = create_qa_repository(self.root)
         schema_qascript = QAScript(
-            id = 'schema_qascript',
-            title = None,
-            description = None,
-            xml_schema = 'xml.schema',
-            workflow= None,
-            content_type_in = 'application/msaccess',
-            content_type_out = 'text/plain',
-            script_url = 'url',
-            max_size = '10',
-            qa_extraparams = None
+            id='schema_qascript',
+            title=None,
+            description=None,
+            xml_schema='xml.schema',
+            workflow=None,
+            content_type_in='application/msaccess',
+            content_type_out='text/plain',
+            script_url='url',
+            max_size='10',
+            qa_extraparams=None
         ).__of__(self.qa_repository)
         mdb_workflow_qascript = QAScript(
-            id = 'mdb_workflow_qascript',
-            title = None,
-            description = None,
-            xml_schema = '',
-            workflow= 'dataflow/uri',
-            content_type_in = 'application/msaccess',
-            content_type_out = 'text/plain',
-            script_url = 'url',
-            max_size = '10',
-            qa_extraparams = None
+            id='mdb_workflow_qascript',
+            title=None,
+            description=None,
+            xml_schema='',
+            workflow='dataflow/uri',
+            content_type_in='application/msaccess',
+            content_type_out='text/plain',
+            script_url='url',
+            max_size='10',
+            qa_extraparams=None
         ).__of__(self.qa_repository)
         doc_workflow_qascript = QAScript(
-            id = 'doc_workflow_qascript',
-            title = None,
-            description = None,
-            xml_schema = '',
-            workflow= 'dataflow/uri',
-            content_type_in = 'application/msword',
-            content_type_out = 'text/plain',
-            script_url = 'url',
-            max_size = '10',
-            qa_extraparams = None
+            id='doc_workflow_qascript',
+            title=None,
+            description=None,
+            xml_schema='',
+            workflow='dataflow/uri',
+            content_type_in='application/msword',
+            content_type_out='text/plain',
+            script_url='url',
+            max_size='10',
+            qa_extraparams=None
         ).__of__(self.qa_repository)
         stalling_qascript = QAScript(
-            id = 'stalling_qascript',
-            title = None,
-            description = None,
-            xml_schema = '',
-            workflow= None,
-            content_type_in = 'application/msaccess',
-            content_type_out = 'text/plain',
-            script_url = 'url',
-            max_size = '10',
-            qa_extraparams = None
+            id='stalling_qascript',
+            title=None,
+            description=None,
+            xml_schema='',
+            workflow=None,
+            content_type_in='application/msaccess',
+            content_type_out='text/plain',
+            script_url='url',
+            max_size='10',
+            qa_extraparams=None
         ).__of__(self.qa_repository)
-        schema_qascript.bobobase_modification_time = Mock( return_value=datetime.now())
-        mdb_workflow_qascript.bobobase_modification_time = Mock(return_value=datetime.now())
-        doc_workflow_qascript.bobobase_modification_time = Mock(return_value=datetime.now())
-        stalling_qascript.bobobase_modification_time = Mock(return_value=datetime.now())
+        schema_qascript.bobobase_modification_time = Mock(
+            return_value=datetime.now())
+        mdb_workflow_qascript.bobobase_modification_time = Mock(
+            return_value=datetime.now())
+        doc_workflow_qascript.bobobase_modification_time = Mock(
+            return_value=datetime.now())
+        stalling_qascript.bobobase_modification_time = Mock(
+            return_value=datetime.now())
 
         self.qa_repository._setObject('schema_qascript', schema_qascript)
-        self.qa_repository._setObject('mdb_workflow_qascript', mdb_workflow_qascript)
-        self.qa_repository._setObject('doc_workflow_qascript', doc_workflow_qascript)
+        self.qa_repository._setObject(
+            'mdb_workflow_qascript', mdb_workflow_qascript)
+        self.qa_repository._setObject(
+            'doc_workflow_qascript', doc_workflow_qascript)
         self.qa_repository._setObject('stalling_qascript', stalling_qascript)
 
     def test_invoke_local_script(self):
-        self.qa_repository.myscript = Mock(qa_extraparams=[], script_url='ls -l %s')
+        self.qa_repository.myscript = Mock(
+            qa_extraparams=[], script_url='ls -l %s')
         self.qa_repository.myscript.content_type_out = 'text/plain'
         from StringIO import StringIO
         mock_file = StringIO(self.doc_content)
@@ -91,38 +99,41 @@ class QAScriptTest(unittest.TestCase):
         file_data = Mock(data_file=Mock(open=Mock(return_value=mock_file)))
         self.qa_repository.unrestrictedTraverse = Mock(return_value=file_data)
         with patch('Products.Reportek.QARepository.RepUtils',
-                Mock(temporary_named_copy=Mock(return_value=mock_file))):
-            with patch.object(self.qa_repository, 'REQUEST', create=True) as request:
+                   Mock(temporary_named_copy=Mock(return_value=mock_file))):
+            with patch.object(self.qa_repository, 'REQUEST', create=True) as\
+                 request:
                 request.SERVER_URL = 'http://example.com'
                 file_url = 'http://example.com/envelope/foo.txt'
-                with patch('Products.Reportek.QARepository.subprocess') as mock_sp:
+                with patch('Products.Reportek.QARepository.subprocess') as\
+                        mock_sp:
                     mock_proc = Mock(stdout=StringIO('test output'))
                     mock_sp.Popen.return_value = mock_proc
-                    ret = self.qa_repository._runQAScript(file_url, 'loc_myscript')
+                    ret = self.qa_repository._runQAScript(
+                        file_url, 'loc_myscript')
                 (file_id, [content_type, result]) = ret
                 self.assertEqual(len(mock_sp.Popen.mock_calls), 1)
 
         self.assertEqual('test output', result.data)
         self.assertEqual(
-                ['ls', '-l', 'test_file'],
-                mock_sp.Popen.mock_calls[0][1][0])
+            ['ls', '-l', 'test_file'],
+            mock_sp.Popen.mock_calls[0][1][0])
 
         self.assertEqual(
-                False,
-                mock_sp.Popen.mock_calls[0][2]['shell'])
+            False,
+            mock_sp.Popen.mock_calls[0][2]['shell'])
 
     def test_local_script_attributes_initialisation(self):
         qascript = QAScript(
-            id = 'myscript',
-            title = None,
-            description = None,
-            xml_schema = None,
-            workflow = 'dataflow_uri',
-            content_type_in = 'application/msaccess',
-            content_type_out = 'text/plain',
-            script_url = 'url',
-            max_size = 99,
-            qa_extraparams = None
+            id='myscript',
+            title=None,
+            description=None,
+            xml_schema=None,
+            workflow='dataflow_uri',
+            content_type_in='application/msaccess',
+            content_type_out='text/plain',
+            script_url='url',
+            max_size=99,
+            qa_extraparams=None
         ).__of__(self.qa_repository)
         self.qa_repository._setObject('myscript', qascript)
         self.assertEqual('dataflow_uri', qascript.workflow)
@@ -145,27 +156,30 @@ class QAScriptTest(unittest.TestCase):
         self.assertEqual(4, len(local_scripts))
 
         mock_dm_container = Mock(getSchemasForDataflows=Mock(return_value=[]))
-        qa_repository.getDataflowMappingsContainer = Mock(return_value=mock_dm_container)
+        qa_repository.getDataflowMappingsContainer = Mock(
+            return_value=mock_dm_container)
 
         self.doc.content_type = 'application/msaccess'
         result = qa_repository.canRunQAOnFiles([self.doc])
 
         self.assertEqual(('foo.txt', 'loc_mdb_workflow_qascript'),
-            (result.keys()[0], result.values()[0][0][0])
-        )
+                         (result.keys()[0], result.values()[0][0][0])
+                         )
 
     def test_scripts_are_found_by_schema(self):
         qa_repository = self.qa_repository
 
-        #assert scripts are found by schema
-        local_scripts = qa_repository._get_local_qa_scripts(p_schema='xml.schema')
+        # assert scripts are found by schema
+        local_scripts = qa_repository._get_local_qa_scripts(
+            p_schema='xml.schema')
         self.assertEqual([qa_repository.schema_qascript], local_scripts)
 
     def test_scripts_are_found_by_workflow(self):
         qa_repository = self.qa_repository
 
-        #assert scripts are found by workflow
-        local_scripts = qa_repository._get_local_qa_scripts(dataflow_uris=['dataflow/uri'])
+        # assert scripts are found by workflow
+        local_scripts = qa_repository._get_local_qa_scripts(
+            dataflow_uris=['dataflow/uri'])
         self.assertEqual(
             [qa_repository.mdb_workflow_qascript,
              qa_repository.doc_workflow_qascript],
@@ -174,9 +188,9 @@ class QAScriptTest(unittest.TestCase):
     def test_scripts_are_found_by_schema_or_workflow(self):
         qa_repository = self.qa_repository
 
-        #assert scripts are found either by schema or workflow
+        # assert scripts are found either by schema or workflow
         local_scripts = qa_repository._get_local_qa_scripts(
-                p_schema='xml.schema', dataflow_uris=['dataflow/uri'])
+            p_schema='xml.schema', dataflow_uris=['dataflow/uri'])
         self.assertEqual(
             [qa_repository.schema_qascript,
              qa_repository.mdb_workflow_qascript,
@@ -186,7 +200,7 @@ class QAScriptTest(unittest.TestCase):
     def test_all_scripts_are_found(self):
         qa_repository = self.qa_repository
 
-        #assert all scripts are found
+        # assert all scripts are found
         local_scripts = qa_repository._get_local_qa_scripts()
         self.assertEqual(
             [qa_repository.schema_qascript,
@@ -198,7 +212,7 @@ class QAScriptTest(unittest.TestCase):
     def test_workflow_scripts_are_filtered_by_content_type(self):
         qa_repository = self.qa_repository
 
-        #assert filtered by workflow and content type
+        # assert filtered by workflow and content type
         local_scripts = qa_repository._get_local_qa_scripts(
             dataflow_uris=['dataflow/uri'],
             content_type_in='application/msaccess')
@@ -206,7 +220,7 @@ class QAScriptTest(unittest.TestCase):
             [qa_repository.mdb_workflow_qascript],
             local_scripts)
 
-        #assert filtered by workflow and content type
+        # assert filtered by workflow and content type
         local_scripts = qa_repository._get_local_qa_scripts(
             p_schema='xml.schema',
             dataflow_uris=[None],
@@ -218,7 +232,7 @@ class QAScriptTest(unittest.TestCase):
     def test_workflow_scripts_are_found_by_content_type(self):
         qa_repository = self.qa_repository
 
-        #assert filtered by workflow and content type
+        # assert filtered by workflow and content type
         local_scripts = qa_repository._get_local_qa_scripts(
             content_type_in='application/msword')
         self.assertEqual(
@@ -228,7 +242,7 @@ class QAScriptTest(unittest.TestCase):
     def test_workflow_scripts_are_filtered_by_doc_content_type(self):
         qa_repository = self.qa_repository
 
-        #assert filtered by workflow and content type
+        # assert filtered by workflow and content type
         local_scripts = qa_repository._get_local_qa_scripts(
             dataflow_uris=['dataflow/uri'],
             content_type_in='application/msaccess')
@@ -236,7 +250,7 @@ class QAScriptTest(unittest.TestCase):
             [qa_repository.mdb_workflow_qascript],
             local_scripts)
 
-        #assert filtered by schema, workflow and content type
+        # assert filtered by schema, workflow and content type
         local_scripts = qa_repository._get_local_qa_scripts(
             p_schema='xml.schema',
             dataflow_uris=[None],
@@ -246,7 +260,8 @@ class QAScriptTest(unittest.TestCase):
             local_scripts)
 
         mock_dm_container = Mock(getSchemasForDataflows=Mock(return_value=[]))
-        qa_repository.getDataflowMappingsContainer = Mock(return_value=mock_dm_container)
+        qa_repository.getDataflowMappingsContainer = Mock(
+            return_value=mock_dm_container)
 
         self.doc.content_type = 'application/msword'
         result = qa_repository.canRunQAOnFiles([self.doc])

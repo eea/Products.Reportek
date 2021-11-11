@@ -17,31 +17,31 @@ from copy import deepcopy
 log = logging.getLogger(__name__)
 
 REPORTEK_META_TYPES = [
-        'Report Collection',
-        'Report Envelope',
-        'Report Document',
-        'Report Feedback',
-        'Report Feedback Comment',
-        'Report Hyperlink',
-        'Repository Referral',
-        'Remote Application',
-        'Process',
-        'Activity',
-        'Workitem',
-        'Converter',
-        'QAScript',
-        'Reportek Dataflow Mappings',
-        'Dataflow Mappings Record',
-        'DTML Document',
-        'DTML Method',
-        'File',
-        'File (Blob)',
-        'Folder',
-        'Image',
-        'Page Template',
-        'Script (Python)',
-        'XMLRPC Method',
-        'Workflow Engine']
+    'Report Collection',
+    'Report Envelope',
+    'Report Document',
+    'Report Feedback',
+    'Report Feedback Comment',
+    'Report Hyperlink',
+    'Repository Referral',
+    'Remote Application',
+    'Process',
+    'Activity',
+    'Workitem',
+    'Converter',
+    'QAScript',
+    'Reportek Dataflow Mappings',
+    'Dataflow Mappings Record',
+    'DTML Document',
+    'DTML Method',
+    'File',
+    'File (Blob)',
+    'Folder',
+    'Image',
+    'Page Template',
+    'Script (Python)',
+    'XMLRPC Method',
+    'Workflow Engine']
 
 
 def catalog_rebuild(root, catalog='Catalog'):
@@ -52,7 +52,7 @@ def catalog_rebuild(root, catalog='Catalog'):
     def add_to_catalog(ob):
         try:
             catalog.catalog_object(ob, '/'.join(ob.getPhysicalPath()))
-        except Exception as e:
+        except Exception:
             log.warning("Unable to catalog object: {}".format(ob))
 
     catalog.manage_catalogClear()
@@ -69,6 +69,7 @@ class MaintenanceView(BrowserView):
     def __call__(self):
         return maintenance.__of__(self.aq_parent)()
 
+
 maintenance = PageTemplateFile('zpt/manage_maintenance.zpt', globals())
 
 
@@ -79,11 +80,13 @@ class RebuildView(BrowserView):
         catalog = self.context
         catalog_rebuild(catalog.unrestrictedTraverse('/'))
 
-        self.request.RESPONSE.redirect(catalog.absolute_url() + '/manage_maintenance')
+        self.request.RESPONSE.redirect(
+            catalog.absolute_url() + '/manage_maintenance')
 
 
 def walk_folder(folder):
-    for idx, ob in folder.ZopeFind(folder, obj_metatypes=REPORTEK_META_TYPES, search_sub=0):
+    for idx, ob in folder.ZopeFind(folder, obj_metatypes=REPORTEK_META_TYPES,
+                                   search_sub=0):
         yield ob
 
         if IObjectManager.providedBy(ob):
@@ -113,7 +116,9 @@ def searchResults(catalog, query, admin_check=False, security=True):
 
     user = getSecurityManager().getUser()
     if admin_check:
-        query['allowedAdminRolesAndUsers'] = listAllowedAdminRolesAndUsers(user)
+        user = getSecurityManager().getUser()
+        query['allowedAdminRolesAndUsers'] = listAllowedAdminRolesAndUsers(
+            user)
         # BDR specific query, return results
         return catalog.searchResults(**query)
     if security and REPORTEK_DEPLOYMENT != DEPLOYMENT_BDR:

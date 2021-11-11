@@ -21,7 +21,7 @@
   <div class="ajaxtabsmenu tabbedmenu">
     <ul class="unstyled-list">
       <li class="tabbed-elem currenttab">
-        <a href="#forwardable">
+        <a href="#forwardable" i18n:translate="">
           Forwardable envelopes
         </a>
       </li>
@@ -30,8 +30,8 @@
 
   <div class="filter-form" id="forwardable-envelopes-tabs">
     <div id="forwardable" class="tabbed-content">
-      <h1>Forwardable envelopes</h1>
-      <p>This page lists the envelopes that are in a forwardable state.
+      <h1 i18n:translate="">Forwardable envelopes</h1>
+      <p i18n:translate="">This page lists the envelopes that are in a forwardable state.
       </p>
     </div>
   </div>
@@ -44,11 +44,11 @@
             <span class="icon-remove"></span>
           </a>
         </div>
-        <div class="im-message msg-warning" tal:condition="python: len(results) == 0">
+        <div class="im-message msg-warning" tal:condition="python: len(results) == 0" i18n:translate="">
           Nothing ticked in the previous screen
         </div>
         <tal:block tal:condition="python: len(results) > 0">
-          <span>Publish to RabbitMQ results: </span>
+          <span i18n:translate="">Publish to RabbitMQ results: </span>
           <tal:rep tal:repeat="res results">
             <div class="im-message msg-success" tal:condition="python: not res.get('error')">
               <div class="info-message-content">
@@ -79,10 +79,10 @@
             <th>
               <input id="toggleAllCB" type="checkbox"/>
             </th>
-            <th>Envelope</th>
-            <th>Workflow</th>
-            <th>Activity</th>
-            <th>Since</th>
+            <th i18n:translate="">Envelope</th>
+            <th i18n:translate="">Workflow</th>
+            <th i18n:translate="">Activity</th>
+            <th i18n:translate="">Since</th>
           </tr>
         </thead>
 
@@ -90,7 +90,7 @@
         </tbody>
       </table>
       <div tal:condition="view/rmq_fwd">
-        <input type="submit" name="btn.publish" value="Publish to RabbitMQ">
+        <input type="submit" name="btn.publish" value="Publish to RabbitMQ" i18n:attributes="value btn-publish-to-rabbitmq">
       </div>
   </form>
 

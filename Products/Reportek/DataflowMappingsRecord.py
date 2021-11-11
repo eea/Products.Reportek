@@ -1,5 +1,3 @@
-__doc__ = """ Multiple dataflow mappings for a single obligation """
-
 import logging
 import xmlrpclib
 from os import environ
@@ -15,7 +13,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from Products.Reportek.catalog import searchResults
 from ZODB.PersistentList import PersistentList
-
+__doc__ = """ Multiple dataflow mappings for a single obligation """
 log = logging.getLogger(__name__)
 
 
@@ -28,13 +26,12 @@ class AddForm(BrowserView):
         form = self.request.form
         oid = form.get('id')
         ob = DataflowMappingsRecord(
-                oid,
-                form.get('title'),
-                form.get('dataflow_uris'))
+            oid,
+            form.get('title'),
+            form.get('dataflow_uris'))
         self.parent._setObject(oid, ob)
         return self.request.response.redirect(
-                    self.parent.absolute_url() + '/manage_main')
-
+            self.parent.absolute_url() + '/manage_main')
 
     def get_records_by_dataflow(self, dataflow_uri):
         return searchResults(self.parent.Catalog,
@@ -45,16 +42,15 @@ class AddForm(BrowserView):
     def __call__(self, *args, **kwargs):
         if self.request.method == 'POST':
             existing_records = self.get_records_by_dataflow(
-                                    self.request.form['dataflow_uris'])
+                self.request.form['dataflow_uris'])
             if existing_records:
                 [record] = existing_records
                 raise Exception(
-                            'A record with this dataflow already exists: {0}'
-                            .format(record.getURL())
-                        )
+                    'A record with this dataflow already exists: {0}'
+                    .format(record.getURL())
+                )
             return self.add()
         return self.index(context=self.parent)
-
 
 
 class DataflowMappingsRecord(CatalogAware, SimpleItem):
@@ -64,11 +60,9 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
 
     security = ClassSecurityInfo()
 
-
     manage_options = (
         {'label': 'Schemas', 'action': 'edit'},
     ) + SimpleItem.manage_options
-
 
     def __init__(self, id, title, dataflow_uri):
         self.id = id
@@ -76,30 +70,30 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
         self.dataflow_uri = dataflow_uri
         self._mappings = PersistentList()
 
-
     security.declareProtected(view_management_screens, 'get_mapping')
+
     def get_mapping(self):
         """ Return the low-level mapping (persistent) list.
-        This is momentarily required by Article 21, workflow, but we should refactor
-        the whole mechanism """
+        This is momentarily required by Article 21, workflow, but we should
+        refactor the whole mechanism """
         return self._mappings
 
     security.declareProtected(view_management_screens, 'mapping')
     # FIXME This was supposed to be used from web but properties cannot
     # so we should remove this hasle.
+
     @property
     def mapping(self):
         """ x"""
         return {'schemas': self._mappings}
-
 
     @mapping.setter
     def mapping(self, value):
         if 'schemas' in value:
             self._mappings = PersistentList(value['schemas'])
 
-
     security.declareProtected(view_management_screens, 'load_from_dd')
+
     def load_from_dd(self, REQUEST):
         """ """
         resp = requests.get(environ['DATADICTIONARY_SCHEMAS_URL'], params={
@@ -115,7 +109,8 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
                 mapping = {
                     'url': row['url'],
                     'name': row['name'],
-                    'has_webform': True if webq_resp.get(row['url']) else False,
+                    'has_webform': (True if webq_resp.get(row['url'])
+                                    else False),
                 }
                 new_mappings.append(mapping)
             self._mappings = new_mappings
@@ -136,6 +131,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
         REQUEST.RESPONSE.redirect(self.absolute_url() + '/edit')
 
     security.declareProtected(view_management_screens, 'add_schema')
+
     def add_schema(self, REQUEST):
         """ Add schema """
 
@@ -147,7 +143,7 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
         if not schema_uri or not schema_name:
             return 'Schema and name cannot be empty!'
         # go through the getter to obtain an object
-        if schema_uri in ( r['url'] for r in self._mappings ):
+        if schema_uri in (r['url'] for r in self._mappings):
             return 'Schema already exists!'
 
         if has_webform == 'auto':
@@ -171,19 +167,19 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
         self._mappings.append(form_data)
         return 'Schema successfully added'
 
-
-
     security.declareProtected(view_management_screens, 'add_schema')
+
     def delete_schemas(self, REQUEST):
         """ Delete schemas """
         schemas = REQUEST.form.get('ids', [])
-        self._mappings = PersistentList( x for x in self._mappings if x['url'] not in schemas )
+        self._mappings = PersistentList(
+            x for x in self._mappings if x['url'] not in schemas)
 
-
-    _edit = PageTemplateFile( 'zpt/dataflow-mappings/edit_record.zpt', globals())
-
+    _edit = PageTemplateFile(
+        'zpt/dataflow-mappings/edit_record.zpt', globals())
 
     security.declareProtected(view_management_screens, 'edit')
+
     def edit(self, REQUEST):
         """ Edit properties """
 
@@ -203,13 +199,14 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
                 message_dialog = 'Saved changes.'
             if REQUEST.form.get('update_xls_conversion'):
                 self._xls_conversion = REQUEST.form.get('xls_conversion')
-                self.xls_remove_empty_elems = bool(REQUEST.form.get('xls_remove_empty_elems', False))
+                self.xls_remove_empty_elems = bool(
+                    REQUEST.form.get('xls_remove_empty_elems', False))
                 message_dialog = 'XLS Conversion method updated.'
 
         return self._edit(
-                    schemas=self._mappings,
-                    message_dialog=message_dialog,
-                )
+            schemas=self._mappings,
+            message_dialog=message_dialog,
+        )
 
     @property
     def xls_conversion(self):
@@ -218,5 +215,6 @@ class DataflowMappingsRecord(CatalogAware, SimpleItem):
             self._xls_conversion = 'split'
 
         return getattr(self, '_xls_conversion', None)
+
 
 InitializeClass(DataflowMappingsRecord)

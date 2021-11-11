@@ -3,10 +3,11 @@ from collections import defaultdict
 import codecs
 import re
 
+
 class PoBlock(object):
-    #> #. Default: "Add"
+    # > #. Default: "Add"
     varPattern = re.compile(r'\${([\S-]+)}')
-    #> #: ../../../extras/zodb_scripts/workdocuments/fgasses_feedbacks_i18n.zpt:121
+
     sourcePattern = re.compile(r'^#: (.*\S):\d+')
     comment = u'#'
     default = u'#. Default:'
@@ -34,7 +35,8 @@ class PoBlock(object):
         if not self.i18n_vars:
             self.i18n_vars = self.varPattern.findall(msg)
             self.msgidOrSrc_parts = self.varPattern.split(msg)
-            self.msgidOrSrc_parts = [ x for x in self.msgidOrSrc_parts if x not in self.i18n_vars ]
+            self.msgidOrSrc_parts = [
+                x for x in self.msgidOrSrc_parts if x not in self.i18n_vars]
         # no more stripping  - I want as many char as possible left
         return max(self.msgidOrSrc_parts, key=len)
 
@@ -62,7 +64,6 @@ class PoBlock(object):
         if line.startswith(self.msgstr):
             if not line[len(self.msgstr):].strip('" \t\n'):
                 self.translated = False
-
 
     def _trackSource(self):
         for s in self.sources:
@@ -92,13 +93,14 @@ class PoBlock(object):
                 break
         self.blockLines = self.blockLines[:i]
         vars_and_ends = [u'']
-        vars_and_ends.extend([ "${%s}"%var for var in self.i18n_vars ])
+        vars_and_ends.extend(["${%s}" % var for var in self.i18n_vars])
         vars_and_ends.append(u'')
-        self.blockLines.append(self.msgstr + ' "' + trMsg.join(vars_and_ends) + '"\n')
+        self.blockLines.append(self.msgstr + ' "'
+                               + trMsg.join(vars_and_ends) + '"\n')
         self.blockLines.append(u'\n')
 
     def foundInHtml(self, html_base_name):
-        return html_base_name in self.htmlsIn;
+        return html_base_name in self.htmlsIn
 
     # we need the real english text, not the msg-id-stuff
     @property
@@ -123,7 +125,8 @@ class PoBlock(object):
         return allNeighbours
 
 
-def po_load(file_name, poHeader=None, bySrc=None, byMsgid=None, noPerifericQuotes=False):
+def po_load(file_name, poHeader=None, bySrc=None, byMsgid=None,
+            noPerifericQuotes=False):
     # note that in case of bySrc we will have overlappings
     # (because msg-id-stuff was not thoroughly implemented)
     # at the end of the day they reffer to the same message.
@@ -168,7 +171,7 @@ def po_load(file_name, poHeader=None, bySrc=None, byMsgid=None, noPerifericQuote
                 block.blockLines.append(line)
 
                 state = 'comments'
-                #if block.lookForThis in bySrc:
+                # if block.lookForThis in bySrc:
                 #    print bySrc[block.lookForThis].getBlockText()
                 #    print " +++ collision with:"
                 #    print block.getBlockText()
@@ -185,4 +188,3 @@ def po_load(file_name, poHeader=None, bySrc=None, byMsgid=None, noPerifericQuote
     # as I said, the .po always finishes with an empty line
     # so we don't need to add the last block outside of loop
     return
-

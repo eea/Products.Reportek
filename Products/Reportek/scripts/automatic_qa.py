@@ -12,7 +12,8 @@ It has multiple entry points that all do different things:
 
 def main():
     """ Run the automatic_qa process
-    This should be run through the zope client script running machinery, like so:
+    This should be run through the zope client script running machinery,
+    like so:
     bin/instance run bin/automatic_qa
     """
 

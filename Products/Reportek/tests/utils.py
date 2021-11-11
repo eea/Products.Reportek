@@ -27,7 +27,9 @@ import tempfile
 import shutil
 from StringIO import StringIO
 import transaction
-import ZODB, ZODB.MappingStorage, ZODB.blob
+import ZODB
+import ZODB.MappingStorage
+import ZODB.blob
 from OFS.Folder import Folder
 from mock import Mock, patch
 
@@ -60,7 +62,8 @@ def setupCoreSessions(app=None):
         return appcall(setupCoreSessions)
 
     if not hasattr(app, 'temp_folder'):
-        from Products.TemporaryFolder.TemporaryFolder import MountedTemporaryFolder
+        from Products.TemporaryFolder.TemporaryFolder import\
+            MountedTemporaryFolder
         tf = MountedTemporaryFolder('temp_folder', 'Temporary Folder')
         app._setObject('temp_folder', tf)
         commit = 1
@@ -68,25 +71,25 @@ def setupCoreSessions(app=None):
     if not hasattr(aq_base(app.temp_folder), 'session_data'):
         from Products.Transience.Transience import TransientObjectContainer
         toc = TransientObjectContainer('session_data',
-                    'Session Data Container',
-                    timeout_mins=3,
-                    limit=100)
+                                       'Session Data Container',
+                                       timeout_mins=3,
+                                       limit=100)
         app.temp_folder._setObject('session_data', toc)
         commit = 1
 
     if not hasattr(app, 'browser_id_manager'):
         from Products.Sessions.BrowserIdManager import BrowserIdManager
         bid = BrowserIdManager('browser_id_manager',
-                    'Browser Id Manager')
+                               'Browser Id Manager')
         app._setObject('browser_id_manager', bid)
         commit = 1
 
     if not hasattr(app, 'session_data_manager'):
         from Products.Sessions.SessionDataManager import SessionDataManager
         sdm = SessionDataManager('session_data_manager',
-                    title='Session Data Manager',
-                    path='/temp_folder/session_data',
-                    requestName='SESSION')
+                                 title='Session Data Manager',
+                                 path='/temp_folder/session_data',
+                                 requestName='SESSION')
         app._setObject('session_data_manager', sdm)
         commit = 1
 
@@ -100,7 +103,7 @@ def setupZGlobals(app=None):
         return appcall(setupZGlobals)
 
     root = app._p_jar.root()
-    if not root.has_key('ZGlobals'):
+    if 'ZGlobals' not in root:
         from BTrees.OOBTree import OOBTree
         root['ZGlobals'] = OOBTree()
         transaction.commit()
@@ -131,14 +134,17 @@ def importObjectFromFile(container, filename, quiet=0):
     from ZopeLite import _print, _patched
     quiet = quiet or not _patched
     start = time.time()
-    if not quiet: _print("Importing %s ... " % os.path.basename(filename))
+    if not quiet:
+        _print("Importing %s ... " % os.path.basename(filename))
     container._importObjectFromFile(filename, verify=0)
     transaction.commit()
-    if not quiet: _print('done (%.3fs)\n' % (time.time() - start))
+    if not quiet:
+        _print('done (%.3fs)\n' % (time.time() - start))
 
 
 _Z2HOST = None
 _Z2PORT = None
+
 
 def startZServer(number_of_threads=1, log=None):
     '''Starts an HTTP ZServer thread.'''
@@ -152,7 +158,7 @@ def startZServer(number_of_threads=1, log=None):
         t = QuietThread(target=zserverRunner, args=(_Z2HOST, _Z2PORT, log))
         t.setDaemon(1)
         t.start()
-        time.sleep(0.1) # Sandor Palfy
+        time.sleep(0.1)  # Sandor Palfy
     return _Z2HOST, _Z2PORT
 
 
@@ -168,8 +174,8 @@ def makerequest(app, stdout=sys.stdout, environ={}):
     new_environ['REQUEST_METHOD'] = 'GET'
     new_environ.update(environ)
     request = Request(sys.stdin, new_environ, response)
-    request._steps = ['noobject'] # Fake a published object
-    request['ACTUAL_URL'] = request.get('URL') # Zope 2.7.4
+    request._steps = ['noobject']  # Fake a published object
+    request['ACTUAL_URL'] = request.get('URL')  # Zope 2.7.4
     return app.__of__(RequestContainer(REQUEST=request))
 
 
@@ -189,25 +195,28 @@ def makelist(arg):
     '''Turns arg into a list. Where arg may be
        list, tuple, or string.
     '''
-    if type(arg) == type([]):
+    if isinstance(arg, list):
         return arg
-    if type(arg) == type(()):
+    if isinstance(arg, tuple):
         return list(arg)
-    if type(arg) == type(''):
-       return filter(None, [arg])
+    if isinstance(arg, str):  # noqa
+        return filter(None, [arg])
     raise ValueError('Argument must be list, tuple, or string')
 
 
 class FakeRootObject(Folder):
     def manage_page_header(self):
         return 'manage header'
+
     def manage_page_footer(self):
         return 'manage footer'
+
     def manage_page_tabs(self):
         return 'manage tabs'
 
     def getPhysicalPath(self):
         return ('',)
+
     def getPhysicalRoot(self):
         return self
 
@@ -229,11 +238,11 @@ def create_catalog(app):
     catalog = app.Catalog
 
     catalog.meta_types = [
-            {'name': 'FieldIndex', 'instance': FieldIndex},
-            {'name': 'ZCTextIndex', 'instance': ZCTextIndex},
-            {'name': 'DateIndex', 'instance': DateIndex},
-            {'name': 'KeywordIndex', 'instance': KeywordIndex},
-            {'name': 'PathIndex', 'instance': PathIndex}]
+        {'name': 'FieldIndex', 'instance': FieldIndex},
+        {'name': 'ZCTextIndex', 'instance': ZCTextIndex},
+        {'name': 'DateIndex', 'instance': DateIndex},
+        {'name': 'KeywordIndex', 'instance': KeywordIndex},
+        {'name': 'PathIndex', 'instance': PathIndex}]
 
     create_reportek_indexes(catalog)
     return catalog
@@ -266,7 +275,7 @@ def chase_response(target, environ={}, user=None):
     while response.status == 302:
         redirect_url = response.headers['location']
         target_url = redirect_url.replace(
-                         target.absolute_url(), '').split('?')[0]
+            target.absolute_url(), '').split('?')[0]
         target = target.unrestrictedTraverse(target_url, None)
         response = publish_view(target, environ=environ, user=user)
     return response
@@ -290,14 +299,14 @@ def publish_view(view, environ={}, user=None):
     view.__doc__ = 'non-empty documentation'
     setattr(root, name, view)
 
-    module_info = (Mock(), # before
-                   None, #after
-                   root, #object
-                   'TESTING', #realm
-                   True, #debug_mode
-                   Mock(), #err_hook
-                   None, #validated_hook
-                   Mock()) #tm
+    module_info = (Mock(),  # before
+                   None,  # after
+                   root,  # object
+                   'TESTING',  # realm
+                   True,  # debug_mode
+                   Mock(),  # err_hook
+                   None,  # validated_hook
+                   Mock())  # tm
     try:
         return publish(request, 'Zope2', Mock(return_value=module_info))
     finally:
@@ -321,18 +330,19 @@ def create_envelope(parent, id='envelope'):
 
 def simple_addEnvelope(parent, *args, **kwargs):
     """
-    def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
+    def manage_addEnvelope(self, title, descr, year, endyear, partofyear,
+            locality,
             REQUEST=None, previous_delivery=''):
     """
     from Products.Reportek.Envelope import manage_addEnvelope
-    params = [ kwargs.get('title', ''),
-               kwargs.get('descr', ''),
-               kwargs.get('year', '2011'),
-               kwargs.get('endyear', '2012'),
-               kwargs.get('partofyear', 'WHOLE_YEAR'),
-               kwargs.get('locality'),
-               kwargs.get('REQUEST', None),
-               kwargs.get('previous_delivery','') ]
+    params = [kwargs.get('title', ''),
+              kwargs.get('descr', ''),
+              kwargs.get('year', '2011'),
+              kwargs.get('endyear', '2012'),
+              kwargs.get('partofyear', 'WHOLE_YEAR'),
+              kwargs.get('locality'),
+              kwargs.get('REQUEST', None),
+              kwargs.get('previous_delivery', '')]
     for i, arg in enumerate(args):
         if arg:
             params[i] = arg
@@ -352,7 +362,8 @@ def add_document(envelope, upload_file, restricted=False, id=''):
     return envelope[doc_id]
 
 
-def add_feedback(envelope, feedbacktext, feedbackId=None, restricted=False, idx=0):
+def add_feedback(envelope, feedbacktext, feedbackId=None, restricted=False,
+                 idx=0):
     from Products.Reportek.Feedback import manage_addFeedback
     restricted_str = 'on' if restricted else ''
     manage_addFeedback(envelope, feedbacktext=feedbacktext, id=feedbackId,
@@ -422,9 +433,12 @@ def break_document_data_file(doc):
 def _mysleep():
     from time import sleep as s
     sleep = s
+
     def inner(t):
         sleep(t)
     return inner
+
+
 mysleep = _mysleep()
 
 

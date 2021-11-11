@@ -32,29 +32,29 @@
       }
     </style>
 
-    <h1>Companies</h1>
+    <h1 i18n:translate="">Companies</h1>
 
-    <p>Companies registered in <a tal:attributes="href view/get_url">FGAS and ODS portal</a> and approved in BDR. Click on a company name to see the details and the reporters. Alternatively, export companies in <a class="export" href="organisations_excel">
+    <p i18n:translate="">Companies registered in <a tal:attributes="href view/get_url">FGAS and ODS portal</a> and approved in BDR. Click on a company name to see the details and the reporters. Alternatively, export companies in <a class="export" href="organisations_excel">
     Excel</a> or <a class="export" href="organisations_json">JSON </a> format or reporters in <a class="export" href="users_xls">Excel</a> format.
     </p>
     <div class="obligation-select-container">
-      <label for="domain">Filter companies by obligation:</label>
+      <label for="domain" i18n:translate="">Filter companies by obligation:</label>
       <select id="domain" name="domain">
-        <option tal:condition="ods_allowed" value="ODS">ODS</option>
-        <option tal:condition="fgas_allowed" value="FGAS">FGAS</option>
+        <option tal:condition="ods_allowed" value="ODS" i18n:translate="">ODS</option>
+        <option tal:condition="fgas_allowed" value="FGAS" i18n:translate="">FGAS</option>
       </select>
     </div>
     <table id="comp-table" width="100%">
       <thead>
         <tr>
-          <th>ID</th>
-          <th>ODS account</th>
-          <th>Company name</th>
-          <th>Status</th>
-          <th>Reporters</th>
-          <th>Country</th>
-          <th>EORI number</th>
-          <th>Date registered</th>
+          <th i18n:translate="">ID</th>
+          <th i18n:translate="">ODS account</th>
+          <th i18n:translate="">Company name</th>
+          <th i18n:translate="">Status</th>
+          <th i18n:translate="">Reporters</th>
+          <th i18n:translate="">Country</th>
+          <th i18n:translate="">EORI number</th>
+          <th i18n:translate="">Date registered</th>
         </tr>
       </thead>
       <tbody>

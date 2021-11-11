@@ -21,20 +21,20 @@
       tal:attributes="src string:${proto}www.eionet.europa.eu/styles/eionet2007/pageops.js"></script>
     <link rel="stylesheet" type="text/css" media="print" href="http://www.eionet.europa.eu/styles/eionet2007/print.css"
       tal:attributes="href string:${proto}www.eionet.europa.eu/styles/eionet2007/print.css" />
-    <link rel="stylesheet" type="text/css" href="http://www.eionet.europa.eu/styles/eionet2007/screen.css" media="screen" title="Eionet 2007 style"
+    <link rel="stylesheet" type="text/css" href="http://www.eionet.europa.eu/styles/eionet2007/screen.css" media="screen"
       tal:attributes="href string:${proto}www.eionet.europa.eu/styles/eionet2007/screen.css" />
     <link rel="stylesheet" type="text/css" media="handheld" href="http://www.eionet.europa.eu/styles/eionet2007/handheld.css"
       tal:attributes="href string:${proto}www.eionet.europa.eu/styles/eionet2007/handheld.css"/>
   </tal:def>
 
-  <link rel="stylesheet" type="text/css" href="/styles/eionet2007.css" media="screen" title="Eionet 2007 style" />
+  <link rel="stylesheet" type="text/css" href="/styles/eionet2007.css" media="screen" title="Eionet 2007 style" i18n:attributes="title title-style"/>
   <link rel="shortcut icon" href="/favicon.ico" type="image/x-icon" />
 
   <tal:block condition="python:here.absolute_url(1) == ''">
 
-  <link rel="alternate" type="application/rss+xml" title="Last 15 deliveries in RSS" href="/last15.rss" />
+  <link rel="alternate" type="application/rss+xml" title="Last 15 deliveries in RSS" href="/last15.rss" i18n:attributes="title title-last-15-rss"/>
 
-  <link rel="alternate" type="application/rdf+xml" title="All released envelopes" href="/envelopes.rdf" />
+  <link rel="alternate" type="application/rdf+xml" title="All released envelopes" href="/envelopes.rdf" i18n:attributes="title title-released-envelopes"/>
 
   </tal:block>
 
@@ -49,28 +49,28 @@
     <div id="toolribbon">
 
       <div id="lefttools">
-        <a id="eealink" href="http://www.eea.europa.eu/">EEA</a>
-        <a id="ewlink" href="http://ew.eea.europa.eu/">EnviroWindows</a>
+        <a id="eealink" href="http://www.eea.europa.eu/" i18n:translate="">EEA</a>
+        <a id="ewlink" href="http://ew.eea.europa.eu/" i18n:translate="">EnviroWindows</a>
       </div>
 
       <div id="righttools">
         <tal:block content="structure here/buttons_loginout"></tal:block>
 
-        <a id="printlink" title="Print this page" href="javascript:this.print();">
-            <span>Print</span>
+        <a id="printlink" title="Print this page" href="javascript:this.print();" i18n:attributes="title title-print-page">
+            <span i18n:translate="">Print</span>
         </a>
 
-        <a id="fullscreenlink" href="javascript:toggleFullScreenMode()" title="Switch to/from full screen mode">
-            <span>Switch to/from full screen mode</span>
+        <a id="fullscreenlink" href="javascript:toggleFullScreenMode()" title="Switch to/from full screen mode" i18n:attributes="title title-switch-fullscreen">
+            <span i18n:translate="">Switch to/from full screen mode</span>
         </a>
       </div>
     </div>
 
     <div id="pagehead">
       <a href="/" accesskey="1">
-        <img src="/styles/eea-print-logo.gif" alt="Logo" id="logo" />
+        <img src="/styles/eea-print-logo.gif" alt="Logo" id="logo" i18n:attributes="alt alt-logo"/>
       </a>
-      <div id="networktitle">Eionet</div>
+      <div id="networktitle" i18n:translate="">Eionet</div>
       <div id="sitetitle"
            tal:content="here/site_title | nothing"></div>
       <div id="sitetagline"
@@ -84,21 +84,21 @@
     </metal:block>
 
     <div id="leftcolumn" class="localnav">
-      <h2>Services</h2>
+      <h2 i18n:translate="">Services</h2>
         <tal:block content="structure here/buttons_py"></tal:block>
 
-      <h2>Account Services</h2>
-      I have
+      <h2 i18n:translate="">Account Services</h2>
+      <span i18n:translate="">I have</span>
       <ul>
         <li>
-          <a href="http://www.eionet.europa.eu/password-reset" title="reset lost password">lost my password</a>
+          <a href="http://www.eionet.europa.eu/password-reset" title="reset lost password" i18n:translate="" i18n:attributes="title title-reset-password">lost my password</a>
         </li>
       </ul>
 
       <div class="note-msg" style="padding: 0.5em 0.1em 0.5em 0.3em; margin: 0.2em">
-        <strong style="padding: 0.5em 0.1em 0.5em 30px">Note</strong>
+        <strong style="padding: 0.5em 0.1em 0.5em 30px" i18n:translate="">Note</strong>
 
-        <p>
+        <p i18n:translate="">
           <a href="ReportekEngine/subscriptions_html">
             Subscribe to receive notifications
           </a>
@@ -113,10 +113,10 @@
 
   </div>
 
-  <div id="pagefoot">
+  <div id="pagefoot" i18n:translate="">
       Document last modified <tal:block
     content="here/bobobase_modification_time"></tal:block>.
-    <span class="noprint">
+    <span class="noprint" i18n:translate="">
       [<a href="http://validator.eea.europa.eu/check/referer">Validate HTML</a>]</span>
   </div>
 </body>

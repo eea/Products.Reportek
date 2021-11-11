@@ -36,7 +36,7 @@
                      sort_order options/sort_order | string:reverse;
                            ">
           <tr>
-            <th><label for="dataflow_uris" class="question">Obligation</label></th>
+            <th><label for="dataflow_uris" class="question" i18n:translate="">Obligation</label></th>
             <td class="select-container" style="width:100%;"
               tal:define="placeholder string:Any obligation;
                           empty_select python: True">
@@ -44,7 +44,7 @@
             </td>
           </tr>
           <tr>
-            <th><label for="search_years" class="question">Covering Year</label></th>
+            <th><label for="search_years" class="question" i18n:translate="">Covering Year</label></th>
             <td>
               <input type="text" id="search_years" name="years:int:ignore_empty"
                      size="4" maxlength="4" value=""
@@ -52,19 +52,19 @@
             </td>
           </tr>
           <tr>
-            <th><label for="partofyear" class="question">Part of year</label></th>
+            <th><label for="partofyear" class="question" i18n:translate="">Part of year</label></th>
             <td>
               <metal:block metal:use-macro="here/engineMacros/macros/partOfYearSelect"/>
             </td>
           </tr>
           <tr>
-            <th><label for="search_reportingdate_start" class="question">Reported after</label></th>
-            <td>
+            <th><label for="search_reportingdate_start" class="question" i18n:translate="">Reported after</label></th>
+            <td i18n:translate="">
               <input type="text" id="search_reportingdate_start"
                      name="reportingdate_start:date:ignore_empty" size="12" maxlength="12"
                      value=""
                      tal:attributes="value reportingdate_start | default" />
-              <label for="search_reportingdate_end" class="question">but before</label>
+              <label for="search_reportingdate_end" class="question" i18n:translate="">but before</label>
               <input type="text" id="search_reportingdate_end"
                      name="reportingdate_end:date:ignore_empty" size="12" maxlength="12"
                      value=""
@@ -72,11 +72,11 @@
             </td>
           </tr>
           <tr>
-            <th><label for="country" class="question">Country</label></th>
+            <th><label for="country" class="question" i18n:translate="">Country</label></th>
             <td><metal:block metal:use-macro="here/engineMacros/macros/countrySelect"/></td>
           </tr>
           <tr>
-            <th>Status</th>
+            <th i18n:translate="">Status</th>
             <td tal:define="id_contents python:[('anystatus', 'Any status'),
                                                 ('released', 'Released'),
                                                 ('notreleased', 'Unreleased')];">
@@ -93,6 +93,7 @@
           <tr>
             <td colspan="2" align="center">
               <input type="submit" id="frmsearch_submit" class="custom-search-btn"
+                i18n:attributes="value btn-search"
                 data-action='' value="Search" />
               <input type="hidden" id="sort_on" name="sort_on" value="reportingdate"
                 tal:attributes="value sort_on | default" />
@@ -174,14 +175,14 @@
                 </tal:block>
               </td>
               <tal:def tal:define="company_meta python: obj.aq_parent.get_zope_company_meta()">
-                <td tal:content="python:obj.getCountryName()">country name</td>
+                <td tal:content="python:obj.getCountryName()" i18n:translate="">country name</td>
                 <td tal:condition="isBdrDeployment"
                   tal:define="company_name python: company_meta[0] if company_meta[0] else obj.aq_parent.title"
-                  tal:content="company_name">company name
+                  tal:content="company_name" i18n:translate="">company name
                 </td>
                 <td tal:condition="isBdrDeployment"
                     tal:define="user_id python:company_meta[1] if company_meta[1] else obj.aq_parent.getId()"
-                  tal:content="user_id">user id ?
+                    tal:content="user_id" i18n:translate="">user id ?
                 </td>
               </tal:def>
               <td>
@@ -189,7 +190,7 @@
                                      alt obj/meta_type"
                   style="width: 16px; height: 16px" />
                 <a tal:attributes="href python:obj.absolute_url_path()"
-                   tal:content="python:obj.title_or_id()">
+                   tal:content="python:obj.title_or_id()" i18n:translate="">
                   title_link
                 </a>
               </td>
@@ -197,10 +198,11 @@
                 tal:content="python: html_quote(obj.absolute_url())">
               </td>
               <td style="white-space:nowrap"
-                tal:content="python: '%s-%s' %(obj.year, obj.endyear) if obj.endyear else obj.year">
+                tal:content="python: '%s-%s' %(obj.year, obj.endyear) if obj.endyear else obj.year"
+                i18n:translate="">
                 year-endyear
               </td>
-              <td>
+              <td i18n:translate="">
                 <tal:block repeat="uri python:obj.dataflow_uris">
                   <tal:block content="python:context.dataflow_lookup(uri)['TITLE']">
                     obligation
@@ -208,7 +210,7 @@
                   <br/>
                 </tal:block>
               </td>
-              <td tal:content="python:obj.reportingdate.strftime('%Y/%m/%d')">reportingdate</td>
+              <td tal:content="python:obj.reportingdate.strftime('%Y/%m/%d')" i18n:translate="">reportingdate</td>
               <tal:block condition="isBdrDeployment">
                 <tal:block replace="structure python: context.resultsdataflow_files(obj)"/>
                 <tal:block replace="structure python: context.resultsdataflow_accepted(obj)"/>
@@ -220,7 +222,7 @@
               <td tal:condition="python: 'http://rod.eionet.europa.eu/obligations/713' == options['dataflow_uris']">
                 <ul tal:condition="obj/get_fgas_reported_gases"
                   tal:repeat="gas python: obj.get_fgas_reported_gases()">
-                  <li>
+                  <li i18n:translate="">
                     Gas name: <span tal:content="python: gas.get('Name').split(' ')[0]"/><br/>
                     Gas ID: <span tal:content="python: gas.get('GasId')"/><br/>
                     Gas group: <span tal:content="python: gas.get('GasGroup')"/><br/>
@@ -241,11 +243,11 @@
           </metal:block>
           <div class="searchdataflow_controls">
             <span class="total-dflow-results">
-              <span>Total number of results:</span>
+              <span i18n:translate="">Total number of results:</span>
               <span tal:content="results_no" />
             </span>
             <div class="batch-size-ctl">
-              <label for="b_size">Number of results per page:</label>
+              <label for="b_size" i18n:translate="">Number of results per page:</label>
               <select id="b_size" name="b_size"
                 tal:define="steps python: [25, 50, 100, 200];
                             batch_size python: request.get('batch_size') or 50;">
@@ -255,18 +257,22 @@
                                   selected python:'selected' if step == int(batch_size) else ''" />
               </select>
             </div>
-            <div class="results_actions">
+            <div class="results_actions" i18n:translate="">
               (Envelopes with no checkbox are still in draft mode)<br/>
               <div class="buttons">
-                <input type="button" id="selectAll" name="selectAll" value="Select All" class="df-btn" />
+                <input type="button" id="selectAll" name="selectAll" value="Select All" class="df-btn"
+                  i18n:attributes="value btn-select-all" />
                 <input type="button" id ="btn-xls-export" value="Export all results to XLS"
                   class="df-btn custom-search-btn" data-action="ReportekEngine/xls_export"
+                  i18n:attributes="value btn-xls-export-all"
                   tal:attributes="data-xls_max_rows python: here.XLS_max_rows;
                                   data-results_no results_no" />
                 <input type="button" id ="btn-xls-export-selected" value="Export selected to XLS"
                   class="df-btn custom-result-btn" data-action="ReportekEngine/xls_export"
+                  i18n:attributes="value btn-xls-export-selected"
                   disabled="disabled" />
                 <input type="submit" class="df-btn custom-result-btn"
+                  i18n:attributes="value btn-zip-envelope"
                   data-action="ReportekEngine/zipEnvelopes" value="Zip envelopes" />
               </div>
             </div>
@@ -275,7 +281,7 @@
       </tal:block>
 
       <p tal:condition="python: 'results' in options and not options['results']">
-          <b>There was no data matching this query.</b>
+          <b i18n:translate="">There was no data matching this query.</b>
       </p>
     </div>
   </metal:block>

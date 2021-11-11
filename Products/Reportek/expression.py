@@ -1,18 +1,18 @@
-## Thanks to Ulrick Eck for the support
+# Thanks to Ulrick Eck for the support
 
 import Globals
 from Globals import Persistent
-from Acquisition import aq_inner, aq_parent
-from AccessControl import getSecurityManager, ClassSecurityInfo
+from AccessControl import ClassSecurityInfo
 from Products.PageTemplates.Expressions import getEngine
 try:
     # Up to Zope 2.9
     from Products.PageTemplates.Expressions import _SecureModuleImporter
-except:
+except Exception:
     # Zope 2.10
     from Products.PageTemplates.ZRPythonExpr import _SecureModuleImporter
 
 SecureModuleImporter = _SecureModuleImporter()
+
 
 class Expression (Persistent):
     text = ''
@@ -33,21 +33,24 @@ class Expression (Persistent):
         res = compiled(econtext)
         if isinstance(res, Exception):
             raise res
-        #print 'returning %s from %s' % (`res`, self.text)
+        # print 'returning %s from %s' % (`res`, self.text)
         return res
+
+
 Globals.InitializeClass(Expression)
 
-def exprNamespace(instance, workitem=None, activity=None, process=None, openflow=None):
-    c = { 'instance': instance,
-          'workitem' : workitem,
-          'activity' : activity,
-          'process' : process,
-          'openflow' : openflow,
-          'here': instance,
-          'nothing': None,
-          'options': {},
-          'request': getattr(instance, 'REQUEST', None),
-          'modules': SecureModuleImporter
-        }
-    return getEngine().getContext(c)
 
+def exprNamespace(instance, workitem=None, activity=None, process=None,
+                  openflow=None):
+    c = {'instance': instance,
+         'workitem': workitem,
+         'activity': activity,
+         'process': process,
+         'openflow': openflow,
+         'here': instance,
+         'nothing': None,
+         'options': {},
+         'request': getattr(instance, 'REQUEST', None),
+         'modules': SecureModuleImporter
+         }
+    return getEngine().getContext(c)

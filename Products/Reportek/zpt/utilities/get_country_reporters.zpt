@@ -14,8 +14,8 @@
   </metal:block>
 <metal:block fill-slot="content">
   <metal:block use-macro="here/util_controls/macros/utilities-controls" />
-  <h1>Reporters by country</h1>
-  <p class="info">
+  <h1 i18n:translate="">Reporters by country</h1>
+  <p class="info" i18n:translate="">
     This page lists the users that have the local role of
     <em>Reporter</em> for the selected country.
   </p>
@@ -23,14 +23,14 @@
   <form method="POST" action="">
     <div class="filters">
       <div class="form-indent">
-         <label for="country">Country</label>
+         <label for="country" i18n:translate="">Country</label>
         <select id="country" name="country">
           <option tal:repeat="country options/countries | nothing"
                   tal:attributes="value country/id;
                           selected python:country.id == request.get('country')"
                   tal:content="country/title"/>
         </select>
-        <input type="submit" name="btn.reporters" value="Show reporters" />
+        <input type="submit" name="btn.reporters" value="Show reporters" i18n:attributes="value btn-show-reporters"/>
       </div>
     </div>
   </form>
@@ -39,11 +39,11 @@
     <table class="datatable" tal:condition="options/reporters | nothing">
       <thead>
         <tr>
-          <th>Reporter</th>
-          <th>Type</th>
-          <th>Name</th>
-          <th>Email</th>
-          <th>Path</th>
+          <th i18n:translate="">Reporter</th>
+          <th i18n:translate="">Type</th>
+          <th i18n:translate="">Name</th>
+          <th i18n:translate="">Email</th>
+          <th i18n:translate="">Path</th>
         </tr>
       </thead>
       <tbody>
@@ -68,7 +68,7 @@
       </tbody>
     </table>
 
-    <strong tal:condition="not: options/reporters | nothing">
+    <strong tal:condition="not: options/reporters | nothing" i18n:translate="">
       No reporters found for the selected country.
     </strong>
   </div>

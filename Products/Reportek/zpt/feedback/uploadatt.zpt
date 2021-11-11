@@ -1,7 +1,7 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
 
   <metal:block fill-slot="content">
-    <tal:block tal:define=="file_id python:request.get('file', '')">
+    <tal:block tal:define="file_id python:request.get('file', '')">
 
       <div id="operations">
         <ul>

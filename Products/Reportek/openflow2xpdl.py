@@ -17,21 +17,22 @@
 # Contributor(s):
 # Miruna Badescu, Finsiel Romania
 
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 # Name:        openflow2xpdl.py
 # Purpose:     Create XPDL files using OpenFlow info
 #              XPDL format was standarized by WfMC: www.wfmc.org
 #
 # Author:      Mikel Larreategi Arana
 #
-# Created:     
+# Created:
 # RCS-ID:      $Id$
 # Copyright:   (c) 2003
 # Licence:     GPL
-#-----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
 
 import time
 from xml.dom import minidom
+
 
 class OpenFlow2Xpdl:
 
@@ -47,7 +48,7 @@ class OpenFlow2Xpdl:
         # erabiltzaile guztiak gordeko dituen elementua sortu
         # create the element to contain participants
         erabiltzailea = self.xmldoc.createElement('Participants')
-        
+
         # rol bakoitzeko
         # for each role
         for k in self.of.valid_roles():
@@ -76,11 +77,11 @@ class OpenFlow2Xpdl:
     def _add_process_header(self, node, object):
         """ Add process header """
         header = node.appendChild(self.xmldoc.createElement('ProcessHeader'))
-        #add description
+        # add description
         descr = self.xmldoc.createElement('Description')
         descr.appendChild(self.xmldoc.createTextNode(object.description))
         header.appendChild(descr)
-        #add priority
+        # add priority
         priority = self.xmldoc.createElement('Priority')
         priority.appendChild(self.xmldoc.createTextNode(str(object.priority)))
         header.appendChild(priority)
@@ -101,10 +102,11 @@ class OpenFlow2Xpdl:
             # add attributes
             prozesua.setAttribute('Id', i.getId())
             prozesua.setAttribute('Name', i.title)
-            #add the process header element which contains the basic Workflow Process properties
+            # add the process header element which contains the basic Workflow
+            # Process properties
             self._add_process_header(prozesua, i)
             # ekintzak gehitu
-            #add the process additional attributes
+            # add the process additional attributes
             self._add_process_extended_attrs(prozesua, i)
             # add activities
             prozesua.appendChild(self.gehituEkintzak(i))
@@ -117,9 +119,12 @@ class OpenFlow2Xpdl:
         return prozesuak
 
 #    def gehituAplikazioak(self):
-#        """ Prozesu konkretu bati lotutako aplikazioak gehituko ditu. Pasatzen diren
-#        parametroak produktuarekin probak egin ostean detektatu direnak izan dira, hau da, 
-#        aplikazioei pasatzen zaizkien defektuzko parametroak dira - Add applications"""
+#        """ Prozesu konkretu bati lotutako aplikazioak gehituko ditu.
+#         Pasatzen diren
+#        parametroak produktuarekin probak egin ostean detektatu direnak izan
+#        dira, hau da,
+#        aplikazioei pasatzen zaizkien defektuzko parametroak dira -
+#        Add applications"""
 #
 #        aplikazioak = self.xmldoc.createElement('Applications')
 #
@@ -134,13 +139,15 @@ class OpenFlow2Xpdl:
 #                    aplikazioa = self.xmldoc.createElement('Application')
 #                    aplikazioa.setAttribute('Id', i.application)
 #
-#                    # Goian esan bezala ez da inon agertzen zein diren aplikazioei
+#                    # Goian esan bezala ez da inon agertzen zein diren
+#                    # aplikazioei
 #                    # pasatutako parametroak, ondorioz aplikazioa automatikoei
 #                    # pasatzen zaizkien defektuzko 3 parametroak ipini ditut
 #
 #                    # I can't get application parameters neither using the API
 #                    # nor using the attributes.
-#                    # I decided to pass the 3 default parameters OpenFlow passes to 
+#                    # I decided to pass the 3 default parameters OpenFlow
+#                    # passes to
 #                    # Automatic applications.
 #
 #                    forpars = self.xmldoc.createElement('FormalParameters')
@@ -172,17 +179,16 @@ class OpenFlow2Xpdl:
             applications.appendChild(app)
         return applications
 
-
     def _add_process_extended_attrs(self, node, process):
         """ Add process specific attributes """
         attrs = self.xmldoc.createElement('ExtendedAttributes')
-        #add 'begin' property
+        # add 'begin' property
         attr = self.xmldoc.createElement('ExtendedAttribute')
         attr.setAttribute('Name', 'begin')
         attr.setAttribute('Value', str(process.begin))
         attrs.appendChild(attr)
 
-        #add 'end' property
+        # add 'end' property
         attr = self.xmldoc.createElement('ExtendedAttribute')
         attr.setAttribute('Name', 'end')
         attr.setAttribute('Value', str(process.end))
@@ -196,36 +202,35 @@ class OpenFlow2Xpdl:
         descr.appendChild(self.xmldoc.createTextNode(activity.description))
         node.appendChild(descr)
 
-
     def _add_activity_extended_attrs(self, node, process, activity):
         """ Add the Activity specific attributes """
         attrs = self.xmldoc.createElement('ExtendedAttributes')
-        #add 'complete_automatically' property
+        # add 'complete_automatically' property
         attr = self.xmldoc.createElement('ExtendedAttribute')
         attr.setAttribute('Name', 'complete_automatically')
         attr.setAttribute('Value', str(activity.complete_automatically))
         attrs.appendChild(attr)
 
-        #add 'self_assignable' property
+        # add 'self_assignable' property
         attr = self.xmldoc.createElement('ExtendedAttribute')
         attr.setAttribute('Name', 'self_assignable')
         attr.setAttribute('Value', str(activity.self_assignable))
         attrs.appendChild(attr)
 
-        #add 'pushable_roles' property
+        # add 'pushable_roles' property
         pushable_roles = self.of.getPushRoles(process.id, activity.id)
         attr = self.xmldoc.createElement('ExtendedAttribute')
         attr.setAttribute('Name', 'pushable_roles')
         attr.setAttribute('Value', ','.join(pushable_roles))
         attrs.appendChild(attr)
 
-        #add 'push_application' property
+        # add 'push_application' property
         attr = self.xmldoc.createElement('ExtendedAttribute')
         attr.setAttribute('Name', 'push_application')
         attr.setAttribute('Value', str(activity.push_application))
         attrs.appendChild(attr)
 
-        #add 'kind' property
+        # add 'kind' property
         attr = self.xmldoc.createElement('ExtendedAttribute')
         attr.setAttribute('Name', 'kind')
         attr.setAttribute('Value', str(activity.kind))
@@ -233,14 +238,12 @@ class OpenFlow2Xpdl:
 
         node.appendChild(attrs)
 
-
     def gehituEkintzak(self, prozesua):
         """ Prozesu konkretu baten ekintzak gehituko ditu
             Add activities of a given process"""
 
         ekintzak = self.xmldoc.createElement('Activities')
 
-        push_roles = self.of.getActivitiesPushableOnRole()
         pull_roles = self.of.getActivitiesPullableOnRole()
 
         # dagoen ekintza bakoitzeko
@@ -254,10 +257,10 @@ class OpenFlow2Xpdl:
             ekintza.setAttribute('Id', i.getId())
             ekintza.setAttribute('Name', i.getId())
 
-            #add description
+            # add description
             self._add_activity_description(ekintza, i)
 
-            #add extended attributes
+            # add extended attributes
             self._add_activity_extended_attrs(ekintza, prozesua, i)
 
             # mota
@@ -266,10 +269,14 @@ class OpenFlow2Xpdl:
             if i.isSubflow():
                 sub = self.xmldoc.createElement('SubFlow')
                 sub.setAttribute('Id', i.subflow)
-                # In the case of *synchronous execution*, the execution of the Activity
-                # is suspenden after a process instance of the referenced Process Definition
-                # is initiated. After execution termination of this process instance the 
-                # Activity is resumed. This is what happens in OpenFlow, because the activity 
+                # In the case of *synchronous execution*, the execution of the
+                # Activity
+                # is suspenden after a process instance of the referenced
+                # Process Definition
+                # is initiated. After execution termination of this process
+                # instance the
+                # Activity is resumed. This is what happens in OpenFlow,
+                # because the activity
                 # isn't finished before the completion of the subflow
                 sub.setAttribute('Execution', 'SYNCHR')
 
@@ -289,7 +296,7 @@ class OpenFlow2Xpdl:
                 ekintza.appendChild(impl)
 
             elif i.isStandard():
-            # if exists an application for this activity add it
+                # if exists an application for this activity add it
                 if i.application:
                     sub = self.xmldoc.createElement('Tool')
                     sub.setAttribute('Id', i.application)
@@ -311,7 +318,7 @@ class OpenFlow2Xpdl:
                 impl.appendChild(sub)
                 ekintza.appendChild(impl)
 
-            else: # i.isDummy(): routing activity
+            else:  # i.isDummy(): routing activity
                 route = self.xmldoc.createElement('Route')
                 ekintza.appendChild(route)
 
@@ -327,7 +334,7 @@ class OpenFlow2Xpdl:
                             else:
                                 text = text + ', ' + perfor
 
-            if text <> '':
+            if text != '':
                 perf = self.xmldoc.createElement('Performer')
                 perftxt = self.xmldoc.createTextNode(text)
                 perf.appendChild(perftxt)
@@ -385,7 +392,8 @@ class OpenFlow2Xpdl:
         return ekintzak
 
     def gehituTrantsizioak(self, prozesua):
-        """ Prozesu konkretu baten dauden ekintzen arteko trantsizioak gehituko ditu
+        """ Prozesu konkretu baten dauden ekintzen arteko trantsizioak
+            gehituko ditu
             Add transitions between activities of a given process  """
         trantsizioak = self.xmldoc.createElement('Transitions')
         # dagoen trantsizio bakoitzeko
@@ -397,8 +405,8 @@ class OpenFlow2Xpdl:
             trantsizioa.setAttribute('From', i.From)
             trantsizioa.setAttribute('To', i.To)
             # trantsizioa egiteko bete behar den baldintza
-            # add the condition  
-            if i.condition <> '':
+            # add the condition
+            if i.condition != '':
                 condition = self.xmldoc.createElement('Condition')
                 condition.setAttribute('Type', 'CONDITION')
 
@@ -432,9 +440,8 @@ class OpenFlow2Xpdl:
 
         return header
 
-
     def gehituConformance(self):
-        """ Add Conformance Class declaration 
+        """ Add Conformance Class declaration
             ConformanceClass adierazpena gehitu"""
 
         conformance = self.xmldoc.createElement('ConformanceClass')
@@ -446,7 +453,6 @@ class OpenFlow2Xpdl:
         script = self.xmldoc.createElement('Script')
         script.setAttribute('Type', 'Python')
         return script
-
 
     def create(self):
         """ XPDL fitxategia sortzeko metodoa. """
@@ -461,8 +467,10 @@ class OpenFlow2Xpdl:
         root.setAttribute('Id', self.folder.id)
         root.setAttribute('xmlns', 'http://www.wfmc.org/2002/XPDL1.0')
         root.setAttribute('xmlns:xpdl', 'http://www.wfmc.org/2002/XPDL1.0')
-        root.setAttribute('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance')
-        root.setAttribute('xsi:schemaLocation', 'http://www.wfmc.org/2002/XPDL1.0 http://wfmc.org/standards/docs/TC-1025_schema_10_xpdl.xsd')
+        root.setAttribute(
+            'xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance')
+        root.setAttribute(
+            'xsi:schemaLocation', 'http://www.wfmc.org/2002/XPDL1.0 http://wfmc.org/standards/docs/TC-1025_schema_10_xpdl.xsd')  # noqa
 
         # headera gehitu
         # add header
@@ -478,7 +486,7 @@ class OpenFlow2Xpdl:
         # add applications
         root.appendChild(self.gehituAplikazioak())
         # prozesuen atala gehitu
-        # add processes: activities, transitions, 
+        # add processes: activities, transitions,
         root.appendChild(self.gehituProzesuak())
 
         self.xmldoc.appendChild(root)

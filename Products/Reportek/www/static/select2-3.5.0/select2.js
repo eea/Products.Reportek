@@ -1,3 +1,4 @@
+/* jslint:disable */
 /*
 Copyright 2012 Igor Vaynberg
 

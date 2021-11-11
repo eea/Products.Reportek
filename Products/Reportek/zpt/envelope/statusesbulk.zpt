@@ -20,8 +20,10 @@
         <tal:block i18n:translate="">All documents in the envelope are already listed</tal:block><br/>
         <textarea name="ids" cols="50" rows="20" tal:content="python:'\n'.join(here.objectIds(['Report Document']))"></textarea><br />
         <label for="aaccept" i18n:translate="">Action</label><br />
-        <input type="radio" name="action" value="accept" checked="checked" id="aaccept"/><label for="aaccept"i18n:translate="">Accept</label><br />
-        <input type="radio" name="action" value="unaccept"/ id="aunaccept"><label for="aunaccept"i18n:translate="">Unaccept</label><br /><br />
+        <input type="radio" name="action" value="accept" checked="checked" id="aaccept"/>
+        <label for="aaccept" i18n:translate="">Accept</label><br />
+        <input type="radio" name="action" value="unaccept"/ id="aunaccept">
+        <label for="aunaccept" i18n:translate="">Unaccept</label><br /><br />
         <input type="submit" class="fileop" name="bulkAcceptTime:method" value="Apply" i18n:attributes="value" />
       </form><br />
 

@@ -1,6 +1,6 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
   <metal:block fill-slot="content">
-    <h1>Recent uploads for all countries</h1>
+    <h1 i18n:translate="">Recent uploads for all countries</h1>
 
     <div tal:define="query_start python:request.get('query_start') or 0;
                      sort_on python:request.get('sort_on','reportingdate');
@@ -15,6 +15,7 @@
 
     <a href="nextbatch" tal:define="p batch/previous"
                         tal:condition="p"
+                        i18n:translate=""
                         tal:attributes="href string:?query_start=${p/first}">
         (Previous <span tal:replace="p/length">n</span> results)
     </a>
@@ -38,7 +39,7 @@
     </thead>
     <tbody>
         <tr tal:repeat="result batch">
-            <td tal:content="python:result.getObject().reportingdate.strftime('%Y/%m/%d')">reportingdate</td>
+            <td tal:content="python:result.getObject().reportingdate.strftime('%Y/%m/%d')" i18n:translate="">reportingdate</td>
             <td><span tal:condition="python:not result.getObject().released"
                 tal:replace="python:'Draft'"></span></td>
             <tal:block tal:condition="python:request.get('country')" />
@@ -46,12 +47,12 @@
                     <tal:block tal:define="country python:context.localities_dict(request.get('country'))"/>
             <td tal:define="ldict python:context.localities_dict();
                             dummy python:{'uri': '', 'name': 'Unknown', 'iso': 'XX'}"
-                tal:content="python:ldict.get(result.getObject().country, dummy)['name']">country_name
+                tal:content="python:ldict.get(result.getObject().country, dummy)['name']" i18n:translate="">country_name
             </td>
-            <td style="white-space:nowrap">
-                <span tal:content="python:result.getObject().year">year</span>
+            <td style="white-space:nowrap" i18n:translate="">
+                <span tal:content="python:result.getObject().year" i18n:translate="">year</span>
                 <span tal:condition="python:result.getObject().endyear">-
-                    <span tal:content="python:result.getObject().endyear">endyear</span>
+                    <span tal:content="python:result.getObject().endyear" i18n:translate="">endyear</span>
                 </span>
             </td>
             <td>
@@ -59,12 +60,13 @@
                     <span tal:content="python:result.getObject().title or result.getObject().id"></span>
                 </a>
             </td>
-            <td tal:content="python:result.getObject().descr">description</td>
+            <td tal:content="python:result.getObject().descr" i18n:translate="">description</td>
         </tr>
     </tbody>
     </table>
     <a href="nextbatch" tal:define="n batch/next"
                         tal:condition="n"
+                        i18n:translate=""
                         tal:attributes="href string:?query_start=${batch/end}">
          (Next <span tal:replace="n/length">n</span> results)
     </a>

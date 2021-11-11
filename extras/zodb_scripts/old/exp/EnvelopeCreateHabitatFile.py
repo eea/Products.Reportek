@@ -1,11 +1,12 @@
-## Script (Python) "EnvelopeCreateHabitatFile"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
+# flake8: noqa
+# Script (Python) "EnvelopeCreateHabitatFile"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
 ##parameters=language, region=[], habitattype=None
-##title=Art17: Creates a new instance file
+# title=Art17: Creates a new instance file
 ##
 # Notice: Maintain the instancefile under /xmlexports, then cut-and-paste it to here
 # when changed
@@ -43,14 +44,17 @@ if len(err_msg) > 0:
     SESSION.set('region', region)
     return response.redirect('EnvelopeCreateHabitatFileForm')
 
-filename="habitattype-%s.xml" % habitattype
-title="Habitat type questionnaire for habitat %s" % habitattype
+filename = "habitattype-%s.xml" % habitattype
+title = "Habitat type questionnaire for habitat %s" % habitattype
 # Look up the habitat title
 for t in container.Art17habitattypes():
-   if t[1] == habitattype: title= t[2]
+    if t[1] == habitattype:
+        title = t[2]
+
 
 def mapelem(elem):
-    return """<map href="%s-%s.gml" rel_uri="/%s"/>""" % ( elem, habitattype, context.absolute_url(1))
+    return """<map href="%s-%s.gml" rel_uri="/%s"/>""" % (elem, habitattype, context.absolute_url(1))
+
 
 filecontent.append("""<?xml version="1.0" encoding="UTF-8"?>
 <habitat xml:lang="%s" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://biodiversity.eionet.europa.eu/schemas/dir9243eec/habitats.xsd" xmlns="">
@@ -71,7 +75,7 @@ filecontent.append("""<?xml version="1.0" encoding="UTF-8"?>
       %s
     </map-favourable-distribution>
   </national>
-""" % (language, habitattype, title,' '.join(region), mapelem('map-range'), mapelem('map-distribution'), mapelem('map-favourable-range'), mapelem('map-favourable-distribution')) )
+""" % (language, habitattype, title, ' '.join(region), mapelem('map-range'), mapelem('map-distribution'), mapelem('map-favourable-range'), mapelem('map-favourable-distribution')))
 for r in region:
     filecontent.append("""  <regional label="2. Biogeographical or marine level">
     <region label="2.1 Biogeographic region or marine region" desc="%s">%s</region>
@@ -125,9 +129,10 @@ for r in region:
       <conclusion-assessment label="Overall assessment"/>
     </conclusion-n2000>
   </regional>
-""" % (bioregions[r], r) )
+""" % (bioregions[r], r))
 filecontent.append("</habitat>")
-context.manage_addDocument(filename, title, ''.join(filecontent), 'text/xml','')
+context.manage_addDocument(
+    filename, title, ''.join(filecontent), 'text/xml', '')
 #container.EnvelopeCreateEmptyGMLFile('map-range-%s.gml' % habitattype,'Range map',context)
 #container.EnvelopeCreateEmptyGMLFile('map-favourable-range-%s.gml' % habitattype,'Favourable range map',context)
 #container.EnvelopeCreateEmptyGMLFile('map-distribution-%s.gml' % habitattype,'Distribution map',context)

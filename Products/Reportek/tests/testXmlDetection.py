@@ -1,20 +1,25 @@
-import unittest
+# flake8: noqa
+from common import BaseUnitTest
 from StringIO import StringIO
-from Products.Reportek.XMLInfoParser import detect_schema, detect_single_schema, SchemaError
+from Products.Reportek.XMLInfoParser import (detect_schema,
+                                             detect_single_schema,
+                                             SchemaError)
 
 
-class XmlDetectionTest(unittest.TestCase):
+class XmlDetectionTest(BaseUnitTest):
 
     def test_create_xml_document(self):
-        """ Create a simple XML document, and then verify the schema got sniffed correctly
+        """ Create a simple XML document, and then verify the schema got
+            sniffed correctly
         """
-        content ='''<?xml version="1.0" encoding="UTF-8"?>
+        content = '''<?xml version="1.0" encoding="UTF-8"?>
         <report xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xml:lang="de"
         xsi:noNamespaceSchemaLocation="http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd">
          </report>'''
         schema_location = detect_schema(StringIO(content))
-        self.assertEqual(schema_location, 'http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd')
+        self.assertEqual(
+            schema_location, 'http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd')
 
     def test_create_xml_document2(self):
         """ Create a simple XML document but with an unusual NS identifier,
@@ -26,7 +31,8 @@ class XmlDetectionTest(unittest.TestCase):
         NS0:noNamespaceSchemaLocation="http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd">
          </report>'''
         schema_location = detect_schema(StringIO(content))
-        self.assertEqual(schema_location, 'http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd')
+        self.assertEqual(
+            schema_location, 'http://biodiversity.eionet.europa.eu/schemas/dir9243eec/generalreport.xsd')
 
     def test_create_xml_document_single_schema(self):
         """ Create a XML document with single xsi schema """
@@ -38,8 +44,8 @@ class XmlDetectionTest(unittest.TestCase):
         self.assertEqual(schema_location, 'http://schema.eu/schema.xsd')
 
     def test_create_xml_document_ns1(self):
-        """ Create a XML document with namespaces but with an unusual XSI NS identifier,
-            and then verify the schema got sniffed correctly
+        """ Create a XML document with namespaces but with an unusual XSI NS
+            identifier, and then verify the schema got sniffed correctly
         """
         content = '''<?xml version="1.0" encoding="UTF-8"?>
         <NS1:report xmlns:NS0="http://www.w3.org/2001/XMLSchema-instance" xmlns:NS1="http://ns.org/namespace1"
@@ -49,8 +55,8 @@ class XmlDetectionTest(unittest.TestCase):
         self.assertEqual(schema_location, 'http://schema.eu/schema.xsd')
 
     def test_create_xml_document_ns2(self):
-        """ Create a XML document with namespaces but with an unusual XSI NS identifier,
-            and bad namespace for the schema
+        """ Create a XML document with namespaces but with an unusual XSI NS
+            identifier, and bad namespace for the schema
             and then verify the schema did not get sniffed
         """
         content = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -61,8 +67,8 @@ class XmlDetectionTest(unittest.TestCase):
         self.assertEqual(schema_location, '')
 
     def test_create_xml_document_wrong_ns(self):
-        """ Create a simple XML document but with a bad namespace for the schema
-            and then verify the schema did not get sniffed
+        """ Create a simple XML document but with a bad namespace for the
+            schema and then verify the schema did not get sniffed
         """
         content = '''<?xml version="1.0" encoding="UTF-8"?>
         <report xmlns:xsi="http://www.w3.org/2001/WRONG-XMLSchema-instance"
@@ -101,7 +107,8 @@ class XmlDetectionTest(unittest.TestCase):
         xsi:noNamespaceSchemaLocation="schema.xsd">
          </report>'''
         exception_args = None
-        expected_exception_args = ('Schema location is not a valid URL', 'schema.xsd')
+        expected_exception_args = (
+            'Schema location is not a valid URL', 'schema.xsd')
         try:
             detect_schema(StringIO(content))
         except SchemaError as e:
@@ -122,7 +129,8 @@ class XmlDetectionTest(unittest.TestCase):
         xsi:schemaLocation="https://schema.eu/schema.xsd">
          </report>'''
         exception_args = None
-        expected_exception_args = ('schemaLocation must have pairs of values', 'https://schema.eu/schema.xsd')
+        expected_exception_args = (
+            'schemaLocation must have pairs of values', 'https://schema.eu/schema.xsd')
         try:
             detect_schema(StringIO(content))
         except SchemaError as e:
@@ -135,7 +143,8 @@ class XmlDetectionTest(unittest.TestCase):
         xsi:schemaLocation="https://schema.eu/0 https://schema.eu/schema.xsd https://schema.eu/1 https://schema.eu/schema1.xsd">
          </report>'''
         schema_location = detect_schema(StringIO(content))
-        self.assertEqual(schema_location, 'https://schema.eu/schema.xsd https://schema.eu/schema1.xsd')
+        self.assertEqual(
+            schema_location, 'https://schema.eu/schema.xsd https://schema.eu/schema1.xsd')
 
     def test_create_xml_bad_multiple_schemaLocation(self):
         content = '''<?xml version="1.0" encoding="UTF-8"?>
@@ -143,7 +152,8 @@ class XmlDetectionTest(unittest.TestCase):
         xsi:schemaLocation="https://schema.eu/0 schema.xsd https://schema.eu/1 https://schema.eu/schema1.xsd">
          </report>'''
         exception_args = None
-        expected_exception_args = ('Schema location is not a valid URL', 'schema.xsd')
+        expected_exception_args = (
+            'Schema location is not a valid URL', 'schema.xsd')
         try:
             detect_schema(StringIO(content))
         except SchemaError as e:
@@ -163,7 +173,8 @@ class XmlDetectionTest(unittest.TestCase):
     </gml:FeatureCollection>'''
 
         schema_location = detect_schema(StringIO(content))
-        self.assertEqual(schema_location, 'http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd')
+        self.assertEqual(
+            schema_location, 'http://biodiversity.eionet.europa.eu/schemas/dir9243eec/gml_art17.xsd')
 
     def test_create_dd_document(self):
         """ Create a DD xml file in the envelope
@@ -206,7 +217,8 @@ class XmlDetectionTest(unittest.TestCase):
     </dd207:Station>
     '''
         schema_location = detect_schema(StringIO(content))
-        self.assertEqual(schema_location, 'http://dd.eionet.europa.eu/GetSchema?id=TBL1927')
+        self.assertEqual(
+            schema_location, 'http://dd.eionet.europa.eu/GetSchema?id=TBL1927')
 
     def test_dual_schema_document(self):
         """ Verify that the content sniffer can understand a schemaLocation with
@@ -222,7 +234,8 @@ class XmlDetectionTest(unittest.TestCase):
     </dd207:Station>
     '''
         schema_location = detect_schema(StringIO(content))
-        self.assertEqual(schema_location, 'http://dd.eionet.europa.eu/GetSchema?id=TBL1927 http://dd.eionet.europa.eu/GetSchema?id=TBL2000')
+        self.assertEqual(
+            schema_location, 'http://dd.eionet.europa.eu/GetSchema?id=TBL1927 http://dd.eionet.europa.eu/GetSchema?id=TBL2000')
 
     def test_dtd_public_id(self):
         content = ('<!DOCTYPE zz PUBLIC "-//some//public//doctype" '
@@ -232,7 +245,7 @@ class XmlDetectionTest(unittest.TestCase):
         self.assertEqual(schema_location, 'http://example.com/my.dtd')
 
 
-class XmlSingleSchemaDetectionTest(unittest.TestCase):
+class XmlSingleSchemaDetectionTest(BaseUnitTest):
 
     def test_single_schema_no_ns(self):
         content = ('<r xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'

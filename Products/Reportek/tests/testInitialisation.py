@@ -1,5 +1,5 @@
-#from Testing import ZopeTestCase
-#ZopeTestCase.installProduct('Reportek')
+# from Testing import ZopeTestCase
+# ZopeTestCase.installProduct('Reportek')
 from common import BaseTest, ConfigureReportek
 
 
@@ -8,6 +8,7 @@ class InitialisationTestCase(BaseTest, ConfigureReportek):
     """ This simple test checks that when you start Zope, everything is created
         as expected
     """
+
     def afterSetUp(self):
         super(InitialisationTestCase, self).afterSetUp()
         self.createStandardCatalog()
@@ -16,9 +17,9 @@ class InitialisationTestCase(BaseTest, ConfigureReportek):
     def testCreation(self):
         """ Check for the correct creation of the WorkflowEngine """
         self.assertTrue(hasattr(self.app, 'WorkflowEngine'))
-        #self.assertTrue(hasattr(self.app, 'Converters'))
-        #self.assertTrue(hasattr(self.app, 'DataflowMappings'))
-        #self.assertTrue(hasattr(self.app, 'QARepository'))
+        # self.assertTrue(hasattr(self.app, 'Converters'))
+        # self.assertTrue(hasattr(self.app, 'DataflowMappings'))
+        # self.assertTrue(hasattr(self.app, 'QARepository'))
         self.assertTrue(hasattr(self.app, 'ReportekEngine'))
         self.assertTrue(hasattr(self.app, 'Catalog'))
 

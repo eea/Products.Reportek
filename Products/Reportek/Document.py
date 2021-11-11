@@ -20,10 +20,7 @@
 
 #     $Id$
 
-__version__ = '$Rev$'[6:-2]
-
 import hashlib
-import io
 import json
 import logging
 import os
@@ -37,7 +34,7 @@ import IconShow
 import RepUtils
 import requests
 import transaction
-from AccessControl import ClassSecurityInfo, getSecurityManager
+from AccessControl import ClassSecurityInfo
 # Product imports
 from blob import FileContainer, StorageError
 from constants import ENGINE_ID, QAREPOSITORY_ID
@@ -59,6 +56,7 @@ from zope.event import notify
 from zope.interface import implements
 from zope.lifecycleevent import ObjectModifiedEvent
 from ZPublisher.HTTPRequest import FileUpload
+__version__ = '$Rev$'[6:-2]
 
 FLAT = 0
 SYNC_ZODB = 1
@@ -100,7 +98,9 @@ def error_message(ctx, message, action=None, REQUEST=None):
             )
     return ''
 
-def success_message(ctx, objs, message=None, errors=None, action=None, REQUEST=None):
+
+def success_message(ctx, objs, message=None, errors=None, action=None,
+                    REQUEST=None):
     if not action:
         action = ctx.absolute_url()
     if not errors:
@@ -141,7 +141,8 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
        disallow. This will set the restricted flag in the form or
     """
 
-    is_object = hasattr(file, 'read') and (getattr(file, 'filename', None) or filename)
+    is_object = hasattr(file, 'read') and (
+        getattr(file, 'filename', None) or filename)
     if is_object and not filename:
         filename = getattr(file, 'filename')
     is_str = file and isinstance(file, basestring)
@@ -172,7 +173,10 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
                 if not ext.startswith('.'):
                     ext = ''.join(['.', ext])
                 if id.endswith(ext):
-                    return error_message(self, '{} files are disallowed in this context'.format(ext), REQUEST=REQUEST)
+                    return error_message(
+                        self,
+                        '{} files are disallowed in this context'.format(ext),
+                        REQUEST=REQUEST)
 
         # delete the previous file with the same id, if exists
         if self.get(id) and isinstance(self.get(id), Document):
@@ -187,14 +191,20 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
             obj.manage_file_upload(file, content_type)
         except SchemaError as e:
             self.manage_delObjects(id)
-            logger.exception('The file is an invalid XML (reason: %s)' % str(e.args))
-            return error_message(self, 'The file is an invalid XML (reason: %s)' % str(e.args), REQUEST=REQUEST)
+            logger.exception(
+                'The file is an invalid XML (reason: %s)' % str(e.args))
+            return error_message(
+                self, 'The file is an invalid XML (reason: %s)' % str(e.args),
+                REQUEST=REQUEST)
         if save_id:
             self.manage_delObjects(save_id)
             transaction.commit()
             self.manage_renameObject(id, save_id)
             id = save_id
-        r_enabled = (hasattr(self, 'is_globally_restricted') and self.is_globally_restricted()) or (hasattr(self, 'is_workflow_restricted') and self.is_workflow_restricted())
+        r_enabled = ((hasattr(self, 'is_globally_restricted')
+                     and self.is_globally_restricted())
+                     or (hasattr(self, 'is_workflow_restricted')
+                         and self.is_workflow_restricted()))
         if restricted or r_enabled:
             obj.manage_restrictDocument()
         obj.reindex_object()
@@ -227,10 +237,10 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
     icon = 'misc_/Reportek/document_gif'
 
     manage_options = (
-        {'label':'Edit',                'action': 'manage_main'       },
-        {'label':'View/Download',       'action': ''                  },
-        {'label':'Upload',              'action': 'manage_uploadForm' },
-        {'label':'Security',            'action': 'manage_access'     },
+        {'label': 'Edit',                'action': 'manage_main'},
+        {'label': 'View/Download',       'action': ''},
+        {'label': 'Upload',              'action': 'manage_uploadForm'},
+        {'label': 'Security',            'action': 'manage_access'},
     )
 
     security = ClassSecurityInfo()
@@ -257,11 +267,12 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
 
     def __init__(self, id, title='', content_type='', deferred_compress=None):
         """ Initialize a new instance of Document
-            If a document is created through FTP, self.absolute_url doesn't work.
+            If a document is created through FTP, self.absolute_url doesn't
+            work.
         """
         self.id = id
         self.title = title
-        self.xml_schema_location = '' #needed for XML files
+        self.xml_schema_location = ''  # needed for XML files
         self.accept_time = None
         ctor_kwargs = {}
         if content_type:
@@ -288,7 +299,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         else:
             self.data_file.content_type = value
 
-    def __str__(self): return self.index_html(self.REQUEST, self.REQUEST.RESPONSE)
+    def __str__(self): return self.index_html(
+        self.REQUEST, self.REQUEST.RESPONSE)
 
     def __len__(self): return 1
 
@@ -298,11 +310,11 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         return DateTime(self.data_file.mtime)
 
     def get_accept_time(self):
-        """ A document can have an accepted status. It is set by the client, and
-            is used to force the file to be immutable even if the envelope is returned
-            to draft state. It is used in second and third delivery round, to tell
-            the reporter that some files have to be redelivered, but some file are
-            accepted and are processed.
+        """ A document can have an accepted status. It is set by the client,
+            and is used to force the file to be immutable even if the envelope
+            is returned to draft state. It is used in second and third delivery
+            round, to tell the reporter that some files have to be redelivered,
+            but some file are accepted and are processed.
 
             It was used in Article 17 - 2007.
         """
@@ -311,6 +323,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         return None
 
     security.declareProtected('Change Feedback', 'set_accept_time')
+
     def set_accept_time(self, totime=1):
         """ Sets the accept time or clears it if totime != 1
         """
@@ -319,7 +332,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         else:
             self.accept_time = None
 
-    HEAD__roles__=None
+    HEAD__roles__ = None
+
     def HEAD(self, REQUEST, RESPONSE):
         """ Support for HEAD requests from search engines etc. """
         RESPONSE.setHeader('Last-Modified', rfc1123_date(self.data_file.mtime))
@@ -328,6 +342,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         return ''
 
     security.declarePublic('getMyOwner')
+
     def getMyOwner(self):
         """ Find the owner in the local roles. """
         for a, b in self.get_local_roles():
@@ -336,12 +351,14 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         return ''
 
     security.declarePublic('getMyOwnerName')
+
     def getMyOwnerName(self):
         """ Find the owner in the local roles.
             Then use LDAP to find the user's full name.
             TODO: Move LDAP dependency to ReportekEngine.
         """
-        return self.getLDAPUserCanonicalName(self.getLDAPUser(self.getMyOwner()))
+        return self.getLDAPUserCanonicalName(
+            self.getLDAPUser(self.getMyOwner()))
 
     def logUpload(self):
         """ Log file upload and any reuploads into the envelope history.
@@ -350,8 +367,10 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         """
         if self.REQUEST and getattr(self.REQUEST, 'AUTHENTICATED_USER', None):
             for l_w in self.getWorkitemsActiveForMe(self.REQUEST):
-                l_w.addEvent('file upload', 'File: {0} ({1})'.format(self.id,
-                                                                     self.data_file.human_readable(self.data_file.size)))
+                l_w.addEvent(
+                    'file upload', 'File: {0} ({1})'.format(
+                        self.id,
+                        self.data_file.human_readable(self.data_file.size)))
 
     def index_html(self, REQUEST, RESPONSE, icon=0):
         """ Returns the contents of the file.  Also, sets the
@@ -365,20 +384,23 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         # TODO also take weights into consideration (gzip;q=0,deflate;q=1)
         if ae and ae.lower().startswith('gzip'):
             skip_decomp = True
-        with self.data_file.open(skip_decompress=skip_decomp) as data_file_handle:
+        with self.data_file.open(skip_decompress=skip_decomp)\
+                as data_file_handle:
             size = self.data_file.size
             if skip_decomp and self.is_compressed():
-                # This is hackish. If the client asked for gzip compression first
-                # and we are storing the content compressed
-                # then instruct the FileContiner not to decompress the fetched content
-                # and tell the client that we are serving his content gzipped
-                RESPONSE.setHeader('content-encoding','gzip')
+                # This is hackish. If the client asked for gzip compression
+                # first and we are storing the content compressed
+                # then instruct the FileContiner not to decompress the fetched
+                # content and tell the client that we are serving his content
+                # gzipped
+                RESPONSE.setHeader('content-encoding', 'gzip')
                 size = self.data_file.compressed_size
             RepUtils.http_response_with_file(
                 REQUEST, RESPONSE, data_file_handle,
                 self.content_type, size, self.data_file.mtime)
 
     security.declarePublic('isGML')
+
     def isGML(self):
         """ Checks whether or not this is a GML file.
             The content type must be text/xml and it must end with .gml
@@ -386,6 +408,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         return self.content_type == 'text/xml' and self.id[-4:] == '.gml'
 
     security.declareProtected('View', 'getQAScripts')
+
     def getQAScripts(self):
         """ Returns a list of QA script labels.
             which can be manually run against the contained XML files
@@ -394,11 +417,12 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
 
     def view_image_or_file(self):
         """ The default view of the contents of the File or Image. """
-        raise Redirect, self.absolute_url()
+        raise Redirect(self.absolute_url())
 
     def link(self, text='', **args):
         """ return a HTML link tag to the file """
-        if text=='': text = self.title_or_id()
+        if text == '':
+            text = self.title_or_id()
         strg = '<a href="%s"' % (self.absolute_url())
         for key in args.keys():
             value = args.get(key)
@@ -407,11 +431,12 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         return strg
 
     security.declarePublic('icon_gif')
+
     def icon_gif(self, REQUEST, RESPONSE):
         """ Return an icon for the file's MIME-Type """
         filename = join(package_home(globals()), self.getIconPath())
         content_type = 'image/gif'
-        file_size =  os.path.getsize(filename)
+        file_size = os.path.getsize(filename)
         file_mtime = os.path.getmtime(filename)
         with open(filename, 'rb') as data_file:
             RepUtils.http_response_with_file(
@@ -419,6 +444,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                 content_type, file_size, file_mtime)
 
     security.declarePublic('icon_html')
+
     def icon_html(self):
         """ The icon embedded in html with a link to the real file """
         return '<img src="%s/icon_gif" alt="" />' % self.absolute_url()
@@ -444,7 +470,9 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             try:
                 fbs.append(brain.getObject())
             except KeyError as e:
-                logger.error("Error retrieving feedback object: {} from catalog brain: {}".format(brain.getPath(), str(e)))
+                logger.error(
+                    '''Error retrieving feedback object: {} from catalog '''
+                    '''brain: {}'''.format(brain.getPath(), str(e)))
 
         return fbs
 
@@ -453,7 +481,9 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         l_feedbacks = self.getParentNode().objectValues('Report Feedback')
         l_result = {}
         for l_feedback in l_feedbacks:
-            if l_feedback.document_id == self.id or (l_feedback.automatic == 0 and l_feedback.releasedate == self.reportingdate):
+            if (l_feedback.document_id == self.id
+                    or (l_feedback.automatic == 0
+                        and l_feedback.releasedate == self.reportingdate)):
                 l_result[l_feedback.absolute_url()] = l_feedback.title_or_id()
         return l_result
 
@@ -463,10 +493,12 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
 
     def compressed_size(self):
         if self.data_file.compressed_safe:
-            return (self.data_file.compressed_size,
-                    self.data_file.human_readable(self.data_file.compressed_size) )
+            return (
+                self.data_file.compressed_size,
+                self.data_file.human_readable(self.data_file.compressed_size))
 
     security.declareProtected('View management screens', 'blob_path')
+
     def blob_path(self):
         """ Return the actual path of the file on server fs as coded by zope
         inside the blob structure"""
@@ -481,7 +513,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         return path
 
     def canHaveOnlineQA(self, upper_limit=None):
-        """ Determines whether a HTTP QA can be done during Draft, based on file size
+        """ Determines whether a HTTP QA can be done during Draft, based on
+            file size
             The reason is that some on-demand QAs can take more than a minute,
             and that will time out.
         """
@@ -499,22 +532,24 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
     _manage_template = PageTemplateFile('zpt/document/manage', globals())
 
     security.declareProtected('View', 'get_possible_conversions')
+
     def get_possible_conversions(self):
         """Return possible conversions for the file"""
-        exclude_internal = True if self.REQUEST.get('exclude_internal') else False
+        exclude_internal = True if self.REQUEST.get(
+            'exclude_internal') else False
         local_converters = []
         remote_converters = []
         warning_message = ''
         try:
             (local_converters, remote_converters) = \
-                self.Converters.displayPossibleConversions(self.content_type,
-                                                           self.xml_schema_location,
-                                                           self.id,
-                                                           exclude_internal=exclude_internal
-                                                           )
+                self.Converters.displayPossibleConversions(
+                    self.content_type,
+                    self.xml_schema_location,
+                    self.id,
+                    exclude_internal=exclude_internal)
         except requests.ConnectionError as ex:
-           local_converters, remote_converters = ex.results
-           warning_message='Local conversion service unavailable.'
+            local_converters, remote_converters = ex.results
+            warning_message = 'Local conversion service unavailable.'
 
         self.REQUEST.RESPONSE.setHeader('Content-Type',
                                         'application/json')
@@ -526,6 +561,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         })
 
     security.declareProtected('View', 'get_qa_scripts')
+
     def get_qa_scripts(self):
         """Return the available qa scripts for the file."""
         scripts = self.getQAScripts().get(self.id, [])
@@ -548,13 +584,15 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         return json.dumps(res)
 
     security.declareProtected('View', 'manage_document')
+
     def manage_document(self, REQUEST=None, manage_and_edit=False):
         """ """
         return self._manage_template(
-                   manage_and_edit=manage_and_edit,
-               )
+            manage_and_edit=manage_and_edit,
+        )
 
     security.declareProtected('View', 'manage_edit_document')
+
     def manage_edit_document(self, REQUEST=None):
         """ """
         return self.manage_document(REQUEST=REQUEST, manage_and_edit=True)
@@ -563,35 +601,42 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
     flash_document = PageTemplateFile('zpt/document/flashview', globals())
 
     def flash_document_js(self):
-        if self.canChangeEnvelope() and not self.get_accept_time() and not self.released: editable = 'editable'
-        else: editable = ''
+        if (self.canChangeEnvelope() and not self.get_accept_time()
+                and not self.released):
+            editable = 'editable'
+        else:
+            editable = ''
         return """<script language="javascript" type="text/javascript">
     <!--
     var absolute_url = '%s', country_code = '%s', editable = '%s';
     // -->
-    </script>""" % (self.absolute_url(), self.getParentNode().getCountryCode(), editable)
+    </script>""" % (self.absolute_url(), self.getParentNode().getCountryCode(),
+                    editable)
 
     security.declareProtected('Change Envelopes', 'manage_restrictDocument')
+
     def manage_restrictDocument(self, REQUEST=None):
         """ Restrict access to this file
         """
         self.manage_restrict(ids=[self.id])
         if REQUEST:
             return self.messageDialog(
-                            message='File restricted to public.',
-                            action=REQUEST['HTTP_REFERER'])
+                message='File restricted to public.',
+                action=REQUEST['HTTP_REFERER'])
 
     security.declareProtected('Change Envelopes', 'manage_unrestrictDocument')
+
     def manage_unrestrictDocument(self, REQUEST=None):
         """ Remove access restriction for this file
         """
         self.manage_unrestrict(ids=[self.id])
         if REQUEST:
             return self.messageDialog(
-                            message='Document released to public.',
-                            action=REQUEST['HTTP_REFERER'])
+                message='Document released to public.',
+                action=REQUEST['HTTP_REFERER'])
 
     security.declarePublic('isRestricted')
+
     def isRestricted(self):
         """ Returns True if the file is restricted, False otherwise """
         return not self.acquiredRolesAreUsedBy('View')
@@ -601,26 +646,27 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
     ################################
     # Management Interface
     _manage_main_template = PageTemplateFile('zpt/document/edit', globals())
+
     def manage_main(self, REQUEST=None):
         """ """
-        #TODO refactor manage_main and manage_document
+        # TODO refactor manage_main and manage_document
         local_converters = []
         remote_converters = []
         warning_message = ''
         try:
             (local_converters, remote_converters) = \
-                    self.Converters.displayPossibleConversions(
-                        self.content_type,
-                        self.xml_schema_location,
-                        self.id
-                    )
+                self.Converters.displayPossibleConversions(
+                self.content_type,
+                self.xml_schema_location,
+                self.id
+            )
         except requests.ConnectionError as ex:
-           local_converters, remote_converters = ex.results
-           warning_message='Local conversion service unavailable.'
+            local_converters, remote_converters = ex.results
+            warning_message = 'Local conversion service unavailable.'
         return self._manage_main_template(
-                   warnings=warning_message,
-                   converters=[local_converters, remote_converters]
-               )
+            warnings=warning_message,
+            converters=[local_converters, remote_converters]
+        )
 
     def manage_editDocument(self, title='',
                             content_type=None, xml_schema_location=None,
@@ -631,9 +677,10 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             self.content_type = content_type
         if xml_schema_location is not None:
             self.xml_schema_location = xml_schema_location
-        if self.title!=title:
+        if self.title != title:
             self.title = title
-        if hasattr(self, 'is_globally_restricted') and self.is_globally_restricted():
+        if (hasattr(self, 'is_globally_restricted')
+                and self.is_globally_restricted()):
             self.manage_restrictDocument()
         else:
             if applyRestriction:
@@ -645,14 +692,13 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         notify(ObjectModifiedEvent(self))
         if REQUEST is not None:
             return self.messageDialog(
-                            message="The properties of %s have been changed!" % self.id,
-                            action=REQUEST['HTTP_REFERER'])
+                message="The properties of %s have been changed!" % self.id,
+                action=REQUEST['HTTP_REFERER'])
 
     def is_compressed(self):
         return self.data_file.compressed_safe
 
     def parsed_absolute_url(self):
-        l_res = {}
         engine = self.getEngine()
         http_res = getattr(engine, 'qa_httpres', False)
 
@@ -674,14 +720,16 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         file_hash = hashlib.sha256()
         with self.data_file.open('rb') as f:
             fb = f.read(BLOCK_SIZE)
-            while len(fb) > 0:  # While there is still data being read from the file
+            while len(fb) > 0:  # While there is still data being read
                 file_hash.update(fb)  # Update the hash
                 fb = f.read(BLOCK_SIZE)  # Read the next block from the file
 
         self.hash = file_hash.hexdigest()
 
     manage_uploadForm = PageTemplateFile('zpt/document/upload', globals())
-    def manage_file_upload(self, file='', content_type='', REQUEST=None, preserve_mtime=False):
+
+    def manage_file_upload(self, file='', content_type='', REQUEST=None,
+                           preserve_mtime=False):
         """ Upload file from local directory """
 
         if not content_type:
@@ -695,7 +743,10 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             skip_compress = True
             crc = file.CRC
 
-        with self.data_file.open('wb', orig_size=orig_size, skip_decompress=skip_compress, crc=crc, preserve_mtime=preserve_mtime) as data_file_handle:
+        with self.data_file.open('wb', orig_size=orig_size,
+                                 skip_decompress=skip_compress, crc=crc,
+                                 preserve_mtime=preserve_mtime)\
+                as data_file_handle:
             if hasattr(file, 'read'):
                 for chunk in RepUtils.iter_file_data(file):
                     data_file_handle.write(chunk)
@@ -719,9 +770,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         self.reindex_object()
         if REQUEST is not None:
             return self.messageDialog(
-                            message="The file was uploaded successfully!",
-                            action=REQUEST['HTTP_REFERER'])
-
+                message="The file was uploaded successfully!",
+                action=REQUEST['HTTP_REFERER'])
 
     ################################
     # Private methods              #
@@ -729,8 +779,9 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
 
     def _get_content_type(self, file_or_content):
         """ Determine the mime-type from metadata (file name, headers)
-        and eventually the actual content (Note that zope's guess_content_type does a poor
-        job detecting from content - it's main detection is based on name/ext
+        and eventually the actual content (Note that zope's guess_content_type
+        does a poor job detecting from content - it's main detection is based
+        on name/ext
         """
         name = None
         headers = None
@@ -743,7 +794,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             if is_ZipRaw:
                 name = getattr(file_or_content, 'currentFilename', name)
             if (is_ZipRaw and file_or_content.allowRaw and
-               (readCount < 0 or
+                (readCount < 0 or
                     readCount >= ZZipFileRaw.SKIP_RAW_THRESHOLD)):
                 file_or_content.rewindRaw()
             else:
@@ -774,7 +825,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         return content_type
 
     def _compute_uncompressed_size(self, file_or_content):
-        if isinstance(file_or_content, FileUpload) or isinstance(file_or_content, file):
+        if (isinstance(file_or_content, FileUpload)
+                or isinstance(file_or_content, file)):
             pos = file_or_content.tell()
             file_or_content.seek(0, 2)
             size = file_or_content.tell()

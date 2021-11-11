@@ -4,7 +4,7 @@
 <metal:block use-macro="here/roles_template/macros/roles-page">
 
     <metal:block fill-slot="page-header">
-      <h1>Assign role</h1>
+      <h1 i18n:translate="">Assign role</h1>
     </metal:block>
 
     <metal:block fill-slot="messages">
@@ -17,12 +17,12 @@
                 <span class="icon-remove"></span>
               </a>
             </div>
-            <div class="im-message msg-warning" tal:condition="python: len(results) == 0">
+            <div class="im-message msg-warning" tal:condition="python: len(results) == 0" i18n:translate="">
               Nothing ticked in the previous screen
             </div>
 
             <div class="im-message msg-success" tal:condition="python: len(results) > 0">
-              <div class="info-message-content">
+              <div class="info-message-content" i18n:translate="">
                 Roles assigned: 
                 <ul>
                   <li tal:repeat="res results">
@@ -50,23 +50,23 @@
             <tal:def tal:define="users result/users | nothing;
                                  groups result/groups | nothing">
               <tal:cond tal:condition="python: users or groups">
-                <h2>3. Select one or more countries</h2>
+                <h2 i18n:translate="">3. Select one or more countries</h2>
                 <tal:block tal:define="placeholder string:All">
                   <tal:block metal:use-macro="here/filters/macros/countries" />
                 </tal:block>
 
-                <h2>4. Select obligations</h2>
+                <h2 i18n:translate="">4. Select obligations</h2>
                 <div class="form-group"
                   tal:define="multiple string:multiple;
                               placeholder string:All">
-                  <label for="obligations">Obligations</label>
+                  <label for="obligations" i18n:translate="">Obligations</label>
                   <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
                 </div>
 
-                <h2>5. Filter by path</h2>
+                <h2 i18n:translate="">5. Filter by path</h2>
                 <tal:block metal:use-macro="here/filters/macros/path-filter" />
 
-                <h2>6. Select role</h2>
+                <h2 i18n:translate="">6. Select role</h2>
                 <tal:block metal:use-macro="here/filters/macros/role" />
 
                 <input type="hidden" name="search_term"
@@ -77,17 +77,17 @@
 
                 <div>
                   <input type="submit" name="btn.find_collections"
-                         value="Find collections" />
+                         value="Find collections" i18n:attributes="value btn-find-collections"/>
                 </div>
               </tal:cond>
               <tal:cond tal:condition="python: not (users or groups)">
-                <span>No results for your query</span>
+                <span i18n:translate="">No results for your query</span>
               </tal:cond>
             </tal:def>
           </tal:block>
 
           <p tal:condition="not: request/search_term | nothing">
-            <strong>Please enter a search term</strong>
+            <strong i18n:translate="">Please enter a search term</strong>
           </p>
 
           <tal:block condition="request/btn.find_collections | nothing">
@@ -96,20 +96,20 @@
 
             <tal:def tal:define="collections view/get_collections">
               <tal:block tal:condition="collections">
-                <h2>6. Assign role</h2>
+                <h2 i18n:translate="">6. Assign role</h2>
 
-                <h5 i18n:translate="" tal:condition="python: deployment == 'BDR'">The Auditors will have read-only access for country folders and will be country representatives, while Clients (ClientODS, ClientCARS and ClientFG, etc.) have an overview for the entire obligation's collection.</h5>
+                <h5 tal:condition="python: deployment == 'BDR'" i18n:translate="">The Auditors will have read-only access for country folders and will be country representatives, while Clients (ClientODS, ClientCARS and ClientFG, etc.) have an overview for the entire obligation's collection.</h5>
 
                 <table class="datatable">
                   <thead>
                     <tr>
                       <th><input id="toggleAllCB" type="checkbox" /></th>
-                      <th>Country</th>
-                      <th tal:condition="python: deployment == 'BDR' and request.get('role', '') in ['ClientFG', 'ClientODS', 'ClientCARS']">Sync transfers</th>
-                      <th tal:condition="python: request.get('use-subgroups')">LDAP Groups</th>
-                      <th>Path</th>
-                      <th>Obligations</th>
-                      <th>Existing users</th>
+                      <th i18n:translate="">Country</th>
+                      <th tal:condition="python: deployment == 'BDR' and request.get('role', '') in ['ClientFG', 'ClientODS', 'ClientCARS']" i18n:translate="">Sync transfers</th>
+                      <th tal:condition="python: request.get('use-subgroups')" i18n:translate="">LDAP Groups</th>
+                      <th i18n:translate="">Path</th>
+                      <th i18n:translate="">Obligations</th>
+                      <th i18n:translate="">Existing users</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -160,7 +160,7 @@
                   </tbody>
                 </table>
                 <div>
-                    <input type="submit" name="btn.assign" value="Assign role" />
+                    <input type="submit" name="btn.assign" value="Assign role" i18n:attributes="value btn-assign-role"/>
                 </div>
               </tal:block>
               <tal:block tal:condition="not: collections">

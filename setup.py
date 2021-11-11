@@ -46,4 +46,4 @@ setup(name=NAME,
           auto_fallin = Products.Reportek.scripts.auto_fallin:main
           auto_cleanup = Products.Reportek.scripts.auto_cleanup:main
           """,
-)
+      )

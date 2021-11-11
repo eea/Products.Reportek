@@ -21,13 +21,12 @@
 
 from datetime import datetime
 import struct
-import operator
 import urllib
 
 from AccessControl import getSecurityManager
 from AccessControl.Permissions import view
 from Products.Reportek import constants
-from zipfile import *
+from zipfile import ZipFile, ZIP_STORED, ZIP_DEFLATED, BadZipfile
 import zipfile
 
 import RepUtils
@@ -50,13 +49,16 @@ METADATA_DOCUMENTS = """
     $id   uploaded on: $date,    size: $size"""
 
 METADATA_RESTRICTED = """
-    $id   uploaded on: $date,    size: $size   (file restricted from public view)"""
+    $id   uploaded on: $date,   size: $size  (file restricted from public view)
+    """
 
-README_CONTENT = """This directory contains the documents included in the envelope "$envelope" at $link.
+README_CONTENT = """This directory contains the documents included in
+ the envelope "$envelope" at $link.
 Also contains the following files:
 
   metadata.txt - descriptive information about the envelope
-  history.txt - log of activities executed since the envelope creation until the moment of the download
+  history.txt - log of activities executed since the envelope creation until
+                the moment of the download
 
 This archive was downloaded at $date
 """
@@ -116,40 +118,41 @@ MANUAL_FEEDBACKS_LIST = """
 """
 
 FEEDBACK_HEADER = """<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-	<title>$title</title>
-	<style type="text/css">
-	body {
-		font-family:arial, verdana, sans-serif;
-		font-size:0.8em;
-	}
-	h1 {
-		color:#8be;
-	}
-	dl
-	{
-		margin: 0 0 1em 0;
-		padding: 0;
-	}
+    <title>$title</title>
+    <style type="text/css">
+    body {
+        font-family:arial, verdana, sans-serif;
+        font-size:0.8em;
+    }
+    h1 {
+        color:#8be;
+    }
+    dl
+    {
+        margin: 0 0 1em 0;
+        padding: 0;
+    }
 
-	dt
-	{
-		margin: 0;
-		padding: 0;
-		font-weight: bold;
-	}
+    dt
+    {
+        margin: 0;
+        padding: 0;
+        font-weight: bold;
+    }
 
-	dd
-	{
-		margin: 0 0 0.3em 0;
-		padding: 0;
-	}
-	</style>
+    dd
+    {
+        margin: 0 0 0.3em 0;
+        padding: 0;
+    }
+    </style>
 </head>
 <body>
-	<h1>$title</h1>
+    <h1>$title</h1>
 """
 
 FEEDBACK_FOOTER = """
@@ -157,14 +160,18 @@ FEEDBACK_FOOTER = """
 </html>
 """
 
+
 def _get_today():
     return datetime.now().isoformat(' ')
 
-#----------------  history log --------------------------------
+# ----------------  history log --------------------------------
+
+
 def _get_user(ob):
     if ob.actor:
         return ob.actor
     return '(Not assigned)'
+
 
 def get_history_content(ob):
     """ Return the history associated with this envelope.
@@ -189,49 +196,54 @@ def get_history_content(ob):
 
     for item in ob.objectValues('Workitem'):
 
-        #first we generate the event log for each activity
+        # first we generate the event log for each activity
         events = []
         for log in item.event_log:
-            if isinstance(log['event'], unicode): log['event'] = log['event'].encode('utf-8')
+            if isinstance(log['event'], unicode):
+                log['event'] = log['event'].encode('utf-8')
             events.append(parsed_template(
-                                HISTORY_ACTIVITY_EVENTS,
-                                {'date': str(log['time'].ISO()),
-                                 'event': log['event'],
-                                 'comment': log['comment'],
-                                }))
+                HISTORY_ACTIVITY_EVENTS,
+                {'date': str(log['time'].ISO()),
+                 'event': log['event'],
+                 'comment': log['comment'],
+                 }))
         log_events = ''.join(events)
 
-        last_activity = item.lastActivityDate().rfc822()
+        # last_activity = item.lastActivityDate().rfc822()
 
-        #generate the activity related information
+        # generate the activity related information
         activities.append(parsed_template(
-                                HISTORY_ACTIVITY,
-                                {'no':  i,
-                                 'activity': item.getActivityDetails('title'),
-                                 'status':  item.status,
-                                 'user': _get_user(item),
-                                 'eventlog': log_events}))
-        i+=1    #increment the workitem number
+            HISTORY_ACTIVITY,
+            {'no':  i,
+             'activity': item.getActivityDetails('title'),
+             'status':  item.status,
+             'user': _get_user(item),
+             'eventlog': log_events}))
+        i += 1  # increment the workitem number
     log_activities = ''.join(activities)
 
-    #finally, generate the entire history log
+    # finally, generate the entire history log
     return parsed_template(
-                HISTORY_HEADER,
-                {'envelope': ob.title,
-                 'link': ob.absolute_url(),
-                 'history': log_activities,
-                 'date': _get_today()
-                })
+        HISTORY_HEADER,
+        {'envelope': ob.title,
+         'link': ob.absolute_url(),
+         'history': log_activities,
+         'date': _get_today()
+         })
 
-#----------------  metadata log --------------------------------
+# ----------------  metadata log --------------------------------
+
+
 def _get_descriptions(ob):
     if ob.descr:
         return ob.descr
     else:
         return "n/a"
 
+
 def _get_engine(app):
     return getattr(app, constants.ENGINE_ID)
+
 
 def _get_obligations(ob):
     res = []
@@ -239,21 +251,24 @@ def _get_obligations(ob):
     engine = _get_engine(app)
     for uri in ob.dataflow_uris:
         df = engine.dataflow_lookup(uri)
-        if df.get('terminated','0') == '1':
+        if df.get('terminated', '0') == '1':
             res.append("%s -- TERMINATED" % df['details_url'])
         else:
             res.append("%s" % df['details_url'])
     return ",".join(res)
+
 
 def _get_period(ob):
     if ob.endyear == '':
         return "%s - %s" % (ob.year, ob.partofyear)
     return "%s to %s" % (ob.year, ob.endyear)
 
+
 def _get_status(ob):
     if ob.status:
         return ob.status
     return '(No status)'
+
 
 def _get_coverage(ob):
     if ob.locality:
@@ -262,17 +277,21 @@ def _get_coverage(ob):
         return "n/a"
     return "%s" % (ob.getCountryName())
 
+
 def _get_release_date(ob):
     if ob.released:
-        return ob.reportingdate.ISO() #DateTime
+        return ob.reportingdate.ISO()  # DateTime
     else:
         return "Not released"
+
 
 def _get_documents(ob):
     return [doc for doc in ob.objectValues('Report Document')]
 
+
 def _get_feedbacks(ob):
     return [feedback for feedback in ob.objectValues('Report Feedback')]
+
 
 def get_metadata_content(ob):
     """ Return the metadata associated with this envelope.
@@ -292,23 +311,23 @@ def get_metadata_content(ob):
     """
     parsed_template = RepUtils.parse_template
 
-    #first generate the documents log
+    # first generate the documents log
     documents = []
     restricted = []
     for doc in _get_documents(ob):
         upload_date = doc.upload_time().strftime('%d %b %Y')
         if getSecurityManager().checkPermission(view, doc):
             documents.append(parsed_template(
-                                METADATA_DOCUMENTS,
-                                {'id': doc.id,
-                                 'date': upload_date,
-                                 'size': doc.size()}))
+                METADATA_DOCUMENTS,
+                {'id': doc.id,
+                 'date': upload_date,
+                 'size': doc.size()}))
         else:
             restricted.append(parsed_template(
-                                METADATA_RESTRICTED,
-                                {'id': doc.id,
-                                 'date': upload_date,
-                                 'size': doc.size()}))
+                METADATA_RESTRICTED,
+                {'id': doc.id,
+                 'date': upload_date,
+                 'size': doc.size()}))
 
     log_documents = ''.join(documents)
     log_restricted = ''.join(restricted)
@@ -317,51 +336,52 @@ def get_metadata_content(ob):
         log_documents = 'None'
 
     return parsed_template(
-                    METADATA_CONTENT,
-                    {'envelope': ob.title,
-                     'link': ob.absolute_url(),
-                     'description': _get_descriptions(ob),
-                     'obligations': _get_obligations(ob),
-                     'period':      _get_period(ob),
-                     'coverage':    _get_coverage(ob),
-                     'status':      _get_status(ob),
-                     'release_date':_get_release_date(ob),
-                     'documents': log_documents,
-                     'restricted':log_restricted,
-                     'date': _get_today(),
-                     })
+        METADATA_CONTENT,
+        {'envelope': ob.title,
+         'link': ob.absolute_url(),
+         'description': _get_descriptions(ob),
+         'obligations': _get_obligations(ob),
+         'period':      _get_period(ob),
+         'coverage':    _get_coverage(ob),
+         'status':      _get_status(ob),
+         'release_date': _get_release_date(ob),
+         'documents': log_documents,
+         'restricted': log_restricted,
+         'date': _get_today(),
+         })
+
 
 def get_feedback_content(ob):
     """ Returns feedback items associated with this envelope.
         Example:
 
-	* (for automatic feedbacks)
-	  Subject: Feedback item
-	  Posted automatically on: 09 Sep 2008
-	  Task: Automatic quality assessment
-	  Referred file: file.xml
+        * (for automatic feedbacks)
+          Subject: Feedback item
+          Posted automatically on: 09 Sep 2008
+          Task: Automatic quality assessment
+          Referred file: file.xml
 
-	  [ Feedback text ]
+          [ Feedback text ]
 
-	* (for manual feedbacks)
-	  Subject: Feedback item
-	  Envelope release: 11 Sep 2008
-	  Attached files: file.doc
+        * (for manual feedbacks)
+          Subject: Feedback item
+          Envelope release: 11 Sep 2008
+          Attached files: file.doc
 
-	  [ Feedback text ]
+          [ Feedback text ]
     """
     parsed_template = RepUtils.parse_template
     title = ob.title
     fbtext = ob.feedbacktext
 
-    if isinstance(fbtext, unicode):
+    if isinstance(fbtext, unicode):  # noqa: F821
         fbtext = fbtext.encode('utf-8')
-    if isinstance(title, unicode):
+    if isinstance(title, unicode):  # noqa: F821
         title = title.encode('utf-8')
     header = parsed_template(FEEDBACK_HEADER,
-                            {'title': 'Feedbacks for envelope %s' % title})
+                             {'title': 'Feedbacks for envelope %s' % title})
     footer = parsed_template(FEEDBACK_FOOTER,
-                            {})
+                             {})
 
     if ob.automatic:
         try:
@@ -382,14 +402,17 @@ def get_feedback_content(ob):
              'file': refered_file,
              'content': fbtext})
     else:
-        files = ['<a href="%s" title="%s">%s</a>' % (file.getId(), 'Open %s' % file.getId(), file.getId()) for file in ob.objectValues(['File', 'File (Blob)'])]
+        files = ['<a href="%s" title="%s">%s</a>' % (file.getId(),
+                                                     'Open %s' % file.getId(
+        ), file.getId()) for file in ob.objectValues(['File', 'File (Blob)'])]
         content = parsed_template(MANUAL_FEEDBACK_CONTENT,
-                                {'subject': title,
-                                 'posted': ob.releasedate,
-                                 'file': ', '.join(files),
-                                 'content': fbtext})
-    #finally, generate the entire feedback log
+                                  {'subject': title,
+                                   'posted': ob.releasedate,
+                                   'file': ', '.join(files),
+                                   'content': fbtext})
+    # finally, generate the entire feedback log
     return "%s%s%s" % (header, content, footer)
+
 
 def get_feedback_list(ob):
     """ Returns feedback items associated with this envelope.
@@ -411,11 +434,16 @@ def get_feedback_list(ob):
     """
     feedbacks = []
     parsed_template = RepUtils.parse_template
-    header = parsed_template(FEEDBACK_HEADER, {'title': 'Feedbacks for envelope %s' % ob.title})
+    header = parsed_template(
+        FEEDBACK_HEADER, {'title': 'Feedbacks for envelope %s' % ob.title})
     footer = parsed_template(FEEDBACK_FOOTER, {})
     for feedback in _get_feedbacks(ob):
         if getSecurityManager().checkPermission(view, feedback):
-            files = ['<a href="%s" title="%s">%s</a>' % (file.getId(), 'Open %s' % file.getId(), file.getId()) for file in feedback.objectValues(['File', 'File (Blob)'])]
+            files = ['<a href="%s" title="%s">%s</a>' % (
+                file.getId(),
+                'Open %s' % file.getId(),
+                file.getId())
+                for file in feedback.objectValues(['File', 'File (Blob)'])]
             if feedback.automatic:
                 try:
                     task_name = feedback.getActivityDetails('title')
@@ -427,29 +455,33 @@ def get_feedback_list(ob):
                 else:
                     refered_file = ''
                 feedbacks.append(parsed_template(
-                                AUTOMATIC_FEEDBACKS_LIST,
-                                {'subject': '<a href="%s.html" title="%s">%s</a>' % (feedback.id, feedback.title, feedback.title),
-                                 'posted': feedback.postingdate.strftime('%d %b %Y %H:%M'),
-                                 'task': task_name,
-                                 'file': refered_file}))
+                    AUTOMATIC_FEEDBACKS_LIST,
+                    {'subject': '<a href="%s.html" title="%s">%s</a>' % (
+                        feedback.id, feedback.title, feedback.title),
+                     'posted': feedback.postingdate.strftime('%d %b %Y %H:%M'),
+                     'task': task_name,
+                     'file': refered_file}))
             else:
                 feedbacks.append(parsed_template(
-                                MANUAL_FEEDBACKS_LIST,
-                                {'subject': '<a href="%s.html" title="%s">%s</a>' % (feedback.id, feedback.title, feedback.title),
-                                 'posted': feedback.releasedate,
-                                 'file': ', '.join(files)}))
-    #finally, generate the entire feedback log
+                    MANUAL_FEEDBACKS_LIST,
+                    {'subject': '<a href="%s.html" title="%s">%s</a>' % (
+                        feedback.id, feedback.title, feedback.title),
+                     'posted': feedback.releasedate,
+                     'file': ', '.join(files)}))
+    # finally, generate the entire feedback log
     return "%s%s%s" % (header, '\n'.join(feedbacks), footer)
 
-#----------------  readme log --------------------------------
+# ----------------  readme log --------------------------------
+
+
 def get_readme_content(ob):
     """ Return the README.txt content """
     return RepUtils.parse_template(
-                README_CONTENT,
-                {'envelope': ob.title,
-                 'link': ob.absolute_url(),
-                 'date': _get_today(),
-                })
+        README_CONTENT,
+        {'envelope': ob.title,
+         'link': ob.absolute_url(),
+         'date': _get_today(),
+         })
 
 #
 # Support class to provide more similarity with Zope upload files.
@@ -459,13 +491,17 @@ def get_readme_content(ob):
 # amount request and the calling function will assume that there is more
 # to read. Therefore we allow only one read to work.
 #
+
+
 class ZZipFile(ZipFile):
 
     # for the __del__ mechanics (? see python2.7/zipfile.py)
     zef_file = None
 
-    def __init__(self, file, mode="r", compression=ZIP_STORED, allowZip64=False):
-        ZipFile.__init__(self, file, mode=mode, compression=compression, allowZip64=allowZip64)
+    def __init__(self, file, mode="r", compression=ZIP_STORED,
+                 allowZip64=False):
+        ZipFile.__init__(self, file, mode=mode,
+                         compression=compression, allowZip64=allowZip64)
         self.currentFilename = None
         self.zef_file = None
         self.should_close = False
@@ -492,9 +528,10 @@ class ZZipFile(ZipFile):
         self.currentFilename = filename
         self.pwd = pwd
         # ZipFile does the open at read.
-        # Since we always expect setcurent file to be called prior to any other operation
-        # we call open/seek here
-        # no need to close, every open just seeks in the same opened file. see (the bloody) zipfile.py
+        # Since we always expect setcurent file to be called prior to any
+        # other operation we call open/seek here
+        # no need to close, every open just seeks in the same opened file.
+        # see (the bloody) zipfile.py
         # zipfile always opens
         self.zef_file = self.open(self.currentFilename, pwd=self.pwd)
         if not self._filePassed:
@@ -502,14 +539,15 @@ class ZZipFile(ZipFile):
 
     def read(self, size=-1):
         # read manually from ZipExtFile
-        # since the decompressor takes care of where the file inside the container ends
-        # (uses an intermediary _readbuffer) we don't care about reading 'too much'
+        # since the decompressor takes care of where the file inside the
+        # container ends
+        # (uses an intermediary _readbuffer) we don't care about reading
+        # 'too much'
         return self.zef_file.read(size)
 
-
     def seek(self, pos=0):
-        """ Use this only for rewind purposes, as the base class does not provide
-        a seek mechanism. Thus, `pos` should always be 0."""
+        """ Use this only for rewind purposes, as the base class does
+        not provide a seek mechanism. Thus, `pos` should always be 0."""
         if pos != 0:
             raise ValueError("(Z)ZipFile can only seek for start.")
         self.zef_file.close()
@@ -534,8 +572,10 @@ class ZZipFileRaw(ZZipFile):
     ENCRYPTED_FLAG = 0x1
     SKIP_RAW_THRESHOLD = 300
 
-    def __init__(self, file, mode="r", compression=ZIP_STORED, allowZip64=False):
-        ZZipFile.__init__(self, file, mode=mode, compression=compression, allowZip64=allowZip64)
+    def __init__(self, file, mode="r", compression=ZIP_STORED,
+                 allowZip64=False):
+        ZZipFile.__init__(self, file, mode=mode,
+                          compression=compression, allowZip64=allowZip64)
         self.bytesRead = 0
         self.zef_file_raw = None
         self.should_close_raw = False
@@ -605,7 +645,9 @@ class ZZipFileRaw(ZZipFile):
     def seekRaw(self, pos=0):
         # seek to the start of deflated data
         if pos:
-            raise IOError('Can only seek at the begining of a file inside a zip archive (pos=0)')
+            raise IOError(
+                '''Can only seek at the begining of a file inside '''
+                '''a zip archive (pos=0)''')
         try:
             if not self.zef_file_raw:
                 self.zef_file_raw = self.openRaw()
@@ -619,15 +661,15 @@ class ZZipFileRaw(ZZipFile):
             if fheader[zipfile._FH_SIGNATURE] != zipfile.stringFileHeader:
                 raise BadZipfile("Bad magic number for file header")
 
-            fname = self.zef_file_raw.read(fheader[zipfile._FH_FILENAME_LENGTH])
+            fname = self.zef_file_raw.read(
+                fheader[zipfile._FH_FILENAME_LENGTH])
             if fheader[zipfile._FH_EXTRA_FIELD_LENGTH]:
                 self.zef_file_raw.read(fheader[zipfile._FH_EXTRA_FIELD_LENGTH])
 
             if fname != self.zinfo.orig_filename:
-                raise BadZipfile, \
-                        'File name in directory "%s" and header "%s" differ.' % (
-                            self.zinfo.orig_filename, fname)
-        except:
+                raise BadZipfile('File name in directory "%s" and \
+                    header "%s" differ.' % (self.zinfo.orig_filename, fname))
+        except Exception:
             if self.should_close_raw:
                 self.zef_file_raw.close()
                 self.zef_file_raw = None
@@ -640,8 +682,10 @@ class ZZipFileRaw(ZZipFile):
     def read(self, nbytes=-1, skipRawThreshold=SKIP_RAW_THRESHOLD):
         """ Read `nbytes` from the zip file.
         If the requestet chunk size is -1 then read the whole file.
-        If it is below `skipRawThreshold` (but not whole file, -1) then read those bytes uncompressed
-        (for peeking at a part of the file, see determining content type in Document.py)
+        If it is below `skipRawThreshold` (but not whole file, -1) then read
+        those bytes uncompressed
+        (for peeking at a part of the file, see determining content type
+        in Document.py)
         The nbytes are decompressed buffer length
         In all other cases read `nbytes` of compressed data.
         If the file is not opened it will be opened for reading.

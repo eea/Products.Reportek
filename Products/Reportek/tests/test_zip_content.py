@@ -1,6 +1,6 @@
-import unittest
+from common import BaseUnitTest
 from path import path
-from mock import Mock, patch
+from mock import patch
 import md5
 
 from Products.Reportek.zip_content import ZZipFile, ZZipFileRaw
@@ -11,19 +11,20 @@ FILE2_NAME = 'plant_catalog.xml'
 FILE2_CRC = 2392975974
 FILE3_NAME = 'excel-examples.xls'
 
-class TestZZipFile(unittest.TestCase):
+
+class TestZZipFile(BaseUnitTest):
     def setUp(self):
         self.inputZipPath = path(__file__).parent.abspath() / 'zipMany.zip'
-        #fh = open(self.inputZipPath)
-        #self.zf = ZZipFile(fh)
+        # fh = open(self.inputZipPath)
+        # self.zf = ZZipFile(fh)
 
     def tearDown(self):
-        i = 1
+        pass
 
     def test_open_zip_fd(self):
         fh = open(self.inputZipPath)
         zf = ZZipFile(fh)
-        #zf = self.zf
+        # zf = self.zf
         fileInZip = zf.namelist()[0]
         self.assertEqual(fileInZip, FILE1_NAME)
 
@@ -94,7 +95,8 @@ class TestZZipFile(unittest.TestCase):
         contentSame = zf.read(100)
         self.assertEqual(content, contentSame)
 
-class TestZZipFileRaw(unittest.TestCase):
+
+class TestZZipFileRaw(BaseUnitTest):
 
     fileInfo = {
         FILE1_NAME: {
@@ -113,9 +115,9 @@ class TestZZipFileRaw(unittest.TestCase):
             'rawlen': 96554,
         },
     }
+
     def setUp(self):
         self.inputZipPath = path(__file__).parent.abspath() / 'zipMany.zip'
-
 
     def test_raw_open_zip_fd(self):
         fh = open(self.inputZipPath)
@@ -157,11 +159,12 @@ class TestZZipFileRaw(unittest.TestCase):
         zf.setcurrentfile(fileInZip)
         self.assertTrue(zf.allowRaw)
 
-        with patch('Products.Reportek.zip_content.ZIP_DEFLATED', new=47) as zip_deflated_new_value:
+        with patch('Products.Reportek.zip_content.ZIP_DEFLATED', new=47):
             zf.setcurrentfile(fileInZip)
             self.assertFalse(zf.allowRaw)
         # can't do same thing with testing encryption bail out
-        # and it's much harder to patch the return of zipfile.getinfo(), so skip that
+        # and it's much harder to patch the return of zipfile.getinfo(),
+        # so skip that
 
         zf.close()
 
@@ -171,7 +174,8 @@ class TestZZipFileRaw(unittest.TestCase):
             # setcurrentfile will open it
             zf.setcurrentfile(fileInZip)
             rawContent = zf.read()
-            self.assertEqual(len(rawContent), self.fileInfo[fileInZip]['rawlen'])
+            self.assertEqual(
+                len(rawContent), self.fileInfo[fileInZip]['rawlen'])
             h = md5.md5(rawContent)
             self.assertEqual(h.hexdigest(), self.fileInfo[fileInZip]['md5'])
 

@@ -1,13 +1,14 @@
-from Testing.makerequest import makerequest
-from AccessControl.SecurityManagement import newSecurityManager, noSecurityManager
+from AccessControl.SecurityManagement import (newSecurityManager,
+                                              noSecurityManager)
 from AccessControl.User import User, UnrestrictedUser, SpecialUser
-from AccessControl.unauthorized import Unauthorized
+
 
 def loginAnonymous():
     """ """
     noSecurityManager()
-    anonymous_user = SpecialUser('Anonymous User','',('Anonymous',), [])
+    anonymous_user = SpecialUser('Anonymous User', '', ('Anonymous',), [])
     newSecurityManager(None, anonymous_user)
+
 
 def loginUnrestricted():
     """ """
@@ -16,6 +17,7 @@ def loginUnrestricted():
     newSecurityManager(None, god)
     return god
 
+
 def loginAs(username, roles):
     """ """
     noSecurityManager()
@@ -23,15 +25,18 @@ def loginAs(username, roles):
     newSecurityManager(None, user)
     return user
 
+
 def loginUser(user, zope_app=None):
     """ """
     newSecurityManager(None, user)
     if zope_app:
         zope_app.REQUEST.set('AUTHENTICATED_USER', user)
 
+
 def logout():
     ''' simulates logout '''
     noSecurityManager()
+
 
 def setupUser(folder, user_name, roles):
     '''Creates the user in the given folder (folder) acl_users.'''
@@ -39,4 +44,3 @@ def setupUser(folder, user_name, roles):
     uf._addUser(user_name, 'secret', 'secret', roles, ())
     user = uf.getUserById(user_name).__of__(uf)
     return user
-

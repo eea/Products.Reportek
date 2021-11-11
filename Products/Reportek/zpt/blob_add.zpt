@@ -2,11 +2,11 @@
 
 <form action="manage_addOfsBlobFile" method="post" enctype="multipart/form-data">
   <fieldset>
-    <legend>Create blob file</legend>
-    <strong>id:</strong> <input name="name" /><br />
-    <strong>file:</strong> <input type="file" name="file" /><br />
+    <legend i18n:translate="">Create blob file</legend>
+    <strong i18n:translate="">id:</strong> <input name="name" /><br />
+    <strong i18n:translate="">file:</strong> <input type="file" name="file" /><br />
 
-    <input type="submit" value="save" />
+    <input type="submit" value="save" i18n:attributes="value btn-save"/>
   </fieldset>
 </form>
 

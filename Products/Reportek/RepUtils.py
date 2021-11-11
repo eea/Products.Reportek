@@ -34,7 +34,6 @@ import time
 import traceback
 from copy import deepcopy
 from datetime import datetime
-from types import FunctionType
 from urllib import FancyURLopener
 
 from AccessControl.ImplPython import rolesForPermissionOn
@@ -42,8 +41,6 @@ from AccessControl.SecurityManagement import (getSecurityManager,
                                               newSecurityManager,
                                               setSecurityManager)
 from AccessControl.User import UnrestrictedUser as BaseUnrestrictedUser
-from AccessControl.User import nobody
-from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
 from path import path
 from Products.Five import BrowserView
@@ -65,19 +62,20 @@ class UnrestrictedUser(BaseUnrestrictedUser):
 
 
 def formatException(self, error):
-     """
-     Format and return the specified exception information as a string.
+    """
+    Format and return the specified exception information as a string.
 
-     This implementation builds the complete stack trace, combining
-     traceback.format_exception and traceback.format_stack.
-     """
-     lines = traceback.format_exception(*error)
-     if error[2]:
-         lines[1:1] = traceback.format_stack(error[2].tb_frame.f_back)
-     return ''.join(lines)
+    This implementation builds the complete stack trace, combining
+    traceback.format_exception and traceback.format_stack.
+    """
+    lines = traceback.format_exception(*error)
+    if error[2]:
+        lines[1:1] = traceback.format_stack(error[2].tb_frame.f_back)
+    return ''.join(lines)
+
 
 logger = logging.getLogger('Reportek.RepUtils')
-#logger.setLevel(logging.DEBUG)
+# logger.setLevel(logging.DEBUG)
 logging.Formatter.formatException = formatException
 
 bad_chars = ' ,+&;()[]{}\xC4\xC5\xC1\xC0\xC2\xC3' \
@@ -87,7 +85,7 @@ bad_chars = ' ,+&;()[]{}\xC4\xC5\xC1\xC0\xC2\xC3' \
     '\xF2\xF4\xF5\xF8\x8A\x9A\xDF\xDC\xDA\xD9\xDB\xFC' \
     '\xFA\xF9\xFB\xDD\x9F\xFD\xFF\x8E\x9E'
 
-good_chars= '___________AAAAAA' \
+good_chars = '___________AAAAAA' \
     'aaaaaaCcEEEE' \
     'EeeeeeIIIIii' \
     'iiNnOOOOOOoo' \
@@ -96,6 +94,7 @@ good_chars= '___________AAAAAA' \
 
 TRANSMAP = string.maketrans(bad_chars, good_chars)
 
+
 def copy_file(infile, outfile):
     """ Read binary data from infile and write it to outfile
         infile and outfile may be strings, in which case a file with that
@@ -103,36 +102,29 @@ def copy_file(infile, outfile):
         directly.
     """
     if isinstance(infile, str):
-        try:
-            instream = open(infile, 'rb')
-        except IOError:
-            raise IOError, ("%s (%s)" %(self.id, infile))
+        instream = open(infile, 'rb')
         close_in = 1
     else:
         instream = infile
         close_in = 0
 
     if isinstance(outfile, str):
-        try:
-            outstream = open(outfile, 'wb')
-        except IOError:
-            raise IOError, ("%s (%s)" %(self.id, outfile))
+        outstream = open(outfile, 'wb')
         close_out = 1
     else:
         outstream = outfile
         close_out = 0
 
-    try:
-        blocksize = 2<<16
+    blocksize = 2 << 16
+    block = instream.read(blocksize)
+    outstream.write(block)
+    while len(block) == blocksize:
         block = instream.read(blocksize)
         outstream.write(block)
-        while len(block)==blocksize:
-            block = instream.read(blocksize)
-            outstream.write(block)
-    except IOError:
-        raise IOError, ("%s (%s)" %(self.id, filename))
-    if close_in: instream.close()
-    if close_out: outstream.close()
+    if close_in:
+        instream.close()
+    if close_out:
+        outstream.close()
 
 
 def iter_file_data(in_file, chunk_size=131072):
@@ -142,6 +134,7 @@ def iter_file_data(in_file, chunk_size=131072):
             break
         yield chunk
 
+
 def read_file_chunked(in_file, chunk_size=131072):
     f = in_file.open("rb")
     while True:
@@ -150,6 +143,7 @@ def read_file_chunked(in_file, chunk_size=131072):
             break
         yield chunk
     f.close()
+
 
 def cleanup_id(name):
     """ Cleanup an id
@@ -177,13 +171,16 @@ def generate_id(template):
     for x in range(4):
         id = chr(k & 0xff) + id
         k >>= 8
-    id= base64.encodestring(id)
-    return template + string.translate(string.lower(id),TRANSMAP,"/=\n")
+    id = base64.encodestring(id)
+    return template + string.translate(string.lower(id), TRANSMAP, "/=\n")
+
 
 def xmlEncode(p_string):
     """ Encode the XML reserved chars """
-    if isinstance(p_string, unicode): l_tmp = p_string.encode('utf-8')
-    else: l_tmp = str(p_string)
+    if isinstance(p_string, unicode):
+        l_tmp = p_string.encode('utf-8')
+    else:
+        l_tmp = str(p_string)
     l_tmp = l_tmp.replace('&', '&amp;')
     l_tmp = l_tmp.replace('<', '&lt;')
     l_tmp = l_tmp.replace('"', '&quot;')
@@ -191,7 +188,9 @@ def xmlEncode(p_string):
     l_tmp = l_tmp.replace('>', '&gt;')
     return l_tmp
 
-#encode to UTF-8 from user encoding
+# encode to UTF-8 from user encoding
+
+
 def utGMLEncode(p_str, p_str_enc):
     """ Giving a string and an encoding, returns the string encoded to UTF-8
         If no encoding is provided it will assume as input encoding UTF-8
@@ -201,17 +200,17 @@ def utGMLEncode(p_str, p_str_enc):
     if p_str_enc == '':
         l_tmp = unicode(str(p_str), errors='replace')
     else:
-         l_tmp = unicode(str(p_str),'%s' % p_str_enc, errors='replace')
+        l_tmp = unicode(str(p_str), '%s' % p_str_enc, errors='replace')
     l_tmp = l_tmp.encode('utf8', 'replace')
 
-    #xml entities
+    # xml entities
     l_tmp = l_tmp.replace('&', '&amp;')
     l_tmp = l_tmp.replace('<', '&lt;')
     l_tmp = l_tmp.replace('"', '&quot;')
     l_tmp = l_tmp.replace('\'', '&apos;')
     l_tmp = l_tmp.replace('>', '&gt;')
 
-    #Microsoft Word entities
+    # Microsoft Word entities
     l_tmp = l_tmp.replace('—', '-')
     l_tmp = l_tmp.replace('–', '-')
     l_tmp = l_tmp.replace('‘', "'")
@@ -229,6 +228,7 @@ def utGMLEncode(p_str, p_str_enc):
 
     return l_tmp
 
+
 def asciiEncode(p_value):
     """ Gets a value and returns a string """
     if p_value is not None:
@@ -236,18 +236,21 @@ def asciiEncode(p_value):
     else:
         return ''
 
+
 def utRead(file):
     """ Open file on local or remote system. """
     if 'http' in file:
         opener = FancyURLopener()
         f = opener.open(file)
     else:
-        f = open(file,'rb+')
+        f = open(file, 'rb+')
     return f
+
 
 def utf8Encode(p_str):
     """ encodes a string to UTF-8 """
     return p_str.encode('utf8')
+
 
 def to_utf8(s):
     """ converts Unicode to UTF-8"""
@@ -256,29 +259,38 @@ def to_utf8(s):
     else:
         return s
 
+
 def utConvertToList(something):
     """ Convert to list """
     ret = something
     if not something:
         return []
-    if type(something) is type(''):
+    if isinstance(something, str):
         ret = [something]
     return ret
 
+
 def utConvertListToLines(values):
     """ Takes a list of values and returns a value for a textarea control """
-    if len(values) == 0: return ''
-    else: return '\r\n'.join(values)
+    if len(values) == 0:
+        return ''
+    else:
+        return '\r\n'.join(values)
+
 
 def utConvertLinesToList(value):
     """ Takes a value from a textarea control and returns a list of values """
-    if type(value) == type([]): return value
-    elif not value: return []
+    if isinstance(value, list):
+        return value
+    elif not value:
+        return []
     else:
         values = []
         for v in value.split('\r\n'):
-            if v != '': values.append(v)
+            if v != '':
+                values.append(v)
     return values
+
 
 def utIsSubsetOf(first_list, second_list):
     """ returns true if the first list is a subset of the second """
@@ -287,43 +299,59 @@ def utIsSubsetOf(first_list, second_list):
             return 0
     return 1
 
+
 def utSortByAttr(p_obj_list, p_attr, p_sort_order=0):
     """ Sort a list of objects by one of the attributes """
-    l_temp = map(None, map(getattr, p_obj_list, (p_attr,)*len(p_obj_list)), xrange(len(p_obj_list)), p_obj_list)
+    l_temp = map(None, map(getattr, p_obj_list, (p_attr,) *
+                           len(p_obj_list)),
+                 xrange(len(p_obj_list)), p_obj_list)
     l_temp.sort()
     if p_sort_order:
         l_temp.reverse()
     return map(operator.getitem, l_temp, (-1,)*len(l_temp))
+
 
 def utSortListByAttr(p_obj_list, p_attr, p_sort_order=0):
     """ Sort a list of objects by one of the attributes """
-    l_temp = map(None, (p_obj_item[p_attr] for p_obj_item in p_obj_list), p_obj_list)
+    l_temp = map(None, (p_obj_item[p_attr]
+                        for p_obj_item in p_obj_list), p_obj_list)
     l_temp.sort()
     if p_sort_order:
         l_temp.reverse()
     return map(operator.getitem, l_temp, (-1,)*len(l_temp))
 
+
 def utTruncString(s, p_size=50):
-    #get a string and returns only a number of size characters
-    if len(s)>p_size: return '%s...' % s[:p_size]
-    else: return s
+    # get a string and returns only a number of size characters
+    if len(s) > p_size:
+        return '%s...' % s[:p_size]
+    else:
+        return s
+
 
 def utSortObjsListByMethod(p_list, p_method, p_desc=1):
     """Sort a list of objects by an attribute values"""
     l_len = len(p_list)
-    l_temp = map(None, map(lambda x, y: getattr(x, y)(), p_list, (p_method,)*l_len), xrange(l_len), p_list)
+    l_temp = map(None, map(lambda x, y: getattr(x, y)(), p_list,
+                           (p_method,)*l_len), xrange(l_len), p_list)
     l_temp.sort()
-    if p_desc: l_temp.reverse()
+    if p_desc:
+        l_temp.reverse()
     return map(operator.getitem, l_temp, (-1,)*l_len)
+
 
 def utSortByMethod(p_obj_list, p_attr, p_date, p_sort_order=0):
     """ Sort a list of objects by the result of one of their functions """
-    l_temp = map(None, map(lambda x,y:getattr(x, y)(), p_obj_list, (p_attr,)*len(p_obj_list)), xrange(len(p_obj_list)), p_obj_list, (p_date,)*len(p_obj_list))
+    l_temp = map(None, map(lambda x, y: getattr(x, y)(), p_obj_list,
+                           (p_attr,) * len(p_obj_list)),
+                 xrange(len(p_obj_list)),
+                 p_obj_list, (p_date,)*len(p_obj_list))
     l_temp = filter(lambda x: x[0] < x[3], l_temp)
     l_temp.sort()
     if p_sort_order:
         l_temp.reverse()
     return map(operator.getitem, l_temp, (-2,)*len(l_temp))
+
 
 def utGrabFromUrl(p_url):
     """ Takes a file from a remote server """
@@ -334,8 +362,9 @@ def utGrabFromUrl(p_url):
         ctype = l_file.headers['Content-Type']
         l_opener.close()
         return (l_file.read(), ctype)
-    except:
+    except Exception:
         return (None, 'text/x-unknown-content-type')
+
 
 def parse_template(template, dict={}):
     """ Make some text from a template file. """
@@ -346,7 +375,8 @@ def parse_template(template, dict={}):
             return to_utf8(result)
         except (TypeError, ValueError, KeyError), error:
             logger.exception(error)
-            raise Exception, "An error occurred while generating this file"
+            raise Exception("An error occurred while generating this file")
+
 
 def utGetTemp():
     """ return the system temp dir """
@@ -355,9 +385,11 @@ def utGetTemp():
     else:
         return '/tmp'
 
+
 def getFilename(filename):
     """ return only the filename, removing the path """
     return filename.split('\\')[-1]
+
 
 def createTempFile(p_file, p_filename=''):
     """ create a file in system temp dir """
@@ -371,20 +403,23 @@ def createTempFile(p_file, p_filename=''):
     file_temp.write(l_data)
     file_temp.close()
 
+
 def deleteTempFile(filename):
     """ delete a file from the system temp dir """
     os.unlink(os.path.join(utGetTemp(), '%s' % filename))
 
+
 def cookId(file):
     """ generate a file ID """
-    if hasattr(file,'filename'):
+    if hasattr(file, 'filename'):
         filename = file.filename
         id = filename[max(filename.rfind('/'),
-                        filename.rfind('\\'),
-                        filename.rfind(':'),
-                        )+1:]
+                          filename.rfind('\\'),
+                          filename.rfind(':'),
+                          )+1:]
         return id
     return file
+
 
 def extractURLs(s):
     """ find all the URLs from a string """
@@ -395,7 +430,7 @@ class TmpFile:
 
     def __init__(self, data):
         self.fname = tempfile.mktemp()
-        open(self.fname,'w+b').write(data)
+        open(self.fname, 'w+b').write(data)
 
     def __str__(self): return self.fname
     __repr__ = __str__
@@ -415,9 +450,9 @@ def temporary_named_copy(source_file):
 def http_response_with_file(request, response, data_file, content_type,
                             file_size, file_mtime):
     # HTTP If-Modified-Since header handling.
-    header=request.get_header('If-Modified-Since', None)
+    header = request.get_header('If-Modified-Since', None)
     if header is not None:
-        header=string.split(header, ';')[0]
+        header = string.split(header, ';')[0]
         # Some proxies seem to send invalid date strings for this
         # header. If the date string is not valid, we ignore it
         # rather than raise an error to be generally consistent
@@ -426,13 +461,15 @@ def http_response_with_file(request, response, data_file, content_type,
         # of the way they parse it).
         # This happens to be what RFC2616 tells us to do in the face of an
         # invalid date.
-        try:    mod_since=long(DateTime(header).timeTime())
-        except: mod_since=None
+        try:
+            mod_since = long(DateTime(header).timeTime())
+        except Exception:
+            mod_since = None
         if mod_since is not None:
             last_mod = long(file_mtime)
             if last_mod > 0 and last_mod <= mod_since:
-                # Set header values since apache caching will return Content-Length
-                # of 0 in response if size is not set here
+                # Set header values since apache caching will return
+                # Content-Length of 0 in response if size is not set here
                 response.setHeader('Last-Modified', rfc1123_date(file_mtime))
                 response.setHeader('Content-Type', content_type)
                 response.setHeader('Content-Length', file_size)
@@ -495,7 +532,9 @@ def inline_replace(x):
     x['uri'] = x['uri'].replace('eionet.eu.int', 'eionet.europa.eu')
     return x
 
+
 mime_types = _mime_types()
+
 
 def discard_utf8_bom(body):
     bom = '\xef\xbb\xbf'
@@ -503,6 +542,7 @@ def discard_utf8_bom(body):
         return body[3:]
     else:
         return body
+
 
 def replace_keys(replace_items, obj):
     """
@@ -520,7 +560,8 @@ def replace_keys(replace_items, obj):
 
 def fix_json_from_id(obj_original):
     """
-    Replace keys from json to set the right json format, used in SatelliteRegistryManagement class
+    Replace keys from json to set the right json format, used in
+     SatelliteRegistryManagement class
     :param obj_original: python dict
     :return: the dict in the corect format
     """
@@ -638,11 +679,12 @@ def execute_under_special_role(portal, role, function, *args, **kwargs):
             source_folder, target_folder)
 
 
-    @param portal: Reference to ISiteRoot object whose access controls we are using
+    @param portal: Reference to ISiteRoot object whose access controls used
 
     @param function: Method to be called with special privileges
 
-    @param role: User role for the security context when calling the privileged code; e.g. "Manager".
+    @param role: User role for the security context when calling the
+                 privileged code; e.g. "Manager".
 
     @param args: Passed to the function
 
@@ -659,7 +701,7 @@ def execute_under_special_role(portal, role, function, *args, **kwargs):
             # so it is an important thing to store.
             tmp_user = UnrestrictedUser(
                 sm.getUser().getId(), '', [role], ''
-                )
+            )
 
             # Wrap the user in the acquisition context of the portal
             tmp_user = tmp_user.__of__(portal.acl_users)
@@ -668,7 +710,7 @@ def execute_under_special_role(portal, role, function, *args, **kwargs):
             # Call the function
             return function(*args, **kwargs)
 
-        except:
+        except Exception:
             # If special exception handlers are needed, run them here
             raise
     finally:
@@ -677,7 +719,7 @@ def execute_under_special_role(portal, role, function, *args, **kwargs):
 
 
 def get_zip_cache():
-    zc_path = ZIP_CACHE_PATH or CLIENT_HOME
+    zc_path = ZIP_CACHE_PATH or CLIENT_HOME  # noqa
     zip_cache = path(zc_path)/'zip_cache'
     if not zip_cache.isdir():
         zip_cache.mkdir()
@@ -733,7 +775,7 @@ class DFlowCatalogAware(object):
     def allowedAdminRolesAndUsers(self):
         """
         Return a list of roles and users with reportek_dataflow_admin
-        permission. Used by Catalog to filter out items you're not 
+        permission. Used by Catalog to filter out items you're not
         allowed to see.
         """
         ob = self
@@ -786,7 +828,8 @@ class DFlowCatalogAware(object):
 
 
 def parse_uri(uri, replace=False):
-    """ Use only http uris if QA http resources is checked in ReportekEngine props
+    """ Use only http uris if QA http resources is checked in ReportekEngine
+    props
     """
     if replace:
         new_uri = uri.replace('https://', 'http://')

@@ -1,12 +1,14 @@
 # -*- coding: utf-8 -*-
 # It also contains the boilerplate to use when naming and running scripts
-# 1. Name your scripts starting with `date -u '+u%Y%m%d_'` followed by a meaningfull name
+# 1. Name your scripts starting with `date -u '+u%Y%m%d_'`
+# followed by a meaningfull name
 # 2. Run them from within debug mode like so:
-#  >>> from Products.Reportek.updates import u20150209_<meaningfulName>; u20150209_<meaningfulName>.update(app)
+#  >>> from Products.Reportek.updates import u20150209_<meaningfulName>
+#  >>> u20150209_<meaningfulName>.update(app)
 
 # One only needs to provide module level VERSION integer variable
 # and to decorate the update function with the module level __name__
-# 
+#
 # No boilerplate added to the definition of update function
 # one can use
 # VERSION = 2
@@ -14,17 +16,18 @@
 # def upd(app):
 #     pass
 # and it works
-# 
+#
 # Additionally one can tweak the behaviour at definition time
 # def upd(app, version=100, skipMigrationCheck=True):
 # and at call time:
 # >>> upd(app, other_positional, version=101)
-# 
+#
 # or at call time only
-# def upd(app, other_positional, other_named=dflt): # no version argument mentioned
+# def upd(app, other_positional, other_named=dflt): # no version argument
+# mentioned
 # >>> upd(app, other_positional, version=10)
 # without worring that undeclared `version` argument reaches upd
-# 
+#
 # Of course all these override defaults from VERSION, etc
 #
 # Author: Daniel Mihai Bărăgan, daniel.baragan@eaudeweb.ro
@@ -43,7 +46,8 @@ from Products.Reportek.constants import ENGINE_ID, MIGRATION_ID
 
 def checkMigration(module_name):
     """Decorate a migration function to track migrations inside Data.fs
-    `module_name` must be the module level value of __name__ from which only the last part
+    `module_name` must be the module level value of __name__ from which only
+    the last part
     is kept. But we need the whole value for import reasons.
     """
     def checkMigrationDec(migrationFunc):
@@ -52,42 +56,48 @@ def checkMigration(module_name):
             `version` could be passed to the function being decorated.
             It is the current version of the update scipt (integer);
             each script should define a VERSION variable that is automatically
-            read by the wrapper. But you can override it by passing version=<int>
-            among the arguments.
+            read by the wrapper. But you can override it by passing
+            version=<int> among the arguments.
             If you give a false value to version then version check&update
             will be skipped.
 
-            `skipMigrationCheck` is an argument that could be given to the function
-            being decorated.
-            If `skipMigrationCheck` has a true value then the checking and updating
-            of migration mapping is skipped alltogether.
-            The default is False meaning that migration table is checked and updated.
+            `skipMigrationCheck` is an argument that could be given to the
+            function being decorated.
+            If `skipMigrationCheck` has a true value then the checking and
+            updating of migration mapping is skipped alltogether.
+            The default is False meaning that migration table is checked and
+            updated.
 
-            Please use these argumets named only, or extend the code below to support them from args too!
+            Please use these argumets named only, or extend the code below to
+            support them from args too!
             """
             thisUpdateName = module_name.split('.')[-1]
             try:
                 version = importlib.import_module(module_name).VERSION
                 version = int(version)
-            except:
+            except Exception:
                 version = None
             # The default values don't reach this outer function
             # they are applied only when this calls migrationFunc(**kwargs)
             # if they are missing from kwargs.
-            # but we need some defaults here, thus we inspect the spec of the inner function
+            # but we need some defaults here, thus we inspect the spec of the
+            # inner function
             aSpec = inspect.getargspec(migrationFunc)
             defaultArgs = {}
             # skip the initial, non-default ones
-            for i, arg in enumerate(aSpec.args[len(aSpec.args)-len(aSpec.defaults):]):
+            for i, arg in enumerate(
+                    aSpec.args[len(aSpec.args)-len(aSpec.defaults):]):
                 defaultArgs[arg] = aSpec[3][i]
             # if we have a default in the inner function for skip
             # and it is not overridden by the actual arguments in the call
             # take that as skip value
             # else take whatever is in this call arguments or the default.
-            # either way, don't mangle inner function arguments and let it apply
-            # its 'natural' mechanism for determining argument values
-            # (besides, inner function should not use skip argument anyway, it is for wrapper only)
-            if 'skipMigrationCheck' not in kwargs and 'skipMigrationCheck' in defaultArgs:
+            # either way, don't mangle inner function arguments and let it
+            # apply its 'natural' mechanism for determining argument values
+            # (besides, inner function should not use skip argument anyway,
+            # it is for wrapper only)
+            if ('skipMigrationCheck' not in kwargs
+                    and 'skipMigrationCheck' in defaultArgs):
                 skipMigrationCheck = defaultArgs['skipMigrationCheck']
             else:
                 skipMigrationCheck = kwargs.pop('skipMigrationCheck', False)

@@ -5,7 +5,8 @@
       <tal:block condition="python:item.actor == 'openflow_engine'">
         <img style="vertical-align: middle"
              src="/misc_/Reportek/work_in_process"
-             alt="Work in progress for this activity" />
+             alt="Work in progress for this activity" 
+             i18n:attributes="alt alt-wip-activity"/>
       </tal:block>
       <tal:block tal:define="title python: item.getActivityDetails('title');
                             description python:item.getActivityDetails('description')">
@@ -25,7 +26,7 @@
         <tal:block define="dummy_var python:request.RESPONSE.setHeader('Refresh','60')" />
         <a tal:condition="python: context.is_cancellable(item.getId())"
            tal:attributes="href string:cancel_activity?workitem_id=${item/id}"
-           onclick="confirm_cancel(event)">Cancel</a>
+           onclick="confirm_cancel(event)" i18n:translate="">Cancel</a>
       </tal:block>
       <tal:block condition="not:python:item.actor == 'openflow_engine'"
         i18n:translate="">
@@ -39,7 +40,7 @@
     <span i18n:translate="">Task(s) waiting to be assigned:</span>
     <tal:block repeat="item inactiveW">
       <tal:block tal:condition="not: OFEngine">
-        <span style="color: red;">A workflow related error occured. Unable to determine the next task</span>
+        <span style="color: red;" i18n:translate="">A workflow related error occured. Unable to determine the next task</span>
       </tal:block>
       <tal:block tal:condition="OFEngine">
         <tal:block define="canPull python:OFEngine.canPullActivity(

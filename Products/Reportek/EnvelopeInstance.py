@@ -32,8 +32,7 @@ from time import time
 
 # Zope imports
 from AccessControl import ClassSecurityInfo
-from constants import (APPLICATIONS_FOLDER_ID, CONVERTERS_ID, ENGINE_ID,
-                       WEBQ_XML_REPOSITORY, WORKFLOW_ENGINE_ID)
+from constants import ENGINE_ID
 from DateTime import DateTime
 # Product specific imports
 from expression import exprNamespace
@@ -49,7 +48,7 @@ try:
     # do you have CMF?
     # if so use its Expression class
     from Products.CMFCore.Expression import Expression
-except:
+except ImportError:
     # I guess you have no CMF...
     # here's a what you need:
     from expression import Expression
@@ -57,14 +56,16 @@ logger = logging.getLogger("Reportek")
 
 
 class EnvelopeInstance(CatalogAware, Folder, object):
-    """ The Envelope class subclasses from EnvelopeInstance which implements the workflow operations
-        Each envelope follows a certain workflow process established at creation time.
+    """ The Envelope class subclasses from EnvelopeInstance which implements
+        the workflow operations
+        Each envelope follows a certain workflow process established at
+        creation time.
     """
 
     security = ClassSecurityInfo()
 
-    manage_options=( {'label': 'History', 'action' : 'history_section'},
-                    {'label': 'Workflow', 'action' : 'manage_history_html'} )
+    manage_options = ({'label': 'History', 'action': 'history_section'},
+                      {'label': 'Workflow', 'action': 'manage_history_html'})
 
     def __init__(self, process, priority=0):
         """ constructor """
@@ -72,25 +73,28 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         self.priority = priority
         self.process_path = process.absolute_url(1)
         self.begin_activity_id = process.begin
-        self.status = 'initiated'   # initiated,running,active,complete,terminated,suspended
-        self.old_status = ''        #Used to remeber the status after a suspension
-        #logging structure
-        # each event has the form {'start':xxx, 'end':yyy, 'comment':zzz, 'actor':aaa}
-        #'start' and 'end' are time in msec, 'actor' and 'comment' are string
-        self.initiation_log = [] #1 log
+        self.status = 'initiated'  # initiated,running,active,complete,...
+        self.old_status = ''  # Used to remeber the status after a suspension
+        # logging structure
+        # each event has the form {'start':xxx, 'end':yyy,
+        #                           'comment':zzz, 'actor':aaa}
+        # 'start' and 'end' are time in msec, 'actor' and 'comment' are string
+        self.initiation_log = []  # 1 log
         self.running_log = []
         self.activation_log = []
-        self.completion_log = [] #1 log
-        #statistic data in msec
+        self.completion_log = []  # 1 log
+        # statistic data in msec
         self.initiation_time = 0
         self.running_time = 0
         self.active_time = 0
-        #log initialization
-        self.initiation_log.append({'start':time(),'end':None,'comment':'creation','actor':''})
+        # log initialization
+        self.initiation_log.append(
+            {'start': time(), 'end': None, 'comment': 'creation', 'actor': ''})
 
     # History of the envelope for administrators
     security.declareProtected('Manage OpenFlow', 'manage_history_html')
-    manage_history_html = PageTemplateFile('zpt/envelope/manage_history', globals())
+    manage_history_html = PageTemplateFile(
+        'zpt/envelope/manage_history', globals())
 
     # History of the envelope for all users
     security.declareProtected('View', 'history_section')
@@ -100,11 +104,13 @@ class EnvelopeInstance(CatalogAware, Folder, object):
     chooseFallin = PageTemplateFile('zpt/envelope/choose_fallin', globals())
 
     security.declarePublic('activity_operations')
-    activity_operations = PageTemplateFile('zpt/envelope/operations', globals())
+    activity_operations = PageTemplateFile(
+        'zpt/envelope/operations', globals())
 
     def getWorkflowTabs(self, REQUEST):
         """ Returns the tuple:
-            (tabs available for the current user with respect to the active workitems, the selected tab)
+            (tabs available for the current user with respect to the active
+             workitems, the selected tab)
         """
         l_current_actor = REQUEST.AUTHENTICATED_USER.getUserName()
         l_return = []
@@ -112,7 +118,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             if w.status == 'active' and (w.actor == l_current_actor):
                 l_application_url = self.getApplicationUrl(w.id)
                 if l_application_url:
-                    l_return.append([w.id, l_application_url, self.unrestrictedTraverse(l_application_url).title_or_id()])
+                    l_return.append([w.id, l_application_url,
+                                     self.unrestrictedTraverse(
+                                        l_application_url).title_or_id()])
         return l_return
 
     ###########################################
@@ -133,14 +141,18 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         return getattr(process, activity_id, None)
 
     security.declareProtected('Use OpenFlow', 'getApplicationUrl')
+
     def getApplicationUrl(self, workitem_id):
-        """ Return application definition URL relative to instance and workitem """
+        """ Return application definition URL relative to instance and workitem
+        """
         activity = self.getActivity(workitem_id)
         if activity:
             return activity.mapped_application_details()['path']
 
     def getEnvironment(self, workitem_id):
-        """ Returns the engine, the workitem object, the current process and activity """
+        """ Returns the engine, the workitem object, the current process and
+            activity
+        """
         workitem = getattr(self, workitem_id)
         activity_id = workitem.activity_id
         wfengine = self.getOpenFlowEngine()
@@ -156,7 +168,8 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """ Returns the process as an object"""
         return self.unrestrictedTraverse(self.process_path, None)
 
-    security.declareProtected('View management screens','setProcess')
+    security.declareProtected('View management screens', 'setProcess')
+
     def setProcess(self, process_path):
         """ Returns the process as an object
             It's something only Managers can do, and only after verifying
@@ -178,11 +191,11 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         return w
 
     def getJoiningWorkitem(self, activity_id):
-        w_list = filter (lambda x, pi=self.process_path, ai=activity_id : \
-                         (x.status=='blocked') and \
-                         (x.process_path==pi) and \
-                         (x.activity_id==ai),
-                         self.objectValues('Workitem'))
+        w_list = filter(lambda x, pi=self.process_path, ai=activity_id:
+                        (x.status == 'blocked') and
+                        (x.process_path == pi) and
+                        (x.activity_id == ai),
+                        self.objectValues('Workitem'))
         if w_list:
             return w_list[0]
         else:
@@ -198,55 +211,73 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             self.initiation_log[-1]['end'] = now
             self.initiation_time += now - self.initiation_log[-1]['start']
             if new_status == 'running':
-                self.running_log.append({'start':now,'end':None,'comment':comment,'actor':actor})
+                self.running_log.append(
+                    {'start': now, 'end': None,
+                     'comment': comment,
+                     'actor': actor})
 
         if old_status == 'running':
             self.running_log[-1]['end'] = now
             self.running_time += now - self.running_log[-1]['start']
             if new_status == 'active':
-                self.activation_log.append({'start':now,'end':None,'comment':comment,'actor':actor})
+                self.activation_log.append(
+                    {'start': now, 'end': None,
+                     'comment': comment,
+                     'actor': actor})
             if new_status == 'complete':
-                self.completion_log.append({'start':now,'end':None,'comment':comment,'actor':actor})
+                self.completion_log.append(
+                    {'start': now, 'end': None,
+                     'comment': comment,
+                     'actor': actor})
 
         if old_status == 'active':
             self.activation_log[-1]['end'] = now
             self.active_time += now - self.activation_log[-1]['start']
             if new_status == 'running':
-                self.running_log.append({'start':now,'end':None,'comment':comment,'actor':actor})
+                self.running_log.append(
+                    {'start': now, 'end': None,
+                     'comment': comment,
+                     'actor': actor})
 
         self.status = status
         self.reindex_object()
 
-    security.declareProtected('View','is_active_for_me')
-    def is_active_for_me(self,REQUEST=None):
+    security.declareProtected('View', 'is_active_for_me')
+
+    def is_active_for_me(self, REQUEST=None):
         """ returns >0 if there is an active workitem for that person"""
         if REQUEST:
-            actor=REQUEST.AUTHENTICATED_USER.getUserName()
+            actor = REQUEST.AUTHENTICATED_USER.getUserName()
         else:
-            actor=''
+            actor = ''
         for item in self.objectValues('Workitem'):
             if item.status == 'active' \
-              and (item.actor == actor or item.actor == ''):
+                    and (item.actor == actor or item.actor == ''):
                 return 1
         return 0
 
     security.declareProtected('Use OpenFlow', 'getActiveWorkitems')
+
     def getActiveWorkitems(self):
         """ returns all active workitems """
-        return len(filter (lambda x: x.status == 'active', self.objectValues('Workitem')))
+        return len(filter(
+            lambda x: x.status == 'active', self.objectValues('Workitem')))
 
     security.declareProtected('View', 'getListOfWorkitems')
-    def getListOfWorkitems(self,status=None):
+
+    def getListOfWorkitems(self, status=None):
         """ Returns all workitems given a list of statuses
             If the status is not provided, all workitems are returned
         """
         if status is None:
             return self.objectValues('Workitem')
         else:
-            if type(status) == type([]):
-                return [x for x in self.objectValues('Workitem') if x.status in status]
+            if isinstance(status, list):
+                return [x for x in self.objectValues('Workitem')
+                        if x.status in status]
             else:
-                return [x for x in self.objectValues('Workitem') if x.status == status]
+                return [x for x in self.objectValues('Workitem')
+                        if x.status == status]
 
     def setPriority(self, value):
         self.priority = value
@@ -256,38 +287,41 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         return self.status in ('active', 'running')
 
     security.declareProtected('Manage OpenFlow', 'suspendInstance')
+
     def suspendInstance(self, REQUEST=None):
         """ suspend a specified instance """
         if self.isActiveOrRunning() or self.status == 'initiated':
             if REQUEST:
-                actor=REQUEST.AUTHENTICATED_USER.getUserName()
+                actor = REQUEST.AUTHENTICATED_USER.getUserName()
             else:
-                actor=''
+                actor = ''
             self.old_status = self.status
             self.setStatus(status='suspended', actor=actor)
-        if REQUEST: 
-            if REQUEST.has_key('DestinationURL'):
+        if REQUEST:
+            if 'DestinationURL' in REQUEST:
                 REQUEST.RESPONSE.redirect(REQUEST['DestinationURL'])
             else:
                 REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
 
     security.declareProtected('Manage OpenFlow', 'resumeInstance')
+
     def resumeInstance(self, REQUEST=None):
         """ resume a specified instance """
         if self.status == 'suspended':
             if REQUEST:
-                actor=REQUEST.AUTHENTICATED_USER.getUserName()
+                actor = REQUEST.AUTHENTICATED_USER.getUserName()
             else:
-                actor=''
+                actor = ''
             self.setStatus(status=self.old_status, actor=actor)
             self.old_status = ''
-        if REQUEST: 
-            if REQUEST.has_key('DestinationURL'):
+        if REQUEST:
+            if 'DestinationURL' in REQUEST:
                 REQUEST.RESPONSE.redirect(REQUEST['DestinationURL'])
             else:
                 REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
 
     security.declareProtected('Manage OpenFlow', 'handle_wk_response')
+
     def handle_wk_response(self, workitem):
         # Handle responses for wk actions
         data = {
@@ -305,42 +339,48 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 self.REQUEST.RESPONSE.setHeader('Content-Type',
                                                 'application/json')
                 return json.dumps(data, indent=4)
-            if self.REQUEST.has_key('DestinationURL'):
+            if 'DestinationURL' in self.REQUEST:
                 self.REQUEST.RESPONSE.redirect(self.REQUEST['DestinationURL'])
             else:
                 self.REQUEST.RESPONSE.redirect(self.REQUEST['HTTP_REFERER'])
         return json.dumps(data, indent=4)
 
     security.declareProtected('Manage OpenFlow', 'terminateInstance')
+
     def terminateInstance(self, REQUEST=None):
         """ terminate a specified instance """
         if self.status != 'complete':
             if REQUEST:
-                actor=REQUEST.AUTHENTICATED_USER.getUserName()
+                actor = REQUEST.AUTHENTICATED_USER.getUserName()
             else:
-                actor=''
+                actor = ''
             self.setStatus(status='terminated', actor=actor)
-        if REQUEST: 
-            if REQUEST.has_key('DestinationURL'):
+        if REQUEST:
+            if 'DestinationURL' in REQUEST:
                 REQUEST.RESPONSE.redirect(REQUEST['DestinationURL'])
             else:
                 REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
 
     security.declareProtected('Use OpenFlow', 'startInstance')
+
     def startInstance(self, REQUEST=None):
-        """ Starts the flowing of the process instance inside the process definition """
+        """ Starts the flowing of the process instance inside the process
+            definition
+        """
         if REQUEST:
-            actor=REQUEST.AUTHENTICATED_USER.getUserName()
+            actor = REQUEST.AUTHENTICATED_USER.getUserName()
         else:
-            actor=''
+            actor = ''
         self.setStatus(status='running', actor=actor)
         activity_id = self.begin_activity_id
         engine = self.getOpenFlowEngine()
-        push_roles = engine.getPushRoles(self.getInstanceProcessId(), activity_id)
-        pull_roles = engine.getPullRoles(self.getInstanceProcessId(), activity_id)
+        push_roles = engine.getPushRoles(
+            self.getInstanceProcessId(), activity_id)
+        pull_roles = engine.getPullRoles(
+            self.getInstanceProcessId(), activity_id)
         w = self.addWorkitem(activity_id, 0, push_roles, pull_roles)
         self.manageWorkitemCreation(w.id)
-        if REQUEST and REQUEST.has_key('DestinationURL'):
+        if REQUEST and 'DestinationURL' in REQUEST:
             REQUEST.RESPONSE.redirect(REQUEST['DestinationURL'])
 
     def linkWorkitems(self, workitem_from_id, workitem_to_id_list):
@@ -352,19 +392,27 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             w.setGraphLevel(workitem_from.graph_level + 1)
 
     security.declareProtected('Use OpenFlow', 'assignWorkitem')
+
     def assignWorkitem(self, workitem_id, actor, REQUEST=None):
-        """ Assign the specified workitem of the specified instance to the specified actor (string)"""
+        """ Assign the specified workitem of the specified instance to the
+            specified actor (string)
+        """
         workitem = getattr(self, workitem_id)
         activity = self.getActivity(workitem_id)
-        user_is_ok = (REQUEST==None or
-                      [r for r in REQUEST.AUTHENTICATED_USER.getRoles() if r in workitem.push_roles] or \
-                      ([r for r in REQUEST.AUTHENTICATED_USER.getRoles() if r in workitem.pull_roles] and activity.isSelfAssignable()))
-        workitem_is_ok = self.isActiveOrRunning() and not workitem.status == 'completed' and workitem.actor == ''
+        user_is_ok = (
+            REQUEST is None
+            or [r for r in REQUEST.AUTHENTICATED_USER.getRoles()
+                if r in workitem.push_roles]
+            or ([r for r in REQUEST.AUTHENTICATED_USER.getRoles()
+                 if r in workitem.pull_roles] and activity.isSelfAssignable()))
+        workitem_is_ok = self.isActiveOrRunning(
+        ) and not workitem.status == 'completed' and workitem.actor == ''
         if user_is_ok and workitem_is_ok:
-                workitem.assignTo(actor)
+            workitem.assignTo(actor)
         return self.handle_wk_response(workitem)
 
     security.declareProtected('Use OpenFlow', 'unassignWorkitem')
+
     def unassignWorkitem(self, workitem_id, REQUEST=None):
         """ Unassign the specified workitem """
         workitem = getattr(self, str(workitem_id))
@@ -377,15 +425,21 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 # that activateWorkitem (at least for Reportek) serves to 'reserve' the
 # workitem to a specific worker.
     security.declareProtected('Use OpenFlow', 'activateWorkitem')
+
     def activateWorkitem(self, workitem_id, actor=None, REQUEST=None):
-        """ declares the activation of the specified workitem of the given instance """
+        """ declares the activation of the specified workitem of the given
+            instance
+        """
         workitem = getattr(self, str(workitem_id))
         if actor:
             action_actor = actor
         else:
-            if REQUEST: action_actor=REQUEST.AUTHENTICATED_USER.getUserName()
-            else: action_actor=''
-        if self.isActiveOrRunning() and workitem.status == 'inactive' and not workitem.blocked:
+            if REQUEST:
+                action_actor = REQUEST.AUTHENTICATED_USER.getUserName()
+            else:
+                action_actor = ''
+        if (self.isActiveOrRunning() and workitem.status == 'inactive'
+                and not workitem.blocked):
             if workitem.actor == '':
                 if actor is not None:
                     self.assignWorkitem(workitem_id, actor)
@@ -396,51 +450,64 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         return self.handle_wk_response(workitem)
 
     security.declareProtected('Use OpenFlow', 'inactivateWorkitem')
+
     def inactivateWorkitem(self, workitem_id, REQUEST=None):
-        """ declares the inactivation of the specified workitem of the given instance """
+        """ declares the inactivation of the specified workitem of the given
+            instance
+        """
         workitem = getattr(self, str(workitem_id))
-        actor=''  # We don't need any actor name
-        if self.isActiveOrRunning() and workitem.status == 'active' and not workitem.blocked:
+        actor = ''  # We don't need any actor name
+        if (self.isActiveOrRunning() and workitem.status == 'active'
+                and not workitem.blocked):
             workitem.setStatus('inactive', actor=actor)
             if self.getActiveWorkitems() == 0:
                 self.setStatus(status='running', actor=actor)
         return self.handle_wk_response(workitem)
 
     security.declareProtected('Use OpenFlow', 'suspendWorkitem')
+
     def suspendWorkitem(self, workitem_id, REQUEST=None):
-        """ declares the suspension of the specified workitem of the given instance """
+        """ declares the suspension of the specified workitem of the given
+            instance
+        """
         workitem = getattr(self, str(workitem_id))
         if REQUEST:
             actor = REQUEST.AUTHENTICATED_USER.getUserName()
         else:
             actor = ''
         if self.isActiveOrRunning() and \
-               workitem.status == 'inactive' and \
-               not workitem.blocked:
+                workitem.status == 'inactive' and \
+                not workitem.blocked:
             workitem.setStatus('suspended', actor=actor)
             if self.getActiveWorkitems() == 0:
                 self.setStatus(status='running', actor=actor)
         return self.handle_wk_response(workitem)
 
     security.declareProtected('Use OpenFlow', 'resumeWorkitem')
+
     def resumeWorkitem(self, workitem_id, REQUEST=None):
-        """ declares the resumption of the specified workitem of the given instance """
+        """ declares the resumption of the specified workitem of the given
+            instance
+        """
         workitem = getattr(self, str(workitem_id))
         if REQUEST:
             actor = REQUEST.AUTHENTICATED_USER.getUserName()
         else:
             actor = ''
         if self.isActiveOrRunning() and \
-               workitem.status == 'suspended' and \
-               not workitem.blocked:
+                workitem.status == 'suspended' and \
+                not workitem.blocked:
             workitem.setStatus('inactive', actor=actor)
         return self.handle_wk_response(workitem)
 
     security.declareProtected('Use OpenFlow', 'completeWorkitem')
+
     def completeWorkitem(self, workitem_id, actor=None, REQUEST=None):
-        """ declares the completion of the specified workitem of the given instance """
+        """ declares the completion of the specified workitem of the given
+            instance
+        """
         if REQUEST:
-            if REQUEST.has_key('actor'):
+            if 'actor' in REQUEST:
                 actor = REQUEST['actor']
             else:
                 actor = REQUEST.AUTHENTICATED_USER.getUserName()
@@ -451,33 +518,35 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         workitem = getattr(self, workitem_id)
         activity = self.getActivity(workitem_id)
         process = self.unrestrictedTraverse(self.process_path)
-        engine = self.unrestrictedTraverse(ENGINE_ID, None)
-        rmq = getattr(engine, 'env_fwd_rmq', False)
         if self.isActiveOrRunning():
-            workitem_return_id = None
             if workitem.status in ('active', 'fallout'):
                 workitem.setStatus('complete', actor=l_actor)
                 if self.getActiveWorkitems() == 0:
                     self.setStatus(status='running', actor=l_actor)
                 if self.isEnd(workitem.activity_id):
                     subflow_workitem_id = self.getSubflowWorkitem(workitem_id)
-                    if subflow_workitem_id != None:
+                    if subflow_workitem_id is not None:
                         self.completeSubflow(subflow_workitem_id)
                     else:
                         self.setStatus(status='complete', actor=l_actor)
                         self.wf_status = 'complete'
                         self.reindex_object()
-            if activity.isAutoFinish() and not process.end == activity.id and not activity.isSubflow():
-                # If the current activity is auto start and not bundled with previous, let it be handled by the forwarder
+            if (activity.isAutoFinish() and not process.end == activity.id
+                    and not activity.isSubflow()):
+                # If the current activity is auto start and not bundled with
+                # previous, let it be handled by the forwarder
                 if activity.isAutoStart() and not activity.isBundled():
                     self.wf_status = 'forward'
                     self.reindex_object()
-                # If it's manually started or bundled with previous, forward it manually as we might have template forms that have form values
+                # If it's manually started or bundled with previous, forward it
+                # manually as we might have template forms that have form
+                # values
                 else:
                     self.forwardWorkitem(workitem_id)
             return self.handle_wk_response(workitem)
 
     security.declareProtected('Use OpenFlow', 'forwardState')
+
     def forwardState(self, REQUEST=None):
         """.."""
         result = {}
@@ -485,9 +554,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         if getattr(self, 'wf_status', None) == 'forward':
             wks = self.getListOfWorkitems()
             wk = wks[-1]
-            forwardable = [wk for wk in wks
-                           if wk.status == 'complete' and not
-                           (wk.activity_id == 'End' or wk.workitems_to)]
+            forwardable = [w for w in wks
+                           if w.status == 'complete' and not
+                           (w.activity_id == 'End' or w.workitems_to)]
             if forwardable:
                 wk = forwardable[0]
             if wk.status in ['complete', 'inactive']:
@@ -504,38 +573,42 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
         return engine.jsonify(result)
 
-
     def isEnd(self, activity_id):
         """  """
         process = self.restrictedTraverse(self.process_path)
         return process.end == activity_id
 
     security.declareProtected('Use OpenFlow', 'getNextTransitions')
+
     def getNextTransitions(self, workitem_id):
-        """ Returns the list of transition that the given workitem (of the specified instance)
-        will be routed on"""
+        """ Returns the list of transition that the given workitem (of the
+            specified instance) will be routed on"""
         process = self.unrestrictedTraverse(self.process_path)
         activity = self.getActivity(workitem_id)
         engine = self.getOpenFlowEngine()
         workitem = getattr(self, workitem_id)
         transition_list = []
         split_mode = activity.split_mode
-        transition_condition_list = [{'transition_id' : x.id, 'condition' : x.condition} \
-                                     for x in process.objectValues('Transition') \
-                                     if x.From==activity.id and hasattr(process, x.To)]
+        transition_condition_list = [
+            {'transition_id': x.id,
+             'condition': x.condition}
+            for x in process.objectValues('Transition')
+            if x.From == activity.id and hasattr(process, x.To)]
         if len(transition_condition_list) == 1:
             transition_list = [transition_condition_list[0]['transition_id']]
         else:
             if split_mode == 'and':
-                transition_list = map(lambda x : x['transition_id'], transition_condition_list)
+                transition_list = map(
+                    lambda x: x['transition_id'], transition_condition_list)
             elif split_mode == 'xor':
-                for r in [c for c in transition_condition_list if c['condition']]:
-                    expr=Expression(r['condition'])
-                    ec=exprNamespace(instance=self,
-                                     workitem=workitem,
-                                     process=process,
-                                     activity=activity,
-                                     openflow=engine)
+                for r in [c for c in transition_condition_list
+                          if c['condition']]:
+                    expr = Expression(r['condition'])
+                    ec = exprNamespace(instance=self,
+                                       workitem=workitem,
+                                       process=process,
+                                       activity=activity,
+                                       openflow=engine)
                     if expr(ec):
                         transition_list = [r['transition_id']]
                         break
@@ -553,18 +626,19 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         for transition_id in transition_list:
             activity_to_id = getattr(process, transition_id).To
             activity_to = getattr(process, activity_to_id)
-            if getattr(process, activity_to_id).join_mode=='and':
+            if getattr(process, activity_to_id).join_mode == 'and':
                 blocked_init = activity_to.getIncomingTransitionsNumber() - 1
             else:
                 blocked_init = 0
 
-            destinations.append({'activity_to_id' : activity_to_id,
-                                 'blocked_init' : blocked_init,
-                                 'process_to_id' : process.id})
+            destinations.append({'activity_to_id': activity_to_id,
+                                 'blocked_init': blocked_init,
+                                 'process_to_id': process.id})
         return destinations
 
     def handleWorkitem(self, workitem_id, REQUEST=None):
-        # If it's a previously failed application, retry it, otherwise forward it
+        # If it's a previously failed application, retry it, otherwise forward
+        # it
         workitem = getattr(self, workitem_id)
         activity = self.getActivity(workitem_id)
         engine = self.unrestrictedTraverse(ENGINE_ID, None)
@@ -591,6 +665,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             self.forwardWorkitem(workitem_id)
 
     security.declareProtected('Use OpenFlow', 'forwardWorkitem')
+
     def forwardWorkitem(self, workitem_id, path=None, REQUEST=None):
         """ instructs openflow to forward the specified workitem """
         destinations = self.getDestinations(workitem_id, path)
@@ -602,10 +677,13 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             activity = self.getActivity(workitem_id)
             new_workitems = []
             if self.isActiveOrRunning() and \
-                   (workitem.status == 'complete' and \
-                   (not workitem.workitems_to or activity.isSubflow())):
-                activity_to_id_list = map(lambda x : x['activity_to_id'], destinations)
-                workitem.addEvent('forwarded to '+ reduce(lambda x, y : x+', '+y, activity_to_id_list))
+                (workitem.status == 'complete' and
+                    (not workitem.workitems_to or activity.isSubflow())):
+                activity_to_id_list = map(
+                    lambda x: x['activity_to_id'], destinations)
+                workitem.addEvent(
+                    'forwarded to ' + reduce(lambda x, y: x+', '+y,
+                                             activity_to_id_list))
                 workitem_to_id_list = []
                 for d in destinations:
                     w = self.getJoiningWorkitem(d['activity_to_id'])
@@ -614,12 +692,14 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                         workitem_to_id_list.append(w.id)
                     else:
                         activity_id = d['activity_to_id']
-                        push_roles = engine.getPushRoles(self.getInstanceProcessId(), activity_id)
-                        pull_roles = engine.getPullRoles(self.getInstanceProcessId(), activity_id)
+                        push_roles = engine.getPushRoles(
+                            self.getInstanceProcessId(), activity_id)
+                        pull_roles = engine.getPullRoles(
+                            self.getInstanceProcessId(), activity_id)
                         w = self.addWorkitem(activity_id,
-                                            d['blocked_init'],
-                                            push_roles,
-                                            pull_roles)
+                                             d['blocked_init'],
+                                             push_roles,
+                                             pull_roles)
                         workitem_to_id_list.append(w.id)
                     if w.blocked == 0:
                         new_workitems.append(w.id)
@@ -627,46 +707,48 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 self.linkWorkitems(workitem_id, workitem_to_id_list)
             for w in new_workitems:
                 self.manageWorkitemCreation(w)
-        if REQUEST: 
-            if REQUEST.has_key('DestinationURL'):
+        if REQUEST:
+            if 'DestinationURL' in REQUEST:
                 REQUEST.RESPONSE.redirect(REQUEST['DestinationURL'])
             else:
                 REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
 
     security.declareProtected('View', 'getPreviousActor')
+
     def getPreviousActor(self, workitem_id):
         """ Returns the actor that completed the previous workitem """
-        if workitem_id: 
+        if workitem_id:
             l_w = getattr(self, str(int(workitem_id) - 1))
             return l_w.completion_log[-1]['actor']
         else:
             return ''
 
     security.declareProtected('Use OpenFlow', 'changeWorkitem')
+
     def changeWorkitem(self,
                        workitem_id,
-                       push_roles = None,
-                       pull_roles = None,
-                       event_log = None,
-                       activity_id = None,
-                       blocked = None,
-                       priority = None,
-                       workitems_from = None,
-                       workitems_to = None,
-                       status = None,
-                       actor = None,
-                       graph_level = None,
-                       REQUEST = None):
+                       push_roles=None,
+                       pull_roles=None,
+                       event_log=None,
+                       activity_id=None,
+                       blocked=None,
+                       priority=None,
+                       workitems_from=None,
+                       workitems_to=None,
+                       status=None,
+                       actor=None,
+                       graph_level=None,
+                       REQUEST=None):
         """ use this API to modify anything of a fallout workitem
-            usable only if workitem status is 'fallout' 
+            usable only if workitem status is 'fallout'
         """
         workitem = getattr(self, workitem_id)
-        if workitem.status=='fallout':
-            if push_roles != None:
+        if workitem.status == 'fallout':
+            if push_roles is not None:
                 workitem.push_roles = push_roles
-            if pull_roles != None:
+            if pull_roles is not None:
                 workitem.pull_roles = pull_roles
-            if event_log != None:
+            if event_log is not None:
                 workitem.event_log = event_log
             # the workitem.edit takes care of reindexing as well
             workitem.edit(activity_id=activity_id,
@@ -681,6 +763,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         return self.handle_wk_response(workitem)
 
     security.declareProtected('Use OpenFlow', 'falloutWorkitem')
+
     def falloutWorkitem(self, workitem_id, REQUEST=None):
         """ drops the workitem in exceptional handling """
         workitem = getattr(self, workitem_id)
@@ -699,18 +782,24 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             self.falloutWorkitem(wi.id)
 
     security.declareProtected('Manage OpenFlow', 'fallinWorkitem')
-    def fallinWorkitem(self, workitem_id, activity_id, coming_from=None, REQUEST=None):
-        """ the exceptional specified workitem (of the specified instance) will be put back in the activity
-        specified by process_path and activity_id; workitem will still be in exceptional state:
-        use endFallinWorkitem API to specify the end of the exceptional state"""
+
+    def fallinWorkitem(self, workitem_id, activity_id, coming_from=None,
+                       REQUEST=None):
+        """ the exceptional specified workitem (of the specified instance)
+        will be put back in the activity specified by process_path and
+        activity_id; workitem will still be in exceptional state:
+        use endFallinWorkitem API to specify the end of the exceptional state
+        """
         workitem_from = getattr(self, workitem_id)
         engine = self.getOpenFlowEngine()
-        push_roles = engine.getPushRoles(self.getInstanceProcessId(), activity_id)
-        pull_roles = engine.getPullRoles(self.getInstanceProcessId(), activity_id)
+        push_roles = engine.getPushRoles(
+            self.getInstanceProcessId(), activity_id)
+        pull_roles = engine.getPullRoles(
+            self.getInstanceProcessId(), activity_id)
         workitem_to = self.addWorkitem(activity_id, 0, push_roles, pull_roles)
         self.linkWorkitems(workitem_id, [workitem_to.id])
-        event = 'fallin to activity ' + activity_id + ' in process ' + self.process_path + \
-                ' (workitem ' + str(workitem_to.id) + ')'
+        event = 'fallin to activity ' + activity_id + ' in process ' \
+                + self.process_path + ' (workitem ' + str(workitem_to.id) + ')'
         workitem_from.addEvent(event)
         event = 'fallin from activity ' + workitem_from.activity_id + \
                 ' in process ' + self.process_path + \
@@ -724,31 +813,36 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 REQUEST.RESPONSE.redirect(REQUEST.HTTP_REFERER)
 
     security.declareProtected('Manage OpenFlow', 'endFallinWorkitem')
+
     def endFallinWorkitem(self, workitem_id, REQUEST=None):
         """ Ends the exceptional state of the given workitem """
         workitem = getattr(self, workitem_id)
         workitem.addEvent('handled fallout')
-        if not filter(lambda x: x['event'] == 'complete', workitem.getEventLog()):
+        if not filter(lambda x: x['event'] == 'complete',
+                      workitem.getEventLog()):
             workitem.endFallin()
-        if REQUEST: 
-            if REQUEST.has_key('DestinationURL'):
+        if REQUEST:
+            if 'DestinationURL' in REQUEST:
                 REQUEST.RESPONSE.redirect(REQUEST['DestinationURL'])
             else:
                 REQUEST.RESPONSE.redirect(REQUEST['HTTP_REFERER'])
 
     security.declarePublic('getActiveWorkitemsForMe')
+
     def getWorkitemsActiveForMe(self, REQUEST):
         """ Returns the list of active workitems
             where an user is the current actor of
         """
         l_actor = REQUEST.AUTHENTICATED_USER.getUserName()
-        return filter (lambda x: x.status == 'active' and x.actor == l_actor, self.objectValues('Workitem'))
+        return filter(lambda x: x.status == 'active' and x.actor == l_actor,
+                      self.objectValues('Workitem'))
 
     ###########################################
     #   Activities and applications
     ###########################################
 
     security.declareProtected('Use OpenFlow', 'manageDummyActivity')
+
     def manageDummyActivity(self, workitem_id):
         """  """
         self.activateWorkitem(workitem_id, 'openflow_engine')
@@ -757,6 +851,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             self.forwardWorkitem(workitem_id)
 
     security.declareProtected('Use OpenFlow', 'startAutomaticApplication')
+
     def startAutomaticApplication(self, workitem_id, REQUEST=None):
         """  """
         application_url = self.getApplicationUrl(workitem_id)
@@ -783,15 +878,17 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             self.completeWorkitem(workitem_id)
 
     security.declarePrivate('callAutoPush')
+
     def callAutoPush(self, workitem_id, REQUEST=None):
         """ """
         engine = self.getOpenFlowEngine()
         application_id = self.getActivity(workitem_id).push_application
-        if application_id != "" and engine._applications[application_id]['url']:
+        if (application_id != ""
+                and engine._applications[application_id]['url']):
             application_url = engine._applications[application_id]['url']
-            args = {'workitem_id':workitem_id, 'REQUEST':REQUEST}
+            args = {'workitem_id': workitem_id, 'REQUEST': REQUEST}
             # Why should the application return the actor?
-            #actor = apply(self.restrictedTraverse(application_url), (), args) 
+            # actor = apply(self.restrictedTraverse(application_url), (), args)
             application = self.restrictedTraverse(application_url)
             try:
                 application(**args)
@@ -837,6 +934,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
     ###########################################
 
     security.declarePrivate('startSubflow')
+
     def startSubflow(self, workitem_id, REQUEST=None):
         """ """
         self.activateWorkitem(workitem_id)
@@ -855,10 +953,13 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """ TODO! """
         same_process_path = self.unrestrictedTraverse(self.process_path).id
         while workitem_id != []:
-            engine, workitem, process, activity = self.getEnvironment(workitem_id)
-            if activity and activity.isSubflow() and (process.id != same_process_path):
+            engine, workitem, process, activity = self.getEnvironment(
+                workitem_id)
+            if (activity and activity.isSubflow()
+                    and (process.id != same_process_path)):
                 return workitem_id
-            workitem_id = workitem.workitems_from and workitem.workitems_from[0]
+            workitem_id = (workitem.workitems_from
+                           and workitem.workitems_from[0])
         return None
 
     def completeSubflow(self, workitem_id):
@@ -933,6 +1034,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             return True
 
     security.declareProtected('Use OpenFlow', 'cancel_activity')
+
     def cancel_activity(self, workitem_id, actor=None, REQUEST=None):
         """Cancel the current activity"""
         wk = getattr(self, workitem_id)
@@ -958,11 +1060,15 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 if REQUEST:
                     REQUEST.SESSION.set('note_content_type', 'text/html')
                     REQUEST.SESSION.set('note_title', 'Error')
-                    REQUEST.SESSION.set('note_text', 'Unable to cancel this activity. Activity id is: {}'.format(wk.activity_id))
+                    REQUEST.SESSION.set(
+                        'note_text',
+                        '''Unable to cancel this activity. '''
+                        '''Activity id is: {}'''.format(wk.activity_id))
                     REQUEST.RESPONSE.redirect('note')
             if wk.wf_status == 'forward':
                 fallinto = self.get_viable_cancel_fallin()
-                self.fallinWorkitem(workitem_id=workitem_id, activity_id=fallinto)
+                self.fallinWorkitem(workitem_id=workitem_id,
+                                    activity_id=fallinto)
                 if wk.status != 'complete':
                     self.falloutWorkitem(workitem_id)
                     self.endFallinWorkitem(workitem_id=workitem_id)
@@ -975,7 +1081,10 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             if REQUEST:
                 REQUEST.SESSION.set('note_content_type', 'text/html')
                 REQUEST.SESSION.set('note_title', 'Error')
-                REQUEST.SESSION.set('note_text', 'Unable to cancel activity. Activity status is: {}'.format(wk.status))
+                REQUEST.SESSION.set(
+                    'note_text',
+                    '''Unable to cancel activity. '''
+                    '''Activity status is: {}'''.format(wk.status))
                 REQUEST.RESPONSE.redirect('note')
 
     def is_cancellable(self, workitem_id):
@@ -983,10 +1092,11 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         wk = getattr(self, workitem_id, None)
         if wk:
             is_lr = wk.activity_id.startswith('Automatic') or \
-                    wk.activity_id.startswith('FMEConversion')
+                wk.activity_id.startswith('FMEConversion')
             unfinished = wk.status != 'complete' and \
-                         self.getActiveWorkitems() > 0
+                self.getActiveWorkitems() > 0
             if is_lr and unfinished:
                 return True
+
 
 InitializeClass(EnvelopeInstance)

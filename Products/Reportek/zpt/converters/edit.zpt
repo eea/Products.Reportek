@@ -1,21 +1,21 @@
 <span tal:replace="structure context/manage_page_header" />
 <span tal:replace="structure python:context.manage_tabs(management_view='Remote converters')" />
 
-<p class="form-help">To change property values, edit the values and click "Save changes".</p>
+<p class="form-help" i18n:translate="">To change property values, edit the values and click "Save changes".</p>
 
 <form action="manage_edit" method="post">
 <table border="0" cellpadding="2" cellspacing="0">
 	<tr>
-		<th align="left"><label for="remote_converter">Converter server</label></th>
-		<td><input type="text" id="remote_converter" name="remote_converter" tal:attributes="value here/remote_converter" size="50" />(e.g. <em>http://converters.eionet.europa.eu/RpcRouter</em>)</td>
+		<th align="left"><label for="remote_converter" i18n:translate="">Converter server</label></th>
+		<td><input type="text" id="remote_converter" name="remote_converter" tal:attributes="value here/remote_converter" size="50" /><span i18n:translate="">(e.g. <em i18n:translate="">http://converters.eionet.europa.eu/RpcRouter</em>)</span></td>
 	</tr>
 	<tr>
-		<th align="left"><label for="api_url">REST API URL</label></th>
-		<td><input type="text" id="api_url" name="api_url" tal:attributes="value here/api_url" size="50" />(e.g. <em>http://converters.eionet.europa.eu/api</em>)</td>
+		<th align="left"><label for="api_url" i18n:translate="">REST API URL</label></th>
+		<td><input type="text" id="api_url" name="api_url" tal:attributes="value here/api_url" size="50" /><span i18n:translate="">(e.g. <em i18n:translate="">http://converters.eionet.europa.eu/api</em>)</span></td>
 	</tr>
 	<tr>
 		<td></td>
-		<td><input type="submit" value="Save changes" /></td>
+		<td><input type="submit" value="Save changes" i18n:attributes="value"/></td>
 	</tr>
 </table>
 </form>

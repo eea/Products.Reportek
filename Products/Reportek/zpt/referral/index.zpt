@@ -30,7 +30,7 @@
             <th valign="top" i18n:translate="">Period</th>
             <td>
               <tal:block tal:condition="python:not here.endyear"><span tal:replace="here/year" /> - <span tal:replace="here/partofyear" /></tal:block>
-              <tal:block tal:condition="here/endyear"><span tal:replace="here/year" /> to <span tal:replace="here/endyear" /></tal:block>
+              <tal:block tal:condition="here/endyear"><span tal:replace="here/year" / i18n:translate=""> to <span tal:replace="here/endyear" /></tal:block>
             </td>
           </tr>
           <tr tal:condition="here/country">

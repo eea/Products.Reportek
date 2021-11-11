@@ -185,7 +185,7 @@ class ManageRoles(BaseAdmin):
 
         users = [acl_users.findUser(search_param=p, search_term=term)
                  for p in params]
-        users = reduce(lambda x, y: x + y, users)
+        users = reduce(lambda x, y: x + y, users)  # noqa: F821
         users = {user.get('uid'): user for user in users}.values()
 
         return users
@@ -199,12 +199,12 @@ class ManageRoles(BaseAdmin):
             for user in ecas_db.values():
                 username = user.username
                 email = user.email
-                if isinstance(username, unicode):
+                if isinstance(username, unicode):  # noqa: F821
                     username = username.encode('utf-8')
-                if isinstance(email, unicode):
+                if isinstance(email, unicode):  # noqa: F821
                     email = email.encode('utf-8')
                 if username:
-                    if isinstance(username, unicode):
+                    if isinstance(username, unicode):  # noqa: F821
                         username = username.encode('utf-8')
                     if term in username:
                         result = {
@@ -322,7 +322,7 @@ class ManageRoles(BaseAdmin):
                 results.append({
                     'entity': member,
                     'path': path,
-                    })
+                })
 
         if results:
             results.sort(key=itemgetter('path'))

@@ -1,11 +1,12 @@
-## Script (Python) "EnvelopeCreateEmptyGMLFile"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
+# flake8: noqa
+# Script (Python) "EnvelopeCreateEmptyGMLFile"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
 ##parameters=filename, title, callcontext
-##title=Art17: Creates a new instance file
+# title=Art17: Creates a new instance file
 ##
 # Notice: Maintain the instancefile in SVN, then cut-and-paste it to here
 # when changed
@@ -76,4 +77,4 @@ xmlns:met="http://biodiversity.eionet.europa.eu/schemas/dir9243eec">
 </gml:FeatureCollection>
 """ % filename
 
-callcontext.manage_addDocument(filename, title, filecontent, 'text/xml','')
+callcontext.manage_addDocument(filename, title, filecontent, 'text/xml', '')

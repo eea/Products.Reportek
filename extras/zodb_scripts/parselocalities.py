@@ -1,13 +1,14 @@
-## Script (Python) "parselocalities"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
-##parameters=triples
-##title=Parse ROD localities
+# flake8: noqa
+# Script (Python) "parselocalities"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
+# parameters=triples
+# title=Parse ROD localities
 ##
-def listsort(s1,s2):
+def listsort(s1, s2):
     if s1['name'] > s2['name']:
         return 1
     elif s1['name'] < s2['name']:
@@ -15,12 +16,14 @@ def listsort(s1,s2):
     else:
         return 0
 
+
 #
-#1. Get all the locality uris in a list
-#2. For each uri get the name and iso.
+# 1. Get all the locality uris in a list
+# 2. For each uri get the name and iso.
 res = []
-#get the obligations from RDFGrabber triples
-obligationspos = triples.query(object='http://rod.eionet.europa.eu/schema.rdf#Locality')
+# get the obligations from RDFGrabber triples
+obligationspos = triples.query(
+    object='http://rod.eionet.europa.eu/schema.rdf#Locality')
 for obl in obligationspos:
     odict = {}
     odict['uri'] = obl['subject']

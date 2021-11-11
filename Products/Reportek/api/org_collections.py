@@ -4,18 +4,19 @@ from Products.Five import BrowserView
 
 
 class OrgCollections(BrowserView):
-    """Organisation collections management view, specific for BDR Registry colls"""
+    """Organisation colls management view, specific for BDR Registry colls"""
 
     def create_organisation_folder(self):
         """Create an organisation folder"""
         self.request.RESPONSE.setHeader("Content-Type", "application/json")
         country_code = self.request.form.get('country_code')
-        obligation_folder_name = self.request.form.get('obligation_folder_name')
+        obligation_folder_name = self.request.form.get(
+            'obligation_folder_name')
         account_uid = self.request.form.get('account_uid')
         organisation_name = self.request.form.get('organisation_name')
 
-
-        dflow_coll = self.context.unrestrictedTraverse('/{}'.format(obligation_folder_name), None)
+        dflow_coll = self.context.unrestrictedTraverse(
+            '/{}'.format(obligation_folder_name), None)
         if not dflow_coll:
             return json.dumps({
                 "success": False,
@@ -68,7 +69,8 @@ class OrgCollections(BrowserView):
         obligation_code = self.request.form.get('obligation_folder_name')
         account = self.request.form.get('account_uid')
         org_name = self.request.form.get('organisation_name')
-        if not country_folder or not obligation_code or not account or not org_name:
+        if (not country_folder or not obligation_code or not account
+                or not org_name):
             self.request.response.setStatus(400)
             return json.dumps({"updated": False})
         if isinstance(org_name, unicode):

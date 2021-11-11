@@ -1,3 +1,4 @@
+# flake8: noqa
 """ Update the Reportek file repository to use ZODB Blob
 
   >>> import update_reposit_blob
@@ -25,6 +26,7 @@ from Products.Reportek import RepUtils
 log = logging.getLogger(__name__)
 
 handler = None
+
 
 def setup_log_handler(level=logging.INFO):
     global handler
@@ -55,7 +57,10 @@ def physicalpath(doc):
     return os.path.join(get_reposit_root(), *filename)
 
 
-_attrib_to_remove = ['filename', 'file_uploaded', '_upload_time', '__version__']
+_attrib_to_remove = ['filename', 'file_uploaded',
+                     '_upload_time', '__version__']
+
+
 def cleanup(doc):
     for name in _attrib_to_remove:
         if hasattr(doc.aq_base, name):
@@ -133,9 +138,9 @@ def convert_all(parent, limit=None, skip=0,
             total_bytes += size
     msg = ("{path} Migrate documents to blob "
            "({objects} items, {bytes} bytes)").format(
-                path=ofs_path(parent),
-                objects=len(out['copied_paths']),
-                bytes=total_bytes)
+        path=ofs_path(parent),
+        objects=len(out['copied_paths']),
+        bytes=total_bytes)
     transaction.get().note(msg)
     if report:
         return dict(out, total_bytes=total_bytes)

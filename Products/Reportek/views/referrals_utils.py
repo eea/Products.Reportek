@@ -20,7 +20,8 @@ class ReferralsUtils(BaseAdmin):
             'true': True,
             'false': False
         }
-        allow_referrals = r_choices.get(self.request.get('allow_referrals', 'any'))
+        allow_referrals = r_choices.get(
+            self.request.get('allow_referrals', 'any'))
         explicit = r_choices.get(self.request.get('explicit', 'any'))
         brains = self.search_catalog(obligations, countries, role='')
         results = []
@@ -66,7 +67,8 @@ class ReferralsUtils(BaseAdmin):
         return json.dumps({"data": results})
 
     def api_update_referrals_status(self):
-        catalog = self.context.restrictedTraverse(constants.DEFAULT_CATALOG, None)
+        catalog = self.context.restrictedTraverse(
+            constants.DEFAULT_CATALOG, None)
         updated = []
         to_update = []
         errors = []
@@ -84,7 +86,9 @@ class ReferralsUtils(BaseAdmin):
                                 'value': value
                             })
                     except Exception as e:
-                        logger.warning("Error changing referral status for RID: {} (Error: {})".format(rid, str(e)))
+                        logger.warning(
+                            '''Error changing referral status for RID: {} '''
+                            '''(Error: {})'''.format(rid, str(e)))
                         errors.append({
                             'rid': rid,
                             'error': str(e)
@@ -102,4 +106,3 @@ class ReferralsUtils(BaseAdmin):
             })
 
         return json.dumps({"updated": updated, "errors": errors})
-

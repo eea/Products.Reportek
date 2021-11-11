@@ -1,10 +1,11 @@
-import unittest
+from common import BaseUnitTest
 from mock import Mock, patch
 from Products.Reportek.negotiator import CustomNegotiator
 from ZPublisher.HTTPRequest import HTTPRequest
 from zope.i18n.negotiator import normalize_lang
 
-class TestCustomNegotiator(unittest.TestCase):
+
+class TestCustomNegotiator(BaseUnitTest):
     # not normalized languages
     AVAILABLE_LANGS = [
         'eN',
@@ -16,6 +17,7 @@ class TestCustomNegotiator(unittest.TestCase):
         u'Rom\xe2n\u0103',
         u'Fran\xe7ais',
     ]
+
     def setUp(self):
         self.negotiator = CustomNegotiator()
 
@@ -55,12 +57,11 @@ class TestCustomNegotiator(unittest.TestCase):
     def test_getAvailableLanguages(self, mock_queryUtility):
         mock_translation_domain = Mock()
         langs_dict = {}
-        for l in self.AVAILABLE_LANGS + ['test']:
-            langs_dict[l] = l
+        for lang in self.AVAILABLE_LANGS + ['test']:
+            langs_dict[lang] = lang
         mock_translation_domain.getCatalogsInfo.return_value = langs_dict
         mock_queryUtility.return_value = mock_translation_domain
         langs = self.negotiator.getAvailableLanguages()
         self.assertEqual(langs, dict(zip(
-            [normalize_lang(l) for l in self.AVAILABLE_LANGS],
+            [normalize_lang(lang) for lang in self.AVAILABLE_LANGS],
             self.AVAILABLE_LANGS_NAME)))
-

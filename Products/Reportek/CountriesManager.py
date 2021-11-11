@@ -18,7 +18,7 @@
 # Contributor(s):
 # Miruna Badescu, Finsiel Romania
 
-""" Module that handles the countries/localities dictionary: localities_table 
+""" Module that handles the countries/localities dictionary: localities_table
 
     'iso': string, 2 letter country code
     'uri': string
@@ -33,7 +33,8 @@ from XMLRPCMethod import XMLRPCMethod
 
 
 class CountriesManager:
-    """ Module that handles the countries/localities dictionary: localities_table """
+    """ Module that handles the countries/localities dictionary"""
+
     def __init__(self):
         self.xmlrpc_localities = XMLRPCMethod(
             title='Get countries from ROD',
@@ -71,10 +72,12 @@ class CountriesManager:
                            timeout=self.cm_timeout,
                            verify=False)
         if res.status_code == 200:
-            prefix = "http://{}/spatial".format(self.cm_rest_url.split('://')[-1].split('/')[0])
+            prefix = "http://{}/spatial".format(
+                self.cm_rest_url.split('://')[-1].split('/')[0])
             countries = [{'iso': c.get('twoLetter'),
                           'name': c.get('name'),
-                          'uri': "{}/{}".format(prefix, c.get('spatialId'))  } for c in res.json()]
+                          'uri': "{}/{}".format(prefix, c.get('spatialId'))
+                          } for c in res.json()]
             return countries
 
     @property
@@ -89,8 +92,7 @@ class CountriesManager:
     def cm_rest_timeout(self):
         return getattr(self, '_cm_rest_timeout', None)
 
-
-    @ram.cache(lambda *args:time() // (60*60*12))
+    @ram.cache(lambda *args: time() // (60*60*12))
     def localities_rod(self):
         """ """
         if self.cm_type == 'cm_rest':

@@ -1,15 +1,15 @@
+# flake8: noqa
 # -*- coding: utf-8 -*-
 # Migrate fgases_xml
 # Run them from within debug mode like so:
-#  >>> from Products.Reportek.updates import u20180307_migrate_double_fgases_xml; u20180307_migrate_double_fgases_xml.update(app)
+#  >>> from Products.Reportek.updates import\
+#    u20180307_migrate_double_fgases_xml
+#  >>> u20180307_migrate_double_fgases_xml.update(app)
 
-from decimal import Decimal
-from Products.Reportek.blob import add_OfsBlobFile
 from Products.Reportek.config import DEPLOYMENT_BDR
 from Products.Reportek.updates import MigrationBase
 import logging
 import lxml.etree
-import requests
 import transaction
 
 logger = logging.getLogger(__name__)
@@ -52,7 +52,8 @@ def has_backup(app, xml):
     env_path = xml.split(xml_filename)[0]
     env = app.unrestrictedTraverse(env_path)
     folder_name = '_'.join([env.company_id, env_path.split('/')[-2]])
-    bck_xml_file = '/'.join(['/backed_up_double_gases_xml', folder_name, xml_filename])
+    bck_xml_file = '/'.join(['/backed_up_double_gases_xml',
+                             folder_name, xml_filename])
 
     if app.unrestrictedTraverse(bck_xml_file, None):
         return True
@@ -111,11 +112,9 @@ def save_xml(old_xml, new_xml):
 def migrate_fgases_xml(app):
     for xml in ALL_XML_LIST:
         xml_filename = xml.split('/')[-1]
-        env_path = xml.split(xml_filename)[0]
-        env = app.unrestrictedTraverse(env_path)
         try:
             xml_file = app.unrestrictedTraverse(xml)
-        except Exception as e:
+        except Exception:
             log_msg('Unable to get xml file: {}'.format(xml))
             continue
         fixed_xml = None
@@ -136,7 +135,8 @@ def migrate_fgases_xml(app):
                 back_it_up(app, xml)
             fixed_xml = remove_unreported_gases(root)
             if fixed_xml is not None:
-                log_msg("Removed unreported gases for F8_S12 in: {}".format(xml))
+                log_msg("Removed unreported gases for F8_S12 in: {}".format(
+                    xml))
                 root = fixed_xml
         if fixed_xml is not None:
             save_xml(xml_file, fixed_xml)

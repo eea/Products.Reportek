@@ -61,12 +61,12 @@
               <th style="width: 16px" tal:condition="permission_chgcoll" />
               <th style="width: 18px" />
               <th></th>
-              <th tal:condition="bdr_has_envs" class="tcenter additional-env-info">Reporting year</th>
-              <th tal:condition="bdr_has_envs" class="tcenter additional-env-info">Status</th>
-              <th tal:condition="bdr_has_envs" class="tcenter additional-env-info">Acceptability</th>
-              <th tal:condition="python: envs and not isBdrDeployment" class="tcenter additional-env-info" style="width: 25%"> Envelope status</th>
+              <th tal:condition="bdr_has_envs" class="tcenter additional-env-info" i18n:translate="">Reporting year</th>
+              <th tal:condition="bdr_has_envs" class="tcenter additional-env-info" i18n:translate="">Status</th>
+              <th tal:condition="bdr_has_envs" class="tcenter additional-env-info" i18n:translate="">Acceptability</th>
+              <th tal:condition="python: envs and not isBdrDeployment" class="tcenter additional-env-info" style="width: 25%" i18n:translate=""> Envelope status</th>
               <th style="width: 7em" class="tcenter">
-                <span tal:condition="isBdrDeployment">Updated</span>
+                <span tal:condition="isBdrDeployment" i18n:translate="">Updated</span>
               </th>
             </thead>
             <tbody tal:condition="visible">
@@ -81,7 +81,7 @@
                   <td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Collection" i18n:attributes="alt" /></td>
                   <td>
                     <a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" />
-                    <img tal:condition="item/restricted" src="misc_/Reportek/lockicon_gif" alt="Padlock" width="16" height="16" />
+                    <img tal:condition="item/restricted" src="misc_/Reportek/lockicon_gif" alt="Padlock" width="16" height="16" i18n:attributes="alt" />
                   </td>
                   <tal:block tal:condition="envs">
                     <td tal:condition="isBdrDeployment"></td>
@@ -162,10 +162,10 @@
             </tbody>
           </table>
           <tal:block tal:condition="permission_chgcoll">
-            <input type="submit" class="fileop" name="manage_cutObjects:method" value="Cut" title="Select some files to cut them" i18n:attributes="value,title" />
-            <input type="submit" class="fileop" name="manage_copyObjects:method" value="Copy" title="Select some files to copy them" i18n:attributes="value,title" />
-            <input tal:condition="here/cb_dataValid" type="submit" class="fileop" name="manage_pasteObjects:method" value="Paste" title="Paste previously selected files to this envelope" i18n:attributes="value,title" />
-            <input type="submit" class="fileop" name="manage_delObjects:method" value="Delete" title="Select some files to delete them" i18n:attributes="value,title" />
+            <input type="submit" class="fileop" name="manage_cutObjects:method" value="Cut" title="Select some files to cut them" i18n:attributes="value; title" />
+            <input type="submit" class="fileop" name="manage_copyObjects:method" value="Copy" title="Select some files to copy them" i18n:attributes="value; title" />
+            <input tal:condition="here/cb_dataValid" type="submit" class="fileop" name="manage_pasteObjects:method" value="Paste" title="Paste previously selected files to this envelope" i18n:attributes="value; title" />
+            <input type="submit" class="fileop" name="manage_delObjects:method" value="Delete" title="Select some files to delete them" i18n:attributes="value; title" />
           </tal:block>
         </div>
       </form>

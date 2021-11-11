@@ -1,11 +1,12 @@
-## Script (Python) "test_ping"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
-##parameters=
-##title=
+# flake8: noqa
+# Script (Python) "test_ping"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
+# parameters=
+# title=
 ##
 # Example code:
 

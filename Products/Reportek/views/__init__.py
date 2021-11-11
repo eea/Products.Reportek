@@ -1,3 +1,4 @@
+# flake8: noqa
 from statistics import Statistics
 
 from api import ReportekApi

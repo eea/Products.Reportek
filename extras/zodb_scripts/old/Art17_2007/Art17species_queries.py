@@ -1,17 +1,19 @@
-## Script (Python) "Art17species_queries"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
+# flake8: noqa
+# Script (Python) "Art17species_queries"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
 ##parameters=query_number, query_text=''
-##title=Art 17: Return selections from the species list
+# title=Art 17: Return selections from the species list
 ##
 species_list = container.Art17species()
 
+
 def execute_query(q_number, query_text):
     if q_number == 1:
-        #returns: {GROUP:(SPECNUM, SPECNAME)} if ANNEX_II or ANNEX_IV or ANNEXV
+        # returns: {GROUP:(SPECNUM, SPECNAME)} if ANNEX_II or ANNEX_IV or ANNEXV
         res = {}
         for spec in species_list:
             if spec[6] or spec[7] or spec[8]:
@@ -20,7 +22,7 @@ def execute_query(q_number, query_text):
                 else:
                     res[spec[0]] = [(spec[4], spec[3])]
     if q_number == 2:
-        #returns: {GROUP:(SPECNUM, SPECNAME)} if ANNEX_II or ANNEX_IV or ANNEXV containing QUERY_TEXT
+        # returns: {GROUP:(SPECNUM, SPECNAME)} if ANNEX_II or ANNEX_IV or ANNEXV containing QUERY_TEXT
         res = {}
         query_text = query_text.lower()
         for spec in species_list:
@@ -30,10 +32,11 @@ def execute_query(q_number, query_text):
                 else:
                     res[spec[0]] = [(spec[4], spec[3])]
     if q_number == 3:
-        #returns: (SPECNUM, SPECNAME) if ANNEX_II or ANNEX_IV or ANNEXV
-        res = [(spec[4],spec[3]) for spec in species_list if spec[6] or spec[7] or spec[8]]
+        # returns: (SPECNUM, SPECNAME) if ANNEX_II or ANNEX_IV or ANNEXV
+        res = [(spec[4], spec[3])
+               for spec in species_list if spec[6] or spec[7] or spec[8]]
     if q_number == 4:
-        #returns: {GROUP:(SPECNUM, SPECNAME)} if ANNEX_IV containing QUERY_TEXT
+        # returns: {GROUP:(SPECNUM, SPECNAME)} if ANNEX_IV containing QUERY_TEXT
         res = {}
         query_text = query_text.lower()
         for spec in species_list:
@@ -43,7 +46,7 @@ def execute_query(q_number, query_text):
                 else:
                     res[spec[0]] = [(spec[4], spec[3])]
     if q_number == 5:
-        #returns: {GROUP:(SPECNUM, SPECNAME)} if ANNEX_V containing QUERY_TEXT
+        # returns: {GROUP:(SPECNUM, SPECNAME)} if ANNEX_V containing QUERY_TEXT
         res = {}
         query_text = query_text.lower()
         for spec in species_list:
@@ -53,7 +56,7 @@ def execute_query(q_number, query_text):
                 else:
                     res[spec[0]] = [(spec[4], spec[3])]
     if q_number == 6:
-        #returns: {GROUP:(SPECNUM, SPECNAME)} if ANNEX_IV or ANNEX_V containing QUERY_TEXT
+        # returns: {GROUP:(SPECNUM, SPECNAME)} if ANNEX_IV or ANNEX_V containing QUERY_TEXT
         res = {}
         query_text = query_text.lower()
         for spec in species_list:
@@ -64,5 +67,6 @@ def execute_query(q_number, query_text):
                     res[spec[0]] = [(spec[4], spec[3])]
 
     return res
+
 
 return execute_query(query_number, query_text)

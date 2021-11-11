@@ -8,7 +8,8 @@
         This page displays all the history of tasks that have executed in this envelope.
         If you want to see more details about a task, just expand the <img
           src="/misc_/Reportek/plus_gif" alt="Expand item for more information"
-          i18n:name="plus-icon"/> icon next to it.
+          i18n:name="plus-icon"
+          i18n:attributes="alt alt-expand-item"/> icon next to it.
     </p>
 
     <table cellpadding="2" cellspacing="2">
@@ -23,7 +24,7 @@
                           request['QUERY_STRING'], 'w' + item.id, '0'
                         )"
             tal:attributes="href string:${url0}?${query_string}">
-            <img src="/misc_/Reportek/minus_gif" alt="Collapse item" />
+            <img src="/misc_/Reportek/minus_gif" alt="Collapse item" i18n:attributes="alt alt-collapse-item"/>
           </a>
         </td>
         <td><strong tal:condition="activity_name" tal:content="activity_name"></strong>
@@ -33,8 +34,9 @@
                     style="color:red;">replace activity name</strong>
             (<span tal:define="date python:item.lastActivityDate().strftime('%Y/%m/%d')"
                    tal:replace="string:${item/status} ${date}"></span>
-           <span tal:condition="python:item.actor not in ['', 'Anonymous
-             User', 'openflow_engine']" tal:content="string: by ${item/actor}"></span>)
+           <span 
+             tal:condition="python:item.actor not in ['', 'Anonymous User', 'openflow_engine']"
+             tal:content="string: by ${item/actor}"></span>)
           <div tal:replace="structure item/workitemDetails"/>
         </td>
         </tal:block>
@@ -48,7 +50,7 @@
                           )"
               tal:attributes="href string:${url0}?${query_string}">
               <img src="/misc_/Reportek/plus_gif"
-              alt="Expand item for more information" border="0" />
+              alt="Expand item for more information" border="0" i18n:attributes="alt alt-expand-item"/>
             </a>
           </td>
           <td><strong tal:condition="activity_name" tal:content="activity_name"></strong>
@@ -58,8 +60,9 @@
                     style="color:red;"> replace with activity name</strong>
             (<span tal:define="date python:item.lastActivityDate().strftime('%Y/%m/%d')"
                    tal:replace="string:${item/status} ${date}"></span>
-             <span tal:condition="python:item.actor not in ['', 'Anonymous
-               User', 'openflow_engine']" tal:content="string: by ${item/actor}"></span>)
+             <span 
+               tal:condition="python:item.actor not in ['', 'Anonymous User', 'openflow_engine']"
+               tal:content="string: by ${item/actor}"></span>)
           </td>
         </tal:block>
 

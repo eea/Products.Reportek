@@ -69,7 +69,8 @@ class RolesMGMTAPI(BrowserView):
                     else:
                         error = {
                             'title': 'Error',
-                            'description': 'Collection not found: {}'.format(c_path)
+                            'description': 'Collection not found: {}'.format(
+                                c_path)
                         }
                         res['errors'].append(error)
             else:

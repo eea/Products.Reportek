@@ -1,6 +1,6 @@
-#this is meant to be run from instance debug
-#>>> from Products.Reportek.updates import cleanup_admin_utilities
-#>>> cleanup_admin_utilities.update(app)
+# this is meant to be run from instance debug
+# >>> from Products.Reportek.updates import cleanup_admin_utilities
+# >>> cleanup_admin_utilities.update(app)
 import transaction
 
 __all__ = ['update']
@@ -30,6 +30,6 @@ def update(app):
         do_cleanup(app)
         trans.note('Cleanup admin utilities %s' % app.absolute_url(1))
         trans.commit()
-    except:
+    except Exception:
         trans.abort()
         raise

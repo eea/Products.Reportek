@@ -1,4 +1,7 @@
 /*global $*/
+/*global document*/
+/*global window*/
+/*jslint browser:true */
 "use strict";
 if (window.reportek === undefined) {
   var reportek = {
@@ -22,7 +25,7 @@ reportek.utils.fcs = {
       var self = reportek.utils.fcs;
       self.domain = $("#domain").val();
       self.update_domain_param();
-      self.companies_url = self.base_url + self.endpoints['companies'];
+      self.companies_url = self.base_url + self.endpoints.companies;
       self.init_companies();
       self.init_matched_companies();
       self.init_approval_log();
@@ -74,13 +77,13 @@ reportek.utils.fcs = {
         self.tbl = $("#comp-table").DataTable({
           "iDisplayLength": 20,
           "language": {
-              processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>",
+              processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>"
           },
           "ajax": {
             "url": self.tbl_endpoint,
             "contentType": "application/json",
             "type": "GET",
-            "dataSrc":"",
+            "dataSrc":""
           },
           "drawCallback": function( settings ) {
             self.handle_domain_change();
@@ -144,13 +147,13 @@ reportek.utils.fcs = {
         self.tbl = $("#stocks-table").DataTable({
           "iDisplayLength": 20,
           "language": {
-              processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>",
+              processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>"
           },
           "ajax": {
             "url": self.tbl_endpoint,
             "contentType": "application/json",
             "type": "GET",
-            "dataSrc":"",
+            "dataSrc":""
           },
           "drawCallback": function( settings ) {
             self.handle_domain_change();
@@ -177,7 +180,7 @@ reportek.utils.fcs = {
             { "mData": "code" },
             { "mData": "company_name" },
             { "mData": "result" }
-          ],
+          ]
         });
       }
       if ($("#stocks-company-table").length){
@@ -185,13 +188,13 @@ reportek.utils.fcs = {
         self.tbl = $("#stocks-company-table").DataTable({
           "iDisplayLength": 20,
           "language": {
-              processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>",
+              processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>"
           },
           "ajax": {
             "url": self.tbl_endpoint,
             "contentType": "application/json",
             "type": "GET",
-            "dataSrc":"",
+            "dataSrc":""
           },
           "drawCallback": function( settings ) {
             self.handle_domain_change();
@@ -206,7 +209,7 @@ reportek.utils.fcs = {
             { "mData": "type" },
             { "mData": "is_virgin" },
             { "mData": "result" }
-          ],
+          ]
         });
       }
       if ($("#licences-company-table").length){
@@ -214,13 +217,13 @@ reportek.utils.fcs = {
         self.tbl = $("#licences-company-table").DataTable({
           "iDisplayLength": 20,
           "language": {
-              processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>",
+              processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>"
           },
           "ajax": {
             "url": self.tbl_endpoint,
             "contentType": "application/json",
             "type": "GET",
-            "dataSrc":"",
+            "dataSrc":""
           },
           "drawCallback": function( settings ) {
             self.handle_domain_change();
@@ -237,8 +240,8 @@ reportek.utils.fcs = {
             { "mData": "use_kind" },
             { "mData": "use_desc" },
             { "mData": "type" },
-            { "mData": "quantity" },
-          ],
+            { "mData": "quantity" }
+          ]
         });
       }
       if ($("#paus-company-table").length){
@@ -246,13 +249,13 @@ reportek.utils.fcs = {
         self.tbl = $("#paus-company-table").DataTable({
           "iDisplayLength": 20,
           "language": {
-              processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>",
+              processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>"
           },
           "ajax": {
             "url": self.tbl_endpoint,
             "contentType": "application/json",
             "type": "GET",
-            "dataSrc":"",
+            "dataSrc":""
           },
           "drawCallback": function( settings ) {
             self.handle_domain_change();
@@ -268,8 +271,8 @@ reportek.utils.fcs = {
             { "mData": "process_name" },
             { "mData": "pau_use" },
             { "mData": "value" },
-            { "mData": "type" },
-          ],
+            { "mData": "type" }
+          ]
         });
       }
     },
@@ -280,13 +283,13 @@ reportek.utils.fcs = {
         self.tbl = $('#matching-table').DataTable({
             "iDisplayLength": 20,
             "language": {
-                processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>",
+                processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-companies'>Processing...</div>"
             },
             "ajax": {
               "url": self.tbl_endpoint,
               "contentType": "application/json",
               "type": "GET",
-              "dataSrc":"",
+              "dataSrc":""
             },
             "processing": true,
             "aoColumns": [
@@ -307,11 +310,11 @@ reportek.utils.fcs = {
               },
               {
                 "width": "20%",
-                "targets": 1,
+                "targets": 1
               },
               {
                 "width": "40%",
-                "targets": 2,
+                "targets": 2
               }
             ],
             "order": [[ 0, "asc" ]]
@@ -325,13 +328,13 @@ reportek.utils.fcs = {
         self.tbl = $('#approval-table').DataTable({
             "iDisplayLength": 20,
             "language": {
-                processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-approval'>Processing...</div>",
+                processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-approval'>Processing...</div>"
             },
             "ajax": {
               "url": self.tbl_endpoint,
               "contentType": "application/json",
               "type": "GET",
-              "dataSrc":"",
+              "dataSrc":""
             },
             "processing": true,
             "aoColumns": [
@@ -339,8 +342,7 @@ reportek.utils.fcs = {
               { "data": "verified" },
               { "data": "user" },
               { "data": "timestamp" },
-              { "data": "oldcompany_account" },
-
+              { "data": "oldcompany_account" }
             ],
             "columnDefs": [
               {
@@ -354,15 +356,15 @@ reportek.utils.fcs = {
               },
               {
                 "width": "20%",
-                "targets": 1,
+                "targets": 1
               },
               {
                 "width": "20%",
-                "targets": 2,
+                "targets": 2
               },
               {
                 "width": "20%",
-                "targets": 3,
+                "targets": 3
               },
               {
                 "width": "20%",
@@ -378,7 +380,7 @@ reportek.utils.fcs = {
                                          domain: full.domain }, function(data){
                       locked = data;
                     } );
-                    result = "<a class='test_button' href='"
+                    result = "<a class='test_button' href='";
                     if (locked) {
                       result += "unlockCompany?company_id=" + full.company_id + "&old_collection_id=" + full.oldcompany_account + "&country_code=" + full.country_code + "&domain=" + full.domain + "&user=" + full.user + "&came_from=" + window.location.href + "'>Unlock</a><br/>";
                     } else {
@@ -387,7 +389,7 @@ reportek.utils.fcs = {
                   }
                   return result;
                 }
-              },
+              }
             ],
             "order": [[ 0, "asc" ]]
         });
@@ -400,38 +402,38 @@ reportek.utils.fcs = {
         self.tbl = $('#synclog-table').DataTable({
             "iDisplayLength": 20,
             "language": {
-                processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-synclog'>Processing...</div>",
+                processing: "<div class='fcs-loader-container'><img src='++resource++static/ajax-loader.gif' class='fcs-table-loader fcs-table-loader-synclog'>Processing...</div>"
             },
             "ajax": {
               "url": self.tbl_endpoint,
               "contentType": "application/json",
               "type": "GET",
-              "dataSrc":"",
+              "dataSrc":""
             },
             "processing": true,
             "aoColumns": [
               { "data": "execution_time" },
               { "data": "organizations" },
-              { "data": "using_last_update" },
+              { "data": "using_last_update" }
             ],
             "columnDefs": [
               {
                 "width": "40%",
-                "targets": 0,
+                "targets": 0
               },
               {
                 "width": "20%",
-                "targets": 1,
+                "targets": 1
               },
               {
                 "width": "40%",
-                "targets": 2,
+                "targets": 2
               }
             ],
             "order": [[ 0, "asc" ]]
         });
       }
-    },
+    }
 };
 
 $(document).ready(function () {

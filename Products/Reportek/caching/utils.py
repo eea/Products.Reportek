@@ -14,6 +14,7 @@ from zope.annotation.interfaces import IAnnotations
 from zope.component import getUtility
 
 LASTMODIFIED_ANNOTATION_KEY = 'plone.app.caching.operations.lastmodified'
+PAGE_CACHE_KEY = "plone.app.caching.operations.ramcache"
 _marker = object()
 
 logger = logging.getLogger('Products.Reportek.caching')
@@ -287,7 +288,6 @@ def isModified(request, lastModified=None):
     if ifModifiedSince is None and ifNoneMatch is None:
         return True
 
-
     # Check the modification date
     if ifModifiedSince and lastModified is not None:
 
@@ -395,8 +395,8 @@ def parseDateTime(str):
 
 
 def getLastModifiedAnnotation(published, request, lastModified=True):
-    """Try to get the last modified date from a request annotation if available,
-    otherwise try to get it from published object
+    """Try to get the last modified date from a request annotation if
+    available, otherwise try to get it from published object
     """
 
     if not lastModified:

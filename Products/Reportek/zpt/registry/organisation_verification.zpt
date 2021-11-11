@@ -12,22 +12,22 @@
   <metal:block fill-slot="content">
     <tal:block define="company view/get_company_details">
       <tal:block tal:condition="python: company and not company['oldcompany_verified']">
-        <p class="error-msg" tal:condition="options/error | nothing">
+        <p class="error-msg" tal:condition="options/error | nothing" i18n:translate="">
           Operation didn't succeed.
         </p>
 
         <div id="operations">
           <ul>
             <li>
-              <a tal:attributes="href string:${here/absolute_url}/organisation_matching">Back</a>
+              <a tal:attributes="href string:${here/absolute_url}/organisation_matching" i18n:translate="">Back</a>
             </li>
           </ul>
         </div>
 
-        <h1>Company matching</h1>
+        <h1 i18n:translate="">Company matching</h1>
         <hr/>
 
-        <p>
+        <p i18n:translate="">
           Company details (as registered in the
           <a tal:attributes="href view/get_url">FGAS and ODS portal</a>)
           and match it with the old record from
@@ -36,7 +36,7 @@
           If no record matches, please select “New company”.
         </p>
 
-        <p>
+        <p i18n:translate="">
           If you want to revert a change please contact
           <a href="mailto:BDR.helpdesk@eea.europa.eu">BDR Helpdesk</a>.
         </p>
@@ -47,15 +47,15 @@
             <tal:block metal:use-macro="here/partials/macros/organisation_details" />
           </div>
 
-          <h2>Company candidates</h2>
-          <p>Please choose one of the following companies to match.</p>
+          <h2 i18n:translate="">Company candidates</h2>
+          <p i18n:translate="">Please choose one of the following companies to match.</p>
 
           <form method="post">
             <tal:block condition="company/candidates"
                        repeat="candidate company/candidates">
               <tal:block metal:use-macro="here/partials/macros/short_organisation_details" />
             </tal:block>
-            <div class="company-header clearfix">
+            <div class="company-header clearfix" i18n:translate="">
               <label class="btn btn-default pull-left" for="none">
                 <input type="radio" name="cid" value="none" id="none">
                 None of the above
@@ -65,7 +65,7 @@
                    tal:attributes="value string:${company/company_id}">
             <hr/>
             <input type="hidden" name="user" tal:attributes="value request/AUTHENTICATED_USER" />
-            <input type="submit" name="verify.btn" value="Approve company" />
+            <input type="submit" name="verify.btn" value="Approve company" i18n:attributes="value btn-approve-company"/>
           </form>
         </tal:block>
 
@@ -82,8 +82,8 @@
       </tal:block>
 
       <div class="warning-msg" tal:condition="python: not company or company['oldcompany_verified']">
-        <strong>Error</strong>
-        <p>No company found.</p>
+        <strong i18n:translate="">Error</strong>
+        <p i18n:translate="">No company found.</p>
       </div>
 
     </tal:block>

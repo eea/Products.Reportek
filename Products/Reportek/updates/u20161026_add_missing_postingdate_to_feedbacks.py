@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 # Add missing postingdates to feedbacks
 # Run them from within debug mode like so:
-#  >>> from Products.Reportek.updates import u20161026_add_missing_postingdate_to_feedbacks; u20161026_add_missing_postingdate_to_feedbacks.update(app)
+#  >>> from Products.Reportek.updates import\
+#    u20161026_add_missing_postingdate_to_feedbacks
+#  >>> u20161026_add_missing_postingdate_to_feedbacks.update(app)
 
 from Products.Reportek.updates import MigrationBase
 from Products.Reportek.config import DEPLOYMENT_CDR
@@ -38,17 +40,23 @@ def get_posting_date(obj):
         last_qa = get_last_qa(obj)
         if last_qa:
             postingdate = get_last_evtlog_time(last_qa)
-        logger.info('{} looks like an AutomaticQA feedback, getting postingdate from the last Automatic QA workitem'.format(obj.absolute_url()))
+        logger.info('{} looks like an AutomaticQA feedback, getting\
+                     postingdate from the last Automatic QA workitem'.format(
+            obj.absolute_url()))
     elif not obj.automatic:
         last_wk = obj.getListOfWorkitems()[-1]
         postingdate = get_last_evtlog_time(last_wk)
-        logger.info('{} looks like a manual feedback, getting postingdate from the last workitem'.format(obj.absolute_url()))
+        logger.info('{} looks like a manual feedback, getting postingdate\
+                     from the last workitem'.format(
+            obj.absolute_url()))
     else:
         drafts = [wk for wk in obj.getListOfWorkitems()
                   if wk.activity_id == 'Draft']
         last_draft = drafts[-1]
         postingdate = get_last_evtlog_time(last_draft)
-        logger.info('{} looks like a conversion log, getting postingdate from the last draft workitem'.format(obj.absolute_url()))
+        logger.info('{} looks like a conversion log, getting postingdate\
+                     from the last draft workitem'.format(
+            obj.absolute_url()))
     return postingdate
 
 
@@ -85,7 +93,8 @@ def rebuild_tempc(app, tempc):
         try:
             fb = brain.getObject()
         except Exception as e:
-            logger.error('Unable to retrieve object: {} due to {}'.format(brain.getURL(), str(e)))
+            logger.error('Unable to retrieve object: {} due to {}'.format(
+                brain.getURL(), str(e)))
         if fb:
             tempc.catalog_object(fb, '/'.join(fb.getPhysicalPath()))
         if count % 10000 == 0:
@@ -109,7 +118,8 @@ def add_missing_postingdate(app):
         try:
             obj = brain.getObject()
         except Exception as e:
-            logger.error('Unable to retrieve object: {} due to {}'.format(brain.getURL(), str(e)))
+            logger.error('Unable to retrieve object: {} due to {}'.format(
+                brain.getURL(), str(e)))
         if obj:
             if obj.postingdate != brain.postingdate:
                 new_postingdate = get_posting_date(obj)

@@ -1,3 +1,4 @@
+# flake8: noqa
 # -*- coding: utf-8 -*-
 # Generate hash for files
 # Run them from within debug mode like so:
@@ -48,9 +49,11 @@ def unrestrict_docs(app):
                 transaction.commit()
                 results.append(doc.absolute_url())
         except Exception as e:
-            log_msg('Unable to unrestrict: {} due to: {}'.format(doc.absolute_url(), str(e)))
+            log_msg('Unable to unrestrict: {} due to: {}'.format(
+                doc.absolute_url(), str(e)))
 
-    log_msg("Successfully unrestricted: {} files.\n{}".format(len(results), results))
+    log_msg("Successfully unrestricted: {} files.\n{}".format(
+        len(results), results))
     return True
 
 

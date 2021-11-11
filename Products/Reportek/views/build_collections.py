@@ -1,12 +1,10 @@
-from collections import defaultdict
-from operator import itemgetter
-
 from base_admin import BaseAdmin
 from Products.Reportek.constants import ENGINE_ID
 
 
 class BuildCollections(BaseAdmin):
     """ View for build collections page"""
+
     def __init__(self, *args, **kwargs):
         super(BuildCollections, self).__init__(*args, **kwargs)
 
@@ -39,15 +37,18 @@ class BuildCollections(BaseAdmin):
 
         for iso in countries:
             # get country uri
-            country = filter(lambda c: c.get('iso') == iso, self.localities_rod)[0]
+            country = filter(lambda c: c.get('iso') ==
+                             iso, self.localities_rod)[0]
             if country:
                 target_path = str(country['iso'].lower())
                 try:
                     if pattern:
                         pattern = engine.clean_pattern(pattern)
-                        target_path = '/'.join([str(country['iso'].lower()), pattern])
+                        target_path = '/'.join(
+                            [str(country['iso'].lower()), pattern])
 
-                    target = engine.getPhysicalRoot().restrictedTraverse(target_path)
+                    target = engine.getPhysicalRoot().restrictedTraverse(
+                        target_path)
                     kwargs = {
                         'allow_collections': allow_collections,
                         'allow_envelopes': allow_envelopes,
@@ -59,7 +60,7 @@ class BuildCollections(BaseAdmin):
                                                 obligations, **kwargs)
                     messages['success'].append(country['name'])
                 except KeyError:
-                    err = "{0}: the specified path does not exist [{1}]".format(
-                        country['name'], target_path)
+                    err = ('''{0}: the specified path does not exist '''
+                           '''[{1}]'''.format(country['name'], target_path))
                     messages['fail'].append(err)
         return self.index(messages=messages)

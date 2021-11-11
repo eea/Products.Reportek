@@ -5,7 +5,7 @@
     <tal:block tal:define="workitem_id python:request.get('workitem_id', None)">
 
       <tal:block tal:condition="workitem_id">
-        <p>
+        <p i18n:translate="">
           You can chooose an activity of the current process: a new workitem will be created for the specified activity.
           The new workitem will be linked to the fallen out workitem <em><strong tal:content="workitem_id" /></em> of the current container.
         </p>
@@ -15,8 +15,8 @@
         <input type="hidden" name="workitem_id" tal:attributes="value workitem_id" />
         <table cellspacing="2" cellpadding="2" border="0">
           <tr>
-            <th bgcolor="#dfdfdf">Process</th>
-            <th bgcolor="#dfdfdf">Activity</th>
+            <th bgcolor="#dfdfdf" i18n:translate="">Process</th>
+            <th bgcolor="#dfdfdf" i18n:translate="">Activity</th>
           </tr>
           <tr tal:define="process here/getProcess">
             <td tal:content="python:process.absolute_url(1)" />
@@ -25,14 +25,14 @@
                 <option tal:repeat="item python:process.objectValues(['Activity'])" tal:attributes="value item/id" tal:content="item/id" />
               <select>
             </td>
-            <td><input type="submit" value="Fallin" /></td>
+            <td><input type="submit" value="Fallin" i18n:attributes="value btn-fallin"/></td>
           </tr>
         </table>
         </form>
       </tal:block>
 
       <tal:block tal:condition="python:not workitem_id">
-        <p>You must specify an workitem id.</p>
+        <p i18n:translate="">You must specify an workitem id.</p>
       </tal:block>
 
     </tal:block>

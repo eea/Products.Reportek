@@ -1,50 +1,50 @@
 <span tal:replace="structure context/manage_page_header" />
 <span tal:replace="structure context/manage_tabs" />
 
-<p class="form-help">To change property values, edit the values and click "Save changes".</p>
+<p class="form-help" i18n:translate="">To change property values, edit the values and click "Save changes".</p>
 
 <form action="manage_settings" method="post">
 <table border="0" cellpadding="2" cellspacing="0">
 	<tr>
-		<td style="vertical-align: top;"><label for="title" class="form-optional">Title</label></td>
+		<td style="vertical-align: top;"><label for="title" class="form-optional" i18n:translate="">Title</label></td>
 		<td><input type="text" name="title" id="title" tal:attributes="value here/title" size="35" /></td>
 	</tr>
 	<tr>
-		<td style="vertical-align: top;"><label for="description" class="form-optional">Description</label></td>
+		<td style="vertical-align: top;"><label for="description" class="form-optional" i18n:translate="">Description</label></td>
 		<td style="vertical-align: top;"><textarea name="description" id="description" cols="50" rows="4" tal:content="here/description"></textarea></td>
 	</tr>
 	<tr>
-		<td style="vertical-align: top;"><label for="convert_url" class="form-label">Converter path</label></td>
-		<td><input type="text" name="convert_url" id="convert_url" tal:attributes="value here/convert_url" size="50" />(e.g. <em>pdftotext -raw %s -</em>)</td>
+		<td style="vertical-align: top;"><label for="convert_url" class="form-label" i18n:translate="">Converter path</label></td>
+		<td><input type="text" name="convert_url" id="convert_url" tal:attributes="value here/convert_url" size="50" /><span i18n:translate="">(e.g. <em>pdftotext -raw %s -</em>)</span></td>
 	</tr>
 	<tr>
-		<td style="vertical-align: top;"><label for="ct_input" class="form-optional">Content-Type input</label></td>
-		<td style="vertical-align: top;"><input type="text" name="ct_input" id="ct_input" size="25" tal:attributes="value here/ct_input" />(e.g. <em>application/pdf</em>)</td>
+		<td style="vertical-align: top;"><label for="ct_input" class="form-optional" i18n:translate="">Content-Type input</label></td>
+		<td style="vertical-align: top;"><input type="text" name="ct_input" id="ct_input" size="25" tal:attributes="value here/ct_input" /><span i18n:translate="">(e.g. <em>application/pdf</em>)</span></td>
 	</tr>
 	<tr>
-		<td style="vertical-align: top;"><label for="suffix" class="form-optional">Filename suffix</label></td>
-		<td style="vertical-align: top;"><input type="text" name="suffix" id="suffix" size="10" tal:attributes="value here/suffix" />(<em>Match on file's suffix</em>)</td>
+		<td style="vertical-align: top;"><label for="suffix" class="form-optional" i18n:translate="">Filename suffix</label></td>
+		<td style="vertical-align: top;"><input type="text" name="suffix" id="suffix" size="10" tal:attributes="value here/suffix" />(<em i18n:translate="">Match on file's suffix</em>)</td>
 	</tr>
 	<tr>
-		<td style="vertical-align: top;"><label for="ct_schema" class="form-optional">XML schema</label></td>
-		<td style="vertical-align: top;"><input type="text" name="ct_schema" id="ct_schema" size="40" tal:attributes="value here/ct_schema" />(<em>Only for XML files</em>)</td>
+		<td style="vertical-align: top;"><label for="ct_schema" class="form-optional" i18n:translate="">XML schema</label></td>
+		<td style="vertical-align: top;"><input type="text" name="ct_schema" id="ct_schema" size="40" tal:attributes="value here/ct_schema" />(<em i18n:translate="">Only for XML files</em>)</td>
 	</tr>
 	<tr>
-		<td style="vertical-align: top;"><label for="ct_output" class="form-label">Content-Type output</label></td>
-		<td style="vertical-align: top;"><input type="text" name="ct_output" id="ct_output" size="25" tal:attributes="value here/ct_output" />(e.g. <em>text/plain</em>)</td>
+		<td style="vertical-align: top;"><label for="ct_output" class="form-label" i18n:translate="">Content-Type output</label></td>
+		<td style="vertical-align: top;"><input type="text" name="ct_output" id="ct_output" size="25" tal:attributes="value here/ct_output" /><span i18n:translate="">(e.g. <em>text/plain</em>)</span></td>
 	</tr>
 	<tr>
-		<td colspan="2">Define the values for the extra parameters to be evaluated as Python expressions in the exact order as they appear in the converter function called. You can use '<code>file_obj</code>' as file context and '<code>converter_obj<code>' as the converter context. (e.g. <code>file_obj.getParentNode().getCountryCode()</code>)</td>
+		<td colspan="2" i18n:translate="">Define the values for the extra parameters to be evaluated as Python expressions in the exact order as they appear in the converter function called. You can use '<code>file_obj</code>' as file context and '<code>converter_obj<code>' as the converter context. (e.g. <code>file_obj.getParentNode().getCountryCode()</code>)</td>
 	</tr>
 	<tr>
-		<td style="vertical-align: top;"><label for="ct_extraparams" class="form-optional">Extra parameters</label></td>
+		<td style="vertical-align: top;"><label for="ct_extraparams" class="form-optional" i18n:translate="">Extra parameters</label></td>
 		<td style="vertical-align: top;">
 			<textarea name="ct_extraparams" rows="5" id="ct_extraparams" rows="5" cols="40" style="float: left" tal:content="here/getExtraParameters"></textarea>
 		</td>
 	</tr>
 	<tr>
 		<td></td>
-		<td><input type="submit" value="Save changes" /></td>
+		<td><input type="submit" value="Save changes" i18n:attributes="value" /></td>
 	</tr>
 </table>
 

@@ -9,7 +9,7 @@ logger = logging.getLogger("Reportek")
 
 __all__ = [
     'BdrAuthorizationMiddleware'
-    ]
+]
 
 
 class BdrAuthorizationMiddleware(SimpleItem):
@@ -23,9 +23,11 @@ class BdrAuthorizationMiddleware(SimpleItem):
     def setServiceRecheckInterval(self, seconds):
         self.recheck_interval = seconds
 
-    @ram.cache(lambda *args, **kwargs: args[2] + str(time() // kwargs['recheck_interval']))
-    def getUserCollectionPaths(self, username, recheck_interval=recheck_interval):
-        logger.debug("Get companies from middleware for ecas user: %s" % username)
+    @ram.cache(lambda *args, **kwargs: args[2] + str(time() // kwargs['recheck_interval']))  # noqa
+    def getUserCollectionPaths(self, username,
+                               recheck_interval=recheck_interval):
+        logger.debug(
+            "Get companies from middleware for ecas user: %s" % username)
         accessiblePaths = self.FGASRegistryAPI.getCollectionPaths(username)
         return accessiblePaths
 
@@ -33,7 +35,8 @@ class BdrAuthorizationMiddleware(SimpleItem):
         if self.lockedCollection(path):
             logger.warning("This collection is locked down: %s!" % path)
             return False
-        accessiblePaths = self.getUserCollectionPaths(username, recheck_interval=self.recheck_interval)
+        accessiblePaths = self.getUserCollectionPaths(
+            username, recheck_interval=self.recheck_interval)
         if path in accessiblePaths.get('paths'):
             return "RW"
         if path in accessiblePaths.get('prev_paths'):

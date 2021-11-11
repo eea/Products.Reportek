@@ -2,15 +2,21 @@
 from urllib import urlencode
 
 from Products.Five.browser import BrowserView
-from Products.PluggableAuthService.PluggableAuthService import addPluggableAuthService
-from Products.PluggableAuthService.plugins.ZODBRoleManager import addZODBRoleManager
-from Products.PluggableAuthService.plugins.ZODBUserManager import addZODBUserManager
-from Products.PluggableAuthService.plugins.CookieAuthHelper import addCookieAuthHelper
-from Products.PluggableAuthService.plugins.HTTPBasicAuthHelper import addHTTPBasicAuthHelper
+from Products.PluggableAuthService.PluggableAuthService import \
+    addPluggableAuthService
+from Products.PluggableAuthService.plugins.ZODBRoleManager import \
+    addZODBRoleManager
+from Products.PluggableAuthService.plugins.ZODBUserManager import \
+    addZODBUserManager
+from Products.PluggableAuthService.plugins.CookieAuthHelper import \
+    addCookieAuthHelper
+from Products.PluggableAuthService.plugins.HTTPBasicAuthHelper import \
+    addHTTPBasicAuthHelper
 import Products.PluggableAuthService.interfaces.plugins as plugin_interfaces
 
 
 LOGIN_LINK = '/acl_users/cookie_auth/login_form'
+
 
 def add_PAS(app, cookie_auth=True):
     """
@@ -57,6 +63,7 @@ def add_PAS(app, cookie_auth=True):
 
     return pas
 
+
 class LoginView(BrowserView):
     def __call__(self):
         """ Login View, not used; prerequisity for cookie auth """
@@ -67,13 +74,14 @@ class LoginView(BrowserView):
         goto = "%s?%s" % (LOGIN_LINK, urlencode({'came_from': came_from}))
         self.request.RESPONSE.redirect(goto)
 
+
 class LogoutView(BrowserView):
     def __call__(self):
         """ Logout View, not used; prerequisity for cookie auth """
 
         pas = self.context.unrestrictedTraverse("/acl_users")
         return pas.logout(self.request)
-        #came_from = self.request.get('HTTP_REFERER')
-        #if not came_from:
+        # came_from = self.request.get('HTTP_REFERER')
+        # if not came_from:
         #    came_from = '/'
-        #self.request.RESPONSE.redirect(came_from)
+        # self.request.RESPONSE.redirect(came_from)

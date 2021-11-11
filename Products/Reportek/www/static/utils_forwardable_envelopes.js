@@ -1,4 +1,8 @@
 /*global $*/
+/*global document*/
+/*global window*/
+/*global alert*/
+/*jslint browser:true */
 "use strict";
 if (window.reportek === undefined) {
   var reportek = {
@@ -25,33 +29,36 @@ reportek.utils.forwardable_envelopes = {
   bind_age_controls: function() {
     var self = reportek.utils.forwardable_envelopes;
     function isInt(n) {
-        return +n === n && !(n % 1);
+      if(typeof n==='number' && (n%1)===0) {
+        return true;
+      }
+      return false;
     }
     var age = 30;
     $("#age").on('keyup', function (e) {
       if (e.keyCode == 13) {
-        age = parseInt($(this).val());
+        age = parseInt($(this).val(), 10);
         if (isInt(age) && age > 0) {
           self.update_table_values();
         } else {
-          alert("Please enter the number of days!")
+          alert("Please enter the number of days!");
           return;
         }
       }
     });
     $("input[name='update']").on("click", function() {
-      age = parseInt($("#age").val());
+      age = parseInt($("#age").val(), 10);
       if (isInt(age) && age > 0) {
         self.update_table_values();
         $("#age_info").text($("#age").val());
       } else {
-          alert("Please enter the number of days!")
+          alert("Please enter the number of days!");
           return;
       }
     });
   },
 
-  init_table() {
+  init_table: function() {
     var self = reportek.utils.forwardable_envelopes;
     $("#f_envs").DataTable({
       "iDisplayLength": 50,
@@ -91,7 +98,7 @@ reportek.utils.forwardable_envelopes = {
         {
           "targets": 4,
           "data": "s_date"
-        },
+        }
       ]
     });
   },

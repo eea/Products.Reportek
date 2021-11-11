@@ -1,11 +1,12 @@
-## Script (Python) "localities_dict"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
-##parameters=
-##title=Build dictionary with uri as key
+# flake8: noqa
+# Script (Python) "localities_dict"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
+# parameters=
+# title=Build dictionary with uri as key
 ##
 res = container.localities_table()
 ldict = {}

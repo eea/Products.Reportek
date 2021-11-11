@@ -18,8 +18,9 @@ publish_error_log.propagate = False
 
 remote_feedback_log = logging.getLogger('Products.Reportek'
                                         '.RemoteApplication.feedback')
-remote_conversion_log = logging.getLogger('Products.Reportek'
-                                          '.EnvelopeCustomDataflows.conversion')
+remote_conversion_log = logging.getLogger(
+    'Products.Reportek'
+    '.EnvelopeCustomDataflows.conversion')
 converter_detection_log = logging.getLogger('Products.Reportek'
                                             '.Converters.detection')
 gisqa_log = logging.getLogger('Products.Reportek.RemoteRESTApplication.gisqa')
@@ -35,6 +36,7 @@ def log_pub_failure(event):
                                     event.request.URL,
                                     event.request.method,
                                     exc_info=event.exc_info)
+
 
 def initialize():
     env = getattr(getConfiguration(), 'environment', {})

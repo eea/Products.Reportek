@@ -1,11 +1,12 @@
-## Script (Python) "EnvelopeCreateHabitatFile"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
+# flake8: noqa
+# Script (Python) "EnvelopeCreateHabitatFile"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
 ##parameters=language, region=[], habitattype=None
-##title=Art17: Creates a new instance file
+# title=Art17: Creates a new instance file
 ##
 # Notice: Maintain the instancefile under /xmlexports, then cut-and-paste it to here
 # when changed
@@ -43,11 +44,12 @@ if len(err_msg) > 0:
     SESSION.set('region', region)
     return response.redirect('EnvelopeCreateHabitatFileForm')
 
-filename="habitattype-%s.xml" % habitattype
-title="Habitat type questionnaire for habitat %s" % habitattype
+filename = "habitattype-%s.xml" % habitattype
+title = "Habitat type questionnaire for habitat %s" % habitattype
 # Look up the habitat title
 for t in container.Art17habitattypes():
-   if t[1] == habitattype: title= t[2]
+    if t[1] == habitattype:
+        title = t[2]
 
 l_countryname = 'Unspecified'
 l_countrycode = ''
@@ -63,7 +65,7 @@ filecontent.append("""<?xml version="1.0" encoding="UTF-8"?>
   <habitatcode label="Habitat code">%s</habitatcode>
   <habitatname label="Habitat name">%s</habitatname>
   <regions label="Biogeographic regions and/or marine regions concerned within the member state">%s</regions>
-""" % (language, l_countrycode, l_countryname, habitattype, title,' '.join(region)) )
+""" % (language, l_countrycode, l_countryname, habitattype, title, ' '.join(region)))
 for r in region:
     filecontent.append("""  <regional label="2. Biogeographical or marine level">
     <region label="2.1 Biogeographic region or marine region" desc="%s">%s</region>
@@ -117,7 +119,8 @@ for r in region:
       <conclusion-assessment label="Overall assessment"/>
     </conclusion-n2000>
   </regional>
-""" % (bioregions[r], r) )
+""" % (bioregions[r], r))
 filecontent.append("</habitat>")
-context.manage_addDocument(filename, title, ''.join(filecontent), 'text/xml','')
+context.manage_addDocument(
+    filename, title, ''.join(filecontent), 'text/xml', '')
 return context.index_html()

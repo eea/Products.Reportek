@@ -1,4 +1,4 @@
-REQUEST = container.REQUEST
+REQUEST = container.REQUEST  # noqa: F821
 RESPONSE = REQUEST.RESPONSE
 role = 'Reporter'
 filtered_obl = REQUEST.form.get('obligation', None)
@@ -8,7 +8,7 @@ def pathcompare(p1, p2):
     return cmp(p1[0], p2[0])
 
 
-print context.standard_html_header(context, context.REQUEST)
+print context.standard_html_header(context, context.REQUEST)  # noqa: F821
 
 print """<a name="bypath"></a>
 <div id="tabbedmenu">
@@ -25,7 +25,7 @@ print """<h1>Filter by obligation</h1>
   <option value="">(All obligations)</option>
 """
 
-data = context.ReportekEngine.dataflow_table_grouped()
+data = context.ReportekEngine.dataflow_table_grouped()  # noqa: F821
 groups = data[0]
 items = data[1]
 
@@ -33,7 +33,8 @@ for group in groups:
     group_label = group if len(group) <= 80 else group[:77]
     print """<optgroup label="%s">""" % group_label
     for item in items[group]:
-        extra_attributes = 'class="terminated"' if item.get('terminated', None) == '1' else ''
+        extra_attributes = 'class="terminated"' if item.get(
+            'terminated', None) == '1' else ''
         if item['uri'] == filtered_obl:
             extra_attributes = extra_attributes + ' selected="selected"'
         print """<option value="%s" %s>""" % (item['uri'], extra_attributes)
@@ -56,7 +57,7 @@ print """<table class="datatable">
 </tr>""" % role
 persons = {}
 results = []
-hits = container.Catalog(meta_type='Report Collection')
+hits = container.Catalog(meta_type='Report Collection')  # noqa: F821
 for hit in hits:
     obj = hit.getObject()
     if not filtered_obl or filtered_obl in obj.dataflow_uris:
@@ -65,15 +66,15 @@ for hit in hits:
                         obj.bobobase_modification_time().Date(),
                         obj.users_with_local_role(role),
                         list(obj.dataflow_uris)
-        ))
+                        ))
 
-root_obj = context.restrictedTraverse(['', ])
+root_obj = context.restrictedTraverse(['', ])  # noqa: F821
 results.append((root_obj.absolute_url(0),
                 '/',
                 root_obj.bobobase_modification_time().Date(),
                 root_obj.users_with_local_role(role),
                 []
-))
+                ))
 
 results.sort(pathcompare)
 evenstr = ''
@@ -84,18 +85,20 @@ for hit in results:
     if len(hit[4]) > 0:
         ol = []
         for o in hit[4]:
-            ol.append(context.dataflow_lookup(o)['TITLE'])
-        obl = string.join(ol, '<br />')
+            ol.append(context.dataflow_lookup(o)['TITLE'])  # noqa: F821
+        obl = string.join(ol, '<br />')  # noqa: F821
         hover = str(len(hit[4])) + " obligation(s)"
     if members != []:
         print """<tr%s>""" % evenstr
         print """<td><a href="%s">%s</a></td>
     <td>%s</td>
     <td title="%s">%s</td>
-    <td>""" % ( hit[0], hit[1][:40], hit[2], hover, obl )
+    <td>""" % (hit[0], hit[1][:40], hit[2], hover, obl)
         for m in members:
-            print """<a href="http://www.eionet.europa.eu/directory/user?uid=%s">%s</a>""" % (m, m)
-            if not persons.has_key(m):
+            print """<a\
+             href="http://www.eionet.europa.eu/directory/user?uid=%s">%s\
+             </a>""" % (m, m)
+            if m not in persons:
                 persons[m] = []
             persons[m].append(hit[1])
         print """</td></tr>"""
@@ -106,6 +109,6 @@ for hit in results:
 
 print "</table>"
 
-print context.standard_html_footer(context, context.REQUEST)
+print context.standard_html_footer(context, context.REQUEST)  # noqa: F821
 
-return printed
+return printed  # noqa

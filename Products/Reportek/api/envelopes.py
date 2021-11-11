@@ -62,7 +62,8 @@ class EnvelopesAPI(BrowserView):
         'isBlockedByQCError': {
             'catalog_mapping': '',
         },
-        # Deprecated as it was improperly called status. activity set of filters are the suggested filters to be used
+        # Deprecated as it was improperly called status. activity set of
+        # filters are the suggested filters to be used
         'status': {
             'catalog_mapping': '',
         },
@@ -113,7 +114,7 @@ class EnvelopesAPI(BrowserView):
                 return str([x['iso'] for
                             x in localities_table
                             if str(x['uri']) == country_uri][0])
-            except:
+            except Exception:
                 return dummycounty['iso']
 
     def get_country_uri(self, country_code):
@@ -160,8 +161,10 @@ class EnvelopesAPI(BrowserView):
                             archived_files.append(zfile.encode('utf-8',
                                                                'ignore'))
                     except (POSKeyError, StorageError, SystemError) as e:
+                        t = 'An error occured trying\
+                             to access file: {}'.format(doc.absolute_url(0))
                         errors.append({
-                            'title': 'An error occured trying to access file: {}'.format(doc.absolute_url(0)),
+                            'title': t,
                             'description': str(e)
                         })
                     doc_properties = {
@@ -206,7 +209,9 @@ class EnvelopesAPI(BrowserView):
                             {
                                 'url': o.absolute_url(),
                                 'title': o.title_or_id(),
-                                'contentType': getattr(o, 'content_type', None),
+                                'contentType': getattr(o,
+                                                       'content_type',
+                                                       None),
                             } for o in fb.objectValues(['File', 'File (Blob)'])
                         ]
                     }
@@ -366,10 +371,12 @@ class EnvelopesAPI(BrowserView):
         if sdatesrange:
             sds = None
             sde = None
-            sds = fed_params.get('statusDateStart') or fed_params.get('activityDateStart')
+            sds = fed_params.get('statusDateStart') or fed_params.get(
+                'activityDateStart')
             if sds:
                 sds = datetime.datetime.strptime(sds, '%Y-%m-%d')
-            sde = fed_params.get('statusDateEnd') or fed_params.get('activityDateEnd')
+            sde = fed_params.get('statusDateEnd') or fed_params.get(
+                'activityDateEnd')
             if sde:
                 sde = datetime.datetime.strptime(sde, '%Y-%m-%d')
             elif sds:
@@ -381,7 +388,10 @@ class EnvelopesAPI(BrowserView):
 
         for afilter in additional_filters:
             afilter_v = fed_params.get(afilter)
-            if afilter_v and afilter not in ['statusDateStart', 'statusDateEnd', 'activityDateStart', 'activityDateEnd']:
+            if afilter_v and afilter not in ['statusDateStart',
+                                             'statusDateEnd',
+                                             'activityDateStart',
+                                             'activityDateEnd']:
                 if afilter == 'statusDate' or afilter == 'activityDate':
                     startd = datetime.datetime.strptime(afilter_v, '%Y-%m-%d')
                     endd = startd + datetime.timedelta(days=1)
@@ -390,10 +400,13 @@ class EnvelopesAPI(BrowserView):
                 elif afilter == 'status' or afilter == 'activity':
                     filter_vs = afilter_v.split(',')
                     res = [afv for afv in filter_vs
-                           if afv.upper() != str(default_props.get(afilter)).upper()]
+                           if afv.upper() != str(
+                               default_props.get(afilter)
+                           ).upper()]
                     if len(res) == len(filter_vs):
                         return True
-                elif afilter_v.upper() != str(default_props.get(afilter)).upper():
+                elif afilter_v.upper() != str(
+                        default_props.get(afilter)).upper():
                     return True
 
     def get_wk_date(self, wk_brain):
@@ -415,7 +428,7 @@ class EnvelopesAPI(BrowserView):
 
         return end_date
 
-    def get_envelope_history(self, env_brain):
+    def get_env_history(self, env_brain):
         """Return the envelope's workflow history."""
         result = []
         wk_brains = self.get_env_children(env_brain.getPath(), 'Workitem')
@@ -440,7 +453,6 @@ class EnvelopesAPI(BrowserView):
         env = env_brain.getObject()
         metadata = env.get_export_data()
         return metadata
-
 
     def has_unknown_qc(self, path):
         """Return true if has a AutomaticQA feedback with UNKNOWN QC."""
@@ -546,7 +558,8 @@ class EnvelopesAPI(BrowserView):
         try:
             query = self.build_catalog_query(valid_catalog_filters, fed_params)
         except Exception as e:
-            error = 'An error occured while processing your request: {}'.format(str(e))
+            error = 'An error occured while processing your\
+                     request: {}'.format(str(e))
             errors.append({
                 'title': 'Error processing request.',
                 'description': error
@@ -561,8 +574,8 @@ class EnvelopesAPI(BrowserView):
                                'description': error
                                })
             else:
-                additional_filters = [key for key in self.AVAILABLE_FILTERS.keys()
-                                      if key not in valid_catalog_filters]
+                additional_filters = [k for k in self.AVAILABLE_FILTERS.keys()
+                                      if k not in valid_catalog_filters]
                 for brain in brains:
                     default_props = self.get_default_props(brain)
                     envelope_data = {}
@@ -570,33 +583,45 @@ class EnvelopesAPI(BrowserView):
                         fields = default_props.keys()
                     additional_p_fields = [param for param in fields
                                            if param not in default_props]
-                    additional_p_filters = [param for param in fed_params.keys()
-                                            if param not in default_props]
+                    additional_p_filters = [p for p in fed_params.keys()
+                                            if p not in default_props]
 
                     if additional_p_fields or additional_p_filters:
                         additional_props = self.get_additional_props(brain)
                         default_props.update(additional_props)
 
-                    if self.is_filtered_out(default_props, additional_filters, fed_params):
+                    if self.is_filtered_out(default_props,
+                                            additional_filters,
+                                            fed_params):
                         continue
 
                     for field in fields:
                         if field == 'files':
                             files_data = self.get_files(brain.getPath())
-                            envelope_data['files'] = files_data.get('documents')
+                            envelope_data['files'] = files_data.get(
+                                'documents')
                             if files_data.get('errors'):
                                 errors += files_data.get('errors', [])
                         elif field == 'feedbacks':
-                            feedbacks_data = self.get_feedbacks(brain.getPath())
-                            envelope_data['feedbacks'] = feedbacks_data.get('feedbacks')
+                            feedbacks_data = self.get_feedbacks(
+                                brain.getPath())
+                            envelope_data['feedbacks'] = feedbacks_data.get(
+                                'feedbacks')
                         elif field == 'history':
-                            envelope_data['history'] = self.get_envelope_history(brain)
+                            envelope_data['history'] = self.get_env_history(
+                                brain)
                         elif field in ['companyId', 'companyName']:
-                            metadata = self.get_envelope_company_metadata(brain)
+                            metadata = self.get_envelope_company_metadata(
+                                brain)
                             if field == 'companyId':
-                                envelope_data['companyId'] = metadata.get('company_id')
+                                envelope_data['companyId'] = metadata.get(
+                                    'company_id')
                             if field == 'companyName':
-                                envelope_data['companyName'] = metadata.get('company') if metadata.get('company') != '-' else None
+                                c_n = metadata.get(
+                                    'company')
+                                envelope_data['companyName'] = (
+                                    c_n if c_n != '-'
+                                    else None)
                         elif field in default_props.keys():
                             envelope_data[field] = default_props.get(field)
 

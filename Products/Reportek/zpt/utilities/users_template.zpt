@@ -28,12 +28,12 @@
         <div class="ajaxtabsmenu tabbedmenu">
           <ul class="unstyled-list">
             <li class="tabbed-elem currenttab">
-              <a class="" href="#users-roles">
+              <a class="" href="#users-roles" i18n:translate="">
                 Show where users have roles
               </a>
             </li>
             <li class="tabbed-elem">
-              <a class="" href="#search-member">
+              <a class="" href="#search-member" i18n:translate="">
                 Search member
               </a>
             </li>
@@ -43,7 +43,7 @@
 
       <div class="filter-form">
         <div id="users-roles" class="tabbed-content">
-          <h1>Show where users have roles</h1>
+          <h1 i18n:translate="">Show where users have roles</h1>
           
           <tal:block tal:define="placeholder string:All">
             <metal:block use-macro="here/filters/macros/users-form"/>

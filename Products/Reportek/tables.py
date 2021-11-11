@@ -33,28 +33,31 @@ Suggested usage: from tables import *
 
 _dataflow_table = (
     {
-    'PK_RA_ID': '130',
-    'TITLE': 'EPER data reporting',
-    'SOURCE_TITLE': 'EPER decision',
+        'PK_RA_ID': '130',
+        'TITLE': 'EPER data reporting',
+        'SOURCE_TITLE': 'EPER decision',
     },
     {
-    'PK_RA_ID': '143',
-    'TITLE': 'EPER national overview report',
-    'SOURCE_TITLE': 'EPER decision',
+        'PK_RA_ID': '143',
+        'TITLE': 'EPER national overview report',
+        'SOURCE_TITLE': 'EPER decision',
     },
     {
-    'PK_RA_ID': '136',
-    'TITLE': 'EC Water Framework Directive Reporting Activity',
-    'SOURCE_TITLE': 'Water framework directive'
+        'PK_RA_ID': '136',
+        'TITLE': 'EC Water Framework Directive Reporting Activity',
+        'SOURCE_TITLE': 'Water framework directive'
     },
 )
+
 
 def dataflow_table():
     return _dataflow_table
 
+
 _localities_table = (
-{'iso': "",   'name': "Unspecified", 'fr':'Sans pays'},
+    {'iso': "",   'name': "Unspecified", 'fr': 'Sans pays'},
 )
+
 
 def localities_table():
     return _localities_table

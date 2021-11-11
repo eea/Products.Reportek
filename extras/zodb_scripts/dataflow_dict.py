@@ -1,11 +1,13 @@
-## Script (Python) "dataflow_dict"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
-##parameters=
-##title=
+# flake8: noqa
+# flake8: noqa
+# Script (Python) "dataflow_dict"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
+# parameters=
+# title=
 ##
 class ServiceTemporarilyUnavailableException(Exception):
     pass
@@ -23,4 +25,3 @@ for item in res:
         item['uri'] = 'http://rod.eionet.eu.int/obligations/' + item['uri'][5:]
     dfdict[item['uri']] = item
 return dfdict
-

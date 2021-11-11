@@ -5,24 +5,24 @@
   </metal:block>
 
   <metal:block fill-slot="content">
-    <h2>European Registry management</h2>
+    <h2 i18n:translate="">European Registry management</h2>
     <ul>
-      <li><a href="organisation_listing">Companies</a></li>
+      <li><a href="organisation_listing" i18n:translate="">Companies</a></li>
     </ul>
     <ul>
-      <li><a href="organisation_matching">Pending companies</a></li>
+      <li><a href="organisation_matching" i18n:translate="">Pending companies</a></li>
     </ul>
     <ul>
-      <li><a href="organisation_matching_log">Approval log</a></li>
+      <li><a href="organisation_matching_log" i18n:translate="">Approval log</a></li>
     </ul>
     <ul>
-      <li><a href="data_sync_log">Synchronisation history</a></li>
+      <li><a href="data_sync_log" i18n:translate="">Synchronisation history</a></li>
     </ul>
     <ul>
-      <li><a href="stocks_listing">ODS Stocks<a/></li>
+      <li><a href="stocks_listing" i18n:translate="">ODS Stocks<a/></li>
     </ul>
     <ul>
-      <li><a href="notifications_settings">Notifications settings</a></li>
+      <li><a href="notifications_settings" i18n:translate="">Notifications settings</a></li>
     </ul>
   </metal:block>
 </metal:block>

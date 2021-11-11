@@ -34,7 +34,6 @@ class BaseDelivery(object):
             dataflow_uris = []
         self.dataflow_uris = dataflow_uris
 
-
     def getStartDate(self):
         """ returns the start date in DateTime format
             Returns None if there is no start date
@@ -70,36 +69,38 @@ class BaseDelivery(object):
 
     def getEndDate(self):
         endmonths = {
-         '': '12-31',
-         'WHOLE_YEAR': '12/31',
-         'FIRST_HALF': '06/30',
-         'SECOND_HALF': '12/31',
-         'FIRST_QUARTER': '03/31',
-         'SECOND_QUARTER': '06/30',
-         'THIRD_QUARTER': '09/30',
-         'FOURTH_QUARTER': '12/31',
-         'JANUARY': '01/31',
-         'FEBRUARY': '02/28',  # Fix leap year?
-         'MARCH': '03/31',
-         'APRIL': '04/30',
-         'MAY': '05/31',
-         'JUNE': '06/30',
-         'JULY': '07/31',
-         'AUGUST': '08/31',
-         'SEPTEMBER': '09/30',
-         'OCTOBER': '10/31',
-         'NOVEMBER': '11/30',
-         'DECEMBER': '12/31'
+            '': '12-31',
+            'WHOLE_YEAR': '12/31',
+            'FIRST_HALF': '06/30',
+            'SECOND_HALF': '12/31',
+            'FIRST_QUARTER': '03/31',
+            'SECOND_QUARTER': '06/30',
+            'THIRD_QUARTER': '09/30',
+            'FOURTH_QUARTER': '12/31',
+            'JANUARY': '01/31',
+            'FEBRUARY': '02/28',  # Fix leap year?
+            'MARCH': '03/31',
+            'APRIL': '04/30',
+            'MAY': '05/31',
+            'JUNE': '06/30',
+            'JULY': '07/31',
+            'AUGUST': '08/31',
+            'SEPTEMBER': '09/30',
+            'OCTOBER': '10/31',
+            'NOVEMBER': '11/30',
+            'DECEMBER': '12/31'
         }
         if self.endyear != '':
             try:
                 if self.endyear >= self.year:
                     return DateTime(str(self.endyear) + '/12/31')
-            except:
+            except Exception:
                 pass
         if self.year != '':
-            startDT = self.getStartDate() # returns DateTime
-            return DateTime(startDT.strftime('%Y/') + endmonths.get(self.partofyear,'12/31'))
+            startDT = self.getStartDate()  # returns DateTime
+            return DateTime(
+                startDT.strftime('%Y/') + endmonths.get(
+                    self.partofyear, '12/31'))
         return None
 
     # Constructs periodical coverage from start/end dates
@@ -112,19 +113,22 @@ class BaseDelivery(object):
         if self.endyear != '':
             try:
                 if self.endyear > self.year:
-                    return startDate + '/P' + str(self.endyear - self.year + 1) + 'Y'
+                    return startDate + '/P' + str(
+                        self.endyear - self.year + 1) + 'Y'
                 if self.endyear == self.year:
                     return startDate
-            except:
+            except Exception:
                 pass
         if self.partofyear in ['', 'WHOLE_YEAR']:
             return startDate + '/P1Y'
         if self.partofyear in ['FIRST_HALF', 'SECOND_HALF']:
             return startDate + '/P6M'
-        if self.partofyear in ['FIRST_QUARTER', 'SECOND_QUARTER', 'THIRD_QUARTER', 'FOURTH_QUARTER']:
+        if self.partofyear in ['FIRST_QUARTER', 'SECOND_QUARTER',
+                               'THIRD_QUARTER', 'FOURTH_QUARTER']:
             return startDate + '/P3M'
         if self.partofyear in ['JANUARY', 'FEBRUARY', 'MARCH', 'APRIL',
-          'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER', 'OCTOBER', 'NOVEMBER', 'DECEMBER' ]:
+                               'MAY', 'JUNE', 'JULY', 'AUGUST', 'SEPTEMBER',
+                               'OCTOBER', 'NOVEMBER', 'DECEMBER']:
             return startDate + '/P1M'
         return startDate
 
@@ -136,10 +140,11 @@ class BaseDelivery(object):
                     y = self.year
                     self.year = self.endyear
                     self.endyear = y
-            except:
+            except Exception:
                 pass
 
     security.declarePublic('years')
+
     def years(self):
         """ Return the range of years the object pertains to
         """
@@ -153,11 +158,13 @@ class BaseDelivery(object):
             return range(int(self.year), int(self.endyear) + 1)
 
     security.declareProtected('View', 'getObligations')
+
     def getObligations(self):
         lookup = self.ReportekEngine.dataflow_lookup
         return [(lookup(obl)['TITLE'], obl) for obl in self.dataflow_uris]
 
     security.declareProtected('View', 'get_export_data')
+
     def get_export_data(self, format='xls'):
         """ Return data for export
         """
@@ -178,8 +185,10 @@ class BaseDelivery(object):
                 company = '-'
                 userid = '-'
                 if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
-                    company = company_meta[0] if company_meta[0] else self.aq_parent.title
-                    userid = company_meta[1] if company_meta[1] else self.aq_parent.id
+                    company = (company_meta[0] if company_meta[0]
+                               else self.aq_parent.title)
+                    userid = (company_meta[1] if company_meta[1]
+                              else self.aq_parent.id)
                 obligations = [obl[0] for obl in self.getObligations()]
 
                 env_data = {
@@ -199,6 +208,7 @@ class BaseDelivery(object):
         return env_data
 
     security.declareProtected('View', 'get_custom_cobjs_rdf_meta')
+
     def get_custom_cobjs_rdf_meta(self):
         """Return custom child objects metadata for RDF export."""
         return []
@@ -207,6 +217,7 @@ class BaseDelivery(object):
         return [df for df in self.dataflow_uris]
 
     security.declareProtected('View', 'rdf')
+
     def rdf(self, REQUEST):
         """Returns the delivery metadata in RDF format."""
         REQUEST.RESPONSE.setHeader('content-type',
@@ -217,25 +228,30 @@ class BaseDelivery(object):
         http_res = getattr(engine, 'exp_httpres', False)
 
         res_a('<?xml version="1.0" encoding="utf-8"?>')
-        res_a('<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"')
+        res_a(
+            '<rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"')
         res_a(' xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"')
         res_a(' xmlns:dcat="http://www.w3.org/ns/dcat#"')
         res_a(' xmlns:dct="http://purl.org/dc/terms/"')
         res_a(' xmlns:cr="http://cr.eionet.europa.eu/ontologies/contreg.rdf#"')
         res_a(' xmlns="http://rod.eionet.europa.eu/schema.rdf#">')
 
-        res_a('<Delivery rdf:about="%s">' % xmlEncode(parse_uri(self.absolute_url(),
-                                                                http_res)))
+        res_a('<Delivery rdf:about="%s">' % xmlEncode(
+            parse_uri(self.absolute_url(), http_res)))
         res_a('<rdfs:label>%s</rdfs:label>' % xmlEncode(self.title_or_id()))
         res_a('<dct:title>%s</dct:title>' % xmlEncode(self.title_or_id()))
 
         if self.descr:
-            res_a('<dct:description>%s</dct:description>' % xmlEncode(self.descr))
+            res_a('<dct:description>%s</dct:description>' %
+                  xmlEncode(self.descr))
 
         if self.country:
-            res.append('<locality rdf:resource="%s" />' % self.country.replace('eionet.eu.int','eionet.europa.eu'))
+            res.append('<locality rdf:resource="%s" />' %
+                       self.country.replace('eionet.eu.int',
+                                            'eionet.europa.eu'))
         if self.locality != '':
-            res.append('<coverageNote>%s</coverageNote>' % xmlEncode(self.locality))
+            res.append('<coverageNote>%s</coverageNote>' %
+                       xmlEncode(self.locality))
 
         period = self.getPeriod()
         if period != '':
@@ -243,11 +259,17 @@ class BaseDelivery(object):
 
         startDT = self.getStartDate()
         if startDT:
-            res.append('<startOfPeriod rdf:datatype="http://www.w3.org/2001/XMLSchema#date">%s</startOfPeriod>' % startDT.strftime('%Y-%m-%d'))
+            res.append(
+                '''<startOfPeriod rdf:datatype="http://www.w3.org/2001'''
+                '''/XMLSchema#date">%s</startOfPeriod>'''
+                % startDT.strftime('%Y-%m-%d'))
 
         endDT = self.getEndDate()
         if endDT:
-            res.append('<endOfPeriod rdf:datatype="http://www.w3.org/2001/XMLSchema#date">%s</endOfPeriod>' % endDT.strftime('%Y-%m-%d'))
+            res.append(
+                '''<endOfPeriod rdf:datatype="http://www.w3.org/2001'''
+                '''/XMLSchema#date">%s</endOfPeriod>'''
+                % endDT.strftime('%Y-%m-%d'))
 
         for flow in self.dataflow_uris:
             res.append('<obligation rdf:resource="%s"/>' %

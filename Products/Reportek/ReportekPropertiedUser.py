@@ -46,13 +46,15 @@ class ReportekPropertiedUser(PropertiedUser):
     def getRolesInContext(self, object):
         """ Return the roles in the context
         """
-        basic_roles = super(ReportekPropertiedUser, self).getRolesInContext(object)
+        basic_roles = super(ReportekPropertiedUser,
+                            self).getRolesInContext(object)
         user_id = self.getId()
         middleware_roles = self.get_roles_for_user_in_context(object, user_id)
         return list(set(basic_roles) | set(middleware_roles))
 
     def allowed(self, object, object_roles=None):
-        basic = super(ReportekPropertiedUser, self).allowed(object, object_roles)
+        basic = super(ReportekPropertiedUser, self).allowed(
+            object, object_roles)
         if basic:
             return 1
 
@@ -94,13 +96,16 @@ class ReportekPropertiedUser(PropertiedUser):
         return roles
 
     def get_middleware_authorization(self, user_id, base_path):
-        engine = self.unrestrictedTraverse('/'+ENGINE_ID)
+        engine = self.unrestrictedTraverse('/' + ENGINE_ID)
         authMiddleware = engine.authMiddleware
         ecas = self.unrestrictedTraverse('/acl_users/' + ECAS_ID, None)
         if ecas:
             ecas_user_id = ecas.getEcasUserId(user_id)
-            logger.debug(("Attempt to interrogate middleware for authorizations "
-                          "for user:id %s:%s") % (user_id, ecas_user_id))
+            logger.debug((
+                "Attempt to interrogate middleware for "
+                "authorizations for user:id %s:%s") % (
+                                user_id,
+                                ecas_user_id))
             if not ecas_user_id:
                 return False
             if authMiddleware:

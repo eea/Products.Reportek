@@ -21,12 +21,12 @@
   <div class="ajaxtabsmenu tabbedmenu">
     <ul class="unstyled-list">
       <li class="tabbed-elem currenttab">
-        <a href="#stuck-inactive">
+        <a href="#stuck-inactive" i18n:translate="">
           Stuck and inactive
         </a>
       </li>
       <li class="tabbed-elem">
-        <a href="#lr-aqa">
+        <a href="#lr-aqa" i18n:translate="">
           Long running Automatic QA
         </a>
       </li>
@@ -35,26 +35,26 @@
 
   <div class="filter-form" id="stuck-envelopes-tabs">
     <div id="stuck-inactive" class="tabbed-content">
-      <h1>Stuck and inactive envelopes</h1>
-      <p>This page lists the envelopes that are in a state of their workflow which is automatic, but failed to execute due to an error. The error might have occurred in the activity which got stuck, or in the subsequent transitions or activities. In order to resolve each situation, navigate to the envelope and access the 'Manage workflow history' tab.
+      <h1 i18n:translate="">Stuck and inactive envelopes</h1>
+      <p i18n:translate="">This page lists the envelopes that are in a state of their workflow which is automatic, but failed to execute due to an error. The error might have occurred in the activity which got stuck, or in the subsequent transitions or activities. In order to resolve each situation, navigate to the envelope and access the 'Manage workflow history' tab.
       </p>
     </div>
-    <div id="lr-aqa" class="tabbed-content hidden-content">
-      <h1>Envelopes in long running Automatic QA</h1>
-      <p>This page lists the envelopes that are in state of running Automatic QA, but have been like that for a long time - <span id="age_info">30</span> days.</p>
-      <label for="age">In Automatic QA process for:</label>
+    <div id="lr-aqa" class="tabbed-content hidden-content" i18n:translate="">
+      <h1 i18n:translate="">Envelopes in long running Automatic QA</h1>
+      <p i18n:translate="">This page lists the envelopes that are in state of running Automatic QA, but have been like that for a long time - <span id="age_info">30</span> days.</p>
+      <label for="age" i18n:translate="">In Automatic QA process for:</label>
       <input type="text" id="age" name="age" value="30"/> days
-      <input type="button" name="update" value="Update">
+      <input type="button" name="update" value="Update" i18n:attributes="value btn-update">
     </div>
   </div>
   <div class="tabbedmenuend"></div>
     <table id="s_envs">
       <thead>
         <tr>
-          <th>Envelope</th>
-          <th>Workflow</th>
-          <th>Activity</th>
-          <th>Stuck since</th>
+          <th i18n:translate="">Envelope</th>
+          <th i18n:translate="">Workflow</th>
+          <th i18n:translate="">Activity</th>
+          <th i18n:translate="">Stuck since</th>
         </tr>
       </thead>
 

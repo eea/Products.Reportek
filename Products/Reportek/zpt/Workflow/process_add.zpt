@@ -1,46 +1,46 @@
 <tal:block tal:replace="structure context/manage_page_header" />
 <tal:block tal:replace="structure context/manage_tabs" />
 
-<h1>Add Process</h1>
+<h1 i18n:translate="">Add Process</h1>
 
 <form action="manage_addProcess" method="post">
   <table>
     <tr>
-      <th><label for="id">Id</label></th>
+      <th><label for="id" i18n:translate="">Id</label></th>
       <td><input type="text" name="id" id="id" value="mypr" /></td>
     </tr>
     <tr>
-      <th><label for="title">Title</label></th>
+      <th><label for="title" i18n:translate="">Title</label></th>
       <td><input type="text" name="title" id="title" value="" /></td>
     </tr>
     <tr>
-      <th><label for="description">Description</label></th>
+      <th><label for="description" i18n:translate="">Description</label></th>
       <td><textarea id="description" name="description:text" cols="20" rows="5"></textarea></td>
     </tr>
     <tr>
       <td colspan="2">
         <input type="checkbox" name="BeginEnd:bool" id="BeginEnd" checked="checked" />
-        <label for="BeginEnd">Create standard Begin and End activities</label>
+        <label for="BeginEnd" i18n:translate="">Create standard Begin and End activities</label>
      </td>
     </tr>
     <tr>
       <td colspan="2">
         <input type="checkbox" name="app_folder:bool" id="app_folder" checked="checked" />
-        <label for="app_folder">Create the corresponding application folder</label>
+        <label for="app_folder" i18n:translate="">Create the corresponding application folder</label>
       </td>
     </tr>
     <tr>
-      <th><label for="priority">Priority</label></th>
-      <td><input type="text" name="priority:int" id="priority" size="3" value="0" /> (0 = lowest priority)</td>
+      <th><label for="priority" i18n:translate="">Priority</label></th>
+      <td i18n:translate=""><input type="text" name="priority:int" id="priority" size="3" value="0" /> (0 = lowest priority)</td>
     </tr>
     <tr>
       <td colspan="2">
         <input type="checkbox" name="restricted:bool" id="restricted" />
-        <label for="restricted">Automatically restrict envelope files</label>
+        <label for="restricted" i18n:translate="">Automatically restrict envelope files</label>
       </td>
     </tr>
   </table>
-  <input type="submit" name="submit" value="Add process" />
+  <input type="submit" name="submit" value="Add process" i18n:attributes="value btn-add-process"/>
 </form>
 
 <tal:block tal:replace="structure context/manage_page_header" />

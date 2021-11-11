@@ -1,62 +1,62 @@
 <tal:block tal:replace="structure context/manage_page_header" />
 <tal:block tal:replace="structure context/manage_tabs" />
 
-<p class="form-help">
+<p class="form-help" i18n:translate="">
 	Properties of the Workitem.
 </p>
 
 <table border="0" cellpadding="2" cellspacing="0">
 	<tr>
-		<th style="vertical-align: top">Activity ID</th>
+		<th style="vertical-align: top" i18n:translate="">Activity ID</th>
         <td tal:define="activity_url python:here.activity_link(here.activity_id)">
             <a tal:content="here/activity_id"
                tal:attributes="href activity_url/url"/>
         </td>
 	</tr>
 	<tr>
-		<th style="vertical-align: top">Application</th>
+		<th style="vertical-align: top" i18n:translate="">Application</th>
 		<td tal:define="activity_application python:here.activity_application(here.activity_id)">
 			<a tal:attributes="href activity_application/url" tal:content="activity_application/id" />
 		</td>
 	</tr>
 	<tr>
-		<th style="vertical-align: top">Previous Workitems</th>
+		<th style="vertical-align: top" i18n:translate="">Previous Workitems</th>
 		<td><tal:block tal:repeat="item here/workitems_from"><tal:block tal:replace="item" /> </tal:block></td>
 	</tr>
 	<tr>
-		<th style="vertical-align: top">Following Workitems</th>
+		<th style="vertical-align: top" i18n:translate="">Following Workitems</th>
 		<td><tal:block tal:repeat="item here/workitems_to"><tal:block tal:replace="item" /> </tal:block></td>
 	</tr>
 	<tr>
-		<th style="vertical-align: top">Status</th>
+		<th style="vertical-align: top" i18n:translate="">Status</th>
 		<td tal:content="here/status" />
 	</tr>
 	<tr>
-		<th style="vertical-align: top">Actor</th>
+		<th style="vertical-align: top" i18n:translate="">Actor</th>
 		<td tal:content="here/actor" />
 	</tr>
 	<tr>
-		<th style="vertical-align: top">Priority</th>
+		<th style="vertical-align: top" i18n:translate="">Priority</th>
 		<td tal:content="here/priority" />
 	</tr>
 	<tr>
-		<th style="vertical-align: top">Blocked</th>
+		<th style="vertical-align: top" i18n:translate="">Blocked</th>
 		<td tal:content="here/blocked" />
 	</tr>
 	<tr>
-		<th style="vertical-align: top">Graph level</th>
+		<th style="vertical-align: top" i18n:translate="">Graph level</th>
 		<td tal:content="here/graph_level" />
 	</tr>
 	<tr>
-		<th style="vertical-align: top">Push roles</th>
+		<th style="vertical-align: top" i18n:translate="">Push roles</th>
 		<td tal:content="python:test(here.push_roles, ', '.join(here.push_roles), 'N/A')" />
 	</tr>
 	<tr>
-		<th style="vertical-align: top">Pull roles</th>
+		<th style="vertical-align: top" i18n:translate="">Pull roles</th>
 		<td tal:content="python:test(here.pull_roles, ', '.join(here.pull_roles), 'N/A')" />
 	</tr>
 	<tr>
-		<th style="vertical-align: top">Eventlog</th>
+		<th style="vertical-align: top" i18n:translate="">Eventlog</th>
 		<td>
 			<dl>
 				<tal:block tal:repeat="item here/event_log">

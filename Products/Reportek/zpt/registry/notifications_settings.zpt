@@ -15,34 +15,34 @@
     <p class="error-msg" tal:condition="options/error | nothing" tal:content="options/error" />
 
     <tal:block condition="not: options/error | nothing">
-      <p class="important-msg" tal:condition="request/done | nothing">
+      <p class="important-msg" tal:condition="request/done | nothing" i18n:translate="">
         Email added/deleted succesfully.
       </p>
     </tal:block>
 
-    <h1>Notifications settings</h1>
-    <p>
+    <h1 i18n:translate="">Notifications settings</h1>
+    <p i18n:translate="">
         Each time an FGAS or ODS company is validated in BDR, an email is sent to the
         addresses from the list below. By <em>validated</em>, we mean companies
         registered in the <a tal:attributes="href view/get_url">FGAS and ODS portal</a> and matched with old records from the
         BDR-Registry.
     </p>
 
-    <h2>Add email</h2>
+    <h2 i18n:translate="">Add email</h2>
     <form method="post" id="add-email-form">
       <div class="form-group">
-        <label class="question" for="fname">First name *</label>
+        <label class="question" for="fname" i18n:translate="">First name *</label>
         <input id="fname" type="text" name="fname" size="35" />
       </div>
       <div class="form-group">
-        <label class="question" for="lname">Last name *</label>
+        <label class="question" for="lname" i18n:translate="">Last name *</label>
         <input id="lname" type="text" name="lname" size="35" />
       </div>
       <div class="form-group">
-        <label class="question" for="email">Email *</label>
+        <label class="question" for="email" i18n:translate="">Email *</label>
         <input id="email" type="text" name="email" size="35" />
       </div>
-      <input type="submit" name="add.btn" value="Add email" />
+      <input type="submit" name="add.btn" value="Add email" i18n:attributes="value btn-add-email"/>
     </form>
     <script language="javascript" type="text/javascript">
     <!--
@@ -62,15 +62,15 @@
     // -->
     </script>
 
-    <h2>Existing emails</h2>
+    <h2 i18n:translate="">Existing emails</h2>
     <tal:block define="users view/get_emails">
       <table tal:condition="users" class="table">
         <thead>
           <tr>
-            <th>First name</th>
-            <th>Last name</th>
-            <th>Email</th>
-            <th>Delete</th>
+            <th i18n:translate="">First name</th>
+            <th i18n:translate="">Last name</th>
+            <th i18n:translate="">Email</th>
+            <th i18n:translate="">Delete</th>
           </tr>
         </thead>
         <tbody>
@@ -83,14 +83,14 @@
             <td>
               <form method="post">
                 <input type="hidden" name="email" tal:attributes="value user/mail" />
-                <input type="submit" name="del.btn" value="Delete" />
+                <input type="submit" name="del.btn" value="Delete" i18n:attributes="value btn-delete"/>
               </form>
             </td>
           </tr>
         </tbody>
       </table>
 
-      <p class="system-msg" tal:condition="not: users">No emails configured.</p>
+      <p class="system-msg" tal:condition="not: users" i18n:translate="">No emails configured.</p>
     </tal:block>
 
   </metal:block>

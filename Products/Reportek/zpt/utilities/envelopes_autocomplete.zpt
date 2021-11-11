@@ -43,15 +43,15 @@
                 <span class="icon-remove"></span>
               </a>
             </div>
-            <div class="im-message msg-warning" tal:condition="python: len(results) == 0 and len(errors) == 0">
+            <div class="im-message msg-warning" tal:condition="python: len(results) == 0 and len(errors) == 0" i18n:translate="">
               No results
             </div>
 
             <div class="im-message msg-success" tal:condition="python: len(results) > 0">
-              <div class="info-message-content">
+              <div class="info-message-content" i18n:translate="">
                 Changed envelopes: <span tal:content="python:len(results)"/>
                 <ul>
-                  <li tal:repeat="res results">
+                  <li tal:repeat="res results" i18n:translate="">
                     <a tal:define="href python: res.get('path')"
                       tal:attributes="href href"
                       tal:content="python: res.get('path')"/>
@@ -61,10 +61,10 @@
                 </ul>
               </div>
             </div>
-            <div class="im-message msg-danger" tal:condition="errors">
+            <div class="im-message msg-danger" tal:condition="errors" i18n:translate="">
               Errors reported: <span tal:content="python:len(errors)"/>
               <ul>
-                <li tal:repeat="err errors">
+                <li tal:repeat="err errors" i18n:translate="">
                   <a tal:define="href python: err.get('path')"
                     tal:attributes="href href"
                     tal:content="python: err.get('path')"/>
@@ -77,25 +77,25 @@
         </metal:block>
       </tal:block>
 
-  <h1>Auto complete envelopes</h1>
-  <p class="info">
+  <h1 i18n:translate="">Auto complete envelopes</h1>
+  <p class="info" i18n:translate="">
     Searches the envelopes that have been in a given status for more than a given number of days and which are tagged with a certain obligation and allows Managers to complete the selected ones.
   </p>
 
   <form action="" method="post" name="search" tal:attributes="action request/URL">
 
-    <h2>1. Search envelopes</h2>
+    <h2 i18n:translate="">1. Search envelopes</h2>
 
     <div class="filters">
 
       <div class="form-group"
         tal:define="multiple string:multiple">
-        <label for="obligations">Obligations</label>
+        <label for="obligations" i18n:translate="">Obligations</label>
         <metal:block use-macro="here/engineMacros/macros/select2-obligations" />
       </div>
 
-      <div class="form-indent">
-        <label for="status">that have been</label>
+      <div class="form-indent" i18n:translate="">
+        <label for="status" i18n:translate="">that have been</label>
         <select name="status" id="status">
           <option></option>
           <tal:block repeat="item view/get_envelope_status">
@@ -105,14 +105,14 @@
           </tal:block>
         </select>
 
-        <label for="age">for more than</label>
+        <label for="age" i18n:translate="">for more than</label>
         <input type="text" name="age:int" id="age" size="3"
                tal:attributes="value request/age | string:0" /> days
         <small>(0 for all)</small>
       </div>
 
       <div>
-        <input type="submit" name="btn.search" value="Search" />
+        <input type="submit" name="btn.search" value="Search" i18n:attributes="value btn-search"/>
       </div>
 
     </div>
@@ -123,14 +123,14 @@
     <div tal:define="wks_data request/wks_data;
                      workflows python:request.get('workflows');
                      jsonify python: request.get('jsonify')">
-      <h2>2. Move forward the envelopes</h2>
+      <h2 i18n:translate="">2. Move forward the envelopes</h2>
 
       <div class="filters">
-        <h5>From the list below, move forward selected envelopes having:</h5>
+        <h5 i18n:translate="">From the list below, move forward selected envelopes having:</h5>
         <div tal:define="wf_data python: wks_data.get('wf_data');
                          tasks python: request.get('tasks')">
           <div class="form-group">
-            <label for="task">Task:</label>
+            <label for="task" i18n:translate="">Task:</label>
             <select name="task" id="task" class="autocomplete-select">
               <option tal:repeat="task python: sorted(tasks.keys())"
                       tal:attributes="value task;
@@ -139,7 +139,7 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="workflow">Workflow: </label>
+            <label for="workflow" i18n:translate="">Workflow: </label>
             <select name="workflow" id="workflow" class="autocomplete-select">
               <tal:rep tal:repeat="workflow python:sorted(workflows.keys())">
                 <option tal:condition="workflow"
@@ -150,28 +150,28 @@
             </select>
           </div>
           <div class="form-group">
-            <label for="inspectresults">Inspectresult: </label>
+            <label for="inspectresults" i18n:translate="">Inspectresult: </label>
             <select name="inspectresult" id="inspectresult" class="autocomplete-select">
             </select>
           </div>
         </div>
         <input onclick="javascript:return window.confirm('Are you sure you want to move selected envelopes forward?')"
                 type="submit"
-                name="btn.autocomplete" value="Ok" />
+                name="btn.autocomplete" value="Ok" i18n:attributes="value btn-ok"/>
       </div>
 
       <table class="datatable">
         <thead>
           <tr>
             <th></th>
-            <th>Coverage</th>
-            <th>Envelope</th>
-            <th>Workflow</th>
-            <th>Next possible tasks</th>
-            <th>Task</th>
-            <th>Status</th>
-            <th>User</th>
-            <th>Reported</th>
+            <th i18n:translate="">Coverage</th>
+            <th i18n:translate="">Envelope</th>
+            <th i18n:translate="">Workflow</th>
+            <th i18n:translate="">Next possible tasks</th>
+            <th i18n:translate="">Task</th>
+            <th i18n:translate="">Status</th>
+            <th i18n:translate="">User</th>
+            <th i18n:translate="">Reported</th>
           </tr>
         </thead>
 
@@ -186,7 +186,7 @@
               </td>
               <td tal:define="country workitem/getCountryName">
                 <span tal:replace="country" tal:condition="country" />
-                <span tal:condition="not: country">Unknown</span>
+                <span tal:condition="not: country" i18n:translate="">Unknown</span>
               </td>
               <td tal:define="envelope workitem/getParentNode">
                 <a tal:attributes="href envelope/absolute_url;
@@ -195,7 +195,7 @@
               </td>
               <td>
                 <a tal:condition="workflow" tal:attributes="href workflow" tal:content="python:workflow.split('/')[-1]"/>
-                <span tal:condition="not: workflow">Not Available</span>
+                <span tal:condition="not: workflow" i18n:translate="">Not Available</span>
               </td>
               <td>
                 <ul tal:condition="workflow">
@@ -212,7 +212,7 @@
               <td tal:content="workitem/status" />
               <td tal:define="actor workitem/actor">
                 <span tal:replace="actor" tal:condition="actor" />
-                <span tal:condition="not: actor">Not assigned</span>
+                <span tal:condition="not: actor" i18n:translate="">Not assigned</span>
               </td>
               <td tal:content="python:workitem.reportingdate.strftime('%Y/%m/%d')" />
             </tr>
@@ -223,7 +223,7 @@
   </form>
 
   <strong tal:condition="python: not request.get('wks_data')
-                         and request.get('btn.search')">
+                         and request.get('btn.search')" i18n:translate="">
     No envelopes found.
   </strong>
 

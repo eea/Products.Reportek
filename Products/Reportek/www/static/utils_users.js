@@ -1,4 +1,8 @@
 /*global $*/
+/*global document*/
+/*global window*/
+/*jslint browser:true */
+/* jslint:disable */
 "use strict";
 if (window.reportek === undefined) {
   var reportek = {
@@ -28,10 +32,10 @@ reportek.utils.users = {
     var self = reportek.utils.users;
     $("#datatable").data("table-type", $(".grouping-tabbed-elem.currenttab a").attr("id"));
     self.handleUsersGrouping();
-    if ($("#datatable").length !== 0)
+    if ($("#datatable").length !== 0) {
       self.loadResults();
+    }
   },
-
 
   generateRow: function(row, table_type) {
     var utils = reportek.utils;
@@ -111,14 +115,14 @@ reportek.utils.users = {
       uid_targets = $("[data-uid='" + user + "']");
 
       var tags_fullname = uid_targets.filter('.user-fullname');
-      if (fullname != '') {
+      if (fullname !== '') {
           tags_fullname.parent().html('<small>' + fullname + '</small>');
       } else {
         tags_fullname.parent().remove();
       }
 
       var tags_email = uid_targets.filter('.user-email');
-      if (email != '') {
+      if (email !== '') {
           tags_email.parent().html('<small><a href="mailto:' + email + '">' + email + '</a></small>');
       } else {
         tags_email.parent().remove();
@@ -149,7 +153,7 @@ reportek.utils.users = {
       self.updateUserType(user, self.users[user].utype);
     } else {
       $.ajax({
-        url: url,
+        url: url
       }).success(function(data) {
         self.updateUserTypeMapping(JSON.parse(data));
       });
@@ -163,7 +167,7 @@ reportek.utils.users = {
       $.ajax({
         url: url,
         method: 'POST',
-        data: {users: users},
+        data: {users: users}
         }).done(function(data) {
           var users = JSON.parse(data);
           $.each(users, function(idx, user) {
@@ -207,8 +211,8 @@ reportek.utils.users = {
     user_ul.append($("<li>" + self.renderUsersLI(user) + "</li>"));
     if (self.users[user.username] === undefined) {
       self.users[user.username] = user;
-      self.users[user.username]['checked'] = true;
-      self.users[user.username]['utype'] = "ECAS";
+      self.users[user.username].checked = true;
+      self.users[user.username].utype = "ECAS";
     }
     self.updateUserType(user.username, "ECAS", user.fullname, user.email);
   },
@@ -223,23 +227,25 @@ reportek.utils.users = {
     var ddata = [];
     self.ecas_populated[table_type][page] = true;
     for(var path in users) {
-      var klass = path.slice(1).split("/").join("-");
-      var row = $("."+klass).parents('tr');
-      $.each(users[path], function(idx, user) {
-        if (table_type === "grouped_by_member") {
-          var record = {};
-          record[this.uid] = {"role": this.role,
-                              "uid": this.uid}
-          ddata.push({"collection": {"path": this.path, "title": this.collection},
-                      "obligations": this.obligations,
-                      "users": record});
-        } else {
-          if (user.role === role) {
-            self.appendRowUsers(row, user);
+      if (users.hasOwnProperty(path)) {
+        var klass = path.slice(1).split("/").join("-");
+        var row = $("."+klass).parents('tr');
+        $.each(users[path], function(idx, user) {
+          if (table_type === "grouped_by_member") {
+            var record = {};
+            record[this.uid] = {"role": this.role,
+                                "uid": this.uid};
+            ddata.push({"collection": {"path": this.path, "title": this.collection},
+                        "obligations": this.obligations,
+                        "users": record});
+          } else {
+            if (user.role === role) {
+              self.appendRowUsers(row, user);
+            }
           }
-        }
-      })
-      row.find('.spinner-container').css("display", "none");
+        });
+        row.find('.spinner-container').css("display", "none");
+      }
     }
     if (ddata.length > 0) {
       reportek.utils.spinner.css("display", "block");
@@ -465,7 +471,7 @@ reportek.utils.users = {
     var self = reportek.utils.users;
     var regrouped = [];
     if (!data) {
-      var data = self.table_data;
+      data = self.table_data;
     }
     $.each(data, function(idx, record) {
       var newRec = $.extend({}, record);

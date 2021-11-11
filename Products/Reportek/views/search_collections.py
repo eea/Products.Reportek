@@ -10,7 +10,7 @@ class SearchCollections(BaseAdmin):
         if self.request.get('btn.create'):
             self.create_envelopes()
             return self.request.response.redirect('%s/%s?done=1' % (
-                        self.context.absolute_url(), self.__name__))
+                self.context.absolute_url(), self.__name__))
 
         return self.index()
 

@@ -1,9 +1,9 @@
 <metal:block use-macro="container/standard_template.pt/macros/page">
   <metal:block fill-slot="content">
 
-    <h1><img tal:attributes="src here/icon; alt here/meta_type" /> <tal:block tal:replace="here/id" /> details</h1>
+    <h1 i18n:translate=""><img tal:attributes="src here/icon; alt here/meta_type" /> <tal:block tal:replace="here/id" /> details</h1>
 
-    <p>
+    <p i18n:translate="">
       Transition details are presented in the following table. 
       The condition is used when the tokens move from activity to activity (condition must be evaluated to true).
       Activity details can be viewed by selecting the activity.
@@ -11,19 +11,19 @@
 
     <table class="datatable">
       <tr>
-        <th>Description</th>
+        <th i18n:translate="">Description</th>
         <td tal:content="here/description" />
       </tr>
       <tr>
-        <th>Condition</th>
+        <th i18n:translate="">Condition</th>
         <td tal:content="here/condition" />
       </tr>
       <tr>
-        <th>From</th>
+        <th i18n:translate="">From</th>
         <td><a tal:attributes="href string:../${here/From}" tal:content="here/From" /></td>
       </tr>
       <tr>
-        <th>To</th>
+        <th i18n:translate="">To</th>
         <td><a tal:attributes="href string:../${here/To}" tal:content="here/To" /></td>
       </tr>
     </table>

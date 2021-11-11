@@ -33,11 +33,11 @@
               <span class="icon-remove"></span>
             </a>
           </div>
-          <div class="im-message msg-warning" tal:condition="python: len(op_results) == 0">
+          <div class="im-message msg-warning" tal:condition="python: len(op_results) == 0" i18n:translate="">
             Nothing ticked in the previous screen
           </div>
           <div class="im-message msg-success" tal:condition="python: len(op_results) > 0">
-            <div class="info-message-content">
+            <div class="info-message-content" i18n:translate="">
               All roles removed from:
               <ul>
                 <li tal:repeat="res op_results">
@@ -60,7 +60,7 @@
         </tal:block>
 
         <tal:block tal:condition="results">
-          <tal:block tal:condition="isCdrDeployment">
+          <tal:block tal:condition="isCdrDeployment" i18n:translate="">
             <p i18n:translate="">The following LDAP members have either been disabled or, in the case of LDAP groups, been deleted or renamed from the LDAP server. The listed members still have local roles on the following collections:</p>
             <p i18n:translate="">The "Type" column can contain "Group" for LDAP Groups and "User" for LDAP Users. </p>
           </tal:block>
@@ -72,10 +72,10 @@
                 <th class="checkbox-column">
                   <input id="toggleAllCB" type="checkbox">
                 </th>
-                <th>Member</th>
-                <th tal:condition="isCdrDeployment">Type</th>
-                <th>Path</th>
-                <th>Roles</th>
+                <th i18n:translate="">Member</th>
+                <th tal:condition="isCdrDeployment" i18n:translate="">Type</th>
+                <th i18n:translate="">Path</th>
+                <th i18n:translate="">Roles</th>
               </tr>
             </thead>
 
@@ -99,24 +99,24 @@
                   </td>
                   <td tal:condition="isCdrDeployment" tal:content="search_type"/>
                   <td>
-                    <input type="hidden" tal:attributes="name res; value python: ','.join([path[0] for path in paths])" />
+                    <input type="hidden" tal:attributes="name res; value python: ','.join([p[0] for p in paths])" />
                     <ul>
-                      <li tal:repeat="path paths">
-                        <a tal:attributes="href python: path[0]" tal:content="python: path[0]" />
+                      <li tal:repeat="p paths">
+                        <a tal:attributes="href python: p[0]" tal:content="python: p[0]" />
                       </li>
                     </ul>
                   </td>
                   <td>
                     <ul>
-                      <li tal:repeat="path paths">
-                        <span tal:content="python: ','.join(path[1])" />
+                      <li tal:repeat="p paths">
+                        <span tal:content="python: ','.join(p[1])" />
                       </li>
                   </td>
                 </tal:block>
               </tr>
             </tbody>
           </table>
-          <input type="submit" name="btn.bulkrevoke" value="Revoke roles" />
+          <input type="submit" name="btn.bulkrevoke" value="Revoke roles" i18n:attributes="value btn-revoke-roles"/>
         </tal:block>
       </div>
     </form>

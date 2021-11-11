@@ -13,7 +13,7 @@
                i18n:translate="">Back to envelope</a>
           </li>
           <tal:block condition="python:context.checkPermissionAddComments() and not context.automatic">
-            <li><a href="comment_add_html" title="Add comment" i18n:translate="">Add comment</a></li>
+            <li><a href="comment_add_html" title="Add comment" i18n:translate="" i18n:attributes="title">Add comment</a></li>
           </tal:block>
           </ul>
       </div>
@@ -61,7 +61,8 @@
           <td tal:define="referred_doc python:getattr(context, context.document_id, None)">
               <tal:block condition="referred_doc">
                   <a tal:attributes="href string:${referred_doc/absolute_url}/manage_document"
-                     title="View file details" tal:content="context/document_id"></a>
+                     title="View file details" tal:content="context/document_id"
+                     i18n:attributes="title"></a>
               </tal:block>
               <tal:block condition="not:referred_doc">
                   <span tal:replace="template/document_id"/>

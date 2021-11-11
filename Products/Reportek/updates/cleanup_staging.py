@@ -1,8 +1,8 @@
-#this is meant to be run from instance debug
-# Cleanup CDR staging instance of envelopes that have modification time prior to
-# 2015.01.01
-#>>> from Products.Reportek.updates import cleanup_staging
-#>>> cleanup_staging.update(app)
+# this is meant to be run from instance debug
+# Cleanup CDR staging instance of envelopes that have modification time prior
+# to 2015.01.01
+# >>> from Products.Reportek.updates import cleanup_staging
+# >>> cleanup_staging.update(app)
 
 import transaction
 import DateTime
@@ -20,9 +20,9 @@ def update(app):
     start_date = DateTime.DateTime('1980-01-01')
     end_date = DateTime.DateTime(2015, 1, 1)
     query['bobobase_modification_time'] = {
-                    'range': 'min:max',
-                    'query': (start_date, end_date)
-                }
+        'range': 'min:max',
+        'query': (start_date, end_date)
+    }
     brains = catalog(query)
     total = len(brains)
 
@@ -37,7 +37,8 @@ def update(app):
             obj.unindex_object()
 
         envelope.unindex_object()
-        # In order not to check for can_move_released attribute, we suppress_events
+        # In order not to check for can_move_released attribute,
+        # we suppress_events
         parent._delObject(envelope.getId(), suppress_events=True)
 
         count += 1
@@ -47,5 +48,5 @@ def update(app):
 
     transaction.commit()
 
-    print "All done! Cleaned up %s envelopes from a total of %s" % (count, total)
-
+    print "All done! Cleaned up %s envelopes from a total of %s" % (count,
+                                                                    total)

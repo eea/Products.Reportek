@@ -1,4 +1,8 @@
 /*global $, jQuery*/
+/*global document*/
+/*global window*/
+/*jslint browser:true */
+/* jslint:disable */
 "use strict";
 
 window.jQuery(document).ready(function () {

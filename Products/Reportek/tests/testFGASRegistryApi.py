@@ -5,10 +5,10 @@ import json
 from mock import Mock, patch
 from Products.Reportek.RegistryManagement import FGASRegistryAPI
 from Products.Reportek.Collection import Collection
-from common import BaseTest, ConfigureReportek
+from common import BaseTest
 
 
-class FGASRegistryAPITest(BaseTest, ConfigureReportek):
+class FGASRegistryAPITest(BaseTest):
     userDetailInput = u"""
     [{"company_id": 1234,
       "name": "Blă Brul",
@@ -26,6 +26,7 @@ class FGASRegistryAPITest(BaseTest, ConfigureReportek):
       "collection_id": null}
     ]
     """
+
     def afterSetUp(self):
         super(FGASRegistryAPITest, self).afterSetUp()
         api = FGASRegistryAPI('FGASRegistryAPI', 'http://localhost:5000')
@@ -48,10 +49,13 @@ class FGASRegistryAPITest(BaseTest, ConfigureReportek):
 
         username = 'vasile'
         expectedPaths = {
-            'paths': [u'fgases/ro/fgas30001', u'fgases/ro/12345'],
+            'paths': ['fgases/ro/fgas30001', 'fgases/ro/12345'],
             'prev_paths': ['fgases/gb/fgas30001']
         }
 
         paths = self.root.api.getCollectionPaths(username)
-        self.assertEqual(req_mock.call_args[0][0], self.root.api.baseUrl + '/user/' + username + '/companies')
+
+        self.assertEqual(
+            req_mock.call_args[0][0],
+            self.root.api.baseUrl + '/user/' + username + '/companies')
         self.assertEqual(paths, expectedPaths)

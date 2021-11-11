@@ -1,11 +1,12 @@
-## Script (Python) "EnvelopeCreateSpeciesFile"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
-##parameters=language, author, specie, specie_from, region=[], species=None, confirm=False
-##title=Art 17: Creates a new instance file
+# flake8: noqa
+# Script (Python) "EnvelopeCreateSpeciesFile"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
+# parameters=language, author, specie, specie_from, region=[], species=None, confirm=False
+# title=Art 17: Creates a new instance file
 ##
 # Notice: Maintain the instancefile under /xmlexports, then cut-and-paste it to here
 # when changed
@@ -18,13 +19,13 @@ l_found = False
 if confirm == 'True':
 
     if request.has_key('submit_yes'):
-        l_found = True;
-        region      = SESSION.get('region')
-        language    = SESSION.get('language')
-        author      = SESSION.get('author')
-        specie      = SESSION.get('specie')
+        l_found = True
+        region = SESSION.get('region')
+        language = SESSION.get('language')
+        author = SESSION.get('author')
+        specie = SESSION.get('specie')
         specie_from = SESSION.get('specie_from')
-        species     = SESSION.get('species')
+        species = SESSION.get('species')
 
         del(SESSION['region'])
         del(SESSION['language'])
@@ -38,30 +39,32 @@ if confirm == 'True':
         return context.index_html()
 
 else:
-    if specie_from=='prechoise':
+    if specie_from == 'prechoise':
         l_found = True
         l_species = species
         author = ''
     else:
         l_species = specie.strip()
         for i in context.Art17species_queries(3):
-            if i[1].lower()==l_species:
+            if i[1].lower() == l_species:
                 l_found = True
                 l_species = i[1]
                 break
 
 err_msg = []
-if specie_from=='free_input':
-    #check species name
+if specie_from == 'free_input':
+    # check species name
     l_list = specie.split(' ')
     if len(l_list) >= 2:
         for k in l_list:
             if not len(k) > 0:
-                err_msg.append("The field 'Species scientific name' does not contain a valid name!")
+                err_msg.append(
+                    "The field 'Species scientific name' does not contain a valid name!")
                 break
     else:
-        err_msg.append("The field 'Species scientific name' does not contain a valid name!")
-    #chech author
+        err_msg.append(
+            "The field 'Species scientific name' does not contain a valid name!")
+    # chech author
     l_validyear = True
     if len(author) > 5:
         l_start = author.find('(')
@@ -78,12 +81,13 @@ if specie_from=='free_input':
     else:
         l_validyear = False
     if l_validyear == False:
-        err_msg.append("The field 'Author name (year)' does not contain a valid year!")
+        err_msg.append(
+            "The field 'Author name (year)' does not contain a valid year!")
 
 if len(region) < 1:
     err_msg.append('You have to select at least one region!')
 
-if species == None and specie_from=='prechoise':
+if species == None and specie_from == 'prechoise':
     err_msg.append('You have to select a species!')
 
 if len(err_msg) > 0:
@@ -98,19 +102,19 @@ if len(err_msg) > 0:
 
 if l_found == False:
 
-    SESSION.set('region',region)
-    SESSION.set('language',language)
-    SESSION.set('author',author)
-    SESSION.set('specie',specie)
-    SESSION.set('specie_from',specie_from)
-    SESSION.set('species',species)
+    SESSION.set('region', region)
+    SESSION.set('language', language)
+    SESSION.set('author', author)
+    SESSION.set('specie', specie)
+    SESSION.set('specie_from', specie_from)
+    SESSION.set('species', species)
     return response.redirect('EnvelopeCreateSpeciesFileConfirm')
 
 if l_found:
-    transmap = string.maketrans(' ','-')
+    transmap = string.maketrans(' ', '-')
     spec_filename = l_species.translate(transmap).lower()
-    filename="species-%s.xml" % spec_filename
-    title="Species questionnaire for %s" % l_species
+    filename = "species-%s.xml" % spec_filename
+    title = "Species questionnaire for %s" % l_species
     filecontent = []
 
     bioregions = {
@@ -128,7 +132,7 @@ if l_found:
     }
 
     def mapelem(elem):
-        return """<map href="%s-spec-%s.gml" rel_uri="/%s"/>""" % ( elem, spec_filename, context.absolute_url(1))
+        return """<map href="%s-spec-%s.gml" rel_uri="/%s"/>""" % (elem, spec_filename, context.absolute_url(1))
 
     filecontent.append("""<?xml version="1.0" encoding="UTF-8"?>
     <species xml:lang="%s" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://biodiversity.eionet.europa.eu/schemas/dir9243eec/species.xsd" xmlns="">
@@ -146,7 +150,7 @@ if l_found:
           %s
         </map-favourable-range>
       </national>
-    """ % (language, l_species, author, ' '.join(region), mapelem('map-range'), mapelem('map-distribution'), mapelem('map-favourable-range')) )
+    """ % (language, l_species, author, ' '.join(region), mapelem('map-range'), mapelem('map-distribution'), mapelem('map-favourable-range')))
 
     for r in region:
         filecontent.append("""
@@ -213,9 +217,10 @@ if l_found:
           <conclusion-assessment label="Overall assessment"/>
         </conclusion-n2000>
       </regional>
-    """ % (bioregions[r], r) )
+    """ % (bioregions[r], r))
     filecontent.append("</species>")
-    context.manage_addDocument(filename, title, ''.join(filecontent), 'text/xml','')
+    context.manage_addDocument(
+        filename, title, ''.join(filecontent), 'text/xml', '')
     #container.EnvelopeCreateEmptyGMLFile('map-range-spec-%s.gml' % spec_filename,'Range map',context)
     #container.EnvelopeCreateEmptyGMLFile('map-distribution-spec-%s.gml' % spec_filename,'Distribution map',context)
     #container.EnvelopeCreateEmptyGMLFile('map-favourable-range-spec-%s.gml' % spec_filename,'Favourable range map',context)

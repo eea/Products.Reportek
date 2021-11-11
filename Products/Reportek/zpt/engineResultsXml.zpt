@@ -2,10 +2,10 @@
   <metal:block fill-slot="content">
     <div id="operations">
     <ul>
-    <li><a href="searchxml">Search XML files</a></li>
+    <li><a href="searchxml" i18n:translate="">Search XML files</a></li>
     </ul>
     </div>
-    <h1>Results from XML search</h1>
+    <h1 i18n:translate="">Results from XML search</h1>
     <tal:block define="query_start python:request.get('query_start') or 0;
                      results python:context.getSearchResults(meta_type=request.get('meta_type', 'Report Document'),
                                                              xml_schema_location=request.get('xml_schema_location'),
@@ -35,30 +35,32 @@
           </metal:block>
 
           <metal:block fill-slot="resultsTableRowFormat">
-            <td tal:content="python:obj.getCountryName()">country_name</td>
+            <td tal:content="python:obj.getCountryName()" i18n:translate="">country_name</td>
             <td>
                 <a tal:attributes="href string:${obj/absolute_url_path}/manage_document"
+                   i18n:translate=""
                    tal:content="python:obj.title or obj.id">
                     title_link
                 </a>
             </td>
             <td style="white-space:nowrap"
+                i18n:translate=""
                 tal:content="python: '%s-%s' %(obj.year, obj.endyear) if obj.endyear else obj.year">
                 year-endyear
             </td>
-            <td>
+            <td i18n:translate="">
                 <tal:block content="python:obj.xml_schema_location">
                     schema
                 </tal:block>
             </td>
-            <td tal:content="python:obj.reportingdate.strftime('%Y/%m/%d')">reportingdate</td>
+            <td tal:content="python:obj.reportingdate.strftime('%Y/%m/%d')" i18n:translate="">reportingdate</td>
           </metal:block>
 
         </metal:block>
 
         </form>
       </tal:block>
-      <tal:block condition="python:not results">
+      <tal:block condition="python:not results" i18n:translate="">
             There was no data matching this query.
       </tal:block>
     </tal:block>

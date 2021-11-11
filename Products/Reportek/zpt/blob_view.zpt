@@ -5,6 +5,8 @@
       <div id="operations">
         <ul><li>
             <a title="Back to the containing envelope"
+                i18n:translate=""
+                i18n:attributes="title title-back-to-envelope"
                 tal:attributes="href python:envelope.absolute_url()">
             Back to envelope
           </a>

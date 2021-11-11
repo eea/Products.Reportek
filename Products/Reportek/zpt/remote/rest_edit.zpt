@@ -2,39 +2,39 @@
 <tal:block define="manage_tabs_message python:options.get('manage_tabs_message')"
            content="structure here/manage_tabs" />
 
-<p class="form-help">
+<p class="form-help" i18n:translate="">
 	To change property values, edit the values and click "Save Changes". 
 </p>
 
 <form action="manage_settings" method="post">
 <table>
   <tr>
-    <th align="left">Title</th>
+    <th align="left" i18n:translate="">Title</th>
     <td><input type="text" name="title" tal:attributes="value here/title" size="80" /></td>
   </tr>
   <tr>
-    <th align="left">Submit URL</th>
+    <th align="left" i18n:translate="">Submit URL</th>
     <td><input type="text" name="ServiceSubmitURL"
                tal:attributes="value here/ServiceSubmitURL" size="80" />
     </td>
   </tr>
   <tr>
-    <th align="left">Check URL</th>
+    <th align="left" i18n:translate="">Check URL</th>
     <td><input type="text" name="ServiceCheckURL"
                tal:attributes="value here/ServiceCheckURL" size="80" /></td>
   </tr>
 	<tr>
-		<th align="left">Activity ID</th>
+		<th align="left" i18n:translate="">Activity ID</th>
     <td><input type="text" name="app_name"
                tal:attributes="value here/app_name" size="80" /></td>
 	</tr>
 	<tr>
-		<th align="left">Maximum number of retries</th>
+		<th align="left" i18n:translate="">Maximum number of retries</th>
 		<td><input type="text" name="nRetries" tal:attributes="value here/nRetries" size="5" /></td>
 	</tr>
 	<tr>
 		<td></td>
-		<td><input type="submit" value="Save Changes" /></td>
+		<td><input type="submit" value="Save Changes" i18n:attributes="value btn-save-changes"/></td>
 	</tr>
 </table>
 </form>

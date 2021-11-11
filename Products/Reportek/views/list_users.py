@@ -146,15 +146,19 @@ class ListUsers(BaseAdmin):
                         'RO': 'Reader'
                     }
                     check_path = path[1:] if path.startswith('/') else path
-                    users[path] = [{'uid': u.get('username'),
-                                    'role': role_map.get(middleware.authorizedUser(u.get('username'), check_path)),
-                                    'collection': col.title,
-                                    'path': path,
-                                    'obligations': col_obligations,
-                                    'email': u.get('email'),
-                                    'username': u.get('username'),
-                                    'fullname': ' '.join([u.get('first_name'), u.get('last_name')])}
-                                   for u in c_data.get('users', [])]
+                    users[path] = [
+                        {'uid': u.get('username'),
+                         'role': role_map.get(
+                            middleware.authorizedUser(
+                                u.get('username'), check_path)),
+                         'collection': col.title,
+                         'path': path,
+                         'obligations': col_obligations,
+                         'email': u.get('email'),
+                         'username': u.get('username'),
+                         'fullname': ' '.join([u.get('first_name'),
+                                               u.get('last_name')])}
+                        for u in c_data.get('users', [])]
         return json.dumps(users)
 
     def get_records(self, REQUEST):
@@ -204,9 +208,11 @@ class ListUsers(BaseAdmin):
                                  if use_role in roles)
                 else:
                     if brain.local_defined_users:
-                        users = dict((user, {'uid': user,
-                                             'role': brain.local_defined_roles.get(user),
-                                             })
+                        users = dict((user,
+                                     {'uid': user,
+                                      'role': brain.local_defined_roles.get(
+                                        user),
+                                      })
                                      for user in brain.local_defined_users)
                 if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
                     # Hide our internal user agent from search results

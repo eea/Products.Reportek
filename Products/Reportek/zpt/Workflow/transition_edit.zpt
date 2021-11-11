@@ -4,25 +4,25 @@
 <form action="edit" method="post">
 <table>
 	<tr>
-		<td class="form-label" style="vertical-align:top"><label for="condition">Condition</label></td>
-		<td colspan="4">
+		<td class="form-label" style="vertical-align:top"><label for="condition" i18n:translate="">Condition</label></td>
+		<td colspan="4" i18n:translate="">
 			<input type="text" size="100" name="condition" id="condition" tal:attributes="value here/condition" size="60" /><br />
 			write the condition as a TAL expression like in: <pre>python:instance.some_property=='value'</pre>
 		</td>
 	</tr>
 	<tr>
-		<td class="form-label" style="vertical-align:top"><label for="description">Description</label></td>
+		<td class="form-label" style="vertical-align:top"><label for="description" i18n:translate="">Description</label></td>
 		<td colspan="4"><input type="text" size="100" name="description" id="description" tal:attributes="value here/description" /></td>
 	</tr>
 	<tr tal:define="activities python:here.tlzSortByAttr(here.getParentNode().objectValues(['Activity']), 'id')">
-		<td class="form-label" style="vertical-align:top">Transition</td>
-		<td><label for="From">From</label></td>
+		<td class="form-label" style="vertical-align:top" i18n:translate="">Transition</td>
+		<td><label for="From" i18n:translate="">From</label></td>
 		<td>
 			<select name="From" id="From">
 				<option tal:repeat="item activities" tal:attributes="value item/id; selected python:item.id==here.From" tal:content="item/id" />
 			</select>
 		</td>
-		<td><label for="To">To</label></td>
+		<td><label for="To" i18n:translate="">To</label></td>
 		<td>
 			<select name="To" id="To">
 				<option tal:repeat="item activities" tal:attributes="value item/id; selected python:item.id==here.To" tal:content="item/id" />
@@ -32,7 +32,7 @@
 	<tr>
 		<td></td>
 		<td colspan="4">
-			<input type="submit" name="submit" value="Change Transition" />
+			<input type="submit" name="submit" value="Change Transition" i18n:attributes="value btn-change-transition"/>
 		</td>
 	</tr>
 

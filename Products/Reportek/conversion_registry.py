@@ -18,7 +18,7 @@ def request_params(keys, obj=None):
                 params.append(registry_getters[key](obj))
             else:
                 params.append(registry_getters[key]())
-        except KeyError as err:
+        except KeyError:
             getters_log.warning('Getter for {0} not implemented.'.format(key))
             raise NotImplementedError
     return params

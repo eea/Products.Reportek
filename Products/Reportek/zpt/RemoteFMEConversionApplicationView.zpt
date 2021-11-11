@@ -2,80 +2,80 @@
   <metal:block fill-slot="content">
     <table>
       <tr>
-        <th align="left">Title</th>
+        <th align="left" i18n:translate="">Title</th>
         <td colspan="2"><input type="text" name="title" tal:attributes="value here/title" size="80" disabled="disabled"/></td>
       </tr>
       <tr>
-        <th align="left">FME Server</th>
+        <th align="left" i18n:translate="">FME Server</th>
         <td colspan="2"><input type="text" name="FMEServer"
                    tal:attributes="value here/FMEServer" size="80" disabled="disabled"/>
         </td>
       </tr>
       <tr>
-        <th align="left">FME Upload endpoint</th>
+        <th align="left" i18n:translate="">FME Upload endpoint</th>
         <td colspan="2"><input type="text" name="FMEUploadEndpoint"
                    tal:attributes="value here/FMEUploadEndpoint|nothing" size="80" disabled="disabled"/></td>
       </tr>
       <tr>
-        <th align="left">FME Upload directory (relative to FME Upload Endpoint)</th>
+        <th align="left" i18n:translate="">FME Upload directory (relative to FME Upload Endpoint)</th>
         <td colspan="2"><input type="text" name="FMEUploadDir"
                    tal:attributes="value here/FMEUploadDir|nothing" size="80" disabled="disabled"/></td>
       </tr>
       <tr>
-        <th align="left">FME Transformation path</th>
+        <th align="left" i18n:translate="">FME Transformation path</th>
         <td colspan="2"><input type="text" name="FMETransformation"
                    tal:attributes="value here/FMETransformation|nothing" size="80" disabled="disabled"/></td>
       </tr>
       <tr>
-        <th align="left">FME Workspace</th>
+        <th align="left" i18n:translate="">FME Workspace</th>
         <td colspan="2"><input type="text" name="FMEWorkspace"
                    tal:attributes="value here/FMEWorkspace|nothing" size="80" disabled="disabled"/></td>
       </tr>
       <tr>
-        <th align="left">FME Workspace exec parameters (JSON template)</th>
+        <th align="left" i18n:translate="">FME Workspace exec parameters (JSON template)</th>
         <td colspan="2">
-          <textarea name="FMEWorkspaceParams" rows="20" cols="80 "size="80"
-            tal:content="here/FMEWorkspaceParams|nothing" disabled="disabled">
-          </textarea>
+          <textarea tal:content="here/FMEWorkspaceParams|nothing"
+                    name="FMEWorkspaceParams" rows="20" cols="80" size="80"
+                    disabled="disabled"></textarea>
         </td>
       </tr>
       <tr>
-        <th align="left">FME Upload Parameters (one per line)</th>
+        <th align="left" i18n:translate="">FME Upload Parameters (one per line)</th>
         <td colspan="2">
           <textarea name="FMEUploadParams"
-            tal:content="here/FMEUploadParams|nothing" rows="10"cols="80" size="80" disabled="disabled"></textarea>
+            tal:content="here/FMEUploadParams|nothing" rows="10" cols="80" size="80" disabled="disabled"></textarea>
         </td>
       </tr>
       <tr>
-        <th align="left">FME Convert Filetypes (one per line)</th>
+        <th align="left" i18n:translate="">FME Convert Filetypes (one per line)</th>
         <td colspan="2">
           <textarea name="FMEFileTypes"
             tal:content="here/FMEFileTypes|nothing" rows="5" cols="80" size="80" disabled="disabled"></textarea>
         </td>
       </tr>
       <tr>
-        <th align="left">FME Upload all files in the envelope</th>
+        <th align="left" i18n:translate="">FME Upload all files in the envelope</th>
         <td colspan="2">
           <input type="checkbox" name="FMEUploadAll" tal:attributes="checked here/FMEUploadAll; value here/FMEUploadAll" disabled="disabled"/>
         </td>
       </tr>
       <tr>
-        <th align="left">FME Post Conversion Cleanup</th>
+        <th align="left" i18n:translate="">FME Post Conversion Cleanup</th>
         <td colspan="2">
           <input type="checkbox" name="FMEConvCleanup" tal:attributes="checked here/FMEConvCleanup; value here/FMEConvCleanup" disabled="disabled"/>
         </td>
       </tr>
         <tr>
-            <th align="left">Activity ID</th>
+            <th align="left" i18n:translate="">Activity ID</th>
         <td colspan="2"><input type="text" name="app_name"
                    tal:attributes="value here/app_name" size="80" disabled="disabled"/></td>
         </tr>
         <tr>
-            <th align="left">Maximum number of retries</th>
+            <th align="left" i18n:translate="">Maximum number of retries</th>
             <td colspan="2"><input type="text" name="nRetries" tal:attributes="value here/nRetries" size="5" disabled="disabled"/></td>
         </tr>
         <tr>
-            <th align="left"><label>Frequency of retry (seconds)</label></th>
+            <th align="left"><label i18n:translate="">Frequency of retry (seconds)</label></th>
             <td align="left">
                 <input type="text" name="retryFrequency" id="retryFrequency" tal:attributes="value here/retryFrequency" size="5" disabled="disabled"/> 
             </td>

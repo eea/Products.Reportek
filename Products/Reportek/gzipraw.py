@@ -4,14 +4,19 @@ import gzip
 class GzipFileRaw(gzip.GzipFile):
     # inherit GzipFile init. give both filenam and fileobj opened for writing
     def __init__(self, filename=None, mode=None,
-                 compresslevel=9, fileobj=None, mtime=None, crc=None, orig_size=None):
+                 compresslevel=9, fileobj=None, mtime=None, crc=None,
+                 orig_size=None):
         if mode != 'w' and mode != 'wb':
             raise NotImplementedError("GzipFileRaw is only for writing")
-        #if not (filename and fileobj):
-        #    raise ValueError("Need to know the name of the file inside zip. provide both filename and fileobj")
+        # if not (filename and fileobj):
+        #    raise ValueError("Need to know the name of the file inside zip.
+        #    provide both filename and fileobj")
         if not (crc and orig_size):
-            ValueError("Supply CRC and original size from the already compressed archive the content stems from")
-        super(GzipFileRaw, self).__init__(filename, mode, compresslevel, fileobj, mtime)
+            ValueError(
+                '''Supply CRC and original size from the already compressed'''
+                ''' archive the content stems from''')
+        super(GzipFileRaw, self).__init__(
+            filename, mode, compresslevel, fileobj, mtime)
         self.crc = crc
         self.size = orig_size
 
@@ -32,8 +37,8 @@ class GzipFileRaw(gzip.GzipFile):
             return
         self.fileobj.flush()
         # What if the CRC is bad or we write it in the wrong place
-        # There is no way to know this until we decompress. And then it could be too late
-        # and we may end up with a coreupted archive.
+        # There is no way to know this until we decompress. And then it could
+        # be too late and we may end up with a coreupted archive.
         # Make sure unittets always pass.
         gzip.write32u(self.fileobj, self.crc)
         gzip.write32u(self.fileobj, self.size & 0xffffffffL)

@@ -39,7 +39,8 @@ class Toolz:
 
     def __valideIssueProperty(self, param):
         """Check if exists a property with given value"""
-        return param in ['actor', 'country', 'bobobase_modification_time', 'reportingdate']
+        return param in ['actor', 'country', 'bobobase_modification_time',
+                         'reportingdate']
 
     def __validParams(self, sortby, how):
         """Validate sort parameters"""
@@ -53,7 +54,7 @@ class Toolz:
                 res = 0
         return res
 
-    #security.declareProtected('View', 'SearchSortWorkitems')
+    # security.declareProtected('View', 'SearchSortWorkitems')
     def SearchSortWorkitems(self, sortby, how):
         """Returns a sorted list with workitem objects"""
         l_workitems = self.getWorkitemsForWorklist()
@@ -63,14 +64,16 @@ class Toolz:
             else:
                 how = 1
             if sortby == 'bobobase_modification_time':
-                l_workitems = RepUtils.utSortByMethod(l_workitems, sortby, DateTime(), how)
+                l_workitems = RepUtils.utSortByMethod(
+                    l_workitems, sortby, DateTime(), how)
             else:
                 l_workitems = RepUtils.utSortByAttr(l_workitems, sortby, how)
         return l_workitems
 
-    #LDAP users info
+    # LDAP users info
     def getLDAPUser(self, uid):
-        ldap_user_folder = self.getPhysicalRoot().acl_users['ldapmultiplugin']['acl_users']
+        ldap_user_folder = self.getPhysicalRoot(
+        ).acl_users['ldapmultiplugin']['acl_users']
         res = ldap_user_folder.findUser(search_param='uid',
                                         search_term=uid,
                                         exact_match=True)
@@ -95,24 +98,28 @@ class Toolz:
     def getLDAPGroups(self):
         """ Return a list of LDAP group ids
         """
-        ldap_user_folder = self.getPhysicalRoot().acl_users['ldapmultiplugin']['acl_users']
+        ldap_user_folder = self.getPhysicalRoot(
+        ).acl_users['ldapmultiplugin']['acl_users']
         groups = ldap_user_folder.getGroups()
         group_ids = [group[0] for group in groups if group[0]]
 
         return group_ids
 
-    #collection related - must be globals to be able
-    #to call them in any context (ROOT or collection)
+    # collection related - must be globals to be able
+    # to call them in any context (ROOT or collection)
     def dataflow_table_grouped(self, key='SOURCE_TITLE', desc=0):
-        #ROOT method dataflow_table returns a list of dictionaries
-        #with the following keys: 'terminated', 'PK_RA_ID', 'SOURCE_TITLE',
+        # ROOT method dataflow_table returns a list of dictionaries
+        # with the following keys: 'terminated', 'PK_RA_ID', 'SOURCE_TITLE',
         # 'details_url', 'TITLE', 'uri', 'LAST_UPDATE', 'PK_SOURCE_ID'
-        #we want to group items by given key, ascendent(desc=0) or descendent(desc=1)
+        # we want to group items by given key, ascendent(desc=0) or
+        # descendent(desc=1)
         r = defaultdict(list)
         for item in RepUtils.utSortListByAttr(
-                getattr(self, constants.ENGINE_ID).dataflow_table(), key, desc):
+                getattr(self, constants.ENGINE_ID).dataflow_table(),
+                key, desc):
             r[item[key]].append(item)
-        # unfortunetely, Zope framework seems not to handle just any Python code (like defaultdict), so ulglify this a little, the zope way...
+        # unfortunetely, Zope framework seems not to handle just any
+        # Python code (like defaultdict), so ulglify this a little
         return sorted(r.keys(), reverse=desc), dict(r)
 
     def partofyear_table(self):
@@ -141,17 +148,21 @@ class Toolz:
         return ordered_keys
 
     def tlzNewlineToBr(self, s):
-        #converts the new lines to br tags and encodes the content
+        # converts the new lines to br tags and encodes the content
         t = html_quote(s)
-        if t.find('\r') >= 0: t = ''.join(t.split('\r'))
-        if t.find('\n') >= 0: t = '<br />'.join(t.split('\n'))
+        if t.find('\r') >= 0:
+            t = ''.join(t.split('\r'))
+        if t.find('\n') >= 0:
+            t = '<br />'.join(t.split('\n'))
         return t
 
     def tlzNewlineToBrEx(self, s):
-        #converts the new lines to br tags and without encoding the content
+        # converts the new lines to br tags and without encoding the content
         t = s
-        if t.find('\r') >= 0: t = ''.join(t.split('\r'))
-        if t.find('\n') >= 0: t = '<br />'.join(t.split('\n'))
+        if t.find('\r') >= 0:
+            t = ''.join(t.split('\r'))
+        if t.find('\n') >= 0:
+            t = '<br />'.join(t.split('\n'))
         return t
 
     def tlzSortByAttr(self, p_obj_list, p_attr, p_sort_order=0):
@@ -163,13 +174,17 @@ class Toolz:
                                                p_sort_order)
 
     def truncate(self, text):
-        if len(text)<=80:
+        if len(text) <= 80:
             return text
         return '%s ...' % text[:77]
 
-
     def cook_file_id(self, file_id):
-        """ cleans up a file id to make it suitable for a Zope id or a file system id """
+        """ cleans up a file id to make it suitable for a Zope id or a
+            file system id
+        """
         if file_id:
-            file_id = file_id[max(rfind(file_id, '/'), rfind(file_id, '\\'), rfind(file_id, ':')) + 1:]
+            file_id = file_id[max(
+                rfind(file_id, '/'),
+                rfind(file_id, '\\'),
+                rfind(file_id, ':')) + 1:]
         return RepUtils.cleanup_id(file_id.strip())

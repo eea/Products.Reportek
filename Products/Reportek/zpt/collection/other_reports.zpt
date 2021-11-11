@@ -15,7 +15,7 @@
       <div tal:condition="python: not owncolls or not (rw_colls or ro_colls)">
         <p i18n:translate="">No other reports available</p>
       </div>
-      <h2 tal:condition="python: comp_ro_colls or comp_rw_colls">Other reports for this company</h2>
+      <h2 tal:condition="python: comp_ro_colls or comp_rw_colls" i18n:translate="">Other reports for this company</h2>
       <div tal:condition="python: comp_ro_colls">
         <p i18n:translate="">Previous reports for this company:</p>
         <ul tal:repeat="col comp_ro_colls">
@@ -32,7 +32,7 @@
           </li>
         </ul>
       </div>
-      <h2 tal:condition="python: rw_colls or ro_colls and not is_manager">Reports for other companies where the user is a reporter</h2>
+      <h2 tal:condition="python: rw_colls or ro_colls and not is_manager" i18n:translate="">Reports for other companies where the user is a reporter</h2>
       <div tal:condition="python: rw_colls">
         <p i18n:translate="">Current active reports (excluding the current context):</p>
         <ul tal:repeat="col rw_colls">

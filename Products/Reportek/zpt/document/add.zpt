@@ -29,8 +29,8 @@
           <td align="left" valign="top"><input type="file" name="file" size="25" value="" /></td>
         </tr>
         <tr>
-          <th align="left">Id</th>
-          <td align="left"><input type="text" name="id" size="40" i18n:translate=""/> (optional)</td>
+          <th align="left" i18n:translate="">Id</th>
+          <td align="left" i18n:translate=""><input type="text" name="id" size="40" i18n:translate=""/> (optional)</td>
         </tr>
 
         <tr tal:condition="

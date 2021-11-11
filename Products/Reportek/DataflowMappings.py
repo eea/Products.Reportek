@@ -1,5 +1,3 @@
-__doc__ = """Container for mappings between dataflows and XML schemas"""
-
 from UserList import UserList
 
 from AccessControl import ClassSecurityInfo
@@ -10,6 +8,7 @@ from DataflowMappingsRecord import DataflowMappingsRecord
 from Globals import InitializeClass
 from OFS.Folder import Folder
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
+__doc__ = """Container for mappings between dataflows and XML schemas"""
 
 
 class DataflowMappings(Folder):
@@ -17,7 +16,7 @@ class DataflowMappings(Folder):
 
     manage_options = (Folder.manage_options[0],
                       {'label': 'View', 'action': 'index_html'}
-                     ) + Folder.manage_options[2:]
+                      ) + Folder.manage_options[2:]
 
     meta_type = 'Dataflow Mappings'
 
@@ -56,8 +55,10 @@ class DataflowMappings(Folder):
     def getSchemaObjectsForDataflows(self, dataflow_uris, web_form_only):
         """
         Returns schemas for one or many dataflows
-        dataflow_uris - one uri (str) looked after, a list for any uri in it or leave None (False) for all dataflows
-        web_form_only - if True only Schemas that have webforms will be returned
+        dataflow_uris - one uri (str) looked after, a list for any uri in it
+        or leave None (False) for all dataflows
+        web_form_only - if True only Schemas that have webforms will be
+        returned
         return - list of found schema objects
         """
         brains = self.get_dataflow_mapping_records(dataflow_uris,
@@ -66,38 +67,43 @@ class DataflowMappings(Folder):
         for brain in brains:
             for schema in brain.getObject().mapping['schemas']:
                 if not web_form_only or schema['has_webform']:
-                    # yield schema # can't yield here if using dtml; it doesn't know how to iterate
+                    # yield schema # can't yield here if using dtml; it doesn't
+                    # know how to iterate
                     res.append(schema)
         return res
-
 
     def getSchemasForDataflows(self, dataflow_uris=None, web_form_only=False):
         """
         Returns schemas for one or many dataflows
-        dataflow_uris - one uri (str) looked after, a list for any uri in it or leave None (False) for all dataflows
-        web_form_only - if True only Schemas that have webforms will be returned
+        dataflow_uris - one uri (str) looked after, a list for any uri in it or
+        leave None (False) for all dataflows
+        web_form_only - if True only Schemas that have webforms will be
+        returned
         return - list of found schemas
         """
-        schemaObjects = self.getSchemaObjectsForDataflows(dataflow_uris, web_form_only)
-        return [ schema['url'] for schema in schemaObjects ]
+        schemaObjects = self.getSchemaObjectsForDataflows(
+            dataflow_uris, web_form_only)
+        return [schema['url'] for schema in schemaObjects]
 
-    def get_webform_url_for_schema(self, schema, dataflow_uris=None, web_form_only=False):
+    def get_webform_url_for_schema(self, schema, dataflow_uris=None,
+                                   web_form_only=False):
         """Return the webform base url for schema"""
 
-        schemaObjects = self.getSchemaObjectsForDataflows(dataflow_uris, web_form_only)
+        schemaObjects = self.getSchemaObjectsForDataflows(
+            dataflow_uris, web_form_only)
         for schema_obj in schemaObjects:
             if schema_obj.get('url') == schema:
                 return schema_obj.get('wf_edit_url')
 
     security.declarePublic('dataflows_select')
     dataflows_select = PageTemplateFile(
-            'zpt/dataflow-mappings/dataflows_select',
-            globals())
+        'zpt/dataflow-mappings/dataflows_select',
+        globals())
 
     security.declarePublic('dataflows_select')
     dataflows_select = PageTemplateFile(
-            'zpt/dataflow-mappings/dataflows_select',
-            globals())
+        'zpt/dataflow-mappings/dataflows_select',
+        globals())
 
     def get_xls_conversion_type(self, dataflow_uris=None, web_form_only=False):
         """Return the xls conversion type."""
@@ -116,5 +122,6 @@ class DataflowMappings(Folder):
 
     security.declareProtected('View management screens', 'index_html')
     index_html = PageTemplateFile('zpt/dataflow-mappings/index', globals())
+
 
 InitializeClass(DataflowMappings)

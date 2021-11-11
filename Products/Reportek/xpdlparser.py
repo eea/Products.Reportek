@@ -28,9 +28,8 @@ Parses XML files and extract DTD identifier or XML Schema URL.
 
 # Python imports
 from xml.sax.handler import ContentHandler
-from xml.sax import *
+from xml.sax import make_parser, InputSource
 from cStringIO import StringIO
-from copy import copy
 
 
 class WorkflowHandler(ContentHandler):
@@ -42,11 +41,11 @@ class WorkflowHandler(ContentHandler):
         self.__transitions = []
 
     def startElement(self, name, attrs):
-        #build a dictionary with all attributes
+        # build a dictionary with all attributes
         attrs_dict = {}
         for attr in attrs.keys():
             attrs_dict[attr] = attrs[attr]
-        #parse tags
+        # parse tags
         if name == 'process':
             self.__process = {}
             self.__activities = []
@@ -66,6 +65,7 @@ class WorkflowHandler(ContentHandler):
             self.__process['transitions'] = self.__transitions
             self.processes.append(self.__process)
 
+
 class sxpdlparser:
     """ """
 
@@ -83,5 +83,5 @@ class sxpdlparser:
         try:
             l_parser.parse(l_inpsrc)
             return l_handler
-        except:
+        except Exception:
             return None

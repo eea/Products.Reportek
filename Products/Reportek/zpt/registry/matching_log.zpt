@@ -22,8 +22,8 @@
                                                fgas_allowed python: is_manager or is_fgas_client;
                                                ods_allowed python: is_manager or is_ods_client;">
 
-    <h1>Approval log</h1>
-    <p>
+    <h1 i18n:translate="">Approval log</h1>
+    <p i18n:translate="">
       Company approval history order by timestamp.
       You can see the details of an approved company by clicking on the
       company id.
@@ -32,20 +32,20 @@
     </p>
 
     <div class="obligation-select-container">
-      <label for="domain">Filter companies by obligation:</label>
+      <label for="domain" i18n:translate="">Filter companies by obligation:</label>
       <select id="domain" name="domain">
-        <option tal:condition="ods_allowed" value="ODS">ODS</option>
-        <option tal:condition="fgas_allowed" value="FGAS">FGAS</option>
+        <option tal:condition="ods_allowed" value="ODS" i18n:translate="">ODS</option>
+        <option tal:condition="fgas_allowed" value="FGAS" i18n:translate="">FGAS</option>
       </select>
     </div>
     <table class="table" id="approval-table">
       <thead>
         <tr>
-          <th>Company</th>
-          <th>Approval success</th>
-          <th>User</th>
-          <th>Date</th>
-          <th>Lockdown</th>
+          <th i18n:translate="">Company</th>
+          <th i18n:translate="">Approval success</th>
+          <th i18n:translate="">User</th>
+          <th i18n:translate="">Date</th>
+          <th i18n:translate="">Lockdown</th>
         </tr>
       </thead>
       <tbody>

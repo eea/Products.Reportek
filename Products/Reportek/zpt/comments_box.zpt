@@ -65,8 +65,8 @@
 	<hr class="hr_addcomment" />
 	<div tal:repeat="item here/listComments" class="comment_box">
 		<a tal:attributes="name item/id"></a>
-		<span tal:content="item/title" class="commentbox_title">Comment title here</span>&nbsp;
-		<a tal:condition="item/in_reply" tal:attributes="href string:${here/absolute_url}#${item/in_reply}">
+		<span tal:content="item/title" class="commentbox_title" i18n:translate="">Comment title here</span>&nbsp;
+		<a tal:condition="item/in_reply" tal:attributes="href string:${here/absolute_url}#${item/in_reply}" i18n:translate="">
 			[In reply to 
 			<span tal:define="reply python:here.getComment(item.in_reply)" tal:replace="reply/author" />]
 		</a>
@@ -76,9 +76,9 @@
 		</span>
 		<tal:block define="files python:item.objectValues('File')">
 		<div tal:condition="files">
-			<strong>Attached files: </strong><br />
+			<strong i18n:translate="">Attached files: </strong><br />
 			<tal:block repeat="file files">
-				<span><a tal:attributes="href file/absolute_url" title="Download attached file" tal:content="file/id" /></span><br />
+				<span><a tal:attributes="href file/absolute_url" title="Download attached file" tal:content="file/id" i18n:attributes="title title-download-attached-file"/></span><br />
 			</tal:block>
 		</div>
 		</tal:block>
@@ -86,25 +86,28 @@
 		<hr class="hr_inside_comment" /> |
 		<a tal:condition="here/checkPermissionManageComments"
 			tal:attributes="href string:${here/absolute_url}/deleteComment?id=${item/id}"
+			i18n:translate=""
 			class="comment_actions">
 			Delete</a>
 		<a tal:condition="item/checkPermissionEditComments"
 			tal:attributes="href string:${here/absolute_url}/${item/id}/comment_edit"
+			i18n:translate=""
 			class="comment_actions">
 			Edit</a>
 		<a tal:condition="item/checkPermissionAddComments"
 			tal:attributes="href string:${here/absolute_url}/comment_add_html?id=${item/id}"
+			i18n:translate=""
 			class="comment_actions">
 			Reply</a>
 		<span class="commentbox_content">
-			<span tal:omit-tag="">Posted by</span>
+			<span tal:omit-tag="" i18n:translate="">Posted by</span>
 			<span tal:replace="item/author" />
-			<span tal:omit-tag="">at</span>
+			<span tal:omit-tag="" i18n:translate="">at</span>
 			<span tal:replace="python:here.showDateTime(item.date)" />
 			<tal:block condition="item/modified_by"> | 
-				<span tal:omit-tag="">Last edited by</span>
+				<span tal:omit-tag="" i18n:translate="">Last edited by</span>
 				<span tal:replace="item/modified_by" />
-				<span tal:omit-tag="">at</span>
+				<span tal:omit-tag="" i18n:translate="">at</span>
 				<span tal:replace="python:here.showDateTime(item.modification_date)" />
 			</tal:block>
 		</span>

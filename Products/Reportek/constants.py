@@ -19,7 +19,6 @@
 # Miruna Badescu, Finsiel Romania
 
 
-
 # ZCatalog
 DEFAULT_CATALOG = 'Catalog'
 
@@ -51,7 +50,7 @@ CONTENT_TYPES = {
     'application/vnd.google-earth.kml+xml': '.kml'
 }
 
-#Mime-types ignored by sentry logger
+# Mime-types ignored by sentry logger
 IGNORED_MIME_TYPES = [
     'application/octet-stream',
     'text/plain',

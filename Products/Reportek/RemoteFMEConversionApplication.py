@@ -18,15 +18,13 @@
 # Contributor(s):
 # Miruna Badescu, Eau de Web
 
-## RemoteFMEConversionApplication
+# RemoteFMEConversionApplication
 ##
 
 import json
 import logging
-import re
 from datetime import datetime, timedelta
 from StringIO import StringIO
-from urlparse import urlparse
 
 import requests
 from AccessControl import ClassSecurityInfo
@@ -40,7 +38,8 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 logger = logging.getLogger(__name__ + '.FME')
 FEEDBACKTEXT_LIMIT = 1024 * 16  # 16KB
 
-manage_addRemoteFMEConversionApplicationForm = PageTemplateFile('zpt/RemoteFMEConversionApplicationAdd',globals())
+manage_addRemoteFMEConversionApplicationForm = PageTemplateFile(
+    'zpt/RemoteFMEConversionApplicationAdd', globals())
 
 
 def manage_addRemoteFMEConversionApplication(self, id='', title='',
@@ -84,17 +83,19 @@ class RemoteFMEConversionApplication(SimpleItem):
     security = ClassSecurityInfo()
     meta_type = 'Remote FME Application'
     manage_options = (
-        ( {'label' : 'Settings', 'action' : 'manage_settings_html'}, ) +
-        SimpleItem.manage_options
+        ({'label': 'Settings', 'action': 'manage_settings_html'}, )
+        + SimpleItem.manage_options
     )
     UP_METHOD = 'filesys'
     DOWN_METHOD = 'downloadzip'
 
     security.declareProtected(view_management_screens, 'manage_settings_html')
-    manage_settings_html = PageTemplateFile('zpt/RemoteFMEConversionApplicationSettings', globals())
+    manage_settings_html = PageTemplateFile(
+        'zpt/RemoteFMEConversionApplicationSettings', globals())
 
     security.declareProtected('View configuration', 'index_html')
-    index_html = PageTemplateFile('zpt/RemoteFMEConversionApplicationView', globals())
+    index_html = PageTemplateFile(
+        'zpt/RemoteFMEConversionApplicationView', globals())
 
     def __init__(self, id, title, FMEServer, FMETokenEndpoint,
                  FMEToken, FMEUser, FMEPassword, FMETokenExpiration,
@@ -148,7 +149,8 @@ class RemoteFMEConversionApplication(SimpleItem):
         self.app_name = REQUEST.form.get('app_name')
         self.nRetries = int(REQUEST.form.get('nRetries'))
         if REQUEST is not None:
-            return self.manage_settings_html(manage_tabs_message='Saved changes.')
+            return self.manage_settings_html(
+                manage_tabs_message='Saved changes.')
 
     def get_fme_token(self):
         """Retrieves the token from FME"""
@@ -165,19 +167,26 @@ class RemoteFMEConversionApplication(SimpleItem):
             'hour': 3600,
             'day': 86400
         }
-        offset = int(self.FMETokenExpiration) * t_unit.get(self.FMETokenTimeUnit)
+        offset = int(self.FMETokenExpiration) * \
+            t_unit.get(self.FMETokenTimeUnit)
         expires = DateTime(datetime.now() + timedelta(seconds=offset))
         try:
-            resp = requests.post('/'.join([self.FMEServer, self.FMETokenEndpoint]),
+            resp = requests.post('/'.join([self.FMEServer,
+                                           self.FMETokenEndpoint]),
                                  params=params)
             if resp.ok:
                 res['token'] = resp.content
                 res['expires'] = expires
 
             else:
-                logger.error('FME authentication request failed. Could not retrieve token: {}-{}'.format(resp.status_code, resp.content))
+                logger.error(
+                    '''FME authentication request failed. Could not'''
+                    ''' retrieve token: {}-{}'''.format(resp.status_code,
+                                                        resp.content))
         except Exception as e:
-            logger.error('FME authentication request failed. Could not retrieve token: {}'.format(str(e)))
+            logger.error(
+                '''FME authentication request failed. Could not'''
+                ''' retrieve token: {}'''.format(str(e)))
 
         return res
 
@@ -213,18 +222,25 @@ class RemoteFMEConversionApplication(SimpleItem):
                     ext.append(f_ext)
                 for e in ext:
                     e_files = [f for f in env.objectValues('Report Document')
-                               if f.title_or_id().lower().endswith('.' + e.strip().lower())]
+                               if f.title_or_id().lower().endswith(
+                                '.' + e.strip().lower())]
                     if e_files:
                         for e_file in e_files:
                             grp_prefix = e_file.title_or_id().split('.')[0]
-                            if not latest.get(grp_prefix) or (latest.get(grp_prefix) and latest.get(grp_prefix).lessThanEqualTo(e_file.bobobase_modification_time())):
-                                latest[grp_prefix] = e_file.bobobase_modification_time()
+                            if (not latest.get(grp_prefix)
+                                or (latest.get(grp_prefix)
+                                    and latest.get(grp_prefix).lessThanEqualTo(
+                                        e_file.bobobase_modification_time()))):
+                                latest[grp_prefix] = \
+                                    e_file.bobobase_modification_time()
             if not latest:
                 raise ValueError(
                     'No convertible files found in the envelope. '
                     'Convertible file extensions for this workflow: {}.'
                     .format(', '.join(ext)))
-            up_group = latest.keys()[latest.values().index(sorted(latest.values(), reverse=True)[0])]
+            up_group = latest.keys()[
+                latest.values().index(
+                    sorted(latest.values(), reverse=True)[0])]
             files = [f for f in env.objectValues('Report Document')
                      if f.title_or_id().lower().startswith(up_group.lower())]
         else:
@@ -236,7 +252,8 @@ class RemoteFMEConversionApplication(SimpleItem):
     def get_auth_header(self, workitem_id):
         token = self.get_token(workitem_id)
         if token:
-            return {"Authorization": "fmetoken token={}".format(token.get('token'))}
+            return {"Authorization": "fmetoken token={}".format(
+                token.get('token'))}
         return {}
 
     def get_headers(self, workitem_id):
@@ -303,15 +320,23 @@ class RemoteFMEConversionApplication(SimpleItem):
                 1: 'SUCCESS',
                 2: 'One or more files have not been added to the envelope'
             }
-            return (add, RESULTS.get(add, 'Something went wrong while saving the converted file(s) in the envelope'))
+            return (
+                add,
+                RESULTS.get(add,
+                            '''Something went wrong while saving the'''
+                            ''' converted file(s) in the envelope'''))
         else:
-            return (res.status_code, 'Something went wrong while retrieving the converted file(s)')
+            return (
+                res.status_code,
+                'Something went wrong while retrieving the converted file(s)')
 
     def upload_to_fme(self, workitem_id):
         """Upload the file(s) to the fme data upload"""
         workitem = getattr(self, workitem_id)
         upload_storage = getattr(workitem, self.app_name, {}).get('upload')
-        if upload_storage.get('retries_left') and upload_storage.get('next_run').lessThanEqualTo(DateTime()):
+        if (upload_storage.get('retries_left')
+                and upload_storage.get(
+                    'next_run').lessThanEqualTo(DateTime())):
             url = '/'.join([self.FMEServer,
                             self.FMEUploadEndpoint,
                             self.UP_METHOD,
@@ -323,7 +348,8 @@ class RemoteFMEConversionApplication(SimpleItem):
                     v = p.split(':')[1].strip()
                     params[k] = v
             files = self.get_files(workitem_id)
-            files = [('files', (f.title_or_id(), f.data_file.open('rb'))) for f in files]
+            files = [('files', (f.title_or_id(), f.data_file.open('rb')))
+                     for f in files]
             tokenized_folder = self.get_env_path_tokenized(workitem_id)
             url = '/'.join([url, tokenized_folder])
             try:
@@ -359,7 +385,8 @@ class RemoteFMEConversionApplication(SimpleItem):
             for file in files:
                 file[-1][-1].close()
 
-    def get_uploaded_files(self, workitem_id, single_file=False, shapefile=False):
+    def get_uploaded_files(self, workitem_id, single_file=False,
+                           shapefile=False):
         """Return a list of uploaded files"""
         workitem = getattr(self, workitem_id)
         env = workitem.getMySelf()
@@ -383,8 +410,8 @@ class RemoteFMEConversionApplication(SimpleItem):
         if shapefile and upload_storage['paths']:
             for p in reversed(upload_storage['paths']):
                 if p.endswith('.shp') or p.endswith('.zip'):
-                    gmls = [fid.split('.')[0] for fid in env.objectIds('Report Document')
-                            if fid.endswith('.gml')]
+                    gmls = [fid.split('.')[0] for fid in env.objectIds(
+                        'Report Document') if fid.endswith('.gml')]
                     if not [x for x in gmls if p.split('.')[0] in x]:
                         return p
         return upload_storage['paths']
@@ -398,12 +425,15 @@ class RemoteFMEConversionApplication(SimpleItem):
         wks_params = {}
         # Load the params setup on an application level
         if self.FMEWorkspaceParams:
-            file_list = [f.absolute_url() for f in self.get_files(workitem_id)]
-            wks_params = self.FMEWorkspaceParams.format(GET_FILE=self.get_uploaded_files(workitem_id, single_file=True),
-                                                        GET_SHAPEFILE=self.get_uploaded_files(workitem_id, shapefile=True),
-                                                        ENVPATHTOKENIZED=self.get_env_path_tokenized(workitem_id),
-                                                        FMEUPLOADDIR=self.FMEUploadDir,
-                                                        GET_ENV_OBLIGATION=self.get_env_obligation(workitem_id))
+            wks_params = self.FMEWorkspaceParams.format(
+                GET_FILE=self.get_uploaded_files(workitem_id,
+                                                 single_file=True),
+                GET_SHAPEFILE=self.get_uploaded_files(
+                    workitem_id, shapefile=True),
+                ENVPATHTOKENIZED=self.get_env_path_tokenized(
+                    workitem_id),
+                FMEUPLOADDIR=self.FMEUploadDir,
+                GET_ENV_OBLIGATION=self.get_env_obligation(workitem_id))
             wks_params = json.loads(wks_params.replace("'", '"'))
             # Get the used inputfile
             inputfile = None
@@ -413,12 +443,14 @@ class RemoteFMEConversionApplication(SimpleItem):
                     inputfile = param.get('value')
         try:
             # params should be passed in the body of the request
-            res = requests.post(url, data=json.dumps(wks_params), headers=self.get_headers(workitem_id))
+            res = requests.post(url, data=json.dumps(
+                wks_params), headers=self.get_headers(workitem_id))
             if res.status_code == 202:
                 # submission successful, response looks like:
                 # res.json()
                 # {u'id': 989126}
-                # If we posted multiple files, do we get a single ID back? expecting a mail response to this
+                # If we posted multiple files, do we get a single ID back?
+                # expecting a mail response to this
                 results[res.json().get('id')] = {
                     'retries_left': self.nRetries,
                     'last_error': None,
@@ -426,7 +458,8 @@ class RemoteFMEConversionApplication(SimpleItem):
                     'status': 'pending',
                     'inputfile': inputfile
                 }
-                workitem.addEvent('FME job id: {} started'.format(res.json().get('id')))
+                workitem.addEvent(
+                    'FME job id: {} started'.format(res.json().get('id')))
                 self.__update_storage(workitem, 'fmw_exec', status='completed')
             else:
                 err = 'HTTP: {}: {}'.format(res.status_code, res.content)
@@ -440,17 +473,23 @@ class RemoteFMEConversionApplication(SimpleItem):
 
     def poll_results(self, workitem_id):
         """Polls for results"""
-        # https://fme.discomap.eea.europa.eu/fmerest/v3/transformations/jobs/id/<job_id>
+        # https://<fme_service>/fmerest/v3/transformations/jobs/id/<job_id>
         workitem = getattr(self, workitem_id)
         results = getattr(workitem, self.app_name, {}).get('results')
         rest_endpoint = 'fmerest/v3/transformations/jobs/id'
         if results:
             for job_id in results.keys():
-                if results[job_id].get('status') not in ['completed', 'failed'] and results[job_id].get('retries_left') and results[job_id].get('next_run').lessThanEqualTo(DateTime()):
+                if (results[job_id].get('status') not in ['completed',
+                                                          'failed']
+                        and results[job_id].get('retries_left')
+                        and results[job_id].get(
+                            'next_run').lessThanEqualTo(DateTime())):
                     inputfile = results[job_id].get('inputfile')
-                    url = '/'.join([self.FMEServer, rest_endpoint, str(job_id)])
+                    url = '/'.join([self.FMEServer,
+                                    rest_endpoint, str(job_id)])
                     try:
-                        res = requests.get(url, headers=self.get_headers(workitem_id))
+                        res = requests.get(
+                            url, headers=self.get_headers(workitem_id))
                         if res.status_code == 200:
                             fme_status = {
                                 'SUBMITTED': '',
@@ -479,58 +518,74 @@ class RemoteFMEConversionApplication(SimpleItem):
                             ]
                             if fme_status == 'SUCCESS':
                                 if response.get('result'):
-                                    job_status = response['result'].get('status')
+                                    job_status = response['result'].get(
+                                        'status')
                                     if job_status == 'SUCCESS':
                                         try:
-                                            workitem.addEvent('FME job id: {} finished'.format(job_id))
-                                            dl_res = self.handle_res_zip_download(workitem_id)
+                                            workitem.addEvent(
+                                                '''FME job id: {}'''
+                                                ''' finished'''.format(job_id))
+                                            dl_res =\
+                                                self.handle_res_zip_download(
+                                                    workitem_id)
                                             if dl_res[0] != 1:
-                                                msg = '{}: {}'.format(dl_res[0], dl_res[1])
+                                                msg = '{}: {}'.format(
+                                                    dl_res[0], dl_res[1])
                                                 workitem.addEvent(msg)
-                                                self.__post_feedback(workitem,
-                                                                     job_id,
-                                                                     msg,
-                                                                     inputfile=inputfile)
-                                                self.__update_storage(workitem, 'results',
-                                                                      jobid=job_id,
-                                                                      status='failed',
-                                                                      err=msg, dec_retry=True)
+                                                self.__post_feedback(
+                                                    workitem,
+                                                    job_id,
+                                                    msg,
+                                                    inputfile=inputfile)
+                                                self.__update_storage(
+                                                    workitem, 'results',
+                                                    jobid=job_id,
+                                                    status='failed',
+                                                    err=msg, dec_retry=True)
                                             else:
-                                                workitem.addEvent('Conversion successful')
-                                                self.__post_feedback(workitem,
-                                                                     job_id,
-                                                                     'Conversion successful',
-                                                                     inputfile=inputfile)
-                                                self.__update_storage(workitem, 'results',
-                                                                      jobid=job_id,
-                                                                      status='completed')
+                                                workitem.addEvent(
+                                                    'Conversion successful')
+                                                self.__post_feedback(
+                                                    workitem,
+                                                    job_id,
+                                                    'Conversion successful',
+                                                    inputfile=inputfile)
+                                                self.__update_storage(
+                                                    workitem, 'results',
+                                                    jobid=job_id,
+                                                    status='completed')
                                         except Exception as e:
-                                            self.__update_storage(workitem, 'results',
-                                                                  jobid=job_id,
-                                                                  status='retry',
-                                                                  err=e, dec_retry=True)
+                                            self.__update_storage(
+                                                workitem, 'results',
+                                                jobid=job_id,
+                                                status='retry',
+                                                err=e, dec_retry=True)
                             elif fme_status in retry:
-                                err = 'FME Status: {}. Re-scheduled for polling'.format(fme_status)
+                                err = ('''FME Status: {}. Re-scheduled'''
+                                       ''' for polling'''.format(fme_status))
                                 self.__update_storage(workitem, 'results',
                                                       jobid=job_id,
                                                       status='retry',
                                                       err=err, dec_retry=True)
                             elif fme_status in abort:
-                                dl_res = self.handle_res_zip_download(workitem_id)
+                                dl_res = self.handle_res_zip_download(
+                                    workitem_id)
                                 if dl_res[0] != 1:
                                     msg = '{}: {}'.format(dl_res[0], dl_res[1])
                                     workitem.addEvent(msg)
-                                err = 'FME Status: {}. Aborting'.format(fme_status)
+                                err = 'FME Status: {}. Aborting'.format(
+                                    fme_status)
                                 self.__update_storage(workitem, 'results',
                                                       jobid=job_id,
                                                       status='failed',
                                                       err=err, dec_retry=True)
                                 workitem.addEvent(err)
                                 workitem.failure = True
-                                self.__post_feedback(workitem,
-                                                     job_id,
-                                                     'Conversion failed, aborting',
-                                                     inputfile=inputfile)
+                                self.__post_feedback(
+                                    workitem,
+                                    job_id,
+                                    'Conversion failed, aborting',
+                                    inputfile=inputfile)
 
                     except Exception as e:
                         self.__update_storage(workitem, 'results',
@@ -543,32 +598,36 @@ class RemoteFMEConversionApplication(SimpleItem):
 
         # Initialize the workitem FME Conversion specific extra properties
         self.__initialize(workitem_id)
-        envelope_url = workitem.getMySelf().absolute_url(0)
         self.upload_to_fme(workitem_id)
         upload_storage = getattr(workitem, self.app_name, {}).get('upload')
         if upload_storage.get('status') == 'completed':
             self.execute_workspace(workitem_id)
 
     security.declareProtected('Use OpenFlow', 'callApplication')
+
     def callApplication(self, workitem_id, REQUEST):
         workitem = getattr(self, workitem_id)
-        envelope_url = workitem.getMySelf().absolute_url(0)
         storage = getattr(workitem, self.app_name, {})
         upload_storage = storage.get('upload')
         results = storage.get('results')
         fmw_exec = storage.get('fmw_exec')
-        if upload_storage.get('status') != 'completed' and upload_storage.get('retries_left'):
+        if (upload_storage.get('status') != 'completed'
+                and upload_storage.get('retries_left')):
             self.upload_to_fme(workitem_id)
-        elif upload_storage.get('status') != 'completed' and not upload_storage.get('retries_left'):
+        elif (upload_storage.get('status') != 'completed'
+                and not upload_storage.get('retries_left')):
             err = 'File upload failed! Aborting.'
             workitem.addEvent(err)
             workitem.failure = True
             self.__post_feedback(workitem, 'upload', err)
             self.__finish(workitem_id)
         if upload_storage.get('status') == 'completed':
-            if fmw_exec.get('status') != 'completed' and fmw_exec.get('retries_left') and fmw_exec.get('next_run').lessThanEqualTo(DateTime()):
+            if (fmw_exec.get('status') != 'completed'
+                    and fmw_exec.get('retries_left')
+                    and fmw_exec.get('next_run').lessThanEqualTo(DateTime())):
                 self.execute_workspace(workitem_id)
-            elif fmw_exec.get('status') != 'completed' and not fmw_exec.get('retries_left'):
+            elif (fmw_exec.get('status') != 'completed'
+                    and not fmw_exec.get('retries_left')):
                 err = 'FME Workspace execution failed! Aborting.'
                 workitem.addEvent(err)
                 workitem.failure = True
@@ -576,13 +635,13 @@ class RemoteFMEConversionApplication(SimpleItem):
                 self.__finish(workitem_id)
         if results:
             poll = [j for j in results
-                    if results[j].get('status') not in ['completed', 'failed'] and
-                    results[j].get('retries_left') > 0]
+                    if (results[j].get('status') not in ['completed', 'failed']
+                        and results[j].get('retries_left') > 0)]
             if poll:
                 self.poll_results(workitem_id)
             else:
                 exhausted = [j for j in results
-                             if results[j].get('status')== 'retry' and
+                             if results[j].get('status') == 'retry' and
                              results[j].get('retries_left') == 0]
                 if exhausted:
                     err = 'FME Result polling max retries exhausted! Aborting.'
@@ -646,7 +705,8 @@ class RemoteFMEConversionApplication(SimpleItem):
                                        int(self.retryFrequency))
         workitem._p_changed = 1
 
-    def __post_feedback(self, workitem, jobid, messages, inputfile=None, attach=None):
+    def __post_feedback(self, workitem, jobid, messages, inputfile=None,
+                        attach=None):
         envelope = self.aq_parent
         feedback_id = '{0}_{1}'.format(self.app_name, jobid)
         if inputfile:
@@ -668,17 +728,22 @@ class RemoteFMEConversionApplication(SimpleItem):
                     content = f.read()
                     if doc.content_type == 'text/html':
                         soup = bs(content)
-                        log_sum = soup.find('span', attrs={'id' : 'feedbackStatus'})
+                        log_sum = soup.find(
+                            'span', attrs={'id': 'feedbackStatus'})
                         fb_status = log_sum.get('class', 'UNKNOWN')
                         fb_message = log_sum.text
                     if len(content) > FEEDBACKTEXT_LIMIT:
                         f.seek(0)
-                        feedback_ob.manage_uploadFeedback(f, filename='qa-output')
+                        feedback_ob.manage_uploadFeedback(
+                            f, filename='qa-output')
                         feedback_attach = feedback_ob.objectValues()[0]
-                        feedback_attach.data_file.content_type = doc.content_type
-                        feedback_ob.feedbacktext = '{}</br>{}'.format(feedback_ob.feedbacktext, (
-                            'Feedback too large for inline display; '
-                            '<a href="qa-output/view">see attachment</a>.'))
+                        feedback_attach.data_file.content_type =\
+                            doc.content_type
+                        feedback_ob.feedbacktext =\
+                            '{}</br>{}'.format(feedback_ob.feedbacktext, (
+                                'Feedback too large for inline display; '
+                                '<a href="qa-output/view">see attachment</a>.')
+                            )
                         feedback_ob.content_type = 'text/html'
                     else:
                         feedback_ob.feedbacktext = content
@@ -711,25 +776,31 @@ class RemoteFMEConversionApplication(SimpleItem):
             res = requests.delete(url,
                                   headers=self.get_headers(workitem_id))
             if res.status_code == 204:
-                workitem.addEvent('FME job id: {} deleted successfully'.format(job_id))
+                workitem.addEvent(
+                    'FME job id: {} deleted successfully'.format(job_id))
             else:
                 running_endpoint = 'fmerest/v3/transformations/jobs/running'
                 url = '/'.join([self.FMEServer, running_endpoint, str(job_id)])
                 res = requests.delete(url,
                                       headers=self.get_headers(workitem_id))
                 if res.status_code == 204:
-                    workitem.addEvent('FME job id: {} deleted successfully'.format(job_id))
+                    workitem.addEvent(
+                        'FME job id: {} deleted successfully'.format(job_id))
                 else:
-                    workitem.addEvent('FME job id: {} delete failed: {}'.format(job_id, res.status_code))
+                    workitem.addEvent(
+                        'FME job id: {} delete failed: {}'.format(
+                            job_id, res.status_code))
         except Exception as e:
-            workitem.addEvent('FME job id: {} delete failed: {}'.format(job_id, str(e)))
+            workitem.addEvent(
+                'FME job id: {} delete failed: {}'.format(job_id, str(e)))
 
         self.__finish(workitem_id)
 
     def __finish(self, workitem_id, REQUEST=None):
         """ Completes the workitem and forwards it """
         self.activateWorkitem(workitem_id, actor='openflow_engine')
-        self.completeWorkitem(workitem_id, actor='openflow_engine', REQUEST=REQUEST)
+        self.completeWorkitem(
+            workitem_id, actor='openflow_engine', REQUEST=REQUEST)
 
 
 InitializeClass(RemoteFMEConversionApplication)

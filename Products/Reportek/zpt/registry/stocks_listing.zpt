@@ -27,27 +27,27 @@
     </style>
 
 
-    <h1>ODS Stocks</h1>
+    <h1 i18n:translate="">ODS Stocks</h1>
 
-    <p>Stocks can be imported in the application using the form bellow. A dummy of the JSON file that should be imported is available <a href="stocks_json_dummy">here</a>.
+    <p i18n:translate="">Stocks can be imported in the application using the form bellow. A dummy of the JSON file that should be imported is available <a href="stocks_json_dummy">here</a>.
 
     <form method="post" action="stock_export" name="frmSetBulk" enctype="multipart/form-data">
-      <label>JSON File:</label>
+      <label i18n:translate="">JSON File:</label>
       <input type="file" name="file" size="25" value="">
-      <input type="submit" class="fileop" value="Upload" />
+      <input type="submit" class="fileop" value="Upload" i18n:attributes="value btn-upload"/>
     </form>
 
     <table id="stocks-table" width="100%">
       <thead>
         <tr>
-          <th>Year</th>
-          <th>Company ID</th>
-          <th>Type</th>
-          <th>Substance name form</th>
-          <th>Is virgin?</th>
-          <th>Code</th>
-          <th>Company name</th>
-          <th>Result</th>
+          <th i18n:translate="">Year</th>
+          <th i18n:translate="">Company ID</th>
+          <th i18n:translate="">Type</th>
+          <th i18n:translate="">Substance name form</th>
+          <th i18n:translate="">Is virgin?</th>
+          <th i18n:translate="">Code</th>
+          <th i18n:translate="">Company name</th>
+          <th i18n:translate="">Result</th>
         </tr>
       </thead>
       <tbody>

@@ -1,32 +1,36 @@
-## Script (Python) "xmlrpc_search_envelopes_with_shapefiles"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
-##parameters=country=None,RA_ID=None
-##title=Find shapefiles (used by Hermann for WFD reporting)
+# flake8: noqa
+# Script (Python) "xmlrpc_search_envelopes_with_shapefiles"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
+# parameters=country=None,RA_ID=None
+# title=Find shapefiles (used by Hermann for WFD reporting)
 ##
 from Products.PythonScripts.standard import html_quote
 
+
 def print_as_elm(mydict):
-    attrs=[]
-    for elm,value in mydict.items():
-        attrs.append('%s="%s"' % (elm,html_quote(str(value))))
+    attrs = []
+    for elm, value in mydict.items():
+        attrs.append('%s="%s"' % (elm, html_quote(str(value))))
     return "  <envelope %s/>" % " ".join(attrs)
+
 
 if RA_ID is None:
     RA_ID = 521
 
 search_args = {
-    'meta_type':'Report Envelope',
-    'released':1,
-    'dataflow_uris':'http://rod.eionet.europa.eu/obligations/' + str(RA_ID)
+    'meta_type': 'Report Envelope',
+    'released': 1,
+    'dataflow_uris': 'http://rod.eionet.europa.eu/obligations/' + str(RA_ID)
 }
 
 if country is not None:
     if len(country) == 2:
-        search_args['country'] = context.localities_iso_dict(string.upper(country))['uri']
+        search_args['country'] = context.localities_iso_dict(string.upper(country))[
+            'uri']
 
 envlist = []
 
@@ -35,7 +39,7 @@ for item in container.Catalog(search_args):
 
     for file in obj.objectValues('Report Document'):
         if (string.upper(file.id)[-3:] == 'SHP'):
-   
+
             res = {
                 'id': obj.id,
                 'url': obj.absolute_url(0),
@@ -54,9 +58,9 @@ req = context.REQUEST
 if req['CONTENT_TYPE'] == 'text/xml' and req['REQUEST_METHOD'] == 'POST':
     return envlist
 else:
-    req.RESPONSE.setHeader('content-type','text/xml; charset=UTF-8')
+    req.RESPONSE.setHeader('content-type', 'text/xml; charset=UTF-8')
     print "<results>"
     for d in envlist:
-         print print_as_elm(d)
+        print print_as_elm(d)
     print "</results>"
     return printed

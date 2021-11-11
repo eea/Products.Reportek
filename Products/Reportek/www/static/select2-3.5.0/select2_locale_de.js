@@ -1,3 +1,4 @@
+/* jslint:disable */
 /**
  * Select2 German translation
  */

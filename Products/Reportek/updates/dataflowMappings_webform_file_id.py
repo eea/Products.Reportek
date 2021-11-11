@@ -1,6 +1,6 @@
-#this is meant to be run from instance debug
-#>>> from Products.Reportek.updates import dataflowMappings_webform_file_id
-#>>> dataflowMappings_webform_file_id.update(app)
+# this is meant to be run from instance debug
+# >>> from Products.Reportek.updates import dataflowMappings_webform_file_id
+# >>> dataflowMappings_webform_file_id.update(app)
 
 import transaction
 from Products.Reportek.DataflowMappingsRecord import DataflowMappingsRecord
@@ -22,6 +22,6 @@ def update(app):
             trans.note('Update mapping record %s' % ob.id)
             do_update(ob)
             trans.commit()
-        except:
+        except Exception:
             trans.abort()
             raise

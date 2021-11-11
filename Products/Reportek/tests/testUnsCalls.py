@@ -1,4 +1,5 @@
-import unittest
+# flake8: noqa
+from common import BaseUnitTest
 from mock import Mock, patch, MagicMock
 from Products.Reportek.constants import DF_URL_PREFIX
 
@@ -22,7 +23,7 @@ mock_localities = {
 }
 
 
-class UNSCallsTest(unittest.TestCase):
+class UNSCallsTest(BaseUnitTest):
 
     def setUp(self):
         from Products.Reportek.ReportekEngine import ReportekEngine
@@ -76,7 +77,7 @@ class UNSCallsTest(unittest.TestCase):
              'http://rod.eionet.europa.eu/schema.rdf#locality': country},
         ])
 
-    @patch('Products.Reportek.DataflowsManager.DataflowsManager.dataflow_lookup')
+    @patch('Products.Reportek.DataflowsManager.DataflowsManager.dataflow_lookup')  # noqa
     def test_subscribe_to_dataflow(self, mock_dataflow_lookup):
         event = "Envelope release"
         mock_dataflow_lookup.return_value = mock_dataflow

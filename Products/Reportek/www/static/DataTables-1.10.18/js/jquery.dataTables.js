@@ -1,3 +1,4 @@
+/* jslint:disable */
 /*! DataTables 1.10.18
  * ©2008-2018 SpryMedia Ltd - datatables.net/license
  */

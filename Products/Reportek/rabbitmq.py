@@ -1,4 +1,5 @@
-""" Configuration and utilities for RabbitMQ client. Mostly from eea.rabbitmq.plone
+""" Configuration and utilities for RabbitMQ client.
+    Mostly from eea.rabbitmq.plone
 """
 import logging
 import os
@@ -114,8 +115,11 @@ class MessagesDataManager(object):
                 except Exception as e:
                     count += 1
                     if count >= 3:
-                        logger.exception("RabbitMQ Connection exception: {}".format(str(e)))
-                        raise Exception("Unable to send message to RabbitMQ! Please click the browser's back button and try again.")
+                        logger.exception(
+                            "RabbitMQ Connection exception: {}".format(str(e)))
+                        raise Exception(
+                            '''Unable to send message to RabbitMQ! Please
+                             click the browser's back button and try again.''')
 
         self.txn = None
         self.messages = []

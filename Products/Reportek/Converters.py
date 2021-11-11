@@ -18,55 +18,53 @@
 # Contributor(s):
 # Cornel Nitu, Finsiel Romania
 
-__doc__ = """
-The Converters is used to make different type of conversions of the Report Documents.
-
-There are two types of converters: Local and Remote. The remote only handles XML files
-and there must be an XML schema. To find out which remote convertersions are available,
-Reportek calls http://converters.eionet.europa.eu/RpcRouter via XML-RPC.
-"""
 #     $Id$
 
-import os
 import re
 import xmlrpclib
 import requests
-import string
 import logging
 import base64
 import json
 
 from OFS.Folder import Folder
-from AccessControl import getSecurityManager, ClassSecurityInfo, Unauthorized
-from AccessControl.Permissions import view_management_screens, view
+from AccessControl import ClassSecurityInfo
+from AccessControl.Permissions import view_management_screens
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from zExceptions import Redirect
 import Globals
-import Products
 
 import Converter
-import RepUtils
 import constants
 from Products.Reportek.exceptions import LocalConversionException
-from Products.Reportek import LOCAL_CONVERTERS_SCHEME
-from Products.Reportek import LOCAL_CONVERTERS_HOST
-from Products.Reportek import LOCAL_CONVERTERS_PORT
+from Products.Reportek.config import (LOCAL_CONVERTERS_SCHEME,
+                                      LOCAL_CONVERTERS_HOST,
+                                      LOCAL_CONVERTERS_PORT)
+__doc__ = """
+The Converters is used to make different type of conversions of the Report
+Documents.
 
+There are two types of converters: Local and Remote. The remote only handles
+XML files and there must be an XML schema. To find out which remote
+convertersions are available, Reportek calls
+http://converters.eionet.europa.eu/RpcRouter via XML-RPC.
+"""
 detection_log = logging.getLogger(__name__ + '.detection')
+
 
 class Converters(Folder):
     """ """
     meta_type = "Reportek Converters"
     icon = 'misc_/Reportek/Converters'
 
-    #security stuff
+    # security stuff
     security = ClassSecurityInfo()
 
     manage_options = (
         Folder.manage_options[:2]
         +
         (
-            {'label' : 'Remote converters', 'action' : 'manage_converters_html'},
+            {'label': 'Remote converters', 'action': 'manage_converters_html'},
         )
         +
         Folder.manage_options[3:-2]
@@ -81,7 +79,8 @@ class Converters(Folder):
     security.declareProtected(view_management_screens, 'index_html')
     index_html = PageTemplateFile('zpt/converters/index', globals())
 
-    security.declareProtected(view_management_screens, 'manage_converters_html')
+    security.declareProtected(view_management_screens,
+                              'manage_converters_html')
     manage_converters_html = PageTemplateFile('zpt/converters/edit', globals())
 
     security.declareProtected(view_management_screens, 'remote_converters')
@@ -96,12 +95,13 @@ class Converters(Folder):
     def __getitem__(self, attr):
         try:
             available_ids = requests.get(
-                                '{0}list'.format(
-                                    self.get_local_http_converters_url()
-                                )
-                            ).json()['list']
+                '{0}list'.format(
+                    self.get_local_http_converters_url()
+                )
+            ).json()['list']
             if attr in available_ids:
-                url = '%s%s' % (self.get_local_http_converters_url(), 'params/%s' %attr)
+                url = '%s%s' % (
+                    self.get_local_http_converters_url(), 'params/%s' % attr)
                 attrs = requests.get(url).json()
                 return Converter.LocalHttpConverter(**attrs).__of__(self)
             else:
@@ -110,13 +110,15 @@ class Converters(Folder):
             raise LocalConversionException(err.message)
 
     security.declareProtected(view_management_screens, 'manage_edit')
+
     def manage_edit(self, remote_converter, api_url, REQUEST=None):
         """ """
         self.remote_converter = remote_converter
         self.api_url = api_url
         if REQUEST:
-            message="Content changed"
-            return self.manage_converters_html(self,REQUEST,manage_tabs_message=message)
+            message = "Content changed"
+            return self.manage_converters_html(self, REQUEST,
+                                               manage_tabs_message=message)
 
     def get_local_http_converters_url(self):
         return "%s://%s:%s/" % (LOCAL_CONVERTERS_SCHEME,
@@ -148,12 +150,13 @@ class Converters(Folder):
         """ """
         try:
             server = xmlrpclib.ServerProxy(self.remote_converter)
-            #acording to "Architectural and Detailed Design for GDEM under IDA/EINRC/SA6/AIT"
+            # acording to "Architectural and Detailed Design for GDEM
+            # under IDA/EINRC/SA6/AIT"
             if doc_schema:
                 return server.ConversionService.listConversions(doc_schema)
             else:
                 return server.ConversionService.listConversions()
-        except:
+        except Exception:
             return []
 
     def getConvertersDescriptions(self, include_remote=True):
@@ -170,78 +173,92 @@ class Converters(Folder):
         return remote_converters
 
     security.declarePublic('displayPossibleConversions')
-    def displayPossibleConversions(self, contentType, doc_schema='', filename='', exclude_internal=False):
+
+    def displayPossibleConversions(self, contentType, doc_schema='',
+                                   filename='', exclude_internal=False):
         """ Finds the converters available for a type of document. """
         local_converters = []
         remote_converters = []
-        filesuffix = filename[filename.find('.')+1:] # Drop everything up to period.
-        if filesuffix == '': filesuffix='totally-unlikely-suffix.'
+        # Drop everything up to period.
+        filesuffix = filename[filename.find('.')+1:]
+        if filesuffix == '':
+            filesuffix = 'totally-unlikely-suffix.'
         # Find in list of local converters
         try:
-            available_local_converters = self._get_local_converters(exclude_internal=exclude_internal)
+            available_local_converters = self._get_local_converters(
+                exclude_internal=exclude_internal)
         except requests.ConnectionError as ex:
             if doc_schema:
-                remote_converters = self.get_remote_converters_for_schema(doc_schema)
-            ex.results=(local_converters, remote_converters)
+                remote_converters = self.get_remote_converters_for_schema(
+                    doc_schema)
+            ex.results = (local_converters, remote_converters)
             raise ex
         possible_good_converters = ''
         for conv_obj in available_local_converters:
-            if contentType in conv_obj.ct_input or conv_obj.suffix == filesuffix:
+            if (contentType in conv_obj.ct_input
+                    or conv_obj.suffix == filesuffix):
                 if doc_schema:
                     if conv_obj.ct_schema:
                         if conv_obj.ct_schema == doc_schema:
-                            local_converters.append({'xsl':conv_obj.id,
-                               'description':conv_obj.title,
-                               'content_type_out': conv_obj.ct_output,
-                               'more_info': conv_obj.description})
+                            local_converters.append(
+                                {'xsl': conv_obj.id,
+                                 'description': conv_obj.title,
+                                 'content_type_out': conv_obj.ct_output,
+                                 'more_info': conv_obj.description})
                     else:
-                        local_converters.append({'xsl':conv_obj.id,
-                           'description':conv_obj.title,
-                           'content_type_out': conv_obj.ct_output,
-                           'more_info': conv_obj.description})
+                        local_converters.append(
+                            {'xsl': conv_obj.id,
+                             'description': conv_obj.title,
+                             'content_type_out': conv_obj.ct_output,
+                             'more_info': conv_obj.description})
                 else:
                     if conv_obj.ct_schema == '':
-                        local_converters.append({'xsl':conv_obj.id,
-                           'description':conv_obj.title,
-                           'content_type_out': conv_obj.ct_output,
-                           'more_info': conv_obj.description})
+                        local_converters.append(
+                            {'xsl': conv_obj.id,
+                             'description': conv_obj.title,
+                             'content_type_out': conv_obj.ct_output,
+                             'more_info': conv_obj.description})
                 if (contentType and
                     (contentType != 'application/octet-stream') and
                     contentType not in conv_obj.ct_input and
-                    filesuffix == conv_obj.suffix):
+                        filesuffix == conv_obj.suffix):
                     # Getting here means:
                     # (contentType and no matching converter) and
-                    # (jundging by the file extension there are converters available):
-                    possible_good_converters+=('%s\n' %conv_obj.id)
+                    # (jundging by the file extension there are converters
+                    # available):
+                    possible_good_converters += ('%s\n' % conv_obj.id)
 
         if (possible_good_converters.strip() and
-            contentType not in constants.IGNORED_MIME_TYPES):
+                contentType not in constants.IGNORED_MIME_TYPES):
             message = (
                 'No converter found based on this mime-type "%s",\n'
-                'but there are converters able to handle this extension "%s".\n'
-                'Perhaps you should consider adding this mime-type to '
+                'but there are converters able to handle this extension "%s".'
+                '\nPerhaps you should consider adding this mime-type to '
                 'one or more of these converters: \n'
-                '%s' %(contentType, filesuffix, possible_good_converters))
+                '%s' % (contentType, filesuffix, possible_good_converters))
             detection_log.warning(message)
 
         # Only look in remotes if schema is not empty
         if doc_schema:
-            remote_converters = self.get_remote_converters_for_schema(doc_schema)
+            remote_converters = self.get_remote_converters_for_schema(
+                doc_schema)
         return local_converters, remote_converters
 
     def valid_local_ids(self):
         return [conv.id for conv in self._get_local_converters()]
 
     def valid_converter(self, converter_id, source):
-        #NOTE no validation for remote source
+        # NOTE no validation for remote source
         if (converter_id == 'default' or
             source not in ['local', 'remote'] or
-            (source == 'local' and converter_id not in self.valid_local_ids())):
+                (source == 'local'
+                    and converter_id not in self.valid_local_ids())):
             return False
         else:
             return True
 
-    def convertDocument(self, file_url='', converter_id='', output_file_name='', REQUEST=None):
+    def convertDocument(self, file_url='', converter_id='',
+                        output_file_name='', REQUEST=None):
         """Proxy to run_conversion for API compatibility."""
         name = REQUEST.get('conv', converter_id)
         regex_result = re.match('(loc|rem)_(\w+$)', name)
@@ -260,6 +277,7 @@ class Converters(Folder):
         return self.run_conversion(REQUEST=REQUEST)
 
     security.declarePublic('run_conversion')
+
     def run_conversion(self, file_url='', converter_id='', source='',
                        ajax_call=None, REQUEST=None):
         """ """
@@ -269,7 +287,7 @@ class Converters(Folder):
             converter_id = REQUEST.get('conv', converter_id)
 
         if not self.valid_converter(converter_id, source):
-            raise Redirect, file_url
+            raise Redirect(file_url)
 
         if source == 'local':
             for conv in self._get_local_converters():
@@ -279,17 +297,21 @@ class Converters(Folder):
                         if 'image' in result.content_type:
                             data = base64.b64encode(result.content)
                         json_data = {'mime_type': result.content_type,
-                                    'content': data}
-                        REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+                                     'content': data}
+                        REQUEST.RESPONSE.setHeader(
+                            'Content-Type', 'application/json')
                         return json.dumps(json_data)
-                    self.REQUEST.RESPONSE.setStatus(result.status_code, result.reason)
-                    self.REQUEST.RESPONSE.setHeader('Content-Type', result.content_type)
+                    self.REQUEST.RESPONSE.setStatus(
+                        result.status_code, result.reason)
+                    self.REQUEST.RESPONSE.setHeader(
+                        'Content-Type', result.content_type)
                     return result.content
 
         if source == 'remote':
             return self.run_remote_conversion(file_url, converter_id)
 
     security.declarePublic('run_remote_conversion')
+
     def run_remote_conversion(
             self, file_url, converter_id, write_to_response=True):
         conv = Converter.RemoteConverter(converter_id).__of__(self)

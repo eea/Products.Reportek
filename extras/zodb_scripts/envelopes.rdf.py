@@ -1,15 +1,16 @@
-## Script (Python) "envelopes.rdf"
-##bind container=container
-##bind context=context
-##bind namespace=
-##bind script=script
-##bind subpath=traverse_subpath
-##parameters=
-##title=Extract all envelopes in RDF format
+# flake8: noqa
+# Script (Python) "envelopes.rdf"
+# bind container=container
+# bind context=context
+# bind namespace=
+# bind script=script
+# bind subpath=traverse_subpath
+# parameters=
+# title=Extract all envelopes in RDF format
 ##
-from Products.PythonScripts.standard import html_quote,url_quote
+from Products.PythonScripts.standard import html_quote, url_quote
 request = container.REQUEST
-RESPONSE =  request.RESPONSE
+RESPONSE = request.RESPONSE
 
 print """<?xml version="1.0" encoding="utf-8" ?>
 <rdf:RDF
@@ -26,10 +27,10 @@ print """<rdf:Description rdf:about="">
 # dow = context.ZopeTime().dow()
 # reportingdate=context.ZopeTime() - 360 - dow, reportingdate_usage='range:min'
 for item in container.Catalog(meta_type='Report Envelope', released=1):
-  try:
-    print """<rod:Delivery rdf:about="%s%s"/>""" % (s_url, html_quote(url_quote(item.getPath())))
-  except:
-    print """<!-- deleted envelope %s -->""" % item.id;
+    try:
+        print """<rod:Delivery rdf:about="%s%s"/>""" % (s_url, html_quote(url_quote(item.getPath())))
+    except:
+        print """<!-- deleted envelope %s -->""" % item.id
 
 print """</rdf:RDF>"""
 return printed

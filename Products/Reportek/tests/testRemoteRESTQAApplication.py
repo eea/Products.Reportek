@@ -1,14 +1,14 @@
 # -*- coding: utf-8 -*-
 import json
-import unittest
 
 from mock import Mock, patch
 from Products.Reportek import Converters, constants
 from Products.Reportek.RemoteRestQaApplication import RemoteRestQaApplication
 from utils import create_envelope, create_fake_root
+from common import BaseUnitTest
 
 
-class RemoteApplicationFeedbackTest(unittest.TestCase):
+class RemoteApplicationFeedbackTest(BaseUnitTest):
 
     def setUp(self):
         self.root = create_fake_root()
@@ -17,8 +17,9 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
         self.envelope.getEngine = Mock()
         self.envelope.REQUEST = Mock()
 
-        self.remoteapp = RemoteRestQaApplication('remoteapp', '', '', '',
-                                                 'the_app').__of__(self.envelope)
+        self.remoteapp = RemoteRestQaApplication(
+            'remoteapp', '', '', '',
+            'the_app').__of__(self.envelope)
         self.remoteapp.the_workitem = Mock(the_app={
             'getResult': {
                 'the_jobid': {
@@ -32,7 +33,8 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
             Converters.Converters())
         safe_html = Mock(convert=Mock(text='feedbacktext'))
         getattr(self.envelope.getPhysicalRoot(),
-                constants.CONVERTERS_ID).__getitem__ = Mock(return_value=safe_html)
+                constants.CONVERTERS_ID).__getitem__ = Mock(
+                return_value=safe_html)
 
     @patch('Products.Reportek.RemoteApplication.requests.get')
     def receive_feedback(self, text, mock_requests):
@@ -92,7 +94,7 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
         })
 
         from Products.Reportek.Document import Document
-        doc = Document('name with spaces.txt', '', content_type= "text/plain")
+        doc = Document('name with spaces.txt', '', content_type="text/plain")
         doc = doc.__of__(self.envelope)
         self.envelope._setObject('name with spaces.txt', doc)
 
@@ -106,76 +108,66 @@ class RemoteApplicationFeedbackTest(unittest.TestCase):
 class GetAllFeedbackTest(RemoteApplicationFeedbackTest):
 
     def test_feedback_objects_details_small_file(self):
-        result = {
-            'CODE': '0',
-            'VALUE': 'AQ feedback',
-            'SCRIPT_TITLE': "mock script",
-            'METATYPE': 'application/x-mock',
-            'FEEDBACK_STATUS': 'BLOCKER',
-            'FEEDBACK_MESSAGE': 'Blocker error'
-        }
         self.receive_feedback('AQ feedback')
-        from DateTime import DateTime
         self.maxDiff = None
         [feedback] = self.envelope.getFeedbacks()
         self.assertEqual(
             {'feedbacks':
-              [
-                {
-                  'title'         : feedback.title,
-                  'releasedate'   : feedback.releasedate.HTML4(),
-                  'isautomatic'   : feedback.automatic,
-                  'content_type'  : feedback.content_type,
-                  'referred_file' : '%s/%s' %(self.envelope.absolute_url(), feedback.document_id),
-                  'qa_output_url' : "%s" %feedback.absolute_url()
-                },
-              ]
-            },
+             [
+                 {
+                     'title': feedback.title,
+                     'releasedate': feedback.releasedate.HTML4(),
+                     'isautomatic': feedback.automatic,
+                     'content_type': feedback.content_type,
+                     'referred_file': '%s/%s' % (self.envelope.absolute_url(),
+                                                 feedback.document_id),
+                     'qa_output_url': "%s" % feedback.absolute_url()
+                 },
+             ]
+             },
             self.envelope.feedback_objects_details()
         )
 
     def test_feedback_objects_details_big_file(self):
         self.maxDiff = None
-        from DateTime import DateTime
         text = "large automatic feedback: " + (u"[10 chąṛŝ]" * 10240)
         self.receive_feedback(text)
         [feedback] = self.envelope.objectValues()
-        attach = feedback.get('qa-output')
         self.assertEqual(
             {'feedbacks':
-              [
-                {
-                  'title'         : feedback.title,
-                  'releasedate'   : feedback.releasedate.HTML4(),
-                  'isautomatic'   : feedback.automatic,
-                  'content_type'  : feedback.content_type,
-                  'referred_file' : '%s/%s' %(self.envelope.absolute_url(), feedback.document_id),
-                  'qa_output_url' : "%s/qa-output" %feedback.absolute_url()
-                },
-              ]
-            },
+             [
+                 {
+                     'title': feedback.title,
+                     'releasedate': feedback.releasedate.HTML4(),
+                     'isautomatic': feedback.automatic,
+                     'content_type': feedback.content_type,
+                     'referred_file': '%s/%s' % (self.envelope.absolute_url(),
+                                                 feedback.document_id),
+                     'qa_output_url': "%s/qa-output" % feedback.absolute_url()
+                 },
+             ]
+             },
             self.envelope.feedback_objects_details()
         )
 
     def test_feedback_objects_details_without_reffered_file(self):
         self.maxDiff = None
-        from DateTime import DateTime
         text = "short text"
         self.receive_feedback(text)
         [feedback] = self.envelope.objectValues()
         feedback.document_id = None
         self.assertEqual(
             {'feedbacks':
-              [
-                {
-                  'title'         : feedback.title,
-                  'releasedate'   : feedback.releasedate.HTML4(),
-                  'isautomatic'   : feedback.automatic,
-                  'content_type'  : feedback.content_type,
-                  'referred_file' : '',
-                  'qa_output_url' : "%s" %feedback.absolute_url()
-                },
-              ]
-            },
+             [
+                 {
+                     'title': feedback.title,
+                     'releasedate': feedback.releasedate.HTML4(),
+                     'isautomatic': feedback.automatic,
+                     'content_type': feedback.content_type,
+                     'referred_file': '',
+                     'qa_output_url': "%s" % feedback.absolute_url()
+                 },
+             ]
+             },
             self.envelope.feedback_objects_details()
         )

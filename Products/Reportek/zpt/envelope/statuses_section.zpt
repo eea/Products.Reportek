@@ -46,14 +46,14 @@
           <th><span>&nbsp;</span></th>
           <tal:block tal:condition="python:sortby=='title'">
             <th tal:condition="python:how=='asc'" class="sorted" scope="col">
-              <a tal:attributes="href string:?workitem_id=${workitem_id}&amp;sort=title&amp;how=desc&amp;qs=${qsparam}" rel="nofollow" title="Sorted A..Z by user - Click to reverse">Title<img src="/misc_/Reportek/sort_asc" width="12" height="12" border="0" /></a>
+              <a tal:attributes="href string:?workitem_id=${workitem_id}&amp;sort=title&amp;how=desc&amp;qs=${qsparam}" rel="nofollow" title="Sorted A..Z by user - Click to reverse" i18n:translate="" i18n:attributes="title title-sorted-az">Title<img src="/misc_/Reportek/sort_asc" width="12" height="12" border="0" /></a>
             </th>
             <th tal:condition="python:how!='asc'" class="sorted" scope="col">
-              <a tal:attributes="href string:?workitem_id=${workitem_id}&amp;sort=title&amp;how=asc&amp;qs=${qsparam}" rel="nofollow" title="Sorted Z..A by user - Click to reverse">Title<img src="/misc_/Reportek/sort_desc" width="12" height="12" border="0" /></a>
+              <a tal:attributes="href string:?workitem_id=${workitem_id}&amp;sort=title&amp;how=asc&amp;qs=${qsparam}" rel="nofollow" title="Sorted Z..A by user - Click to reverse" i18n:attributes="title title-sorted-za" i18n:translate="">Title<img src="/misc_/Reportek/sort_desc" width="12" height="12" border="0" /></a>
             </th>
           </tal:block>
           <th tal:condition="python:sortby!='title'" scope="col">
-            <a tal:attributes="href string:?workitem_id=${workitem_id}&amp;sort=title&amp;how=asc&amp;qs=${qsparam}" rel="nofollow" title="Sortable">Title<img src="/misc_/Reportek/sortnot" width="12" height="12" alt="" /></a>
+            <a tal:attributes="href string:?workitem_id=${workitem_id}&amp;sort=title&amp;how=asc&amp;qs=${qsparam}" rel="nofollow" title="Sortable" i18n:translate="" i18n:attributes="title title-sortable">Title<img src="/misc_/Reportek/sortnot" width="12" height="12" alt="" /></a>
           </th>
           <th><span i18n:translate="">Last Update</span></th>
           <th><span i18n:translate="">Size</span></th>
@@ -62,7 +62,7 @@
       <tbody>
         <tr valign="baseline" tal:repeat="item documents">
           <td><input type="checkbox" name="ids:list" tal:attributes="value item/id; checked item/get_accept_time" /></td>
-          <td style="width:34px"><img tal:attributes="src string:${item/id}/icon_gif" alt="File icon" /></td>
+          <td style="width:34px"><img tal:attributes="src string:${item/id}/icon_gif" alt="File icon" i18n:attributes="alt alt-file-icon"/></td>
           <td><a title="File operations: [View file in different formats], [File properties], [View the feedback posted it (if any)]" tal:attributes="href string:${item/id}/manage_document" tal:content="item/id" i18n:attributes="title" /></td>
           <td style="white-space:nowrap" tal:define="has_permission python:SecurityManager.checkPermission('View', item)">
             <tal:block tal:condition="has_permission">
@@ -111,7 +111,7 @@
 
       </form>
 
-      <p tal:condition="python:request['therearerestrictions']>0" i18n:translate="">Access limitations may apply for files, which are not (yet) released for public view. Files marked with <img src="misc_/Reportek/lockicon_gif" alt="Padlock" width="16" height="16" /> are unavailable. You must log in to get access.</p>
+      <p tal:condition="python:request['therearerestrictions']>0" i18n:translate="">Access limitations may apply for files, which are not (yet) released for public view. Files marked with <img src="misc_/Reportek/lockicon_gif" alt="Padlock" width="16" height="16" i18n:attributes="alt alt-padlock"/> are unavailable. You must log in to get access.</p>
 
     </fieldset>
 

@@ -15,8 +15,8 @@ class WrongCountry(BaseAdmin):
             top_country = collection.country
 
             for brain in self.context.Catalog(
-                            meta_type=meta_type,
-                            path=collection.absolute_url(True)):
+                    meta_type=meta_type,
+                    path=collection.absolute_url(True)):
 
                 if brain.country != top_country:
                     results.append({

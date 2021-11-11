@@ -1,14 +1,15 @@
+from poParser import po_load
+import codecs
 import sys
 reload(sys)
 sys.setdefaultencoding('utf-8')
-#sys.path.insert(0, '.')
-import codecs
-
-from poParser import po_load
+# sys.path.insert(0, '.')
 
 
 def usage():
-    "\tUsage: %s <po file>\n\tThe result will be in <po file>.out" % sys.argv[0]
+    "\tUsage: %s <po file>\n\tThe result will be in\
+     <po file>.out" % sys.argv[0]
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 2:

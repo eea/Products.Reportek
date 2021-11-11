@@ -56,25 +56,25 @@
 
     <form method="get" id="search-dataflow-form" action="" name="objectItems">
         <div class="filters">
-            <h1>Search dataflow</h1>
+            <h1 i18n:translate="">Search dataflow</h1>
 
             <tal:block define="view nocall:here/ReportekUtilities/filters">
-                <h2>1. Select obligations</h2>
+                <h2 i18n:translate="">1. Select obligations</h2>
                 <tal:block metal:use-macro="view/macros/select-obligations"/>
 
-                <h2>2. Select one or more countries</h2>
+                <h2 i18n:translate="">2. Select one or more countries</h2>
                 <tal:block metal:use-macro="view/macros/countries"/>
             </tal:block>
 
             <div class="form">
-                <label class="question" for="search_years">Covering year</label>
+                <label class="question" for="search_years" i18n:translate="">Covering year</label>
                 <input type="text" id="search_years"
                        name="years:int:ignore_empty"
                        size="4" maxlength="4" value=""/>
 
-                <label for="partofyear" class="question">Part of year</label>
+                <label for="partofyear" class="question" i18n:translate="">Part of year</label>
                 <select id="partofyear" name="partofyear">
-                    <option value="">Any part of year</option>
+                    <option value="" i18n:translate="">Any part of year</option>
                     <option tal:repeat="value here/ReportekEngine/partofyear_table"
                             tal:attributes="value value"
                             tal:content="python: here.reporting_year_labels.get(value)">
@@ -82,8 +82,8 @@
                 </select>
             </div>
 
-            <div class="form">
-                <label for="search_reportingdate_start" class="question">
+            <div class="form" i18n:translate="">
+                <label for="search_reportingdate_start" class="question" i18n:translate="">
                     Reported after
                 </label>
                 <input type="text" id="search_reportingdate_start"
@@ -91,7 +91,7 @@
                        size="12" maxlength="12"
                        value=""/>
 
-                <label for="search_reportingdate_end" class="question">but
+                <label for="search_reportingdate_end" class="question" i18n:translate="">but
                     before
                 </label>
                 <input type="text" id="search_reportingdate_end"
@@ -102,18 +102,18 @@
             </div>
 
             <div class="form">
-                <label class="question" for="cid">Status</label>
+                <label class="question" for="cid" i18n:translate="">Status</label>
                 <input type="radio" checked="true" name="release_status"
                        value="anystatus"/>
-                <label>Any status</label>
+                <label i18n:translate="">Any status</label>
                 <input type="radio" name="release_status" value="released"/>
-                <label>Released</label>
+                <label i18n:translate="">Released</label>
                 <input type="radio" name="release_status" value="notreleased"/>
-                <label>Not released</label>
+                <label i18n:translate="">Not released</label>
             </div>
 
             <div>
-                <input type="submit" name="btn.submit" value="Submit"/>
+                <input type="submit" name="btn.submit" value="Submit" i18n:attributes="value btn-submit"/>
             </div>
         </div>
     </form>
@@ -122,7 +122,7 @@
         <table id="dataflow-table" class="dataTable">
             <thead>
                 <tr>
-                    <th tal:content=" "/>
+                    <th> </th>
                     <th tal:condition="isBdrDeployment"
                         tal:content="string: Company ID"/>
                     <th tal:content="string: Country"/>
@@ -144,11 +144,11 @@
 
             </tbody>
         </table>
-        <p>(Envelopes with no checkbox are still in draft mode)
+        <p i18n:translate="">(Envelopes with no checkbox are still in draft mode)
             <br/>
             <input type="button" name="selectAll" value="Select All"
-                   onclick="toggleSelect(); return false"/>
-            <input type="submit" value="Zip envelopes"/>
+                   onclick="toggleSelect(); return false" i18n:attributes="value btn-select-all"/>
+            <input type="submit" value="Zip envelopes" i18n:attributes="value btn-zip-envelopes"/>
         </p>
     </form>
 
@@ -180,7 +180,7 @@
             "targets": 0,
             "render": function (data, type, full, meta) {
               if (full.released) {
-                return '<input type="checkbox" name="envelopes" value="' + full.path + '" />'
+                return '<input type="checkbox" name="envelopes" value="' + full.path + '" />';
               }
               return '';
             }
@@ -195,12 +195,12 @@
           {
             "targets": 6,
             "render": function (data, type, full, meta) {
-              var result = ''
+              var result = '';
               if (data.start)
                 result += data.start;
               if (data.end)
                 if (data.start)
-                  result += ' - '
+                  result += ' - ';
                 result += data.end;
               return result;
             }
@@ -275,7 +275,7 @@
             "targets": 0,
             "render": function (data, type, full, meta) {
               if (full.released) {
-                return '<input type="checkbox" name="envelopes" value="' + full.path + '" />'
+                return '<input type="checkbox" name="envelopes" value="' + full.path + '" />';
               }
               return '';
             }
@@ -290,12 +290,12 @@
           {
             "targets": 3,
             "render": function (data, type, full, meta) {
-              var result = ''
+              var result = '';
               if (data.start)
                 result += data.start;
               if (data.end)
                 if (data.start)
-                  result += ' - '
+                  result += ' - ';
                 result += data.end;
               return result;
             }

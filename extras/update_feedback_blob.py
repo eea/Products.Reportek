@@ -1,3 +1,4 @@
+# flake8: noqa
 """ Change feedback attachments from "File" to "File (Blob)".
 
   >>> import update_feedback_blob
@@ -8,6 +9,7 @@
 
 """
 
+from Products.Reportek.RemoteApplication import FEEDBACKTEXT_LIMIT
 import logging
 import tempfile
 import transaction
@@ -17,10 +19,8 @@ from Products.Reportek import blob
 log = logging.getLogger(__name__)
 
 
-from Products.Reportek.RemoteApplication import FEEDBACKTEXT_LIMIT
-
-
 handler = None
+
 
 def setup_log_handler(level=logging.INFO):
     global handler
@@ -140,7 +140,7 @@ def convert_all(parent, limit=None, skip=0, report=True, warnings=True):
             out['skip_bytes'] += n_skip_bytes
     msg = ("{path} Migrate automatic QA feedback to blob "
            "({objects} items, {bytes} bytes)").format(
-                path=ofs_path(parent), **out)
+        path=ofs_path(parent), **out)
     transaction.get().note(msg)
     if report:
         return out

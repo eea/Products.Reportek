@@ -68,18 +68,25 @@ class AVService(SimpleItem):
                     try:
                         result = self._check_file_rest(file)
                     except requests.exceptions.RequestException as e:
-                        logger.error('Unable to establish connection with the clamav rest service: {}'.format(str(e)))
+                        logger.error(
+                            '''Unable to establish connection with the '''
+                            '''clamav rest service: {}'''.format(str(e)))
                     if result and 'Everything ok : true' not in result.text:
-                        log_message = 'Virus found in the file "{}"'.format(filename)
+                        log_message = 'Virus found in the file "{}"'.format(
+                            filename)
                         v_found = True
                 elif self.scanning == 'clamd':
                     try:
                         result = self._check_file_clamd(file)
                     except Exception as e:
-                        logger.error('Connection to ClamD was lost: {}'.format(str(e)))
+                        logger.error(
+                            'Connection to ClamD was lost: {}'.format(str(e)))
                     if result and result.get('stream')[0] == 'FOUND':
                         sig = result.get('stream')[1]
-                        log_message = 'Virus found: "{}" in the file "{}"'.format(sig, filename)
+                        log_message = (
+                            'Virus found: "{}" in the file "{}"'.format(
+                                sig,
+                                filename))
                         v_found = True
                 file.seek(0)
                 if v_found:

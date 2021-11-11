@@ -1,4 +1,7 @@
 /*global $*/
+/*global document*/
+/*global window*/
+/*jslint browser:true */
 "use strict";
 if (window.reportek === undefined) {
   var reportek = {
@@ -31,10 +34,10 @@ reportek.utils.misc = {
   renderAsRadio: function(name, value, display, title, checked, klass) {
     var self = reportek.utils.misc;
     var radio = $("<input>", {
-        type: "radio",
-        name: name,
-        value: value,
-        class: klass,
+        'type': "radio",
+        'name': name,
+        'value': value,
+        'class': klass
       });
     if (checked !== 0) {
       radio.attr("checked", "checked");

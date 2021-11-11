@@ -1,7 +1,7 @@
 <tal:block tal:replace="structure context/manage_page_header"/>
 <tal:block tal:replace="structure python:context.manage_form_title(template, context, form_title='Add Activity', help_product='Reportek', help_topic='')"/>
 
-<p class="form-help">
+<p class="form-help" i18n:translate="">
 	An activity represents something to be done: giving authorization,
 	updating a database, sending an e-mail, loading a truck, filling a form,
 	printing a document and so on.
@@ -21,34 +21,34 @@ function warn(s_id) {
 	<col style="width:10em"/>
 	<col />
 	<tr>
-		<td class="form-label"><label for="id">Id</label></td>
+		<td class="form-label"><label for="id" i18n:translate="">Id</label></td>
 		<td><input type="text" name="id" id="id" value="myact" /></td>
 	</tr>
 	<tr>
-		<td class="form-label"><label for="title">Title</label></td>
+		<td class="form-label"><label for="title" i18n:translate="">Title</label></td>
 		<td><input type="text" name="title" id="title" value="" /></td>
 	</tr>
 	<tr>
-		<td class="form-label"><label for="description">Description</label></td>
+		<td class="form-label"><label for="description" i18n:translate="">Description</label></td>
 		<td><textarea name="description" id="description" cols="50" rows="4"></textarea></td>
 	</tr>
 	<tr>
-		<td class="form-label">Workitem handling</td>
+		<td class="form-label" i18n:translate="">Workitem handling</td>
 		<td>
-			<label for="join_mode">Join kind:</label>
+			<label for="join_mode" i18n:translate="">Join kind:</label>
 			<select name="join_mode" id="join_mode" onchange="warn('join_mode')">
-				<option value="and">And</option>
-				<option value="xor" selected="selected">Xor</option>
+				<option value="and" i18n:translate="">And</option>
+				<option value="xor" selected="selected" i18n:translate="">Xor</option>
 			</select>
-			<label for="split_mode">Split kind:</label>
+			<label for="split_mode" i18n:translate="">Split kind:</label>
 			<select name="split_mode" id="split_mode" onchange="warn('join_mode')">
-				<option value="and">And</option>
-				<option value="xor" selected="selected">Xor</option>
+				<option value="and" i18n:translate="">And</option>
+				<option value="xor" selected="selected" i18n:translate="">Xor</option>
 			</select>
 		</td>
 	</tr>
 	<tr>
-		<td colspan="2" class="form-label">Activity kind</td>
+		<td colspan="2" class="form-label" i18n:translate="">Activity kind</td>
 	</tr>
 	<tr>
 		<td colspan="2" style="padding-left:1em">
@@ -58,28 +58,28 @@ function warn(s_id) {
 				<tr>
 					<td class="form-label">
 						<input type="radio" id="dummykind" name="kind:string" value="dummy" />
-						<label for="dummykind" class="form-label">Dummy</label>
+						<label for="dummykind" class="form-label" i18n:translate="">Dummy</label>
 					</td>
-					<td>Routing activity</td>
+					<td i18n:translate="">Routing activity</td>
 				</tr>
 				<tr>
 					<td>
 						<input type="radio" id="standardkind" name="kind:string" value="standard" checked="checked" />
-						<label for="standardkind" class="form-label">Application</label>
+						<label for="standardkind" class="form-label" i18n:translate="">Application</label>
 					</td>
 					<td align="right">
-						<label for="application">Name:</label>
+						<label for="application" i18n:translate="">Name:</label>
 						<select name="application" id="application">
-							<option value=""> - None - </option>
+							<option value="" i18n:translate=""> - None - </option>
 							<option tal:repeat="item here/listApplications" tal:attributes="value item/name" tal:content="item/name" />
 						</select>
 						<div bgcolor="#E0E0E0">
-							<label for="push_application">Pushing application:</label>
+							<label for="push_application" i18n:translate="">Pushing application:</label>
 							<select name="push_application" id="push_application">
-								<option value=""> - None - </option>
+								<option value="" i18n:translate=""> - None - </option>
 								<option tal:repeat="item here/listApplications" tal:attributes="value item/name" tal:content="item/name" />
 							</select>
-							<p>
+							<p i18n:translate="">
 								If specified: upon workitem arrival in the activity, the specified application
 								will be called to find out a specific user; the workitem will be automatically assigned 
 								to this user. There is no need to check this button if automatic start is checked:
@@ -87,26 +87,26 @@ function warn(s_id) {
 							</p>
 						</div>
 						<div bgcolor="#E0E0E0">
-							<input type="checkbox" id="start_mode" name="start_mode:int" value="1" /> <label for="start_mode">Automatic start</label>
-							<p>If checked: upon workitem arrival in the activity, the activity application will be automatically started.</p>
-							<input type="checkbox" id="bundle_mode" name="bundle_mode:int" value="1" /> <label for="bundle_mode">Bundle with the previous request</label>
-							<p>If checked: the activity application will be automatically started when the previous was completed, in the same request.</p>
-							<input type="checkbox" id="complete_automatically" name="complete_automatically:int" value="1" /> <label for="complete_automatically">complete automatically</label>
-							<p>If checked: upon the automatic start, the workitem will be also automatically completed.</p>
+							<input type="checkbox" id="start_mode" name="start_mode:int" value="1" /> <label for="start_mode" i18n:translate="">Automatic start</label>
+							<p i18n:translate="">If checked: upon workitem arrival in the activity, the activity application will be automatically started.</p>
+							<input type="checkbox" id="bundle_mode" name="bundle_mode:int" value="1" /> <label for="bundle_mode" i18n:translate="">Bundle with the previous request</label>
+							<p i18n:translate="">If checked: the activity application will be automatically started when the previous was completed, in the same request.</p>
+							<input type="checkbox" id="complete_automatically" name="complete_automatically:int" value="1" /> <label for="complete_automatically" i18n:translate="">complete automatically</label>
+							<p i18n:translate="">If checked: upon the automatic start, the workitem will be also automatically completed.</p>
 						</div>
 						<div bgcolor="#E0E0E0">
-							<input type="checkbox" id="finish_mode" name="finish_mode:int" value="1" checked="checked"> <label for="finish_mode">Automatic forward</label>
-							<p>If checked: upon workitem completion of the activity, the workitem will be automatically forwarded onward (to next activity/activities).</p>
+							<input type="checkbox" id="finish_mode" name="finish_mode:int" value="1" checked="checked"> <label for="finish_mode" i18n:translate="">Automatic forward</label>
+							<p i18n:translate="">If checked: upon workitem completion of the activity, the workitem will be automatically forwarded onward (to next activity/activities).</p>
 						</div>
 					</td>
 				</tr>
 				<tr style="display: none;">
 					<td>
 						<input type="radio" id="subflowkind" name="kind:string" value="subflow" />
-						<label for="subflowkind" class="form-label">Subprocess</label>
+						<label for="subflowkind" class="form-label" i18n:translate="">Subprocess</label>
 					</td>
 					<td align="right">
-						<label for="subflow">Subflow:</label>
+						<label for="subflow" i18n:translate="">Subflow:</label>
 						<select name="subflow" id="subflow">
 							<option value=""></option>
 							<option tal:repeat="item python:request.PARENTS[1].objectValues(['Process'])" tal:attributes="value item/id" tal:content="item/id" />
@@ -117,7 +117,7 @@ function warn(s_id) {
 		</td>
 	</tr>
 </table>
-<input type="submit" name="submit" value="Add Activity" />
+<input type="submit" name="submit" value="Add Activity" i18n:attributes="value btn-add-activity"/>
 </form>
 
 <tal:block tal:replace="structure context/manage_page_footer"/>

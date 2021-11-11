@@ -38,9 +38,11 @@ class RecentUploads(BaseAdmin):
             records = []
             for brain in self.context.Catalog(query):
                 env = brain.getObject()
-                items = sorted(env.objectValues('Workitem'), key=lambda e: e.lastActivityDate)
+                items = sorted(env.objectValues('Workitem'),
+                               key=lambda e: e.lastActivityDate)
                 feedbacks = env.objectValues('Report Feedback')
-                files = env.objectValues(['Report Document', 'Report Hyperlink'])
+                files = env.objectValues(
+                    ['Report Document', 'Report Hyperlink'])
                 records.append({
                     'reportingdate': env.reportingdate.strftime('%Y-%m-%d'),
                     'country': env.getCountryName(),

@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
 # Create ReportekUserFactoryPlugin and remove BDRUserFactoryPlugin
 # Run them from within debug mode like so:
-#  >>> from Products.Reportek.updates import u20150625_Migrate_User_Factory; u20150625_Migrate_User_Factory.update(app)
+#  >>> from Products.Reportek.updates import u20150625_Migrate_User_Factory
+#  >>> u20150625_Migrate_User_Factory.update(app)
 
 from Products.Reportek.updates import MigrationBase
-from Products.Reportek.ReportekUserFactoryPlugin import addReportekUserFactoryPlugin
+from Products.Reportek.ReportekUserFactoryPlugin import\
+     addReportekUserFactoryPlugin
 from Products.Reportek.config import REPORTEK_DEPLOYMENT
 from Products.Reportek.config import DEPLOYMENT_CDR
 from Products.Reportek.config import DEPLOYMENT_MDR
@@ -51,7 +53,8 @@ def update(app, skipMigrationCheck=False):
                     # Let's set the Group to LDAP server
                     ldapfolder._setProperty('_local_groups', False)
                     # Set groups_base to ou=Roles
-                    ldapfolder._setProperty('groups_base', 'ou=Roles,o=EIONET,l=Europe')
+                    ldapfolder._setProperty(
+                        'groups_base', 'ou=Roles,o=EIONET,l=Europe')
                     local_users = ldapfolder.getLocalUsers()
                     for user in local_users:
                         success = doMigrateLocalUser(acl_users, user)
@@ -63,7 +66,7 @@ def update(app, skipMigrationCheck=False):
         trans.commit()
         print "All done!"
         return True
-    except:
+    except Exception:
         trans.abort()
         raise
 
@@ -78,7 +81,7 @@ def doMigrateLocalUser(acl_users, user_data):
             assigned = role_mgr.listAssignedPrincipals(role)
 
             if (user_id not in [principal[0] for principal in assigned] and
-               role_mgr.listAvailablePrincipals(role, user_id)):
+                    role_mgr.listAvailablePrincipals(role, user_id)):
                 if role not in list(role_mgr.listRoleIds()):
                     role_mgr.addRole(role)
                 if role_mgr.assignRoleToPrincipal(role, user_id):
