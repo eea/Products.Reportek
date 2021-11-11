@@ -8,8 +8,8 @@ pipeline {
     }
 
   stages {
-
-   stage('Cosmetics') {
+ stages {
+    stage('Cosmetics') {
       steps {
         parallel(
 
@@ -17,7 +17,7 @@ pipeline {
             node(label: 'docker') {
               script {
                 catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                  sh '''docker run -i --rm --name="$BUILD_TAG-jshint" -e GIT_SRC="$GIT_SRC" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/jshint'''
+                  sh '''docker run -i --rm --name="$BUILD_TAG-jshint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/jshint'''
                 }
               }
             }
@@ -27,35 +27,35 @@ pipeline {
             node(label: 'docker') {
               script {
                 catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                  sh '''docker run -i --rm --name="$BUILD_TAG-csslint" -e GIT_SRC="$GIT_SRC" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/csslint'''
-                }  
-              }  
-            }  
-          }, 
+                  sh '''docker run -i --rm --name="$BUILD_TAG-csslint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/csslint'''
+                }
+              }
+            }
+          },
 
           "PEP8": {
             node(label: 'docker') {
               script {
                 catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                  sh '''docker run -i --rm --name="$BUILD_TAG-pep8" -e GIT_SRC="$GIT_SRC" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/pep8'''
-                }  
-              }  
-            }  
-          }, 
+                  sh '''docker run -i --rm --name="$BUILD_TAG-pep8" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/pep8'''
+                }
+              }
+            }
+          },
 
           "PyLint": {
             node(label: 'docker') {
               script {
                 catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                  sh '''docker run -i --rm --name="$BUILD_TAG-pylint" -e GIT_SRC="$GIT_SRC" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/pylint'''
-                }  
-              }  
-            }  
-          }  
+                  sh '''docker run -i --rm --name="$BUILD_TAG-pylint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/pylint'''
+                }
+              }
+            }
+          }
 
-        )  
-      }  
-    }  
+        )
+      }
+    }
 
     stage('Code') {
       steps {
@@ -64,60 +64,59 @@ pipeline {
           "ZPT Lint": {
             node(label: 'docker') {
               sh '''docker run -i --rm --name="$BUILD_TAG-zptlint" -e GIT_BRANCH="$BRANCH_NAME" -e ADDONS="$GIT_NAME" -e DEVELOP="src/$GIT_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/plone-test:4 zptlint'''
-            }  
-          }, 
+            }
+          },
 
           "JS Lint": {
             node(label: 'docker') {
-              sh '''docker run -i --rm --name="$BUILD_TAG-jslint" -e GIT_SRC="https:github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/jslint4java'''
-            }  
-          }, 
+              sh '''docker run -i --rm --name="$BUILD_TAG-jslint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/jslint4java'''
+            }
+          },
 
           "Flake8": {
             node(label: 'docker') {
-              sh '''docker run -i --rm --pull=always --name="$BUILD_TAG-flake8"  -e GIT_SRC="https:github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/flake8 flake8 --extend-ignore=W605,W606'''
-            }  
-          }, 
+              sh '''docker run -i --rm --pull=always --name="$BUILD_TAG-flake8"  -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/flake8 flake8 --extend-ignore=W605,W606'''
+            }
+          },
 
           "i18n": {
             node(label: 'docker') {
-              sh '''docker run -i --rm --name=$BUILD_TAG-i18n -e GIT_SRC="https:github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/i18ndude'''
-            }  
-          }  
-        )  
-      }  
-    }  
+              sh '''docker run -i --rm --name=$BUILD_TAG-i18n -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/i18ndude'''
+            }
+          }
+        )
+      }
+    }
 
 
-
-
-stage('Report to SonarQube') {
-  steps {
-    node(label: 'docker') {
-      script{
-        // get the code
-        checkout scm
-        // get the result of the tests that were run in a previous Jenkins test
-        dir("xunit-reports") {
-          unstash "xunit-reports"
-        }
-        // get the result of the cobertura test
-        unstash "coverage.xml"
-        // get the sonar-scanner binary location
-        def scannerHome = tool 'SonarQubeScanner';
-        // get the nodejs binary location
-        def nodeJS = tool 'NodeJS11';
-        // run with the SonarQube configuration of API and token
-        withSonarQubeEnv('Sonarqube') {
-            // make sure you have the same path to the code as in the coverage report
-            sh '''sed -i "s|/plone/instance/src/$GIT_NAME|$(pwd)|g" coverage.xml'''
-            // run sonar scanner
-            sh "export PATH=$PATH:${scannerHome}/bin:${nodeJS}/bin; sonar-scanner -Dsonar.python.xunit.skipDetails=true -Dsonar.python.xunit.reportPath=xunit-reports/*.xml -Dsonar.python.coverage.reportPath=coverage.xml -Dsonar.sources=./eea -Dsonar.projectKey=$GIT_NAME-$BRANCH_NAME -Dsonar.projectVersion=$BRANCH_NAME-$BUILD_NUMBER"
+    stage('Report to SonarQube') {
+      steps {
+        node(label: 'docker') {
+          script{
+            // get the code
+            checkout scm
+            // get the result of the tests that were run in a previous Jenkins test 
+            // dir("xunit-reports") {
+            //   unstash "xunit-reports" 
+            // }
+            // get the result of the cobertura test
+            // unstash "coverage.xml" 
+            // get the sonar-scanner binary location 
+            def scannerHome = tool 'SonarQubeScanner';
+            // get the nodejs binary location 
+            def nodeJS = tool 'NodeJS11';
+            // run with the SonarQube configuration of API and token
+            withSonarQubeEnv('Sonarqube') {
+                // make sure you have the same path to the code as in the coverage report
+                // sh '''sed -i "s|/plone/instance/src/$GIT_NAME|$(pwd)|g" coverage.xml'''
+                // run sonar scanner
+                sh "export PATH=$PATH:${scannerHome}/bin:${nodeJS}/bin; sonar-scanner -Dsonar.python.coverage.reportPaths=coverage.xml -Dsonar.sources=./ -Dsonar.projectKey=$GIT_NAME-$BRANCH_NAME -Dsonar.projectVersion=$BRANCH_NAME-$BUILD_NUMBER" 
+            }
+          }
         }
       }
     }
-  }
-}
+
 
     stage('Pull Request') {
       when {
