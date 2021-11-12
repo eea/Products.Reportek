@@ -5,7 +5,6 @@ pipeline {
         GIT_NAME = "Products.Reportek"
         GIT_SRC = "https://github.com/eea/Products.Reportek.git"
         SONARQUBE_TAGS = "bdr.eionet.europa.eu,cdr.eionet.europa.eu,mdr.eionet.europa.eu"
-        BRANCH_NAME = "develop"
     }
 
  stages {
