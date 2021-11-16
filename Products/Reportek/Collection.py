@@ -690,14 +690,16 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
                     if not isinstance(data, dict):
                         res["result"] = "Fail"
                         res["message"] = "Malformed body"
-                    if all_years:
-                        year = ''
-                    elif 'year' in data:
-                        year = str(data.get('year'))
-                        del data['year']
-                    else:
-                        # Default to the previous year
-                        year = str(DateTime().year() - 1)
+                    year = self.REQUEST.get('year')
+                    if not year:
+                        if all_years:
+                            year = ''
+                        elif 'year' in data:
+                            year = str(data.get('year'))
+                            del data['year']
+                        else:
+                            # Default to the previous year
+                            year = str(DateTime().year() - 1)
                     response = registry.get_company_licences(
                         self.company_id,
                         domain=domain,
