@@ -896,8 +896,14 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                 odqa = ODQA()
                 setattr(odqa, 'data', result.get('feedbackContent', ''))
                 return c_type, odqa
-        except Exception:
-            pass
+            else:
+                raise Exception(
+                    "Received {} status code from QA service.".format(
+                        res.status_code))
+        except requests.exceptions.Timeout:
+            raise Exception(
+                "No response received from QA Service in"
+                " the alloted time: {}s".format(self.requestTimeout))
 
 
 InitializeClass(RemoteRestQaApplication)

@@ -271,7 +271,11 @@ class QARepository(Folder):
             else:
                 l_qa_app = self.getQAApplication()
                 if l_qa_app:
-                    l_tmp = l_qa_app.runQAScript(p_file_url, p_script_id)
+                    try:
+                        l_tmp = l_qa_app.runQAScript(p_file_url, p_script_id)
+                    except Exception as e:
+                        l_res_data.data = 'QA error: {}'.format(str(e))
+                        l_tmp = ['', l_res_data]
         else:
             # invalid or missing file
             l_file_id = ''
