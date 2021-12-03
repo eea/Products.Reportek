@@ -3,10 +3,12 @@ pipeline {
 
   environment {
         GIT_NAME = "Products.Reportek"
+        GIT_SRC = "https://github.com/eea/Products.Reportek.git"
         SONARQUBE_TAGS = "bdr.eionet.europa.eu,cdr.eionet.europa.eu,mdr.eionet.europa.eu"
     }
 
-  stages {
+ stages {
+   
     stage('Cosmetics') {
       steps {
         parallel(
@@ -15,7 +17,7 @@ pipeline {
             node(label: 'docker') {
               script {
                 catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                  sh '''docker run -i --rm --name="$BUILD_TAG-jshint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/jshint'''
+                  sh '''docker run -i --rm --name="$BUILD_TAG-jshint" -e GIT_SRC="$GIT_SRC" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/jshint'''
                 }
               }
             }
@@ -25,7 +27,7 @@ pipeline {
             node(label: 'docker') {
               script {
                 catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                  sh '''docker run -i --rm --name="$BUILD_TAG-csslint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/csslint'''
+                  sh '''docker run -i --rm --name="$BUILD_TAG-csslint" -e GIT_SRC="$GIT_SRC" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/csslint'''
                 }
               }
             }
@@ -35,7 +37,7 @@ pipeline {
             node(label: 'docker') {
               script {
                 catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                  sh '''docker run -i --rm --name="$BUILD_TAG-pep8" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/pep8'''
+                  sh '''docker run -i --rm --name="$BUILD_TAG-pep8" -e GIT_SRC="$GIT_SRC" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/pep8'''
                 }
               }
             }
@@ -45,7 +47,7 @@ pipeline {
             node(label: 'docker') {
               script {
                 catchError(buildResult: 'SUCCESS', stageResult: 'UNSTABLE') {
-                  sh '''docker run -i --rm --name="$BUILD_TAG-pylint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/pylint'''
+                  sh '''docker run -i --rm --name="$BUILD_TAG-pylint" -e GIT_SRC="$GIT_SRC" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/pylint'''
                 }
               }
             }
@@ -67,19 +69,19 @@ pipeline {
 
           "JS Lint": {
             node(label: 'docker') {
-              sh '''docker run -i --rm --name="$BUILD_TAG-jslint" -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/jslint4java'''
+              sh '''docker run -i --rm --name="$BUILD_TAG-jslint" -e GIT_SRC="$GIT_SRC" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/jslint4java'''
             }
           },
 
           "Flake8": {
             node(label: 'docker') {
-              sh '''docker run -i --rm --pull=always --name="$BUILD_TAG-flake8"  -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/flake8 flake8 --extend-ignore=W605,W606'''
+              sh '''docker run -i --rm --pull=always --name="$BUILD_TAG-flake8"  -e GIT_SRC="$GIT_SRC" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/flake8 flake8 --extend-ignore=W605,W606'''
             }
           },
 
           "i18n": {
             node(label: 'docker') {
-              sh '''docker run -i --rm --name=$BUILD_TAG-i18n -e GIT_SRC="https://github.com/eea/$GIT_NAME.git" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/i18ndude'''
+              sh '''docker run -i --rm --name=$BUILD_TAG-i18n -e GIT_SRC="$GIT_SRC" -e GIT_NAME="$GIT_NAME" -e GIT_BRANCH="$BRANCH_NAME" -e GIT_CHANGE_ID="$CHANGE_ID" eeacms/i18ndude'''
             }
           }
         )
@@ -116,7 +118,6 @@ pipeline {
     }
 
 
-
     stage('Pull Request') {
       when {
         not {
@@ -148,7 +149,7 @@ pipeline {
       steps {
         node(label: 'docker') {
           withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'eea-jenkins', usernameVariable: 'EGGREPO_USERNAME', passwordVariable: 'EGGREPO_PASSWORD'],string(credentialsId: 'eea-jenkins-token', variable: 'GITHUB_TOKEN'),[$class: 'UsernamePasswordMultiBinding', credentialsId: 'pypi-jenkins', usernameVariable: 'PYPI_USERNAME', passwordVariable: 'PYPI_PASSWORD']]) {
-            sh '''docker run -i --rm --name="$BUILD_TAG-gitflow-master" -e GIT_BRANCH="$BRANCH_NAME" -e EGGREPO_USERNAME="$EGGREPO_USERNAME" -e EGGREPO_PASSWORD="$EGGREPO_PASSWORD" -e GIT_NAME="$GIT_NAME"  -e PYPI_USERNAME="$PYPI_USERNAME"  -e PYPI_PASSWORD="$PYPI_PASSWORD" -e GIT_ORG="$GIT_ORG" -e GIT_TOKEN="$GITHUB_TOKEN" eeacms/gitflow'''
+            sh '''docker pull eeacms/gitflow; docker run -i --rm --name="$BUILD_TAG-gitflow-master" -e GIT_BRANCH="$BRANCH_NAME" -e EGGREPO_USERNAME="$EGGREPO_USERNAME" -e EGGREPO_PASSWORD="$EGGREPO_PASSWORD" -e GIT_NAME="$GIT_NAME"  -e PYPI_USERNAME="$PYPI_USERNAME"  -e PYPI_PASSWORD="$PYPI_PASSWORD" -e GIT_ORG="$GIT_ORG" -e GIT_TOKEN="$GITHUB_TOKEN" eeacms/gitflow'''
           }
         }
       }
@@ -179,3 +180,5 @@ pipeline {
     }
   }
 }
+
+
