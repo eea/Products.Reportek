@@ -409,6 +409,8 @@ class SatelliteRegistryManagement(BaseAdmin):
 
         settings = api.getSettings()
         if settings:
+            if self.request.form.get('domain', '') == 'FGAS':
+                return settings["BASE_URL_FGAS"]
             return settings["BASE_URL"]
 
     def get_emails(self):
