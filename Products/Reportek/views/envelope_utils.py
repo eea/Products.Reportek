@@ -264,6 +264,13 @@ class EnvelopeUtils(BaseAdmin):
 
         return json.dumps(envelopes)
 
+    def get_rmq_queue(self, act_id):
+        queue = 'fwd_envelopes'
+        if act_id in ['AutomaticQA', 'FMEConversionApplication']:
+            queue = 'poll_envelopes'
+
+        return queue
+
     def forwardable_envelopes(self):
         pub_envs = self.request.get('envelopes', [])
         if self.request.get('btn.publish') and not pub_envs:
@@ -273,6 +280,7 @@ class EnvelopeUtils(BaseAdmin):
             if self.rmq_fwd:
                 for env in pub_envs:
                     try:
+                        # TODO: dynamically set the queue here
                         send_message(env, queue='fwd_envelopes')
                         results.append({
                             'envelope': env,

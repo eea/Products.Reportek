@@ -636,6 +636,12 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                                  'process_to_id': process.id})
         return destinations
 
+    def get_rmq_queue(self, act_id):
+        queue = 'fwd_envelopes'
+        if act_id in ['AutomaticQA', 'FMEConversionApplication']:
+            queue = 'poll_envelopes'
+        return queue
+
     def handleWorkitem(self, workitem_id, REQUEST=None):
         # If it's a previously failed application, retry it, otherwise forward
         # it
@@ -654,7 +660,8 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                     self.wf_status = 'forward'
                     self.reindex_object()
                     if rmq:
-                        queue_msg(self.absolute_url(), queue='fwd_envelopes')
+                        queue_msg(self.absolute_url(),
+                                  queue=self.get_rmq_queue(activity.getId()))
                     self.startAutomaticApplication(workitem_id)
                 else:
                     self.wf_status = 'manual'
@@ -921,7 +928,8 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                     self.wf_status = 'forward'
                     self.reindex_object()
                     if rmq:
-                        queue_msg(self.absolute_url(), queue='fwd_envelopes')
+                        queue_msg(self.absolute_url(),
+                                  queue=self.get_rmq_queue(activity.getId()))
                     self.startAutomaticApplication(workitem_id)
                 else:
                     self.wf_status = 'manual'
