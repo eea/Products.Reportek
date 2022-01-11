@@ -1392,7 +1392,10 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
                 data_file = document.data_file.open()
                 zf = zip_content.ZZipFile(data_file)
                 for zipinfo in zf.infolist():
-                    files.append(zipinfo.filename)
+                    fname = zipinfo.filename
+                    if isinstance(fname, unicode):
+                        fname = fname.encode('utf-8')
+                    files.append(fname)
                 zf.close()
                 data_file.close()
             # This version of Python reports IOError on empty files
