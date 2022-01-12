@@ -1,9 +1,9 @@
-<p tal:replace="structure here/manage_page_header" omit-tag="">Header</p>
-<p tal:replace="structure here/manage_tabs" omit-tag="">tabs</p>
+<tal:block tal:replace="structure context/manage_page_header" />
+<tal:block tal:replace="structure context/manage_tabs" />
 
-<link rel="stylesheet" href="++resource++static/datatables-1.10.18/css/jquery.dataTables.css">
+<link rel="stylesheet" href="++resource++static/datatables.min.css">
 <script src="++resource++static/jquery-3.5.1.min.js"></script>
-<script src="++resource++static/datatables-1.10.18/js/jquery.dataTables.js"></script>
+<script type="text/javascript" charset="utf8" src="++resource++static/datatables.min.js"></script>
 <script type="text/javascript" charset="utf-8">
     $(document).ready(function() {
             var collapsed_text = 'show';
@@ -33,7 +33,7 @@
 	}
 </style>
 
-<p i18n:translate="">Jump to | <a href="#help" i18n:translate="">Help<a> | <a href="#byprocess" i18n:translate="">Applications by process<a> | <a href="#manage" i18n:translate="">Manage Applications<a> |</p>
+<p i18n:translate="">Jump to | <a href="#help" i18n:translate="">Help</a> | <a href="#byprocess" i18n:translate="">Applications by process</a> | <a href="#manage" i18n:translate="">Manage Applications</a> |</p>
 
 <div class="note-msg">
   <h2 i18n:translate=""><a name="help"></a>Help on Applications to activities mappings
@@ -57,6 +57,7 @@
       <p i18n:translate="">
       Reportek has a folder structure and mechanism to automatically map
       applications to activities.
+      </p>
       <p i18n:translate="">
       The root folder is <code>/Applications</code>. Each workflow must have a
       folder named exactly like its id.<br/>
@@ -70,7 +71,6 @@
           This application would be mapped to the <strong>Draft</strong>
           activity in the <strong>CDDA</strong> workflow.
       </p>
-      <p>
   </div>
   <hr/>
 </div>
@@ -210,5 +210,4 @@
 		wrapper.find('.dataTables_paginate').prependTo(wrapper);
 	});
 </script>
-
-<p tal:replace="structure here/manage_page_footer">Footer</p>
+<tal:block tal:replace="structure context/manage_page_footer" />
