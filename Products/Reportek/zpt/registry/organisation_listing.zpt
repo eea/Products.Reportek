@@ -34,7 +34,7 @@
 
     <h1 i18n:translate="">Companies</h1>
 
-    <p i18n:translate="">Companies registered in <a tal:attributes="href view/get_url">FGAS and ODS portal</a> and approved in BDR. Click on a company name to see the details and the reporters. Alternatively, export companies in <a class="export" href="organisations_excel">
+    <p i18n:translate="">Companies registered in <a tal:attributes="href view/get_url_fgas">FGAS</a> and <a tal:attributes="href view/get_url_ods">ODS</a> portal and approved in BDR. Click on a company name to see the details and the reporters. Alternatively, export companies in <a class="export" href="organisations_excel">
     Excel</a> or <a class="export" href="organisations_json">JSON </a> format or reporters in <a class="export" href="users_xls">Excel</a> format.
     </p>
     <div class="obligation-select-container">

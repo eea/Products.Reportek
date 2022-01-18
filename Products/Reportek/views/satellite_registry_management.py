@@ -413,6 +413,24 @@ class SatelliteRegistryManagement(BaseAdmin):
                 return settings["BASE_URL_FGAS"]
             return settings["BASE_URL"]
 
+    def get_url_ods(self):
+        api = self.get_api()
+        if not api:
+            return None
+
+        settings = api.getSettings()
+        if settings:
+            return settings["BASE_URL_ODS"]
+
+    def get_url_fgas(self):
+        api = self.get_api()
+        if not api:
+            return None
+
+        settings = api.getSettings()
+        if settings:
+            return settings["BASE_URL_FGAS"]
+
     def get_emails(self):
         api = self.get_api()
         if not api:
