@@ -30,7 +30,7 @@
         <p i18n:translate="">
           Company details (as registered in the
           <a tal:attributes="href view/get_url_fgas">FGAS</a> and
-          <a tal:attributes="href view/get_url_ods">ODS</a> portal)
+          <a tal:attributes="href view/get_url_ods">ODS</a> portals)
           and match it with the old record from
           <a href="/registry">
           BDR-Registry</a>, based on suggestions (candidates) made by the system.

@@ -24,7 +24,7 @@
     <p i18n:translate="">
         Each time an FGAS or ODS company is validated in BDR, an email is sent to the
         addresses from the list below. By <em>validated</em>, we mean companies
-        registered in the <a tal:attributes="href view/get_url_fgas">FGAS</a> and <a tal:attributes="href view/get_url_ods">ODS</a> portal and matched with old records from the
+        registered in the <a tal:attributes="href view/get_url_fgas">FGAS</a> and <a tal:attributes="href view/get_url_ods">ODS</a> portals and matched with old records from the
         BDR-Registry.
     </p>
 
