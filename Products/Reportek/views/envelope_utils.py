@@ -266,8 +266,9 @@ class EnvelopeUtils(BaseAdmin):
 
     def get_rmq_queue(self, act_id):
         queue = 'fwd_envelopes'
-        if act_id in ['AutomaticQA', 'FMEConversionApplication']:
-            queue = 'poll_envelopes'
+        # Uncomment to allow for separate queues based on Activity
+        # if act_id in ['AutomaticQA', 'FMEConversionApplication']:
+        #     queue = 'poll_envelopes'
 
         return queue
 
