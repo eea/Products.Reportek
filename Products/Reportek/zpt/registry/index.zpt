@@ -19,7 +19,7 @@
       <li><a href="data_sync_log" i18n:translate="">Synchronisation history</a></li>
     </ul>
     <ul>
-      <li><a href="stocks_listing" i18n:translate="">ODS Stocks<a/></li>
+      <li><a href="stocks_listing" i18n:translate="">ODS Stocks</a></li>
     </ul>
     <ul>
       <li><a href="notifications_settings" i18n:translate="">Notifications settings</a></li>
