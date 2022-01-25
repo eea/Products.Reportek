@@ -29,7 +29,8 @@
     <h1 i18n:translate="">Pending Companies</h1>
 
     <p i18n:translate="">
-      Companies registered in the <a tal:attributes="href view/get_url">FGAS and ODS portal</a>.
+      Companies registered in the <a tal:attributes="href view/get_url_fgas">FGAS</a> and
+      <a tal:attributes="href view/get_url_ods">ODS</a> portals.
       You can match them with old records taken from <a href="/registry">
       BDR-Registry</a>, based on suggestions (candidates) made by the system.
       Please click on the company name to view the suggestions and approve the company.
