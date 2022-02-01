@@ -718,7 +718,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
                         res["message"] = None
         # FLOAT_REPR is deprecated in python 3.6
         json.encoder.FLOAT_REPR = (
-            lambda o: ("%.7f" % o).rstrip("0") if o != int(o) else o
+            lambda o: ("%.7f" % o).rstrip("0") if o != int(o) else str(o)
         )
 
         return json.dumps(res, indent=4)
