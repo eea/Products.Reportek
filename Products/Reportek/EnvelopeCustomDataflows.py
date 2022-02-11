@@ -1532,7 +1532,6 @@ class EnvelopeCustomDataflows(Toolz):
 
     def get_previous_deliveries(self):
         """Return a list of previous company deliveries"""
-        engine = self.getEngine()
         envs = {
             'rw': [],
             'ro': []
