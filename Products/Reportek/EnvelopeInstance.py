@@ -31,7 +31,7 @@ import logging
 from time import time
 
 # Zope imports
-from AccessControl import ClassSecurityInfo
+from AccessControl import ClassSecurityInfo, getSecurityManager
 from constants import ENGINE_ID
 from DateTime import DateTime
 # Product specific imports
@@ -1063,7 +1063,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         if getattr(process, 'restricted', False):
             return True
 
-    security.declareProtected('Use OpenFlow', 'cancel_activity')
+    security.declareProtected('Reportek Cancel Activity', 'cancel_activity')
 
     def cancel_activity(self, workitem_id, actor=None, REQUEST=None):
         """Cancel the current activity"""
@@ -1120,7 +1120,8 @@ class EnvelopeInstance(CatalogAware, Folder, object):
     def is_cancellable(self, workitem_id):
         """Return True if activity is cancellable"""
         wk = getattr(self, workitem_id, None)
-        if wk:
+        if wk and getSecurityManager().checkPermission(
+                'Reportek Cancel Activity', self):
             is_lr = wk.activity_id.startswith('Automatic') or \
                 wk.activity_id.startswith('FMEConversion')
             unfinished = wk.status != 'complete' and \

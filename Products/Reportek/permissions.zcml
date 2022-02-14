@@ -57,4 +57,9 @@
     title="Reportek Dataflow Admin"
   />
 
+  <permission
+    id="Zope2.ReportekCancelActivity"
+    title="Reportek Cancel Activity"
+  />
+
 </configure>
