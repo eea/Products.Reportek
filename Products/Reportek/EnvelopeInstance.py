@@ -1091,7 +1091,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """Return True if activity is cancellable"""
         wk = getattr(self, workitem_id, None)
         if wk and getSecurityManager().checkPermission(
-            'Reportek Cancel Activity', self):
+                'Reportek Cancel Activity', self):
             is_lr = wk.activity_id.startswith('Automatic') or \
                 wk.activity_id.startswith('FMEConversion')
             unfinished = wk.status != 'complete' and \
