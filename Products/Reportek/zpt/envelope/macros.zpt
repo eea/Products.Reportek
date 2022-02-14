@@ -26,6 +26,7 @@
         <tal:block define="dummy_var python:request.RESPONSE.setHeader('Refresh','60')" />
         <a tal:condition="python: context.is_cancellable(item.getId())"
            tal:attributes="href string:cancel_activity?workitem_id=${item/id}"
+           class="cancel-activity"
            onclick="confirm_cancel(event)" i18n:translate="">Cancel</a>
       </tal:block>
       <tal:block condition="not:python:item.actor == 'openflow_engine'"

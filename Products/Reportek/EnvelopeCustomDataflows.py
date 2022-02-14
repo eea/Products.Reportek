@@ -1538,17 +1538,17 @@ class EnvelopeCustomDataflows(Toolz):
         }
         # Get all the company collections
         colls = self.get_company_collections()
-
-        # Filter out collections when there's no Add Envelopes permission
-        for k in envs.keys():
-            c_colls = [col for col in colls.get(k, [])
-                       if getSecurityManager().checkPermission('Add Envelopes',
-                                                               col)]
-            for col in c_colls:
-                if col.company_id == self.company_id:
-                    envs[k] = envs[k] + \
-                        [env for env in col.objectValues(
-                            'Report Envelope')]
+        if colls:
+            # Filter out collections when there's no Add Envelopes permission
+            for k in envs.keys():
+                c_colls = [col for col in colls.get(k, [])
+                           if getSecurityManager().checkPermission('Add Envelopes',
+                                                                   col)]
+                for col in c_colls:
+                    if col.company_id == self.company_id:
+                        envs[k] = envs[k] + \
+                            [env for env in col.objectValues(
+                                'Report Envelope')]
 
         return envs
 
