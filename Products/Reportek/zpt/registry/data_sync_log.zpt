@@ -25,7 +25,7 @@
     <h1 i18n:translate="">Data synchronisation logs</h1>
     <p i18n:translate="">
       Latest 100 syncronisation jobs made against
-      <a tal:attributes="href view/get_url" i18n:translate="">FGAS and ODS portal</a> and the number of companies fetched.
+      <a tal:attributes="href view/get_url_fgas" i18n:translate="">FGAS</a> and <a tal:attributes="href view/get_url_ods" i18n:translate="">ODS</a> portals and the number of companies fetched.
     </p>
     <div class="obligation-select-container">
       <label for="domain" i18n:translate="">Filter companies by obligation:</label>

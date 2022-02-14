@@ -462,7 +462,9 @@ class EnvelopeRemoteServicesManager:
             'language': 'En',
             'companyId': self.company_id,
             'countrycode': (self.getCountryCode(self.country)
-                            if getattr(self, 'country', '') else None)
+                            if getattr(self, 'country', '') else None),
+            'file_id': '',
+            'file_url': ''
         }
         if schema:
             sch_files = self.getFilesForSchema(schema)

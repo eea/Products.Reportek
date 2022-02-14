@@ -30,6 +30,7 @@ from Products.Reportek.RepUtils import DFlowCatalogAware
 from Products.Reportek.interfaces import ICollection
 from Products.Reportek import DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT
 from Products.Reportek.config import permission_manage_properties_collections
+from Products.Reportek.catalog import searchResults
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from OFS.Folder import Folder
 from DateTime import DateTime
@@ -47,9 +48,6 @@ import constants
 from datetime import datetime
 import json
 __version__ = '$Revision$'[11:-2]
-
-
-# product imports
 
 manage_addCollectionForm = PageTemplateFile('zpt/collection/add', globals())
 
@@ -73,6 +71,9 @@ def manage_addCollection(self, title, descr, year, endyear, partofyear,
     if isinstance(self, Collection):
         if allow_referrals != self.are_referrals_allowed():
             ob.prop_allowed_referrals = allow_referrals
+        # If parent collection is restricted, set the child restricted
+        if self.restricted:
+            ob.restricted = True
 
     self._setObject(id, ob)
     if REQUEST is not None:
@@ -260,8 +261,9 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
                                 'roles': [role]
                             }
         # retrieve the local accounts
-        folders = catalog(
-            meta_type=['Report Collection'], path=self.absolute_url(1))
+        folders = searchResults(catalog,
+                                dict(meta_type=['Report Collection'],
+                                     path=self.absolute_url(1)))
         for folder in folders:
             context = catalog.getobject(folder.data_record_id_)
             for member, roles in context.get_local_roles():
@@ -688,14 +690,16 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
                     if not isinstance(data, dict):
                         res["result"] = "Fail"
                         res["message"] = "Malformed body"
-                    if all_years:
-                        year = ''
-                    elif 'year' in data:
-                        year = str(data.get('year'))
-                        del data['year']
-                    else:
-                        # Default to the previous year
-                        year = str(DateTime().year() - 1)
+                    year = self.REQUEST.get('year')
+                    if not year:
+                        if all_years:
+                            year = ''
+                        elif 'year' in data:
+                            year = str(data.get('year'))
+                            del data['year']
+                        else:
+                            # Default to the previous year
+                            year = str(DateTime().year() - 1)
                     response = registry.get_company_licences(
                         self.company_id,
                         domain=domain,
@@ -712,6 +716,10 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
                     else:
                         res["result"] = "Fail"
                         res["message"] = None
+        # FLOAT_REPR is deprecated in python 3.6
+        json.encoder.FLOAT_REPR = (
+            lambda o: ("%.7f" % o).rstrip("0") if o != int(o) else str(o)
+        )
 
         return json.dumps(res, indent=4)
 
@@ -1048,7 +1056,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
                  'sort_order': 'reverse',
                  'path': path
                  }
-        envs = self.Catalog(**query)
+        envs = searchResults(self.Catalog, query)
 
         return envs
 
@@ -1059,7 +1067,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
                  'sort_order': 'reverse',
                  'path': path
                  }
-        envs = self.Catalog(**query)
+        envs = searchResults(self.Catalog, query)
         if envs:
             return envs[0].reportingdate
 
@@ -1073,7 +1081,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
 
     @property
     def Description(self):
-        if isinstance(self.descr, unicode):
+        if isinstance(self.descr, unicode):  # noqa: F821
             return self.descr.encode('utf-8')
 
         return self.descr
@@ -1083,6 +1091,27 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
         RepUtils.execute_under_special_role(self, "Manager",
                                             self.manage_addEnvelope,
                                             **kwargs)
+
+    security.declareProtected('View management screens', 'set_restricted')
+
+    def set_restricted(self, permission, roles, acquire=0, REQUEST=None):
+        """
+            Restrict access to the named objects.
+            Figure out what roles exist, but don't give access to
+            anonymous and authenticated
+        """
+        self.manage_permission(permission_to_manage=permission,
+                               roles=roles, acquire=acquire)
+        self.restricted = True
+        self.reindex_object()
+
+    @property
+    def restricted(self):
+        return getattr(self, '_restricted', False)
+
+    @restricted.setter
+    def restricted(self, value):
+        self._restricted = bool(value)
 
 
 Globals.InitializeClass(Collection)

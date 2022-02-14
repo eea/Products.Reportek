@@ -2,13 +2,13 @@ from base_admin import BaseAdmin
 from operator import itemgetter
 from Products.Reportek.constants import ENGINE_ID, ECAS_ID
 from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
+from Products.Reportek.catalog import searchResults
 
 
 class ManageRoles(BaseAdmin):
 
     def __call__(self, *args, **kwargs):
         super(ManageRoles, self).__call__(*args, **kwargs)
-
         if self.__name__ == 'assign_role':
             if self.request.get('btn.assign'):
                 self.assign_role()
@@ -28,7 +28,8 @@ class ManageRoles(BaseAdmin):
 
     def get_user_localroles(self, username):
         results = []
-        for brain in self.context.Catalog(meta_type='Report Collection'):
+        for brain in searchResults(self.context.Catalog,
+                                   dict(meta_type='Report Collection')):
             coll = brain.getObject()
             local_roles = coll.get_local_roles_for_userid(username)
             if local_roles:
@@ -79,8 +80,8 @@ class ManageRoles(BaseAdmin):
             # Sync role assignment to associated transfers folder
             if path in self.request.get('sync_transfers', []):
                 transfer_path = '/'.join(['/transfers'] + path.split('/')[1:])
-                transfer = self.context.unrestrictedTraverse(
-                    transfer_path, None)
+                transfer = self.context.unrestrictedTraverse(transfer_path,
+                                                             None)
                 if transfer:
                     t_roles = set(
                         transfer.get_local_roles_for_userid(cur_entity))
@@ -131,8 +132,12 @@ class ManageRoles(BaseAdmin):
 
             revoke_roles = self.request.get(path.replace('/', '_'), [])
             roles = set(obj.get_local_roles_for_userid(entity))
-            for role in revoke_roles:
-                roles.remove(role)
+            for r in revoke_roles:
+                if (REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR
+                        and r == 'Reporter (Owner)'):
+                    roles.remove('Owner')
+                else:
+                    roles.remove(r)
             obj.manage_delLocalRoles([entity])
             if roles:
                 obj.manage_setLocalRoles(entity, list(roles))
@@ -140,14 +145,16 @@ class ManageRoles(BaseAdmin):
             # Remove certain roles from transfer folders
             if sync_transfers:
                 transfer_path = '/'.join(['/transfers'] + path.split('/')[1:])
-                transfer = self.context.unrestrictedTraverse(
-                    transfer_path, None)
+                transfer = self.context.unrestrictedTraverse(transfer_path,
+                                                             None)
                 removed = False
                 if transfer:
                     t_roles = set(transfer.get_local_roles_for_userid(entity))
                     revocable = [r for r in revoke_roles
-                                 if r in ['ClientFG', 'ClientODS',
-                                          'ClientCARS']]
+                                 if r in ['ClientFG',
+                                          'ClientODS',
+                                          'ClientCARS',
+                                          'ClientHDV']]
                     for role in revocable:
                         if role in t_roles:
                             t_roles.remove(role)
@@ -178,7 +185,7 @@ class ManageRoles(BaseAdmin):
 
         users = [acl_users.findUser(search_param=p, search_term=term)
                  for p in params]
-        users = reduce(lambda x, y: x + y, users)
+        users = reduce(lambda x, y: x + y, users)  # noqa: F821
         users = {user.get('uid'): user for user in users}.values()
 
         return users
@@ -192,12 +199,12 @@ class ManageRoles(BaseAdmin):
             for user in ecas_db.values():
                 username = user.username
                 email = user.email
-                if isinstance(username, unicode):
+                if isinstance(username, unicode):  # noqa: F821
                     username = username.encode('utf-8')
-                if isinstance(email, unicode):
+                if isinstance(email, unicode):  # noqa: F821
                     email = email.encode('utf-8')
                 if username:
-                    if isinstance(username, unicode):
+                    if isinstance(username, unicode):  # noqa: F821
                         username = username.encode('utf-8')
                     if term in username:
                         result = {
@@ -274,7 +281,7 @@ class ManageRoles(BaseAdmin):
         groups = [group[0] for group in groups]
         group_prefixes = tuple({group.split('-')[0] for group in groups})
 
-        brains = self.context.Catalog(**query)
+        brains = searchResults(self.context.Catalog, query)
         for brain in brains:
             local_defined_users = brain.local_defined_users
             if local_defined_users:

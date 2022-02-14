@@ -1,29 +1,44 @@
 # flake8: noqa
-# Those are old tests written by moregale that were renamed to never be executetd
-# for some while; some other tests regarding workflow have been written.
-# in the mean time, none of the test, not even the runnable ones, have been run
-# thus most of them remained more or less outdated
+# Those are old tests written by moregale that were renamed to never be
+# executed for some while; some other tests regarding workflow have been
+# written. In the mean time, none of the test, not even the runnable ones,
+# have been run thus most of them remained more or less outdated
 # What is left here are the tests that have been easily brought back to life
 # One can see the rest of them using version control history
 from authutils import loginUnrestricted
 from common import BaseTest, ConfigureReportek
 import unittest
 from Testing import ZopeTestCase
-ZopeTestCase.installProduct('Reportek')
+from Products.Reportek.catalog import searchResults
+import unittest
+from Testing import ZopeTestCase
+from Products.Five import zcml
+
+ZopeTestCase.installProduct('PluginIndexes')
 ZopeTestCase.installProduct('PythonScripts')
+ZopeTestCase.installProduct('PageTemplates')
+ZopeTestCase.installProduct('ZCatalog')
+ZopeTestCase.installProduct('ZCTextIndex')
+ZopeTestCase.installProduct('Reportek')
+ZopeTestCase.installProduct('GenericSetup')
 
 
 class rolesTestCase(BaseTest, ConfigureReportek):
 
-    _setup_fixture = 0
+    # _setup_fixture = 0
 
     def afterSetUp(self):
         super(rolesTestCase, self).afterSetUp()
+        try:
+            import Products.Reportek
+            zcml.load_config('configure.zcml', Products.Reportek)
+        except ImportError:
+            pass
+
         self.createStandardCatalog()
         self.createStandardDependencies()
         self.createStandardCollection()
-        # self.createStandardEnvelope()
-        # self.login()
+        self.login()
 
         # self.app.manage_addProduct['Reportek'].manage_addCollection('title',
         #    'descr','2003','2004','','http://country', '', [],
@@ -70,13 +85,13 @@ class rolesTestCase(BaseTest, ConfigureReportek):
         role = 'testRole'
         process = 'begin_end'
         activities = ['Begin', 'End']
-        result = self.app.Catalog.searchResults(meta_type='Workitem')
+        result = searchResults(self.app.Catalog, dict(meta_type='Workitem'))
         assert len(result) == 1, "%s workitems listed instead of 1" % len(result)
         result = [o.getObject()
                   for o in result if role in o.getObject().push_roles]
         assert len(result) == 0, "%s workitems listed instead of 0" % len(result)
         self.of.editActivitiesPushableOnRole(role, process, activities)
-        result = self.app.Catalog.searchResults(meta_type='Workitem')
+        result = searchResults(self.app.Catalog, dict(meta_type='Workitem'))
         result = [o.getObject()
                   for o in result if role in o.getObject().push_roles]
         assert len(result) == 1, "%s workitems listed instead of 1" % len(result)
@@ -85,13 +100,14 @@ class rolesTestCase(BaseTest, ConfigureReportek):
         role = 'testRole'
         process = 'begin_end'
         activities = ['Begin', 'End']
-        result = self.app.Catalog.searchResults(meta_type='Workitem')
+        result = searchResults(self.app.Catalog, dict(meta_type='Workitem'))
+
         assert len(result) == 1, "%s workitems listed instead of 1" % len(result)
         result = [o.getObject()
                   for o in result if role in o.getObject().pull_roles]
         assert len(result) == 0, "%s workitems listed instead of 0" % len(result)
         self.of.editActivitiesPullableOnRole(role, process, activities)
-        result = self.app.Catalog.searchResults(meta_type='Workitem')
+        result = searchResults(self.app.Catalog, dict(meta_type='Workitem'))
         result = [o.getObject()
                   for o in result if role in o.getObject().pull_roles]
         assert len(result) == 1, "%s workitems listed instead of 1" % len(result)

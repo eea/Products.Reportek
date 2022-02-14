@@ -44,6 +44,8 @@ from interfaces import IDocument
 from OFS.SimpleItem import SimpleItem
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.RepUtils import DFlowCatalogAware, parse_uri
+from Products.Reportek.catalog import searchResults
+from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from webdav.common import rfc1123_date
 from XMLInfoParser import SchemaError, detect_schema
@@ -459,9 +461,11 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
     def getFeedbacksForDocument(self):
         """ Returns the Feedback objects associated with this document """
         fbs = []
-        brains = self.Catalog(meta_type='Report Feedback',
-                              document_id=self.id,
-                              path=self.getParentNode().absolute_url(1))
+        brains = searchResults(
+            self.getPhysicalRoot().unrestrictedTraverse(DEFAULT_CATALOG),
+            dict(meta_type='Report Feedback',
+                 document_id=self.id,
+                 path=self.getParentNode().absolute_url(1)))
         for brain in brains:
             try:
                 fbs.append(brain.getObject())

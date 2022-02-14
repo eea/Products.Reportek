@@ -1,0 +1,69 @@
+<tal:block tal:replace="structure context/manage_page_header" />
+<tal:block define="manage_tabs_message python:options.get('manage_tabs_message')"
+           content="structure here/manage_tabs" />
+
+<style>
+.restrictions-roles-map {
+   border-collapse: collapse;
+}
+.restrictions-roles-map th {
+  padding: 0 5px;
+}
+.restrictions-roles-map td.has-role label {
+  display: block;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+</style>
+
+<p class="form-help" i18n:translate="">
+    Roles allowed to access collections with an obligation mapped to this workflow.
+    <em>Note that this would override the View permission, normally acquired from the parent collection.</em>
+    Please note that these settings here indicate the restrictions set on the process, not the actual collection restrictions.
+    In order to set these, click on the <em>Set restrictions</em> button.
+</p>
+
+<tal:block define="valid_roles python:here.valid_roles();
+                   permission string:View;
+                   p_collections python: here.get_process_colls(context.getId());" >
+
+<ul>
+  <li tal:repeat="col p_collections" tal:content="python: col.getPath()"/>
+</ul>
+<form method="post" tal:attributes="action string:${here/absolute_url}/manage_restrictions_table_submit">
+
+<table border="1" class="restrictions-roles-map">
+
+  <tr>
+    <th></th>
+    <th i18n:translate="">Acquire from parent</th>
+    <th tal:repeat="role valid_roles" tal:content="role"></th>
+  </tr>
+
+  <tr>
+    <td i18n:translate="">View permission</td>
+    <td class="has-role">
+      <label>
+        <input type="checkbox" name="acquire" tal:attributes="checked python: here.permissions_acquired()"/>
+      </label>
+    </td>
+    <td tal:repeat="role valid_roles" class="has-role">
+      <label>
+        <input type="checkbox"
+               tal:attributes="name string:viewp-${role}:list;
+                               value string:'View';
+                               checked python: here.role_has_permission(role, permission) or role == 'Manager';
+                               disabled python: role == 'Manager'">
+      </label>
+
+    </td>
+  </tr>
+
+</table>
+
+<button type="submit" i18n:translate="">Set restrictions</button>
+
+</form>
+</tal:block>
+<tal:block tal:replace="structure context/manage_page_footer" />
