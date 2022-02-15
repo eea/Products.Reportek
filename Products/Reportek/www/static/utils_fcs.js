@@ -67,6 +67,12 @@ reportek.utils.fcs = {
         self.tbl.ajax.url(self.get_endpoint_url(endpoint)).load();
         self.update_domain_param();
         self.handle_domain_change();
+        if (self.domain == 'FGAS'){
+          $(self.tbl.column(6).header()).text('Var Number');
+        }
+        else{
+          $(self.tbl.column(6).header()).text('Eori number');
+        }
       });
     },
     init_companies: function() {
