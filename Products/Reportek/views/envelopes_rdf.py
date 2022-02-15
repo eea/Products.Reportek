@@ -1,5 +1,6 @@
 from Products.Five import BrowserView
 from Products.PythonScripts.standard import html_quote, url_quote
+from Products.Reportek.catalog import searchResults
 from Products.Reportek import constants
 
 
@@ -35,7 +36,7 @@ class EnvelopesRDF(BrowserView):
 </rdf:Description>""" % s_url)
         catalog = self.context.Catalog
 
-        brains = catalog.searchResults(**query)
+        brains = searchResults(catalog, query)
         for brain in brains:
             try:
                 res_a("""<cr:File rdf:about="%s%s"/>""" % (

@@ -177,8 +177,11 @@ class QARepository(Folder):
                         dataflow_uris=l_file.dataflow_uris)):
                 # remote scripts
                 if l_qa_app:
-                    l_ret[l_file.id] = l_qa_app.listQAScripts(
+                    scripts = l_qa_app.listQAScripts(
                         l_file.xml_schema_location)
+                    # Exclude ZIP output type - refs: 136918
+                    l_ret[l_file.id] = [script for script in scripts
+                                        if script[4] != 'ZIP']
                 # local scripts
                 l_buff = [
                     ['loc_%s' % y.id, y.title, y.bobobase_modification_time(),
@@ -268,7 +271,11 @@ class QARepository(Folder):
             else:
                 l_qa_app = self.getQAApplication()
                 if l_qa_app:
-                    l_tmp = l_qa_app.runQAScript(p_file_url, p_script_id)
+                    try:
+                        l_tmp = l_qa_app.runQAScript(p_file_url, p_script_id)
+                    except Exception as e:
+                        l_res_data.data = 'QA error: {}'.format(str(e))
+                        l_tmp = ['', l_res_data]
         else:
             # invalid or missing file
             l_file_id = ''

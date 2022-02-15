@@ -6,13 +6,14 @@ from AccessControl import ClassSecurityInfo
 # Product imports
 from activity import activity
 from DateTime import DateTime
-from Globals import InitializeClass
+from Globals import InitializeClass, MessageDialog
 from OFS.Folder import Folder
 from path import path
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
 from Products.Reportek.interfaces import IProcess
 from Products.ZCatalog.CatalogPathAwareness import CatalogAware
+from Products.Reportek.catalog import searchResults
 from transition import transition
 from zope.interface import implements
 
@@ -61,7 +62,8 @@ class process(CatalogAware, Folder):
     manage_options = (
         {'label': 'Map', 'action': 'index_html'},
         {'label': 'Roles', 'action': 'manage_role_table'},
-    ) + Folder.manage_options[0:1] + Folder.manage_options[2:]
+        {'label': 'Restrictions', 'action': 'manage_process_restrictions'},
+        ) + Folder.manage_options[0:1] + Folder.manage_options[2:]
 
     def __init__(self, id, title, description, BeginEnd, priority, begin, end,
                  restricted=False):
@@ -116,6 +118,10 @@ class process(CatalogAware, Folder):
     </script>
 <![endif]-->""" % self.absolute_url()
 
+    security.declareProtected('Manage OpenFlow', 'manage_process_restrictions')
+    manage_process_restrictions = PageTemplateFile(
+        'zpt/Workflow/process_restrictions.zpt', globals())
+
     security.declareProtected('Manage OpenFlow', 'manage_role_table')
     manage_role_table = PageTemplateFile(
         'zpt/Workflow/manage_role_table.zpt', globals())
@@ -127,6 +133,56 @@ class process(CatalogAware, Folder):
             self.aq_parent.editActivitiesPullableOnRole(role, self.getId(),
                                                         activities)
         return self.manage_role_table(manage_tabs_message="Roles updated")
+
+    def get_process_restrictions(self):
+        restrictions = self.getRestrictionsOnRole()
+        return restrictions.get(self.getId(), {})
+
+    def role_has_permission(self, role, permission):
+        p_restrictions = self.get_process_restrictions()
+        if role in p_restrictions.get(permission, []):
+            return True
+
+    def permissions_acquired(self):
+        p_restrictions = self.get_process_restrictions()
+        return p_restrictions.get('Acquire', False)
+
+    security.declareProtected('Manage OpenFlow',
+                              'manage_restrictions_table_submit')
+
+    def manage_restrictions_table_submit(self):
+        """ Modify View permission role assignment for collections with
+            mapped dataflow
+        """
+        roles = ['Manager']
+        permission = 'View'
+        acquire = 0
+        fails = []
+        self.restricted = True
+        for role in self.valid_roles():
+            if 'viewp-{}'.format(role) in self.REQUEST.form:
+                roles.append(role)
+        if self.REQUEST.form.get('acquire', 'off') == 'on':
+            acquire = 1
+        brains = self.get_process_colls(self.getId())
+        for brain in brains:
+            col = brain.getObject()
+            try:
+                col.set_restricted(permission, roles, acquire=acquire)
+            except Exception:
+                fails.append(col.absolute_url())
+
+        if fails:
+            return MessageDialog(title="Warning!",
+                                 message="Unable to set restrictions for: "
+                                 + str(','.join(fails)),
+                                 action='manage_process_restrictions')
+        else:
+            self.setRestrictionsOnRole(self.getId(), permission, roles,
+                                       acquire=acquire)
+
+        return self.manage_process_restrictions(
+            manage_tabs_message="Restrictions updated")
 
     def listActivities(self):
         return sorted(self.objectIds('Activity'))
@@ -259,10 +315,11 @@ class process(CatalogAware, Folder):
         for activity_id in [id for id in ids
                             if id in self.objectIds('Activity')]:
             # fallout all the workitems that have this activity id
-            for wi in self.Catalog(meta_type='Workitem',
-                                   process_path=self.absolute_url(1),
-                                   activity_id=activity_id,
-                                   status=['active', 'inactive']):
+            for wi in searchResults(self.Catalog,
+                                    dict(meta_type='Workitem',
+                                         process_path=self.absolute_url(1),
+                                         activity_id=activity_id,
+                                         status=['active', 'inactive'])):
                 wi_obj = self.Catalog.getobject(wi.data_record_id_)
                 wi_obj.aq_parent.falloutWorkitem(wi.id)
         Folder.manage_delObjects(self, ids)

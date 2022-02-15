@@ -551,6 +551,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """.."""
         result = {}
         engine = getattr(self, ENGINE_ID)
+        rmq = getattr(engine, 'env_fwd_rmq', False)
         if getattr(self, 'wf_status', None) == 'forward':
             wks = self.getListOfWorkitems()
             wk = wks[-1]
@@ -569,6 +570,12 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             else:
                 if self.wf_status == 'forward':
                     wk.triggerApplication(wk.id, REQUEST)
+                    if rmq:
+                        activity = self.getActivity(wk.id)
+                        queue_msg(
+                            "{}|{}".format(self.absolute_url(),
+                                           self.get_freq(wk.id)),
+                            queue=self.get_rmq_queue(activity.getId()))
                     result['triggered'] = wk.activity_id
 
         return engine.jsonify(result)
@@ -636,6 +643,23 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                                  'process_to_id': process.id})
         return destinations
 
+    def get_rmq_queue(self, act_id):
+        queue = 'fwd_envelopes'
+        # Uncomment to allow for separate queues based on Activity
+        # if act_id in ['AutomaticQA', 'FMEConversionApplication']:
+        #     queue = 'poll_envelopes'
+        return queue
+
+    def get_freq(self, workitem_id):
+        """Return the frequency at which the application should be exec
+        """
+        freq = 1
+        application_url = self.getApplicationUrl(workitem_id)
+        application = self.unrestrictedTraverse(application_url, None)
+        if application:
+            freq = int(getattr(application, 'retryFrequency', freq))
+        return freq
+
     def handleWorkitem(self, workitem_id, REQUEST=None):
         # If it's a previously failed application, retry it, otherwise forward
         # it
@@ -653,9 +677,12 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 if activity.isAutoStart():
                     self.wf_status = 'forward'
                     self.reindex_object()
-                    if rmq:
-                        queue_msg(self.absolute_url(), queue='fwd_envelopes')
                     self.startAutomaticApplication(workitem_id)
+                    if rmq:
+                        queue_msg(
+                            "{}|{}".format(self.absolute_url(),
+                                           self.get_freq(workitem_id)),
+                            queue=self.get_rmq_queue(activity.getId()))
                 else:
                     self.wf_status = 'manual'
                     self.reindex_object()
@@ -920,9 +947,12 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 if activity.isAutoStart():
                     self.wf_status = 'forward'
                     self.reindex_object()
-                    if rmq:
-                        queue_msg(self.absolute_url(), queue='fwd_envelopes')
                     self.startAutomaticApplication(workitem_id)
+                    if rmq:
+                        queue_msg(
+                            "{}|{}".format(self.absolute_url(),
+                                           self.get_freq(workitem_id)),
+                            queue=self.get_rmq_queue(activity.getId()))
                 else:
                     self.wf_status = 'manual'
                     self.reindex_object()

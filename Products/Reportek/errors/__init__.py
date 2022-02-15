@@ -27,6 +27,7 @@ class ErrorView(object):
             return self.request.response.write(json.dumps(data, indent=4))
 
         ctx = aq_parent(self)
+
         return ctx.standard_error_message(ctx, self.request,
                                           error_type=error_type,
                                           error_value=self.context.message)

@@ -304,7 +304,10 @@ def create_reportek_indexes(catalog):
     add_index('Description', catalog, 'ZCTextIndex', meta=True)
     add_index('blocker', catalog, 'FieldIndex', meta=True)
     add_index('feedback_status', catalog, 'FieldIndex', meta=True)
+    # restricted is strictly needed for queries made by cr
+    add_index('restricted', catalog, 'FieldIndex', meta=True)
     add_index('allowedAdminRolesAndUsers', catalog, 'KeywordIndex', meta=True)
+    add_index('allowedRolesAndUsers', catalog, 'KeywordIndex', meta=True)
     add_index('wf_status', catalog, 'FieldIndex', meta=True)
     if 'activation_log' not in catalog.schema():
         catalog.addColumn('activation_log')

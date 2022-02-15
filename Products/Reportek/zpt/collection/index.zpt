@@ -72,11 +72,17 @@
             <tbody tal:condition="visible">
               <tal:rep tal:repeat="item python:test(here.allow_envelopes==1, here.tlzSortObjsListByMethod(colls, 'bobobase_modification_time', 1), here.tlzSortByAttr(colls, 'title'))">
                 <tr valign="top"
-                  tal:define="is_fgas_verification python: df_prefix.format('764') in item.dataflow_uris or df_prefix.format('765') in item.dataflow_uris;"
-                  tal:attributes="class python: 'ver-col' if is_fgas_verification else ''">
+                  tal:define="is_fgas_verification python: df_prefix.format('764') in item.dataflow_uris or df_prefix.format('765') in item.dataflow_uris;
+                              klass python: 'restricted' if item.restricted else '';
+                              klass python: '{} ver-col'.format(klass) if is_fgas_verification else klass;"
+                  tal:attributes="
+                    class klass">
                   <td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>
                   <td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Collection" i18n:attributes="alt" /></td>
-                  <td><a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" /></td>
+                  <td>
+                    <a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" />
+                    <img tal:condition="item/restricted" src="misc_/Reportek/lockicon_gif" alt="Padlock" width="16" height="16" i18n:attributes="alt" />
+                  </td>
                   <tal:block tal:condition="envs">
                     <td tal:condition="isBdrDeployment"></td>
                     <td tal:condition="isBdrDeployment"></td>

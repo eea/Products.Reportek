@@ -524,19 +524,32 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                 code = code.get('statusId', '')
             else:
                 code == ''
+
             # job ready
             if code == '0':
                 r_files = data.get('REMOTE_FILES')
                 if r_files:
                     for r_file in r_files:
                         e_data = {'SCRIPT_TITLE': data.get('scriptTitle')}
-                        self.handle_remote_file(
-                            r_file, l_file_id,
-                            p_workitem_id, e_data, p_jobID,
+                        r_res = self.handle_remote_file(
+                            r_file, l_file_id, p_workitem_id, e_data, p_jobID,
                             restricted=self.get_restricted_status(
                                 envelope, l_file_id))
-                        l_getResultDict = {p_jobID: {'code': 1,
-                                                     'fileURL': l_file_url}}
+                        l_getResultDict = {
+                            p_jobID: {
+                                'code': 1,
+                                'fileURL': l_file_url,
+                                'debug': {
+                                    'c_executionstatus': code,
+                                    'c_feedbackstatus': data.get(
+                                        'feedbackStatus', 'N/A'),
+                                    'c_feedbackmessage': data.get(
+                                        'feedbackMessage', 'N/A'),
+                                    'c_feedbackcontent_len': len(
+                                        data.get('feedbackContent', '')),
+                                    'remote_files_debug': r_res
+                                }
+                            }}
                         self.__manageAutomaticProperty(
                             p_workitem_id=p_workitem_id,
                             p_getResult=l_getResultDict)
@@ -593,7 +606,19 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                     feedback_ob.reindex_object()
 
                     l_getResultDict = {
-                        p_jobID: {'code': 1, 'fileURL': l_file_url}}
+                        p_jobID: {
+                            'code': 1,
+                            'fileURL': l_file_url,
+                            'debug': {
+                                'c_executionstatus': code,
+                                'c_feedbackstatus': data.get(
+                                    'feedbackStatus', 'N/A'),
+                                'c_feedbackmessage': data.get(
+                                    'feedbackMessage', 'N/A'),
+                                'c_feedbackcontent_len': len(data.get(
+                                    'feedbackContent', ''))
+                            }
+                        }}
                     self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                                    p_getResult=l_getResultDict)
             # not ready
@@ -611,7 +636,16 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                             'code': 0,
                             'retries_left': l_nRetries - 1,
                             'last_error': data['feedbackMessage'],
-                            'next_run': next_run
+                            'next_run': next_run,
+                            'debug': {
+                                'c_executionstatus': code,
+                                'c_feedbackstatus': data.get(
+                                    'feedbackStatus', 'N/A'),
+                                'c_feedbackmessage': data.get(
+                                    'feedbackMessage', 'N/A'),
+                                'c_feedbackcontent_len': len(data.get(
+                                    'feedbackContent', ''))
+                            }
                         }
                     }
                     self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
@@ -624,7 +658,16 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                     l_getResultDict = {
                         p_jobID: {
                             'code': -2,
-                            'last_error': data['feedbackMessage']
+                            'last_error': data['feedbackMessage'],
+                            'debug': {
+                                'c_executionstatus': code,
+                                'c_feedbackstatus': data.get(
+                                    'feedbackStatus', 'N/A'),
+                                'c_feedbackmessage': data.get(
+                                    'feedbackMessage', 'N/A'),
+                                'c_feedbackcontent_len': len(
+                                    data.get('feedbackContent', ''))
+                            }
                         }
                     }
                     self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
@@ -638,7 +681,16 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                 l_getResultDict = {
                     p_jobID: {
                         'code': -2,
-                        'last_error': data['feedbackMessage']
+                        'last_error': data['feedbackMessage'],
+                        'debug': {
+                            'c_executionstatus': code,
+                            'c_feedbackstatus': data.get(
+                                'feedbackStatus', 'N/A'),
+                            'c_feedbackmessage': data.get(
+                                'feedbackMessage', 'N/A'),
+                            'c_feedbackcontent_len': len(
+                                data.get('feedbackContent', ''))
+                        }
                     }
                 }
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
@@ -739,6 +791,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
             if l_job not in l_qa['getResult']:
                 l_qa['getResult'][l_job] = {}
             l_qa['getResult'][l_job].update(l_value)
+
         # make sure it saves the object
         l_workitem._p_changed = 1
 
@@ -759,16 +812,22 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         l_workitem = getattr(self, workitem_id)
 
         try:
+            username = self.REQUEST['AUTHENTICATED_USER'].getUserName()
+        except Exception:
+            username = 'N/A'
+        try:
             res = self.makeHTTPRequest(url, method='POST')
             message = res.json().get('message')
             l_workitem.addEvent(
-                '#{} job cancelation triggered - {}: {}'.format(
+                '#{} job cancelation triggered by: {} - {}: {}'.format(
                     job_id,
+                    username,
                     res.status_code,
                     message))
         except Exception as e:
             l_workitem.addEvent(
-                '#{} job cancelation failed with: {}.'.format(job_id, str(e)))
+                '#{} job cancelation triggered by: {}, failed with: {}'.format(
+                    job_id, username, str(e)))
 
     def listQAScripts(self, file_schema, short=True):
         """Return a list of QA scripts for file schema"""
@@ -784,13 +843,14 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                 if response.status_code == 200:
                     scripts = response.json()
                     if short:
-                        result = [
-                            [script.get('id').encode('utf-8'),
-                             script.get('name').encode('utf-8'),
-                             '',
-                             script.get('runOnDemandMaxFileSizeMB').encode(
-                                'utf-8')]
-                            for script in scripts]
+                        result = [[script.get('id').encode('utf-8'),
+                                   script.get('name').encode('utf-8'),
+                                   '',
+                                   script.get(
+                                    'runOnDemandMaxFileSizeMB').encode(
+                                    'utf-8'),
+                                   script.get('outputType').encode('utf-8')]
+                                  for script in scripts]
                     else:
                         compat = {
                             'outputType': 'content_type_id',
@@ -836,8 +896,14 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                 odqa = ODQA()
                 setattr(odqa, 'data', result.get('feedbackContent', ''))
                 return c_type, odqa
-        except Exception:
-            pass
+            else:
+                raise Exception(
+                    "Received {} status code from QA service.".format(
+                        res.status_code))
+        except requests.exceptions.Timeout:
+            raise Exception(
+                "No response received from QA Service in"
+                " the alloted time: {}s".format(self.requestTimeout))
 
 
 InitializeClass(RemoteRestQaApplication)

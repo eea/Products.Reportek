@@ -19,7 +19,7 @@
             <div id="operations">
                 <ul>
                     <li>
-                        <a tal:attributes="href python:context.getParentNode().absolute_url()" title="Go back to envelope" i18n:attributes="title go-back-title" i18n:translate="" i18n:attributes="title title-back-to-envelope">Back to envelope</a>
+                        <a tal:attributes="href python:context.getParentNode().absolute_url()" title="Go back to envelope" i18n:attributes="title go-back-title" i18n:translate="">Back to envelope</a>
                     </li>
                 </ul>
             </div>
@@ -197,8 +197,8 @@
                             </tal:block>
                         </ul>
                         <span tal:condition="not:feedbacks" i18n:translate="">
-                No feedback available for this file.
-            </span>
+                            No feedback available for this file.
+                        </span>
                     </tal:block>
                 </fieldset>
         </tal:block>

@@ -2,8 +2,9 @@
 <span tal:replace="structure python:context.manage_tabs(management_view='View')" />
 
 <link rel="stylesheet" type="text/css" href="http://www.eionet.europa.eu/styles/eionet2007/screen.css" media="screen" />
-<script src="++resource++static/datatables-1.9.4/js/jquery.js"></script>
-<script src="++resource++static/datatables-1.9.4/js/jquery.dataTables.js"></script>
+<link rel="stylesheet" href="++resource++static/datatables.min.css">
+<script src="++resource++static/jquery-3.5.1.min.js"></script>
+<script type="text/javascript" charset="utf8" src="++resource++static/datatables.min.js"></script>
 <script src="++resource++static/spin.min.js"></script>
 <script type="text/javascript" charset="utf-8">
     $(document).ready(function() {

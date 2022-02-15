@@ -29,7 +29,7 @@
 
     <h1 i18n:translate="">ODS Stocks</h1>
 
-    <p i18n:translate="">Stocks can be imported in the application using the form bellow. A dummy of the JSON file that should be imported is available <a href="stocks_json_dummy">here</a>.
+    <p i18n:translate="">Stocks can be imported in the application using the form bellow. A dummy of the JSON file that should be imported is available <a href="stocks_json_dummy">here</a>.</p>
 
     <form method="post" action="stock_export" name="frmSetBulk" enctype="multipart/form-data">
       <label i18n:translate="">JSON File:</label>

@@ -553,13 +553,26 @@ class RemoteApplication(BaseRemoteApplication):
                 r_files = l_ret.get('REMOTE_FILES')
                 if r_files:
                     for r_file in r_files:
-                        self.handle_remote_file(
-                            r_file, l_file_id,
-                            p_workitem_id, l_ret, p_jobID,
+                        r_res = self.handle_remote_file(
+                            r_file, l_file_id, p_workitem_id, l_ret, p_jobID,
                             restricted=self.get_restricted_status(envelope,
                                                                   l_file_id))
-                        l_getResultDict = {p_jobID: {'code': 1,
-                                                     'fileURL': l_file_url}}
+                        l_getResultDict = {
+                            p_jobID: {
+                                'code': 1,
+                                'fileURL': l_file_url,
+                                'debug': {
+                                    'c_executionstatus': l_ret['CODE'],
+                                    'c_feedbackstatus': l_ret.get(
+                                        'feedbackStatus', 'N/A'),
+                                    'c_feedbackmessage': l_ret.get(
+                                        'feedbackMessage', 'N/A'),
+                                    'c_feedbackcontent_len': len(
+                                        l_ret.get('VALUE', '')),
+                                    'remote_files_debug': r_res
+                                }
+                            }
+                        }
                         self.__manageAutomaticProperty(
                             p_workitem_id=p_workitem_id,
                             p_getResult=l_getResultDict)
@@ -615,7 +628,20 @@ class RemoteApplication(BaseRemoteApplication):
                     feedback_ob.reindex_object()
 
                     l_getResultDict = {
-                        p_jobID: {'code': 1, 'fileURL': l_file_url}}
+                        p_jobID: {
+                            'code': 1,
+                            'fileURL': l_file_url,
+                            'debug': {
+                                'c_executionstatus': l_ret['CODE'],
+                                'c_feedbackstatus': l_ret.get(
+                                    'feedbackStatus', 'N/A'),
+                                'c_feedbackmessage': l_ret.get(
+                                    'feedbackMessage', 'N/A'),
+                                'c_feedbackcontent_len': len(
+                                    l_ret.get('VALUE', ''))
+                            }
+                        }
+                    }
                     self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                                    p_getResult=l_getResultDict)
             # not ready
@@ -633,7 +659,16 @@ class RemoteApplication(BaseRemoteApplication):
                             'code': 0,
                             'retries_left': l_nRetries - 1,
                             'last_error': l_ret['VALUE'],
-                            'next_run': next_run
+                            'next_run': next_run,
+                            'debug': {
+                                'c_executionstatus': l_ret['CODE'],
+                                'c_feedbackstatus': l_ret.get(
+                                    'feedbackStatus', 'N/A'),
+                                'c_feedbackmessage': l_ret.get(
+                                    'feedbackMessage', 'N/A'),
+                                'c_feedbackcontent_len': len(
+                                    l_ret.get('VALUE', ''))
+                            }
                         }
                     }
                     self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
@@ -645,7 +680,16 @@ class RemoteApplication(BaseRemoteApplication):
                     l_getResultDict = {
                         p_jobID: {
                             'code': -2,
-                            'last_error': l_ret['VALUE']
+                            'last_error': l_ret['VALUE'],
+                            'debug': {
+                                'c_executionstatus': l_ret['CODE'],
+                                'c_feedbackstatus': l_ret.get(
+                                    'feedbackStatus', 'N/A'),
+                                'c_feedbackmessage': l_ret.get(
+                                    'feedbackMessage', 'N/A'),
+                                'c_feedbackcontent_len': len(
+                                    l_ret.get('VALUE', ''))
+                            }
                         }
                     }
                     self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
@@ -658,7 +702,16 @@ class RemoteApplication(BaseRemoteApplication):
                 l_getResultDict = {
                     p_jobID: {
                         'code': -2,
-                        'last_error': l_ret['VALUE']
+                        'last_error': l_ret['VALUE'],
+                        'debug': {
+                            'c_executionstatus': l_ret['CODE'],
+                            'c_feedbackstatus': l_ret.get(
+                                'feedbackStatus', 'N/A'),
+                            'c_feedbackmessage': l_ret.get(
+                                'feedbackMessage', 'N/A'),
+                            'c_feedbackcontent_len': len(
+                                l_ret.get('VALUE', ''))
+                        }
                     }
                 }
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
@@ -777,34 +830,46 @@ class RemoteApplication(BaseRemoteApplication):
                                 'restapi/asynctasks/qajobs/delete',
                                 job_id)
         l_workitem = getattr(self, workitem_id)
-
+        try:
+            username = self.REQUEST['AUTHENTICATED_USER'].getUserName()
+        except Exception:
+            username = 'N/A'
         try:
             timeout = int(getattr(self, 'requestTimeout', 5))
             res = requests.post(url, headers={'Authorization': self.token},
                                 timeout=timeout, verify=False)
             message = res.json().get('message')
             l_workitem.addEvent(
-                '#{} job cancelation triggered - {}: {}'.format(
+                '#{} job cancelation triggered by: {} - {}: {}'.format(
                     job_id,
+                    username,
                     res.status_code,
                     message))
         except Exception as e:
             l_workitem.addEvent(
-                '#{} job cancelation failed with: {}.'.format(job_id, str(e)))
+                '#{} job cancelation triggered by: {}, failed with: {}'.format(
+                    job_id, username, str(e)))
 
     def listQAScripts(self, file_schema, short=True):
         """Retrieve the available QA scripts for file schema"""
         l_server_url = self.RemoteServer
         l_remote_server = self.RemoteService
         l_server = xmlrpclib.ServerProxy(l_server_url)
+        result = []
         try:
             l_server = xmlrpclib.ServerProxy(l_server_url)
             l_server_service = getattr(l_server, l_remote_server)
+            scripts = l_server_service.listQueries(file_schema)
             if short:
-                l_tmp = l_server_service.listQAScripts(file_schema)
+                result = [[script.get('query_id').encode('utf-8'),
+                           script.get('short_name').encode('utf-8'),
+                           '',
+                           script.get('upper_limit').encode('utf-8'),
+                           script.get('content_type_id').encode('utf-8')]
+                          for script in scripts]
             else:
-                l_tmp = l_server_service.listQueries(file_schema)
-            return l_tmp
+                result = scripts
+            return result
         except Exception:
             pass
 
