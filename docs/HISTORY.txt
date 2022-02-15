@@ -1,6 +1,9 @@
 Changelog
 =========
 
+4.2-dev0 - (unreleased)
+---------------------------
+
 4.15 - (2022-02-15)
 ---------------------------
 * Change: Refs #145482; Changed required permission to View on get_previous_del… [olimpiurob]
