@@ -1,6 +1,10 @@
 Changelog
 =========
 
+4.15 - (2022-02-15)
+---------------------------
+* Change: Refs #145482; Changed required permission to View on get_previous_del… [olimpiurob]
+
 4.8 - (2022-01-25)
 ---------------------------
 * Change: Develop [olimpiurob]
