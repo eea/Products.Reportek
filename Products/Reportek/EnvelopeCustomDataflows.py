@@ -1543,7 +1543,7 @@ class EnvelopeCustomDataflows(Toolz):
             for k in envs.keys():
                 c_colls = [col for col in colls.get(k, [])
                            if getSecurityManager().checkPermission(
-                                'Add Envelopes',
+                                'View',
                                 col)]
                 for col in c_colls:
                     if col.company_id == self.company_id:
