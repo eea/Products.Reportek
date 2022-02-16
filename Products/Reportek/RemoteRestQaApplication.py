@@ -164,7 +164,9 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         else:
             l_ret = self.__analyzeDocuments(workitem_id)
             if not l_ret:
-                l_workitem.addEvent('Operation completed: no files to analyze')
+                l_workitem.addEvent(
+                    'Operation completed: no QC scripts available to analyze '
+                    'the files in the envelope')
                 if REQUEST is not None:
                     REQUEST.set('RemoteApplicationSucceded', 1)
                     REQUEST.set('actor', 'openflow_engine')
