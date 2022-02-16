@@ -1560,13 +1560,14 @@ class EnvelopeCustomDataflows(Toolz):
             Designed to work with copyFromPreviousDelivery script
         """
         if not rep_year:
-            rep_year =datetime.datetime.now().year
+            rep_year = datetime.datetime.now().year
             if offset:
                 rep_year = rep_year + int(offset)
         rep_year = str(rep_year)
         rep_id = re.sub(r'(?:19|20)\d{2}', rep_year, old_rep_id)
 
         return rep_id
+
 
 # Initialize the class in order the security assertions be taken into account
 InitializeClass(EnvelopeCustomDataflows)
