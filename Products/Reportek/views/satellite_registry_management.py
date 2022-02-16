@@ -381,7 +381,10 @@ class SatelliteRegistryManagement(BaseAdmin):
 
             companies = []
             for company in companies_original:
-                companies.append(fix_json_from_id(company))
+                company_fixed = fix_json_from_id(company)
+                if domain == 'ODS':
+                    replace_keys({'vat': 'eori_number'}, company_fixed)
+                companies.append(company_fixed)
 
             self.request.response.setHeader('Content-Type', 'application/json')
             return json.dumps(companies, indent=2)
