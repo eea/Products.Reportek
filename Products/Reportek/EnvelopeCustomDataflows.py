@@ -30,6 +30,7 @@ When writing in this class, specify the name of the dataflow as comment first
 
 """
 
+import datetime
 import json
 import logging
 import re
@@ -1552,6 +1553,20 @@ class EnvelopeCustomDataflows(Toolz):
                                 'Report Envelope')]
 
         return envs
+
+    def get_updated_report_id(self, old_rep_id, offset=None, rep_year=None):
+        """ Return an up to date report id, from an old report where offset is
+            current year +- offset or using the provided rep_year
+            Designed to work with copyFromPreviousDelivery script
+        """
+        if not rep_year:
+            rep_year = datetime.datetime.now().year
+            if offset:
+                rep_year = rep_year + int(offset)
+        rep_year = str(rep_year)
+        rep_id = re.sub(r'(?:19|20)\d{2}', rep_year, old_rep_id)
+
+        return rep_id
 
 
 # Initialize the class in order the security assertions be taken into account
