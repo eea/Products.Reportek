@@ -90,7 +90,7 @@
                   </tal:block>
                   <td class="tcenter" tal:condition="not: isBdrDeployment" tal:content="python:item.bobobase_modification_time().strftime('%d %b %Y')" />
                   <td class="tcenter" tal:condition="isBdrDeployment">
-                    <tal:def tal:define="last_rep_date python: item.get_latest_env_reportingdate();
+                    <tal:def tal:define="last_rep_date python: item.get_latest_env_reportingdate() if getattr(here, 'company_id', None) else item.bobobase_modification_time();
                                          m_date python: last_rep_date if last_rep_date else item.bobobase_modification_time()">
                       <span tal:content="python: m_date.strftime('%d %b %Y')" tal-omit-tag="" />
                     </tal:def>

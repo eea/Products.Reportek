@@ -19,10 +19,11 @@
         </tal:block>
         <tal:block tal:condition="python:isBdrDeployment and not here.company_id"
             tal:define="user python: request.AUTHENTICATED_USER;
-                        is_manager python: 'Manager' in user.getRolesInContext(here);
-                        is_ods_client python: 'ClientODS' in user.getRolesInContext(here);
-                        is_fgas_client python: 'ClientFG' in user.getRolesInContext(here);
-                        is_cars_client python: 'ClientCars' in user.getRolesInContext(here);
+                        user_roles python: user.getRolesInContext(here);
+                        is_manager python: 'Manager' in user_roles;
+                        is_ods_client python: 'ClientODS' in user_roles;
+                        is_fgas_client python: 'ClientFG' in user_roles;
+                        is_cars_client python: 'ClientCars' in user_roles;
                         fgas_allowed python: is_manager or is_fgas_client;
                         ods_allowed python: is_manager or is_ods_client;
                         cars_allowed python: is_manager or is_cars_client;

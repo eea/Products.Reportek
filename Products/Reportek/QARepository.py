@@ -30,6 +30,7 @@ from AccessControl.Permissions import view_management_screens
 from OFS.Folder import Folder
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.constants import ENGINE_ID
+from Products.Reportek.RemoteApplication import RemoteApplication
 from RestrictedPython.Eval import RestrictionCapableEval
 
 __doc__ = """
@@ -162,7 +163,9 @@ class QARepository(Folder):
         l_ret = {}
         # calculate remote service URL
         l_qa_app = self.getQAApplication()
-
+        qa_type = 'REST'
+        if isinstance(l_qa_app, RemoteApplication):
+            qa_type = 'xmlrpc'
         for l_file in files:
             # get the valid schemas for the envelope's dataflows
             l_valid_schemas = self.getDataflowMappingsContainer(
@@ -172,7 +175,7 @@ class QARepository(Folder):
             # NOTE due to updated dataflow_uris, l_valid_schemas is always None
             if ((l_file.xml_schema_location
                 and (l_file.xml_schema_location in l_valid_schemas
-                     or not l_valid_schemas))
+                     or not l_valid_schemas or qa_type == 'REST'))
                     or self._get_local_qa_scripts(
                         dataflow_uris=l_file.dataflow_uris)):
                 # remote scripts
