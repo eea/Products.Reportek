@@ -794,6 +794,9 @@ class RemoteFMEConversionApplication(SimpleItem):
             workitem.addEvent(
                 'FME job id: {} delete failed: {}'.format(job_id, str(e)))
 
+        self.handle_cleanup(workitem_id)
+        workitem.addEvent('FME Cleanup completed.')
+
         self.__finish(workitem_id)
 
     def __finish(self, workitem_id, REQUEST=None):
