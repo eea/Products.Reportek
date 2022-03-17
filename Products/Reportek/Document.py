@@ -583,6 +583,31 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                                         'application/json')
         return json.dumps(res)
 
+    security.declareProtected('View', 'metadata')
+
+    def metadata(self):
+        """ Return the file metadata in JSON format."""
+        self.REQUEST.RESPONSE.setHeader('Content-Type',
+                                        'application/json')
+        res = {}
+        try:
+            res = {
+                'url': self.absolute_url(0),
+                'title': self.title,
+                'contentType': self.content_type,
+                'schemaURL': self.xml_schema_location,
+                'uploadDate': self.upload_time().HTML4(),
+                'fileSize': self.get_size(),
+                'fileSizeHR': self.size(),
+                'hash': self.hash,
+                'isRestricted': 1 if self.isRestricted() else 0
+            }
+        except Exception as e:
+            return error_message(self,
+                        'An error occured: {}'.format(str(e)),
+                        REQUEST=self.REQUEST)
+        return json.dumps(res)
+
     security.declareProtected('View', 'manage_document')
 
     def manage_document(self, REQUEST=None, manage_and_edit=False):
