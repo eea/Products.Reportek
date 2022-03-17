@@ -604,8 +604,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             }
         except Exception as e:
             return error_message(self,
-                        'An error occured: {}'.format(str(e)),
-                        REQUEST=self.REQUEST)
+                                 'An error occured: {}'.format(str(e)),
+                                 REQUEST=self.REQUEST)
         return json.dumps(res)
 
     security.declareProtected('View', 'manage_document')
