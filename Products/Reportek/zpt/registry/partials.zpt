@@ -97,6 +97,11 @@
         <td tal:content="company/vat" />
       </tr>
 
+      <tr tal:condition="python: company.get('domain') == 'FGAS'">
+        <th i18n:translate="">EORI number</th>
+        <td tal:content="company/eori_number" />
+      </tr>
+
       <tr>
         <th i18n:translate="">Country</th>
         <td tal:content="company/address/country/name" />

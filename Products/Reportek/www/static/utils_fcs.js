@@ -68,7 +68,7 @@ reportek.utils.fcs = {
         self.update_domain_param();
         self.handle_domain_change();
         if (self.domain == 'FGAS'){
-          $(self.tbl.column(6).header()).text('Var Number');
+          $(self.tbl.column(6).header()).text('Vat Number');
         }
         else{
           $(self.tbl.column(6).header()).text('Eori number');
