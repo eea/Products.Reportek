@@ -1,8 +1,10 @@
 Changelog
 =========
 
-4.3-dev0 - (unreleased)
+4.3 - (2022-03-25)
 ---------------------------
+* Change: Refs #145874; Explicitly check if value is true in lockdown
+  [olimpiurob]
 
 4.3 - (2022-02-23)
 ---------------------------
