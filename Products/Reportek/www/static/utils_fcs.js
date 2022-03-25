@@ -387,7 +387,7 @@ reportek.utils.fcs = {
                       locked = data;
                     } );
                     result = "<a class='test_button' href='";
-                    if (locked) {
+                    if (locked === true) {
                       result += "unlockCompany?company_id=" + full.company_id + "&old_collection_id=" + full.oldcompany_account + "&country_code=" + full.country_code + "&domain=" + full.domain + "&user=" + full.user + "&came_from=" + window.location.href + "'>Unlock</a><br/>";
                     } else {
                       result += "lockDownCompany?company_id=" + full.company_id + "&old_collection_id=" + full.oldcompany_account + "&country_code=" + full.country_code + "&domain=" + full.domain + "&user=" + full.user + "&came_from=" + window.location.href + "'>Lockdown</a><br/>";
