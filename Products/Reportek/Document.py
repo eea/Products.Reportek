@@ -583,9 +583,9 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                                         'application/json')
         return json.dumps(res)
 
-    security.declareProtected('View', 'metadata')
+    security.declareProtected('View', 'file_metadata')
 
-    def metadata(self):
+    def file_metadata(self):
         """ Return the file metadata in JSON format."""
         self.REQUEST.RESPONSE.setHeader('Content-Type',
                                         'application/json')
