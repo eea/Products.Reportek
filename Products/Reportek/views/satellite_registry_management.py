@@ -295,6 +295,13 @@ class SatelliteRegistryManagement(BaseAdmin):
         if self.is_permitted(domain):
             m_logs = api.getMatchingLog(domain=domain)
             self.request.response.setHeader('Content-Type', 'application/json')
+            for log in m_logs:
+                log['locked'] = self.lockedCompany(
+                    log.get('company_id'),
+                    log.get('oldcompany_account'),
+                    log.get('country_code'),
+                    log.get('domain'),
+                )
             return json.dumps(m_logs, indent=2)
 
     def get_datasync_log(self):

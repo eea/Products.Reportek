@@ -379,19 +379,13 @@ reportek.utils.fcs = {
                   var result = "N/A";
                   var locked = false;
                   if (data) {
-                    var locked_url = self.base_url + '/is_company_locked';
-                    $.get( locked_url, { company_id: full.company_id,
-                                         old_collection_id: full.oldcompany_account,
-                                         country_code: full.country_code,
-                                         domain: full.domain }, function(data){
-                      locked = data;
-                    } );
                     result = "<a class='test_button' href='";
-                    if (locked === true) {
+                    if (full.locked === true) {
                       result += "unlockCompany?company_id=" + full.company_id + "&old_collection_id=" + full.oldcompany_account + "&country_code=" + full.country_code + "&domain=" + full.domain + "&user=" + full.user + "&came_from=" + window.location.href + "'>Unlock</a><br/>";
                     } else {
                       result += "lockDownCompany?company_id=" + full.company_id + "&old_collection_id=" + full.oldcompany_account + "&country_code=" + full.country_code + "&domain=" + full.domain + "&user=" + full.user + "&came_from=" + window.location.href + "'>Lockdown</a><br/>";
                     }
+                    return result;
                   }
                   return result;
                 }
