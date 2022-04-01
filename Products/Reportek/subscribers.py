@@ -19,6 +19,7 @@ def handle_feedback_added_event(obj, event):
     env._p_changed = 1
     env.reindex_object()
 
+
 def handle_document_renamed_event(obj, event):
     """Force the update of data_file's mtime value"""
     obj.data_file.mtime = time()
