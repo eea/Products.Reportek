@@ -4,6 +4,7 @@
     <span tal:replace="structure here/collection_tabs" />
 
     <tal:block tal:define="SecurityManager modules/AccessControl/getSecurityManager;
+                           is_manager python:SecurityManager.checkPermission('View management screens', template);
                            permission_allow_envelopes python:here.allowed_envelopes() and SecurityManager.checkPermission('Add Envelopes', here);
                            permission_allow_collections python:here.allow_collections and SecurityManager.checkPermission('Add Collections', here);
                            permission_allow_referrals python:here.are_referrals_allowed() and SecurityManager.checkPermission('Add Envelopes', here);
@@ -104,7 +105,13 @@
                 </td>
               </tr>
               <tr valign="top" tal:repeat="item python:here.tlzSortByAttr(envs, 'reportingdate', 1)">
-                <td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>
+                <td tal:condition="permission_chgcoll">
+                  <input type="checkbox" name="ids:list"
+                    tal:define="disabled python: 'disabled' if getattr(item, 'released', False) and not is_manager else None"
+                    tal:attributes="value item/id;
+                                    class python: 'disabled-checkbox' if disabled else None;
+                                    title python: 'This item is locked' if disabled else 'Select item';
+                                    disabled disabled" /></td>
                 <td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Envelope" i18n:attributes="alt" /></td>
                 <td><a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" /></td>
                 <tal:block tal:condition="envs">
@@ -149,7 +156,9 @@
                 <td class="tcenter" tal:content="python:item.reportingdate.strftime('%d %b %Y')" />
               </tr>
               <tr valign="top" tal:repeat="item python:here.tlzSortByAttr(refs, 'title')">
-                <td tal:condition="permission_chgcoll"><input type="checkbox" name="ids:list" tal:attributes="value item/id" /></td>
+                <td tal:condition="permission_chgcoll">
+                  <input type="checkbox" name="ids:list" tal:attributes="value item/id"/>
+                </td>
                 <td><img tal:attributes="src item/icon" style="width: 16px; height: 16px" alt="Repository Referral" i18n:attributes="alt" /></td>
                 <td><a tal:attributes="href string:${item/id}/" tal:content="item/title_or_id" /></td>
                 <tal:block tal:condition="bdr_has_envs">
