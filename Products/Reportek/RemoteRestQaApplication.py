@@ -701,13 +701,13 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         # # A client generated exception  - retry later
         # # The agreed errors from the XQuery service are embedded
         # # in this error type
-        except (requests.exceptions.HTTPError):
+        except (requests.exceptions.HTTPError) as err:
             if response.status_code == 404:
                 feedback_log.exception("Unable to get result for job #%s",
                                        p_jobID)
-                l_workitem.addEvent('Error in the %s, job #%s for file %s: %s' %
-                                    (self.app_name, p_jobID,
-                                     l_file_id, str(err)))
+                l_workitem.addEvent(
+                    'Error in the %s, job #%s for file %s: %s' %
+                    (self.app_name, p_jobID, l_file_id, str(err)))
                 l_workitem.failure = True
                 l_getResultDict = {p_jobID: {'code': -2,
                                              'last_error': str(err)}}
@@ -727,7 +727,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                     l_getResultDict = {
                         p_jobID: {'code': -2, 'last_error': str(l_err)}}
                     self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                                p_getResult=l_getResultDict)
+                                                   p_getResult=l_getResultDict)
                 else:
                     next_run = DateTime(
                         int(l_wk_prop['getResult'][p_jobID]['next_run']) +
@@ -743,7 +743,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                         }
                     }
                     self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                                p_getResult=l_getResultDict)
+                                                   p_getResult=l_getResultDict)
         # Fatal error - do not retry
         except Exception as err:
             feedback_log.exception("Error saving remote feedback, job #%s",
