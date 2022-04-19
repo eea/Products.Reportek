@@ -701,36 +701,49 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         # # A client generated exception  - retry later
         # # The agreed errors from the XQuery service are embedded
         # # in this error type
-        except (requests.exceptions.HTTPError):
-            l_err = data.get('errorMessage', '')
-            l_nRetries = int(l_wk_prop['getResult'][p_jobID]['retries_left'])
-            retry = self.retryJobFrequency if getattr(
-                self, 'retryJobFrequency', None) else self.retryFrequency
-            if l_nRetries == 0:
+        except (requests.exceptions.HTTPError) as err:
+            if response.status_code == 404:
+                feedback_log.exception("Unable to get result for job #%s",
+                                       p_jobID)
                 l_workitem.addEvent(
                     'Error in the %s, job #%s for file %s: %s' %
-                    (self.app_name, p_jobID, l_file_id, str(l_err)))
+                    (self.app_name, p_jobID, l_file_id, str(err)))
                 l_workitem.failure = True
-                l_getResultDict = {
-                    p_jobID: {'code': -2, 'last_error': str(l_err)}}
+                l_getResultDict = {p_jobID: {'code': -2,
+                                             'last_error': str(err)}}
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
                                                p_getResult=l_getResultDict)
             else:
-                next_run = DateTime(
-                    int(l_wk_prop['getResult'][p_jobID]['next_run']) +
-                    int(retry))
-                err = 'Error retrieving job #{} result: {}'.format(
-                    p_jobID, str(l_err))
-                l_getResultDict = {
-                    p_jobID: {
-                        'code': 0,
-                        'last_error': err,
-                        'retries_left': l_nRetries - 1,
-                        'next_run': next_run
+                l_err = data.get('errorMessage', '')
+                l_nRetries = int(
+                    l_wk_prop['getResult'][p_jobID]['retries_left'])
+                retry = self.retryJobFrequency if getattr(
+                    self, 'retryJobFrequency', None) else self.retryFrequency
+                if l_nRetries == 0:
+                    l_workitem.addEvent(
+                        'Error in the %s, job #%s for file %s: %s' %
+                        (self.app_name, p_jobID, l_file_id, str(l_err)))
+                    l_workitem.failure = True
+                    l_getResultDict = {
+                        p_jobID: {'code': -2, 'last_error': str(l_err)}}
+                    self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
+                                                   p_getResult=l_getResultDict)
+                else:
+                    next_run = DateTime(
+                        int(l_wk_prop['getResult'][p_jobID]['next_run']) +
+                        int(retry))
+                    err = 'Error retrieving job #{} result: {}'.format(
+                        p_jobID, str(l_err))
+                    l_getResultDict = {
+                        p_jobID: {
+                            'code': 0,
+                            'last_error': err,
+                            'retries_left': l_nRetries - 1,
+                            'next_run': next_run
+                        }
                     }
-                }
-                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                               p_getResult=l_getResultDict)
+                    self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
+                                                   p_getResult=l_getResultDict)
         # Fatal error - do not retry
         except Exception as err:
             feedback_log.exception("Error saving remote feedback, job #%s",
