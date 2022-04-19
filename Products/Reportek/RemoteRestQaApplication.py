@@ -704,16 +704,19 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         except (requests.exceptions.HTTPError):
             if response.status_code == 404:
                 feedback_log.exception("Unable to get result for job #%s",
-                                   p_jobID)
+                                       p_jobID)
                 l_workitem.addEvent('Error in the %s, job #%s for file %s: %s' %
-                                    (self.app_name, p_jobID, l_file_id, str(err)))
+                                    (self.app_name, p_jobID,
+                                     l_file_id, str(err)))
                 l_workitem.failure = True
-                l_getResultDict = {p_jobID: {'code': -2, 'last_error': str(err)}}
+                l_getResultDict = {p_jobID: {'code': -2,
+                                             'last_error': str(err)}}
                 self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                            p_getResult=l_getResultDict)
+                                               p_getResult=l_getResultDict)
             else:
                 l_err = data.get('errorMessage', '')
-                l_nRetries = int(l_wk_prop['getResult'][p_jobID]['retries_left'])
+                l_nRetries = int(
+                    l_wk_prop['getResult'][p_jobID]['retries_left'])
                 retry = self.retryJobFrequency if getattr(
                     self, 'retryJobFrequency', None) else self.retryFrequency
                 if l_nRetries == 0:
