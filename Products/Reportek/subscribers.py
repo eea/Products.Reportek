@@ -1,6 +1,10 @@
 # -*- coding: utf-8 -*-
 from DateTime import DateTime
 from time import time
+from zope.component import adapter
+
+from Products.Reportek.interfaces import ICollection
+from zope.lifecycleevent.interfaces import IObjectModifiedEvent
 
 
 def handle_document_removed_event(obj, event):
@@ -25,3 +29,19 @@ def handle_document_renamed_event(obj, event):
     obj.data_file.mtime = time()
     obj._p_changed = 1
     obj.reindex_object()
+
+
+# Handler for collection added
+def handle_collection_added_event(obj, event):
+    """Trigger notify metadata when a collection is added"""
+    obj.notify_sync()
+
+@adapter(ICollection, IObjectModifiedEvent)
+def handle_collection_modified_event(obj, event):
+    """Trigger notify metadata when a collection is modified"""
+    obj.notify_sync()
+
+# Handler for collection deleted
+def handle_collection_removed_event(obj, event):
+    """Trigger notify metadata when a collection is deleted"""
+    obj.notify_sync()

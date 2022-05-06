@@ -3,6 +3,8 @@ from operator import itemgetter
 from Products.Reportek.constants import ENGINE_ID, ECAS_ID
 from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
 from Products.Reportek.catalog import searchResults
+from Products.Reportek.rabbitmq import queue_msg
+import json
 
 
 class ManageRoles(BaseAdmin):
@@ -90,16 +92,25 @@ class ManageRoles(BaseAdmin):
                     results.append({
                         'entity': cur_entity,
                         'path': transfer_path,
+                        'url': transfer.absolute_url(),
                         'role': role
                     })
             results.append({
                 'entity': cur_entity,
                 'path': path,
+                'url': obj.absolute_url(),
                 'role': role
             })
 
         if results:
             results.sort(key=itemgetter('path'))
+            # notify role adding
+            engine = self.context.unrestrictedTraverse(ENGINE_ID, None)
+            if getattr(engine, 'col_role_sync_rmq', False):
+                for url in [res.get('url') for res in results]:
+                    # TODO: add host info to path before publishing
+                    queue_msg(url,
+                              queue="collections_sync")
             self.request['search_term'] = ''
         self.request['op_results'] = results
 
@@ -131,6 +142,8 @@ class ManageRoles(BaseAdmin):
                     entity = matched
 
             revoke_roles = self.request.get(path.replace('/', '_'), [])
+            if not isinstance(revoke_roles, list):
+                revoke_roles = [revoke_roles]
             roles = set(obj.get_local_roles_for_userid(entity))
             for r in revoke_roles:
                 if (REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR
@@ -166,15 +179,23 @@ class ManageRoles(BaseAdmin):
                         results.append({
                             'entity': entity,
                             'path': transfer_path,
+                            'url': transfer.absolute_url(),
                             'role': role
                         })
             results.append({
                 'entity': entity,
                 'path': path,
+                'url': obj.absolute_url(),
                 'role': role
             })
 
         if results:
+            engine = self.context.unrestrictedTraverse(ENGINE_ID, None)
+            if getattr(engine, 'col_role_sync_rmq', False):
+                for url in [res.get('url') for res in results]:
+                    queue_msg(url,
+                              queue="collections_sync")
+
             results.sort(key=itemgetter('path'))
             self.request['search_term'] = ''
         self.request['op_results'] = results

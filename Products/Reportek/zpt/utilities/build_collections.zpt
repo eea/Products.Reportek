@@ -70,7 +70,7 @@
       <div class="form-group">
         <label class="question" for="pattern" i18n:translate="">Target path</label>
         <input type="text" name="pattern" size="10" id="pattern" />
-        <span i18n:translate="">e.g.: eea/noise<span><br/>
+        <span i18n:translate="">e.g.: eea/noise</span><br/>
       </div>
 
       <div class="form-group" id="year-input">

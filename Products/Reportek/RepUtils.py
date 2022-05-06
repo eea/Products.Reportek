@@ -837,3 +837,20 @@ def parse_uri(uri, replace=False):
                     % (uri, new_uri))
         uri = new_uri
     return uri
+
+
+def encode_dict(dic):
+    if isinstance(dic, unicode):
+        return(dic.encode("utf-8"))
+    elif isinstance(dic, dict):
+        res = {}
+        for key in dic:
+            res[key.encode("utf-8")] = encode_dict(dic[key])
+        return(res)
+    elif isinstance(dic, list):
+        new_l = []
+        for e in dic:
+            new_l.append(encode_dict(e))
+        return(new_l)
+    else:
+        return(dic)

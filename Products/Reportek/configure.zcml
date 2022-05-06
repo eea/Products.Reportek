@@ -83,6 +83,7 @@
     <class class=".Collection.Collection">
         <implements interface="z3c.caching.interfaces.IPurgeable" />
         <implements interface=".interfaces.IReportekContent" />
+        <implements interface=".interfaces.ICollection" />
     </class>
 
     <class class=".Envelope.Envelope">
@@ -126,6 +127,19 @@
     <subscriber for="Products.Reportek.interfaces.IFeedback
                      zope.lifecycleevent.interfaces.IObjectAddedEvent"
             handler="Products.Reportek.subscribers.handle_feedback_added_event" />
+
+    <subscriber for="Products.Reportek.interfaces.ICollection
+                     zope.lifecycleevent.interfaces.IObjectAddedEvent"
+            handler="Products.Reportek.subscribers.handle_collection_added_event" />
+
+    <subscriber handler="Products.Reportek.subscribers.handle_collection_modified_event" />
+<!--    <subscriber for="Products.Reportek.interfaces.ICollection
+                     zope.lifecycleevent.interfaces.IObjectModifiedEvent"
+            handler="Products.Reportek.subscribers.handle_collection_modified_event" />
+-->
+    <subscriber for="Products.Reportek.interfaces.ICollection
+                     zope.lifecycleevent.interfaces.IObjectRemovedEvent"
+            handler="Products.Reportek.subscribers.handle_collection_removed_event" />
 
     <i18n:registerTranslations directory="locales" />
 
