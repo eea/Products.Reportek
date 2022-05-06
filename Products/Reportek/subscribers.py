@@ -36,10 +36,12 @@ def handle_collection_added_event(obj, event):
     """Trigger notify metadata when a collection is added"""
     obj.notify_sync()
 
+
 @adapter(ICollection, IObjectModifiedEvent)
 def handle_collection_modified_event(obj, event):
     """Trigger notify metadata when a collection is modified"""
     obj.notify_sync()
+
 
 # Handler for collection deleted
 def handle_collection_removed_event(obj, event):

@@ -4,7 +4,6 @@ from Products.Reportek.constants import ENGINE_ID, ECAS_ID
 from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
 from Products.Reportek.catalog import searchResults
 from Products.Reportek.rabbitmq import queue_msg
-import json
 
 
 class ManageRoles(BaseAdmin):
