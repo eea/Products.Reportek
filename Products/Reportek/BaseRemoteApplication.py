@@ -86,8 +86,16 @@ class BaseRemoteApplication(SimpleItem):
                     transaction.commit()
             else:
                 result['content'] = r.content
+                wk.addEvent(
+                    'Error while downloading results for job #{} from {}. '
+                    'Got {} status.'.format(job_id, url, r.status_code))
+                wk.failure = True
         except Exception as e:
             # log this
             result['content'] = str(e)
+            wk.addEvent(
+                'Error while downloading results for job #{} from {}. '
+                'Got {} error.'.format(job_id, url, str(e)))
+            wk.failure = True
 
         return result

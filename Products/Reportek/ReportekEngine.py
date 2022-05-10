@@ -24,9 +24,10 @@ import importlib
 import json
 import logging
 import os
+import requests
 import tempfile
 import xmlrpclib
-from copy import copy
+from copy import copy, deepcopy
 from operator import itemgetter
 from StringIO import StringIO
 from time import strftime, time
@@ -152,6 +153,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     globally_restricted_site = False
     cr_rmq = False
     env_fwd_rmq = False
+    col_sync_rmq = False
+    col_role_sync_rmq = False
     if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
         cr_api_url = 'http://cr.eionet.europa.eu/ping'
     else:
@@ -346,6 +349,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.cr_api_url = self.REQUEST.get('cr_api_url', self.cr_api_url)
         self.cr_rmq = bool(self.REQUEST.get('cr_rmq', False))
         self.env_fwd_rmq = bool(self.REQUEST.get('env_fwd_rmq', False))
+        self.col_sync_rmq = bool(self.REQUEST.get('col_sync_rmq', False))
+        self.col_role_sync_rmq = bool(self.REQUEST.get(
+            'col_role_sync_rmq', False))
         if self.cr_api_url:
             self.contentRegistryPingger.api_url = self.cr_api_url
             self.contentRegistryPingger.cr_rmq = self.cr_rmq
@@ -1867,6 +1873,97 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         collections.sort(key=lambda x: x.title_or_id().lower())
 
         return collections
+
+    security.declareProtected('View management screens', 'sync_collection')
+
+    def sync_collection(self):
+        """Sync local collection from remote collection"""
+        collection = self.REQUEST.form.get('collection')
+        auth = (
+            os.environ.get('COLLECTION_SYNC_USER', ''),
+            os.environ.get('COLLECTION_SYNC_PASS', '')
+        )
+        result = {
+            'action': None,
+        }
+        metadata = None
+        try:
+            url = '/'.join([collection, 'metadata'])
+            res = requests.post(url, auth=auth)
+            if res.ok:
+                metadata = RepUtils.encode_dict(res.json())
+            elif res.status_code == 404:
+                # If the metadata can't be found, it means it has been deleted,
+                # but we're not deleting it from the clients
+                pass
+            else:
+                msg = ('[SYNC] Unable to retrieve remote collection '
+                       'metadata: {}'.format(res.status_code))
+                logger.error(msg)
+                return self.jsonify({'error': msg})
+        except Exception as e:
+            msg = ('[SYNC] Unable to retrieve remote collection metadata: {}'
+                   .format(str(e)))
+            logger.error(msg)
+            return self.jsonify({'error': msg})
+        cpath = '/'.join(collection.split('://')[-1].split('/')[1:]).strip('/')
+        local_c = self.unrestrictedTraverse(cpath, None)
+        col_args = deepcopy(metadata)
+        for arg in ['local_roles', 'modification_time',
+                    'parent', 'restricted']:
+            del col_args[arg]
+        if not local_c:
+            pcpath = '/'.join(cpath.split('/')[:-1])
+            parent = self.unrestrictedTraverse(pcpath)
+            parent.manage_addCollection(**col_args)
+            local_c = self.unrestrictedTraverse(cpath)
+            logger.info(
+                "[SYNC] Created collection: {}".format(local_c.absolute_url()))
+            result['action'] = 'created'
+            result['collection'] = local_c.absolute_url()
+            result['metadata'] = col_args
+        else:
+            changed = False
+            for key in col_args:
+                if key == 'allow_referrals':
+                    if local_c.are_referrals_allowed() != col_args[key]:
+                        changed = True
+                        break
+                elif getattr(local_c, key) != col_args[key]:
+                    changed = True
+                    break
+            if changed:
+                del col_args['id']
+                result['action'] = 'modified'
+                result['collection'] = local_c.absolute_url()
+                result['metadata'] = col_args
+                local_c.manage_editCollection(**col_args)
+                logger.info(
+                    "[SYNC] Updated collection: {} - {}".format(
+                        local_c.absolute_url(), col_args))
+        roles_info = {}
+        # Sync roles
+        for roleinfo in metadata.get('local_roles'):
+            entity, roles = roleinfo
+            cur_roles = local_c.get_local_roles_for_userid(entity)
+            if tuple(roles) != cur_roles:
+                # We're not removing roles from clients
+                # logger.info(
+                #     "[SYNC] Removing roles: {} for {}".format(
+                #         cur_roles, entity))
+                # local_c.manage_delLocalRoles([entity])
+                if roles:
+                    roles_info[entity] = roles
+                    local_c.manage_setLocalRoles(entity, roles)
+                    logger.info(
+                        "[SYNC] Setting roles: {} for {}".format(
+                            roles, entity))
+        if roles_info:
+            result['action'] = 'modified'
+            result['collection'] = local_c.absolute_url()
+            result['roles'] = roles_info
+        local_c.reindex_object()
+        return self.jsonify(result)
 
 
 Globals.InitializeClass(ReportekEngine)

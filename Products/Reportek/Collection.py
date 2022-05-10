@@ -23,7 +23,9 @@
 Collections are the basic container objects and are analogous to directories.
 $Id$"""
 
+from zope.event import notify
 from zope.interface import implements
+from zope.lifecycleevent import ObjectModifiedEvent
 from Toolz import Toolz
 from Products.ZCatalog.CatalogAwareness import CatalogAware
 from Products.Reportek.RepUtils import DFlowCatalogAware
@@ -31,6 +33,7 @@ from Products.Reportek.interfaces import ICollection
 from Products.Reportek import DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT
 from Products.Reportek.config import permission_manage_properties_collections
 from Products.Reportek.catalog import searchResults
+from Products.Reportek.rabbitmq import queue_msg
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from OFS.Folder import Folder
 from DateTime import DateTime
@@ -76,6 +79,7 @@ def manage_addCollection(self, title, descr, year, endyear, partofyear,
             ob.restricted = True
 
     self._setObject(id, ob)
+
     if REQUEST is not None:
         # Return to containers's view
         return REQUEST.RESPONSE.redirect(self.absolute_url())
@@ -392,6 +396,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
         self.dataflow_uris = dataflow_uris
         # update ZCatalog
         self.reindex_object()
+        notify(ObjectModifiedEvent(self))
         if REQUEST is not None:
             return self.messageDialog(
                 message="The properties of %s have been changed!" % self.id,
@@ -439,6 +444,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
             self.dataflow_uris = dataflow_uris
         # update ZCatalog
         self.reindex_object()
+        notify(ObjectModifiedEvent(self))
         if REQUEST is not None:
             return self.messageDialog(
                 message="The properties of %s have been changed!" % self.id,
@@ -960,6 +966,40 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
         """ Check through aquisition if referrals are allowed
         """
         return getattr(self, 'prop_allowed_referrals', 1)
+
+    security.declareProtected('View management screens', 'metadata')
+
+    def metadata(self):
+        """ Collection metadata in JSON """
+        self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+
+        result = {
+            "id": self.id,
+            "title": self.title,
+            "descr": self.descr,
+            "year": self.year,
+            "endyear": self.endyear,
+            "partofyear": self.partofyear,
+            "country": self.country,
+            "locality": self.locality,
+            "dataflow_uris": [df for df in self.dataflow_uris],
+            "allow_collections": self.allow_collections,
+            "allow_envelopes": self.allow_envelopes,
+            "allow_referrals": self.are_referrals_allowed(),
+            "restricted": self.restricted,
+            "parent": "/".join(self.getParentNode().getPhysicalPath()),
+            "modification_time": self.bobobase_modification_time().HTML4(),
+            "local_roles": self.get_local_roles()
+
+        }
+
+        return json.dumps(result, indent=4)
+
+    def notify_sync(self):
+        engine = self.getEngine()
+        if getattr(engine, 'col_sync_rmq', False):
+            queue_msg(self.absolute_url(),
+                      queue="collections_sync")
 
     security.declareProtected('Add Envelopes', 'get_company_details')
 

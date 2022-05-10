@@ -87,6 +87,19 @@
             </p>
         </fieldset>
         <fieldset>
+            <legend i18n:translate="">RabbitMQ collection synchronisation</legend>
+            <p class="form-help" i18n:translate="">
+                <strong><label for="col_sync_rmq" i18n:translate="">Publish created/deleted collections to RabbitMQ (synchronisation across deployments purposes)</label></strong>
+                <input type="checkbox" name="col_sync_rmq" id="col_sync_rmq" tal:attributes="checked here/col_sync_rmq|nothing" size="5" /><br />
+                Check this to publish newly created collection metadata to RabbitMQ
+            </p>
+            <p class="form-help" i18n:translate="">
+                <strong><label for="col_role_sync_rmq" i18n:translate="">Publish collection's security role changes to RabbitMQ (synchronisation across deployments purposes)</label></strong>
+                <input type="checkbox" name="col_role_sync_rmq" id="col_role_sync_rmq" tal:attributes="checked here/col_role_sync_rmq|nothing" size="5" /><br />
+                Check this to publish collection's security role changes to RabbitMQ
+            </p>
+        </fieldset>
+        <fieldset>
             <legend i18n:translate="">Dataflows Manager Properties</legend>
             <p class="form-help" i18n:translate="">
                 <strong><label for="dfm_type" i18n:translate="">Use XMLRPC Method</label></strong>
