@@ -1909,7 +1909,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         cpath = '/'.join(collection.split('://')[-1].split('/')[1:]).strip('/')
         local_c = self.unrestrictedTraverse(cpath, None)
         col_args = deepcopy(metadata)
-        for arg in ['local_roles', 'modification_time', 'parent', 'restricted']:
+        for arg in ['local_roles', 'modification_time',
+                    'parent', 'restricted']:
             del col_args[arg]
         if not local_c:
             pcpath = '/'.join(cpath.split('/')[:-1])
