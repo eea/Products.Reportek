@@ -1879,11 +1879,13 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     def sync_collection(self):
         """Sync local collection from remote collection"""
         collection = self.REQUEST.form.get('collection')
-        # Debugging purposes, implement tokens across platforms
         auth = (
             os.environ.get('COLLECTION_SYNC_USER', ''),
             os.environ.get('COLLECTION_SYNC_PASS', '')
         )
+        result = {
+            'action': None,
+        }
         metadata = None
         try:
             url = '/'.join([collection, 'metadata'])
@@ -1895,25 +1897,30 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 # but we're not deleting it from the clients
                 pass
             else:
-                logger.error(
-                    "[SYNC] Unable to retrieve remote collection metadata: {}"
-                    .format(res.status_code))
+                msg = ('[SYNC] Unable to retrieve remote collection '
+                       'metadata: {}'.format(res.status_code))
+                logger.error(msg)
+                return self.jsonify({'error': msg})
         except Exception as e:
-            logger.error(
-                "[SYNC] Unable to retrieve remote collection metadata: {}"
-                .format(str(e)))
-        cpath = '/'.join(collection.split('://')[-1].split('/')[1:])
+            msg = ('[SYNC] Unable to retrieve remote collection metadata: {}'
+                   .format(str(e)))
+            logger.error(msg)
+            return self.jsonify({'error': msg})
+        cpath = '/'.join(collection.split('://')[-1].split('/')[1:]).strip('/')
         local_c = self.unrestrictedTraverse(cpath, None)
         col_args = deepcopy(metadata)
-        for arg in ['local_roles', 'modification_time', 'parent']:
+        for arg in ['local_roles', 'modification_time', 'parent', 'restricted']:
             del col_args[arg]
         if not local_c:
             pcpath = '/'.join(cpath.split('/')[:-1])
             parent = self.unrestrictedTraverse(pcpath)
             parent.manage_addCollection(**col_args)
+            local_c = self.unrestrictedTraverse(cpath)
             logger.info(
                 "[SYNC] Created collection: {}".format(local_c.absolute_url()))
-            local_c = self.unrestrictedTraverse(cpath)
+            result['action'] = 'created'
+            result['collection'] = local_c.absolute_url()
+            result['metadata'] = col_args
         else:
             changed = False
             for key in col_args:
@@ -1925,10 +1932,15 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     changed = True
                     break
             if changed:
+                del col_args['id']
+                result['action'] = 'modified'
+                result['collection'] = local_c.absolute_url()
+                result['metadata'] = col_args
                 local_c.manage_editCollection(**col_args)
                 logger.info(
-                    "[SYNC] Updated collection: {}".format(
-                        local_c.absolute_url()))
+                    "[SYNC] Updated collection: {} - {}".format(
+                        local_c.absolute_url(), col_args))
+        roles_info = {}
         # Sync roles
         for roleinfo in metadata.get('local_roles'):
             entity, roles = roleinfo
@@ -1940,11 +1952,17 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 #         cur_roles, entity))
                 # local_c.manage_delLocalRoles([entity])
                 if roles:
+                    roles_info[entity] = roles
                     local_c.manage_setLocalRoles(entity, roles)
                     logger.info(
                         "[SYNC] Setting roles: {} for {}".format(
                             roles, entity))
+        if roles_info:
+            result['action'] = 'modified'
+            result['collection'] = local_c.absolute_url()
+            result['roles'] = roles_info
         local_c.reindex_object()
+        return self.jsonify(result)
 
 
 Globals.InitializeClass(ReportekEngine)
