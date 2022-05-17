@@ -653,7 +653,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
     def get_freq(self, workitem_id):
         """Return the frequency at which the application should be exec
         """
-        freq = 1
+        freq = 5
         application_url = self.getApplicationUrl(workitem_id)
         application = self.unrestrictedTraverse(application_url, None)
         if application:
