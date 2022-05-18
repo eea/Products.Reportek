@@ -112,6 +112,7 @@ class MessagesDataManager(object):
             for attempt in transaction.manager.attempts():
                 try:
                     send_message(msg, queue=queue)
+                    break
                 except Exception as e:
                     count += 1
                     if count >= 3:
