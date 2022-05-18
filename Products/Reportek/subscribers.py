@@ -5,6 +5,7 @@ from zope.component import adapter
 
 from Products.Reportek.interfaces import ICollection
 from zope.lifecycleevent.interfaces import IObjectModifiedEvent
+from Products.Reportek.constants import ENGINE_ID
 
 
 def handle_document_removed_event(obj, event):
@@ -34,16 +35,30 @@ def handle_document_renamed_event(obj, event):
 # Handler for collection added
 def handle_collection_added_event(obj, event):
     """Trigger notify metadata when a collection is added"""
-    obj.notify_sync()
+    engine = obj.unrestrictedTraverse(ENGINE_ID, None)
+    if engine and getattr(engine, 'col_sync_rmq', False):
+        engine.add_new_col_sync(
+            '/'.join(obj.getPhysicalPath()),
+            obj.bobobase_modification_time().HTML4())
+        obj.notify_sync()
 
 
 @adapter(ICollection, IObjectModifiedEvent)
 def handle_collection_modified_event(obj, event):
     """Trigger notify metadata when a collection is modified"""
-    obj.notify_sync()
+    engine = obj.unrestrictedTraverse(ENGINE_ID, None)
+    if engine and getattr(engine, 'col_sync_rmq', False):
+        engine.add_new_col_sync(
+            '/'.join(obj.getPhysicalPath()),
+            obj.bobobase_modification_time().HTML4())
+        obj.notify_sync()
 
 
 # Handler for collection deleted
 def handle_collection_removed_event(obj, event):
-    """Trigger notify metadata when a collection is deleted"""
-    obj.notify_sync()
+    """Cleanup sync data when collection is deleted"""
+    engine = obj.unrestrictedTraverse(ENGINE_ID, None)
+    if engine and getattr(engine, 'col_sync_rmq', False):
+        if engine.cols_sync_history:
+            del engine.cols_sync_history['/'.join(obj.getPhysicalPath())]
+            engine._p_changed = True

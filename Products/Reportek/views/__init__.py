@@ -4,6 +4,7 @@ from statistics import Statistics
 from api import ReportekApi
 from base_admin import BaseAdmin
 from build_collections import BuildCollections
+from collections_sync import CollectionsSync
 from envelope_utils import EnvelopeUtils
 from envelopes_rdf import EnvelopesRDF
 from list_users import ListUsers
