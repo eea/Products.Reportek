@@ -486,7 +486,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         result = {}
         if not hist:
             self._cols_sync_history = self.init_cols_sync()
-            import transaction; transaction.commit()
+            transaction.commit()
             hist = self.cols_sync_history
         if path:
             result[path] = hist[path]
@@ -504,7 +504,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     def set_depl_col_synced(self, depl, path, m_time):
         if self.cols_sync_history[path].get('modified') != m_time:
             self.add_new_col_sync(path, m_time)
-        if not depl in self.cols_sync_history[path]['ack']:
+        if depl not in self.cols_sync_history[path]['ack']:
             self.cols_sync_history[path]['ack'].append(depl)
             self._p_changed = True
 
@@ -1997,7 +1997,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         local_c.reindex_object()
         return self.jsonify(result)
 
-
     def init_cols_sync(self):
         query = {
             'meta_type': 'Report Collection'
@@ -2011,5 +2010,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             }
 
         return data
+
 
 Globals.InitializeClass(ReportekEngine)

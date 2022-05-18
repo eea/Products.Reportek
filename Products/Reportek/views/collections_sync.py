@@ -1,8 +1,8 @@
-from operator import itemgetter
 from base_admin import BaseAdmin
 import json
 from Products.Reportek.constants import ENGINE_ID
 from Products.Reportek.rabbitmq import send_message
+
 
 class CollectionsSync(BaseAdmin):
     def __call__(self, *args, **kwargs):
