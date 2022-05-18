@@ -188,6 +188,22 @@
     template="zpt/utilities/collections_wrong_country.zpt"/>
 
   <browser:page
+    name="collections.sync"
+    menu="reportek_utilities"
+    title="Collections synchronisation"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ReportekCollectionsManager"
+    class=".views.CollectionsSync"
+    template="zpt/utilities/collections_sync.zpt"/>
+
+  <browser:page
+    name="get_collections_sync"
+    for=".interfaces.IReportekUtilities"
+    permission="zope2.ReportekEnvelopesManager"
+    class=".views.CollectionsSync"
+    attribute="collections_sync"/>
+
+  <browser:page
     name="envelopes.wrong_country"
     menu="reportek_utilities"
     title="Envelopes allocated to the wrong country"

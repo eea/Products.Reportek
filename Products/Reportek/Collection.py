@@ -971,6 +971,16 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
 
     def metadata(self):
         """ Collection metadata in JSON """
+
+        depl = self.REQUEST.form.get('deployment', None)
+        if depl:
+            engine = self.unrestrictedTraverse('ReportekEngine', None)
+            engine.set_depl_col_synced(
+                depl,
+                '/'.join(self.getPhysicalPath()),
+                self.bobobase_modification_time().HTML4()
+            )
+
         self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
 
         result = {

@@ -64,6 +64,7 @@ from Products.Reportek.RegistryManagement import (BDRRegistryAPI,
                                                   FGASRegistryAPI)
 from Toolz import Toolz
 from Products.Reportek.catalog import searchResults
+from ZODB.PersistentMapping import PersistentMapping
 from zope.component import getUtility
 from zope.i18n.interfaces import II18nAware, INegotiator
 from zope.i18n.negotiator import normalize_lang
@@ -475,6 +476,37 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                                         self.clamd_port,
                                         self.clamd_timeout)
         return self._AVService
+
+    @property
+    def cols_sync_history(self):
+        return getattr(self, '_cols_sync_history', None)
+
+    def get_col_sync_history(self, path=None):
+        hist = self.cols_sync_history
+        result = {}
+        if not hist:
+            self._cols_sync_history = self.init_cols_sync()
+            import transaction; transaction.commit()
+            hist = self.cols_sync_history
+        if path:
+            result[path] = hist[path]
+        else:
+            result = hist
+        return result
+
+    def add_new_col_sync(self, path, m_time):
+        self.cols_sync_history[path] = {
+            'modified': m_time,
+            'ack': []
+        }
+        self._p_changed = True
+
+    def set_depl_col_synced(self, depl, path, m_time):
+        if self.cols_sync_history[path].get('modified') != m_time:
+            self.add_new_col_sync(path, m_time)
+        if not depl in self.cols_sync_history[path]['ack']:
+            self.cols_sync_history[path]['ack'].append(depl)
+            self._p_changed = True
 
     def get_registry(self, collection):
         registry = ''
@@ -1965,5 +1997,19 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         local_c.reindex_object()
         return self.jsonify(result)
 
+
+    def init_cols_sync(self):
+        query = {
+            'meta_type': 'Report Collection'
+        }
+        brains = searchResults(self.Catalog, query)
+        data = PersistentMapping()
+        for brain in brains:
+            data[brain.getPath()] = {
+                'modified': brain.bobobase_modification_time.HTML4(),
+                'ack': []
+            }
+
+        return data
 
 Globals.InitializeClass(ReportekEngine)
