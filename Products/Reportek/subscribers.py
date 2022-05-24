@@ -1,10 +1,6 @@
 # -*- coding: utf-8 -*-
 from DateTime import DateTime
 from time import time
-from zope.component import adapter
-
-from Products.Reportek.interfaces import ICollection
-from zope.lifecycleevent.interfaces import IObjectModifiedEvent
 from Products.Reportek.constants import ENGINE_ID
 
 

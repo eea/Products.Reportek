@@ -1919,7 +1919,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             differs = []
             for attr in relevant:
                 if attr == 'parent':
-                    coll_attr = '/'.join(coll.getParentNode().getPhysicalPath())
+                    coll_attr = '/'.join(
+                        coll.getParentNode().getPhysicalPath())
                 else:
                     coll_attr = getattr(coll, attr, None)
                 if coll_attr != metadata.get(attr, None):
@@ -1930,7 +1931,6 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 break
 
         return result
-
 
     security.declareProtected('View management screens', 'sync_collection')
 
@@ -1988,7 +1988,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 if not can_move:
                     local_diff_id.can_move_released = True
                 # Rename existing collection with different id
-                parent.manage_renameObject(local_diff_id.id, metadata.get('id'))
+                parent.manage_renameObject(
+                    local_diff_id.id, metadata.get('id'))
                 local_c = self.unrestrictedTraverse(cpath)
                 if not can_move:
                     local_c.can_move_released = False
