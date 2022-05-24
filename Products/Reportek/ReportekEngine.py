@@ -1947,7 +1947,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         metadata = None
         try:
             url = '/'.join([collection, 'metadata'])
-            res = requests.post(url, auth=auth)
+            headers = {"Accept": "application/json"}
+            res = requests.post(url, auth=auth, headers=headers)
             if res.ok:
                 metadata = RepUtils.encode_dict(res.json())
             elif res.status_code == 404:
