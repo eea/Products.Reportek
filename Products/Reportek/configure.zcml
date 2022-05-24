@@ -132,7 +132,7 @@
                      zope.lifecycleevent.interfaces.IObjectAddedEvent"
             handler="Products.Reportek.subscribers.handle_collection_added_event" />
 
-    <subscriber handler="Products.Reportek.subscribers.handle_collection_modified_event" />
+<!--    <subscriber handler="Products.Reportek.subscribers.handle_collection_modified_event" /> -->
 <!--    <subscriber for="Products.Reportek.interfaces.ICollection
                      zope.lifecycleevent.interfaces.IObjectModifiedEvent"
             handler="Products.Reportek.subscribers.handle_collection_modified_event" />
