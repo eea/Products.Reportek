@@ -43,17 +43,6 @@ def handle_collection_added_event(obj, event):
         obj.notify_sync()
 
 
-@adapter(ICollection, IObjectModifiedEvent)
-def handle_collection_modified_event(obj, event):
-    """Trigger notify metadata when a collection is modified"""
-    engine = obj.unrestrictedTraverse(ENGINE_ID, None)
-    if engine and getattr(engine, 'col_sync_rmq', False):
-        engine.add_new_col_sync(
-            '/'.join(obj.getPhysicalPath()),
-            obj.bobobase_modification_time().HTML4())
-        obj.notify_sync()
-
-
 # Handler for collection deleted
 def handle_collection_removed_event(obj, event):
     """Cleanup sync data when collection is deleted"""

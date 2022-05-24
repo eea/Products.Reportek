@@ -981,8 +981,6 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
                 self.bobobase_modification_time().HTML4()
             )
 
-        self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
-
         result = {
             "id": self.id,
             "title": self.title,
@@ -1002,8 +1000,12 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
             "local_roles": self.get_local_roles()
 
         }
+        accept = self.REQUEST.environ.get("HTTP_ACCEPT")
+        if accept == 'application/json':
+            self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')
+            return json.dumps(result, indent=4)
 
-        return json.dumps(result, indent=4)
+        return result
 
     def notify_sync(self):
         engine = self.getEngine()

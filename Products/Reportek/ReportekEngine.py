@@ -1906,6 +1906,32 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
         return collections
 
+    def find_col_with_different_id(self, parent, metadata):
+        """Find collection that may have a different id in the parent coll"""
+        relevant = [
+            'country',
+            'dataflow_uris',
+            'locality',
+            'parent'
+        ]
+        result = None
+        for coll in parent.objectValues('Report Collection'):
+            differs = []
+            for attr in relevant:
+                if attr == 'parent':
+                    coll_attr = '/'.join(coll.getParentNode().getPhysicalPath())
+                else:
+                    coll_attr = getattr(coll, attr, None)
+                if coll_attr != metadata.get(attr, None):
+                    differs.append(True)
+                    break
+            if not differs:
+                result = coll
+                break
+
+        return result
+
+
     security.declareProtected('View management screens', 'sync_collection')
 
     def sync_collection(self):
@@ -1940,18 +1966,39 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             return self.jsonify({'error': msg})
         cpath = '/'.join(collection.split('://')[-1].split('/')[1:]).strip('/')
         local_c = self.unrestrictedTraverse(cpath, None)
+        if not local_c:
+            pcpath = '/'.join(cpath.split('/')[:-1])
+            parent = self.unrestrictedTraverse(pcpath)
+            local_diff_id = self.find_col_with_different_id(parent, metadata)
         col_args = deepcopy(metadata)
         for arg in ['local_roles', 'modification_time',
                     'parent', 'restricted']:
             del col_args[arg]
         if not local_c:
-            pcpath = '/'.join(cpath.split('/')[:-1])
-            parent = self.unrestrictedTraverse(pcpath)
-            parent.manage_addCollection(**col_args)
-            local_c = self.unrestrictedTraverse(cpath)
+            if not local_diff_id:
+                parent.manage_addCollection(**col_args)
+                local_c = self.unrestrictedTraverse(cpath)
+                logger.info(
+                    "[SYNC] Created collection: {}".format(
+                        local_c.absolute_url()))
+                result['action'] = 'created'
+            else:
+                # Check if can_move_released prevents renaming
+                can_move = getattr(local_diff_id, 'can_move_released', False)
+                if not can_move:
+                    local_diff_id.can_move_released = True
+                # Rename existing collection with different id
+                parent.manage_renameObject(local_diff_id.id, metadata.get('id'))
+                local_c = self.unrestrictedTraverse(cpath)
+                if not can_move:
+                    local_c.can_move_released = False
+                logger.info(
+                    "[SYNC] Renamed collection: {}".format(
+                        local_c.absolute_url()))
+                result['action'] = 'modified'
             logger.info(
                 "[SYNC] Created collection: {}".format(local_c.absolute_url()))
-            result['action'] = 'created'
+
             result['collection'] = local_c.absolute_url()
             result['metadata'] = col_args
         else:
