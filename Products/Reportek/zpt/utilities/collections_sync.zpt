@@ -18,7 +18,7 @@
   </metal:block>
 <metal:block fill-slot="content">
   <metal:block use-macro="here/util_controls/macros/utilities-controls" />
-    <h1 i18n:translate="">Collections allocated to the wrong country</h1>
+    <h1 i18n:translate="">Collections synchronisation status</h1>
     <div class="filter-form" id="collections-sync-tabs">
       <div id="collections-sync" class="tabbed-content">
         <h1 i18n:translate="">Collections sync</h1>

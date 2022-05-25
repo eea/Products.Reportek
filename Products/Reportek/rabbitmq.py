@@ -119,7 +119,7 @@ class MessagesDataManager(object):
                         logger.exception(
                             "RabbitMQ Connection exception: {}".format(str(e)))
                         raise Exception(
-                            '''Unable to send message to RabbitMQ! Please
+                            '''Temporary network issue! Please
                              click the browser's back button and try again.''')
 
         self.txn = None
