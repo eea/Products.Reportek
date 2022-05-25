@@ -1948,7 +1948,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         try:
             url = '/'.join([collection, 'metadata'])
             headers = {"Accept": "application/json"}
-            res = requests.post(url, auth=auth, headers=headers)
+            depl = self.request.SERVER_URL.split('://')[-1].split('.')[0]
+            data = {
+                'deployment': depl
+            }
+            res = requests.post(url, auth=auth, headers=headers, data=data)
             if res.ok:
                 metadata = RepUtils.encode_dict(res.json())
             elif res.status_code == 404:
