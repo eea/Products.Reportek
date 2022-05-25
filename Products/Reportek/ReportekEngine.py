@@ -1948,7 +1948,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         try:
             url = '/'.join([collection, 'metadata'])
             headers = {"Accept": "application/json"}
-            depl = self.request.SERVER_URL.split('://')[-1].split('.')[0]
+            depl = self.REQUEST.SERVER_URL.split('://')[-1].split('.')[0]
             data = {
                 'deployment': depl
             }
