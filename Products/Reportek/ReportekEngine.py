@@ -2032,7 +2032,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     for key in col_args:
                         if key == 'allow_referrals':
                             if local_c.are_referrals_allowed() != col_args[
-                                key]:
+                                    key]:
                                 changed = True
                                 break
                         elif getattr(local_c, key) != col_args[key]:
