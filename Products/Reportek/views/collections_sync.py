@@ -27,7 +27,7 @@ class CollectionsSync(BaseAdmin):
             if self.is_sync_enabled():
                 for collection in pub_colls:
                     try:
-                        col_url = '/'.join([self.request.SERVER_URL,
+                        col_url = ''.join([self.request.SERVER_URL,
                                             collection])
                         send_message(col_url, queue='collections_sync')
                         results.append({
