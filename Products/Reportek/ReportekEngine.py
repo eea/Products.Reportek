@@ -2011,7 +2011,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                         else:
                             # Check if can_move_released prevents renaming
                             can_move = getattr(local_diff_id,
-                                            'can_move_released', False)
+                                               'can_move_released', False)
                             if not can_move:
                                 local_diff_id.can_move_released = True
                             # Rename existing collection with different id
