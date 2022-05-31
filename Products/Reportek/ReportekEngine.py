@@ -64,6 +64,7 @@ from Products.Reportek.RegistryManagement import (BDRRegistryAPI,
                                                   FGASRegistryAPI)
 from Toolz import Toolz
 from Products.Reportek.catalog import searchResults
+from ZODB.PersistentList import PersistentList
 from ZODB.PersistentMapping import PersistentMapping
 from zope.component import getUtility
 from zope.i18n.interfaces import II18nAware, INegotiator
@@ -497,7 +498,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     def add_new_col_sync(self, path, m_time):
         self.cols_sync_history[path] = {
             'modified': m_time,
-            'ack': []
+            'ack': PersistentList()
         }
         self._p_changed = True
 
@@ -2084,7 +2085,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         for brain in brains:
             data[brain.getPath()] = {
                 'modified': brain.bobobase_modification_time.HTML4(),
-                'ack': []
+                'ack': PersistentList()
             }
 
         return data

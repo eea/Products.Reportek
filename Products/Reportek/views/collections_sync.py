@@ -27,8 +27,8 @@ class CollectionsSync(BaseAdmin):
             if self.is_sync_enabled():
                 for collection in pub_colls:
                     try:
-                        col_url = '/'.join([self.request.SERVER_URL,
-                                            collection])
+                        col_url = ''.join([self.request.SERVER_URL,
+                                           collection])
                         send_message(col_url, queue='collections_sync')
                         results.append({
                             'collection': col_url,
@@ -51,6 +51,6 @@ class CollectionsSync(BaseAdmin):
                 result.append({
                     'path': col,
                     'modified': hist[col].get('modified'),
-                    'ack': hist[col].get('ack')
+                    'ack': list(hist[col].get('ack'))
                 })
         return json.dumps(result)
