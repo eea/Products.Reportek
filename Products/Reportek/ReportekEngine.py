@@ -1915,20 +1915,22 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             'parent'
         ]
         result = None
-        for coll in parent.objectValues('Report Collection'):
-            differs = []
-            for attr in relevant:
-                if attr == 'parent':
-                    coll_attr = '/'.join(
-                        coll.getParentNode().getPhysicalPath())
-                else:
-                    coll_attr = getattr(coll, attr, None)
-                if coll_attr != metadata.get(attr, None):
-                    differs.append(True)
+        # Verify that we have metadata and that we have dataflow_uris in it
+        if metadata and metadata.get('dataflow_uris', []):
+            for coll in parent.objectValues('Report Collection'):
+                differs = []
+                for attr in relevant:
+                    if attr == 'parent':
+                        coll_attr = '/'.join(
+                            coll.getParentNode().getPhysicalPath())
+                    else:
+                        coll_attr = getattr(coll, attr, None)
+                    if coll_attr != metadata.get(attr, None):
+                        differs.append(True)
+                        break
+                if not differs:
+                    result = coll
                     break
-            if not differs:
-                result = coll
-                break
 
         return result
 
@@ -1982,94 +1984,95 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                         'metadata: {}'.format(str(e)))
                     logger.error(msg)
                     return self.jsonify({'error': msg})
-                local_c = self.unrestrictedTraverse(collection, None)
-                if not local_c:
-                    pcpath = '/'.join(collection.split('/')[:-1])
-                    local_diff_id = None
-                    if pcpath:
-                        parent = self.unrestrictedTraverse(pcpath)
-                        local_diff_id = self.find_col_with_different_id(
-                            parent,
-                            metadata)
-                    else:
-                        continue
-                col_args = deepcopy(metadata)
-                for arg in ['local_roles', 'modification_time',
-                            'parent', 'restricted']:
-                    del col_args[arg]
-                if not local_c:
-                    if not local_diff_id:
-                        parent.manage_addCollection(**col_args)
-                        local_c = self.unrestrictedTraverse(collection)
+                if metadata:
+                    local_c = self.unrestrictedTraverse(collection, None)
+                    if not local_c:
+                        pcpath = '/'.join(collection.split('/')[:-1])
+                        local_diff_id = None
+                        if pcpath:
+                            parent = self.unrestrictedTraverse(pcpath)
+                            local_diff_id = self.find_col_with_different_id(
+                                parent,
+                                metadata)
+                        else:
+                            continue
+                    col_args = deepcopy(metadata)
+                    for arg in ['local_roles', 'modification_time',
+                                'parent', 'restricted']:
+                        del col_args[arg]
+                    if not local_c:
+                        if not local_diff_id:
+                            parent.manage_addCollection(**col_args)
+                            local_c = self.unrestrictedTraverse(collection)
+                            logger.info(
+                                "[SYNC] Created collection: {}".format(
+                                    local_c.absolute_url()))
+                            result['action'] = 'created'
+                        else:
+                            # Check if can_move_released prevents renaming
+                            can_move = getattr(local_diff_id,
+                                            'can_move_released', False)
+                            if not can_move:
+                                local_diff_id.can_move_released = True
+                            # Rename existing collection with different id
+                            parent.manage_renameObject(
+                                local_diff_id.id, metadata.get('id'))
+                            local_c = self.unrestrictedTraverse(collection)
+                            if not can_move:
+                                local_c.can_move_released = False
+                            logger.info(
+                                "[SYNC] Renamed collection: {}".format(
+                                    local_c.absolute_url()))
+                            result['action'] = 'modified'
                         logger.info(
                             "[SYNC] Created collection: {}".format(
                                 local_c.absolute_url()))
-                        result['action'] = 'created'
-                    else:
-                        # Check if can_move_released prevents renaming
-                        can_move = getattr(local_diff_id,
-                                           'can_move_released', False)
-                        if not can_move:
-                            local_diff_id.can_move_released = True
-                        # Rename existing collection with different id
-                        parent.manage_renameObject(
-                            local_diff_id.id, metadata.get('id'))
-                        local_c = self.unrestrictedTraverse(collection)
-                        if not can_move:
-                            local_c.can_move_released = False
-                        logger.info(
-                            "[SYNC] Renamed collection: {}".format(
-                                local_c.absolute_url()))
-                        result['action'] = 'modified'
-                    logger.info(
-                        "[SYNC] Created collection: {}".format(
-                            local_c.absolute_url()))
 
-                    result['collection'] = local_c.absolute_url()
-                    result['metadata'] = col_args
-                else:
-                    changed = False
-                    for key in col_args:
-                        if key == 'allow_referrals':
-                            if local_c.are_referrals_allowed() != col_args[
-                                    key]:
-                                changed = True
-                                break
-                        elif getattr(local_c, key) != col_args[key]:
-                            changed = True
-                            break
-                    if changed:
-                        del col_args['id']
-                        result['action'] = 'modified'
                         result['collection'] = local_c.absolute_url()
                         result['metadata'] = col_args
-                        local_c.manage_editCollection(**col_args)
-                        logger.info(
-                            "[SYNC] Updated collection: {} - {}".format(
-                                local_c.absolute_url(), col_args))
-                roles_info = {}
-                # Sync roles
-                for roleinfo in metadata.get('local_roles'):
-                    entity, roles = roleinfo
-                    cur_roles = local_c.get_local_roles_for_userid(entity)
-                    if tuple(roles) != cur_roles:
-                        # We're not removing roles from clients
-                        # logger.info(
-                        #     "[SYNC] Removing roles: {} for {}".format(
-                        #         cur_roles, entity))
-                        # local_c.manage_delLocalRoles([entity])
-                        if roles:
-                            roles_info[entity] = roles
-                            local_c.manage_setLocalRoles(entity, roles)
+                    else:
+                        changed = False
+                        for key in col_args:
+                            if key == 'allow_referrals':
+                                if local_c.are_referrals_allowed() != col_args[
+                                        key]:
+                                    changed = True
+                                    break
+                            elif getattr(local_c, key) != col_args[key]:
+                                changed = True
+                                break
+                        if changed:
+                            del col_args['id']
+                            result['action'] = 'modified'
+                            result['collection'] = local_c.absolute_url()
+                            result['metadata'] = col_args
+                            local_c.manage_editCollection(**col_args)
                             logger.info(
-                                "[SYNC] Setting roles: {} for {}".format(
-                                    roles, entity))
-                if roles_info:
-                    result['action'] = 'modified'
-                    result['collection'] = local_c.absolute_url()
-                    result['roles'] = roles_info
-                local_c.reindex_object()
-                results.append(result)
+                                "[SYNC] Updated collection: {} - {}".format(
+                                    local_c.absolute_url(), col_args))
+                    roles_info = {}
+                    # Sync roles
+                    for roleinfo in metadata.get('local_roles'):
+                        entity, roles = roleinfo
+                        cur_roles = local_c.get_local_roles_for_userid(entity)
+                        if tuple(roles) != cur_roles:
+                            # We're not removing roles from clients
+                            # logger.info(
+                            #     "[SYNC] Removing roles: {} for {}".format(
+                            #         cur_roles, entity))
+                            # local_c.manage_delLocalRoles([entity])
+                            if roles:
+                                roles_info[entity] = roles
+                                local_c.manage_setLocalRoles(entity, roles)
+                                logger.info(
+                                    "[SYNC] Setting roles: {} for {}".format(
+                                        roles, entity))
+                    if roles_info:
+                        result['action'] = 'modified'
+                        result['collection'] = local_c.absolute_url()
+                        result['roles'] = roles_info
+                    local_c.reindex_object()
+                    results.append(result)
         return self.jsonify(results)
 
     def init_cols_sync(self):
