@@ -2003,7 +2003,15 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                         del col_args[arg]
                     if not local_c:
                         if not local_diff_id:
+                            allow_colls = getattr(parent, 'allow_collections',
+                                                  None)
+                            chg_allow_colls = False
+                            if not allow_colls:
+                                parent.allow_collections = 1
+                                chg_allow_colls = True
                             parent.manage_addCollection(**col_args)
+                            if chg_allow_colls:
+                                parent.allow_collections = allow_colls
                             local_c = self.unrestrictedTraverse(collection)
                             logger.info(
                                 "[SYNC] Created collection: {}".format(
