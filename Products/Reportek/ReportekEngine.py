@@ -1919,19 +1919,21 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         # Verify that we have metadata and that we have dataflow_uris in it
         if metadata and metadata.get('dataflow_uris', []):
             for coll in parent.objectValues('Report Collection'):
-                differs = []
-                for attr in relevant:
-                    if attr == 'parent':
-                        coll_attr = '/'.join(
-                            coll.getParentNode().getPhysicalPath())
-                    else:
-                        coll_attr = getattr(coll, attr, None)
-                    if coll_attr != metadata.get(attr, None):
-                        differs.append(True)
+                # Run check only if the collection id is auto-generated
+                if coll.id.startswith('col') and len(coll.id) == 9:
+                    differs = []
+                    for attr in relevant:
+                        if attr == 'parent':
+                            coll_attr = '/'.join(
+                                coll.getParentNode().getPhysicalPath())
+                        else:
+                            coll_attr = getattr(coll, attr, None)
+                        if coll_attr != metadata.get(attr, None):
+                            differs.append(True)
+                            break
+                    if not differs:
+                        result = coll
                         break
-                if not differs:
-                    result = coll
-                    break
 
         return result
 
