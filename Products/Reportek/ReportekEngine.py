@@ -2019,7 +2019,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                                 chg_allow_colls = True
                             parent.manage_addCollection(**col_args)
                             if chg_allow_colls:
-                                parent.allow_collections = allow_colls
+                                del parent.allow_collections
                             local_c = self.unrestrictedTraverse(collection)
                             logger.info(
                                 "[SYNC] Created collection: {}".format(
@@ -2027,16 +2027,18 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                             result['action'] = 'created'
                         else:
                             # Check if can_move_released prevents renaming
-                            can_move = getattr(local_diff_id,
+                            can_move = getattr(parent,
                                                'can_move_released', False)
+                            chg_can_move = False
                             if not can_move:
-                                local_diff_id.can_move_released = True
+                                chg_can_move = True
+                                parent.can_move_released = True
                             # Rename existing collection with different id
                             parent.manage_renameObject(
                                 local_diff_id.id, metadata.get('id'))
                             local_c = self.unrestrictedTraverse(collection)
-                            if not can_move:
-                                local_c.can_move_released = False
+                            if chg_can_move:
+                                del parent.can_move_released
                             logger.info(
                                 "[SYNC] Renamed collection: {}".format(
                                     local_c.absolute_url()))
