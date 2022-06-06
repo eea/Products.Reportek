@@ -496,18 +496,20 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return result
 
     def add_new_col_sync(self, path, m_time):
-        self.cols_sync_history[path] = {
-            'modified': m_time,
-            'ack': PersistentList()
-        }
-        self._p_changed = True
+        if getattr(self, 'col_sync_rmq', False):
+            self.cols_sync_history[path] = {
+                'modified': m_time,
+                'ack': PersistentList()
+            }
+            self._p_changed = True
 
     def set_depl_col_synced(self, depl, path, m_time):
-        if self.cols_sync_history[path].get('modified') != m_time:
-            self.add_new_col_sync(path, m_time)
-        if depl not in self.cols_sync_history[path]['ack']:
-            self.cols_sync_history[path]['ack'].append(depl)
-            self._p_changed = True
+        if getattr(self, 'col_sync_rmq', False):
+            if self.cols_sync_history[path].get('modified') != m_time:
+                self.add_new_col_sync(path, m_time)
+            if depl not in self.cols_sync_history[path]['ack']:
+                self.cols_sync_history[path]['ack'].append(depl)
+                self._p_changed = True
 
     def get_registry(self, collection):
         registry = ''
