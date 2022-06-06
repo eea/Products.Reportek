@@ -1924,7 +1924,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                     break
                 # Run check only if the collection id is auto-generated
                 if (coll.id.startswith('col') and len(coll.id) == 9
-                    and metadata.get('dataflow_uris')):
+                        and metadata.get('dataflow_uris')):
                     differs = []
                     for attr in relevant:
                         if attr == 'parent':
