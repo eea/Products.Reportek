@@ -496,18 +496,20 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         return result
 
     def add_new_col_sync(self, path, m_time):
-        self.cols_sync_history[path] = {
-            'modified': m_time,
-            'ack': PersistentList()
-        }
-        self._p_changed = True
+        if getattr(self, 'col_sync_rmq', False):
+            self.cols_sync_history[path] = {
+                'modified': m_time,
+                'ack': PersistentList()
+            }
+            self._p_changed = True
 
     def set_depl_col_synced(self, depl, path, m_time):
-        if self.cols_sync_history[path].get('modified') != m_time:
-            self.add_new_col_sync(path, m_time)
-        if depl not in self.cols_sync_history[path]['ack']:
-            self.cols_sync_history[path]['ack'].append(depl)
-            self._p_changed = True
+        if getattr(self, 'col_sync_rmq', False):
+            if self.cols_sync_history[path].get('modified') != m_time:
+                self.add_new_col_sync(path, m_time)
+            if depl not in self.cols_sync_history[path]['ack']:
+                self.cols_sync_history[path]['ack'].append(depl)
+                self._p_changed = True
 
     def get_registry(self, collection):
         registry = ''
@@ -1917,10 +1919,14 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         ]
         result = None
         # Verify that we have metadata and that we have dataflow_uris in it
-        if metadata and metadata.get('dataflow_uris', []):
+        if metadata:
             for coll in parent.objectValues('Report Collection'):
+                if coll.title == metadata.get('title'):
+                    result = coll
+                    break
                 # Run check only if the collection id is auto-generated
-                if coll.id.startswith('col') and len(coll.id) == 9:
+                if (coll.id.startswith('col') and len(coll.id) == 9
+                        and metadata.get('dataflow_uris')):
                     differs = []
                     for attr in relevant:
                         if attr == 'parent':
@@ -2013,7 +2019,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                                 chg_allow_colls = True
                             parent.manage_addCollection(**col_args)
                             if chg_allow_colls:
-                                parent.allow_collections = allow_colls
+                                del parent.allow_collections
                             local_c = self.unrestrictedTraverse(collection)
                             logger.info(
                                 "[SYNC] Created collection: {}".format(
@@ -2021,16 +2027,18 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                             result['action'] = 'created'
                         else:
                             # Check if can_move_released prevents renaming
-                            can_move = getattr(local_diff_id,
+                            can_move = getattr(parent,
                                                'can_move_released', False)
+                            chg_can_move = False
                             if not can_move:
-                                local_diff_id.can_move_released = True
+                                chg_can_move = True
+                                parent.can_move_released = True
                             # Rename existing collection with different id
                             parent.manage_renameObject(
                                 local_diff_id.id, metadata.get('id'))
                             local_c = self.unrestrictedTraverse(collection)
-                            if not can_move:
-                                local_c.can_move_released = False
+                            if chg_can_move:
+                                del parent.can_move_released
                             logger.info(
                                 "[SYNC] Renamed collection: {}".format(
                                     local_c.absolute_url()))
