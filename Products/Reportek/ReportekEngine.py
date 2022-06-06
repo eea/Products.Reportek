@@ -1917,10 +1917,14 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         ]
         result = None
         # Verify that we have metadata and that we have dataflow_uris in it
-        if metadata and metadata.get('dataflow_uris', []):
+        if metadata:
             for coll in parent.objectValues('Report Collection'):
+                if coll.title == metadata.get('title'):
+                    result = coll
+                    break
                 # Run check only if the collection id is auto-generated
-                if coll.id.startswith('col') and len(coll.id) == 9:
+                if (coll.id.startswith('col') and len(coll.id) == 9
+                    and metadata.get('dataflow_uris')):
                     differs = []
                     for attr in relevant:
                         if attr == 'parent':
