@@ -1,6 +1,10 @@
 Changelog
 =========
 
+4.46 - (2022-06-06)
+---------------------------
+* Change: Develop [olimpiurob]
+
 4.5 - (2022-06-06)
 ---------------------------
 * Change: Refs #139601; Set 0 column un-orderable in utils_collections_sync.js
