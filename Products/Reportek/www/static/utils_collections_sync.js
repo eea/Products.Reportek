@@ -73,6 +73,7 @@ reportek.utils.collections_sync = {
       "columnDefs": [
         {
           "targets": 0,
+          "orderable": false,
           "render": function (data, type, full, meta) {
             return '<input type="checkbox" name="collections:list" class="toggledCB" value="' + full.path + '">';
           }
