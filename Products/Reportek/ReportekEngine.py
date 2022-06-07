@@ -2019,7 +2019,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                                 chg_allow_colls = True
                             parent.manage_addCollection(**col_args)
                             if chg_allow_colls:
-                                del parent.allow_collections
+                                parent.allow_collections = 0
                             local_c = self.unrestrictedTraverse(collection)
                             logger.info(
                                 "[SYNC] Created collection: {}".format(
