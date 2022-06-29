@@ -337,7 +337,8 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
             except Exception:
                 return dummycounty['name']
         return str(
-            engine.localities_dict().get(self.country, dummycounty)['name'])
+            engine.localities_dict().get(
+                self.country, dummycounty)['name'].encode('utf-8'))
 
     def getCountryCode(self, country_uri=None):
         """ Returns country ISO code from the country uri
