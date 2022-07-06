@@ -54,9 +54,9 @@ manage_addRRMQQAApplicationForm = PageTemplateFile(
 
 
 def manage_addRRMQQAApplication(self, id='', title='', qarequests='',
-                                          qajobs='', qadeadletter='',
-                                          app_name='', qaserver='', token='',
-                                          REQUEST=None):
+                                qajobs='', qadeadletter='',
+                                app_name='', qaserver='', token='',
+                                REQUEST=None):
     """ Generic application that calls a remote service
     """
 
@@ -132,22 +132,6 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             self.__finishApplication(workitem_id, REQUEST)
         else:
             self.do_request(workitem_id)
-        #     l_ret = self.__analyzeDocuments(workitem_id)
-        #     if not l_ret:
-        #         wk.addEvent(
-        #             'Operation completed: no QC scripts available to analyze '
-        #             'the files in the envelope')
-        #         if REQUEST is not None:
-        #             REQUEST.set('RemoteApplicationSucceded', 1)
-        #             REQUEST.set('actor', 'openflow_engine')
-        #         self.__finishApplication(workitem_id, REQUEST)
-        #     elif getattr(wk, self.app_name)['analyze']['code'] == -2:
-        #         wk.addEvent(
-        #             'Operation failed: error calling the remote service')
-        #         if REQUEST is not None:
-        #             REQUEST.set('RemoteApplicationSucceded', 0)
-        #             REQUEST.set('actor', 'openflow_engine')
-        #         self.__finishApplication(workitem_id, REQUEST)
         return 1
 
     def do_request(self, workitem_id):
@@ -211,7 +195,6 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                         self.__finishApplication(workitem_id, REQUEST)
         else:
             feedback_log.warning("Invalid payload: {}".format(payload))
-
 
         # test if analyze should be called
         if not l_wk_prop['requests']['published']:
@@ -325,7 +308,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
         l_wk_prop['requests'] = {
             'code': 0,
             'last_error': None,
-            'next_run': DateTime(), # Do we need this?
+            'next_run': DateTime(),  # Do we need this?
             'published': None
         }
 
