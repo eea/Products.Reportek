@@ -536,7 +536,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 # If the current activity is auto start and not bundled with
                 # previous, let it be handled by the forwarder
                 if activity.isAutoStart() and not activity.isBundled():
-                    self.wf_status = 'forward'
+                    self.wf_status = activity.get_wf_status()
                     self.reindex_object()
                 # If it's manually started or bundled with previous, forward it
                 # manually as we might have template forms that have form
@@ -552,7 +552,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         result = {}
         engine = getattr(self, ENGINE_ID)
         rmq = getattr(engine, 'env_fwd_rmq', False)
-        if getattr(self, 'wf_status', None) == 'forward':
+        if getattr(self, 'wf_status', None) in ['forward', 'hybrid']:
             wks = self.getListOfWorkitems()
             wk = wks[-1]
             forwardable = [w for w in wks
@@ -577,6 +577,8 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                                            self.get_freq(wk.id)),
                             queue=self.get_rmq_queue(activity.getId()))
                     result['triggered'] = wk.activity_id
+                elif self.wf_status == 'hybrid':
+                    wk.triggerApplication(wk.id, REQUEST)
 
         return engine.jsonify(result)
 
@@ -675,7 +677,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 if activity.isAutoPush():
                     self.callAutoPush(workitem_id)
                 if activity.isAutoStart():
-                    self.wf_status = 'forward'
+                    self.wf_status = activity.get_wf_status()
                     self.reindex_object()
                     self.startAutomaticApplication(workitem_id)
                     if rmq:
@@ -945,7 +947,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 if activity.isAutoPush():
                     self.callAutoPush(workitem_id)
                 if activity.isAutoStart():
-                    self.wf_status = 'forward'
+                    self.wf_status = activity.get_wf_status()
                     self.reindex_object()
                     self.startAutomaticApplication(workitem_id)
                     if rmq:

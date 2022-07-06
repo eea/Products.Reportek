@@ -1,0 +1,50 @@
+<tal:block tal:replace="structure context/manage_page_header" />
+<tal:block tal:replace="structure python:context.manage_tabs(management_view='Settings')" />
+
+<p class="form-help" i18n:translate="">
+    To change property values, edit the values and click "Save Changes".
+</p>
+
+<form action="manage_settings" method="post">
+<table>
+    <tr>
+        <th align="left"><label for="title" i18n:translate="">Title</label></th>
+        <td colspan="2"><input type="text" name="title" id="title" tal:attributes="value here/title" size="40" /></td>
+    </tr>
+    <tr>
+        <th align="left"><label for="qarequests" i18n:translate="">RabbitMQ QA Requests queue</label></th>
+        <td colspan="2"><input type="text" name="qarequests" id="qarequests" tal:attributes="value here/qarequests" size="40" /></td>
+    </tr>
+    <tr>
+        <th align="left"><label for="qajobs" i18n:translate="">RabbitMQ QA Jobs queue</label></th>
+        <td colspan="2"><input type="text" name="qajobs" id="qajobs" tal:attributes="value here/qajobs" size="40" /></td>
+    </tr>
+    <tr>
+        <th align="left"><label for="qadeadletter" i18n:translate="">RabbitMQ QA Deadletter queue</label></th>
+        <td colspan="2"><input type="text" name="qadeadletter" id="qadeadletter" tal:attributes="value here/qadeadletter" size="40" /></td>
+    </tr>
+    <tr>
+        <th align="left"><label for="qaserver" i18n:translate="">Remote server URL</label></th>
+        <td colspan="2" i18n:translate="">
+            <input type="text" name="qaserver" id="qaserver" tal:attributes="value here/qaserver" size="40" />
+            <em>(e.g. http://converters.eionet.europa.eu/RpcRouter)</em>
+        </td>
+    </tr>
+    <tr>
+        <th align="left"><label for="token" i18n:translate="">JWT Token</label></th>
+        <td colspan="2">
+            <input type="text" name="token" id="token" tal:attributes="value here/token|nothing" size="40" />
+        </td>
+    </tr>
+    <tr>
+        <th align="left"><label for="app_name" i18n:translate="">Activity ID</label></th>
+        <td colspan="2"><input type="text" name="app_name" id="app_name" tal:attributes="value here/app_name" size="40" /></td>
+    </tr>
+    <tr>
+        <td></td>
+        <td><input type="submit" value="Save Changes" i18n:attributes="value btn-save-changes"/></td>
+    </tr>
+</table>
+</form>
+
+<tal:block tal:replace="structure here/manage_page_footer" />
