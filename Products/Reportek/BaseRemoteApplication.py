@@ -85,7 +85,7 @@ class BaseRemoteApplication(SimpleItem):
         f_name = envelope.cook_file_id(rfile)
         if f_name:
             if f_name.endswith('.html'):
-                feedback_ob.feedbacktext = archive.read()
+                feedback_ob.feedbacktext = rfile.read()
                 feedback_ob.content_type = 'text/html'
                 fb_status, fb_message = self.extract_metadata(feedback_ob)
                 feedback_ob.feedback_status = fb_status

@@ -48,12 +48,12 @@ feedback_log = logging.getLogger(__name__ + '.feedback')
 FEEDBACKTEXT_LIMIT = 1024 * 16  # 16KB
 
 
-manage_addRemoteRabbitMQQAApplicationForm = PageTemplateFile(
+manage_addRRMQQAApplicationForm = PageTemplateFile(
     'zpt/remote/application_add_rabbitmq_qa',
     globals())
 
 
-def manage_addRemoteRabbitMQQAApplication(self, id='', title='', qarequests='',
+def manage_addRRMQQAApplication(self, id='', title='', qarequests='',
                                           qajobs='', qadeadletter='',
                                           app_name='', qaserver='', token='',
                                           REQUEST=None):
@@ -157,11 +157,10 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
         l_wk_prop = getattr(wk, self.app_name)
 
         data = {
-            "envelopeUrl" : l_envelope.absolute_url(),
-            "UUID" : str(wk.UUID)
+            "envelopeUrl": l_envelope.absolute_url(),
+            "UUID": str(wk.UUID)
         }
-        # queue_msg(json.dumps(data, indent=4), self.qarequests)
-        print "DEBUG: Publishing: \n{}\n to rabbitmq queue: {}".format(json.dumps(data, indent=4), self.qarequests)
+        queue_msg(json.dumps(data, indent=4), self.qarequests)
         l_wk_prop['requests']['published'] = DateTime()
 
     security.declareProtected('Use OpenFlow', 'callApplication')
@@ -178,9 +177,9 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
         if REQUEST and REQUEST.get('BODY'):
             try:
                 payload = json.loads(REQUEST.get('BODY'))
-            except:
-                # TODO: log this?
-                pass
+            except Exception as e:
+                feedback_log.error(
+                    "Unable to parse payload: {}".format(str(e)))
 
         if payload and self.check_uuid(workitem_id, payload.get('UUID')):
             job_id = payload.get('jobId')
@@ -194,18 +193,15 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             # handle results
             job_result = payload.get('jobResult')
             if job_result:
-
                 r_files = job_result.get('REMOTE_FILES')
-
                 if r_files:
                     envelope = self.aq_parent
-
                     # do we need to handle multiple files?
                     if not isinstance(r_files, list):
                         r_files = [r_files]
                     for r_file in r_files:
                         e_data = {'SCRIPT_TITLE': payload.get('scriptTitle')}
-                        r_res = self.handle_remote_file(
+                        self.handle_remote_file(
                             r_file, l_file_id, workitem_id, e_data, job_id,
                             restricted=self.get_restricted_status(
                                 envelope, l_file_id))
@@ -220,101 +216,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
         # test if analyze should be called
         if not l_wk_prop['requests']['published']:
             self.do_request(workitem_id)
-        
-        # see if it's any point to go on
-        # elif (l_wk_prop['analyze']['code'] == -2
-        #         and self._local_scripts_done(l_wk_prop.get('localQA'))):
-        #     wk.failure = True
-        #     if REQUEST is not None:
-        #         REQUEST.set('RemoteApplicationSucceded', 0)
-        #         REQUEST.set('actor', 'openflow_engine')
-        #     self.__finishApplication(workitem_id, REQUEST)
-        #     return 1
 
-        # self.runAutomaticLocalApps(wk)
-        # # test if getResult should be called
-        # l_files_success = {}
-        # l_files_failed = {}
-        # for l_jobID, l_job_details in l_wk_prop['getResult'].items():
-        #     if (l_job_details['code'] == 0
-        #             and l_job_details['next_run'].lessThanEqualTo(DateTime())):
-        #         l_ret_step2 = self.__getResult4XQueryServiceJob(workitem_id,
-        #                                                         l_jobID)
-        #         l_fn = l_job_details['fileURL'].split('/')[-1]
-        #         if l_ret_step2[l_jobID]['code'] == 1:
-        #             if l_fn in l_files_success:
-        #                 l_files_success[l_fn] += ', #%s' % l_jobID
-        #             else:
-        #                 l_files_success[l_fn] = '#%s' % l_jobID
-        #         else:
-        #             if l_fn in l_files_failed:
-        #                 l_files_failed[l_fn] += ', #%s' % l_jobID
-        #             else:
-        #                 l_files_failed[l_fn] = '#%s' % l_jobID
-        # # log the results from local QA
-        # for filename, scripts in l_wk_prop['localQA'].items():
-        #     success = []
-        #     fail = []
-        #     for script, status in scripts.items():
-        #         if status == 'done':
-        #             success.append("#" + script)
-        #         else:
-        #             fail.append('#' + script)
-        #     success = ', '.join(success)
-        #     fail = ', '.join(fail)
-        #     # if we have some stuff logged from above
-        #     if filename in l_files_success and success:
-        #         success = ', ' + success
-        #     if filename in l_files_failed and fail:
-        #         fail = ', ' + fail
-        #     if success:
-        #         l_files_success[filename] = l_files_success.get(
-        #             filename, '') + success
-        #     if fail:
-        #         l_files_failed[filename] = l_files_failed.get(
-        #             filename, '') + fail
-
-        # # write to log the list of file that succeded
-        # if l_files_success:
-        #     l_filenames_jobs = ''
-        #     for x in l_files_success.keys():
-        #         l_filenames_jobs += '<li>%s for file %s</li>' % (
-        #             l_files_success[x], x)
-        #     wk.addEvent('%s job(s) completed: <ul>%s</ul>' %
-        #                         (self.app_name, l_filenames_jobs))
-        # # Check if the application has done its job
-        # l_complete = 1
-        # l_failed = 0
-
-        # # Retry if we have no getResult
-        # if not l_wk_prop['getResult']:
-        #     l_complete = 0
-
-        # for l_jobID, l_job_details in l_wk_prop['getResult'].items():
-        #     # result retrieved
-        #     if l_job_details['code'] == 1:
-        #         pass
-        #     # error of some kind
-        #     elif l_job_details['code'] == -2:
-        #         l_failed = 1
-        #     # needs to run again, do not complete
-        #     else:
-        #         l_complete = 0
-
-        # if l_complete:
-        #     # write to log the list of file that failed
-        #     if l_files_failed:
-        #         l_filenames_jobs = ''
-        #         for x in l_files_failed.keys():
-        #             l_filenames_jobs += '<li>%s for file %s</li>' % (
-        #                 l_files_failed[x], x)
-        #         wk.addEvent('Giving up on %s job(s): <ul>%s</ul>' %
-        #                             (self.app_name, l_filenames_jobs))
-        #         wk.failure = True
-        #     if REQUEST is not None:
-        #         REQUEST.set('RemoteApplicationSucceded', 1 - l_failed)
-        #         REQUEST.set('actor', 'openflow_engine')
-        #     self.__finishApplication(workitem_id, REQUEST)
         return 1
 
     def runAutomaticLocalApps(self, workitem):
@@ -409,364 +311,6 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
         # truly no bad statuses (including no script -> status pairs) because
         # we check this after join
         return True
-
-    ##############################################
-    #   XQuery calls
-    ##############################################
-
-    def __analyzeDocuments(self, p_workitem_id):
-        """ Makes an XML/RPC call to the 'analyzeXMLFiles' function from
-            the XQuery service
-        """
-
-        wk = getattr(self, p_workitem_id)
-        # get the property of the workitem which keeps all the instance data
-        # for this operation
-        l_wk_prop = getattr(wk, self.app_name)
-        envelope_url = wk.getMySelf().absolute_url()
-        try:
-            url = 'asynctasks/qajobs/batch'
-            data = {
-                "envelopeUrl": envelope_url
-            }
-            response = self.makeHTTPRequest(url, method='POST', data=data)
-            # if there were no files to assess, return 0 so the work can go on
-            data = json.loads(response.content)
-            feedback_log.info("Response: {}".format(response.content))
-            response.raise_for_status()
-            data = data['jobs']
-            if len(data) == 0:
-                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                               p_analyze={'code': 2})
-                return 0
-            # Operation succedded, the rest endpoint got the call
-            # and it returned [(jobID, fileURL)]
-            l_getResult = {}
-            l_files = {}
-
-            # Setting up jobs metadata
-            job_ret = self.nJobRetries if getattr(
-                self, 'nJobRetries', None) else self.nRetries
-            for entry in data:
-                l_job = entry['jobId']
-                l_file = entry['fileUrl']
-                l_getResult[str(l_job)] = {
-                    'code': 0,
-                    'retries_left': job_ret,
-                    'last_error': None,
-                    'next_run': DateTime(),
-                    'fileURL': l_file
-                }
-                l_filename = l_file.split('/')[-1]
-                if l_filename in l_files:
-                    l_files[l_filename] += ', #' + str(l_job)
-                else:
-                    l_files[l_filename] = '#' + str(l_job)
-            self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                           p_analyze={'code': 1},
-                                           p_getResult=l_getResult)
-            # Write in the envelope's log which files were sent to be analyzed
-            # and their QA jobs
-            l_filenames_jobs = ''
-            for x in l_files.keys():
-                l_filenames_jobs += '<li>%s for file %s</li>' % (l_files[x], x)
-            wk.addEvent('%s job(s) in progress: <ul>%s</ul>' %
-                                (self.app_name, l_filenames_jobs))
-
-        # An XML-RPC fault package - retry later
-        # The agreed errors from the XQuery service are embedded
-        # in this error type
-        except (requests.exceptions.HTTPError):
-            l_nRetries = int(l_wk_prop['analyze']['retries_left'])
-            code_err = response.status_code
-            code_message = response.json().get('errorMessage', '')
-            if l_nRetries == 0:
-                wk.addEvent('Error in sending files to %s: %s' %
-                                    (self.app_name, str(code_message)))
-                wk.failure = True
-                err = 'Code: {}\nDescription: {}'.format(str(code_err),
-                                                         str(code_message))
-                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                               p_analyze={
-                                                   'code': -2,
-                                                   'last_error': err
-                                               })
-            else:
-                next_run = DateTime(int(l_wk_prop['analyze']['next_run']) +
-                                    int(self.retryFrequency))
-                err = 'Code: {}\nDescription: {}'.format(str(code_err),
-                                                         str(code_message))
-                self.__manageAutomaticProperty(
-                    p_workitem_id=p_workitem_id,
-                    p_analyze={
-                        'code': 0,
-                        'last_error': err,
-                        'retries_left': l_nRetries - 1,
-                        'next_run': next_run
-                    })
-        except Exception as err:
-            wk.addEvent('Error in sending files to %s: %s' %
-                                (self.app_name, str(err)))
-            wk.failure = True
-            self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                           p_analyze={
-                                               'code': -2,
-                                               'last_error': str(err)
-                                           })
-        return 1
-
-    def __getResult4XQueryServiceJob(self, p_workitem_id, p_jobID):
-        """ Makes an XML/RPC call to the 'getResult' function from the remote
-            service for an existing job
-        """
-        wk = getattr(self, p_workitem_id)
-        # get the property of the workitem which keeps all the instance data
-        # for this operation
-        l_wk_prop = getattr(wk, self.app_name)
-        # find out what file this job was for
-        l_file_url = l_wk_prop['getResult'][p_jobID]['fileURL']
-        l_file_id = urllib.unquote(string.split(l_file_url, '/')[-1])
-        envelope = self.aq_parent
-        try:
-            url = 'asynctasks/qajobs/{}'.format(str(p_jobID))
-            response = self.makeHTTPRequest(url, method='GET', data={})
-            data = json.loads(response.content)
-            response.raise_for_status()
-            code = data.get('executionStatus', '')
-            if code:
-                code = code.get('statusId', '')
-            else:
-                code == ''
-
-            # job ready
-            if code == '0':
-                r_files = data.get('REMOTE_FILES')
-                if r_files:
-                    for r_file in r_files:
-                        e_data = {'SCRIPT_TITLE': data.get('scriptTitle')}
-                        r_res = self.handle_remote_file(
-                            r_file, l_file_id, p_workitem_id, e_data, p_jobID,
-                            restricted=self.get_restricted_status(
-                                envelope, l_file_id))
-                        l_getResultDict = {
-                            p_jobID: {
-                                'code': 1,
-                                'fileURL': l_file_url,
-                                'debug': {
-                                    'c_executionstatus': code,
-                                    'c_feedbackstatus': data.get(
-                                        'feedbackStatus', 'N/A'),
-                                    'c_feedbackmessage': data.get(
-                                        'feedbackMessage', 'N/A'),
-                                    'c_feedbackcontent_len': len(
-                                        data.get('feedbackContent', '')),
-                                    'remote_files_debug': r_res
-                                }
-                            }}
-                        self.__manageAutomaticProperty(
-                            p_workitem_id=p_workitem_id,
-                            p_getResult=l_getResultDict)
-                else:
-                    if l_file_id == 'xml':
-                        l_filename = ' result for: '
-                    else:
-                        l_filename = ' result for file %s: ' % l_file_id
-                    feedback_id = '{0}_{1}'.format(self.app_name, p_jobID)
-                    fb_title = ''.join([self.app_name,
-                                        l_filename,
-                                        data['scriptTitle']])
-
-                    envelope.manage_addFeedback(
-                        id=feedback_id,
-                        title=fb_title,
-                        activity_id=wk.activity_id,
-                        automatic=1,
-                        document_id=l_file_id,
-                        restricted=self.get_restricted_status(
-                            envelope, l_file_id))
-                    feedback_ob = envelope[feedback_id]
-
-                    content = data['feedbackContent']
-                    content_type = data['feedbackContentType']
-
-                    if len(content) > FEEDBACKTEXT_LIMIT:
-                        with tempfile.TemporaryFile() as tmp:
-                            tmp.write(content.encode('utf-8'))
-                            tmp.seek(0)
-                            feedback_ob.manage_uploadFeedback(
-                                tmp,
-                                filename='qa-output')
-                        feedback_attach = feedback_ob.objectValues()[0]
-                        feedback_attach.data_file.content_type = content_type
-                        feedback_ob.feedbacktext = (
-                            'Feedback too large for inline display; '
-                            '<a href="qa-output/view">see attachment</a>.')
-                        feedback_ob.content_type = 'text/html'
-
-                    else:
-                        feedback_ob.feedbacktext = content
-                        feedback_ob.content_type = content_type
-
-                    feedback_ob.message = data.get('feedbackMessage', '')
-                    feedback_ob.feedback_status = data.get(
-                        'feedbackStatus', '')
-
-                    if data['feedbackStatus'] == 'BLOCKER':
-                        wk.blocker = True
-
-                    feedback_ob.message = data.get('feedbackMessage', '')
-                    feedback_ob._p_changed = 1
-                    feedback_ob.reindex_object()
-
-                    l_getResultDict = {
-                        p_jobID: {
-                            'code': 1,
-                            'fileURL': l_file_url,
-                            'debug': {
-                                'c_executionstatus': code,
-                                'c_feedbackstatus': data.get(
-                                    'feedbackStatus', 'N/A'),
-                                'c_feedbackmessage': data.get(
-                                    'feedbackMessage', 'N/A'),
-                                'c_feedbackcontent_len': len(data.get(
-                                    'feedbackContent', ''))
-                            }
-                        }}
-                    self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                                   p_getResult=l_getResultDict)
-            # not ready
-            elif code == '1':
-                l_nRetries = int(
-                    l_wk_prop['getResult'][p_jobID]['retries_left'])
-                retry = self.retryJobFrequency if getattr(
-                    self, 'retryJobFrequency', None) else self.retryFrequency
-                next_run = DateTime(
-                    int(l_wk_prop['getResult'][p_jobID]['next_run']) +
-                    int(retry))
-                if l_nRetries > 0:
-                    l_getResultDict = {
-                        p_jobID: {
-                            'code': 0,
-                            'retries_left': l_nRetries - 1,
-                            'last_error': data['feedbackMessage'],
-                            'next_run': next_run,
-                            'debug': {
-                                'c_executionstatus': code,
-                                'c_feedbackstatus': data.get(
-                                    'feedbackStatus', 'N/A'),
-                                'c_feedbackmessage': data.get(
-                                    'feedbackMessage', 'N/A'),
-                                'c_feedbackcontent_len': len(data.get(
-                                    'feedbackContent', ''))
-                            }
-                        }
-                    }
-                    self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                                   p_getResult=l_getResultDict)
-                else:
-                    wk.addEvent(
-                        'Error in the %s, job #%s for file %s: %s' %
-                        (self.app_name, p_jobID, l_file_id,
-                         data['feedbackMessage']))
-                    l_getResultDict = {
-                        p_jobID: {
-                            'code': -2,
-                            'last_error': data['feedbackMessage'],
-                            'debug': {
-                                'c_executionstatus': code,
-                                'c_feedbackstatus': data.get(
-                                    'feedbackStatus', 'N/A'),
-                                'c_feedbackmessage': data.get(
-                                    'feedbackMessage', 'N/A'),
-                                'c_feedbackcontent_len': len(
-                                    data.get('feedbackContent', ''))
-                            }
-                        }
-                    }
-                    self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                                   p_getResult=l_getResultDict)
-            # error, do not retry
-            else:
-                wk.addEvent(
-                    'Error in the %s, job #%s for file %s: %s' %
-                    (self.app_name, p_jobID, l_file_id,
-                     data['feedbackMessage']))
-                l_getResultDict = {
-                    p_jobID: {
-                        'code': -2,
-                        'last_error': data['feedbackMessage'],
-                        'debug': {
-                            'c_executionstatus': code,
-                            'c_feedbackstatus': data.get(
-                                'feedbackStatus', 'N/A'),
-                            'c_feedbackmessage': data.get(
-                                'feedbackMessage', 'N/A'),
-                            'c_feedbackcontent_len': len(
-                                data.get('feedbackContent', ''))
-                        }
-                    }
-                }
-                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                               p_getResult=l_getResultDict)
-
-        # # A client generated exception  - retry later
-        # # The agreed errors from the XQuery service are embedded
-        # # in this error type
-        except (requests.exceptions.HTTPError) as err:
-            if response.status_code == 404:
-                feedback_log.exception("Unable to get result for job #%s",
-                                       p_jobID)
-                wk.addEvent(
-                    'Error in the %s, job #%s for file %s: %s' %
-                    (self.app_name, p_jobID, l_file_id, str(err)))
-                wk.failure = True
-                l_getResultDict = {p_jobID: {'code': -2,
-                                             'last_error': str(err)}}
-                self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                               p_getResult=l_getResultDict)
-            else:
-                l_err = data.get('errorMessage', '')
-                l_nRetries = int(
-                    l_wk_prop['getResult'][p_jobID]['retries_left'])
-                retry = self.retryJobFrequency if getattr(
-                    self, 'retryJobFrequency', None) else self.retryFrequency
-                if l_nRetries == 0:
-                    wk.addEvent(
-                        'Error in the %s, job #%s for file %s: %s' %
-                        (self.app_name, p_jobID, l_file_id, str(l_err)))
-                    wk.failure = True
-                    l_getResultDict = {
-                        p_jobID: {'code': -2, 'last_error': str(l_err)}}
-                    self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                                   p_getResult=l_getResultDict)
-                else:
-                    next_run = DateTime(
-                        int(l_wk_prop['getResult'][p_jobID]['next_run']) +
-                        int(retry))
-                    err = 'Error retrieving job #{} result: {}'.format(
-                        p_jobID, str(l_err))
-                    l_getResultDict = {
-                        p_jobID: {
-                            'code': 0,
-                            'last_error': err,
-                            'retries_left': l_nRetries - 1,
-                            'next_run': next_run
-                        }
-                    }
-                    self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                                   p_getResult=l_getResultDict)
-        # Fatal error - do not retry
-        except Exception as err:
-            feedback_log.exception("Error saving remote feedback, job #%s",
-                                   p_jobID)
-            wk.addEvent('Error in the %s, job #%s for file %s: %s' %
-                                (self.app_name, p_jobID, l_file_id, str(err)))
-            wk.failure = True
-            l_getResultDict = {p_jobID: {'code': -2, 'last_error': str(err)}}
-            self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                           p_getResult=l_getResultDict)
-
-        return l_getResultDict
 
     ##############################################
     #   Private functions

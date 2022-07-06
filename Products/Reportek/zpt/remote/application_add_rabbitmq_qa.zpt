@@ -3,7 +3,7 @@
 
 <h1 i18n:translate="">Add Remote RabbitMQ QA Application</h1>
 
-<form action="manage_addRemoteRabbitMQQAApplication" method="post" enctype="multipart/form-data" name="form">
+<form action="manage_addRRMQQAApplication" method="post" enctype="multipart/form-data" name="form">
 <table>
 <tr>
 	<th><label for="id" i18n:translate="">Id</label></th>

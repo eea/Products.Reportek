@@ -420,8 +420,8 @@ def initialize(context):
             RemoteRabbitMQQAApplication.RemoteRabbitMQQAApplication,
             permission='Add Remote Application',
             constructors=(
-                RemoteRabbitMQQAApplication.manage_addRemoteRabbitMQQAApplicationForm,
-                RemoteRabbitMQQAApplication.manage_addRemoteRabbitMQQAApplication),
+                RemoteRabbitMQQAApplication.manage_addRRMQQAApplicationForm,
+                RemoteRabbitMQQAApplication.manage_addRRMQQAApplication),
             icon='www/qa_application.gif'
         )
 
