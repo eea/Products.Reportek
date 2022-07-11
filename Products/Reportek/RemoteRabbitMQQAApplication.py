@@ -40,7 +40,7 @@ from OFS.SimpleItem import SimpleItem
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BaseRemoteApplication import BaseRemoteApplication
 from Products.Reportek.interfaces import IQAApplication
-from Products.Reportek.rabbitmq import queue_msg
+from Products.Reportek.rabbitmq import send_message_nodqueue
 from zope.interface import implements
 
 feedback_log = logging.getLogger(__name__ + '.feedback')
@@ -144,7 +144,8 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             "envelopeUrl": l_envelope.absolute_url(),
             "UUID": str(wk.UUID)
         }
-        queue_msg(json.dumps(data, indent=4), self.qarequests)
+        # queue_msg(json.dumps(data, indent=4), self.qarequests)
+        send_message_nodqueue(json.dumps(data, indent=4), self.qarequests)
         l_wk_prop['requests']['published'] = DateTime()
 
     security.declareProtected('Use OpenFlow', 'callApplication')
@@ -166,6 +167,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                     "Unable to parse payload: {}".format(str(e)))
 
         if payload and self.check_uuid(workitem_id, payload.get('UUID')):
+            # TODO: Handle this: {"uuid":"123","numberOfJobs":5,"jobIds":["269","270","271","272","273"]}
             job_id = payload.get('jobId')
             l_file_id = urllib.unquote(
                 string.split(payload.get('documentURL'), '/')[-1])
