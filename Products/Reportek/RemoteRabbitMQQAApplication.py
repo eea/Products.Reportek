@@ -364,7 +364,9 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             'published': None
         }
 
-        l_wk_prop['jobs'] = {}
+        l_wk_prop['jobs'] = {
+            'handled': 0
+        }
 
     def __manageAutomaticProperty(self, p_workitem_id, p_analyze={},
                                   p_getResult={}):
