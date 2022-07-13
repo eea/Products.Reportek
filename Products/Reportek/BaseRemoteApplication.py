@@ -106,7 +106,6 @@ class BaseRemoteApplication(SimpleItem):
             wk.blocker = True
         feedback_ob.message = l_ret.get('feedbackMessage')
 
-
     def handle_remote_file(self, url, l_file_id, workitem_id, l_ret, job_id,
                            restricted=False):
         """"""
