@@ -142,7 +142,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
 
         data = {
             "envelopeUrl": l_envelope.absolute_url(),
-            "UUID": str(wk.UUID)
+            "uuid": str(wk.UUID)
         }
         # queue_msg(json.dumps(data, indent=4), self.qarequests)
         send_message_nodqueue(json.dumps(data, indent=4), self.qarequests)
@@ -159,14 +159,14 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
         wk = getattr(self, workitem_id)
         l_wk_prop = getattr(wk, self.app_name)
         payload = None
-        if REQUEST and REQUEST.get('BODY'):
+        if self.REQUEST and self.REQUEST.get('BODY'):
             try:
-                payload = json.loads(REQUEST.get('BODY'))
+                payload = json.loads(self.REQUEST.get('BODY'))
             except Exception as e:
                 feedback_log.error(
                     "Unable to parse payload: {}".format(str(e)))
 
-        if payload and self.check_uuid(workitem_id, payload.get('UUID')):
+        if payload and self.check_uuid(workitem_id, payload.get('uuid')):
             # TODO: Handle this: {"uuid":"123","numberOfJobs":5,"jobIds":["269","270","271","272","273"]}
             job_id = payload.get('jobId')
             l_file_id = urllib.unquote(
@@ -179,9 +179,9 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             # handle results
             job_result = payload.get('jobResult')
             if job_result:
-                r_files = job_result.get('REMOTE_FILES')
+                envelope = self.aq_parent
+                r_files = job_result.get('remoteFiles')
                 if r_files:
-                    envelope = self.aq_parent
                     # do we need to handle multiple files?
                     if not isinstance(r_files, list):
                         r_files = [r_files]
@@ -195,6 +195,57 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                     jobs_no = job_result.get('numberOfJobs')
                     if jobs_no == l_wk_prop['jobs']['handled']:
                         self.__finishApplication(workitem_id, REQUEST)
+                else:
+                    if l_file_id == 'xml':
+                        l_filename = ' result for: '
+                    else:
+                        l_filename = ' result for file %s: ' % l_file_id
+                    feedback_id = '{0}_{1}'.format(self.app_name, job_id)
+                    fb_title = ''.join([self.app_name,
+                                        l_filename,
+                                        payload.get('scriptTitle')])
+
+                    envelope.manage_addFeedback(
+                        id=feedback_id,
+                        title=fb_title,
+                        activity_id=wk.activity_id,
+                        automatic=1,
+                        document_id=l_file_id,
+                        restricted=self.get_restricted_status(
+                            envelope, l_file_id))
+                    feedback_ob = envelope[feedback_id]
+
+                    content = job_result['feedbackContent']
+                    content_type = job_result['feedbackContentType']
+
+                    if len(content) > FEEDBACKTEXT_LIMIT:
+                        with tempfile.TemporaryFile() as tmp:
+                            tmp.write(content.encode('utf-8'))
+                            tmp.seek(0)
+                            feedback_ob.manage_uploadFeedback(
+                                tmp,
+                                filename='qa-output')
+                        feedback_attach = feedback_ob.objectValues()[0]
+                        feedback_attach.data_file.content_type = content_type
+                        feedback_ob.feedbacktext = (
+                            'Feedback too large for inline display; '
+                            '<a href="qa-output/view">see attachment</a>.')
+                        feedback_ob.content_type = 'text/html'
+
+                    else:
+                        feedback_ob.feedbacktext = content
+                        feedback_ob.content_type = content_type
+
+                    feedback_ob.message = job_result.get('feedbackMessage', '')
+                    feedback_ob.feedback_status = job_result.get(
+                        'feedbackStatus', '')
+
+                    if job_result['feedbackStatus'] == 'BLOCKER':
+                        wk.blocker = True
+
+                    feedback_ob.message = job_result.get('feedbackMessage', '')
+                    feedback_ob._p_changed = 1
+                    feedback_ob.reindex_object()
         else:
             feedback_log.warning("Invalid payload: {}".format(payload))
 
