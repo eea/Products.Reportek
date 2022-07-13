@@ -190,14 +190,15 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                             'feedbackContentType': job_result.get(
                                 'feedbackContentType'),
                             'feedbackStatus': job_result.get('feedbackStatus'),
-                            'feedbackMessage': job_result.get('feedbackMessage')
+                            'feedbackMessage': job_result.get(
+                                'feedbackMessage')
                         }
                         self.handle_remote_file(
                             r_file, l_file_id, workitem_id, e_data, job_id,
                             restricted=self.get_restricted_status(
                                 envelope, l_file_id))
                     # l_wk_prop['jobs']['handled'] += 1
-                    jobs_no = job_result.get('numberOfJobs')
+                    # jobs_no = job_result.get('numberOfJobs')
                     # if jobs_no == l_wk_prop['jobs']['handled']:
                     #     self.__finishApplication(workitem_id, REQUEST)
                 else:
@@ -238,6 +239,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                         feedback_ob.content_type = 'text/html'
 
                     else:
+
                         feedback_ob.feedbacktext = content
                         feedback_ob.content_type = content_type
 

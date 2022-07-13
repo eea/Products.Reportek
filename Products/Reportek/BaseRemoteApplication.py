@@ -8,6 +8,7 @@ from Products.Reportek import zip_content
 
 FEEDBACKTEXT_LIMIT = 1024 * 16  # 16KB
 
+
 class BaseRemoteApplication(SimpleItem):
 
     @property
@@ -96,15 +97,14 @@ class BaseRemoteApplication(SimpleItem):
             feedback_ob.content_type = 'text/html'
 
         else:
+            rfile.seek(0)
             feedback_ob.feedbacktext = rfile.read().encode('utf-8')
             feedback_ob.content_type = content_type
 
-        fb_status, fb_message = self.extract_metadata(feedback_ob)
         feedback_ob.feedback_status = l_ret.get('feedbackStatus')
         if fb_status == 'BLOCKER':
             wk.blocker = True
         feedback_ob.message = l_ret.get('feedbackMessage')
-
 
     def handle_remote_file(self, url, l_file_id, workitem_id, l_ret, job_id,
                            restricted=False):
