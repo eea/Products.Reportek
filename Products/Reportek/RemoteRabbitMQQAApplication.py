@@ -167,7 +167,6 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                     "Unable to parse payload: {}".format(str(e)))
 
         if payload and self.check_uuid(workitem_id, payload.get('uuid')):
-            # TODO: Handle this: {"uuid":"123","numberOfJobs":5,"jobIds":["269","270","271","272","273"]}
             job_id = payload.get('jobId')
             l_file_id = urllib.unquote(
                 string.split(payload.get('documentURL'), '/')[-1])
