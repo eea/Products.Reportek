@@ -250,7 +250,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
 
                     feedback_ob._p_changed = 1
                     feedback_ob.reindex_object()
-            wk.addEvent('{} job completed: #{} for {}'.format(
+                wk.addEvent('{} job completed: #{} for {}'.format(
                     self.app_name, job_id, l_file_id))
         else:
             feedback_log.warning("Invalid payload: {}".format(payload))
