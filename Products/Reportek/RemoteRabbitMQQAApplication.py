@@ -185,15 +185,21 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                     if not isinstance(r_files, list):
                         r_files = [r_files]
                     for r_file in r_files:
-                        e_data = {'SCRIPT_TITLE': payload.get('scriptTitle')}
+                        e_data = {
+                            'SCRIPT_TITLE': payload.get('scriptTitle'),
+                            'feedbackContentType': job_result.get(
+                                'feedbackContentType'),
+                            'feedbackStatus': job_result.get('feedbackStatus'),
+                            'feedbackMessage': job_result.get('feedbackMessage')
+                        }
                         self.handle_remote_file(
                             r_file, l_file_id, workitem_id, e_data, job_id,
                             restricted=self.get_restricted_status(
                                 envelope, l_file_id))
-                    l_wk_prop['jobs']['handled'] += 1
+                    # l_wk_prop['jobs']['handled'] += 1
                     jobs_no = job_result.get('numberOfJobs')
-                    if jobs_no == l_wk_prop['jobs']['handled']:
-                        self.__finishApplication(workitem_id, REQUEST)
+                    # if jobs_no == l_wk_prop['jobs']['handled']:
+                    #     self.__finishApplication(workitem_id, REQUEST)
                 else:
                     if l_file_id == 'xml':
                         l_filename = ' result for: '
@@ -242,9 +248,10 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                     if job_result['feedbackStatus'] == 'BLOCKER':
                         wk.blocker = True
 
-                    feedback_ob.message = job_result.get('feedbackMessage', '')
                     feedback_ob._p_changed = 1
                     feedback_ob.reindex_object()
+            wk.addEvent('{} job completed: #{} for {}'.format(
+                    self.app_name, job_id, l_file_id))
         else:
             feedback_log.warning("Invalid payload: {}".format(payload))
 

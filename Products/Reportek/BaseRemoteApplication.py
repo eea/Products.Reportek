@@ -6,6 +6,7 @@ from BeautifulSoup import BeautifulSoup as bs
 from OFS.SimpleItem import SimpleItem
 from Products.Reportek import zip_content
 
+FEEDBACKTEXT_LIMIT = 1024 * 16  # 16KB
 
 class BaseRemoteApplication(SimpleItem):
 
@@ -63,8 +64,8 @@ class BaseRemoteApplication(SimpleItem):
                 else:
                     feedback_ob.manage_uploadFeedback(archive, filename=f_name)
 
-    def add_feedback(self, rfile, fb, files, wk, l_file_id, l_ret,
-                     job_id, restricted=False):
+    def add_html_feedback(self, rfile, fb, wk, l_file_id, l_ret,
+                          job_id, restricted=False):
         """"""
         envelope = self.aq_parent
         feedback_id = '{0}_{1}_{2}'.format(self.app_name, fb, job_id)
@@ -82,18 +83,28 @@ class BaseRemoteApplication(SimpleItem):
                                     document_id=l_file_id,
                                     restricted=restricted)
         feedback_ob = envelope[feedback_id]
-        f_name = envelope.cook_file_id(rfile)
-        if f_name:
-            if f_name.endswith('.html'):
-                feedback_ob.feedbacktext = rfile.read()
-                feedback_ob.content_type = 'text/html'
-                fb_status, fb_message = self.extract_metadata(feedback_ob)
-                feedback_ob.feedback_status = fb_status
-                if fb_status == 'BLOCKER':
-                    wk.blocker = True
-                feedback_ob.message = fb_message
-            else:
-                feedback_ob.manage_uploadFeedback(rfile, filename=f_name)
+        content_type = l_ret['feedbackContentType']
+
+        if len(rfile.read()) > FEEDBACKTEXT_LIMIT:
+            rfile.seek(0)
+            feedback_ob.manage_uploadFeedback(rfile, filename='qa-output')
+            feedback_attach = feedback_ob.objectValues()[0]
+            feedback_attach.data_file.content_type = content_type
+            feedback_ob.feedbacktext = (
+                'Feedback too large for inline display; '
+                '<a href="qa-output/view">see attachment</a>.')
+            feedback_ob.content_type = 'text/html'
+
+        else:
+            feedback_ob.feedbacktext = rfile.read().encode('utf-8')
+            feedback_ob.content_type = content_type
+
+        fb_status, fb_message = self.extract_metadata(feedback_ob)
+        feedback_ob.feedback_status = l_ret.get('feedbackStatus')
+        if fb_status == 'BLOCKER':
+            wk.blocker = True
+        feedback_ob.message = l_ret.get('feedbackMessage')
+
 
     def handle_remote_file(self, url, l_file_id, workitem_id, l_ret, job_id,
                            restricted=False):
@@ -106,7 +117,9 @@ class BaseRemoteApplication(SimpleItem):
                              verify=False)
             result['status_code'] = r.status_code
             result['url'] = url
-            result['content_type'] = r.headers.get('Content-Type', '')
+            ctype = l_ret.get(
+                'feedbackContentType', r.headers.get('Content-Type', ''))
+            result['content_type'] = ctype
             result['content_lenght'] = len(r.content)
             if r.status_code == requests.codes.ok:
                 from contextlib import closing
@@ -127,9 +140,9 @@ class BaseRemoteApplication(SimpleItem):
                                                   restricted=restricted)
                 elif 'text/html' in result['content_type']:
                     with closing(r), file_h as rfile:
-                        self.add_feedback(rfile, fb, fbs[fb], wk,
-                                          l_file_id, l_ret, job_id,
-                                          restricted=restricted)
+                        self.add_html_feedback(rfile, '', wk,
+                                               l_file_id, l_ret, job_id,
+                                               restricted=restricted)
 
                 transaction.commit()
             else:
@@ -139,7 +152,6 @@ class BaseRemoteApplication(SimpleItem):
                     'Got {} status.'.format(job_id, url, r.status_code))
                 wk.failure = True
         except Exception as e:
-            # log this
             result['content'] = str(e)
             wk.addEvent(
                 'Error while downloading results for job #{} from {}. '
