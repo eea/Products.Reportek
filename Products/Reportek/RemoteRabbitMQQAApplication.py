@@ -264,7 +264,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                     l_wk_prop['jobs']['handled'] += 1
                     wk.addEvent('{} job failed: #{} for {}'.format(
                         self.app_name, job_id, l_file_id))
-            if len(l_wk_prop['jobs'].keys()-1) == l_wk_prop['jobs']['handled']:
+            if len(l_wk_prop['jobs'].keys()) - 1 == l_wk_prop['jobs']['handled']:
                 self.__finishApplication(workitem_id, REQUEST)
         else:
             feedback_log.warning("Invalid payload: {}".format(payload))
