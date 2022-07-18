@@ -1350,10 +1350,11 @@ class EnvelopeCustomDataflows(Toolz):
     def get_xml_metadata(self):
         # Retrieve the metadata from the XML document
         xmls = [doc for doc in self.objectValues('Report Document')
-                if doc.content_type == 'text/xml' and hasattr(doc, 'metadata')]
+                if doc.content_type == 'text/xml' and hasattr(doc,
+                                                              'file_metadata')]
 
         if len(xmls) == 1:
-            return getattr(xmls[0], 'metadata')
+            return getattr(xmls[0], 'file_metadata')
 
     # These methods are defined for BDR FGAS/ODS reports
     def get_fgas_activities(self):
