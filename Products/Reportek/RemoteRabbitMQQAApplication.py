@@ -427,8 +427,13 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
     def __finishApplication(self, p_workitem_id, REQUEST=None):
         """ Completes the workitem and forwards it """
         self.activateWorkitem(p_workitem_id, actor='openflow_engine')
+        wk = getattr(self, p_workitem_id)
+        env = wk.getMySelf()
+        env.wf_status = 'forward'
+        env.reindex_object()
         self.completeWorkitem(p_workitem_id, actor='openflow_engine',
                               REQUEST=REQUEST)
+        self.forwardWorkitem(p_workitem_id, REQUEST=REQUEST)
 
     security.declareProtected(view_management_screens, 'manage_settings_html')
     manage_settings_html = PageTemplateFile(
