@@ -30,7 +30,6 @@ import uuid
 
 import requests
 import requests.exceptions
-import transaction
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from DateTime import DateTime
@@ -280,7 +279,6 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
         if doc and isinstance(doc, Document) and doc.isRestricted():
             return True
         return False
-
 
     ##############################################
     #   Private functions
