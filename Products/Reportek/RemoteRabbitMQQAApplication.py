@@ -123,8 +123,6 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
         self.__initializeWorkitem(workitem_id)
         no_of_files = len(l_envelope.objectValues('Report Document'))
         if not no_of_files:
-            self.__manageAutomaticProperty(p_workitem_id=workitem_id,
-                                           p_analyze={'code': 2})
             wk.addEvent('Operation completed: no files to analyze')
             if REQUEST is not None:
                 REQUEST.set('RemoteApplicationSucceded', 1)
@@ -275,16 +273,6 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
 
         return 1
 
-    def runAutomaticLocalApps(self, workitem):
-        # call this from a thread (or no)
-        wk_status = getattr(workitem, self.app_name)
-        for file_id, result, script_id in self._runLocalQAScripts(workitem):
-            wk_status = getattr(workitem, self.app_name)
-            self._addFeedback(file_id, result, workitem, script_id)
-            # mark script for file as done
-            wk_status['localQA'][file_id][script_id] = 'done'
-            transaction.commit()
-
     def get_restricted_status(self, env, file_id):
         if file_id == 'xml' and env.areRestrictions():
             return True
@@ -293,80 +281,6 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             return True
         return False
 
-    def _addFeedback(self, file_id, result, workitem, script_id):
-        envelope = self.aq_parent
-        qa_repo = self.QARepository
-        script_title = qa_repo[script_id].title
-
-        feedback_id = '{0}_{1}_{2}'.format(self.app_name, script_id, file_id)
-        feedback_title = '{0} result for file {1}: {2}'.format(self.app_name,
-                                                               file_id,
-                                                               script_title)
-        envelope.manage_addFeedback(
-            id=feedback_id,
-            title=feedback_title,
-            activity_id=workitem.activity_id,
-            automatic=1,
-            restricted=self.get_restricted_status(envelope, file_id))
-
-        feedback_ob = envelope[feedback_id]
-        content = result[1].data
-        content_type = result[0]
-        if len(content) > FEEDBACKTEXT_LIMIT:
-            with tempfile.TemporaryFile() as tmp:
-                tmp.write(content.encode('utf-8'))
-                tmp.seek(0)
-                feedback_ob.manage_uploadFeedback(tmp, filename='qa-output')
-            feedback_attach = feedback_ob.objectValues()[0]
-            feedback_attach.data_file.content_type = content_type
-            feedback_ob.feedbacktext = (
-                'Feedback too large for inline display; '
-                '<a href="qa-output/view">see attachment</a>.')
-            feedback_ob.content_type = 'text/html'
-
-        else:
-            feedback_ob.feedbacktext = content
-            feedback_ob.content_type = content_type
-
-    def _runLocalQAScripts(self, workitem):
-        # 'localQA': {'file_name':{'script_name': 'status',
-        #                          'script_name2': 'status'},
-        #             'file_name2': {'script_name2': 'status',
-        #                            'script_name3': 'status'}
-        qa_repo = self.QARepository
-        wk_status = getattr(workitem, self.app_name)
-        if 'localQA' not in wk_status:
-            wk_status['localQA'] = {}
-        localQA = wk_status['localQA']
-        xmls = (x for x in self.aq_parent.objectValues(Document.meta_type)
-                if x.content_type == 'text/xml' and x.xml_schema_location)
-        for xml in xmls:
-            if xml.id not in localQA:
-                localQA[xml.id] = {}
-            resultsForXml = localQA[xml.id]
-            for script in qa_repo._get_local_qa_scripts(
-                    xml.xml_schema_location):
-                if (script.id not in resultsForXml
-                        or resultsForXml[script.id] == 'failed'):
-                    resultsForXml[script.id] = 'in progress'
-                    transaction.commit()
-                    file_id, result = qa_repo._runQAScript(
-                        xml.absolute_url(1), 'loc_%s' % script.id)
-                    yield file_id, result, script.id
-                    # else, don't yield - nothing will happen in parent's loop
-
-    def _local_scripts_done(self, localQA):
-        # not ran yet
-        if not localQA:
-            return False
-        for script_results in localQA.values():
-            # any bad status present?
-            if any((bad_status for bad_status in script_results.values()
-                    if bad_status != 'done')):
-                return False
-        # truly no bad statuses (including no script -> status pairs) because
-        # we check this after join
-        return True
 
     ##############################################
     #   Private functions
@@ -389,40 +303,6 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             'handled': 0
         }
 
-    def __manageAutomaticProperty(self, p_workitem_id, p_analyze={},
-                                  p_getResult={}):
-        """
-        The instance data for the RemoteApplication is stored in the workitem
-        as an additional property - app_name - contaning a dictionary like:
-        {
-            'analyze':      {code, retries_left, last_error, next_run},
-            'getResult':    {jobID: {code, retries_left, last_error, next_run,
-                                     fileURL}}
-        }
-        Possible codes for app_name['analyze']:
-            0 - started
-            1 - done
-            -2 - failed
-            2 - nothing found to assess
-
-        Possible codes for app_name['getResult'][jobID]:
-            0 - started
-            1 - result succefully brought
-            -2 - failed
-        """
-        wk = getattr(self, p_workitem_id)
-        l_qa = getattr(wk, self.app_name)
-
-        for l_key in p_analyze.keys():
-            l_qa['analyze'][l_key] = p_analyze[l_key]
-
-        for l_job, l_value in p_getResult.items():
-            if l_job not in l_qa['getResult']:
-                l_qa['getResult'][l_job] = {}
-            l_qa['getResult'][l_job].update(l_value)
-
-        # make sure it saves the object
-        wk._p_changed = 1
 
     def __finishApplication(self, p_workitem_id, REQUEST=None):
         """ Completes the workitem and forwards it """

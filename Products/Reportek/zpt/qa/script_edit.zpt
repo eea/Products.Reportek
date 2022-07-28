@@ -47,7 +47,7 @@
 		<td><input type="text" name="content_type_out" id=="content_type_out" tal:attributes="value here/content_type_out" size="40" /></td>
 	</tr>
 	<tr>
-		<td><label for="script_url" class="form-label" i18n:translate="">Script path</td>
+		<td><label for="script_url" class="form-label" i18n:translate="">Script path</label></td>
 		<td><input type="text" name="script_url" id="script_url" tal:attributes="value here/script_url" size="70" /></td>
 	</tr>
 	<tr>
