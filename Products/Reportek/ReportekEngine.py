@@ -156,6 +156,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     cr_rmq = False
     env_fwd_rmq = False
     col_sync_rmq = False
+    col_sync_rmq_pub = False
     col_role_sync_rmq = False
     if REPORTEK_DEPLOYMENT == DEPLOYMENT_CDR:
         cr_api_url = 'http://cr.eionet.europa.eu/ping'
@@ -352,6 +353,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.cr_rmq = bool(self.REQUEST.get('cr_rmq', False))
         self.env_fwd_rmq = bool(self.REQUEST.get('env_fwd_rmq', False))
         self.col_sync_rmq = bool(self.REQUEST.get('col_sync_rmq', False))
+        self.col_sync_rmq_pub = bool(self.REQUEST.get('col_sync_rmq_pub',
+                                                      False))
         self.col_role_sync_rmq = bool(self.REQUEST.get(
             'col_role_sync_rmq', False))
         if self.cr_api_url:

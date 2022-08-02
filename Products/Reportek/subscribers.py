@@ -36,7 +36,8 @@ def handle_collection_added_event(obj, event):
         engine.add_new_col_sync(
             '/'.join(obj.getPhysicalPath()),
             obj.bobobase_modification_time().HTML4())
-        obj.notify_sync()
+        if getattr(engine, 'col_sync_rmq_pub', False):
+            obj.notify_sync()
 
 
 # Handler for collection deleted
