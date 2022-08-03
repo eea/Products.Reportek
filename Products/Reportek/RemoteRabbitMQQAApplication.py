@@ -131,6 +131,23 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             self.do_request(workitem_id)
         return 1
 
+    def makeHTTPRequest(self, url, method='GET', data=None, params=None):
+        headers = {
+            'Authorization': self.token,
+            'Content-type': 'application/json',
+        }
+        url = "/".join([self.qaserver, url])
+        timeout = 5
+        if method == 'GET':
+            response = requests.get(url, headers=headers,
+                                    data=json.dumps(data),
+                                    params=params, timeout=timeout)
+        elif method == 'POST':
+            response = requests.post(url, headers=headers,
+                                     data=json.dumps(data),
+                                     timeout=timeout, params=params)
+        return response
+
     def do_request(self, workitem_id):
         wk = getattr(self, workitem_id)
         # delete all automatic feedbacks previously posted by this application
