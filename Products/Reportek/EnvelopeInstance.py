@@ -1097,7 +1097,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                         '''Unable to cancel this activity. '''
                         '''Activity id is: {}'''.format(wk.activity_id))
                     REQUEST.RESPONSE.redirect('note')
-            if wk.wf_status == 'forward':
+            if wk.wf_status in ['forward', 'hybrid']:
                 fallinto = self.get_viable_cancel_fallin()
                 self.fallinWorkitem(workitem_id=workitem_id,
                                     activity_id=fallinto)
