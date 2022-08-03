@@ -167,11 +167,11 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             job_id = payload.get('jobId')
             l_file_id = urllib.unquote(
                 string.split(payload.get('documentURL'), '/')[-1])
-            if not l_wk_prop['jobs'].get(job_id):
-                l_wk_prop['jobs'][job_id] = []
+            if not l_wk_prop['getResult'].get(job_id):
+                l_wk_prop['getResult'][job_id] = []
                 wk.addEvent('{} job in progress: #{} for {}'.format(
                     self.app_name, job_id, l_file_id))
-            l_wk_prop['jobs'][job_id].append(payload)
+            l_wk_prop['getResult'][job_id].append(payload)
             # handle results
             job_result = payload.get('jobResult')
             if job_result:
@@ -194,9 +194,9 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                             r_file, l_file_id, workitem_id, e_data, job_id,
                             restricted=self.get_restricted_status(
                                 envelope, l_file_id))
-                    # l_wk_prop['jobs']['handled'] += 1
+                    # l_wk_prop['jobs_handled'] += 1
                     # jobs_no = job_result.get('numberOfJobs')
-                    # if jobs_no == l_wk_prop['jobs']['handled']:
+                    # if jobs_no == l_wk_prop['jobs_handled']:
                     #     self.__finishApplication(workitem_id, REQUEST)
                 else:
                     if l_file_id == 'xml':
@@ -251,17 +251,17 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                     feedback_ob.reindex_object()
                 wk.addEvent('{} job completed: #{} for {}'.format(
                     self.app_name, job_id, l_file_id))
-                l_wk_prop['jobs']['handled'] += 1
+                l_wk_prop['jobs_handled'] += 1
 
             code = payload.get('executionStatus', '')
             if code:
                 code = code.get('statusId', '')
             if code:
                 if code not in ['0', '1']:
-                    l_wk_prop['jobs']['handled'] += 1
+                    l_wk_prop['jobs_handled'] += 1
                     wk.addEvent('{} job failed: #{} for {}'.format(
                         self.app_name, job_id, l_file_id))
-            if len(l_wk_prop['jobs'].keys()) - 1 == l_wk_prop['jobs']['handled']:
+            if len(l_wk_prop['getResult'].keys()) == l_wk_prop['jobs_handled']:
                 self.__finishApplication(workitem_id, REQUEST)
         else:
             feedback_log.warning("Invalid payload: {}".format(payload))
@@ -297,9 +297,8 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             'published': None
         }
 
-        l_wk_prop['jobs'] = {
-            'handled': 0
-        }
+        l_wk_prop['getResult'] = {}
+        l_wk_prop['jobs_handled'] = 0
 
 
     def __finishApplication(self, p_workitem_id, REQUEST=None):
