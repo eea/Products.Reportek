@@ -300,7 +300,6 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
         l_wk_prop['getResult'] = {}
         l_wk_prop['jobs_handled'] = 0
 
-
     def __finishApplication(self, p_workitem_id, REQUEST=None):
         """ Completes the workitem and forwards it """
         self.activateWorkitem(p_workitem_id, actor='openflow_engine')
