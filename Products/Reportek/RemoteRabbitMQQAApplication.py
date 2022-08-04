@@ -181,104 +181,104 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                     "Unable to parse payload: {}".format(str(e)))
 
         if payload and self.check_uuid(workitem_id, payload.get('uuid')):
-            job_id = payload.get('jobId')
-            l_file_id = urllib.unquote(
-                string.split(payload.get('documentURL'), '/')[-1])
-            if not l_wk_prop['getResult'].get(job_id):
-                l_wk_prop['getResult'][job_id] = []
-                wk.addEvent('{} job in progress: #{} for {}'.format(
-                    self.app_name, job_id, l_file_id))
-            l_wk_prop['getResult'][job_id].append(payload)
-            # handle results
-            job_result = payload.get('jobResult')
-            if job_result:
-                envelope = self.aq_parent
-                r_files = job_result.get('remoteFiles')
-                if r_files:
-                    # do we need to handle multiple files?
-                    if not isinstance(r_files, list):
-                        r_files = [r_files]
-                    for r_file in r_files:
-                        e_data = {
-                            'SCRIPT_TITLE': payload.get('scriptTitle'),
-                            'feedbackContentType': job_result.get(
-                                'feedbackContentType'),
-                            'feedbackStatus': job_result.get('feedbackStatus'),
-                            'feedbackMessage': job_result.get(
-                                'feedbackMessage')
-                        }
-                        self.handle_remote_file(
-                            r_file, l_file_id, workitem_id, e_data, job_id,
+            # {'uuid': 'e9c05c7a-0443-4ed3-bf51-ecbe950356e9', 'numberOfJobs': 3, 'envelopeUrl': 'https://cdrdev.eionet.europa.eu/ro/colybx9na/envyearww', 'jobIds': ['160', '161', '162']}
+            if payload.get('numberOfJobs') and payload.get('jobIds'):
+                l_wk_prop['number_of_jobs'] = payload.get('numberOfJobs')
+            else:
+                job_id = payload.get('jobId')
+                l_file_id = urllib.unquote(
+                    string.split(payload.get('documentURL'), '/')[-1])
+                if not l_wk_prop['getResult'].get(job_id):
+                    l_wk_prop['getResult'][job_id] = []
+                    wk.addEvent('{} job in progress: #{} for {}'.format(
+                        self.app_name, job_id, l_file_id))
+                l_wk_prop['getResult'][job_id].append(payload)
+                # handle results
+                job_result = payload.get('jobResult')
+                if job_result:
+                    envelope = self.aq_parent
+                    r_files = job_result.get('remoteFiles')
+                    if r_files:
+                        # do we need to handle multiple files?
+                        if not isinstance(r_files, list):
+                            r_files = [r_files]
+                        for r_file in r_files:
+                            e_data = {
+                                'SCRIPT_TITLE': payload.get('scriptTitle'),
+                                'feedbackContentType': job_result.get(
+                                    'feedbackContentType'),
+                                'feedbackStatus': job_result.get('feedbackStatus'),
+                                'feedbackMessage': job_result.get(
+                                    'feedbackMessage')
+                            }
+                            self.handle_remote_file(
+                                r_file, l_file_id, workitem_id, e_data, job_id,
+                                restricted=self.get_restricted_status(
+                                    envelope, l_file_id))
+                    else:
+                        if l_file_id == 'xml':
+                            l_filename = ' result for: '
+                        else:
+                            l_filename = ' result for file %s: ' % l_file_id
+                        feedback_id = '{0}_{1}'.format(self.app_name, job_id)
+                        fb_title = ''.join([self.app_name,
+                                            l_filename,
+                                            payload.get('scriptTitle')])
+
+                        envelope.manage_addFeedback(
+                            id=feedback_id,
+                            title=fb_title,
+                            activity_id=wk.activity_id,
+                            automatic=1,
+                            document_id=l_file_id,
                             restricted=self.get_restricted_status(
                                 envelope, l_file_id))
-                    # l_wk_prop['jobs_handled'] += 1
-                    # jobs_no = job_result.get('numberOfJobs')
-                    # if jobs_no == l_wk_prop['jobs_handled']:
-                    #     self.__finishApplication(workitem_id, REQUEST)
-                else:
-                    if l_file_id == 'xml':
-                        l_filename = ' result for: '
-                    else:
-                        l_filename = ' result for file %s: ' % l_file_id
-                    feedback_id = '{0}_{1}'.format(self.app_name, job_id)
-                    fb_title = ''.join([self.app_name,
-                                        l_filename,
-                                        payload.get('scriptTitle')])
+                        feedback_ob = envelope[feedback_id]
 
-                    envelope.manage_addFeedback(
-                        id=feedback_id,
-                        title=fb_title,
-                        activity_id=wk.activity_id,
-                        automatic=1,
-                        document_id=l_file_id,
-                        restricted=self.get_restricted_status(
-                            envelope, l_file_id))
-                    feedback_ob = envelope[feedback_id]
+                        content = job_result['feedbackContent']
+                        content_type = job_result['feedbackContentType']
 
-                    content = job_result['feedbackContent']
-                    content_type = job_result['feedbackContentType']
+                        if content and len(content) > FEEDBACKTEXT_LIMIT:
+                            with tempfile.TemporaryFile() as tmp:
+                                tmp.write(content.encode('utf-8'))
+                                tmp.seek(0)
+                                feedback_ob.manage_uploadFeedback(
+                                    tmp,
+                                    filename='qa-output')
+                            feedback_attach = feedback_ob.objectValues()[0]
+                            feedback_attach.data_file.content_type = content_type
+                            feedback_ob.feedbacktext = (
+                                'Feedback too large for inline display; '
+                                '<a href="qa-output/view">see attachment</a>.')
+                            feedback_ob.content_type = 'text/html'
 
-                    if len(content) > FEEDBACKTEXT_LIMIT:
-                        with tempfile.TemporaryFile() as tmp:
-                            tmp.write(content.encode('utf-8'))
-                            tmp.seek(0)
-                            feedback_ob.manage_uploadFeedback(
-                                tmp,
-                                filename='qa-output')
-                        feedback_attach = feedback_ob.objectValues()[0]
-                        feedback_attach.data_file.content_type = content_type
-                        feedback_ob.feedbacktext = (
-                            'Feedback too large for inline display; '
-                            '<a href="qa-output/view">see attachment</a>.')
-                        feedback_ob.content_type = 'text/html'
+                        else:
 
-                    else:
+                            feedback_ob.feedbacktext = content
+                            feedback_ob.content_type = content_type
 
-                        feedback_ob.feedbacktext = content
-                        feedback_ob.content_type = content_type
+                        feedback_ob.message = job_result.get('feedbackMessage', '')
+                        feedback_ob.feedback_status = job_result.get(
+                            'feedbackStatus', '')
 
-                    feedback_ob.message = job_result.get('feedbackMessage', '')
-                    feedback_ob.feedback_status = job_result.get(
-                        'feedbackStatus', '')
+                        if job_result['feedbackStatus'] == 'BLOCKER':
+                            wk.blocker = True
 
-                    if job_result['feedbackStatus'] == 'BLOCKER':
-                        wk.blocker = True
-
-                    feedback_ob._p_changed = 1
-                    feedback_ob.reindex_object()
-                wk.addEvent('{} job completed: #{} for {}'.format(
-                    self.app_name, job_id, l_file_id))
-                l_wk_prop['jobs_handled'] += 1
-
-            code = payload.get('executionStatus', '')
-            if code:
-                code = code.get('statusId', '')
-            if code:
-                if code not in ['0', '1']:
-                    l_wk_prop['jobs_handled'] += 1
-                    wk.addEvent('{} job failed: #{} for {}'.format(
+                        feedback_ob._p_changed = 1
+                        feedback_ob.reindex_object()
+                    wk.addEvent('{} job completed: #{} for {}'.format(
                         self.app_name, job_id, l_file_id))
-            if len(l_wk_prop['getResult'].keys()) == l_wk_prop['jobs_handled']:
+                    l_wk_prop['jobs_handled'] += 1
+
+                code = payload.get('executionStatus', '')
+                if code:
+                    code = code.get('statusId', '')
+                if code:
+                    if code not in ['0', '1']:
+                        l_wk_prop['jobs_handled'] += 1
+                        wk.addEvent('{} job failed: #{} for {}'.format(
+                            self.app_name, job_id, l_file_id))
+            if l_wk_prop['number_of_jobs'] == l_wk_prop['jobs_handled']:
                 self.__finishApplication(workitem_id, REQUEST)
         else:
             feedback_log.warning("Invalid payload: {}".format(payload))
@@ -316,6 +316,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
 
         l_wk_prop['getResult'] = {}
         l_wk_prop['jobs_handled'] = 0
+        l_wk_prop['number_of_jobs'] = None
 
     def __finishApplication(self, p_workitem_id, REQUEST=None):
         """ Completes the workitem and forwards it """
