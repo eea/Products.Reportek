@@ -181,7 +181,6 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                     "Unable to parse payload: {}".format(str(e)))
 
         if payload and self.check_uuid(workitem_id, payload.get('uuid')):
-            # {'uuid': 'e9c05c7a-0443-4ed3-bf51-ecbe950356e9', 'numberOfJobs': 3, 'envelopeUrl': 'https://cdrdev.eionet.europa.eu/ro/colybx9na/envyearww', 'jobIds': ['160', '161', '162']}
             if payload.get('numberOfJobs') and payload.get('jobIds'):
                 l_wk_prop['number_of_jobs'] = payload.get('numberOfJobs')
             else:
@@ -207,7 +206,8 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                                 'SCRIPT_TITLE': payload.get('scriptTitle'),
                                 'feedbackContentType': job_result.get(
                                     'feedbackContentType'),
-                                'feedbackStatus': job_result.get('feedbackStatus'),
+                                'feedbackStatus': job_result.get(
+                                    'feedbackStatus'),
                                 'feedbackMessage': job_result.get(
                                     'feedbackMessage')
                             }
@@ -245,8 +245,8 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                                 feedback_ob.manage_uploadFeedback(
                                     tmp,
                                     filename='qa-output')
-                            feedback_attach = feedback_ob.objectValues()[0]
-                            feedback_attach.data_file.content_type = content_type
+                            fb_attach = feedback_ob.objectValues()[0]
+                            fb_attach.data_file.content_type = content_type
                             feedback_ob.feedbacktext = (
                                 'Feedback too large for inline display; '
                                 '<a href="qa-output/view">see attachment</a>.')
@@ -257,7 +257,8 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                             feedback_ob.feedbacktext = content
                             feedback_ob.content_type = content_type
 
-                        feedback_ob.message = job_result.get('feedbackMessage', '')
+                        feedback_ob.message = job_result.get('feedbackMessage',
+                                                             '')
                         feedback_ob.feedback_status = job_result.get(
                             'feedbackStatus', '')
 
