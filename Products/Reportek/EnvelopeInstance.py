@@ -1131,5 +1131,20 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             if is_lr and unfinished:
                 return True
 
+    security.declareProtected('Use OpenFlow', 'get_wk_history')
+
+    def get_wk_history(self, workitem_id, REQUEST=None):
+        """Used to get the last history entry"""
+        self.REQUEST.RESPONSE.setHeader('Content-Type',
+                                        'application/json')
+        wk = getattr(self, workitem_id, None)
+        result = []
+        if wk:
+            result = [
+                {
+                    'event': evt.get('event'),
+                    'time': evt.get('time').HTML4()
+                } for evt in wk.event_log]
+        return json.dumps(result)
 
 InitializeClass(EnvelopeInstance)

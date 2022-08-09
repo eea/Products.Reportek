@@ -1,8 +1,8 @@
 <tal:block metal:define-macro="tasks_in_progress">
   <tal:block condition="python:of_interest">
-    <span i18n:translate="">Task(s) in progress:</span>
+    <!-- <span i18n:translate="">Task(s) in progress:</span> -->
     <tal:block repeat="item of_interest">
-      <tal:block condition="python:item.actor == 'openflow_engine'">
+      <!-- <tal:block condition="python:item.actor == 'openflow_engine'">
         <img style="vertical-align: middle"
              src="/misc_/Reportek/work_in_process"
              alt="Work in progress for this activity" 
@@ -14,7 +14,7 @@
                 tal:content="title" />
         <strong tal:condition="not: title"
                 tal:content="python: item.process_path.split('/')[-1]" />
-      </tal:block>
+      </tal:block> -->
       <tal:block condition="python:item.actor == 'openflow_engine'">
       <script type="text/javascript" charset="utf-8">
         function confirm_cancel(e) {
@@ -23,16 +23,35 @@
           }
         }
       </script>
-        <tal:block define="dummy_var python:request.RESPONSE.setHeader('Refresh','60')" />
-        <a tal:condition="python: context.is_cancellable(item.getId())"
+        <!-- <a tal:condition="python: context.is_cancellable(item.getId())"
            tal:attributes="href string:cancel_activity?workitem_id=${item/id}"
            class="cancel-activity"
-           onclick="confirm_cancel(event)" i18n:translate="">Cancel</a>
+           onclick="confirm_cancel(event)" i18n:translate="">Cancel</a> -->
       </tal:block>
       <tal:block condition="not:python:item.actor == 'openflow_engine'"
         i18n:translate="">
         (user: <span tal:replace="item/actor" i18n:name="username">username</span>)
       </tal:block>
+      <div class="dynamic-status" tal:attributes="data-title python: item.getActivityDetails('title')">
+        <div class="overview-status-active" tal:attributes="data-workitem item/id">
+          <div class="status-logs">
+            <span class="scroll-start-at-top"></span>
+          </div>
+        </div>
+        <!-- <div class="stage hidden-content">
+          <div class="dot-pulse"></div>
+        </div> -->
+        <div class="status-controls">
+          <span tal:attributes="title string:Activated by ${item/actor}">
+            <i class="icon-user"></i>
+          </span>
+          <a tal:condition="python: context.is_cancellable(item.getId())"
+          tal:attributes="href string:cancel_activity?workitem_id=${item/id}"
+          class="cancel-activity status-control"
+          title="Cancel activity"
+          onclick="confirm_cancel(event)" i18n:translate=""><i class="icon-remove-circle"></i></a>
+          </div>
+      </div>
       <span tal:condition="not:repeat/item/last">,</span>
     </tal:block>
   </tal:block>
