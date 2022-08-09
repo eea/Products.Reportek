@@ -1,7 +1,3 @@
-$().ready(function () {
-    get_wk_history();
-});
-
 function get_wk_history() {
     var wk_id = $(".overview-status-active").attr("data-workitem");
 
@@ -48,3 +44,9 @@ function pollServer() {
         window.setTimeout(get_wk_history, 10000);
     }
 }
+
+$().ready(function () {
+    get_wk_history();
+});
+
+

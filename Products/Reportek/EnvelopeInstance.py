@@ -1147,4 +1147,5 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 } for evt in wk.event_log]
         return json.dumps(result)
 
+
 InitializeClass(EnvelopeInstance)
