@@ -1,3 +1,9 @@
+/*global $, jQuery*/
+/*global document*/
+/*global window*/
+/*jslint browser:true */
+/* jslint:disable */
+
 function get_wk_history() {
     var wk_id = $(".overview-status-active").attr("data-workitem");
 
