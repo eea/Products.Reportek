@@ -46,10 +46,11 @@
             <i class="icon-user"></i>
           </span>
           <a tal:condition="python: context.is_cancellable(item.getId())"
-          tal:attributes="href string:cancel_activity?workitem_id=${item/id}"
-          class="cancel-activity status-control"
-          title="Cancel activity"
-          onclick="confirm_cancel(event)" i18n:translate=""><i class="icon-remove-circle"></i></a>
+            tal:attributes="href string:cancel_activity?workitem_id=${item/id}"
+            class="cancel-activity status-control"
+            title="Cancel activity"
+            i18n:attributes="title title-cancel-activity"
+            onclick="confirm_cancel(event)" i18n:translate=""><i class="icon-remove-circle"></i></a>
           </div>
       </div>
       <span tal:condition="not:repeat/item/last">,</span>
