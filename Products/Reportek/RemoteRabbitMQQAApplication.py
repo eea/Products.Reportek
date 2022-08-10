@@ -183,6 +183,11 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
         if payload and self.check_uuid(workitem_id, payload.get('uuid')):
             if payload.get('numberOfJobs') and payload.get('jobIds'):
                 l_wk_prop['number_of_jobs'] = payload.get('numberOfJobs')
+            elif payload.get('errorMessage'):
+                wk.addEvent('{} process failed due to:{}'.format(
+                            self.app_name, payload.get('errorMessage')))
+                wk.failure = True
+                self.__finishApplication(workitem_id, REQUEST)
             else:
                 job_id = payload.get('jobId')
                 l_file_id = urllib.unquote(
