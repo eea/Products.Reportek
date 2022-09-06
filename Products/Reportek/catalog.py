@@ -126,8 +126,12 @@ def searchResults(catalog, query, admin_check=False, security=True):
         # affected for users with dynamic Owner role.
         # https://taskman.eionet.europa.eu/issues/118846#note-9
         query['allowedRolesAndUsers'] = listAllowedAdminRolesAndUsers(user)
-
-    return catalog.searchResults(**query)
+    limit = query.pop('_limit', None)
+    results = catalog.searchResults(**query)
+    if limit:
+        results = list(results)
+        del results[limit:]
+    return results
 
 
 def _mergedLocalRoles(object):
