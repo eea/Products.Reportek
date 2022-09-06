@@ -14,6 +14,7 @@ import transaction
 import sys
 import argparse
 
+
 def get_envelopes(catalog, inactive_for, limit):
     query = {
         'meta_type': 'Report Envelope',
@@ -21,12 +22,13 @@ def get_envelopes(catalog, inactive_for, limit):
             'range': 'max',
             'query': DateTime() - inactive_for
         },
-        '_limit':limit
+        '_limit': limit
     }
 
     brains = searchResults(catalog, query)
 
     return [brain.getObject() for brain in brains]
+
 
 def do_cleanup(site, inactive_for=30, limit=None):
     catalog = site.Catalog
@@ -48,8 +50,9 @@ def do_cleanup(site, inactive_for=30, limit=None):
             try:
                 col_par.manage_delObjects(col.getId())
                 col_count += 1
-            except:
-                print "Unable to delete collection: {}".format(col.absolute_url())
+            except Exception:
+                print "Unable to delete collection: {}".format(
+                    col.absolute_url())
         else:
             print "Removing {}. Last modified date: {}".format(
                 env.absolute_url(),
@@ -66,21 +69,24 @@ def do_cleanup(site, inactive_for=30, limit=None):
             except Exception as e:
                 print "Something went wrong: {}".format(str(e))
     transaction.commit()
-    print "Removed {} collections and {} envelopes".format(col_count, env_count)
+    print "Removed {} collections and {} envelopes".format(col_count,
+                                                           env_count)
 
 
 def main():
     """ cleanup old files in a pre-defined container
     """
     parser = argparse.ArgumentParser()
-    parser.add_argument('--inactive_for',
-                        help='Inactive for how many days. Default: 30 days',
-                        dest='inactive_for',
-                        default=30)
-    parser.add_argument('--limit',
-                        help='Limit deletions to how many results. Default: 0 (unlimited)',
-                        dest='limit',
-                        default=None)
+    parser.add_argument(
+        '--inactive_for',
+        help='Inactive for how many days. Default: 30 days',
+        dest='inactive_for',
+        default=30)
+    parser.add_argument(
+        '--limit',
+        help='Limit deletions to how many results. Default: 0 (unlimited)',
+        dest='limit',
+        default=None)
     args = parser.parse_args(sys.argv[3:])
     site = get_zope_site()
     do_cleanup(site, age=args.inactive_for, limit=args.limit)
