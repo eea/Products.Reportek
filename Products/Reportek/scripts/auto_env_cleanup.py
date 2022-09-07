@@ -16,11 +16,13 @@ import argparse
 
 
 def get_envelopes(catalog, inactive_for, limit):
+    if limit:
+        limit = int(limit)
     query = {
         'meta_type': 'Report Envelope',
         'bobobase_modification_time': {
             'range': 'max',
-            'query': DateTime() - inactive_for
+            'query': DateTime() - int(inactive_for)
         },
         '_limit': limit
     }
