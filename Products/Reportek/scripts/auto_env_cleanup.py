@@ -89,5 +89,5 @@ def main():
         default=None)
     args = parser.parse_args(sys.argv[3:])
     site = get_zope_site()
-    do_cleanup(site, age=args.inactive_for, limit=args.limit)
+    do_cleanup(site, inactive_for=args.inactive_for, limit=args.limit)
     print "Operations completed."
