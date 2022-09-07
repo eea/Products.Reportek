@@ -40,9 +40,10 @@ def do_cleanup(site, inactive_for=30, limit=None):
     col_count = 0
     for env in envs:
         col = env.getParentNode()
-        terminated = [df for df in env.dataflow_uris
+        terminated = [df for df in col.dataflow_uris
                       if engine.dataflow_lookup(df).get('terminated') == '1']
-        if terminated:
+        # TODO: check if all obligations are terminated and only then delete it
+        if terminated and len(terminated) == len(col.dataflow_uris):
             print "Removing {}. Terminated obligations: {}".format(
                     col.absolute_url(),
                     terminated)
