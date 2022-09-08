@@ -42,20 +42,24 @@ def do_cleanup(site, inactive_for=30, limit=None):
         col = env.getParentNode()
         terminated = [df for df in col.dataflow_uris
                       if engine.dataflow_lookup(df).get('terminated') == '1']
-        # TODO: check if all obligations are terminated and only then delete it
         if terminated and len(terminated) == len(col.dataflow_uris):
             print "Removing {}. Terminated obligations: {}".format(
                     col.absolute_url(),
                     terminated)
             col_par = col.getParentNode()
-            col.can_move_released = True
+            changed = False
+            if not getattr(col_par, 'can_move_released', False):
+                col_par.can_move_released = True
+                changed = True
             print "Parent collection: {}".format(col_par.absolute_url())
             try:
                 col_par.manage_delObjects(col.getId())
+                if changed:
+                    del col_par.can_move_released
                 col_count += 1
-            except Exception:
-                print "Unable to delete collection: {}".format(
-                    col.absolute_url())
+            except Exception as e:
+                print "Unable to delete collection: {}: {}".format(
+                    col.absolute_url(), str(e))
         else:
             print "Removing {}. Last modified date: {}".format(
                 env.absolute_url(),
