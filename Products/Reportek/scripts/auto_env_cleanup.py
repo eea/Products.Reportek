@@ -50,7 +50,8 @@ def do_cleanup(site, inactive_for=30, limit=None):
         col = env.getParentNode()
         if col.getPhysicalPath() not in cols_removed:
             terminated = [df for df in col.dataflow_uris
-                        if engine.dataflow_lookup(df).get('terminated') == '1']
+                          if engine.dataflow_lookup(df).get(
+                            'terminated') == '1']
             if terminated and len(terminated) == len(col.dataflow_uris):
                 print "Removing {}. Terminated obligations: {}".format(
                         col.absolute_url(),
