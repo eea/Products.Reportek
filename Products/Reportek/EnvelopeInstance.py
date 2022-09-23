@@ -1131,16 +1131,25 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             if is_lr and unfinished:
                 return True
 
-    security.declareProtected('Use OpenFlow', 'get_wk_history')
+    security.declareProtected('Use OpenFlow', 'get_wk_metadata')
 
-    def get_wk_history(self, workitem_id, REQUEST=None):
+    def get_wk_metadata(self, workitem_id, REQUEST=None):
         """Used to get the last history entry"""
         self.REQUEST.RESPONSE.setHeader('Content-Type',
                                         'application/json')
         wk = getattr(self, workitem_id, None)
-        result = []
+
+        result = {}
         if wk:
-            result = [
+            act_type = {
+                0: 'manual',
+                1: 'automatic'
+            }.get(wk.getActivity(wk.id).start_mode)
+            result['activity_type'] = act_type
+            result['blocker'] = getattr(wk, 'blocker', False)
+            result['failure'] = getattr(wk, 'failure', False)
+            result['activity_id'] = getattr(wk, 'activity_id', '')
+            result['history'] = [
                 {
                     'event': evt.get('event'),
                     'time': evt.get('time').HTML4()

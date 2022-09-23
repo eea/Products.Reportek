@@ -3,6 +3,7 @@
   <metal:block fill-slot="head">
     <link href="++resource++static/select2-3.5.0/select2.css" rel="stylesheet"/>
     <link href="++resource++static/style.css" rel="stylesheet"/>
+    <link href="++resource++static/envelope.css" rel="stylesheet"/>
     <link href="++resource++static/fontawesome/font-awesome.min.css" rel="stylesheet"/>
     <script type="text/javascript" charset="utf8" src="++resource++static/jquery-3.5.1.min.js"></script>
     <script src="++resource++static/active_status.js"></script>
@@ -92,66 +93,46 @@
                 <td tal:content="python: context.reportingdate.strftime('%d %b %Y %H:%M')" />
               </tr>
             </tal:block>
+            <tr tal:condition="isBdrDeployment">
+              <th i18n:translate="">Acceptability status</th>
+              <td tal:define="statuses
+                                 python:{
+                                      True: 'Data delivery is acceptable',
+                                      False: 'Data delivery is not acceptable',};
+                              ok_acceptable python: context.is_acceptable() and context.successful_qa;
+                              unknown python: context.has_unknown_qa_result and ok_acceptable;"
+                  tal:content="python: 'N/A' if unknown else statuses.get(context.is_acceptable() and context.successful_qa, 'N/A')">
+              </td>
+          </tr>
             <tr>
-              <th i18n:translate="">Status</th>
-              <td>
+              <td colspan="2">
                 <tal:block condition="not:python:context.status in ('running', 'active')">
-                  <span i18n:translate="">
-                    Envelope is <span i18n:name="status" tal:replace="context/status"></span> 
-                    <tal:def tal:define="fb_ta python: context.get('feedbackTA');
-                                         fb_cor python: context.get('feedbackCoR');
-                                         ff_fb python: fb_ta or fb_cor">
-                      <span tal:condition="python: ff_fb"> (<span tal:content="ff_fb/title_or_id|nothing"/>)</span>
-                    </tal:def>
-                  </span>
-                  <br/>
+                  <div class="dynamic-status env-completed">
+                    <div class="ds-wrapper">
+                      <div class="ds-head">
+                        <span i18n:translate="" class="title">Status: </span>
+                        <span i18n:translate="">
+                          Envelope is <span i18n:name="status" tal:replace="context/status"></span> 
+                          <tal:def tal:define="fb_ta python: context.get('feedbackTA');
+                                              fb_cor python: context.get('feedbackCoR');
+                                              ff_fb python: fb_ta or fb_cor">
+                            <span tal:condition="python: ff_fb"> (<span tal:content="ff_fb/title_or_id|nothing"/>)</span>
+                          </tal:def>
+                        </span>
+                      </div>
+                    </div>
+                  </div>
                 </tal:block>
                 <tal:block define="activeW python:context.getListOfWorkitems('active');
                                    inactiveW python:context.getListOfWorkitems('inactive');
-                                   of_interest python: [context.getListOfWorkitems(status=['active', 'complete'])[-1]] if not inactiveW and not context.status == 'complete' else [];">
+                                   of_interest python: [context.getListOfWorkitems(status=['active', 'complete'])[-1]] if not inactiveW and not context.status == 'complete' else [];
+                                   w_items python:[wi for wi in context.getListOfWorkitems()];
+                                   last python: w_items[-1].activity_id if w_items else None;
+                                   ">
                   <metal:block use-macro="here/macros/tasks_in_progress">
                   </metal:block>
                 </tal:block>
-                <tal:def tal:define="w_items python:[wi for wi in context.getListOfWorkitems()];
-                                     last python: w_items[-1].activity_id if w_items else None;">
-                  <tal:block tal:condition="python: last == 'Draft'">
-                    <tal:block tal:condition="context/is_blocked">
-                      <div class="envelope-blocked-status">
-                        <strong style="color: red;">
-                          <span i18n:translate="">The last AutomaticQA run has flagged this envelope as unfit for release.</span>
-                        </strong>
-                      </div>
-                    </tal:block>
-                    <tal:block tal:condition="context/has_unknown_qa_result">
-                      <div>
-                        <strong>
-                          <span i18n:translate="">Some automatic data quality checks finished with an unknown result, see <a href="data_quality">Data quality</a>.</span>
-                        </strong>
-                      </div>
-                    </tal:block>
-                  </tal:block>
-                </tal:def>
-                <tal:def tal:define="session python: getattr(request, 'SESSION', {});
-                                     status_extra python: session.get('status_extra')">
-                  <tal:block tal:condition="status_extra">
-                    <span tal:attributes="class python: {'error': 'error-msg-lite', 'warning': 'warning-msg-lite', 'info': 'info-msg-lite'}.get(e_type, '');"
-                    tal:define="e_type python: status_extra[0];
-                                e_msg python: status_extra[1];"
-                     tal:content="e_msg"/>
-                  </tal:block>
-                </tal:def>
               </td>
-            </tr>
-            <tr tal:condition="isBdrDeployment">
-                <th i18n:translate="">Acceptability status</th>
-                <td tal:define="statuses
-                                   python:{
-                                        True: 'Data delivery is acceptable',
-                                        False: 'Data delivery is not acceptable',};
-                                ok_acceptable python: context.is_acceptable() and context.successful_qa;
-                                unknown python: context.has_unknown_qa_result and ok_acceptable;"
-                    tal:content="python: 'N/A' if unknown else statuses.get(context.is_acceptable() and context.successful_qa, 'N/A')">
-                </td>
             </tr>
           </tbody>
         </table>

@@ -1,97 +1,144 @@
-<tal:block metal:define-macro="tasks_in_progress">
-  <tal:block condition="python:of_interest">
-    <!-- <span i18n:translate="">Task(s) in progress:</span> -->
-    <tal:block repeat="item of_interest">
-      <!-- <tal:block condition="python:item.actor == 'openflow_engine'">
-        <img style="vertical-align: middle"
-             src="/misc_/Reportek/work_in_process"
-             alt="Work in progress for this activity" 
-             i18n:attributes="alt alt-wip-activity"/>
-      </tal:block>
-      <tal:block tal:define="title python: item.getActivityDetails('title');
-                            description python:item.getActivityDetails('description')">
-        <strong tal:condition="title"
-                tal:content="title" />
-        <strong tal:condition="not: title"
-                tal:content="python: item.process_path.split('/')[-1]" />
-      </tal:block> -->
-      <tal:block condition="python:item.actor == 'openflow_engine'">
-      <script type="text/javascript" charset="utf-8">
-        function confirm_cancel(e) {
-          if (!confirm("Are you sure you want to cancel the current activity and move back to the previous manual activity?")) {
-            e.preventDefault();
-          }
-        }
-      </script>
-        <!-- <a tal:condition="python: context.is_cancellable(item.getId())"
-           tal:attributes="href string:cancel_activity?workitem_id=${item/id}"
-           class="cancel-activity"
-           onclick="confirm_cancel(event)" i18n:translate="">Cancel</a> -->
-      </tal:block>
-      <tal:block condition="not:python:item.actor == 'openflow_engine'"
-        i18n:translate="">
-        (user: <span tal:replace="item/actor" i18n:name="username">username</span>)
-      </tal:block>
-      <div class="dynamic-status" tal:attributes="data-title python: item.getActivityDetails('title')">
-        <div class="overview-status-active" tal:attributes="data-workitem item/id">
-          <div class="status-logs">
+<tal:block metal:define-macro="status-info-extra">
+  <tal:block tal:condition="python: last == 'Draft'">
+    <tal:block tal:condition="context/is_blocked">
+      <div class="ds-footer-entry envelope-blocked-status">
+        <strong style="color: red;">
+          <span i18n:translate="">The last AutomaticQA run has flagged this envelope as unfit for release.</span>
+        </strong>
+      </div>
+    </tal:block>
+    <tal:block tal:condition="context/has_unknown_qa_result">
+      <div class="ds-footer-entry">
+        <strong>
+          <span i18n:translate="">Some automatic data quality checks finished with an unknown result, see <a href="data_quality">Data quality</a>.</span>
+        </strong>
+      </div>
+    </tal:block>
+  </tal:block>
+
+  <tal:def tal:define="session python: getattr(request, 'SESSION', {});
+                    status_extra python: session.get('status_extra')">
+  <tal:block tal:condition="status_extra">
+    <span tal:attributes="class python: {'error': 'error-msg-lite', 'warning': 'warning-msg-lite', 'info': 'info-msg-lite'}.get(e_type, '');"
+    tal:define="e_type python: status_extra[0];
+                e_msg python: status_extra[1];"
+    tal:content="e_msg"/>
+  </tal:block>
+  </tal:def>
+</tal:block>
+
+<tal:block metal:define-macro="status">
+  <div
+    tal:define="failed_app python: {True: 'failed'}.get(getattr(item, 'failure', False), '');
+                blocker_app python: {True: 'blocker'}.get(getattr(item, 'blocker', False), '');
+                status_meta python: '{} {}'.format(failed_app, blocker_app);
+                username python:request.AUTHENTICATED_USER.getUserName();
+                klass python: 'dynamic-status {} {}'.format(item.status, status_meta)"
+    tal:attributes="class klass">
+    <div class="ds-wrapper">
+      <div class="ds-head">
+        <span i18n:translate="" class="title">Status: </span>
+        <span tal:content="python: item.getActivityDetails('title')"/>
+        <tal:block condition="python:item.actor != 'openflow_engine' and item.actor != username"
+          i18n:translate="">
+          <span> - activated by </span><span tal:replace="item/actor" i18n:name="username">username</span>
+        </tal:block>
+        <span id="progress_info"></span>
+        <span class="ds-loader"></span>
+      </div>
+      <div class="ds-content">
+        <div class="overview-status" tal:attributes="data-workitem item/id">
+          <div class="status-logs-head border-bottom-dotted">
+          </div>
+          <div class="status-logs hidden-content">
             <span class="scroll-start-at-top"></span>
           </div>
+          <div class="status-logs-footer margin-tb-added">
+          </div>
         </div>
-        <!-- <div class="stage hidden-content">
-          <div class="dot-pulse"></div>
-        </div> -->
-        <div class="status-controls">
-          <span tal:attributes="title string:Activated by ${item/actor}">
-            <i class="icon-user"></i>
-          </span>
-          <a tal:condition="python: context.is_cancellable(item.getId())"
+      </div>
+      <div 
+        class="ds-footer">
+        <div id="status-controls" class="hidden-content">
+          <input type="checkbox" value="selected" id="toggle_history" class="toggle__input">
+            <label id="toggle_history_label" for="toggle_history" class="toggle__label"><span class="toggle__more"><i class="icon-eye-open"></i> Show</span><span class="toggle__less"><i class="icon-eye-close"></i> Hide</span> history
+          </label>
+
+          <a
+            tal:condition="python: context.is_cancellable(item.getId())"
             tal:attributes="href string:cancel_activity?workitem_id=${item/id}"
             class="cancel-activity status-control"
             title="Cancel activity"
             i18n:attributes="title title-cancel-activity"
-            onclick="confirm_cancel(event)" i18n:translate=""><i class="icon-remove-circle"></i></a>
-          </div>
+            onclick="confirm_cancel(event)"
+            i18n:translate="">
+            <i class="icon-trash"></i>
+            Cancel activity
+          </a>
+        </div>
       </div>
+    </div>
+  </div>
+</tal:block>
+
+<tal:block metal:define-macro="tasks_in_progress">
+  <tal:block condition="python:of_interest">
+    <tal:block repeat="item of_interest">
+      <metal:block use-macro="here/macros/status">
+      </metal:block>
       <span tal:condition="not:repeat/item/last">,</span>
     </tal:block>
   </tal:block>
   <tal:block condition="python:inactiveW"
     tal:define="OFEngine python:context.getOpenFlowEngine()">
-    <span i18n:translate="">Task(s) waiting to be assigned:</span>
-    <tal:block repeat="item inactiveW">
-      <tal:block tal:condition="not: OFEngine">
-        <span style="color: red;" i18n:translate="">A workflow related error occured. Unable to determine the next task</span>
-      </tal:block>
-      <tal:block tal:condition="OFEngine">
-        <tal:block define="canPull python:OFEngine.canPullActivity(
-                                       item.activity_id,
-                                       request.AUTHENTICATED_USER.getRolesInContext(context),
-                                       item.getInstanceProcessId())">
-          <tal:block condition="canPull">
-
-            <strong>
-              <a tal:define="w_id item/id;
-                             dest_url python:context.getMySelf().absolute_url()"
-                 tal:attributes="href string:activateWorkitem?workitem_id=${w_id}&DestinationURL=${dest_url}"
-                 title="Activation means you accept responsibility for this task.
-                        Only the person who has activated the task can work on it.
-                        Afterwards you can click on [Deactivate] or
-                        [Complete]"
-                 i18n:attributes="title task-activate-title"
-                 i18n:translate="">Activate task: <em i18n:name="title">
-                 <span tal:replace="python:item.getActivityDetails('title')"></span></em>
-              </a>
-            </strong>
-            (<span tal:replace="python:item.getActivityDetails('description')"></span>)
-            <span tal:condition="not:repeat/item/last">, </span>
+    <div class="dynamic-status inactive">
+      <div class="ds-wrapper">
+        <div class="ds-head">
+          <span i18n:translate="" class="title">Status: </span>
+          <span>Waiting for task assignment</span>
+        </div>
+        <div class="ds-content">
+          <tal:block repeat="item inactiveW">
+            <tal:block tal:condition="not: OFEngine">
+              <span style="color: red;" i18n:translate="">A workflow related error occured. Unable to determine the next task</span>
+            </tal:block>
+            <tal:block tal:condition="OFEngine">
+              <tal:block define="canPull python:OFEngine.canPullActivity(
+                                            item.activity_id,
+                                            request.AUTHENTICATED_USER.getRolesInContext(context),
+                                            item.getInstanceProcessId())">
+                <div class="activity-control">
+                  <tal:block condition="canPull">
+                    <strong>
+                      <a tal:define="w_id item/id;
+                                    dest_url python:context.getMySelf().absolute_url()"
+                        tal:attributes="href string:activateWorkitem?workitem_id=${w_id}&DestinationURL=${dest_url}"
+                        title="Activation means you accept responsibility for this task.
+                                Only the person who has activated the task can work on it.
+                                Afterwards you can click on [Deactivate] or
+                                [Complete]"
+                        i18n:attributes="title task-activate-title"
+                        i18n:translate="">Activate task: <em i18n:name="title">
+                        <span tal:replace="python:item.getActivityDetails('title')"></span></em>
+                      </a>
+                    </strong>
+                    (<span tal:replace="python:item.getActivityDetails('description')"></span>)
+                    <span tal:condition="not:repeat/item/last">, </span>
+                  </tal:block>
+                  <tal:block condition="not:canPull">
+                    <strong><span tal:replace="python:item.getActivityDetails('title')"></span></strong>
+                    <span tal:condition="not:repeat/item/last">, </span>
+                  </tal:block>
+                </div>
+              </tal:block>
+            </tal:block>
           </tal:block>
-          <tal:block condition="not:canPull">
-            <strong><span tal:replace="python:item.getActivityDetails('title')"></span></strong>
-            <span tal:condition="not:repeat/item/last">, </span>
-          </tal:block>
-        </tal:block>
-      </tal:block>
-    </tal:block>
+        </div>
+        <div class="ds-footer">
+          <metal:block use-macro="here/macros/status-info-extra">
+          </metal:block>
+        </div>
+      </div>
+    </div>
   </tal:block>
 </tal:block>
