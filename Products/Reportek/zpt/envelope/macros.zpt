@@ -61,7 +61,7 @@
         class="ds-footer">
         <div id="status-controls" class="hidden-content">
           <input type="checkbox" value="selected" id="toggle_history" class="toggle__input">
-            <label id="toggle_history_label" for="toggle_history" class="toggle__label"><span class="toggle__more"><i class="icon-eye-open"></i> Show</span><span class="toggle__less"><i class="icon-eye-close"></i> Hide</span> history
+            <label id="toggle_history_label" for="toggle_history" class="toggle__label" i18n:translate=""><span class="toggle__more"><i class="icon-eye-open"></i> Show</span><span class="toggle__less"><i class="icon-eye-close"></i> Hide</span> history
           </label>
 
           <a
@@ -95,7 +95,7 @@
       <div class="ds-wrapper">
         <div class="ds-head">
           <span i18n:translate="" class="title">Status: </span>
-          <span>Waiting for task assignment</span>
+          <span i18n:translate="">Waiting for task assignment</span>
         </div>
         <div class="ds-content">
           <tal:block repeat="item inactiveW">
