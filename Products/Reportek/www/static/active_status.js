@@ -2,7 +2,6 @@
 /*global document*/
 /*global window*/
 /*jslint browser:true */
-/* jslint:disable */
 function confirm_cancel(e) {
     if (!confirm("Are you sure you want to cancel the current activity and move back to the previous manual activity?")) {
       e.preventDefault();
@@ -15,7 +14,7 @@ function count_occurence(string, word) {
 
     var count = stringLC.split(wordLC).length - 1;
 
-    return count
+    return count;
 }
 
 function get_filtered_entries(items) {
@@ -56,7 +55,7 @@ function get_wk_metadata() {
                 var tc = $(sl_header).find('p');
                 var total_jobs = 0;
                 var finished_jobs = 0;
-                if (!tc.length > 0) {
+                if (tc.length <= 0) {
                     tc = $("<p>", {
                         text: 'Task start time: ' + new Date(result.history[0].time).toLocaleString(),
                         class: 'sl-header-entry'
@@ -101,10 +100,10 @@ function get_wk_metadata() {
                 } else {
                     if ($(".dynamic-status").hasClass("active")) {
                         $(".ds-loader").remove();
-                        $(".dynamic-status").addClass("manual")
+                        $(".dynamic-status").addClass("manual");
                     }
                 }
-                if (!$(".status-logs-footer").children().length > 0 && $(".status-logs").hasClass("hidden-content")) {
+                if ($(".status-logs-footer").children().length <= 0 && $(".status-logs").hasClass("hidden-content")) {
                     $(".status-logs-head").removeClass("border-bottom-dotted");
                     $(".status-logs-footer").removeClass("margin-tb-added");
                 }

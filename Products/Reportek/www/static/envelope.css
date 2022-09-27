@@ -44,12 +44,11 @@
    .hidden-content {
       display: none;
    }
-  
+
    .status-logs {
       flex: 1;
       overflow-y: auto;
       flex-direction: column-reverse;
-      max-height: 15vh;
       margin-top: 0.4rem;
    }
 
@@ -146,6 +145,7 @@
     .ds-content {
         margin: auto 2% 0.2rem 2%;
         max-height: 25vh;
+        overflow: auto;
     }
 
     .toggle__input:not(checked) {
