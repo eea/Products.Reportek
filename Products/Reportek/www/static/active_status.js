@@ -2,7 +2,7 @@
 /*global document*/
 /*global window*/
 /*jslint browser:true */
-/*jslint latedef:false */
+/* jshint latedef:nofunc */
 function confirm_cancel(e) {
     if (!confirm("Are you sure you want to cancel the current activity and move back to the previous manual activity?")) {
       e.preventDefault();
@@ -90,8 +90,8 @@ function get_wk_metadata() {
                             $("#progress_info").text(finished_jobs + " out of " + total_jobs + " QA checks completed");
                         }
                         var result = $("<div>", {
-                            class: 'status-log-entry',
-                            text: new Date(item.time).toLocaleString() + ' - '
+                            'class': 'status-log-entry',
+                            'text': new Date(item.time).toLocaleString() + ' - '
                         });
                         result.append($.parseHTML(item.event));
                         if (idx === array.length - 1){
