@@ -2,7 +2,7 @@
 /*global document*/
 /*global window*/
 /*jslint browser:true */
-/* jshint latedef:nofunc */
+/* jslint:disable */
 function confirm_cancel(e) {
     if (!confirm("Are you sure you want to cancel the current activity and move back to the previous manual activity?")) {
       e.preventDefault();
