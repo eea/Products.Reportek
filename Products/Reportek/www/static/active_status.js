@@ -2,6 +2,7 @@
 /*global document*/
 /*global window*/
 /*jslint browser:true */
+/*jslint latedef:false */
 function confirm_cancel(e) {
     if (!confirm("Are you sure you want to cancel the current activity and move back to the previous manual activity?")) {
       e.preventDefault();
@@ -71,8 +72,8 @@ function get_wk_metadata() {
                 var finished_jobs = 0;
                 if (tc.length <= 0) {
                     tc = $("<p>", {
-                        text: 'Task start time: ' + new Date(result.history[0].time).toLocaleString(),
-                        class: 'sl-header-entry'
+                        'text': 'Task start time: ' + new Date(result.history[0].time).toLocaleString(),
+                        'class': 'sl-header-entry'
                     });
                     sl_header.append(tc);
                 }
