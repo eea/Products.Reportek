@@ -1,0 +1,185 @@
+    .dynamic-status {
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      padding: 0.2rem 2% 0.2rem 2%;
+      margin: 0.2rem 0;
+      border-radius: 0.25rem;
+    }
+
+    .overview-status {
+      display: flex;
+      flex-direction: column;
+      min-height: 0;
+      flex: 1 1 auto;
+      margin-top: auto;
+      mask-image: linear-gradient(to top, transparent, black),
+        linear-gradient(to left, transparent 17px, black 17px);
+      mask-size: 100% 20000px;
+      mask-position: left bottom;
+      -webkit-mask-image: linear-gradient(to top, transparent, black),
+        linear-gradient(to left, transparent 17px, black 17px);
+      -webkit-mask-size: 100% 20000px;
+      -webkit-mask-position: left bottom;
+      transition: mask-position 0.3s, -webkit-mask-position 0.3s;
+    }
+
+    .overview-status-active:hover {
+      -webkit-mask-position: left top;
+    }
+
+    #status-controls,
+    .ds-footer-entry {
+      border-top: 1px dotted rgb(143,167,113);
+      margin: auto 2% 0.4rem 2%;
+    }
+
+    #status-controls {
+      padding-top: 0.4rem;
+    }
+    .status-control {
+      text-decoration: none;
+    }
+
+   .hidden-content {
+      display: none;
+   }
+
+   .status-logs {
+      flex: 1;
+      overflow-y: auto;
+      flex-direction: column-reverse;
+      margin-top: 0.4rem;
+   }
+
+   .border-bottom-dotted {
+      border-bottom: 1px dotted rgb(143,167,113);
+   }
+
+   .status-logs-head p {
+      font-size: .8rem;
+   }
+
+   .activity-control {
+      margin: 2% 0 2% 0;
+   }
+
+   .margin-tb-added {
+      margin: 0.4rem 0 0.4rem 0;
+   }
+
+   .scroll-start-at-top {
+     flex: 1 1 0%;
+   }
+
+   .ds-wrapper {
+    border-radius: 0.25rem;
+    display: flex;
+    flex-direction: column;
+   }
+
+   .ds-head {
+      padding: 0.2rem 2% 0.2rem 2%;
+      color: white;
+      border-radius: .25rem .25rem 0 0;
+   }
+
+   .ds-head .title {
+     font-weight: bold;
+   }
+
+   .dynamic-status.active .ds-head,
+   .dynamic-status.complete .ds-head{
+     background-color: #6f9b00;
+   }
+
+   .dynamic-status.qa-failure .ds-head {
+     background-color: #A00013;
+   }
+
+   .dynamic-status.env-completed .ds-head {
+    background-color: #A5A5A5;
+    border-radius: .25rem .25rem .25rem .25rem;
+  }
+
+   .dynamic-status.complete .ds-wrapper,
+   .dynamic-status.active .ds-wrapper {
+     background-color: #F6F7E8;
+   }
+
+   .dynamic-status.inactive .ds-head {
+     background-color: #004b87;
+   }
+
+   .dynamic-status.inactive .ds-wrapper {
+     background-color: #f1f7fc;
+   }
+
+   .dynamic-status.qa-failure .ds-wrapper {
+    background-color: #FDF6F2;
+   }
+
+  .ds-loader {
+      width: 15px;
+      height: 15px;
+      border: 2px solid #FFF;
+      border-bottom-color: transparent;
+      border-radius: 50%;
+      display: inline-block;
+      box-sizing: border-box;
+      animation: rotation 1s linear infinite;
+      }
+
+      @keyframes rotation {
+      0% {
+          transform: rotate(0deg);
+      }
+      100% {
+          transform: rotate(360deg);
+      }
+      } 
+
+    .ds-footer {
+    }
+
+    .ds-content {
+        margin: auto 2% 0.2rem 2%;
+        max-height: 25vh;
+        overflow: auto;
+    }
+
+    .toggle__input:not(checked) {
+        display: none;
+    }
+    .toggle__input + label {  
+      border-radius: 5px; 
+      color: #2a6495;
+      font-weight: bold;
+      cursor: pointer;
+      font-size: 0.8em;
+      margin-top: 0.5em;
+      margin-bottom: 0.5em;
+      padding: 0.5em;
+      text-align: center;
+      width: 12em;
+    }
+    a.status-control {
+      font-size: 0.8em;
+      font-weight: bold;
+    }
+    .status-control [class^="icon-"] {
+      font-weight:bold;
+      font-size: 0.8em;
+    }
+    .toggle__input + label:before {
+      font-size: 1em;
+      padding-right: 0.3em;
+      width: 1em;
+    }
+
+    .toggle__input + label .toggle__less, .toggle__input:checked + label .toggle__more  {
+        display: none;
+    }
+    .toggle__input:checked + label .toggle__less {
+        display: inline;
+    }

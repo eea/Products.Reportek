@@ -322,6 +322,21 @@ class EnvelopeRemoteServicesManager:
         # if something goes wrong
         return l_res
 
+    security.declareProtected('Use OpenFlow', 'triggerApplicationPayload')
+
+    def triggerApplicationPayload(self, p_workitem_id, payload=None,
+                                  REQUEST=None):
+        """ Triggers remote applications """
+        app_path = self.getApplicationUrl(p_workitem_id)
+        app_ob = self.restrictedTraverse(app_path)
+        l_res = app_ob.__of__(self).callApplication(p_workitem_id,
+                                                    payload,
+                                                    REQUEST)
+
+        # returns the result just to be able to see the result in a browser
+        # if something goes wrong
+        return l_res
+
     ##################################################
     # WebQ integration functions
     ##################################################

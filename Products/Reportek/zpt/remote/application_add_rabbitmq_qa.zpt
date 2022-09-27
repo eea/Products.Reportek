@@ -1,0 +1,47 @@
+<tal:block tal:replace="structure context/manage_page_header"/>
+<tal:block tal:replace="structure python:context.manage_form_title(template, context, form_title='Add Remote RabbitMQ QA Application', help_product='Reportek', help_topic='')"/>
+
+<h1 i18n:translate="">Add Remote RabbitMQ QA Application</h1>
+
+<form action="manage_addRRMQQAApplication" method="post" enctype="multipart/form-data" name="form">
+<table>
+<tr>
+	<th><label for="id" i18n:translate="">Id</label></th>
+	<td><input type="text" name="id" id="id" size="40" /></td>
+</tr>
+<tr>
+	<th><label for="title" i18n:translate="">Title</label></th>
+	<td><input type="text" name="title" id="title" size="40" /></td>
+</tr>
+<tr>
+	<th><label for="qarequests" i18n:translate="">RabbitMQ QA Requests queue</label></th>
+	<td><input type="text" name="qarequests" id="qarequests" size="40" /></td>
+</tr>
+<tr>
+	<th><label for="qajobs" i18n:translate="">RabbitMQ QA Jobs queue</label></th>
+	<td><input type="text" name="qajobs" id="qajobs" size="40" /></td>
+</tr>
+<tr>
+	<th><label for="qadeadletter" i18n:translate="">RabbitMQ QA Deadletter queue</label></th>
+	<td><input type="text" name="qadeadletter" id="qadeadletter" size="40" /></td>
+</tr>
+<tr>
+	<th><label for="qaserver" i18n:translate="">Remote server URL</label></th>
+	<td><input type="text" name="qaserver" id="qaserver" size="40" /></td>
+</tr>
+<tr>
+	<th><label for="token" i18n:translate="">JWT Token</label></th>
+	<td><input type="text" name="token" id="token" size="40" /></td>
+</tr>
+<tr>
+	<th><label for="app_name" i18n:translate="">Activity ID</label></th>
+	<td><input type="text" name="app_name" id="app_name" size="40" /></td>
+</tr>
+<tr>
+	<td></td>
+	<td><input type="submit" value=" Add " i18n:attributes="value btn-add"/></td>
+</tr>
+</table>
+</form>
+
+<tal:block tal:replace="structure context/manage_page_footer"/>

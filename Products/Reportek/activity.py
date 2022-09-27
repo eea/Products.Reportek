@@ -27,6 +27,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from OFS.SimpleItem import SimpleItem
 from Products.ZCatalog.CatalogPathAwareness import CatalogAware
 from Products.Reportek import constants
+from Products.Reportek.BaseRemoteApplication import BaseRemoteApplication
 
 
 class activity(CatalogAware, SimpleItem):
@@ -151,6 +152,12 @@ class activity(CatalogAware, SimpleItem):
             return self.title
         else:
             return self.id
+
+    def get_mapped_application(self):
+        app_url = self.mapped_application_details()['path']
+        if not app_url.startswith('/'):
+            app_url = '/{}'.format(app_url)
+        return self.unrestrictedTraverse(app_url, None)
 
     def mapped_application_details(self):
         root = self.getPhysicalRoot()
@@ -281,6 +288,14 @@ class activity(CatalogAware, SimpleItem):
     def isAutoPush(self):
         """ returns true if the activity push mode is automatic"""
         return self.push_application and self.kind == 'standard'
+
+    def get_wf_status(self):
+        mapped_app = self.get_mapped_application()
+        if isinstance(mapped_app, BaseRemoteApplication):
+            return getattr(mapped_app, '_wf_state_type', 'forward')
+        elif isinstance(mapped_app, PageTemplateFile):
+            return 'manual'
+        return 'forward'
 
 
 InitializeClass(activity)

@@ -532,7 +532,11 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                 r_files = data.get('REMOTE_FILES')
                 if r_files:
                     for r_file in r_files:
-                        e_data = {'SCRIPT_TITLE': data.get('scriptTitle')}
+                        e_data = {
+                            'SCRIPT_TITLE': data.get('scriptTitle'),
+                            'feedbackContentType': data.get(
+                                'feedbackContentType')
+                        }
                         r_res = self.handle_remote_file(
                             r_file, l_file_id, p_workitem_id, e_data, p_jobID,
                             restricted=self.get_restricted_status(

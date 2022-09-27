@@ -40,6 +40,7 @@ from Products.Reportek import QAScript
 from Products.Reportek import Referral
 from Products.Reportek import RemoteApplication
 from Products.Reportek import RemoteFMEConversionApplication
+from Products.Reportek import RemoteRabbitMQQAApplication
 from Products.Reportek import RemoteRESTApplication
 from Products.Reportek import RemoteRestQaApplication
 from Products.Reportek import ReportekAPI
@@ -412,6 +413,15 @@ def initialize(context):
             constructors=(
                 RemoteApplication.manage_addRemoteApplicationForm,
                 RemoteApplication.manage_addRemoteApplication),
+            icon='www/qa_application.gif'
+        )
+
+        context.registerClass(
+            RemoteRabbitMQQAApplication.RemoteRabbitMQQAApplication,
+            permission='Add Remote Application',
+            constructors=(
+                RemoteRabbitMQQAApplication.manage_addRRMQQAApplicationForm,
+                RemoteRabbitMQQAApplication.manage_addRRMQQAApplication),
             icon='www/qa_application.gif'
         )
 

@@ -55,6 +55,24 @@ def get_rabbitmq_conn(queue, context=None):
     rb.close_connection()
 
 
+@contextmanager
+def get_rabbitmq_conn_nodqueue(queue, context=None):
+    """ Context manager to connect to RabbitMQ
+    """
+
+    s = get_rabbitmq_client_settings()
+
+    rb = RabbitMQConnector(s.get('hostname'),
+                           s.get('port'),
+                           s.get('username'),
+                           s.get('password'))
+    rb.open_connection()
+
+    yield rb
+
+    rb.close_connection()
+
+
 def consume_messages(consumer, queue=None, context=None):
     """ Executes the callback on all messages existing in the queue
     """
@@ -163,6 +181,11 @@ class Savepoint(object):
 
 def send_message(msg, queue, context=None):
     with get_rabbitmq_conn(queue=queue, context=context) as conn:
+        conn.send_message(queue, msg)
+
+
+def send_message_nodqueue(msg, queue, context=None):
+    with get_rabbitmq_conn_nodqueue(queue=queue, context=context) as conn:
         conn.send_message(queue, msg)
 
 

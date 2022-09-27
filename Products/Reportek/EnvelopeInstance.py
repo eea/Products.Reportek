@@ -536,7 +536,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 # If the current activity is auto start and not bundled with
                 # previous, let it be handled by the forwarder
                 if activity.isAutoStart() and not activity.isBundled():
-                    self.wf_status = 'forward'
+                    self.wf_status = activity.get_wf_status()
                     self.reindex_object()
                 # If it's manually started or bundled with previous, forward it
                 # manually as we might have template forms that have form
@@ -552,7 +552,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         result = {}
         engine = getattr(self, ENGINE_ID)
         rmq = getattr(engine, 'env_fwd_rmq', False)
-        if getattr(self, 'wf_status', None) == 'forward':
+        if getattr(self, 'wf_status', None) in ['forward', 'hybrid']:
             wks = self.getListOfWorkitems()
             wk = wks[-1]
             forwardable = [w for w in wks
@@ -577,6 +577,8 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                                            self.get_freq(wk.id)),
                             queue=self.get_rmq_queue(activity.getId()))
                     result['triggered'] = wk.activity_id
+                elif self.wf_status == 'hybrid':
+                    wk.triggerApplication(wk.id, REQUEST)
 
         return engine.jsonify(result)
 
@@ -675,7 +677,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 if activity.isAutoPush():
                     self.callAutoPush(workitem_id)
                 if activity.isAutoStart():
-                    self.wf_status = 'forward'
+                    self.wf_status = activity.get_wf_status()
                     self.reindex_object()
                     self.startAutomaticApplication(workitem_id)
                     if rmq:
@@ -945,7 +947,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 if activity.isAutoPush():
                     self.callAutoPush(workitem_id)
                 if activity.isAutoStart():
-                    self.wf_status = 'forward'
+                    self.wf_status = activity.get_wf_status()
                     self.reindex_object()
                     self.startAutomaticApplication(workitem_id)
                     if rmq:
@@ -1095,7 +1097,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                         '''Unable to cancel this activity. '''
                         '''Activity id is: {}'''.format(wk.activity_id))
                     REQUEST.RESPONSE.redirect('note')
-            if wk.wf_status == 'forward':
+            if wk.wf_status in ['forward', 'hybrid']:
                 fallinto = self.get_viable_cancel_fallin()
                 self.fallinWorkitem(workitem_id=workitem_id,
                                     activity_id=fallinto)
@@ -1128,6 +1130,31 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 self.getActiveWorkitems() > 0
             if is_lr and unfinished:
                 return True
+
+    security.declareProtected('Use OpenFlow', 'get_wk_metadata')
+
+    def get_wk_metadata(self, workitem_id, REQUEST=None):
+        """Used to get the last history entry"""
+        self.REQUEST.RESPONSE.setHeader('Content-Type',
+                                        'application/json')
+        wk = getattr(self, workitem_id, None)
+
+        result = {}
+        if wk:
+            act_type = {
+                0: 'manual',
+                1: 'automatic'
+            }.get(wk.getActivity(wk.id).start_mode)
+            result['activity_type'] = act_type
+            result['blocker'] = getattr(wk, 'blocker', False)
+            result['failure'] = getattr(wk, 'failure', False)
+            result['activity_id'] = getattr(wk, 'activity_id', '')
+            result['history'] = [
+                {
+                    'event': evt.get('event'),
+                    'time': evt.get('time').HTML4()
+                } for evt in wk.event_log]
+        return json.dumps(result)
 
 
 InitializeClass(EnvelopeInstance)
