@@ -32,6 +32,20 @@ function get_filtered_entries(items) {
     return results;
 }
 
+function should_poll() {
+    var status = $(".dynamic-status");
+    if (!status.hasClass("manual") && !status.hasClass("env-completed") && !status.hasClass("inactive")) {
+        return true;
+    }
+    return false;
+}
+
+function pollServer() {
+    if ($(".overview-status").length > 0 && should_poll()) {
+        window.setTimeout(get_wk_metadata, 10000);
+    }
+}
+
 function get_wk_metadata() {
     var wk_id = $(".overview-status").attr("data-workitem");
 
@@ -115,20 +129,6 @@ function get_wk_metadata() {
             //ERROR HANDLING
             pollServer();
         }});
-}
-
-function pollServer() {
-    if ($(".overview-status").length > 0 && should_poll()) {
-        window.setTimeout(get_wk_metadata, 10000);
-    }
-}
-
-function should_poll() {
-    var status = $(".dynamic-status");
-    if (!status.hasClass("manual") && !status.hasClass("env-completed") && !status.hasClass("inactive")) {
-        return true;
-    }
-    return false;
 }
 
 function toggle_btn(label) {
