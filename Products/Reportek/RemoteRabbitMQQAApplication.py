@@ -84,7 +84,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                       )
 
     def __init__(self, id, title, qarequests, qajobs,
-                 qadeadletter, qaserver, token, app_name):
+                 qadeadletter, qaserver, token, app_name, requestTimeout=5):
         """ Initialize a new instance of Document """
         self.id = id
         self.title = title
@@ -95,9 +95,11 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
         self.token = token
         self.app_name = app_name
         self.wf_state_type = 'hybrid'
+        self.requestTimeout = requestTimeout
 
     def manage_settings(self, title, qarequests, qajobs,
-                        qadeadletter, qaserver, token, app_name):
+                        qadeadletter, qaserver, token, app_name,
+                        requestTimeout):
         """ Change properties of the QA Application """
         self.title = title
         self.qarequests = qarequests
@@ -106,6 +108,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
         self.qaserver = qaserver
         self.token = token
         self.app_name = app_name
+        self.requestTimeout = requestTimeout
 
     security.declareProtected('Use OpenFlow', '__call__')
 
@@ -137,7 +140,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
             'Content-type': 'application/json',
         }
         url = "/".join([self.qaserver, url])
-        timeout = 5
+        timeout = int(getattr(self, 'requestTimeout', 5))
         if method == 'GET':
             response = requests.get(url, headers=headers,
                                     data=json.dumps(data),

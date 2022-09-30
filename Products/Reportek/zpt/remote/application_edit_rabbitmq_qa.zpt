@@ -37,6 +37,12 @@
         </td>
     </tr>
     <tr>
+        <th align="left"><label for="requestTimeout" i18n:translate="">Request timeout (used for on-demand QA)</label></th>
+        <td colspan="2">
+            <input type="text" name="requestTimeout" id="requestTimeout" tal:attributes="value here/requestTimeout|nothing" size="5" />
+        </td>
+    </tr>
+    <tr>
         <th align="left"><label for="app_name" i18n:translate="">Activity ID</label></th>
         <td colspan="2"><input type="text" name="app_name" id="app_name" tal:attributes="value here/app_name" size="40" /></td>
     </tr>
