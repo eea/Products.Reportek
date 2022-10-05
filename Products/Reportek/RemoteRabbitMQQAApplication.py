@@ -287,6 +287,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                         l_wk_prop['jobs_handled'] += 1
                         wk.addEvent('{} job failed: #{} for {}'.format(
                             self.app_name, job_id, l_file_id))
+            wk._p_changed = 1
             if l_wk_prop['number_of_jobs'] == l_wk_prop['jobs_handled']:
                 self.__finishApplication(workitem_id, REQUEST)
         else:
