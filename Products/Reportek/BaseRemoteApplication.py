@@ -2,9 +2,12 @@ import io
 
 import requests
 import transaction
+from requests.exceptions import ConnectionError
 from BeautifulSoup import BeautifulSoup as bs
 from OFS.SimpleItem import SimpleItem
 from Products.Reportek import zip_content
+from ZODB.POSException import ConfictError
+
 
 FEEDBACKTEXT_LIMIT = 1024 * 16  # 16KB
 
@@ -151,6 +154,9 @@ class BaseRemoteApplication(SimpleItem):
                     'Error while downloading results for job #{} from {}. '
                     'Got {} status.'.format(job_id, url, r.status_code))
                 wk.failure = True
+        except (ConfictError, ConnectionError) as err:
+            # we need to raise this so that it can be retried
+            raise err
         except Exception as e:
             result['content'] = str(e)
             wk.addEvent(
