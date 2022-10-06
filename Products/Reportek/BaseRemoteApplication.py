@@ -6,7 +6,7 @@ from requests.exceptions import ConnectionError
 from BeautifulSoup import BeautifulSoup as bs
 from OFS.SimpleItem import SimpleItem
 from Products.Reportek import zip_content
-from ZODB.POSException import ConfictError
+from ZODB.POSException import ConflictError
 
 
 FEEDBACKTEXT_LIMIT = 1024 * 16  # 16KB
