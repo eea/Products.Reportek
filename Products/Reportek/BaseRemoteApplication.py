@@ -154,8 +154,20 @@ class BaseRemoteApplication(SimpleItem):
                     'Error while downloading results for job #{} from {}. '
                     'Got {} status.'.format(job_id, url, r.status_code))
                 wk.failure = True
-        except (ConfictError, ConnectionError) as err:
+        except ConflictError as err:
             # we need to raise this so that it can be retried
+            wk.addEvent(
+                'Error while saving results for job #{}, retrieved from {}. '
+                'It will be retried automatically in a few minutes'.format(
+                    job_id, url
+                ))
+            raise err
+        except ConnectionError as err:
+            # we need to raise this so that it can be retried
+            wk.addEvent(
+                'Error while downloading results for job #{} from {}. '
+                'It will be retried automatically in a few minutes'.format(
+                    job_id, url))
             raise err
         except Exception as e:
             result['content'] = str(e)
