@@ -6,6 +6,7 @@ from requests.exceptions import ConnectionError
 from BeautifulSoup import BeautifulSoup as bs
 from OFS.SimpleItem import SimpleItem
 from Products.Reportek import zip_content
+from Products.Reportek.exceptions import LocalConversionException
 from ZODB.POSException import ConflictError
 
 
@@ -124,6 +125,7 @@ class BaseRemoteApplication(SimpleItem):
                 'feedbackContentType', r.headers.get('Content-Type', ''))
             result['content_type'] = ctype
             result['content_lenght'] = len(r.content)
+
             if r.status_code == requests.codes.ok:
                 from contextlib import closing
                 file_h = io.BytesIO(r.content)
@@ -162,7 +164,7 @@ class BaseRemoteApplication(SimpleItem):
                     job_id, url
                 ))
             raise err
-        except ConnectionError as err:
+        except (LocalConversionException, ConnectionError) as err:
             # we need to raise this so that it can be retried
             wk.addEvent(
                 'Error while downloading results for job #{} from {}. '
