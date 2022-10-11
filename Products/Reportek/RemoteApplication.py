@@ -597,7 +597,7 @@ class RemoteApplication(BaseRemoteApplication):
                             automatic=1,
                             document_id=l_file_id,
                             restricted=self.get_restricted_status(envelope,
-                                                                l_file_id))
+                                                                  l_file_id))
                         feedback_ob = envelope[feedback_id]
 
                         content = l_ret['VALUE']
@@ -611,7 +611,8 @@ class RemoteApplication(BaseRemoteApplication):
                                     tmp,
                                     filename='qa-output')
                             feedback_attach = feedback_ob.objectValues()[0]
-                            feedback_attach.data_file.content_type = content_type
+                            feedback_attach.data_file.content_type = \
+                                content_type
                             feedback_ob.feedbacktext = (
                                 'Feedback too large for inline display; '
                                 '<a href="qa-output/view">see attachment</a>.')
@@ -647,8 +648,9 @@ class RemoteApplication(BaseRemoteApplication):
                                 }
                             }
                         }
-                        self.__manageAutomaticProperty(p_workitem_id=p_workitem_id,
-                                                    p_getResult=l_getResultDict)
+                        self.__manageAutomaticProperty(
+                            p_workitem_id=p_workitem_id,
+                            p_getResult=l_getResultDict)
                     except ConflictError as err:
                         # we need to raise this so that it can be retried
                         l_workitem.addEvent(
