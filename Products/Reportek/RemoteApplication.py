@@ -657,6 +657,7 @@ class RemoteApplication(BaseRemoteApplication):
                             'Error while saving results for job #{}. It will'
                             ' be retried automatically in a few '
                             'minutes'.format(p_jobID))
+                        transaction.commit()
                         raise err
                     except LocalConversionException as err:
                         # we need to raise this so that it can be retried
@@ -664,6 +665,7 @@ class RemoteApplication(BaseRemoteApplication):
                             'Error while downloading results for job #{}.'
                             ' It will be retried automatically in a '
                             'few minutes'.format(p_jobID))
+                        transaction.commit()
                         raise err
             # not ready
             elif l_ret['CODE'] == '1':
