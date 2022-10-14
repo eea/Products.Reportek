@@ -2,9 +2,13 @@ import io
 
 import requests
 import transaction
+from requests.exceptions import ConnectionError
 from BeautifulSoup import BeautifulSoup as bs
 from OFS.SimpleItem import SimpleItem
 from Products.Reportek import zip_content
+from Products.Reportek.exceptions import LocalConversionException
+from ZODB.POSException import ConflictError
+
 
 FEEDBACKTEXT_LIMIT = 1024 * 16  # 16KB
 
@@ -121,6 +125,7 @@ class BaseRemoteApplication(SimpleItem):
                 'feedbackContentType', r.headers.get('Content-Type', ''))
             result['content_type'] = ctype
             result['content_lenght'] = len(r.content)
+
             if r.status_code == requests.codes.ok:
                 from contextlib import closing
                 file_h = io.BytesIO(r.content)
@@ -151,6 +156,23 @@ class BaseRemoteApplication(SimpleItem):
                     'Error while downloading results for job #{} from {}. '
                     'Got {} status.'.format(job_id, url, r.status_code))
                 wk.failure = True
+        except ConflictError as err:
+            # we need to raise this so that it can be retried
+            wk.addEvent(
+                'Error while saving results for job #{}, retrieved from {}. '
+                'It will be retried automatically in a few minutes'.format(
+                    job_id, url
+                ))
+            transaction.commit()
+            raise err
+        except (LocalConversionException, ConnectionError) as err:
+            # we need to raise this so that it can be retried
+            wk.addEvent(
+                'Error while downloading results for job #{} from {}. '
+                'It will be retried automatically in a few minutes'.format(
+                    job_id, url))
+            transaction.commit()
+            raise err
         except Exception as e:
             result['content'] = str(e)
             wk.addEvent(
