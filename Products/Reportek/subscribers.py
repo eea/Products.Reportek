@@ -23,9 +23,10 @@ def handle_feedback_added_event(obj, event):
 
 def handle_document_renamed_event(obj, event):
     """Force the update of data_file's mtime value"""
-    obj.data_file.mtime = time()
-    obj._p_changed = 1
-    obj.reindex_object()
+    if getattr(event, 'newName', None):
+        obj.data_file.mtime = time()
+        obj._p_changed = 1
+        obj.reindex_object()
 
 
 # Handler for collection added
