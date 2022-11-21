@@ -203,7 +203,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                 # handle results
                 job_result = payload.get('jobResult')
                 exec_status = payload.get('executionStatus', '')
-                code = exec_status.get('statusId', '') if code else ''
+                code = exec_status.get('statusId', '') if exec_status else ''
                 if job_result:
                     envelope = self.aq_parent
                     r_files = job_result.get('remoteFiles')
