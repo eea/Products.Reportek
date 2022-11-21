@@ -202,6 +202,8 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                 l_wk_prop['getResult'][job_id].append(payload)
                 # handle results
                 job_result = payload.get('jobResult')
+                exec_status = payload.get('executionStatus', '')
+                code = exec_status.get('statusId', '') if code else ''
                 if job_result:
                     envelope = self.aq_parent
                     r_files = job_result.get('remoteFiles')
@@ -275,13 +277,11 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
 
                         feedback_ob._p_changed = 1
                         feedback_ob.reindex_object()
-                    wk.addEvent('{} job completed: #{} for {}'.format(
-                        self.app_name, job_id, l_file_id))
-                    l_wk_prop['jobs_handled'] += 1
+                    if code and code in ['0', '1']:
+                        wk.addEvent('{} job completed: #{} for {}'.format(
+                            self.app_name, job_id, l_file_id))
+                        l_wk_prop['jobs_handled'] += 1
 
-                code = payload.get('executionStatus', '')
-                if code:
-                    code = code.get('statusId', '')
                 if code:
                     if code not in ['0', '1']:
                         l_wk_prop['jobs_handled'] += 1
