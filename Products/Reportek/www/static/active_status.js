@@ -105,8 +105,14 @@ function get_wk_metadata() {
                         } else {
                             sl.append(result);
                         }
-                        if ($(".status-log-entry").length >= 2 && $("#status-controls").hasClass("hidden-content")) {
-                            $("#status-controls").removeClass("hidden-content");
+                        if (($(".status-log-entry").length >= 2 || $(".cancel-activity.status-control").length > 0)) {
+                            if($("#status-controls").hasClass("hidden-content")) {
+                                $("#status-controls").removeClass("hidden-content");
+                            }
+                            $("#toggle_history_label").removeClass("hidden-content");
+                            if ($(".cancel-activity.status-control").length > 0 && $(".status-log-entry").length < 2) {
+                                $("#toggle_history_label").addClass("hidden-content");
+                            }
                         }
                         if (item.event.indexOf('forwarded to') !== -1) {
                             window.location.reload();
