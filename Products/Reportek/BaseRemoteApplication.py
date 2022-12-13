@@ -65,6 +65,8 @@ class BaseRemoteApplication(SimpleItem):
                     feedback_ob.feedback_status = fb_status
                     if fb_status == 'BLOCKER':
                         wk.blocker = True
+                    if fb_status == 'FAILED':
+                        wk.failure = True
                     feedback_ob.message = fb_message
                 else:
                     feedback_ob.manage_uploadFeedback(archive, filename=f_name)
@@ -108,6 +110,8 @@ class BaseRemoteApplication(SimpleItem):
         feedback_ob.feedback_status = l_ret.get('feedbackStatus')
         if feedback_ob.feedback_status == 'BLOCKER':
             wk.blocker = True
+        if feedback_ob.feedback_status == 'FAILED':
+            wk.failure = True
         feedback_ob.message = l_ret.get('feedbackMessage')
 
     def handle_remote_file(self, url, l_file_id, workitem_id, l_ret, job_id,
