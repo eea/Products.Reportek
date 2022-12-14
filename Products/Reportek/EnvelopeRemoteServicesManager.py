@@ -301,7 +301,7 @@ class EnvelopeRemoteServicesManager:
                 for schema in schema_locations:
                     if (docu.content_type == 'text/xml' and schema
                             and (schema in l_valid_schemas
-                                or not l_valid_schemas)):
+                                 or not l_valid_schemas)):
                         l_key = str(schema)
                         if l_key in l_res:
                             l_res[l_key].append(
