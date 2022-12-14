@@ -295,18 +295,20 @@ class EnvelopeRemoteServicesManager:
         l_valid_schemas = self.getDataflowMappingsContainer(
         ).getSchemasForDataflows(self.dataflow_uris)
         for docu in self.objectValues('Report Document'):
-            schema_locations = docu.xml_schema_location.split(' ')
-            for schema in schema_locations:
-                if (docu.content_type == 'text/xml' and schema
-                        and (schema in l_valid_schemas
-                             or not l_valid_schemas)):
-                    l_key = str(schema)
-                    if l_key in l_res:
-                        l_res[l_key].append(
-                            parse_uri(docu.absolute_url(), http_res))
-                    else:
-                        l_res[l_key] = [parse_uri(docu.absolute_url(),
-                                        http_res)]
+            if docu.xml_schema_location:
+                schema_locations = docu.xml_schema_location.split(' ')
+                schema_locations.append(docu.xml_schema_location)
+                for schema in schema_locations:
+                    if (docu.content_type == 'text/xml' and schema
+                            and (schema in l_valid_schemas
+                                or not l_valid_schemas)):
+                        l_key = str(schema)
+                        if l_key in l_res:
+                            l_res[l_key].append(
+                                parse_uri(docu.absolute_url(), http_res))
+                        else:
+                            l_res[l_key] = [parse_uri(docu.absolute_url(),
+                                            http_res)]
         # add the envelope 'xml' method for each obligation
         for l_dataflow in self.dataflow_uris:
             l_res[l_dataflow] = [
