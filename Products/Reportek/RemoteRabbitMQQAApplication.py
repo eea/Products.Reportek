@@ -184,7 +184,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                     "Unable to parse payload: {}".format(str(e)))
 
         if payload and self.check_uuid(workitem_id, payload.get('uuid')):
-            if payload.has_key('numberOfJobs') and payload.has_key('jobIds'):
+            if 'numberOfJobs' in payload and 'jobIds' in payload:
                 l_wk_prop['number_of_jobs'] = payload.get('numberOfJobs')
                 if payload.get('numberOfJobs') == 0:
                     wk.addEvent(
