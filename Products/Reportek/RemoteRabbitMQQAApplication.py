@@ -184,8 +184,12 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                     "Unable to parse payload: {}".format(str(e)))
 
         if payload and self.check_uuid(workitem_id, payload.get('uuid')):
-            if payload.get('numberOfJobs') and payload.get('jobIds'):
+            if payload.has_key('numberOfJobs') and payload.has_key('jobIds'):
                 l_wk_prop['number_of_jobs'] = payload.get('numberOfJobs')
+                if payload.get('numberOfJobs') == 0:
+                    wk.addEvent(
+                        'Operation completed: no QC scripts available to '
+                        'analyze the files in the envelope')
             elif payload.get('errorMessage'):
                 wk.addEvent('{} process failed due to:{}'.format(
                             self.app_name, payload.get('errorMessage')))
