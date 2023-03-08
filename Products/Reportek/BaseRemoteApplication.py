@@ -1,5 +1,3 @@
-import io
-
 import requests
 import transaction
 from requests.exceptions import ConnectionError
@@ -9,6 +7,13 @@ from Products.Reportek import zip_content
 from Products.Reportek.exceptions import LocalConversionException
 from ZODB.POSException import ConflictError
 
+try:
+    from cBytesIO import BytesIO
+except ImportError:
+    try:
+        from BytesIO import BytesIO
+    except ImportError:
+        from io import BytesIO
 
 FEEDBACKTEXT_LIMIT = 1024 * 16  # 16KB
 
@@ -59,8 +64,21 @@ class BaseRemoteApplication(SimpleItem):
             f_name = envelope.cook_file_id(f)
             if f_name:
                 if f_name.endswith('.html'):
-                    feedback_ob.feedbacktext = archive.read()
-                    feedback_ob.content_type = 'text/html'
+                    if len(archive.read()) > FEEDBACKTEXT_LIMIT:
+                        archive.seek(0)
+                        feedback_ob.manage_uploadFeedback(archive,
+                                                          filename='qa-output')
+                        feedback_attach = feedback_ob.objectValues()[0]
+                        feedback_attach.data_file.content_type = 'text/html'
+                        feedback_ob.feedbacktext = (
+                            'Feedback too large for inline display; '
+                            '<a href="qa-output/view">see attachment</a>.')
+                        feedback_ob.content_type = 'text/html'
+
+                    else:
+                        archive.seek(0)
+                        feedback_ob.feedbacktext = archive.read()
+                        feedback_ob.content_type = 'text/html'
                     fb_status, fb_message = self.extract_metadata(feedback_ob)
                     feedback_ob.feedback_status = fb_status
                     if fb_status == 'BLOCKER':
@@ -132,7 +150,7 @@ class BaseRemoteApplication(SimpleItem):
 
             if r.status_code == requests.codes.ok:
                 from contextlib import closing
-                file_h = io.BytesIO(r.content)
+                file_h = BytesIO(r.content)
                 if result['content_type'] == 'application/zip':
                     with closing(r), zip_content.ZZipFile(file_h) as archive:
                         fbs = {}
@@ -185,3 +203,4 @@ class BaseRemoteApplication(SimpleItem):
             wk.failure = True
 
         return result
+
