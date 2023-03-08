@@ -28,10 +28,10 @@ class BaseRemoteApplication(SimpleItem):
     def wf_state_type(self, value):
         self._wf_state_type = value
 
-    def extract_metadata(self, fb):
+    def extract_metadata(self, fb=None, string_content=None):
         fb_status = 'UNKNOWN'
         fb_message = 'N/A'
-        f = getattr(fb, 'feedbacktext', None)
+        f = getattr(fb, 'feedbacktext', string_content)
         if f:
             soup = bs(f)
             log_sum = soup.find('span', attrs={'id': 'feedbackStatus'})
@@ -68,18 +68,22 @@ class BaseRemoteApplication(SimpleItem):
                         archive.seek(0)
                         feedback_ob.manage_uploadFeedback(archive,
                                                           filename='qa-output')
+                        archive.seek(0)
+                        html_header = archive.read(8096)
                         feedback_attach = feedback_ob.objectValues()[0]
                         feedback_attach.data_file.content_type = 'text/html'
                         feedback_ob.feedbacktext = (
                             'Feedback too large for inline display; '
                             '<a href="qa-output/view">see attachment</a>.')
                         feedback_ob.content_type = 'text/html'
-
+                        fb_status, fb_message = self.extract_metadata(
+                            string_content=html_header)
                     else:
                         archive.seek(0)
                         feedback_ob.feedbacktext = archive.read()
                         feedback_ob.content_type = 'text/html'
-                    fb_status, fb_message = self.extract_metadata(feedback_ob)
+                        fb_status, fb_message = self.extract_metadata(
+                            feedback_ob)
                     feedback_ob.feedback_status = fb_status
                     if fb_status == 'BLOCKER':
                         wk.blocker = True
