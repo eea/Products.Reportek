@@ -203,4 +203,3 @@ class BaseRemoteApplication(SimpleItem):
             wk.failure = True
 
         return result
-
