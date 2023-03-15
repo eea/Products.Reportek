@@ -345,6 +345,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
         feedback_ob = envelope[feedback_id]
         content = result[1].data
         content_type = result[0]
+        content_type = content_type if content_type else 'text/html'
         if len(content) > FEEDBACKTEXT_LIMIT:
             with tempfile.TemporaryFile() as tmp:
                 tmp.write(content.encode('utf-8'))
@@ -584,8 +585,9 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                         feedback_ob = envelope[feedback_id]
 
                         content = data['feedbackContent']
-                        content_type = data.get('feedbackContentType',
-                                                'text/html')
+                        content_type = data.get('feedbackContentType')
+                        if not content_type:
+                            content_type = 'text/html'
 
                         if len(content) > FEEDBACKTEXT_LIMIT:
                             with tempfile.TemporaryFile() as tmp:
@@ -607,8 +609,9 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                             feedback_ob.content_type = content_type
 
                         feedback_ob.message = data.get('feedbackMessage', '')
-                        feedback_ob.feedback_status = data.get(
-                            'feedbackStatus', 'UNKNOWN')
+                        fb_status = data.get('feedbackStatus')
+                        fb_status = fb_status if fb_status else 'UNKNOWN'
+                        feedback_ob.feedback_status = fb_status
 
                         if data['feedbackStatus'] == 'BLOCKER':
                             l_workitem.blocker = True

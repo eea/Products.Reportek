@@ -216,12 +216,14 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                         if not isinstance(r_files, list):
                             r_files = [r_files]
                         for r_file in r_files:
+                            c_type = job_result.get('feedbackContentType')
+                            c_type = c_type if c_type else 'text/html'
+                            fb_status = job_result.get('feedbackStatus')
+                            fb_status = fb_status if fb_status else 'UNKNOWN'
                             e_data = {
                                 'SCRIPT_TITLE': payload.get('scriptTitle'),
-                                'feedbackContentType': job_result.get(
-                                    'feedbackContentType', 'text/html'),
-                                'feedbackStatus': job_result.get(
-                                    'feedbackStatus', 'UNKNOWN'),
+                                'feedbackContentType': c_type,
+                                'feedbackStatus': fb_status,
                                 'feedbackMessage': job_result.get(
                                     'feedbackMessage')
                             }
@@ -249,9 +251,11 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                                 envelope, l_file_id))
                         feedback_ob = envelope[feedback_id]
 
-                        content = job_result['feedbackContent']
-                        content_type = job_result.get('feedbackContentType',
-                                                      'text/html')
+                        content = job_result.get('feedbackContent')
+                        content = content if content else 'N/A'
+                        content_type = job_result.get('feedbackContentType')
+                        if not content_type:
+                            content_type = 'text/html'
 
                         if content and len(content) > FEEDBACKTEXT_LIMIT:
                             with tempfile.TemporaryFile() as tmp:
@@ -274,8 +278,9 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
 
                         feedback_ob.message = job_result.get('feedbackMessage',
                                                              '')
-                        feedback_ob.feedback_status = job_result.get(
-                            'feedbackStatus', 'UNKNOWN')
+                        fb_status = job_result.get('feedbackStatus')
+                        fb_status = fb_status if fb_status else 'UNKNOWN'
+                        feedback_ob.feedback_status = fb_status
 
                         if job_result['feedbackStatus'] == 'BLOCKER':
                             wk.blocker = True

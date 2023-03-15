@@ -112,7 +112,8 @@ class BaseRemoteApplication(SimpleItem):
                                     document_id=l_file_id,
                                     restricted=restricted)
         feedback_ob = envelope[feedback_id]
-        content_type = l_ret.get('feedbackContentType', 'text/html')
+        content_type = l_ret.get('feedbackContentType')
+        content_type = content_type if content_type else 'text/html'
 
         if len(rfile.read()) > FEEDBACKTEXT_LIMIT:
             rfile.seek(0)
@@ -129,7 +130,9 @@ class BaseRemoteApplication(SimpleItem):
             feedback_ob.feedbacktext = rfile.read()
             feedback_ob.content_type = content_type
 
-        feedback_ob.feedback_status = l_ret.get('feedbackStatus')
+        fb_status = l_ret.get('feedbackStatus')
+        fb_status = fb_status if fb_status else 'UNKNOWN'
+        feedback_ob.feedback_status = fb_status
         if feedback_ob.feedback_status == 'BLOCKER':
             wk.blocker = True
         if feedback_ob.feedback_status == 'FAILED':
@@ -149,7 +152,8 @@ class BaseRemoteApplication(SimpleItem):
             result['url'] = url
             ctype = l_ret.get(
                 'feedbackContentType',
-                r.headers.get('Content-Type', 'text/html'))
+                r.headers.get('Content-Type', ''))
+            ctype = ctype if ctype else 'text/html'
             result['content_type'] = ctype
             result['content_lenght'] = len(r.content)
 
