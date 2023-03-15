@@ -624,7 +624,7 @@ class RemoteApplication(BaseRemoteApplication):
 
                         feedback_ob.message = l_ret.get('FEEDBACK_MESSAGE', '')
                         feedback_ob.feedback_status = l_ret.get(
-                            'FEEDBACK_STATUS', '')
+                            'FEEDBACK_STATUS', 'UNKNOWN')
 
                         if l_ret['FEEDBACK_STATUS'] == 'BLOCKER':
                             l_workitem.blocker = True

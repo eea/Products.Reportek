@@ -112,7 +112,7 @@ class BaseRemoteApplication(SimpleItem):
                                     document_id=l_file_id,
                                     restricted=restricted)
         feedback_ob = envelope[feedback_id]
-        content_type = l_ret['feedbackContentType']
+        content_type = l_ret.get('feedbackContentType', 'text/html')
 
         if len(rfile.read()) > FEEDBACKTEXT_LIMIT:
             rfile.seek(0)
@@ -148,7 +148,8 @@ class BaseRemoteApplication(SimpleItem):
             result['status_code'] = r.status_code
             result['url'] = url
             ctype = l_ret.get(
-                'feedbackContentType', r.headers.get('Content-Type', ''))
+                'feedbackContentType',
+                r.headers.get('Content-Type', 'text/html'))
             result['content_type'] = ctype
             result['content_lenght'] = len(r.content)
 

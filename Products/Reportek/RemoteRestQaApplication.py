@@ -537,7 +537,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                         e_data = {
                             'SCRIPT_TITLE': data.get('scriptTitle'),
                             'feedbackContentType': data.get(
-                                'feedbackContentType')
+                                'feedbackContentType', 'text/html')
                         }
                         r_res = self.handle_remote_file(
                             r_file, l_file_id, p_workitem_id, e_data, p_jobID,
@@ -584,7 +584,8 @@ class RemoteRestQaApplication(BaseRemoteApplication):
                         feedback_ob = envelope[feedback_id]
 
                         content = data['feedbackContent']
-                        content_type = data['feedbackContentType']
+                        content_type = data.get('feedbackContentType',
+                                                'text/html')
 
                         if len(content) > FEEDBACKTEXT_LIMIT:
                             with tempfile.TemporaryFile() as tmp:
@@ -607,7 +608,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
 
                         feedback_ob.message = data.get('feedbackMessage', '')
                         feedback_ob.feedback_status = data.get(
-                            'feedbackStatus', '')
+                            'feedbackStatus', 'UNKNOWN')
 
                         if data['feedbackStatus'] == 'BLOCKER':
                             l_workitem.blocker = True

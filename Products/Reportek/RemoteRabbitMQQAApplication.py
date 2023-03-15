@@ -219,9 +219,9 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                             e_data = {
                                 'SCRIPT_TITLE': payload.get('scriptTitle'),
                                 'feedbackContentType': job_result.get(
-                                    'feedbackContentType'),
+                                    'feedbackContentType', 'text/html'),
                                 'feedbackStatus': job_result.get(
-                                    'feedbackStatus'),
+                                    'feedbackStatus', 'UNKNOWN'),
                                 'feedbackMessage': job_result.get(
                                     'feedbackMessage')
                             }
@@ -250,7 +250,8 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                         feedback_ob = envelope[feedback_id]
 
                         content = job_result['feedbackContent']
-                        content_type = job_result['feedbackContentType']
+                        content_type = job_result.get('feedbackContentType',
+                                                      'text/html')
 
                         if content and len(content) > FEEDBACKTEXT_LIMIT:
                             with tempfile.TemporaryFile() as tmp:
@@ -274,7 +275,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                         feedback_ob.message = job_result.get('feedbackMessage',
                                                              '')
                         feedback_ob.feedback_status = job_result.get(
-                            'feedbackStatus', '')
+                            'feedbackStatus', 'UNKNOWN')
 
                         if job_result['feedbackStatus'] == 'BLOCKER':
                             wk.blocker = True
