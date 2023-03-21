@@ -162,18 +162,9 @@ class BaseRemoteApplication(SimpleItem):
                 file_h = BytesIO(r.content)
                 if result['content_type'] == 'application/zip':
                     with closing(r), zip_content.ZZipFile(file_h) as archive:
-                        fbs = {}
-                        for name in archive.namelist():
-                            k = name.split('/')[-1].split('.')[0]
-                            if k:
-                                if k not in fbs.keys():
-                                    fbs[k] = [name]
-                                else:
-                                    fbs[k].append(name)
-                        for fb in fbs:
-                            self.add_zip_feedback(archive, fb, fbs[fb], wk,
-                                                  l_file_id, l_ret, job_id,
-                                                  restricted=restricted)
+                        self.add_zip_feedback(archive, '', archive.namelist(),
+                                              wk, l_file_id, l_ret, job_id,
+                                              restricted=restricted)
                 elif 'text/html' in result['content_type']:
                     with closing(r), file_h as rfile:
                         self.add_html_feedback(rfile, '', wk,
