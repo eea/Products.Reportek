@@ -91,7 +91,6 @@ class BaseRemoteApplication(SimpleItem):
                         wk.failure = True
                     feedback_ob.message = fb_message
                 else:
-                    import pdb.pdb.set_trace()
                     feedback_ob.manage_uploadFeedback(archive, filename=f_name)
 
     def add_html_feedback(self, rfile, fb, wk, l_file_id, l_ret,
