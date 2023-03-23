@@ -70,7 +70,7 @@ class BaseRemoteApplication(SimpleItem):
                                                           filename='qa-output')
                         archive.seek(0)
                         html_header = archive.read(8096)
-                        feedback_attach = feedback_ob.objectValues()[0]
+                        feedback_attach = feedback_ob['qa-output']
                         feedback_attach.data_file.content_type = 'text/html'
                         feedback_ob.feedbacktext = (
                             'Feedback too large for inline display; '
@@ -91,6 +91,7 @@ class BaseRemoteApplication(SimpleItem):
                         wk.failure = True
                     feedback_ob.message = fb_message
                 else:
+                    import pdb.pdb.set_trace()
                     feedback_ob.manage_uploadFeedback(archive, filename=f_name)
 
     def add_html_feedback(self, rfile, fb, wk, l_file_id, l_ret,
