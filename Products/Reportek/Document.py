@@ -768,6 +768,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             skip_compress = True
             crc = file.CRC
 
+        savepoint = transaction.savepoint()
         with self.data_file.open('wb', orig_size=orig_size,
                                  skip_decompress=skip_compress, crc=crc,
                                  preserve_mtime=preserve_mtime)\
@@ -783,7 +784,11 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
             if engine:
                 engine.AVService.scan(data_file_handle, filename=self.getId())
             if self.content_type == 'text/xml':
-                self.xml_schema_location = detect_schema(data_file_handle)
+                try:
+                    self.xml_schema_location = detect_schema(data_file_handle)
+                except Exception as e:
+                    savepoint.rollback()
+                    raise e
             else:
                 self.xml_schema_location = ''
 
