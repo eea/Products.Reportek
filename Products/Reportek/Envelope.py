@@ -316,13 +316,14 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
             in VALID_FB_STATUSES is treated as 'UNKNOWN'.
         """
         VALID_FB_STATUSES = [
-            'INFO',
-            'SKIPPED',
-            'OK',
-            'WARNING',
+            'BLOCKER'
             'ERROR',
             'FAILED',
-            'BLOCKER'
+            'INFO',
+            'OK',
+            'REGERROR',
+            'SKIPPED',
+            'WARNING',
         ]
 
         aqa_fbs = self.get_qa_feedbacks()

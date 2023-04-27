@@ -460,12 +460,14 @@ class EnvelopesAPI(BrowserView):
         aqc_brains = [brain for brain in fb_brains
                       if brain.title.startswith('AutomaticQA')]
         VALID_FB_STATUSES = [
-            'INFO',
-            'SKIPPED',
-            'OK',
-            'WARNING',
-            'ERROR',
             'BLOCKER'
+            'ERROR',
+            'FAILED',
+            'INFO',
+            'OK',
+            'REGERROR',
+            'SKIPPED',
+            'WARNING',
         ]
 
         for aqc in aqc_brains:
