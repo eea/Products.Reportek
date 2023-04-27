@@ -341,7 +341,8 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         UNACCEPTABLE_FB_STATUSES = [
             'BLOCKER',
             'ERROR',
-            'FAILED'
+            'FAILED',
+            'REGERROR'
         ]
 
         aqa_fbs = self.get_qa_feedbacks()
