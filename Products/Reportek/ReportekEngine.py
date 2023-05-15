@@ -155,6 +155,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     globally_restricted_site = False
     cr_rmq = False
     env_fwd_rmq = False
+    env_fwd_rmq_queue = 'fwd_envelopes'
     col_sync_rmq = False
     col_sync_rmq_pub = False
     col_role_sync_rmq = False
@@ -352,6 +353,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         self.cr_api_url = self.REQUEST.get('cr_api_url', self.cr_api_url)
         self.cr_rmq = bool(self.REQUEST.get('cr_rmq', False))
         self.env_fwd_rmq = bool(self.REQUEST.get('env_fwd_rmq', False))
+        self.env_fwd_rmq_queue = self.REQUEST.get('env_fwd_rmq_queue',
+                                                  'fwd_envelopes')
         self.col_sync_rmq = bool(self.REQUEST.get('col_sync_rmq', False))
         self.col_sync_rmq_pub = bool(self.REQUEST.get('col_sync_rmq_pub',
                                                       False))

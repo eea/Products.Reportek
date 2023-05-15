@@ -85,6 +85,11 @@
                 <input type="checkbox" name="env_fwd_rmq" id="env_fwd_rmq" tal:attributes="checked here/env_fwd_rmq|nothing" size="5" /><br />
                 Check this to publish forwardable envelopes to RabbitMQ
             </p>
+            <p class="form-help" i18n:translate="">
+                <strong><label for="env_fwd_rmq_queue" i18n:translate=""></label></strong>
+                <input type="text" size="50" id="env_fwd_rmq_queue"
+                       name="env_fwd_rmq_queue" tal:attributes="value here/env_fwd_rmq_queue" />
+            </p>
         </fieldset>
         <fieldset>
             <legend i18n:translate="">RabbitMQ collection synchronisation</legend>
