@@ -4,7 +4,7 @@ from urllib import unquote
 from base_admin import BaseAdmin
 from DateTime import DateTime
 from Products.Reportek.catalog import searchResults
-from Products.Reportek.constants import WORKFLOW_ENGINE_ID
+from Products.Reportek.constants import WORKFLOW_ENGINE_ID, ENGINE_ID
 from Products.Reportek.rabbitmq import send_message
 
 
@@ -264,10 +264,11 @@ class EnvelopeUtils(BaseAdmin):
 
         return json.dumps(envelopes)
 
-    def get_rmq_queue(self, act_id):
-        queue = 'fwd_envelopes'
+    def get_rmq_queue(self, act_id=None):
+        engine = self.context.unrestrictedTraverse(ENGINE_ID, None)
+        queue = getattr(engine, 'env_fwd_rmq_queue', 'fwd_envelopes')
         # Uncomment to allow for separate queues based on Activity
-        # if act_id in ['AutomaticQA', 'FMEConversionApplication']:
+        # if act_id and act_id in ['AutomaticQA', 'FMEConversionApplication']:
         #     queue = 'poll_envelopes'
 
         return queue
@@ -282,7 +283,7 @@ class EnvelopeUtils(BaseAdmin):
                 for env in pub_envs:
                     try:
                         # TODO: dynamically set the queue here
-                        send_message(env, queue='fwd_envelopes')
+                        send_message(env, queue=self.get_rmq_queue())
                         results.append({
                             'envelope': env,
                             'published': True,

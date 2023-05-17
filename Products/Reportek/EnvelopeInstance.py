@@ -645,11 +645,11 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                                  'process_to_id': process.id})
         return destinations
 
-    def get_rmq_queue(self, act_id):
+    def get_rmq_queue(self, act_id=None):
         engine = self.unrestrictedTraverse(ENGINE_ID, None)
         queue = getattr(engine, 'env_fwd_rmq_queue', 'fwd_envelopes')
         # Uncomment to allow for separate queues based on Activity
-        # if act_id in ['AutomaticQA', 'FMEConversionApplication']:
+        # if act_id and act_id in ['AutomaticQA', 'FMEConversionApplication']:
         #     queue = 'poll_envelopes'
         return queue
 
