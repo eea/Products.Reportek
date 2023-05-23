@@ -214,8 +214,8 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                         self.app_name, job_id, l_file_id))
                 l_wk_prop['getResult'][job_id].append(payload)
                 l_wk_prop['jobs_summary'][job_id]['last_status'] = {
-                    'status': payload.get('status'),
-                    'date_time': DateTime(),
+                    'status': payload.get('jobStatus'),
+                    'date_time': DateTime().HTML4(),
                 }
                 # handle results
                 job_result = payload.get('jobResult')
