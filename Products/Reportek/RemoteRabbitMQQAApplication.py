@@ -190,6 +190,12 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                     wk.addEvent(
                         'Operation completed: no QC scripts available to '
                         'analyze the files in the envelope')
+                else:
+                    for job_id in payload.get('jobIds'):
+                        if job_id not in l_wk_prop['jobs_summary']:
+                            l_wk_prop['jobs_summary'][job_id] = {
+                                'completed': False
+                            }
             elif payload.get('errorMessage'):
                 wk.addEvent('{} process failed due to:{}'.format(
                             self.app_name, payload.get('errorMessage')))
@@ -201,9 +207,16 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                     string.split(payload.get('documentURL'), '/')[-1])
                 if not l_wk_prop['getResult'].get(job_id):
                     l_wk_prop['getResult'][job_id] = []
+                    l_wk_prop['jobs_summary'][job_id] = {
+                        'completed': False
+                    }
                     wk.addEvent('{} job in progress: #{} for {}'.format(
                         self.app_name, job_id, l_file_id))
                 l_wk_prop['getResult'][job_id].append(payload)
+                l_wk_prop['jobs_summary'][job_id]['last_status'] = {
+                    'status': payload.get('status'),
+                    'date_time': DateTime(),
+                }
                 # handle results
                 job_result = payload.get('jobResult')
                 exec_status = payload.get('executionStatus', '')
@@ -270,9 +283,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                                 'Feedback too large for inline display; '
                                 '<a href="qa-output/view">see attachment</a>.')
                             feedback_ob.content_type = 'text/html'
-
                         else:
-
                             feedback_ob.feedbacktext = content
                             feedback_ob.content_type = content_type
 
@@ -291,10 +302,12 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                         wk.addEvent('{} job completed: #{} for {}'.format(
                             self.app_name, job_id, l_file_id))
                         l_wk_prop['jobs_handled'] += 1
+                        l_wk_prop['jobs_summary'][job_id]['completed'] = True
 
                 if code:
                     if code not in ['0', '1']:
                         l_wk_prop['jobs_handled'] += 1
+                        l_wk_prop['jobs_summary'][job_id]['completed'] = True
                         wk.addEvent('{} job failed: #{} for {}'.format(
                             self.app_name, job_id, l_file_id))
             wk._p_changed = 1
@@ -337,6 +350,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
         l_wk_prop['getResult'] = {}
         l_wk_prop['jobs_handled'] = 0
         l_wk_prop['number_of_jobs'] = None
+        l_wk_prop['jobs_summary'] = {}
 
     def __finishApplication(self, p_workitem_id, REQUEST=None):
         """ Completes the workitem and forwards it """
