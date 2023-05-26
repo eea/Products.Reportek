@@ -42,8 +42,6 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BaseRemoteApplication import BaseRemoteApplication
 from Products.Reportek.interfaces import IQAApplication
 from Products.Reportek.rabbitmq import send_message_nodqueue
-from ZODB.PersistentList import PersistentList
-from zope.annotation.interfaces import IAnnotations
 from zope.interface import implements
 
 feedback_log = logging.getLogger(__name__ + '.feedback')
@@ -310,8 +308,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                     feedback_ob.feedbacktext = content
                     feedback_ob.content_type = content_type
 
-                feedback_ob.message = job_result.get('feedbackMessage',
-                                                        '')
+                feedback_ob.message = job_result.get('feedbackMessage', '')
                 fb_status = job_result.get('feedbackStatus')
                 fb_status = fb_status if fb_status else 'UNKNOWN'
                 feedback_ob.feedback_status = fb_status
@@ -349,7 +346,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
 
             handled = len([j for j in l_wk_prop['jobs_summary']
                            if l_wk_prop['jobs_summary'][j].get('completed')
-                            and l_wk_prop['jobs_summary'][j].get('valid')])
+                           and l_wk_prop['jobs_summary'][j].get('valid')])
             if l_wk_prop['number_of_jobs'] == handled:
                 self.__finishApplication(workitem_id, REQUEST)
         else:

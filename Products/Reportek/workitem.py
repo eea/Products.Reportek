@@ -13,7 +13,6 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.interfaces import IWorkitem, IWkMetadata
 from Products.Reportek.RepUtils import DFlowCatalogAware
 from Products.ZCatalog.CatalogPathAwareness import CatalogAware
-from persistent.dict import PersistentDict
 from zope.event import notify
 from zope.interface import implements
 from zope.lifecycleevent import ObjectModifiedEvent
@@ -39,7 +38,6 @@ class workitem(CatalogAware, object, SimpleItem, PropertyManager,
     # assertions.
     security = ClassSecurityInfo()
     implements(IWorkitem, IWkMetadata)
-
 
     def __init__(self, id, instance_id, activity_id, blocked,
                  priority=0, workitems_from=[], workitems_to=[],

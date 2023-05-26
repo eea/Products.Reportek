@@ -1,5 +1,4 @@
 import requests
-import transaction
 from requests.exceptions import ConnectionError
 from BeautifulSoup import BeautifulSoup as bs
 from OFS.SimpleItem import SimpleItem

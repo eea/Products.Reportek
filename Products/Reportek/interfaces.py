@@ -80,5 +80,6 @@ class IQAApplication(Interface):
     """ Marker interface for QA Applications
     """
 
+
 class IWkMetadata(IAttributeAnnotatable):
     """ Marker interface for metadata wk """
