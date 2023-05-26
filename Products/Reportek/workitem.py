@@ -3,18 +3,23 @@ import string
 
 import constants
 from AccessControl import ClassSecurityInfo
+from BTrees.OOBTree import BTree
 from ComputedAttribute import ComputedAttribute
 from DateTime import DateTime
 from Globals import InitializeClass
 from OFS.PropertyManager import PropertyManager
 from OFS.SimpleItem import SimpleItem
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Products.Reportek.interfaces import IWorkitem
+from Products.Reportek.interfaces import IWorkitem, IWkMetadata
 from Products.Reportek.RepUtils import DFlowCatalogAware
 from Products.ZCatalog.CatalogPathAwareness import CatalogAware
+from persistent.dict import PersistentDict
 from zope.event import notify
 from zope.interface import implements
 from zope.lifecycleevent import ObjectModifiedEvent
+from zope.annotation.interfaces import IAnnotations
+
+ANNOTATION_KEY = 'workitem.metadata'
 
 
 def computed_attribute_decorator(level=0):
@@ -33,7 +38,8 @@ class workitem(CatalogAware, object, SimpleItem, PropertyManager,
     # in the rest of our class definition to make security
     # assertions.
     security = ClassSecurityInfo()
-    implements(IWorkitem)
+    implements(IWorkitem, IWkMetadata)
+
 
     def __init__(self, id, instance_id, activity_id, blocked,
                  priority=0, workitems_from=[], workitems_to=[],
@@ -70,6 +76,7 @@ class workitem(CatalogAware, object, SimpleItem, PropertyManager,
         self.suspended_time = 0
         self.fallout_time = 0
         self.creation_time = DateTime()
+        self.__metadata = None
         # log initialization
         if self.status == 'inactive':
             self.inactivation_log.append(
@@ -90,6 +97,10 @@ class workitem(CatalogAware, object, SimpleItem, PropertyManager,
     security.declareProtected('View', 'workitemDetails')
     workitemDetails = PageTemplateFile(
         'zpt/Workflow/workitem_details', globals())
+
+    security.declareProtected('Manage OpenFlow', 'workitem_metadata')
+    workitem_metadata = PageTemplateFile(
+        'zpt/Workflow/workitem_metadata', globals())
 
     security.declareProtected('View', 'index_html')
     index_html = PageTemplateFile('zpt/Workflow/workitem_index', globals())
@@ -307,6 +318,26 @@ class workitem(CatalogAware, object, SimpleItem, PropertyManager,
             return getattr(getattr(process, self.activity_id), attr)
         except Exception:
             return None
+
+    def _metadata(self, create=True):
+        if self.__metadata is not None:
+            return self.__metadata
+
+        annotations = IAnnotations(self)
+        metadata = annotations.get(ANNOTATION_KEY, None)
+        if metadata is None and create:
+            metadata = annotations.setdefault(ANNOTATION_KEY, BTree())
+        if metadata is not None:
+            self.__metadata = metadata
+            return self.__metadata
+
+    def get_metadata(self):
+        metadata = self._metadata(create=False)
+        jobs = metadata.get(self.activity_id, {}).get('getResult', {})
+        r = {}
+        for key in jobs:
+            r[key] = list(jobs[key])
+        return r
 
     @property
     def failure(self):

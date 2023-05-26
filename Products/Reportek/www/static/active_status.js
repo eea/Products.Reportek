@@ -80,10 +80,10 @@ function get_wk_metadata() {
                 $(".status-logs div").remove();
                 if (act_type === 'automatic') {
                     valid_items.forEach(function (item, idx, array) {
-                        if (item.event.indexOf('progress') !== -1) {
+                        if (item.event.indexOf('progress:') !== -1) {
                             total_jobs += count_occurence(item.event, '#');
                         }
-                        if (item.event.indexOf('completed') !== -1) {
+                        if (item.event.indexOf('completed:') !== -1 || item.event.indexOf('failed:') !== -1) {
                             finished_jobs += count_occurence(item.event, '#');
                         }
                         if (total_jobs > 0) {

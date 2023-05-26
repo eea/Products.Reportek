@@ -1,4 +1,5 @@
 from zope.interface import Attribute, Interface
+from zope.annotation.interfaces import IAttributeAnnotatable
 
 
 class IDocument(Interface):
@@ -78,3 +79,6 @@ class IWorkitem(Interface):
 class IQAApplication(Interface):
     """ Marker interface for QA Applications
     """
+
+class IWkMetadata(IAttributeAnnotatable):
+    """ Marker interface for metadata wk """

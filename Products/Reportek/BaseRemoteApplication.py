@@ -171,7 +171,6 @@ class BaseRemoteApplication(SimpleItem):
                                                l_file_id, l_ret, job_id,
                                                restricted=restricted)
 
-                transaction.commit()
             else:
                 result['content'] = r.content
                 wk.addEvent(
@@ -185,7 +184,6 @@ class BaseRemoteApplication(SimpleItem):
                 'It will be retried automatically in a few minutes'.format(
                     job_id, url
                 ))
-            transaction.commit()
             raise err
         except (LocalConversionException, ConnectionError) as err:
             # we need to raise this so that it can be retried
@@ -193,7 +191,6 @@ class BaseRemoteApplication(SimpleItem):
                 'Error while downloading results for job #{} from {}. '
                 'It will be retried automatically in a few minutes'.format(
                     job_id, url))
-            transaction.commit()
             raise err
         except Exception as e:
             result['content'] = str(e)

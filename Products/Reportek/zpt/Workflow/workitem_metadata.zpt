@@ -1,0 +1,14 @@
+<div tal:condition="context/get_metadata" tal:define="metadata context/get_metadata">
+    <table>
+        <tr tal:repeat="item metadata">
+            <th tal:content="python: item"></th>
+            <td>
+                <ul>
+                    <li tal:repeat="entry python: metadata[item]">
+                        <span tal:content="python: entry"></span>
+                    </li>
+                </ul>
+            </td>
+        </tr>
+    </table>
+</div>
