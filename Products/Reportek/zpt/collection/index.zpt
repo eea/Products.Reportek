@@ -98,10 +98,10 @@
                   </td>
                 </tr>
               </tal:rep>
-              <tr tal:condition="python: isBdrDeployment and envs">
+              <tr tal:condition="python: isBdrDeployment">
                 <td colspan="7">
                   <h2 i18n:translate="" tal:condition="not: colls">Envelopes</h2>
-                  <h2 i18n:translate="" tal:condition="colls">F-gas Regulation Article 19 data reporting</h2>
+                  <h2 i18n:translate="" tal:condition="python: is_fgas and getattr(here, 'company_id', None)">F-gas Regulation Article 19 data reporting</h2>
                 </td>
               </tr>
               <tr valign="top" tal:repeat="item python:here.tlzSortByAttr(envs, 'reportingdate', 1)">
