@@ -316,7 +316,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
             in VALID_FB_STATUSES is treated as 'UNKNOWN'.
         """
         VALID_FB_STATUSES = [
-            'BLOCKER'
+            'BLOCKER',
             'ERROR',
             'FAILED',
             'INFO',
