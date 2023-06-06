@@ -5,7 +5,7 @@
     <div tal:define="SecurityManager modules/AccessControl/getSecurityManager;
                      is_manager python:SecurityManager.checkPermission('View management screens', template);
                      owncolls python: {'Reporter': here.get_company_collections()} if is_manager else here.ReportekEngine.getUserCollections();
-                     rep_colls python: owncolls.get('Reporter', {});
+                     rep_colls python: owncolls.get('Reporter', {}) if owncolls and owncolls.get('Reporter', {}) else {};
                      rw_colls python: rep_colls.get('rw', []);
                      ro_colls python: rep_colls.get('ro', []);
                      rw_colls python: [col for col in rw_colls if col.absolute_url() != context.absolute_url()];

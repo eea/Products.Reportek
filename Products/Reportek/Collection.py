@@ -635,7 +635,6 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             engine = self.getEngine()
             registry = engine.get_registry(self)
-
             if self.company_id and registry:
                 registry_name = getattr(registry, 'registry_name', None)
                 if registry_name == 'FGAS Registry':
@@ -647,7 +646,13 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
                     data = registry.get_company_details(self.company_id,
                                                         domain=domain)
                 else:
-                    data = registry.get_company_details(self.company_id)
+                    # For BDR-Registry, get the domain from the top-level path
+                    domain = (
+                        self.getPhysicalPath()[1]
+                        if len(self.getPhysicalPath()) > 1 else None
+                    )
+                    data = registry.get_company_details(self.company_id,
+                                                        domain=domain)
                 if data:
                     data['registry'] = registry_name
 

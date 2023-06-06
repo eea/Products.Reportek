@@ -542,11 +542,11 @@ class BDRRegistryAPI(BaseRegistryAPI):
             return response.json()
 
     @ram.cache(lambda *args, **kwargs: args[2] + str(time() // (60 * 60)))
-    def get_company_details(self, company_id):
+    def get_company_details(self, company_id, domain=None):
         """ Get company details from Registry
         """
         url = self.baseUrl + \
-            '/management/companies/account/{0}'.format(company_id)
+            '/management/companies/account/{0}/{1}'.format(company_id, domain)
         response = self.do_api_request(
             url, headers={'Authorization': self.bdr_registry_token})
 
