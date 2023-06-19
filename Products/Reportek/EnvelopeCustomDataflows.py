@@ -711,15 +711,6 @@ class EnvelopeCustomDataflows(Toolz):
 
             # According to the zipfile.py ZipFile just needs a file-like object
             zf = zip_content.ZZipFileRaw(file)
-            fbs = {}
-            namelist = zf.namelist()
-            for name in namelist:
-                k = name.split('/')[-1].split('.')[0]
-                if k:
-                    if k not in fbs.keys():
-                        fbs[k] = [name]
-                    else:
-                        fbs[k].append(name)
             zip_file_ids = zf.namelist()
             file_ids_not_uploaded = []
             file_ids_to_delete = []
