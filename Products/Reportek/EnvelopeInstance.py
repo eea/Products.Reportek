@@ -42,6 +42,8 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.exceptions import ApplicationException
 from Products.Reportek.rabbitmq import queue_msg
 from Products.ZCatalog.CatalogPathAwareness import CatalogAware
+import plone.protect.interfaces
+from zope.interface import alsoProvides
 from workitem import workitem
 
 try:
@@ -430,6 +432,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """ declares the activation of the specified workitem of the given
             instance
         """
+        if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
+            alsoProvides(REQUEST,
+                         plone.protect.interfaces.IDisableCSRFProtection)
         workitem = getattr(self, str(workitem_id))
         if actor:
             action_actor = actor
@@ -455,6 +460,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """ declares the inactivation of the specified workitem of the given
             instance
         """
+        if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
+            alsoProvides(REQUEST,
+                         plone.protect.interfaces.IDisableCSRFProtection)
         workitem = getattr(self, str(workitem_id))
         actor = ''  # We don't need any actor name
         if (self.isActiveOrRunning() and workitem.status == 'active'
@@ -506,6 +514,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """ declares the completion of the specified workitem of the given
             instance
         """
+        if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
+            alsoProvides(REQUEST,
+                         plone.protect.interfaces.IDisableCSRFProtection)
         if REQUEST:
             if 'actor' in REQUEST:
                 actor = REQUEST['actor']
@@ -549,6 +560,10 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     def forwardState(self, REQUEST=None):
         """.."""
+        # Disable CSRF protection
+        if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
+            alsoProvides(self.REQUEST,
+                         plone.protect.interfaces.IDisableCSRFProtection)
         result = {}
         engine = getattr(self, ENGINE_ID)
         rmq = getattr(engine, 'env_fwd_rmq', False)
@@ -698,6 +713,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     def forwardWorkitem(self, workitem_id, path=None, REQUEST=None):
         """ instructs openflow to forward the specified workitem """
+        if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
+            alsoProvides(REQUEST,
+                         plone.protect.interfaces.IDisableCSRFProtection)
         destinations = self.getDestinations(workitem_id, path)
         if destinations == []:
             self.falloutWorkitem(workitem_id)
@@ -820,6 +838,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         activity_id; workitem will still be in exceptional state:
         use endFallinWorkitem API to specify the end of the exceptional state
         """
+        if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
+            alsoProvides(REQUEST,
+                         plone.protect.interfaces.IDisableCSRFProtection)
         workitem_from = getattr(self, workitem_id)
         engine = self.getOpenFlowEngine()
         push_roles = engine.getPushRoles(
@@ -846,6 +867,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     def endFallinWorkitem(self, workitem_id, REQUEST=None):
         """ Ends the exceptional state of the given workitem """
+        if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
+            alsoProvides(REQUEST,
+                         plone.protect.interfaces.IDisableCSRFProtection)
         workitem = getattr(self, workitem_id)
         workitem.addEvent('handled fallout')
         if not filter(lambda x: x['event'] == 'complete',

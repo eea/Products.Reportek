@@ -960,10 +960,13 @@ def handle_application_move_events(obj):
     new_path = ''
 
     if obj.oldParent:
-        old_path = '/'.join([
-            obj.oldParent.absolute_url_path(),
-            obj.oldName
-        ])
+        try:
+            old_path = '/'.join([
+                obj.oldParent.absolute_url_path(),
+                obj.oldName
+            ])
+        except Exception:
+            old_path = ''
 
     if obj.newParent:
         try:
@@ -971,7 +974,7 @@ def handle_application_move_events(obj):
                 obj.newParent.absolute_url_path(),
                 obj.newName
             ])
-        except TypeError:
+        except Exception:
             new_path = ''
 
     match_old = expr.match(old_path)

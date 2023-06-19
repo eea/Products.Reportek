@@ -66,7 +66,8 @@
 
           <a
             tal:condition="python: context.is_cancellable(item.getId())"
-            tal:attributes="href string:cancel_activity?workitem_id=${item/id}"
+            tal:define="href string:cancel_activity?workitem_id=${item/id}"
+            tal:attributes="href python: context.get_key_url(href)"
             class="cancel-activity status-control"
             title="Cancel activity"
             i18n:attributes="title title-cancel-activity"
@@ -111,8 +112,9 @@
                   <tal:block condition="canPull">
                     <strong>
                       <a tal:define="w_id item/id;
-                                    dest_url python:context.getMySelf().absolute_url()"
-                        tal:attributes="href string:activateWorkitem?workitem_id=${w_id}&DestinationURL=${dest_url}"
+                                    dest_url python:context.getMySelf().absolute_url();
+                                    href string:activateWorkitem?workitem_id=${w_id}&DestinationURL=${dest_url};"
+                        tal:attributes="href python: context.get_key_url(href)"
                         title="Activation means you accept responsibility for this task.
                                 Only the person who has activated the task can work on it.
                                 Afterwards you can click on [Deactivate] or

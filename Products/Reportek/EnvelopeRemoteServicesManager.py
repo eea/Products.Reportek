@@ -370,6 +370,12 @@ class EnvelopeRemoteServicesManager:
             0 - something went wrong, but
             they could be detailed with error codes and values
         """
+        import plone.protect.interfaces
+        from zope.interface import alsoProvides
+        if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
+            alsoProvides(REQUEST,
+                         plone.protect.interfaces.IDisableCSRFProtection)
+        from XMLInfoParser import SchemaError
         if self.released:
             raise EnvelopeReleasedException("Envelope is released.\
                                              The document cannot be saved.")

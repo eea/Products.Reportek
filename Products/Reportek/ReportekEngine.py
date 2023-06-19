@@ -54,6 +54,8 @@ from interfaces import IReportekEngine
 from OFS.Folder import Folder
 from paginator import DiggPaginator, EmptyPage, InvalidPage
 from plone.memoize import ram
+import plone.protect.interfaces
+from zope.interface import alsoProvides
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BdrAuthorizationMiddleware import \
     BdrAuthorizationMiddleware
@@ -650,6 +652,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
            domain/country/old_collection_id. It's company_id will be updated.
            If `old_collection_id` does not exist at the expected location
            nothing will happen."""
+
+        # Disable CSRF protection
+        if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
+            alsoProvides(self.REQUEST,
+                         plone.protect.interfaces.IDisableCSRFProtection)
 
         if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
             self.REQUEST.RESPONSE.setHeader('Content-Type', 'application/json')

@@ -65,6 +65,9 @@ from Products.Reportek.caching.config import registry_setup
 from Products.ZCTextIndex.ZCTextIndex import PLexicon
 from Products.ZCatalog.ZCatalog import ZCatalog
 from plone.registry.interfaces import IRegistry
+from plone.keyring.interfaces import IKeyManager
+from plone.keyring.keymanager import KeyManager
+from zope.interface.interfaces import IComponentRegistry
 from registry import Registry
 from zope.component import getGlobalSiteManager
 from zope.component import getUtility
@@ -190,6 +193,15 @@ def create_reportek_objects(app):
     # setup registry for caching purposes
     registry_setup(registry)
 
+    # register key manager from plone.keyring
+    km = getattr(app, 'key_manager', None)
+    if km is None:
+        km = KeyManager()
+        app.key_manager = km
+        app._p_changed = 1
+        if logger is not None:
+            logger.info('Adding key manager')
+    gsm.registerUtility(km, IKeyManager)
 
 def _strip_protocol_domain(full_url):
     """ Take a full url and return a tuple of path part and protocol+domain

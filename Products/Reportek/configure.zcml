@@ -64,6 +64,7 @@
     <include package=".api" />
     <include package="plone.caching" />
     <include package="plone.cachepurging" />
+    <include package="plone.keyring" />
     <include package=".caching" />
     <include package=".indexer" />
     
