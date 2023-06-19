@@ -375,7 +375,6 @@ class EnvelopeRemoteServicesManager:
         if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
             alsoProvides(REQUEST,
                          plone.protect.interfaces.IDisableCSRFProtection)
-        from XMLInfoParser import SchemaError
         if self.released:
             raise EnvelopeReleasedException("Envelope is released.\
                                              The document cannot be saved.")

@@ -190,7 +190,6 @@ class Toolz:
                 rfind(file_id, ':')) + 1:]
         return RepUtils.cleanup_id(file_id.strip())
 
-
     def get_key_url(self, url):
         """Returns url with csrf authorization key"""
         req = self.REQUEST

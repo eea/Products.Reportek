@@ -713,7 +713,6 @@ class EnvelopeCustomDataflows(Toolz):
             zf = zip_content.ZZipFileRaw(file)
             fbs = {}
             namelist = zf.namelist()
-            namelist.append(u'./crossChecks_20230314115846.6425549/crossChecks-spatialChecks.csv')
             for name in namelist:
                 k = name.split('/')[-1].split('.')[0]
                 if k:
@@ -721,7 +720,6 @@ class EnvelopeCustomDataflows(Toolz):
                         fbs[k] = [name]
                     else:
                         fbs[k].append(name)
-            import pdb;pdb.set_trace()
             zip_file_ids = zf.namelist()
             file_ids_not_uploaded = []
             file_ids_to_delete = []
