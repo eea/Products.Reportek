@@ -41,4 +41,11 @@
       preserveOriginal="false"
     />
 
+    <monkey:patch description="Patch _registered_objects"
+      class="plone.protect.auto.ProtectTransform"
+      original="_registered_objects"
+      replacement=".patch_plone_protect_auto._patched_registered_objects"
+      preserveOriginal="false"
+    />
+
 </configure>
