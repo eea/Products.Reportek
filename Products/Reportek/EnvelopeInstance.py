@@ -433,8 +433,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             instance
         """
         if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
-            alsoProvides(REQUEST,
-                         plone.protect.interfaces.IDisableCSRFProtection)
+            if REQUEST:
+                alsoProvides(REQUEST,
+                             plone.protect.interfaces.IDisableCSRFProtection)
         workitem = getattr(self, str(workitem_id))
         if actor:
             action_actor = actor
@@ -514,10 +515,11 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """ declares the completion of the specified workitem of the given
             instance
         """
-        if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
-            alsoProvides(REQUEST,
-                         plone.protect.interfaces.IDisableCSRFProtection)
+
         if REQUEST:
+            if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
+                alsoProvides(REQUEST,
+                             plone.protect.interfaces.IDisableCSRFProtection)
             if 'actor' in REQUEST:
                 actor = REQUEST['actor']
             else:
@@ -714,8 +716,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
     def forwardWorkitem(self, workitem_id, path=None, REQUEST=None):
         """ instructs openflow to forward the specified workitem """
         if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
-            alsoProvides(REQUEST,
-                         plone.protect.interfaces.IDisableCSRFProtection)
+            if REQUEST:
+                alsoProvides(REQUEST,
+                             plone.protect.interfaces.IDisableCSRFProtection)
         destinations = self.getDestinations(workitem_id, path)
         if destinations == []:
             self.falloutWorkitem(workitem_id)
