@@ -462,8 +462,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             instance
         """
         if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
-            alsoProvides(REQUEST,
-                         plone.protect.interfaces.IDisableCSRFProtection)
+            if REQUEST:
+                alsoProvides(REQUEST,
+                            plone.protect.interfaces.IDisableCSRFProtection)
         workitem = getattr(self, str(workitem_id))
         actor = ''  # We don't need any actor name
         if (self.isActiveOrRunning() and workitem.status == 'active'
@@ -842,8 +843,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         use endFallinWorkitem API to specify the end of the exceptional state
         """
         if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
-            alsoProvides(REQUEST,
-                         plone.protect.interfaces.IDisableCSRFProtection)
+            if REQUEST:
+                alsoProvides(REQUEST,
+                             plone.protect.interfaces.IDisableCSRFProtection)
         workitem_from = getattr(self, workitem_id)
         engine = self.getOpenFlowEngine()
         push_roles = engine.getPushRoles(
@@ -871,8 +873,9 @@ class EnvelopeInstance(CatalogAware, Folder, object):
     def endFallinWorkitem(self, workitem_id, REQUEST=None):
         """ Ends the exceptional state of the given workitem """
         if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
-            alsoProvides(REQUEST,
-                         plone.protect.interfaces.IDisableCSRFProtection)
+            if REQUEST:
+                alsoProvides(REQUEST,
+                            plone.protect.interfaces.IDisableCSRFProtection)
         workitem = getattr(self, workitem_id)
         workitem.addEvent('handled fallout')
         if not filter(lambda x: x['event'] == 'complete',

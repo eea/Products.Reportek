@@ -39,6 +39,8 @@ from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.Document import Document
 from Products.Reportek.exceptions import EnvelopeReleasedException
+import plone.protect.interfaces
+from zope.interface import alsoProvides
 
 logger = logging.getLogger("Reportek")
 
@@ -370,11 +372,10 @@ class EnvelopeRemoteServicesManager:
             0 - something went wrong, but
             they could be detailed with error codes and values
         """
-        import plone.protect.interfaces
-        from zope.interface import alsoProvides
         if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
-            alsoProvides(REQUEST,
-                         plone.protect.interfaces.IDisableCSRFProtection)
+            if REQUEST:
+                alsoProvides(REQUEST,
+                            plone.protect.interfaces.IDisableCSRFProtection)
         if self.released:
             raise EnvelopeReleasedException("Envelope is released.\
                                              The document cannot be saved.")
