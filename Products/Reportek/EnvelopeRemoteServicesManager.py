@@ -375,7 +375,7 @@ class EnvelopeRemoteServicesManager:
         if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
             if REQUEST:
                 alsoProvides(REQUEST,
-                            plone.protect.interfaces.IDisableCSRFProtection)
+                             plone.protect.interfaces.IDisableCSRFProtection)
         if self.released:
             raise EnvelopeReleasedException("Envelope is released.\
                                              The document cannot be saved.")

@@ -464,7 +464,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
             if REQUEST:
                 alsoProvides(REQUEST,
-                            plone.protect.interfaces.IDisableCSRFProtection)
+                             plone.protect.interfaces.IDisableCSRFProtection)
         workitem = getattr(self, str(workitem_id))
         actor = ''  # We don't need any actor name
         if (self.isActiveOrRunning() and workitem.status == 'active'
@@ -875,7 +875,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
             if REQUEST:
                 alsoProvides(REQUEST,
-                            plone.protect.interfaces.IDisableCSRFProtection)
+                             plone.protect.interfaces.IDisableCSRFProtection)
         workitem = getattr(self, workitem_id)
         workitem.addEvent('handled fallout')
         if not filter(lambda x: x['event'] == 'complete',
