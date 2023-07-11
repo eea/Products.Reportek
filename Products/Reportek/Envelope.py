@@ -58,6 +58,8 @@ from constants import ENGINE_ID, WORKFLOW_ENGINE_ID
 from AccessControl.SecurityManagement import getSecurityManager
 from AccessControl.Permissions import view_management_screens
 from AccessControl import ClassSecurityInfo, Unauthorized
+import plone.protect.interfaces
+from zope.interface import alsoProvides
 import xlwt
 import transaction
 import OFS.SimpleItem
@@ -108,6 +110,10 @@ def manage_addEnvelope(self, title, descr, year, endyear, partofyear, locality,
     """ Add a new Envelope object with id *id*.
     """
     id = RepUtils.generate_id('env')
+    if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
+        if REQUEST:
+            alsoProvides(REQUEST,
+                         plone.protect.interfaces.IDisableCSRFProtection)
     if not REQUEST:
         actor = self.REQUEST.AUTHENTICATED_USER.getUserName()
     else:
