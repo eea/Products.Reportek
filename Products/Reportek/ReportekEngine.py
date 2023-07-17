@@ -1678,6 +1678,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
     def getSearchResults(self, **kwargs):
         [kwargs.pop(el) for el in kwargs.keys() if kwargs[el] in [None, '']]
         catalog = searchResults(self.Catalog, kwargs)
+
         return catalog
 
     def getUniqueValuesFor(self, value):

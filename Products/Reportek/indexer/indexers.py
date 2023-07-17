@@ -64,6 +64,16 @@ def env_restricted(obj):
     return obj.restricted
 
 
+@indexer(IDocument)
+def doc_reportingdate(obj):
+    """Return reportingdate of the envelope"""
+    return obj.reportingdate
+
+@indexer(IDocument)
+def doc_released(obj):
+    """Return released status of the envelope"""
+    return obj.released
+
 @indexer(Interface)
 def allowedRolesAndUsers(obj):
     """Return a list of roles and users with View permission.
