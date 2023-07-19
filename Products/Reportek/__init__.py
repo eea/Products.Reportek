@@ -71,13 +71,13 @@ from registry import Registry
 from zope.component import getGlobalSiteManager
 from zope.component import getUtility
 from zope.i18nmessageid import MessageFactory
+from ZPublisher.BaseRequest import BaseRequest
+# workaround for BaseRequest assuming requests not GET, POST, PURGE as webdav
+BaseRequest.maybe_webdav_client = False
 
 __doc__ = """Reportek __init__ """
 __version__ = '$Rev$'[6:-2]
 logger = logging.getLogger("Reportek")
-
-
-# Product imports
 
 
 MessageFactory = MessageFactory('Reportek')
