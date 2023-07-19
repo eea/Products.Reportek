@@ -56,6 +56,8 @@ from zope.event import notify
 from zope.interface import implements
 from zope.lifecycleevent import ObjectModifiedEvent
 from ZPublisher.HTTPRequest import FileUpload
+import plone.protect.interfaces
+from zope.interface import alsoProvides
 __version__ = '$Rev$'[6:-2]
 
 FLAT = 0
@@ -140,7 +142,11 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
        set in the session object: default_restricted, force_restricted and
        disallow. This will set the restricted flag in the form or
     """
-
+    # disable csrf due to verification reporting uploading files
+    if 'IDisableCSRFProtection' in dir(plone.protect.interfaces):
+        if REQUEST:
+            alsoProvides(REQUEST,
+                         plone.protect.interfaces.IDisableCSRFProtection)
     is_object = hasattr(file, 'read') and (
         getattr(file, 'filename', None) or filename)
     if is_object and not filename:
