@@ -1,5 +1,6 @@
 from zope.interface import Attribute, Interface
 from zope.annotation.interfaces import IAttributeAnnotatable
+from zope.interface.interfaces import IObjectEvent
 
 
 class IDocument(Interface):
@@ -83,3 +84,15 @@ class IQAApplication(Interface):
 
 class IWkMetadata(IAttributeAnnotatable):
     """ Marker interface for metadata wk """
+
+
+class IEnvelopeEvent(IObjectEvent):
+    """ All Envelope events should inherit from this """
+
+
+class IEnvelopeReleasedEvent(IEnvelopeEvent):
+    """An envelope was released thrown"""
+
+
+class IEnvelopeUnReleasedEvent(IEnvelopeEvent):
+    """An envelope was unreleased thrown"""

@@ -114,15 +114,13 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             (tabs available for the current user with respect to the active
              workitems, the selected tab)
         """
-        l_current_actor = REQUEST.AUTHENTICATED_USER.getUserName()
         l_return = []
-        for w in self.objectValues('Workitem'):
-            if w.status == 'active' and (w.actor == l_current_actor):
-                l_application_url = self.getApplicationUrl(w.id)
-                if l_application_url:
-                    l_return.append([w.id, l_application_url,
-                                     self.unrestrictedTraverse(
-                                        l_application_url).title_or_id()])
+        for w in self.getWorkitemsActiveForMe(REQUEST):
+            l_application_url = self.getApplicationUrl(w.id)
+            if l_application_url:
+                l_return.append([w.id, l_application_url,
+                                 self.unrestrictedTraverse(
+                                 l_application_url).title_or_id()])
         return l_return
 
     ###########################################
@@ -193,15 +191,11 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         return w
 
     def getJoiningWorkitem(self, activity_id):
-        w_list = filter(lambda x, pi=self.process_path, ai=activity_id:
-                        (x.status == 'blocked') and
-                        (x.process_path == pi) and
-                        (x.activity_id == ai),
-                        self.objectValues('Workitem'))
-        if w_list:
-            return w_list[0]
-        else:
-            return None
+        w_list = (wk for wk in self.getListOfWorkitems(status='blocked')
+                  if wk.process_path == self.process_path and
+                    wk.activity_id == activity_id)
+        # Return the first element from the generator or None
+        return next(w_list, None)
 
     def setStatus(self, status, comment='', actor=''):
         """ """
@@ -262,8 +256,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     def getActiveWorkitems(self):
         """ returns all active workitems """
-        return len(filter(
-            lambda x: x.status == 'active', self.objectValues('Workitem')))
+        return [wk for wk in self.getListOfWorkitems(status='active')]
 
     security.declareProtected('View', 'getListOfWorkitems')
 
@@ -470,7 +463,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         if (self.isActiveOrRunning() and workitem.status == 'active'
                 and not workitem.blocked):
             workitem.setStatus('inactive', actor=actor)
-            if self.getActiveWorkitems() == 0:
+            if len(self.getActiveWorkitems()) == 0:
                 self.setStatus(status='running', actor=actor)
         return self.handle_wk_response(workitem)
 
@@ -489,7 +482,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 workitem.status == 'inactive' and \
                 not workitem.blocked:
             workitem.setStatus('suspended', actor=actor)
-            if self.getActiveWorkitems() == 0:
+            if len(self.getActiveWorkitems()) == 0:
                 self.setStatus(status='running', actor=actor)
         return self.handle_wk_response(workitem)
 
@@ -535,7 +528,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         if self.isActiveOrRunning():
             if workitem.status in ('active', 'fallout'):
                 workitem.setStatus('complete', actor=l_actor)
-                if self.getActiveWorkitems() == 0:
+                if len(self.getActiveWorkitems()) == 0:
                     self.setStatus(status='running', actor=l_actor)
                 if self.isEnd(workitem.activity_id):
                     subflow_workitem_id = self.getSubflowWorkitem(workitem_id)
@@ -878,8 +871,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                              plone.protect.interfaces.IDisableCSRFProtection)
         workitem = getattr(self, workitem_id)
         workitem.addEvent('handled fallout')
-        if not filter(lambda x: x['event'] == 'complete',
-                      workitem.getEventLog()):
+        if not [x for x in workitem.getEventLog() if x['event'] == 'complete']:
             workitem.endFallin()
         if REQUEST:
             if 'DestinationURL' in REQUEST:
@@ -894,8 +886,8 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             where an user is the current actor of
         """
         l_actor = REQUEST.AUTHENTICATED_USER.getUserName()
-        return filter(lambda x: x.status == 'active' and x.actor == l_actor,
-                      self.objectValues('Workitem'))
+        return [wk for wk in self.getActiveWorkitems()
+                if wk.actor == l_actor]
 
     ###########################################
     #   Activities and applications
@@ -1102,7 +1094,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         """Cancel the current activity"""
         wk = getattr(self, workitem_id)
 
-        if wk.status != 'complete' and self.getActiveWorkitems() > 0:
+        if wk.status != 'complete' and len(self.getActiveWorkitems()) > 0:
             if wk.activity_id.startswith('Automatic'):
                 qa_prop = getattr(wk, wk.activity_id, None)
                 if qa_prop:
@@ -1158,7 +1150,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
             is_lr = wk.activity_id.startswith('Automatic') or \
                 wk.activity_id.startswith('FMEConversion')
             unfinished = wk.status != 'complete' and \
-                self.getActiveWorkitems() > 0
+                len(self.getActiveWorkitems()) > 0
             if is_lr and unfinished:
                 return True
 

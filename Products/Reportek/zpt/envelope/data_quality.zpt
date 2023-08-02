@@ -10,8 +10,7 @@
     <p i18n:translate="">This page displays summary information from all automatic data quality checks for this envelope. If you want to see more detailed results, just follow the "Show more.." links to the individual feedback items.</p>
 
     <div id="detailed-qa"
-      tal:define="fb_objs context/getFeedbackObjects;
-                  feedbacks python: [fb for fb in fb_objs if getattr(fb, 'title', '').startswith('AutomaticQA')];
+      tal:define="feedbacks python: list(context.get_qa_feedbacks());
                   fb_files python: [getattr(fb, 'document_id', '') for fb in feedbacks];
                   seen python: {};
                   u_fb_files python: [seen.setdefault(x, x) for x in fb_files if x not in seen];

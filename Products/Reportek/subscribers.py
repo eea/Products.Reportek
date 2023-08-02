@@ -49,3 +49,7 @@ def handle_collection_removed_event(obj, event):
         if engine.cols_sync_history:
             del engine.cols_sync_history['/'.join(obj.getPhysicalPath())]
             engine._p_changed = True
+
+
+# def handle_envelope_released_event(obj, event):
+#     """test"""

@@ -238,8 +238,8 @@ class activity(CatalogAware, SimpleItem):
         """ returns all the process transition objects that go to the
             specified activity
         """
-        return len(filter(lambda x, activity_id=self.id: x.To == activity_id,
-                          self.aq_parent.objectValues('Transition')))
+        return len([tr for tr in self.aq_parent.objectValues('Transition')
+                    if tr.To == self.id])
 
     security.declareProtected('Manage OpenFlow', 'isAutoStart')
 

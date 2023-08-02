@@ -41,6 +41,7 @@ from Acquisition import aq_base
 from AccessControl.requestmethod import requestmethod
 from AccessControl.Permissions import change_permissions, manage_users
 from AccessControl import ClassSecurityInfo, getSecurityManager
+import operator
 import requests
 import RepUtils
 import Referral
@@ -204,6 +205,8 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
 
     security.declareProtected('Add Envelopes', 'manage_addReferral')
     manage_addReferral = Referral.manage_addReferral
+
+    macros = PageTemplateFile('zpt/collection/macros', globals()).macros
 
     security.declareProtected('View', 'index_html')
     index_html = PageTemplateFile('zpt/collection/index', globals())
@@ -1112,22 +1115,32 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
                  'released': 1,
                  'sort_on': 'reportingdate',
                  'sort_order': 'reverse',
-                 'path': path
+                 'path': {'query': path, 'depth': 1}
                  }
         envs = searchResults(self.Catalog, query)
 
         return envs
 
     def get_latest_env_reportingdate(self):
-        path = '/'.join(self.getPhysicalPath())
-        query = {'meta_type': 'Report Envelope',
-                 'sort_on': 'reportingdate',
-                 'sort_order': 'reverse',
-                 'path': path
-                 }
-        envs = searchResults(self.Catalog, query)
+        envs = self.get_children('Report Envelope', 'reportingdate')
         if envs:
             return envs[0].reportingdate
+
+    def get_children(self, m_types, sort_on, desc=1):
+        objs = self.objectValues(m_types)
+        objs.sort(key=operator.attrgetter(sort_on))
+        if desc:
+            objs.reverse()
+        return objs
+
+    def get_catalog_children(self, m_types, sort_on, sort_order='reverse'):
+        path = '/'.join(self.getPhysicalPath())
+        query = {'meta_type': m_types,
+                 'sort_on': sort_on,
+                 'sort_order': sort_order,
+                 'path': {'query': path, 'depth': 1}
+                 }
+        return searchResults(self.Catalog, query)
 
     def is_newest_released(self, env_id):
         """ Return True if it's the newest released envelope in the collection

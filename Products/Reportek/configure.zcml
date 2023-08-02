@@ -142,6 +142,10 @@
                      zope.lifecycleevent.interfaces.IObjectRemovedEvent"
             handler="Products.Reportek.subscribers.handle_collection_removed_event" />
 
+<!--    <subscriber for="Products.Reportek.interfaces.IEnvelope
+                     Products.Reportek.interfaces.IEnvelopeReleasedEvent"
+            handler="Products.Reportek.subscribers.handle_envelope_released_event" />
+-->
     <i18n:registerTranslations directory="locales" />
 
     <five:registerClass

@@ -172,8 +172,8 @@ class EnvelopeCustomDataflows(Toolz):
         """
         failed = []
         conv_results = self.get_conv_results()
-        has_conversions = [conv for conv in conv_results
-                           if conv_results.get(conv)]
+        has_conversions = (conv for conv in conv_results
+                           if conv_results.get(conv))
 
         for wk_log in has_conversions:
             files = conv_results.get(wk_log)
@@ -873,7 +873,7 @@ class EnvelopeCustomDataflows(Toolz):
         engine = self.ReportekEngine
         if engine.UNS_server:
             actors = []
-            for w in self.objectValues('Workitem'):
+            for w in self.getListOfWorkitems():
                 if w.actor != 'openflow_engine' and w.actor not in actors:
                     actors.append(w.actor)
             filters = []
@@ -1314,12 +1314,12 @@ class EnvelopeCustomDataflows(Toolz):
 
         if converter:
             if not doc_ids:
-                docs = [doc for doc in self.objectValues('Report Document')
-                        if doc.content_type == 'text/xml']
+                docs = (doc for doc in self.objectValues('Report Document')
+                        if doc.content_type == 'text/xml')
             else:
-                docs = [self.unrestrictedTraverse(doc_id) for doc_id in doc_ids
+                docs = (self.unrestrictedTraverse(doc_id) for doc_id in doc_ids
                         if self.unrestrictedTraverse(doc_id).content_type
-                        == 'text/xml']
+                        == 'text/xml')
             for doc in docs:
                 conv = converter.convert(
                     doc, converter.id, extra_params=extra_params)
@@ -1544,10 +1544,10 @@ class EnvelopeCustomDataflows(Toolz):
         if colls:
             # Filter out collections when there's no Add Envelopes permission
             for k in envs.keys():
-                c_colls = [col for col in colls.get(k, [])
+                c_colls = (col for col in colls.get(k, [])
                            if getSecurityManager().checkPermission(
                                 'View',
-                                col)]
+                                col))
                 for col in c_colls:
                     if col.company_id == self.company_id:
                         envs[k] = envs[k] + \

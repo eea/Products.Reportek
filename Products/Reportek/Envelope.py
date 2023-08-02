@@ -44,6 +44,8 @@ from Products.Reportek.config import (DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT,
 from Products.Reportek.BaseDelivery import BaseDelivery
 from Products.Reportek import (Document, Feedback, Hyperlink, RepUtils,
                                zip_content)
+from Products.Reportek.events import (EnvelopeReleasedEvent,
+                                      EnvelopeUnReleasedEvent)
 from Products.PythonScripts.standard import url_quote
 from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -312,8 +314,8 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
 
     def get_qa_feedbacks(self):
         """Return a list containing all AutomaticQA feedback objects."""
-        return [rf for rf in self.objectValues('Report Feedback')
-                if getattr(rf, 'title', '').startswith('AutomaticQA')]
+        return (rf for rf in self.objectValues('Report Feedback')
+                if getattr(rf, 'title', '').startswith('AutomaticQA'))
 
     @property
     def has_unknown_qa_result(self):
@@ -374,7 +376,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         """Return True if an AutomaticQA feedback has no feedback status."""
         QA_workitems = self.get_qa_workitems()
         if QA_workitems:
-            aqa_fbs = self.get_qa_feedbacks()
+            aqa_fbs = list(self.get_qa_feedbacks())
             if not aqa_fbs:
                 return True
             else:
@@ -424,11 +426,10 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         """
         if self.is_blocked:
             return False
-        completed_automaticQA_workitems = [
-            wi for wi in self.getMySelf().getListOfWorkitems()
-            if wi.activity_id == 'AutomaticQA' and wi.status == 'complete'
-        ]
-        if completed_automaticQA_workitems:
+        completed_automaticQA_workitems = (
+            wi for wi in self.getMySelf().get_qa_workitems()
+            if wi.status == 'complete')
+        if next(completed_automaticQA_workitems, None):
             return True
         else:
             return None
@@ -529,7 +530,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
 
         l_current_actor = REQUEST['AUTHENTICATED_USER'].getUserName()
         l_no_active_workitems = 0
-        for w in self.objectValues('Workitem'):
+        for w in self.getListOfWorkitems():
             if (w.status == 'active' and w.actor != 'openflow_engine'
                 and (w.actor == l_current_actor
                      or getSecurityManager().checkPermission(
@@ -727,6 +728,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
             self.reindex_object()
             self._invalidate_zip_cache()
             notify(ObjectModifiedEvent(self))
+            notify(EnvelopeReleasedEvent(self))
         if self.REQUEST is not None:
             return self.messageDialog(
                 message="The envelope has now been released to the public!",
@@ -756,6 +758,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
             transaction.commit()
             logger.debug("UNReleasing Envelope: %s" % self.absolute_url())
             notify(ObjectModifiedEvent(self))
+            notify(EnvelopeUnReleasedEvent(self))
         if self.REQUEST is not None:
             return self.messageDialog(
                 message="The envelope is no longer available to the public!",

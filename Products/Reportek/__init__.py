@@ -63,6 +63,7 @@ from Products.Reportek.ReportekUserFactoryPlugin import\
     manage_addReportekUserFactoryPluginForm
 from Products.Reportek.caching.config import registry_setup
 from Products.ZCTextIndex.ZCTextIndex import PLexicon
+from Products.ExtendedPathIndex import ExtendedPathIndex
 from Products.ZCatalog.ZCatalog import ZCatalog
 from plone.registry.interfaces import IRegistry
 from plone.keyring.interfaces import IKeyManager
@@ -305,10 +306,11 @@ def create_reportek_indexes(catalog):
     add_index('getCountryName', catalog, 'FieldIndex', meta=True)
     add_index('instance_id', catalog, 'FieldIndex')
     add_index('partofyear', catalog, 'FieldIndex', meta=True)
-    add_index('path', catalog, 'PathIndex')
+    add_index('path', catalog, 'ExtendedPathIndex')
     add_index('process_path', catalog, 'FieldIndex')
     add_index('released', catalog, 'FieldIndex', meta=True)
     add_index('reportingdate', catalog, 'FieldIndex', meta=True)
+    # add_index('last_released_date', catalog, 'FieldIndex', meta=True)
     add_index('status', catalog, 'FieldIndex')
     add_index('xml_schema_location', catalog, 'FieldIndex')
     add_index('years', catalog, 'KeywordIndex', meta=True)
