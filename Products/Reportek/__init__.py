@@ -63,7 +63,6 @@ from Products.Reportek.ReportekUserFactoryPlugin import\
     manage_addReportekUserFactoryPluginForm
 from Products.Reportek.caching.config import registry_setup
 from Products.ZCTextIndex.ZCTextIndex import PLexicon
-from Products.ExtendedPathIndex import ExtendedPathIndex
 from Products.ZCatalog.ZCatalog import ZCatalog
 from plone.registry.interfaces import IRegistry
 from plone.keyring.interfaces import IKeyManager

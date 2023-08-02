@@ -339,6 +339,7 @@ def utSortObjsListByMethod(p_list, p_method, p_desc=1):
         l_temp.reverse()
     return map(operator.getitem, l_temp, (-1,)*l_len)
 
+
 def utSortObjsListByMethod2(p_list, p_method, p_desc=1):
     """Sort a list of objects by an attribute values"""
 
@@ -346,6 +347,7 @@ def utSortObjsListByMethod2(p_list, p_method, p_desc=1):
     if p_desc:
         p_list.reverse()
     return p_list
+
 
 def utSortByMethod(p_obj_list, p_attr, p_date, p_sort_order=0):
     """ Sort a list of objects by the result of one of their functions """

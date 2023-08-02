@@ -170,6 +170,7 @@ class Toolz:
         return RepUtils.utSortObjsListByMethod2(p_obj_list,
                                                 p_attr,
                                                 p_sort_order)
+
     def tlzSortObjsListByMethod(self, p_obj_list, p_attr, p_sort_order=0):
         return RepUtils.utSortObjsListByMethod2(p_obj_list,
                                                 p_attr,

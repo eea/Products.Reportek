@@ -118,9 +118,10 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         for w in self.getWorkitemsActiveForMe(REQUEST):
             l_application_url = self.getApplicationUrl(w.id)
             if l_application_url:
-                l_return.append([w.id, l_application_url,
-                                 self.unrestrictedTraverse(
-                                 l_application_url).title_or_id()])
+                l_return.append([
+                    w.id, l_application_url,
+                    self.unrestrictedTraverse(
+                    l_application_url).title_or_id()])
         return l_return
 
     ###########################################
@@ -192,8 +193,8 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     def getJoiningWorkitem(self, activity_id):
         w_list = (wk for wk in self.getListOfWorkitems(status='blocked')
-                  if wk.process_path == self.process_path and
-                    wk.activity_id == activity_id)
+                  if wk.process_path == self.process_path
+                  and wk.activity_id == activity_id)
         # Return the first element from the generator or None
         return next(w_list, None)
 
