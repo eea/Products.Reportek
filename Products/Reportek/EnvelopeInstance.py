@@ -121,7 +121,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                 l_return.append([
                     w.id, l_application_url,
                     self.unrestrictedTraverse(
-                    l_application_url).title_or_id()])
+                        l_application_url).title_or_id()])
         return l_return
 
     ###########################################
