@@ -760,7 +760,6 @@ class EnvelopeCustomDataflows(Toolz):
                         except ValueError:
                             pass
                         self.manage_delObjects(zipped_file_id)
-                        # print name, zipped_file_id
                         file_ids_not_uploaded.append(zipped_file_id)
                         transaction.commit()
 
@@ -775,7 +774,6 @@ class EnvelopeCustomDataflows(Toolz):
             # if 'replace_xml', delete all XML files with the same schemas as
             # files just uploaded
             file_ids_to_delete = list(set(file_ids_to_delete))
-            # print file_ids_to_delete
             self.manage_delObjects(
                 [x for x in file_ids_to_delete if x not in zip_file_ids])
             if file_ids_not_uploaded:

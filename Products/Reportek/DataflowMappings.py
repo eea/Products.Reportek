@@ -100,7 +100,7 @@ class DataflowMappings(Folder):
         """
         schemaObjects = self.getSchemaObjectsForDataflows(
             dataflow_uris, web_form_only, catalog)
-        return (schema['url'] for schema in schemaObjects)
+        return [schema['url'] for schema in schemaObjects]
 
     def get_webform_url_for_schema(self, schema, dataflow_uris=None,
                                    web_form_only=False, catalog=True):

@@ -210,7 +210,6 @@ class IndexQueue(local):
         self.setState(sorted(res.values(), key=itemgetter(0)))
 
     def process(self):
-        print "\nProcessing...\n"
         self.optimize()
         if not self.queue:
             return 0

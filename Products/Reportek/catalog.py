@@ -132,8 +132,6 @@ def searchResults(catalog, query, admin_check=False, security=True):
         Calls catalog.searchResults with extra arguments that
         limit the results to what the user is allowed to see.
     """
-    print "\nQueued search for query: {}\n".format(query)
-
     processQueue()
     user = getSecurityManager().getUser()
     if admin_check:
@@ -298,7 +296,6 @@ class ReportekCatalog(ZCatalog):
             if w is None:
                 # BBB
                 w = IndexableObjectWrapper(obj, self)
-        # print "Calling ZCatalog catalog_object"
         ZCatalog.catalog_object(self, w, uid, idxs, update_metadata,
                                 pghandler)
 

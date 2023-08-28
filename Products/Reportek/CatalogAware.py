@@ -71,13 +71,12 @@ class CatalogAware(Base):
         """
         catalog = self._getCatalogTool()
         if catalog is not None:
-            catalog.unindexObject()
+            catalog.unindexObject(self)
 
     # @security.protected(ModifyPortalContent)
     def reindexObject(self, idxs=[], update_metadata=1, uid=None):
         """ Reindex the object in the portal catalog.
         """
-        print "Reindexing for: {} called".format(self)
         if idxs == []:
             # Update the modification date.
             if hasattr(aq_base(self), 'notifyModified'):
