@@ -43,10 +43,11 @@ from Globals import package_home
 from interfaces import IDocument
 from OFS.SimpleItem import SimpleItem
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
-from Products.Reportek.RepUtils import DFlowCatalogAware, parse_uri
+from Products.Reportek.RepUtils import (DFlowCatalogAware, parse_uri,
+                                        getToolByName)
 from Products.Reportek.catalog import searchResults
 from Products.Reportek.constants import DEFAULT_CATALOG
-from Products.ZCatalog.CatalogAwareness import CatalogAware
+from Products.Reportek.CatalogAware import CatalogAware
 from webdav.common import rfc1123_date
 from XMLInfoParser import SchemaError, detect_schema
 from zExceptions import Redirect
@@ -213,7 +214,7 @@ def manage_addDocument(self, id='', title='', file='', content_type='',
                          and self.is_workflow_restricted()))
         if restricted or r_enabled:
             obj.manage_restrictDocument()
-        obj.reindex_object()
+        obj.reindexObject()
         if REQUEST is not None:
             # This is an ugly hack, sometimes the PARENTS are in reverse order
             # TODO: Find a better way to handle the issue
@@ -468,7 +469,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         """ Returns the Feedback objects associated with this document """
         fbs = []
         brains = searchResults(
-            self.getPhysicalRoot().unrestrictedTraverse(DEFAULT_CATALOG),
+            getToolByName(self, DEFAULT_CATALOG, None),
             dict(meta_type='Report Feedback',
                  document_id=self.id,
                  path=self.getParentNode().absolute_url(1)))
@@ -719,7 +720,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
                     self.manage_restrictDocument()
                 else:
                     self.manage_unrestrictDocument()
-        self.reindex_object()  # update ZCatalog
+        self.reindexObject()  # update ZCatalog
         notify(ObjectModifiedEvent(self))
         if REQUEST is not None:
             return self.messageDialog(
@@ -803,7 +804,7 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
         self.logUpload()
         # update ZCatalog
         self._p_changed = 1
-        self.reindex_object()
+        self.reindexObject()
         if REQUEST is not None:
             return self.messageDialog(
                 message="The file was uploaded successfully!",

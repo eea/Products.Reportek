@@ -2,6 +2,13 @@
 from DateTime import DateTime
 from time import time
 from Products.Reportek.constants import ENGINE_ID
+from zope.lifecycleevent.interfaces import IObjectAddedEvent
+from zope.lifecycleevent.interfaces import IObjectCopiedEvent
+from zope.lifecycleevent.interfaces import IObjectCreatedEvent
+from zope.lifecycleevent.interfaces import IObjectMovedEvent
+from zope.lifecycleevent.interfaces import IObjectModifiedEvent
+from OFS.interfaces import IObjectWillBeMovedEvent
+from Acquisition import aq_base
 
 
 def handle_document_removed_event(obj, event):
@@ -18,15 +25,15 @@ def handle_feedback_added_event(obj, event):
     env = obj.getParentNode()
     env.last_fb = DateTime()
     env._p_changed = 1
-    env.reindex_object()
+    env.reindexObject()
 
 
 def handle_document_renamed_event(obj, event):
     """Force the update of data_file's mtime value"""
-    if getattr(event, 'newName', None):
+    if getattr(event, 'newName', None) and getattr(event, 'oldName', None):
         obj.data_file.mtime = time()
         obj._p_changed = 1
-        obj.reindex_object()
+        obj.reindexObject()
 
 
 # Handler for collection added
@@ -53,3 +60,31 @@ def handle_collection_removed_event(obj, event):
 
 # def handle_envelope_released_event(obj, event):
 #     """test"""
+
+
+def handleContentishEvent(ob, event):
+    """ Event subscriber for (IObjectEvent) events.
+    """
+    print "handle contentish event: {} - {}".format(ob, event)
+    if IObjectAddedEvent.providedBy(event):
+        print "trying to index: {}".format(ob)
+        ob.indexObject()
+
+    elif IObjectMovedEvent.providedBy(event):
+        if event.newParent is not None:
+            print "trying to index2: {}".format(ob)
+            ob.indexObject()
+    # elif IObjectModifiedEvent.providedBy(event):
+    #     print "Reindexing: {}".format(ob)
+    #     ob.reindexObject()
+    elif IObjectWillBeMovedEvent.providedBy(event):
+        if event.oldParent is not None:
+            ob.unindexObject()
+
+    elif IObjectCopiedEvent.providedBy(event):
+        if hasattr(aq_base(ob), 'workflow_history'):
+            del ob.workflow_history
+
+    elif IObjectCreatedEvent.providedBy(event):
+        if hasattr(aq_base(ob), 'addCreator'):
+            ob.addCreator()

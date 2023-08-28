@@ -725,7 +725,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
             self.released = 1
             self.reportingdate = DateTime()
             # update ZCatalog
-            self.reindex_object()
+            self.reindexObject()
             self._invalidate_zip_cache()
             notify(ObjectModifiedEvent(self))
             notify(EnvelopeReleasedEvent(self))
@@ -754,7 +754,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         if self.released != 0:
             self.released = 0
             # update ZCatalog
-            self.reindex_object()
+            self.reindexObject()
             transaction.commit()
             logger.debug("UNReleasing Envelope: %s" % self.absolute_url())
             notify(ObjectModifiedEvent(self))
@@ -833,7 +833,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         self.locality = locality
         self.descr = descr
         # update ZCatalog
-        self.reindex_object()
+        self.reindexObject()
         notify(ObjectModifiedEvent(self))
         if REQUEST is not None:
             return self.messageDialog(
@@ -871,7 +871,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
         if descr is not None:
             self.descr = descr
         # update ZCatalog
-        self.reindex_object()
+        self.reindexObject()
         notify(ObjectModifiedEvent(self))
         if REQUEST is not None:
             return self.messageDialog(
@@ -920,7 +920,7 @@ class Envelope(EnvelopeInstance, EnvelopeRemoteServicesManager,
                               'Report Feedback',
                               'Report Hyperlink'])
         self.manage_restrict(ids)
-        self.reindex_object()
+        self.reindexObject()
 
     security.declareProtected('Change Envelopes', 'manage_unrestrict')
 

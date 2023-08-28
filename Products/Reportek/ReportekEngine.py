@@ -60,7 +60,8 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.BdrAuthorizationMiddleware import \
     BdrAuthorizationMiddleware
 from Products.Reportek.clamav import AVService
-from Products.Reportek.constants import ECAS_ID
+from Products.Reportek.constants import ECAS_ID, DEFAULT_CATALOG
+from Products.Reportek.RepUtils import getToolByName
 from Products.Reportek.ContentRegistryPingger import ContentRegistryPingger
 from Products.Reportek.RegistryManagement import (BDRRegistryAPI,
                                                   FGASRegistryAPI)
@@ -587,10 +588,10 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if company_id:
             sc = getattr(parent_coll, sc_id)
             sc.company_id = company_id
-            sc.reindex_object()
+            sc.reindexObject()
         if not p_allow_c:
             parent_coll.allow_collections = 0
-            parent_coll.reindex_object()
+            parent_coll.reindexObject()
         return sc
 
     def create_fgas_collections(self, ctx, country_uri, company_id, name,
@@ -633,12 +634,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             old_company_id=old_company_id)
         ei = getattr(coll, ei_id)
         ei.company_id = company_id
-        ei.reindex_object()
+        ei.reindexObject()
         bi = getattr(coll, bi_id)
         bi.company_id = company_id
-        bi.reindex_object()
+        bi.reindexObject()
         coll.allow_collections = 0
-        coll.reindex_object()
+        coll.reindexObject()
 
     def update_company_collection(self, company_id, domain, country,
                                   name, old_collection_id=None):
@@ -732,7 +733,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             coll.company_id = company_id
             if old_collection_id:
                 coll.old_company_id = old_collection_id
-            coll.reindex_object()
+            coll.reindexObject()
             resp['status'] = 'success'
             resp['message'] = ('Collection %s updated/created succesfully'
                                % coll_path)
@@ -1015,7 +1016,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 'country': country
             }
 
-            catalog = self.Catalog
+            # catalog = self.Catalog
+            catalog = getToolByName(self, DEFAULT_CATALOG, None)
             brains = searchResults(catalog, query)
             if not brains:
                 message = fail_pattern % (
@@ -1773,7 +1775,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
             middleware_collections['rw'] += [
                 br.getObject() for br in searchResults(
-                    catalog, dict(id=username))
+                    catalog, {'meta_type': 'Report Collection', 'id': username})
                 if not br.getObject() in middleware_collections['rw']]
 
             # check BDR registry
@@ -1790,8 +1792,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             local_roles = ['Auditor', 'ClientFG',
                            'ClientODS', 'ClientCARS', 'ClientHDV']
             local_r_col = searchResults(catalog,
-                                        dict(meta_type='Report Collection',
-                                             local_unique_roles=local_roles))
+                                        {'meta_type': 'Report Collection',
+                                             'local_unique_roles': local_roles})
 
             auditor = [br.getObject() for br in local_r_col
                        if 'Auditor' in br.local_defined_roles.get(username, [])
@@ -2104,7 +2106,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                         result['action'] = 'modified'
                         result['collection'] = local_c.absolute_url()
                         result['roles'] = roles_info
-                    local_c.reindex_object()
+                    local_c.reindexObject()
                     results.append(result)
         return self.jsonify(results)
 

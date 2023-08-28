@@ -77,7 +77,7 @@ class ManageRoles(BaseAdmin):
             roles = set(obj.get_local_roles_for_userid(cur_entity))
             roles.add(role)
             obj.manage_setLocalRoles(cur_entity, list(roles))
-            obj.reindex_object()
+            obj.reindexObject()
             # Sync role assignment to associated transfers folder
             if path in self.request.get('sync_transfers', []):
                 transfer_path = '/'.join(['/transfers'] + path.split('/')[1:])
@@ -153,7 +153,7 @@ class ManageRoles(BaseAdmin):
             obj.manage_delLocalRoles([entity])
             if roles:
                 obj.manage_setLocalRoles(entity, list(roles))
-            obj.reindex_object()
+            obj.reindexObject()
             # Remove certain roles from transfer folders
             if sync_transfers:
                 transfer_path = '/'.join(['/transfers'] + path.split('/')[1:])
@@ -338,7 +338,7 @@ class ManageRoles(BaseAdmin):
             for path in colls:
                 obj = self.context.unrestrictedTraverse(path)
                 obj.manage_delLocalRoles([member])
-                obj.reindex_object()
+                obj.reindexObject()
                 results.append({
                     'entity': member,
                     'path': path,

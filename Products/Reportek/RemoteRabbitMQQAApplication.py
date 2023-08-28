@@ -317,7 +317,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
                     wk.blocker = True
 
                 feedback_ob._p_changed = 1
-                feedback_ob.reindex_object()
+                feedback_ob.reindexObject()
 
     security.declareProtected('Use OpenFlow', 'callApplication')
 
@@ -395,7 +395,7 @@ class RemoteRabbitMQQAApplication(BaseRemoteApplication):
         wk = getattr(self, p_workitem_id)
         env = wk.getMySelf()
         env.wf_status = 'forward'
-        env.reindex_object()
+        env.reindexObject()
         self.completeWorkitem(p_workitem_id, actor='openflow_engine',
                               REQUEST=REQUEST)
         self.forwardWorkitem(p_workitem_id, REQUEST=REQUEST)

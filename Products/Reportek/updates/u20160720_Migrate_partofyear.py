@@ -37,7 +37,7 @@ def migrate_partofyear(app, ctype):
         if existing:
             try:
                 obj.partofyear = rpd.keys()[rpd.values().index(existing)]
-                obj.reindex_object()
+                obj.reindexObject()
                 changed_count += 1
             except Exception as e:
                 logger.error("Unable to change value {}\

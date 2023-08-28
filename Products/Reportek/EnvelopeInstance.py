@@ -41,7 +41,9 @@ from OFS.Folder import Folder
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.exceptions import ApplicationException
 from Products.Reportek.rabbitmq import queue_msg
-from Products.ZCatalog.CatalogPathAwareness import CatalogAware
+from Products.Reportek.CatalogAware import CatalogAware
+from Products.Reportek.constants import DEFAULT_CATALOG
+from Products.Reportek.RepUtils import getToolByName
 import plone.protect.interfaces
 from zope.interface import alsoProvides
 from workitem import workitem
@@ -237,7 +239,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                      'actor': actor})
 
         self.status = status
-        self.reindex_object()
+        self.reindexObject()
 
     security.declareProtected('View', 'is_active_for_me')
 
@@ -277,7 +279,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
 
     def setPriority(self, value):
         self.priority = value
-        self.reindex_object()
+        self.reindexObject()
 
     def isActiveOrRunning(self):
         return self.status in ('active', 'running')
@@ -538,14 +540,14 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                     else:
                         self.setStatus(status='complete', actor=l_actor)
                         self.wf_status = 'complete'
-                        self.reindex_object()
+                        self.reindexObject()
             if (activity.isAutoFinish() and not process.end == activity.id
                     and not activity.isSubflow()):
                 # If the current activity is auto start and not bundled with
                 # previous, let it be handled by the forwarder
                 if activity.isAutoStart() and not activity.isBundled():
                     self.wf_status = activity.get_wf_status()
-                    self.reindex_object()
+                    self.reindexObject()
                 # If it's manually started or bundled with previous, forward it
                 # manually as we might have template forms that have form
                 # values
@@ -691,7 +693,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                     self.callAutoPush(workitem_id)
                 if activity.isAutoStart():
                     self.wf_status = activity.get_wf_status()
-                    self.reindex_object()
+                    self.reindexObject()
                     self.startAutomaticApplication(workitem_id)
                     if rmq:
                         queue_msg(
@@ -700,7 +702,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                             queue=self.get_rmq_queue(activity.getId()))
                 else:
                     self.wf_status = 'manual'
-                    self.reindex_object()
+                    self.reindexObject()
             elif activity.isSubflow():
                 self.startSubflow(workitem_id)
         else:
@@ -821,10 +823,11 @@ class EnvelopeInstance(CatalogAware, Folder, object):
         return self.handle_wk_response(workitem)
 
     def sendWorkitemsToException(self, process_id, activity_id):
-        for wi in self.Catalog(meta_type='Workitem',
-                               process_id=process_id,
-                               activity_id=activity_id,
-                               status=['active', 'inactive']):
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
+        for wi in catalog.searchResults(meta_type='Workitem',
+                                        process_id=process_id,
+                                        activity_id=activity_id,
+                                        status=['active', 'inactive']):
             self.falloutWorkitem(wi.id)
 
     security.declareProtected('Manage OpenFlow', 'fallinWorkitem')
@@ -972,7 +975,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                     self.callAutoPush(workitem_id)
                 if activity.isAutoStart():
                     self.wf_status = activity.get_wf_status()
-                    self.reindex_object()
+                    self.reindexObject()
                     self.startAutomaticApplication(workitem_id)
                     if rmq:
                         queue_msg(
@@ -981,7 +984,7 @@ class EnvelopeInstance(CatalogAware, Folder, object):
                             queue=self.get_rmq_queue(activity.getId()))
                 else:
                     self.wf_status = 'manual'
-                    self.reindex_object()
+                    self.reindexObject()
             elif activity.isSubflow():
                 self.startSubflow(workitem_id)
 

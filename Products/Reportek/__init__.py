@@ -64,13 +64,16 @@ from Products.Reportek.ReportekUserFactoryPlugin import\
 from Products.Reportek.caching.config import registry_setup
 from Products.ZCTextIndex.ZCTextIndex import PLexicon
 from Products.ZCatalog.ZCatalog import ZCatalog
+from Products.Reportek.catalog import ReportekCatalog
+from Products.Reportek.RepUtils import getToolByName
 from plone.registry.interfaces import IRegistry
 from plone.keyring.interfaces import IKeyManager
 from plone.keyring.keymanager import KeyManager
 from registry import Registry
-from zope.component import getGlobalSiteManager
+from zope.component import getGlobalSiteManager, getSiteManager
 from zope.component import getUtility
 from zope.i18nmessageid import MessageFactory
+from zope.dottedname.resolve import resolve
 from ZPublisher.BaseRequest import BaseRequest
 # workaround for BaseRequest assuming requests not GET, POST, PURGE as webdav
 BaseRequest.maybe_webdav_client = False
@@ -144,7 +147,7 @@ def create_reportek_objects(app):
     try:
         catalog = getattr(app, constants.DEFAULT_CATALOG)
     except AttributeError:
-        catalog = ZCatalog(constants.DEFAULT_CATALOG, 'Reportek Catalog')
+        catalog = ReportekCatalog()
         app._setObject(constants.DEFAULT_CATALOG, catalog)
 
     # Add Reportek Utilities
@@ -201,6 +204,24 @@ def create_reportek_objects(app):
         if logger is not None:
             logger.info('Adding key manager')
     gsm.registerUtility(km, IKeyManager)
+
+    _TOOL_UTILITIES = (
+        (constants.DEFAULT_CATALOG,
+         'Products.Reportek.interfaces.IReportekCatalog'),
+    )
+
+    sm = getSiteManager()
+    for tool_id, tool_interface in _TOOL_UTILITIES:
+        tool_obj = getToolByName(app, tool_id, default=None)
+        try:
+            iface = resolve(tool_interface)
+        except ImportError:
+            continue
+
+        if tool_obj is not None and sm.queryUtility(iface) is None:
+            sm.registerUtility(tool_obj, iface)
+            logger.info('Registered %s for interface %s' % (tool_id,
+                                                            tool_interface))
 
 
 def _strip_protocol_domain(full_url):

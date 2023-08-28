@@ -1201,7 +1201,7 @@ class EnvelopeCustomDataflows(Toolz):
                     # being replaced
                     for fb in fbs:
                         fb.document_id = ''
-                        fb.reindex_object()
+                        fb.reindexObject()
                     self.manage_addDocument(id=xml_id,
                                             title=xml_title,
                                             file=converted,
@@ -1213,7 +1213,7 @@ class EnvelopeCustomDataflows(Toolz):
                     # feedbacks
                     for fb in fbs:
                         fb.document_id = xml_id
-                        fb.reindex_object()
+                        fb.reindexObject()
                     # Commit the transaction
                     transaction.commit()
                 except Exception as e:
@@ -1345,7 +1345,7 @@ class EnvelopeCustomDataflows(Toolz):
                 else:
                     metadata = r_metadata
                 doc.metadata = metadata
-                doc.reindex_object()
+                doc.reindexObject()
             return True
 
     def get_xml_metadata(self):
@@ -1455,7 +1455,7 @@ class EnvelopeCustomDataflows(Toolz):
                     and (not self.year or int(year) != self.year)):
                 try:
                     self.year = int(year)
-                    self.reindex_object()
+                    self.reindexObject()
                 except Exception:
                     conversion_log.error(
                         "Unable to extract year from xml metadata.")

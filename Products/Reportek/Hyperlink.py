@@ -18,7 +18,7 @@
 # Contributor(s):
 # Soren Roug, EEA
 
-from Products.ZCatalog.CatalogAwareness import CatalogAware
+from Products.Reportek.CatalogAware import CatalogAware
 from OFS.SimpleItem import SimpleItem
 from OFS.PropertyManager import PropertyManager
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile

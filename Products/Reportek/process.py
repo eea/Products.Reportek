@@ -12,7 +12,7 @@ from path import path
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
 from Products.Reportek.interfaces import IProcess
-from Products.ZCatalog.CatalogPathAwareness import CatalogAware
+from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek.catalog import searchResults
 from transition import transition
 from zope.interface import implements

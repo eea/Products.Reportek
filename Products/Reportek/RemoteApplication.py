@@ -638,7 +638,7 @@ class RemoteApplication(BaseRemoteApplication):
 
                         feedback_ob.message = l_ret.get('FEEDBACK_MESSAGE', '')
                         feedback_ob._p_changed = 1
-                        feedback_ob.reindex_object()
+                        feedback_ob.reindexObject()
 
                         l_getResultDict = {
                             p_jobID: {

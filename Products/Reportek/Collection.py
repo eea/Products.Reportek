@@ -27,11 +27,12 @@ from zope.event import notify
 from zope.interface import implements
 from zope.lifecycleevent import ObjectModifiedEvent
 from Toolz import Toolz
-from Products.ZCatalog.CatalogAwareness import CatalogAware
-from Products.Reportek.RepUtils import DFlowCatalogAware
+from Products.Reportek.CatalogAware import CatalogAware
+from Products.Reportek.RepUtils import DFlowCatalogAware, getToolByName
 from Products.Reportek.interfaces import ICollection
 from Products.Reportek import DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT
 from Products.Reportek.config import permission_manage_properties_collections
+from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.Reportek.catalog import searchResults
 from Products.Reportek.rabbitmq import queue_msg
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -399,7 +400,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
 
         self.dataflow_uris = dataflow_uris
         # update ZCatalog
-        self.reindex_object()
+        self.reindexObject()
         notify(ObjectModifiedEvent(self))
         if REQUEST is not None:
             return self.messageDialog(
@@ -411,7 +412,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
     def manage_editCategories(self, REQUEST=None):
         """ Manage the edited values """
         # update ZCatalog
-        self.reindex_object()
+        self.reindexObject()
         if REQUEST is not None:
             return self.messageDialog(
                 message="The categories of %s have been changed!" % self.id,
@@ -447,7 +448,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
         if dataflow_uris is not None:
             self.dataflow_uris = dataflow_uris
         # update ZCatalog
-        self.reindex_object()
+        self.reindexObject()
         notify(ObjectModifiedEvent(self))
         if REQUEST is not None:
             return self.messageDialog(
@@ -596,8 +597,8 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
     def manage_addLocalRoles(self, userid, roles, REQUEST=None):
         super(Collection, self).manage_addLocalRoles(userid, roles)
         if REQUEST is not None:
-            if hasattr(self, 'reindex_object'):
-                self.reindex_object()
+            if hasattr(self, 'reindexObject'):
+                self.reindexObject()
             stat = 'Your changes have been saved.'
             return self.manage_listLocalRoles(self, REQUEST, stat=stat)
 
@@ -607,8 +608,8 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
     def manage_setLocalRoles(self, userid, roles, REQUEST=None):
         super(Collection, self).manage_setLocalRoles(userid, roles)
         if REQUEST is not None:
-            if hasattr(self, 'reindex_object'):
-                self.reindex_object()
+            if hasattr(self, 'reindexObject'):
+                self.reindexObject()
             if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
                 if hasattr(aq_base(self), 'reindexObjectSecurity'):
                     self.reindexObjectSecurity()
@@ -621,8 +622,8 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
         """Remove all local roles for a user."""
         super(Collection, self).manage_delLocalRoles(userids)
         if REQUEST is not None:
-            if hasattr(self, 'reindex_object'):
-                self.reindex_object()
+            if hasattr(self, 'reindexObject'):
+                self.reindexObject()
             if REPORTEK_DEPLOYMENT == DEPLOYMENT_BDR:
                 if hasattr(aq_base(self), 'reindexObjectSecurity'):
                     self.reindexObjectSecurity()
@@ -1117,7 +1118,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
                  'sort_order': 'reverse',
                  'path': {'query': path, 'depth': 1}
                  }
-        envs = searchResults(self.Catalog, query)
+        envs = searchResults(getToolByName(self, DEFAULT_CATALOG, None), query)
 
         return envs
 
@@ -1140,7 +1141,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
                  'sort_order': sort_order,
                  'path': {'query': path, 'depth': 1}
                  }
-        return searchResults(self.Catalog, query)
+        return searchResults(getToolByName(self, DEFAULT_CATALOG, None), query)
 
     def is_newest_released(self, env_id):
         """ Return True if it's the newest released envelope in the collection
@@ -1174,7 +1175,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
         self.manage_permission(permission_to_manage=permission,
                                roles=roles, acquire=acquire)
         self.restricted = True
-        self.reindex_object()
+        self.reindexObject()
 
     @property
     def restricted(self):

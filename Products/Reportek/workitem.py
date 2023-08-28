@@ -12,7 +12,7 @@ from OFS.SimpleItem import SimpleItem
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.interfaces import IWorkitem, IWkMetadata
 from Products.Reportek.RepUtils import DFlowCatalogAware
-from Products.ZCatalog.CatalogPathAwareness import CatalogAware
+from Products.Reportek.CatalogAware import CatalogAware
 from zope.event import notify
 from zope.interface import implements
 from zope.lifecycleevent import ObjectModifiedEvent
@@ -178,24 +178,24 @@ class workitem(CatalogAware, object, SimpleItem, PropertyManager,
             self.actor = actor
         if graph_level is not None:
             self.graph_level = graph_level
-        self.reindex_object()
+        self.reindexObject()
 
     def addFrom(self, id):
         """ """
         self.workitems_from.append(id)
         self._p_changed = 1
-        self.reindex_object()
+        self.reindexObject()
 
     def addTo(self, id_list):
         """ """
         self.workitems_to.extend(id_list)
         self._p_changed = 1
-        self.reindex_object()
+        self.reindexObject()
 
     def setGraphLevel(self, graph_level):
         """ """
         self.graph_level = graph_level
-        self.reindex_object()
+        self.reindexObject()
 
     def addEvent(self, event, comment=''):
         """ """
@@ -242,7 +242,7 @@ class workitem(CatalogAware, object, SimpleItem, PropertyManager,
 
         self.addEvent('set blocker flag to %s' % self.blocker, comment)
 
-        self.reindex_object()
+        self.reindexObject()
 
     def setStatus(self, status, comment='', actor=''):
         """ """
@@ -277,24 +277,24 @@ class workitem(CatalogAware, object, SimpleItem, PropertyManager,
         self.status = status
         self.actor = actor
         self.addEvent(status, comment)
-        self.reindex_object()
+        self.reindexObject()
 
     def endFallin(self):
         """ """
         if self.status == 'fallout':
             self.setStatus('complete')
-        self.reindex_object()
+        self.reindexObject()
 
     def setArrivalTime(self, activity_id, comment):
         """ """
         self.addEvent("arrival:" + activity_id)
-        self.reindex_object()
+        self.reindexObject()
 
     def assignTo(self, actor, by=None, comment=''):
         """ """
         self.actor = actor
         self.addEvent("assigned to " + actor, comment)
-        self.reindex_object()
+        self.reindexObject()
 
     def getEventLog(self):
         """ """

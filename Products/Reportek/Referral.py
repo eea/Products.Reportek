@@ -29,7 +29,7 @@ Referrals are obsolete. It is better to use an Envelope with a hyperlink in it.
 
 $Id$"""
 
-from Products.ZCatalog.CatalogAwareness import CatalogAware
+from Products.Reportek.CatalogAware import CatalogAware
 from OFS.SimpleItem import SimpleItem
 import Globals
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
@@ -190,7 +190,7 @@ class Referral(CatalogAware, SimpleItem, CountriesManager, BaseDelivery,
         self.descr = descr
         self.dataflow_uris = dataflow_uris
         # update ZCatalog
-        self.reindex_object()
+        self.reindexObject()
         if REQUEST:
             # Should use these two lines, but that doesn't work with
             # non-managers
@@ -227,7 +227,7 @@ class Referral(CatalogAware, SimpleItem, CountriesManager, BaseDelivery,
         if dataflow_uris is not None:
             self.dataflow_uris = dataflow_uris
         # update ZCatalog
-        self.reindex_object()
+        self.reindexObject()
         if REQUEST:
             message = "Properties changed"
             return self.manage_main(self, REQUEST, manage_tabs_message=message)

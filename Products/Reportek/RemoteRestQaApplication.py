@@ -618,7 +618,7 @@ class RemoteRestQaApplication(BaseRemoteApplication):
 
                         feedback_ob.message = data.get('feedbackMessage', '')
                         feedback_ob._p_changed = 1
-                        feedback_ob.reindex_object()
+                        feedback_ob.reindexObject()
 
                         l_getResultDict = {
                             p_jobID: {

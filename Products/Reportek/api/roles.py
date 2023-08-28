@@ -11,7 +11,7 @@ class RolesMGMTAPI(BrowserView):
         roles = set(obj.get_local_roles_for_userid(user.getId()))
         roles.add('Owner')
         obj.manage_setLocalRoles(user.getId(), list(roles))
-        obj.reindex_object()
+        obj.reindexObject()
 
     def remove_owner(self, obj, user):
         """Remove the role owner for user on obj"""
@@ -21,7 +21,7 @@ class RolesMGMTAPI(BrowserView):
             obj.manage_delLocalRoles([user.getId()])
             if roles:
                 obj.manage_setLocalRoles(user.getId(), list(roles))
-            obj.reindex_object()
+            obj.reindexObject()
 
     def manage_ownership(self):
         """Manage the Owner role for a user on a collection"""

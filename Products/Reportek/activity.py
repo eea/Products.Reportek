@@ -25,7 +25,7 @@ from AccessControl import ClassSecurityInfo
 from Globals import InitializeClass
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from OFS.SimpleItem import SimpleItem
-from Products.ZCatalog.CatalogPathAwareness import CatalogAware
+from Products.Reportek.CatalogAware import CatalogAware
 from Products.Reportek import constants
 from Products.Reportek.BaseRemoteApplication import BaseRemoteApplication
 
@@ -139,7 +139,7 @@ class activity(CatalogAware, SimpleItem):
             self.title = title
         if description is not None:
             self.description = description
-        self.reindex_object()
+        self.reindexObject()
         if REQUEST:
             REQUEST.RESPONSE.redirect(
                 'manage_editForm?manage_tabs_message=Saved changes.')

@@ -8,12 +8,12 @@
     <subscriber for="zope.processlifetime.IDatabaseOpenedWithRoot"
             handler=".startup" />
 
-    <browser:view for="Products.ZCatalog.interfaces.IZCatalog"
+    <browser:view for="Products.Reportek.interfaces.IReportekCatalog"
             name="manage_maintenance"
             class=".catalog.MaintenanceView"
             permission="zope2.ViewManagementScreens" />
 
-    <browser:view for="Products.ZCatalog.interfaces.IZCatalog"
+    <browser:view for="Products.Reportek.interfaces.IReportekCatalog"
             name="manage_do_rebuild"
             class=".catalog.RebuildView"
             permission="zope2.ViewManagementScreens" />
@@ -160,5 +160,16 @@
             interface="plone.registry.interfaces.IRegistry"
             />
     </class>
+
+  <subscriber
+      for=".interfaces.IReportekContent
+           zope.interface.interfaces.IObjectEvent"
+      handler=".subscribers.handleContentishEvent"
+      />
+
+  <utility
+    provides="Products.Reportek.interfaces.IPortalCatalogQueueProcessor"
+    name="portal-catalog"
+    factory="Products.Reportek.indexing.PortalCatalogProcessor" />
 
 </configure>

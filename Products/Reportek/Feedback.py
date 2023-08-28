@@ -32,8 +32,9 @@ Feedback objects are sub-objects of Report Envelopes.
 from zope.lifecycleevent import ObjectModifiedEvent
 from zope.interface import implements
 from zope.event import notify
-from Products.ZCatalog.CatalogAwareness import CatalogAware
-from Products.Reportek.RepUtils import DFlowCatalogAware, parse_uri
+from Products.Reportek.CatalogAware import CatalogAware
+from Products.Reportek.RepUtils import (DFlowCatalogAware, parse_uri,
+                                        getToolByName)
 from Products.Reportek.interfaces import IFeedback
 from Products.Reportek import constants
 from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate
@@ -146,7 +147,7 @@ def manage_addManualQAFeedback(self, id='', title='', feedbacktext='',
     obj = self._getOb(id)
     obj.feedback_status = feedback_status
     obj.message = message
-    obj.reindex_object()
+    obj.reindexObject()
     if REQUEST is not None:
         return self.messageDialog(
             message="The Feedback %s was successfully created!" % id,

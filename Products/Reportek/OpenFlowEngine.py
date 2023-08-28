@@ -172,7 +172,7 @@ class OpenFlowEngine(Folder, Toolz):
                 if w and role in w.push_roles:
                     w.push_roles.remove(role)
                     w._p_changed = 1
-                    w.reindex_object()
+                    w.reindexObject()
         addList = [x for x in activities if x not in old_activities]
         if addList:
             for i in searchResults(self.Catalog,
@@ -183,7 +183,7 @@ class OpenFlowEngine(Folder, Toolz):
                 if w and role not in w.push_roles:
                     w.push_roles.append(role)
                     w._p_changed = 1
-                    w.reindex_object()
+                    w.reindexObject()
         if activities:
             if role not in self._activitiesPushableOnRole:
                 self._activitiesPushableOnRole[role] = {}
@@ -253,7 +253,7 @@ class OpenFlowEngine(Folder, Toolz):
                 if w and role in w.pull_roles:
                     w.pull_roles.remove(role)
                     w._p_changed = 1
-                    w.reindex_object()
+                    w.reindexObject()
         addList = [x for x in activities if x not in old_activities]
         if addList:
             for i in searchResults(self.Catalog,
@@ -264,7 +264,7 @@ class OpenFlowEngine(Folder, Toolz):
                 if w and role not in w.pull_roles:
                     w.pull_roles.append(role)
                     w._p_changed = 1
-                    w.reindex_object()
+                    w.reindexObject()
         if activities:
             if role not in self._activitiesPullableOnRole:
                 self._activitiesPullableOnRole[role] = {}

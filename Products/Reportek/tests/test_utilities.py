@@ -264,7 +264,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
         local_roles = list(dict.get(user_name, []))
         local_roles.append('Reporter')
         dict[user_name] = local_roles
-        collection.reindex_object()
+        collection.reindexObject()
         collection._p_changed = True
 
         collection = self.addObject(self.app,
@@ -285,7 +285,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
         local_roles = list(dict.get(user_name, []))
         local_roles.append('Reporter')
         dict[user_name] = local_roles
-        collection.reindex_object()
+        collection.reindexObject()
         collection._p_changed = True
 
         collection = self.addObject(collection,
@@ -306,7 +306,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
         local_roles = list(dict.get(user_name, []))
         local_roles.append('Reporter')
         dict[user_name] = local_roles
-        collection.reindex_object()
+        collection.reindexObject()
         collection._p_changed = True
 
         collection = self.addObject(collection,
@@ -327,7 +327,7 @@ class BaseFunctionalTestCase(ztc.FunctionalTestCase, BaseTest):
         local_roles = list(dict.get(user_name, []))
         local_roles.append('Reporter')
         dict[user_name] = local_roles
-        collection.reindex_object()
+        collection.reindexObject()
         collection._p_changed = True
 
     def setUp(self):

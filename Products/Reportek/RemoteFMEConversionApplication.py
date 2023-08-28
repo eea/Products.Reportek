@@ -754,7 +754,7 @@ class RemoteFMEConversionApplication(SimpleItem):
                     feedback_ob.message = fb_message
                     feedback_ob.feedback_status = fb_status
                     feedback_ob._p_changed = 1
-                    feedback_ob.reindex_object()
+                    feedback_ob.reindexObject()
 
                 envelope.manage_delObjects([doc.getId()])
                 # Get the file, post if as attachment and delete it afterwards

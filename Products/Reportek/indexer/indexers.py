@@ -1,6 +1,6 @@
 from Products.Reportek.indexer import indexer
 from zope.interface import Interface
-from Products.Reportek.catalog import _mergedLocalRoles
+from Products.Reportek.RepUtils import _mergedLocalRoles
 from AccessControl.ImplPython import rolesForPermissionOn
 from Products.Reportek.interfaces import (ICollection, IDocument, IEnvelope,
                                           IFeedback, IReportekContent,

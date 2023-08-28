@@ -45,10 +45,21 @@ from DateTime import DateTime
 from path import path
 from Products.Five import BrowserView
 from Products.Reportek.config import XLS_HEADINGS, ZIP_CACHE_PATH
-from Products.Reportek.catalog import _mergedLocalRoles
 from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.Reportek.permissions import reportek_dataflow_admin
 from webdav.common import rfc1123_date
+from AccessControl.PermissionRole import rolesForPermissionOn
+from AccessControl.SecurityManagement import getSecurityManager
+from Acquisition import aq_get
+from Acquisition import aq_parent
+from Acquisition.interfaces import IAcquirer
+from DateTime.DateTime import DateTime
+from zope.component import getUtility
+# from zope.datetime import rfc1123_date
+from zope.interface.interfaces import ComponentLookupError
+
+_marker = []  # Create a new marker object.
+_tool_interface_registry = {}
 
 
 class UnrestrictedUser(BaseUnrestrictedUser):
@@ -76,7 +87,8 @@ def formatException(self, error):
 
 logger = logging.getLogger('Reportek.RepUtils')
 # logger.setLevel(logging.DEBUG)
-logging.Formatter.formatException = formatException
+
+# logging.Formatter.formatException = formatException
 
 bad_chars = ' ,+&;()[]{}\xC4\xC5\xC1\xC0\xC2\xC3' \
     '\xE4\xE5\xE1\xE0\xE2\xE3\xC7\xE7\xC9\xC8\xCA\xCB' \
@@ -774,6 +786,34 @@ class CrashMe(BrowserView):
     def __call__(self):
         raise RuntimeError("Crashing as requested by you")
 
+def _mergedLocalRoles(object):
+    """Returns a merging of object and its ancestors'
+    __ac_local_roles__."""
+    # Modified from AccessControl.User.getRolesInContext().
+    merged = {}
+    object = getattr(object, 'aq_inner', object)
+    while 1:
+        if hasattr(object, '__ac_local_roles__'):
+            dict = object.__ac_local_roles__ or {}
+            if callable(dict):
+                dict = dict()
+            for k, v in dict.items():
+                if k in merged:
+                    merged[k] = merged[k] + v
+                else:
+                    merged[k] = v
+        if hasattr(object, 'aq_parent'):
+            object = object.aq_parent
+            object = getattr(object, 'aq_inner', object)
+            continue
+        if hasattr(object, '__self__'):
+            object = object.__self__
+            object = getattr(object, 'aq_inner', object)
+            continue
+        break
+
+    return deepcopy(merged)
+
 
 class DFlowCatalogAware(object):
     """DFlowCatalogAware class to allow for reportek_dataflow_admin permission
@@ -863,3 +903,52 @@ def encode_dict(dic):
         return(new_l)
     else:
         return(dic)
+
+
+def getToolByName(obj, name, default=_marker):
+
+    """ Get the tool, 'toolname', by acquiring it.
+
+    o Application code should use this method, rather than simply
+      acquiring the tool by name, to ease forward migration (e.g.,
+      to Zope3).
+    """
+    tool_interface = _tool_interface_registry.get(name)
+
+    if tool_interface is not None:
+        try:
+            utility = getUtility(tool_interface)
+            # Site managers, except for five.localsitemanager, return unwrapped
+            # utilities. If the result is something which is
+            # acquisition-unaware but unwrapped we wrap it on the context.
+            if IAcquirer.providedBy(obj) and \
+                    aq_parent(utility) is None and \
+                    IAcquirer.providedBy(utility):
+                utility = utility.__of__(obj)
+            return utility
+        except ComponentLookupError:
+            # behave in backwards-compatible way
+            # fall through to old implementation
+            pass
+
+    try:
+        tool = aq_get(obj, name, default, 1)
+    except AttributeError:
+        if default is _marker:
+            raise
+        return default
+    else:
+        if tool is _marker:
+            raise AttributeError(name)
+        return tool
+
+# @security.private
+def _getAuthenticatedUser(self):
+    return getSecurityManager().getUser()
+
+
+# @security.private
+def checkPermission(permission, obj):
+    if not isinstance(permission, str):
+        permission = permission.decode()
+    return getSecurityManager().checkPermission(permission, obj)

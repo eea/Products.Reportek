@@ -48,7 +48,7 @@ def add_company_id_to_collections(app):
                     print 'Added company_id: {0}\
                            to collection: {1}'.format(obj.company_id,
                                                       obj.absolute_url())
-                obj.reindex_object()
+                obj.reindexObject()
 
         transaction.commit()
 

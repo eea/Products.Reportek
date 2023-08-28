@@ -5,7 +5,6 @@ from App.FactoryDispatcher import FactoryDispatcher, ProductDispatcher
 
 
 def _patched_registered_objects(self):
-    # import pdb;pdb.set_trace()
     app = self.request.PARENTS[-1]
     # Ugly check to avoid issues when the parent is a *Dispatcher type
     if isinstance(app, FactoryDispatcher):
