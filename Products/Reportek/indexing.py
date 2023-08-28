@@ -103,7 +103,7 @@ def processQueue():
 class PathProxy(ProxyBase):
 
     def __init__(self, obj):
-        super().__init__(obj)
+        super(PathProxy, self).__init__(obj)
         self._old_path = obj.getPhysicalPath()
 
     @non_overridable
