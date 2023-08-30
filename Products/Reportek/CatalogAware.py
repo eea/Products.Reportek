@@ -17,7 +17,6 @@ import logging
 
 from AccessControl.class_init import InitializeClass
 from AccessControl.SecurityInfo import ClassSecurityInfo
-from AccessControl.SecurityManagement import getSecurityManager
 from Acquisition import aq_base
 from ExtensionClass import Base
 from zope.component import queryUtility
