@@ -16,7 +16,6 @@ from Products.Five.browser import BrowserView
 from OFS.interfaces import IObjectManager
 from AccessControl.class_init import InitializeClass
 from AccessControl.SecurityInfo import ClassSecurityInfo
-from AccessControl.SecurityManagement import getSecurityManager
 from Acquisition import aq_base
 from zope.interface import implementer
 from zope.component import queryMultiAdapter

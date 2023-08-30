@@ -3,11 +3,8 @@ from DateTime import DateTime
 from time import time
 from Products.Reportek.constants import ENGINE_ID
 from zope.lifecycleevent.interfaces import IObjectAddedEvent
-from zope.lifecycleevent.interfaces import IObjectCopiedEvent
-from zope.lifecycleevent.interfaces import IObjectCreatedEvent
 from zope.lifecycleevent.interfaces import IObjectMovedEvent
 from OFS.interfaces import IObjectWillBeMovedEvent
-from Acquisition import aq_base
 
 
 def handle_document_removed_event(obj, event):
