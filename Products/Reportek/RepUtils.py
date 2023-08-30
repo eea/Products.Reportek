@@ -48,12 +48,9 @@ from Products.Reportek.config import XLS_HEADINGS, ZIP_CACHE_PATH
 from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.Reportek.permissions import reportek_dataflow_admin
 from webdav.common import rfc1123_date
-from AccessControl.PermissionRole import rolesForPermissionOn
-from AccessControl.SecurityManagement import getSecurityManager
 from Acquisition import aq_get
 from Acquisition import aq_parent
 from Acquisition.interfaces import IAcquirer
-from DateTime.DateTime import DateTime
 from zope.component import getUtility
 # from zope.datetime import rfc1123_date
 from zope.interface.interfaces import ComponentLookupError
@@ -786,6 +783,7 @@ class CrashMe(BrowserView):
     def __call__(self):
         raise RuntimeError("Crashing as requested by you")
 
+
 def _mergedLocalRoles(object):
     """Returns a merging of object and its ancestors'
     __ac_local_roles__."""
@@ -942,12 +940,11 @@ def getToolByName(obj, name, default=_marker):
             raise AttributeError(name)
         return tool
 
-# @security.private
+
 def _getAuthenticatedUser(self):
     return getSecurityManager().getUser()
 
 
-# @security.private
 def checkPermission(permission, obj):
     if not isinstance(permission, str):
         permission = permission.decode()

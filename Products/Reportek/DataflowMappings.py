@@ -38,7 +38,7 @@ class DataflowMappings(Folder):
         return getattr(self, ENGINE_ID)
 
     def get_dataflow_mapping_records(self, dataflow_uris, web_form_only,
-                                     catalog = True):
+                                     catalog=True):
         """Return the mapping records for the dataflow_uris."""
         if catalog:
             query = {
@@ -60,7 +60,7 @@ class DataflowMappings(Folder):
                 if rec.dataflow_uri in dataflow_uris)
 
     def getSchemaObjectsForDataflows(self, dataflow_uris, web_form_only,
-                                     catalog = True):
+                                     catalog=True):
         """
         Returns schemas for one or many dataflows
         dataflow_uris - one uri (str) looked after, a list for any uri in it
@@ -77,8 +77,8 @@ class DataflowMappings(Folder):
             for brain in mapping:
                 for schema in brain.getObject().mapping['schemas']:
                     if not web_form_only or schema['has_webform']:
-                        # yield schema # can't yield here if using dtml; it doesn't
-                        # know how to iterate
+                        # yield schema # can't yield here if using dtml;
+                        # it doesn't know how to iterate
                         res.append(schema)
         else:
             for rec in mapping:

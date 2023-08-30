@@ -157,8 +157,8 @@ class IPortalCatalogQueueProcessor(IIndexQueueProcessor):
 class InvalidQueueOperation(Exception):
     pass
 
+
 class IReportekCatalog(Interface):
-    # id = Attribute('id', 'Must be set to "portal_catalog"')
 
     # searchResults inherits security assertions from ZCatalog.
     def searchResults(REQUEST=None, **kw):
@@ -203,12 +203,11 @@ class IReportekCatalog(Interface):
         o Permission:  Private (Python only)
         """
 
+
 class IReportekCatalogAware(Interface):
 
     """ Interface for notifying the catalog tool.
     """
-
-    # __module__ = 'Products.CMFCore.interfaces'
 
     def indexObject():
         """ Index the object in the portal catalog.

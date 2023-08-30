@@ -9,19 +9,16 @@ import os
 import logging
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from AccessControl.SecurityManagement import getSecurityManager
-from AccessControl.Permissions import view_management_screens
 from Products.Reportek.config import REPORTEK_DEPLOYMENT, DEPLOYMENT_BDR
 from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.ZCatalog.ZCatalog import ZCatalog
 from Products.Five.browser import BrowserView
 from OFS.interfaces import IObjectManager
 from AccessControl.class_init import InitializeClass
-from AccessControl.PermissionRole import rolesForPermissionOn
 from AccessControl.SecurityInfo import ClassSecurityInfo
 from AccessControl.SecurityManagement import getSecurityManager
 from Acquisition import aq_base
 from zope.interface import implementer
-from DateTime.DateTime import DateTime
 from zope.component import queryMultiAdapter
 
 from .indexing import filterTemporaryItems
@@ -163,22 +160,10 @@ class ReportekCatalog(ZCatalog):
 
     manage_options = (
         ZCatalog.manage_options +
-        # ActionProviderBase.manage_options +
         ({'label': 'Overview', 'action': 'manage_overview'},))
 
     def __init__(self):
         ZCatalog.__init__(self, self.getId())
-
-    #
-    #   ZMI methods
-    #
-    # security.declareProtected(view_management_screens,  # NOQA: flake8: D001
-                            #   'manage_overview')
-    # manage_overview = DTMLFile('explainCatalogTool', _dtmldir)
-
-    #
-    #   'portal_catalog' interface methods
-    #
 
     def _listAllowedRolesAndUsers(self, user):
         effective_roles = user.getRoles()
@@ -214,51 +199,6 @@ class ReportekCatalog(ZCatalog):
         processQueue()
         user = getSecurityManager().getUser()
         kw['allowedRolesAndUsers'] = self._listAllowedRolesAndUsers(user)
-
-        # if not getSecurityManager().checkPermission(AccessInactivePortalContent, self):
-        #     now = DateTime()
-
-        #     self._convertQuery(kw)
-
-        #     # Intersect query restrictions with those implicit to the tool
-        #     for k in 'effective', 'expires':
-        #         if k in kw:
-        #             range = kw[k]['range'] or ''
-        #             query = kw[k]['query']
-        #             if not isinstance(query, (tuple, list)):
-        #                 query = (query,)
-        #         else:
-        #             range = ''
-        #             query = None
-        #         if range.find('min') > -1:
-        #             lo = min(query)
-        #         else:
-        #             lo = None
-        #         if range.find('max') > -1:
-        #             hi = max(query)
-        #         else:
-        #             hi = None
-        #         if k == 'effective':
-        #             if hi is None or hi > now:
-        #                 hi = now
-        #             if lo is not None and hi < lo:
-        #                 return ()
-        #         else:  # 'expires':
-        #             if lo is None or lo < now:
-        #                 lo = now
-        #             if hi is not None and hi < lo:
-        #                 return ()
-        #         # Rebuild a query
-        #         if lo is None:
-        #             query = hi
-        #             range = 'max'
-        #         elif hi is None:
-        #             query = lo
-        #             range = 'min'
-        #         else:
-        #             query = (lo, hi)
-        #             range = 'min:max'
-        #         kw[k] = {'query': query, 'range': range}
 
         return ZCatalog.searchResults(self, REQUEST, **kw)
 
@@ -374,5 +314,6 @@ class ReportekCatalog(ZCatalog):
             # Filter out invalid indexes.
             idxs = [i for i in idxs if i in self._catalog.indexes]
         self.catalog_object(object, uid, idxs, update_metadata)
+
 
 InitializeClass(ReportekCatalog)

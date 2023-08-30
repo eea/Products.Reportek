@@ -33,8 +33,7 @@ from zope.lifecycleevent import ObjectModifiedEvent
 from zope.interface import implements
 from zope.event import notify
 from Products.Reportek.CatalogAware import CatalogAware
-from Products.Reportek.RepUtils import (DFlowCatalogAware, parse_uri,
-                                        getToolByName)
+from Products.Reportek.RepUtils import DFlowCatalogAware, parse_uri
 from Products.Reportek.interfaces import IFeedback
 from Products.Reportek import constants
 from Products.PageTemplates.ZopePageTemplate import ZopePageTemplate

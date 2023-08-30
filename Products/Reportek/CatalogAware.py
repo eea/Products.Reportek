@@ -19,21 +19,12 @@ from AccessControl.class_init import InitializeClass
 from AccessControl.SecurityInfo import ClassSecurityInfo
 from AccessControl.SecurityManagement import getSecurityManager
 from Acquisition import aq_base
-from App.special_dtml import DTMLFile
 from ExtensionClass import Base
-from OFS.interfaces import IObjectClonedEvent
-from OFS.interfaces import IObjectWillBeMovedEvent
 from zope.component import queryUtility
-from zope.component import subscribers
-from zope.container.interfaces import IObjectAddedEvent
-from zope.container.interfaces import IObjectMovedEvent
 from zope.interface import implementer
-from zope.lifecycleevent.interfaces import IObjectCopiedEvent
-from zope.lifecycleevent.interfaces import IObjectCreatedEvent
 
-from Products.CMFCore.interfaces import ICatalogAware
-# from Products.CMFCore.interfaces import ICatalogTool
-from Products.Reportek.interfaces import IReportekCatalog, IReportekCatalogAware
+from Products.Reportek.interfaces import (IReportekCatalog,
+                                          IReportekCatalogAware)
 
 
 logger = logging.getLogger('CMFCore.CMFCatalogAware')
@@ -52,12 +43,6 @@ class CatalogAware(Base):
     def _getCatalogTool(self):
         return queryUtility(IReportekCatalog)
 
-    def __url(self, ob):
-        return '/'.join(ob.getPhysicalPath())
-    #
-    #   'ICatalogAware' interface methods
-    #
-    # @security.protected(ModifyPortalContent)
     def indexObject(self):
         """ Index the object in the portal catalog.
         """
@@ -65,7 +50,6 @@ class CatalogAware(Base):
         if catalog is not None:
             catalog.indexObject(self)
 
-    # @security.protected(ModifyPortalContent)
     def unindexObject(self):
         """ Unindex the object from the portal catalog.
         """
@@ -73,7 +57,6 @@ class CatalogAware(Base):
         if catalog is not None:
             catalog.unindexObject(self)
 
-    # @security.protected(ModifyPortalContent)
     def reindexObject(self, idxs=[], update_metadata=1, uid=None):
         """ Reindex the object in the portal catalog.
         """
@@ -91,7 +74,6 @@ class CatalogAware(Base):
     _cmf_security_indexes = ('allowedRolesAndUsers',
                              'allowedAdminRolesAndUsers')
 
-    # @security.protected(ModifyPortalContent)
     def reindexObjectSecurity(self, skip_self=False):
         """ Reindex security-related indexes on the object.
         """

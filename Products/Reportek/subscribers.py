@@ -6,7 +6,6 @@ from zope.lifecycleevent.interfaces import IObjectAddedEvent
 from zope.lifecycleevent.interfaces import IObjectCopiedEvent
 from zope.lifecycleevent.interfaces import IObjectCreatedEvent
 from zope.lifecycleevent.interfaces import IObjectMovedEvent
-from zope.lifecycleevent.interfaces import IObjectModifiedEvent
 from OFS.interfaces import IObjectWillBeMovedEvent
 from Acquisition import aq_base
 
@@ -71,17 +70,7 @@ def handleContentishEvent(ob, event):
     elif IObjectMovedEvent.providedBy(event):
         if event.newParent is not None:
             ob.indexObject()
-    # elif IObjectModifiedEvent.providedBy(event):
-    #     print "Reindexing: {}".format(ob)
-    #     ob.reindexObject()
+
     elif IObjectWillBeMovedEvent.providedBy(event):
         if event.oldParent is not None:
             ob.unindexObject()
-
-    elif IObjectCopiedEvent.providedBy(event):
-        if hasattr(aq_base(ob), 'workflow_history'):
-            del ob.workflow_history
-
-    elif IObjectCreatedEvent.providedBy(event):
-        if hasattr(aq_base(ob), 'addCreator'):
-            ob.addCreator()
