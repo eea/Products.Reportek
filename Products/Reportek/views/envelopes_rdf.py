@@ -1,6 +1,6 @@
 from Products.Five import BrowserView
 from Products.PythonScripts.standard import html_quote, url_quote
-from Products.Reportek.catalog import searchResults
+from Products.Reportek.RepUtils import getToolByName
 from Products.Reportek import constants
 
 
@@ -34,9 +34,9 @@ class EnvelopesRDF(BrowserView):
         res_a("""<rdf:Description rdf:about="">
     <rdfs:label>Deliveries from %s</rdfs:label>
 </rdf:Description>""" % s_url)
-        catalog = self.context.Catalog
+        catalog = getToolByName(self.context, constants.DEFAULT_CATALOG, None)
 
-        brains = searchResults(catalog, query)
+        brains = catalog.searchResults(query)
         for brain in brains:
             try:
                 res_a("""<cr:File rdf:about="%s%s"/>""" % (

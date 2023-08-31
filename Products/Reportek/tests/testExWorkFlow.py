@@ -9,7 +9,6 @@ from authutils import loginUnrestricted
 from common import BaseTest, ConfigureReportek
 import unittest
 from Testing import ZopeTestCase
-from Products.Reportek.catalog import searchResults
 import unittest
 from Testing import ZopeTestCase
 from Products.Five import zcml
@@ -85,13 +84,13 @@ class rolesTestCase(BaseTest, ConfigureReportek):
         role = 'testRole'
         process = 'begin_end'
         activities = ['Begin', 'End']
-        result = searchResults(self.app.Catalog, dict(meta_type='Workitem'))
+        result = self.app.Catalog.searchResults(dict(meta_type='Workitem'))
         assert len(result) == 1, "%s workitems listed instead of 1" % len(result)
         result = [o.getObject()
                   for o in result if role in o.getObject().push_roles]
         assert len(result) == 0, "%s workitems listed instead of 0" % len(result)
         self.of.editActivitiesPushableOnRole(role, process, activities)
-        result = searchResults(self.app.Catalog, dict(meta_type='Workitem'))
+        result = self.app.Catalog.searchResults(dict(meta_type='Workitem'))
         result = [o.getObject()
                   for o in result if role in o.getObject().push_roles]
         assert len(result) == 1, "%s workitems listed instead of 1" % len(result)
@@ -100,14 +99,14 @@ class rolesTestCase(BaseTest, ConfigureReportek):
         role = 'testRole'
         process = 'begin_end'
         activities = ['Begin', 'End']
-        result = searchResults(self.app.Catalog, dict(meta_type='Workitem'))
+        result = self.app.Catalog.searchResults(dict(meta_type='Workitem'))
 
         assert len(result) == 1, "%s workitems listed instead of 1" % len(result)
         result = [o.getObject()
                   for o in result if role in o.getObject().pull_roles]
         assert len(result) == 0, "%s workitems listed instead of 0" % len(result)
         self.of.editActivitiesPullableOnRole(role, process, activities)
-        result = searchResults(self.app.Catalog, dict(meta_type='Workitem'))
+        result = self.app.Catalog.searchResults(dict(meta_type='Workitem'))
         result = [o.getObject()
                   for o in result if role in o.getObject().pull_roles]
         assert len(result) == 1, "%s workitems listed instead of 1" % len(result)

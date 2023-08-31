@@ -8,7 +8,8 @@
 
 """
 from Products.Reportek.scripts import get_zope_site
-from Products.Reportek.catalog import searchResults
+from Products.Reportek.RepUtils import getToolByName
+from Products.Reportek.constants import DEFAULT_CATALOG
 from DateTime import DateTime
 import transaction
 import sys
@@ -27,13 +28,13 @@ def get_envelopes(catalog, inactive_for, limit):
         '_limit': limit
     }
 
-    brains = searchResults(catalog, query)
+    brains = catalog.searchResults(query)
 
     return brains
 
 
 def do_cleanup(site, inactive_for=30, limit=None):
-    catalog = site.Catalog
+    catalog = getToolByName(site, DEFAULT_CATALOG, None)
     engine = site.ReportekEngine
     b_envs = get_envelopes(catalog, inactive_for, limit)
     env_count = 0

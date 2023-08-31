@@ -66,7 +66,6 @@ from Products.Reportek.ContentRegistryPingger import ContentRegistryPingger
 from Products.Reportek.RegistryManagement import (BDRRegistryAPI,
                                                   FGASRegistryAPI)
 from Toolz import Toolz
-from Products.Reportek.catalog import searchResults
 from ZODB.PersistentList import PersistentList
 from ZODB.PersistentMapping import PersistentMapping
 from zope.component import getUtility
@@ -847,8 +846,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         catalog_args = self.get_query_args()
         if not catalog_args:
             return
-
-        envelopes = searchResults(self.Catalog, catalog_args)
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
+        envelopes = catalog.searchResults(catalog_args)
         envelopeObjects = []
         for eBrain in envelopes:
             o = eBrain.getObject()
@@ -865,7 +864,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """
         envelopeObjects = []
         if catalog_args:
-            envelopes = searchResults(self.Catalog, catalog_args)
+            catalog = getToolByName(self, DEFAULT_CATALOG, None)
+            envelopes = catalog.searchResults(catalog_args)
 
             for eBrain in envelopes:
                 obj = eBrain.getObject()
@@ -1016,9 +1016,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 'country': country
             }
 
-            # catalog = self.Catalog
             catalog = getToolByName(self, DEFAULT_CATALOG, None)
-            brains = searchResults(catalog, query)
+            brains = catalog.searchResults(query)
             if not brains:
                 message = fail_pattern % (
                     crole,
@@ -1097,7 +1096,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """ Loops for all the workitems that are in the 'active','inactive',
             'fallout' status and returns their list
         """
-        catalog = getattr(self, constants.DEFAULT_CATALOG)
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
 
         query = {
             'meta_type': 'Workitem',
@@ -1108,7 +1107,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         if how == 'desc':
             query['sort_order'] = 'reverse'
 
-        workitems = searchResults(catalog, query)
+        workitems = catalog.searchResults(query)
 
         if REQUEST is None:
             return [ob.getObject() for ob in workitems]
@@ -1327,11 +1326,11 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             obligation, including the XML files inside
         """
         reslist = []
-        l_catalog = getattr(self, constants.DEFAULT_CATALOG)
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
         l_params = {'meta_type': 'Report Envelope',
                     'dataflow_uris': obligation, 'released': 1}
 
-        for obj in self.__getObjects(searchResults(l_catalog, l_params)):
+        for obj in self.__getObjects(catalog.searchResults(catalog, l_params)):
             res = {'url': obj.absolute_url(0),
                    'title': obj.title,
                    'description': obj.descr,
@@ -1679,12 +1678,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
 
     def getSearchResults(self, **kwargs):
         [kwargs.pop(el) for el in kwargs.keys() if kwargs[el] in [None, '']]
-        catalog = searchResults(self.Catalog, kwargs)
-
-        return catalog
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
+        return catalog.searchResults(kwargs)
 
     def getUniqueValuesFor(self, value):
-        return self.Catalog.uniqueValuesFor(value)
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
+        return catalog.uniqueValuesFor(value)
 
     security.declarePublic('getAvailableLanguages')
 
@@ -1771,12 +1770,12 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 middleware_collections['ro'] += [
                     col for col in colls.get('ro')
                     if col not in middleware_collections['ro']]
-            catalog = getattr(self, constants.DEFAULT_CATALOG)
+            catalog = getToolByName(self, DEFAULT_CATALOG, None)
 
             middleware_collections['rw'] += [
-                br.getObject() for br in searchResults(
-                    catalog, {'meta_type': 'Report Collection',
-                              'id': username})
+                br.getObject() for br in catalog.searchResults(
+                    {'meta_type': 'Report Collection',
+                     'id': username})
                 if not br.getObject() in middleware_collections['rw']]
 
             # check BDR registry
@@ -1792,9 +1791,9 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
             collections['Reporter'] = middleware_collections
             local_roles = ['Auditor', 'ClientFG',
                            'ClientODS', 'ClientCARS', 'ClientHDV']
-            local_r_col = searchResults(catalog,
-                                        {'meta_type': 'Report Collection',
-                                         'local_unique_roles': local_roles})
+            local_r_col = catalog.searchResults(
+                {'meta_type': 'Report Collection',
+                 'local_unique_roles': local_roles})
 
             auditor = [br.getObject() for br in local_r_col
                        if 'Auditor' in br.local_defined_roles.get(username, [])
@@ -1824,7 +1823,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         """ XLS Export for catalog results
         """
         env_objs = []
-
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
         if envelopes:
             envelopes = RepUtils.utConvertToList(envelopes)
             env_objs = [self.unrestrictedTraverse(
@@ -1838,7 +1837,7 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
                 if self.REQUEST.get('sort_order'):
                     catalog_args['sort_order'] = self.REQUEST['sort_order']
             if catalog_args:
-                brains = searchResults(self.Catalog, catalog_args)
+                brains = catalog.searchResults(catalog_args)
                 if brains:
                     env_objs = [brain.getObject() for brain in brains]
 
@@ -2115,7 +2114,8 @@ class ReportekEngine(Folder, Toolz, DataflowsManager, CountriesManager):
         query = {
             'meta_type': 'Report Collection'
         }
-        brains = searchResults(self.Catalog, query)
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
+        brains = catalog.searchResults(query)
         data = PersistentMapping()
         for brain in brains:
             data[brain.getPath()] = {

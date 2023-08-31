@@ -11,7 +11,6 @@ from OFS.SimpleItem import SimpleItem
 from Products.Five.browser import BrowserView
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.CatalogAware import CatalogAware
-from Products.Reportek.catalog import searchResults
 from Products.Reportek.constants import DEFAULT_CATALOG, DATAFLOW_MAPPINGS
 from Products.Reportek.RepUtils import getToolByName
 from ZODB.PersistentList import PersistentList
@@ -36,13 +35,13 @@ class AddForm(BrowserView):
             self.parent.absolute_url() + '/manage_main')
 
     def get_records_by_dataflow(self, dataflow_uri):
-        return searchResults(getToolByName(self, DEFAULT_CATALOG, None),
-                             dict(meta_type='Dataflow Mappings Record',
-                                  dataflow_uri=dataflow_uri,
-                                  path={
-                                      'query': '/{}'.format(DATAFLOW_MAPPINGS),
-                                      'depth': 1
-                                  }))
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
+        return catalog.searchResults(dict(
+            meta_type='Dataflow Mappings Record',
+            dataflow_uri=dataflow_uri,
+            path={
+                'query': '/{}'.format(DATAFLOW_MAPPINGS),
+                'depth': 1}))
 
     def __call__(self, *args, **kwargs):
         if self.request.method == 'POST':

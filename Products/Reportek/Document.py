@@ -45,7 +45,6 @@ from OFS.SimpleItem import SimpleItem
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek.RepUtils import (DFlowCatalogAware, parse_uri,
                                         getToolByName)
-from Products.Reportek.catalog import searchResults
 from Products.Reportek.constants import DEFAULT_CATALOG
 from Products.Reportek.CatalogAware import CatalogAware
 from webdav.common import rfc1123_date
@@ -468,8 +467,8 @@ class Document(CatalogAware, SimpleItem, IconShow.IconShow, DFlowCatalogAware):
     def getFeedbacksForDocument(self):
         """ Returns the Feedback objects associated with this document """
         fbs = []
-        brains = searchResults(
-            getToolByName(self, DEFAULT_CATALOG, None),
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
+        brains = catalog.searchResults(
             dict(meta_type='Report Feedback',
                  document_id=self.id,
                  path=self.getParentNode().absolute_url(1)))

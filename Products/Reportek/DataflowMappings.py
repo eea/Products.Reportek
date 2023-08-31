@@ -3,7 +3,6 @@ from UserList import UserList
 from AccessControl import ClassSecurityInfo
 from AccessControl.Permissions import view_management_screens
 from constants import DATAFLOW_MAPPINGS, ENGINE_ID, DEFAULT_CATALOG
-from Products.Reportek.catalog import searchResults
 from Products.Reportek.RepUtils import getToolByName
 from DataflowMappingsRecord import DataflowMappingsRecord
 from Globals import InitializeClass
@@ -52,9 +51,8 @@ class DataflowMappings(Folder):
                     query['dataflow_uri'] = dataflow_uris
                 else:
                     query['dataflow_uri'] = [dataflow_uris]
-
-            return searchResults(
-                getToolByName(self, DEFAULT_CATALOG, None), query)
+            catalog = getToolByName(self, DEFAULT_CATALOG, None)
+            return catalog.searchResults(query)
 
         return (rec for rec in self.objectValues()
                 if rec.dataflow_uri in dataflow_uris)

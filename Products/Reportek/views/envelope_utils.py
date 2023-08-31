@@ -3,8 +3,9 @@ from urllib import unquote
 
 from base_admin import BaseAdmin
 from DateTime import DateTime
-from Products.Reportek.catalog import searchResults
-from Products.Reportek.constants import WORKFLOW_ENGINE_ID, ENGINE_ID
+from Products.Reportek.RepUtils import getToolByName
+from Products.Reportek.constants import (WORKFLOW_ENGINE_ID,
+                                         ENGINE_ID, DEFAULT_CATALOG)
 from Products.Reportek.rabbitmq import send_message
 
 
@@ -83,8 +84,8 @@ class EnvelopeUtils(BaseAdmin):
             if not isinstance(obligations, list):
                 obligations = [obligations]
             query['dataflow_uris'] = obligations
-
-        brains = searchResults(self.context.Catalog, query)
+        catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
+        brains = catalog.searchResults(query)
 
         wks_data = {}
         tasks = {}
@@ -166,8 +167,8 @@ class EnvelopeUtils(BaseAdmin):
         self.request['op_errors'] = errors
 
     def stuck_envelopes(self):
-        catalog = self.context.Catalog
-        brains = searchResults(catalog, dict(meta_type='Activity'))
+        catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
+        brains = catalog.searchResults(dict(meta_type='Activity'))
         activities = [brain.getObject() for brain in brains]
         # Get all automated activities
         auto_activities = {act.getId() for act in activities
@@ -177,9 +178,8 @@ class EnvelopeUtils(BaseAdmin):
         query = {
             'meta_type': 'Workitem',
             'status': 'inactive'}
-        inactive_brains = searchResults(
-            catalog, query,
-            admin_check=self.should_check_permission())
+        inactive_brains = catalog.searchResults(
+            query, admin_check=self.should_check_permission())
         envelopes = []
         for b in inactive_brains:
             obj = b.getObject()
@@ -222,15 +222,15 @@ class EnvelopeUtils(BaseAdmin):
     def env_long_running_aqa(self):
         """Return a list of envelopes with long running Automatic QA"""
 
-        catalog = self.context.Catalog
+        catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
         query = {
             'meta_type': 'Workitem',
             'activity_id': 'AutomaticQA',
             'status': 'active'
         }
         # Get all active workitems
-        aqa_brains = searchResults(catalog, query,
-                                   admin_check=self.should_check_permission())
+        aqa_brains = catalog.searchResults(
+            query, admin_check=self.should_check_permission())
         try:
             age = int(self.request.get('age', 30))
         except Exception:
@@ -299,13 +299,13 @@ class EnvelopeUtils(BaseAdmin):
                         })
             self.request['op_results'] = results
 
-        catalog = self.context.Catalog
+        catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
         query = {
             'meta_type': 'Report Envelope',
             'wf_status': 'forward'
         }
-        brains = searchResults(catalog, query,
-                               admin_check=self.should_check_permission())
+        brains = catalog.searchResults(
+            query, admin_check=self.should_check_permission())
         envelopes = []
         for b in brains:
             env = b.getObject()

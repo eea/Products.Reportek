@@ -123,32 +123,6 @@ def listAllowedAdminRolesAndUsers(user):
     return result
 
 
-def searchResults(catalog, query, admin_check=False, security=True):
-    """
-        Calls catalog.searchResults with extra arguments that
-        limit the results to what the user is allowed to see.
-    """
-    processQueue()
-    user = getSecurityManager().getUser()
-    if admin_check:
-        user = getSecurityManager().getUser()
-        query['allowedAdminRolesAndUsers'] = listAllowedAdminRolesAndUsers(
-            user)
-        # BDR specific query, return results
-        return catalog.searchResults(**query)
-    if security and REPORTEK_DEPLOYMENT != DEPLOYMENT_BDR:
-        # This cannot be deployed on BDR yet, as the searchresults will be
-        # affected for users with dynamic Owner role.
-        # https://taskman.eionet.europa.eu/issues/118846#note-9
-        query['allowedRolesAndUsers'] = listAllowedAdminRolesAndUsers(user)
-    limit = query.pop('_limit', None)
-    results = catalog.searchResults(**query)
-    if limit:
-        results = list(results)
-        del results[limit:]
-    return results
-
-
 @implementer(IReportekCatalog)
 class ReportekCatalog(ZCatalog):
     id = DEFAULT_CATALOG
@@ -189,17 +163,29 @@ class ReportekCatalog(ZCatalog):
             kw[k] = {'query': kw[k], 'range': usage[6:]}
             del kw[kusage]
 
-    # searchResults has inherited security assertions.
-    def searchResults(self, REQUEST=None, **kw):
+    def searchResults(catalog, query, admin_check=False, security=True):
         """
-            Calls ZCatalog.searchResults with extra arguments that
+            Calls catalog.searchResults with extra arguments that
             limit the results to what the user is allowed to see.
         """
         processQueue()
         user = getSecurityManager().getUser()
-        kw['allowedRolesAndUsers'] = self._listAllowedRolesAndUsers(user)
-
-        return ZCatalog.searchResults(self, REQUEST, **kw)
+        if admin_check:
+            query['allowedAdminRolesAndUsers'] = listAllowedAdminRolesAndUsers(
+                user)
+            # BDR specific query, return results
+            return catalog.searchResults(**query)
+        if security and REPORTEK_DEPLOYMENT != DEPLOYMENT_BDR:
+            # This cannot be deployed on BDR yet, as the searchresults will be
+            # affected for users with dynamic Owner role.
+            # https://taskman.eionet.europa.eu/issues/118846#note-9
+            query['allowedRolesAndUsers'] = listAllowedAdminRolesAndUsers(user)
+        limit = query.pop('_limit', None)
+        results = catalog.searchResults(**query)
+        if limit:
+            results = list(results)
+            del results[limit:]
+        return results
 
     __call__ = searchResults
 

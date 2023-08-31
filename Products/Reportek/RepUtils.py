@@ -842,7 +842,7 @@ class DFlowCatalogAware(object):
     def reindexObjectSecurity(self, skip_self=False):
         """ Reindex security-related indexes on the object.
         """
-        catalog = getattr(self, DEFAULT_CATALOG, None)
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
         if catalog is None:
             return
         path = '/'.join(self.getPhysicalPath())

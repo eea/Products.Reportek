@@ -33,7 +33,6 @@ from Products.Reportek.interfaces import ICollection
 from Products.Reportek import DEPLOYMENT_BDR, REPORTEK_DEPLOYMENT
 from Products.Reportek.config import permission_manage_properties_collections
 from Products.Reportek.constants import DEFAULT_CATALOG
-from Products.Reportek.catalog import searchResults
 from Products.Reportek.rabbitmq import queue_msg
 from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from OFS.Folder import Folder
@@ -269,9 +268,8 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
                                 'roles': [role]
                             }
         # retrieve the local accounts
-        folders = searchResults(catalog,
-                                dict(meta_type=['Report Collection'],
-                                     path=self.absolute_url(1)))
+        folders = catalog.searchResults(dict(meta_type=['Report Collection'],
+                                             path=self.absolute_url(1)))
         for folder in folders:
             context = catalog.getobject(folder.data_record_id_)
             for member, roles in context.get_local_roles():
@@ -1118,7 +1116,8 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
                  'sort_order': 'reverse',
                  'path': {'query': path, 'depth': 1}
                  }
-        envs = searchResults(getToolByName(self, DEFAULT_CATALOG, None), query)
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
+        envs = catalog.searchResults(query)
 
         return envs
 
@@ -1141,7 +1140,8 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
                  'sort_order': sort_order,
                  'path': {'query': path, 'depth': 1}
                  }
-        return searchResults(getToolByName(self, DEFAULT_CATALOG, None), query)
+        catalog = getToolByName(self, DEFAULT_CATALOG, None)
+        return catalog.searchResults(query)
 
     def is_newest_released(self, env_id):
         """ Return True if it's the newest released envelope in the collection

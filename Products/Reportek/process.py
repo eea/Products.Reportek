@@ -13,7 +13,7 @@ from Products.PageTemplates.PageTemplateFile import PageTemplateFile
 from Products.Reportek import constants
 from Products.Reportek.interfaces import IProcess
 from Products.Reportek.CatalogAware import CatalogAware
-from Products.Reportek.catalog import searchResults
+from Products.Reportek.RepUtils import getToolByName
 from transition import transition
 from zope.interface import implements
 
@@ -312,14 +312,15 @@ class process(CatalogAware, Folder):
 
     def manage_delObjects(self, ids=[], REQUEST=None):
         """ override default method to handle better the redirection """
+        catalog = getToolByName(self, constants.DEFAULT_CATALOG, None)
         for activity_id in [id for id in ids
                             if id in self.objectIds('Activity')]:
             # fallout all the workitems that have this activity id
-            for wi in searchResults(self.Catalog,
-                                    dict(meta_type='Workitem',
-                                         process_path=self.absolute_url(1),
-                                         activity_id=activity_id,
-                                         status=['active', 'inactive'])):
+            for wi in catalog.searchResults(
+                dict(meta_type='Workitem',
+                     process_path=self.absolute_url(1),
+                     activity_id=activity_id,
+                     status=['active', 'inactive'])):
                 wi_obj = self.Catalog.getobject(wi.data_record_id_)
                 wi_obj.aq_parent.falloutWorkitem(wi.id)
         Folder.manage_delObjects(self, ids)
