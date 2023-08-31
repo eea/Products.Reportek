@@ -163,7 +163,8 @@ class ReportekCatalog(ZCatalog):
             kw[k] = {'query': kw[k], 'range': usage[6:]}
             del kw[kusage]
 
-    def searchResults(catalog, query, admin_check=False, security=True):
+    def searchResults(self, query, admin_check=False, security=True,
+                      REQUEST=None):
         """
             Calls catalog.searchResults with extra arguments that
             limit the results to what the user is allowed to see.
@@ -174,14 +175,14 @@ class ReportekCatalog(ZCatalog):
             query['allowedAdminRolesAndUsers'] = listAllowedAdminRolesAndUsers(
                 user)
             # BDR specific query, return results
-            return catalog.searchResults(**query)
+            return ZCatalog.searchResults(self, REQUEST, **query)
         if security and REPORTEK_DEPLOYMENT != DEPLOYMENT_BDR:
             # This cannot be deployed on BDR yet, as the searchresults will be
             # affected for users with dynamic Owner role.
             # https://taskman.eionet.europa.eu/issues/118846#note-9
             query['allowedRolesAndUsers'] = listAllowedAdminRolesAndUsers(user)
         limit = query.pop('_limit', None)
-        results = catalog.searchResults(**query)
+        results = ZCatalog.searchResults(self, REQUEST, **query)
         if limit:
             results = list(results)
             del results[limit:]
