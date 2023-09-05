@@ -113,7 +113,7 @@ class RebuildView(BrowserView):
 
         self.request.RESPONSE.redirect(
             catalog.absolute_url() + '/manage_maintenance?manage_tabs_message='
-                + urllib.quote(msg))
+            + urllib.quote(msg))
 
 
 def walk_folder(folder):
