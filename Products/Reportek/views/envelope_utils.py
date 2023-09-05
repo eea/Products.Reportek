@@ -85,7 +85,7 @@ class EnvelopeUtils(BaseAdmin):
                 obligations = [obligations]
             query['dataflow_uris'] = obligations
         catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
-        brains = catalog.searchResults(query)
+        brains = catalog.searchResults(**query)
 
         wks_data = {}
         tasks = {}
@@ -168,7 +168,7 @@ class EnvelopeUtils(BaseAdmin):
 
     def stuck_envelopes(self):
         catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
-        brains = catalog.searchResults(dict(meta_type='Activity'))
+        brains = catalog.searchResults(meta_type='Activity')
         activities = [brain.getObject() for brain in brains]
         # Get all automated activities
         auto_activities = {act.getId() for act in activities
@@ -177,9 +177,9 @@ class EnvelopeUtils(BaseAdmin):
         # Get all inactive workitems
         query = {
             'meta_type': 'Workitem',
-            'status': 'inactive'}
-        inactive_brains = catalog.searchResults(
-            query, admin_check=self.should_check_permission())
+            'status': 'inactive',
+            'admin_check': self.should_check_permission()}
+        inactive_brains = catalog.searchResults(**query)
         envelopes = []
         for b in inactive_brains:
             obj = b.getObject()
@@ -226,11 +226,11 @@ class EnvelopeUtils(BaseAdmin):
         query = {
             'meta_type': 'Workitem',
             'activity_id': 'AutomaticQA',
-            'status': 'active'
+            'status': 'active',
+            'admin_check': self.should_check_permission()
         }
         # Get all active workitems
-        aqa_brains = catalog.searchResults(
-            query, admin_check=self.should_check_permission())
+        aqa_brains = catalog.searchResults(**query)
         try:
             age = int(self.request.get('age', 30))
         except Exception:
@@ -302,10 +302,10 @@ class EnvelopeUtils(BaseAdmin):
         catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
         query = {
             'meta_type': 'Report Envelope',
-            'wf_status': 'forward'
+            'wf_status': 'forward',
+            'admin_check': self.should_check_permission()
         }
-        brains = catalog.searchResults(
-            query, admin_check=self.should_check_permission())
+        brains = catalog.searchResults(**query)
         envelopes = []
         for b in brains:
             env = b.getObject()

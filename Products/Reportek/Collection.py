@@ -268,7 +268,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
                                 'roles': [role]
                             }
         # retrieve the local accounts
-        folders = catalog.searchResults(dict(meta_type=['Report Collection'],
+        folders = catalog.searchResults(**dict(meta_type=['Report Collection'],
                                              path=self.absolute_url(1)))
         for folder in folders:
             context = catalog.getobject(folder.data_record_id_)
@@ -1117,7 +1117,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
                  'path': {'query': path, 'depth': 1}
                  }
         catalog = getToolByName(self, DEFAULT_CATALOG, None)
-        envs = catalog.searchResults(query)
+        envs = catalog.searchResults(**query)
 
         return envs
 
@@ -1141,7 +1141,7 @@ class Collection(CatalogAware, Folder, Toolz, DFlowCatalogAware,
                  'path': {'query': path, 'depth': 1}
                  }
         catalog = getToolByName(self, DEFAULT_CATALOG, None)
-        return catalog.searchResults(query)
+        return catalog.searchResults(**query)
 
     def is_newest_released(self, env_id):
         """ Return True if it's the newest released envelope in the collection

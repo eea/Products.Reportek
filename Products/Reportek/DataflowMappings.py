@@ -52,7 +52,7 @@ class DataflowMappings(Folder):
                 else:
                     query['dataflow_uri'] = [dataflow_uris]
             catalog = getToolByName(self, DEFAULT_CATALOG, None)
-            return catalog.searchResults(query)
+            return catalog.searchResults(**query)
 
         return (rec for rec in self.objectValues()
                 if rec.dataflow_uri in dataflow_uris)

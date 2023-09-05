@@ -871,8 +871,6 @@ class DFlowCatalogAware(object):
             if s is None:
                 ob._p_deactivate()
 
-        print counter
-
 
 def parse_uri(uri, replace=False):
     """ Use only http uris if QA http resources is checked in ReportekEngine

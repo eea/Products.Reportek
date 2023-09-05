@@ -36,7 +36,7 @@ class AddForm(BrowserView):
 
     def get_records_by_dataflow(self, dataflow_uri):
         catalog = getToolByName(self, DEFAULT_CATALOG, None)
-        return catalog.searchResults(dict(
+        return catalog.searchResults(**dict(
             meta_type='Dataflow Mappings Record',
             dataflow_uri=dataflow_uri,
             path={

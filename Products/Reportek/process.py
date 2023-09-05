@@ -316,7 +316,7 @@ class process(CatalogAware, Folder):
         for activity_id in [id for id in ids
                             if id in self.objectIds('Activity')]:
             # fallout all the workitems that have this activity id
-            for wi in catalog.searchResults(
+            for wi in catalog.searchResults(**
                 dict(meta_type='Workitem',
                      process_path=self.absolute_url(1),
                      activity_id=activity_id,

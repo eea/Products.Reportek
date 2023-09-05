@@ -47,7 +47,7 @@ class ReportekApi(BrowserView):
         if reportingdate:
             s_query['reportingdate'] = reportingdate
         catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
-        brains = catalog.searchResults(s_query)
+        brains = catalog.searchResults(**s_query)
         for brain in brains:
             env = brain.getObject()
             envelope_properties = {
@@ -137,7 +137,7 @@ class ReportekApi(BrowserView):
             'meta_type': 'Report Collection'
         }
         catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
-        brains = catalog.searchResults(query)
+        brains = catalog.searchResults(**query)
         for brain in brains:
             coll = brain.getObject()
             exp_data = {}

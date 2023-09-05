@@ -336,7 +336,7 @@ class EnvelopesAPI(BrowserView):
         def getbID(b):
             return int(b.id)
         catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
-        brains = list(catalog.searchResults(query))
+        brains = list(catalog.searchResults(**query))
 
         if children_type == 'Workitem':
             brains.sort(key=getbID)
@@ -570,7 +570,7 @@ class EnvelopesAPI(BrowserView):
             })
         if query:
             catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
-            brains = list(catalog.searchResults(query))
+            brains = list(catalog.searchResults(**query))
 
             if len(brains) > self.MAX_RESULTS:
                 error = 'There are too many possible results for your query. '\

@@ -161,7 +161,7 @@ class InvalidQueueOperation(Exception):
 class IReportekCatalog(Interface):
 
     # searchResults inherits security assertions from ZCatalog.
-    def searchResults(REQUEST=None, **kw):
+    def searchResults(**kw):
         """ Decorate ZCatalog.searchResults() with extra arguments
 
         o The extra arguments that the results to what the user would be
@@ -169,7 +169,7 @@ class IReportekCatalog(Interface):
         """
 
     # __call__ inherits security assertions from ZCatalog.
-    def __call__(REQUEST=None, **kw):
+    def __call__(**kw):
         """Alias for searchResults().
         """
 

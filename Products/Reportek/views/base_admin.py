@@ -157,9 +157,9 @@ class BaseAdmin(BrowserView):
             query['local_defined_users'] = users
         if path:
             query['path'] = path
+        query['admin_check'] = self.should_check_permission()
         catalog = getToolByName(self.context, constants.DEFAULT_CATALOG, None)
-        return catalog.searchResults(
-            query, admin_check=self.should_check_permission())
+        return catalog.searchResults(**query)
 
     def get_collections(self):
         obligations = self.request.get('dataflow_uris', [])

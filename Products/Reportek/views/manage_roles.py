@@ -30,7 +30,7 @@ class ManageRoles(BaseAdmin):
     def get_user_localroles(self, username):
         results = []
         catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
-        for brain in catalog.searchResults(
+        for brain in catalog.searchResults(**
                 dict(meta_type='Report Collection')):
             coll = brain.getObject()
             local_roles = coll.get_local_roles_for_userid(username)
@@ -302,7 +302,7 @@ class ManageRoles(BaseAdmin):
         groups = [group[0] for group in groups]
         group_prefixes = tuple({group.split('-')[0] for group in groups})
         catalog = getToolByName(self.context, DEFAULT_CATALOG, None)
-        brains = catalog.searchResults(query)
+        brains = catalog.searchResults(**query)
         for brain in brains:
             local_defined_users = brain.local_defined_users
             if local_defined_users:

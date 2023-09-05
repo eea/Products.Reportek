@@ -36,7 +36,7 @@ class EnvelopesRDF(BrowserView):
 </rdf:Description>""" % s_url)
         catalog = getToolByName(self.context, constants.DEFAULT_CATALOG, None)
 
-        brains = catalog.searchResults(query)
+        brains = catalog.searchResults(**query)
         for brain in brains:
             try:
                 res_a("""<cr:File rdf:about="%s%s"/>""" % (

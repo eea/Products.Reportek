@@ -28,7 +28,7 @@ def get_envelopes(catalog, inactive_for, limit):
         '_limit': limit
     }
 
-    brains = catalog.searchResults(query)
+    brains = catalog.searchResults(**query)
 
     return brains
 

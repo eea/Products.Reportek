@@ -813,7 +813,7 @@ class OpenFlowEngine(Folder, Toolz):
                     'meta_type': 'Report Collection',
                     'dataflow_uris': dataflow_uris
                 }
-                results = catalog.searchResults(query)
+                results = catalog.searchResults(**query)
 
         return results
 
